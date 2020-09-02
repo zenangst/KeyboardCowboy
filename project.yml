@@ -1,4 +1,4 @@
-name: Keyboard Cowboy
+name: Keyboard-Cowboy
 options:
   usesTabs: false
   indentWidth: 2
@@ -9,7 +9,7 @@ configFiles:
   Debug: XcodeGen/Debug.xcconfig
   Release: XcodeGen/Release.xcconfig
 targets:
-  Keyboard Cowboy:
+  Keyboard-Cowboy:
     type: application
     platform: "macOS"
     dependencies:
@@ -28,6 +28,18 @@ targets:
       path: App/Resources/com.zenangst.Keyboard-Cowboy.entitlements
       properties:
         com.apple.security.automation.apple-events: true
+  UnitTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - UnitTests
+    scheme: {}
+    dependencies:
+      - target: Keyboard-Cowboy
+    settings:
+      BUNDLE_LOADER: $(TEST_HOST)
+      PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.UnitTests"
+      TEST_HOST: $(BUILT_PRODUCTS_DIR)/Keyboard-Cowboy.app/Contents/MacOS/Keyboard-Cowboy
   LogicFramework:
     type: framework
     platform: "macOS"
@@ -54,9 +66,19 @@ schemes:
   Keyboard-Cowboy:
     build:
       targets:
-        Keyboard Cowboy: all
+        Keyboard-Cowboy: all
     run:
       config: Debug
+    test:
+      config: Debug
+      coverageTargets:
+        - Keyboard-Cowboy
+        - LogicFramework
+        - ViewKit
+      targets:
+        - name: UnitTests
+          parallelizable: true
+          randomExecutionOrder: true
     profile:
       config: Release
     analyze:
