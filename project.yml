@@ -1,0 +1,71 @@
+name: Keyboard Cowboy
+options:
+  usesTabs: false
+  indentWidth: 2
+  tabWidth: 2
+  deploymentTarget:
+    macOS: "10.15"
+configFiles:
+  Debug: XcodeGen/Debug.xcconfig
+  Release: XcodeGen/Release.xcconfig
+targets:
+  Keyboard Cowboy:
+    type: application
+    platform: "macOS"
+    dependencies:
+      - target: ViewKit
+      - target: LogicFramework
+    sources:
+      - App
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
+        MARKETING_VERSION: 0.0.1
+        CURRENT_PROJECT_VERSION: 1
+        INFOPLIST_FILE: "App/Resources/Info.plist"
+        CODE_SIGN_IDENTITY: "-"
+    entitlements:
+      path: App/Resources/com.zenangst.Keyboard-Cowboy.entitlements
+      properties:
+        com.apple.security.automation.apple-events: true
+  LogicFramework:
+    type: framework
+    platform: "macOS"
+    sources:
+      - LogicFramework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.Logic"
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        INFOPLIST_FILE: "LogicFramework/Resources/Info.plist"
+  ViewKit:
+    type: framework
+    platform: "macOS"
+    sources:
+      - ViewKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.ViewKit"
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        INFOPLIST_FILE: "ViewKit/Resources/Info.plist"
+schemes:
+  Keyboard-Cowboy:
+    build:
+      targets:
+        Keyboard Cowboy: all
+    run:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+      revealArchiveInOrganizer: false
+fileGroups:
+  - project.yml
+  - .gitignore
+  - XcodeGen
+  - README.md
