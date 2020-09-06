@@ -18,7 +18,12 @@ public enum Rule: Codable, Hashable {
     } else if let value = try? container.decode([Day].self, forKey: .days) {
       self = .days(value)
     } else {
-      throw DecodingError.unableToDecode
+      throw DecodingError.dataCorrupted(
+        DecodingError.Context(
+          codingPath: container.codingPath,
+          debugDescription: "Unabled to decode enum."
+        )
+      )
     }
   }
 
