@@ -42,13 +42,13 @@ public enum Rule: Codable, Hashable {
   }
 
   public enum Day: Int, Codable, Hashable {
-    case Monday = 0
-    case Tuesday = 1
-    case Wednesday = 2
-    case Thursday = 3
-    case Friday = 4
-    case Saturday = 5
-    case Sunday = 6
+    case monday = 0
+    case tuesday = 1
+    case wednesday = 2
+    case thursday = 3
+    case friday = 4
+    case saturday = 5
+    case sunday = 6
   }
 
 }

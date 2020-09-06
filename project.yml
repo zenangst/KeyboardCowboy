@@ -5,6 +5,8 @@ options:
   tabWidth: 2
   deploymentTarget:
     macOS: "10.15"
+  preGenCommand: "sh XcodeGen/preGenCommand.sh"
+  postGenCommand: "sh XcodeGen/postGenCommand.sh"
 configFiles:
   Debug: XcodeGen/Debug.xcconfig
   Release: XcodeGen/Release.xcconfig
@@ -28,6 +30,9 @@ targets:
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "App/Resources/Info.plist"
         CODE_SIGN_IDENTITY: "-"
+    preBuildScripts:
+      - path: XcodeGen/Scripts/swiftlint.sh
+        name: SwiftLint
     entitlements:
       path: App/Resources/com.zenangst.Keyboard-Cowboy.entitlements
       properties:
@@ -36,7 +41,11 @@ targets:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - UnitTests
+      - path: UnitTests
+        includes:
+          - Sources
+        excludes:
+          - Sources/__Snapshots__
     scheme: {}
     dependencies:
       - target: Keyboard-Cowboy
@@ -93,7 +102,8 @@ schemes:
       config: Release
       revealArchiveInOrganizer: false
 fileGroups:
-  - project.yml
   - .gitignore
-  - XcodeGen
+  - .swiftlint.yml
   - README.md
+  - XcodeGen
+  - project.yml
