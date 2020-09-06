@@ -24,7 +24,12 @@ public enum Command: Codable, Hashable {
     } else if let command = try? container.decode(ScriptCommand.self, forKey: .script) {
       self = .script(command)
     } else {
-      throw DecodingError.unableToDecode
+      throw DecodingError.dataCorrupted(
+        DecodingError.Context(
+          codingPath: container.codingPath,
+          debugDescription: "Unabled to decode enum."
+        )
+      )
     }
   }
 
