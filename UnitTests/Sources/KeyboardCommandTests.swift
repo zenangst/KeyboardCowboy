@@ -9,21 +9,11 @@ class KeyboardCommandTests: XCTestCase {
   }
 
   func testJSONEncoding() throws {
-    let subject = ModelFactory().keyboardCommand()
-    let data = try JSONEncoder().encode(subject)
-    guard let result = String(data: data, encoding: .utf8) else {
-      throw KeyboardCommandTestError.unableToProduceString
-    }
-    assertSnapshot(matching: result, as: .dump)
+    assertSnapshot(matching: try ModelFactory().keyboardCommand().toString(), as: .dump)
   }
 
   func testJSONDecoding() throws {
-    let json = [
-      "output": "A"
-    ]
-    let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-    let result = try JSONDecoder().decode(KeyboardCommand.self, from: data)
-
-    XCTAssertEqual(result, ModelFactory().keyboardCommand())
+    let json = ["output": "A"]
+    XCTAssertEqual(try KeyboardCommand.decode(from: json), ModelFactory().keyboardCommand())
   }
 }

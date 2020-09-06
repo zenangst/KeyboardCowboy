@@ -9,12 +9,7 @@ class ScriptCommandTests: XCTestCase {
   }
 
   func testJSONEncoding() throws {
-    let subject = ModelFactory().scriptCommands()
-    let data = try JSONEncoder().encode(subject)
-    guard let result = String(data: data, encoding: .utf8) else {
-      throw ScriptCommandTestError.unableToProduceString
-    }
-    assertSnapshot(matching: result, as: .dump)
+    assertSnapshot(matching: try ModelFactory().scriptCommands().toString(), as: .dump)
   }
 
   func testJSONDecoding() throws {
@@ -24,9 +19,6 @@ class ScriptCommandTests: XCTestCase {
       ["kind": ["shell": ["inline": "#!/usr/bin/env fish"]]],
       ["kind": ["shell": ["path": "file:///tmp/file"]]]
     ]
-    let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-    let result = try JSONDecoder().decode([ScriptCommand].self, from: data)
-
-    XCTAssertEqual(result, ModelFactory().scriptCommands())
+    XCTAssertEqual(try [ScriptCommand].decode(from: json), ModelFactory().scriptCommands())
   }
 }
