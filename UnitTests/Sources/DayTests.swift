@@ -21,7 +21,7 @@ class DayTests: XCTestCase {
   func testJSONDecoding() throws {
     let json = [0,1,2,3,4,5,6]
     let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-    let result = try JSONDecoder().decode([Day].self, from: data)
+    let result = try JSONDecoder().decode([Rule.Day].self, from: data)
 
     XCTAssertEqual(result, ModelFactory().days())
   }
