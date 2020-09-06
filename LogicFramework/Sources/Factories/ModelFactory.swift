@@ -11,7 +11,7 @@ class ModelFactory {
     .init(application: application())
   }
 
-  func days() -> [Day] {
+  func days() -> [Rule.Day] {
     [.Monday, .Tuesday, .Wednesday, .Thursday, .Friday, .Saturday, .Sunday]
   }
 

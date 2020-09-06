@@ -4,7 +4,6 @@ public enum Rule: Codable, Hashable {
   /// Activate when an application is front-most
   case application(Application)
   /// Only active during certain days
-  /// TODO: This case needs a value to be passed in
   case days([Day])
 
   enum CodingKeys: CodingKey {
@@ -32,4 +31,15 @@ public enum Rule: Codable, Hashable {
       try container.encode(days, forKey: .days)
     }
   }
+
+  public enum Day: Int, Codable, Hashable {
+    case Monday = 0
+    case Tuesday = 1
+    case Wednesday = 2
+    case Thursday = 3
+    case Friday = 4
+    case Saturday = 5
+    case Sunday = 6
+  }
+
 }
