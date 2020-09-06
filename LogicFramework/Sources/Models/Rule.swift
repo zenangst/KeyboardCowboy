@@ -13,11 +13,16 @@ public enum Rule: Codable, Hashable {
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    if let value = try? container.decode(Application.self, forKey: .application) {
+    let key = container.allKeys.first
+
+    switch key {
+    case .application:
+      let value = try container.decode(Application.self, forKey: .application)
       self = .application(value)
-    } else if let value = try? container.decode([Day].self, forKey: .days) {
+    case .days:
+      let value = try container.decode([Day].self, forKey: .days)
       self = .days(value)
-    } else {
+    case .none:
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
           codingPath: container.codingPath,
