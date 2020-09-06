@@ -15,15 +15,22 @@ public enum Command: Codable, Hashable {
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    if let command = try? container.decode(ApplicationCommand.self, forKey: .application) {
+    let key = container.allKeys.first
+
+    switch key {
+    case .application:
+      let command = try container.decode(ApplicationCommand.self, forKey: .application)
       self = .application(command)
-    } else if let command = try? container.decode(KeyboardCommand.self, forKey: .keyboard) {
+    case .keyboard:
+      let command = try container.decode(KeyboardCommand.self, forKey: .keyboard)
       self = .keyboard(command)
-    } else if let command = try? container.decode(OpenCommand.self, forKey: .open) {
+    case .open:
+      let command = try container.decode(OpenCommand.self, forKey: .open)
       self = .open(command)
-    } else if let command = try? container.decode(ScriptCommand.self, forKey: .script) {
+    case .script:
+      let command = try container.decode(ScriptCommand.self, forKey: .script)
       self = .script(command)
-    } else {
+    case .none:
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
           codingPath: container.codingPath,
