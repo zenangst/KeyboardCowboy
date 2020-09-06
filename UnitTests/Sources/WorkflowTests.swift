@@ -9,12 +9,7 @@ class WorkflowTests: XCTestCase {
   }
 
   func testJSONEncoding() throws {
-    let subject = ModelFactory().workflow()
-    let data = try JSONEncoder().encode(subject)
-    guard let result = String(data: data, encoding: .utf8) else {
-      throw WorkflowError.unableToProduceString
-    }
-    assertSnapshot(matching: result, as: .dump)
+    assertSnapshot(matching: try ModelFactory().workflow().toString(), as: .dump)
   }
 
   func testJSONDecoding() throws {
@@ -28,9 +23,6 @@ class WorkflowTests: XCTestCase {
       ]],
       "name": "Open/active Finder"
     ]
-    let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-    let result = try JSONDecoder().decode(Workflow.self, from: data)
-
-    XCTAssertEqual(result, ModelFactory().workflow())
+    XCTAssertEqual(try Workflow.decode(from: json), ModelFactory().workflow())
   }
 }

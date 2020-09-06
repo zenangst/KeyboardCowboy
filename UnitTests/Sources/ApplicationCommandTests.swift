@@ -9,12 +9,7 @@ class ApplicationCommandTests: XCTestCase {
   }
 
   func testJSONEncoding() throws {
-    let subject = ModelFactory().applicationCommand()
-    let data = try JSONEncoder().encode(subject)
-    guard let result = String(data: data, encoding: .utf8) else {
-      throw ApplicationCommandTestError.unableToProduceString
-    }
-    assertSnapshot(matching: result, as: .dump)
+    assertSnapshot(matching: try ModelFactory().applicationCommand().toString(), as: .dump)
   }
 
   func testJSONDecoding() throws {
@@ -25,9 +20,6 @@ class ApplicationCommandTests: XCTestCase {
         "path": "/System/Library/CoreServices/Finder.app"
       ]
     ]
-    let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-    let result = try JSONDecoder().decode(ApplicationCommand.self, from: data)
-
-    XCTAssertEqual(result, ModelFactory().applicationCommand())
+    XCTAssertEqual(try ApplicationCommand.decode(from: json), ModelFactory().applicationCommand())
   }
 }
