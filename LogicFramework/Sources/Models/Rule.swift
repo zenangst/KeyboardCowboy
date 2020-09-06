@@ -13,9 +13,8 @@ public enum Rule: Codable, Hashable {
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    let key = container.allKeys.first
 
-    switch key {
+    switch container.allKeys.first {
     case .application:
       let value = try container.decode(Application.self, forKey: .application)
       self = .application(value)
