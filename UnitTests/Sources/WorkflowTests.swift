@@ -21,7 +21,9 @@ class WorkflowTests: XCTestCase {
     let json: [String: AnyHashable] = [
       "commands": [[
         "applicationCommand": [
-          "application": ["name": "Finder", "bundleIdentifier": "com.apple.Finder", "path": "/System/Library/CoreServices/Finder.app"]
+          "application": ["name": "Finder",
+                          "bundleIdentifier": "com.apple.Finder",
+                          "path": "/System/Library/CoreServices/Finder.app"]
         ]
       ]],
       "name": "Open/active Finder"
