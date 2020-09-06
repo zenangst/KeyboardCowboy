@@ -15,9 +15,8 @@ public enum Command: Codable, Hashable {
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    let key = container.allKeys.first
 
-    switch key {
+    switch container.allKeys.first {
     case .application:
       let command = try container.decode(ApplicationCommand.self, forKey: .application)
       self = .application(command)

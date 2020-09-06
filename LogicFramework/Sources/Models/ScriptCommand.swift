@@ -14,15 +14,14 @@ public struct ScriptCommand: Codable, Hashable {
 
     public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
-      let key = container.allKeys.first
 
-      switch key {
+      switch container.allKeys.first {
       case .appleScript:
         let source = try container.decode(Source.self, forKey: .appleScript)
         self = .appleScript(source)
       case .shell:
-        let source = try container.decode(Source.self, forKey: .appleScript)
-        self = .appleScript(source)
+        let source = try container.decode(Source.self, forKey: .shell)
+        self = .shell(source)
       case .none:
         throw DecodingError.dataCorrupted(
           DecodingError.Context(
