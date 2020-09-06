@@ -9,12 +9,7 @@ class GroupTests: XCTestCase {
   }
 
   func testJSONEncoding() throws {
-    let subject = ModelFactory().group()
-    let data = try JSONEncoder().encode(subject)
-    guard let result = String(data: data, encoding: .utf8) else {
-      throw GroupError.unableToProduceString
-    }
-    assertSnapshot(matching: result, as: .dump)
+    assertSnapshot(matching: try ModelFactory().group().toString(), as: .dump)
   }
 
   func testJSONDecoding() throws {
@@ -41,9 +36,6 @@ class GroupTests: XCTestCase {
         ]
       ]
     ]
-    let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-    let result = try JSONDecoder().decode(Group.self, from: data)
-
-    XCTAssertEqual(result, ModelFactory().group())
+    XCTAssertEqual(try Group.decode(from: json), ModelFactory().group())
   }
 }

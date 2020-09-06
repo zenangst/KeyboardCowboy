@@ -9,12 +9,7 @@ class RuleTests: XCTestCase {
   }
 
   func testJSONEncoding() throws {
-    let subject = ModelFactory().rules()
-    let data = try JSONEncoder().encode(subject)
-    guard let result = String(data: data, encoding: .utf8) else {
-      throw RuleTestError.unableToProduceString
-    }
-    assertSnapshot(matching: result, as: .dump)
+    assertSnapshot(matching: try ModelFactory().rules().toString(), as: .dump)
   }
 
   func testJSONDecoding() throws {
@@ -26,9 +21,6 @@ class RuleTests: XCTestCase {
       ]],
      ["days": [0, 1, 2, 3, 4, 5, 6]]
     ]
-    let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-    let result = try JSONDecoder().decode([Rule].self, from: data)
-
-    XCTAssertEqual(result, ModelFactory().rules())
+    XCTAssertEqual(try [Rule].decode(from: json), ModelFactory().rules())
   }
 }
