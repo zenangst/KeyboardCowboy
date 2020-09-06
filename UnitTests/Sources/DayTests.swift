@@ -1,5 +1,6 @@
-import Foundation
 @testable import LogicFramework
+import Foundation
+import SnapshotTesting
 import XCTest
 
 class DayTests: XCTestCase {
@@ -13,9 +14,7 @@ class DayTests: XCTestCase {
     guard let result = String(data: data, encoding: .utf8) else {
       throw DayTestError.unableToProduceString
     }
-    let expected = "[0,1,2,3,4,5,6]"
-
-    XCTAssertEqual(result.replacingOccurrences(of: "\\", with: ""), expected)
+    assertSnapshot(matching: result, as: .dump)
   }
 
   func testJSONDecoding() throws {

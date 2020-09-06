@@ -1,5 +1,6 @@
-import Foundation
 @testable import LogicFramework
+import Foundation
+import SnapshotTesting
 import XCTest
 
 class KeyboardCommandTests: XCTestCase {
@@ -13,9 +14,7 @@ class KeyboardCommandTests: XCTestCase {
     guard let result = String(data: data, encoding: .utf8) else {
       throw KeyboardCommandTestError.unableToProduceString
     }
-    let expected = "{\"output\":\"A\"}"
-
-    XCTAssertEqual(result.replacingOccurrences(of: "\\", with: ""), expected)
+    assertSnapshot(matching: result, as: .dump)
   }
 
   func testJSONDecoding() throws {

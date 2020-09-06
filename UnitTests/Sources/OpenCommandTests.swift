@@ -1,5 +1,6 @@
-import Foundation
 @testable import LogicFramework
+import Foundation
+import SnapshotTesting
 import XCTest
 
 class OpenCommandTests: XCTestCase {
@@ -13,9 +14,7 @@ class OpenCommandTests: XCTestCase {
     guard let result = String(data: data, encoding: .utf8) else {
       throw OpenCommandTestError.unableToProduceString
     }
-    let expected = "{\"application\":{\"name\":\"Finder\",\"bundleIdentifier\":\"com.apple.Finder\",\"path\":\"/System/Library/CoreServices/Finder.app\"},\"url\":\"~/Desktop/new_real_final_draft_Copy_42.psd\"}"
-
-    XCTAssertEqual(result.replacingOccurrences(of: "\\", with: ""), expected)
+    assertSnapshot(matching: result, as: .dump)
   }
 
   func testJSONDecoding() throws {

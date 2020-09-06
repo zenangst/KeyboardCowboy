@@ -1,0 +1,1 @@
+- "[{\"kind\":{\"appleScript\":{\"inline\":\"#!\\/usr\\/bin\\/env fish\"}}},{\"kind\":{\"appleScript\":{\"path\":\"file:\\/\\/\\/tmp\\/file\"}}},{\"kind\":{\"shell\":{\"inline\":\"#!\\/usr\\/bin\\/env fish\"}}},{\"kind\":{\"shell\":{\"path\":\"file:\\/\\/\\/tmp\\/file\"}}}]"

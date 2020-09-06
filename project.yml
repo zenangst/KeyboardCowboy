@@ -8,6 +8,10 @@ options:
 configFiles:
   Debug: XcodeGen/Debug.xcconfig
   Release: XcodeGen/Release.xcconfig
+packages:
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    from: 1.8.2
 targets:
   Keyboard-Cowboy:
     type: application
@@ -36,6 +40,7 @@ targets:
     scheme: {}
     dependencies:
       - target: Keyboard-Cowboy
+      - package: SnapshotTesting
     settings:
       BUNDLE_LOADER: $(TEST_HOST)
       PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.UnitTests"
