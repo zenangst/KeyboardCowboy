@@ -1,5 +1,6 @@
-import Foundation
 @testable import LogicFramework
+import Foundation
+import SnapshotTesting
 import XCTest
 
 class WorkflowTests: XCTestCase {
@@ -13,9 +14,7 @@ class WorkflowTests: XCTestCase {
     guard let result = String(data: data, encoding: .utf8) else {
       throw WorkflowError.unableToProduceString
     }
-    let expected = "{\"commands\":[{\"applicationCommand\":{\"application\":{\"name\":\"Finder\",\"bundleIdentifier\":\"com.apple.Finder\",\"path\":\"/System/Library/CoreServices/Finder.app\"}}}],\"name\":\"Open/active Finder\"}"
-
-    XCTAssertEqual(result.replacingOccurrences(of: "\\", with: ""), expected)
+    assertSnapshot(matching: result, as: .dump)
   }
 
   func testJSONDecoding() throws {

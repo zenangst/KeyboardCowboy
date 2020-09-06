@@ -1,5 +1,6 @@
-import Foundation
 @testable import LogicFramework
+import Foundation
+import SnapshotTesting
 import XCTest
 
 class ScriptCommandTests: XCTestCase {
@@ -13,9 +14,7 @@ class ScriptCommandTests: XCTestCase {
     guard let result = String(data: data, encoding: .utf8) else {
       throw ScriptCommandTestError.unableToProduceString
     }
-    let expected = "[{\"kind\":{\"appleScript\":{\"inline\":\"#!/usr/bin/env fish\"}}},{\"kind\":{\"appleScript\":{\"path\":\"file:///tmp/file\"}}},{\"kind\":{\"shell\":{\"inline\":\"#!/usr/bin/env fish\"}}},{\"kind\":{\"shell\":{\"path\":\"file:///tmp/file\"}}}]"
-
-    XCTAssertEqual(result.replacingOccurrences(of: "\\", with: ""), expected)
+    assertSnapshot(matching: result, as: .dump)
   }
 
   func testJSONDecoding() throws {

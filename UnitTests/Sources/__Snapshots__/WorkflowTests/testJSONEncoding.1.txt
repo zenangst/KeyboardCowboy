@@ -1,0 +1,1 @@
+- "{\"commands\":[{\"applicationCommand\":{\"application\":{\"name\":\"Finder\",\"bundleIdentifier\":\"com.apple.Finder\",\"path\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\"}}}],\"name\":\"Open\\/active Finder\"}"

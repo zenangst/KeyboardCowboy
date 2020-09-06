@@ -1,5 +1,6 @@
-import Foundation
 @testable import LogicFramework
+import Foundation
+import SnapshotTesting
 import XCTest
 
 class ApplicationTests: XCTestCase {
@@ -13,9 +14,7 @@ class ApplicationTests: XCTestCase {
     guard let result = String(data: data, encoding: .utf8) else {
       throw ApplicationTestError.unableToProduceString
     }
-    let expected = "{\"name\":\"Finder\",\"bundleIdentifier\":\"com.apple.Finder\",\"path\":\"/System/Library/CoreServices/Finder.app\"}"
-
-    XCTAssertEqual(result.replacingOccurrences(of: "\\", with: ""), expected)
+    assertSnapshot(matching: result, as: .dump)
   }
 
   func testJSONDecoding() throws {
