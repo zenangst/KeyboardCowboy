@@ -26,13 +26,15 @@ class GroupTests: XCTestCase {
           "bundleIdentifier": "com.apple.Finder",
           "path": "/System/Library/CoreServices/Finder.app"
         ]],
-       ["days": [0,1,2,3,4,5,6]]
+       ["days": [0, 1, 2, 3, 4, 5, 6]]
       ],
       "workflows": [
         [
           "commands": [[
             "applicationCommand": [
-              "application": ["name": "Finder", "bundleIdentifier": "com.apple.Finder", "path": "/System/Library/CoreServices/Finder.app"]
+              "application": ["name": "Finder",
+                              "bundleIdentifier": "com.apple.Finder",
+                              "path": "/System/Library/CoreServices/Finder.app"]
             ]
           ]],
           "name": "Open/active Finder"

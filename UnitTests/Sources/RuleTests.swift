@@ -24,7 +24,7 @@ class RuleTests: XCTestCase {
         "bundleIdentifier": "com.apple.Finder",
         "path": "/System/Library/CoreServices/Finder.app"
       ]],
-     ["days": [0,1,2,3,4,5,6]]
+     ["days": [0, 1, 2, 3, 4, 5, 6]]
     ]
     let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
     let result = try JSONDecoder().decode([Rule].self, from: data)

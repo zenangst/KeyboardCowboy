@@ -1,0 +1,8 @@
+included:
+  - App/Sources
+  - LogicFramework/Sources
+  - UnitTests/Sources
+  - ViewKit/Sources
+disabled_rules:
+  - nesting
+  - identifier_name

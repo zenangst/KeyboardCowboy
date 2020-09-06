@@ -12,7 +12,7 @@ class ModelFactory {
   }
 
   func days() -> [Rule.Day] {
-    [.Monday, .Tuesday, .Wednesday, .Thursday, .Friday, .Saturday, .Sunday]
+    [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
   }
 
   func group() -> Group {
