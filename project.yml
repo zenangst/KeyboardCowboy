@@ -76,6 +76,7 @@ targets:
         MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "ViewKit/Resources/Info.plist"
+        EXCLUDED_ARCHS: "arm64"
 schemes:
   Keyboard-Cowboy:
     build:
