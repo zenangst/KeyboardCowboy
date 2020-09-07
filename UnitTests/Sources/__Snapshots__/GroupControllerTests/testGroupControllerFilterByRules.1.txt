@@ -1,0 +1,37 @@
+▿ 3 elements
+  ▿ Group
+    - name: "Group: Only when Xcode is active"
+    ▿ rules: 1 element
+      ▿ Rule
+        ▿ application: Application
+          - bundleIdentifier: "com.apple.dt.Xcode"
+          - name: "Xcode"
+          - path: "path/to/Finder"
+    ▿ workflows: 1 element
+      ▿ Workflow
+        - combinations: 0 elements
+        - commands: 0 elements
+        - name: "Xcode workflow"
+  ▿ Group
+    - name: "Group: Global Xcode workflow"
+    - rules: 0 elements
+    ▿ workflows: 1 element
+      ▿ Workflow
+        - combinations: 0 elements
+        - commands: 0 elements
+        - name: "Open Xcode"
+  ▿ Group
+    - name: "Group: Day-based rule"
+    ▿ rules: 1 element
+      ▿ Rule
+        ▿ days: 5 elements
+          - Day.monday
+          - Day.tuesday
+          - Day.wednesday
+          - Day.thursday
+          - Day.friday
+    ▿ workflows: 1 element
+      ▿ Workflow
+        - combinations: 0 elements
+        - commands: 0 elements
+        - name: "Open Time tracker"

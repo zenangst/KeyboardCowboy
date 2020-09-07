@@ -50,5 +50,4 @@ public enum Rule: Codable, Hashable {
     case saturday = 5
     case sunday = 6
   }
-
 }
