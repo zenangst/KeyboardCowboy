@@ -20,26 +20,14 @@ struct WorkflowList: View {
             tag: workflow,
             selection: $selection
           ) {
-            HStack {
-              VStack(alignment: .leading) {
-                Text(workflow.name)
-                  .foregroundColor(.primary)
-                Text("\(workflow.commands.count) commands")
-                  .foregroundColor(.secondary)
-              }
-              Spacer()
-              Text("􀍟")
-                .font(.title)
-                .foregroundColor(.primary)
-            }
-            .padding(.vertical, 8)
+            WorkflowListCell(workflow: workflow)
           }
         }
         .onAppear(perform: {
           selection = workflows.first
         })
       }
-      .frame(minWidth: 200, idealWidth: 200, maxWidth: 300, maxHeight: .infinity)
+      .frame(minWidth: 300, idealWidth: 300, maxWidth: 300, maxHeight: .infinity)
     }
   }
 }
