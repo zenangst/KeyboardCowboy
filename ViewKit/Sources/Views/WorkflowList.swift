@@ -49,14 +49,7 @@ struct WorkflowList: View {
 struct WorkflowList_Previews: PreviewProvider {
   static var previews: some View {
     WorkflowList(workflows: [
-      Workflow(
-        name: "Open Developer tools",
-        combinations: [],
-        commands: [
-          Command(name: "Open instruments"),
-          Command(name: "Open terminal")
-        ]
-      )
+      ModelFactory().workflow()
     ])
   }
 }
