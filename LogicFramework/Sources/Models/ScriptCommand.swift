@@ -1,5 +1,8 @@
 import Foundation
 
+/// Script command is used to run either Apple- or Shellscripts.
+/// Scripts can both point to a file on the file-system or have
+/// its underlying script bundled inside the command.
 public struct ScriptCommand: Codable, Hashable {
   public let kind: Kind
 

@@ -1,5 +1,8 @@
 import Foundation
 
+/// A `Command` is a polymorphic entity that is used
+/// to store multiple command types in the same workflow.
+/// All underlying data-types are both `Codable` and `Hashable`.
 public enum Command: Codable, Hashable {
   case application(ApplicationCommand)
   case keyboard(KeyboardCommand)
