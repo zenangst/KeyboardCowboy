@@ -30,6 +30,7 @@ targets:
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "App/Resources/Info.plist"
         CODE_SIGN_IDENTITY: "-"
+        EXCLUDED_ARCHS: "arm64"
     preBuildScripts:
       - path: XcodeGen/Scripts/swiftlint.sh
         name: SwiftLint
@@ -54,6 +55,7 @@ targets:
       BUNDLE_LOADER: $(TEST_HOST)
       PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.UnitTests"
       TEST_HOST: $(BUILT_PRODUCTS_DIR)/Keyboard-Cowboy.app/Contents/MacOS/Keyboard-Cowboy
+      EXCLUDED_ARCHS: "arm64"
   LogicFramework:
     type: framework
     platform: "macOS"
@@ -65,6 +67,7 @@ targets:
         MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "LogicFramework/Resources/Info.plist"
+        EXCLUDED_ARCHS: "arm64"
   ViewKit:
     type: framework
     platform: "macOS"
