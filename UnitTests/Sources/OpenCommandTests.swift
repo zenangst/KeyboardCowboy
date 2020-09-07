@@ -4,10 +4,6 @@ import SnapshotTesting
 import XCTest
 
 class OpenCommandTests: XCTestCase {
-  enum OpenCommandTestError: Error {
-    case unableToProduceString
-  }
-
   func testJSONEncoding() throws {
     assertSnapshot(matching: try ModelFactory().openCommand().toString(), as: .dump)
   }
