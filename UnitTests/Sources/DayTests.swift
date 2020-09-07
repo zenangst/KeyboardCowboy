@@ -4,10 +4,6 @@ import SnapshotTesting
 import XCTest
 
 class DayTests: XCTestCase {
-  enum DayTestError: Error {
-    case unableToProduceString
-  }
-
   func testJSONEncoding() throws {
     assertSnapshot(matching: try ModelFactory().days().toString(), as: .dump)
   }

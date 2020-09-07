@@ -4,10 +4,6 @@ import SnapshotTesting
 import XCTest
 
 class RuleTests: XCTestCase {
-  enum RuleTestError: Error {
-    case unableToProduceString
-  }
-
   func testJSONEncoding() throws {
     assertSnapshot(matching: try ModelFactory().rules().toString(), as: .dump)
   }
