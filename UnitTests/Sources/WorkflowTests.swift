@@ -4,10 +4,6 @@ import SnapshotTesting
 import XCTest
 
 class WorkflowTests: XCTestCase {
-  enum WorkflowError: Error {
-    case unableToProduceString
-  }
-
   func testJSONEncoding() throws {
     assertSnapshot(matching: try ModelFactory().workflow().toString(), as: .dump)
   }
