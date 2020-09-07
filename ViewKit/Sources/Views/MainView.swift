@@ -39,37 +39,12 @@ struct MainView: View {
   }
 }
 
-#if DEBUG
+// MARK: - Previews
+
 struct MainView_Previews: PreviewProvider {
   static var previews: some View {
     MainView(groups: [
-      Group(
-        name: "Developer tools",
-        workflows: [
-          Workflow(
-            name: "Open Developer tools",
-            combinations: [],
-            commands: [
-              Command(name: "Open instruments"),
-              Command(name: "Open terminal")
-            ]
-          )
-        ]
-      ),
-      Group(
-        name: "Developer tools 2",
-        workflows: [
-          Workflow(
-            name: "Open Developer tools 2",
-            combinations: [],
-            commands: [
-              Command(name: "Open instruments"),
-              Command(name: "Open terminal")
-            ]
-          )
-        ]
-      )
+      ModelFactory().group()
     ])
   }
 }
-#endif
