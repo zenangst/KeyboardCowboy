@@ -4,10 +4,6 @@ import SnapshotTesting
 import XCTest
 
 class KeyboardCommandTests: XCTestCase {
-  enum KeyboardCommandTestError: Error {
-    case unableToProduceString
-  }
-
   func testJSONEncoding() throws {
     assertSnapshot(matching: try ModelFactory().keyboardCommand().toString(), as: .dump)
   }

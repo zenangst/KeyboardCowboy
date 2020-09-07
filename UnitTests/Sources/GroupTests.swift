@@ -4,10 +4,6 @@ import SnapshotTesting
 import XCTest
 
 class GroupTests: XCTestCase {
-  enum GroupError: Error {
-    case unableToProduceString
-  }
-
   func testJSONEncoding() throws {
     assertSnapshot(matching: try ModelFactory().group().toString(), as: .dump)
   }
