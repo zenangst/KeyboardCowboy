@@ -28,6 +28,9 @@ class GroupTests: XCTestCase {
                               "path": "/System/Library/CoreServices/Finder.app"]
             ]
           ]],
+          "combinations": [
+            ["input": "⌃⌥A"]
+          ],
           "name": "Open/active Finder"
         ]
       ]

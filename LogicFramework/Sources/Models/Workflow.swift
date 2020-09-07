@@ -6,7 +6,6 @@ import Foundation
 /// keyboard invocation.
 public struct Workflow: Codable, Hashable {
   public let commands: [Command]
-  /// TODO: Add `Combination` model in order to determine
-  ///       is a workflow is eligiable for invocation.
+  public let combinations: [Combination]
   public let name: String
 }

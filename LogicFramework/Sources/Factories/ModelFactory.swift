@@ -45,10 +45,14 @@ class ModelFactory {
     ]
   }
 
+  func combination() -> Combination {
+    .init(input: "⌃⌥A")
+  }
+
   func workflow() -> Workflow {
     let commands: [Command] = [
       .application(applicationCommand())
     ]
-    return Workflow(commands: commands, name: "Open/active Finder")
+    return Workflow(commands: commands, combinations: [combination()], name: "Open/active Finder")
   }
 }
