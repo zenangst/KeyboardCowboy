@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct WorkflowList: View {
+  static let idealWidth: CGFloat = 300
   let workflows: [Workflow]
   @State private var selection: Workflow?
 
@@ -27,7 +28,7 @@ struct WorkflowList: View {
           selection = workflows.first
         })
       }
-      .frame(minWidth: 300, idealWidth: 300, maxWidth: 300, maxHeight: .infinity)
+      .frame(minWidth: 300, idealWidth: Self.idealWidth, maxWidth: 300, maxHeight: .infinity)
     }
   }
 }
