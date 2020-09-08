@@ -1,9 +1,9 @@
 import Foundation
 
 class ModelFactory {
-  
+
   // MARK: Public methods
-  
+
   /// Used by `GroupList.swift`
   func groupList() -> [Group] {
     [
@@ -33,7 +33,7 @@ class ModelFactory {
       )
     ]
   }
-  
+
   /// Used by `GroupListCell.swift`
   func groupListCell() -> Group {
     Group(
@@ -41,24 +41,24 @@ class ModelFactory {
       workflows: openWorkflows("Instruments", "Simulator", "Xcode")
     )
   }
-  
+
   /// Used by `WorflowList.swift`
   func workflowList() -> [Workflow] {
     openWorkflows("Calendar", "Contacts", "Finder", "Mail", "Safari", "Xcode")
   }
-  
+
   /// Used by `WorkflowListCell.swift`
   func workflowCell() -> Workflow {
     workflow()
   }
-  
+
   /// Used by `WorkflowView.swift`
   func workflowDetail() -> Workflow {
     workflow()
   }
-  
+
   // MARK: Private methods
-  
+
   private func openWorkflows(_ applicationNames: String ...) -> [Workflow] {
     applicationNames.compactMap({
       Workflow(
@@ -68,31 +68,31 @@ class ModelFactory {
       )
     })
   }
-  
+
   private func runWorkflows(_ scriptNames: String ...) -> [Workflow] {
     scriptNames.compactMap({
       Workflow(
         name: "Run \($0) script",
         combinations: [],
         commands: [Command(name: "Run \($0)")])
-      
+
     })
   }
-  
+
   private func rebindWorkflows(_ scriptNames: String ...) -> [Workflow] {
     scriptNames.compactMap({
       Workflow(
         name: "Rebind \($0)",
         combinations: [],
         commands: [Command(name: "Rebind \($0)")])
-      
+
     })
   }
-  
+
   private func openCommands(_ commands: String ...) -> [Command] {
     commands.compactMap({ Command(name: "Open \($0)") })
   }
-  
+
   private func workflow() -> Workflow {
     Workflow(
       name: "Developer workflow",
