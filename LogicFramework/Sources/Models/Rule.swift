@@ -1,10 +1,10 @@
 import Foundation
 
 public struct Rule: Codable, Hashable {
-  let applications: [Application]
-  let days: [Day]
+  public let applications: [Application]
+  public let days: [Day]
 
-  init(applications: [Application] = [Application](), days: [Day] = [Day]()) {
+  init(applications: [Application] = [], days: [Day] = []) {
     self.applications = applications
     self.days = days
   }
