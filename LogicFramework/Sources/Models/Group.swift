@@ -9,6 +9,6 @@ import Foundation
 ///          eligable for execution.
 public struct Group: Codable, Hashable {
   public let name: String
-  public let rules: [Rule]
+  public let rule: Rule?
   public let workflows: [Workflow]
 }

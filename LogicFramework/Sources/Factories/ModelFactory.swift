@@ -17,7 +17,7 @@ class ModelFactory {
 
   func group() -> Group {
     Group(name: "Global shortcuts",
-          rules: rules(),
+          rule: rule(),
           workflows: [workflow()])
   }
 
@@ -29,9 +29,8 @@ class ModelFactory {
     .init(application: application(), url: URL(string: "~/Desktop/new_real_final_draft_Copy_42.psd")!)
   }
 
-  func rules() -> [Rule] {
-    [.application(application()),
-     .days(days())]
+  func rule() -> Rule {
+    Rule(applications: [application()], days: days())
   }
 
   func scriptCommands() -> [ScriptCommand] {
