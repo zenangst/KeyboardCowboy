@@ -8,25 +8,19 @@ class GroupController {
   }
 
   func filterGroups(using rule: Rule) -> [Group] {
-    var validGroups = [Group]()
-    for group in groups {
-      guard let groupRule = group.rule else {
-        validGroups.append(group)
-        continue
-      }
+    groups.filter { group in
+      guard let groupRule = group.rule else { return true }
 
       if !groupRule.applications.allowedAccording(rule.applications) {
-        continue
+        return false
       }
 
       if !groupRule.days.allowedAccording(rule.days) {
-        continue
+        return false
       }
 
-      validGroups.append(group)
+      return true
     }
-
-    return validGroups
   }
 }
 
