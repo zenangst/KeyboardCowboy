@@ -46,7 +46,8 @@ targets:
         includes:
           - Sources
         excludes:
-          - Sources/__Snapshots__
+          - Sources/Models/__Snapshots__
+          - Sources/Views/__Snapshots__
     scheme: {}
     dependencies:
       - target: Keyboard-Cowboy
