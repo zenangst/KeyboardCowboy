@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct GroupList: View {
+  static let idealWidth: CGFloat = 200
+
   let groups: [Group]
   @State private var selection: Group?
 
@@ -21,7 +23,7 @@ struct GroupList: View {
         })
       }
       .listStyle(SidebarListStyle())
-      .frame(minWidth: 200, idealWidth: 200, maxWidth: 200, maxHeight: .infinity)
+      .frame(minWidth: 200, idealWidth: Self.idealWidth, maxWidth: 200, maxHeight: .infinity)
     }
   }
 }
