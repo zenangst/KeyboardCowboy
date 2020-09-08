@@ -40,6 +40,6 @@ private extension WorkflowListCell {
 
 struct WorkflowListCell_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowListCell(workflow: ModelFactory().workflow())
+    WorkflowListCell(workflow: ModelFactory().workflowCell())
   }
 }

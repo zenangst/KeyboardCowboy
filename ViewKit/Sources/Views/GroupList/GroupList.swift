@@ -30,8 +30,6 @@ struct GroupList: View {
 
 struct GroupList_Previews: PreviewProvider {
   static var previews: some View {
-    GroupList(groups: [
-      ModelFactory().group()
-    ])
+    GroupList(groups: ModelFactory().groupList())
   }
 }
