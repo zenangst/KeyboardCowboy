@@ -33,6 +33,6 @@ private extension GroupListCell {
 
 struct GroupListCell_Previews: PreviewProvider {
     static var previews: some View {
-      GroupListCell(group: ModelFactory().group())
+      GroupListCell(group: ModelFactory().groupListCell())
     }
 }
