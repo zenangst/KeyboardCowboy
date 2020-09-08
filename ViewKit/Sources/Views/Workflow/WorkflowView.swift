@@ -16,6 +16,6 @@ struct WorkflowView: View {
 
 struct WorkflowView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowView(workflow: ModelFactory().workflow())
+    WorkflowView(workflow: ModelFactory().workflowDetail())
   }
 }
