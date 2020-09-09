@@ -15,10 +15,12 @@ class ModelFactory {
     [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
   }
 
-  func group() -> Group {
-    Group(name: "Global shortcuts",
-          rule: rule(),
-          workflows: [workflow()])
+  func group(name: String = "Global shortcuts",
+             rule: Rule? = nil,
+             workflows: ((ModelFactory) -> [Workflow])? = nil) -> Group {
+    Group(name: name,
+          rule: rule ?? self.rule(),
+          workflows: workflows?(self) ?? [workflow()])
   }
 
   func keyboardCommand() -> KeyboardCommand {
@@ -48,10 +50,12 @@ class ModelFactory {
     .init(input: "⌃⌥A")
   }
 
-  func workflow() -> Workflow {
-    let commands: [Command] = [
-      .application(applicationCommand())
-    ]
-    return Workflow(combinations: [combination()], commands: commands, name: "Open/active Finder")
+  func workflow(combinations: ((ModelFactory) -> [Combination])? = nil,
+                commands: ((ModelFactory) -> [Command])? = nil,
+                name: String = "Open/active Finder") -> Workflow {
+    Workflow(
+      combinations: combinations?(self) ?? [combination()],
+      commands: commands?(self) ?? [.application(applicationCommand())],
+      name: name)
   }
 }
