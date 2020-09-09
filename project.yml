@@ -97,7 +97,7 @@ schemes:
         - ViewKit
       targets:
         - name: UnitTests
-          parallelizable: true
+          parallelizable: false
           randomExecutionOrder: true
     profile:
       config: Release
