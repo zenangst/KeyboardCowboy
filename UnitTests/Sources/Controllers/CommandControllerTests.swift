@@ -2,36 +2,58 @@ import XCTest
 @testable import LogicFramework
 
 class CommandControllerTests: XCTestCase {
-  func testCommandControllerRunningCommands() {
-    let factory = ModelFactory()
+  let modelFactory = ModelFactory()
+  let controllerFactory = ControllerFactory()
+
+  func testCommandControllerRunningCommandsSuccessfully() throws {
     let commands: [Command] = [
-      .application(factory.applicationCommand()),
-      .keyboard(factory.keyboardCommand()),
-      .open(factory.openCommand()),
-      .script(factory.scriptCommand(.appleScript(.inline(""))))
+      .application(modelFactory.applicationCommand()),
+      .keyboard(modelFactory.keyboardCommand()),
+      .open(modelFactory.openCommand()),
+      .script(modelFactory.scriptCommand(.appleScript(.inline(""))))
     ]
-    let controller = CommandController()
+    let controller = controllerFactory.commandController(
+      applicationCommandController: ApplicationCommandControllerMock())
     let expectation = self.expectation(description: "Wait for commands to run")
-    let delegate = Delegate { finishedCommands in
-      XCTAssertEqual(commands, finishedCommands)
+    let delegate = CommandControllingDelegateMock { state in
+      switch state {
+      case .failedRunning:
+        XCTFail("Wrong state")
+      case .finished(let finishedCommands):
+        XCTAssertEqual(commands, finishedCommands)
+      }
       expectation.fulfill()
     }
 
     controller.delegate = delegate
-    controller.run(commands)
+    try controller.run(commands)
     wait(for: [expectation], timeout: 10)
   }
-}
 
-private class Delegate: CommandControllingDelegate {
-  typealias Handler = ([Command]) -> Void
-  let handler: Handler
+  func testCommandControllerRunningFailingToLaunchApplicationCommand() throws {
+    let applicationCommand = modelFactory.applicationCommand()
+    let commands: [Command] = [.application(applicationCommand)]
+    let controller = controllerFactory.commandController(
+      applicationCommandController: ApplicationCommandControllerMock {
+        throw ApplicationCommandControllingError.failedToLaunch(applicationCommand)
+      }
+    )
 
-  init(_ handler: @escaping Handler) {
-    self.handler = handler
-  }
+    let expectation = self.expectation(description: "Wait for commands to run")
+    let delegate = CommandControllingDelegateMock { state in
+      switch state {
+      case .failedRunning(let command, let invokedCommands):
+        XCTAssertEqual(command, .application(applicationCommand))
+        XCTAssertEqual(commands, invokedCommands)
+      case .finished:
+        XCTFail("Wrong state")
+      }
+      expectation.fulfill()
+    }
 
-  func commandController(_ controller: CommandController, didFinishRunning commands: [Command]) {
-    handler(commands)
+    controller.delegate = delegate
+
+    XCTAssertThrowsError(try controller.run(commands))
+    wait(for: [expectation], timeout: 10)
   }
 }
