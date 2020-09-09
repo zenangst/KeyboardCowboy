@@ -35,14 +35,18 @@ class ModelFactory {
     Rule(applications: [application()], days: days())
   }
 
+  func scriptCommand(_ kind: ScriptCommand.Kind) -> ScriptCommand {
+    ScriptCommand(kind: kind)
+  }
+
   func scriptCommands() -> [ScriptCommand] {
     let path = URL(fileURLWithPath: "/tmp/file")
     let script = "#!/usr/bin/env fish"
     return [
-      ScriptCommand(kind: .appleScript(.inline(script))),
-      ScriptCommand(kind: .appleScript(.path(path))),
-      ScriptCommand(kind: .shell(.inline(script))),
-      ScriptCommand(kind: .shell(.path(path)))
+      scriptCommand(.appleScript(.inline(script))),
+      scriptCommand(.appleScript(.path(path))),
+      scriptCommand(.shell(.inline(script))),
+      scriptCommand(.shell(.path(path)))
     ]
   }
 
