@@ -1,14 +1,15 @@
-on: pull_request
+on:
+  pull_request: {}
 name: test
 jobs:
   test:
-    name: Build
+    name: Build & test
     runs-on: macOS-latest
     strategy:
         matrix:
           xcode: ['12_beta']
     steps:
-      - name: Set Xcode
+      - name: Set Xcode ${{ matrix.xcode }}
         run: |
           echo "Available Xcode versions:"
           ls /Applications | grep Xcode
@@ -23,6 +24,6 @@ jobs:
         run: |
           brew install xcodegen
           xcodegen generate
-      - name: Build and Text
+      - name: Build & Test
         run: |
           xcodebuild -project Keyboard-Cowboy.xcodeproj -scheme "Keyboard-Cowboy" -sdk macosx clean build test CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO" | xcpretty
