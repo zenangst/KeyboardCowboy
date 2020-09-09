@@ -26,6 +26,8 @@
 	<string>Needs permission to Apple Events in order to run Apple Scripts</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2019 zenangst. All rights reserved.</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 	<key>NSSupportsAutomaticTermination</key>
 	<true/>
 	<key>NSSupportsSuddenTermination</key>
