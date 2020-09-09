@@ -107,6 +107,7 @@ schemes:
       config: Release
       revealArchiveInOrganizer: false
 fileGroups:
+  - .github
   - .gitignore
   - .swiftlint.yml
   - README.md
