@@ -5,7 +5,13 @@ import Foundation
 /// `Group`-level or that the workflow matches the current
 /// keyboard invocation.
 public struct Workflow: Codable, Hashable {
-  public let commands: [Command]
   public let combinations: [Combination]
+  public let commands: [Command]
   public let name: String
+
+  public init(combinations: [Combination] = [], commands: [Command] = [], name: String) {
+    self.combinations = combinations
+    self.commands = commands
+    self.name = name
+  }
 }

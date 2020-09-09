@@ -11,4 +11,10 @@ public struct Group: Codable, Hashable {
   public let name: String
   public let rule: Rule?
   public let workflows: [Workflow]
+
+  public init(name: String, rule: Rule? = nil, workflows: [Workflow] = []) {
+    self.name = name
+    self.rule = rule
+    self.workflows = workflows
+  }
 }

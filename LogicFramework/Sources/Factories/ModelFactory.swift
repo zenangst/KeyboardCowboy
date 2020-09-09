@@ -52,6 +52,6 @@ class ModelFactory {
     let commands: [Command] = [
       .application(applicationCommand())
     ]
-    return Workflow(commands: commands, combinations: [combination()], name: "Open/active Finder")
+    return Workflow(combinations: [combination()], commands: commands, name: "Open/active Finder")
   }
 }
