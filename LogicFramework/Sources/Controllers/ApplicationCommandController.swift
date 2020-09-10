@@ -11,41 +11,26 @@ public enum ApplicationCommandControllingError: Error {
 }
 
 class ApplicationCommandController: ApplicationCommandControlling {
-  let workspace: NSWorkspace
+  let windowListProvider: WindowListProviding
+  let workspace: WorkspaceProviding
 
-  init(workspace: NSWorkspace = .shared) {
+  init(windowListProvider: WindowListProviding = WindowListProvider(),
+       workspace: WorkspaceProviding = NSWorkspace.shared) {
+    self.windowListProvider = windowListProvider
     self.workspace = workspace
   }
 
   // MARK: Public methods
 
   func run(_ command: ApplicationCommand) throws {
-    if applicationHasWindows(command.application) {
+    // Verify if the current application has any open windows
+    // TODO: Verify that `application.name` is `bundleName` and not a localized version.
+    //       Matching is done using `bundleName`.
+    if windowListProvider.windowOwners().contains(command.application.name) {
       try activateApplication(command)
     } else {
       try launchApplication(command)
     }
-  }
-
-  // MARK: Private methods
-
-  /// Verify if the current application has any open windows
-  ///
-  /// Check if the application has any windows by generating an collection of window owners
-  /// using `CGWindowListCopyWindowInfo`.
-  /// The collection is then match against the applications `bundleName`.
-  ///
-  /// - Parameter application: The application that the windows should belong to, the applications
-  ///                          bundle name is used for matching.
-  /// - Returns: Returns true if any windows belonging to the application
-  private func applicationHasWindows(_ application: Application) -> Bool {
-    let info = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) as? [[String: Any]] ?? []
-    let windowOwners = info.filter {
-      ($0[kCGWindowLayer as String] as? Int ?? 0) >= 0
-    }.compactMap({ $0[kCGWindowOwnerName as String] as? String })
-    // TODO: Verify that `application.name` is `bundleName` and not a localized version.
-    //       Matching is done using `bundleName`.
-    return windowOwners.contains(application.name)
   }
 
   /// Launch an application using the applications bundle identifier
@@ -77,7 +62,7 @@ class ApplicationCommandController: ApplicationCommandControlling {
   ///           a `.failedToFindRunningApplication` will be thrown.
   ///           If `.activate` should fail, then another error will be thrown: `.failedToActivate`
   private func activateApplication(_ command: ApplicationCommand) throws {
-    guard let runningApplication = workspace.runningApplications
+    guard let runningApplication = workspace.applications
             .first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }) else {
       throw ApplicationCommandControllingError.failedToFindRunningApplication(command)
     }

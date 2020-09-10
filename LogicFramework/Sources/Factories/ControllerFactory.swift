@@ -1,4 +1,4 @@
-import Foundation
+import Cocoa
 
 public class ControllerFactory {
   public func commandController(
@@ -6,5 +6,13 @@ public class ControllerFactory {
   ) -> CommandControlling {
     let applicationCommandController = applicationCommandController ?? ApplicationCommandController()
     return CommandController(applicationCommandController: applicationCommandController)
+  }
+
+  public func applicationCommandController(windowListProvider: WindowListProviding? = nil,
+                                           workspace: WorkspaceProviding = NSWorkspace.shared)
+  -> ApplicationCommandControlling {
+    ApplicationCommandController(
+      windowListProvider: windowListProvider ?? WindowListProvider(),
+      workspace: workspace)
   }
 }
