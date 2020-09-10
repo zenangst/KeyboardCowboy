@@ -14,8 +14,7 @@ class ApplicationCommandController: ApplicationCommandControlling {
   let windowListProvider: WindowListProviding
   let workspace: WorkspaceProviding
 
-  init(windowListProvider: WindowListProviding = WindowListProvider(),
-       workspace: WorkspaceProviding = NSWorkspace.shared) {
+  init(windowListProvider: WindowListProviding, workspace: WorkspaceProviding) {
     self.windowListProvider = windowListProvider
     self.workspace = workspace
   }
