@@ -5,7 +5,9 @@ public class ControllerFactory {
     applicationCommandController: ApplicationCommandControlling? = nil
   ) -> CommandControlling {
     let applicationCommandController = applicationCommandController ??
-      ApplicationCommandController(windowListProvider: WindowListProvider(), workspace: NSWorkspace.shared)
+      self.applicationCommandController(
+        windowListProvider: WindowListProvider(),
+        workspace: NSWorkspace.shared)
     return CommandController(applicationCommandController: applicationCommandController)
   }
 
