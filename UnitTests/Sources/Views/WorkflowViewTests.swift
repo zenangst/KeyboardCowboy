@@ -10,6 +10,7 @@ class WorkflowViewTests: XCTestCase {
     assertSnapshot(
       matching: SnapshotWindow(WorkflowView_Previews.previews,
                                size: CGSize(width: 500, height: 400)).viewController,
-      as: .image)
+      as: .image,
+      named: "macOS\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)")
   }
 }
