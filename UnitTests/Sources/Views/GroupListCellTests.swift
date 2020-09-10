@@ -7,11 +7,12 @@ import XCTest
 
 class GroupListCellTests: XCTestCase {
   func testSnapshotPreviews() {
-    let version = ProcessInfo.processInfo.operatingSystemVersion
+    let info = ProcessInfo.processInfo
+    let version = "\(info.operatingSystemVersion.majorVersion).\(info.operatingSystemVersion.minorVersion)"
     assertSnapshot(
       matching: SnapshotWindow(GroupListCell_Previews.previews,
                                size: CGSize(width: 200, height: 40)).viewController,
       as: .image,
-      named: "macOS\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)")
+      named: "macOS\(version)")
   }
 }
