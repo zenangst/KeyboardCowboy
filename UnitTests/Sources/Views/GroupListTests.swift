@@ -10,6 +10,7 @@ class GroupListTests: XCTestCase {
     assertSnapshot(
       matching: SnapshotWindow(GroupList_Previews.previews,
                                size: CGSize(width: GroupList.idealWidth, height: 400)).viewController,
-      as: .image)
+      as: .image,
+      named: "macOS\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)")
   }
 }
