@@ -3,9 +3,7 @@ import XCTest
 
 class ApplicationCommandControllerTests: XCTestCase {
   let controllerFactory = ControllerFactory()
-  let application = Application(bundleIdentifier: "com.apple.Finder",
-                                name: "Finder",
-                                path: "path/to/Finder")
+  let application = ModelFactory.application()
   lazy var windowListProvider = WindowListProviderMock([])
   lazy var workspaceProvider = WorkspaceProviderMock()
   lazy var controller = controllerFactory.applicationCommandController(windowListProvider: windowListProvider,

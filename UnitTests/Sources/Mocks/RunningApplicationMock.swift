@@ -1,7 +1,7 @@
 @testable import LogicFramework
 import Cocoa
 
-class RunningApplicationMock: RunningApplication {
+struct RunningApplicationMock: RunningApplication, Equatable {
   var activate: Bool
   var bundleIdentifier: String?
 

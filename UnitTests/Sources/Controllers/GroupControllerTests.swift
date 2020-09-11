@@ -8,13 +8,13 @@ class GroupControllerTests: XCTestCase {
     let xcodeRuleSet = Rule(applications: [
       Application(bundleIdentifier: "com.apple.dt.Xcode",
                   name: "Xcode",
-                  path: "path/to/Xcode")
+                  url: URL(string: "path/to/Xcode")!)
     ])
 
     let calendarRuleSet = Rule(applications: [
       Application(bundleIdentifier: "com.apple.Calendar",
                   name: "Calendar",
-                  path: "path/to/Calendar")
+                  url: URL(string: "path/to/Calendar")!)
     ])
 
     let weekDayRuleSet = Rule(days: [.monday, .tuesday, .wednesday, .thursday, .friday])
