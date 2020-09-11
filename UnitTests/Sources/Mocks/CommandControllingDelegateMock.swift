@@ -2,12 +2,12 @@ import Foundation
 import LogicFramework
 
 class CommandControllingDelegateMock: CommandControllingDelegate {
-  enum CommandControllingDelegateState {
+  enum Output {
     case failedRunning(Command, commands: [Command])
     case finished([Command])
   }
 
-  typealias Handler = (CommandControllingDelegateState) -> Void
+  typealias Handler = (Output) -> Void
   let handler: Handler
 
   init(_ handler: @escaping Handler) {

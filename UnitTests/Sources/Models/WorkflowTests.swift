@@ -14,7 +14,7 @@ class WorkflowTests: XCTestCase {
         "applicationCommand": [
           "application": ["name": "Finder",
                           "bundleIdentifier": "com.apple.Finder",
-                          "path": "/System/Library/CoreServices/Finder.app"]
+                          "url": "/System/Library/CoreServices/Finder.app"]
         ]
       ]],
       "combinations": [

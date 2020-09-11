@@ -1,14 +1,14 @@
 import Foundation
 
 class ModelFactory {
-  func application() -> Application {
+  static func application() -> Application {
     Application(bundleIdentifier: "com.apple.Finder",
                 name: "Finder",
-                path: "/System/Library/CoreServices/Finder.app")
+                url: URL(string: "/System/Library/CoreServices/Finder.app")!)
   }
 
   func applicationCommand() -> ApplicationCommand {
-    .init(application: application())
+    .init(application: Self.application())
   }
 
   func days() -> [Rule.Day] {
@@ -27,12 +27,12 @@ class ModelFactory {
     .init(output: "A")
   }
 
-  func openCommand() -> OpenCommand {
-    .init(application: application(), url: URL(string: "~/Desktop/new_real_final_draft_Copy_42.psd")!)
+  func openCommand(application: Application? = ModelFactory.application()) -> OpenCommand {
+    .init(application: application, url: URL(string: "~/Desktop/new_real_final_draft_Copy_42.psd")!)
   }
 
   func rule() -> Rule {
-    Rule(applications: [application()], days: days())
+    Rule(applications: [Self.application()], days: days())
   }
 
   func scriptCommand(_ kind: ScriptCommand.Kind) -> ScriptCommand {
