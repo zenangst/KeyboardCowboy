@@ -1,1 +1,1 @@
-- "{\"name\":\"Finder\",\"bundleIdentifier\":\"com.apple.Finder\",\"path\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\"}"
+- "{\"name\":\"Finder\",\"bundleIdentifier\":\"com.apple.Finder\",\"url\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\"}"
