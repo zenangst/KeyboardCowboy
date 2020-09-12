@@ -2,13 +2,18 @@ import Cocoa
 
 public class ControllerFactory {
   public func commandController(
-    applicationCommandController: ApplicationCommandControlling? = nil
+    applicationCommandController: ApplicationCommandControlling? = nil,
+    openCommandController: OpenCommandControlling? = nil
   ) -> CommandControlling {
+    let workspace = NSWorkspace.shared
     let applicationCommandController = applicationCommandController ??
       self.applicationCommandController(
         windowListProvider: WindowListProvider(),
-        workspace: NSWorkspace.shared)
-    return CommandController(applicationCommandController: applicationCommandController)
+        workspace: workspace)
+    let openCommandController = openCommandController ?? self.openCommandController(workspace: workspace)
+
+    return CommandController(applicationCommandController: applicationCommandController,
+                             openCommandController: openCommandController)
   }
 
   public func applicationCommandController(windowListProvider: WindowListProviding? = nil,
@@ -17,5 +22,9 @@ public class ControllerFactory {
     ApplicationCommandController(
       windowListProvider: windowListProvider ?? WindowListProvider(),
       workspace: workspace)
+  }
+
+  public func openCommandController(workspace: WorkspaceProviding = NSWorkspace.shared) -> OpenCommandControlling {
+    OpenCommandController(workspace: workspace)
   }
 }

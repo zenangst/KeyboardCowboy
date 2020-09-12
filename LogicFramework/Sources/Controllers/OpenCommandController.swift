@@ -1,7 +1,7 @@
 import Cocoa
 
 public protocol OpenCommandControlling {
-  func run(_ command: OpenCommand) throws
+  func run(_ command: OpenCommand)
 }
 
 public protocol OpenCommandControllingDelegate: AnyObject {
