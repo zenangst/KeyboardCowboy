@@ -1,33 +1,33 @@
 import Foundation
 
 public protocol ShellScriptControlling {
-  func run(_ source: ScriptCommand.Source) -> String
+  func run(_ source: ScriptCommand.Source) throws -> String
 }
 
 class ShellScriptController: ShellScriptControlling {
-  func run(_ source: ScriptCommand.Source) -> String {
+  let shellPath: String = "/bin/bash"
+
+  func run(_ source: ScriptCommand.Source) throws -> String {
     let command: String
     switch source {
     case .inline(let inline):
       command = inline
     case .path(let path):
-      var filePath = path
-      filePath = (filePath as NSString).expandingTildeInPath
-      filePath = filePath.replacingOccurrences(of: "", with: "\\ ")
+      let filePath = path.sanitizedPath
       command = """
       sh \(filePath)
       """
     }
-    return Process().shell(command)
+    return Process().shell(command, shellPath: shellPath)
   }
 }
 
 extension Process {
-  func shell(_ command: String) -> String {
+  func shell(_ command: String, shellPath: String) -> String {
     let outputPipe = Pipe()
     let errorPipe = Pipe()
 
-    launchPath = "/bin/bash"
+    launchPath = shellPath
     arguments = ["-c", command]
     standardOutput = outputPipe
     standardError = errorPipe

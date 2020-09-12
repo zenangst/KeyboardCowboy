@@ -20,7 +20,7 @@ class ScriptCommandController: ScriptCommandControlling {
     case .appleScript(let source):
       return try appleScriptController.run(source)
     case .shell(let source):
-      return shellScriptController.run(source)
+      return try shellScriptController.run(source)
     }
   }
 }

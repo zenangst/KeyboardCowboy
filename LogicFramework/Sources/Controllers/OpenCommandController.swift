@@ -35,9 +35,7 @@ class OpenCommandController: OpenCommandControlling {
   /// - Note: All calls are made asynchronously.
   /// - Parameter command: An `OpenCommand` that should be invoked.
   func run(_ command: OpenCommand) throws {
-    var path = command.path
-    path = (path as NSString).expandingTildeInPath
-    path = path.replacingOccurrences(of: "", with: "\\ ")
+    let path = command.path.sanitizedPath
     let url = URL(fileURLWithPath: path)
     let config = NSWorkspace.OpenConfiguration()
 
