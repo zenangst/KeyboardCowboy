@@ -38,11 +38,13 @@ class OpenCommandController: OpenCommandControlling {
     let config = NSWorkspace.OpenConfiguration()
     if let application = command.application {
       workspace.open([command.url], withApplicationAt: application.url,
-                     config: config) { runningApplication, error in
+                     config: config) { [weak self] runningApplication, error in
+        guard let self = self else { return }
         self.handleWorkspaceResult(command: command, runningApplication: runningApplication, error: error)
       }
     } else {
-      workspace.open(command.url, config: config, completionHandler: { runningApplication, error in
+      workspace.open(command.url, config: config, completionHandler: { [weak self] runningApplication, error in
+        guard let self = self else { return }
         self.handleWorkspaceResult(command: command, runningApplication: runningApplication, error: error)
       })
     }
