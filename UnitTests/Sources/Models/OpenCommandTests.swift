@@ -13,7 +13,7 @@ class OpenCommandTests: XCTestCase {
       "application": [
         "name": "Finder",
         "bundleIdentifier": "com.apple.Finder",
-        "path": "/System/Library/CoreServices/Finder.app"
+        "url": "/System/Library/CoreServices/Finder.app"
       ],
       "url": "~/Desktop/new_real_final_draft_Copy_42.psd"
     ]
