@@ -18,11 +18,11 @@ class OpenCommandControllerTests: XCTestCase {
       }
     }
     controller.delegate = delegate
-    controller.run(openCommand)
+    try controller.run(openCommand)
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 
-  func testOpenCommandControllerOpeningFileWithApplication() {
+  func testOpenCommandControllerOpeningFileWithApplication() throws {
     let runningApplication = RunningApplicationMock(activate: true, bundleIdentifier: "com.apple.Finder")
     let fileOpenCommandExpectation = self.expectation(description: "Wait for command to launch")
     let workspace = WorkspaceProviderMock(openFileResult: (runningApplication, nil))
@@ -38,11 +38,11 @@ class OpenCommandControllerTests: XCTestCase {
       }
     }
     controller.delegate = delegate
-    controller.run(openCommand)
+    try controller.run(openCommand)
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 
-  func testOpenCommandControllerFailingToOpenFile() {
+  func testOpenCommandControllerFailingToOpenFile() throws {
     let fileOpenCommandExpectation = self.expectation(description: "Wait for command to launch")
     let workspace = WorkspaceProviderMock(openFileResult: (nil, OpenCommandControllingError.failedToOpenUrl))
     let controller = OpenCommandController(workspace: workspace)
@@ -57,7 +57,7 @@ class OpenCommandControllerTests: XCTestCase {
       }
     }
     controller.delegate = delegate
-    controller.run(openCommand)
+    try controller.run(openCommand)
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 }

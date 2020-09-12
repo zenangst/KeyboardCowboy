@@ -12,9 +12,9 @@ class WorkflowTests: XCTestCase {
     let json: [String: AnyHashable] = [
       "commands": [[
         "applicationCommand": [
-          "application": ["name": "Finder",
+          "application": ["bundleName": "Finder",
                           "bundleIdentifier": "com.apple.Finder",
-                          "url": "/System/Library/CoreServices/Finder.app"]
+                          "path": "/System/Library/CoreServices/Finder.app"]
         ]
       ]],
       "combinations": [

@@ -18,7 +18,8 @@ class OpenCommandControllerDelegateMock: OpenCommandControllingDelegate {
     handler(.finished(command))
   }
 
-  func openCommandControlling(_ controller: OpenCommandControlling, didFailOpeningCommand command: OpenCommand, error: OpenCommandControllingError) {
+  func openCommandControlling(_ controller: OpenCommandControlling,
+                              didFailOpeningCommand command: OpenCommand, error: OpenCommandControllingError) {
     handler(.failedRunning(command, error))
   }
 }

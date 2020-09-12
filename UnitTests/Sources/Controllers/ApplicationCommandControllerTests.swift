@@ -23,7 +23,7 @@ class ApplicationCommandControllerTests: XCTestCase {
   }
 
   func testApplicationCommandControllerActivatingSuccessfully() throws {
-    windowListProvider.owners = [application.name]
+    windowListProvider.owners = [application.bundleName]
     workspaceProvider.applications = [
       RunningApplicationMock(
         activate: true,
@@ -33,13 +33,13 @@ class ApplicationCommandControllerTests: XCTestCase {
   }
 
   func testApplicationCommandControllerActivatingFailedToFindRunningApplication() throws {
-    windowListProvider.owners = [application.name]
+    windowListProvider.owners = [application.bundleName]
     workspaceProvider.applications = []
     XCTAssertThrowsError(try controller.run(.init(application: application)))
   }
 
   func testApplicationCommandControllerActivatingFailedToActivate() throws {
-    windowListProvider.owners = [application.name]
+    windowListProvider.owners = [application.bundleName]
     workspaceProvider.applications = [
       RunningApplicationMock(
         activate: false,

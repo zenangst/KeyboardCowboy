@@ -1,7 +1,7 @@
 import Cocoa
 
 public protocol OpenCommandControlling {
-  func run(_ command: OpenCommand)
+  func run(_ command: OpenCommand) throws
 }
 
 public protocol OpenCommandControllingDelegate: AnyObject {
@@ -34,16 +34,22 @@ class OpenCommandController: OpenCommandControlling {
   ///
   /// - Note: All calls are made asynchronously.
   /// - Parameter command: An `OpenCommand` that should be invoked.
-  func run(_ command: OpenCommand) {
+  func run(_ command: OpenCommand) throws {
+    var path = command.path
+    path = (path as NSString).expandingTildeInPath
+    path = path.replacingOccurrences(of: "", with: "\\ ")
+    let url = URL(fileURLWithPath: path)
     let config = NSWorkspace.OpenConfiguration()
+
     if let application = command.application {
-      workspace.open([command.url], withApplicationAt: application.url,
+      let applicationUrl = URL(fileURLWithPath: application.path)
+      workspace.open([url], withApplicationAt: applicationUrl,
                      config: config) { [weak self] runningApplication, error in
         guard let self = self else { return }
         self.handleWorkspaceResult(command: command, runningApplication: runningApplication, error: error)
       }
     } else {
-      workspace.open(command.url, config: config, completionHandler: { [weak self] runningApplication, error in
+      workspace.open(url, config: config, completionHandler: { [weak self] runningApplication, error in
         guard let self = self else { return }
         self.handleWorkspaceResult(command: command, runningApplication: runningApplication, error: error)
       })

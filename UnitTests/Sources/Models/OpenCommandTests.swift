@@ -11,11 +11,11 @@ class OpenCommandTests: XCTestCase {
   func testJSONDecoding() throws {
     let json: [String: AnyHashable] = [
       "application": [
-        "name": "Finder",
+        "bundleName": "Finder",
         "bundleIdentifier": "com.apple.Finder",
-        "url": "/System/Library/CoreServices/Finder.app"
+        "path": "/System/Library/CoreServices/Finder.app"
       ],
-      "url": "~/Desktop/new_real_final_draft_Copy_42.psd"
+      "path": "~/Desktop/new_real_final_draft_Copy_42.psd"
     ]
     XCTAssertEqual(try OpenCommand.decode(from: json), ModelFactory().openCommand())
   }

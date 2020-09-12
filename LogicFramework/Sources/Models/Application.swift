@@ -9,6 +9,6 @@ import Foundation
 /// part of `Group` rules.
 public struct Application: Codable, Hashable {
   public let bundleIdentifier: String
-  public let name: String
-  public let url: URL
+  public let bundleName: String
+  public let path: String
 }
