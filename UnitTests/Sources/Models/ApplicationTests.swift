@@ -10,9 +10,9 @@ class ApplicationTests: XCTestCase {
 
   func testJSONDecoding() throws {
     let json = [
-      "name": "Finder",
+      "bundleName": "Finder",
       "bundleIdentifier": "com.apple.Finder",
-      "url": "/System/Library/CoreServices/Finder.app"
+      "path": "/System/Library/CoreServices/Finder.app"
     ]
     XCTAssertEqual(try Application.decode(from: json), ModelFactory.application())
   }

@@ -7,14 +7,14 @@ class GroupControllerTests: XCTestCase {
   func testGroupControllerFilterByRules() {
     let xcodeRuleSet = Rule(applications: [
       Application(bundleIdentifier: "com.apple.dt.Xcode",
-                  name: "Xcode",
-                  url: URL(string: "path/to/Xcode")!)
+                  bundleName: "Xcode",
+                  path: "path/to/Xcode")
     ])
 
     let calendarRuleSet = Rule(applications: [
       Application(bundleIdentifier: "com.apple.Calendar",
-                  name: "Calendar",
-                  url: URL(string: "path/to/Calendar")!)
+                  bundleName: "Calendar",
+                  path: "path/to/Calendar")
     ])
 
     let weekDayRuleSet = Rule(days: [.monday, .tuesday, .wednesday, .thursday, .friday])

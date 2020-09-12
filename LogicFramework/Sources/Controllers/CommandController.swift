@@ -16,11 +16,14 @@ public class CommandController: CommandControlling {
 
   let applicationCommandController: ApplicationCommandControlling
   let openCommandController: OpenCommandControlling
+  let scriptCommandController: ScriptCommandControlling
 
   init(applicationCommandController: ApplicationCommandControlling,
-       openCommandController: OpenCommandControlling) {
+       openCommandController: OpenCommandControlling,
+       scriptCommandController: ScriptCommandControlling) {
     self.applicationCommandController = applicationCommandController
     self.openCommandController = openCommandController
+    self.scriptCommandController = scriptCommandController
   }
 
   // MARK: Public methods
@@ -31,17 +34,9 @@ public class CommandController: CommandControlling {
       delegate?.commandController(self, didFinishRunning: commands)
     } catch let error {
       if let applicationError = error as? ApplicationCommandControllingError {
-        switch applicationError {
-        case .failedToActivate(let command),
-             .failedToFindRunningApplication(let command),
-             .failedToLaunch(let command):
-          delegate?.commandController(
-            self,
-            failedRunning: .application(command),
-            commands: commands)
-        }
-        throw error
+        handle(applicationError, commands: commands)
       }
+      throw error
     }
   }
 
@@ -54,9 +49,22 @@ public class CommandController: CommandControlling {
     case .keyboard:
       break
     case .open(let command):
-      openCommandController.run(command)
-    case .script:
-      break
+      try openCommandController.run(command)
+    case .script(let scriptCommand):
+      try scriptCommandController.run(scriptCommand)
+    }
+  }
+
+  private func handle(_ applicationError: ApplicationCommandControllingError,
+                      commands: [Command]) {
+    switch applicationError {
+    case .failedToActivate(let command),
+         .failedToFindRunningApplication(let command),
+         .failedToLaunch(let command):
+      delegate?.commandController(
+        self,
+        failedRunning: .application(command),
+        commands: commands)
     }
   }
 }

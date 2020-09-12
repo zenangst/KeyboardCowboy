@@ -10,10 +10,10 @@ class ScriptCommandTests: XCTestCase {
 
   func testJSONDecoding() throws {
     let json: [[String: AnyHashable]] = [
-      ["kind": ["appleScript": ["inline": "#!/usr/bin/env fish"]]],
-      ["kind": ["appleScript": ["path": "file:///tmp/file"]]],
-      ["kind": ["shell": ["inline": "#!/usr/bin/env fish"]]],
-      ["kind": ["shell": ["path": "file:///tmp/file"]]]
+      ["appleScript": ["inline": "#!/usr/bin/env fish"]],
+      ["appleScript": ["path": "/tmp/file"]],
+      ["shell": ["inline": "#!/usr/bin/env fish"]],
+      ["shell": ["path": "/tmp/file"]]
     ]
     XCTAssertEqual(try [ScriptCommand].decode(from: json), ModelFactory().scriptCommands())
   }

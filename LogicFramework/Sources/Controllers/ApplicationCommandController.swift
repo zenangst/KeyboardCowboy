@@ -23,9 +23,7 @@ class ApplicationCommandController: ApplicationCommandControlling {
 
   func run(_ command: ApplicationCommand) throws {
     // Verify if the current application has any open windows
-    // TODO: Verify that `application.name` is `bundleName` and not a localized version.
-    //       Matching is done using `bundleName`.
-    if windowListProvider.windowOwners().contains(command.application.name) {
+    if windowListProvider.windowOwners().contains(command.application.bundleName) {
       try activateApplication(command)
     } else {
       try launchApplication(command)

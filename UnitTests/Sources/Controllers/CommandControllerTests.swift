@@ -10,11 +10,15 @@ class CommandControllerTests: XCTestCase {
       .application(modelFactory.applicationCommand()),
       .keyboard(modelFactory.keyboardCommand()),
       .open(modelFactory.openCommand()),
-      .script(modelFactory.scriptCommand(.appleScript(.inline(""))))
+      .script(.appleScript(.inline(""))),
+      .script(.shell(.inline("")))
     ]
     let controller = controllerFactory.commandController(
       applicationCommandController: ApplicationCommandControllerMock(),
-      openCommandController: OpenCommandControllerMock())
+      openCommandController: OpenCommandControllerMock(),
+      scriptCommandController: ScriptCommandController(appleScriptController: AppleScriptControllerMock(),
+                                                       shellScriptController: ShellScriptControllerMock())
+    )
     let expectation = self.expectation(description: "Wait for commands to run")
     let delegate = CommandControllingDelegateMock { state in
       switch state {

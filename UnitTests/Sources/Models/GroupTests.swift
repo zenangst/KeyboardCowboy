@@ -13,9 +13,9 @@ class GroupTests: XCTestCase {
       "name": "Global shortcuts",
       "rule": [
         "applications": [[
-          "name": "Finder",
+          "bundleName": "Finder",
           "bundleIdentifier": "com.apple.Finder",
-          "url": "/System/Library/CoreServices/Finder.app"
+          "path": "/System/Library/CoreServices/Finder.app"
         ]],
         "days": [0, 1, 2, 3, 4, 5, 6]
       ],
@@ -23,9 +23,9 @@ class GroupTests: XCTestCase {
         [
           "commands": [[
             "applicationCommand": [
-              "application": ["name": "Finder",
+              "application": ["bundleName": "Finder",
                               "bundleIdentifier": "com.apple.Finder",
-                              "url": "/System/Library/CoreServices/Finder.app"]
+                              "path": "/System/Library/CoreServices/Finder.app"]
             ]
           ]],
           "combinations": [

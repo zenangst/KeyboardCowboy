@@ -1,7 +1,5 @@
 import LogicFramework
 
 class OpenCommandControllerMock: OpenCommandControlling {
-  func run(_ command: OpenCommand) {
-    
-  }
+  func run(_ command: OpenCommand) {}
 }
