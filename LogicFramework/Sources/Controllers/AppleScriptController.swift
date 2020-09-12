@@ -20,10 +20,7 @@ class AppleScriptController: AppleScriptControlling {
       }
       appleScript = script
     case .path(let path):
-      var filePath = path
-      filePath = (filePath as NSString).expandingTildeInPath
-      filePath = filePath.replacingOccurrences(of: "", with: "\\ ")
-
+      let filePath = path.sanitizedPath
       var dictionary: NSDictionary?
       let url = URL(fileURLWithPath: filePath)
       guard let script = NSAppleScript(contentsOf: url, error: &dictionary) else {
