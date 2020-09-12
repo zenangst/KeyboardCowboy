@@ -15,9 +15,12 @@ public class CommandController: CommandControlling {
   weak public var delegate: CommandControllingDelegate?
 
   let applicationCommandController: ApplicationCommandControlling
+  let openCommandController: OpenCommandControlling
 
-  init(applicationCommandController: ApplicationCommandControlling) {
+  init(applicationCommandController: ApplicationCommandControlling,
+       openCommandController: OpenCommandControlling) {
     self.applicationCommandController = applicationCommandController
+    self.openCommandController = openCommandController
   }
 
   // MARK: Public methods
@@ -50,8 +53,8 @@ public class CommandController: CommandControlling {
       try applicationCommandController.run(command)
     case .keyboard:
       break
-    case .open:
-      break
+    case .open(let command):
+      openCommandController.run(command)
     case .script:
       break
     }

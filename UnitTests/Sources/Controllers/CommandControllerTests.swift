@@ -13,7 +13,8 @@ class CommandControllerTests: XCTestCase {
       .script(modelFactory.scriptCommand(.appleScript(.inline(""))))
     ]
     let controller = controllerFactory.commandController(
-      applicationCommandController: ApplicationCommandControllerMock())
+      applicationCommandController: ApplicationCommandControllerMock(),
+      openCommandController: OpenCommandControllerMock())
     let expectation = self.expectation(description: "Wait for commands to run")
     let delegate = CommandControllingDelegateMock { state in
       switch state {
