@@ -1,6 +1,21 @@
 import Foundation
 
 public protocol ShellScriptControlling {
+  /// Run a Shellscript based on which `Source` is supplied.
+  ///
+  /// Source is a value-type that decided which type of Shellscript
+  /// should be invoked. There are two types of script sources:
+  ///
+  /// `.inline` - A script that is embedded in the command
+  /// `.path` - A script that is located on disk
+  ///
+  /// - Note: There is no safety mechanism in place to make sure
+  ///         that destructive aren't performed inside a shellscript.
+  ///         Hence the user needs to know what they are doing before
+  ///         including any foreign scripts on their system.
+  ///
+  /// - Parameter source: A `Source` enum that decides how the
+  ///                     Shellscript should be constructed
   func run(_ source: ScriptCommand.Source) throws -> String
 }
 
@@ -22,7 +37,7 @@ class ShellScriptController: ShellScriptControlling {
   }
 }
 
-extension Process {
+private extension Process {
   func shell(_ command: String, shellPath: String) -> String {
     let outputPipe = Pipe()
     let errorPipe = Pipe()

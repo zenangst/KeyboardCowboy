@@ -1,6 +1,16 @@
 import Cocoa
 
 public protocol AppleScriptControlling {
+  /// Run a AppleScript based on which `Source` is supplied.
+  ///
+  /// Source is a value-type that decided which type of AppleScript
+  /// should be invoked. There are two types of script sources:
+  ///
+  /// `.inline` - A script that is embedded in the command
+  /// `.path` - A script that is located on disk
+  ///
+  /// - Parameter source: A `Source` enum that decides how the
+  ///                     AppleScript should be constructed
   func run(_ source: ScriptCommand.Source) throws -> String
 }
 

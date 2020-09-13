@@ -1,6 +1,16 @@
 import Cocoa
 
 public protocol OpenCommandControlling {
+  /// Execute an open command either with or without an optional associated application.
+  /// `NSWorkspace` is used to perform open invocations.
+  ///
+  /// If an application is attached to the `OpenCommand`, then
+  /// `open(_ urls: [URL] ... withApplicationAt: URL)` is invoked on `NSWorkspace`.
+  ///
+  /// If an application is not selected, then `open(_ url: URL ...)` will be used.
+  ///
+  /// - Note: All calls are made asynchronously.
+  /// - Parameter command: An `OpenCommand` that should be invoked.
   func run(_ command: OpenCommand) throws
 }
 
@@ -24,16 +34,6 @@ class OpenCommandController: OpenCommandControlling {
     self.workspace = workspace
   }
 
-  /// Execute an open command either with or without an optional associated application.
-  /// `NSWorkspace` is used to perform open invocations.
-  ///
-  /// If an application is attached to the `OpenCommand`, then
-  /// `open(_ urls: [URL] ... withApplicationAt: URL)` is invoked on `NSWorkspace`.
-  ///
-  /// If an application is not selected, then `open(_ url: URL ...)` will be used.
-  ///
-  /// - Note: All calls are made asynchronously.
-  /// - Parameter command: An `OpenCommand` that should be invoked.
   func run(_ command: OpenCommand) throws {
     let path = command.path.sanitizedPath
     let url = URL(fileURLWithPath: path)
