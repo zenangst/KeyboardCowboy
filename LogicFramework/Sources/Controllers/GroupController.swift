@@ -1,6 +1,16 @@
 import Foundation
 
-class GroupController {
+protocol GroupControlling {
+  /// Filter groups based on current set of rules.
+  /// For more information about rules, check the
+  /// implementation of `Rule` value-type.
+  ///
+  /// - Parameter rule: The rule that the groups should
+  ///                   be evaluated against.
+  func filterGroups(using rule: Rule) -> [Group]
+}
+
+class GroupController: GroupControlling {
   var groups: [Group]
 
   init(groups: [Group]) {
@@ -11,11 +21,11 @@ class GroupController {
     groups.filter { group in
       guard let groupRule = group.rule else { return true }
 
-      if !groupRule.applications.allowedAccording(rule.applications) {
+      if !groupRule.applications.allowedAccording(to: rule.applications) {
         return false
       }
 
-      if !groupRule.days.allowedAccording(rule.days) {
+      if !groupRule.days.allowedAccording(to: rule.days) {
         return false
       }
 
@@ -25,7 +35,7 @@ class GroupController {
 }
 
 private extension Collection where Iterator.Element: Hashable {
-  func allowedAccording(_ rhs: [Element]) -> Bool {
+  func allowedAccording(to rhs: [Element]) -> Bool {
     if isEmpty { return true }
 
     let lhs = Set(self)

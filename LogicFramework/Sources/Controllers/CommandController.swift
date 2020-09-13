@@ -8,6 +8,11 @@ public protocol CommandControllingDelegate: AnyObject {
 
 public protocol CommandControlling: AnyObject {
   var delegate: CommandControllingDelegate? { get set }
+  /// Run a collection of `Command`´s in sequential order,
+  /// if one command fails, the entire chain should stop.
+  ///
+  /// - Parameter commands: A collection of `Command`'s that
+  ///                       should be executed.
   func run(_ commands: [Command]) throws
 }
 

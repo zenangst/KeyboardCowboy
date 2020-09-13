@@ -1,6 +1,13 @@
 import Cocoa
 
-public protocol ApplicationCommandControlling: AnyObject {
+public protocol ApplicationCommandControlling {
+  /// Run `ApplicationCommand` which should either launch or
+  /// activate the target application. The `Application` struct
+  /// is used to determine which app should be invoked.
+  ///
+  /// - Parameter command: An `ApplicationCommand` that indicates
+  ///                      which application should be launched
+  ///                      or activated if already running.
   func run(_ command: ApplicationCommand) throws
 }
 
