@@ -2,19 +2,13 @@ import Combine
 import LogicFramework
 
 class OpenCommandControllerMock: OpenCommandControlling {
-  var publisher: AnyPublisher<Command, Error> {
-    subject.eraseToAnyPublisher()
-  }
-  private let subject = PassthroughSubject<Command, Error>()
+  let result: Result<Void, Error>
 
-  typealias Handler = (PassthroughSubject<Command, Error>) -> Void
-  let handler: Handler
-
-  init(_ handler: @escaping Handler = { _ in }) {
-    self.handler = handler
+  init(_ result: Result<Void, Error>) {
+    self.result = result
   }
 
-  func run(_ command: OpenCommand) {
-    handler(subject)
+  func run(_ command: OpenCommand) -> AnyPublisher<Void, Error> {
+    result.publisher.eraseToAnyPublisher()
   }
 }

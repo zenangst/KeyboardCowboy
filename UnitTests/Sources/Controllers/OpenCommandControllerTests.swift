@@ -8,17 +8,17 @@ class OpenCommandControllerTests: XCTestCase {
     let workspace = WorkspaceProviderMock(openFileResult: (runningApplication, nil))
     let controller = OpenCommandController(workspace: workspace)
     let openCommand = ModelFactory().openCommand()
-    let delegate = OpenCommandControllerDelegateMock { output in
-      switch output {
-      case .failedRunning:
-        XCTFail("Ended up with wrong state.")
-      case .finished(let command):
-        XCTAssertEqual(command, openCommand)
-        fileOpenCommandExpectation.fulfill()
-      }
-    }
-    controller.delegate = delegate
-    controller.run(openCommand)
+
+    _ = controller.run(openCommand).sink(
+      receiveCompletion: { result in
+        switch result {
+        case .failure:
+          XCTFail("Ended up with wrong state.")
+        case .finished:
+          fileOpenCommandExpectation.fulfill()
+        }
+      }, receiveValue: { _ in })
+
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 
@@ -28,17 +28,17 @@ class OpenCommandControllerTests: XCTestCase {
     let workspace = WorkspaceProviderMock(openFileResult: (runningApplication, nil))
     let controller = OpenCommandController(workspace: workspace)
     let openCommand = ModelFactory().openCommand(application: nil)
-    let delegate = OpenCommandControllerDelegateMock { output in
-      switch output {
-      case .failedRunning:
-        XCTFail("Ended up with wrong state.")
-      case .finished(let command):
-        XCTAssertEqual(command, openCommand)
-        fileOpenCommandExpectation.fulfill()
-      }
-    }
-    controller.delegate = delegate
-    controller.run(openCommand)
+
+    _ = controller.run(openCommand).sink(
+      receiveCompletion: { result in
+        switch result {
+        case .failure:
+          XCTFail("Ended up with wrong state.")
+        case .finished:
+          fileOpenCommandExpectation.fulfill()
+        }
+      }, receiveValue: { _ in })
+
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 
@@ -47,17 +47,17 @@ class OpenCommandControllerTests: XCTestCase {
     let workspace = WorkspaceProviderMock(openFileResult: (nil, OpenCommandControllingError.failedToOpenUrl))
     let controller = OpenCommandController(workspace: workspace)
     let openCommand = ModelFactory().openCommand(application: nil)
-    let delegate = OpenCommandControllerDelegateMock { output in
-      switch output {
-      case .failedRunning(let command, _):
-        XCTAssertEqual(command, openCommand)
-        fileOpenCommandExpectation.fulfill()
-      case .finished:
-        XCTFail("Ended up with wrong state.")
-      }
-    }
-    controller.delegate = delegate
-    controller.run(openCommand)
+
+    _ = controller.run(openCommand).sink(
+      receiveCompletion: { result in
+        switch result {
+        case .failure:
+          fileOpenCommandExpectation.fulfill()
+        case .finished:
+          XCTFail("Ended up with wrong state.")
+        }
+      }, receiveValue: { _ in })
+
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 }

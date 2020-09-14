@@ -21,7 +21,7 @@ class ApplicationCommandControllerTests: XCTestCase {
     workspaceProvider.launchApplicationResult = false
 
     let expectation = self.expectation(description: "Wait for error.")
-    let cancellable = controller.publisher.sink(
+    _ = controller.run(.init(application: application)).sink(
       receiveCompletion: { result in
         switch result {
         case .failure(let error):
@@ -40,7 +40,6 @@ class ApplicationCommandControllerTests: XCTestCase {
           XCTFail("Wrong state")
         }
       }, receiveValue: { _ in })
-    controller.run(.init(application: application))
     wait(for: [expectation], timeout: 10.0)
   }
 
@@ -52,7 +51,7 @@ class ApplicationCommandControllerTests: XCTestCase {
         bundleIdentifier: application.bundleIdentifier)
     ]
     let expectation = self.expectation(description: "Wait for finished.")
-    let cancellable = controller.publisher.sink(
+    _ = controller.run(.init(application: application)).sink(
       receiveCompletion: { result in
         switch result {
         case .failure:
@@ -61,7 +60,6 @@ class ApplicationCommandControllerTests: XCTestCase {
           expectation.fulfill()
         }
       }, receiveValue: { _ in })
-    controller.run(.init(application: application))
     wait(for: [expectation], timeout: 10.0)
   }
 
@@ -69,7 +67,7 @@ class ApplicationCommandControllerTests: XCTestCase {
     windowListProvider.owners = [application.bundleName]
     workspaceProvider.applications = []
     let expectation = self.expectation(description: "Wait for error.")
-    let cancellable = controller.publisher.sink(
+    _ = controller.run(.init(application: application)).sink(
       receiveCompletion: { result in
         switch result {
         case .failure(let error):
@@ -88,7 +86,6 @@ class ApplicationCommandControllerTests: XCTestCase {
           XCTFail("Wrong state")
         }
       }, receiveValue: { _ in })
-    controller.run(.init(application: application))
     wait(for: [expectation], timeout: 10.0)
   }
 
@@ -101,7 +98,7 @@ class ApplicationCommandControllerTests: XCTestCase {
     ]
 
     let expectation = self.expectation(description: "Wait for error.")
-    let cancellable = controller.publisher.sink(
+    _ = controller.run(.init(application: application)).sink(
       receiveCompletion: { result in
         switch result {
         case .failure(let error):
@@ -120,7 +117,6 @@ class ApplicationCommandControllerTests: XCTestCase {
           XCTFail("Wrong state")
         }
       }, receiveValue: { _ in })
-    controller.run(.init(application: application))
     wait(for: [expectation], timeout: 10.0)
   }
 }

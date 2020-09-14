@@ -3,19 +3,13 @@ import Combine
 import Cocoa
 
 class KeyboardShortcutControllerMock: KeyboardCommandControlling {
-  var publisher: AnyPublisher<Command, Error> {
-    subject.eraseToAnyPublisher()
-  }
-  private let subject = PassthroughSubject<Command, Error>()
+  let result: Result<Void, Error>
 
-  typealias Handler = (PassthroughSubject<Command, Error>) -> Void
-  let handler: Handler
-
-  init(_ handler: @escaping Handler = { _ in }) {
-    self.handler = handler
+  init(_ result: Result<Void, Error>) {
+    self.result = result
   }
 
-  func run(_ command: KeyboardCommand) {
-    handler(subject)
+  func run(_ command: KeyboardCommand) -> AnyPublisher<Void, Error> {
+    result.publisher.eraseToAnyPublisher()
   }
 }
