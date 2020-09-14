@@ -1,7 +1,7 @@
 import Cocoa
 import Combine
 
-public protocol ApplicationCommandControlling: CommandPublishing {
+public protocol ApplicationCommandControlling {
   /// Run `ApplicationCommand` which should either launch or
   /// activate the target application. The `Application` struct
   /// is used to determine which app should be invoked.
@@ -9,7 +9,7 @@ public protocol ApplicationCommandControlling: CommandPublishing {
   /// - Parameter command: An `ApplicationCommand` that indicates
   ///                      which application should be launched
   ///                      or activated if already running.
-  func run(_ command: ApplicationCommand)
+  func run(_ command: ApplicationCommand) -> AnyPublisher<Void, Error>
 }
 
 public enum ApplicationCommandControllingError: Error {
@@ -19,10 +19,6 @@ public enum ApplicationCommandControllingError: Error {
 }
 
 class ApplicationCommandController: ApplicationCommandControlling {
-  var publisher: AnyPublisher<Command, Error> {
-    subject.eraseToAnyPublisher()
-  }
-  private let subject = PassthroughSubject<Command, Error>()
   let windowListProvider: WindowListProviding
   let workspace: WorkspaceProviding
 
@@ -33,13 +29,18 @@ class ApplicationCommandController: ApplicationCommandControlling {
 
   // MARK: Public methods
 
-  func run(_ command: ApplicationCommand) {
-    subject.send(.application(command))
+  func run(_ command: ApplicationCommand) -> AnyPublisher<Void, Error> {
     // Verify if the current application has any open windows
-    if windowListProvider.windowOwners().contains(command.application.bundleName) {
-      activateApplication(command)
-    } else {
-      launchApplication(command)
+    do {
+      if windowListProvider.windowOwners().contains(command.application.bundleName) {
+        try activateApplication(command)
+      } else {
+        try launchApplication(command)
+      }
+
+      return Result.success(()).publisher.eraseToAnyPublisher()
+    } catch {
+      return Fail(error: error).eraseToAnyPublisher()
     }
   }
 
@@ -48,15 +49,12 @@ class ApplicationCommandController: ApplicationCommandControlling {
   ///
   /// - Parameter command: An application command which is used to resolve the applications
   ///                      bundle identifier.
-  private func launchApplication(_ command: ApplicationCommand) {
+  private func launchApplication(_ command: ApplicationCommand) throws {
     if !workspace.launchApplication(withBundleIdentifier: command.application.bundleIdentifier,
                                     options: .default,
                                     additionalEventParamDescriptor: nil,
                                     launchIdentifier: nil) {
-      let error = ApplicationCommandControllingError.failedToLaunch(command)
-      subject.send(completion: .failure(error))
-    } else {
-      subject.send(completion: .finished)
+      throw ApplicationCommandControllingError.failedToLaunch(command)
     }
   }
 
@@ -69,17 +67,14 @@ class ApplicationCommandController: ApplicationCommandControlling {
   ///
   /// - Parameter command: An application command which is used to resolve the applications
   ///                      bundle identifier.
-  private func activateApplication(_ command: ApplicationCommand) {
+  private func activateApplication(_ command: ApplicationCommand) throws {
     guard let runningApplication = workspace.applications
             .first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }) else {
-      subject.send(completion: .failure(ApplicationCommandControllingError.failedToFindRunningApplication(command)))
-      return
+      throw ApplicationCommandControllingError.failedToFindRunningApplication(command)
     }
 
     if !runningApplication.activate(options: .activateIgnoringOtherApps) {
-      subject.send(completion: .failure(ApplicationCommandControllingError.failedToActivate(command)))
-    } else {
-      subject.send(completion: .finished)
+      throw ApplicationCommandControllingError.failedToActivate(command)
     }
   }
 }

@@ -1,8 +1,8 @@
 import Combine
 import Foundation
 
-public protocol KeyboardCommandControlling: CommandPublishing {
-  func run(_ command: KeyboardCommand)
+public protocol KeyboardCommandControlling {
+  func run(_ command: KeyboardCommand) -> AnyPublisher<Void, Error>
 }
 
 public enum KeyboardCommandControllingError: Error {
@@ -10,13 +10,7 @@ public enum KeyboardCommandControllingError: Error {
 }
 
 class KeyboardCommandController: KeyboardCommandControlling {
-  var publisher: AnyPublisher<Command, Error> {
-    subject.eraseToAnyPublisher()
-  }
-  private let subject = PassthroughSubject<Command, Error>()
-
-  func run(_ command: KeyboardCommand) {
-    subject.send(.keyboard(command))
-    subject.send(completion: .finished)
+  func run(_ command: KeyboardCommand) -> AnyPublisher<Void, Error> {
+    Result.success(()).publisher.eraseToAnyPublisher()
   }
 }

@@ -1,7 +1,7 @@
 import Combine
 import Cocoa
 
-public protocol OpenCommandControlling: CommandPublishing {
+public protocol OpenCommandControlling {
   /// Execute an open command either with or without an optional associated application.
   /// `NSWorkspace` is used to perform open invocations.
   ///
@@ -12,15 +12,8 @@ public protocol OpenCommandControlling: CommandPublishing {
   ///
   /// - Note: All calls are made asynchronously.
   /// - Parameter command: An `OpenCommand` that should be invoked.
-  func run(_ command: OpenCommand)
-}
-
-public protocol OpenCommandControllingDelegate: AnyObject {
-  func openCommandControlling(_ controller: OpenCommandControlling,
-                              didOpenCommand command: OpenCommand)
-  func openCommandControlling(_ controller: OpenCommandControlling,
-                              didFailOpeningCommand command: OpenCommand,
-                              error: OpenCommandControllingError)
+  /// - Parameter error: Error occured when running the command.
+  func run(_ command: OpenCommand) -> AnyPublisher<Void, Error>
 }
 
 public enum OpenCommandControllingError: Error {
@@ -28,49 +21,32 @@ public enum OpenCommandControllingError: Error {
 }
 
 class OpenCommandController: OpenCommandControlling {
-  weak var delegate: OpenCommandControllingDelegate?
   let workspace: WorkspaceProviding
-  var publisher: AnyPublisher<Command, Error> {
-    subject.eraseToAnyPublisher()
-  }
-  private let subject = PassthroughSubject<Command, Error>()
 
   init(workspace: WorkspaceProviding) {
     self.workspace = workspace
   }
 
-  func run(_ command: OpenCommand) {
-    subject.send(.open(command))
-    let path = command.path.sanitizedPath
-    let url = URL(fileURLWithPath: path)
-    let config = NSWorkspace.OpenConfiguration()
+  func run(_ command: OpenCommand) -> AnyPublisher<Void, Error> {
+    Future { [weak self] promise in
+      let path = command.path.sanitizedPath
+      let url = URL(fileURLWithPath: path)
+      let config = NSWorkspace.OpenConfiguration()
 
-    if let application = command.application {
-      let applicationUrl = URL(fileURLWithPath: application.path)
-      workspace.open([url], withApplicationAt: applicationUrl,
-                     config: config) { [weak self] runningApplication, error in
-        guard let self = self else { return }
-        self.handleWorkspaceResult(command: command, runningApplication: runningApplication, error: error)
+      func complete(application: RunningApplication?, error: Error?) {
+        if error != nil {
+          promise(.failure(OpenCommandControllingError.failedToOpenUrl))
+        } else {
+          promise(.success(()))
+        }
       }
-    } else {
-      workspace.open(url, config: config, completionHandler: { [weak self] runningApplication, error in
-        guard let self = self else { return }
-        self.handleWorkspaceResult(command: command, runningApplication: runningApplication, error: error)
-      })
-    }
-  }
 
-  private func handleWorkspaceResult(command: OpenCommand,
-                                     runningApplication: RunningApplication?,
-                                     error: Error?) {
-    guard error == nil else {
-      subject.send(completion: .failure(OpenCommandControllingError.failedToOpenUrl))
-      self.delegate?.openCommandControlling(self, didFailOpeningCommand: command,
-                                            error: .failedToOpenUrl)
-      return
-    }
-
-    subject.send(completion: .finished)
-    self.delegate?.openCommandControlling(self, didOpenCommand: command)
+      if let application = command.application {
+        let applicationUrl = URL(fileURLWithPath: application.path)
+        self?.workspace.open([url], withApplicationAt: applicationUrl, config: config, completionHandler: complete)
+      } else {
+        self?.workspace.open(url, config: config, completionHandler: complete)
+      }
+    }.eraseToAnyPublisher()
   }
 }

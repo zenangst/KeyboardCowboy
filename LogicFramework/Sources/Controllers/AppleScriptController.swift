@@ -1,7 +1,7 @@
 import Cocoa
 import Combine
 
-public protocol AppleScriptControlling: CommandPublishing {
+public protocol AppleScriptControlling {
   /// Run a AppleScript based on which `Source` is supplied.
   ///
   /// Source is a value-type that decided which type of AppleScript
@@ -12,7 +12,7 @@ public protocol AppleScriptControlling: CommandPublishing {
   ///
   /// - Parameter source: A `Source` enum that decides how the
   ///                     AppleScript should be constructed
-  func run(_ source: ScriptCommand.Source)
+  func run(_ source: ScriptCommand.Source) -> AnyPublisher<Void, Error>
 }
 
 enum AppleScriptControllingError: Error {
@@ -22,19 +22,13 @@ enum AppleScriptControllingError: Error {
 }
 
 class AppleScriptController: AppleScriptControlling {
-  var publisher: AnyPublisher<Command, Error> {
-    subject.eraseToAnyPublisher()
-  }
-  private let subject = PassthroughSubject<Command, Error>()
-
-  func run(_ source: ScriptCommand.Source) {
-    subject.send(.script(.appleScript(source)))
+  func run(_ source: ScriptCommand.Source) -> AnyPublisher<Void, Error> {
     let appleScript: NSAppleScript
+
     switch source {
     case .inline(let source):
       guard let script = NSAppleScript(source: source) else {
-        subject.send(completion: .failure(AppleScriptControllingError.failedToCreateInlineAppleScript))
-        return
+        return Fail(error: AppleScriptControllingError.failedToCreateInlineAppleScript).eraseToAnyPublisher()
       }
       appleScript = script
     case .path(let path):
@@ -42,16 +36,21 @@ class AppleScriptController: AppleScriptControlling {
       var dictionary: NSDictionary?
       let url = URL(fileURLWithPath: filePath)
       guard let script = NSAppleScript(contentsOf: url, error: &dictionary) else {
-        subject.send(completion: .failure(AppleScriptControllingError.failedToLoadAppleScriptAtUrl(url, dictionary)))
-        return
+        return Fail(error: AppleScriptControllingError.failedToLoadAppleScriptAtUrl(url, dictionary))
+          .eraseToAnyPublisher()
       }
       appleScript = script
     }
 
-    run(appleScript)
+    do {
+      try run(appleScript)
+      return Result.success(()).publisher.eraseToAnyPublisher()
+    } catch {
+      return Fail(error: error).eraseToAnyPublisher()
+    }
   }
 
-  private func run(_ appleScript: NSAppleScript) {
+  private func run(_ appleScript: NSAppleScript) throws {
     var dictionary: NSDictionary?
     appleScript.executeAndReturnError(&dictionary)
     let errorNumber = dictionary?["NSAppleScriptErrorNumber"] as? Int ?? -999
@@ -60,10 +59,7 @@ class AppleScriptController: AppleScriptControlling {
     //       map them into something user presentable.
     if [-1743, -1719].contains(errorNumber) {
       let message = dictionary?["NSAppleScriptErrorMessage"] as? String
-      subject.send(completion: .failure(AppleScriptControllingError.failedToRunAppleScript(message ?? "Unknown error")))
-      return
+      throw AppleScriptControllingError.failedToRunAppleScript(message ?? "Unknown error")
     }
-
-    subject.send(completion: .finished)
   }
 }
