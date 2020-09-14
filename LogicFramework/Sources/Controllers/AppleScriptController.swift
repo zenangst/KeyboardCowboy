@@ -57,6 +57,7 @@ class AppleScriptController: AppleScriptControlling {
     if [-1743, -1719].contains(errorNumber) {
       let message = dictionary?["NSAppleScriptErrorMessage"] as? String
       subject.send(completion: .failure(AppleScriptControllingError.failedToRunAppleScript(message ?? "Unknown error")))
+      return
     }
 
     subject.send(completion: .finished)
