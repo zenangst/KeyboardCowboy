@@ -65,4 +65,39 @@ class CommandControllerTests: XCTestCase {
     controller.run(commands)
     wait(for: [runningExpectation, failureExpectation], timeout: 10, enforceOrder: true)
   }
+
+  func testCommandControllerRunningKeyboardCommands() {
+    let commands: [Command] = [
+      .keyboard(KeyboardCommand(output: "A")),
+      .keyboard(KeyboardCommand(output: "B")),
+      .keyboard(KeyboardCommand(output: "C")),
+      .keyboard(KeyboardCommand(output: "D"))
+    ]
+    var counter = 0
+    let controller = controllerFactory.commandController(
+      keyboardCommandController: KeyboardShortcutControllerMock {
+        $0.send(commands[counter])
+        $0.send(completion: .finished)
+      }
+    )
+    let expectation = self.expectation(description: "Wait for commands to finish.")
+    var runningCount = 0
+    let delegate = CommandControllerDelegateMock { state in
+      switch state {
+      case .running(let command):
+        XCTAssertEqual(commands[counter], command)
+        runningCount += 1
+      case .failedRunning:
+        XCTFail("This should not fail!")
+      case .finished:
+        XCTAssertEqual(runningCount, 4)
+        expectation.fulfill()
+        counter += 1
+      }
+    }
+
+    controller.delegate = delegate
+    controller.run(commands)
+    wait(for: [expectation], timeout: 10.0)
+  }
 }
