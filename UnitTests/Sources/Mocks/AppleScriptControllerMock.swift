@@ -9,7 +9,7 @@ class AppleScriptControllerMock: AppleScriptControlling {
     self.result = result
   }
 
-  func run(_ command: ScriptCommand.Source) -> AnyPublisher<Void, Error> {
+  func run(_ command: ScriptCommand.Source) -> CommandPublisher {
     result.publisher.eraseToAnyPublisher()
   }
 }

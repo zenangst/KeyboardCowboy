@@ -13,7 +13,7 @@ public protocol AppleScriptControlling {
   /// - Parameter source: A `Source` enum that decides how the
   ///                     AppleScript should be constructed
   /// - Returns: A publisher that wraps a result of the run operation.
-  func run(_ source: ScriptCommand.Source) -> AnyPublisher<Void, Error>
+  func run(_ source: ScriptCommand.Source) -> CommandPublisher
 }
 
 enum AppleScriptControllingError: Error {
@@ -23,7 +23,7 @@ enum AppleScriptControllingError: Error {
 }
 
 class AppleScriptController: AppleScriptControlling {
-  func run(_ source: ScriptCommand.Source) -> AnyPublisher<Void, Error> {
+  func run(_ source: ScriptCommand.Source) -> CommandPublisher {
     let appleScript: NSAppleScript
 
     switch source {

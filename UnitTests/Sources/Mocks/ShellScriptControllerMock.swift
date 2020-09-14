@@ -9,7 +9,7 @@ class ShellScriptControllerMock: ShellScriptControlling {
     self.result = result
   }
 
-  func run(_ source: ScriptCommand.Source) -> AnyPublisher<Void, Error> {
+  func run(_ source: ScriptCommand.Source) -> CommandPublisher {
     result.publisher.eraseToAnyPublisher()
   }
 }

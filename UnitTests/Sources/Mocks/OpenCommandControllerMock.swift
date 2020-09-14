@@ -8,7 +8,7 @@ class OpenCommandControllerMock: OpenCommandControlling {
     self.result = result
   }
 
-  func run(_ command: OpenCommand) -> AnyPublisher<Void, Error> {
+  func run(_ command: OpenCommand) -> CommandPublisher {
     result.publisher.eraseToAnyPublisher()
   }
 }

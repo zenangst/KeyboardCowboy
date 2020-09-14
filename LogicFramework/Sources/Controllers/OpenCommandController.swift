@@ -13,7 +13,7 @@ public protocol OpenCommandControlling {
   /// - Note: All calls are made asynchronously.
   /// - Parameter command: An `OpenCommand` that should be invoked.
   /// - Returns: A publisher that wraps a result of the run operation.
-  func run(_ command: OpenCommand) -> AnyPublisher<Void, Error>
+  func run(_ command: OpenCommand) -> CommandPublisher
 }
 
 public enum OpenCommandControllingError: Error {
@@ -27,7 +27,7 @@ class OpenCommandController: OpenCommandControlling {
     self.workspace = workspace
   }
 
-  func run(_ command: OpenCommand) -> AnyPublisher<Void, Error> {
+  func run(_ command: OpenCommand) -> CommandPublisher {
     Future { [weak self] promise in
       let path = command.path.sanitizedPath
       let url = URL(fileURLWithPath: path)

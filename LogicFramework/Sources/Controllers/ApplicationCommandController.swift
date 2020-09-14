@@ -10,7 +10,7 @@ public protocol ApplicationCommandControlling {
   ///                      which application should be launched
   ///                      or activated if already running.
   /// - Returns: A publisher that wraps a result of the run operation.
-  func run(_ command: ApplicationCommand) -> AnyPublisher<Void, Error>
+  func run(_ command: ApplicationCommand) -> CommandPublisher
 }
 
 public enum ApplicationCommandControllingError: Error {
@@ -30,7 +30,7 @@ class ApplicationCommandController: ApplicationCommandControlling {
 
   // MARK: Public methods
 
-  func run(_ command: ApplicationCommand) -> AnyPublisher<Void, Error> {
+  func run(_ command: ApplicationCommand) -> CommandPublisher {
     // Verify if the current application has any open windows
     do {
       if windowListProvider.windowOwners().contains(command.application.bundleName) {
