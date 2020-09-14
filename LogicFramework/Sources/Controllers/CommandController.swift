@@ -1,6 +1,8 @@
 import Combine
 import Foundation
 
+public typealias CommandPublisher = AnyPublisher<Void, Error>
+
 public protocol CommandControllingDelegate: AnyObject {
   func commandController(_ controller: CommandController, failedRunning command: Command,
                          commands: [Command])
@@ -77,7 +79,7 @@ public class CommandController: CommandControlling {
     }
   }
 
-  private func subscribeToPublisher(_ publisher: AnyPublisher<Void, Error>, for command: Command) {
+  private func subscribeToPublisher(_ publisher: CommandPublisher, for command: Command) {
     delegate?.commandController(self, runningCommand: command)
 
     publisher

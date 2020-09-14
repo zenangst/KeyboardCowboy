@@ -18,13 +18,13 @@ public protocol ShellScriptControlling {
   /// - Parameter source: A `Source` enum that decides how the
   ///                     Shellscript should be constructed
   /// - Returns: A publisher that wraps a result of the run operation.
-  func run(_ source: ScriptCommand.Source) -> AnyPublisher<Void, Error>
+  func run(_ source: ScriptCommand.Source) -> CommandPublisher
 }
 
 class ShellScriptController: ShellScriptControlling {
   let shellPath: String = "/bin/bash"
 
-  func run(_ source: ScriptCommand.Source) -> AnyPublisher<Void, Error> {
+  func run(_ source: ScriptCommand.Source) -> CommandPublisher {
     let command: String
     switch source {
     case .inline(let inline):

@@ -9,7 +9,7 @@ class ApplicationCommandControllerMock: ApplicationCommandControlling {
     self.result = result
   }
 
-  func run(_ command: ApplicationCommand) -> AnyPublisher<Void, Error> {
+  func run(_ command: ApplicationCommand) -> CommandPublisher {
     result.publisher.eraseToAnyPublisher()
   }
 }

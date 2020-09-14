@@ -9,7 +9,7 @@ class KeyboardShortcutControllerMock: KeyboardCommandControlling {
     self.result = result
   }
 
-  func run(_ command: KeyboardCommand) -> AnyPublisher<Void, Error> {
+  func run(_ command: KeyboardCommand) -> CommandPublisher {
     result.publisher.eraseToAnyPublisher()
   }
 }

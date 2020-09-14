@@ -4,7 +4,7 @@ import Foundation
 public protocol KeyboardCommandControlling {
   /// - Parameter command: A `KeyboardCommand` that should be invoked.
   /// - Returns: A publisher that wraps a result of the run operation.
-  func run(_ command: KeyboardCommand) -> AnyPublisher<Void, Error>
+  func run(_ command: KeyboardCommand) -> CommandPublisher
 }
 
 public enum KeyboardCommandControllingError: Error {
@@ -12,7 +12,7 @@ public enum KeyboardCommandControllingError: Error {
 }
 
 class KeyboardCommandController: KeyboardCommandControlling {
-  func run(_ command: KeyboardCommand) -> AnyPublisher<Void, Error> {
+  func run(_ command: KeyboardCommand) -> CommandPublisher {
     Result.success(()).publisher.eraseToAnyPublisher()
   }
 }
