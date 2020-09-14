@@ -33,7 +33,7 @@ public class CommandController: CommandControlling {
 
   var currentQueue = [Command]()
   var finishedCommands = [Command]()
-  var cancellable: AnyCancellable?
+  var cancellables = Set<AnyCancellable>()
 
   init(appleScriptCommandController: AppleScriptControlling,
        applicationCommandController: ApplicationCommandControlling,
@@ -83,19 +83,20 @@ public class CommandController: CommandControlling {
   }
 
   private func subscribeToPublisher(_ publisher: AnyPublisher<Command, Error>, for command: Command) {
-    cancellable = publisher.sink(
+    publisher.sink(
       receiveCompletion: { [weak self] completion in
       guard let self = self else { return }
       switch completion {
       case .failure(let error):
         self.abortQueue(command, error: error)
       case .finished:
+        self.cancellables.removeAll()
         self.runQueue()
       }
     }, receiveValue: { [weak self] command in
       guard let self = self else { return }
       self.delegate?.commandController(self, runningCommand: command)
-    })
+    }).store(in: &cancellables)
   }
 
   private func abortQueue(_ command: Command, error: Error) {
@@ -118,6 +119,7 @@ public class CommandController: CommandControlling {
     } else {
       delegate?.commandController(self, didFinishRunning: finishedCommands)
       finishedCommands.removeAll()
+      cancellables.removeAll()
     }
   }
 
