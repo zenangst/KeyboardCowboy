@@ -12,7 +12,7 @@ public protocol OpenCommandControlling {
   ///
   /// - Note: All calls are made asynchronously.
   /// - Parameter command: An `OpenCommand` that should be invoked.
-  /// - Parameter error: Error occured when running the command.
+  /// - Returns: A publisher that wraps a result of the run operation.
   func run(_ command: OpenCommand) -> AnyPublisher<Void, Error>
 }
 
