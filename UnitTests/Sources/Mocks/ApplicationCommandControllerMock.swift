@@ -3,20 +3,13 @@ import Combine
 import LogicFramework
 
 class ApplicationCommandControllerMock: ApplicationCommandControlling {
-  var publisher: AnyPublisher<Command, Error> {
-    subject.eraseToAnyPublisher()
-  }
-  private let subject = PassthroughSubject<Command, Error>()
+  let result: Result<Void, Error>
 
-  typealias Handler = (PassthroughSubject<Command, Error>) -> Void
-  let handler: Handler
-
-  init(_ handler: @escaping Handler = { _ in }) {
-    self.handler = handler
+  init(_ result: Result<Void, Error>) {
+    self.result = result
   }
 
-  func run(_ command: ApplicationCommand) {
-    subject.send(Command.application(command))
-    handler(subject)
+  func run(_ command: ApplicationCommand) -> AnyPublisher<Void, Error> {
+    result.publisher.eraseToAnyPublisher()
   }
 }
