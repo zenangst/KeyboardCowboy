@@ -28,6 +28,7 @@ class ShellScriptController: ShellScriptControlling {
   let shellPath: String = "/bin/bash"
 
   func run(_ source: ScriptCommand.Source) {
+    subject.send(.script(.shell(source)))
     let command: String
     switch source {
     case .inline(let inline):

@@ -40,6 +40,7 @@ class OpenCommandController: OpenCommandControlling {
   }
 
   func run(_ command: OpenCommand) {
+    subject.send(.open(command))
     let path = command.path.sanitizedPath
     let url = URL(fileURLWithPath: path)
     let config = NSWorkspace.OpenConfiguration()

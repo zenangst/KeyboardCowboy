@@ -34,6 +34,7 @@ class ApplicationCommandController: ApplicationCommandControlling {
   // MARK: Public methods
 
   func run(_ command: ApplicationCommand) {
+    subject.send(.application(command))
     // Verify if the current application has any open windows
     if windowListProvider.windowOwners().contains(command.application.bundleName) {
       activateApplication(command)
