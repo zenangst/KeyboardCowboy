@@ -19,7 +19,10 @@ public enum ApplicationCommandControllingError: Error {
 }
 
 class ApplicationCommandController: ApplicationCommandControlling {
-  internal let subject = PassthroughSubject<Command, Error>()
+  var publisher: AnyPublisher<Command, Error> {
+    subject.eraseToAnyPublisher()
+  }
+  private let subject = PassthroughSubject<Command, Error>()
   let windowListProvider: WindowListProviding
   let workspace: WorkspaceProviding
 

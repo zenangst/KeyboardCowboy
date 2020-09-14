@@ -21,7 +21,10 @@ public protocol ShellScriptControlling: CommandPublishing {
 }
 
 class ShellScriptController: ShellScriptControlling {
-  internal let subject = PassthroughSubject<Command, Error>()
+  var publisher: AnyPublisher<Command, Error> {
+    subject.eraseToAnyPublisher()
+  }
+  private let subject = PassthroughSubject<Command, Error>()
   let shellPath: String = "/bin/bash"
 
   func run(_ source: ScriptCommand.Source) {

@@ -22,7 +22,10 @@ enum AppleScriptControllingError: Error {
 }
 
 class AppleScriptController: AppleScriptControlling {
-  internal let subject = PassthroughSubject<Command, Error>()
+  var publisher: AnyPublisher<Command, Error> {
+    subject.eraseToAnyPublisher()
+  }
+  private let subject = PassthroughSubject<Command, Error>()
 
   func run(_ source: ScriptCommand.Source) {
     let appleScript: NSAppleScript
