@@ -12,6 +12,7 @@ public protocol AppleScriptControlling {
   ///
   /// - Parameter source: A `Source` enum that decides how the
   ///                     AppleScript should be constructed
+  /// - Returns: A publisher that wraps a result of the run operation.
   func run(_ source: ScriptCommand.Source) -> AnyPublisher<Void, Error>
 }
 

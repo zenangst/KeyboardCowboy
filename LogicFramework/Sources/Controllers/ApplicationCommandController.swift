@@ -9,6 +9,7 @@ public protocol ApplicationCommandControlling {
   /// - Parameter command: An `ApplicationCommand` that indicates
   ///                      which application should be launched
   ///                      or activated if already running.
+  /// - Returns: A publisher that wraps a result of the run operation.
   func run(_ command: ApplicationCommand) -> AnyPublisher<Void, Error>
 }
 
@@ -49,6 +50,8 @@ class ApplicationCommandController: ApplicationCommandControlling {
   ///
   /// - Parameter command: An application command which is used to resolve the applications
   ///                      bundle identifier.
+  /// - Throws: If `NSWorkspace.launchApplication` returns `false`, the method will throw
+  ///           `ApplicationCommandControllingError.failedToLaunch`
   private func launchApplication(_ command: ApplicationCommand) throws {
     if !workspace.launchApplication(withBundleIdentifier: command.application.bundleIdentifier,
                                     options: .default,
@@ -67,6 +70,9 @@ class ApplicationCommandController: ApplicationCommandControlling {
   ///
   /// - Parameter command: An application command which is used to resolve the applications
   ///                      bundle identifier.
+  /// - Throws: If the method cannot match a running application then
+  ///           a `.failedToFindRunningApplication` will be thrown.
+  ///           If `.activate` should fail, then another error will be thrown: `.failedToActivate`
   private func activateApplication(_ command: ApplicationCommand) throws {
     guard let runningApplication = workspace.applications
             .first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }) else {
