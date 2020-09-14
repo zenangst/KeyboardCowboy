@@ -1,6 +1,7 @@
+import Combine
 import Foundation
 
-public protocol ShellScriptControlling {
+public protocol ShellScriptControlling: CommandPublishing {
   /// Run a Shellscript based on which `Source` is supplied.
   ///
   /// Source is a value-type that decided which type of Shellscript
@@ -16,13 +17,14 @@ public protocol ShellScriptControlling {
   ///
   /// - Parameter source: A `Source` enum that decides how the
   ///                     Shellscript should be constructed
-  func run(_ source: ScriptCommand.Source) throws -> String
+  func run(_ source: ScriptCommand.Source)
 }
 
 class ShellScriptController: ShellScriptControlling {
+  internal let subject = PassthroughSubject<Command, Error>()
   let shellPath: String = "/bin/bash"
 
-  func run(_ source: ScriptCommand.Source) throws -> String {
+  func run(_ source: ScriptCommand.Source) {
     let command: String
     switch source {
     case .inline(let inline):
@@ -33,7 +35,8 @@ class ShellScriptController: ShellScriptControlling {
       sh \(filePath)
       """
     }
-    return Process().shell(command, shellPath: shellPath)
+    _ = Process().shell(command, shellPath: shellPath)
+    subject.send(completion: .finished)
   }
 }
 

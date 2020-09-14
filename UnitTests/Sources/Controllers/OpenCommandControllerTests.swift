@@ -18,7 +18,7 @@ class OpenCommandControllerTests: XCTestCase {
       }
     }
     controller.delegate = delegate
-    try controller.run(openCommand)
+    controller.run(openCommand)
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 
@@ -38,7 +38,7 @@ class OpenCommandControllerTests: XCTestCase {
       }
     }
     controller.delegate = delegate
-    try controller.run(openCommand)
+    controller.run(openCommand)
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 
@@ -57,7 +57,7 @@ class OpenCommandControllerTests: XCTestCase {
       }
     }
     controller.delegate = delegate
-    try controller.run(openCommand)
+    controller.run(openCommand)
     wait(for: [fileOpenCommandExpectation], timeout: 1)
   }
 }

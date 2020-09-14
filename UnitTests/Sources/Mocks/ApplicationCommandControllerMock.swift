@@ -1,15 +1,18 @@
 import Foundation
+import Combine
 import LogicFramework
 
 class ApplicationCommandControllerMock: ApplicationCommandControlling {
-  typealias Handler = () throws -> Void
+  var subject = PassthroughSubject<Command, Error>()
+
+  typealias Handler = (PassthroughSubject<Command, Error>) -> Void
   let handler: Handler
 
-  init(_ handler: @escaping Handler = {}) {
+  init(_ handler: @escaping Handler = { _ in }) {
     self.handler = handler
   }
 
-  func run(_ command: ApplicationCommand) throws {
-    try handler()
+  func run(_ command: ApplicationCommand) {
+    handler(subject)
   }
 }
