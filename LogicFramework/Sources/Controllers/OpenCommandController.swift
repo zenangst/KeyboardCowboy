@@ -30,7 +30,10 @@ public enum OpenCommandControllingError: Error {
 class OpenCommandController: OpenCommandControlling {
   weak var delegate: OpenCommandControllingDelegate?
   let workspace: WorkspaceProviding
-  internal let subject = PassthroughSubject<Command, Error>()
+  var publisher: AnyPublisher<Command, Error> {
+    subject.eraseToAnyPublisher()
+  }
+  private let subject = PassthroughSubject<Command, Error>()
 
   init(workspace: WorkspaceProviding) {
     self.workspace = workspace

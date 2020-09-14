@@ -3,7 +3,10 @@ import Combine
 import Cocoa
 
 class ShellScriptControllerMock: ShellScriptControlling {
-  var subject = PassthroughSubject<Command, Error>()
+  var publisher: AnyPublisher<Command, Error> {
+    subject.eraseToAnyPublisher()
+  }
+  private let subject = PassthroughSubject<Command, Error>()
 
   typealias Handler = (PassthroughSubject<Command, Error>) -> Void
   let handler: Handler
