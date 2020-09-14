@@ -16,6 +16,7 @@ class KeyboardCommandController: KeyboardCommandControlling {
   private let subject = PassthroughSubject<Command, Error>()
 
   func run(_ command: KeyboardCommand) {
+    subject.send(.keyboard(command))
     subject.send(completion: .finished)
   }
 }

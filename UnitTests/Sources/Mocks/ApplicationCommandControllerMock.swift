@@ -16,6 +16,7 @@ class ApplicationCommandControllerMock: ApplicationCommandControlling {
   }
 
   func run(_ command: ApplicationCommand) {
+    subject.send(Command.application(command))
     handler(subject)
   }
 }

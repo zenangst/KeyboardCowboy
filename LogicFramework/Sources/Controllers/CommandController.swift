@@ -4,6 +4,7 @@ import Foundation
 public protocol CommandControllingDelegate: AnyObject {
   func commandController(_ controller: CommandController, failedRunning command: Command,
                          commands: [Command])
+  func commandController(_ controller: CommandController, runningCommand command: Command)
   func commandController(_ controller: CommandController, didFinishRunning commands: [Command])
 }
 
@@ -23,8 +24,6 @@ public enum CommandControllerError: Error {
 
 public class CommandController: CommandControlling {
   weak public var delegate: CommandControllingDelegate?
-
-  private let subject = PassthroughSubject<Command, Error>()
 
   let applicationCommandController: ApplicationCommandControlling
   let keyboardCommandController: KeyboardCommandControlling
@@ -93,7 +92,10 @@ public class CommandController: CommandControlling {
       case .finished:
         self.runQueue()
       }
-    }, receiveValue: { _ in })
+    }, receiveValue: { [weak self] command in
+      guard let self = self else { return }
+      self.delegate?.commandController(self, runningCommand: command)
+    })
   }
 
   private func abortQueue(_ command: Command, error: Error) {

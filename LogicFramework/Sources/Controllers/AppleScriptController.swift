@@ -28,6 +28,7 @@ class AppleScriptController: AppleScriptControlling {
   private let subject = PassthroughSubject<Command, Error>()
 
   func run(_ source: ScriptCommand.Source) {
+    subject.send(.script(.appleScript(source)))
     let appleScript: NSAppleScript
     switch source {
     case .inline(let source):

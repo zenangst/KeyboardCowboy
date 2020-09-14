@@ -22,12 +22,14 @@ class CommandControllerTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for commands to run")
     let delegate = CommandControllerDelegateMock { state in
       switch state {
+      case .running:
+        break
       case .failedRunning:
         XCTFail("Wrong state")
       case .finished(let finishedCommands):
         XCTAssertEqual(commands, finishedCommands)
+        expectation.fulfill()
       }
-      expectation.fulfill()
     }
 
     controller.delegate = delegate
@@ -44,21 +46,23 @@ class CommandControllerTests: XCTestCase {
       }
     )
 
-    let expectation = self.expectation(description: "Wait for commands to run")
+    let runningExpectation = self.expectation(description: "Wait for commands to run")
+    let failureExpectation = self.expectation(description: "Wait for commands to fail")
     let delegate = CommandControllerDelegateMock { state in
       switch state {
+      case .running:
+        runningExpectation.fulfill()
       case .failedRunning(let command, let invokedCommands):
         XCTAssertEqual(command, .application(applicationCommand))
         XCTAssertEqual(commands, invokedCommands)
+        failureExpectation.fulfill()
       case .finished:
         XCTFail("Wrong state")
       }
-      expectation.fulfill()
     }
 
     controller.delegate = delegate
-
     controller.run(commands)
-    wait(for: [expectation], timeout: 10)
+    wait(for: [runningExpectation, failureExpectation], timeout: 10, enforceOrder: true)
   }
 }
