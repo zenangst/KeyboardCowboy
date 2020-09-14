@@ -14,18 +14,10 @@ class CommandControllerTests: XCTestCase {
       .script(.shell(.inline("")))
     ]
     let controller = controllerFactory.commandController(
-      appleScriptCommandController: AppleScriptControllerMock {
-        $0.send(completion: .finished)
-      },
-      applicationCommandController: ApplicationCommandControllerMock {
-        $0.send(completion: .finished)
-      },
-      openCommandController: OpenCommandControllerMock {
-        $0.send(completion: .finished)
-      },
-      shellScriptCommandController: ShellScriptControllerMock {
-        $0.send(completion: .finished)
-      }
+      appleScriptCommandController: AppleScriptControllerMock { $0.send(completion: .finished) },
+      applicationCommandController: ApplicationCommandControllerMock { $0.send(completion: .finished) },
+      openCommandController: OpenCommandControllerMock { $0.send(completion: .finished) },
+      shellScriptCommandController: ShellScriptControllerMock { $0.send(completion: .finished) }
     )
     let expectation = self.expectation(description: "Wait for commands to run")
     let delegate = CommandControllerDelegateMock { state in
