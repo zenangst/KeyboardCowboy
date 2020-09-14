@@ -1,6 +1,7 @@
+import Combine
 import Cocoa
 
-public protocol OpenCommandControlling {
+public protocol OpenCommandControlling: CommandPublishing {
   /// Execute an open command either with or without an optional associated application.
   /// `NSWorkspace` is used to perform open invocations.
   ///
@@ -11,7 +12,7 @@ public protocol OpenCommandControlling {
   ///
   /// - Note: All calls are made asynchronously.
   /// - Parameter command: An `OpenCommand` that should be invoked.
-  func run(_ command: OpenCommand) throws
+  func run(_ command: OpenCommand)
 }
 
 public protocol OpenCommandControllingDelegate: AnyObject {
@@ -29,12 +30,13 @@ public enum OpenCommandControllingError: Error {
 class OpenCommandController: OpenCommandControlling {
   weak var delegate: OpenCommandControllingDelegate?
   let workspace: WorkspaceProviding
+  internal let subject = PassthroughSubject<Command, Error>()
 
   init(workspace: WorkspaceProviding) {
     self.workspace = workspace
   }
 
-  func run(_ command: OpenCommand) throws {
+  func run(_ command: OpenCommand) {
     let path = command.path.sanitizedPath
     let url = URL(fileURLWithPath: path)
     let config = NSWorkspace.OpenConfiguration()
@@ -58,11 +60,13 @@ class OpenCommandController: OpenCommandControlling {
                                      runningApplication: RunningApplication?,
                                      error: Error?) {
     guard error == nil else {
+      subject.send(completion: .failure(OpenCommandControllingError.failedToOpenUrl))
       self.delegate?.openCommandControlling(self, didFailOpeningCommand: command,
                                             error: .failedToOpenUrl)
       return
     }
 
+    subject.send(completion: .finished)
     self.delegate?.openCommandControlling(self, didOpenCommand: command)
   }
 }

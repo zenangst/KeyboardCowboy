@@ -14,13 +14,21 @@ class CommandControllerTests: XCTestCase {
       .script(.shell(.inline("")))
     ]
     let controller = controllerFactory.commandController(
-      applicationCommandController: ApplicationCommandControllerMock(),
-      openCommandController: OpenCommandControllerMock(),
-      scriptCommandController: ScriptCommandController(appleScriptController: AppleScriptControllerMock(),
-                                                       shellScriptController: ShellScriptControllerMock())
+      appleScriptCommandController: AppleScriptControllerMock {
+        $0.send(completion: .finished)
+      },
+      applicationCommandController: ApplicationCommandControllerMock {
+        $0.send(completion: .finished)
+      },
+      openCommandController: OpenCommandControllerMock {
+        $0.send(completion: .finished)
+      },
+      shellScriptCommandController: ShellScriptControllerMock {
+        $0.send(completion: .finished)
+      }
     )
     let expectation = self.expectation(description: "Wait for commands to run")
-    let delegate = CommandControllingDelegateMock { state in
+    let delegate = CommandControllerDelegateMock { state in
       switch state {
       case .failedRunning:
         XCTFail("Wrong state")
@@ -31,7 +39,7 @@ class CommandControllerTests: XCTestCase {
     }
 
     controller.delegate = delegate
-    try controller.run(commands)
+    controller.run(commands)
     wait(for: [expectation], timeout: 10)
   }
 
@@ -40,12 +48,12 @@ class CommandControllerTests: XCTestCase {
     let commands: [Command] = [.application(applicationCommand)]
     let controller = controllerFactory.commandController(
       applicationCommandController: ApplicationCommandControllerMock {
-        throw ApplicationCommandControllingError.failedToLaunch(applicationCommand)
+        $0.send(completion: .failure(ApplicationCommandControllingError.failedToLaunch(applicationCommand)))
       }
     )
 
     let expectation = self.expectation(description: "Wait for commands to run")
-    let delegate = CommandControllingDelegateMock { state in
+    let delegate = CommandControllerDelegateMock { state in
       switch state {
       case .failedRunning(let command, let invokedCommands):
         XCTAssertEqual(command, .application(applicationCommand))
@@ -58,7 +66,7 @@ class CommandControllerTests: XCTestCase {
 
     controller.delegate = delegate
 
-    XCTAssertThrowsError(try controller.run(commands))
+    controller.run(commands)
     wait(for: [expectation], timeout: 10)
   }
 }

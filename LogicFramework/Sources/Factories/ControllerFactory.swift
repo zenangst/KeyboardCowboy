@@ -4,21 +4,27 @@ public class ControllerFactory {
   public init() {}
 
   public func commandController(
+    appleScriptCommandController: AppleScriptControlling? = nil,
     applicationCommandController: ApplicationCommandControlling? = nil,
+    keyboardCommandController: KeyboardCommandControlling? = nil,
     openCommandController: OpenCommandControlling? = nil,
-    scriptCommandController: ScriptCommandControlling? = nil
+    shellScriptCommandController: ShellScriptControlling? = nil
   ) -> CommandControlling {
     let workspace = NSWorkspace.shared
     let applicationCommandController = applicationCommandController ??
       self.applicationCommandController(
         windowListProvider: WindowListProvider(),
         workspace: workspace)
+    let keyboardCommandController = keyboardCommandController ?? KeyboardCommandController()
     let openCommandController = openCommandController ?? self.openCommandController(workspace: workspace)
-    let scriptCommandController = scriptCommandController ?? self.scriptCommandController()
+    let appleScriptCommandController = appleScriptCommandController ?? AppleScriptController()
+    let shellScriptCommandController = shellScriptCommandController ?? ShellScriptController()
 
-    return CommandController(applicationCommandController: applicationCommandController,
+    return CommandController(appleScriptCommandController: appleScriptCommandController,
+                             applicationCommandController: applicationCommandController,
+                             keyboardCommandController: keyboardCommandController,
                              openCommandController: openCommandController,
-                             scriptCommandController: scriptCommandController)
+                             shellScriptCommandController: shellScriptCommandController)
   }
 
   public func applicationCommandController(windowListProvider: WindowListProviding? = nil,
@@ -31,12 +37,5 @@ public class ControllerFactory {
 
   public func openCommandController(workspace: WorkspaceProviding = NSWorkspace.shared) -> OpenCommandControlling {
     OpenCommandController(workspace: workspace)
-  }
-
-  public func scriptCommandController(appleScriptController: AppleScriptControlling? = nil,
-                                      shellScriptController: ShellScriptControlling? = nil)
-  -> ScriptCommandControlling {
-    ScriptCommandController(appleScriptController: appleScriptController ?? AppleScriptController(),
-                            shellScriptController: shellScriptController ?? ShellScriptController())
   }
 }

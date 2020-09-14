@@ -1,7 +1,7 @@
 import Foundation
 import LogicFramework
 
-class CommandControllingDelegateMock: CommandControllingDelegate {
+class CommandControllerDelegateMock: CommandControllingDelegate {
   enum Output {
     case failedRunning(Command, commands: [Command])
     case finished([Command])
