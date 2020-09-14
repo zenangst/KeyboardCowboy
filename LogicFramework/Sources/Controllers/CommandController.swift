@@ -62,41 +62,39 @@ public class CommandController: CommandControlling {
   private func run(_ command: Command) {
     switch command {
     case .application(let applicationCommand):
-      subscribeToPublisher(applicationCommandController.publisher, for: command)
-      applicationCommandController.run(applicationCommand)
+      subscribeToPublisher(applicationCommandController.run(applicationCommand), for: command)
     case .keyboard(let keyboardCommand):
-      subscribeToPublisher(keyboardCommandController.publisher, for: command)
-      keyboardCommandController.run(keyboardCommand)
+      subscribeToPublisher(keyboardCommandController.run(keyboardCommand), for: command)
     case .open(let openCommand):
-      subscribeToPublisher(openCommandController.publisher, for: command)
-      openCommandController.run(openCommand)
+      subscribeToPublisher(openCommandController.run(openCommand), for: command)
     case .script(let scriptCommand):
       switch scriptCommand {
       case .appleScript(let source):
-        subscribeToPublisher(appleScriptCommandController.publisher, for: command)
-        appleScriptCommandController.run(source)
+        subscribeToPublisher(appleScriptCommandController.run(source), for: command)
       case .shell(let source):
-        subscribeToPublisher(shellScriptCommandController.publisher, for: command)
-        shellScriptCommandController.run(source)
+        subscribeToPublisher(shellScriptCommandController.run(source), for: command)
       }
     }
   }
 
-  private func subscribeToPublisher(_ publisher: AnyPublisher<Command, Error>, for command: Command) {
-    publisher.sink(
-      receiveCompletion: { [weak self] completion in
-      guard let self = self else { return }
-      switch completion {
-      case .failure(let error):
-        self.abortQueue(command, error: error)
-      case .finished:
-        self.cancellables.removeAll()
-        self.runQueue()
-      }
-    }, receiveValue: { [weak self] command in
-      guard let self = self else { return }
-      self.delegate?.commandController(self, runningCommand: command)
-    }).store(in: &cancellables)
+  private func subscribeToPublisher(_ publisher: AnyPublisher<Void, Error>, for command: Command) {
+    delegate?.commandController(self, runningCommand: command)
+
+    publisher
+      .sink(
+        receiveCompletion: { [weak self] completion in
+          guard let self = self else { return }
+          switch completion {
+          case .failure(let error):
+            self.abortQueue(command, error: error)
+          case .finished:
+            self.cancellables.removeAll()
+            self.runQueue()
+          }
+        },
+        receiveValue: {}
+      )
+      .store(in: &cancellables)
   }
 
   private func abortQueue(_ command: Command, error: Error) {
