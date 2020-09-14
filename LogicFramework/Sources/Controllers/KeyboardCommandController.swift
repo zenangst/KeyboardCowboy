@@ -10,7 +10,10 @@ public enum KeyboardCommandControllingError: Error {
 }
 
 class KeyboardCommandController: KeyboardCommandControlling {
-  internal let subject = PassthroughSubject<Command, Error>()
+  var publisher: AnyPublisher<Command, Error> {
+    subject.eraseToAnyPublisher()
+  }
+  private let subject = PassthroughSubject<Command, Error>()
 
   func run(_ command: KeyboardCommand) {
     subject.send(completion: .finished)
