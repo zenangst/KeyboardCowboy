@@ -17,18 +17,21 @@ class WorkflowControllerTests: XCTestCase {
       Combination(input: "2")
     ]
 
-    // TODO: Improve this test by splitting the rules into seperated groups.
     let groups = [
       ModelFactory().group(
         name: "A", rule: Rule(), workflows: {
-          [
-            $0.workflow(combinations: { _ in combinationA },
-                        commands: { [.application($0.applicationCommand())] }),
-            $0.workflow(combinations: { _ in combinationB },
-                        commands: { [.application($0.applicationCommand())] }),
-            $0.workflow(combinations: { _ in combinationC },
-                        commands: { [.application($0.applicationCommand())] })
-          ]
+          [$0.workflow(combinations: { _ in combinationA },
+                        commands: { [.application($0.applicationCommand())] })]
+        }),
+      ModelFactory().group(
+        name: "B", rule: Rule(), workflows: {
+          [$0.workflow(combinations: { _ in combinationB },
+                       commands: { [.application($0.applicationCommand())] })]
+        }),
+      ModelFactory().group(
+        name: "C", rule: Rule(), workflows: {
+          [$0.workflow(combinations: { _ in combinationC },
+                       commands: { [.application($0.applicationCommand())] })]
         })
     ]
 
