@@ -1,6 +1,7 @@
 import Cocoa
+import Combine
 
-public protocol AppleScriptControlling {
+public protocol AppleScriptControlling: CommandPublishing {
   /// Run a AppleScript based on which `Source` is supplied.
   ///
   /// Source is a value-type that decided which type of AppleScript
@@ -11,7 +12,7 @@ public protocol AppleScriptControlling {
   ///
   /// - Parameter source: A `Source` enum that decides how the
   ///                     AppleScript should be constructed
-  func run(_ source: ScriptCommand.Source) throws -> String
+  func run(_ source: ScriptCommand.Source)
 }
 
 enum AppleScriptControllingError: Error {
@@ -21,12 +22,15 @@ enum AppleScriptControllingError: Error {
 }
 
 class AppleScriptController: AppleScriptControlling {
-  func run(_ source: ScriptCommand.Source) throws -> String {
+  internal let subject = PassthroughSubject<Command, Error>()
+
+  func run(_ source: ScriptCommand.Source) {
     let appleScript: NSAppleScript
     switch source {
     case .inline(let source):
       guard let script = NSAppleScript(source: source) else {
-        throw AppleScriptControllingError.failedToCreateInlineAppleScript
+        subject.send(completion: .failure(AppleScriptControllingError.failedToCreateInlineAppleScript))
+        return
       }
       appleScript = script
     case .path(let path):
@@ -34,17 +38,16 @@ class AppleScriptController: AppleScriptControlling {
       var dictionary: NSDictionary?
       let url = URL(fileURLWithPath: filePath)
       guard let script = NSAppleScript(contentsOf: url, error: &dictionary) else {
-        throw AppleScriptControllingError.failedToLoadAppleScriptAtUrl(url, dictionary)
+        subject.send(completion: .failure(AppleScriptControllingError.failedToLoadAppleScriptAtUrl(url, dictionary)))
+        return
       }
       appleScript = script
     }
 
-    try run(appleScript)
-
-    return "true"
+    run(appleScript)
   }
 
-  private func run(_ appleScript: NSAppleScript) throws {
+  private func run(_ appleScript: NSAppleScript) {
     var dictionary: NSDictionary?
     appleScript.executeAndReturnError(&dictionary)
     let errorNumber = dictionary?["NSAppleScriptErrorNumber"] as? Int ?? -999
@@ -53,7 +56,9 @@ class AppleScriptController: AppleScriptControlling {
     //       map them into something user presentable.
     if [-1743, -1719].contains(errorNumber) {
       let message = dictionary?["NSAppleScriptErrorMessage"] as? String
-      throw AppleScriptControllingError.failedToRunAppleScript(message ?? "Unknown error")
+      subject.send(completion: .failure(AppleScriptControllingError.failedToRunAppleScript(message ?? "Unknown error")))
     }
+
+    subject.send(completion: .finished)
   }
 }

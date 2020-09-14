@@ -4,4 +4,8 @@ import Foundation
 /// will be the `Combination` found in the `Workflow`.
 public struct KeyboardCommand: Codable, Hashable {
   public let output: String
+
+  public init(output: String) {
+    self.output = output
+  }
 }
