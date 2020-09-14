@@ -9,7 +9,7 @@ class ApplicationCommandControllerTests: XCTestCase {
   lazy var controller = controllerFactory.applicationCommandController(windowListProvider: windowListProvider,
                                                                        workspace: workspaceProvider)
 
-  func testApplicationCommandControllerLaunchingSuccessfully() throws {
+  func testApplicationCommandControllerLaunchingSuccessfully() {
     windowListProvider.owners = []
     workspaceProvider.applications = []
     XCTAssertNoThrow(controller.run(.init(application: application)))
@@ -44,7 +44,7 @@ class ApplicationCommandControllerTests: XCTestCase {
     wait(for: [expectation], timeout: 10.0)
   }
 
-  func testApplicationCommandControllerActivatingSuccessfully() throws {
+  func testApplicationCommandControllerActivatingSuccessfully() {
     windowListProvider.owners = [application.bundleName]
     workspaceProvider.applications = [
       RunningApplicationMock(
@@ -65,7 +65,7 @@ class ApplicationCommandControllerTests: XCTestCase {
     wait(for: [expectation], timeout: 10.0)
   }
 
-  func testApplicationCommandControllerActivatingFailedToFindRunningApplication() throws {
+  func testApplicationCommandControllerActivatingFailedToFindRunningApplication() {
     windowListProvider.owners = [application.bundleName]
     workspaceProvider.applications = []
     let expectation = self.expectation(description: "Wait for error.")
@@ -92,7 +92,7 @@ class ApplicationCommandControllerTests: XCTestCase {
     wait(for: [expectation], timeout: 10.0)
   }
 
-  func testApplicationCommandControllerActivatingFailedToActivate() throws {
+  func testApplicationCommandControllerActivatingFailedToActivate() {
     windowListProvider.owners = [application.bundleName]
     workspaceProvider.applications = [
       RunningApplicationMock(

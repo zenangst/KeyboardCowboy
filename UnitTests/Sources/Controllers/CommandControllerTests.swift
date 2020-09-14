@@ -5,7 +5,7 @@ class CommandControllerTests: XCTestCase {
   let modelFactory = ModelFactory()
   let controllerFactory = ControllerFactory()
 
-  func testCommandControllerRunningCommandsSuccessfully() throws {
+  func testCommandControllerRunningCommandsSuccessfully() {
     let commands: [Command] = [
       .application(modelFactory.applicationCommand()),
       .keyboard(modelFactory.keyboardCommand()),
@@ -35,7 +35,7 @@ class CommandControllerTests: XCTestCase {
     wait(for: [expectation], timeout: 10)
   }
 
-  func testCommandControllerRunningFailingToLaunchApplicationCommand() throws {
+  func testCommandControllerRunningFailingToLaunchApplicationCommand() {
     let applicationCommand = modelFactory.applicationCommand()
     let commands: [Command] = [.application(applicationCommand)]
     let controller = controllerFactory.commandController(
