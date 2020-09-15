@@ -11,4 +11,12 @@ public struct Application: Codable, Hashable {
   public let bundleIdentifier: String
   public let bundleName: String
   public let path: String
+
+  public init(bundleIdentifier: String,
+              bundleName: String,
+              path: String) {
+    self.bundleIdentifier = bundleIdentifier
+    self.bundleName = bundleName
+    self.path = path
+  }
 }

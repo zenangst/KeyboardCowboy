@@ -88,6 +88,8 @@ schemes:
         Keyboard-Cowboy: all
     run:
       config: Debug
+      environmentVariables:
+        SOURCE_ROOT: $(SRCROOT)
     test:
       config: Debug
       gatherCoverageData: true

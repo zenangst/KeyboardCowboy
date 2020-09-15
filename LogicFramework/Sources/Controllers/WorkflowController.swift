@@ -21,8 +21,8 @@ public protocol WorkflowControlling {
   func filterWorkflows(from groups: [Group], keyboardShortcuts: [KeyboardShortcut]) -> [Workflow]
 }
 
-public class WorkflowController: WorkflowControlling {
-  public init() {}
+class WorkflowController: WorkflowControlling {
+  init() {}
 
   public func filterWorkflows(from groups: [Group], keyboardShortcuts: [KeyboardShortcut]) -> [Workflow] {
     groups.flatMap { $0.workflows }
