@@ -4,4 +4,8 @@ import Foundation
 /// launching or activing applications.
 public struct ApplicationCommand: Codable, Hashable {
   public var application: Application
+
+  public init(application: Application) {
+    self.application = application
+  }
 }

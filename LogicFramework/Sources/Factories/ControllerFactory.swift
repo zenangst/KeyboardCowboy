@@ -3,6 +3,26 @@ import Cocoa
 public class ControllerFactory {
   public init() {}
 
+  public func coreController(commandController: CommandControlling? = nil,
+                             groupsController: GroupsControlling? = nil,
+                             workflowController: WorkflowControlling? = nil,
+                             workspace: WorkspaceProviding = NSWorkspace.shared) -> CoreControlling {
+    let commandController = commandController ?? self.commandController()
+    let groupsController = groupsController ?? GroupsController(groups: [])
+    let workflowController = workflowController ?? WorkflowController()
+    return CoreController(commandController: commandController,
+                          groupsController: groupsController,
+                          workflowController: workflowController,
+                          workspace: workspace)
+  }
+
+  public func groupsController(groups: [Group]) -> GroupsControlling {
+    GroupsController(groups: groups)
+  }
+
+  public func workflowController() -> WorkflowControlling {
+    WorkflowController()
+  }
 
   public func storageController(path: String, fileName: String = "config.json") -> StorageControlling {
     StorageController(path: path, fileName: fileName)
