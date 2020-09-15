@@ -1,6 +1,6 @@
 import Foundation
 
-protocol GroupControlling {
+public protocol GroupsControlling {
   /// Filter groups based on current set of rules.
   /// For more information about rules, check the
   /// implementation of `Rule` value-type.
@@ -8,16 +8,18 @@ protocol GroupControlling {
   /// - Parameter rule: The rule that the groups should
   ///                   be evaluated against.
   func filterGroups(using rule: Rule) -> [Group]
+
+  func updateGroups(_ groups: [Group])
 }
 
-class GroupController: GroupControlling {
+class GroupsController: GroupsControlling {
   var groups: [Group]
 
   init(groups: [Group]) {
     self.groups = groups
   }
 
-  func filterGroups(using rule: Rule) -> [Group] {
+  public func filterGroups(using rule: Rule) -> [Group] {
     groups.filter { group in
       guard let groupRule = group.rule else { return true }
 
@@ -31,6 +33,10 @@ class GroupController: GroupControlling {
 
       return true
     }
+  }
+
+  public func updateGroups(_ groups: [Group]) {
+    self.groups = groups
   }
 }
 

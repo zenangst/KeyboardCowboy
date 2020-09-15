@@ -28,8 +28,8 @@ class GroupTests: XCTestCase {
                               "path": "/System/Library/CoreServices/Finder.app"]
             ]
           ]],
-          "combinations": [
-            ["input": "⌃⌥A"]
+          "keyboardShortcuts": [
+            ["key": "A", "modifiers": [ModifierKey.control.rawValue, ModifierKey.option.rawValue]]
           ],
           "name": "Open/active Finder"
         ]

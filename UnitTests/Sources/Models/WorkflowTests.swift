@@ -9,7 +9,7 @@ class WorkflowTests: XCTestCase {
   }
 
   func testJSONDecoding() throws {
-    let json: [String: AnyHashable] = [
+    let json: [String: Any] = [
       "commands": [[
         "applicationCommand": [
           "application": ["bundleName": "Finder",
@@ -17,8 +17,11 @@ class WorkflowTests: XCTestCase {
                           "path": "/System/Library/CoreServices/Finder.app"]
         ]
       ]],
-      "combinations": [
-        ["input": "⌃⌥A"]
+      "keyboardShortcuts": [
+        [
+          "key": "A",
+          "modifiers": [ModifierKey.control.rawValue, ModifierKey.option.rawValue]
+        ]
       ],
       "name": "Open/active Finder"
     ]

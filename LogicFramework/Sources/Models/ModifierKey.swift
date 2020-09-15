@@ -1,6 +1,6 @@
 import Cocoa
 
-enum ModifierKey: String, CaseIterable {
+public enum ModifierKey: String, CaseIterable, Codable, Hashable {
   case shift = "$"
   case control = "^"
   case option = "~"

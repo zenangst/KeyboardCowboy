@@ -22,19 +22,19 @@ class GroupControllerTests: XCTestCase {
     let groups = [
       Group(name: "Group: Only when Xcode is active",
             rule: xcodeRuleSet,
-            workflows: [Workflow(combinations: [], commands: [], name: "Xcode workflow")]),
+            workflows: [Workflow(commands: [], keyboardShortcuts: [], name: "Xcode workflow")]),
       Group(name: "Group: Only when Calendar is active",
             rule: calendarRuleSet,
-            workflows: [Workflow(combinations: [], commands: [], name: "Calendar workflow")]),
+            workflows: [Workflow(commands: [], keyboardShortcuts: [], name: "Calendar workflow")]),
       Group(name: "Group: Global Xcode workflow",
             rule: nil,
-            workflows: [Workflow(combinations: [], commands: [], name: "Open Xcode")]),
+            workflows: [Workflow(commands: [], keyboardShortcuts: [], name: "Open Xcode")]),
       Group(name: "Group: Day-based rule",
             rule: weekDayRuleSet,
-            workflows: [Workflow(combinations: [], commands: [], name: "Open Time tracker")])
+            workflows: [Workflow(commands: [], keyboardShortcuts: [], name: "Open Time tracker")])
     ]
 
-    let controller = GroupController(groups: groups)
+    let controller = GroupsController(groups: groups)
 
     XCTAssertEqual(
       controller.filterGroups(using: xcodeRuleSet).compactMap { $0.name },
