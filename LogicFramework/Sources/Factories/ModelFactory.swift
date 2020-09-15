@@ -46,16 +46,16 @@ class ModelFactory {
     ]
   }
 
-  func combination() -> Combination {
-    .init(input: "⌃⌥A")
+  func keyboardShortcut() -> KeyboardShortcut {
+    .init(key: "A", modifiers: [.control, .option])
   }
 
-  func workflow(combinations: ((ModelFactory) -> [Combination])? = nil,
+  func workflow(keyboardShortcuts: ((ModelFactory) -> [KeyboardShortcut])? = nil,
                 commands: ((ModelFactory) -> [Command])? = nil,
                 name: String = "Open/active Finder") -> Workflow {
     Workflow(
-      combinations: combinations?(self) ?? [combination()],
       commands: commands?(self) ?? [.application(applicationCommand())],
+      keyboardShortcuts: keyboardShortcuts?(self) ?? [keyboardShortcut()],
       name: name)
   }
 }

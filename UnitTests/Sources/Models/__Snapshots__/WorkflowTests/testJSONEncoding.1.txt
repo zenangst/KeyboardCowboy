@@ -1,1 +1,1 @@
-- "{\"commands\":[{\"applicationCommand\":{\"application\":{\"path\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\",\"bundleIdentifier\":\"com.apple.Finder\",\"bundleName\":\"Finder\"}}}],\"combinations\":[{\"input\":\"⌃⌥A\"}],\"name\":\"Open\\/active Finder\"}"
+- "{\"commands\":[{\"applicationCommand\":{\"application\":{\"path\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\",\"bundleIdentifier\":\"com.apple.Finder\",\"bundleName\":\"Finder\"}}}],\"keyboardShortcuts\":[{\"key\":\"A\",\"modifiers\":[\"^\",\"~\"]}],\"name\":\"Open\\/active Finder\"}"

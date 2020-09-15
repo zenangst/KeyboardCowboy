@@ -1,6 +1,6 @@
 import Foundation
 
-protocol WorkflowControlling {
+public protocol WorkflowControlling {
   /// Filter workflows based on a collection of combinations.
   ///
   /// Matching is done by concatinating combinations and verifying that the
@@ -16,21 +16,23 @@ protocol WorkflowControlling {
   ///
   /// - Parameters:
   ///   - groups: The groups that are eligable for workflow filtering
-  ///   - combinations: The combination that should be used inside the algorithm
-  ///                   for figuring out uniqueness.
-  func filterWorkflows(from groups: [Group], combinations: [Combination]) -> [Workflow]
+  ///   - keyboardShortcuts: The combination that should be used inside the algorithm
+  ///                        for figuring out uniqueness.
+  func filterWorkflows(from groups: [Group], keyboardShortcuts: [KeyboardShortcut]) -> [Workflow]
 }
 
-class WorkflowController: WorkflowControlling {
-  func filterWorkflows(from groups: [Group], combinations: [Combination]) -> [Workflow] {
+public class WorkflowController: WorkflowControlling {
+  public init() {}
+
+  public func filterWorkflows(from groups: [Group], keyboardShortcuts: [KeyboardShortcut]) -> [Workflow] {
     groups.flatMap { $0.workflows }
       .filter {
-        if combinations.count < $0.combinations.count {
-          let lhs = $0.combinations.compactMap { $0.input }.joined()
-          let rhs = combinations.compactMap { $0.input }.joined()
+        if keyboardShortcuts.count < $0.keyboardShortcuts.count {
+          let lhs = $0.keyboardShortcuts.compactMap { $0.rawValue }.joined()
+          let rhs = keyboardShortcuts.compactMap { $0.rawValue }.joined()
           return lhs.starts(with: rhs)
         } else {
-          return $0.combinations == combinations
+          return $0.keyboardShortcuts == keyboardShortcuts
         }
       }
   }
