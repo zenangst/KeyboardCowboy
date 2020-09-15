@@ -3,6 +3,11 @@ import Cocoa
 public class ControllerFactory {
   public init() {}
 
+
+  public func storageController(path: String, fileName: String = "config.json") -> StorageControlling {
+    StorageController(path: path, fileName: fileName)
+  }
+
   public func commandController(
     appleScriptCommandController: AppleScriptControlling? = nil,
     applicationCommandController: ApplicationCommandControlling? = nil,
