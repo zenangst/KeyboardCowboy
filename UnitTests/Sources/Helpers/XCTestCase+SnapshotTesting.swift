@@ -34,6 +34,7 @@ extension XCTestCase {
     for scheme in ColorScheme.allCases {
       let view = view
         .previewLayout(.sizeThatFits)
+        .background(Color(.windowBackgroundColor))
         .colorScheme(scheme)
         .environment(\.sizeCategory, .accessibilityMedium)
 
