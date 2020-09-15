@@ -74,8 +74,12 @@ class ApplicationCommandController: ApplicationCommandControlling {
   ///           a `.failedToFindRunningApplication` will be thrown.
   ///           If `.activate` should fail, then another error will be thrown: `.failedToActivate`
   private func activateApplication(_ command: ApplicationCommand) throws {
-    guard let runningApplication = workspace.applications
-            .first(where: { $0.bundleIdentifier?.lowercased() == command.application.bundleIdentifier.lowercased() }) else {
+    guard
+      let runningApplication = workspace
+        .applications
+        .first(where:
+                { $0.bundleIdentifier?.lowercased() == command.application.bundleIdentifier.lowercased() }
+        ) else {
       throw ApplicationCommandControllingError.failedToFindRunningApplication(command)
     }
 
