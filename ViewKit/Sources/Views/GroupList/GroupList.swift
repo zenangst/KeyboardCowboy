@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct GroupList: View {
-  static let idealWidth: CGFloat = 200
+  static let idealWidth: CGFloat = 300
 
   let groups: [Group]
   @State private var selection: Group?
@@ -23,15 +23,24 @@ struct GroupList: View {
         })
       }
       .listStyle(SidebarListStyle())
-      .frame(minWidth: 200, idealWidth: Self.idealWidth, maxWidth: 200, maxHeight: .infinity)
+      .frame(
+        minWidth: 200,
+        idealWidth: Self.idealWidth,
+        maxWidth: Self.idealWidth,
+        maxHeight: .infinity
+      )
     }
   }
 }
 
 // MARK: - Previews
 
-struct GroupList_Previews: PreviewProvider {
+struct GroupList_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
+    testPreview.previewAllColorSchemes()
+  }
+
+  static var testPreview: some View {
     GroupList(groups: ModelFactory().groupList())
   }
 }

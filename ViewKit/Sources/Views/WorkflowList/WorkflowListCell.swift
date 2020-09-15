@@ -38,8 +38,12 @@ private extension WorkflowListCell {
 
 // MARK: - Previews
 
-struct WorkflowListCell_Previews: PreviewProvider {
+struct WorkflowListCell_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
+    testPreview.previewAllColorSchemes()
+  }
+
+  static var testPreview: some View {
     WorkflowListCell(workflow: ModelFactory().workflowCell())
   }
 }

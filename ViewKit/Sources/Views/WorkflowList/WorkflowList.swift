@@ -28,15 +28,19 @@ struct WorkflowList: View {
           selection = workflows.first
         })
       }
-      .frame(minWidth: 300, idealWidth: Self.idealWidth, maxWidth: 300, maxHeight: .infinity)
+      .frame(minWidth: 300, idealWidth: Self.idealWidth, maxWidth: 500, maxHeight: .infinity)
     }
   }
 }
 
 // MARK: - Previews
 
-struct WorkflowList_Previews: PreviewProvider {
+struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
+    testPreview.previewAllColorSchemes()
+  }
+
+  static var testPreview: some View {
     WorkflowList(workflows: ModelFactory().workflowList())
   }
 }

@@ -31,8 +31,12 @@ private extension GroupListCell {
 
 // MARK: - Previews
 
-struct GroupListCell_Previews: PreviewProvider {
-    static var previews: some View {
-      GroupListCell(group: ModelFactory().groupListCell())
-    }
+struct GroupListCell_Previews: PreviewProvider, TestPreviewProvider {
+  static var previews: some View {
+    testPreview.previewAllColorSchemes()
+  }
+
+  static var testPreview: some View {
+    GroupListCell(group: ModelFactory().groupListCell())
+  }
 }
