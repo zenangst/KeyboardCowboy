@@ -30,7 +30,19 @@ class OpenCommandController: OpenCommandControlling {
   func run(_ command: OpenCommand) -> CommandPublisher {
     Future { [weak self] promise in
       let path = command.path.sanitizedPath
-      let url = URL(fileURLWithPath: path)
+      let targetUrl: URL
+
+      if let url = URL(string: path) {
+        if url.isFileURL {
+          targetUrl = URL(fileURLWithPath: path)
+        } else {
+          targetUrl = url
+        }
+      } else {
+        promise(.failure(OpenCommandControllingError.failedToOpenUrl))
+        return
+      }
+
       let config = NSWorkspace.OpenConfiguration()
 
       func complete(application: RunningApplication?, error: Error?) {
@@ -43,9 +55,10 @@ class OpenCommandController: OpenCommandControlling {
 
       if let application = command.application {
         let applicationUrl = URL(fileURLWithPath: application.path)
-        self?.workspace.open([url], withApplicationAt: applicationUrl, config: config, completionHandler: complete)
+        self?.workspace.open([targetUrl], withApplicationAt: applicationUrl, config: config,
+                             completionHandler: complete)
       } else {
-        self?.workspace.open(url, config: config, completionHandler: complete)
+        self?.workspace.open(targetUrl, config: config, completionHandler: complete)
       }
     }.eraseToAnyPublisher()
   }
