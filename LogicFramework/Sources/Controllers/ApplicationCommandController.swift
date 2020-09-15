@@ -75,11 +75,17 @@ class ApplicationCommandController: ApplicationCommandControlling {
   ///           If `.activate` should fail, then another error will be thrown: `.failedToActivate`
   private func activateApplication(_ command: ApplicationCommand) throws {
     guard let runningApplication = workspace.applications
-            .first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }) else {
+            .first(where: { $0.bundleIdentifier?.lowercased() == command.application.bundleIdentifier.lowercased() }) else {
       throw ApplicationCommandControllingError.failedToFindRunningApplication(command)
     }
 
-    if !runningApplication.activate(options: .activateIgnoringOtherApps) {
+    var options: NSApplication.ActivationOptions = .activateIgnoringOtherApps
+
+    if workspace.frontApplication?.bundleIdentifier?.lowercased() == command.application.bundleIdentifier.lowercased() {
+      options.insert(.activateAllWindows)
+    }
+
+    if !runningApplication.activate(options: options) {
       throw ApplicationCommandControllingError.failedToActivate(command)
     }
   }

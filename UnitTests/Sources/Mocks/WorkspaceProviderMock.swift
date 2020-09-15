@@ -5,6 +5,7 @@ class WorkspaceProviderMock: WorkspaceProviding {
   typealias OpenHandler = WorkspaceCompletion?
   typealias OpenResult = (runningApplication: RunningApplication?, error: OpenCommandControllingError?)
 
+  var frontApplication: RunningApplication?
   var applications: [RunningApplication]
   var launchApplicationResult: Bool
   var openFileResult: OpenResult?
