@@ -5,15 +5,22 @@ public class ControllerFactory {
 
   public func coreController(commandController: CommandControlling? = nil,
                              groupsController: GroupsControlling? = nil,
+                             keycodeMapper: KeyCodeMapping? = nil,
                              workflowController: WorkflowControlling? = nil,
                              workspace: WorkspaceProviding = NSWorkspace.shared) -> CoreControlling {
     let commandController = commandController ?? self.commandController()
     let groupsController = groupsController ?? GroupsController(groups: [])
+    let keycodeMapper = keycodeMapper ?? KeyCodeMapper()
     let workflowController = workflowController ?? WorkflowController()
     return CoreController(commandController: commandController,
                           groupsController: groupsController,
+                          keycodeMapper: keycodeMapper,
                           workflowController: workflowController,
                           workspace: workspace)
+  }
+
+  public func hotkeyController() -> HotkeyControlling {
+    HotkeyController.shared
   }
 
   public func groupsController(groups: [Group]) -> GroupsControlling {

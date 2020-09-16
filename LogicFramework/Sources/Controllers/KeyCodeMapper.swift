@@ -1,11 +1,12 @@
 import Foundation
 import Carbon
 
-protocol KeyCodeMapping {
+public protocol KeyCodeMapping {
+  func hashTable() -> [String: Int]
   func map(_ keyCode: Int, modifiers: Int) throws -> String
 }
 
-enum KeyCodeMappingError: Error {
+public enum KeyCodeMappingError: Error {
   case unableToMapKeyCode(Int)
 }
 
@@ -17,6 +18,15 @@ class KeyCodeMapper: KeyCodeMapping {
     let inputController = InputSourceController()
     self.inputSource = inputSource ?? inputController.currentInputSource()
     self.inputController = inputController
+  }
+
+  func hashTable() -> [String: Int] {
+    var table = [String: Int]()
+    for integer in 0..<128 {
+      guard let char = try? map(integer, modifiers: 0) else { continue }
+      table[char] = integer
+    }
+    return table
   }
 
   func map(_ keyCode: Int, modifiers: Int) throws -> String {
