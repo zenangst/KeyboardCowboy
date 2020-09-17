@@ -6,7 +6,7 @@ public protocol HotkeyHandling: AnyObject {
   func installEventHandler()
   func register(_ hotkey: Hotkey, withSignature signature: String) -> Bool
   func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> Result<Void, HotkeySendKeyboardError>
-  func unregister(_ reference: EventHotKeyRef)
+  func unregister(_ hotkey: Hotkey)
 }
 
 public enum HotkeySendKeyboardError: Error {
@@ -110,7 +110,9 @@ class HotkeyHandler: HotkeyHandling {
     }
   }
 
-  func unregister(_ reference: EventHotKeyRef) {
-    UnregisterEventHotKey(reference)
+  func unregister(_ hotkey: Hotkey) {
+    if let reference = hotkey.reference {
+      UnregisterEventHotKey(reference)
+    }
   }
 }
