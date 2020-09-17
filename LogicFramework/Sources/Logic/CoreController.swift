@@ -21,18 +21,18 @@ public class CoreController: CoreControlling, HotkeyControllingDelegate {
 
   public init(commandController: CommandControlling,
               groupsController: GroupsControlling,
+              hotkeyController: HotkeyControlling,
               keycodeMapper: KeyCodeMapping,
-              hotkeyController: HotkeyControlling? = nil,
               workflowController: WorkflowControlling,
               workspace: WorkspaceProviding) {
+    self.cache = keycodeMapper.hashTable()
     self.commandController = commandController
     self.groupsController = groupsController
+    self.hotkeyController = hotkeyController
     self.keycodeMapper = keycodeMapper
-    self.hotkeyController = hotkeyController ?? HotkeyController.shared
     self.workspace = workspace
     self.workflowController = workflowController
-    self.cache = keycodeMapper.hashTable()
-    (hotkeyController ?? HotkeyController.shared).delegate = self
+    self.hotkeyController.delegate = self
     self.reload()
   }
 

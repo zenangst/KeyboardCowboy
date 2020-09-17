@@ -29,14 +29,6 @@ public class Hotkey: Hashable {
     self.keyCode = keyCode
   }
 
-  public func register() {
-    HotkeyController.shared.register(self)
-  }
-
-  public func unregister() {
-    HotkeyController.shared.unregister(self)
-  }
-
   public func hash(into hasher: inout Hasher) {
     hasher.combine(keyboardShortcut)
   }
