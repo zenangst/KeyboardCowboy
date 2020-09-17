@@ -5,7 +5,7 @@ import Carbon
 class HotkeyHandlerMock: HotkeyHandling {
   typealias Handler = (State) -> Void
 
-  var delegate: HotkeyHandlerDelegate?
+  weak var delegate: HotkeyHandlerDelegate?
   var hotkeySupplier: HotkeySupplying?
   var handler: Handler
   var registerResult: Bool
@@ -36,7 +36,7 @@ class HotkeyHandlerMock: HotkeyHandling {
     return .success(())
   }
 
-  func unregister(_ reference: EventHotKeyRef) {
+  func unregister(_ hotkey: Hotkey) {
     handler(.unregister)
   }
 }

@@ -55,12 +55,9 @@ public class HotkeyController: HotkeyControlling, HotkeySupplying, HotkeyHandler
   }
 
   public func unregister(_ hotkey: Hotkey) {
-    if let reference = hotkey.reference {
-      hotkeyHandler.unregister(reference)
-      hotkey.reference = nil
-      delegate?.hotkeyControlling(self, didUnregisterKeyboardShortcut: hotkey.keyboardShortcut)
-    }
-
+    hotkeyHandler.unregister(hotkey)
+    hotkey.reference = nil
+    delegate?.hotkeyControlling(self, didUnregisterKeyboardShortcut: hotkey.keyboardShortcut)
     hotkey.identifier = nil
     hotkeys.remove(hotkey)
   }
