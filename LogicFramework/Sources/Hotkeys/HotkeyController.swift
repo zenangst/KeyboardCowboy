@@ -5,8 +5,6 @@ public protocol HotkeySupplying: AnyObject {
 }
 
 public protocol HotkeyControlling: AnyObject {
-  static var shared: HotkeyControlling { get }
-
   var hotkeyHandler: HotkeyHandling { get }
   var delegate: HotkeyControllingDelegate? { get set }
   var notificationCenter: NotificationControlling { get }
@@ -23,7 +21,6 @@ public protocol HotkeyControllingDelegate: AnyObject {
 }
 
 public class HotkeyController: HotkeyControlling, HotkeySupplying, HotkeyHandlerDelegate {
-  public static var shared: HotkeyControlling = HotkeyController(hotkeyHandler: HotkeyHandler.shared)
   public weak var delegate: HotkeyControllingDelegate?
   private(set) public var hotkeys = Set<Hotkey>()
   public let hotkeyHandler: HotkeyHandling
