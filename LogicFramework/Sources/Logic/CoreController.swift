@@ -4,7 +4,7 @@ public protocol CoreControlling {
   func reload()
   func activate(_ keyboardShortcuts: Set<KeyboardShortcut>)
   @discardableResult
-  func respondTo(_ keyboardShortcut: KeyboardShortcut) -> [Workflow]
+  func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow]
 }
 
 public class CoreController: CoreControlling, HotkeyControllingDelegate {
@@ -70,7 +70,7 @@ public class CoreController: CoreControlling, HotkeyControllingDelegate {
     }
   }
 
-  public func respondTo(_ keyboardShortcut: KeyboardShortcut) -> [Workflow] {
+  public func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow] {
     currentKeyboardShortcuts.append(keyboardShortcut)
     let workflows = workflowController.filterWorkflows(
       from: currentGroups,
@@ -101,7 +101,7 @@ public class CoreController: CoreControlling, HotkeyControllingDelegate {
 
   public func hotkeyControlling(_ controller: HotkeyController,
                                 didInvokeKeyboardShortcut keyboardShortcut: KeyboardShortcut) {
-    _ = respondTo(keyboardShortcut)
+    _ = respond(to: keyboardShortcut)
   }
 
   public func hotkeyControlling(_ controller: HotkeyController, didUnregisterKeyboardShortcut: KeyboardShortcut) {}

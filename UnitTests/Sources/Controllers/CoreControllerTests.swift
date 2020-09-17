@@ -62,12 +62,12 @@ class CoreControllerTests: XCTestCase {
       workflowController: workflowController,
       workspace: workspace)
 
-    let firstBatch = controller.respondTo(.init(key: "G", modifiers: [.control, .option]))
+    let firstBatch = controller.respond(to: .init(key: "G", modifiers: [.control, .option]))
     XCTAssertEqual(firstBatch.count, 2)
     XCTAssertEqual(groups[0].workflows[1], firstBatch[0])
     XCTAssertEqual(groups[0].workflows[2], firstBatch[1])
 
-    let secondBatch = controller.respondTo(.init(key: "H"))
+    let secondBatch = controller.respond(to: .init(key: "H"))
     XCTAssertEqual(secondBatch.count, 1)
     XCTAssertEqual(groups[0].workflows[1], secondBatch[0])
   }
