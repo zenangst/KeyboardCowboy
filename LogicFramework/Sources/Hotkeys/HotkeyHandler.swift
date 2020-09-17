@@ -24,13 +24,6 @@ public enum HotkeySendKeyboardError: Error {
   }
 }
 
-public enum HotkeyState {
-  case error(OSStatus)
-  case unableToFindHotkey(OSStatus)
-  case success(Hotkey, OSStatus)
-  case wrongEventKind(OSStatus)
-}
-
 public protocol HotkeyHandlerDelegate: AnyObject {
   func hotkeyHandler(_ handler: HotkeyHandling, didInvokeHotkey hotkey: Hotkey)
 }
