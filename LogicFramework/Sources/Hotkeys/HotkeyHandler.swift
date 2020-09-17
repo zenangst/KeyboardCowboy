@@ -5,8 +5,23 @@ public protocol HotkeyHandling: AnyObject {
   var hotkeySupplier: HotkeySupplying? { get set }
   func installEventHandler()
   func register(_ hotkey: Hotkey, withSignature signature: String) -> Bool
-  func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> OSStatus
+  func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> Result<Void, HotkeySendKeyboardError>
   func unregister(_ reference: EventHotKeyRef)
+}
+
+public enum HotkeySendKeyboardError: Error {
+  case getEventParameter(Int32)
+  case unableToFindHotkey
+  case unknownEvent
+
+  var ossStatus: OSStatus {
+    switch self {
+    case .getEventParameter(let value):
+      return value
+    case .unableToFindHotkey, .unknownEvent:
+      return noErr
+    }
+  }
 }
 
 public enum HotkeyState {
@@ -31,7 +46,14 @@ class HotkeyHandler: HotkeyHandling {
     let handler: EventHandlerUPP = { _, event, _ -> OSStatus in
       if let event = event,
          let hotkeys = HotkeyHandler.shared.hotkeySupplier?.hotkeys {
-        return HotkeyHandler.shared.sendKeyboardEvent(event, hotkeys: hotkeys)
+        switch HotkeyHandler.shared.sendKeyboardEvent(event, hotkeys: hotkeys) {
+        case .success:
+          return noErr
+        case .failure(let error):
+          if case .getEventParameter(let status) = error {
+            return status
+          } else { return noErr }
+        }
       }
 
       return noErr
@@ -68,7 +90,7 @@ class HotkeyHandler: HotkeyHandling {
     return true
   }
 
-  func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> OSStatus {
+  func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> Result<Void, HotkeySendKeyboardError> {
     let name: EventParamName = EventParamName(kEventParamDirectObject)
     let desiredType: EventParamType = EventParamName(typeEventHotKeyID)
     let actualType: UnsafeMutablePointer<EventParamType>? = nil
@@ -78,18 +100,20 @@ class HotkeyHandler: HotkeyHandling {
     let error = GetEventParameter(event, name, desiredType, actualType,
                                   bufferSize, actualSize, &identifier)
 
-    guard error == noErr else { return error }
+    guard error == noErr else {
+      return .failure(.getEventParameter(error))
+    }
 
     guard let hotkey = hotkeys.first(where: { $0.identifier?.id == identifier.id }) else {
-      return noErr
+      return .failure(.unableToFindHotkey)
     }
 
     switch GetEventKind(event) {
     case EventParamName(kEventHotKeyPressed):
       delegate?.hotkeyHandler(self, didInvokeHotkey: hotkey)
-      return noErr
+      return .success(())
     default:
-      return noErr
+      return .failure(.unknownEvent)
     }
   }
 

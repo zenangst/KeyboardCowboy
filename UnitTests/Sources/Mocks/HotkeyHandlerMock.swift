@@ -31,9 +31,9 @@ class HotkeyHandlerMock: HotkeyHandling {
     return registerResult
   }
 
-  func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> OSStatus {
+  func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> Result<Void, HotkeySendKeyboardError> {
     handler(.sendKeyboardEvent(hotkeys: hotkeys))
-    return noErr
+    return .success(())
   }
 
   func unregister(_ reference: EventHotKeyRef) {
