@@ -47,10 +47,7 @@ public class FileIndexController: FileIndexControlling {
 
   public func asyncIndex<T>(with patterns: [FileIndexPattern], match: @escaping (URL) -> Bool,
                             handler: @escaping (URL) -> T?) -> AnyPublisher<[T], Never> {
-    Future<[T], Never> { promise in
-      let result: [T] = self.index(with: patterns, match: match, handler: { handler($0) })
-      promise(.success(result))
-    }.eraseToAnyPublisher()
+    Just(index(with: patterns, match: match, handler: { handler($0) })).eraseToAnyPublisher()
   }
 
   public func index<T>(with patterns: [FileIndexPattern], match: (URL) -> Bool, handler: (URL) -> T?) -> [T] {
