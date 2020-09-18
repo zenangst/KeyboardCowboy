@@ -1,3 +1,4 @@
-*.xcodeproj
 tmp
 .DS_Store
+Keyboard-Cowboy.xcodeproj/project.*
+Keyboard-Cowboy.xcodeproj/xcshareddata/xcschemes/*
