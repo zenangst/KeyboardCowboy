@@ -21,6 +21,7 @@ public class Hotkey: Hashable {
     if modifiers.contains(.shift) == true {
       carbonFlags |= shiftKey
     }
+
     return carbonFlags
   }
 

@@ -24,7 +24,11 @@ class ModelFactory {
   }
 
   func keyboardCommand() -> KeyboardCommand {
-    .init(output: "A")
+    .init(keyboardShortcut: keyboardShortcut())
+  }
+
+  func keyboardShortcut(key: String = "A", modifiers: [ModifierKey]? = nil) -> KeyboardShortcut {
+    .init(key: key, modifiers: modifiers)
   }
 
   func openCommand(application: Application? = ModelFactory.application()) -> OpenCommand {
@@ -46,8 +50,8 @@ class ModelFactory {
     ]
   }
 
-  func keyboardShortcut() -> KeyboardShortcut {
-    .init(key: "A", modifiers: [.control, .option])
+  func keyboardShortcut(_ modifiers: [ModifierKey]) -> KeyboardShortcut {
+    .init(key: "A", modifiers: modifiers)
   }
 
   func workflow(keyboardShortcuts: ((ModelFactory) -> [KeyboardShortcut])? = nil,
@@ -55,7 +59,7 @@ class ModelFactory {
                 name: String = "Open/active Finder") -> Workflow {
     Workflow(
       commands: commands?(self) ?? [.application(applicationCommand())],
-      keyboardShortcuts: keyboardShortcuts?(self) ?? [keyboardShortcut()],
+      keyboardShortcuts: keyboardShortcuts?(self) ?? [keyboardShortcut(modifiers: [.control, .option])],
       name: name)
   }
 }

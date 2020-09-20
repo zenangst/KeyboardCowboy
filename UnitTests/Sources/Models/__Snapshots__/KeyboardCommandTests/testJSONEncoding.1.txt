@@ -1,1 +1,1 @@
-- "{\"output\":\"A\"}"
+- "{\"keyboardShortcut\":{\"key\":\"A\"}}"

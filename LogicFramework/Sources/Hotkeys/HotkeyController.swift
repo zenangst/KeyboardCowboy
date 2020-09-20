@@ -4,7 +4,7 @@ public protocol HotkeySupplying: AnyObject {
   var hotkeys: Set<Hotkey> { get }
 }
 
-public protocol HotkeyControlling: AnyObject {
+public protocol HotkeyControlling: HotkeySupplying {
   var hotkeyHandler: HotkeyHandling { get }
   var delegate: HotkeyControllingDelegate? { get set }
   var notificationCenter: NotificationControlling { get }
@@ -20,7 +20,7 @@ public protocol HotkeyControllingDelegate: AnyObject {
   func hotkeyControlling(_ controller: HotkeyController, didUnregisterKeyboardShortcut: KeyboardShortcut)
 }
 
-public class HotkeyController: HotkeyControlling, HotkeySupplying, HotkeyHandlerDelegate {
+public class HotkeyController: HotkeyControlling, HotkeyHandlerDelegate {
   public weak var delegate: HotkeyControllingDelegate?
   private(set) public var hotkeys = Set<Hotkey>()
   public let hotkeyHandler: HotkeyHandling

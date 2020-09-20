@@ -9,7 +9,7 @@ class KeyboardCommandTests: XCTestCase {
   }
 
   func testJSONDecoding() throws {
-    let json = ["output": "A"]
+    let json = ["keyboardShortcut": ["key": "A"]]
     XCTAssertEqual(try KeyboardCommand.decode(from: json), ModelFactory().keyboardCommand())
   }
 }

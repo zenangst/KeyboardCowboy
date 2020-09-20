@@ -9,10 +9,12 @@ class KeyboardShortcutTests: XCTestCase {
   }
 
   func testJSONDecoding() throws {
+    let modifiers = [ModifierKey.control, ModifierKey.option]
     let json: [String: AnyHashable] = [
       "key": "A",
-      "modifiers": [ModifierKey.control.rawValue, ModifierKey.option.rawValue]
+      "modifiers": modifiers.compactMap({ $0.rawValue })
     ]
-    XCTAssertEqual(try KeyboardShortcut.decode(from: json), ModelFactory().keyboardShortcut())
+    XCTAssertEqual(try KeyboardShortcut.decode(from: json),
+                   ModelFactory().keyboardShortcut(key: "A", modifiers: modifiers))
   }
 }
