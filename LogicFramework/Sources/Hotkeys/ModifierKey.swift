@@ -5,6 +5,7 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
   case control = "^"
   case option = "~"
   case command = "@"
+  case function = "fn"
 
   var pretty: String {
     switch self {
@@ -16,6 +17,8 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
       return "⌥"
     case .command:
       return "⌘"
+    case .function:
+      return "fn"
     }
   }
 
@@ -29,6 +32,8 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
       return .option
     case .command:
       return .command
+    case .function:
+      return .function
     }
   }
 }

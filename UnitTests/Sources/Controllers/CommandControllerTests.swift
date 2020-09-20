@@ -68,10 +68,10 @@ class CommandControllerTests: XCTestCase {
 
   func testCommandControllerRunningKeyboardCommands() {
     let commands: [Command] = [
-      .keyboard(KeyboardCommand(output: "A")),
-      .keyboard(KeyboardCommand(output: "B")),
-      .keyboard(KeyboardCommand(output: "C")),
-      .keyboard(KeyboardCommand(output: "D"))
+      .keyboard(KeyboardCommand(keyboardShortcut: .init(key: "A"))),
+      .keyboard(KeyboardCommand(keyboardShortcut: .init(key: "B"))),
+      .keyboard(KeyboardCommand(keyboardShortcut: .init(key: "C"))),
+      .keyboard(KeyboardCommand(keyboardShortcut: .init(key: "D")))
     ]
     let controller = controllerFactory.commandController(
       keyboardCommandController: KeyboardShortcutControllerMock(.success(()))

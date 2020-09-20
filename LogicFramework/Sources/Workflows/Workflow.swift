@@ -9,6 +9,11 @@ public struct Workflow: Codable, Hashable {
   public let keyboardShortcuts: [KeyboardShortcut]
   public let name: String
 
+  public var isRebinding: Bool {
+    if commands.count == 1, case .keyboard = commands.first { return true }
+    return false
+  }
+
   public init(commands: [Command] = [], keyboardShortcuts: [KeyboardShortcut] = [], name: String) {
     self.commands = commands
     self.keyboardShortcuts = keyboardShortcuts
