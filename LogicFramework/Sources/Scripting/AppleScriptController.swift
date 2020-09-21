@@ -23,32 +23,41 @@ enum AppleScriptControllingError: Error {
 }
 
 class AppleScriptController: AppleScriptControlling {
+  let queue: DispatchQueue = .init(label: "AppleScriptQueue", qos: .userInitiated)
+
   func run(_ source: ScriptCommand.Source) -> CommandPublisher {
-    let appleScript: NSAppleScript
+    Future { [weak self] promise in
+      guard let self = self else { return }
+      self.queue.async {
+        let appleScript: NSAppleScript
 
-    switch source {
-    case .inline(let source):
-      guard let script = NSAppleScript(source: source) else {
-        return Fail(error: AppleScriptControllingError.failedToCreateInlineAppleScript).eraseToAnyPublisher()
-      }
-      appleScript = script
-    case .path(let path):
-      let filePath = path.sanitizedPath
-      var dictionary: NSDictionary?
-      let url = URL(fileURLWithPath: filePath)
-      guard let script = NSAppleScript(contentsOf: url, error: &dictionary) else {
-        return Fail(error: AppleScriptControllingError.failedToLoadAppleScriptAtUrl(url, dictionary))
-          .eraseToAnyPublisher()
-      }
-      appleScript = script
-    }
+        switch source {
+        case .inline(let source):
+          guard let script = NSAppleScript(source: source) else {
+            promise(.failure(AppleScriptControllingError.failedToCreateInlineAppleScript))
+            return
+          }
+          appleScript = script
+        case .path(let path):
+          let filePath = path.sanitizedPath
+          var dictionary: NSDictionary?
+          let url = URL(fileURLWithPath: filePath)
+          guard let script = NSAppleScript(contentsOf: url, error: &dictionary) else {
+            promise(.failure(AppleScriptControllingError.failedToLoadAppleScriptAtUrl(url, dictionary)))
+            return
+          }
+          appleScript = script
+        }
 
-    do {
-      try run(appleScript)
-      return Result.success(()).publisher.eraseToAnyPublisher()
-    } catch {
-      return Fail(error: error).eraseToAnyPublisher()
+        do {
+          try self.run(appleScript)
+          promise(.success(()))
+        } catch let error {
+          promise(.failure(error))
+        }
+      }
     }
+    .eraseToAnyPublisher()
   }
 
   private func run(_ appleScript: NSAppleScript) throws {
