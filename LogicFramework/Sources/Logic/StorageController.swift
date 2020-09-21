@@ -14,7 +14,7 @@ class StorageController: StorageControlling {
   var fileName: String
 
   init(path: String, fileName: String) {
-    self.path = path
+    self.path = (path as NSString).expandingTildeInPath
     self.fileName = fileName
   }
 
