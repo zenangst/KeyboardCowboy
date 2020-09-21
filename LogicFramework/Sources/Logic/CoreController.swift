@@ -7,7 +7,7 @@ public protocol CoreControlling {
   func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow]
 }
 
-public class CoreController: CoreControlling, CommandControllingDelegate, HotkeyControllingDelegate {
+public class CoreController: NSObject, CoreControlling, CommandControllingDelegate, HotkeyControllingDelegate {
   let commandController: CommandControlling
   let groupsController: GroupsControlling
   let hotkeyController: HotkeyControlling
@@ -34,12 +34,13 @@ public class CoreController: CoreControlling, CommandControllingDelegate, Hotkey
     self.rebindingController = try? RebindingController()
     self.workspace = workspace
     self.workflowController = workflowController
+    super.init()
     self.commandController.delegate = self
     self.hotkeyController.delegate = self
     self.reload()
   }
 
-  public func reload() {
+  @objc public func reload() {
     var contextRule = Rule()
 
     if let runningApplication = workspace.frontApplication,
@@ -94,6 +95,9 @@ public class CoreController: CoreControlling, CommandControllingDelegate, Hotkey
   }
 
   public func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow] {
+    NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(reload), object: nil)
+    perform(#selector(reload), with: nil, afterDelay: 2.0)
+
     currentKeyboardShortcuts.append(keyboardShortcut)
     let workflows = workflowController.filterWorkflows(
       from: currentGroups,
