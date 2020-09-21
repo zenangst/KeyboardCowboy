@@ -12,15 +12,18 @@ public protocol RebindingControlling {
 enum RebindingControllingError: Error {
   case unableToCreateMachPort
   case unableToCreateRunLoopSource
+  case unableToCreateEventSource
 }
 
 final class RebindingController: RebindingControlling {
   static var workflows = [Workflow]()
   private static var cache = [String: Int]()
+  private var eventSource: CGEventSource!
   private var machPort: CFMachPort!
   private var runLoopSource: CFRunLoopSource!
 
   required init() throws {
+    self.eventSource = try createEventSource()
     self.machPort = try createMachPort()
     self.runLoopSource = try createRunLoopSource()
     Self.cache = KeyCodeMapper().hashTable()
@@ -30,6 +33,49 @@ final class RebindingController: RebindingControlling {
   func monitor(_ workflows: [Workflow]) {
     Self.workflows = workflows
   }
+
+  func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ event: CGEvent) -> Unmanaged<CGEvent>? {
+    let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+    let workflows = Self.workflows
+    var result: Unmanaged<CGEvent>? = Unmanaged.passUnretained(event)
+
+    for workflow in workflows {
+      guard let keyboardShortcut = workflow.keyboardShortcuts.last,
+            let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()] else { continue }
+
+      guard keyCode == shortcutKeyCode else { continue }
+
+      var modifiersMatch: Bool = true
+
+      if let modifiers = keyboardShortcut.modifiers {
+        modifiersMatch = eventFlagsMatchModifiers(event.flags, modifiers: modifiers)
+      } else {
+        modifiersMatch = event.flags.isDisjoint(with: [
+          .maskControl, .maskCommand, .maskAlternate, .maskShift
+        ])
+      }
+
+      guard modifiersMatch else { continue }
+
+      for case .keyboard(let shortcut) in workflow.commands {
+        guard let shortcutKeyCode = Self.cache[shortcut.keyboardShortcut.key.uppercased()] else {
+          continue
+        }
+        if let cgKeyCode = CGKeyCode(exactly: shortcutKeyCode),
+           let newEvent = CGEvent(keyboardEventSource: self.eventSource,
+                                  virtualKey: cgKeyCode,
+                                  keyDown: type == .keyDown) {
+          newEvent.post(tap: .cghidEventTap)
+
+          result = nil
+        }
+      }
+    }
+
+    return result
+  }
+
+  // MARK: Private methods
 
   private func createMachPort() throws -> CFMachPort? {
     let tap: CGEventTapLocation = .cgSessionEventTap
@@ -62,44 +108,11 @@ final class RebindingController: RebindingControlling {
     return runLoopSource
   }
 
-  func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ event: CGEvent) -> Unmanaged<CGEvent>? {
-    let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-    let workflows = Self.workflows
-    var result: Unmanaged<CGEvent>? = Unmanaged.passRetained(event)
-
-    for workflow in workflows {
-      guard let keyboardShortcut = workflow.keyboardShortcuts.last,
-            let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()] else { continue }
-
-      guard keyCode == shortcutKeyCode else { continue }
-
-      var modifiersMatch: Bool = true
-
-      if let modifiers = keyboardShortcut.modifiers {
-        modifiersMatch = eventFlagsMatchModifiers(event.flags, modifiers: modifiers)
-      } else {
-        modifiersMatch = event.flags.isDisjoint(with: [
-          .maskControl, .maskCommand, .maskAlternate, .maskShift
-        ])
-      }
-
-      guard modifiersMatch else { continue }
-
-      for case .keyboard(let shortcut) in workflow.commands {
-        guard let shortcutKeyCode = Self.cache[shortcut.keyboardShortcut.key.uppercased()] else {
-          continue
-        }
-        if let cgKeyCode = CGKeyCode(exactly: shortcutKeyCode),
-           let newEvent = CGEvent(keyboardEventSource: nil,
-                                  virtualKey: cgKeyCode,
-                                  keyDown: type == .keyDown) {
-          newEvent.tapPostEvent(proxy)
-          result = nil
-        }
-      }
+  private func createEventSource() throws -> CGEventSource {
+    guard let eventSource = CGEventSource(stateID: .privateState) else {
+      throw RebindingControllingError.unableToCreateEventSource
     }
-
-    return result
+    return eventSource
   }
 
   private func eventFlagsMatchModifiers(_ flags: CGEventFlags, modifiers: [ModifierKey]) -> Bool {
