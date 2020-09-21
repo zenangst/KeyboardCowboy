@@ -16,6 +16,7 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
   let workflowController: WorkflowControlling
   let workspace: WorkspaceProviding
   var cache = [String: Int]()
+  var installedApplications = [Application]()
 
   private(set) var currentGroups = [Group]()
   private(set) var currentKeyboardShortcuts = [KeyboardShortcut]()
@@ -37,7 +38,24 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
     super.init()
     self.commandController.delegate = self
     self.hotkeyController.delegate = self
+    self.loadApplications()
     self.reload()
+  public func loadApplications() {
+    let fileIndexer = FileIndexController(baseUrl: URL(fileURLWithPath: "/"))
+    var patterns = FileIndexPatternsFactory.patterns()
+    patterns.append(contentsOf: FileIndexPatternsFactory.pathExtensions())
+    patterns.append(contentsOf: FileIndexPatternsFactory.lastPathComponents())
+
+    self.installedApplications = fileIndexer.index(with: patterns, match: {
+      $0.absoluteString.contains(".app")
+    }, handler: { url -> Application? in
+      guard let bundle = Bundle(url: url),
+            let bundleIdentifier = bundle.bundleIdentifier,
+            let bundleName = bundle.infoDictionary?["CFBundleName"] as? String else {
+        return nil
+      }
+      return Application(bundleIdentifier: bundleIdentifier, bundleName: bundleName, path: bundle.bundlePath)
+    })
   }
 
   @objc public func reload() {
@@ -45,9 +63,7 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
 
     if let runningApplication = workspace.frontApplication,
        let bundleIdentifier = runningApplication.bundleIdentifier {
-      contextRule.applications = [
-        Application(bundleIdentifier: bundleIdentifier, bundleName: "", path: "")
-      ]
+      contextRule.applications = installedApplications.filter({ $0.bundleIdentifier == bundleIdentifier })
     }
 
     if let weekDay = DateComponents().weekday,
