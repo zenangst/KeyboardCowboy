@@ -4,7 +4,7 @@ public struct Rule: Codable, Hashable {
   public var applications: [Application]
   public var days: [Day]
 
-  init(applications: [Application] = [], days: [Day] = []) {
+  public init(applications: [Application] = [], days: [Day] = []) {
     self.applications = applications
     self.days = days
   }
