@@ -1,4 +1,4 @@
-import Foundation
+import Cocoa
 
 public protocol CoreControlling {
   func reload()
@@ -20,6 +20,7 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
 
   private(set) var currentGroups = [Group]()
   private(set) var currentKeyboardShortcuts = [KeyboardShortcut]()
+  private var frontmostApplicationObserver: NSKeyValueObservation?
 
   public init(commandController: CommandControlling,
               groupsController: GroupsControlling,
@@ -40,6 +41,11 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
     self.hotkeyController.delegate = self
     self.loadApplications()
     self.reload()
+    frontmostApplicationObserver = NSWorkspace.shared.observe(\.frontmostApplication, options: [.new], changeHandler: { [weak self] _, _ in
+      self?.reload()
+    })
+  }
+
   public func loadApplications() {
     let fileIndexer = FileIndexController(baseUrl: URL(fileURLWithPath: "/"))
     var patterns = FileIndexPatternsFactory.patterns()
