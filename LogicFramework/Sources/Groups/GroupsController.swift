@@ -23,7 +23,8 @@ class GroupsController: GroupsControlling {
     groups.filter { group in
       guard let groupRule = group.rule else { return true }
 
-      if !groupRule.applications.allowedAccording(to: rule.applications) {
+      if !groupRule.applications.compactMap({ $0.bundleIdentifier })
+          .allowedAccording(to: rule.applications.compactMap({ $0.bundleIdentifier })) {
         return false
       }
 
@@ -46,6 +47,7 @@ private extension Collection where Iterator.Element: Hashable {
 
     let lhs = Set(self)
     let rhs = Set(rhs)
+
     return !lhs.isDisjoint(with: rhs)
   }
 }
