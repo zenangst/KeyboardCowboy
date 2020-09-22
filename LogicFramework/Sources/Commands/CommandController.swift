@@ -32,6 +32,8 @@ public class CommandController: CommandControlling {
   let openCommandController: OpenCommandControlling
   let appleScriptCommandController: AppleScriptControlling
   let shellScriptCommandController: ShellScriptControlling
+  let queue: DispatchQueue = .init(label: "com.zenangst.Keyboard-Cowboy.CommandControllerQueue",
+                                   qos: .userInitiated)
 
   var currentQueue = [Command]()
   var finishedCommands = [Command]()
@@ -52,10 +54,13 @@ public class CommandController: CommandControlling {
   // MARK: Public methods
 
   public func run(_ commands: [Command]) {
-    let shouldRun = currentQueue.isEmpty
-    currentQueue.append(contentsOf: commands)
-    if shouldRun {
-      runQueue()
+    queue.async { [weak self] in
+      guard let self = self else { return }
+      let shouldRun = self.currentQueue.isEmpty
+      self.currentQueue.append(contentsOf: commands)
+      if shouldRun {
+        self.runQueue()
+      }
     }
   }
 
@@ -80,9 +85,13 @@ public class CommandController: CommandControlling {
   }
 
   private func subscribeToPublisher(_ publisher: CommandPublisher, for command: Command) {
-    delegate?.commandController(self, runningCommand: command)
+    DispatchQueue.main.async { [weak self] in
+      guard let self = self else { return }
+      self.delegate?.commandController(self, runningCommand: command)
+    }
 
     publisher
+      .receive(on: queue)
       .sink(
         receiveCompletion: { [weak self] completion in
           guard let self = self else { return }
@@ -117,9 +126,12 @@ public class CommandController: CommandControlling {
       finishedCommands.append(currentItem)
       run(currentItem)
     } else {
-      delegate?.commandController(self, didFinishRunning: finishedCommands)
       finishedCommands.removeAll()
       cancellables.removeAll()
+      DispatchQueue.main.async { [weak self] in
+        guard let self = self else { return }
+        self.delegate?.commandController(self, didFinishRunning: self.finishedCommands)
+      }
     }
   }
 
@@ -129,10 +141,13 @@ public class CommandController: CommandControlling {
     case .failedToActivate(let command),
          .failedToFindRunningApplication(let command),
          .failedToLaunch(let command):
-      delegate?.commandController(
-        self,
-        failedRunning: .application(command),
-        commands: commands)
+      DispatchQueue.main.async { [weak self] in
+        guard let self = self else { return }
+        self.delegate?.commandController(
+          self,
+          failedRunning: .application(command),
+          commands: commands)
+      }
     }
   }
 }
