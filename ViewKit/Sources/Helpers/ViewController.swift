@@ -63,24 +63,12 @@ public final class AnyViewController<State, Action>: ViewController {
   subscript<Value>(dynamicMember keyPath: KeyPath<State, Value>) -> Value {
     state[keyPath: keyPath]
   }
-
-  func sink(_ closure: @escaping (State) -> Void) -> AnyCancellable {
-    objectWillChange
-      .makeConnectable()
-      .autoconnect()
-      .sink {
-        DispatchQueue.main.async { [weak self] in
-          guard let self = self else { return }
-            closure(self.state)
-        }
-      }
-  }
 }
 
 // MARK: - Extensions
 
 extension AnyViewController: Identifiable where State: Identifiable {
-    public var id: State.ID {
-        state.id
-    }
+  public var id: State.ID {
+    state.id
+  }
 }
