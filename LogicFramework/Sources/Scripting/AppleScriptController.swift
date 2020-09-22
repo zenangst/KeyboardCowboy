@@ -23,7 +23,8 @@ enum AppleScriptControllingError: Error {
 }
 
 class AppleScriptController: AppleScriptControlling {
-  let queue: DispatchQueue = .init(label: "AppleScriptQueue", qos: .userInitiated)
+  let queue: DispatchQueue = .init(label: "com.zenangst.Keyboard-Cowboy.AppleScriptControllerQueue",
+                                   qos: .userInitiated)
 
   func run(_ source: ScriptCommand.Source) -> CommandPublisher {
     Future { [weak self] promise in
