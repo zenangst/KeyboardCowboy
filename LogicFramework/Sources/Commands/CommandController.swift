@@ -126,11 +126,12 @@ public class CommandController: CommandControlling {
       finishedCommands.append(currentItem)
       run(currentItem)
     } else {
-      finishedCommands.removeAll()
-      cancellables.removeAll()
+      let finishedCommands = self.finishedCommands
+      self.finishedCommands.removeAll()
+      self.cancellables.removeAll()
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
-        self.delegate?.commandController(self, didFinishRunning: self.finishedCommands)
+        self.delegate?.commandController(self, didFinishRunning: finishedCommands)
       }
     }
   }
