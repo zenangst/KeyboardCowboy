@@ -41,9 +41,9 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
     self.hotkeyController.delegate = self
     self.loadApplications()
     self.reload()
-    frontmostApplicationObserver = NSWorkspace.shared.observe(\.frontmostApplication, options: [.new], changeHandler: { [weak self] _, _ in
-      self?.reload()
-    })
+    frontmostApplicationObserver = NSWorkspace.shared.observe(
+      \.frontmostApplication,
+      options: [.new], changeHandler: { [weak self] _, _ in self?.reload() })
   }
 
   public func loadApplications() {
