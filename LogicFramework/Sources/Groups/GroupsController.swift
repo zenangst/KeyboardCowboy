@@ -23,8 +23,7 @@ class GroupsController: GroupsControlling {
     groups.filter { group in
       guard let groupRule = group.rule else { return true }
 
-      if !groupRule.applications.compactMap({ $0.bundleIdentifier })
-          .allowedAccording(to: rule.applications.compactMap({ $0.bundleIdentifier })) {
+      if !groupRule.bundleIdentifiers.allowedAccording(to: rule.bundleIdentifiers) {
         return false
       }
 

@@ -12,11 +12,7 @@ class GroupTests: XCTestCase {
     let json: [String: Any] = [
       "name": "Global shortcuts",
       "rule": [
-        "applications": [[
-          "bundleName": "Finder",
-          "bundleIdentifier": "com.apple.Finder",
-          "path": "/System/Library/CoreServices/Finder.app"
-        ]],
+        "bundleIdentifiers": ["com.apple.Finder"],
         "days": [0, 1, 2, 3, 4, 5, 6]
       ],
       "workflows": [

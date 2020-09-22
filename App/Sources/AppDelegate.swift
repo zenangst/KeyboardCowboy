@@ -1,11 +1,19 @@
 import Cocoa
+import LaunchArguments
 import LogicFramework
 
 class AppDelegate: NSObject, NSApplicationDelegate {
   var controller: CoreControlling?
+  let launchArgumentsController = LaunchArgumentsController<LaunchArgument>()
   let factory = ControllerFactory()
 
   func applicationDidFinishLaunching(_ notification: Notification) {
+    if launchArgumentsController.isEnabled(.runningUnitTests) { return }
+
+    runApplication()
+  }
+
+  private func runApplication() {
     let storageController = factory.storageController(path: "~", fileName: ".keyboard-cowboy.json")
     do {
       let groups = try storageController.load()
