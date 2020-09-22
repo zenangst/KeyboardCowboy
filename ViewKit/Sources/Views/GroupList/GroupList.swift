@@ -1,10 +1,15 @@
 import SwiftUI
 
 struct GroupList: View {
+  enum Action {
+    case newGroup
+  }
+
   static let idealWidth: CGFloat = 300
 
-  let groups: [Group]
+  @ObservedObject var controller: AnyViewController<[Group], Action>
   @State private var selection: Group?
+  private var groups: [Group] { controller.state }
 
   var body: some View {
     NavigationView {
@@ -41,6 +46,11 @@ struct GroupList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    GroupList(groups: ModelFactory().groupList())
+    GroupList(controller: PreviewController().erase())
   }
+}
+
+private final class PreviewController: ViewController {
+  let state = ModelFactory().groupList()
+  func perform(_ action: GroupList.Action) {}
 }
