@@ -1,11 +1,11 @@
 import Foundation
 
 public struct Rule: Codable, Hashable {
-  public var applications: [Application]
+  public var bundleIdentifiers: [String]
   public var days: [Day]
 
-  public init(applications: [Application] = [], days: [Day] = []) {
-    self.applications = applications
+  public init(bundleIdentifiers: [String] = [], days: [Day] = []) {
+    self.bundleIdentifiers = bundleIdentifiers
     self.days = days
   }
 

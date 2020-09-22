@@ -36,7 +36,7 @@ class ModelFactory {
   }
 
   func rule() -> Rule {
-    Rule(applications: [Self.application()], days: days())
+    Rule(bundleIdentifiers: [Self.application().bundleIdentifier], days: days())
   }
 
   func scriptCommands() -> [ScriptCommand] {

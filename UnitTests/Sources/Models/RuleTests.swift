@@ -10,13 +10,10 @@ class RuleTests: XCTestCase {
 
   func testJSONDecoding() throws {
     let json: [String: AnyHashable] = [
-      "applications": [[
-        "bundleName": "Finder",
-        "bundleIdentifier": "com.apple.Finder",
-        "path": "/System/Library/CoreServices/Finder.app"
-      ]],
+      "bundleIdentifiers": ["com.apple.Finder"],
       "days": [0, 1, 2, 3, 4, 5, 6]
     ]
     XCTAssertEqual(try Rule.decode(from: json), ModelFactory().rule())
   }
 }
+
