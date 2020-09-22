@@ -23,7 +23,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       )
       self.controller = controller
     } catch let error {
-      assertionFailure(error.localizedDescription)
+      let alert = NSAlert()
+      alert.messageText = error.localizedDescription
+      if case .dataCorrupted(let context) = error as? DecodingError {
+        alert.informativeText = context.underlyingError?.localizedDescription ?? ""
+        alert.messageText = context.debugDescription
+      }
+      alert.runModal()
     }
   }
 }
