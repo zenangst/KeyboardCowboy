@@ -16,6 +16,7 @@ class CommandControllerTests: XCTestCase {
     let controller = controllerFactory.commandController(
       appleScriptCommandController: AppleScriptControllerMock(.success(())),
       applicationCommandController: ApplicationCommandControllerMock(.success(())),
+      keyboardCommandController: KeyboardShortcutControllerMock(.success(())),
       openCommandController: OpenCommandControllerMock(.success(())),
       shellScriptCommandController: ShellScriptControllerMock(.success(()))
     )
