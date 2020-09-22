@@ -5,18 +5,8 @@ import XCTest
 
 class GroupControllerTests: XCTestCase {
   func testGroupControllerFilterByRules() {
-    let xcodeRuleSet = Rule(applications: [
-      Application(bundleIdentifier: "com.apple.dt.Xcode",
-                  bundleName: "Xcode",
-                  path: "path/to/Xcode")
-    ])
-
-    let calendarRuleSet = Rule(applications: [
-      Application(bundleIdentifier: "com.apple.Calendar",
-                  bundleName: "Calendar",
-                  path: "path/to/Calendar")
-    ])
-
+    let xcodeRuleSet = Rule(bundleIdentifiers: ["com.apple.dt.Xcode"])
+    let calendarRuleSet = Rule(bundleIdentifiers: ["com.apple.Calendar"])
     let weekDayRuleSet = Rule(days: [.monday, .tuesday, .wednesday, .thursday, .friday])
 
     let groups = [
