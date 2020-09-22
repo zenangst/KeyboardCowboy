@@ -69,7 +69,9 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
 
     if let runningApplication = workspace.frontApplication,
        let bundleIdentifier = runningApplication.bundleIdentifier {
-      contextRule.applications = installedApplications.filter({ $0.bundleIdentifier == bundleIdentifier })
+      contextRule.bundleIdentifiers = installedApplications
+        .compactMap({ $0.bundleIdentifier })
+        .filter({ $0 == bundleIdentifier })
     }
 
     if let weekDay = DateComponents().weekday,

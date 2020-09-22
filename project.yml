@@ -11,6 +11,9 @@ configFiles:
   Debug: XcodeGen/Debug.xcconfig
   Release: XcodeGen/Release.xcconfig
 packages:
+  LaunchArguments:
+    url: https://github.com/zenangst/LaunchArguments
+    branch: main
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     from: 1.8.2
@@ -21,6 +24,7 @@ targets:
     dependencies:
       - target: ViewKit
       - target: LogicFramework
+      - package: LaunchArguments
     sources:
       - App
     settings:
@@ -92,6 +96,8 @@ schemes:
         SOURCE_ROOT: $(SRCROOT)
     test:
       config: Debug
+      commandLineArguments:
+        "-running-unit-tests": true
       gatherCoverageData: true
       coverageTargets:
         - Keyboard-Cowboy
