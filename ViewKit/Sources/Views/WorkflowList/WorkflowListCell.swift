@@ -5,13 +5,18 @@ struct WorkflowListCell: View {
 
   var body: some View {
     HStack {
-      VStack(alignment: .leading) {
-        name
-        numberOfCommands
+      ZStack(alignment: .bottom) {
+        HStack {
+          VStack(alignment: .leading) {
+            name
+            numberOfCommands
+          }.frame(minHeight: 48)
+          Spacer()
+          icon
+        }
+        VStack { Divider() }
       }
-      Spacer()
-      icon
-    }.padding(8)
+    }
   }
 }
 
