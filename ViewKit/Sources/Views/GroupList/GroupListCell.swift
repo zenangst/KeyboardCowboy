@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct GroupListCell: View {
-  let group: ViewKit.GroupViewModel
+  let group: GroupViewModel
 
   var body: some View {
     HStack {
