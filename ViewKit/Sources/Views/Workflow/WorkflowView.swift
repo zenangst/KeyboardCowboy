@@ -3,7 +3,7 @@ import SwiftUI
 struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
 
-  let workflow: Workflow
+  let workflow: WorkflowViewModel
 
   var body: some View {
     VStack {

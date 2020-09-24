@@ -1,21 +1,31 @@
 import SwiftUI
 
 struct GroupListCell: View {
-  let group: ViewKit.Group
+  let group: ViewKit.GroupViewModel
 
   var body: some View {
     HStack {
+      icon
       name
       Spacer()
       numberOfWorkflows
     }
-    .padding()
+    .padding(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 15))
+    .frame(minHeight: 36, idealHeight: 36)
   }
 }
 
 // MARK: - Subviews
 
 private extension GroupListCell {
+  var icon: some View {
+    ZStack {
+      Circle().fill(Color(.systemBlue))
+        .frame(width: 24, height: 24)
+      Text("⌨️")
+    }
+  }
+
   var name: some View {
     Text(group.name)
       .foregroundColor(.primary)
@@ -23,10 +33,8 @@ private extension GroupListCell {
 
   var numberOfWorkflows: some View {
     Text("\(group.workflows.count)")
-      .foregroundColor(.white)
-      .padding(.horizontal, 6)
+      .foregroundColor(.secondary)
       .padding(.vertical, 2)
-      .background(Circle().fill(Color(.systemBlue)))
   }
 }
 

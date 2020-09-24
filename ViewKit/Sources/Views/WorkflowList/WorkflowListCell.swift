@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WorkflowListCell: View {
-  let workflow: Workflow
+  let workflow: WorkflowViewModel
 
   var body: some View {
     HStack {
@@ -11,8 +11,7 @@ struct WorkflowListCell: View {
       }
       Spacer()
       icon
-    }
-    .padding()
+    }.padding(8)
   }
 }
 

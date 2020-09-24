@@ -1,16 +1,9 @@
-//
-//  WorkflowList.swift
-//  ViewKit
-//
-//  Created by Vadym Markov on 08/09/2020.
-//
-
 import SwiftUI
 
 struct WorkflowList: View {
   static let idealWidth: CGFloat = 300
-  let workflows: [Workflow]
-  @State private var selection: Workflow?
+  let workflows: [WorkflowViewModel]
+  @State private var selection: WorkflowViewModel?
 
   var body: some View {
     NavigationView {
@@ -28,7 +21,8 @@ struct WorkflowList: View {
           selection = workflows.first
         })
       }
-      .frame(minWidth: 300, idealWidth: Self.idealWidth, maxWidth: 500, maxHeight: .infinity)
+      .listStyle(PlainListStyle())
+      .frame(minWidth: 300, maxWidth: 500, maxHeight: .infinity)
     }
   }
 }

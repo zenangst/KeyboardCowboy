@@ -1,11 +1,15 @@
 import Cocoa
 import LaunchArguments
 import LogicFramework
+import SwiftUI
+import ViewKit
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+  var window: NSWindow?
   var controller: CoreControlling?
+
+  let launchController = AppDelegateLaunchController()
   let launchArgumentsController = LaunchArgumentsController<LaunchArgument>()
-  let factory = ControllerFactory()
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     if launchArgumentsController.isEnabled(.runningUnitTests) { return }
@@ -14,22 +18,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   private func runApplication() {
-    let storageController = factory.storageController(path: "~", fileName: ".keyboard-cowboy.json")
     do {
-      let groups = try storageController.load()
-      let groupsController = factory.groupsController(groups: groups)
-      let controller = factory.coreController(
-        groupsController: groupsController
-      )
+      let controller = try launchController.initialLoad()
       self.controller = controller
+
+      if launchArgumentsController.isEnabled(.runWindowless) { return }
+
+      self.window = createMainWindow(controller)
+      self.window?.makeKeyAndOrderFront(nil)
     } catch let error {
-      let alert = NSAlert()
-      alert.messageText = error.localizedDescription
-      if case .dataCorrupted(let context) = error as? DecodingError {
-        alert.informativeText = context.underlyingError?.localizedDescription ?? ""
-        alert.messageText = context.debugDescription
-      }
-      alert.runModal()
+      AppDelegateErrorController.handle(error)
     }
+  }
+
+  private func createMainWindow(_ controller: CoreControlling) -> NSWindow? {
+    let models = GroupViewModelMapper().map(controller.groups).sorted(by: { $0.name < $1.name })
+    let groupListController = GroupListController(groups: models)
+    let groupList = GroupList(controller: groupListController.erase())
+    let window = MainWindow(toolbar: Toolbar())
+
+    window.title = "Keyboard Cowboy"
+    window.contentView = NSHostingView(rootView: groupList)
+    window.setFrameAutosaveName("Main Window")
+
+    return window
   }
 }
