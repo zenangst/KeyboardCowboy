@@ -10,6 +10,7 @@ public struct GroupList: View {
 
   @ObservedObject var controller: Controller
   @State private var selection: GroupViewModel?
+  @State private var searchText: String = ""
   private var groups: [GroupViewModel] { controller.state }
 
   public init(controller: Controller) {
@@ -18,34 +19,40 @@ public struct GroupList: View {
 
   public var body: some View {
     NavigationView {
-      VStack(alignment: .leading) {
-        List {
-          ForEach(groups) { group in
-            NavigationLink(
-              destination: WorkflowList(workflows: group.workflows),
-              tag: group,
-              selection: $selection
-            ) {
-              GroupListCell(group: group)
-            }
+      VStack(alignment: .leading, spacing: 0) {
+        TextField("Search", text: $searchText)
+          .textFieldStyle(RoundedBorderTextFieldStyle())
+          .frame(height: 48)
+          .padding(.horizontal, 12)
+        Text("Groups")
+          .padding(EdgeInsets(top: 8, leading: 16, bottom: 4, trailing: 0))
+          .font(.subheadline)
+          .foregroundColor(Color.secondary)
+        List(groups, selection: $selection) { group in
+          NavigationLink(
+            destination: WorkflowList(workflows: group.workflows),
+            tag: group,
+            selection: $selection
+          ) {
+            GroupListCell(group: group)
+              .padding(.leading, 2)
           }
           .onAppear(perform: {
               selection = selection ?? groups.first
           })
         }
         .listStyle(SidebarListStyle())
-        .frame(
-          minWidth: 200,
-          maxWidth: Self.idealWidth,
-          maxHeight: .infinity
-        )
         Spacer()
         Button("+ Add Group", action: {
           controller.perform(.newGroup)
         })
         .buttonStyle(PlainButtonStyle())
         .padding(.init(top: 0, leading: 8, bottom: 8, trailing: 0))
-      }
+      }.frame(
+        minWidth: 250,
+        maxWidth: 250,
+        maxHeight: .infinity
+      )
     }
   }
 }

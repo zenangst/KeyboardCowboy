@@ -7,18 +7,16 @@ struct WorkflowList: View {
 
   var body: some View {
     NavigationView {
-      List {
-        ForEach(workflows) { workflow in
-          NavigationLink(
-            destination: WorkflowView(workflow: workflow),
-            tag: workflow,
-            selection: $selection
-          ) {
-            WorkflowListCell(workflow: workflow)
-          }
+      List(workflows, selection: $selection) { workflow in
+        NavigationLink(
+          destination: WorkflowView(workflow: workflow),
+          tag: workflow,
+          selection: $selection
+        ) {
+          WorkflowListCell(workflow: workflow)
         }
         .onAppear(perform: {
-          selection = workflows.first
+          selection = selection ?? workflows.first
         })
       }
       .listStyle(PlainListStyle())

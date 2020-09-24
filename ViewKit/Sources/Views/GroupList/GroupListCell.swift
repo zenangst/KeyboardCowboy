@@ -10,8 +10,8 @@ struct GroupListCell: View {
       Spacer()
       numberOfWorkflows
     }
-    .padding(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 15))
-    .frame(minHeight: 36, idealHeight: 36)
+    .padding(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4))
+    .frame(minHeight: 36)
   }
 }
 
@@ -29,6 +29,8 @@ private extension GroupListCell {
   var name: some View {
     Text(group.name)
       .foregroundColor(.primary)
+      .lineSpacing(-2.0)
+      .lineLimit(nil)
   }
 
   var numberOfWorkflows: some View {
