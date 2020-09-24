@@ -5,29 +5,29 @@ class ModelFactory {
   // MARK: Public methods
 
   /// Used by `GroupList.swift`
-  func groupList() -> [Group] {
+  func groupList() -> [GroupViewModel] {
     [
-      Group(
+      GroupViewModel(
         name: "Applications",
         workflows: openWorkflows("Calendar", "Contacts", "Finder", "Mail", "Safari", "Xcode")
       ),
-      Group(
+      GroupViewModel(
         name: "Developer tools",
         workflows: openWorkflows("Instruments", "Simulator", "Xcode")
       ),
-      Group(
+      GroupViewModel(
         name: "Folders",
         workflows: openWorkflows("Home folder", "Developer folder")
       ),
-      Group(
+      GroupViewModel(
         name: "Files",
         workflows: openWorkflows(".gitconfig", "Design project.sketch", "Keyboard-Cowboy.xcodeproj")
       ),
-      Group(
+      GroupViewModel(
         name: "Keyboard shortcuts",
         workflows: rebindWorkflows("⌥a to ←", "⌥w to ↑", "⌥d to →", "⌥s to ↓")
       ),
-      Group(
+      GroupViewModel(
         name: "Safari",
         workflows: runWorkflows("Share website", "Save as PDF")
       )
@@ -35,66 +35,66 @@ class ModelFactory {
   }
 
   /// Used by `GroupListCell.swift`
-  func groupListCell() -> Group {
-    Group(
+  func groupListCell() -> GroupViewModel {
+    GroupViewModel(
       name: "Developer tools",
       workflows: openWorkflows("Instruments", "Simulator", "Xcode")
     )
   }
 
   /// Used by `WorflowList.swift`
-  func workflowList() -> [Workflow] {
+  func workflowList() -> [WorkflowViewModel] {
     openWorkflows("Calendar", "Contacts", "Finder", "Mail", "Safari", "Xcode")
   }
 
   /// Used by `WorkflowListCell.swift`
-  func workflowCell() -> Workflow {
+  func workflowCell() -> WorkflowViewModel {
     workflow()
   }
 
   /// Used by `WorkflowView.swift`
-  func workflowDetail() -> Workflow {
+  func workflowDetail() -> WorkflowViewModel {
     workflow()
   }
 
   // MARK: Private methods
 
-  private func openWorkflows(_ applicationNames: String ...) -> [Workflow] {
+  private func openWorkflows(_ applicationNames: String ...) -> [WorkflowViewModel] {
     applicationNames.compactMap({
-      Workflow(
+      WorkflowViewModel(
         name: "Open \($0)",
         combinations: [],
-        commands: [Command(name: "Open \($0)")]
+        commands: [CommandViewModel(name: "Open \($0)")]
       )
     })
   }
 
-  private func runWorkflows(_ scriptNames: String ...) -> [Workflow] {
+  private func runWorkflows(_ scriptNames: String ...) -> [WorkflowViewModel] {
     scriptNames.compactMap({
-      Workflow(
+      WorkflowViewModel(
         name: "Run \($0) script",
         combinations: [],
-        commands: [Command(name: "Run \($0)")])
+        commands: [CommandViewModel(name: "Run \($0)")])
 
     })
   }
 
-  private func rebindWorkflows(_ scriptNames: String ...) -> [Workflow] {
+  private func rebindWorkflows(_ scriptNames: String ...) -> [WorkflowViewModel] {
     scriptNames.compactMap({
-      Workflow(
+      WorkflowViewModel(
         name: "Rebind \($0)",
         combinations: [],
-        commands: [Command(name: "Rebind \($0)")])
+        commands: [CommandViewModel(name: "Rebind \($0)")])
 
     })
   }
 
-  private func openCommands(_ commands: String ...) -> [Command] {
-    commands.compactMap({ Command(name: "Open \($0)") })
+  private func openCommands(_ commands: String ...) -> [CommandViewModel] {
+    commands.compactMap({ CommandViewModel(name: "Open \($0)") })
   }
 
-  private func workflow() -> Workflow {
-    Workflow(
+  private func workflow() -> WorkflowViewModel {
+    WorkflowViewModel(
       name: "Developer workflow",
       combinations: [],
       commands: openCommands("Xcode", "Instruments", "Simulator", "Terminal")

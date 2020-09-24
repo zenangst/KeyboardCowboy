@@ -92,6 +92,8 @@ schemes:
         Keyboard-Cowboy: all
     run:
       config: Debug
+      commandLineArguments:
+        "-running-without-window": false
       environmentVariables:
         SOURCE_ROOT: $(SRCROOT)
     test:

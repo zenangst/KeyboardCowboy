@@ -1,6 +1,8 @@
 import Foundation
 
 public protocol GroupsControlling {
+  var groups: [Group] { get }
+
   /// Filter groups based on current set of rules.
   /// For more information about rules, check the
   /// implementation of `Rule` value-type.
