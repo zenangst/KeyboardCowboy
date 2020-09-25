@@ -30,7 +30,6 @@ private extension GroupListCell {
     Text(group.name)
       .foregroundColor(.primary)
       .lineSpacing(-2.0)
-      .lineLimit(nil)
   }
 
   var numberOfWorkflows: some View {
