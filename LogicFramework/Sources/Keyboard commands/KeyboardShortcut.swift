@@ -5,8 +5,15 @@ import Foundation
 /// used to match if a certain `Workflow` is eligiable
 /// to be invoked.
 public struct KeyboardShortcut: Codable, Hashable {
+  public let id: String
   public let key: String
   public let modifiers: [ModifierKey]?
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case key
+    case modifiers
+  }
 
   public var rawValue: String {
     var input: String = (modifiers ?? []).compactMap({ $0.rawValue }).joined()
@@ -14,8 +21,19 @@ public struct KeyboardShortcut: Codable, Hashable {
     return input
   }
 
-  public init(key: String, modifiers: [ModifierKey]? = nil) {
+  public init(id: String = UUID().uuidString,
+              key: String,
+              modifiers: [ModifierKey]? = nil) {
+    self.id = id
     self.key = key
     self.modifiers = modifiers
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    self.key = try container.decode(String.self, forKey: .key)
+    self.modifiers = try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)
   }
 }

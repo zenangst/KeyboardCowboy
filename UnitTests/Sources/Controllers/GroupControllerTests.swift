@@ -12,16 +12,24 @@ class GroupControllerTests: XCTestCase {
     let groups = [
       Group(name: "Group: Only when Xcode is active",
             rule: xcodeRuleSet,
-            workflows: [Workflow(commands: [], keyboardShortcuts: [], name: "Xcode workflow")]),
+            workflows: [Workflow(id: UUID().uuidString, commands: [],
+                                 keyboardShortcuts: [],
+                                 name: "Xcode workflow")]),
       Group(name: "Group: Only when Calendar is active",
             rule: calendarRuleSet,
-            workflows: [Workflow(commands: [], keyboardShortcuts: [], name: "Calendar workflow")]),
+            workflows: [Workflow(id: UUID().uuidString, commands: [],
+                                 keyboardShortcuts: [],
+                                 name: "Calendar workflow")]),
       Group(name: "Group: Global Xcode workflow",
             rule: nil,
-            workflows: [Workflow(commands: [], keyboardShortcuts: [], name: "Open Xcode")]),
+            workflows: [Workflow(id: UUID().uuidString, commands: [],
+                                 keyboardShortcuts: [],
+                                 name: "Open Xcode")]),
       Group(name: "Group: Day-based rule",
             rule: weekDayRuleSet,
-            workflows: [Workflow(commands: [], keyboardShortcuts: [], name: "Open Time tracker")])
+            workflows: [Workflow(id: UUID().uuidString, commands: [],
+                                 keyboardShortcuts: [],
+                                 name: "Open Time tracker")])
     ]
 
     let controller = GroupsController(groups: groups)

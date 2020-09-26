@@ -10,8 +10,8 @@ class CommandControllerTests: XCTestCase {
       .application(modelFactory.applicationCommand()),
       .keyboard(modelFactory.keyboardCommand()),
       .open(modelFactory.openCommand()),
-      .script(.appleScript(.inline(""))),
-      .script(.shell(.inline("")))
+      .script(.appleScript(.inline(""), "")),
+      .script(.shell(.inline(""), ""))
     ]
     let controller = controllerFactory.commandController(
       appleScriptCommandController: AppleScriptControllerMock(.success(())),

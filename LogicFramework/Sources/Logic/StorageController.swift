@@ -23,8 +23,16 @@ class StorageController: StorageControlling {
     let decoder = JSONDecoder()
     let fileManager = FileManager()
 
+    if !fileManager.fileExists(atPath: fileUrl.path) {
+      fileManager.createFile(atPath: fileUrl.path, contents: nil, attributes: nil)
+    }
+
     guard let data = fileManager.contents(atPath: fileUrl.path) else {
       throw StorageControllingError.fileToLoadData
+    }
+
+    if data.count == 0 {
+      return []
     }
 
     return try decoder.decode([Group].self, from: data)

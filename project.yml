@@ -94,6 +94,8 @@ schemes:
       config: Debug
       commandLineArguments:
         "-running-without-window": false
+        "-demo-mode": true
+        "-disable-keyboard-shortcuts": false
       environmentVariables:
         SOURCE_ROOT: $(SRCROOT)
     test:

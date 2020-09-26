@@ -11,11 +11,12 @@ import Foundation
 ///            and be bound to keyboard shortcuts when the Finder
 ///            is the front-most application.
 public struct GroupViewModel: Identifiable, Hashable {
-  public let id: String = UUID().uuidString
-  public let name: String
+  public let id: String
+  public var name: String
   public var workflows: [WorkflowViewModel]
 
-  public init(name: String, workflows: [WorkflowViewModel]) {
+  public init(id: String, name: String, workflows: [WorkflowViewModel]) {
+    self.id = id
     self.name = name
     self.workflows = workflows
   }
