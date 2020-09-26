@@ -4,24 +4,30 @@ import Foundation
 /// Scripts can both point to a file on the file-system or have
 /// its underlying script bundled inside the command.
 public enum ScriptCommand: Codable, Hashable {
-  case appleScript(Source)
-  case shell(Source)
+  case appleScript(Source, String)
+  case shell(Source, String)
 
   enum CodingKeys: CodingKey {
     case appleScript
     case shell
   }
 
+  enum IdentifierCodingKeys: CodingKey {
+    case id
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    let idContainer = try decoder.container(keyedBy: IdentifierCodingKeys.self)
+    let id = try idContainer.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
 
     switch container.allKeys.first {
     case .appleScript:
       let source = try container.decode(Source.self, forKey: .appleScript)
-      self = .appleScript(source)
+      self = .appleScript(source, id)
     case .shell:
       let source = try container.decode(Source.self, forKey: .shell)
-      self = .shell(source)
+      self = .shell(source, id)
     case .none:
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
@@ -34,11 +40,14 @@ public enum ScriptCommand: Codable, Hashable {
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
+    var idContainer = encoder.container(keyedBy: IdentifierCodingKeys.self)
     switch self {
-    case .appleScript(let value):
+    case .appleScript(let value, let id):
       try container.encode(value, forKey: .appleScript)
-    case .shell(let value):
+      try idContainer.encode(id, forKey: .id)
+    case .shell(let value, let id):
       try container.encode(value, forKey: .shell)
+      try idContainer.encode(id, forKey: .id)
     }
   }
 

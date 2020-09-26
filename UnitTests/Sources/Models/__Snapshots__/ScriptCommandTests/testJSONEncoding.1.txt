@@ -1,0 +1,1 @@
+- "[{\"appleScript\":{\"inline\":\"#!\\/usr\\/bin\\/env fish\"},\"id\":\"foobar\"},{\"appleScript\":{\"path\":\"\\/tmp\\/file\"},\"id\":\"foobar\"},{\"shell\":{\"inline\":\"#!\\/usr\\/bin\\/env fish\"},\"id\":\"foobar\"},{\"shell\":{\"path\":\"\\/tmp\\/file\"},\"id\":\"foobar\"}]"

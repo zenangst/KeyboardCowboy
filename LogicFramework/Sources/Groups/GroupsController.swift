@@ -1,6 +1,7 @@
 import Foundation
 
 public protocol GroupsControlling {
+  var delegate: GroupsControllingDelegate? { get set }
   var groups: [Group] { get }
 
   /// Filter groups based on current set of rules.
@@ -11,10 +12,15 @@ public protocol GroupsControlling {
   ///                   be evaluated against.
   func filterGroups(using rule: Rule) -> [Group]
 
-  func updateGroups(_ groups: [Group])
+  func reloadGroups(_ groups: [Group])
+}
+
+public protocol GroupsControllingDelegate: AnyObject {
+  func groupsController(_ controller: GroupsControlling, didReloadGroups groups: [Group])
 }
 
 class GroupsController: GroupsControlling {
+  weak var delegate: GroupsControllingDelegate?
   var groups: [Group]
 
   init(groups: [Group]) {
@@ -37,8 +43,9 @@ class GroupsController: GroupsControlling {
     }
   }
 
-  public func updateGroups(_ groups: [Group]) {
+  public func reloadGroups(_ groups: [Group]) {
     self.groups = groups
+    delegate?.groupsController(self, didReloadGroups: groups)
   }
 }
 

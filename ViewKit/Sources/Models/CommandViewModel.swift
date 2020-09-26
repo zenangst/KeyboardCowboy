@@ -5,10 +5,11 @@ import Foundation
 /// - Examples: Launching an application, running a script
 ///             opening a file or folder.
 public struct CommandViewModel: Identifiable, Hashable {
-  public let id: String = UUID().uuidString
+  public let id: String
   public var name: String
 
-  public init(name: String) {
+  public init(id: String = UUID().uuidString, name: String) {
+    self.id = id
     self.name = name
   }
 }

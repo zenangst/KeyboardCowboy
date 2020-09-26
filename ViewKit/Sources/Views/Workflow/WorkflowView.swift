@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WorkflowView: View {
+struct WorkflowView: View, Equatable {
   static let idealWidth: CGFloat = 500
 
   let workflow: WorkflowViewModel

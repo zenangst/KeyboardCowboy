@@ -8,12 +8,16 @@ import Foundation
 ///
 /// - Note: `Combination` uniqueness needs to work across multiple `Workflow`'s.
 public struct WorkflowViewModel: Identifiable, Hashable {
-  public let id: String = UUID().uuidString
+  public let id: String
   public var name: String
   public var combinations: [CombinationViewModel]
   public var commands: [CommandViewModel]
 
-  public init(name: String, combinations: [CombinationViewModel], commands: [CommandViewModel]) {
+  public init(id: String,
+              name: String,
+              combinations: [CombinationViewModel],
+              commands: [CommandViewModel]) {
+    self.id = id
     self.name = name
     self.combinations = combinations
     self.commands = commands

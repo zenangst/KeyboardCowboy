@@ -1,1 +1,0 @@
-- "[{\"appleScript\":{\"inline\":\"#!\\/usr\\/bin\\/env fish\"}},{\"appleScript\":{\"path\":\"\\/tmp\\/file\"}},{\"shell\":{\"inline\":\"#!\\/usr\\/bin\\/env fish\"}},{\"shell\":{\"path\":\"\\/tmp\\/file\"}}]"

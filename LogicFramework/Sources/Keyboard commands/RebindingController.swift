@@ -5,6 +5,7 @@ import Cocoa
 /// alternate events when rebounded keys are invoked.
 public protocol RebindingControlling {
   init() throws
+  var isEnabled: Bool { get set }
   func monitor(_ workflows: [Workflow])
   func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ cgEvent: CGEvent) -> Unmanaged<CGEvent>?
 }
@@ -21,6 +22,11 @@ final class RebindingController: RebindingControlling {
   private var eventSource: CGEventSource!
   private var machPort: CFMachPort!
   private var runLoopSource: CFRunLoopSource!
+
+  var isEnabled: Bool {
+    set { machPort.map { CGEvent.tapEnable(tap: $0, enable: newValue) } }
+    get { machPort.map(CGEvent.tapIsEnabled) ?? false }
+  }
 
   required init() throws {
     self.eventSource = try createEventSource()

@@ -7,46 +7,50 @@ class ModelFactory {
                 path: "/System/Library/CoreServices/Finder.app")
   }
 
-  func applicationCommand() -> ApplicationCommand {
-    .init(application: Self.application())
+  func applicationCommand(id: String = UUID().uuidString) -> ApplicationCommand {
+    .init(id: id, application: Self.application())
   }
 
   func days() -> [Rule.Day] {
     [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
   }
 
-  func group(name: String = "Global shortcuts",
+  func group(id: String = UUID().uuidString,
+             name: String = "Global shortcuts",
              rule: Rule? = nil,
              workflows: ((ModelFactory) -> [Workflow])? = nil) -> Group {
-    Group(name: name,
+    Group(id: id,
+          name: name,
           rule: rule ?? self.rule(),
-          workflows: workflows?(self) ?? [workflow()])
+          workflows: workflows?(self) ?? [workflow(id: id)])
   }
 
-  func keyboardCommand() -> KeyboardCommand {
-    .init(keyboardShortcut: keyboardShortcut())
+  func keyboardCommand(id: String = UUID().uuidString) -> KeyboardCommand {
+    .init(id: id, keyboardShortcut: keyboardShortcut(id: id))
   }
 
-  func keyboardShortcut(key: String = "A", modifiers: [ModifierKey]? = nil) -> KeyboardShortcut {
-    .init(key: key, modifiers: modifiers)
+  func keyboardShortcut(id: String = UUID().uuidString, key: String = "A",
+                        modifiers: [ModifierKey]? = nil) -> KeyboardShortcut {
+    .init(id: id, key: key, modifiers: modifiers)
   }
 
-  func openCommand(application: Application? = ModelFactory.application()) -> OpenCommand {
-    .init(application: application, path: "~/Desktop/new_real_final_draft_Copy_42.psd")
+  func openCommand(id: String = UUID().uuidString,
+                   application: Application? = ModelFactory.application()) -> OpenCommand {
+    .init(id: id, application: application, path: "~/Desktop/new_real_final_draft_Copy_42.psd")
   }
 
   func rule() -> Rule {
     Rule(bundleIdentifiers: [Self.application().bundleIdentifier], days: days())
   }
 
-  func scriptCommands() -> [ScriptCommand] {
+  func scriptCommands(id: String = UUID().uuidString) -> [ScriptCommand] {
     let path = "/tmp/file"
     let script = "#!/usr/bin/env fish"
     return [
-      .appleScript(.inline(script)),
-      .appleScript(.path(path)),
-      .shell(.inline(script)),
-      .shell(.path(path))
+      .appleScript(.inline(script), id),
+      .appleScript(.path(path), id),
+      .shell( .inline(script), id),
+      .shell(.path(path), id)
     ]
   }
 
@@ -54,12 +58,14 @@ class ModelFactory {
     .init(key: "A", modifiers: modifiers)
   }
 
-  func workflow(keyboardShortcuts: ((ModelFactory) -> [KeyboardShortcut])? = nil,
+  func workflow(id: String = UUID().uuidString,
+                keyboardShortcuts: ((ModelFactory) -> [KeyboardShortcut])? = nil,
                 commands: ((ModelFactory) -> [Command])? = nil,
                 name: String = "Open/active Finder") -> Workflow {
     Workflow(
-      commands: commands?(self) ?? [.application(applicationCommand())],
-      keyboardShortcuts: keyboardShortcuts?(self) ?? [keyboardShortcut(modifiers: [.control, .option])],
+      id: id,
+      commands: commands?(self) ?? [.application(applicationCommand(id: id))],
+      keyboardShortcuts: keyboardShortcuts?(self) ?? [keyboardShortcut(id: id, modifiers: [.control, .option])],
       name: name)
   }
 }

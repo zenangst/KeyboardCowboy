@@ -4,6 +4,7 @@ public class ControllerFactory {
   public init() {}
 
   public func coreController(commandController: CommandControlling? = nil,
+                             disableKeyboardShortcuts: Bool,
                              groupsController: GroupsControlling? = nil,
                              hotkeyController: HotkeyControlling? = nil,
                              keycodeMapper: KeyCodeMapping? = nil,
@@ -15,6 +16,7 @@ public class ControllerFactory {
     let keycodeMapper = keycodeMapper ?? KeyCodeMapper()
     let workflowController = workflowController ?? WorkflowController()
     return CoreController(commandController: commandController,
+                          disableKeyboardShortcuts: disableKeyboardShortcuts,
                           groupsController: groupsController,
                           hotkeyController: hotkeyController,
                           keycodeMapper: keycodeMapper,

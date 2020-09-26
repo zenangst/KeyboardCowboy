@@ -8,26 +8,32 @@ class ModelFactory {
   func groupList() -> [GroupViewModel] {
     [
       GroupViewModel(
+        id: UUID().uuidString,
         name: "Applications",
         workflows: openWorkflows("Calendar", "Contacts", "Finder", "Mail", "Safari", "Xcode")
       ),
       GroupViewModel(
+        id: UUID().uuidString,
         name: "Developer tools",
         workflows: openWorkflows("Instruments", "Simulator", "Xcode")
       ),
       GroupViewModel(
+        id: UUID().uuidString,
         name: "Folders",
         workflows: openWorkflows("Home folder", "Developer folder")
       ),
       GroupViewModel(
+        id: UUID().uuidString,
         name: "Files",
         workflows: openWorkflows(".gitconfig", "Design project.sketch", "Keyboard-Cowboy.xcodeproj")
       ),
       GroupViewModel(
+        id: UUID().uuidString,
         name: "Keyboard shortcuts",
         workflows: rebindWorkflows("⌥a to ←", "⌥w to ↑", "⌥d to →", "⌥s to ↓")
       ),
       GroupViewModel(
+        id: UUID().uuidString,
         name: "Safari",
         workflows: runWorkflows("Share website", "Save as PDF")
       )
@@ -37,6 +43,7 @@ class ModelFactory {
   /// Used by `GroupListCell.swift`
   func groupListCell() -> GroupViewModel {
     GroupViewModel(
+      id: UUID().uuidString,
       name: "Developer tools",
       workflows: openWorkflows("Instruments", "Simulator", "Xcode")
     )
@@ -62,6 +69,7 @@ class ModelFactory {
   private func openWorkflows(_ applicationNames: String ...) -> [WorkflowViewModel] {
     applicationNames.compactMap({
       WorkflowViewModel(
+        id: UUID().uuidString,
         name: "Open \($0)",
         combinations: [],
         commands: [CommandViewModel(name: "Open \($0)")]
@@ -72,6 +80,7 @@ class ModelFactory {
   private func runWorkflows(_ scriptNames: String ...) -> [WorkflowViewModel] {
     scriptNames.compactMap({
       WorkflowViewModel(
+        id: UUID().uuidString,
         name: "Run \($0) script",
         combinations: [],
         commands: [CommandViewModel(name: "Run \($0)")])
@@ -82,6 +91,7 @@ class ModelFactory {
   private func rebindWorkflows(_ scriptNames: String ...) -> [WorkflowViewModel] {
     scriptNames.compactMap({
       WorkflowViewModel(
+        id: UUID().uuidString,
         name: "Rebind \($0)",
         combinations: [],
         commands: [CommandViewModel(name: "Rebind \($0)")])
@@ -95,6 +105,7 @@ class ModelFactory {
 
   private func workflow() -> WorkflowViewModel {
     WorkflowViewModel(
+      id: UUID().uuidString,
       name: "Developer workflow",
       combinations: [],
       commands: openCommands("Xcode", "Instruments", "Simulator", "Terminal")

@@ -16,4 +16,3 @@ class RuleTests: XCTestCase {
     XCTAssertEqual(try Rule.decode(from: json), ModelFactory().rule())
   }
 }
-

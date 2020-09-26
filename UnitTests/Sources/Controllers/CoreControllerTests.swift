@@ -4,7 +4,8 @@ import XCTest
 class CoreControllerTests: XCTestCase {
   func testCoreController() {
     let factory = ControllerFactory()
-    let groups = self.groups()
+    let id = UUID().uuidString
+    let groups = self.groups(id: id)
     let openCommandController = OpenCommandControllerMock(.success(()))
     let commandController = factory.commandController(
       openCommandController: openCommandController)
@@ -19,47 +20,48 @@ class CoreControllerTests: XCTestCase {
     let workflowController = factory.workflowController()
     let controller = factory.coreController(
       commandController: commandController,
+      disableKeyboardShortcuts: true,
       groupsController: groupsController,
       workflowController: workflowController,
       workspace: workspace)
 
-    let firstBatch = controller.respond(to: .init(key: "G", modifiers: [.control, .option]))
+    let firstBatch = controller.respond(to: .init(id: id, key: "G", modifiers: [.control, .option]))
     XCTAssertEqual(firstBatch.count, 2)
     XCTAssertEqual(groups[0].workflows[1], firstBatch[0])
     XCTAssertEqual(groups[0].workflows[2], firstBatch[1])
 
-    let secondBatch = controller.respond(to: .init(key: "H"))
+    let secondBatch = controller.respond(to: .init(id: id, key: "H"))
     XCTAssertEqual(secondBatch.count, 1)
     XCTAssertEqual(groups[0].workflows[1], secondBatch[0])
   }
 
-  private func groups() -> [Group] {
+  private func groups(id: String = UUID().uuidString) -> [Group] {
     [
       Group(name: "Global shortcuts",
             workflows:
               [
-                Workflow(commands: [
+                Workflow(id: id, commands: [
                   .application(.init(application: .init(
                                       bundleIdentifier: "com.apple.finder",
                                       bundleName: "Finder",
                                       path: "/System/Library/CoreServices/Finder.app")))
                 ],
                 keyboardShortcuts: [
-                  KeyboardShortcut(key: "F", modifiers: [.control, .option])
+                  KeyboardShortcut(id: id, key: "F", modifiers: [.control, .option])
                 ],
                 name: "Open Finder"),
-                Workflow(commands: [
+                Workflow(id: id, commands: [
                   .open(.init(application: .init(bundleIdentifier: "com.apple.Safari",
                                                  bundleName: "Safari",
                                                  path: "/Applications/Safari.app"),
                               path: "https://www.github.com"))
                 ],
                 keyboardShortcuts: [
-                  KeyboardShortcut(key: "G", modifiers: [.control, .option]),
-                  KeyboardShortcut(key: "H")
+                  KeyboardShortcut(id: id, key: "G", modifiers: [.control, .option]),
+                  KeyboardShortcut(id: id, key: "H")
                 ],
                 name: "Open GitHub - Homepage"),
-                Workflow(commands: [
+                Workflow(id: id, commands: [
                   .open(.init(
                           application: .init(bundleIdentifier: "com.apple.Safari",
                                              bundleName: "Safari",
@@ -67,8 +69,8 @@ class CoreControllerTests: XCTestCase {
                           path: "https://github.com/notifications?query=reason%3Aparticipating"))
                 ],
                 keyboardShortcuts: [
-                  KeyboardShortcut(key: "G", modifiers: [.control, .option]),
-                  KeyboardShortcut(key: "P")
+                  KeyboardShortcut(id: id, key: "G", modifiers: [.control, .option]),
+                  KeyboardShortcut(id: id, key: "P")
                 ],
                 name: "Open GitHub - Participating")
               ])

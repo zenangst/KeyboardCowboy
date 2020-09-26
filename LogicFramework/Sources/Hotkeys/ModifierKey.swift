@@ -7,7 +7,7 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
   case command = "@"
   case function = "fn"
 
-  var pretty: String {
+  public var pretty: String {
     switch self {
     case .shift:
       return "⇧"

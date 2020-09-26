@@ -1,1 +1,1 @@
-- "{\"application\":{\"path\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\",\"bundleIdentifier\":\"com.apple.Finder\",\"bundleName\":\"Finder\"},\"path\":\"~\\/Desktop\\/new_real_final_draft_Copy_42.psd\"}"
+- "{\"id\":\"foobar\",\"application\":{\"path\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\",\"bundleIdentifier\":\"com.apple.Finder\",\"bundleName\":\"Finder\"},\"path\":\"~\\/Desktop\\/new_real_final_draft_Copy_42.psd\"}"
