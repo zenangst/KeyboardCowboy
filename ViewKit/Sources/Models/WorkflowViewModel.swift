@@ -7,7 +7,7 @@ import Foundation
 /// first, second or third set of `Combination`´s but never the last.
 ///
 /// - Note: `Combination` uniqueness needs to work across multiple `Workflow`'s.
-public struct WorkflowViewModel: Identifiable, Hashable {
+public struct WorkflowViewModel: Identifiable, Hashable, Equatable {
   public let id: String
   public var name: String
   public var combinations: [CombinationViewModel]

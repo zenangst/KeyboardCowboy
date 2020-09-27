@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WorkflowView: View, Equatable {
+struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
 
   let workflow: WorkflowViewModel
@@ -10,7 +10,6 @@ struct WorkflowView: View, Equatable {
       Text(workflow.name).font(.title)
     }
     .padding()
-    .frame(minWidth: 400, idealWidth: Self.idealWidth, maxWidth: .infinity, maxHeight: .infinity)
   }
 }
 

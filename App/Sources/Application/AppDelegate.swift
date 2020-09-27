@@ -30,6 +30,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     if launchArguments.isEnabled(.runningUnitTests) { return }
+    if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil { return }
 
     runApplication()
   }
@@ -53,7 +54,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
   private func createMainWindow(_ controller: CoreControlling) -> NSWindow? {
     let groupFeatureController = FeatureFactory().groupFeature(controller.groups)
     groupFeatureController.delegate = self
-    let groupList = GroupList(controller: groupFeatureController.erase())
+    let groupList = MainView(groupController: groupFeatureController.erase())
+      .environmentObject(UserSelection())
     let window = MainWindow(toolbar: Toolbar())
 
     window.title = "Keyboard Cowboy"

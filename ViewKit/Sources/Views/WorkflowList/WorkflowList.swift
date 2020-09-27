@@ -2,25 +2,26 @@ import SwiftUI
 
 struct WorkflowList: View {
   static let idealWidth: CGFloat = 300
-  let workflows: [WorkflowViewModel]
-  @State private var selection: WorkflowViewModel?
+  @EnvironmentObject var userSelection: UserSelection
+  @Binding var group: GroupViewModel?
 
   var body: some View {
-    NavigationView {
-      List(workflows, selection: $selection) { workflow in
-        NavigationLink(
-          destination: WorkflowView(workflow: workflow),
-          tag: workflow,
-          selection: $selection
-        ) {
+    if let group = group {
+      List(selection: $userSelection.workflow) {
+        ForEach(group.workflows) { workflow in
           WorkflowListCell(workflow: workflow)
+            .tag(workflow)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .onTapGesture(count: 1, perform: { userSelection.workflow = workflow })
         }
-        .onAppear(perform: {
-          selection = selection ?? workflows.first
-        })
       }
+      .onAppear {
+        if userSelection.workflow == nil {
+          userSelection.workflow = group.workflows.first
+        }
+      }
+      .buttonStyle(PlainButtonStyle())
       .listStyle(PlainListStyle())
-      .frame(minWidth: 300, maxWidth: 500, maxHeight: .infinity)
     }
   }
 }
@@ -33,6 +34,8 @@ struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    WorkflowList(workflows: ModelFactory().workflowList())
+    WorkflowList(group: .constant(ModelFactory().groupList().first!))
+      .frame(width: WorkflowList.idealWidth, height: 360)
+      .environmentObject(UserSelection())
   }
 }
