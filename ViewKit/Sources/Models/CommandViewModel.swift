@@ -4,7 +4,7 @@ import Foundation
 ///
 /// - Examples: Launching an application, running a script
 ///             opening a file or folder.
-public struct CommandViewModel: Identifiable, Hashable {
+public struct CommandViewModel: Identifiable, Hashable, Equatable {
   public let id: String
   public var name: String
 

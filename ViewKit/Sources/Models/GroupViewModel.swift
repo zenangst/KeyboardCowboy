@@ -10,7 +10,7 @@ import Foundation
 ///            The group `Finder workflows` will only apply
 ///            and be bound to keyboard shortcuts when the Finder
 ///            is the front-most application.
-public struct GroupViewModel: Identifiable, Hashable {
+public struct GroupViewModel: Identifiable, Hashable, Equatable {
   public let id: String
   public var name: String
   public var workflows: [WorkflowViewModel]

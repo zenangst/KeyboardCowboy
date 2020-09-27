@@ -4,7 +4,7 @@ import Foundation
 /// 
 /// They can include modifiers keys such as Control, Option, Command
 /// and potentially even the Fn (Function key).
-public struct CombinationViewModel: Identifiable, Hashable {
+public struct CombinationViewModel: Identifiable, Hashable, Equatable {
   public let id: String
   let name: String
 

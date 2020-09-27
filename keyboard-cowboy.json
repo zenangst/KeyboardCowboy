@@ -25,6 +25,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "FBFCCD8A-D13B-4601-B4A3-8549D49DB2D9",
             "key" : "Å",
             "modifiers" : [
               "@"
@@ -47,6 +48,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "70E3E399-8698-4EB3-B9AB-A07EAEE8FB6F",
             "key" : "¨",
             "modifiers" : [
               "@"
@@ -83,6 +85,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "D4041FBE-31DF-40F0-9EF2-217ED3A894FA",
             "key" : "Å",
             "modifiers" : [
               "@"
@@ -119,6 +122,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "E1790585-CB89-4FF8-8348-3641FC498286",
             "key" : "Å",
             "modifiers" : [
               "@"
@@ -141,6 +145,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "9D8375D2-9044-4188-B89E-F48985D890B8",
             "key" : "¨",
             "modifiers" : [
               "@"
@@ -163,6 +168,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "2B51B080-17CB-4F41-AC8B-FCCCC3F0B61D",
             "key" : "q",
             "modifiers" : [
               "^"
@@ -185,6 +191,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "39C53F23-FCB0-43E4-825F-3939A0CAB53F",
             "key" : "e",
             "modifiers" : [
               "^"
@@ -207,6 +214,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "C479C9D4-6E9A-42ED-917D-E509A112E91F",
             "key" : "m",
             "modifiers" : [
               "^",
@@ -245,6 +253,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "4F8AE311-B6A3-418B-9426-ACE35BAAC994",
             "key" : "X",
             "modifiers" : [
               "^"
@@ -267,6 +276,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "CEF9B5A5-F9AA-4C01-A39F-9D7B04E67E56",
             "key" : "Å",
             "modifiers" : [
               "@"
@@ -297,6 +307,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "EE90A03C-98A3-44A3-933D-D363EA1FFC2B",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -304,6 +315,7 @@
             ]
           },
           {
+            "id" : "F52FB64C-4E78-430B-849A-F6035A63BD54",
             "key" : "A"
           }
         ],
@@ -325,6 +337,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "E80DD6CB-84EA-4A69-B1D5-90696055C5F1",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -332,6 +345,7 @@
             ]
           },
           {
+            "id" : "1E26B05F-A52D-48F5-BB77-68A7217A0035",
             "key" : "B"
           }
         ],
@@ -353,6 +367,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "9DB1EA97-F412-4CA9-8475-5329B3EC9037",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -360,6 +375,7 @@
             ]
           },
           {
+            "id" : "7140FB04-D797-4D20-81B3-6B92B0719141",
             "key" : "C"
           }
         ],
@@ -381,6 +397,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "174C5BC1-DD00-4B01-8B96-AD468EC82579",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -388,6 +405,7 @@
             ]
           },
           {
+            "id" : "29F3E70A-7B6E-4D06-9346-CE4806CECF99",
             "key" : "D"
           }
         ],
@@ -409,6 +427,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "D2CCA84F-955C-4003-8FEF-5BE4B41EBBA2",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -416,6 +435,7 @@
             ]
           },
           {
+            "id" : "2A66B94D-A4B5-4704-823C-77F21D12B394",
             "key" : "E"
           }
         ],
@@ -437,6 +457,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "BC1C8E6F-E817-47FC-8E4F-312EB46119C5",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -444,6 +465,7 @@
             ]
           },
           {
+            "id" : "00560E5D-FBFC-4798-B2B7-A601769A2F6A",
             "key" : "G"
           }
         ],
@@ -465,6 +487,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "7BBF4A66-0EC4-4F9C-B442-7EB3CDA901DF",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -472,6 +495,7 @@
             ]
           },
           {
+            "id" : "693EE1F9-073E-486F-92BD-7AEC8BF8566C",
             "key" : "H"
           }
         ],
@@ -493,6 +517,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "09AEAA42-F488-4B0C-8774-E5D00B424317",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -500,6 +525,7 @@
             ]
           },
           {
+            "id" : "16008C8C-4973-4E0A-87CE-F485736AB6A9",
             "key" : "I"
           }
         ],
@@ -521,6 +547,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "276E094C-7FCA-4528-978D-10714F81EE10",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -528,6 +555,7 @@
             ]
           },
           {
+            "id" : "F6A2142D-E50D-446D-A628-243060AE6D4F",
             "key" : "K"
           }
         ],
@@ -549,6 +577,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "61040057-70B4-4395-BFB6-C2AB1770AE82",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -556,6 +585,7 @@
             ]
           },
           {
+            "id" : "A1EC367B-9D0A-4CA1-B4DE-050727D288DD",
             "key" : "M"
           }
         ],
@@ -577,6 +607,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "080D30A7-69D0-421D-8FC6-778EF1919735",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -584,6 +615,7 @@
             ]
           },
           {
+            "id" : "2E748600-0E26-43AD-8927-2B271DCDBB49",
             "key" : "N"
           }
         ],
@@ -605,6 +637,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "9DAAEA48-52EB-43CE-8644-5EF062423349",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -612,6 +645,7 @@
             ]
           },
           {
+            "id" : "5A8C0B34-95A4-4427-9E38-063C011A8C16",
             "key" : "P"
           }
         ],
@@ -633,6 +667,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "E76FF708-5130-4A20-A52B-DAF0092C5091",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -640,6 +675,7 @@
             ]
           },
           {
+            "id" : "23B2864A-5863-498B-9EF4-FCBDA9C97900",
             "key" : "R"
           }
         ],
@@ -661,6 +697,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "EB58E9BE-8537-47ED-8097-04262B86A8F9",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -668,6 +705,7 @@
             ]
           },
           {
+            "id" : "DE1EFC06-A20E-407A-B469-4896756F4A7A",
             "key" : "S"
           }
         ],
@@ -689,6 +727,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "FB7C3607-B435-4AB6-B634-77DF4401E2CB",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -696,6 +735,7 @@
             ]
           },
           {
+            "id" : "FF90335F-5D43-4DEF-80B5-0A9DD032D610",
             "key" : "T"
           }
         ],
@@ -717,6 +757,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "801B5F38-FDB2-4D2F-8144-343BDBA2EA87",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -724,6 +765,7 @@
             ]
           },
           {
+            "id" : "17270A61-6B2E-4C57-A421-50EDE1FC5474",
             "key" : "."
           }
         ],
@@ -745,6 +787,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "78CFF118-5E7B-49DA-90E0-070CE1139486",
             "key" : "A",
             "modifiers" : [
               "^",
@@ -752,6 +795,7 @@
             ]
           },
           {
+            "id" : "0C5848F3-1F13-4234-8B0A-BE366E667CD8",
             "key" : "S",
             "modifiers" : [
               "@"
@@ -776,6 +820,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "260E3319-A47C-4FCB-AFE5-A7916D428E2A",
             "key" : "F",
             "modifiers" : [
               "^",
@@ -801,6 +846,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "46F622B8-BDB7-420C-896D-4B13E1DED75B",
             "key" : "S",
             "modifiers" : [
               "^",
@@ -826,6 +872,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "FC899025-87FC-47A4-B78E-2C2835557878",
             "key" : "E",
             "modifiers" : [
               "^",
@@ -851,6 +898,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "912F324B-AE0F-4CC9-91C9-C05A884491A6",
             "key" : "G",
             "modifiers" : [
               "^",
@@ -858,6 +906,7 @@
             ]
           },
           {
+            "id" : "FA1A7985-224A-44A6-9823-8915107ED73A",
             "key" : "R"
           }
         ],
@@ -879,6 +928,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "4B9FB2BF-9E9D-4282-A27E-3D7C31D1646E",
             "key" : "D",
             "modifiers" : [
               "^",
@@ -886,6 +936,7 @@
             ]
           },
           {
+            "id" : "E0C27DEB-7C0B-4449-8661-2411423CB84F",
             "key" : "G",
             "modifiers" : [
               "^",
@@ -911,6 +962,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "18483F92-B351-433F-8402-BAA1F60EF323",
             "key" : "D",
             "modifiers" : [
               "^",
@@ -918,6 +970,7 @@
             ]
           },
           {
+            "id" : "8FC1BE66-1DF6-4B5E-B6A9-63636F1E34AE",
             "key" : "A"
           }
         ],
@@ -939,6 +992,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "30106108-F063-41C0-8C62-5229363AC0DE",
             "key" : "§",
             "modifiers" : [
               "^"
@@ -964,6 +1018,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "541AD72C-3862-4992-A2E7-948CECB1C046",
             "key" : "G",
             "modifiers" : [
               "^",
@@ -971,6 +1026,7 @@
             ]
           },
           {
+            "id" : "B3D477BD-D664-419E-B9E8-A865C9823FAF",
             "key" : "G"
           }
         ],
@@ -983,6 +1039,7 @@
             "keyboardCommand" : {
               "id" : "B6F2C6E3-D3EE-4A64-9C4B-D8932A6D178F",
               "keyboardShortcut" : {
+                "id" : "597F4145-BE36-4FB9-974E-EA84AE7FAB37",
                 "key" : "←"
               }
             }
@@ -990,6 +1047,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "D1465F9D-2172-43BB-B788-55EB958A9D39",
             "key" : "a",
             "modifiers" : [
               "~"
@@ -1005,6 +1063,7 @@
             "keyboardCommand" : {
               "id" : "3C6CF338-14A6-4DEB-B97C-9AB4D5DC229E",
               "keyboardShortcut" : {
+                "id" : "D0CA576D-DD56-4A08-AE84-75EE78560952",
                 "key" : "↑"
               }
             }
@@ -1012,6 +1071,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "A012317D-D6A4-4BDB-9F74-7D24704F61E6",
             "key" : "w",
             "modifiers" : [
               "~"
@@ -1027,6 +1087,7 @@
             "keyboardCommand" : {
               "id" : "1E9759BF-AA93-4E5A-A955-B79889FDEF79",
               "keyboardShortcut" : {
+                "id" : "6BCE083C-3557-48DD-BEE5-82BCA1248291",
                 "key" : "→"
               }
             }
@@ -1034,6 +1095,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "A08D0936-D3C0-4E13-B801-AAB4C1770373",
             "key" : "d",
             "modifiers" : [
               "~"
@@ -1049,6 +1111,7 @@
             "keyboardCommand" : {
               "id" : "FA8BE945-ECA4-489D-8228-831BCF52F2B0",
               "keyboardShortcut" : {
+                "id" : "73F04DAF-01E7-4209-A982-87220AF36B68",
                 "key" : "↓"
               }
             }
@@ -1056,6 +1119,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "E0D02175-86B6-49AB-B773-CA94F562958D",
             "key" : "s",
             "modifiers" : [
               "~"
@@ -1071,6 +1135,7 @@
             "keyboardCommand" : {
               "id" : "0F21E5A9-3EC1-4EC7-9144-539FB30E8B80",
               "keyboardShortcut" : {
+                "id" : "0A9F2BBF-27F3-44A4-9FAC-804D85927988",
                 "key" : "←"
               }
             }
@@ -1078,6 +1143,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "9057638D-B7B5-46E4-BB5B-5E2662ED73AE",
             "key" : "l",
             "modifiers" : [
               "~"
@@ -1093,6 +1159,7 @@
             "keyboardCommand" : {
               "id" : "3CCBCCA9-4073-4A0C-B70F-B740B52803EF",
               "keyboardShortcut" : {
+                "id" : "0BF199B6-C233-4662-BEC9-218A2BDDA2B7",
                 "key" : "↑"
               }
             }
@@ -1100,6 +1167,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "9D735366-AB89-446D-B4A7-976DDBACBE19",
             "key" : "p",
             "modifiers" : [
               "~"
@@ -1115,6 +1183,7 @@
             "keyboardCommand" : {
               "id" : "3E237A6C-A0D4-4D8E-9D2E-7F222C38E8AA",
               "keyboardShortcut" : {
+                "id" : "F9F161B9-D171-4CA4-847E-D510E9262B9F",
                 "key" : "→"
               }
             }
@@ -1122,6 +1191,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "D7F5DCC4-A3CC-4D00-8A48-AB075EA2BB79",
             "key" : "ä",
             "modifiers" : [
               "~"
@@ -1137,6 +1207,7 @@
             "keyboardCommand" : {
               "id" : "CBE732B2-9CBF-4EE5-A1D4-3EEB8A76AB49",
               "keyboardShortcut" : {
+                "id" : "89EDCA34-0CD5-4C44-BF32-378C9E25E355",
                 "key" : "↓"
               }
             }
@@ -1144,6 +1215,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "E21A3C50-83D4-458C-9B17-2668FE459C0A",
             "key" : "ö",
             "modifiers" : [
               "~"
@@ -1166,6 +1238,7 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "CBCDE633-FFCA-40D1-88FE-9A4C3BCA1613",
             "key" : "y",
             "modifiers" : [
               "^",
