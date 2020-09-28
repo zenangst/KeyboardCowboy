@@ -25,18 +25,8 @@ public struct MainView: View {
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .frame(height: 48)
           .padding(.horizontal, 12)
-        Text("Groups")
-          .padding(EdgeInsets(top: 8, leading: 16, bottom: 4, trailing: 0))
-          .font(.subheadline)
-          .foregroundColor(Color.secondary)
-
         GroupList(controller: groupController)
           .frame(minWidth: 200, maxWidth: 250)
-        Button("+ Add Group", action: {
-          groupController.perform(.newGroup)
-        })
-        .buttonStyle(PlainButtonStyle())
-        .padding(.init(top: 0, leading: 8, bottom: 8, trailing: 0))
       }
 
       if userSelection.group != nil {
