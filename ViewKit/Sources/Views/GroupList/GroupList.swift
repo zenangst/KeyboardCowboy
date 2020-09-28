@@ -18,7 +18,12 @@ public struct GroupList: View {
   }
 
   public var body: some View {
-    List(selection: $userSelection.group) {
+    VStack(alignment: .leading, spacing: 0) {
+      Text("Groups")
+        .padding(EdgeInsets(top: 8, leading: 16, bottom: 4, trailing: 0))
+        .font(.subheadline)
+        .foregroundColor(Color.secondary)
+      List(selection: $userSelection.group) {
         ForEach(groups) { group in
           GroupListCell(group: group)
             .tag(group)
@@ -34,6 +39,12 @@ public struct GroupList: View {
           userSelection.group = groups.first
         }
       }
+      Button("+ Add Group", action: {
+        controller.perform(.newGroup)
+      })
+      .buttonStyle(PlainButtonStyle())
+      .padding(.init(top: 0, leading: 8, bottom: 8, trailing: 0))
+    }
   }
 }
 
