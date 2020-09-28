@@ -3,6 +3,7 @@ import Cocoa
 public protocol CoreControlling {
   var disableKeyboardShortcuts: Bool { get set }
   var groups: [Group] { get }
+  var installedApplications: [Application] { get }
   func reloadContext()
   func activate(_ keyboardShortcuts: Set<KeyboardShortcut>, rebindingWorkflows workflows: [Workflow])
   @discardableResult
@@ -19,7 +20,7 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
   let workflowController: WorkflowControlling
   let workspace: WorkspaceProviding
   var cache = [String: Int]()
-  var installedApplications = [Application]()
+  private(set) public var installedApplications = [Application]()
 
   public var groups: [Group] { return groupsController.groups }
   public var disableKeyboardShortcuts: Bool {

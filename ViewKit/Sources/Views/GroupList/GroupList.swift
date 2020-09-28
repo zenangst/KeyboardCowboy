@@ -4,6 +4,7 @@ public struct GroupList: View {
   public typealias Controller = AnyViewController<[GroupViewModel], Action>
   public enum Action {
     case newGroup
+    case dropFile(URL)
   }
 
   static let idealWidth: CGFloat = 300
@@ -23,27 +24,45 @@ public struct GroupList: View {
         .padding(EdgeInsets(top: 8, leading: 16, bottom: 4, trailing: 0))
         .font(.subheadline)
         .foregroundColor(Color.secondary)
-      List(selection: $userSelection.group) {
-        ForEach(groups) { group in
-          GroupListCell(group: group)
-            .tag(group)
-            .onTapGesture(count: 1, perform: {
-              userSelection.group = group
-            })
-            .frame(maxWidth: .infinity, alignment: .leading)
+      list
+        .onAppear {
+          if userSelection.group == nil {
+            userSelection.group = groups.first
+          }
         }
-      }
-      .listStyle(SidebarListStyle())
-      .onAppear {
-        if userSelection.group == nil {
-          userSelection.group = groups.first
-        }
-      }
+        .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers -> Bool in
+          providers.forEach {
+            _ = $0.loadObject(ofClass: URL.self) { url, _ in
+              guard let url = url else { return }
+              controller.action(.dropFile(url))()
+            }
+          }
+          return true
+        })
+        .listStyle(SidebarListStyle())
+
       Button("+ Add Group", action: {
         controller.perform(.newGroup)
       })
       .buttonStyle(PlainButtonStyle())
       .padding(.init(top: 0, leading: 8, bottom: 8, trailing: 0))
+    }
+  }
+}
+
+// MARK: - Subviews
+
+extension GroupList {
+  var list: some View {
+    List(selection: $userSelection.group) {
+      ForEach(groups) { group in
+        GroupListCell(group: group)
+          .tag(group)
+          .onTapGesture(count: 1, perform: {
+            userSelection.group = group
+          })
+          .frame(maxWidth: .infinity, alignment: .leading)
+      }
     }
   }
 }
