@@ -54,6 +54,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
   private func createMainWindow(_ controller: CoreControlling) -> NSWindow? {
     let groupFeatureController = FeatureFactory().groupFeature(controller.groups)
     groupFeatureController.delegate = self
+    groupFeatureController.applications = controller.installedApplications
     let groupList = MainView(groupController: groupFeatureController.erase())
       .environmentObject(UserSelection())
     let window = MainWindow(toolbar: Toolbar())
