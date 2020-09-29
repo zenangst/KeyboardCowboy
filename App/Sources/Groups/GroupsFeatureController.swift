@@ -32,7 +32,7 @@ class GroupsFeatureController: ViewController {
     }
   }
 
-  private func createNewGroup() {
+  private func newGroup() {
     let newGroup = Group(name: "Untitled group")
     var groups = groupsController.groups
     groups.append(newGroup)
@@ -52,14 +52,42 @@ class GroupsFeatureController: ViewController {
     reload(groups)
   }
 
+  private func save(_ viewModel: GroupViewModel) {
+    var groups = groupsController.groups
+    guard let model = groups.first(where: { $0.id == viewModel.id }),
+          let index = groups.firstIndex(of: model) else {
+      return
+    }
+
+    let newModel = Group(id: model.id, name: viewModel.name,
+                         rule: model.rule, workflows: model.workflows)
+    groups[index] = newModel
+    reload(groups)
+  }
+
+  private func delete(_ viewModel: GroupViewModel) {
+    var groups = groupsController.groups
+    guard let model = groups.first(where: { $0.id == viewModel.id }),
+          let index = groups.firstIndex(of: model) else {
+      return
+    }
+
+    groups.remove(at: index)
+    reload(groups)
+  }
+
   // MARK: ViewController
 
   func perform(_ action: GroupList.Action) {
     switch action {
+    case .createGroup:
+      newGroup()
+    case .deleteGroup(let group):
+      delete(group)
+    case .updateGroup(let group):
+      save(group)
     case .dropFile(let url):
       processUrl(url)
-    case .newGroup:
-      createNewGroup()
     }
   }
 }
