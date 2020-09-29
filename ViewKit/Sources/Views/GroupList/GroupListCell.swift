@@ -1,12 +1,13 @@
 import SwiftUI
 
 struct GroupListCell: View {
-  let group: GroupViewModel
+  @Binding var name: String
+  let count: Int
 
   var body: some View {
     HStack {
       icon
-      name
+      textField
       Spacer()
       numberOfWorkflows
     }
@@ -26,14 +27,14 @@ private extension GroupListCell {
     }
   }
 
-  var name: some View {
-    Text(group.name)
+  var textField: some View {
+    TextField("", text: $name)
       .foregroundColor(.primary)
       .lineSpacing(-2.0)
   }
 
   var numberOfWorkflows: some View {
-    Text("\(group.workflows.count)")
+    Text("\(count)")
       .foregroundColor(.secondary)
       .padding(.vertical, 2)
   }
@@ -47,6 +48,7 @@ struct GroupListCell_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    GroupListCell(group: ModelFactory().groupListCell())
+    let group = ModelFactory().groupListCell()
+    return GroupListCell(name: .constant(group.name), count: group.workflows.count)
   }
 }

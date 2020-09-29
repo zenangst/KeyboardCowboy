@@ -58,18 +58,29 @@ private extension GroupList {
   var list: some View {
     List(selection: $userSelection.group) {
       ForEach(groups) { group in
-        GroupListCell(group: group)
-          .onTapGesture(count: 1, perform: {
-            userSelection.group = group
-          })
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .contextMenu {
-            Button("Edit") { editGroup = group }
-            Button("Remove") { controller.action(.deleteGroup(group))() }
-          }
-          .tag(group)
+        GroupListCell(
+          name: Binding(
+            get: { group.name },
+            set: { name in
+              var group = group
+              group.name = name
+              controller.perform(.updateGroup(group))
+            }
+          ),
+          count: group.workflows.count
+        )
+        .onTapGesture(count: 1, perform: {
+          userSelection.group = group
+        })
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contextMenu {
+          Button("Edit") { editGroup = group }
+          Button("Remove") { controller.action(.deleteGroup(group))() }
+        }
+        .tag(group)
       }
     }
+    .frame(minHeight: 480)
     .sheet(item: $editGroup, content: editGroup)
   }
 
