@@ -12,4 +12,7 @@ class MainWindow: NSWindow {
                defer: false)
     self.toolbar = toolbar
   }
+
+  override var canBecomeKey: Bool { true }
+  override var canBecomeMain: Bool { true }
 }
