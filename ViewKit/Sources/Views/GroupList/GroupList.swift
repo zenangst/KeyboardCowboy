@@ -94,9 +94,11 @@ private extension GroupList {
 
   func editGroup(_ group: GroupViewModel) -> some View {
     EditGroup(
-      group: group,
-      editAction: { group in
-        controller.action(.updateGroup(group))()
+      name: group.name,
+      editAction: { name in
+        var group = group
+        group.name = name
+        controller.perform(.updateGroup(group))
         editGroup = nil
       },
       cancelAction: { editGroup = nil })

@@ -1,17 +1,23 @@
 import SwiftUI
 
 struct EditGroup: View {
-  @State var group: GroupViewModel
-  var editAction: (GroupViewModel) -> Void
-  var cancelAction: () -> Void
+  @State private var name: String
+  private var editAction: (String) -> Void
+  private var cancelAction: () -> Void
+
+  init(name: String, editAction: @escaping (String) -> Void, cancelAction: @escaping () -> Void) {
+    _name = State(initialValue: name)
+    self.editAction = editAction
+    self.cancelAction = cancelAction
+  }
 
   var body: some View {
     HStack(alignment: .top) {
       icon
       VStack(alignment: .leading) {
-        Text("\"\(group.name)\" info").bold()
+        Text("\"\(name)\" info").bold()
         HStack {
-          name
+          nameView
         }
         buttons
       }.padding(.horizontal)
@@ -28,10 +34,10 @@ private extension EditGroup {
     }
   }
 
-  var name: some View {
+  var nameView: some View {
     Group {
       Text("Name:")
-      TextField("", text: $group.name)
+      TextField("", text: $name)
     }
   }
 
@@ -42,7 +48,7 @@ private extension EditGroup {
         Text("Cancel").frame(minWidth: 60)
       })
 
-      Button(action: { editAction(group) }, label: {
+      Button(action: { editAction(name) }, label: {
         Text("OK").frame(minWidth: 60)
       })
     }
@@ -55,9 +61,11 @@ struct EditGroup_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    EditGroup(group: GroupViewModel(id: UUID().uuidString, name: "Global shortcuts", workflows: []),
-              editAction: { _ in },
-              cancelAction: {})
-      .frame(maxWidth: 450)
+    EditGroup(
+      name: "Global shortcuts",
+      editAction: { _ in },
+      cancelAction: {}
+    )
+    .frame(maxWidth: 450)
   }
 }
