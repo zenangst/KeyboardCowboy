@@ -6,7 +6,7 @@ struct WorkflowList: View {
   @Binding var group: GroupViewModel?
 
   var body: some View {
-    if let group = group {
+    group.map { group in
       List(selection: $userSelection.workflow) {
         ForEach(group.workflows) { workflow in
           WorkflowListCell(workflow: workflow)
