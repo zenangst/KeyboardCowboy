@@ -3,7 +3,7 @@ import SwiftUI
 struct WorkflowList: View {
   static let idealWidth: CGFloat = 300
   @EnvironmentObject var userSelection: UserSelection
-  @Binding var group: GroupViewModel?
+  var group: GroupViewModel?
 
   var body: some View {
     group.map { group in
@@ -34,7 +34,7 @@ struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    WorkflowList(group: .constant(ModelFactory().groupList().first!))
+    WorkflowList(group: ModelFactory().groupList().first!)
       .frame(width: WorkflowList.idealWidth, height: 360)
       .environmentObject(UserSelection())
   }

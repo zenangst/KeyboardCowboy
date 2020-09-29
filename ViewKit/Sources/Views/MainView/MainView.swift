@@ -30,7 +30,7 @@ public struct MainView: View {
       }
 
       if userSelection.group != nil {
-        WorkflowList(group: $userSelection.group)
+        WorkflowList(group: userSelection.group)
           .frame(minWidth: 250, idealWidth: 250, maxWidth: 250)
       }
 
