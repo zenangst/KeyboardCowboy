@@ -52,7 +52,7 @@ public struct GroupList: View {
 
 // MARK: - Subviews
 
-extension GroupList {
+private extension GroupList {
   var list: some View {
     List(selection: $userSelection.group) {
       ForEach(groups) { group in
