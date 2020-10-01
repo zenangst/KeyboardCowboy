@@ -8,19 +8,19 @@ protocol WorkflowViewModelMapping {
 
 class WorkflowViewModelMapper: WorkflowViewModelMapping {
   let commandMapper: CommandViewModelMapping
-  let combinationMapper: CombinationViewModelMapping
+  let keyboardShortcutMapper: KeyboardShortcutViewModelMapping
 
   init(commandMapper: CommandViewModelMapping,
-       combinationMapper: CombinationViewModelMapping) {
+       keyboardShortcutMapper: KeyboardShortcutViewModelMapping) {
     self.commandMapper = commandMapper
-    self.combinationMapper = combinationMapper
+    self.keyboardShortcutMapper = keyboardShortcutMapper
   }
 
   func map(_ models: [Workflow]) -> [WorkflowViewModel] {
     models.compactMap {
       .init(id: $0.id,
             name: $0.name,
-            combinations: combinationMapper.map($0.keyboardShortcuts),
+            keyboardShortcuts: keyboardShortcutMapper.map($0.keyboardShortcuts),
             commands: commandMapper.map($0.commands))
     }
   }

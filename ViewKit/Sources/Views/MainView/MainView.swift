@@ -26,17 +26,19 @@ public struct MainView: View {
           .frame(height: 48)
           .padding(.horizontal, 12)
         GroupList(controller: groupController)
-          .frame(minWidth: 200, maxWidth: 250)
       }
+      .frame(minWidth: 200)
 
       if userSelection.group != nil {
         WorkflowList(group: userSelection.group)
-          .frame(minWidth: 250, idealWidth: 250, maxWidth: 250)
+          .frame(minWidth: 250)
+          .padding(.top, 1)
       }
 
       if userSelection.workflow != nil {
-        WorkflowView(workflow: userSelection.workflow!)
-          .frame(minWidth: 600, maxWidth: .infinity)
+          WorkflowView(workflow: .constant(userSelection.workflow!))
+            .background(Color(.textBackgroundColor))
+            .edgesIgnoringSafeArea(.top)
       }
     }
   }
@@ -50,7 +52,7 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     MainView(groupController: PreviewController().erase())
       .environmentObject(UserSelection())
-      .frame(width: 960, height: 480, alignment: .leading)
+      .frame(width: 960, height: 600, alignment: .leading)
   }
 }
 

@@ -7,14 +7,14 @@ class ViewModelMapperFactory {
 
   func workflowMapper() -> WorkflowViewModelMapping {
     WorkflowViewModelMapper(commandMapper: commandMapper(),
-                            combinationMapper: combinationMapper())
+                            keyboardShortcutMapper: keyboardShortcutMapper())
   }
 
   func commandMapper() -> CommandViewModelMapping {
     CommandViewModelMapper()
   }
 
-  func combinationMapper() -> CombinationViewModelMapping {
-    CombinationViewModelMapper()
+  func keyboardShortcutMapper() -> KeyboardShortcutViewModelMapping {
+    KeyboardShortcutViewModelMapper()
   }
 }

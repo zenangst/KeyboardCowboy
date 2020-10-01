@@ -2,12 +2,12 @@ import Foundation
 import LogicFramework
 import ViewKit
 
-protocol CombinationViewModelMapping {
-  func map(_ keyboardShortcut: [KeyboardShortcut]) -> [CombinationViewModel]
+protocol KeyboardShortcutViewModelMapping {
+  func map(_ keyboardShortcut: [KeyboardShortcut]) -> [KeyboardShortcutViewModel]
 }
 
-class CombinationViewModelMapper: CombinationViewModelMapping {
-  func map(_ keyboardShortcut: [KeyboardShortcut]) -> [CombinationViewModel] {
+class KeyboardShortcutViewModelMapper: KeyboardShortcutViewModelMapping {
+  func map(_ keyboardShortcut: [KeyboardShortcut]) -> [KeyboardShortcutViewModel] {
     keyboardShortcut.compactMap {
       let modifierString: String
       if let modifiers = $0.modifiers {

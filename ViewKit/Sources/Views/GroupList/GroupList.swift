@@ -23,7 +23,7 @@ public struct GroupList: View {
 
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      header
+      HeaderView(title: "Groups")
       list
         .onAppear {
           if userSelection.group == nil {
@@ -48,13 +48,6 @@ public struct GroupList: View {
 // MARK: - Subviews
 
 private extension GroupList {
-  var header: some View {
-    Text("Groups")
-      .padding(EdgeInsets(top: 8, leading: 16, bottom: 4, trailing: 0))
-      .font(.subheadline)
-      .foregroundColor(Color.secondary)
-  }
-
   var list: some View {
     List(selection: $userSelection.group) {
       ForEach(groups) { group in
@@ -75,7 +68,6 @@ private extension GroupList {
             controller.perform(.updateGroup(group))
           }
         )
-        .frame(maxWidth: .infinity, alignment: .leading)
         .contextMenu {
           Button("Show Info") { editGroup = group }
           Divider()
@@ -89,11 +81,13 @@ private extension GroupList {
   }
 
   var addButton: some View {
-    Button("+ Add Group", action: {
-      controller.perform(.createGroup)
-    })
-    .buttonStyle(PlainButtonStyle())
-    .padding(.init(top: 0, leading: 8, bottom: 8, trailing: 0))
+    HStack(spacing: 4) {
+      RoundOutlinedButton(title: "+", color: Color(.controlAccentColor))
+      Button("Add Group", action: {
+        controller.perform(.createGroup)
+      })
+      .buttonStyle(PlainButtonStyle())
+    }.padding(8)
   }
 
   func editGroup(_ group: GroupViewModel) -> some View {
@@ -122,7 +116,7 @@ struct GroupList_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     GroupList(controller: PreviewController().erase())
-      .frame(width: GroupList.idealWidth, height: 480)
+      .frame(width: GroupList.idealWidth)
       .environmentObject(UserSelection())
   }
 }

@@ -41,17 +41,18 @@ class GroupViewModelMapperTests: XCTestCase {
       WorkflowViewModel(
         id: identifier,
         name: "Test workflow",
-        combinations: [
-          CombinationViewModel(id: identifier, name: "⌃⌥⌘A")
+        keyboardShortcuts: [
+          KeyboardShortcutViewModel(id: identifier, name: "⌃⌥⌘A")
         ],
         commands: [
-          CommandViewModel(id: identifier, name: "bar"),
-          CommandViewModel(id: identifier, name: "F"),
-          CommandViewModel(id: identifier, name: "/path/to/file"),
-          CommandViewModel(id: identifier, name: "script"),
-          CommandViewModel(id: identifier, name: "path/to/script"),
-          CommandViewModel(id: identifier, name: "script"),
-          CommandViewModel(id: identifier, name: "path/to/script")
+          CommandViewModel(id: identifier, name: "bar", kind: .application(path: "baz", bundleIdentifier: "foo")),
+          CommandViewModel(id: identifier, name: "F", kind: .keyboard),
+          CommandViewModel(id: identifier, name: "/path/to/file",
+                           kind: .openFile(path: "/path/to/file", application: "baz")),
+          CommandViewModel(id: identifier, name: "script", kind: .appleScript),
+          CommandViewModel(id: identifier, name: "path/to/script", kind: .appleScript),
+          CommandViewModel(id: identifier, name: "script", kind: .shellScript),
+          CommandViewModel(id: identifier, name: "path/to/script", kind: .shellScript)
         ])
     ])
 

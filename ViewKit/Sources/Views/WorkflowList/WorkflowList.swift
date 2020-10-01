@@ -6,23 +6,33 @@ struct WorkflowList: View {
   var group: GroupViewModel?
 
   var body: some View {
-    group.map { group in
-      List(selection: $userSelection.workflow) {
-        ForEach(group.workflows) { workflow in
-          WorkflowListCell(workflow: workflow)
-            .tag(workflow)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .onTapGesture(count: 1, perform: { userSelection.workflow = workflow })
+    VStack(alignment: .leading, spacing: 0) {
+      group.map { group in
+        List(selection: $userSelection.workflow) {
+          ForEach(group.workflows) { workflow in
+            WorkflowListCell(workflow: workflow)
+              .tag(workflow)
+              .onTapGesture(count: 1, perform: { userSelection.workflow = workflow })
+          }
+        }
+        .onAppear {
+          if userSelection.workflow == nil {
+            userSelection.workflow = group.workflows.first
+          }
         }
       }
-      .onAppear {
-        if userSelection.workflow == nil {
-          userSelection.workflow = group.workflows.first
-        }
-      }
-      .buttonStyle(PlainButtonStyle())
-      .listStyle(PlainListStyle())
+      addButton
     }
+  }
+}
+
+private extension WorkflowList {
+  var addButton: some View {
+    HStack(spacing: 4) {
+      RoundOutlinedButton(title: "+", color: Color(.controlAccentColor))
+      Button("Add Workflow", action: {})
+      .buttonStyle(PlainButtonStyle())
+    }.padding(8)
   }
 }
 

@@ -10,16 +10,16 @@ import Foundation
 public struct WorkflowViewModel: Identifiable, Hashable, Equatable {
   public let id: String
   public var name: String
-  public var combinations: [CombinationViewModel]
+  public var keyboardShortcuts: [KeyboardShortcutViewModel]
   public var commands: [CommandViewModel]
 
   public init(id: String,
               name: String,
-              combinations: [CombinationViewModel],
+              keyboardShortcuts: [KeyboardShortcutViewModel],
               commands: [CommandViewModel]) {
     self.id = id
     self.name = name
-    self.combinations = combinations
+    self.keyboardShortcuts = keyboardShortcuts
     self.commands = commands
   }
 }

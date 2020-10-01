@@ -11,31 +11,48 @@ class CommandViewModelMapper: CommandViewModelMapping {
     models.compactMap(map(_:))
   }
 
-  func map(_ command: Command) -> CommandViewModel {
+  private func map(_ command: Command) -> CommandViewModel {
     let viewModel: CommandViewModel
     switch command {
     case .application(let applicationCommand):
-      viewModel = .init(id: applicationCommand.id, name: applicationCommand.application.bundleName)
+      viewModel = .init(id: applicationCommand.id,
+                        name: applicationCommand.application.bundleName,
+                        kind: .application(
+                          path: applicationCommand.application.path,
+                          bundleIdentifier: applicationCommand.application.bundleIdentifier))
     case .keyboard(let keyboardCommand):
-      viewModel = .init(id: keyboardCommand.id, name: keyboardCommand.keyboardShortcut.key)
+      viewModel = .init(id: keyboardCommand.id, name: keyboardCommand.keyboardShortcut.key, kind: .keyboard)
     case .open(let openCommand):
-      viewModel = .init(id: openCommand.id, name: openCommand.path)
+      if openCommand.path.contains("://") {
+        viewModel = .init(id: openCommand.id, name: openCommand.path,
+                          kind: .openUrl(url: openCommand.path, application: openCommand.application?.path ?? ""))
+      } else {
+        viewModel = .init(id: openCommand.id, name: openCommand.path,
+                          kind: .openFile(path: openCommand.path, application: openCommand.application?.path ?? ""))
+      }
     case .script(let scriptCommand):
-      switch scriptCommand {
-      case .appleScript(let source, let id):
-        switch source {
-        case .inline(let value):
-          viewModel = .init(id: id, name: value)
-        case .path(let source):
-          viewModel = .init(id: id, name: source)
-        }
-      case .shell(let source, let id):
-        switch source {
-        case .inline(let value):
-          viewModel = .init(id: id, name: value)
-        case .path(let source):
-          viewModel = .init(id: id, name: source)
-        }
+      viewModel = mapScriptCommand(scriptCommand)
+    }
+
+    return viewModel
+  }
+
+  private func mapScriptCommand(_ scriptCommand: ScriptCommand) -> CommandViewModel {
+    let viewModel: CommandViewModel
+    switch scriptCommand {
+    case .appleScript(let source, let id):
+      switch source {
+      case .inline(let value):
+        viewModel = .init(id: id, name: value, kind: .appleScript)
+      case .path(let source):
+        viewModel = .init(id: id, name: source, kind: .appleScript)
+      }
+    case .shell(let source, let id):
+      switch source {
+      case .inline(let value):
+        viewModel = .init(id: id, name: value, kind: .shellScript)
+      case .path(let source):
+        viewModel = .init(id: id, name: source, kind: .shellScript)
       }
     }
 

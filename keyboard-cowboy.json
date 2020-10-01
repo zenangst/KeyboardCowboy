@@ -2,6 +2,66 @@
   {
     "rule" : {
       "bundleIdentifiers" : [
+
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "405EAE02-7766-4DDA-93BD-ECFB98D7D950",
+    "name" : "Bundles",
+    "workflows" : [
+      {
+        "id" : "55A05BDC-E8B1-4BE0-A5E9-7878135C977C",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "45B15217-371E-4018-B37E-F95866E75268",
+              "application" : {
+                "path" : "\/System\/Applications\/Contacts.app",
+                "bundleIdentifier" : "com.apple.AddressBook",
+                "bundleName" : "Contacts"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "B12F3EE9-3C42-4218-A745-C5C87A3A68E4",
+              "application" : {
+                "path" : "\/System\/Applications\/Calendar.app",
+                "bundleIdentifier" : "com.apple.Calendar",
+                "bundleName" : "Calendar"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "21D6BE23-744A-41D0-8894-0A9463DC0331",
+              "application" : {
+                "path" : "\/System\/Applications\/Mail.app",
+                "bundleIdentifier" : "com.apple.mail",
+                "bundleName" : "Mail"
+              }
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "FBFCCD8A-D13B-4601-B4A3-8549D49DB2D9",
+            "key" : "Å",
+            "modifiers" : [
+              "@"
+            ]
+          }
+        ],
+        "name" : "Open office applications"
+      }
+    ],
+    "color" : "#000"
+  },
+  {
+    "rule" : {
+      "bundleIdentifiers" : [
         "com.apple.finder"
       ],
       "days" : [
