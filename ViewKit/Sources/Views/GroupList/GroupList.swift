@@ -59,23 +59,27 @@ private extension GroupList {
     List(selection: $userSelection.group) {
       ForEach(groups) { group in
         GroupListCell(
-          name: Binding(
-            get: { group.name },
-            set: { name in
-              var group = group
-              group.name = name
-              controller.perform(.updateGroup(group))
-            }
-          ),
-          count: group.workflows.count
+          name: Binding(get: { group.name }, set: { name in
+            var group = group
+            group.name = name
+          }),
+          color: Binding(get: { group.color }, set: { color in
+            var group = group
+            group.color = color
+          }),
+          count: group.workflows.count,
+          onCommit: { name, color in
+            var group = group
+            group.name = name
+            group.color = color
+            controller.perform(.updateGroup(group))
+          }
         )
-        .onTapGesture(count: 1, perform: {
-          userSelection.group = group
-        })
         .frame(maxWidth: .infinity, alignment: .leading)
         .contextMenu {
-          Button("Edit") { editGroup = group }
-          Button("Remove") { controller.action(.deleteGroup(group))() }
+          Button("Show Info") { editGroup = group }
+          Divider()
+          Button("Delete") { controller.action(.deleteGroup(group))() }
         }
         .tag(group)
       }
@@ -95,11 +99,15 @@ private extension GroupList {
   func editGroup(_ group: GroupViewModel) -> some View {
     EditGroup(
       name: group.name,
-      editAction: { name in
+      color: group.color,
+      editAction: { name, color in
         var group = group
         group.name = name
+        group.color = color
         controller.perform(.updateGroup(group))
         editGroup = nil
+        userSelection.group = group
+
       },
       cancelAction: { editGroup = nil })
   }

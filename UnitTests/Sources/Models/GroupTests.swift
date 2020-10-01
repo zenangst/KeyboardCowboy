@@ -14,6 +14,7 @@ class GroupTests: XCTestCase {
     let json: [String: Any] = [
       "id": subject.id,
       "name": "Global shortcuts",
+      "color": subject.color,
       "rule": [
         "bundleIdentifiers": ["com.apple.Finder"],
         "days": [0, 1, 2, 3, 4, 5, 6]

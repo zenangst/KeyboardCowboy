@@ -38,14 +38,22 @@ extension XCTestCase {
         .colorScheme(scheme)
         .environment(\.sizeCategory, .accessibilityMedium)
 
-      assertSnapshot(
-        matching: SnapshotWindow(view, size: size).viewController,
-        as: .image,
-        named: "macOS\(version)-\(scheme.name)",
-        file: file,
-        testName: testName,
-        line: line
-      )
+      let window = SnapshotWindow(view, size: size)
+      let expectation = self.expectation(description: "Wait for window to load")
+
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+        assertSnapshot(
+          matching: window.viewController,
+          as: .image,
+          named: "macOS\(version)-\(scheme.name)",
+          file: file,
+          testName: testName,
+          line: line
+        )
+        expectation.fulfill()
+      }
+
+      wait(for: [expectation], timeout: 10.0)
     }
   }
 }

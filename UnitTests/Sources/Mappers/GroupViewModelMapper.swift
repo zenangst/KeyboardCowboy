@@ -12,7 +12,7 @@ class GroupViewModelMapperTests: XCTestCase {
     let mapper = factory.groupMapper()
     let application: Application = .init(bundleIdentifier: "foo", bundleName: "bar", path: "baz")
     let identifier = UUID().uuidString
-    let subject = Group(id: identifier, name: "Test Group", rule: nil, workflows: [
+    let subject = Group(id: identifier, name: "Test Group", color: "#000", rule: nil, workflows: [
       Workflow(
       id: identifier,
       commands: [
@@ -37,7 +37,7 @@ class GroupViewModelMapperTests: XCTestCase {
       name: "Test workflow")
     ])
 
-    let expected = GroupViewModel(id: identifier, name: "Test Group", workflows: [
+    let expected = GroupViewModel(id: identifier, name: "Test Group", color: "#000", workflows: [
       WorkflowViewModel(
         id: identifier,
         name: "Test workflow",

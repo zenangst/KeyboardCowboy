@@ -21,6 +21,7 @@ class ModelFactory {
              workflows: ((ModelFactory) -> [Workflow])? = nil) -> Group {
     Group(id: id,
           name: name,
+          color: "#fff",
           rule: rule ?? self.rule(),
           workflows: workflows?(self) ?? [workflow(id: id)])
   }

@@ -1,8 +1,23 @@
 import SwiftUI
 
 struct GroupListCell: View {
+  typealias CommitHandler = (String, String) -> Void
+  @State var internalName: String
   @Binding var name: String
+  @Binding var color: String
   let count: Int
+  let onCommit: CommitHandler
+
+  init(name: Binding<String>,
+       color: Binding<String>,
+       count: Int,
+       onCommit: @escaping CommitHandler) {
+    _internalName = State(initialValue: name.wrappedValue)
+    _name = name
+    _color = color
+    self.count = count
+    self.onCommit = onCommit
+  }
 
   var body: some View {
     HStack {
@@ -21,14 +36,20 @@ struct GroupListCell: View {
 private extension GroupListCell {
   var icon: some View {
     ZStack {
-      Circle().fill(Color(.systemBlue))
+      Circle().fill(Color(hex: color))
         .frame(width: 24, height: 24)
       Text("⌨️")
     }
   }
 
   var textField: some View {
-    TextField("", text: $name)
+    TextField(
+      "",
+      text: $internalName,
+      onEditingChanged: { _ in },
+      onCommit: {
+        onCommit(internalName, color)
+      })
       .foregroundColor(.primary)
       .lineSpacing(-2.0)
   }
@@ -49,6 +70,7 @@ struct GroupListCell_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     let group = ModelFactory().groupListCell()
-    return GroupListCell(name: .constant(group.name), count: group.workflows.count)
+    return GroupListCell(name: .constant(group.name), color: .constant(group.color),
+                         count: group.workflows.count, onCommit: { _, _ in })
   }
 }

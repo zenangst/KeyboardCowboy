@@ -16,9 +16,9 @@ class StorageControllerTests: XCTestCase {
   func testStorageController() throws {
     let controller = ControllerFactory().storageController(path: tmpPath)
     let groups = [
-      Group(name: "A"),
-      Group(name: "B"),
-      Group(name: "C")
+      Group(name: "A", color: "#000"),
+      Group(name: "B", color: "#000"),
+      Group(name: "C", color: "#000")
     ]
 
     XCTAssertNoThrow(try controller.save(groups))

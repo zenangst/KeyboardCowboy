@@ -15,7 +15,10 @@ class GroupViewModelMapper: GroupViewModelMapping {
 
   func map(_ models: [Group]) -> [GroupViewModel] {
     models.compactMap {
-      .init(id: $0.id, name: $0.name, workflows: workflowMapper.map($0.workflows))
+      .init(id: $0.id,
+            name: $0.name,
+            color: $0.color,
+            workflows: workflowMapper.map($0.workflows))
     }
   }
 }
