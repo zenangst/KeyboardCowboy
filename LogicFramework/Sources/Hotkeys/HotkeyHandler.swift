@@ -4,7 +4,7 @@ public protocol HotkeyHandling: AnyObject {
   var delegate: HotkeyHandlerDelegate? { get set }
   var hotkeySupplier: HotkeySupplying? { get set }
   func installEventHandler()
-  func register(_ hotkey: Hotkey, withSignature signature: String) -> Bool
+  func register(_ hotkey: Hotkey) -> Bool
   func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> Result<Void, HotkeySendKeyboardError>
   func unregister(_ hotkey: Hotkey)
 }
@@ -31,7 +31,9 @@ public protocol HotkeyHandlerDelegate: AnyObject {
 class HotkeyHandler: HotkeyHandling {
   weak var delegate: HotkeyHandlerDelegate?
   weak var hotkeySupplier: HotkeySupplying?
+  internal static let signature = "Keyboard-Cowboy"
   static var shared: HotkeyHandler = HotkeyHandler()
+  private var signature = ""
   private var counter: UInt32 = 0
 
   func installEventHandler() {
@@ -60,8 +62,8 @@ class HotkeyHandler: HotkeyHandling {
     InstallEventHandler(targetReference, handler, numType, &list, userData, outReference)
   }
 
-  func register(_ hotkey: Hotkey, withSignature signature: String) -> Bool {
-    let signature = UTGetOSTypeFromString(signature as CFString)
+  func register(_ hotkey: Hotkey) -> Bool {
+    let signature = UTGetOSTypeFromString(Self.signature as CFString)
     let identifier = EventHotKeyID(signature: signature, id: counter)
     let options: OptionBits = 0
     let keyCode: UInt32 = UInt32(hotkey.keyCode)
@@ -85,12 +87,13 @@ class HotkeyHandler: HotkeyHandling {
   }
 
   func sendKeyboardEvent(_ event: EventRef, hotkeys: Set<Hotkey>) -> Result<Void, HotkeySendKeyboardError> {
+    let signature = UTGetOSTypeFromString(Self.signature as CFString)
     let name: EventParamName = EventParamName(kEventParamDirectObject)
     let desiredType: EventParamType = EventParamName(typeEventHotKeyID)
     let actualType: UnsafeMutablePointer<EventParamType>? = nil
     let bufferSize: Int = MemoryLayout<EventHotKeyID>.size
     let actualSize: UnsafeMutablePointer<Int>? = nil
-    var identifier = EventHotKeyID()
+    var identifier = EventHotKeyID(signature: signature, id: 0)
     let error = GetEventParameter(event, name, desiredType, actualType,
                                   bufferSize, actualSize, &identifier)
 
