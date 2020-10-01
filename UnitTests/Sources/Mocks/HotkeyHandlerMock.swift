@@ -6,6 +6,7 @@ class HotkeyHandlerMock: HotkeyHandling {
   typealias Handler = (State) -> Void
 
   weak var delegate: HotkeyHandlerDelegate?
+  var signature = "HotkeyHandlerMock"
   var hotkeySupplier: HotkeySupplying?
   var handler: Handler
   var registerResult: Bool
@@ -26,7 +27,7 @@ class HotkeyHandlerMock: HotkeyHandling {
     handler(.installHandler)
   }
 
-  func register(_ hotkey: Hotkey, withSignature signature: String) -> Bool {
+  func register(_ hotkey: Hotkey) -> Bool {
     handler(.register(hotkey, signature: signature))
     return registerResult
   }

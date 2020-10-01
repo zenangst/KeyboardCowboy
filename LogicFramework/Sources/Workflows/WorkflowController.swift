@@ -28,12 +28,18 @@ class WorkflowController: WorkflowControlling {
     groups.flatMap { $0.workflows }
       .filter {
         if keyboardShortcuts.count < $0.keyboardShortcuts.count {
-          let lhs = $0.keyboardShortcuts.compactMap { $0.rawValue }.joined()
-          let rhs = keyboardShortcuts.compactMap { $0.rawValue }.joined()
+          let lhs = $0.keyboardShortcuts.rawValue
+          let rhs = keyboardShortcuts.rawValue
           return lhs.starts(with: rhs)
         } else {
-          return $0.keyboardShortcuts == keyboardShortcuts
+          return $0.keyboardShortcuts.rawValue == keyboardShortcuts.rawValue
         }
       }
+  }
+}
+
+private extension Collection where Element == KeyboardShortcut {
+  var rawValue: String {
+    compactMap { $0.rawValue }.joined()
   }
 }

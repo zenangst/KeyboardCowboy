@@ -21,7 +21,7 @@ class HotkeyControllerTests: XCTestCase {
         installHandlerExpectation.fulfill()
       case .register(let registeredHotkey, let signature):
         XCTAssertEqual(hotkey, registeredHotkey)
-        XCTAssertEqual(HotkeyController.signature, signature)
+        XCTAssertEqual("HotkeyHandlerMock", signature)
         registerExpectation.fulfill()
       case .sendKeyboardEvent:
         break
@@ -62,7 +62,7 @@ class HotkeyControllerTests: XCTestCase {
         installHandlerExpectation.fulfill()
       case .register(let registeredHotkey, let signature):
         XCTAssertEqual(hotkey, registeredHotkey)
-        XCTAssertEqual(HotkeyController.signature, signature)
+        XCTAssertEqual("HotkeyHandlerMock", signature)
         registerExpectation.fulfill()
       case .sendKeyboardEvent:
         break
@@ -103,7 +103,7 @@ class HotkeyControllerTests: XCTestCase {
         installHandlerExpectation.fulfill()
       case .register(let registeredHotkey, let signature):
         XCTAssertEqual(hotkey, registeredHotkey)
-        XCTAssertEqual(HotkeyController.signature, signature)
+        XCTAssertEqual("HotkeyHandlerMock", signature)
         registerExpectation.fulfill()
       case .sendKeyboardEvent:
         break

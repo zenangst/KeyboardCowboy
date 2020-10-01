@@ -25,7 +25,6 @@ public class HotkeyController: HotkeyControlling, HotkeyHandlerDelegate {
   private(set) public var hotkeys = Set<Hotkey>()
   public let hotkeyHandler: HotkeyHandling
   public let notificationCenter: NotificationControlling
-  internal static let signature = "Keyboard-Cowboy"
 
   init(hotkeyHandler: HotkeyHandling,
        notificationCenter: NotificationControlling = NotificationCenter.default) {
@@ -42,7 +41,7 @@ public class HotkeyController: HotkeyControlling, HotkeyHandlerDelegate {
   }
 
   public func register(_ hotkey: Hotkey) {
-    if hotkeyHandler.register(hotkey, withSignature: HotkeyController.signature) {
+    if hotkeyHandler.register(hotkey) {
       hotkeys.insert(hotkey)
       delegate?.hotkeyControlling(self, didRegisterKeyboardShortcut: hotkey.keyboardShortcut)
     } else {
