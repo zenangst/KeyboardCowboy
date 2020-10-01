@@ -12,8 +12,8 @@ class CombinationViewModelMapperTests: XCTestCase {
         id: id,
         key: "A",
         modifiers: [.control, .option, .command])]
-    let expected = [CombinationViewModel(id: id, name: "⌃⌥⌘A")]
-    let mapper = CombinationViewModelMapper()
+    let expected = [KeyboardShortcutViewModel(id: id, name: "⌃⌥⌘A")]
+    let mapper = KeyboardShortcutViewModelMapper()
     let result = mapper.map(subject)
 
     XCTAssertEqual(expected, result)
@@ -26,8 +26,8 @@ class CombinationViewModelMapperTests: XCTestCase {
         id: id,
         key: "A",
         modifiers: nil)]
-    let expected = [CombinationViewModel(id: id, name: "A")]
-    let mapper = CombinationViewModelMapper()
+    let expected = [KeyboardShortcutViewModel(id: id, name: "A")]
+    let mapper = KeyboardShortcutViewModelMapper()
     let result = mapper.map(subject)
 
     XCTAssertEqual(expected, result)

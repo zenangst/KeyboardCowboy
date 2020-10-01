@@ -1,7 +1,8 @@
 import Cocoa
+import SwiftUI
 
-class MainWindow: NSWindow {
-  init(toolbar: Toolbar) {
+public class MainWindow: NSWindow {
+  public init(toolbar: Toolbar) {
     let contentRect: CGRect = .init(origin: .zero, size: .init(width: 960, height: 480))
     let styleMask: NSWindow.StyleMask = [
       .titled, .closable, .miniaturizable,
@@ -11,8 +12,13 @@ class MainWindow: NSWindow {
                backing: .buffered,
                defer: false)
     self.toolbar = toolbar
+
+    if #available(OSX 11.0, *) {
+      toolbarStyle = .unified
+    }
+    titlebarAppearsTransparent = true
   }
 
-  override var canBecomeKey: Bool { true }
-  override var canBecomeMain: Bool { true }
+  public override var canBecomeKey: Bool { true }
+  public override var canBecomeMain: Bool { true }
 }

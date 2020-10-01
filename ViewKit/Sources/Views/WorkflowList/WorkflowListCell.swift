@@ -14,7 +14,7 @@ struct WorkflowListCell: View {
           Spacer()
           icon
         }
-        VStack { Divider() }
+//        VStack { Divider() }
       }
     }
   }
@@ -34,9 +34,16 @@ private extension WorkflowListCell {
   }
 
   var icon: some View {
-    Text("􀍟")
-      .font(.title)
-      .foregroundColor(.primary)
+    ZStack {
+      ForEach(workflow.commands) { command in
+        if case .application(let path, let identifier) = command.kind {
+          IconView(identifier: identifier, path: path)
+            .frame(width: 32, height: 32)
+//            .offset(x: CGFloat(workflow.commands.count) - CGFloat(index),
+//                    y: -CGFloat(workflow.commands.count) + CGFloat(index))
+        }
+      }
+    }
   }
 }
 
