@@ -13,11 +13,20 @@ import Foundation
 public struct GroupViewModel: Identifiable, Hashable, Equatable {
   public let id: String
   public var name: String
+  public var color: String
   public var workflows: [WorkflowViewModel]
 
-  public init(id: String, name: String, workflows: [WorkflowViewModel]) {
+  public init(id: String, name: String, color: String, workflows: [WorkflowViewModel]) {
     self.id = id
+    self.color = color
     self.name = name
     self.workflows = workflows
+  }
+
+  static func emptyGroup() -> GroupViewModel {
+    GroupViewModel(id: UUID().uuidString,
+                   name: "Untitled group",
+                   color: "#000",
+                   workflows: [])
   }
 }

@@ -57,7 +57,8 @@
         ],
         "name" : "Action"
       }
-    ]
+    ],
+    "color" : "#EB5545"
   },
   {
     "rule" : {
@@ -94,7 +95,8 @@
         ],
         "name" : "Share"
       }
-    ]
+    ],
+    "color" : "#A78F6D"
   },
   {
     "rule" : {
@@ -225,7 +227,8 @@
         ],
         "name" : "Edit Scheme"
       }
-    ]
+    ],
+    "color" : "#F9D64A"
   },
   {
     "rule" : {
@@ -285,11 +288,12 @@
         ],
         "name" : "Share button"
       }
-    ]
+    ],
+    "color" : "#6BD35F"
   },
   {
     "id" : "C5A19AB5-06FA-4572-B65F-8DFC3E9B7E00",
-    "name" : "Global",
+    "name" : "Globals",
     "workflows" : [
       {
         "id" : "967E8081-A9D6-412D-9E12-8DFE85FD4ED0",
@@ -1249,6 +1253,7 @@
         ],
         "name" : "Open Control Center"
       }
-    ]
+    ],
+    "color" : "#3984F7"
   }
 ]

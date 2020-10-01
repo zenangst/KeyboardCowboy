@@ -33,7 +33,7 @@ class GroupsFeatureController: ViewController {
   }
 
   private func newGroup() {
-    let newGroup = Group(name: "Untitled group")
+    let newGroup = Group(name: "Untitled group", color: "#000")
     var groups = groupsController.groups
     groups.append(newGroup)
     reload(groups)
@@ -46,6 +46,7 @@ class GroupsFeatureController: ViewController {
 
     var groups = groupsController.groups
     let group = Group(id: UUID().uuidString, name: application.bundleName,
+                      color: "#000",
                       rule: Rule(bundleIdentifiers: [application.bundleIdentifier], days: []),
                       workflows: [])
     groups.append(group)
@@ -59,8 +60,11 @@ class GroupsFeatureController: ViewController {
       return
     }
 
-    let newModel = Group(id: model.id, name: viewModel.name,
-                         rule: model.rule, workflows: model.workflows)
+    let newModel = Group(id: model.id,
+                         name: viewModel.name,
+                         color: viewModel.color,
+                         rule: model.rule,
+                         workflows: model.workflows)
     groups[index] = newModel
     reload(groups)
   }

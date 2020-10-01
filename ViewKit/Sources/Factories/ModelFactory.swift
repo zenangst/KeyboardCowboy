@@ -10,31 +10,37 @@ class ModelFactory {
       GroupViewModel(
         id: UUID().uuidString,
         name: "Applications",
+        color: "#EB5545",
         workflows: openWorkflows("Calendar", "Contacts", "Finder", "Mail", "Safari", "Xcode")
       ),
       GroupViewModel(
         id: UUID().uuidString,
         name: "Developer tools",
+        color: "#F2A23C",
         workflows: openWorkflows("Instruments", "Simulator", "Xcode")
       ),
       GroupViewModel(
         id: UUID().uuidString,
         name: "Folders",
+        color: "#F9D64A",
         workflows: openWorkflows("Home folder", "Developer folder")
       ),
       GroupViewModel(
         id: UUID().uuidString,
         name: "Files",
+        color: "#6BD35F",
         workflows: openWorkflows(".gitconfig", "Design project.sketch", "Keyboard-Cowboy.xcodeproj")
       ),
       GroupViewModel(
         id: UUID().uuidString,
         name: "Keyboard shortcuts",
+        color: "#3984F7",
         workflows: rebindWorkflows("⌥a to ←", "⌥w to ↑", "⌥d to →", "⌥s to ↓")
       ),
       GroupViewModel(
         id: UUID().uuidString,
         name: "Safari",
+        color: "#B263EA",
         workflows: runWorkflows("Share website", "Save as PDF")
       )
     ]
@@ -45,6 +51,7 @@ class ModelFactory {
     GroupViewModel(
       id: UUID().uuidString,
       name: "Developer tools",
+      color: "#000",
       workflows: openWorkflows("Instruments", "Simulator", "Xcode")
     )
   }
