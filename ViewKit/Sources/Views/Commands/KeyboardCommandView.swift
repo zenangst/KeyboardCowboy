@@ -2,6 +2,8 @@ import SwiftUI
 
 struct KeyboardCommandView: View {
   let command: CommandViewModel
+  let editAction: (CommandViewModel) -> Void
+  let showContextualMenu: Bool
 
   var body: some View {
     HStack {
@@ -11,11 +13,13 @@ struct KeyboardCommandView: View {
       }
       VStack(alignment: .leading, spacing: 0) {
         Text(command.name)
-        HStack(spacing: 4) {
-          Button("Change", action: {})
-            .foregroundColor(Color(.controlAccentColor))
-        }.buttonStyle(LinkButtonStyle())
-        .font(Font.caption)
+        if showContextualMenu {
+          HStack(spacing: 4) {
+            Button("Edit", action: { editAction(command) })
+              .foregroundColor(Color(.controlAccentColor))
+          }.buttonStyle(LinkButtonStyle())
+          .font(Font.caption)
+        }
       }
     }
   }
@@ -31,6 +35,8 @@ struct KeyboardCommandView_Previews: PreviewProvider, TestPreviewProvider {
       command: CommandViewModel(
         id: UUID().uuidString,
         name: "Run keyboard shortcut ⌘F",
-        kind: .keyboard))
+        kind: .keyboard(KeyboardShortcutViewModel(key: "F", modifiers: [.command]))),
+      editAction: { _ in },
+      showContextualMenu: true)
   }
 }

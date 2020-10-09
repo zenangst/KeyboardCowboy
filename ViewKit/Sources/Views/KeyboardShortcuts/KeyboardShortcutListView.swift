@@ -1,35 +1,35 @@
 import SwiftUI
 
 struct KeyboardShortcutListView: View {
-  let combinations: [KeyboardShortcutViewModel]
+  public enum Action {
+    case createKeyboardShortcut
+    case updateKeyboardShortcut(KeyboardShortcutViewModel)
+    case deleteKeyboardShortcut(KeyboardShortcutViewModel)
+  }
+
+  let keyboardShortcuts: [KeyboardShortcutViewModel]
 
   var body: some View {
     VStack(spacing: 0) {
-      ForEach(combinations) { combination in
+      ForEach(keyboardShortcuts) { keyboardShortcut in
         HStack {
-          Text("1.").padding(.horizontal, 10)
-          KeyboardShortcutView(combination: combination)
+          Text("1.").padding(.horizontal, 4)
+          KeyboardShortcutView(keyboardShortcut: .constant(keyboardShortcut))
           HStack(spacing: 4) {
-            RoundFillButton(title: "+", color: Color(.systemGreen))
-            RoundFillButton(title: "-", color: Color(.systemRed))
+            Button("+", action: {  })
+            Button("-", action: {  })
           }
-          Text("≣")
-            .font(.title)
-            .foregroundColor(Color(.secondaryLabelColor))
-            .padding(8)
-            .offset(x: 0, y: -2)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
         .cornerRadius(8.0)
-        .tag(combination)
+        .tag(keyboardShortcut)
         Divider()
       }
 
       HStack(spacing: 2) {
         Spacer()
-        RoundFillButton(title: "+", color: Color(.systemGreen))
-        Button("Add keyboard shortcut", action: {})
+        Button("Add Keyboard Shortcut", action: {})
           .buttonStyle(LinkButtonStyle())
       }.padding([.top, .trailing], 10)
     }
@@ -45,6 +45,6 @@ struct KeyboardShortcutListView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    KeyboardShortcutListView(combinations: ModelFactory().keyboardShortcuts())
+    KeyboardShortcutListView(keyboardShortcuts: ModelFactory().keyboardShortcuts())
   }
 }

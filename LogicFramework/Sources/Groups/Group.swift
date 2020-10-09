@@ -9,10 +9,10 @@ import Foundation
 ///          eligable for execution.
 public struct Group: Codable, Hashable {
   public let id: String
-  public let name: String
-  public let color: String
-  public let rule: Rule?
-  public let workflows: [Workflow]
+  public var name: String
+  public var color: String
+  public var rule: Rule?
+  public var workflows: [Workflow]
 
   public init(id: String = UUID().uuidString,
               name: String,
@@ -42,5 +42,21 @@ public struct Group: Codable, Hashable {
     self.name = try container.decode(String.self, forKey: .name)
     self.rule = try container.decodeIfPresent(Rule.self, forKey: .rule)
     self.workflows = try container.decode([Workflow].self, forKey: .workflows)
+  }
+}
+
+extension Group {
+  static public func empty(id: String = UUID().uuidString) -> Group {
+    Group(id: id, name: "Untitled group", color: "#000")
+  }
+
+  static public func droppedApplication(id: String = UUID().uuidString,
+                                        _ application: Application) -> Group {
+    Group(id: id,
+          name: application.bundleName,
+          color: "#000",
+          rule: Rule(bundleIdentifiers: [application.bundleIdentifier],
+                     days: []),
+          workflows: [])
   }
 }

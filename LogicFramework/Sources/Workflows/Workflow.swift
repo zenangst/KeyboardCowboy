@@ -6,9 +6,9 @@ import Foundation
 /// keyboard invocation.
 public struct Workflow: Codable, Hashable {
   public let id: String
-  public let commands: [Command]
-  public let keyboardShortcuts: [KeyboardShortcut]
-  public let name: String
+  public var commands: [Command]
+  public var keyboardShortcuts: [KeyboardShortcut]
+  public var name: String
 
   public var isRebinding: Bool {
     if commands.count == 1, case .keyboard = commands.first { return true }
@@ -36,5 +36,14 @@ public struct Workflow: Codable, Hashable {
     self.name = try container.decode(String.self, forKey: .name)
     self.commands = try container.decode([Command].self, forKey: .commands)
     self.keyboardShortcuts = try container.decode([KeyboardShortcut].self, forKey: .keyboardShortcuts)
+  }
+}
+
+extension Workflow {
+  static public func empty(id: String = UUID().uuidString) -> Workflow {
+    Workflow(id: id,
+             commands: [],
+             keyboardShortcuts: [],
+             name: "Untitled workflow")
   }
 }

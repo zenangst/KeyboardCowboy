@@ -1,6 +1,7 @@
 import Cocoa
 
 public protocol CoreControlling {
+  var groupsController: GroupsControlling { get }
   var disableKeyboardShortcuts: Bool { get set }
   var groups: [Group] { get }
   var installedApplications: [Application] { get }
@@ -13,7 +14,7 @@ public protocol CoreControlling {
 public class CoreController: NSObject, CoreControlling, CommandControllingDelegate,
                              HotkeyControllingDelegate, GroupsControllingDelegate {
   let commandController: CommandControlling
-  let groupsController: GroupsControlling
+  public let groupsController: GroupsControlling
   let hotkeyController: HotkeyControlling
   let keycodeMapper: KeyCodeMapping
   var rebindingController: RebindingControlling?

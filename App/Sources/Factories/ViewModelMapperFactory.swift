@@ -17,4 +17,8 @@ class ViewModelMapperFactory {
   func keyboardShortcutMapper() -> KeyboardShortcutViewModelMapping {
     KeyboardShortcutViewModelMapper()
   }
+
+  func applicationMapper() -> ApplicationViewModelMapping {
+    ApplicationViewModelMapper()
+  }
 }

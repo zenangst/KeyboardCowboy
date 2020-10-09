@@ -2,13 +2,20 @@ import Cocoa
 
 public enum ModifierKey: String, CaseIterable, Codable, Hashable {
   case shift = "$"
+  case function = "fn"
   case control = "^"
   case option = "~"
   case command = "@"
-  case function = "fn"
+
+  static func fromNSEvent(_ eventModifierFlags: NSEvent.ModifierFlags) -> [ModifierKey] {
+    ModifierKey.allCases
+      .compactMap { eventModifierFlags.contains($0.modifierFlags) ? $0 : nil }
+  }
 
   public var pretty: String {
     switch self {
+    case .function:
+      return "ƒ"
     case .shift:
       return "⇧"
     case .control:
@@ -17,8 +24,6 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
       return "⌥"
     case .command:
       return "⌘"
-    case .function:
-      return "fn"
     }
   }
 

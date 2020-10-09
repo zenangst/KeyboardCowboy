@@ -1,21 +1,30 @@
 import SwiftUI
 
-public class UserSelection: ObservableObject {
-  @Published var group: GroupViewModel?
-  @Published var workflow: WorkflowViewModel?
-
-  public init() {}
-}
+public typealias GroupController = AnyViewController<[GroupViewModel], GroupList.Action>
+public typealias WorkflowController = AnyViewController<WorkflowViewModel?, WorkflowList.Action>
+public typealias CommandController = AnyViewController<[CommandViewModel], CommandListView.Action>
+public typealias OpenPanelController = AnyViewController<String, OpenPanelAction>
+public typealias ApplicationProvider = AnyStateController<[ApplicationViewModel]>
 
 public struct MainView: View {
-  public typealias GroupController = AnyViewController<[GroupViewModel], GroupList.Action>
-
+  @ObservedObject var applicationProvider: ApplicationProvider
+  @ObservedObject var commandController: CommandController
   @ObservedObject var groupController: GroupController
+  @ObservedObject var workflowController: WorkflowController
+  @ObservedObject var openPanelController: OpenPanelController
   @EnvironmentObject var userSelection: UserSelection
   @State private var searchText: String = ""
 
-  public init(groupController: GroupController) {
+  public init(applicationProvider: ApplicationProvider,
+              commandController: CommandController,
+              groupController: GroupController,
+              openPanelController: OpenPanelController,
+              workflowController: WorkflowController) {
+    self.applicationProvider = applicationProvider
+    self.commandController = commandController
     self.groupController = groupController
+    self.openPanelController = openPanelController
+    self.workflowController = workflowController
   }
 
   public var body: some View {
@@ -29,16 +38,28 @@ public struct MainView: View {
       }
       .frame(minWidth: 200)
 
-      if userSelection.group != nil {
-        WorkflowList(group: userSelection.group)
+      if let group = userSelection.group {
+        WorkflowList(group: Binding(
+                      get: { group },
+                      set: { userSelection.group = $0 }),
+                     workflowController: workflowController)
           .frame(minWidth: 250)
           .padding(.top, 1)
       }
 
-      if userSelection.workflow != nil {
-          WorkflowView(workflow: .constant(userSelection.workflow!))
-            .background(Color(.textBackgroundColor))
-            .edgesIgnoringSafeArea(.top)
+      if let workflow = userSelection.workflow {
+        WorkflowView(
+          applicationProvider: applicationProvider,
+          commandController: commandController,
+          openPanelController: openPanelController,
+          workflow:
+            Binding(
+              get: { workflow },
+              set: { workflow in
+                workflowController.action(.updateWorkflow(workflow))()
+              }))
+          .background(Color(.textBackgroundColor))
+          .edgesIgnoringSafeArea(.top)
       }
     }
   }
@@ -50,13 +71,36 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    MainView(groupController: PreviewController().erase())
+    MainView(applicationProvider: ApplicationPreviewProvider().erase(),
+             commandController: CommandPreviewController().erase(),
+             groupController: GroupPreviewController().erase(),
+             openPanelController: OpenPanelPreviewController().erase(),
+             workflowController: WorkflowPreviewController().erase())
       .environmentObject(UserSelection())
       .frame(width: 960, height: 600, alignment: .leading)
   }
 }
 
-private final class PreviewController: ViewController {
+private final class ApplicationPreviewProvider: StateController {
+  let state = [ApplicationViewModel]()
+}
+
+private final class CommandPreviewController: ViewController {
+  let state = ModelFactory().workflowDetail().commands
+  func perform(_ action: CommandListView.Action) {}
+}
+
+private final class GroupPreviewController: ViewController {
   let state = ModelFactory().groupList()
   func perform(_ action: GroupList.Action) {}
+}
+
+private final class WorkflowPreviewController: ViewController {
+  let state = ModelFactory().workflowList().first
+  func perform(_ action: WorkflowList.Action) {}
+}
+
+private final class OpenPanelPreviewController: ViewController {
+  let state = ""
+  func perform(_ action: OpenPanelAction) {}
 }

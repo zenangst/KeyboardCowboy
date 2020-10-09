@@ -7,7 +7,7 @@ import Foundation
 public struct CommandViewModel: Identifiable, Hashable, Equatable {
   public let id: String
   public var name: String
-  public let kind: Kind
+  public var kind: Kind
 
   public init(id: String = UUID().uuidString, name: String, kind: Kind) {
     self.id = id
@@ -15,12 +15,29 @@ public struct CommandViewModel: Identifiable, Hashable, Equatable {
     self.kind = kind
   }
 
-  public enum Kind: Hashable, Equatable {
-    case application(path: String, bundleIdentifier: String)
-    case keyboard
-    case openFile(path: String, application: String)
-    case openUrl(url: String, application: String)
-    case appleScript
-    case shellScript
+  public enum Kind: Identifiable, Hashable, Equatable {
+    case application(ApplicationViewModel)
+    case keyboard(KeyboardShortcutViewModel)
+    case openFile(OpenFileViewModel)
+    case openUrl(OpenURLViewModel)
+    case appleScript(AppleScriptViewModel)
+    case shellScript(ShellScriptViewModel)
+
+    public var id: String {
+      switch self {
+      case .application:
+        return "application"
+      case .appleScript:
+        return "appleScript"
+      case .keyboard:
+        return "keyboard"
+      case .openFile:
+        return "openFile"
+      case .openUrl:
+        return "openUrl"
+      case .shellScript:
+        return "shellScript"
+      }
+    }
   }
 }

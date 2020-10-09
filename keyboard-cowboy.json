@@ -16,11 +16,21 @@
         "commands" : [
           {
             "applicationCommand" : {
-              "id" : "45B15217-371E-4018-B37E-F95866E75268",
+              "id" : "FE9EB9B6-6B35-4CC9-A4E3-A94D3704BCE0",
               "application" : {
-                "path" : "\/System\/Applications\/Contacts.app",
-                "bundleIdentifier" : "com.apple.AddressBook",
-                "bundleName" : "Contacts"
+                "path" : "\/System\/Applications\/News.app",
+                "bundleIdentifier" : "com.apple.news",
+                "bundleName" : "News"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "64A08CCD-6F16-45A2-AB0B-773B9ED6E518",
+              "application" : {
+                "path" : "\/System\/Applications\/Notes.app",
+                "bundleIdentifier" : "com.apple.Notes",
+                "bundleName" : "Notes"
               }
             }
           },
@@ -36,11 +46,41 @@
           },
           {
             "applicationCommand" : {
+              "id" : "45B15217-371E-4018-B37E-F95866E75268",
+              "application" : {
+                "path" : "\/System\/Applications\/Contacts.app",
+                "bundleIdentifier" : "com.apple.AddressBook",
+                "bundleName" : "Contacts"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
               "id" : "21D6BE23-744A-41D0-8894-0A9463DC0331",
               "application" : {
                 "path" : "\/System\/Applications\/Mail.app",
                 "bundleIdentifier" : "com.apple.mail",
                 "bundleName" : "Mail"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "5D0C0DB4-766C-4D39-94E3-F883894537DD",
+              "application" : {
+                "path" : "\/System\/Applications\/FindMy.app",
+                "bundleIdentifier" : "com.apple.findmy",
+                "bundleName" : "FindMy"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "3B6A7FDB-814D-4A7C-9A40-18DCC1A95FD1",
+              "application" : {
+                "path" : "\/Applications\/1Password.app",
+                "bundleIdentifier" : "com.agilebits.onepassword-osx",
+                "bundleName" : "1Password"
               }
             }
           }
@@ -55,6 +95,45 @@
           }
         ],
         "name" : "Open office applications"
+      },
+      {
+        "id" : "559E6E27-B841-4119-826D-D8EDCD9858C4",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "F4C3E1F9-7493-40BE-94BE-885E44B1405A",
+              "application" : {
+                "path" : "\/Applications\/1Password.app",
+                "bundleIdentifier" : "com.agilebits.onepassword-osx",
+                "bundleName" : "1Password"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "21E91858-222A-4EAA-9F0E-C2CB8113CEA2",
+              "application" : {
+                "path" : "\/Applications\/Airmail.app",
+                "bundleIdentifier" : "it.bloop.airmail2",
+                "bundleName" : "Airmail"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "4EB7A758-46DB-4706-9EA9-4231220DC731",
+              "application" : {
+                "path" : "\/Applications\/Fantastical.app",
+                "bundleIdentifier" : "com.flexibits.fantastical2.mac",
+                "bundleName" : "Fantastical"
+              }
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+
+        ],
+        "name" : "My awesome workflow"
       }
     ],
     "color" : "#000"

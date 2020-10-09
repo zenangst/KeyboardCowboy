@@ -12,6 +12,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
   var controller: CoreControlling?
   let factory = ControllerFactory()
   var groupFeatureController: GroupsFeatureController?
+  var viewModelFactory = ViewModelMapperFactory()
+  var workflowFeatureController: WorkflowFeatureController?
 
   var storageController: StorageControlling {
     let path: String
@@ -51,12 +53,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
     }
   }
 
-  private func createMainWindow(_ controller: CoreControlling) -> NSWindow? {
-    let groupFeatureController = FeatureFactory().groupFeature(controller.groups)
+  private func createMainWindow(_ coreController: CoreControlling) -> NSWindow? {
+    let userSelection  = UserSelection()
+    let featureFactory = FeatureFactory(coreController: coreController,
+                                        userSelection: userSelection)
+    let groupFeatureController = featureFactory.groupFeature()
     groupFeatureController.delegate = self
-    groupFeatureController.applications = controller.installedApplications
-    let groupList = MainView(groupController: groupFeatureController.erase())
-      .environmentObject(UserSelection())
+
+    let workflowFeatureController = featureFactory.workflowFeature()
+    workflowFeatureController.delegate = groupFeatureController
+
+    let commandsController = featureFactory.commandsFeature()
+
+    commandsController.delegate = workflowFeatureController
+
+    let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications,
+                                                   mapper: viewModelFactory.applicationMapper())
+
+    let groupList = MainView(
+      applicationProvider: applicationProvider.erase(),
+      commandController: commandsController.erase(),
+      groupController: groupFeatureController.erase(),
+      openPanelController: OpenPanelViewController().erase(),
+      workflowController: workflowFeatureController.erase())
+      .environmentObject(userSelection)
     let window = MainWindow(toolbar: Toolbar())
 
     window.title = "Keyboard Cowboy"

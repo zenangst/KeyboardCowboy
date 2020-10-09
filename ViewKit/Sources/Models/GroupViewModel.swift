@@ -16,15 +16,20 @@ public struct GroupViewModel: Identifiable, Hashable, Equatable {
   public var color: String
   public var workflows: [WorkflowViewModel]
 
-  public init(id: String, name: String, color: String, workflows: [WorkflowViewModel]) {
+  public init(id: String = UUID().uuidString,
+              name: String,
+              color: String,
+              workflows: [WorkflowViewModel]) {
     self.id = id
     self.color = color
     self.name = name
     self.workflows = workflows
   }
+}
 
-  static func emptyGroup() -> GroupViewModel {
-    GroupViewModel(id: UUID().uuidString,
+extension GroupViewModel {
+  public static func empty(id: String = UUID().uuidString) -> GroupViewModel {
+    GroupViewModel(id: id,
                    name: "Untitled group",
                    color: "#000",
                    workflows: [])

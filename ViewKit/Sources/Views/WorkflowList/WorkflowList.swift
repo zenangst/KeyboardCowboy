@@ -1,38 +1,61 @@
 import SwiftUI
 
-struct WorkflowList: View {
+public struct WorkflowList: View {
+  public enum Action {
+    case createWorkflow
+    case updateWorkflow(WorkflowViewModel)
+    case deleteWorkflow(WorkflowViewModel)
+  }
+
   static let idealWidth: CGFloat = 300
   @EnvironmentObject var userSelection: UserSelection
-  var group: GroupViewModel?
+  @Binding var group: GroupViewModel
+  let workflowController: WorkflowController
 
-  var body: some View {
+  init(group: Binding<GroupViewModel>, workflowController: WorkflowController) {
+    self._group = group
+    self.workflowController = workflowController
+  }
+
+  public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      group.map { group in
-        List(selection: $userSelection.workflow) {
-          ForEach(group.workflows) { workflow in
-            WorkflowListCell(workflow: workflow)
-              .tag(workflow)
-              .onTapGesture(count: 1, perform: { userSelection.workflow = workflow })
-          }
-        }
-        .onAppear {
-          if userSelection.workflow == nil {
-            userSelection.workflow = group.workflows.first
-          }
-        }
-      }
-      addButton
+      list.listStyle(PlainListStyle())
+      addButton.padding(8)
     }
   }
 }
 
 private extension WorkflowList {
+  var list: some View {
+    List(selection: Binding(get: {
+      userSelection.workflow
+    }, set: { workflow in
+      userSelection.workflow = workflow
+    })) {
+      ForEach(group.workflows) { workflow in
+        WorkflowListCell(workflow: workflow)
+          .contextMenu {
+            Button("Delete") {
+              workflowController.perform(.deleteWorkflow(workflow))
+            }
+          }
+          .frame(height: 48)
+          .tag(workflow)
+      }
+    }
+  }
+
   var addButton: some View {
     HStack(spacing: 4) {
-      RoundOutlinedButton(title: "+", color: Color(.controlAccentColor))
-      Button("Add Workflow", action: {})
+      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
+        .onTapGesture {
+          workflowController.action(.createWorkflow)()
+        }
+      Button("Add Workflow", action: {
+        workflowController.action(.createWorkflow)()
+      })
       .buttonStyle(PlainButtonStyle())
-    }.padding(8)
+    }
   }
 }
 
@@ -44,8 +67,14 @@ struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    WorkflowList(group: ModelFactory().groupList().first!)
+    WorkflowList(group: .constant(ModelFactory().groupList().first!),
+                 workflowController: WorkflowPreviewController().erase())
       .frame(width: WorkflowList.idealWidth, height: 360)
       .environmentObject(UserSelection())
   }
+}
+
+private final class WorkflowPreviewController: ViewController {
+  let state = ModelFactory().workflowList().first
+  func perform(_ action: WorkflowList.Action) {}
 }

@@ -15,8 +15,6 @@ public struct GroupList: View {
   @ObservedObject var controller: Controller
   @State private var editGroup: GroupViewModel?
 
-  var groups: [GroupViewModel] { controller.state }
-
   public init(controller: Controller) {
     self.controller = controller
   }
@@ -27,7 +25,7 @@ public struct GroupList: View {
       list
         .onAppear {
           if userSelection.group == nil {
-            userSelection.group = groups.first
+            userSelection.group = controller.state.first
           }
         }
         .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers -> Bool in
@@ -49,8 +47,13 @@ public struct GroupList: View {
 
 private extension GroupList {
   var list: some View {
-    List(selection: $userSelection.group) {
-      ForEach(groups) { group in
+    List(selection: Binding(get: {
+      userSelection.group
+    }, set: { group in
+      userSelection.group = group
+      userSelection.workflow = group?.workflows.first
+    })) {
+      ForEach(controller.state) { group in
         GroupListCell(
           name: Binding(get: { group.name }, set: { name in
             var group = group
@@ -82,7 +85,7 @@ private extension GroupList {
 
   var addButton: some View {
     HStack(spacing: 4) {
-      RoundOutlinedButton(title: "+", color: Color(.controlAccentColor))
+      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
       Button("Add Group", action: {
         controller.perform(.createGroup)
       })

@@ -4,6 +4,7 @@ import ViewKit
 
 protocol WorkflowViewModelMapping {
   func map(_ models: [Workflow]) -> [WorkflowViewModel]
+  func map(_ model: Workflow) -> WorkflowViewModel
 }
 
 class WorkflowViewModelMapper: WorkflowViewModelMapping {
@@ -17,11 +18,12 @@ class WorkflowViewModelMapper: WorkflowViewModelMapping {
   }
 
   func map(_ models: [Workflow]) -> [WorkflowViewModel] {
-    models.compactMap {
-      .init(id: $0.id,
-            name: $0.name,
-            keyboardShortcuts: keyboardShortcutMapper.map($0.keyboardShortcuts),
-            commands: commandMapper.map($0.commands))
-    }
+    models.compactMap(map(_:))
+  }
+
+  func map(_ model: Workflow) -> WorkflowViewModel {
+    WorkflowViewModel(id: model.id, name: model.name,
+                      keyboardShortcuts: keyboardShortcutMapper.map(model.keyboardShortcuts),
+                      commands: commandMapper.map(model.commands))
   }
 }

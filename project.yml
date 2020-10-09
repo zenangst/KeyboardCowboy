@@ -66,6 +66,7 @@ targets:
     platform: "macOS"
     sources:
       - LogicFramework
+      - Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.Logic"
@@ -78,6 +79,7 @@ targets:
     platform: "macOS"
     sources:
       - ViewKit
+      - Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.ViewKit"

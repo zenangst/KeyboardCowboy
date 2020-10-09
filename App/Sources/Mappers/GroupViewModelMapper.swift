@@ -4,6 +4,7 @@ import ViewKit
 
 protocol GroupViewModelMapping {
   func map(_ models: [Group]) -> [GroupViewModel]
+  func map(_ model: Group) -> GroupViewModel
 }
 
 class GroupViewModelMapper: GroupViewModelMapping {
@@ -14,11 +15,13 @@ class GroupViewModelMapper: GroupViewModelMapping {
   }
 
   func map(_ models: [Group]) -> [GroupViewModel] {
-    models.compactMap {
-      .init(id: $0.id,
-            name: $0.name,
-            color: $0.color,
-            workflows: workflowMapper.map($0.workflows))
-    }
+    models.compactMap(map(_:))
+  }
+
+  func map(_ model: Group) -> GroupViewModel {
+    .init(id: model.id,
+          name: model.name,
+          color: model.color,
+          workflows: workflowMapper.map(model.workflows))
   }
 }
