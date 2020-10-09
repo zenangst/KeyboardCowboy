@@ -1,11 +1,9 @@
 import Combine
 import SwiftUI
 
-public protocol ViewController: ObservableObject where ObjectWillChangePublisher.Output == Void {
-  associatedtype State
+public protocol ViewController: StateController {
   associatedtype Action
 
-  var state: State { get }
   func perform(_ action: Action)
 }
 

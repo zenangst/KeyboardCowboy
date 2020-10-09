@@ -6,10 +6,20 @@ import Foundation
 /// and potentially even the Fn (Function key).
 public struct KeyboardShortcutViewModel: Identifiable, Hashable, Equatable {
   public let id: String
-  let name: String
+  public let key: String
+  public let modifiers: [ModifierKey]
 
-  public init(id: String = UUID().uuidString, name: String) {
+  public init(id: String = UUID().uuidString,
+              key: String,
+              modifiers: [ModifierKey] = []) {
     self.id = id
-    self.name = name
+    self.key = key
+    self.modifiers = modifiers
+  }
+}
+
+extension KeyboardShortcutViewModel {
+  static func empty() -> KeyboardShortcutViewModel {
+    KeyboardShortcutViewModel(key: "")
   }
 }

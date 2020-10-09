@@ -3,55 +3,93 @@ import SwiftUI
 struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
 
+  @ObservedObject var applicationProvider: ApplicationProvider
+  @ObservedObject var commandController: CommandController
+  @ObservedObject var openPanelController: OpenPanelController
+  @State private var newCommandVisible: Bool = false
   @Binding var workflow: WorkflowViewModel
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading) {
-        VStack(alignment: .leading) {
-          name.padding(.horizontal)
-          HeaderView(title: "Keyboard shortcuts:")
-          keyboardShortcuts
-        }
-        .padding(.vertical, 12)
+    VStack(alignment: .leading, spacing: 0) {
+      VStack {
+        name.padding(.horizontal)
+      }.padding(.top, 64)
 
-        VStack(alignment: .leading) {
-          HeaderView(title: "Commands:")
-          commands
-        }
-        .padding(.bottom, 12)
-        .background(Color(.gridColor).opacity(0.5))
+      VStack(alignment: .leading) {
+        HeaderView(title: "Keyboard shortcuts:")
+        keyboardShortcuts
       }.padding(.vertical, 12)
+
+      VStack(alignment: .leading) {
+        HeaderView(title: "Commands:")
+        commands
+      }
+
+      addButton.padding(8)
     }
+    .background(LinearGradient(
+                  gradient:
+                    Gradient(colors: [Color(.windowBackgroundColor).opacity(0.5),
+                                      Color(.gridColor).opacity(0.5)]),
+                  startPoint: .top,
+                  endPoint: .bottom))
   }
 }
 
 private extension WorkflowView {
   var name: some View {
     TextField("", text: $workflow.name)
-      .font(.title)
+      .font(.largeTitle)
       .foregroundColor(.primary)
       .textFieldStyle(PlainTextFieldStyle())
   }
 
   var keyboardShortcuts: some View {
-    KeyboardShortcutListView(combinations: workflow.keyboardShortcuts)
+    KeyboardShortcutListView(keyboardShortcuts: workflow.keyboardShortcuts)
       .background(Color(.windowBackgroundColor))
       .cornerRadius(8.0)
       .padding(.horizontal, 16)
       .frame(alignment: .top)
       .listStyle(DefaultListStyle())
-      .shadow(color: Color(.shadowColor).opacity(0.05), radius: 1, x: 0, y: 3)
+      .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 3)
   }
 
   var commands: some View {
-    CommandListView(commands: workflow.commands)
-      .background(Color(.windowBackgroundColor))
+    CommandListView(applicationProvider: applicationProvider,
+                    commandController: commandController,
+                    openPanelController: openPanelController)
       .cornerRadius(8.0)
-      .padding(.horizontal, 16)
       .frame(alignment: .top)
-      .listStyle(DefaultListStyle())
-      .shadow(color: Color(.shadowColor).opacity(0.05), radius: 1, x: 0, y: 3)
+      .padding(.horizontal, 16)
+      .padding(.bottom, 24)
+      .shadow(color: Color(.controlDarkShadowColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
+  }
+
+  var addButton: some View {
+    HStack(spacing: 4) {
+      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
+        .onTapGesture {
+          newCommandVisible = true
+        }
+      Button("Add command", action: {
+        newCommandVisible = true
+      })
+      .buttonStyle(PlainButtonStyle())
+    }
+    .sheet(isPresented: $newCommandVisible, content: {
+      EditCommandView(
+        applicationProvider: applicationProvider,
+        openPanelController: openPanelController,
+        saveAction: { newCommand in
+          commandController.action(.createCommand(newCommand))()
+          newCommandVisible = false
+      },
+      cancelAction: {
+        newCommandVisible = false
+      },
+        selection: CommandViewModel.Kind.application(ApplicationViewModel.empty()),
+        commandViewModel: CommandViewModel(id: "", name: "", kind: .application(ApplicationViewModel.empty())))
+    })
   }
 }
 
@@ -63,7 +101,24 @@ struct WorkflowView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    WorkflowView(workflow: .constant(ModelFactory().workflowDetail()))
-      .frame(minHeight: 720)
+    WorkflowView(applicationProvider: ApplicationPreviewProvider().erase(),
+                 commandController: CommandPreviewController().erase(),
+                 openPanelController: OpenPanelPreviewController().erase(),
+                 workflow: .constant(ModelFactory().workflowDetail()))
+      .frame(height: 668)
   }
+}
+
+private final class ApplicationPreviewProvider: StateController {
+  let state = [ApplicationViewModel]()
+}
+
+private final class CommandPreviewController: ViewController {
+  let state = ModelFactory().workflowDetail().commands
+  func perform(_ action: CommandListView.Action) {}
+}
+
+private final class OpenPanelPreviewController: ViewController {
+  let state = ""
+  func perform(_ action: OpenPanelAction) {}
 }

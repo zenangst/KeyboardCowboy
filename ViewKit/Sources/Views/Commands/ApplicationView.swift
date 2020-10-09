@@ -2,31 +2,33 @@ import SwiftUI
 
 struct ApplicationView: View {
   let command: CommandViewModel
-
-  init(command: CommandViewModel) {
-    self.command = command
-  }
+  let editAction: (CommandViewModel) -> Void
+  let revealAction: (CommandViewModel) -> Void
+  let runAction: (CommandViewModel) -> Void
+  let showContextualMenu: Bool
 
   var body: some View {
     HStack {
-      if case .application(let path, let identifier) = command.kind {
-        IconView(identifier: identifier, path: path)
+      if case .application(let viewModel) = command.kind {
+        IconView(identifier: viewModel.bundleIdentifier, path: viewModel.path)
           .frame(width: 32, height: 32)
       }
       VStack(alignment: .leading, spacing: 0) {
         Text(command.name)
-        HStack(spacing: 4) {
-          Button("Change", action: {})
-            .foregroundColor(Color(.controlAccentColor))
-          Text("|").foregroundColor(Color(.secondaryLabelColor))
-          Button("Reveal", action: {})
-            .foregroundColor(Color(.controlAccentColor))
-          Text("|").foregroundColor(Color(.secondaryLabelColor))
-          Button("Run command", action: {})
-            .foregroundColor(Color(.controlAccentColor))
+        if showContextualMenu {
+          HStack(spacing: 4) {
+            Button("Edit", action: { editAction(command) })
+              .foregroundColor(Color(.controlAccentColor))
+            Text("|").foregroundColor(Color(.secondaryLabelColor))
+            Button("Reveal", action: { revealAction(command)})
+              .foregroundColor(Color(.controlAccentColor))
+            Text("|").foregroundColor(Color(.secondaryLabelColor))
+            Button("Run command", action: { runAction(command) })
+              .foregroundColor(Color(.controlAccentColor))
+          }
+          .buttonStyle(LinkButtonStyle())
+          .font(Font.caption)
         }
-        .buttonStyle(LinkButtonStyle())
-        .font(Font.caption)
       }
       Spacer()
     }
@@ -46,8 +48,11 @@ struct ApplicationView_Previews: PreviewProvider, TestPreviewProvider {
       command: CommandViewModel(
         id: UUID().uuidString,
         name: "Finder",
-        kind: .application(path: "/System/Library/CoreServices/Finder.app",
-                           bundleIdentifier: "com.apple.finder")))
+        kind: .application(ApplicationViewModel.finder())),
+      editAction: { _ in },
+      revealAction: { _ in },
+      runAction: { _ in },
+      showContextualMenu: true)
       .frame(maxWidth: 450)
       .environmentObject(UserSelection())
   }

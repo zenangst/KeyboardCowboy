@@ -13,11 +13,25 @@ public enum KeyCodeMappingError: Error {
 class KeyCodeMapper: KeyCodeMapping {
   let inputSource: InputSource
   let inputController: InputSourceController
+  static var shared: KeyCodeMapper = KeyCodeMapper()
 
-  init(inputSource: InputSource? = nil) {
+  var keyCodeLookup = [Int: String]()
+  var stringLookup = [String: Int]()
+
+  init(inputSource: InputSource? = nil, then handler: (() -> KeyCodeMapper)? = nil) {
     let inputController = InputSourceController()
     self.inputSource = inputSource ?? inputController.currentInputSource()
     self.inputController = inputController
+    self.cache()
+  }
+
+  func cache() {
+    guard stringLookup.isEmpty else { return }
+
+    stringLookup = hashTable()
+    for (key, value) in stringLookup {
+      keyCodeLookup[value] = key
+    }
   }
 
   func hashTable() -> [String: Int] {

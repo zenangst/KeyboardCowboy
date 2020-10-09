@@ -29,4 +29,3 @@ struct IconView_Previews: PreviewProvider, TestPreviewProvider {
     }.frame(width: 48, height: 48)
   }
 }
-

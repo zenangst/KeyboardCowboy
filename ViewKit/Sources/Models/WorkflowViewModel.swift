@@ -13,7 +13,7 @@ public struct WorkflowViewModel: Identifiable, Hashable, Equatable {
   public var keyboardShortcuts: [KeyboardShortcutViewModel]
   public var commands: [CommandViewModel]
 
-  public init(id: String,
+  public init(id: String = UUID().uuidString,
               name: String,
               keyboardShortcuts: [KeyboardShortcutViewModel],
               commands: [CommandViewModel]) {

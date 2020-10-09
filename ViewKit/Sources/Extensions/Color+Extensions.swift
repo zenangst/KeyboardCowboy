@@ -21,10 +21,14 @@ extension Color {
       return
     }
 
+    let red = Double((intCode >> 16) & 0xFF)
+    let green = Double((intCode >> 8) & 0xFF)
+    let blue = Double((intCode) & 0xFF)
+
     self.init(
-      red: Double((intCode >> 16) & 0xFF) / 255.0,
-      green: Double((intCode >> 8) & 0xFF) / 255.0,
-      blue: Double((intCode) & 0xFF) / 255.0,
+      red: red / 255.0,
+      green: green / 255.0,
+      blue: blue / 255.0,
       opacity: 1.0)
   }
 }

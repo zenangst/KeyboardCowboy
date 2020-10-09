@@ -11,8 +11,9 @@ public protocol GroupsControlling {
   /// - Parameter rule: The rule that the groups should
   ///                   be evaluated against.
   func filterGroups(using rule: Rule) -> [Group]
-
   func reloadGroups(_ groups: [Group])
+  func groupContext(withIdentifier id: String) -> GroupContext?
+  func workflowContext(workflowId: String) -> WorkflowContext?
 }
 
 public protocol GroupsControllingDelegate: AnyObject {
@@ -47,6 +48,25 @@ class GroupsController: GroupsControlling {
     self.groups = groups
     delegate?.groupsController(self, didReloadGroups: groups)
   }
+
+  public func groupContext(withIdentifier id: String) -> GroupContext? {
+    for (offset, group) in groups.enumerated() where group.id == id {
+      return GroupContext(index: offset, model: group)
+    }
+    return nil
+  }
+
+  public func workflowContext(workflowId: String) -> WorkflowContext? {
+    for (gOffset, group) in groups.enumerated() {
+      for (wOffset, workflow) in group.workflows.enumerated() where workflow.id == workflowId {
+        return WorkflowContext(
+          index: wOffset, groupContext: GroupContext(index: gOffset, model: group),
+          model: workflow)
+      }
+    }
+
+    return nil
+  }
 }
 
 private extension Collection where Iterator.Element: Hashable {
@@ -57,5 +77,22 @@ private extension Collection where Iterator.Element: Hashable {
     let rhs = Set(rhs)
 
     return !lhs.isDisjoint(with: rhs)
+  }
+}
+
+public struct GroupContext {
+  public let index: Int
+  public let model: Group
+}
+
+public struct WorkflowContext {
+  public let index: Int
+  public let groupContext: GroupContext
+  public let model: Workflow
+
+  public init(index: Int, groupContext: GroupContext, model: Workflow) {
+    self.index = index
+    self.groupContext = groupContext
+    self.model = model
   }
 }

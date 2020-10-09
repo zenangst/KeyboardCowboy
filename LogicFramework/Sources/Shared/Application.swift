@@ -20,3 +20,11 @@ public struct Application: Codable, Hashable {
     self.path = path
   }
 }
+
+extension Application {
+  static func finder() -> Application {
+    Application(bundleIdentifier: "com.apple.finder",
+                bundleName: "Finder",
+                path: "/System/Library/CoreServices/Finder.app")
+  }
+}

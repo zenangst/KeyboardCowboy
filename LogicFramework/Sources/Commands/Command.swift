@@ -16,6 +16,22 @@ public enum Command: Codable, Hashable {
     case script = "scriptCommand"
   }
 
+  public var id: String {
+    switch self {
+    case .application(let command):
+      return command.id
+    case .keyboard(let command):
+      return command.id
+    case .open(let command):
+      return command.id
+    case .script(let command):
+      switch command {
+      case .appleScript(_, let id), .shell(_, let id):
+        return id
+      }
+    }
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
