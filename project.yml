@@ -127,3 +127,4 @@ fileGroups:
   - README.md
   - XcodeGen
   - project.yml
+  - UnitTests/Sources/Views/__Snapshots__
