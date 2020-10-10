@@ -1,6 +1,7 @@
 import Foundation
 
 public protocol StorageControlling {
+  var path: String { get }
   func load() throws ->  [Group]
   func save(_ groups: [Group]) throws
 }

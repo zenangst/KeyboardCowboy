@@ -11,6 +11,9 @@ configFiles:
   Debug: XcodeGen/Debug.xcconfig
   Release: XcodeGen/Release.xcconfig
 packages:
+  DirectoryObserver:
+    url: https://github.com/zenangst/DirectoryObserver
+    branch: main
   LaunchArguments:
     url: https://github.com/zenangst/LaunchArguments
     branch: main
@@ -24,6 +27,7 @@ targets:
     dependencies:
       - target: ViewKit
       - target: LogicFramework
+      - package: DirectoryObserver
       - package: LaunchArguments
     sources:
       - App
