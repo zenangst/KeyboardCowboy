@@ -17,7 +17,7 @@ class EditMenu: NSMenuItem {
       NSMenuItem(title: "Duplicate", action: #selector(NSApplication.copy), keyEquivalent: "d")
     ]
   }
-  
+
   required init(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
