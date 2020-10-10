@@ -29,21 +29,36 @@ public struct MainView: View {
 
   public var body: some View {
     NavigationView {
-      VStack(alignment: .leading) {
-        TextField("Search", text: $searchText)
-          .textFieldStyle(RoundedBorderTextFieldStyle())
-          .frame(height: 48)
-          .padding(.horizontal, 12)
-        GroupList(controller: groupController)
+      sidebar
+      if searchText.isEmpty {
+        browseContext
+      } else {
+        searchContext
       }
-      .frame(minWidth: 200)
+    }
+  }
+}
 
+// MARK: Extensions
+
+extension MainView {
+  var sidebar: some View {
+    VStack(alignment: .leading) {
+      SearchField(query: $searchText)
+        .frame(height: 48)
+        .padding(.horizontal, 12)
+      GroupList(controller: groupController)
+    }.frame(minWidth: 200)
+  }
+
+  var browseContext: some View {
+    HSplitView {
       if let group = userSelection.group {
         WorkflowList(group: Binding(
                       get: { group },
                       set: { userSelection.group = $0 }),
                      workflowController: workflowController)
-          .frame(minWidth: 250)
+          .frame(minWidth: 250, idealWidth: 250, maxWidth: 300)
           .padding(.top, 1)
       }
 
@@ -59,9 +74,14 @@ public struct MainView: View {
                 workflowController.action(.updateWorkflow(workflow))()
               }))
           .background(Color(.textBackgroundColor))
+          .frame(minWidth: 400)
           .edgesIgnoringSafeArea(.top)
       }
     }
+  }
+
+  var searchContext: some View {
+    Text("Not yet implemented")
   }
 }
 
