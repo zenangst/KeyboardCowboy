@@ -1,4 +1,5 @@
 import Cocoa
+import DirectoryObserver
 import LaunchArguments
 import LogicFramework
 import SwiftUI
@@ -17,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   var groupFeatureController: GroupsFeatureController?
   var viewModelFactory = ViewModelMapperFactory()
   var workflowFeatureController: WorkflowFeatureController?
+  var directoryObserver: DirectoryObserver?
 
   var storageController: StorageControlling {
     let path: String
@@ -106,6 +108,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
     window.setFrameAutosaveName("Main Window")
 
     self.groupFeatureController = groupFeatureController
+    self.directoryObserver = DirectoryObserver(at: URL(fileURLWithPath: storageController.path)) { [weak self] in
+      guard let self = self,
+            let groups = try? self.storageController.load() else { return }
+      coreController.groupsController.reloadGroups(groups)
+      let groupMapper = ViewModelMapperFactory().groupMapper()
+      groupFeatureController.state = groupMapper.map(groups)
+    }
 
     return window
   }
