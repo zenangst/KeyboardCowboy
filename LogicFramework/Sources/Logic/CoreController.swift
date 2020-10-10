@@ -1,6 +1,6 @@
 import Cocoa
 
-public protocol CoreControlling {
+public protocol CoreControlling: AnyObject {
   var groupsController: GroupsControlling { get }
   var disableKeyboardShortcuts: Bool { get set }
   var groups: [Group] { get }

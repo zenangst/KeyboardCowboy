@@ -17,6 +17,7 @@ public class MainWindow: NSWindow {
       toolbarStyle = .unified
     }
     titlebarAppearsTransparent = true
+    isReleasedWhenClosed = false
   }
 
   public override var canBecomeKey: Bool { true }
