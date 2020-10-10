@@ -8,8 +8,14 @@ let sourceRoot = ProcessInfo.processInfo.environment["SOURCE_ROOT"]!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
 
 class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDelegate {
-  var window: NSWindow?
-  var controller: CoreControlling?
+  weak var window: NSWindow? {
+    willSet {
+      window?.close()
+      coreController?.disableKeyboardShortcuts = newValue != nil
+    }
+  }
+  var shouldOpenMainWindow = launchArguments.isEnabled(.openWindowAtLaunch)
+  var coreController: CoreControlling?
   let factory = ControllerFactory()
   var groupFeatureController: GroupsFeatureController?
   var viewModelFactory = ViewModelMapperFactory()
@@ -33,21 +39,37 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
   func applicationDidFinishLaunching(_ notification: Notification) {
     if launchArguments.isEnabled(.runningUnitTests) { return }
     if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil { return }
-
     runApplication()
+  }
+
+  func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+    if window == nil, let coreController = coreController {
+      createAndOpenWindow(coreController)
+    }
+    return true
+  }
+
+  func applicationWillBecomeActive(_ notification: Notification) {
+    if shouldOpenMainWindow, window == nil,
+       let coreController = coreController {
+      createAndOpenWindow(coreController)
+    }
+
+    shouldOpenMainWindow = true
+  }
+
+  private func createAndOpenWindow(_ coreController: CoreControlling) {
+    let window = createMainWindow(coreController)
+    window?.makeKeyAndOrderFront(NSApp)
+    self.window = window
   }
 
   private func runApplication() {
     do {
       let launchController = AppDelegateLaunchController()
       let controller = try launchController.initialLoad(storageController: storageController)
-      self.controller = controller
+      self.coreController = controller
 
-      if launchArguments.isEnabled(.runWindowless) { return }
-
-      self.window = createMainWindow(controller)
-      self.window?.makeKeyAndOrderFront(nil)
-      self.controller?.disableKeyboardShortcuts = true
     } catch let error {
       AppDelegateErrorController.handle(error)
     }
@@ -70,17 +92,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
     let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications,
                                                    mapper: viewModelFactory.applicationMapper())
 
-    let groupList = MainView(
+    let mainView = MainView(
       applicationProvider: applicationProvider.erase(),
       commandController: commandsController.erase(),
       groupController: groupFeatureController.erase(),
       openPanelController: OpenPanelViewController().erase(),
       workflowController: workflowFeatureController.erase())
       .environmentObject(userSelection)
-    let window = MainWindow(toolbar: Toolbar())
 
-    window.title = "Keyboard Cowboy"
-    window.contentView = NSHostingView(rootView: groupList)
+    let window = MainWindow(toolbar: Toolbar())
+    let contentView = NSHostingView(rootView: mainView)
+
+    window.title = ProcessInfo.processInfo.processName
+    window.contentView = contentView
     window.setFrameAutosaveName("Main Window")
 
     self.groupFeatureController = groupFeatureController

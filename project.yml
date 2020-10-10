@@ -95,7 +95,7 @@ schemes:
     run:
       config: Debug
       commandLineArguments:
-        "-running-without-window": false
+        "-open-widnow-at-launch": false
         "-demo-mode": true
         "-disable-keyboard-shortcuts": false
       environmentVariables:
