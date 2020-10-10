@@ -57,10 +57,6 @@ struct Recorder: NSViewRepresentable {
 
   @Binding var keyboardShortcut: KeyboardShortcutViewModel?
 
-//  init(keyboardShortcut: KeyboardShortcutViewModel? = nil) {
-//    self._keyboardShortcut = State(initialValue: keyboardShortcut)
-//  }
-
   func makeNSView(context: Context) -> KeyboardShortcutRecorderView {
     .init(keyboardShortcut: keyboardShortcut,
           placeholder: "Record Keyboard Shortcut",
