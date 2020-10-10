@@ -7,12 +7,9 @@ import ViewKit
 let sourceRoot = ProcessInfo.processInfo.environment["SOURCE_ROOT"]!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
 
-class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeatureControllerDelegate {
   weak var window: NSWindow? {
-    willSet {
-      window?.close()
-      coreController?.disableKeyboardShortcuts = newValue != nil
-    }
+    willSet { window?.close() }
   }
   var shouldOpenMainWindow = launchArguments.isEnabled(.openWindowAtLaunch)
   var coreController: CoreControlling?
@@ -101,6 +98,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
       .environmentObject(userSelection)
 
     let window = MainWindow(toolbar: Toolbar())
+    window.delegate = self
     let contentView = NSHostingView(rootView: mainView)
 
     window.title = ProcessInfo.processInfo.processName
@@ -121,5 +119,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, GroupsFeatureControllerDeleg
     } catch let error {
       AppDelegateErrorController.handle(error)
     }
+  }
+
+  // MARK: NSWindowDelegate
+
+  func windowDidBecomeKey(_ notification: Notification) {
+    coreController?.disableKeyboardShortcuts = true
+  }
+
+  func windowDidResignKey(_ notification: Notification) {
+    coreController?.disableKeyboardShortcuts = false
   }
 }
