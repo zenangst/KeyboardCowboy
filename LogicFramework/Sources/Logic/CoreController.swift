@@ -75,11 +75,20 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
       $0.absoluteString.contains(".app")
     }, handler: { url -> Application? in
       guard let bundle = Bundle(url: url),
-            let bundleIdentifier = bundle.bundleIdentifier,
-            let bundleName = bundle.infoDictionary?["CFBundleName"] as? String else {
+            let bundleIdentifier = bundle.bundleIdentifier else {
         return nil
       }
-      return Application(bundleIdentifier: bundleIdentifier, bundleName: bundleName, path: bundle.bundlePath)
+
+      var bundleName: String?
+      if let cfBundleName = bundle.infoDictionary?["CFBundleName"] as? String {
+        bundleName = cfBundleName
+      } else if let cfBundleDisplayname = bundle.infoDictionary?["CFBundleDisplayName"] as? String {
+        bundleName = cfBundleDisplayname
+      }
+
+      guard let resolvedBundleName = bundleName else { return nil }
+
+      return Application(bundleIdentifier: bundleIdentifier, bundleName: resolvedBundleName, path: bundle.bundlePath)
     })
   }
 

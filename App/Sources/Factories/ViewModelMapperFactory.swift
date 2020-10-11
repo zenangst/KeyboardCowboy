@@ -1,6 +1,13 @@
 import Foundation
+import LogicFramework
 
 class ViewModelMapperFactory {
+  var installedApplications: [Application]
+
+  init(installedApplications: [Application] = []) {
+    self.installedApplications = installedApplications
+  }
+
   func groupMapper() -> GroupViewModelMapping {
     GroupViewModelMapper(workflowMapper: workflowMapper())
   }
@@ -11,7 +18,7 @@ class ViewModelMapperFactory {
   }
 
   func commandMapper() -> CommandViewModelMapping {
-    CommandViewModelMapper()
+    CommandViewModelMapper(installedApplications: installedApplications)
   }
 
   func keyboardShortcutMapper() -> KeyboardShortcutViewModelMapping {
