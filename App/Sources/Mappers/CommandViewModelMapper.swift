@@ -8,6 +8,12 @@ protocol CommandViewModelMapping {
 }
 
 class CommandViewModelMapper: CommandViewModelMapping {
+  let installedApplications: [Application]
+
+  init(installedApplications: [Application] = []) {
+    self.installedApplications = installedApplications
+  }
+
   func map(_ models: [Command]) -> [CommandViewModel] {
     models.compactMap(map(_:))
   }
@@ -33,13 +39,22 @@ class CommandViewModelMapper: CommandViewModelMapping {
   }
 
   private func mapApplicationCommand(_ command: ApplicationCommand) -> CommandViewModel {
-    CommandViewModel(id: command.id,
+    var applicationPath = command.application.path
+
+    let fileManager = FileManager()
+    if !fileManager.fileExists(atPath: applicationPath),
+       let application = installedApplications
+        .first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }) {
+      applicationPath = application.path
+    }
+
+    return CommandViewModel(id: command.id,
                      name: command.application.bundleName,
                      kind: .application(
                       ApplicationViewModel(id: command.id,
                                            bundleIdentifier: command.application.bundleIdentifier,
                                            name: command.application.bundleName,
-                                           path: command.application.path)))
+                                           path: applicationPath)))
   }
 
   private func mapKeyboardCommand(_ command: KeyboardCommand) -> CommandViewModel {

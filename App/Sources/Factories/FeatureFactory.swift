@@ -4,7 +4,7 @@ import ViewKit
 
 class FeatureFactory {
   private let logic = ControllerFactory()
-  private let mapperFactory = ViewModelMapperFactory()
+  private let mapperFactory: ViewModelMapperFactory
   private let coreController: CoreControlling
   private let userSelection: UserSelection
   private var groupsController: GroupsControlling {
@@ -18,6 +18,7 @@ class FeatureFactory {
   init(coreController: CoreControlling, userSelection: UserSelection) {
     self.coreController = coreController
     self.userSelection = userSelection
+    self.mapperFactory = ViewModelMapperFactory(installedApplications: coreController.installedApplications)
   }
 
   func groupFeature() -> GroupsFeatureController {

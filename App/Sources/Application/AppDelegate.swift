@@ -112,7 +112,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
       guard let self = self,
             let groups = try? self.storageController.load() else { return }
       coreController.groupsController.reloadGroups(groups)
-      let groupMapper = ViewModelMapperFactory().groupMapper()
+      let groupMapper = ViewModelMapperFactory(installedApplications: coreController.installedApplications).groupMapper()
       groupFeatureController.state = groupMapper.map(groups)
     }
 
