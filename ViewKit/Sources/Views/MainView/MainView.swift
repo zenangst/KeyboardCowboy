@@ -41,7 +41,7 @@ public struct MainView: View {
 
 // MARK: Extensions
 
-extension MainView {
+private extension MainView {
   var sidebar: some View {
     VStack(alignment: .leading) {
       SearchField(query: $searchText)
