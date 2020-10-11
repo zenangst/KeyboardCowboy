@@ -14,7 +14,6 @@ struct EditOpenURLCommandView: View {
       VStack {
         HStack {
           Text("URL:")
-
           TextField("http://", text: Binding(get: {
             if case .openUrl(let viewModel) = commandViewModel.kind {
               return viewModel.url.absoluteString
