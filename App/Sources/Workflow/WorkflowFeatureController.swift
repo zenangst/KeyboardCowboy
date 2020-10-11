@@ -13,7 +13,7 @@ protocol WorkflowFeatureControllerDelegate: AnyObject {
                                  didDeleteWorkflow context: WorkflowContext)
 }
 
-class WorkflowFeatureController: ViewController, CommandsFeatureControllerDelegate {
+class WorkflowFeatureController: ViewController, CommandsFeatureControllerDelegate, KeyboardShortcutsFeatureControllerDelegate {
   weak var delegate: WorkflowFeatureControllerDelegate?
   @Published var state: WorkflowViewModel?
   let groupsController: GroupsControlling
@@ -48,16 +48,15 @@ class WorkflowFeatureController: ViewController, CommandsFeatureControllerDelega
 
   // MARK: Private methods
 
-  func createWorkflow() {
+  private func createWorkflow() {
     guard let groupId = userSelection.group?.id,
           let context = groupsController.groupContext(withIdentifier: groupId)
     else { return }
 
-    delegate?.workflowFeatureController(self, didCreateWorkflow: Workflow.empty(),
-                                        in: context)
+    delegate?.workflowFeatureController(self, didCreateWorkflow: Workflow.empty(), in: context)
   }
 
-  func updateWorkflow(_ viewModel: WorkflowViewModel) {
+  private func updateWorkflow(_ viewModel: WorkflowViewModel) {
     guard let context = groupsController.workflowContext(workflowId: viewModel.id) else { return }
 
     var workflow = context.model
@@ -70,31 +69,52 @@ class WorkflowFeatureController: ViewController, CommandsFeatureControllerDelega
     delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
   }
 
-  func deleteWorkflow(_ viewModel: WorkflowViewModel) {
+  private func deleteWorkflow(_ viewModel: WorkflowViewModel) {
     guard let context = groupsController.workflowContext(workflowId: viewModel.id) else { return }
     delegate?.workflowFeatureController(self, didDeleteWorkflow: context)
+  }
+
+  private func updateWorkflow(_ workflow: Workflow) {
+    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
+    let newContext = WorkflowContext(index: context.index, groupContext: context.groupContext, model: workflow)
+    delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
+  }
+
+  // MARK: KeyboardShortcutsFeatureControllerDelegate
+
+  func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
+                                         didCreateKeyboardShortcut keyboardShortcut: KeyboardShortcut,
+                                         in workflow: Workflow) {
+    updateWorkflow(workflow)
+  }
+
+  func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
+                                         didUpdateKeyboardShortcut keyboardShortcut: KeyboardShortcut,
+                                         in workflow: Workflow) {
+    updateWorkflow(workflow)
+  }
+
+  func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
+                                         didDeleteKeyboardShortcut keyboardShortcut: KeyboardShortcut,
+                                         in workflow: Workflow) {
+    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
+    guard let index = context.model.keyboardShortcuts.firstIndex(of: keyboardShortcut) else { return }
+
+    var workflow = context.model
+    workflow.keyboardShortcuts.remove(at: index)
+    updateWorkflow(workflow)
   }
 
   // MARK: CommandsFeatureControllerDelegate
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didCreateCommand command: Command,
                                  in workflow: Workflow) {
-    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
-
-    let newContext = WorkflowContext(index: context.index,
-                                     groupContext: context.groupContext,
-                                     model: workflow)
-
-    delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
+    updateWorkflow(workflow)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didUpdateCommand command: Command,
                                  in workflow: Workflow) {
-    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
-
-    let newContext = WorkflowContext(index: context.index, groupContext: context.groupContext, model: workflow)
-
-    delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
+    updateWorkflow(workflow)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didDeleteCommand command: Command,
@@ -104,8 +124,6 @@ class WorkflowFeatureController: ViewController, CommandsFeatureControllerDelega
 
     var workflow = context.model
     workflow.commands.remove(at: index)
-
-    let newContext = WorkflowContext(index: context.index, groupContext: context.groupContext, model: workflow)
-    delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
+    updateWorkflow(workflow)
   }
 }

@@ -84,8 +84,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
     let workflowFeatureController = featureFactory.workflowFeature()
     workflowFeatureController.delegate = groupFeatureController
 
-    let commandsController = featureFactory.commandsFeature()
+    let keyboardShortcutFeatureController = featureFactory.keyboardShortcutsFeature()
+    keyboardShortcutFeatureController.delegate = workflowFeatureController
 
+    let commandsController = featureFactory.commandsFeature()
     commandsController.delegate = workflowFeatureController
 
     let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications,
@@ -95,6 +97,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
       applicationProvider: applicationProvider.erase(),
       commandController: commandsController.erase(),
       groupController: groupFeatureController.erase(),
+      keyboardShortcutController: keyboardShortcutFeatureController.erase(),
       openPanelController: OpenPanelViewController().erase(),
       workflowController: workflowFeatureController.erase())
       .environmentObject(userSelection)
@@ -112,7 +115,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
       guard let self = self,
             let groups = try? self.storageController.load() else { return }
       coreController.groupsController.reloadGroups(groups)
-      let groupMapper = ViewModelMapperFactory(installedApplications: coreController.installedApplications).groupMapper()
+      let groupMapper = ViewModelMapperFactory(installedApplications: coreController.installedApplications)
+        .groupMapper()
       groupFeatureController.state = groupMapper.map(groups)
     }
 

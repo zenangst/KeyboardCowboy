@@ -8,6 +8,11 @@ class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSear
   private static var keyIndex = [Int: String]()
 
   private var eventMonitor: Any?
+  private var keyboardShortcutIdentifier: String
+
+  init(identifier: String) {
+    self.keyboardShortcutIdentifier = identifier
+  }
 
   func didBecomeFirstResponder() {
     let eventsOfInterest: NSEvent.EventTypeMask = [.keyDown]
@@ -16,7 +21,8 @@ class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSear
       let modifiers = ModifierKey.fromNSEvent(e.modifierFlags)
       let keyCode = Int(e.keyCode)
       if let character = Self.keyMapper.keyCodeLookup[keyCode] {
-        let newViewModel = KeyboardShortcutViewModel(id: UUID().uuidString,
+        let newViewModel = KeyboardShortcutViewModel(id: self.keyboardShortcutIdentifier,
+                                                     index: 0,
                                                      key: character,
                                                      modifiers: modifiers)
         self.onCommit?(newViewModel)

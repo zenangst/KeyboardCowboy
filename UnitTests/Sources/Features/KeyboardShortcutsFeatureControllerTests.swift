@@ -5,17 +5,16 @@ import Foundation
 import XCTest
 
 // swiftlint:disable function_body_length type_body_length
-class CommandsFeatureControllerTests: XCTestCase {
-  func testCreateCommand() {
+class KeyboardShortcutsFeatureControllerTests: XCTestCase {
+  func testCreateKeyboardShortcut() {
     let expectation = self.expectation(description: "Wait for callback")
     var group = Group.empty()
     let workflow = Workflow.empty()
     group.workflows = [workflow]
 
-    let commandMapper = ViewModelMapperFactory().commandMapper()
-    let logicApplicationCommand = ApplicationCommand(application: Application.finder())
-    let command = Command.application(logicApplicationCommand)
-    let viewModel = commandMapper.map(command)
+    let keyboardShortcutMapper = ViewModelMapperFactory().keyboardShortcutMapper()
+    let keyboardShortcut = KeyboardShortcut(id: UUID().uuidString, key: "A", modifiers: [.command, .shift])
+    let viewModel = keyboardShortcutMapper.map(keyboardShortcut)
 
     let groupsController = GroupsController(groups: [group])
     let coreController = CoreControllerMock(groupsController: groupsController) { state in
@@ -41,23 +40,20 @@ class CommandsFeatureControllerTests: XCTestCase {
           return
         }
 
-        XCTAssertEqual(workflow.commands.count, 1)
+        XCTAssertEqual(workflow.keyboardShortcuts.count, 1)
+        XCTAssertEqual(workflow.commands.count, 0)
 
-        guard let newCommand = workflow.commands.first else {
+        guard let newKeyboardShortcut = workflow.keyboardShortcuts.first else {
           XCTFail("Failed to find first workflow.")
           return
         }
 
-        switch newCommand {
-        case .application(let applicationCommand):
-          XCTAssertEqual(applicationCommand.application, logicApplicationCommand.application)
-        case .keyboard, .open, .script:
-          XCTFail("Wrong command kind. Should be `.application`")
-        }
+        XCTAssertEqual(keyboardShortcut, newKeyboardShortcut)
 
         expectation.fulfill()
       }
     }
+
     groupsController.delegate = coreController
 
     let userSelection = UserSelection()
@@ -65,128 +61,119 @@ class CommandsFeatureControllerTests: XCTestCase {
                                  userSelection: userSelection)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
-    let commandsFeature = factory.commandsFeature()
+    let keyboardFeature = factory.keyboardShortcutsFeature()
     let groupMapper = ViewModelMapperFactory().groupMapper()
     let workflowMapper = ViewModelMapperFactory().workflowMapper()
 
     userSelection.group = groupMapper.map(group)
     userSelection.workflow = workflowMapper.map(workflow)
     workflowFeature.delegate = groupsFeature
-    commandsFeature.delegate = workflowFeature
-
-    XCTAssertEqual(groupsController.groups.count, 1)
-    XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
-    XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).flatMap({ $0.commands }).count, 0)
-
-    commandsFeature.perform(.createCommand(viewModel))
-
-    wait(for: [expectation], timeout: 10.0)
-  }
-
-  func testUpdateCommand() {
-    let expectation = self.expectation(description: "Wait for callback")
-
-    let commandMapper = ViewModelMapperFactory().commandMapper()
-    let logicApplicationCommand = ApplicationCommand(application: Application.finder())
-    let command = Command.application(logicApplicationCommand)
-    var group = Group.empty()
-    var workflow = Workflow.empty()
-    workflow.commands = [command]
-    group.workflows = [workflow]
-
-    let commandIdentifier = UUID().uuidString
-    let newKeyboardCommand = KeyboardCommand(
-      id: command.id,
-      keyboardShortcut: KeyboardShortcut(
-        id: commandIdentifier,
-        key: "A",
-        modifiers: [.command]))
-    let updatedCommand = Command.keyboard(newKeyboardCommand)
-
-    let groupsController = GroupsController(groups: [group])
-    let coreController = CoreControllerMock(groupsController: groupsController) { state in
-      switch state {
-      case .respondTo,
-           .reloadContext,
-           .activate:
-        XCTFail("Wrong state, should end up in `.didReloadGroups`")
-      case .didReloadGroups(let groups):
-        XCTAssertEqual(groups.count, 1)
-        XCTAssertEqual(groupsController.groups.count, 1)
-        XCTAssertEqual(groups, groupsController.groups)
-
-        guard let group = groups.first else {
-          XCTFail("Failed to find first group.")
-          return
-        }
-
-        XCTAssertEqual(group.workflows.count, 1)
-
-        guard let workflow = group.workflows.first else {
-          XCTFail("Failed to find first workflow.")
-          return
-        }
-
-        XCTAssertEqual(workflow.commands.count, 1)
-
-        guard let newCommand = workflow.commands.first else {
-          XCTFail("Failed to find first workflow.")
-          return
-        }
-
-        switch newCommand {
-        case .keyboard(let keyboardCommand):
-          XCTAssertEqual(newCommand.id, updatedCommand.id)
-          XCTAssertEqual(keyboardCommand.keyboardShortcut.key, newKeyboardCommand.keyboardShortcut.key)
-          XCTAssertEqual(keyboardCommand.keyboardShortcut.modifiers, newKeyboardCommand.keyboardShortcut.modifiers)
-        case .application, .open, .script:
-          XCTFail("Wrong command kind. Should be `.application`")
-        }
-
-        expectation.fulfill()
-      }
-    }
-    groupsController.delegate = coreController
-
-    let userSelection = UserSelection()
-    let factory = FeatureFactory(coreController: coreController,
-                                 userSelection: userSelection)
-    let groupsFeature = factory.groupFeature()
-    let workflowFeature = factory.workflowFeature()
-    let commandsFeature = factory.commandsFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let workflowMapper = ViewModelMapperFactory().workflowMapper()
-
-    userSelection.group = groupMapper.map(group)
-    userSelection.workflow = workflowMapper.map(workflow)
-    workflowFeature.delegate = groupsFeature
-    commandsFeature.delegate = workflowFeature
+    keyboardFeature.delegate = workflowFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    let updatedViewModel = commandMapper.map(updatedCommand)
-    commandsFeature.perform(.updateCommand(updatedViewModel))
+    keyboardFeature.perform(.createKeyboardShortcut(viewModel))
 
     wait(for: [expectation], timeout: 10.0)
   }
 
-  func testMoveCommand() {
+  func testUpdateKeyboardShortcut() {
     let expectation = self.expectation(description: "Wait for callback")
+    var group = Group.empty()
+    var workflow = Workflow.empty()
     let identifier = UUID().uuidString
-    let commands: [Command] = [
-      .script(.appleScript(.path("path"), "appleScript")),
-      .script(.shell(.path("path"), "shellScript")),
-      .open(.init(id: identifier, path: "path/to/file"))
+    let keyboardShortcut = KeyboardShortcut(id: identifier, key: "A", modifiers: [.command, .shift])
+    workflow.keyboardShortcuts = [keyboardShortcut]
+    group.workflows = [workflow]
+
+    let keyboardShortcutMapper = ViewModelMapperFactory().keyboardShortcutMapper()
+    let updatedKeyboardShortcut = KeyboardShortcut(id: identifier, key: "B", modifiers: [.command, .shift])
+    let updatedViewModel = keyboardShortcutMapper.map(updatedKeyboardShortcut)
+
+    let groupsController = GroupsController(groups: [group])
+    let coreController = CoreControllerMock(groupsController: groupsController) { state in
+      switch state {
+      case .respondTo,
+           .reloadContext,
+           .activate:
+        XCTFail("Wrong state, should end up in `.didReloadGroups`")
+      case .didReloadGroups(let groups):
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groupsController.groups.count, 1)
+        XCTAssertEqual(groups, groupsController.groups)
+
+        guard let group = groups.first else {
+          XCTFail("Failed to find first group.")
+          return
+        }
+
+        XCTAssertEqual(group.workflows.count, 1)
+
+        guard let workflow = group.workflows.first else {
+          XCTFail("Failed to find first workflow.")
+          return
+        }
+
+        XCTAssertEqual(workflow.keyboardShortcuts.count, 1)
+        XCTAssertEqual(workflow.commands.count, 0)
+
+        XCTAssertFalse(workflow.keyboardShortcuts.contains(keyboardShortcut))
+
+        guard let newKeyboardShortcut = workflow.keyboardShortcuts.first else {
+          XCTFail("Failed to find first workflow.")
+          return
+        }
+
+        XCTAssertEqual(updatedKeyboardShortcut, newKeyboardShortcut)
+      }
+      expectation.fulfill()
+    }
+
+    groupsController.delegate = coreController
+
+    let userSelection = UserSelection()
+    let factory = FeatureFactory(coreController: coreController,
+                                 userSelection: userSelection)
+    let groupsFeature = factory.groupFeature()
+    let workflowFeature = factory.workflowFeature()
+    let keyboardFeature = factory.keyboardShortcutsFeature()
+    let groupMapper = ViewModelMapperFactory().groupMapper()
+    let workflowMapper = ViewModelMapperFactory().workflowMapper()
+
+    userSelection.group = groupMapper.map(group)
+    userSelection.workflow = workflowMapper.map(workflow)
+    workflowFeature.delegate = groupsFeature
+    keyboardFeature.delegate = workflowFeature
+
+    XCTAssertEqual(groupsController.groups.count, 1)
+    XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
+    XCTAssertEqual(groupsController.groups
+                    .flatMap({ $0.workflows })
+                    .flatMap({ $0.keyboardShortcuts }).count, 1)
+
+    keyboardFeature.perform(.updateKeyboardShortcut(updatedViewModel))
+
+    wait(for: [expectation], timeout: 10.0)
+  }
+
+  func testMoveKeyboardShortcut() {
+    let expectation = self.expectation(description: "Wait for callback")
+    let movedKeyboardShortcut: KeyboardShortcut = KeyboardShortcut(id: UUID().uuidString,
+                                                                   key: "A", modifiers: [.shift])
+    let keyboardShortcuts: [KeyboardShortcut] = [
+      movedKeyboardShortcut,
+      KeyboardShortcut(id: "B", key: "B", modifiers: [.shift]),
+      KeyboardShortcut(id: "C", key: "C", modifiers: [.shift])
     ]
-    let expected: [Command] = [
-      .open(.init(id: identifier, path: "path/to/file")),
-      .script(.appleScript(.path("path"), "appleScript")),
-      .script(.shell(.path("path"), "shellScript"))
+    let expected: [KeyboardShortcut] = [
+      KeyboardShortcut(id: "B", key: "B", modifiers: [.shift]),
+      KeyboardShortcut(id: "C", key: "C", modifiers: [.shift]),
+      movedKeyboardShortcut
     ]
     var group = Group.empty()
     var workflow = Workflow.empty()
-    workflow.commands = commands
+    workflow.keyboardShortcuts = keyboardShortcuts
     group.workflows = [workflow]
 
     let groupsController = GroupsController(groups: [group])
@@ -213,8 +200,8 @@ class CommandsFeatureControllerTests: XCTestCase {
           return
         }
 
-        XCTAssertEqual(workflow.commands.count, 3)
-        XCTAssertEqual(expected, workflow.commands)
+        XCTAssertEqual(workflow.keyboardShortcuts.count, 3)
+        XCTAssertEqual(expected, workflow.keyboardShortcuts)
 
         expectation.fulfill()
       }
@@ -226,42 +213,42 @@ class CommandsFeatureControllerTests: XCTestCase {
                                  userSelection: userSelection)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
-    let commandsFeature = factory.commandsFeature()
     let groupMapper = ViewModelMapperFactory().groupMapper()
     let workflowMapper = ViewModelMapperFactory().workflowMapper()
+    let keyboardFeature = factory.keyboardShortcutsFeature()
 
     userSelection.group = groupMapper.map(group)
     userSelection.workflow = workflowMapper.map(workflow)
     workflowFeature.delegate = groupsFeature
-    commandsFeature.delegate = workflowFeature
+    keyboardFeature.delegate = workflowFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap { $0.workflows }.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap {
-      $0.workflows.flatMap { $0.commands }
+      $0.workflows.flatMap { $0.keyboardShortcuts }
     }.count, 3)
 
-    commandsFeature.perform(.moveCommand(from: 2, to: 0))
+    keyboardFeature.perform(.moveCommand(from: 0, to: 2))
 
     wait(for: [expectation], timeout: 10.0)
   }
 
-  func testDeleteCommand() {
+  func testDeleteKeyboardShortcut() {
     let expectation = self.expectation(description: "Wait for callback")
-    let identifier = UUID().uuidString
-    let removedCommand: Command = .script(.appleScript(.path("path"), "appleScript"))
-    let commands: [Command] = [
-      removedCommand,
-      .script(.shell(.path("path"), "shellScript")),
-      .open(.init(id: identifier, path: "path/to/file"))
+    let removedKeyboardShortcut: KeyboardShortcut = KeyboardShortcut(id: UUID().uuidString,
+                                                                     key: "A", modifiers: [.shift])
+    let keyboardShortcuts: [KeyboardShortcut] = [
+      removedKeyboardShortcut,
+      KeyboardShortcut(id: "B", key: "B", modifiers: [.shift]),
+      KeyboardShortcut(id: "C", key: "C", modifiers: [.shift])
     ]
-    let expected: [Command] = [
-      .script(.shell(.path("path"), "shellScript")),
-      .open(.init(id: identifier, path: "path/to/file"))
+    let expected: [KeyboardShortcut] = [
+      KeyboardShortcut(id: "B", key: "B", modifiers: [.shift]),
+      KeyboardShortcut(id: "C", key: "C", modifiers: [.shift])
     ]
     var group = Group.empty()
     var workflow = Workflow.empty()
-    workflow.commands = commands
+    workflow.keyboardShortcuts = keyboardShortcuts
     group.workflows = [workflow]
 
     let groupsController = GroupsController(groups: [group])
@@ -288,8 +275,8 @@ class CommandsFeatureControllerTests: XCTestCase {
           return
         }
 
-        XCTAssertEqual(workflow.commands.count, 2)
-        XCTAssertEqual(expected, workflow.commands)
+        XCTAssertEqual(workflow.keyboardShortcuts.count, 2)
+        XCTAssertEqual(expected, workflow.keyboardShortcuts)
 
         expectation.fulfill()
       }
@@ -301,24 +288,24 @@ class CommandsFeatureControllerTests: XCTestCase {
                                  userSelection: userSelection)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
-    let commandsFeature = factory.commandsFeature()
     let groupMapper = ViewModelMapperFactory().groupMapper()
     let workflowMapper = ViewModelMapperFactory().workflowMapper()
+    let keyboardFeature = factory.keyboardShortcutsFeature()
 
     userSelection.group = groupMapper.map(group)
     userSelection.workflow = workflowMapper.map(workflow)
     workflowFeature.delegate = groupsFeature
-    commandsFeature.delegate = workflowFeature
+    keyboardFeature.delegate = workflowFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap { $0.workflows }.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap {
-      $0.workflows.flatMap { $0.commands }
+      $0.workflows.flatMap { $0.keyboardShortcuts }
     }.count, 3)
 
-    let commandMapper = ViewModelMapperFactory().commandMapper()
-    let removedViewModel = commandMapper.map(removedCommand)
-    commandsFeature.perform(.deleteCommand(removedViewModel))
+    let keyboardShortcutMapper = ViewModelMapperFactory().keyboardShortcutMapper()
+    let removedViewModel = keyboardShortcutMapper.map(removedKeyboardShortcut)
+    keyboardFeature.perform(.deleteKeyboardShortcut(removedViewModel))
 
     wait(for: [expectation], timeout: 10.0)
   }

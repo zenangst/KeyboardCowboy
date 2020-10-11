@@ -1,15 +1,18 @@
 import SwiftUI
 
-public typealias GroupController = AnyViewController<[GroupViewModel], GroupList.Action>
-public typealias WorkflowController = AnyViewController<WorkflowViewModel?, WorkflowList.Action>
-public typealias CommandController = AnyViewController<[CommandViewModel], CommandListView.Action>
-public typealias OpenPanelController = AnyViewController<String, OpenPanelAction>
 public typealias ApplicationProvider = AnyStateController<[ApplicationViewModel]>
+public typealias CommandController = AnyViewController<[CommandViewModel], CommandListView.Action>
+public typealias GroupController = AnyViewController<[GroupViewModel], GroupList.Action>
+public typealias KeyboardShortcutController = AnyViewController<[KeyboardShortcutViewModel],
+                                                                KeyboardShortcutListView.Action>
+public typealias OpenPanelController = AnyViewController<String, OpenPanelAction>
+public typealias WorkflowController = AnyViewController<WorkflowViewModel?, WorkflowList.Action>
 
 public struct MainView: View {
   @ObservedObject var applicationProvider: ApplicationProvider
   @ObservedObject var commandController: CommandController
   @ObservedObject var groupController: GroupController
+  @ObservedObject var keyboardShortcutController: KeyboardShortcutController
   @ObservedObject var workflowController: WorkflowController
   @ObservedObject var openPanelController: OpenPanelController
   @EnvironmentObject var userSelection: UserSelection
@@ -18,11 +21,13 @@ public struct MainView: View {
   public init(applicationProvider: ApplicationProvider,
               commandController: CommandController,
               groupController: GroupController,
+              keyboardShortcutController: KeyboardShortcutController,
               openPanelController: OpenPanelController,
               workflowController: WorkflowController) {
     self.applicationProvider = applicationProvider
     self.commandController = commandController
     self.groupController = groupController
+    self.keyboardShortcutController = keyboardShortcutController
     self.openPanelController = openPanelController
     self.workflowController = workflowController
   }
@@ -66,6 +71,7 @@ extension MainView {
         WorkflowView(
           applicationProvider: applicationProvider,
           commandController: commandController,
+          keyboardShortcutController: keyboardShortcutController,
           openPanelController: openPanelController,
           workflow:
             Binding(
@@ -94,6 +100,7 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
     MainView(applicationProvider: ApplicationPreviewProvider().erase(),
              commandController: CommandPreviewController().erase(),
              groupController: GroupPreviewController().erase(),
+             keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
              openPanelController: OpenPanelPreviewController().erase(),
              workflowController: WorkflowPreviewController().erase())
       .environmentObject(UserSelection())
@@ -113,6 +120,11 @@ private final class CommandPreviewController: ViewController {
 private final class GroupPreviewController: ViewController {
   let state = ModelFactory().groupList()
   func perform(_ action: GroupList.Action) {}
+}
+
+private final class KeyboardShortcutPreviewController: ViewController {
+  let state = ModelFactory().keyboardShortcuts()
+  func perform(_ action: KeyboardShortcutListView.Action) {}
 }
 
 private final class WorkflowPreviewController: ViewController {

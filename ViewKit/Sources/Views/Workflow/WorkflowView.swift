@@ -5,6 +5,7 @@ struct WorkflowView: View {
 
   @ObservedObject var applicationProvider: ApplicationProvider
   @ObservedObject var commandController: CommandController
+  @ObservedObject var keyboardShortcutController: KeyboardShortcutController
   @ObservedObject var openPanelController: OpenPanelController
   @State private var newCommandVisible: Bool = false
   @Binding var workflow: WorkflowViewModel
@@ -45,7 +46,7 @@ private extension WorkflowView {
   }
 
   var keyboardShortcuts: some View {
-    KeyboardShortcutListView(keyboardShortcuts: workflow.keyboardShortcuts)
+    KeyboardShortcutListView(keyboardShortcutController: keyboardShortcutController)
       .background(Color(.windowBackgroundColor))
       .cornerRadius(8.0)
       .padding(.horizontal, 16)
@@ -103,6 +104,7 @@ struct WorkflowView_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     WorkflowView(applicationProvider: ApplicationPreviewProvider().erase(),
                  commandController: CommandPreviewController().erase(),
+                 keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
                  openPanelController: OpenPanelPreviewController().erase(),
                  workflow: .constant(ModelFactory().workflowDetail()))
       .frame(height: 668)
@@ -111,6 +113,11 @@ struct WorkflowView_Previews: PreviewProvider, TestPreviewProvider {
 
 private final class ApplicationPreviewProvider: StateController {
   let state = [ApplicationViewModel]()
+}
+
+private final class KeyboardShortcutPreviewController: ViewController {
+  let state = ModelFactory().keyboardShortcuts()
+  func perform(_ action: KeyboardShortcutListView.Action) {}
 }
 
 private final class CommandPreviewController: ViewController {

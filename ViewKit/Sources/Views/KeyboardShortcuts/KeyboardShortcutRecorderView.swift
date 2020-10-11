@@ -7,13 +7,14 @@ class KeyboardShortcutRecorderView: NSSearchField {
 
   @State private var keyboardShortcut: KeyboardShortcutViewModel?
   private var cancellables = Set<AnyCancellable>()
-  private let viewController = KeyboardShortcutRecorderViewController()
+  private let viewController: KeyboardShortcutRecorderViewController
   private let onCommit: OnCommit
 
   required init(keyboardShortcut: KeyboardShortcutViewModel?,
                 placeholder: String? = nil,
                 onCommit: @escaping OnCommit) {
     self.keyboardShortcut = keyboardShortcut
+    self.viewController = KeyboardShortcutRecorderViewController(identifier: keyboardShortcut?.id ?? UUID().uuidString)
     self.onCommit = onCommit
     super.init(frame: .zero)
     self.placeholderString = placeholder
@@ -58,11 +59,11 @@ struct Recorder: NSViewRepresentable {
   @Binding var keyboardShortcut: KeyboardShortcutViewModel?
 
   func makeNSView(context: Context) -> KeyboardShortcutRecorderView {
-    .init(keyboardShortcut: keyboardShortcut,
-          placeholder: "Record Keyboard Shortcut",
-          onCommit: {
-            keyboardShortcut = $0
-          })
+    KeyboardShortcutRecorderView(keyboardShortcut: keyboardShortcut,
+                                 placeholder: "Record Keyboard Shortcut",
+                                 onCommit: {
+                                  keyboardShortcut = $0
+                                 })
   }
 
   func updateNSView(_ nsView: KeyboardShortcutRecorderView, context: Context) {}
@@ -78,7 +79,8 @@ struct Recorder_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     Group {
       Recorder(keyboardShortcut: .constant(nil))
-      Recorder(keyboardShortcut: .constant(KeyboardShortcutViewModel(key: "F", modifiers: [.command, .option])))
+      Recorder(keyboardShortcut: .constant(KeyboardShortcutViewModel(index: 1, key: "F",
+                                                                     modifiers: [.command, .option])))
     }
   }
 }

@@ -47,4 +47,10 @@ class FeatureFactory {
                               installedApplications: installedApplications,
                               state: [], userSelection: userSelection)
   }
+
+  func keyboardShortcutsFeature() -> KeyboardShortcutsFeatureController {
+    KeyboardShortcutsFeatureController(groupsController: groupsController,
+                                       state: [],
+                                       userSelection: userSelection)
+  }
 }
