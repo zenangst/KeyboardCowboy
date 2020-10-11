@@ -3,15 +3,11 @@ import SwiftUI
 struct EditAppleScriptView: View {
   @ObservedObject var openPanelController: OpenPanelController
   @Binding var commandViewModel: CommandViewModel
-  @State var tabSelection: Int = 1
-  @State var path: String
-  var internalState: Binding<String>?
 
   init(commandViewModel: Binding<CommandViewModel>,
        openPanelController: OpenPanelController) {
     self._commandViewModel = commandViewModel
     self.openPanelController = openPanelController
-    self._path = State(initialValue: "")
   }
 
   var body: some View {
@@ -24,14 +20,20 @@ struct EditAppleScriptView: View {
       VStack {
         HStack {
           Text("Path:")
-          TextField("file://", text: $path)
+          TextField("file://", text: Binding(get: {
+            if case .appleScript(let viewModel) = commandViewModel.kind {
+              return viewModel.path
+            }
+            return ""
+          }, set: {
+            commandViewModel.kind = .appleScript(AppleScriptViewModel(path: $0))
+          }))
         }
         HStack {
           Spacer()
           Button("Browse", action: {
             openPanelController.perform(.selectFile(type: "scpt", handler: {
               commandViewModel.kind = .appleScript(AppleScriptViewModel(path: $0))
-              path = $0
             }))
           })
         }
