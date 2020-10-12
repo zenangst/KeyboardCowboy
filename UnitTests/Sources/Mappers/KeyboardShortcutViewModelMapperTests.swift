@@ -12,7 +12,7 @@ class KeyboardShortcutViewModelMapperTests: XCTestCase {
         id: id,
         key: "A",
         modifiers: [.control, .option, .command])]
-    let expected = [KeyboardShortcutViewModel(id: id, key: "A", modifiers: [.control, .option, .command])]
+    let expected = [KeyboardShortcutViewModel(id: id, index: 1, key: "A", modifiers: [.control, .option, .command])]
     let mapper = KeyboardShortcutViewModelMapper()
     let result = mapper.map(subject)
 
@@ -26,7 +26,7 @@ class KeyboardShortcutViewModelMapperTests: XCTestCase {
         id: id,
         key: "A",
         modifiers: nil)]
-    let expected = [KeyboardShortcutViewModel(id: id, key: "A")]
+    let expected = [KeyboardShortcutViewModel(id: id, index: 1, key: "A")]
     let mapper = KeyboardShortcutViewModelMapper()
     let result = mapper.map(subject)
 

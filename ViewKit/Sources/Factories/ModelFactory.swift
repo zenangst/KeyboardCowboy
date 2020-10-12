@@ -189,8 +189,8 @@ class ModelFactory {
       WorkflowViewModel(
         name: "Open \($0)",
         keyboardShortcuts: [
-          KeyboardShortcutViewModel(id: UUID().uuidString, key: "fn"),
-          KeyboardShortcutViewModel(id: UUID().uuidString, key: "A")
+          KeyboardShortcutViewModel(id: UUID().uuidString, index: 1, key: "fn"),
+          KeyboardShortcutViewModel(id: UUID().uuidString, index: 2, key: "A")
         ],
         commands: [
           CommandViewModel(
@@ -228,8 +228,8 @@ class ModelFactory {
   }
 
   func keyboardShortcuts() -> [KeyboardShortcutViewModel] {
-    [.init(id: UUID().uuidString, key: "", modifiers: [.function]),
-     .init(id: UUID().uuidString, key: "A", modifiers: [.option, .command])]
+    [.init(id: UUID().uuidString, index: 1, key: "", modifiers: [.function]),
+     .init(id: UUID().uuidString, index: 2, key: "A", modifiers: [.option, .command])]
   }
 
   func installedApplications() -> [ApplicationViewModel] {

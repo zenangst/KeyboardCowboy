@@ -15,7 +15,6 @@ struct WorkflowView: View {
       VStack {
         name.padding(.horizontal)
       }
-      .padding(.top, 32)
       .padding(.bottom, 16)
 
       if keyboardShortcutController.state.isEmpty {
@@ -40,12 +39,6 @@ struct WorkflowView: View {
 
       addCommandButton.padding(8)
     }
-    .background(LinearGradient(
-                  gradient:
-                    Gradient(colors: [Color(.windowBackgroundColor).opacity(0.5),
-                                      Color(.gridColor).opacity(0.5)]),
-                  startPoint: .top,
-                  endPoint: .bottom))
   }
 }
 

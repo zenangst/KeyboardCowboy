@@ -3,16 +3,17 @@ import Combine
 import SwiftUI
 
 class KeyboardShortcutRecorderView: NSSearchField {
-  typealias OnCommit = (KeyboardShortcutViewModel?) -> Void
+  typealias OnCommit = (KeyboardShortcutRecorderView, KeyboardShortcutViewModel?) -> Void
 
   @State private var keyboardShortcut: KeyboardShortcutViewModel?
   private var cancellables = Set<AnyCancellable>()
-  private let viewController = KeyboardShortcutRecorderViewController()
+  private let viewController: KeyboardShortcutRecorderViewController
   private let onCommit: OnCommit
 
   required init(keyboardShortcut: KeyboardShortcutViewModel?,
                 placeholder: String? = nil,
                 onCommit: @escaping OnCommit) {
+    self.viewController = KeyboardShortcutRecorderViewController(keyboardShortcut: keyboardShortcut)
     self.keyboardShortcut = keyboardShortcut
     self.onCommit = onCommit
     super.init(frame: .zero)
@@ -23,9 +24,10 @@ class KeyboardShortcutRecorderView: NSSearchField {
     (self.cell as? NSSearchFieldCell)?.searchButtonCell = nil
     self.update(keyboardShortcut)
 
-    self.viewController.onCommit = { keyboardShortcut in
+    self.viewController.onCommit = { [weak self] keyboardShortcut in
+      guard let self = self else { return }
       self.update(keyboardShortcut)
-      self.onCommit(keyboardShortcut)
+      self.onCommit(self, keyboardShortcut)
     }
   }
 
@@ -46,6 +48,12 @@ class KeyboardShortcutRecorderView: NSSearchField {
   }
 
   override func becomeFirstResponder() -> Bool {
+    let shouldBecomeFirstResponder = super.becomeFirstResponder()
+
+    guard shouldBecomeFirstResponder else {
+      return shouldBecomeFirstResponder
+    }
+
     viewController.didBecomeFirstResponder()
     return true
   }
@@ -58,11 +66,12 @@ struct Recorder: NSViewRepresentable {
   @Binding var keyboardShortcut: KeyboardShortcutViewModel?
 
   func makeNSView(context: Context) -> KeyboardShortcutRecorderView {
-    .init(keyboardShortcut: keyboardShortcut,
-          placeholder: "Record Keyboard Shortcut",
-          onCommit: {
-            keyboardShortcut = $0
-          })
+    KeyboardShortcutRecorderView(keyboardShortcut: keyboardShortcut,
+                                 placeholder: "Record Keyboard Shortcut",
+                                 onCommit: { view, model in
+                                  view.resignFirstResponder()
+                                  keyboardShortcut = model
+                                 })
   }
 
   func updateNSView(_ nsView: KeyboardShortcutRecorderView, context: Context) {}
@@ -78,7 +87,8 @@ struct Recorder_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     Group {
       Recorder(keyboardShortcut: .constant(nil))
-      Recorder(keyboardShortcut: .constant(KeyboardShortcutViewModel(key: "F", modifiers: [.command, .option])))
+      Recorder(keyboardShortcut: .constant(KeyboardShortcutViewModel(index: 0, key: "F",
+                                                                     modifiers: [.command, .option])))
     }
   }
 }

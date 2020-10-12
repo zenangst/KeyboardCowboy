@@ -24,11 +24,6 @@ public struct GroupList: View {
     VStack(alignment: .leading, spacing: 0) {
       HeaderView(title: "Groups")
       list
-        .onAppear {
-          if userSelection.group == nil {
-            userSelection.group = controller.state.first
-          }
-        }
         .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers -> Bool in
           providers.forEach {
             _ = $0.loadObject(ofClass: URL.self) { url, _ in

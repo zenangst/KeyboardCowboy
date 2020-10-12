@@ -66,6 +66,7 @@ class CommandViewModelMapper: CommandViewModelMapping {
       id: command.id,
       name: name,
       kind: .keyboard(KeyboardShortcutViewModel(id: command.id,
+                                                index: 0,
                                                 key: command.keyboardShortcut.key,
                                                 modifiers: modifiers)))
   }

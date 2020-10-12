@@ -36,7 +36,7 @@ class CommandViewModelMapperTests: XCTestCase {
       CommandViewModel(id: identifier, name: "bar", kind: .application(applicationViewModel)),
 
       CommandViewModel(id: identifier, name: "Run Keyboard Shortcut: ⌘⌃ƒ⌥⇧F", kind: .keyboard(
-                        KeyboardShortcutViewModel(id: identifier, key: "F",
+                        KeyboardShortcutViewModel(id: identifier, index: 0, key: "F",
                                                   modifiers: [.command, .control, .function, .option, .shift]))),
 
       CommandViewModel(id: identifier, name: "/path/to/file",

@@ -8,17 +8,28 @@ public struct KeyboardShortcutListView: View {
     case moveCommand(from: Int, to: Int)
   }
 
-  let keyboardShortcutController: KeyboardShortcutController
+  @ObservedObject var keyboardShortcutController: KeyboardShortcutController
 
   public var body: some View {
-    VStack(spacing: 0) {
+    List {
       ForEach(keyboardShortcutController.state) { keyboardShortcut in
         HStack {
-          Text("1.").padding(.horizontal, 4)
-          KeyboardShortcutView(keyboardShortcut: .constant(keyboardShortcut))
+          Text("\(keyboardShortcut.index)").padding(.horizontal, 4)
+          KeyboardShortcutView(keyboardShortcut: Binding<KeyboardShortcutViewModel?>(get: {
+            keyboardShortcut
+          }, set: { keyboardShortcut in
+            if let keyboardShortcut = keyboardShortcut {
+              keyboardShortcutController.perform(.updateKeyboardShortcut(viewModel: keyboardShortcut))
+            }
+          }))
           HStack(spacing: 4) {
-            Button("+", action: {  })
-            Button("-", action: {  })
+            Button("+", action: {
+              keyboardShortcutController.perform(.createKeyboardShortcut(viewModel: KeyboardShortcutViewModel.empty(),
+                                                                         index: keyboardShortcut.index))
+            })
+            Button("-", action: {
+              keyboardShortcutController.perform(.deleteKeyboardShortcut(viewModel: keyboardShortcut))
+            })
           }
         }
         .padding(8)
@@ -36,8 +47,7 @@ public struct KeyboardShortcutListView: View {
           keyboardShortcutController.perform(.deleteKeyboardShortcut(viewModel: keyboardShortcut))
         }
       })
-    }
-    .padding(.horizontal, -18)
+    }.padding(.horizontal, -18)
   }
 }
 

@@ -1,4 +1,5 @@
 import Cocoa
+import SwiftUI
 
 class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSearchFieldDelegate {
   typealias OnCommit = (KeyboardShortcutViewModel?) -> Void
@@ -8,6 +9,11 @@ class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSear
   private static var keyIndex = [Int: String]()
 
   private var eventMonitor: Any?
+  private var keyboardShortcut: KeyboardShortcutViewModel?
+
+  init(keyboardShortcut: KeyboardShortcutViewModel?) {
+    self.keyboardShortcut = keyboardShortcut
+  }
 
   func didBecomeFirstResponder() {
     let eventsOfInterest: NSEvent.EventTypeMask = [.keyDown]
@@ -15,20 +21,32 @@ class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSear
       guard let self = self else { return nil }
       let modifiers = ModifierKey.fromNSEvent(e.modifierFlags)
       let keyCode = Int(e.keyCode)
-      if let character = Self.keyMapper.keyCodeLookup[keyCode] {
-        let newViewModel = KeyboardShortcutViewModel(id: UUID().uuidString,
-                                                     key: character,
-                                                     modifiers: modifiers)
-        self.onCommit?(newViewModel)
+
+      if var character = Self.keyMapper.keyCodeLookup[keyCode] {
+
+        let specialKeys: [NSEvent.SpecialKey] = [.delete, .deleteForward, .backspace]
+        if let specialKey = e.specialKey, specialKeys.contains(specialKey) {
+          character = ""
+        }
+
+        let keyboardShortcut = KeyboardShortcutViewModel(id: self.keyboardShortcut?.id ?? UUID().uuidString,
+                                                         index: self.keyboardShortcut?.index ?? 0,
+                                                         key: character, modifiers: modifiers)
+        self.onCommit?(keyboardShortcut)
+        return nil
       }
 
       return e
     })
   }
 
-  func controlTextDidEndEditing(_ obj: Notification) {
+  func removeMonitorIfNeeded() {
     if let eventMonitor = eventMonitor {
       NSEvent.removeMonitor(eventMonitor)
     }
+  }
+
+  func controlTextDidEndEditing(_ obj: Notification) {
+    removeMonitorIfNeeded()
   }
 }

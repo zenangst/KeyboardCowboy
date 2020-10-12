@@ -46,6 +46,11 @@ private extension WorkflowList {
         for i in indices {
           workflowController.perform(.moveWorkflow(from: i, to: newOffset))
         }
+      }).onDelete(perform: { indexSet in
+        for index in indexSet {
+          let viewModel = group.workflows[index]
+          workflowController.perform(.deleteWorkflow(viewModel))
+        }
       })
     }
   }

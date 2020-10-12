@@ -35,7 +35,7 @@ struct KeyboardCommandView_Previews: PreviewProvider, TestPreviewProvider {
       command: CommandViewModel(
         id: UUID().uuidString,
         name: "Run keyboard shortcut ⌘F",
-        kind: .keyboard(KeyboardShortcutViewModel(key: "F", modifiers: [.command]))),
+        kind: .keyboard(KeyboardShortcutViewModel(index: 1, key: "F", modifiers: [.command]))),
       editAction: { _ in },
       showContextualMenu: true)
   }
