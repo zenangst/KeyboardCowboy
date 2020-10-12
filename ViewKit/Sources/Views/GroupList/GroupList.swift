@@ -6,6 +6,7 @@ public struct GroupList: View {
     case createGroup
     case updateGroup(GroupViewModel)
     case deleteGroup(GroupViewModel)
+    case moveGroup(from: Int, to: Int)
     case dropFile(URL)
   }
 
@@ -77,7 +78,11 @@ private extension GroupList {
           Button("Delete") { controller.action(.deleteGroup(group))() }
         }
         .tag(group)
-      }
+      }.onMove(perform: { indices, newOffset in
+        for i in indices {
+          controller.action(.moveGroup(from: i, to: newOffset))()
+        }
+      })
     }
     .frame(minHeight: 480)
     .sheet(item: $editGroup, content: editGroup)
