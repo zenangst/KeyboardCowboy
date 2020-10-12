@@ -5,6 +5,7 @@ struct WorkflowView: View {
 
   @ObservedObject var applicationProvider: ApplicationProvider
   @ObservedObject var commandController: CommandController
+  @ObservedObject var keyboardShortcutController: KeyboardShortcutController
   @ObservedObject var openPanelController: OpenPanelController
   @State private var newCommandVisible: Bool = false
   @Binding var workflow: WorkflowViewModel
@@ -57,7 +58,7 @@ private extension WorkflowView {
   }
 
   var keyboardShortcuts: some View {
-    KeyboardShortcutListView(keyboardShortcuts: workflow.keyboardShortcuts)
+    KeyboardShortcutListView(keyboardShortcutController: keyboardShortcutController)
       .background(Color(.windowBackgroundColor))
       .cornerRadius(8.0)
       .padding(.horizontal, 16)
@@ -70,11 +71,11 @@ private extension WorkflowView {
     HStack {
       RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
         .onTapGesture {
-          keyboardShortcutController.perform(.createKeyboardShortcut(KeyboardShortcutViewModel.empty(),
+          keyboardShortcutController.perform(.createKeyboardShortcut(viewModel: KeyboardShortcutViewModel.empty(),
                                                                      index: keyboardShortcutController.state.count))
         }
       Button("Add Keyboard Shortcut", action: {
-        keyboardShortcutController.perform(.createKeyboardShortcut(KeyboardShortcutViewModel.empty(),
+        keyboardShortcutController.perform(.createKeyboardShortcut(viewModel: KeyboardShortcutViewModel.empty(),
                                                                    index: keyboardShortcutController.state.count))
       })
       .buttonStyle(PlainButtonStyle())
@@ -130,6 +131,7 @@ struct WorkflowView_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     WorkflowView(applicationProvider: ApplicationPreviewProvider().erase(),
                  commandController: CommandPreviewController().erase(),
+                 keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
                  openPanelController: OpenPanelPreviewController().erase(),
                  workflow: .constant(ModelFactory().workflowDetail()))
       .frame(height: 668)
@@ -144,6 +146,12 @@ private final class CommandPreviewController: ViewController {
   let state = ModelFactory().workflowDetail().commands
   func perform(_ action: CommandListView.Action) {}
 }
+
+private final class KeyboardShortcutPreviewController: ViewController {
+  let state: [KeyboardShortcutViewModel] = ModelFactory().keyboardShortcuts()
+  func perform(_ action: KeyboardShortcutListView.Action) {}
+}
+
 
 private final class OpenPanelPreviewController: ViewController {
   let state = ""
