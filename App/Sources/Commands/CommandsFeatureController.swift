@@ -29,7 +29,8 @@ class CommandsFeatureController: ViewController {
     self._state = Published(initialValue: state)
     self.userSelection = userSelection
 
-    userSelection.$workflow.sink { workflow in
+    userSelection.$workflow.sink { [weak self] workflow in
+      guard let self = self else { return }
       self.state = workflow?.commands ?? []
     }.store(in: &cancellables)
   }

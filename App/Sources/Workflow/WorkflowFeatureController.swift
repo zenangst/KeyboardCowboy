@@ -28,7 +28,8 @@ class WorkflowFeatureController: ViewController, CommandsFeatureControllerDelega
     self.groupsController = groupsController
     self.userSelection = userSelection
 
-    userSelection.$workflow.sink { workflow in
+    userSelection.$workflow.sink { [weak self] workflow in
+      guard let self = self else { return }
       self.state = workflow
     }.store(in: &cancellables)
   }
