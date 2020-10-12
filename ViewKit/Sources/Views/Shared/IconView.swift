@@ -3,16 +3,19 @@ import SwiftUI
 struct IconView: View {
   @ObservedObject var iconLoader = IconController()
 
-  init(identifier: String, path: String) {
-    iconLoader.load(identifier: identifier, at: path)
-  }
+  let identifier: String
+  let path: String
 
   var body: some View {
-    if iconLoader.icon != nil {
-      Image(nsImage: iconLoader.icon!)
-        .resizable()
-    } else {
-      EmptyView()
+    ZStack {
+      if iconLoader.icon != nil {
+        Image(nsImage: iconLoader.icon!)
+          .resizable()
+      } else {
+        EmptyView()
+      }
+    }.onAppear {
+      iconLoader.loadIcon(identifier: identifier, at: path)
     }
   }
 }
