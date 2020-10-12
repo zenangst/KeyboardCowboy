@@ -38,6 +38,8 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
       save(group)
     case .dropFile(let url):
       processUrl(url)
+    case .moveGroup(let from, let to):
+      move(from: from, to: to)
     }
   }
 
@@ -69,6 +71,18 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
     var groups = groupsController.groups
     let group = Group.droppedApplication(application)
     groups.append(group)
+    reload(groups)
+  }
+
+  private func move(from: Int, to: Int) {
+    var groups = groupsController.groups
+    let group = groups.remove(at: from)
+
+    if to > groups.count {
+      groups.append(group)
+    } else {
+      groups.insert(group, at: to)
+    }
     reload(groups)
   }
 
