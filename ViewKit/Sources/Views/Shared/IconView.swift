@@ -23,11 +23,11 @@ struct IconView: View {
         Image(nsImage: iconLoader.icon!)
           .resizable()
       } else {
-        EmptyView()
-      }
-    }.onAppear {
-      if iconLoader.icon == nil {
-        iconLoader.loadIcon(identifier: icon.identifier, at: icon.path)
+        Spacer().onAppear {
+          if iconLoader.icon == nil {
+            iconLoader.loadIcon(identifier: icon.identifier, at: icon.path)
+          }
+        }.frame(width: 24, height: 24)
       }
     }.id(icon)
   }
