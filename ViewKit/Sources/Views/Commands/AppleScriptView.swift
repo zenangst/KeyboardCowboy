@@ -10,9 +10,10 @@ struct AppleScriptView: View {
   var body: some View {
     HStack {
       ZStack {
-        IconView(
-          identifier: "script-editor-file",
-          path: "/System/Applications/Utilities/Script Editor.app/Contents/Resources/script-editor-dummy.scptd")
+        IconView(icon: Icon(
+                  identifier: "script-editor-file",
+                  path: "/System/Applications/Utilities/Script Editor.app/Contents/Resources/script-editor-dummy.scptd")
+        )
         PlayArrowView()
       }.frame(width: 32, height: 32)
 

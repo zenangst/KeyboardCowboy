@@ -10,7 +10,7 @@ struct ShellScriptView: View {
   var body: some View {
     HStack {
       ZStack {
-        IconView(identifier: "shell-script-file", path: "/System/Applications/Utilities/Terminal.app")
+        IconView(icon: Icon(identifier: "shell-script-file", path: "/System/Applications/Utilities/Terminal.app"))
           .frame(width: 32, height: 32)
         PlayArrowView()
       }
