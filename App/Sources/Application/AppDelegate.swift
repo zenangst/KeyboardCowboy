@@ -85,8 +85,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
     let workflowFeatureController = featureFactory.workflowFeature()
     workflowFeatureController.delegate = groupFeatureController
 
-    let commandsController = featureFactory.commandsFeature()
+    let keyboardFeatureController = featureFactory.keyboardShortcutFeature()
+    keyboardFeatureController.delegate = workflowFeatureController
 
+    let commandsController = featureFactory.commandsFeature()
     commandsController.delegate = workflowFeatureController
 
     let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications,
@@ -96,6 +98,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
       applicationProvider: applicationProvider.erase(),
       commandController: commandsController.erase(),
       groupController: groupFeatureController.erase(),
+      keyboardShortcutController: keyboardFeatureController.erase(),
       openPanelController: OpenPanelViewController().erase(),
       workflowController: workflowFeatureController.erase())
       .environmentObject(userSelection)
