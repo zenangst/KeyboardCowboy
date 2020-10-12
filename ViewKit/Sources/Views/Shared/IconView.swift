@@ -40,8 +40,10 @@ struct IconView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     Group {
-      IconView(icon :Icon(identifier: "com.apple.Finder", path: "/System/Library/CoreServices/Finder.app"))
-      IconView(icon :Icon(identifier: "keyboard", path: "/System/Library/PreferencePanes/Keyboard.prefPane"))
+      IconView(icon: Icon(identifier: "com.apple.Finder",
+                          path: "/System/Library/CoreServices/Finder.app"))
+      IconView(icon: Icon(identifier: "keyboard",
+                          path: "/System/Library/PreferencePanes/Keyboard.prefPane"))
     }.frame(width: 48, height: 48)
   }
 }
