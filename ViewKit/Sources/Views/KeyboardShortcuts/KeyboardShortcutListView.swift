@@ -20,20 +20,23 @@ struct KeyboardShortcutListView: View {
             Button("-", action: {  })
           }
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
+        .padding(8)
+        .frame(height: 36)
+        .background(Color(.windowBackgroundColor))
         .cornerRadius(8.0)
         .tag(keyboardShortcut)
-        Divider()
-      }
-
-      HStack(spacing: 2) {
-        Spacer()
-        Button("Add Keyboard Shortcut", action: {})
-          .buttonStyle(LinkButtonStyle())
-      }.padding([.top, .trailing], 10)
+      }.onMove(perform: { indices, newOffset in
+        for i in indices {
+          keyboardShortcutController.perform(.moveCommand(from: i, to: newOffset))
+        }
+      }).onDelete(perform: { indexSet in
+        for index in indexSet {
+          let keyboardShortcut = keyboardShortcutController.state[index]
+          keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut))
+        }
+      })
     }
-    .padding(.bottom, 10)
+    .padding(.horizontal, -18)
   }
 }
 
