@@ -40,6 +40,7 @@ targets:
         INFOPLIST_FILE: "App/Resources/Info.plist"
         MARKETING_VERSION: 0.0.1
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
+        PRODUCT_NAME: "Keyboard Cowboy"
     preBuildScripts:
       - path: XcodeGen/Scripts/swiftlint.sh
         name: SwiftLint
@@ -64,7 +65,7 @@ targets:
     settings:
       BUNDLE_LOADER: $(TEST_HOST)
       PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.UnitTests"
-      TEST_HOST: $(BUILT_PRODUCTS_DIR)/Keyboard-Cowboy.app/Contents/MacOS/Keyboard-Cowboy
+      TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Keyboard Cowboy.app/Contents/MacOS/Keyboard Cowboy"
       EXCLUDED_ARCHS: "arm64"
   LogicFramework:
     type: framework
