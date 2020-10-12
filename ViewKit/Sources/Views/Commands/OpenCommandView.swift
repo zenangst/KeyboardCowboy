@@ -10,9 +10,9 @@ struct OpenCommandView: View {
     HStack {
       ZStack {
         if case .openUrl(let viewModel) = command.kind {
-          IconView(identifier: viewModel.url.path, path: viewModel.application?.path ?? "")
+          IconView(icon: Icon(identifier: viewModel.url.path, path: viewModel.application?.path ?? ""))
         } else if case .openFile(let viewModel) = command.kind {
-          IconView(identifier: viewModel.path, path: viewModel.application?.path ?? "")
+          IconView(icon: Icon(identifier: viewModel.path, path: viewModel.application?.path ?? ""))
         }
       }.frame(width: 32, height: 32)
       VStack(alignment: .leading, spacing: 0) {
