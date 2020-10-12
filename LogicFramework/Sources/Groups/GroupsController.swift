@@ -83,6 +83,11 @@ private extension Collection where Iterator.Element: Hashable {
 public struct GroupContext {
   public let index: Int
   public let model: Group
+
+  public init(index: Int, model: Group) {
+    self.index = index
+    self.model = model
+  }
 }
 
 public struct WorkflowContext {

@@ -157,4 +157,18 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
       self?.userSelection.workflow = viewModels.flatMap({ $0.workflows }).first(where: { $0.id == context.model.id })
     }
   }
+
+  func workflowFeatureController(_ controller: WorkflowFeatureController, didMoveWorkflow context: WorkflowContext) {
+    var groups = self.groupsController.groups
+    var group = context.groupContext.model
+    var workflows = group.workflows
+
+    group.workflows = workflows
+    groups[context.groupContext.index] = group
+
+    reload(groups) { [weak self] viewModels in
+      self?.userSelection.group = viewModels.first(where: { $0.id == context.groupContext.model.id })
+      self?.userSelection.workflow = viewModels.flatMap({ $0.workflows }).first(where: { $0.id == context.model.id })
+    }
+  }
 }
