@@ -16,8 +16,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   var coreController: CoreControlling?
   let factory = ControllerFactory()
   var groupFeatureController: GroupsFeatureController?
-  var viewModelFactory = ViewModelMapperFactory()
   var workflowFeatureController: WorkflowFeatureController?
+  var viewModelFactory = ViewModelMapperFactory()
   var directoryObserver: DirectoryObserver?
 
   var storageController: StorageControlling {
@@ -75,6 +75,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   }
 
   private func createMainWindow(_ coreController: CoreControlling) -> NSWindow? {
+    IconController.installedApplications = viewModelFactory
+      .applicationMapper()
+      .map(coreController.installedApplications)
+
     let userSelection  = UserSelection()
     let featureFactory = FeatureFactory(coreController: coreController,
                                         userSelection: userSelection)
@@ -112,8 +116,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
       guard let self = self,
             let groups = try? self.storageController.load() else { return }
       coreController.groupsController.reloadGroups(groups)
-      let groupMapper = ViewModelMapperFactory(installedApplications: coreController.installedApplications).groupMapper()
-      groupFeatureController.state = groupMapper.map(groups)
+      let groupMapper = ViewModelMapperFactory(installedApplications: coreController.installedApplications)
+        .groupMapper()
+      self.groupFeatureController?.state = groupMapper.map(groups)
     }
 
     return window
@@ -131,6 +136,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   }
 
   // MARK: NSWindowDelegate
+
+  func windowWillClose(_ notification: Notification) {
+    IconController.clearAll()
+  }
 
   func windowDidBecomeKey(_ notification: Notification) {
     coreController?.disableKeyboardShortcuts = true
