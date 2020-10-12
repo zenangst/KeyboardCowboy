@@ -56,7 +56,8 @@ public class IconController: ObservableObject {
 
       Self.cache.setObject(image, forKey: identifier as NSString)
 
-      DispatchQueue.main.async {
+      DispatchQueue.main.async { [weak self] in
+        guard let self = self else { return }
         self.icon = image
       }
     }
