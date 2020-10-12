@@ -41,7 +41,8 @@ public class IconController: ObservableObject {
 
       var applicationPath = path
 
-      if let application = Self.installedApplications.first(where: { $0.bundleIdentifier.lowercased() == identifier.lowercased() }) {
+      if let application = Self.installedApplications
+          .first(where: { $0.bundleIdentifier.lowercased() == identifier.lowercased() }) {
         applicationPath = application.path
       }
 
