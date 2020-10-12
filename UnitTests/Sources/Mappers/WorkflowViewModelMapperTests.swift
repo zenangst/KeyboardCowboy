@@ -45,13 +45,13 @@ class WorkflowViewModelMapperTests: XCTestCase {
       id: identifier,
       name: "Test workflow",
       keyboardShortcuts: [
-        KeyboardShortcutViewModel(id: identifier, key: "A", modifiers: [.control, .option, .command])
+        KeyboardShortcutViewModel(id: identifier, index: 1, key: "A", modifiers: [.control, .option, .command])
       ],
       commands: [
         CommandViewModel(id: identifier, name: "bar", kind: .application(applicationViewModel)),
 
         CommandViewModel(id: identifier, name: "Run Keyboard Shortcut: ⌘⌃ƒ⌥⇧F", kind: .keyboard(
-                          KeyboardShortcutViewModel(id: identifier, key: "F",
+                          KeyboardShortcutViewModel(id: identifier, index: 0, key: "F",
                                                     modifiers: [.command, .control, .function, .option, .shift]))),
 
         CommandViewModel(id: identifier, name: "/path/to/file",

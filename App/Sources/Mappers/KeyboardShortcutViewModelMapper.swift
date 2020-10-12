@@ -3,16 +3,19 @@ import LogicFramework
 import ViewKit
 
 protocol KeyboardShortcutViewModelMapping {
-  func map(_ keyboardShortcut: [KeyboardShortcut]) -> [KeyboardShortcutViewModel]
+  func map(_ keyboardShortcuts: [KeyboardShortcut]) -> [KeyboardShortcutViewModel]
 }
 
 class KeyboardShortcutViewModelMapper: KeyboardShortcutViewModelMapping {
-  func map(_ keyboardShortcut: [KeyboardShortcut]) -> [KeyboardShortcutViewModel] {
-    keyboardShortcut.compactMap {
-      .init(
-        id: $0.id,
-        key: $0.key,
-        modifiers: $0.modifiers?.swapNamespace ?? [])
+  func map(_ keyboardShortcuts: [KeyboardShortcut]) -> [KeyboardShortcutViewModel] {
+    var models = [KeyboardShortcutViewModel]()
+    for (index, keyboardShortcut) in keyboardShortcuts.enumerated() {
+      models.append(KeyboardShortcutViewModel(
+                      id: keyboardShortcut.id,
+                      index: index + 1,
+                      key: keyboardShortcut.key,
+                      modifiers: keyboardShortcut.modifiers?.swapNamespace ?? []))
     }
+    return models
   }
 }

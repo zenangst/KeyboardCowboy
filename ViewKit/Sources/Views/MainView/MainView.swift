@@ -33,13 +33,30 @@ public struct MainView: View {
 
   public var body: some View {
     NavigationView {
-      sidebar
-      if searchText.isEmpty {
-        browseContext
-      } else {
-        searchContext
+      sidebar.frame(minWidth: 200)
+      GeometryReader { geometry in
+        if searchText.isEmpty {
+          HSplitView {
+            workflowList
+              .frame(minWidth: 225, maxWidth: 275)
+              .frame(height: geometry.size.height)
+              .padding(.top, 1)
+            workflowDetail
+              .frame(minWidth: 400, maxWidth: .infinity)
+              .frame(height: geometry.size.height)
+              .edgesIgnoringSafeArea(.top)
+              .background(LinearGradient(
+                            gradient:
+                              Gradient(colors: [Color(.clear),
+                                                Color(.gridColor).opacity(0.5)]),
+                            startPoint: .top,
+                            endPoint: .bottom))
+          }
+        } else {
+          searchContext
+        }
       }
-    }
+    }.frame(minWidth: 845)
   }
 }
 
@@ -52,35 +69,50 @@ private extension MainView {
         .frame(height: 48)
         .padding(.horizontal, 12)
       GroupList(controller: groupController)
-    }.frame(minWidth: 200)
+    }
   }
 
-  var browseContext: some View {
-    HSplitView {
-      if let group = userSelection.group {
+  @ViewBuilder
+  var workflowList: some View {
+      if let group = userSelection.group,
+         !group.workflows.isEmpty {
         WorkflowList(group: Binding(
                       get: { group },
                       set: { userSelection.group = $0 }),
                      workflowController: workflowController)
-          .frame(minWidth: 250, idealWidth: 250, maxWidth: 300)
-          .padding(.top, 1)
+      } else {
+        VStack {
+          HStack {
+            RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
+            Button("Add Workflow", action: {
+              workflowController.perform(.createWorkflow)
+            }).buttonStyle(PlainButtonStyle())
+          }
+          Divider().frame(width: 25)
+          Text("Start by adding a workflow")
+            .font(.caption)
+        }
       }
+  }
 
-      if let workflow = userSelection.workflow {
-        WorkflowView(
-          applicationProvider: applicationProvider,
-          commandController: commandController,
-          keyboardShortcutController: keyboardShortcutController,
-          openPanelController: openPanelController,
-          workflow:
-            Binding(
-              get: { workflow },
-              set: { workflow in
-                workflowController.action(.updateWorkflow(workflow))()
-              }))
-          .background(Color(.textBackgroundColor))
-          .frame(minWidth: 400)
-          .edgesIgnoringSafeArea(.top)
+  @ViewBuilder
+  var workflowDetail: some View {
+    if let workflow = userSelection.workflow {
+      WorkflowView(
+        applicationProvider: applicationProvider,
+        commandController: commandController,
+        keyboardShortcutController: keyboardShortcutController,
+        openPanelController: openPanelController,
+        workflow:
+          Binding(
+            get: { workflow },
+            set: { workflow in
+              workflowController.action(.updateWorkflow(workflow))()
+            }))
+        .edgesIgnoringSafeArea(.top)
+    } else {
+      VStack {
+        Text("Select a workflow").padding()
       }
     }
   }
@@ -96,14 +128,16 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    MainView(applicationProvider: ApplicationPreviewProvider().erase(),
-             commandController: CommandPreviewController().erase(),
-             groupController: GroupPreviewController().erase(),
-             keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
-             openPanelController: OpenPanelPreviewController().erase(),
-             workflowController: WorkflowPreviewController().erase())
-      .environmentObject(UserSelection())
-      .frame(width: 960, height: 600, alignment: .leading)
+    Group {
+      MainView(applicationProvider: ApplicationPreviewProvider().erase(),
+               commandController: CommandPreviewController().erase(),
+               groupController: GroupPreviewController().erase(),
+               keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
+               openPanelController: OpenPanelPreviewController().erase(),
+               workflowController: WorkflowPreviewController().erase())
+        .environmentObject(UserSelection())
+        .frame(width: 960, height: 600, alignment: .leading)
+    }
   }
 }
 
@@ -133,6 +167,6 @@ private final class OpenPanelPreviewController: ViewController {
 
 private final class KeyboardShortcutPreviewController: ViewController {
   let state: [KeyboardShortcutViewModel] = ModelFactory().keyboardShortcuts()
+
   func perform(_ action: KeyboardShortcutListView.Action) {}
 }
-
