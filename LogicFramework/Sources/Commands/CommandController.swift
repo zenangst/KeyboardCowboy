@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import ModelKit
 
 public typealias CommandPublisher = AnyPublisher<Void, Error>
 

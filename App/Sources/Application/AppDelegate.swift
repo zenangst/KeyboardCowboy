@@ -4,6 +4,7 @@ import LaunchArguments
 import LogicFramework
 import SwiftUI
 import ViewKit
+import ModelKit
 
 let sourceRoot = ProcessInfo.processInfo.environment["SOURCE_ROOT"]!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
@@ -130,7 +131,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   // MARK: GroupsFeatureControllerDelegate
 
   func groupsFeatureController(_ controller: GroupsFeatureController,
-                               didReloadGroups groups: [LogicFramework.Group]) {
+                               didReloadGroups groups: [ModelKit.Group]) {
     do {
       try storageController.save(groups)
     } catch let error {

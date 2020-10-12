@@ -2,6 +2,7 @@ import Foundation
 import LogicFramework
 import ViewKit
 import Combine
+import ModelKit
 
 protocol WorkflowFeatureControllerDelegate: AnyObject {
   func workflowFeatureController(_ controller: WorkflowFeatureController,

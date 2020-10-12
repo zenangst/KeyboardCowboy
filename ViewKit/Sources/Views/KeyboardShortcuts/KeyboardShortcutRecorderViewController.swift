@@ -1,5 +1,6 @@
 import Cocoa
 import SwiftUI
+import ModelKit
 
 class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSearchFieldDelegate {
   typealias OnCommit = (KeyboardShortcutViewModel?) -> Void

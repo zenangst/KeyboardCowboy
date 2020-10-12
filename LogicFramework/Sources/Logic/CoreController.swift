@@ -1,4 +1,5 @@
 import Cocoa
+import ModelKit
 
 public protocol CoreControlling: AnyObject {
   var groupsController: GroupsControlling { get }

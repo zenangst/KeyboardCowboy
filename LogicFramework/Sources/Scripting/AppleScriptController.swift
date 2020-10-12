@@ -1,5 +1,6 @@
 import Cocoa
 import Combine
+import ModelKit
 
 public protocol AppleScriptControlling {
   /// Run a AppleScript based on which `Source` is supplied.

@@ -1,4 +1,5 @@
 import Foundation
+import ModelKit
 
 public protocol GroupsControlling {
   var delegate: GroupsControllingDelegate? { get set }

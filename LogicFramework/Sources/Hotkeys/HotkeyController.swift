@@ -1,4 +1,5 @@
 import Cocoa
+import ModelKit
 
 public protocol HotkeySupplying: AnyObject {
   var hotkeys: Set<Hotkey> { get }

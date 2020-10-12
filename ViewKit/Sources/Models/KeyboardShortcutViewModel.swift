@@ -1,4 +1,5 @@
 import Foundation
+import ModelKit
 
 /// A `KeyboardShortcut` directly translates into a keyboard shortcut.
 /// 

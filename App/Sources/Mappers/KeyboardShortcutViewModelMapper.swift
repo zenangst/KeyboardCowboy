@@ -1,6 +1,7 @@
 import Foundation
 import LogicFramework
 import ViewKit
+import ModelKit
 
 protocol KeyboardShortcutViewModelMapping {
   func map(_ keyboardShortcuts: [KeyboardShortcut]) -> [KeyboardShortcutViewModel]
@@ -14,7 +15,7 @@ class KeyboardShortcutViewModelMapper: KeyboardShortcutViewModelMapping {
                       id: keyboardShortcut.id,
                       index: index + 1,
                       key: keyboardShortcut.key,
-                      modifiers: keyboardShortcut.modifiers?.swapNamespace ?? []))
+                      modifiers: keyboardShortcut.modifiers ?? []))
     }
     return models
   }

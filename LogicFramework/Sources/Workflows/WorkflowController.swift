@@ -1,4 +1,5 @@
 import Foundation
+import ModelKit
 
 public protocol WorkflowControlling {
   /// Filter workflows based on a collection of combinations.

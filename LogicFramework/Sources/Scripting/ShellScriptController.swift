@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import ModelKit
 
 public protocol ShellScriptControlling {
   /// Run a Shellscript based on which `Source` is supplied.

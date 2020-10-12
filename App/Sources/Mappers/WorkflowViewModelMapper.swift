@@ -1,6 +1,7 @@
 import Foundation
 import LogicFramework
 import ViewKit
+import ModelKit
 
 protocol WorkflowViewModelMapping {
   func map(_ models: [Workflow]) -> [WorkflowViewModel]

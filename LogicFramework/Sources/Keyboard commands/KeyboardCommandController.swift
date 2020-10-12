@@ -1,6 +1,7 @@
 import Combine
 import Cocoa
 import Foundation
+import ModelKit
 
 public protocol KeyboardCommandControlling {
   /// - Parameter command: A `KeyboardCommand` that should be invoked.
