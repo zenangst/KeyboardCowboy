@@ -1,6 +1,7 @@
 import Foundation
 import LogicFramework
 import ViewKit
+import ModelKit
 
 protocol GroupsFeatureControllerDelegate: AnyObject {
   func groupsFeatureController(_ controller: GroupsFeatureController, didReloadGroups groups: [Group])

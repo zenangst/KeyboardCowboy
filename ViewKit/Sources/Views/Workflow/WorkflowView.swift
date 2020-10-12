@@ -145,7 +145,6 @@ private final class KeyboardShortcutPreviewController: ViewController {
   func perform(_ action: KeyboardShortcutListView.Action) {}
 }
 
-
 private final class OpenPanelPreviewController: ViewController {
   let state = ""
   func perform(_ action: OpenPanelAction) {}

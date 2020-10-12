@@ -7,7 +7,7 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
   case option = "~"
   case command = "@"
 
-  static func fromNSEvent(_ eventModifierFlags: NSEvent.ModifierFlags) -> [ModifierKey] {
+  public static func fromNSEvent(_ eventModifierFlags: NSEvent.ModifierFlags) -> [ModifierKey] {
     ModifierKey.allCases
       .compactMap { eventModifierFlags.contains($0.modifierFlags) ? $0 : nil }
   }
@@ -27,7 +27,7 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
     }
   }
 
-  var modifierFlags: NSEvent.ModifierFlags {
+  public var modifierFlags: NSEvent.ModifierFlags {
     switch self {
     case .shift:
       return .shift

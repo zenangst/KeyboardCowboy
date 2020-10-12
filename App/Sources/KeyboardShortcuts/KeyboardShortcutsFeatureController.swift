@@ -3,6 +3,7 @@ import LogicFramework
 import ViewKit
 import Combine
 import Cocoa
+import ModelKit
 
 protocol KeyboardShortcutsFeatureControllerDelegate: AnyObject {
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
@@ -63,7 +64,7 @@ class KeyboardShortcutsFeatureController: ViewController {
     var workflow = context.model
     let keyboardShortcut = KeyboardShortcut(
       id: viewModel.id, key: viewModel.key,
-      modifiers: viewModel.modifiers.swapNamespace)
+      modifiers: viewModel.modifiers)
 
     if index < workflow.keyboardShortcuts.count {
       workflow.keyboardShortcuts.insert(keyboardShortcut, at: index)
@@ -82,7 +83,7 @@ class KeyboardShortcutsFeatureController: ViewController {
     var workflow = context.model
     let keyboardShortcut = KeyboardShortcut(
       id: viewModel.id, key: viewModel.key,
-      modifiers: viewModel.modifiers.swapNamespace)
+      modifiers: viewModel.modifiers)
 
     workflow.keyboardShortcuts[index] = keyboardShortcut
     delegate?.keyboardShortcutFeatureController(self, didUpdateKeyboardShortcut: keyboardShortcut, in: workflow)

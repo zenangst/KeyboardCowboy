@@ -1,4 +1,5 @@
 import Foundation
+import ModelKit
 
 public protocol StorageControlling {
   var path: String { get }

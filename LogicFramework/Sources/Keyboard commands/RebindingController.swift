@@ -1,5 +1,6 @@
 import Carbon
 import Cocoa
+import ModelKit
 
 /// A rebinding controller is responsible for intercepting keyboard shortcuts and posting
 /// alternate events when rebounded keys are invoked.

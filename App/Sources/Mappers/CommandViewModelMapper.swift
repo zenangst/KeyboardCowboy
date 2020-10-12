@@ -1,6 +1,7 @@
 import Foundation
 import LogicFramework
 import ViewKit
+import ModelKit
 
 protocol CommandViewModelMapping {
   func map(_ models: [Command]) -> [CommandViewModel]
@@ -58,7 +59,7 @@ class CommandViewModelMapper: CommandViewModelMapping {
   }
 
   private func mapKeyboardCommand(_ command: KeyboardCommand) -> CommandViewModel {
-    let modifiers = command.keyboardShortcut.modifiers?.swapNamespace ?? []
+    let modifiers = command.keyboardShortcut.modifiers ?? []
     var name = "Run Keyboard Shortcut: "
       name += modifiers.compactMap({ $0.pretty }).joined()
     name += command.keyboardShortcut.key

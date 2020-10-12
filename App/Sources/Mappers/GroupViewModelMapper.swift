@@ -1,6 +1,7 @@
 import Foundation
 import LogicFramework
 import ViewKit
+import ModelKit
 
 protocol GroupViewModelMapping {
   func map(_ models: [Group]) -> [GroupViewModel]

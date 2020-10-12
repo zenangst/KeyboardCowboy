@@ -1,5 +1,6 @@
 import Foundation
 import LogicFramework
+import ModelKit
 
 class ViewModelMapperFactory {
   var installedApplications: [Application]

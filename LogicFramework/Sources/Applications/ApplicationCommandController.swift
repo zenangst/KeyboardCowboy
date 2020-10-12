@@ -1,5 +1,6 @@
 import Cocoa
 import Combine
+import ModelKit
 
 public protocol ApplicationCommandControlling {
   /// Run `ApplicationCommand` which should either launch or

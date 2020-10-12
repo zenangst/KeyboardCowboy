@@ -1,4 +1,5 @@
 import Cocoa
+import ModelKit
 
 public class ControllerFactory {
   public init() {}

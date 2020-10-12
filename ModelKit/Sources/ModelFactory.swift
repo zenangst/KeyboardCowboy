@@ -1,6 +1,6 @@
 import Foundation
 
-class ModelFactory {
+public class ModelFactory {
   static func application() -> Application {
     Application(bundleIdentifier: "com.apple.Finder",
                 bundleName: "Finder",

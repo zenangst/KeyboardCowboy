@@ -1,6 +1,7 @@
 import Foundation
 import LogicFramework
 import ViewKit
+import ModelKit
 
 class FeatureFactory {
   private let logic = ControllerFactory()

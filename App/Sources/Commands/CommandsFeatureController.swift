@@ -3,6 +3,7 @@ import LogicFramework
 import ViewKit
 import Combine
 import Cocoa
+import ModelKit
 
 protocol CommandsFeatureControllerDelegate: AnyObject {
   func commandsFeatureController(_ controller: CommandsFeatureController,
@@ -114,7 +115,7 @@ class CommandsFeatureController: ViewController {
                               id: viewModel.id,
                               application: application))
     case .keyboard(let viewModel):
-      let modifiers = viewModel.modifiers.swapNamespace
+      let modifiers = viewModel.modifiers
       let keyboardShortcut = KeyboardShortcut(
         id: viewModel.id,
         key: viewModel.key,

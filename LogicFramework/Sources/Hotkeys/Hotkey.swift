@@ -1,4 +1,5 @@
 import Carbon
+import ModelKit
 
 public class Hotkey: Hashable {
   let keyboardShortcut: KeyboardShortcut

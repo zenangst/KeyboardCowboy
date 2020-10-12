@@ -1,5 +1,6 @@
 import Combine
 import Cocoa
+import ModelKit
 
 public protocol OpenCommandControlling {
   /// Execute an open command either with or without an optional associated application.
