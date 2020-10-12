@@ -14,19 +14,31 @@ struct WorkflowView: View {
     VStack(alignment: .leading, spacing: 0) {
       VStack {
         name.padding(.horizontal)
-      }.padding(.top, 64)
+      }
+      .padding(.top, 32)
+      .padding(.bottom, 16)
 
-      VStack(alignment: .leading) {
-        HeaderView(title: "Keyboard shortcuts:")
-        keyboardShortcuts
-      }.padding(.vertical, 12)
+      if keyboardShortcutController.state.isEmpty {
+        addKeyboardShortcut.padding(.vertical, 8)
+      } else {
+        VStack(alignment: .leading) {
+          HeaderView(title: "Keyboard shortcuts:")
+          keyboardShortcuts.frame(
+            height: max(min(45 * CGFloat(keyboardShortcutController.state.count), 176), 45)
+          )
+        }
+        .padding(.top, 12)
+      }
+
+      Divider()
+        .padding(16)
 
       VStack(alignment: .leading) {
         HeaderView(title: "Commands:")
         commands
       }
 
-      addButton.padding(8)
+      addCommandButton.padding(8)
     }
     .background(LinearGradient(
                   gradient:
@@ -55,6 +67,21 @@ private extension WorkflowView {
       .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 3)
   }
 
+  var addKeyboardShortcut: some View {
+    HStack {
+      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
+        .onTapGesture {
+          keyboardShortcutController.perform(.createKeyboardShortcut(KeyboardShortcutViewModel.empty(),
+                                                                     index: keyboardShortcutController.state.count))
+        }
+      Button("Add Keyboard Shortcut", action: {
+        keyboardShortcutController.perform(.createKeyboardShortcut(KeyboardShortcutViewModel.empty(),
+                                                                   index: keyboardShortcutController.state.count))
+      })
+      .buttonStyle(PlainButtonStyle())
+    }.padding(8)
+  }
+
   var commands: some View {
     CommandListView(applicationProvider: applicationProvider,
                     commandController: commandController,
@@ -66,13 +93,13 @@ private extension WorkflowView {
       .shadow(color: Color(.controlDarkShadowColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
   }
 
-  var addButton: some View {
+  var addCommandButton: some View {
     HStack(spacing: 4) {
       RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
         .onTapGesture {
           newCommandVisible = true
         }
-      Button("Add command", action: {
+      Button("Add Command", action: {
         newCommandVisible = true
       })
       .buttonStyle(PlainButtonStyle())
