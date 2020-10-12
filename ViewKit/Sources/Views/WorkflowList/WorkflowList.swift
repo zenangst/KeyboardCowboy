@@ -5,6 +5,7 @@ public struct WorkflowList: View {
     case createWorkflow
     case updateWorkflow(WorkflowViewModel)
     case deleteWorkflow(WorkflowViewModel)
+    case moveWorkflow(from: Int, to: Int)
   }
 
   static let idealWidth: CGFloat = 300
@@ -41,7 +42,11 @@ private extension WorkflowList {
           }
           .frame(height: 48)
           .tag(workflow)
-      }
+      }.onMove(perform: { indices, newOffset in
+        for i in indices {
+          workflowController.perform(.moveWorkflow(from: i, to: newOffset))
+        }
+      })
     }
   }
 
