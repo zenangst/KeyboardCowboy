@@ -13,7 +13,7 @@ public class MainWindow: NSWindow {
     super.init(contentRect: contentRect,
                styleMask: styleMask,
                backing: .buffered,
-               defer: false)
+               defer: true)
     self.toolbar = toolbar
 
     if #available(OSX 11.0, *) {
