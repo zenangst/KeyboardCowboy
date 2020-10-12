@@ -9,14 +9,11 @@ let sourceRoot = ProcessInfo.processInfo.environment["SOURCE_ROOT"]!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeatureControllerDelegate {
-  weak var window: NSWindow? {
-    willSet { window?.close() }
-  }
+  weak var window: NSWindow?
   var shouldOpenMainWindow = launchArguments.isEnabled(.openWindowAtLaunch)
   var coreController: CoreControlling?
   let factory = ControllerFactory()
   var groupFeatureController: GroupsFeatureController?
-  var workflowFeatureController: WorkflowFeatureController?
   var viewModelFactory = ViewModelMapperFactory()
   var directoryObserver: DirectoryObserver?
 
@@ -106,7 +103,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
       workflowController: workflowFeatureController.erase())
       .environmentObject(userSelection)
 
-    let window = MainWindow(toolbar: Toolbar())
+    let window = MainWindow(toolbar: Toolbar(), onClose: { [weak self] in
+      self?.groupFeatureController = nil
+      self?.window = nil
+    })
     window.delegate = self
     let contentView = NSHostingView(rootView: mainView)
 
