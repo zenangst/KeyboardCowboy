@@ -23,7 +23,7 @@ public struct GroupList: View {
 
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      HeaderView(title: "Groups")
+      HeaderView(title: "Groups").padding(.bottom, 8)
       list
         .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers -> Bool in
           providers.forEach {
@@ -68,6 +68,9 @@ private extension GroupList {
             controller.perform(.updateGroup(group))
           }
         )
+        .onTapGesture(count: 2, perform: {
+          editGroup = group
+        })
         .contextMenu {
           Button("Show Info") { editGroup = group }
           Divider()

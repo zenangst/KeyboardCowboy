@@ -15,7 +15,7 @@ struct OpenCommandView: View {
         }
       }.frame(width: 32, height: 32)
       VStack(alignment: .leading, spacing: 0) {
-        Text(command.name)
+        Text(command.name).lineLimit(1)
         if showContextualMenu {
           HStack(spacing: 4) {
             Button("Edit", action: { editAction(command) })

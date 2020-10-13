@@ -69,8 +69,9 @@ private extension MainView {
       SearchField(query: $searchText)
         .frame(height: 48)
         .padding(.horizontal, 12)
+        .padding(.top, 36)
       GroupList(controller: groupController)
-    }
+    }.edgesIgnoringSafeArea(.top)
   }
 
   @ViewBuilder

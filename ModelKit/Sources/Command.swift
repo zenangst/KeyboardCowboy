@@ -19,15 +19,17 @@ public enum Command: Identifiable, Codable, Hashable {
   public var name: String {
     switch self {
     case .application(let command):
-      return command.name.isEmpty ? "Open Application" : command.name
+      return command.name.isEmpty ? "Open \(command.application.bundleName)" : command.name
     case .keyboard(let command):
-      return command.name.isEmpty ? "Run a Keyboard Shortcut" : command.name
+      var keyboardShortcut = command.keyboardShortcut.modifiers?.compactMap({ $0.pretty }).joined() ?? ""
+      keyboardShortcut += command.keyboardShortcut.key
+      return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcut)" : command.name
     case .open(let command):
       if !command.name.isEmpty { return command.name }
       if command.isUrl {
-        return "Open a URL"
+        return "Open a URL: \(command.path)"
       } else {
-        return "Open a file"
+        return "Open a file: \(command.path)"
       }
     case .script(let command):
       switch command {
