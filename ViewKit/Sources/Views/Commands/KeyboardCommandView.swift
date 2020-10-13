@@ -1,8 +1,9 @@
 import SwiftUI
+import ModelKit
 
 struct KeyboardCommandView: View {
-  let command: CommandViewModel
-  let editAction: (CommandViewModel) -> Void
+  let command: Command
+  let editAction: (Command) -> Void
   let showContextualMenu: Bool
 
   var body: some View {
@@ -32,10 +33,7 @@ struct KeyboardCommandView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     KeyboardCommandView(
-      command: CommandViewModel(
-        id: UUID().uuidString,
-        name: "Run keyboard shortcut ⌘F",
-        kind: .keyboard(KeyboardShortcutViewModel(index: 1, key: "F", modifiers: [.command]))),
+      command: .keyboard(KeyboardCommand(keyboardShortcut: KeyboardShortcut(id: UUID().uuidString, key: "F", modifiers: [.command]))),
       editAction: { _ in },
       showContextualMenu: true)
   }

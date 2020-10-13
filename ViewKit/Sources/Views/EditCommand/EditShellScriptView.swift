@@ -1,12 +1,13 @@
 import SwiftUI
+import ModelKit
 
 struct EditShellScriptView: View {
   @ObservedObject var openPanelController: OpenPanelController
-  @Binding var commandViewModel: CommandViewModel
+  @Binding var command: ScriptCommand
 
-  init(commandViewModel: Binding<CommandViewModel>,
+  init(command: Binding<ScriptCommand>,
        openPanelController: OpenPanelController) {
-    self._commandViewModel = commandViewModel
+    self._command = command
     self.openPanelController = openPanelController
   }
 
@@ -21,19 +22,20 @@ struct EditShellScriptView: View {
         HStack {
           Text("Path:")
           TextField("file://", text: Binding(get: {
-            if case .shellScript(let viewModel) = commandViewModel.kind {
-              return viewModel.path
+            if case .shell(let source, _) = command,
+               case .path(let value) = source {
+              return value
             }
             return ""
           }, set: {
-            commandViewModel.kind = .shellScript(ShellScriptViewModel(path: $0))
+            command = .shell(.path($0), command.id)
           }))
         }
         HStack {
           Spacer()
           Button("Browse", action: {
             openPanelController.perform(.selectFile(type: "sh", handler: {
-              commandViewModel.kind = .shellScript(ShellScriptViewModel(path: $0))
+              command = .shell(.path($0), command.id)
             }))
           })
         }
@@ -49,9 +51,7 @@ struct EditShellScriptView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     EditShellScriptView(
-      commandViewModel: .constant(
-        CommandViewModel(name: "", kind: .shellScript(ShellScriptViewModel.empty()))
-      ),
+      command: .constant(ScriptCommand.empty(.shell)),
       openPanelController: OpenPanelPreviewController().erase())
   }
 }

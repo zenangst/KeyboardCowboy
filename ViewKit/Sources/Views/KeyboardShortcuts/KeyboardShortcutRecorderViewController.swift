@@ -3,16 +3,16 @@ import SwiftUI
 import ModelKit
 
 class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSearchFieldDelegate {
-  typealias OnCommit = (KeyboardShortcutViewModel?) -> Void
+  typealias OnCommit = (ModelKit.KeyboardShortcut?) -> Void
   var onCommit: OnCommit?
 
   private static var keyMapper = KeyCodeMapper()
   private static var keyIndex = [Int: String]()
 
   private var eventMonitor: Any?
-  private var keyboardShortcut: KeyboardShortcutViewModel?
+  private var keyboardShortcut: ModelKit.KeyboardShortcut?
 
-  init(keyboardShortcut: KeyboardShortcutViewModel?) {
+  init(keyboardShortcut: ModelKit.KeyboardShortcut?) {
     self.keyboardShortcut = keyboardShortcut
   }
 
@@ -30,9 +30,8 @@ class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSear
           character = ""
         }
 
-        let keyboardShortcut = KeyboardShortcutViewModel(id: self.keyboardShortcut?.id ?? UUID().uuidString,
-                                                         index: self.keyboardShortcut?.index ?? 0,
-                                                         key: character, modifiers: modifiers)
+        let keyboardShortcut = KeyboardShortcut(id: self.keyboardShortcut?.id ?? UUID().uuidString,
+                                                key: character, modifiers: modifiers)
         self.onCommit?(keyboardShortcut)
         return nil
       }

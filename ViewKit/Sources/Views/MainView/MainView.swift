@@ -1,11 +1,12 @@
 import SwiftUI
+import ModelKit
 
-public typealias GroupController = AnyViewController<[GroupViewModel], GroupList.Action>
-public typealias WorkflowController = AnyViewController<WorkflowViewModel?, WorkflowList.Action>
-public typealias CommandController = AnyViewController<[CommandViewModel], CommandListView.Action>
+public typealias GroupController = AnyViewController<[ModelKit.Group], GroupList.Action>
+public typealias WorkflowController = AnyViewController<Workflow?, WorkflowList.Action>
+public typealias CommandController = AnyViewController<[Command], CommandListView.Action>
 public typealias OpenPanelController = AnyViewController<String, OpenPanelAction>
-public typealias KeyboardShortcutController = AnyViewController<[KeyboardShortcutViewModel], KeyboardShortcutListView.Action>
-public typealias ApplicationProvider = AnyStateController<[ApplicationViewModel]>
+public typealias KeyboardShortcutController = AnyViewController<[ModelKit.KeyboardShortcut], KeyboardShortcutListView.Action>
+public typealias ApplicationProvider = AnyStateController<[Application]>
 
 public struct MainView: View {
   @ObservedObject var applicationProvider: ApplicationProvider
@@ -142,7 +143,7 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
 }
 
 private final class ApplicationPreviewProvider: StateController {
-  let state = [ApplicationViewModel]()
+  let state = [Application]()
 }
 
 private final class CommandPreviewController: ViewController {
@@ -166,7 +167,7 @@ private final class OpenPanelPreviewController: ViewController {
 }
 
 private final class KeyboardShortcutPreviewController: ViewController {
-  let state: [KeyboardShortcutViewModel] = ModelFactory().keyboardShortcuts()
+  let state: [ModelKit.KeyboardShortcut] = ModelFactory().keyboardShortcuts()
 
   func perform(_ action: KeyboardShortcutListView.Action) {}
 }

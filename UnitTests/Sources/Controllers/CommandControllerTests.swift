@@ -1,5 +1,6 @@
-import XCTest
 @testable import LogicFramework
+@testable import ModelKit
+import XCTest
 
 class CommandControllerTests: XCTestCase {
   let modelFactory = ModelFactory()

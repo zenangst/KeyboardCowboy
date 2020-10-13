@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import LogicFramework
+import ModelKit
 
 class ApplicationCommandControllerMock: ApplicationCommandControlling {
   let result: Result<Void, Error>

@@ -20,13 +20,13 @@ class WorkflowFeatureController: ViewController,
                                  CommandsFeatureControllerDelegate,
                                  KeyboardShortcutsFeatureControllerDelegate {
   weak var delegate: WorkflowFeatureControllerDelegate?
-  @Published var state: WorkflowViewModel?
+  @Published var state: Workflow?
   let groupsController: GroupsControlling
   let userSelection: UserSelection
 
   private var cancellables = [AnyCancellable]()
 
-  public init(state: WorkflowViewModel,
+  public init(state: Workflow,
               groupsController: GroupsControlling,
               userSelection: UserSelection) {
     self._state = Published(initialValue: state)
@@ -45,13 +45,13 @@ class WorkflowFeatureController: ViewController,
     switch action {
     case .createWorkflow:
       createWorkflow()
-    case .updateWorkflow(let viewModel):
-      updateWorkflow(viewModel)
-    case .deleteWorkflow(let viewModel):
-      deleteWorkflow(viewModel)
+    case .updateWorkflow(let workflow):
+      updateWorkflow(workflow)
+    case .deleteWorkflow(let workflow):
+      deleteWorkflow(workflow)
     case .moveWorkflow(let from, let to):
       guard let workflow = state else { return }
-      moveWorkflow(from: from, to: to, viewModel: workflow)
+      moveWorkflow(from: from, to: to, workflow: workflow)
     }
   }
 
@@ -66,11 +66,8 @@ class WorkflowFeatureController: ViewController,
                                         in: context)
   }
 
-  func updateWorkflow(_ viewModel: WorkflowViewModel) {
-    guard let context = groupsController.workflowContext(workflowId: viewModel.id) else { return }
-
-    var workflow = context.model
-    workflow.name = viewModel.name
+  func updateWorkflow(_ workflow: Workflow) {
+    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
 
     let newContext = WorkflowContext(index: context.index,
                                      groupContext: context.groupContext,
@@ -79,19 +76,19 @@ class WorkflowFeatureController: ViewController,
     delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
   }
 
-  func deleteWorkflow(_ viewModel: WorkflowViewModel) {
-    guard let context = groupsController.workflowContext(workflowId: viewModel.id) else { return }
+  func deleteWorkflow(_ workflow: Workflow) {
+    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
     delegate?.workflowFeatureController(self, didDeleteWorkflow: context)
   }
 
-  private func updateWorkflow(_ workflow: Workflow) {
-    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
-    let newContext = WorkflowContext(index: context.index, groupContext: context.groupContext, model: workflow)
-    delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
-  }
+//  private func updateWorkflow(_ workflow: Workflow) {
+//    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
+//    let newContext = WorkflowContext(index: context.index, groupContext: context.groupContext, model: workflow)
+//    delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
+//  }
 
-  private func moveWorkflow(from: Int, to: Int, viewModel: WorkflowViewModel) {
-    guard let context = groupsController.workflowContext(workflowId: viewModel.id) else { return }
+  private func moveWorkflow(from: Int, to: Int, workflow: Workflow) {
+    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
 
     var group = context.groupContext.model
     let workflow = group.workflows.remove(at: from)

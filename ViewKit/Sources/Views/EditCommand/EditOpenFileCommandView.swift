@@ -1,12 +1,13 @@
 import SwiftUI
+import ModelKit
 
 struct EditOpenFileCommandView: View {
   @ObservedObject var openPanelController: OpenPanelController
-  @Binding var commandViewModel: CommandViewModel
+  @Binding var command: OpenCommand
 
-  init(commandViewModel: Binding<CommandViewModel>,
+  init(command: Binding<OpenCommand>,
        openPanelController: OpenPanelController) {
-    self._commandViewModel = commandViewModel
+    self._command = command
     self.openPanelController = openPanelController
   }
 
@@ -21,19 +22,16 @@ struct EditOpenFileCommandView: View {
         HStack {
           Text("Path:")
           TextField("file://", text: Binding(get: {
-            if case .openFile(let viewModel) = commandViewModel.kind {
-              return viewModel.path
-            }
-            return ""
+            command.path
           }, set: {
-            commandViewModel.kind = .openFile(OpenFileViewModel(path: $0))
+            command = OpenCommand(id: command.id, path: $0)
           }))
         }
         HStack {
           Spacer()
           Button("Browse", action: {
             openPanelController.perform(.selectFile(type: nil, handler: {
-              commandViewModel.kind = .openFile(OpenFileViewModel(path: $0))
+              command = OpenCommand(id: command.id, path: $0)
             }))
           })
         }
@@ -49,9 +47,7 @@ struct EditOpenFileCommandView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     EditOpenFileCommandView(
-      commandViewModel: .constant(
-        CommandViewModel(name: "", kind: .openFile(OpenFileViewModel.empty()))
-      ),
+      command: .constant(OpenCommand(path: "")),
       openPanelController: OpenPanelPreviewController().erase())
   }
 }

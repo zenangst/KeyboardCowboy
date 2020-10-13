@@ -1,16 +1,17 @@
 import Cocoa
 import Combine
 import SwiftUI
+import ModelKit
 
 class KeyboardShortcutRecorderView: NSSearchField {
-  typealias OnCommit = (KeyboardShortcutRecorderView, KeyboardShortcutViewModel?) -> Void
+  typealias OnCommit = (KeyboardShortcutRecorderView, ModelKit.KeyboardShortcut?) -> Void
 
-  @State private var keyboardShortcut: KeyboardShortcutViewModel?
+  @State private var keyboardShortcut: ModelKit.KeyboardShortcut?
   private var cancellables = Set<AnyCancellable>()
   private let viewController: KeyboardShortcutRecorderViewController
   private let onCommit: OnCommit
 
-  required init(keyboardShortcut: KeyboardShortcutViewModel?,
+  required init(keyboardShortcut: ModelKit.KeyboardShortcut?,
                 placeholder: String? = nil,
                 onCommit: @escaping OnCommit) {
     self.viewController = KeyboardShortcutRecorderViewController(keyboardShortcut: keyboardShortcut)
@@ -35,13 +36,13 @@ class KeyboardShortcutRecorderView: NSSearchField {
     fatalError("init(coder:) has not been implemented")
   }
 
-  func update(_ keyboardShortcut: KeyboardShortcutViewModel?) {
+  func update(_ keyboardShortcut: ModelKit.KeyboardShortcut?) {
     guard let keyboardShortcut = keyboardShortcut else {
       stringValue = ""
       return
     }
 
-    var newValue = keyboardShortcut.modifiers.compactMap({ $0.pretty }).joined()
+    var newValue = keyboardShortcut.modifiers?.compactMap({ $0.pretty }).joined() ?? ""
     newValue += keyboardShortcut.key
 
     stringValue = newValue
@@ -60,10 +61,10 @@ class KeyboardShortcutRecorderView: NSSearchField {
 }
 
 struct Recorder: NSViewRepresentable {
-  typealias OnCommit = (KeyboardShortcutViewModel?) -> Void
+  typealias OnCommit = (ModelKit.KeyboardShortcut?) -> Void
   typealias NSViewType = KeyboardShortcutRecorderView
 
-  @Binding var keyboardShortcut: KeyboardShortcutViewModel?
+  @Binding var keyboardShortcut: ModelKit.KeyboardShortcut?
 
   func makeNSView(context: Context) -> KeyboardShortcutRecorderView {
     KeyboardShortcutRecorderView(keyboardShortcut: keyboardShortcut,
@@ -85,9 +86,9 @@ struct Recorder_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    Group {
+    SwiftUI.Group {
       Recorder(keyboardShortcut: .constant(nil))
-      Recorder(keyboardShortcut: .constant(KeyboardShortcutViewModel(index: 0, key: "F",
+      Recorder(keyboardShortcut: .constant(ModelKit.KeyboardShortcut(key: "F",
                                                                      modifiers: [.command, .option])))
     }
   }

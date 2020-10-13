@@ -3,17 +3,25 @@ import Foundation
 /// Script command is used to run either Apple- or Shellscripts.
 /// Scripts can both point to a file on the file-system or have
 /// its underlying script bundled inside the command.
-public enum ScriptCommand: Codable, Hashable {
+public enum ScriptCommand: Identifiable, Codable, Hashable {
   case appleScript(Source, String)
   case shell(Source, String)
 
-  enum CodingKeys: CodingKey {
+  public enum CodingKeys: CodingKey {
     case appleScript
     case shell
   }
 
   enum IdentifierCodingKeys: CodingKey {
     case id
+  }
+
+  public var id: String {
+    switch self {
+    case .appleScript(_, let id),
+         .shell(_, let id):
+      return id
+    }
   }
 
   public init(from decoder: Decoder) throws {
@@ -79,6 +87,17 @@ public enum ScriptCommand: Codable, Hashable {
       case .path(let value):
         try container.encode(value, forKey: .path)
       }
+    }
+  }
+}
+
+public extension ScriptCommand {
+  static func empty(_ kind: ScriptCommand.CodingKeys) -> ScriptCommand {
+    switch kind {
+    case .appleScript:
+      return ScriptCommand.appleScript(.path(""), UUID().uuidString)
+    case .shell:
+      return ScriptCommand.shell(.path(""), UUID().uuidString)
     }
   }
 }

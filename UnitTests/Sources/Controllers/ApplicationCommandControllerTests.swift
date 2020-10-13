@@ -1,4 +1,5 @@
 @testable import LogicFramework
+@testable import ModelKit
 import XCTest
 
 class ApplicationCommandControllerTests: XCTestCase {

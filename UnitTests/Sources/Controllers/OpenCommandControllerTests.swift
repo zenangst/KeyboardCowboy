@@ -1,5 +1,6 @@
 @testable import LogicFramework
 import XCTest
+@testable import ModelKit
 
 class OpenCommandControllerTests: XCTestCase {
   func testOpenCommandControllerOpeningFileWithDefaultApplication() {

@@ -1,5 +1,6 @@
 import LogicFramework
 import XCTest
+import ModelKit
 
 class StorageControllerTests: XCTestCase {
   var tmpPath: String!

@@ -1,6 +1,7 @@
 @testable import LogicFramework
 import Combine
 import Cocoa
+import ModelKit
 
 class KeyboardShortcutControllerMock: KeyboardCommandControlling {
   let result: Result<Void, Error>

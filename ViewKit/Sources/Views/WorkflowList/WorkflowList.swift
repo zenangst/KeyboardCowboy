@@ -1,19 +1,20 @@
 import SwiftUI
+import ModelKit
 
 public struct WorkflowList: View {
   public enum Action {
     case createWorkflow
-    case updateWorkflow(WorkflowViewModel)
-    case deleteWorkflow(WorkflowViewModel)
+    case updateWorkflow(Workflow)
+    case deleteWorkflow(Workflow)
     case moveWorkflow(from: Int, to: Int)
   }
 
   static let idealWidth: CGFloat = 300
   @EnvironmentObject var userSelection: UserSelection
-  @Binding var group: GroupViewModel
+  @Binding var group: ModelKit.Group
   let workflowController: WorkflowController
 
-  init(group: Binding<GroupViewModel>, workflowController: WorkflowController) {
+  init(group: Binding<ModelKit.Group>, workflowController: WorkflowController) {
     self._group = group
     self.workflowController = workflowController
   }
@@ -48,8 +49,8 @@ private extension WorkflowList {
         }
       }).onDelete(perform: { indexSet in
         for index in indexSet {
-          let viewModel = group.workflows[index]
-          workflowController.perform(.deleteWorkflow(viewModel))
+          let workflow = group.workflows[index]
+          workflowController.perform(.deleteWorkflow(workflow))
         }
       })
     }

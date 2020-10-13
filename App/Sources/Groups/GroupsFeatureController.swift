@@ -10,19 +10,16 @@ protocol GroupsFeatureControllerDelegate: AnyObject {
 class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate {
   weak var delegate: GroupsFeatureControllerDelegate?
 
-  @Published var state = [GroupViewModel]()
+  @Published var state = [Group]()
   var applications = [Application]()
   let groupsController: GroupsControlling
-  let mapper: GroupViewModelMapping
   let userSelection: UserSelection
 
   init(groupsController: GroupsControlling,
-       userSelection: UserSelection,
-       mapper: GroupViewModelMapping) {
+       userSelection: UserSelection) {
     self.groupsController = groupsController
-    self.mapper = mapper
     self.userSelection = userSelection
-    self.state = mapper.map(groupsController.groups)
+    self.state = groupsController.groups
     self.userSelection.group = self.state.first
     self.userSelection.workflow = self.state.first?.workflows.first
   }
@@ -46,14 +43,13 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
 
   // MARK: Private methods
 
-  private func reload(_ groups: [Group], completion: (([GroupViewModel]) -> Void)? = nil) {
+  private func reload(_ groups: [Group], completion: (([ModelKit.Group]) -> Void)? = nil) {
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
       self.groupsController.reloadGroups(groups)
-      let viewModels = self.mapper.map(groups)
       self.delegate?.groupsFeatureController(self, didReloadGroups: groups)
-      completion?(viewModels)
-      self.state = viewModels
+      completion?(groups)
+      self.state = groups
     }
   }
 
@@ -87,22 +83,19 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
     reload(groups)
   }
 
-  private func save(_ viewModel: GroupViewModel) {
-    guard let ctx = groupsController.groupContext(withIdentifier: viewModel.id) else {
+  private func save(_ group: ModelKit.Group) {
+    guard let ctx = groupsController.groupContext(withIdentifier: group.id) else {
       return
     }
 
     var groups = groupsController.groups
-    var group = ctx.model
-    group.name = viewModel.name
-    group.color = viewModel.color
     groups[ctx.index] = group
     reload(groups)
-    userSelection.group = viewModel
+    userSelection.group = group
   }
 
-  private func delete(_ viewModel: GroupViewModel) {
-    guard let ctx = groupsController.groupContext(withIdentifier: viewModel.id) else {
+  private func delete(_ group: ModelKit.Group) {
+    guard let ctx = groupsController.groupContext(withIdentifier: group.id) else {
       return
     }
 
@@ -123,9 +116,9 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
     group.workflows = workflows
     groups[context.index] = group
 
-    reload(groups) { [weak self] viewModels in
-      self?.userSelection.group = viewModels.first(where: { $0.id == context.model.id })
-      self?.userSelection.workflow = viewModels.flatMap({ $0.workflows }).first(where: { $0.id == workflow.id })
+    reload(groups) { [weak self] groups in
+      self?.userSelection.group = groups.first
+      self?.userSelection.workflow = groups.flatMap({ $0.workflows }).first(where: { $0.id == workflow.id })
     }
   }
 
@@ -138,9 +131,9 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
     group.workflows = workflows
     groups[context.groupContext.index] = group
 
-    reload(groups) { [weak self] viewModels in
-      self?.userSelection.group = viewModels.first(where: { $0.id == context.groupContext.model.id })
-      self?.userSelection.workflow = viewModels.flatMap({ $0.workflows }).first(where: { $0.id == context.model.id })
+    reload(groups) { [weak self] groups in
+      self?.userSelection.group = groups.first(where: { $0.id == context.groupContext.model.id })
+      self?.userSelection.workflow = groups.flatMap({ $0.workflows }).first(where: { $0.id == context.model.id })
     }
   }
 
@@ -153,23 +146,23 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
     group.workflows = workflows
     groups[context.groupContext.index] = group
 
-    reload(groups) { [weak self] viewModels in
-      self?.userSelection.group = viewModels.first(where: { $0.id == context.groupContext.model.id })
-      self?.userSelection.workflow = viewModels.flatMap({ $0.workflows }).first(where: { $0.id == context.model.id })
+    reload(groups) { [weak self] groups in
+      self?.userSelection.group = groups.first(where: { $0.id == context.groupContext.model.id })
+      self?.userSelection.workflow = groups.flatMap({ $0.workflows }).first(where: { $0.id == context.model.id })
     }
   }
 
   func workflowFeatureController(_ controller: WorkflowFeatureController, didMoveWorkflow context: WorkflowContext) {
     var groups = self.groupsController.groups
     var group = context.groupContext.model
-    var workflows = group.workflows
+    let workflows = group.workflows
 
     group.workflows = workflows
     groups[context.groupContext.index] = group
 
-    reload(groups) { [weak self] viewModels in
-      self?.userSelection.group = viewModels.first(where: { $0.id == context.groupContext.model.id })
-      self?.userSelection.workflow = viewModels.flatMap({ $0.workflows }).first(where: { $0.id == context.model.id })
+    reload(groups) { [weak self] groups in
+      self?.userSelection.group = groups.first(where: { $0.id == context.groupContext.model.id })
+      self?.userSelection.workflow = groups.flatMap({ $0.workflows }).first(where: { $0.id == context.model.id })
     }
   }
 }

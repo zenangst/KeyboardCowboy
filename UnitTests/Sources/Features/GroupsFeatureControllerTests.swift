@@ -1,5 +1,6 @@
 @testable import Keyboard_Cowboy
 @testable import LogicFramework
+@testable import ModelKit
 import Foundation
 import ViewKit
 import XCTest
@@ -57,12 +58,10 @@ class GroupsFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController,
                                  userSelection: UserSelection())
     let groupsFeature = factory.groupFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let viewModel = groupMapper.map(group)
 
     XCTAssertEqual(groupsController.groups.count, 1)
 
-    groupsFeature.perform(.deleteGroup(viewModel))
+    groupsFeature.perform(.deleteGroup(group))
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -95,13 +94,11 @@ class GroupsFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController,
                                  userSelection: UserSelection())
     let groupsFeature = factory.groupFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let viewModel = groupMapper.map(newGroup)
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertTrue(groupsController.groups.contains(oldGroup))
 
-    groupsFeature.perform(.updateGroup(viewModel))
+    groupsFeature.perform(.updateGroup(newGroup))
 
     wait(for: [expectation], timeout: 1.0)
   }

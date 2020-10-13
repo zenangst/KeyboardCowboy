@@ -1,5 +1,6 @@
 import Foundation
 import LogicFramework
+import ModelKit
 
 class CommandControllerDelegateMock: CommandControllingDelegate {
   enum Output {
