@@ -81,12 +81,6 @@ class WorkflowFeatureController: ViewController,
     delegate?.workflowFeatureController(self, didDeleteWorkflow: context)
   }
 
-//  private func updateWorkflow(_ workflow: Workflow) {
-//    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
-//    let newContext = WorkflowContext(index: context.index, groupContext: context.groupContext, model: workflow)
-//    delegate?.workflowFeatureController(self, didUpdateWorkflow: newContext)
-//  }
-
   private func moveWorkflow(from: Int, to: Int, workflow: Workflow) {
     guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
 
