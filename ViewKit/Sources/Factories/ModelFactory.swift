@@ -1,4 +1,5 @@
 import Foundation
+import ModelKit
 
 class ModelFactory {
 
@@ -6,58 +7,35 @@ class ModelFactory {
 
   /// Used by `GroupList.swift`
   // swiftlint:disable function_body_length line_length
-  func groupList() -> [GroupViewModel] {
+  func groupList() -> [ModelKit.Group] {
     [
-      GroupViewModel(
+      ModelKit.Group(
         id: UUID().uuidString,
         name: "Bundles", color: "#000", workflows: [
-          WorkflowViewModel(
+          Workflow(
             id: UUID().uuidString, name: "Developer time",
             keyboardShortcuts: keyboardShortcuts(),
             commands: [
-              CommandViewModel(
-                name: "Open Calendar",
-                kind: .application(ApplicationViewModel.calendar())),
-              CommandViewModel(
-                name: "Open Music",
-                kind: .application(ApplicationViewModel.music())),
-              CommandViewModel(
-                name: "Open Xcode",
-                kind: .application(ApplicationViewModel.xcode())),
-              CommandViewModel(
-                name: "Tile windows",
-                kind: .appleScript(AppleScriptViewModel.empty())),
-              CommandViewModel(
-                name: "Generate GitHub issues overview",
-                kind: .shellScript(ShellScriptViewModel.empty())),
-              CommandViewModel(
-                name: "Open client project",
-                kind: .openFile(OpenFileViewModel(path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"))),
-              CommandViewModel(
-                name: "Open Github project",
-                kind: .openUrl(OpenURLViewModel(url: URL(string: "https://www.github.com")!)))
+              Command.application(.init(application: (Application.calendar()))),
+              Command.application(.init(application: (Application.music()))),
+              Command.application(.init(application: (Application.xcode()))),
+              Command.script(.appleScript(.path("foo"), UUID().uuidString)),
+              Command.script(.shell(.path("foo"), UUID().uuidString)),
+              Command.open(.init(path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj")),
+              Command.open(.init(path: "https://www.github.com"))
             ]),
 
-          WorkflowViewModel(
+          Workflow(
             name: "Design time", keyboardShortcuts: [], commands: [
-              CommandViewModel(
-                name: "Open Photoshop",
-
-                kind: .application(ApplicationViewModel.photoshop())),
-              CommandViewModel(
-                name: "Open Sketch",
-
-                kind: .application(ApplicationViewModel.sketch()))
+              Command.application(.init(application: Application.photoshop())),
+              Command.application(.init(application: Application.sketch()))
             ]),
-          WorkflowViewModel(
+          Workflow(
             name: "Filing hours", keyboardShortcuts: [], commands: [
-              CommandViewModel(
-                name: "Open Calendar",
-
-                kind: .application(ApplicationViewModel.calendar()))
+              Command.application(.init(application: Application.calendar()))
             ])
         ]),
-      GroupViewModel(
+      ModelKit.Group(
         name: "Applications",
         color: "#EB5545",
         workflows: openWorkflows(
@@ -69,7 +47,7 @@ class ModelFactory {
           ("Xcode", "/Applications/Xcode.app")
         )
       ),
-      GroupViewModel(
+      ModelKit.Group(
         name: "Developer tools",
         color: "#F2A23C",
         workflows: openWorkflows(
@@ -79,12 +57,12 @@ class ModelFactory {
           ("Terminal", "/Applications/Utilities/Terminal.app")
         )
       ),
-      GroupViewModel(
+      ModelKit.Group(
         name: "Folders",
         color: "#F9D64A",
         workflows: openWorkflows(("Home folder", "~"), ("Developer folder", "~/Developer"))
       ),
-      GroupViewModel(
+      ModelKit.Group(
         name: "Files",
         color: "#6BD35F",
         workflows: openWorkflows(
@@ -92,12 +70,12 @@ class ModelFactory {
           ("Design project.sketch", "~/Applications"),
           ("Keyboard-Cowboy.xcodeproj", "~/Pictures"))
       ),
-      GroupViewModel(
+      ModelKit.Group(
         name: "Keyboard shortcuts",
         color: "#3984F7",
         workflows: rebindWorkflows("⌥a to ←", "⌥w to ↑", "⌥d to →", "⌥s to ↓")
       ),
-      GroupViewModel(
+      ModelKit.Group(
         name: "Safari",
         color: "#B263EA",
         workflows: runWorkflows("Share website", "Save as PDF")
@@ -106,8 +84,8 @@ class ModelFactory {
   }
 
   /// Used by `GroupListCell.swift`
-  func groupListCell() -> GroupViewModel {
-    GroupViewModel(
+  func groupListCell() -> ModelKit.Group {
+    ModelKit.Group(
       name: "Developer tools",
       color: "#000",
       workflows: openWorkflows(
@@ -119,7 +97,7 @@ class ModelFactory {
   }
 
   /// Used by `WorflowList.swift`
-  func workflowList() -> [WorkflowViewModel] {
+  func workflowList() -> [Workflow] {
     openWorkflows(
       ("Calendar", "/System/Applications/Calendar.app"),
       ("Contacts", "/System/Applications/Contacts.app"),
@@ -131,115 +109,92 @@ class ModelFactory {
   }
 
   /// Used by `WorkflowListCell.swift`
-  func workflowCell() -> WorkflowViewModel {
+  func workflowCell() -> Workflow {
     workflow()
   }
 
   /// Used by `WorkflowView.swift`
-  func workflowDetail() -> WorkflowViewModel {
+  func workflowDetail() -> Workflow {
     workflow()
   }
 
-  func commands() -> [CommandViewModel] {
-    [
-      CommandViewModel(
-        name: "Open Application",
-        kind: .application(ApplicationViewModel.messages())),
+  func commands() -> [Command] {
+    let result = [
+      Command.application(.init(application: Application.messages())),
+      Command.script(ScriptCommand.empty(.appleScript)),
+      Command.script(ScriptCommand.empty(.shell)),
+      Command.keyboard(.init(keyboardShortcut: KeyboardShortcut.empty())),
+      Command.open(.init(application: Application(
+                          bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
+                          bundleName: "",
+                          path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
+                         path: "~/Developer/Xcode.project")),
 
-      CommandViewModel(
-        name: "Run AppleScript",
-        kind: .appleScript(AppleScriptViewModel.empty())
-      ),
-
-      CommandViewModel(
-        name: "Run Shellscript",
-        kind: .shellScript(ShellScriptViewModel.empty())
-      ),
-
-      CommandViewModel(
-        name: "Run a keyboard shortcut",
-        kind: .keyboard(KeyboardShortcutViewModel.empty())
-      ),
-
-      CommandViewModel(
-        name: "Open a file",
-        kind: .openFile(OpenFileViewModel(
-                          path: "~/Developer/Xcode.project",
-                          application: ApplicationViewModel(
-                            bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
-                            name: "",
-                            path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"))
-        )),
-
-      CommandViewModel(
-        name: "Open a URL",
-        kind: .openUrl(OpenURLViewModel(
-                        url: URL(string: "https://github.com")!,
-                        application: ApplicationViewModel(bundleIdentifier: "com.apple.Safari",
-                                                          name: "Safari",
-                                                          path: "/Applications/Safari.app"))
-        ))
+      Command.open(.init(application: Application.safari(),
+                         path: "https://github.com"))
     ]
+
+    return result
   }
 
   // MARK: Private methods
 
-  private func openWorkflows(_ applicationNames: (String, String) ...) -> [WorkflowViewModel] {
+  private func openWorkflows(_ applicationNames: (String, String) ...) -> [Workflow] {
     applicationNames.compactMap({
-      WorkflowViewModel(
+      Workflow(
         name: "Open \($0)",
         keyboardShortcuts: [
-          KeyboardShortcutViewModel(id: UUID().uuidString, index: 1, key: "fn"),
-          KeyboardShortcutViewModel(id: UUID().uuidString, index: 2, key: "A")
+          KeyboardShortcut(id: UUID().uuidString, key: "fn"),
+          KeyboardShortcut(id: UUID().uuidString, key: "A")
         ],
         commands: [
-          CommandViewModel(
-            name: "Open \($0.0)",
-            kind: .application(ApplicationViewModel(bundleIdentifier: $0.1, name: $0.1, path: $0.1)))]
+          Command.application(.init(application: Application(bundleIdentifier: $0.1, bundleName: $0.1, path: $0.1)))
+        ]
       )
     })
   }
 
-  private func runWorkflows(_ scriptNames: String ...) -> [WorkflowViewModel] {
+  private func runWorkflows(_ scriptNames: String ...) -> [Workflow] {
     scriptNames.compactMap({
-      WorkflowViewModel(
+      Workflow(
         name: "Run \($0) script",
         keyboardShortcuts: [],
         commands: [
-          CommandViewModel(name: "Run \($0)", kind: .appleScript(AppleScriptViewModel.empty()))])
-
+          Command.script(.appleScript(.path(""), "Run \($0)"))
+        ])
     })
   }
 
-  private func rebindWorkflows(_ scriptNames: String ...) -> [WorkflowViewModel] {
+  private func rebindWorkflows(_ scriptNames: String ...) -> [Workflow] {
     scriptNames.compactMap({
-      WorkflowViewModel(
+      Workflow(
         name: "Rebind \($0)",
         keyboardShortcuts: [],
         commands: [
-          CommandViewModel(name: "Rebind \($0)", kind: .keyboard(KeyboardShortcutViewModel.empty()))])
+          Command.keyboard(.init(keyboardShortcut: KeyboardShortcut.empty()))
+        ])
     })
   }
 
-  private func openCommands(_ commands: (String, String) ...) -> [CommandViewModel] {
+  private func openCommands(_ commands: (String, String) ...) -> [Command] {
     commands.compactMap({
-                          CommandViewModel(name: "Open \($0.0)",
-                                           kind: .application(ApplicationViewModel(bundleIdentifier: $0.1, name: $0.1, path: $0.1))) })
+      Command.application(.init(application: Application(bundleIdentifier: $0.1, bundleName: $0.1, path: $0.1)))
+    })
   }
 
-  func keyboardShortcuts() -> [KeyboardShortcutViewModel] {
-    [.init(id: UUID().uuidString, index: 1, key: "", modifiers: [.function]),
-     .init(id: UUID().uuidString, index: 2, key: "A", modifiers: [.option, .command])]
+    func keyboardShortcuts() -> [ModelKit.KeyboardShortcut] {
+    [.init(id: UUID().uuidString, key: "", modifiers: [.function]),
+     .init(id: UUID().uuidString, key: "A", modifiers: [.option, .command])]
   }
 
-  func installedApplications() -> [ApplicationViewModel] {
+  func installedApplications() -> [Application] {
     [
-      ApplicationViewModel.finder()
+      Application.finder()
     ]
   }
 
-  private func workflow() -> WorkflowViewModel {
-    WorkflowViewModel(
+  private func workflow() -> Workflow {
+    Workflow(
       id: UUID().uuidString,
       name: "Developer workflow",
       keyboardShortcuts: keyboardShortcuts(),

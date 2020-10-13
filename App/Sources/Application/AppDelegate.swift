@@ -15,7 +15,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   var coreController: CoreControlling?
   let factory = ControllerFactory()
   var groupFeatureController: GroupsFeatureController?
-  var viewModelFactory = ViewModelMapperFactory()
   var directoryObserver: DirectoryObserver?
 
   var storageController: StorageControlling {
@@ -73,9 +72,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   }
 
   private func createMainWindow(_ coreController: CoreControlling) -> NSWindow? {
-    IconController.installedApplications = viewModelFactory
-      .applicationMapper()
-      .map(coreController.installedApplications)
+    IconController.installedApplications = coreController.installedApplications
 
     let userSelection  = UserSelection()
     let featureFactory = FeatureFactory(coreController: coreController,
@@ -92,8 +89,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
     let commandsController = featureFactory.commandsFeature()
     commandsController.delegate = workflowFeatureController
 
-    let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications,
-                                                   mapper: viewModelFactory.applicationMapper())
+    let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications)
 
     let mainView = MainView(
       applicationProvider: applicationProvider.erase(),
@@ -120,9 +116,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
       guard let self = self,
             let groups = try? self.storageController.load() else { return }
       coreController.groupsController.reloadGroups(groups)
-      let groupMapper = ViewModelMapperFactory(installedApplications: coreController.installedApplications)
-        .groupMapper()
-      self.groupFeatureController?.state = groupMapper.map(groups)
+      self.groupFeatureController?.state = groups
     }
 
     return window

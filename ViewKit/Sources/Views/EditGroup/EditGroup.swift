@@ -1,4 +1,5 @@
 import SwiftUI
+import ModelKit
 
 struct EditGroup: View {
   @State private var showColorPopover = false

@@ -1,5 +1,7 @@
 @testable import LogicFramework
+@testable import ModelKit
 import XCTest
+import ModelKit
 
 class WorkflowControllerTests: XCTestCase {
   func testWorkflowController() {

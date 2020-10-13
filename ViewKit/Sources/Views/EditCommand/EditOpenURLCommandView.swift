@@ -1,8 +1,9 @@
 import SwiftUI
+import ModelKit
 
 struct EditOpenURLCommandView: View {
   @State var url: String = ""
-  @Binding var commandViewModel: CommandViewModel
+  @Binding var command: OpenCommand
 
   var body: some View {
     VStack(spacing: 0) {
@@ -15,14 +16,9 @@ struct EditOpenURLCommandView: View {
         HStack {
           Text("URL:")
           TextField("http://", text: Binding(get: {
-            if case .openUrl(let viewModel) = commandViewModel.kind {
-              return viewModel.url.absoluteString
-            }
-            return ""
+            command.path
           }, set: {
-            if let url = URL(string: $0) {
-              commandViewModel.kind = .openUrl(OpenURLViewModel(url: url))
-            }
+            command = .init(id: command.id, path: $0)
           }))
         }
       }.padding()
@@ -37,9 +33,7 @@ struct EditOpenURLCommandView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     EditOpenURLCommandView(
-      commandViewModel: .constant(
-        CommandViewModel(name: "", kind: .shellScript(ShellScriptViewModel.empty()))
-      )
+      command: .constant(OpenCommand.empty())
     )
   }
 }

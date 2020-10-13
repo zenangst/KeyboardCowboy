@@ -3,10 +3,11 @@
 @testable import ViewKit
 import Foundation
 import XCTest
+import ModelKit
 
 class ModifierKeyTests: XCTestCase {
   func testModifierShiftKey() {
-    let key = LogicFramework.ModifierKey.shift
+    let key = ModifierKey.shift
 
     XCTAssertEqual(key.rawValue, "$")
     XCTAssertEqual(key.pretty, "⇧")
@@ -14,7 +15,7 @@ class ModifierKeyTests: XCTestCase {
   }
 
   func testModifierControlKey() {
-    let key = LogicFramework.ModifierKey.control
+    let key = ModifierKey.control
 
     XCTAssertEqual(key.rawValue, "^")
     XCTAssertEqual(key.pretty, "⌃")
@@ -22,7 +23,7 @@ class ModifierKeyTests: XCTestCase {
   }
 
   func testModifierOptionKey() {
-    let key = LogicFramework.ModifierKey.option
+    let key = ModifierKey.option
 
     XCTAssertEqual(key.rawValue, "~")
     XCTAssertEqual(key.pretty, "⌥")
@@ -30,7 +31,7 @@ class ModifierKeyTests: XCTestCase {
   }
 
   func testModifierCommandKey() {
-    let key = LogicFramework.ModifierKey.command
+    let key = ModifierKey.command
 
     XCTAssertEqual(key.rawValue, "@")
     XCTAssertEqual(key.pretty, "⌘")
@@ -38,7 +39,7 @@ class ModifierKeyTests: XCTestCase {
   }
 
   func testModifierFunctionKey() {
-    let key = LogicFramework.ModifierKey.function
+    let key = ModifierKey.function
 
     XCTAssertEqual(key.rawValue, "fn")
     XCTAssertEqual(key.pretty, "ƒ")
@@ -49,24 +50,12 @@ class ModifierKeyTests: XCTestCase {
     let subject: NSEvent.ModifierFlags = [
       .shift, .function, .control, .option, .command
     ]
-    let expected: [LogicFramework.ModifierKey] = [
+    let expected: [ModifierKey] = [
       .shift, .function, .control, .option, .command
     ]
 
-    let result = LogicFramework.ModifierKey.fromNSEvent(subject)
+    let result = ModifierKey.fromNSEvent(subject)
 
     XCTAssertEqual(expected, result)
-  }
-
-  func testSwappingNamespace() {
-    let logicModifiers: [LogicFramework.ModifierKey] = [
-      .shift, .function, .control, .option, .command
-    ]
-    let viewKitModifiers: [ViewKit.ModifierKey] = [
-      .shift, .function, .control, .option, .command
-    ]
-
-    XCTAssertEqual(logicModifiers, viewKitModifiers.swapNamespace)
-    XCTAssertEqual(viewKitModifiers, logicModifiers.swapNamespace)
   }
 }

@@ -1,9 +1,11 @@
 @testable import LogicFramework
+@testable import ModelKit
 import Foundation
 import SnapshotTesting
 import XCTest
 
 class GroupControllerTests: XCTestCase {
+  // swiftlint:disable function_body_length
   func testGroupControllerFilterByRules() {
     let xcodeRuleSet = Rule(bundleIdentifiers: ["com.apple.dt.Xcode"])
     let calendarRuleSet = Rule(bundleIdentifiers: ["com.apple.Calendar"])
@@ -12,24 +14,40 @@ class GroupControllerTests: XCTestCase {
     let groups = [
       Group(name: "Group: Only when Xcode is active",
             rule: xcodeRuleSet,
-            workflows: [Workflow(id: UUID().uuidString, commands: [],
-                                 keyboardShortcuts: [],
-                                 name: "Xcode workflow")]),
+            workflows: [
+              Workflow(
+                id: UUID().uuidString,
+                name: "Xcode workflow",
+                keyboardShortcuts: [],
+                commands: []
+              )]),
       Group(name: "Group: Only when Calendar is active",
             rule: calendarRuleSet,
-            workflows: [Workflow(id: UUID().uuidString, commands: [],
-                                 keyboardShortcuts: [],
-                                 name: "Calendar workflow")]),
+            workflows: [
+              Workflow(
+                id: UUID().uuidString,
+                name: "Calendar workflow",
+                keyboardShortcuts: [],
+                commands: []
+                )]),
       Group(name: "Group: Global Xcode workflow",
             rule: nil,
-            workflows: [Workflow(id: UUID().uuidString, commands: [],
-                                 keyboardShortcuts: [],
-                                 name: "Open Xcode")]),
+            workflows: [
+              Workflow(
+                id: UUID().uuidString,
+                name: "Open Xcode",
+                keyboardShortcuts: [],
+                commands: []
+              )]),
       Group(name: "Group: Day-based rule",
             rule: weekDayRuleSet,
-            workflows: [Workflow(id: UUID().uuidString, commands: [],
-                                 keyboardShortcuts: [],
-                                 name: "Open Time tracker")])
+            workflows: [
+              Workflow(
+                id: UUID().uuidString,
+                name: "Open Time tracker",
+                keyboardShortcuts: [],
+                commands: []
+              )])
     ]
 
     let controller = GroupsController(groups: groups)

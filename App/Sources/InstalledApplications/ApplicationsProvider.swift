@@ -4,11 +4,9 @@ import Combine
 import ModelKit
 
 class ApplicationsProvider: StateController {
-  @Published var state: [ApplicationViewModel] = []
-  let mapper: ApplicationViewModelMapping
+  @Published var state: [Application] = []
 
-  init(applications: [Application], mapper: ApplicationViewModelMapping) {
-    self.mapper = mapper
-    self.state = mapper.map(applications)
+  init(applications: [Application]) {
+    self.state = applications
   }
 }

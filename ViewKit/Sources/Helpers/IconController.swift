@@ -1,5 +1,6 @@
 import Foundation
 import Cocoa
+import ModelKit
 
 enum IconControllerError: Error {
   case tiffRepresentationFailed
@@ -10,7 +11,7 @@ enum IconControllerError: Error {
 
 public class IconController: ObservableObject {
   @Published var icon: NSImage?
-  public static var installedApplications = [ApplicationViewModel]()
+  public static var installedApplications = [Application]()
   private(set) public static var cache = NSCache<NSString, NSImage>()
   private let queue: DispatchQueue = .init(label: "com.zenangst.Keyboard-Cowboy.IconController",
                                            qos: .userInteractive)

@@ -1,8 +1,8 @@
 import SwiftUI
+import ModelKit
 
 struct EditKeyboardShortcutView: View {
-  @Binding var commandViewModel: CommandViewModel
-  @ObservedObject var openPanelController: OpenPanelController
+  @Binding var command: KeyboardCommand
 
   var body: some View {
     VStack(spacing: 0) {
@@ -12,18 +12,16 @@ struct EditKeyboardShortcutView: View {
       }.padding()
       Divider()
       VStack {
-        KeyboardShortcutView(keyboardShortcut: Binding(
-                              get: {
-                                if case .keyboard(let viewModel) = commandViewModel.kind {
-                                  return viewModel
-                                }
-                                return nil
-                              },
-                              set: { keyboardShortcut in
-                                if let keyboardShortcut = keyboardShortcut {
-                                  commandViewModel.kind = .keyboard(keyboardShortcut)
-                                }
-                              }))
+        KeyboardShortcutView(
+          keyboardShortcut: Binding(
+            get: { command.keyboardShortcut },
+            set: { keyboardShortcut in
+              if let keyboardShortcut = keyboardShortcut {
+                command = KeyboardCommand(id: command.id, keyboardShortcut: keyboardShortcut)
+              } else {
+                command = KeyboardCommand(id: command.id, keyboardShortcut: KeyboardShortcut.empty())
+              }
+            }))
       }
       .padding()
     }
@@ -36,15 +34,7 @@ struct EditKeyboardShortcutView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    EditOpenFileCommandView(
-      commandViewModel: .constant(
-        CommandViewModel(name: "", kind: .keyboard(KeyboardShortcutViewModel.empty()))
-      ),
-      openPanelController: OpenPanelPreviewController().erase())
+    EditKeyboardShortcutView(
+      command: .constant(KeyboardCommand.empty()))
   }
-}
-
-private final class OpenPanelPreviewController: ViewController {
-  let state = ""
-  func perform(_ action: OpenPanelAction) {}
 }

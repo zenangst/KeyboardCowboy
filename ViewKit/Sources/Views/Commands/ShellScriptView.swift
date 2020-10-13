@@ -1,10 +1,11 @@
 import SwiftUI
+import ModelKit
 
 struct ShellScriptView: View {
-  let command: CommandViewModel
-  let editAction: (CommandViewModel) -> Void
-  let revealAction: (CommandViewModel) -> Void
-  let runAction: (CommandViewModel) -> Void
+  let command: Command
+  let editAction: (Command) -> Void
+  let revealAction: (Command) -> Void
+  let runAction: (Command) -> Void
   let showContextualMenu: Bool
 
   var body: some View {
@@ -42,9 +43,7 @@ struct ShellScriptView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     ShellScriptView(
-      command: CommandViewModel(
-        name: "Run script",
-        kind: .shellScript(ShellScriptViewModel.empty())),
+      command: Command.empty(.script),
       editAction: { _ in },
       revealAction: { _ in },
       runAction: { _ in },

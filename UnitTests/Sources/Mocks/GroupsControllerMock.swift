@@ -1,5 +1,6 @@
 import Foundation
 import LogicFramework
+import ModelKit
 
 class GroupsControllerMock: GroupsControlling {
   typealias StateHandler = (State) -> Void

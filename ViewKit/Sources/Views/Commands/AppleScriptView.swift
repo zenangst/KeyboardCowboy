@@ -1,10 +1,11 @@
 import SwiftUI
+import ModelKit
 
 struct AppleScriptView: View {
-  let command: CommandViewModel
-  let editAction: (CommandViewModel) -> Void
-  let revealAction: (CommandViewModel) -> Void
-  let runAction: (CommandViewModel) -> Void
+  let command: Command
+  let editAction: (Command) -> Void
+  let revealAction: (Command) -> Void
+  let runAction: (Command) -> Void
   let showContextualMenu: Bool
 
   var body: some View {
@@ -44,8 +45,7 @@ struct AppleScriptView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    AppleScriptView(command: CommandViewModel(id: UUID().uuidString, name: "Run script",
-                                              kind: .appleScript(AppleScriptViewModel.empty())),
+    AppleScriptView(command: Command.empty(.script),
                     editAction: { _ in },
                     revealAction: { _ in },
                     runAction: { _ in },

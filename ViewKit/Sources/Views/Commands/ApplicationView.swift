@@ -1,16 +1,17 @@
 import SwiftUI
+import ModelKit
 
 struct ApplicationView: View {
-  let command: CommandViewModel
-  let editAction: (CommandViewModel) -> Void
-  let revealAction: (CommandViewModel) -> Void
-  let runAction: (CommandViewModel) -> Void
+  let command: Command
+  let editAction: (Command) -> Void
+  let revealAction: (Command) -> Void
+  let runAction: (Command) -> Void
   let showContextualMenu: Bool
 
   var body: some View {
     HStack {
-      if case .application(let viewModel) = command.kind {
-        IconView(icon: Icon(identifier: viewModel.bundleIdentifier, path: viewModel.path))
+      if case .application(let model) = command {
+        IconView(icon: Icon(identifier: model.application.bundleIdentifier, path: model.application.path))
           .frame(width: 32, height: 32)
       }
       VStack(alignment: .leading, spacing: 0) {
@@ -45,10 +46,7 @@ struct ApplicationView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     ApplicationView(
-      command: CommandViewModel(
-        id: UUID().uuidString,
-        name: "Finder",
-        kind: .application(ApplicationViewModel.finder())),
+      command: Command.application(.init(application: .finder())),
       editAction: { _ in },
       revealAction: { _ in },
       runAction: { _ in },

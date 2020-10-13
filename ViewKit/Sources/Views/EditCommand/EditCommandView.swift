@@ -1,12 +1,13 @@
 import SwiftUI
+import ModelKit
 
 struct EditCommandView: View {
   @ObservedObject var applicationProvider: ApplicationProvider
   @ObservedObject var openPanelController: OpenPanelController
-  let saveAction: (CommandViewModel) -> Void
+  let saveAction: (Command) -> Void
   let cancelAction: () -> Void
-  @State var selection: CommandViewModel.Kind?
-  @State var commandViewModel: CommandViewModel
+  @State var selection: Command?
+  @State var command: Command
   private let commands = ModelFactory().commands()
 
   var body: some View {
@@ -39,7 +40,7 @@ private extension EditCommandView {
           .padding(.horizontal, 4)
           .padding(.vertical, 8)
           .frame(height: 48)
-          .tag(command.kind)
+          .tag(command)
       }
     }
   }
@@ -48,36 +49,89 @@ private extension EditCommandView {
     VStack(alignment: .center, spacing: 8) {
       VStack {
         switch selection {
-        case .application:
+        case .application(let command):
           EditApplicationCommandView(
-            commandViewModel: Binding(get: { commandViewModel },
-                                      set: { commandViewModel = $0 }),
+            command: Binding(
+              get: {
+                if case .application(let model) = self.command {
+                  return model
+                } else {
+                  return command
+                }
+              },
+              set: { applicationCommand in
+                self.command = .application(applicationCommand)
+              }),
             installedApplications: applicationProvider.state)
-        case .appleScript:
-          EditAppleScriptView(
-            commandViewModel: Binding(get: { commandViewModel },
-                                      set: { commandViewModel = $0 }),
-            openPanelController: openPanelController)
-        case .keyboard:
-          EditKeyboardShortcutView(
-            commandViewModel: Binding(get: { commandViewModel },
-                                      set: { commandViewModel = $0 }),
-            openPanelController: openPanelController)
-        case .openFile:
-          EditOpenFileCommandView(
-            commandViewModel: Binding(get: { commandViewModel },
-                                      set: { commandViewModel = $0 }),
-            openPanelController: openPanelController)
-        case .openUrl:
-          EditOpenURLCommandView(
-            commandViewModel: Binding(get: { commandViewModel },
-                                      set: { commandViewModel = $0 }))
-        case .shellScript:
-          EditShellScriptView(
-            commandViewModel: Binding(get: { commandViewModel },
-                                      set: { commandViewModel = $0 }),
-            openPanelController: openPanelController)
-        default:
+        case .script(let kind):
+          switch kind {
+          case .appleScript:
+            EditAppleScriptView(
+              command: Binding(
+                get: {
+                  if case .script(let model) = self.command {
+                    return model
+                  } else {
+                    return kind
+                  }
+                },
+                set: { scriptCommand in
+                  self.command = .script(scriptCommand)
+                }),
+              openPanelController: openPanelController)
+          case .shell:
+            EditShellScriptView(
+              command: Binding(
+                get: {
+                  if case .script(let model) = self.command {
+                    return model
+                  } else {
+                    return kind
+                  }
+                },
+                set: { scriptCommand in
+                  self.command = .script(scriptCommand)
+                }),
+              openPanelController: openPanelController)
+          }
+        case .open(let command):
+          if command.isUrl {
+            EditOpenURLCommandView(
+              command: Binding(
+                get: {
+                  if case .open(let model) = self.command {
+                    return model
+                  } else {
+                    return command
+                  }
+                },
+                set: { openCommand in
+                  self.command = .open(openCommand)
+                }))
+          } else {
+            EditOpenFileCommandView(
+              command: Binding(
+                get: {
+                  if case .open(let model) = self.command {
+                    return model
+                  } else {
+                    return command
+                  }
+                },
+                set: { openCommand in
+                  self.command = .open(openCommand)
+                }),
+                openPanelController: openPanelController)
+          }
+          EmptyView()
+        case .keyboard(let command):
+          EditKeyboardShortcutView(command: Binding(
+            get: { command },
+            set: { keyboardCommand in
+              self.command = .keyboard(keyboardCommand)
+            }
+          ))
+        case .none:
           Text("Pick a command type:")
         }
       }
@@ -91,7 +145,7 @@ private extension EditCommandView {
         Text("Cancel").frame(minWidth: 60)
       })
       Button(action: {
-        saveAction(commandViewModel)
+        saveAction(command)
       }, label: {
         Text("OK").frame(minWidth: 60)
       })
@@ -106,18 +160,12 @@ struct EditCommandView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     let models = [
-      CommandViewModel(id: UUID().uuidString, name: "Application",
-                       kind: .application(ApplicationViewModel.empty())),
-      CommandViewModel(id: UUID().uuidString, name: "Apple script",
-                       kind: .appleScript(AppleScriptViewModel.empty())),
-      CommandViewModel(id: UUID().uuidString, name: "Keyboard shortcut",
-                       kind: .keyboard(KeyboardShortcutViewModel.empty())),
-      CommandViewModel(id: UUID().uuidString, name: "Open file",
-                       kind: .openFile(OpenFileViewModel.empty())),
-      CommandViewModel(id: UUID().uuidString, name: "Open Url",
-                       kind: .openUrl(OpenURLViewModel.empty())),
-      CommandViewModel(id: UUID().uuidString, name: "Run Shell script",
-                       kind: .shellScript(ShellScriptViewModel.empty()))
+      Command.application(.init(application: Application.empty())),
+      Command.script(.appleScript(.path("path/to/applescript.scpt"), UUID().uuidString)),
+      Command.script(.shell(.path("path/to/script.sh"), UUID().uuidString)),
+      Command.keyboard(KeyboardCommand(keyboardShortcut: KeyboardShortcut.empty())),
+      Command.open(OpenCommand(path: "http://www.github.com")),
+      Command.open(OpenCommand.empty())
     ]
 
     return Group {
@@ -126,8 +174,8 @@ struct EditCommandView_Previews: PreviewProvider, TestPreviewProvider {
                         openPanelController: OpenPanelPreviewController().erase(),
                         saveAction: { _ in },
                         cancelAction: {},
-                        selection: model.kind,
-                        commandViewModel: model)
+                        selection: model,
+                        command: model)
           .previewDisplayName(model.name)
       }
     }
@@ -135,7 +183,7 @@ struct EditCommandView_Previews: PreviewProvider, TestPreviewProvider {
 }
 
 private class ApplicationProviderMock: StateController {
-  var state = [ApplicationViewModel]()
+  var state = [Application]()
 }
 
 private final class OpenPanelPreviewController: ViewController {

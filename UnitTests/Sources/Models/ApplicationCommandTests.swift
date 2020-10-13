@@ -1,4 +1,5 @@
 @testable import LogicFramework
+@testable import ModelKit
 import Foundation
 import SnapshotTesting
 import XCTest
@@ -13,6 +14,7 @@ class ApplicationCommandTests: XCTestCase {
     let json: [String: Any] = [
       "id": subject.id,
       "application": [
+        "id": subject.application.id,
         "bundleName": "Finder",
         "bundleIdentifier": "com.apple.Finder",
         "path": "/System/Library/CoreServices/Finder.app"

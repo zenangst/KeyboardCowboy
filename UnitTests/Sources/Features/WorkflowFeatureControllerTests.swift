@@ -1,5 +1,6 @@
 @testable import Keyboard_Cowboy
 @testable import LogicFramework
+@testable import ModelKit
 import Foundation
 import ViewKit
 import XCTest
@@ -37,9 +38,8 @@ class WorkflowFeatureControllerTests: XCTestCase {
                                  userSelection: userSelection)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
-    let mapper = ViewModelMapperFactory().groupMapper()
 
-    userSelection.group = mapper.map(group)
+    userSelection.group = group
     workflowFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
@@ -89,17 +89,14 @@ class WorkflowFeatureControllerTests: XCTestCase {
                                  userSelection: userSelection)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let workflowMapper = ViewModelMapperFactory().workflowMapper()
 
-    userSelection.group = groupMapper.map(group)
+    userSelection.group = group
     workflowFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    let newViewModel = workflowMapper.map(updatedWorkflow)
-    workflowFeature.perform(.updateWorkflow(newViewModel))
+    workflowFeature.perform(.updateWorkflow(updatedWorkflow))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -140,17 +137,14 @@ class WorkflowFeatureControllerTests: XCTestCase {
                                  userSelection: userSelection)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let workflowMapper = ViewModelMapperFactory().workflowMapper()
 
-    userSelection.group = groupMapper.map(group)
+    userSelection.group = group
     workflowFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    let viewModel = workflowMapper.map(workflow)
-    workflowFeature.perform(.deleteWorkflow(viewModel))
+    workflowFeature.perform(.deleteWorkflow(workflow))
 
     wait(for: [expectation], timeout: 10.0)
   }

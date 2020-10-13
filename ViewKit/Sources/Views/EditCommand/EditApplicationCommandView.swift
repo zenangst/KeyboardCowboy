@@ -1,4 +1,5 @@
 import SwiftUI
+import ModelKit
 
 public enum OpenPanelAction {
   case selectFile(type: String?, handler: (String) -> Void)
@@ -7,12 +8,12 @@ public enum OpenPanelAction {
 
 struct EditApplicationCommandView: View {
   @State private var selection: Int = 0
-  @Binding var commandViewModel: CommandViewModel
-  var installedApplications: [ApplicationViewModel]
+  @Binding var command: ApplicationCommand
+  var installedApplications: [Application]
 
-  init(commandViewModel: Binding<CommandViewModel>,
-       installedApplications: [ApplicationViewModel]) {
-    self._commandViewModel = commandViewModel
+  init(command: Binding<ApplicationCommand>,
+       installedApplications: [Application]) {
+    self._command = command
     self.installedApplications = installedApplications
   }
 
@@ -28,18 +29,17 @@ struct EditApplicationCommandView: View {
           selection
         }, set: {
           selection = $0
-          commandViewModel.kind = .application(installedApplications[$0])
+          command = ApplicationCommand(id: command.id, application: installedApplications[$0])
         })) {
           ForEach(0..<installedApplications.count) { index in
-            Text(installedApplications[index].name).tag(index)
+            Text(installedApplications[index].bundleName).tag(index)
           }
         }
       }.onAppear {
-        if case .application(let viewModel) = commandViewModel.kind,
-           let index = installedApplications.firstIndex(where: { viewModel.bundleIdentifier == $0.bundleIdentifier }) {
+        if let index = installedApplications.firstIndex(where: { command.application.bundleIdentifier == $0.bundleIdentifier }) {
           selection = index
         } else if !installedApplications.isEmpty {
-          commandViewModel.kind = .application(installedApplications[0])
+          command = .init(id: command.id, application: installedApplications.first!)
         }
       }.padding()
     }
@@ -54,9 +54,7 @@ struct EditApplicationCommandView_Previews: PreviewProvider, TestPreviewProvider
   static var testPreview: some View {
     let models = ModelFactory().installedApplications()
     return EditApplicationCommandView(
-      commandViewModel: .constant(.init(id: "",
-                                        name: "",
-                                        kind: .application(ApplicationViewModel.finder()))),
+      command: .constant(ApplicationCommand(application: .finder())),
       installedApplications: models)
   }
 }

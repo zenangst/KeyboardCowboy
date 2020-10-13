@@ -1,7 +1,8 @@
 import SwiftUI
+import ModelKit
 
 struct WorkflowListCell: View {
-  let workflow: WorkflowViewModel
+  let workflow: Workflow
 
   var body: some View {
     HStack {
@@ -35,8 +36,8 @@ private extension WorkflowListCell {
   var icon: some View {
     ZStack {
       ForEach(workflow.commands) { command in
-        if case .application(let viewModel) = command.kind {
-          IconView(icon: Icon(identifier: viewModel.bundleIdentifier, path: viewModel.path))
+        if case .application(let applicationCommand) = command {
+          IconView(icon: Icon(identifier: applicationCommand.application.bundleIdentifier, path: applicationCommand.application.path))
             .frame(width: 32, height: 32)
         }
       }

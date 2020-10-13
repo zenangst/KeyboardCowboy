@@ -4,7 +4,7 @@ import Foundation
 /// translates into a keyboard shortcut. This is
 /// used to match if a certain `Workflow` is eligiable
 /// to be invoked.
-public struct KeyboardShortcut: Codable, Hashable {
+public struct KeyboardShortcut: Identifiable, Codable, Hashable {
   public let id: String
   public let key: String
   public let modifiers: [ModifierKey]?
@@ -35,5 +35,11 @@ public struct KeyboardShortcut: Codable, Hashable {
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.key = try container.decode(String.self, forKey: .key)
     self.modifiers = try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)
+  }
+}
+
+public extension KeyboardShortcut {
+  static func empty() -> KeyboardShortcut {
+    KeyboardShortcut(key: "")
   }
 }

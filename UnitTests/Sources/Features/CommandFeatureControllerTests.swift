@@ -1,7 +1,9 @@
 @testable import Keyboard_Cowboy
 @testable import LogicFramework
+@testable import ModelKit
 @testable import ViewKit
 import Foundation
+import ModelKit
 import XCTest
 
 // swiftlint:disable function_body_length type_body_length
@@ -12,11 +14,7 @@ class CommandsFeatureControllerTests: XCTestCase {
     let workflow = Workflow.empty()
     group.workflows = [workflow]
 
-    let commandMapper = ViewModelMapperFactory().commandMapper()
-    let logicApplicationCommand = ApplicationCommand(application: Application.finder())
-    let command = Command.application(logicApplicationCommand)
-    let viewModel = commandMapper.map(command)
-
+    let command = Command.application(.init(application: Application.finder()))
     let groupsController = GroupsController(groups: [group])
     let coreController = CoreControllerMock(groupsController: groupsController) { state in
       switch state {
@@ -48,13 +46,7 @@ class CommandsFeatureControllerTests: XCTestCase {
           return
         }
 
-        switch newCommand {
-        case .application(let applicationCommand):
-          XCTAssertEqual(applicationCommand.application, logicApplicationCommand.application)
-        case .keyboard, .open, .script:
-          XCTFail("Wrong command kind. Should be `.application`")
-        }
-
+        XCTAssertEqual(newCommand, command)
         expectation.fulfill()
       }
     }
@@ -66,28 +58,23 @@ class CommandsFeatureControllerTests: XCTestCase {
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
     let commandsFeature = factory.commandsFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let workflowMapper = ViewModelMapperFactory().workflowMapper()
 
-    userSelection.group = groupMapper.map(group)
-    userSelection.workflow = workflowMapper.map(workflow)
+    userSelection.group = group
+    userSelection.workflow = workflow
     workflowFeature.delegate = groupsFeature
     commandsFeature.delegate = workflowFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    commandsFeature.perform(.createCommand(viewModel))
+    commandsFeature.perform(.createCommand(command))
 
     wait(for: [expectation], timeout: 10.0)
   }
 
   func testUpdateCommand() {
     let expectation = self.expectation(description: "Wait for callback")
-
-    let commandMapper = ViewModelMapperFactory().commandMapper()
-    let logicApplicationCommand = ApplicationCommand(application: Application.finder())
-    let command = Command.application(logicApplicationCommand)
+    let command = Command.application(.init(application: .finder()))
     var group = Group.empty()
     var workflow = Workflow.empty()
     workflow.commands = [command]
@@ -153,19 +140,16 @@ class CommandsFeatureControllerTests: XCTestCase {
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
     let commandsFeature = factory.commandsFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let workflowMapper = ViewModelMapperFactory().workflowMapper()
 
-    userSelection.group = groupMapper.map(group)
-    userSelection.workflow = workflowMapper.map(workflow)
+    userSelection.group = group
+    userSelection.workflow = workflow
     workflowFeature.delegate = groupsFeature
     commandsFeature.delegate = workflowFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    let updatedViewModel = commandMapper.map(updatedCommand)
-    commandsFeature.perform(.updateCommand(updatedViewModel))
+    commandsFeature.perform(.updateCommand(updatedCommand))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -226,11 +210,9 @@ class CommandsFeatureControllerTests: XCTestCase {
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
     let commandsFeature = factory.commandsFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let workflowMapper = ViewModelMapperFactory().workflowMapper()
 
-    userSelection.group = groupMapper.map(group)
-    userSelection.workflow = workflowMapper.map(workflow)
+    userSelection.group = group
+    userSelection.workflow = workflow
     workflowFeature.delegate = groupsFeature
     commandsFeature.delegate = workflowFeature
 
@@ -301,11 +283,9 @@ class CommandsFeatureControllerTests: XCTestCase {
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
     let commandsFeature = factory.commandsFeature()
-    let groupMapper = ViewModelMapperFactory().groupMapper()
-    let workflowMapper = ViewModelMapperFactory().workflowMapper()
 
-    userSelection.group = groupMapper.map(group)
-    userSelection.workflow = workflowMapper.map(workflow)
+    userSelection.group = group
+    userSelection.workflow = workflow
     workflowFeature.delegate = groupsFeature
     commandsFeature.delegate = workflowFeature
 
@@ -315,9 +295,7 @@ class CommandsFeatureControllerTests: XCTestCase {
       $0.workflows.flatMap { $0.commands }
     }.count, 3)
 
-    let commandMapper = ViewModelMapperFactory().commandMapper()
-    let removedViewModel = commandMapper.map(removedCommand)
-    commandsFeature.perform(.deleteCommand(removedViewModel))
+    commandsFeature.perform(.deleteCommand(removedCommand))
 
     wait(for: [expectation], timeout: 10.0)
   }

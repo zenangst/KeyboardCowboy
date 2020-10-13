@@ -1,5 +1,6 @@
 import Combine
 import LogicFramework
+import ModelKit
 
 class OpenCommandControllerMock: OpenCommandControlling {
   let result: Result<Void, Error>

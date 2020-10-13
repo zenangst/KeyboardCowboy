@@ -1,4 +1,5 @@
 import LogicFramework
+import ModelKit
 import XCTest
 
 class CoreControllerTests: XCTestCase {
@@ -40,39 +41,45 @@ class CoreControllerTests: XCTestCase {
       Group(name: "Global shortcuts",
             workflows:
               [
-                Workflow(id: id, commands: [
-                  .application(.init(application: .init(
-                                      bundleIdentifier: "com.apple.finder",
-                                      bundleName: "Finder",
-                                      path: "/System/Library/CoreServices/Finder.app")))
-                ],
-                keyboardShortcuts: [
-                  KeyboardShortcut(id: id, key: "F", modifiers: [.control, .option])
-                ],
-                name: "Open Finder"),
-                Workflow(id: id, commands: [
-                  .open(.init(application: .init(bundleIdentifier: "com.apple.Safari",
-                                                 bundleName: "Safari",
-                                                 path: "/Applications/Safari.app"),
-                              path: "https://www.github.com"))
-                ],
-                keyboardShortcuts: [
-                  KeyboardShortcut(id: id, key: "G", modifiers: [.control, .option]),
-                  KeyboardShortcut(id: id, key: "H")
-                ],
-                name: "Open GitHub - Homepage"),
-                Workflow(id: id, commands: [
-                  .open(.init(
-                          application: .init(bundleIdentifier: "com.apple.Safari",
-                                             bundleName: "Safari",
-                                             path: "/Applications/Safari.app"),
-                          path: "https://github.com/notifications?query=reason%3Aparticipating"))
-                ],
-                keyboardShortcuts: [
-                  KeyboardShortcut(id: id, key: "G", modifiers: [.control, .option]),
-                  KeyboardShortcut(id: id, key: "P")
-                ],
-                name: "Open GitHub - Participating")
+                Workflow(
+                  id: id,
+                  name: "Open Finder",
+                  keyboardShortcuts: [
+                    KeyboardShortcut(id: id, key: "F", modifiers: [.control, .option])
+                  ],
+                  commands: [
+                    .application(.init(application: .init(
+                                        bundleIdentifier: "com.apple.finder",
+                                        bundleName: "Finder",
+                                        path: "/System/Library/CoreServices/Finder.app")))
+                  ]),
+                Workflow(
+                  id: id,
+                  name: "Open GitHub - Homepage",
+                  keyboardShortcuts: [
+                    KeyboardShortcut(id: id, key: "G", modifiers: [.control, .option]),
+                    KeyboardShortcut(id: id, key: "H")
+                  ],
+                  commands: [
+                    .open(.init(application: .init(bundleIdentifier: "com.apple.Safari",
+                                                   bundleName: "Safari",
+                                                   path: "/Applications/Safari.app"),
+                                path: "https://www.github.com"))
+                  ]),
+                Workflow(
+                  id: id,
+                  name: "Open GitHub - Participating",
+                  keyboardShortcuts: [
+                    KeyboardShortcut(id: id, key: "G", modifiers: [.control, .option]),
+                    KeyboardShortcut(id: id, key: "P")
+                  ],
+                  commands: [
+                    .open(.init(
+                            application: .init(bundleIdentifier: "com.apple.Safari",
+                                               bundleName: "Safari",
+                                               path: "/Applications/Safari.app"),
+                            path: "https://github.com/notifications?query=reason%3Aparticipating"))
+                  ])
               ])
     ]
   }

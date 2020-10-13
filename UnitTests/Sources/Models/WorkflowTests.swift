@@ -1,4 +1,5 @@
 @testable import LogicFramework
+@testable import ModelKit
 import Foundation
 import SnapshotTesting
 import XCTest
@@ -15,9 +16,11 @@ class WorkflowTests: XCTestCase {
       "commands": [[
         "applicationCommand": [
           "id": subject.id,
-          "application": ["bundleName": "Finder",
-                          "bundleIdentifier": "com.apple.Finder",
-                          "path": "/System/Library/CoreServices/Finder.app"]
+          "application": [
+            "id": subject.id,
+            "bundleName": "Finder",
+            "bundleIdentifier": "com.apple.Finder",
+            "path": "/System/Library/CoreServices/Finder.app"]
         ]
       ]],
       "keyboardShortcuts": [

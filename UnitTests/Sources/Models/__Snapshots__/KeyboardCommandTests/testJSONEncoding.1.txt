@@ -1,1 +1,1 @@
-- "{\"id\":\"foobar\",\"keyboardShortcut\":{\"id\":\"foobar\",\"key\":\"A\"}}"
+- "{\"id\":\"foobar\",\"name\":\"\",\"keyboardShortcut\":{\"id\":\"foobar\",\"key\":\"A\"}}"

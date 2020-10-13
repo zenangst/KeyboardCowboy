@@ -1,27 +1,31 @@
 import SwiftUI
+import ModelKit
 
 struct CommandView: View {
-  let command: CommandViewModel
-  let editAction: (CommandViewModel) -> Void
-  let revealAction: (CommandViewModel) -> Void
-  let runAction: (CommandViewModel) -> Void
+  let command: Command
+  let editAction: (Command) -> Void
+  let revealAction: (Command) -> Void
+  let runAction: (Command) -> Void
   let showContextualMenu: Bool
 
   var body: some View {
-    switch command.kind {
+    switch command {
     case .application:
       ApplicationView(command: command, editAction: editAction,
                       revealAction: revealAction, runAction: runAction,
                       showContextualMenu: showContextualMenu)
-    case .appleScript:
-      AppleScriptView(command: command, editAction: editAction,
-                      revealAction: revealAction, runAction: runAction,
-                      showContextualMenu: showContextualMenu)
-    case .shellScript:
-      ShellScriptView(command: command, editAction: editAction,
-                      revealAction: revealAction, runAction: runAction,
-                      showContextualMenu: showContextualMenu)
-    case .openFile, .openUrl:
+    case .script(let kind):
+      switch kind {
+      case .appleScript:
+        AppleScriptView(command: command, editAction: editAction,
+                        revealAction: revealAction, runAction: runAction,
+                        showContextualMenu: showContextualMenu)
+      case .shell:
+        ShellScriptView(command: command, editAction: editAction,
+                        revealAction: revealAction, runAction: runAction,
+                        showContextualMenu: showContextualMenu)
+      }
+    case .open:
       OpenCommandView(command: command, editAction: editAction,
                       revealAction: revealAction,
                       showContextualMenu: showContextualMenu)
