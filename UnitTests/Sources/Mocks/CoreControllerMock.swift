@@ -1,5 +1,6 @@
 import Foundation
 import LogicFramework
+import ModelKit
 
 class CoreControllerMock: CoreControlling, GroupsControllingDelegate {
   typealias StateHandler = (State) -> Void

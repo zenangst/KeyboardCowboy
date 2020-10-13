@@ -1,7 +1,8 @@
 import SwiftUI
+import ModelKit
 
 struct KeyboardShortcutView: View {
-  @Binding var keyboardShortcut: KeyboardShortcutViewModel?
+  @Binding var keyboardShortcut: ModelKit.KeyboardShortcut?
 
   var body: some View {
     Recorder(keyboardShortcut: $keyboardShortcut)

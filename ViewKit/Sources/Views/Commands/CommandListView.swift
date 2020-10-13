@@ -1,36 +1,32 @@
 import SwiftUI
+import ModelKit
 
 public struct CommandListView: View {
   public enum Action {
-    case createCommand(CommandViewModel)
-    case updateCommand(CommandViewModel)
-    case deleteCommand(CommandViewModel)
-    case runCommand(CommandViewModel)
-    case revealCommand(CommandViewModel)
+    case createCommand(Command)
+    case updateCommand(Command)
+    case deleteCommand(Command)
+    case runCommand(Command)
+    case revealCommand(Command)
     case moveCommand(from: Int, to: Int)
   }
 
   @ObservedObject var applicationProvider: ApplicationProvider
   @ObservedObject var commandController: CommandController
   @ObservedObject var openPanelController: OpenPanelController
-  @State private var selection: CommandViewModel?
-  @State private var editCommand: CommandViewModel?
+  @State private var selection: Command?
+  @State private var editCommand: Command?
 
   public var body: some View {
     List {
       ForEach(commandController.state) { command in
         HStack(spacing: 12) {
-          CommandView(command: command,
-                      editAction: { viewModel in
-                        editCommand = viewModel
-                      },
-                      revealAction: { command in
-                        commandController.action(.revealCommand(command))()
-                      },
-                      runAction: { command in
-                        commandController.action(.runCommand(command))()
-                      },
-                      showContextualMenu: true)
+          CommandView(
+            command: command,
+            editAction: { editCommand = $0 },
+            revealAction: { commandController.action(.revealCommand($0))() },
+            runAction: { commandController.action(.runCommand($0))() },
+            showContextualMenu: true)
             .contextMenu(menuItems: {
               Button("Edit", action: {
                 editCommand = command
@@ -62,7 +58,7 @@ public struct CommandListView: View {
       })
     }
     .padding(.horizontal, -18)
-    .sheet(item: $editCommand, content: { viewModel in
+    .sheet(item: $editCommand, content: { model in
       EditCommandView(
         applicationProvider: applicationProvider,
         openPanelController: openPanelController,
@@ -73,8 +69,8 @@ public struct CommandListView: View {
       cancelAction: {
         editCommand = nil
       },
-        selection: viewModel.kind,
-        commandViewModel: viewModel)
+        selection: model,
+        command: model)
     })
   }
 }
@@ -94,7 +90,7 @@ struct CommandListView_Previews: PreviewProvider, TestPreviewProvider {
 }
 
 private final class ApplicationPreviewProvider: StateController {
-  let state = [ApplicationViewModel]()
+  let state = [Application]()
 }
 
 private final class CommandPreviewController: ViewController {

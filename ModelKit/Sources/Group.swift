@@ -7,7 +7,7 @@ import Foundation
 ///          collection of workflows are eligible to be invoked.
 ///          All rules have to return `true` for workflows to be
 ///          eligable for execution.
-public struct Group: Codable, Hashable {
+public struct Group: Identifiable, Codable, Hashable {
   public let id: String
   public var name: String
   public var color: String

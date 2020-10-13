@@ -1,4 +1,5 @@
 import SwiftUI
+import ModelKit
 
 struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
@@ -8,7 +9,7 @@ struct WorkflowView: View {
   @ObservedObject var keyboardShortcutController: KeyboardShortcutController
   @ObservedObject var openPanelController: OpenPanelController
   @State private var newCommandVisible: Bool = false
-  @Binding var workflow: WorkflowViewModel
+  @Binding var workflow: Workflow
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -64,12 +65,14 @@ private extension WorkflowView {
     HStack {
       RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
         .onTapGesture {
-          keyboardShortcutController.perform(.createKeyboardShortcut(viewModel: KeyboardShortcutViewModel.empty(),
-                                                                     index: keyboardShortcutController.state.count))
+          keyboardShortcutController.perform(.createKeyboardShortcut(
+                                              keyboardShortcut: ModelKit.KeyboardShortcut.empty(),
+                                              index: keyboardShortcutController.state.count))
         }
       Button("Add Keyboard Shortcut", action: {
-        keyboardShortcutController.perform(.createKeyboardShortcut(viewModel: KeyboardShortcutViewModel.empty(),
-                                                                   index: keyboardShortcutController.state.count))
+        keyboardShortcutController.perform(.createKeyboardShortcut(
+                                            keyboardShortcut: ModelKit.KeyboardShortcut.empty(),
+                                            index: keyboardShortcutController.state.count))
       })
       .buttonStyle(PlainButtonStyle())
     }.padding(8)
@@ -108,8 +111,8 @@ private extension WorkflowView {
       cancelAction: {
         newCommandVisible = false
       },
-        selection: CommandViewModel.Kind.application(ApplicationViewModel.empty()),
-        commandViewModel: CommandViewModel(id: "", name: "", kind: .application(ApplicationViewModel.empty())))
+        selection: Command.application(.init(application: Application.empty())),
+        command: Command.application(.init(application: Application.empty())))
     })
   }
 }
@@ -132,7 +135,7 @@ struct WorkflowView_Previews: PreviewProvider, TestPreviewProvider {
 }
 
 private final class ApplicationPreviewProvider: StateController {
-  let state = [ApplicationViewModel]()
+  let state = [Application]()
 }
 
 private final class CommandPreviewController: ViewController {
@@ -141,7 +144,7 @@ private final class CommandPreviewController: ViewController {
 }
 
 private final class KeyboardShortcutPreviewController: ViewController {
-  let state: [KeyboardShortcutViewModel] = ModelFactory().keyboardShortcuts()
+  let state: [ModelKit.KeyboardShortcut] = ModelFactory().keyboardShortcuts()
   func perform(_ action: KeyboardShortcutListView.Action) {}
 }
 

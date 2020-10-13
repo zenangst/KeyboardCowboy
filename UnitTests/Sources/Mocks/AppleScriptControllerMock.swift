@@ -1,4 +1,5 @@
 @testable import LogicFramework
+import ModelKit
 import Combine
 import Cocoa
 

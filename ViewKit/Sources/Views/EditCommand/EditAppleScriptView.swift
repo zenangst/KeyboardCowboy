@@ -1,12 +1,13 @@
 import SwiftUI
+import ModelKit
 
 struct EditAppleScriptView: View {
   @ObservedObject var openPanelController: OpenPanelController
-  @Binding var commandViewModel: CommandViewModel
+  @Binding var command: ScriptCommand
 
-  init(commandViewModel: Binding<CommandViewModel>,
+  init(command: Binding<ScriptCommand>,
        openPanelController: OpenPanelController) {
-    self._commandViewModel = commandViewModel
+    self._command = command
     self.openPanelController = openPanelController
   }
 
@@ -21,19 +22,20 @@ struct EditAppleScriptView: View {
         HStack {
           Text("Path:")
           TextField("file://", text: Binding(get: {
-            if case .appleScript(let viewModel) = commandViewModel.kind {
-              return viewModel.path
+            if case .appleScript(let source, _) = command,
+               case .path(let value) = source {
+              return value
             }
             return ""
           }, set: {
-            commandViewModel.kind = .appleScript(AppleScriptViewModel(path: $0))
+            command = ScriptCommand.appleScript(.path($0), command.id)
           }))
         }
         HStack {
           Spacer()
           Button("Browse", action: {
             openPanelController.perform(.selectFile(type: "scpt", handler: {
-              commandViewModel.kind = .appleScript(AppleScriptViewModel(path: $0))
+              command = ScriptCommand.appleScript(.path($0), command.id)
             }))
           })
         }
@@ -49,9 +51,7 @@ struct EditAppleScriptView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
       EditAppleScriptView(
-        commandViewModel: .constant(
-          CommandViewModel(name: "", kind: .appleScript(AppleScriptViewModel.empty()))
-        ),
+        command: .constant(ScriptCommand.empty(.appleScript)),
         openPanelController: OpenPanelPreviewController().erase())
     }
 }

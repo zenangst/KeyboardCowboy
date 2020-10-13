@@ -1,18 +1,17 @@
 import SwiftUI
+import ModelKit
 
 struct OpenCommandView: View {
-  let command: CommandViewModel
-  let editAction: (CommandViewModel) -> Void
-  let revealAction: (CommandViewModel) -> Void
+  let command: Command
+  let editAction: (Command) -> Void
+  let revealAction: (Command) -> Void
   let showContextualMenu: Bool
 
   var body: some View {
     HStack {
       ZStack {
-        if case .openUrl(let viewModel) = command.kind {
-          IconView(icon: Icon(identifier: viewModel.url.path, path: viewModel.application?.path ?? ""))
-        } else if case .openFile(let viewModel) = command.kind {
-          IconView(icon: Icon(identifier: viewModel.path, path: viewModel.application?.path ?? ""))
+        if case .open(let openCommand) = command {
+          IconView(icon: Icon(identifier: openCommand.path, path: openCommand.application?.path ?? ""))
         }
       }.frame(width: 32, height: 32)
       VStack(alignment: .leading, spacing: 0) {
@@ -40,9 +39,7 @@ struct OpenCommandView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     OpenCommandView(
-      command: CommandViewModel(
-        name: "",
-        kind: .openFile(OpenFileViewModel.empty())),
+      command: Command.open(OpenCommand.empty()),
       editAction: { _ in },
       revealAction: { _ in },
       showContextualMenu: true)

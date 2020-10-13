@@ -1,14 +1,15 @@
 import Foundation
 
 public class ModelFactory {
-  static func application() -> Application {
-    Application(bundleIdentifier: "com.apple.Finder",
+  static func application(id: String = UUID().uuidString) -> Application {
+    Application(id: id,
+                bundleIdentifier: "com.apple.Finder",
                 bundleName: "Finder",
                 path: "/System/Library/CoreServices/Finder.app")
   }
 
   func applicationCommand(id: String = UUID().uuidString) -> ApplicationCommand {
-    .init(id: id, application: Self.application())
+    .init(id: id, application: Self.application(id: id))
   }
 
   func days() -> [Rule.Day] {
@@ -22,7 +23,7 @@ public class ModelFactory {
     Group(id: id,
           name: name,
           color: "#fff",
-          rule: rule ?? self.rule(),
+          rule: rule ?? self.rule(id: id),
           workflows: workflows?(self) ?? [workflow(id: id)])
   }
 
@@ -40,8 +41,8 @@ public class ModelFactory {
     .init(id: id, application: application, path: "~/Desktop/new_real_final_draft_Copy_42.psd")
   }
 
-  func rule() -> Rule {
-    Rule(bundleIdentifiers: [Self.application().bundleIdentifier], days: days())
+  func rule(id: String = UUID().uuidString) -> Rule {
+    Rule(id: id, bundleIdentifiers: [Self.application(id: id).bundleIdentifier], days: days())
   }
 
   func scriptCommands(id: String = UUID().uuidString) -> [ScriptCommand] {
@@ -65,8 +66,8 @@ public class ModelFactory {
                 name: String = "Open/active Finder") -> Workflow {
     Workflow(
       id: id,
-      commands: commands?(self) ?? [.application(applicationCommand(id: id))],
+      name: name,
       keyboardShortcuts: keyboardShortcuts?(self) ?? [keyboardShortcut(id: id, modifiers: [.control, .option])],
-      name: name)
+      commands: commands?(self) ?? [.application(applicationCommand(id: id))])
   }
 }

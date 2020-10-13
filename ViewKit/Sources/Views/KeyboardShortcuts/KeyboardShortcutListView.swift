@@ -1,10 +1,11 @@
 import SwiftUI
+import ModelKit
 
 public struct KeyboardShortcutListView: View {
   public enum Action {
-    case createKeyboardShortcut(viewModel: KeyboardShortcutViewModel, index: Int)
-    case updateKeyboardShortcut(viewModel: KeyboardShortcutViewModel)
-    case deleteKeyboardShortcut(viewModel: KeyboardShortcutViewModel)
+    case createKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut, index: Int)
+    case updateKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut)
+    case deleteKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut)
     case moveCommand(from: Int, to: Int)
   }
 
@@ -14,21 +15,23 @@ public struct KeyboardShortcutListView: View {
     List {
       ForEach(keyboardShortcutController.state) { keyboardShortcut in
         HStack {
-          Text("\(keyboardShortcut.index)").padding(.horizontal, 4)
-          KeyboardShortcutView(keyboardShortcut: Binding<KeyboardShortcutViewModel?>(get: {
+//          Text("\(keyboardShortcut.index)").padding(.horizontal, 4)
+          KeyboardShortcutView(keyboardShortcut: Binding<ModelKit.KeyboardShortcut?>(get: {
             keyboardShortcut
           }, set: { keyboardShortcut in
             if let keyboardShortcut = keyboardShortcut {
-              keyboardShortcutController.perform(.updateKeyboardShortcut(viewModel: keyboardShortcut))
+              keyboardShortcutController.perform(.updateKeyboardShortcut(keyboardShortcut: keyboardShortcut))
             }
           }))
           HStack(spacing: 4) {
             Button("+", action: {
-              keyboardShortcutController.perform(.createKeyboardShortcut(viewModel: KeyboardShortcutViewModel.empty(),
-                                                                         index: keyboardShortcut.index))
+              if let index = keyboardShortcutController.state.firstIndex(of: keyboardShortcut) {
+                keyboardShortcutController.perform(.createKeyboardShortcut(keyboardShortcut: KeyboardShortcut.empty(),
+                                                                           index: index))
+              }
             })
             Button("-", action: {
-              keyboardShortcutController.perform(.deleteKeyboardShortcut(viewModel: keyboardShortcut))
+              keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut: keyboardShortcut))
             })
           }
         }
@@ -44,7 +47,7 @@ public struct KeyboardShortcutListView: View {
       }).onDelete(perform: { indexSet in
         for index in indexSet {
           let keyboardShortcut = keyboardShortcutController.state[index]
-          keyboardShortcutController.perform(.deleteKeyboardShortcut(viewModel: keyboardShortcut))
+          keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut: keyboardShortcut))
         }
       })
     }.padding(.horizontal, -18)
@@ -64,6 +67,6 @@ struct KeyboardShortcutListView_Previews: PreviewProvider, TestPreviewProvider {
 }
 
 private final class KeyboardShortcutPreviewController: ViewController {
-  let state: [KeyboardShortcutViewModel] = ModelFactory().keyboardShortcuts()
+  let state: [ModelKit.KeyboardShortcut] = ModelFactory().keyboardShortcuts()
   func perform(_ action: KeyboardShortcutListView.Action) {}
 }

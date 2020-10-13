@@ -3,17 +3,40 @@ import Foundation
 /// A `Command` is a polymorphic entity that is used
 /// to store multiple command types in the same workflow.
 /// All underlying data-types are both `Codable` and `Hashable`.
-public enum Command: Codable, Hashable {
+public enum Command: Identifiable, Codable, Hashable {
   case application(ApplicationCommand)
   case keyboard(KeyboardCommand)
   case open(OpenCommand)
   case script(ScriptCommand)
 
-  enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case application = "applicationCommand"
     case keyboard = "keyboardCommand"
     case open = "openCommand"
     case script = "scriptCommand"
+  }
+
+  public var name: String {
+    switch self {
+    case .application(let command):
+      return command.name.isEmpty ? "Open Application" : command.name
+    case .keyboard(let command):
+      return command.name.isEmpty ? "Run a Keyboard Shortcut" : command.name
+    case .open(let command):
+      if !command.name.isEmpty { return command.name }
+      if command.isUrl {
+        return "Open a URL"
+      } else {
+        return "Open a file"
+      }
+    case .script(let command):
+      switch command {
+      case .appleScript:
+        return "Run Apple Script"
+      case .shell:
+        return "Run Shellscript"
+      }
+    }
   }
 
   public var id: String {
@@ -25,10 +48,7 @@ public enum Command: Codable, Hashable {
     case .open(let command):
       return command.id
     case .script(let command):
-      switch command {
-      case .appleScript(_, let id), .shell(_, let id):
-        return id
-      }
+      return command.id
     }
   }
 
@@ -69,6 +89,21 @@ public enum Command: Codable, Hashable {
       try container.encode(command, forKey: .open)
     case .script(let command):
       try container.encode(command, forKey: .script)
+    }
+  }
+}
+
+public extension Command {
+  static func empty(_ kind: CodingKeys) -> Command {
+    switch kind {
+    case .application:
+      return Command.application(ApplicationCommand.empty())
+    case .keyboard:
+      return Command.keyboard(KeyboardCommand.empty())
+    case .open:
+      return Command.open(.init(path: ""))
+    case .script:
+      return Command.script(.appleScript(.path(""), ""))
     }
   }
 }

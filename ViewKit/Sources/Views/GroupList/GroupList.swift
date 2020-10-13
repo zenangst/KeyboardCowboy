@@ -1,11 +1,12 @@
 import SwiftUI
+import ModelKit
 
 public struct GroupList: View {
-  public typealias Controller = AnyViewController<[GroupViewModel], Action>
+  public typealias Controller = AnyViewController<[ModelKit.Group], Action>
   public enum Action {
     case createGroup
-    case updateGroup(GroupViewModel)
-    case deleteGroup(GroupViewModel)
+    case updateGroup(ModelKit.Group)
+    case deleteGroup(ModelKit.Group)
     case moveGroup(from: Int, to: Int)
     case dropFile(URL)
   }
@@ -14,7 +15,7 @@ public struct GroupList: View {
 
   @EnvironmentObject var userSelection: UserSelection
   @ObservedObject var controller: Controller
-  @State private var editGroup: GroupViewModel?
+  @State private var editGroup: ModelKit.Group?
 
   public init(controller: Controller) {
     self.controller = controller
@@ -93,7 +94,7 @@ private extension GroupList {
     }.padding(8)
   }
 
-  func editGroup(_ group: GroupViewModel) -> some View {
+  func editGroup(_ group: ModelKit.Group) -> some View {
     EditGroup(
       name: group.name,
       color: group.color,

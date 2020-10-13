@@ -1,4 +1,5 @@
 import SwiftUI
+import ModelKit
 
 struct GroupListCell: View {
   typealias CommitHandler = (String, String) -> Void

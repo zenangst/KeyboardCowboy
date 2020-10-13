@@ -1,4 +1,5 @@
 @testable import LogicFramework
+@testable import ModelKit
 import Foundation
 import SnapshotTesting
 import XCTest

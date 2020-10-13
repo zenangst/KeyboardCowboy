@@ -4,7 +4,7 @@ import Foundation
 /// be invoked when certain criteras are met, either
 /// `Group`-level or that the workflow matches the current
 /// keyboard invocation.
-public struct Workflow: Codable, Hashable {
+public struct Workflow: Identifiable, Codable, Hashable {
   public let id: String
   public var commands: [Command]
   public var keyboardShortcuts: [KeyboardShortcut]
@@ -15,7 +15,7 @@ public struct Workflow: Codable, Hashable {
     return false
   }
 
-  public init(id: String, commands: [Command] = [], keyboardShortcuts: [KeyboardShortcut] = [], name: String) {
+  public init(id: String = UUID().uuidString, name: String, keyboardShortcuts: [KeyboardShortcut] = [], commands: [Command] = []) {
     self.id = id
     self.commands = commands
     self.keyboardShortcuts = keyboardShortcuts
@@ -41,9 +41,11 @@ public struct Workflow: Codable, Hashable {
 
 extension Workflow {
   static public func empty(id: String = UUID().uuidString) -> Workflow {
-    Workflow(id: id,
-             commands: [],
-             keyboardShortcuts: [],
-             name: "Untitled workflow")
+    Workflow(
+      id: id,
+      name: "Untitled workflow",
+      keyboardShortcuts: [],
+      commands: []
+    )
   }
 }
