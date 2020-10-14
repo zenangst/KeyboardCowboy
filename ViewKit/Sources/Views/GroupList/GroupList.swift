@@ -17,10 +17,6 @@ public struct GroupList: View {
   @ObservedObject var controller: Controller
   @State private var editGroup: ModelKit.Group?
 
-  public init(controller: Controller) {
-    self.controller = controller
-  }
-
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HeaderView(title: "Groups").padding(.bottom, 8)

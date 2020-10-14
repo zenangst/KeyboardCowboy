@@ -4,8 +4,8 @@ import ModelKit
 struct EditGroup: View {
   @State private var showColorPopover = false
   @State private var hoverText: String = ""
-  @State private var color: String
   @State private var name: String
+  @State private var color: String
   private var editAction: (String, String) -> Void
   private var cancelAction: () -> Void
 

@@ -2,14 +2,8 @@ import SwiftUI
 import ModelKit
 
 struct EditShellScriptView: View {
-  @ObservedObject var openPanelController: OpenPanelController
   @Binding var command: ScriptCommand
-
-  init(command: Binding<ScriptCommand>,
-       openPanelController: OpenPanelController) {
-    self._command = command
-    self.openPanelController = openPanelController
-  }
+  @ObservedObject var openPanelController: OpenPanelController
 
   var body: some View {
     VStack(spacing: 0) {
