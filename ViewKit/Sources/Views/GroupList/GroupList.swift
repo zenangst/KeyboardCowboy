@@ -44,12 +44,7 @@ public struct GroupList: View {
 
 private extension GroupList {
   var list: some View {
-    List(selection: Binding(get: {
-      userSelection.group
-    }, set: { group in
-      userSelection.group = group
-      userSelection.workflow = group?.workflows.first
-    })) {
+    List(selection: $userSelection.group) {
       ForEach(controller.state) { group in
         GroupListCell(
           name: Binding(get: { group.name }, set: { name in

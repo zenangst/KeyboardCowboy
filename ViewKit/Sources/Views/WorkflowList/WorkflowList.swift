@@ -29,11 +29,7 @@ public struct WorkflowList: View {
 
 private extension WorkflowList {
   var list: some View {
-    List(selection: Binding(get: {
-      userSelection.workflow
-    }, set: { workflow in
-      userSelection.workflow = workflow
-    })) {
+    List(selection: $userSelection.workflow) {
       ForEach(group.workflows) { workflow in
         WorkflowListCell(workflow: workflow)
           .contextMenu {

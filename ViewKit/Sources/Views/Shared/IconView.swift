@@ -23,7 +23,6 @@ struct IconView: View {
         Image(nsImage: iconLoader.icon!)
           .resizable()
       } else {
-
         Spacer().onAppear {
           if iconLoader.icon == nil {
             iconLoader.loadIcon(identifier: icon.identifier, at: icon.path)

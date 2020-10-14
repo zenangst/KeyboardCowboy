@@ -11,12 +11,6 @@ struct EditApplicationCommandView: View {
   @Binding var command: ApplicationCommand
   var installedApplications: [Application]
 
-  init(command: Binding<ApplicationCommand>,
-       installedApplications: [Application]) {
-    self._command = command
-    self.installedApplications = installedApplications
-  }
-
   var body: some View {
     VStack(spacing: 0) {
       HStack {
@@ -36,7 +30,8 @@ struct EditApplicationCommandView: View {
           }
         }
       }.onAppear {
-        if let index = installedApplications.firstIndex(where: { command.application.bundleIdentifier == $0.bundleIdentifier }) {
+        if let index = installedApplications
+            .firstIndex(where: { command.application.bundleIdentifier == $0.bundleIdentifier }) {
           selection = index
         } else if !installedApplications.isEmpty {
           command = .init(id: command.id, application: installedApplications.first!)
