@@ -37,7 +37,7 @@ public struct CommandListView: View {
           Text("≣")
             .font(.title)
             .foregroundColor(Color(.secondaryLabelColor))
-            .padding(8)
+            .padding(16)
             .offset(x: 0, y: -2)
         }
         .frame(height: 48, alignment: .center)
@@ -45,9 +45,6 @@ public struct CommandListView: View {
         .cornerRadius(8)
         .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
         .tag(command)
-        .onTapGesture(count: 2, perform: {
-          editCommand = command
-        })
         .contextMenu {
           Button("Edit") { editCommand = command }
           Divider()
@@ -65,7 +62,6 @@ public struct CommandListView: View {
         }
       })
     }
-    .padding(.horizontal, -18)
     .sheet(item: $editCommand, content: { model in
       EditCommandView(
         applicationProvider: applicationProvider,

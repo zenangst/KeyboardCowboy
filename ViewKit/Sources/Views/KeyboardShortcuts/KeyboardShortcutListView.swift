@@ -13,9 +13,9 @@ public struct KeyboardShortcutListView: View {
 
   public var body: some View {
     List {
-      ForEach(keyboardShortcutController.state) { keyboardShortcut in
+      ForEach(Array(keyboardShortcutController.state.enumerated()), id: \.element) { index, keyboardShortcut in
         HStack {
-//          Text("\(keyboardShortcut.index)").padding(.horizontal, 4)
+          Text("\(index + 1)").padding(.horizontal, 4)
           KeyboardShortcutView(keyboardShortcut: Binding<ModelKit.KeyboardShortcut?>(get: {
             keyboardShortcut
           }, set: { keyboardShortcut in
@@ -36,7 +36,7 @@ public struct KeyboardShortcutListView: View {
           }
         }
         .padding(8)
-        .frame(height: 36)
+        .frame(height: 45)
         .background(Color(.windowBackgroundColor))
         .cornerRadius(8.0)
         .tag(keyboardShortcut)
@@ -50,7 +50,7 @@ public struct KeyboardShortcutListView: View {
           keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut: keyboardShortcut))
         }
       })
-    }.padding(.horizontal, -18)
+    }
   }
 }
 

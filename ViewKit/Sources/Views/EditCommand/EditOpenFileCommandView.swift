@@ -2,14 +2,8 @@ import SwiftUI
 import ModelKit
 
 struct EditOpenFileCommandView: View {
-  @ObservedObject var openPanelController: OpenPanelController
   @Binding var command: OpenCommand
-
-  init(command: Binding<OpenCommand>,
-       openPanelController: OpenPanelController) {
-    self._command = command
-    self.openPanelController = openPanelController
-  }
+  @ObservedObject var openPanelController: OpenPanelController
 
   var body: some View {
     VStack(spacing: 0) {

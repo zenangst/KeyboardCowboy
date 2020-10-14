@@ -24,7 +24,7 @@ struct WorkflowView: View {
         VStack(alignment: .leading) {
           HeaderView(title: "Keyboard shortcuts:")
           keyboardShortcuts.frame(
-            height: max(min(45 * CGFloat(keyboardShortcutController.state.count), 176), 45)
+            height: max(min(72 * CGFloat(keyboardShortcutController.state.count), 176), 72)
           )
         }
         .padding(.top, 12)
