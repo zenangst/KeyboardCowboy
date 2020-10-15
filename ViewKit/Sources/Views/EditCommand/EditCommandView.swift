@@ -170,7 +170,7 @@ struct EditCommandView_Previews: PreviewProvider, TestPreviewProvider {
 
     return Group {
       ForEach(models) { model in
-        EditCommandView(applicationProvider: ApplicationProviderMock().erase(),
+        EditCommandView(applicationProvider: ApplicationPreviewProvider().erase(),
                         openPanelController: OpenPanelPreviewController().erase(),
                         saveAction: { _ in },
                         cancelAction: {},
@@ -180,13 +180,4 @@ struct EditCommandView_Previews: PreviewProvider, TestPreviewProvider {
       }
     }
   }
-}
-
-private class ApplicationProviderMock: StateController {
-  var state = [Application]()
-}
-
-private final class OpenPanelPreviewController: ViewController {
-  let state = ""
-  func perform(_ action: OpenPanelAction) {}
 }

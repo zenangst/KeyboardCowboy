@@ -96,17 +96,3 @@ struct CommandListView_Previews: PreviewProvider, TestPreviewProvider {
                     openPanelController: OpenPanelPreviewController().erase())
   }
 }
-
-private final class ApplicationPreviewProvider: StateController {
-  let state = [Application]()
-}
-
-private final class CommandPreviewController: ViewController {
-  let state = ModelFactory().workflowDetail().commands
-  func perform(_ action: CommandListView.Action) {}
-}
-
-private final class OpenPanelPreviewController: ViewController {
-  let state = ""
-  func perform(_ action: OpenPanelAction) {}
-}

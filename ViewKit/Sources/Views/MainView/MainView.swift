@@ -142,33 +142,3 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
     }
   }
 }
-
-private final class ApplicationPreviewProvider: StateController {
-  let state = [Application]()
-}
-
-private final class CommandPreviewController: ViewController {
-  let state = ModelFactory().workflowDetail().commands
-  func perform(_ action: CommandListView.Action) {}
-}
-
-private final class GroupPreviewController: ViewController {
-  let state = ModelFactory().groupList()
-  func perform(_ action: GroupList.Action) {}
-}
-
-private final class WorkflowPreviewController: ViewController {
-  let state = ModelFactory().workflowList().first
-  func perform(_ action: WorkflowList.Action) {}
-}
-
-private final class OpenPanelPreviewController: ViewController {
-  let state = ""
-  func perform(_ action: OpenPanelAction) {}
-}
-
-private final class KeyboardShortcutPreviewController: ViewController {
-  let state: [ModelKit.KeyboardShortcut] = ModelFactory().keyboardShortcuts()
-
-  func perform(_ action: KeyboardShortcutListView.Action) {}
-}

@@ -51,8 +51,3 @@ struct EditOpenFileCommandView_Previews: PreviewProvider, TestPreviewProvider {
       openPanelController: OpenPanelPreviewController().erase())
   }
 }
-
-private final class OpenPanelPreviewController: ViewController {
-  let state = ""
-  func perform(_ action: OpenPanelAction) {}
-}
