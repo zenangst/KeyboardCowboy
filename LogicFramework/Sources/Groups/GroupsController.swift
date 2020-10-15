@@ -13,8 +13,9 @@ public protocol GroupsControlling {
   ///                   be evaluated against.
   func filterGroups(using rule: Rule) -> [Group]
   func reloadGroups(_ groups: [Group])
-  func groupContext(withIdentifier id: String) -> GroupContext?
-  func workflowContext(workflowId: String) -> WorkflowContext?
+  func group(for workflow: Workflow) -> Group?
+  func workflow(for command: Command) -> Workflow?
+  func workflow(for keyboardShortcut: KeyboardShortcut) -> Workflow?
 }
 
 public protocol GroupsControllingDelegate: AnyObject {
@@ -50,23 +51,20 @@ class GroupsController: GroupsControlling {
     delegate?.groupsController(self, didReloadGroups: groups)
   }
 
-  public func groupContext(withIdentifier id: String) -> GroupContext? {
-    for (offset, group) in groups.enumerated() where group.id == id {
-      return GroupContext(index: offset, model: group)
-    }
-    return nil
+  public func group(for workflow: Workflow) -> Group? {
+    groups.first(where: { $0.workflows.containsElement(workflow) })
   }
 
-  public func workflowContext(workflowId: String) -> WorkflowContext? {
-    for (gOffset, group) in groups.enumerated() {
-      for (wOffset, workflow) in group.workflows.enumerated() where workflow.id == workflowId {
-        return WorkflowContext(
-          index: wOffset, groupContext: GroupContext(index: gOffset, model: group),
-          model: workflow)
-      }
-    }
+  public func workflow(for command: Command) -> Workflow? {
+    groups
+      .flatMap { $0.workflows }
+      .first(where: { $0.commands.containsElement(command) })
+  }
 
-    return nil
+  public func workflow(for keyboardShortcut: KeyboardShortcut) -> Workflow? {
+    groups
+      .flatMap { $0.workflows }
+      .first(where: { $0.keyboardShortcuts.containsElement(keyboardShortcut) })
   }
 }
 

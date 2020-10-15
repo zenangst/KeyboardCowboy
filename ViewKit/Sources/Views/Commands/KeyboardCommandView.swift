@@ -33,7 +33,10 @@ struct KeyboardCommandView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     KeyboardCommandView(
-      command: .keyboard(KeyboardCommand(keyboardShortcut: KeyboardShortcut(id: UUID().uuidString, key: "F", modifiers: [.command]))),
+      command: .keyboard(KeyboardCommand(
+                          keyboardShortcut: KeyboardShortcut(
+                            id: UUID().uuidString,
+                            key: "F", modifiers: [.command]))),
       editAction: { _ in },
       showContextualMenu: true)
   }

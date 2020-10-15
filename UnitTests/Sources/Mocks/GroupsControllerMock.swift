@@ -7,15 +7,16 @@ class GroupsControllerMock: GroupsControlling {
   enum State {
     case filterGroups(rule: Rule)
     case reloadGroups(groups: [Group])
-    case groupContext(identifier: String)
-    case workflowContext(identifier: String)
+    case group(identifier: String)
+    case workflow(identifier: String)
+    case keyboardShortcut(identifier: String)
   }
 
   weak var delegate: GroupsControllingDelegate?
   var groups = [Group]()
   var handler: StateHandler
-  var groupContext: GroupContext?
-  var workflowContext: WorkflowContext?
+  var group: Group?
+  var workflow: Workflow?
 
   init(handler: @escaping StateHandler) {
     self.handler = handler
@@ -30,13 +31,17 @@ class GroupsControllerMock: GroupsControlling {
     handler(.reloadGroups(groups: groups))
   }
 
-  func groupContext(withIdentifier id: String) -> GroupContext? {
-    handler(.groupContext(identifier: id))
-    return groupContext
+  func group(for workflow: Workflow) -> Group? {
+    handler(.group(identifier: workflow.id))
+    return group
+  }
+  func workflow(for command: Command) -> Workflow? {
+    handler(.workflow(identifier: command.id))
+    return workflow
   }
 
-  func workflowContext(workflowId: String) -> WorkflowContext? {
-    handler(.workflowContext(identifier: workflowId))
-    return workflowContext
+  func workflow(for keyboardShortcut: KeyboardShortcut) -> Workflow? {
+    handler(.keyboardShortcut(identifier: keyboardShortcut.id))
+    return workflow
   }
 }

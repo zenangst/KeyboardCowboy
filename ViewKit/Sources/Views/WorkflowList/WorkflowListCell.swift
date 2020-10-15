@@ -37,7 +37,8 @@ private extension WorkflowListCell {
     ZStack {
       ForEach(workflow.commands) { command in
         if case .application(let applicationCommand) = command {
-          IconView(icon: Icon(identifier: applicationCommand.application.bundleIdentifier, path: applicationCommand.application.path))
+          IconView(icon: Icon(identifier: applicationCommand.application.bundleIdentifier,
+                              path: applicationCommand.application.path))
             .frame(width: 32, height: 32)
         }
       }

@@ -157,13 +157,14 @@ class CommandsFeatureControllerTests: XCTestCase {
   func testMoveCommand() {
     let expectation = self.expectation(description: "Wait for callback")
     let identifier = UUID().uuidString
+    let command: Command = .open(.init(id: identifier, path: "path/to/file"))
     let commands: [Command] = [
       .script(.appleScript(.path("path"), "appleScript")),
       .script(.shell(.path("path"), "shellScript")),
-      .open(.init(id: identifier, path: "path/to/file"))
+      command
     ]
     let expected: [Command] = [
-      .open(.init(id: identifier, path: "path/to/file")),
+      command,
       .script(.appleScript(.path("path"), "appleScript")),
       .script(.shell(.path("path"), "shellScript"))
     ]
@@ -222,7 +223,7 @@ class CommandsFeatureControllerTests: XCTestCase {
       $0.workflows.flatMap { $0.commands }
     }.count, 3)
 
-    commandsFeature.perform(.moveCommand(from: 2, to: 0))
+    commandsFeature.perform(.moveCommand(command, to: 0))
 
     wait(for: [expectation], timeout: 10.0)
   }
