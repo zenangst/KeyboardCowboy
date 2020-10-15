@@ -46,8 +46,8 @@ class CommandsFeatureController: ViewController {
       updateCommand(command, in: workflow)
     case .deleteCommand(let command):
       deleteCommand(command, in: workflow)
-    case .moveCommand(let from, let to):
-      moveCommand(from: from, to: to, in: workflow)
+    case .moveCommand(let command, let to):
+      moveCommand(command, to: to, in: workflow)
     case .runCommand:
       Swift.print("run command!")
     case .revealCommand:
@@ -58,43 +58,26 @@ class CommandsFeatureController: ViewController {
   // MARK: Private methods
 
   func createCommand(_ command: Command, in workflow: Workflow) {
-    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
-    var workflow = context.model
-
+    var workflow = workflow
     workflow.commands.append(command)
     delegate?.commandsFeatureController(self, didCreateCommand: command, in: workflow)
   }
 
   func updateCommand(_ command: Command, in workflow: Workflow) {
-    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
-    guard let index = context.model.commands.firstIndex(where: { $0.id == command.id }) else { return }
-
-    var workflow = context.model
-
-    workflow.commands[index] = command
+    var workflow = workflow
+    try? workflow.commands.replace(command)
     delegate?.commandsFeatureController(self, didCreateCommand: command, in: workflow)
   }
 
-  func moveCommand(from: Int, to: Int, in workflow: Workflow) {
-    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
-
-    var workflow = context.model
-    let command = workflow.commands.remove(at: from)
-
-    if to > workflow.commands.count {
-      workflow.commands.append(command)
-    } else {
-      workflow.commands.insert(command, at: to)
-    }
-
+  func moveCommand(_ command: Command, to index: Int, in workflow: Workflow) {
+    var workflow = workflow
+    try? workflow.commands.move(command, to: index)
     delegate?.commandsFeatureController(self, didUpdateCommand: command, in: workflow)
   }
 
   func deleteCommand(_ command: Command, in workflow: Workflow) {
-    guard let context = groupsController.workflowContext(workflowId: workflow.id) else { return }
-
-    let workflow = context.model
-
+    var workflow = workflow
+    try? workflow.commands.remove(command)
     delegate?.commandsFeatureController(self, didDeleteCommand: command, in: workflow)
   }
 

@@ -8,7 +8,7 @@ public struct CommandListView: View {
     case deleteCommand(Command)
     case runCommand(Command)
     case revealCommand(Command)
-    case moveCommand(from: Int, to: Int)
+    case moveCommand(Command, to: Int)
   }
 
   @ObservedObject var applicationProvider: ApplicationProvider
@@ -53,7 +53,8 @@ public struct CommandListView: View {
       }
       .onMove(perform: { indices, newOffset in
         for i in indices {
-          commandController.perform(.moveCommand(from: i, to: newOffset))
+          let command = commandController.state[i]
+          commandController.perform(.moveCommand(command, to: newOffset))
         }
       }).onDelete(perform: { indexSet in
         for index in indexSet {

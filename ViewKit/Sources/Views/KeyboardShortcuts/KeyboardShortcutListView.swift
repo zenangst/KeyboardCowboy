@@ -6,7 +6,7 @@ public struct KeyboardShortcutListView: View {
     case createKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut, index: Int)
     case updateKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut)
     case deleteKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut)
-    case moveCommand(from: Int, to: Int)
+    case moveCommand(keyboardShortcut: ModelKit.KeyboardShortcut, to: Int)
   }
 
   @ObservedObject var keyboardShortcutController: KeyboardShortcutController
@@ -42,7 +42,8 @@ public struct KeyboardShortcutListView: View {
         .tag(keyboardShortcut)
       }.onMove(perform: { indices, newOffset in
         for i in indices {
-          keyboardShortcutController.perform(.moveCommand(from: i, to: newOffset))
+          let keyboardShortcut = keyboardShortcutController.state[i]
+          keyboardShortcutController.perform(.moveCommand(keyboardShortcut: keyboardShortcut, to: newOffset))
         }
       }).onDelete(perform: { indexSet in
         for index in indexSet {

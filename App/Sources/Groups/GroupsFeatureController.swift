@@ -93,24 +93,15 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
   }
 
   private func save(_ group: ModelKit.Group) {
-    guard let ctx = groupsController.groupContext(withIdentifier: group.id) else {
-      return
-    }
-
     var groups = groupsController.groups
-    groups[ctx.index] = group
-    reload(groups) { [weak self] _ in
-      self?.userSelection.group = group
-    }
+    try? groups.replace(group)
+    reload(groups)
+    userSelection.group = group
   }
 
   private func delete(_ group: ModelKit.Group) {
-    guard let ctx = groupsController.groupContext(withIdentifier: group.id) else {
-      return
-    }
-
     var groups = groupsController.groups
-    groups.remove(at: ctx.index)
+    try? groups.remove(group)
 
     var selectedGroup: Group?
     if !groups.isEmpty {
@@ -127,14 +118,9 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
   // MARK: WorkflowFeatureControllerDelegate
 
   func workflowFeatureController(_ controller: WorkflowFeatureController, didCreateWorkflow workflow: Workflow,
-                                 in context: GroupContext) {
+                                 in group: Group) {
     var groups = self.groupsController.groups
-    var group = context.model
-    var workflows = group.workflows
-
-    workflows.append(workflow)
-    group.workflows = workflows
-    groups[context.index] = group
+    try? groups.replace(group)
 
     reload(groups) { [weak self] _ in
       self?.userSelection.group = group
@@ -142,47 +128,43 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
     }
   }
 
-  func workflowFeatureController(_ controller: WorkflowFeatureController, didUpdateWorkflow context: WorkflowContext) {
+  func workflowFeatureController(_ controller: WorkflowFeatureController,
+                                 didUpdateWorkflow workflow: Workflow,
+                                 in group: Group) {
     var groups = self.groupsController.groups
-    var group = context.groupContext.model
-    var workflows = group.workflows
-
-    workflows[context.index] = context.model
-    group.workflows = workflows
-    groups[context.groupContext.index] = group
-
+    try? groups.replace(group)
     reload(groups) { [weak self] _ in
       self?.userSelection.group = group
-      self?.userSelection.workflow = context.model
+      self?.userSelection.workflow = workflow
     }
   }
 
-  func workflowFeatureController(_ controller: WorkflowFeatureController, didDeleteWorkflow context: WorkflowContext) {
+  func workflowFeatureController(_ controller: WorkflowFeatureController,
+                                 didDeleteWorkflow workflow: Workflow,
+                                 in group: Group) {
     var groups = self.groupsController.groups
-    var group = context.groupContext.model
-    var workflows = group.workflows
+    try? groups.replace(group)
 
-    workflows.remove(at: context.index)
-    group.workflows = workflows
-    groups[context.groupContext.index] = group
+    var selectedWorkflow: Workflow?
+    if !group.workflows.isEmpty {
+      let index = max(group.workflows.count - 1, 0)
+      selectedWorkflow = group.workflows[index]
+    }
 
-    reload(groups) { [weak self] _ in
-      self?.userSelection.group = group
-      self?.userSelection.workflow = group.workflows.first
+    reload(groups) { [weak self] groups in
+      self?.userSelection.group = groups.first
+      self?.userSelection.workflow = selectedWorkflow
     }
   }
 
-  func workflowFeatureController(_ controller: WorkflowFeatureController, didMoveWorkflow context: WorkflowContext) {
+  func workflowFeatureController(_ controller: WorkflowFeatureController,
+                                 didMoveWorkflow workflow: Workflow,
+                                 in group: Group) {
     var groups = self.groupsController.groups
-    var group = context.groupContext.model
-    let workflows = group.workflows
-
-    group.workflows = workflows
-    groups[context.groupContext.index] = group
-
+    try? groups.replace(group)
     reload(groups) { [weak self] _ in
       self?.userSelection.group = group
-      self?.userSelection.workflow = context.model
+      self?.userSelection.workflow = workflow
     }
   }
 }

@@ -5,7 +5,8 @@ public typealias GroupController = AnyViewController<[ModelKit.Group], GroupList
 public typealias WorkflowController = AnyViewController<Workflow?, WorkflowList.Action>
 public typealias CommandController = AnyViewController<[Command], CommandListView.Action>
 public typealias OpenPanelController = AnyViewController<String, OpenPanelAction>
-public typealias KeyboardShortcutController = AnyViewController<[ModelKit.KeyboardShortcut], KeyboardShortcutListView.Action>
+public typealias KeyboardShortcutController = AnyViewController<[ModelKit.KeyboardShortcut],
+                                                                KeyboardShortcutListView.Action>
 public typealias ApplicationProvider = AnyStateController<[Application]>
 
 public struct MainView: View {
