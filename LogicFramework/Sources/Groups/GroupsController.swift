@@ -78,25 +78,3 @@ private extension Collection where Iterator.Element: Hashable {
     return !lhs.isDisjoint(with: rhs)
   }
 }
-
-public struct GroupContext {
-  public let index: Int
-  public let model: Group
-
-  public init(index: Int, model: Group) {
-    self.index = index
-    self.model = model
-  }
-}
-
-public struct WorkflowContext {
-  public let index: Int
-  public let groupContext: GroupContext
-  public let model: Workflow
-
-  public init(index: Int, groupContext: GroupContext, model: Workflow) {
-    self.index = index
-    self.groupContext = groupContext
-    self.model = model
-  }
-}
