@@ -87,10 +87,12 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
         bundleName = cfBundleDisplayname
       }
 
+      if bundle.infoDictionary?["CFBundleIconFile"] as? String == nil { return nil }
+
       guard let resolvedBundleName = bundleName else { return nil }
 
       return Application(bundleIdentifier: bundleIdentifier, bundleName: resolvedBundleName, path: bundle.bundlePath)
-    })
+    }).sorted(by: { $0.bundleName.lowercased() < $1.bundleName.lowercased() })
   }
 
   @objc public func reloadContext() {
