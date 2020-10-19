@@ -59,7 +59,7 @@ struct SearchView: View {
   }
 }
 
-struct SearchView_Previews: PreviewProvider {
+struct SearchView_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
     testPreview.previewAllColorSchemes()
   }
