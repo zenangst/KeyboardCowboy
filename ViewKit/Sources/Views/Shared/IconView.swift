@@ -17,6 +17,11 @@ struct IconView: View {
 
   let icon: Icon
 
+  init(icon: Icon) {
+    self.icon = icon
+    iconLoader.preLoadIcon(identifier: icon.identifier, at: icon.path)
+  }
+
   var body: some View {
     ZStack {
       if iconLoader.icon != nil {

@@ -51,7 +51,7 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
     self.groupsController = groupsController
     self.hotkeyController = hotkeyController
     self.keycodeMapper = keycodeMapper
-    self.rebindingController = try? RebindingController()
+    self.rebindingController = try? RebindingController(keyCodeMapper: keycodeMapper)
     self.workflowController = workflowController
     self.workspace = workspace
     super.init()

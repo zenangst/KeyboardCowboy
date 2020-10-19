@@ -14,7 +14,7 @@ struct WorkflowListCell: View {
           }.frame(minHeight: 48)
           Spacer()
           icon
-        }
+        }.padding(.horizontal, 10)
       }
     }
   }

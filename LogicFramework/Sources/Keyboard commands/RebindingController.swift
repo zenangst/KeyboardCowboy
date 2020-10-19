@@ -5,7 +5,7 @@ import ModelKit
 /// A rebinding controller is responsible for intercepting keyboard shortcuts and posting
 /// alternate events when rebounded keys are invoked.
 public protocol RebindingControlling {
-  init() throws
+  init(keyCodeMapper: KeyCodeMapping) throws
   var isEnabled: Bool { get set }
   func monitor(_ workflows: [Workflow])
   func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ cgEvent: CGEvent) -> Unmanaged<CGEvent>?
@@ -29,11 +29,11 @@ final class RebindingController: RebindingControlling {
     get { machPort.map(CGEvent.tapIsEnabled) ?? false }
   }
 
-  required init() throws {
+  required init(keyCodeMapper: KeyCodeMapping) throws {
     self.eventSource = try createEventSource()
     self.machPort = try createMachPort()
     self.runLoopSource = try createRunLoopSource()
-    Self.cache = KeyCodeMapper().hashTable()
+    Self.cache = keyCodeMapper.hashTable()
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
   }
 

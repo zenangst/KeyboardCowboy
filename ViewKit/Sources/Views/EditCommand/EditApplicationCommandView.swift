@@ -18,25 +18,27 @@ struct EditApplicationCommandView: View {
         Spacer()
       }.padding()
       Divider()
-      VStack {
-        Picker("Application: ", selection: Binding(get: {
-          selection
-        }, set: {
-          selection = $0
-          command = ApplicationCommand(id: command.id, application: installedApplications[$0])
-        })) {
-          ForEach(0..<installedApplications.count) { index in
-            Text(installedApplications[index].bundleName).tag(index)
+      HelperView(text: "Pick the application that you want to launch/activate", contentView: Group {
+        VStack {
+          Picker("Application: ", selection: Binding(get: {
+            selection
+          }, set: {
+            selection = $0
+            command = ApplicationCommand(id: command.id, application: installedApplications[$0])
+          })) {
+            ForEach(0..<installedApplications.count) { index in
+              Text(installedApplications[index].bundleName).tag(index)
+            }
           }
-        }
-      }.onAppear {
-        if let index = installedApplications
-            .firstIndex(where: { command.application.bundleIdentifier == $0.bundleIdentifier }) {
-          selection = index
-        } else if !installedApplications.isEmpty {
-          command = .init(id: command.id, application: installedApplications.first!)
-        }
-      }.padding()
+        }.padding()
+      }.erase())
+    }.onAppear {
+      if let index = installedApplications
+          .firstIndex(where: { command.application.bundleIdentifier == $0.bundleIdentifier }) {
+        selection = index
+      } else if !installedApplications.isEmpty {
+        command = .init(id: command.id, application: installedApplications.first!)
+      }
     }
   }
 }

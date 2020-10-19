@@ -15,7 +15,7 @@ public struct OpenCommand: Identifiable, Codable, Hashable {
 
   public var isUrl: Bool {
     if let url = URL(string: path) {
-      if url.isFileURL {
+      if url.host == nil || url.isFileURL {
         return false
       } else {
         return true

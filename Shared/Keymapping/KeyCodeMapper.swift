@@ -13,13 +13,14 @@ public enum KeyCodeMappingError: Error {
 class KeyCodeMapper: KeyCodeMapping {
   let inputSource: InputSource
   let inputController: InputSourceController
+  static var inputController = InputSourceController()
   static var shared: KeyCodeMapper = KeyCodeMapper()
 
   var keyCodeLookup = [Int: String]()
   var stringLookup = [String: Int]()
 
   init(inputSource: InputSource? = nil, then handler: (() -> KeyCodeMapper)? = nil) {
-    let inputController = InputSourceController()
+    let inputController = Self.inputController
     self.inputSource = inputSource ?? inputController.currentInputSource()
     self.inputController = inputController
     self.cache()

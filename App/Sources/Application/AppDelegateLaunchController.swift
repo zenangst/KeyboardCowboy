@@ -3,7 +3,11 @@ import LaunchArguments
 import LogicFramework
 
 class AppDelegateLaunchController {
-  let factory = ControllerFactory()
+  let factory: ControllerFactory
+
+  init(factory: ControllerFactory) {
+    self.factory = factory
+  }
 
   func initialLoad(storageController: StorageControlling) throws -> CoreControlling {
     let groups = try storageController.load()

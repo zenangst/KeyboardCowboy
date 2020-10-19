@@ -27,7 +27,7 @@ public struct KeyboardShortcutListView: View {
             Button("+", action: {
               if let index = keyboardShortcutController.state.firstIndex(of: keyboardShortcut) {
                 keyboardShortcutController.perform(.createKeyboardShortcut(keyboardShortcut: KeyboardShortcut.empty(),
-                                                                           index: index))
+                                                                           index: index + 1))
               }
             })
             Button("-", action: {

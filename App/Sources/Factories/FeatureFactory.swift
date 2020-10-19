@@ -4,7 +4,6 @@ import ViewKit
 import ModelKit
 
 class FeatureFactory {
-  private let logic = ControllerFactory()
   private let coreController: CoreControlling
   private let userSelection: UserSelection
   private var groupsController: GroupsControlling {
@@ -15,7 +14,8 @@ class FeatureFactory {
     coreController.installedApplications
   }
 
-  init(coreController: CoreControlling, userSelection: UserSelection) {
+  init(coreController: CoreControlling,
+       userSelection: UserSelection) {
     self.coreController = coreController
     self.userSelection = userSelection
   }
@@ -50,5 +50,14 @@ class FeatureFactory {
     CommandsFeatureController(groupsController: groupsController,
                               installedApplications: installedApplications,
                               state: [], userSelection: userSelection)
+  }
+
+  func searchFeature(userSelection: UserSelection) -> SearchFeatureController {
+    let root = SearchRootController(groupsController: groupsController,
+                                    groupSearch: SearchGroupsController())
+    let feature = SearchFeatureController(userSelection: userSelection,
+                                          searchController: root,
+                                          query: .constant(""))
+    return feature
   }
 }

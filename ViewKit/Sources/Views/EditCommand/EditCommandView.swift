@@ -11,20 +11,18 @@ struct EditCommandView: View {
   private let commands = ModelFactory().commands()
 
   var body: some View {
-    HStack(spacing: 0) {
-      list
-        .listStyle(PlainListStyle())
-        .frame(width: 250)
-      VStack {
+    VStack(spacing: 0) {
+      HStack(alignment: .top, spacing: 0) {
+        list
+          .listStyle(PlainListStyle())
+          .frame(width: 250)
         editView
-        Spacer()
-        Divider()
-        buttons.padding(8)
-      }
-      .frame(height: 300)
-      .background(Color(.windowBackgroundColor))
+      }.background(Color(.windowBackgroundColor))
+
+      Divider()
+      buttons.padding(8)
     }
-    .frame(width: 700)
+    .frame(width: 700, height: 400)
   }
 }
 
@@ -45,97 +43,94 @@ private extension EditCommandView {
     }
   }
 
+  @ViewBuilder
   var editView: some View {
-    VStack(alignment: .center, spacing: 8) {
-      VStack {
-        switch selection {
-        case .application(let command):
-          EditApplicationCommandView(
+      switch selection {
+      case .application(let command):
+        EditApplicationCommandView(
+          command: Binding(
+            get: {
+              if case .application(let model) = self.command {
+                return model
+              } else {
+                return command
+              }
+            },
+            set: { applicationCommand in
+              self.command = .application(applicationCommand)
+            }),
+          installedApplications: applicationProvider.state)
+      case .script(let kind):
+        switch kind {
+        case .appleScript:
+          EditAppleScriptView(
             command: Binding(
               get: {
-                if case .application(let model) = self.command {
+                if case .script(let model) = self.command {
+                  return model
+                } else {
+                  return kind
+                }
+              },
+              set: { scriptCommand in
+                self.command = .script(scriptCommand)
+              }),
+            openPanelController: openPanelController)
+        case .shell:
+          EditShellScriptView(
+            command: Binding(
+              get: {
+                if case .script(let model) = self.command {
+                  return model
+                } else {
+                  return kind
+                }
+              },
+              set: { scriptCommand in
+                self.command = .script(scriptCommand)
+              }),
+            openPanelController: openPanelController)
+        }
+      case .open(let command):
+        if command.isUrl {
+          EditOpenURLCommandView(
+            command: Binding(
+              get: {
+                if case .open(let model) = self.command {
                   return model
                 } else {
                   return command
                 }
               },
-              set: { applicationCommand in
-                self.command = .application(applicationCommand)
+              set: { openCommand in
+                self.command = .open(openCommand)
+              }))
+        } else {
+          EditOpenFileCommandView(
+            command: Binding(
+              get: {
+                if case .open(let model) = self.command {
+                  return model
+                } else {
+                  return command
+                }
+              },
+              set: { openCommand in
+                self.command = .open(openCommand)
               }),
-            installedApplications: applicationProvider.state)
-        case .script(let kind):
-          switch kind {
-          case .appleScript:
-            EditAppleScriptView(
-              command: Binding(
-                get: {
-                  if case .script(let model) = self.command {
-                    return model
-                  } else {
-                    return kind
-                  }
-                },
-                set: { scriptCommand in
-                  self.command = .script(scriptCommand)
-                }),
-              openPanelController: openPanelController)
-          case .shell:
-            EditShellScriptView(
-              command: Binding(
-                get: {
-                  if case .script(let model) = self.command {
-                    return model
-                  } else {
-                    return kind
-                  }
-                },
-                set: { scriptCommand in
-                  self.command = .script(scriptCommand)
-                }),
-              openPanelController: openPanelController)
-          }
-        case .open(let command):
-          if command.isUrl {
-            EditOpenURLCommandView(
-              command: Binding(
-                get: {
-                  if case .open(let model) = self.command {
-                    return model
-                  } else {
-                    return command
-                  }
-                },
-                set: { openCommand in
-                  self.command = .open(openCommand)
-                }))
-          } else {
-            EditOpenFileCommandView(
-              command: Binding(
-                get: {
-                  if case .open(let model) = self.command {
-                    return model
-                  } else {
-                    return command
-                  }
-                },
-                set: { openCommand in
-                  self.command = .open(openCommand)
-                }),
-                openPanelController: openPanelController)
-          }
-          EmptyView()
-        case .keyboard(let command):
-          EditKeyboardShortcutView(command: Binding(
-            get: { command },
-            set: { keyboardCommand in
-              self.command = .keyboard(keyboardCommand)
-            }
-          ))
-        case .none:
-          Text("Pick a command type:")
+            openPanelController: openPanelController)
         }
+        EmptyView()
+      case .keyboard(let command):
+        EditKeyboardShortcutView(command: Binding(
+          get: { command },
+          set: { keyboardCommand in
+            self.command = .keyboard(keyboardCommand)
+          }
+        ))
+      case .none:
+        Text("Pick a command type:")
       }
-    }
   }
 
   var buttons: some View {

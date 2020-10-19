@@ -62,7 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
 
   private func runApplication() {
     do {
-      let launchController = AppDelegateLaunchController()
+      let launchController = AppDelegateLaunchController(factory: factory)
       let controller = try launchController.initialLoad(storageController: storageController)
       self.coreController = controller
 
@@ -91,12 +91,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
 
     let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications)
 
+    let searchController = featureFactory.searchFeature(userSelection: userSelection)
+
     let mainView = MainView(
       applicationProvider: applicationProvider.erase(),
       commandController: commandsController.erase(),
       groupController: groupFeatureController.erase(),
       keyboardShortcutController: keyboardFeatureController.erase(),
       openPanelController: OpenPanelViewController().erase(),
+      searchController: searchController.erase(),
       workflowController: workflowFeatureController.erase())
       .environmentObject(userSelection)
 
