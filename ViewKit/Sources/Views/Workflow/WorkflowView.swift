@@ -22,7 +22,7 @@ struct WorkflowView: View {
         addKeyboardShortcut.padding(.vertical, 8)
       } else {
         VStack(alignment: .leading) {
-          HeaderView(title: "Keyboard shortcuts:")
+          HeaderView(title: "Keyboard shortcuts:").padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
           keyboardShortcuts.frame(
             height: max(min(72 * CGFloat(keyboardShortcutController.state.count), 176), 72)
           )
@@ -34,7 +34,7 @@ struct WorkflowView: View {
         .padding(16)
 
       VStack(alignment: .leading) {
-        HeaderView(title: "Commands:")
+        HeaderView(title: "Commands:").padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
         commands
       }
 

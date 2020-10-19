@@ -2,6 +2,10 @@ import Cocoa
 import ModelKit
 
 public class ControllerFactory {
+  private let _keycodeMapper = KeyCodeMapper.shared
+  private let _groupsController = GroupsController(groups: [])
+  private let _hotkeyController = HotkeyController(hotkeyHandler: HotkeyHandler.shared)
+
   public init() {}
 
   public func coreController(commandController: CommandControlling? = nil,
@@ -12,9 +16,9 @@ public class ControllerFactory {
                              workflowController: WorkflowControlling? = nil,
                              workspace: WorkspaceProviding = NSWorkspace.shared) -> CoreControlling {
     let commandController = commandController ?? self.commandController()
-    let groupsController = groupsController ?? GroupsController(groups: [])
-    let hotkeyController = hotkeyController ?? HotkeyController(hotkeyHandler: HotkeyHandler.shared)
-    let keycodeMapper = keycodeMapper ?? KeyCodeMapper()
+    let groupsController = groupsController ?? self._groupsController
+    let hotkeyController = hotkeyController ?? self._hotkeyController
+    let keycodeMapper = keycodeMapper ?? self._keycodeMapper
     let workflowController = workflowController ?? WorkflowController()
     return CoreController(commandController: commandController,
                           disableKeyboardShortcuts: disableKeyboardShortcuts,
@@ -26,11 +30,12 @@ public class ControllerFactory {
   }
 
   public func hotkeyController() -> HotkeyControlling {
-    HotkeyController(hotkeyHandler: HotkeyHandler.shared)
+    _hotkeyController
   }
 
   public func groupsController(groups: [Group]) -> GroupsControlling {
-    GroupsController(groups: groups)
+    _groupsController.groups = groups
+    return _groupsController
   }
 
   public func workflowController() -> WorkflowControlling {
@@ -53,7 +58,8 @@ public class ControllerFactory {
       self.applicationCommandController(
         windowListProvider: WindowListProvider(),
         workspace: workspace)
-    let keyboardCommandController = keyboardCommandController ?? KeyboardCommandController()
+    let keyboardCommandController = keyboardCommandController ??
+      KeyboardCommandController(keyCodeMapper: _keycodeMapper)
     let openCommandController = openCommandController ?? self.openCommandController(workspace: workspace)
     let appleScriptCommandController = appleScriptCommandController ?? AppleScriptController()
     let shellScriptCommandController = shellScriptCommandController ?? ShellScriptController()

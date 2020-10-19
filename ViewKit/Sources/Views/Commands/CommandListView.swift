@@ -45,6 +45,7 @@ public struct CommandListView: View {
         .cornerRadius(8)
         .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
         .tag(command)
+        .id(command.id)
         .contextMenu {
           Button("Edit") { editCommand = command }
           Divider()

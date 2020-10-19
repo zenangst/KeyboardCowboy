@@ -16,12 +16,12 @@ public enum KeyboardCommandControllingError: Error {
 
 class KeyboardCommandController: KeyboardCommandControlling {
 
-  let keyMapper: KeyCodeMapper
+  let keyCodeMapper: KeyCodeMapping
   var cache = [String: Int]()
 
-  init() {
-    self.keyMapper = KeyCodeMapper()
-    cache = keyMapper.hashTable()
+  init(keyCodeMapper: KeyCodeMapping) {
+    self.keyCodeMapper = keyCodeMapper
+    cache = keyCodeMapper.hashTable()
   }
 
   func run(_ command: KeyboardCommand) -> CommandPublisher {

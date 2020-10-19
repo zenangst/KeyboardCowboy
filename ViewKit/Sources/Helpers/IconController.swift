@@ -18,7 +18,8 @@ public class IconController: ObservableObject {
   private let fileManager: FileManager
   private let workspace: NSWorkspace
 
-  init(fileManager: FileManager = .init(), workspace: NSWorkspace = .shared) {
+  init(fileManager: FileManager = .init(),
+       workspace: NSWorkspace = .shared) {
     self.fileManager = fileManager
     self.workspace = workspace
   }
@@ -27,10 +28,16 @@ public class IconController: ObservableObject {
     cache.removeAllObjects()
   }
 
+  @discardableResult
+  public func preLoadIcon(identifier: String, at path: String) -> NSImage? {
+    guard let image = Self.cache.object(forKey: identifier as NSString) else { return nil }
+    self.icon = image
+    return image
+  }
+
   public func loadIcon(identifier: String, at path: String) {
-    if let image = Self.cache.object(forKey: identifier as NSString) {
+    if let image = preLoadIcon(identifier: identifier, at: path) {
       self.icon = image
-      return
     } else if let cachedImage = loadImageFromDisk(withFilename: identifier) {
       Self.cache.setObject(cachedImage, forKey: identifier as NSString)
       self.icon = cachedImage
@@ -50,6 +57,7 @@ public class IconController: ObservableObject {
       var image = self.workspace.icon(forFile: applicationPath)
       var imageRect: CGRect = .init(origin: .zero, size: CGSize(width: 128, height: 128))
       let imageRef = image.cgImage(forProposedRect: &imageRect, context: nil, hints: nil)
+
       if let imageRef = imageRef {
         image = NSImage(cgImage: imageRef, size: imageRect.size)
       }
@@ -76,24 +84,18 @@ public class IconController: ObservableObject {
   }
 
   private func loadImageFromDisk(withFilename filename: String) -> NSImage? {
-    if let applicationFile = try? applicationCacheDirectory()
-        .appendingPathComponent("\(filename).png") {
-      if FileManager.default.fileExists(atPath: applicationFile.path) {
-        let image = NSImage.init(contentsOf: applicationFile)
-        return image
-      }
+    guard let applicationFile = try? applicationCacheDirectory().appendingPathComponent("\(filename).png"),
+          FileManager.default.fileExists(atPath: applicationFile.path) else {
+      return nil
     }
 
-    return nil
+    return NSImage.init(contentsOf: applicationFile)
   }
 
-  func saveImage(_ image: NSImage,
-                 to destination: URL,
-                 override: Bool = false) throws {
+  func saveImage(_ image: NSImage, to destination: URL, override: Bool = false) throws {
     let data = try tiffDataFromImage(image)
     do {
-      if fileManager.fileExists(atPath: destination.path) {
-        if override == false { return }
+      if fileManager.fileExists(atPath: destination.path), override == false {
         try fileManager.removeItem(at: destination)
       }
       try data.write(to: destination)

@@ -8,6 +8,7 @@ public typealias OpenPanelController = AnyViewController<String, OpenPanelAction
 public typealias KeyboardShortcutController = AnyViewController<[ModelKit.KeyboardShortcut],
                                                                 KeyboardShortcutListView.Action>
 public typealias ApplicationProvider = AnyStateController<[Application]>
+public typealias SearchController = AnyViewController<ModelKit.SearchResults, SearchResultsList.Action>
 
 public struct MainView: View {
   @ObservedObject var applicationProvider: ApplicationProvider
@@ -16,6 +17,7 @@ public struct MainView: View {
   @ObservedObject var keyboardShortcutController: KeyboardShortcutController
   @ObservedObject var workflowController: WorkflowController
   @ObservedObject var openPanelController: OpenPanelController
+  @ObservedObject var searchController: SearchController
   @EnvironmentObject var userSelection: UserSelection
   @State private var searchText: String = ""
 
@@ -24,12 +26,14 @@ public struct MainView: View {
               groupController: GroupController,
               keyboardShortcutController: KeyboardShortcutController,
               openPanelController: OpenPanelController,
+              searchController: SearchController,
               workflowController: WorkflowController) {
     self.applicationProvider = applicationProvider
     self.commandController = commandController
     self.groupController = groupController
     self.keyboardShortcutController = keyboardShortcutController
     self.openPanelController = openPanelController
+    self.searchController = searchController
     self.workflowController = workflowController
   }
 
@@ -37,7 +41,7 @@ public struct MainView: View {
     NavigationView {
       sidebar.frame(minWidth: 200)
       GeometryReader { geometry in
-        if searchText.isEmpty {
+        if userSelection.group != nil && userSelection.workflow != nil {
           HSplitView {
             workflowList
               .frame(minWidth: 225, maxWidth: 275)
@@ -54,8 +58,24 @@ public struct MainView: View {
                             startPoint: .top,
                             endPoint: .bottom))
           }
-        } else {
+        } else if !searchText.isEmpty {
           searchContext
+        } else if userSelection.workflow == nil {
+          HStack {
+            Spacer()
+            HelperView(
+              text: "Start by adding a workflow",
+              contentView: Group {
+                HStack {
+                  RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
+                  Button("Add Workflow", action: {
+                    workflowController.perform(.createWorkflow)
+                  }).buttonStyle(PlainButtonStyle())
+                }
+              }.erase())
+              .frame(height: geometry.size.height)
+            Spacer()
+          }.padding()
         }
       }
     }.frame(minWidth: 845)
@@ -67,7 +87,13 @@ public struct MainView: View {
 private extension MainView {
   var sidebar: some View {
     VStack(alignment: .leading) {
-      SearchField(query: $searchText)
+      SearchField(query: Binding(get: { searchText },
+                                 set: { newSearchText in
+                                  searchText = newSearchText
+                                  userSelection.group = nil
+                                  userSelection.workflow = nil
+                                  searchController.action(.search(newSearchText))()
+      }))
         .frame(height: 48)
         .padding(.horizontal, 12)
         .padding(.top, 36)
@@ -83,18 +109,6 @@ private extension MainView {
                       get: { group },
                       set: { userSelection.group = $0 }),
                      workflowController: workflowController)
-      } else {
-        VStack {
-          HStack {
-            RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-            Button("Add Workflow", action: {
-              workflowController.perform(.createWorkflow)
-            }).buttonStyle(PlainButtonStyle())
-          }
-          Divider().frame(width: 25)
-          Text("Start by adding a workflow")
-            .font(.caption)
-        }
       }
   }
 
@@ -121,7 +135,7 @@ private extension MainView {
   }
 
   var searchContext: some View {
-    Text("Not yet implemented")
+    SearchView(searchController: searchController)
   }
 }
 
@@ -137,6 +151,7 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
                groupController: GroupPreviewController().erase(),
                keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
                openPanelController: OpenPanelPreviewController().erase(),
+               searchController: SearchPreviewController().erase(),
                workflowController: WorkflowPreviewController().erase())
         .environmentObject(UserSelection())
         .frame(width: 960, height: 600, alignment: .leading)

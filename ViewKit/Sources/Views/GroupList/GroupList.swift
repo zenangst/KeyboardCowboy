@@ -20,6 +20,7 @@ public struct GroupList: View {
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HeaderView(title: "Groups").padding(.bottom, 8)
+        .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
       list
         .onDrop(of: ["public.file-url"], isTargeted: nil, perform: { providers -> Bool in
           providers.forEach {

@@ -26,4 +26,11 @@ class OpenCommandTests: XCTestCase {
     ]
     XCTAssertEqual(try OpenCommand.decode(from: json), subject)
   }
+
+  func testIsUrl() {
+    XCTAssertTrue(OpenCommand(path: "https://www.github.com/").isUrl)
+    XCTAssertTrue(OpenCommand(path: "ftp://hostname.com").isUrl)
+    XCTAssertFalse(OpenCommand(path: "file://").isUrl)
+    XCTAssertFalse(OpenCommand(path: "~/.gitconfig").isUrl)
+  }
 }

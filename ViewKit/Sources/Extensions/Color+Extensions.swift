@@ -12,7 +12,8 @@ extension Color {
     }
     if hex.count == 3 {
       for (index, char) in hex.enumerated() {
-        hex.insert(char, at: hex.index(hex.startIndex, offsetBy: index * 2))
+        let offset = index * 2
+        hex.insert(char, at: hex.index(hex.startIndex, offsetBy: offset))
       }
     }
 

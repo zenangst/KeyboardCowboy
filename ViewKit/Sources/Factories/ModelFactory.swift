@@ -142,7 +142,7 @@ class ModelFactory {
   private func openWorkflows(_ applicationNames: (String, String) ...) -> [Workflow] {
     applicationNames.compactMap({
       Workflow(
-        name: "Open \($0)",
+        name: "Open \($0.0)",
         keyboardShortcuts: [
           KeyboardShortcut(id: UUID().uuidString, key: "fn"),
           KeyboardShortcut(id: UUID().uuidString, key: "A")
