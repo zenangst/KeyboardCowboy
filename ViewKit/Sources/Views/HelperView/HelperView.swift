@@ -4,7 +4,6 @@ struct HelperView: View {
   let text: String
   let contentView: AnyView
 
-  @ViewBuilder
   var body: some View {
     VStack {
       contentView
