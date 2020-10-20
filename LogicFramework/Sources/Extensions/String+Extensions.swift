@@ -12,4 +12,8 @@ extension String {
     path = path.replacingOccurrences(of: "", with: "\\ ")
     return path
   }
+
+  public func containsCaseSensitive(_ subject: String) -> Bool {
+    self.lowercased().contains(subject.lowercased())
+  }
 }

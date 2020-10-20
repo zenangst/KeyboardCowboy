@@ -97,9 +97,3 @@ class SearchRootController {
     return results
   }
 }
-
-extension String {
-  func containsCaseSensitive(_ subject: String) -> Bool {
-    self.lowercased().contains(subject.lowercased())
-  }
-}
