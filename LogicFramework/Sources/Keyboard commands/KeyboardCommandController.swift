@@ -6,7 +6,9 @@ import ModelKit
 public protocol KeyboardCommandControlling {
   /// - Parameter command: A `KeyboardCommand` that should be invoked.
   /// - Returns: A publisher that wraps a result of the run operation.
-  func run(_ command: KeyboardCommand) -> CommandPublisher
+  func run(_ command: KeyboardCommand,
+           type: CGEventType,
+           eventSource: CGEventSource?) -> CommandPublisher
 }
 
 public enum KeyboardCommandControllingError: Error {
@@ -24,13 +26,15 @@ class KeyboardCommandController: KeyboardCommandControlling {
     cache = keyCodeMapper.hashTable()
   }
 
-  func run(_ command: KeyboardCommand) -> CommandPublisher {
+  func run(_ command: KeyboardCommand,
+           type: CGEventType,
+           eventSource: CGEventSource?) -> CommandPublisher {
     return Future { [weak self] promise in
       if let key = self?.cache[command.keyboardShortcut.key.uppercased()],
          let cgKeyCode = CGKeyCode(exactly: key),
-         let newEvent = CGEvent(keyboardEventSource: nil,
+         let newEvent = CGEvent(keyboardEventSource: eventSource,
                                 virtualKey: cgKeyCode,
-                                keyDown: true) {
+                                keyDown: type == .keyDown) {
         newEvent.post(tap: .cghidEventTap)
         promise(.success(()))
       } else {

@@ -10,7 +10,9 @@ class KeyboardShortcutControllerMock: KeyboardCommandControlling {
     self.result = result
   }
 
-  func run(_ command: KeyboardCommand) -> CommandPublisher {
+  func run(_ command: KeyboardCommand,
+           type: CGEventType,
+           eventSource: CGEventSource?) -> CommandPublisher {
     result.publisher.eraseToAnyPublisher()
   }
 }

@@ -1,7 +1,7 @@
 import Foundation
 import ModelKit
 
-public protocol GroupsControlling {
+public protocol GroupsControlling: AnyObject {
   var delegate: GroupsControllingDelegate? { get set }
   var groups: [Group] { get }
 

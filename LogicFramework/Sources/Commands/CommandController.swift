@@ -72,7 +72,9 @@ public class CommandController: CommandControlling {
     case .application(let applicationCommand):
       subscribeToPublisher(applicationCommandController.run(applicationCommand), for: command)
     case .keyboard(let keyboardCommand):
-      subscribeToPublisher(keyboardCommandController.run(keyboardCommand), for: command)
+      subscribeToPublisher(keyboardCommandController.run(keyboardCommand,
+                                                         type: .keyDown,
+                                                         eventSource: nil), for: command)
     case .open(let openCommand):
       subscribeToPublisher(openCommandController.run(openCommand), for: command)
     case .script(let scriptCommand):
