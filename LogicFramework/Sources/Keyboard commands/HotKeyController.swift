@@ -4,9 +4,12 @@ import ModelKit
 
 /// A rebinding controller is responsible for intercepting keyboard shortcuts and posting
 /// alternate events when rebounded keys are invoked.
-public protocol RebindingControlling {
-  init(keyCodeMapper: KeyCodeMapping) throws
+public protocol HotKeyControlling {
+  init(keyCodeMapper: KeyCodeMapping,
+       keyboardController: KeyboardCommandControlling) throws
+  var coreController: CoreControlling? { get set }
   var isEnabled: Bool { get set }
+  var invocations: Int { get set }
   func monitor(_ workflows: [Workflow])
   func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ cgEvent: CGEvent) -> Unmanaged<CGEvent>?
 }
@@ -17,19 +20,25 @@ enum RebindingControllingError: Error {
   case unableToCreateEventSource
 }
 
-final class RebindingController: RebindingControlling {
+final class HotKeyController: HotKeyControlling {
   static var workflows = [Workflow]()
   private static var cache = [String: Int]()
   private var eventSource: CGEventSource!
   private var machPort: CFMachPort!
   private var runLoopSource: CFRunLoopSource!
+  private var keyboardController: KeyboardCommandControlling
+  public weak var coreController: CoreControlling?
+
+  var invocations: Int = 0
 
   var isEnabled: Bool {
     set { machPort.map { CGEvent.tapEnable(tap: $0, enable: newValue) } }
     get { machPort.map(CGEvent.tapIsEnabled) ?? false }
   }
 
-  required init(keyCodeMapper: KeyCodeMapping) throws {
+  required init(keyCodeMapper: KeyCodeMapping,
+                keyboardController: KeyboardCommandControlling) throws {
+    self.keyboardController = keyboardController
     self.eventSource = try createEventSource()
     self.machPort = try createMachPort()
     self.runLoopSource = try createRunLoopSource()
@@ -47,8 +56,11 @@ final class RebindingController: RebindingControlling {
     var result: Unmanaged<CGEvent>? = Unmanaged.passUnretained(event)
 
     for workflow in workflows {
-      guard let keyboardShortcut = workflow.keyboardShortcuts.last,
-            let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()] else { continue }
+      guard invocations < workflow.keyboardShortcuts.count else { continue }
+
+      let keyboardShortcut = workflow.keyboardShortcuts[invocations]
+
+      guard let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()] else { continue }
 
       guard keyCode == shortcutKeyCode else { continue }
 
@@ -56,27 +68,23 @@ final class RebindingController: RebindingControlling {
 
       if let modifiers = keyboardShortcut.modifiers {
         modifiersMatch = eventFlagsMatchModifiers(event.flags, modifiers: modifiers)
-      } else {
-        modifiersMatch = event.flags.isDisjoint(with: [
-          .maskControl, .maskCommand, .maskAlternate, .maskShift
-        ])
       }
 
       guard modifiersMatch else { continue }
 
-      for case .keyboard(let shortcut) in workflow.commands {
-        guard let shortcutKeyCode = Self.cache[shortcut.keyboardShortcut.key.uppercased()] else {
-          continue
-        }
-        if let cgKeyCode = CGKeyCode(exactly: shortcutKeyCode),
-           let newEvent = CGEvent(keyboardEventSource: self.eventSource,
-                                  virtualKey: cgKeyCode,
-                                  keyDown: type == .keyDown) {
-          newEvent.post(tap: .cghidEventTap)
+      result = nil
 
-          result = nil
+      if keyboardShortcut == workflow.keyboardShortcuts.last {
+        if case .keyboard(let command) = workflow.commands.last {
+          _ = keyboardController.run(command, type: type, eventSource: self.eventSource)
+        } else if type == .keyDown {
+          coreController?.respond(to: keyboardShortcut)
         }
+      } else if type == .keyDown {
+        coreController?.respond(to: keyboardShortcut)
       }
+
+      break
     }
 
     return result
@@ -97,7 +105,7 @@ final class RebindingController: RebindingControlling {
             eventsOfInterest: mask,
             callback: { proxy, type, event, userInfo -> Unmanaged<CGEvent>? in
               if let pointer = userInfo {
-                let controller = Unmanaged<RebindingController>.fromOpaque(pointer).takeUnretainedValue()
+                let controller = Unmanaged<HotKeyController>.fromOpaque(pointer).takeUnretainedValue()
                 return controller.callback(proxy, type, event)
               }
               return Unmanaged.passUnretained(event)

@@ -7,7 +7,7 @@ class CoreControllerMock: CoreControlling, GroupsControllingDelegate {
   enum State {
     case respondTo(keyboardShortcut: KeyboardShortcut)
     case reloadContext
-    case activate(keyboardShortcuts: Set<KeyboardShortcut>, rebindingWorkflows: [Workflow])
+    case activate(workflows: [Workflow])
     case didReloadGroups(groups: [Group])
   }
 
@@ -27,8 +27,8 @@ class CoreControllerMock: CoreControlling, GroupsControllingDelegate {
     handler(.reloadContext)
   }
 
-  func activate(_ keyboardShortcuts: Set<KeyboardShortcut>, rebindingWorkflows workflows: [Workflow]) {
-    handler(.activate(keyboardShortcuts: keyboardShortcuts, rebindingWorkflows: workflows))
+  func activate(workflows: [Workflow]) {
+    handler(.activate(workflows: workflows))
   }
 
   func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow] {

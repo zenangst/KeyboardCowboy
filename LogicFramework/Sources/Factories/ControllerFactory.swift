@@ -4,33 +4,29 @@ import ModelKit
 public class ControllerFactory {
   private let _keycodeMapper = KeyCodeMapper.shared
   private let _groupsController = GroupsController(groups: [])
-  private let _hotkeyController = HotkeyController(hotkeyHandler: HotkeyHandler.shared)
 
   public init() {}
 
   public func coreController(commandController: CommandControlling? = nil,
                              disableKeyboardShortcuts: Bool,
                              groupsController: GroupsControlling? = nil,
-                             hotkeyController: HotkeyControlling? = nil,
                              keycodeMapper: KeyCodeMapping? = nil,
+                             keyboardCommandController: KeyboardCommandControlling? = nil,
                              workflowController: WorkflowControlling? = nil,
                              workspace: WorkspaceProviding = NSWorkspace.shared) -> CoreControlling {
     let commandController = commandController ?? self.commandController()
     let groupsController = groupsController ?? self._groupsController
-    let hotkeyController = hotkeyController ?? self._hotkeyController
     let keycodeMapper = keycodeMapper ?? self._keycodeMapper
+    let keyboardCommandController = keyboardCommandController ??
+      KeyboardCommandController(keyCodeMapper: _keycodeMapper)
     let workflowController = workflowController ?? WorkflowController()
     return CoreController(commandController: commandController,
                           disableKeyboardShortcuts: disableKeyboardShortcuts,
                           groupsController: groupsController,
-                          hotkeyController: hotkeyController,
+                          keyboardCommandController: keyboardCommandController,
                           keycodeMapper: keycodeMapper,
                           workflowController: workflowController,
                           workspace: workspace)
-  }
-
-  public func hotkeyController() -> HotkeyControlling {
-    _hotkeyController
   }
 
   public func groupsController(groups: [Group]) -> GroupsControlling {

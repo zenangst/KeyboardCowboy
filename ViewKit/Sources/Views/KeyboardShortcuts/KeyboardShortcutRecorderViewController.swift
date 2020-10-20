@@ -17,24 +17,23 @@ class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSear
   }
 
   func didBecomeFirstResponder() {
-    let eventsOfInterest: NSEvent.EventTypeMask = [.keyDown]
+    let eventsOfInterest: NSEvent.EventTypeMask = [.keyUp, .flagsChanged]
     eventMonitor = NSEvent.addLocalMonitorForEvents(matching: eventsOfInterest, handler: { [weak self] e -> NSEvent? in
-      guard let self = self else { return nil }
+
+      guard let self = self else { return e }
       let modifiers = ModifierKey.fromNSEvent(e.modifierFlags)
       let keyCode = Int(e.keyCode)
+      let specialKeys: [NSEvent.SpecialKey] = [.delete, .deleteForward, .backspace]
+      let character = Self.keyMapper.keyCodeLookup[keyCode] ?? ""
 
-      if var character = Self.keyMapper.keyCodeLookup[keyCode] {
-
-        let specialKeys: [NSEvent.SpecialKey] = [.delete, .deleteForward, .backspace]
-        if let specialKey = e.specialKey, specialKeys.contains(specialKey) {
-          character = ""
-        }
-
-        let keyboardShortcut = KeyboardShortcut(id: self.keyboardShortcut?.id ?? UUID().uuidString,
-                                                key: character, modifiers: modifiers)
-        self.onCommit?(keyboardShortcut)
+      if let specialKey = e.specialKey, specialKeys.contains(specialKey) {
         return nil
       }
+
+      let keyboardShortcut = KeyboardShortcut(id: self.keyboardShortcut?.id ?? UUID().uuidString,
+                                              key: character, modifiers: modifiers)
+
+      self.onCommit?(keyboardShortcut)
 
       return e
     })
