@@ -147,6 +147,7 @@ fileGroups:
   - .github
   - .gitignore
   - .swiftlint.yml
+  - keyboard-cowboy.json
   - README.md
   - XcodeGen
   - project.yml
