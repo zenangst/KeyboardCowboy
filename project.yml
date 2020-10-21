@@ -121,6 +121,7 @@ schemes:
         "-open-window-at-launch": false
         "-demo-mode": true
         "-disable-keyboard-shortcuts": false
+        "-debug": false
       environmentVariables:
         SOURCE_ROOT: $(SRCROOT)
     test:

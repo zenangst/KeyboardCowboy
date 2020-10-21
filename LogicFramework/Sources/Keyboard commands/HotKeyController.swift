@@ -55,9 +55,11 @@ final class HotKeyController: HotKeyControlling {
     let workflows = Self.workflows
     var result: Unmanaged<CGEvent>? = Unmanaged.passUnretained(event)
 
-    for workflow in workflows {
-      guard invocations < workflow.keyboardShortcuts.count else { continue }
+    if type == .keyDown {
+      Debug.print("⌨️ Workflows: \(workflows.compactMap({ $0.name }).joined(separator: ", ").replacingOccurrences(of: "Open ", with: "")): \(invocations)")
+    }
 
+    for workflow in workflows where invocations < workflow.keyboardShortcuts.count {
       let keyboardShortcut = workflow.keyboardShortcuts[invocations]
 
       guard let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()] else { continue }
@@ -68,6 +70,10 @@ final class HotKeyController: HotKeyControlling {
 
       if let modifiers = keyboardShortcut.modifiers {
         modifiersMatch = eventFlagsMatchModifiers(event.flags, modifiers: modifiers)
+      } else {
+        modifiersMatch = event.flags.isDisjoint(with: [
+          .maskControl, .maskCommand, .maskAlternate, .maskShift, .maskSecondaryFn
+        ])
       }
 
       guard modifiersMatch else { continue }
@@ -78,6 +84,7 @@ final class HotKeyController: HotKeyControlling {
         if case .keyboard(let command) = workflow.commands.last {
           _ = keyboardController.run(command, type: type, eventSource: self.eventSource)
         } else if type == .keyDown {
+          Debug.print("⌨️ Workflow: \(workflow.name): \(invocations)")
           coreController?.respond(to: keyboardShortcut)
         }
       } else if type == .keyDown {

@@ -94,6 +94,11 @@ public class CoreController: NSObject, CoreControlling,
   }
 
   @objc public func reloadContext() {
+    NSObject.cancelPreviousPerformRequests(
+      withTarget: self,
+      selector: #selector(reloadContext),
+      object: nil)
+    Debug.print("🪀 Reloading context")
     var contextRule = Rule()
 
     if let runningApplication = workspace.frontApplication,
@@ -119,7 +124,6 @@ public class CoreController: NSObject, CoreControlling,
   }
 
   public func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow] {
-    NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(reloadContext), object: nil)
     perform(#selector(reloadContext), with: nil, afterDelay: 2.0)
 
     currentKeyboardShortcuts.append(keyboardShortcut)
@@ -144,6 +148,8 @@ public class CoreController: NSObject, CoreControlling,
       reloadContext()
     } else {
       hotKeyController?.invocations += 1
+      let workflowNames = workflowsToActivate.compactMap({ $0.name })
+      Debug.print("🪃 Activating: \(workflowNames.joined(separator: ", ").replacingOccurrences(of: "Open ", with: ""))")
       activate(workflows: Array(workflowsToActivate))
     }
     return workflows
@@ -151,12 +157,17 @@ public class CoreController: NSObject, CoreControlling,
 
   // MARK: CommandControllingDelegate
 
-  public func commandController(_ controller: CommandController, failedRunning command: Command, commands: [Command]) {}
+  public func commandController(_ controller: CommandController, failedRunning command: Command, commands: [Command]) {
+    Debug.print("🛑 Failed running: \(command)")
+  }
 
-  public func commandController(_ controller: CommandController, runningCommand command: Command) {}
+  public func commandController(_ controller: CommandController, runningCommand command: Command) {
+    Debug.print("🏃‍♂️ Running running: \(command)")
+  }
 
   public func commandController(_ controller: CommandController, didFinishRunning commands: [Command]) {
     reloadContext()
+    Debug.print("✅ Finished running: \(commands)")
   }
 
   // MARK: GroupsControllingDelegate
