@@ -5,4 +5,5 @@ enum LaunchArgument: String, LaunchArgumentType {
   case openWindowAtLaunch = "-open-window-at-launch"
   case disableKeyboardShortcuts = "-disable-keyboard-shortcuts"
   case demoMode = "-demo-mode"
+  case debug = "-debug"
 }

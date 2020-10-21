@@ -35,6 +35,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   func applicationDidFinishLaunching(_ notification: Notification) {
     if launchArguments.isEnabled(.runningUnitTests) { return }
     if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil { return }
+
+    Debug.isEnabled = launchArguments.isEnabled(.debug)
+
     runApplication()
   }
 
