@@ -115,14 +115,31 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
     window.setFrameAutosaveName("Main Window")
 
     self.groupFeatureController = groupFeatureController
-    self.directoryObserver = DirectoryObserver(at: URL(fileURLWithPath: storageController.path)) { [weak self] in
+
+    configureDirectoryObserver(coreController)
+
+    return window
+  }
+
+  private func configureDirectoryObserver(_ coreController: CoreControlling) {
+    directoryObserver = DirectoryObserver(at: URL(fileURLWithPath: storageController.path)) { [weak self] in
       guard let self = self,
             let groups = try? self.storageController.load() else { return }
       coreController.groupsController.reloadGroups(groups)
-      self.groupFeatureController?.state = groups
-    }
 
-    return window
+      self.groupFeatureController?.state = groups
+
+      if let selectedGroup = self.groupFeatureController?.userSelection.group,
+         let newGroup = groups.first(where: { $0.id == selectedGroup.id }) {
+        self.groupFeatureController?.userSelection.group = newGroup
+      }
+
+      if let selectedWorkflow = self.groupFeatureController?.userSelection.workflow,
+         let workflow = self.groupFeatureController?.userSelection.group?.workflows
+          .first(where: { $0.id == selectedWorkflow.id }) {
+        self.groupFeatureController?.userSelection.workflow = workflow
+      }
+    }
   }
 
   // MARK: GroupsFeatureControllerDelegate

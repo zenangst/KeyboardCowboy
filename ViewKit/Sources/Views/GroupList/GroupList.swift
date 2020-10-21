@@ -2,7 +2,6 @@ import SwiftUI
 import ModelKit
 
 public struct GroupList: View {
-  public typealias Controller = AnyViewController<[ModelKit.Group], Action>
   public enum Action {
     case createGroup
     case updateGroup(ModelKit.Group)
@@ -14,7 +13,7 @@ public struct GroupList: View {
   static let idealWidth: CGFloat = 300
 
   @EnvironmentObject var userSelection: UserSelection
-  @ObservedObject var controller: Controller
+  @ObservedObject var controller: GroupController
   @State private var editGroup: ModelKit.Group?
 
   public var body: some View {
@@ -42,7 +41,7 @@ public struct GroupList: View {
 private extension GroupList {
   var list: some View {
     List(selection: $userSelection.group) {
-      ForEach(controller.state) { group in
+      ForEach(controller.state, id: \.hashValue) { group in
         GroupListCell(
           name: Binding(get: { group.name }, set: { name in
             var group = group
