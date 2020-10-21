@@ -72,27 +72,12 @@ public class CoreController: NSObject, CoreControlling, CommandControllingDelega
     patterns.append(contentsOf: FileIndexPatternsFactory.pathExtensions())
     patterns.append(contentsOf: FileIndexPatternsFactory.lastPathComponents())
 
+    let applicationParser = ApplicationParser()
+
     self.installedApplications = fileIndexer.index(with: patterns, match: {
       $0.absoluteString.contains(".app")
-    }, handler: { url -> Application? in
-      guard let bundle = Bundle(url: url),
-            let bundleIdentifier = bundle.bundleIdentifier else {
-        return nil
-      }
-
-      var bundleName: String?
-      if let cfBundleName = bundle.infoDictionary?["CFBundleName"] as? String {
-        bundleName = cfBundleName
-      } else if let cfBundleDisplayname = bundle.infoDictionary?["CFBundleDisplayName"] as? String {
-        bundleName = cfBundleDisplayname
-      }
-
-      if bundle.infoDictionary?["CFBundleIconFile"] as? String == nil { return nil }
-
-      guard let resolvedBundleName = bundleName else { return nil }
-
-      return Application(bundleIdentifier: bundleIdentifier, bundleName: resolvedBundleName, path: bundle.bundlePath)
-    }).sorted(by: { $0.bundleName.lowercased() < $1.bundleName.lowercased() })
+    }, handler: applicationParser.process(_:))
+    .sorted(by: { $0.bundleName.lowercased() < $1.bundleName.lowercased() })
   }
 
   @objc public func reloadContext() {
