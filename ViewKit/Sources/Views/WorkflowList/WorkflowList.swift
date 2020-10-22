@@ -30,7 +30,7 @@ public struct WorkflowList: View {
 private extension WorkflowList {
   var list: some View {
     List(selection: $userSelection.workflow) {
-      ForEach(group.workflows, id: \.hashValue) { workflow in
+      ForEach(group.workflows, id: \.self) { workflow in
         WorkflowListCell(workflow: workflow)
           .contextMenu {
             Button("Delete") {

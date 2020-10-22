@@ -41,7 +41,7 @@ public struct GroupList: View {
 private extension GroupList {
   var list: some View {
     List(selection: $userSelection.group) {
-      ForEach(controller.state, id: \.hashValue) { group in
+      ForEach(controller.state, id: \.self) { group in
         GroupListCell(
           name: Binding(get: { group.name }, set: { name in
             var group = group
