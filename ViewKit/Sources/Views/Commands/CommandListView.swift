@@ -19,7 +19,7 @@ public struct CommandListView: View {
 
   public var body: some View {
     List {
-      ForEach(commandController.state, id: \.hashValue) { command in
+      ForEach(commandController.state, id: \.self) { command in
         HStack(spacing: 12) {
           CommandView(
             command: command,
