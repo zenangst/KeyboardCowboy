@@ -78,7 +78,15 @@ class KeyboardShortcutsFeatureController: ViewController {
 
   func moveKeyboardShortcut(_ keyboardShortcut: KeyboardShortcut, to index: Int, in workflow: Workflow) {
     var workflow = workflow
-    try? workflow.keyboardShortcuts.move(keyboardShortcut, to: index)
+
+    var newIndex = index
+    if let previousIndex = workflow.keyboardShortcuts.firstIndex(of: keyboardShortcut) {
+      if newIndex > previousIndex {
+        newIndex -= 1
+      }
+    }
+
+    try? workflow.keyboardShortcuts.move(keyboardShortcut, to: newIndex)
     delegate?.keyboardShortcutFeatureController(self, didUpdateKeyboardShortcut: keyboardShortcut, in: workflow)
   }
 }

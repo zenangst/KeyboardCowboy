@@ -71,10 +71,10 @@ public struct CommandListView: View {
         saveAction: { newCommand in
           commandController.action(.updateCommand(newCommand))()
           editCommand = nil
-      },
-      cancelAction: {
-        editCommand = nil
-      },
+        },
+        cancelAction: {
+          editCommand = nil
+        },
         selection: model,
         command: model)
     })
