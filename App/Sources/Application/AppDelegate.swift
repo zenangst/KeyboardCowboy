@@ -156,10 +156,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
 
   func windowDidBecomeKey(_ notification: Notification) {
     menubarController?.setState(.active)
-    coreController?.disableKeyboardShortcuts = true
+
+    if !launchArguments.isEnabled(.disableKeyboardShortcuts) {
+      coreController?.disableKeyboardShortcuts = true
+    }
   }
 
   func windowDidResignKey(_ notification: Notification) {
-    coreController?.disableKeyboardShortcuts = false
+    if !launchArguments.isEnabled(.disableKeyboardShortcuts) {
+      coreController?.disableKeyboardShortcuts = false
+    }
   }
 }
