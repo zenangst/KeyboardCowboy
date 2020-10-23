@@ -6,30 +6,23 @@ import SwiftUI
 import ViewKit
 import ModelKit
 
-let sourceRoot = ProcessInfo.processInfo.environment["SOURCE_ROOT"]!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
 
-class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeatureControllerDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
+                   GroupsFeatureControllerDelegate, MenubarControllerDelegate {
   weak var window: NSWindow?
   var shouldOpenMainWindow = launchArguments.isEnabled(.openWindowAtLaunch)
   var coreController: CoreControlling?
   let factory = ControllerFactory()
   var groupFeatureController: GroupsFeatureController?
   var directoryObserver: DirectoryObserver?
+  var menubarController: MenubarController?
+  let userSelection  = UserSelection()
 
   var storageController: StorageControlling {
-    let path: String
-    let fileName: String
-
-    if launchArguments.isEnabled(.demoMode) {
-      path = sourceRoot
-      fileName = "keyboard-cowboy.json"
-    } else {
-      path = "~"
-      fileName = ".keyboard-cowboy.json"
-    }
-
-    return factory.storageController(path: path, fileName: fileName)
+    let configuration = Configuration.Storage()
+    return factory.storageController(path: configuration.path,
+                                     fileName: configuration.fileName)
   }
 
   func applicationDidFinishLaunching(_ notification: Notification) {
@@ -66,8 +59,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   private func runApplication() {
     do {
       let launchController = AppDelegateLaunchController(factory: factory)
-      let controller = try launchController.initialLoad(storageController: storageController)
-      self.coreController = controller
+      let coreController = try launchController.initialLoad(storageController: storageController)
+      self.coreController = coreController
+
+      let featureFactory = FeatureFactory(coreController: coreController,
+                                          userSelection: userSelection)
+      let menubarController = featureFactory.menuBar()
+      menubarController.delegate = self
+      self.menubarController = menubarController
 
     } catch let error {
       AppDelegateErrorController.handle(error)
@@ -77,47 +76,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
   private func createMainWindow(_ coreController: CoreControlling) -> NSWindow? {
     IconController.installedApplications = coreController.installedApplications
 
-    let userSelection  = UserSelection()
     let featureFactory = FeatureFactory(coreController: coreController,
                                         userSelection: userSelection)
-    let groupFeatureController = featureFactory.groupFeature()
-    groupFeatureController.delegate = self
-
-    let workflowFeatureController = featureFactory.workflowFeature()
-    workflowFeatureController.delegate = groupFeatureController
-
-    let keyboardFeatureController = featureFactory.keyboardShortcutFeature()
-    keyboardFeatureController.delegate = workflowFeatureController
-
-    let commandsController = featureFactory.commandsFeature()
-    commandsController.delegate = workflowFeatureController
-
-    let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications)
-
-    let searchController = featureFactory.searchFeature(userSelection: userSelection)
-
+    let context = featureFactory.applicationStack()
     let mainView = MainView(
-      applicationProvider: applicationProvider.erase(),
-      commandController: commandsController.erase(),
-      groupController: groupFeatureController.erase(),
-      keyboardShortcutController: keyboardFeatureController.erase(),
+      applicationProvider: context.applicationProvider.erase(),
+      commandController: context.commandFeature.erase(),
+      groupController: context.groupsFeature.erase(),
+      keyboardShortcutController: context.keyboardFeature.erase(),
       openPanelController: OpenPanelViewController().erase(),
-      searchController: searchController.erase(),
-      workflowController: workflowFeatureController.erase())
+      searchController: context.searchFeature.erase(),
+      workflowController: context.workflowFeature.erase())
       .environmentObject(userSelection)
 
-    let window = MainWindow(toolbar: Toolbar(), onClose: { [weak self] in
+    let window = featureFactory.mainWindow(autosaveName: "Main Window") { [weak self] in
       self?.groupFeatureController = nil
       self?.window = nil
-    })
+    }
     window.delegate = self
-    let contentView = NSHostingView(rootView: mainView)
+    window.contentView = NSHostingView(rootView: mainView)
 
-    window.title = ProcessInfo.processInfo.processName
-    window.contentView = contentView
-    window.setFrameAutosaveName("Main Window")
-
-    self.groupFeatureController = groupFeatureController
+    context.groupsFeature.delegate = self
+    self.groupFeatureController = context.groupsFeature
 
     configureDirectoryObserver(coreController)
 
@@ -156,13 +136,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, GroupsFeat
     }
   }
 
+  // MARK: MenubarControllerDelegate
+
+  func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem) {
+    if let window = window {
+      window.makeKeyAndOrderFront(NSApp)
+    } else if window == nil, let coreController = coreController {
+      createAndOpenWindow(coreController)
+    }
+    NSApp.activate(ignoringOtherApps: true)
+  }
+
   // MARK: NSWindowDelegate
 
   func windowWillClose(_ notification: Notification) {
+    menubarController?.setState(.inactive)
     IconController.clearAll()
   }
 
   func windowDidBecomeKey(_ notification: Notification) {
+    menubarController?.setState(.active)
     coreController?.disableKeyboardShortcuts = true
   }
 

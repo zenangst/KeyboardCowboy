@@ -1,10 +1,13 @@
 import Cocoa
 import SwiftUI
 
-public class MainWindow: NSWindow {
+public class Window: NSWindow {
   var onClose: () -> Void
 
-  public init(toolbar: Toolbar, onClose: @escaping () -> Void) {
+  public init(
+    autosaveName: String,
+    toolbar: Toolbar? = nil,
+    onClose: @escaping () -> Void) {
     self.onClose = onClose
     let contentRect: CGRect = .init(origin: .zero, size: .init(width: 960, height: 480))
     let styleMask: NSWindow.StyleMask = [
@@ -14,7 +17,10 @@ public class MainWindow: NSWindow {
                styleMask: styleMask,
                backing: .buffered,
                defer: true)
-    self.toolbar = toolbar
+    self.setFrameAutosaveName(frameAutosaveName)
+    if let toolbar = toolbar {
+      self.toolbar = toolbar
+    }
 
     if #available(OSX 11.0, *) {
       toolbarStyle = .unified
