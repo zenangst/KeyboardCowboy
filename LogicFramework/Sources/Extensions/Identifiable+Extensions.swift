@@ -88,6 +88,6 @@ public extension Array where Element: Identifiable {
     }
 
     try self.remove(element, at: index)
-    self.insert(element, at: to)
+    self.add(element, at: to)
   }
 }
