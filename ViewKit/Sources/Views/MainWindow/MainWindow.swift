@@ -18,15 +18,9 @@ public class Window: NSWindow {
                backing: .buffered,
                defer: true)
     self.setFrameAutosaveName(frameAutosaveName)
-    if let toolbar = toolbar {
-      self.toolbar = toolbar
-    }
-
-    if #available(OSX 11.0, *) {
-      toolbarStyle = .unified
-    }
-    titlebarAppearsTransparent = true
-    isReleasedWhenClosed = false
+    self.toolbar = toolbar
+    self.titlebarAppearsTransparent = true
+    self.isReleasedWhenClosed = false
   }
 
   public override var canBecomeKey: Bool { true }
