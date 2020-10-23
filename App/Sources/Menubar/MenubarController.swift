@@ -4,7 +4,7 @@ protocol MenubarControllerDelegate: class {
   func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem)
 }
 
-class MenubarController {
+final class MenubarController {
   private static var applicationName = ProcessInfo.processInfo.processName
 
   enum ApplicationState {
