@@ -83,10 +83,15 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
     var groups = groupsController.groups
     let group = groups.remove(at: from)
 
+    var newIndex = to
+    if to > from {
+      newIndex -= 1
+    }
+
     if to > groups.count {
       groups.append(group)
     } else {
-      groups.insert(group, at: to)
+      groups.insert(group, at: max(newIndex, 0))
     }
     reload(groups) { [weak self] _ in
       self?.userSelection.group = group
