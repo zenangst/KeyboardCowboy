@@ -10,7 +10,7 @@ public enum KeyCodeMappingError: Error {
   case unableToMapKeyCode(Int)
 }
 
-class KeyCodeMapper: KeyCodeMapping {
+final class KeyCodeMapper: KeyCodeMapping {
   let inputSource: InputSource
   let inputController: InputSourceController
   static var inputController = InputSourceController()

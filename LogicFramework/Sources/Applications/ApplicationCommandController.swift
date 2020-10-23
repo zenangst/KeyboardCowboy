@@ -20,7 +20,7 @@ public enum ApplicationCommandControllingError: Error {
   case failedToActivate(ApplicationCommand)
 }
 
-class ApplicationCommandController: ApplicationCommandControlling {
+final class ApplicationCommandController: ApplicationCommandControlling {
   let windowListProvider: WindowListProviding
   let workspace: WorkspaceProviding
 

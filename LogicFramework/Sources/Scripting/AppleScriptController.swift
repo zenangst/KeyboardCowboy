@@ -23,7 +23,7 @@ enum AppleScriptControllingError: Error {
   case failedToRunAppleScript(String?)
 }
 
-class AppleScriptController: AppleScriptControlling {
+final class AppleScriptController: AppleScriptControlling {
   let queue: DispatchQueue = .init(label: "com.zenangst.Keyboard-Cowboy.AppleScriptControllerQueue",
                                    qos: .userInitiated)
 

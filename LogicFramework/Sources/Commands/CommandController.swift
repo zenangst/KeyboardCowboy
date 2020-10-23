@@ -25,7 +25,7 @@ public enum CommandControllerError: Error {
   case failedToRunCommand(Error)
 }
 
-public class CommandController: CommandControlling {
+public final class CommandController: CommandControlling {
   weak public var delegate: CommandControllingDelegate?
 
   let applicationCommandController: ApplicationCommandControlling

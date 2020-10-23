@@ -1,7 +1,7 @@
 import Cocoa
 import ModelKit
 
-public class ControllerFactory {
+public final class ControllerFactory {
   private let _keycodeMapper = KeyCodeMapper.shared
   private let _groupsController = GroupsController(groups: [])
 

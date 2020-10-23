@@ -21,7 +21,7 @@ public enum OpenCommandControllingError: Error {
   case failedToOpenUrl
 }
 
-class OpenCommandController: OpenCommandControlling {
+final class OpenCommandController: OpenCommandControlling {
   let workspace: WorkspaceProviding
 
   init(workspace: WorkspaceProviding) {

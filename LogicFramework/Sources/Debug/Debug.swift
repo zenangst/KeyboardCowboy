@@ -1,6 +1,6 @@
 import Foundation
 
-public class Debug {
+public final class Debug {
   public static var isEnabled: Bool = false
 
   public static func print(_ statement: String,

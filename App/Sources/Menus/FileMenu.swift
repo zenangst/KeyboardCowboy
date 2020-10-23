@@ -1,6 +1,6 @@
 import Cocoa
 
-class FileMenu: NSMenuItem {
+final class FileMenu: NSMenuItem {
   init() {
     super.init(title: "", action: nil, keyEquivalent: "")
     submenu = NSMenu(title: "File")

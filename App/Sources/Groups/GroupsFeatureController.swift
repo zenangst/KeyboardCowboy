@@ -7,7 +7,7 @@ protocol GroupsFeatureControllerDelegate: AnyObject {
   func groupsFeatureController(_ controller: GroupsFeatureController, didReloadGroups groups: [Group])
 }
 
-class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate {
+final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate {
   weak var delegate: GroupsFeatureControllerDelegate?
 
   @Published var state = [Group]()
@@ -59,9 +59,9 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
     let group = Group.empty()
     var groups = groupsController.groups
     groups.append(group)
-    reload(groups) { _ in
-      self.userSelection.group = group
-      self.userSelection.workflow = nil
+    reload(groups) { [weak self] _ in
+      self?.userSelection.group = group
+      self?.userSelection.workflow = nil
     }
   }
 
@@ -73,9 +73,9 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
     var groups = groupsController.groups
     let group = Group.droppedApplication(application)
     groups.append(group)
-    reload(groups) { _ in
-      self.userSelection.group = group
-      self.userSelection.workflow = nil
+    reload(groups) { [weak self] _ in
+      self?.userSelection.group = group
+      self?.userSelection.workflow = nil
     }
   }
 
@@ -97,8 +97,9 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
   private func save(_ group: ModelKit.Group) {
     var groups = groupsController.groups
     try? groups.replace(group)
-    reload(groups)
-    userSelection.group = group
+    reload(groups) { [weak self] _ in
+      self?.userSelection.group = group
+    }
   }
 
   private func delete(_ group: ModelKit.Group) {

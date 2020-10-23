@@ -1,6 +1,6 @@
 import Foundation
 
-public class FileIndexPatternsFactory {
+public final class FileIndexPatternsFactory {
   // swiftlint:disable function_body_length
   public static func patterns() -> [FileIndexPattern] {
     [

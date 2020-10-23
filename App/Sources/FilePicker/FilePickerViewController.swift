@@ -3,7 +3,7 @@ import LogicFramework
 import Combine
 import Cocoa
 
-class OpenPanelViewController: NSObject, ViewController, NSOpenSavePanelDelegate {
+final class OpenPanelViewController: NSObject, ViewController, NSOpenSavePanelDelegate {
 
   @Published var state: String = ""
   var fileExtension: String?

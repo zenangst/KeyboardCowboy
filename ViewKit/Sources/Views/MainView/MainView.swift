@@ -1,15 +1,6 @@
 import SwiftUI
 import ModelKit
 
-public typealias GroupController = AnyViewController<[ModelKit.Group], GroupList.Action>
-public typealias WorkflowController = AnyViewController<Workflow?, WorkflowList.Action>
-public typealias CommandController = AnyViewController<[Command], CommandListView.Action>
-public typealias OpenPanelController = AnyViewController<String, OpenPanelAction>
-public typealias KeyboardShortcutController = AnyViewController<[ModelKit.KeyboardShortcut],
-                                                                KeyboardShortcutListView.Action>
-public typealias ApplicationProvider = AnyStateController<[Application]>
-public typealias SearchController = AnyViewController<ModelKit.SearchResults, SearchResultsList.Action>
-
 public struct MainView: View {
   @ObservedObject var applicationProvider: ApplicationProvider
   @ObservedObject var commandController: CommandController

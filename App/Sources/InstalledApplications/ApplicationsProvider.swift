@@ -3,7 +3,7 @@ import LogicFramework
 import Combine
 import ModelKit
 
-class ApplicationsProvider: StateController {
+final class ApplicationsProvider: StateController {
   @Published var state: [Application] = []
 
   init(applications: [Application]) {

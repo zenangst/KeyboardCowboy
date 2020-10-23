@@ -4,7 +4,9 @@ protocol PermissionsControlling {
   func hasPrivileges() -> Bool
 }
 
-class PermissionsController: PermissionsControlling {
+final class PermissionsController: PermissionsControlling {
+  /// Check if the application has the permissions to use accessiblity
+  /// - Returns: True if the application has been granted permissions.
   func hasPrivileges() -> Bool {
     let options: [String: Bool] = [
       kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true
@@ -12,6 +14,8 @@ class PermissionsController: PermissionsControlling {
     return AXIsProcessTrustedWithOptions(options as CFDictionary)
   }
 
+  /// Display modal message using `NSAlert` and ask the user to provide
+  /// accessibility permissions for the application
   func displayModal() {
     let applicationName = ProcessInfo.processInfo.processName
     let alert = NSAlert()

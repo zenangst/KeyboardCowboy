@@ -3,7 +3,7 @@ import Foundation
 
 /// Based on: https://github.com/Clipy/Sauce
 
-class InputSourceController {
+final class InputSourceController {
   func currentInputSource() -> InputSource {
     InputSource(source: TISCopyCurrentKeyboardInputSource().takeUnretainedValue())
   }

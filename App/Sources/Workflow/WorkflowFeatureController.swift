@@ -19,7 +19,7 @@ protocol WorkflowFeatureControllerDelegate: AnyObject {
                                  in group: Group)
 }
 
-class WorkflowFeatureController: ViewController,
+final class WorkflowFeatureController: ViewController,
                                  CommandsFeatureControllerDelegate,
                                  KeyboardShortcutsFeatureControllerDelegate {
   weak var delegate: WorkflowFeatureControllerDelegate?

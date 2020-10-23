@@ -4,7 +4,7 @@ import ViewKit
 import SwiftUI
 import Combine
 
-class SearchWorkflowController: StateController {
+final class SearchWorkflowController: StateController {
   @Published var state = ModelKit.SearchResult.workflows([])
   let searchGroupController: SearchGroupsController
   var anyCancellables = [AnyCancellable]()
