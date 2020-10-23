@@ -16,7 +16,9 @@ class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate
   let userSelection: UserSelection
 
   init(groupsController: GroupsControlling,
-       userSelection: UserSelection) {
+       userSelection: UserSelection,
+       applications: [Application]) {
+    self.applications = applications
     self.groupsController = groupsController
     self.userSelection = userSelection
     self.state = groupsController.groups

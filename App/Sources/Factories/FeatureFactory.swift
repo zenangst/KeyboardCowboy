@@ -1,16 +1,9 @@
 import Foundation
 import LogicFramework
-import ViewKit
 import ModelKit
+import ViewKit
 
-typealias ApplicationStackContext = (applicationProvider: ApplicationsProvider,
-                                     commandFeature: CommandsFeatureController,
-                                     groupsFeature: GroupsFeatureController,
-                                     keyboardFeature: KeyboardShortcutsFeatureController,
-                                     searchFeature: SearchFeatureController,
-                                     workflowFeature: WorkflowFeatureController)
-
-class FeatureFactory {
+final class FeatureFactory {
   private let coreController: CoreControlling
   private let userSelection: UserSelection
   private var groupsController: GroupsControlling {
@@ -40,7 +33,13 @@ class FeatureFactory {
     MenubarController()
   }
 
-  func applicationStack() -> ApplicationStackContext {
+  // swiftlint:disable large_tuple
+  func applicationStack() -> (applicationProvider: ApplicationsProvider,
+                              commandFeature: CommandsFeatureController,
+                              groupsFeature: GroupsFeatureController,
+                              keyboardFeature: KeyboardShortcutsFeatureController,
+                              searchFeature: SearchFeatureController,
+                              workflowFeature: WorkflowFeatureController) {
     let groupFeatureController = groupFeature()
 
     let workflowFeatureController = workflowFeature()
@@ -65,14 +64,11 @@ class FeatureFactory {
   }
 
   func groupFeature() -> GroupsFeatureController {
-    let controller = GroupsFeatureController(
+    GroupsFeatureController(
       groupsController: groupsController,
-      userSelection: userSelection
+      userSelection: userSelection,
+      applications: installedApplications
     )
-
-    controller.applications = installedApplications
-
-    return controller
   }
 
   func workflowFeature() -> WorkflowFeatureController {
