@@ -38,7 +38,7 @@ public enum FileIndexPattern {
 /// The class supports both synchronous and asynchronous indexing.
 /// Asynchronousity is achieved using Combine.
 ///
-public class FileIndexController: FileIndexControlling {
+public final class FileIndexController: FileIndexControlling {
   let baseUrl: URL
 
   public init(baseUrl: URL) {

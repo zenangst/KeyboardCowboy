@@ -1,6 +1,6 @@
 import Cocoa
 
-class MainMenu: NSMenuItem {
+final class MainMenu: NSMenuItem {
   private lazy var applicationName = ProcessInfo.processInfo.processName
 
   init() {

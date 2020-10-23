@@ -22,7 +22,7 @@ public protocol GroupsControllingDelegate: AnyObject {
   func groupsController(_ controller: GroupsControlling, didReloadGroups groups: [Group])
 }
 
-class GroupsController: GroupsControlling {
+final class GroupsController: GroupsControlling {
   weak var delegate: GroupsControllingDelegate?
   var groups: [Group]
 

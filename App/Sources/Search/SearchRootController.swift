@@ -5,7 +5,7 @@ import ViewKit
 import SwiftUI
 import Combine
 
-class SearchRootController {
+final class SearchRootController {
   @Published var state: ModelKit.SearchResults = .empty()
   let commandSearch: SearchCommandsController
   let groupSearch: SearchGroupsController

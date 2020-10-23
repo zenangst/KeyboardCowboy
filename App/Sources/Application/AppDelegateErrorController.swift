@@ -1,6 +1,8 @@
 import Cocoa
 
-class AppDelegateErrorController {
+final class AppDelegateErrorController {
+  /// Display an error using `NSAlert`
+  /// - Parameter error: The error that should be displayed
   static func handle(_ error: Error) {
     let alert = NSAlert()
     alert.messageText = error.localizedDescription

@@ -25,6 +25,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
                                      fileName: configuration.fileName)
   }
 
+  // MARK: Application life cycle
+
   func applicationDidFinishLaunching(_ notification: Notification) {
     if launchArguments.isEnabled(.runningUnitTests) { return }
     if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil { return }
@@ -49,6 +51,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
 
     shouldOpenMainWindow = true
   }
+
+  // MARK: Private methods
 
   private func createAndOpenWindow(_ coreController: CoreControlling) {
     let window = createMainWindow(coreController)

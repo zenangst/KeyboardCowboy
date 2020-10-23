@@ -12,9 +12,9 @@ public protocol CoreControlling: AnyObject {
   func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow]
 }
 
-public class CoreController: NSObject, CoreControlling,
-                             CommandControllingDelegate,
-                             GroupsControllingDelegate {
+public final class CoreController: NSObject, CoreControlling,
+                                   CommandControllingDelegate,
+                                   GroupsControllingDelegate {
   let commandController: CommandControlling
   public let groupsController: GroupsControlling
   let keycodeMapper: KeyCodeMapping

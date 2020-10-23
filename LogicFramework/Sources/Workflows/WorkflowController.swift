@@ -22,7 +22,7 @@ public protocol WorkflowControlling {
   func filterWorkflows(from groups: [Group], keyboardShortcuts: [KeyboardShortcut]) -> [Workflow]
 }
 
-class WorkflowController: WorkflowControlling {
+final class WorkflowController: WorkflowControlling {
   init() {}
 
   public func filterWorkflows(from groups: [Group], keyboardShortcuts: [KeyboardShortcut]) -> [Workflow] {

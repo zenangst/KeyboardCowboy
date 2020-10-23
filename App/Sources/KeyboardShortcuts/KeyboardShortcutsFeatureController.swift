@@ -18,7 +18,7 @@ protocol KeyboardShortcutsFeatureControllerDelegate: AnyObject {
 
 }
 
-class KeyboardShortcutsFeatureController: ViewController {
+final class KeyboardShortcutsFeatureController: ViewController {
   weak var delegate: KeyboardShortcutsFeatureControllerDelegate?
 
   @Published var state: [KeyboardShortcut]

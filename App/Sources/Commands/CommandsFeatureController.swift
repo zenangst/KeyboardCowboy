@@ -14,7 +14,7 @@ protocol CommandsFeatureControllerDelegate: AnyObject {
                                  didDeleteCommand command: Command, in workflow: Workflow)
 }
 
-class CommandsFeatureController: ViewController {
+final class CommandsFeatureController: ViewController {
   weak var delegate: CommandsFeatureControllerDelegate?
   @Published var state: [Command]
   let userSelection: UserSelection
@@ -57,25 +57,25 @@ class CommandsFeatureController: ViewController {
 
   // MARK: Private methods
 
-  func createCommand(_ command: Command, in workflow: Workflow) {
+  private func createCommand(_ command: Command, in workflow: Workflow) {
     var workflow = workflow
     workflow.commands.append(command)
     delegate?.commandsFeatureController(self, didCreateCommand: command, in: workflow)
   }
 
-  func updateCommand(_ command: Command, in workflow: Workflow) {
+  private func updateCommand(_ command: Command, in workflow: Workflow) {
     var workflow = workflow
     try? workflow.commands.replace(command)
     delegate?.commandsFeatureController(self, didCreateCommand: command, in: workflow)
   }
 
-  func moveCommand(_ command: Command, to index: Int, in workflow: Workflow) {
+  private func moveCommand(_ command: Command, to index: Int, in workflow: Workflow) {
     var workflow = workflow
     try? workflow.commands.move(command, to: index)
     delegate?.commandsFeatureController(self, didUpdateCommand: command, in: workflow)
   }
 
-  func deleteCommand(_ command: Command, in workflow: Workflow) {
+  private func deleteCommand(_ command: Command, in workflow: Workflow) {
     var workflow = workflow
     try? workflow.commands.remove(command)
     delegate?.commandsFeatureController(self, didDeleteCommand: command, in: workflow)

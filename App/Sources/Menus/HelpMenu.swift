@@ -1,6 +1,6 @@
 import Cocoa
 
-class HelpMenu: NSMenuItem {
+final class HelpMenu: NSMenuItem {
   init() {
     super.init(title: "", action: nil, keyEquivalent: "")
     submenu = NSMenu(title: "Help")

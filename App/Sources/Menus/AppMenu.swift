@@ -1,6 +1,6 @@
 import Cocoa
 
-class AppMenu: NSMenu {
+final class AppMenu: NSMenu {
   override init(title: String) {
     super.init(title: title)
     items = [

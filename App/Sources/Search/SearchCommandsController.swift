@@ -4,7 +4,7 @@ import ViewKit
 import SwiftUI
 import Combine
 
-class SearchCommandsController: StateController {
+final class SearchCommandsController: StateController {
   @Published var state = ModelKit.SearchResult.commands([])
   let searchWorkflowController: SearchWorkflowController
   var query: String = ""

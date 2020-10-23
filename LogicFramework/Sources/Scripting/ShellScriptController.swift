@@ -22,7 +22,7 @@ public protocol ShellScriptControlling {
   func run(_ source: ScriptCommand.Source) -> CommandPublisher
 }
 
-class ShellScriptController: ShellScriptControlling {
+final class ShellScriptController: ShellScriptControlling {
   let shellPath: String = "/bin/bash"
 
   func run(_ source: ScriptCommand.Source) -> CommandPublisher {

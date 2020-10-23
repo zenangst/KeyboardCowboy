@@ -4,7 +4,7 @@ import ViewKit
 import SwiftUI
 import Combine
 
-class SearchFeatureController: ViewController {
+final class SearchFeatureController: ViewController {
   @Published var state = ModelKit.SearchResults.empty()
   let searchController: SearchRootController
   var userSelection: UserSelection
