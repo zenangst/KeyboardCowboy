@@ -4,6 +4,16 @@ import ViewKit
 import ModelKit
 import Combine
 
+extension Array where Element: Equatable {
+  func contains(_ element: Element?) -> Bool {
+    guard let element = element else {
+      return false
+    }
+
+    return contains { $0 == element }
+  }
+}
+
 protocol GroupsFeatureControllerDelegate: AnyObject {
   func groupsFeatureController(_ controller: GroupsFeatureController, didReloadGroups groups: [Group])
 }
@@ -28,7 +38,14 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
     self.userSelection.workflow = self.state.first?.workflows.first
 
     userSelection.$group.sink { [weak self] group in
-      self?.userSelection.workflow = group?.workflows.first
+      guard let group = group else {
+        self?.userSelection.workflow = nil
+        return
+      }
+
+      if !group.workflows.contains(self?.userSelection.workflow) {
+        self?.userSelection.workflow = group.workflows.first
+      }
     }.store(in: &cancellables)
   }
 
