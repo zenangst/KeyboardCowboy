@@ -99,7 +99,6 @@ private extension GroupList {
         controller.perform(.updateGroup(group))
         editGroup = nil
         userSelection.group = group
-
       },
       cancelAction: { editGroup = nil })
   }

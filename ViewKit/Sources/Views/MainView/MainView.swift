@@ -98,7 +98,10 @@ private extension MainView {
          !group.workflows.isEmpty {
         WorkflowList(group: Binding(
                       get: { group },
-                      set: { userSelection.group = $0 }),
+                      set: {
+                        userSelection.group = $0
+                        userSelection.workflow = nil
+                      }),
                      workflowController: workflowController)
       }
   }
