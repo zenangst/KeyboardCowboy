@@ -42,7 +42,7 @@ final class WorkflowFeatureController: ViewController,
         return
       }
 
-      if !group.workflows.contains(self?.userSelection.workflow) {
+      if !group.workflows.containsElement(self?.userSelection.workflow) {
         self?.userSelection.workflow = group.workflows.first
       }
     }.store(in: &cancellables)
