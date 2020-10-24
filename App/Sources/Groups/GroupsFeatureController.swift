@@ -2,6 +2,7 @@ import Foundation
 import LogicFramework
 import ViewKit
 import ModelKit
+import Combine
 
 protocol GroupsFeatureControllerDelegate: AnyObject {
   func groupsFeatureController(_ controller: GroupsFeatureController, didReloadGroups groups: [Group])
@@ -14,6 +15,7 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
   var applications = [Application]()
   let groupsController: GroupsControlling
   let userSelection: UserSelection
+  private var cancellables = [AnyCancellable]()
 
   init(groupsController: GroupsControlling,
        userSelection: UserSelection,
@@ -24,6 +26,10 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
     self.state = groupsController.groups
     self.userSelection.group = self.state.first
     self.userSelection.workflow = self.state.first?.workflows.first
+
+    userSelection.$group.sink { [weak self] group in
+      self?.userSelection.workflow = group?.workflows.first
+    }.store(in: &cancellables)
   }
 
   // MARK: ViewController
@@ -104,6 +110,7 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
     try? groups.replace(group)
     reload(groups) { [weak self] _ in
       self?.userSelection.group = group
+      self?.userSelection.workflow = nil
     }
   }
 
