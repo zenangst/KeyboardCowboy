@@ -8,6 +8,7 @@ struct CommandView: View {
   let runAction: (Command) -> Void
   let showContextualMenu: Bool
 
+  @ViewBuilder
   var body: some View {
     switch command {
     case .application:
