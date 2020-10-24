@@ -31,43 +31,10 @@ public struct MainView: View {
   public var body: some View {
     NavigationView {
       sidebar.frame(minWidth: 200)
-      GeometryReader { geometry in
-        if userSelection.group != nil && userSelection.workflow != nil {
-          HSplitView {
-            workflowList
-              .frame(minWidth: 225, maxWidth: 275)
-              .frame(height: geometry.size.height)
-              .padding(.top, 1)
-            workflowDetail
-              .frame(minWidth: 400, maxWidth: .infinity)
-              .frame(height: geometry.size.height)
-              .edgesIgnoringSafeArea(.top)
-              .background(LinearGradient(
-                            gradient:
-                              Gradient(colors: [Color(.clear),
-                                                Color(.gridColor).opacity(0.5)]),
-                            startPoint: .top,
-                            endPoint: .bottom))
-          }
-        } else if !searchText.isEmpty {
-          searchContext
-        } else if userSelection.workflow == nil {
-          HStack {
-            Spacer()
-            HelperView(
-              text: "Start by adding a workflow",
-              contentView: Group {
-                HStack {
-                  RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-                  Button("Add Workflow", action: {
-                    workflowController.perform(.createWorkflow)
-                  }).buttonStyle(PlainButtonStyle())
-                }
-              }.erase())
-              .frame(height: geometry.size.height)
-            Spacer()
-          }.padding()
-        }
+      if searchText.isEmpty {
+        contentView
+      } else {
+        searchContext
       }
     }.frame(minWidth: 845)
   }
@@ -130,6 +97,43 @@ private extension MainView {
 
   var searchContext: some View {
     SearchView(searchController: searchController)
+  }
+
+  var contentView: some View {
+    GeometryReader { geometry in
+      if let group = userSelection.group, !group.workflows.isEmpty {
+        HSplitView {
+          workflowList
+            .frame(minWidth: 225, maxWidth: 275)
+            .frame(height: geometry.size.height)
+            .padding(.top, 1)
+          workflowDetail
+            .frame(minWidth: 400, maxWidth: .infinity)
+            .frame(height: geometry.size.height)
+            .edgesIgnoringSafeArea(.top)
+            .background(LinearGradient(
+                          gradient: Gradient(colors: [Color(.clear), Color(.gridColor).opacity(0.5)]),
+                          startPoint: .top,
+                          endPoint: .bottom))
+        }
+      } else {
+        HStack {
+          Spacer()
+          HelperView(
+            text: "Start by adding a workflow",
+            contentView: Group {
+              HStack {
+                RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
+                Button("Add Workflow", action: {
+                  workflowController.perform(.createWorkflow)
+                }).buttonStyle(PlainButtonStyle())
+              }
+            }.erase())
+            .frame(height: geometry.size.height)
+          Spacer()
+        }.padding()
+      }
+    }
   }
 }
 
