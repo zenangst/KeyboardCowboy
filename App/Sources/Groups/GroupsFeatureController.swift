@@ -104,7 +104,9 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
     try? groups.replace(group)
     reload(groups) { [weak self] _ in
       self?.userSelection.group = group
-      self?.userSelection.workflow = nil
+      if !group.workflows.containsElement(self?.userSelection.workflow) {
+        self?.userSelection.workflow = nil
+      }
     }
   }
 
