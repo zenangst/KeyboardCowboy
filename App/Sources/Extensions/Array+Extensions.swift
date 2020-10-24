@@ -1,10 +1,3 @@
-//
-//  Array+Extensions.swift
-//  LogicFramework
-//
-//  Created by Ardalan Samimi on 2020-10-24.
-//
-
 import Foundation
 
 extension Array where Element: Equatable {
