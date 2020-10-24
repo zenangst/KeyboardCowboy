@@ -36,6 +36,17 @@ final class WorkflowFeatureController: ViewController,
     self.groupsController = groupsController
     self.userSelection = userSelection
 
+    userSelection.$group.sink { [weak self] group in
+      guard let group = group else {
+        self?.userSelection.workflow = nil
+        return
+      }
+
+      if !group.workflows.contains(self?.userSelection.workflow) {
+        self?.userSelection.workflow = group.workflows.first
+      }
+    }.store(in: &cancellables)
+
     userSelection.$workflow.sink { [weak self] workflow in
       guard let self = self else { return }
       self.state = workflow
