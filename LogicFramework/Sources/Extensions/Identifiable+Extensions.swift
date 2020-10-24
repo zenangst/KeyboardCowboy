@@ -6,8 +6,12 @@ public enum IdentifiableCollectionError: Error {
 
 public extension Array where Element: Identifiable {
 
-  func containsElement(_ element: Element) -> Bool {
-    first(where: { $0.id == element.id }) != nil ? true : false
+  func containsElement(_ element: Element?) -> Bool {
+    guard let element = element else {
+      return false
+    }
+
+    return first(where: { $0.id == element.id }) != nil ? true : false
   }
 
   /// Add an `Identifiable` element to the collection.
