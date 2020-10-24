@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import CoreGraphics
+import OSLog
 
 protocol FileIndexControlling: AnyObject {
   func asyncIndex<T>(with patterns: [FileIndexPattern], match: @escaping (URL) -> Bool,
@@ -39,6 +40,8 @@ public enum FileIndexPattern {
 /// Asynchronousity is achieved using Combine.
 ///
 public final class FileIndexController: FileIndexControlling {
+  fileprivate let osLog = OSLog(subsystem: "com.zenangst.Keyboard-Cowboy",
+                                category: String(describing: FileIndexController.self))
   let baseUrl: URL
 
   public init(baseUrl: URL) {
@@ -51,9 +54,11 @@ public final class FileIndexController: FileIndexControlling {
   }
 
   public func index<T>(with patterns: [FileIndexPattern], match: (URL) -> Bool, handler: (URL) -> T?) -> [T] {
+    let signpostID = OSSignpostID(log: osLog, object: NSString(string: baseUrl.absoluteString))
+    os_signpost(.begin, log: osLog, name: #function, signpostID: signpostID, "%@ - Start", baseUrl.absoluteString)
     let fileManager = FileManager()
     let enumerator = fileManager.enumerator(at: baseUrl,
-                                            includingPropertiesForKeys: [.isApplicationKey],
+                                            includingPropertiesForKeys: nil,
                                             options: [.skipsHiddenFiles])!
 
     var ignoredPatterns = Set<URL>()
@@ -72,22 +77,35 @@ public final class FileIndexController: FileIndexControlling {
     }
 
     var items = [T]()
-    for case let file as URL in enumerator {
-      if ignoredLastPathComponents.contains(file.lastPathComponent) ||
-          ignoredPathExtensions.contains(file.pathExtension) ||
-          ignoredPatterns.contains(file) {
+    for case let fileURL as URL in enumerator {
+      let signpostID = OSSignpostID(log: osLog, object: NSString(string: fileURL.path))
+      os_signpost(.begin, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
+      defer { os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - Start", fileURL.path) }
+
+      // Exclude .git directories
+      if fileManager.fileExists(atPath: fileURL.path.appending("/.git")) {
+        enumerator.skipDescendants()
+      }
+
+      if ignoredLastPathComponents.contains(fileURL.lastPathComponent) ||
+          ignoredPathExtensions.contains(fileURL.pathExtension) ||
+          ignoredPatterns.contains(fileURL) {
         enumerator.skipDescendants()
         continue
       }
 
-      guard match(file) else { continue }
+      guard match(fileURL) else { continue }
 
-      if let object = handler(file) {
+      os_signpost(.begin, log: osLog, name: "applicationParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
+      if let object = handler(fileURL) {
         items.append(object)
       }
+      os_signpost(.end, log: osLog, name: "applicationParsing", signpostID: signpostID, "%@ - End", fileURL.path)
 
       enumerator.skipDescendents()
     }
+
+    os_signpost(.end, log: osLog, name: #function, signpostID: signpostID, "%@ - End", baseUrl.absoluteString)
 
     return items
   }
