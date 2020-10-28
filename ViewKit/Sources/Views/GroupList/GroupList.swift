@@ -13,7 +13,7 @@ public struct GroupList: View {
   static let idealWidth: CGFloat = 300
 
   @EnvironmentObject var userSelection: UserSelection
-  @ObservedObject var controller: GroupController
+  @ObservedObject var groupController: GroupController
   @State private var editGroup: ModelKit.Group?
 
   public var body: some View {
@@ -25,7 +25,7 @@ public struct GroupList: View {
           providers.forEach {
             _ = $0.loadObject(ofClass: URL.self) { url, _ in
               guard let url = url else { return }
-              controller.action(.dropFile(url))()
+              groupController.action(.dropFile(url))()
             }
           }
           return true
@@ -41,7 +41,7 @@ public struct GroupList: View {
 private extension GroupList {
   var list: some View {
     List(selection: $userSelection.group) {
-      ForEach(controller.state, id: \.self) { group in
+      ForEach(groupController.state, id: \.self) { group in
         GroupListCell(
           name: Binding(get: { group.name }, set: { name in
             var group = group
@@ -56,7 +56,7 @@ private extension GroupList {
             var group = group
             group.name = name
             group.color = color
-            controller.perform(.updateGroup(group))
+            groupController.perform(.updateGroup(group))
           }
         )
         .onTapGesture(count: 2, perform: {
@@ -65,12 +65,13 @@ private extension GroupList {
         .contextMenu {
           Button("Show Info") { editGroup = group }
           Divider()
-          Button("Delete") { controller.action(.deleteGroup(group))() }
+          Button("Delete") { groupController.action(.deleteGroup(group))() }
         }
+        .fixedSize(horizontal: false, vertical: true)
         .tag(group)
       }.onMove(perform: { indices, newOffset in
         for i in indices {
-          controller.action(.moveGroup(from: i, to: newOffset))()
+          groupController.action(.moveGroup(from: i, to: newOffset))()
         }
       })
     }
@@ -82,7 +83,7 @@ private extension GroupList {
     HStack(spacing: 4) {
       RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
       Button("Add Group", action: {
-        controller.perform(.createGroup)
+        groupController.perform(.createGroup)
       })
       .buttonStyle(PlainButtonStyle())
     }.padding(8)
@@ -96,7 +97,7 @@ private extension GroupList {
         var group = group
         group.name = name
         group.color = color
-        controller.perform(.updateGroup(group))
+        groupController.perform(.updateGroup(group))
         editGroup = nil
         userSelection.group = group
       },
@@ -112,7 +113,7 @@ struct GroupList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    GroupList(controller: PreviewController().erase())
+    GroupList(groupController: GroupPreviewController().erase())
       .frame(width: GroupList.idealWidth)
       .environmentObject(UserSelection())
   }
