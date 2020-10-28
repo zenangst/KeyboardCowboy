@@ -31,30 +31,31 @@ public class IconController: ObservableObject {
     cache.removeAllObjects()
   }
 
-  @discardableResult
-  public func preLoadIcon(identifier: String, at path: String) -> NSImage? {
+  public func preLoadIcon(identifier: String, at path: String, size: CGSize) {
     os_signpost(.begin, log: osLog, name: #function)
     defer { os_signpost(.end, log: osLog, name: #function) }
-    guard let image = Self.cache.object(forKey: identifier as NSString) else {
-      return nil
+    let cacheKey = "\(identifier)_\(size.string)" as NSString
+    guard let image = Self.cache.object(forKey: cacheKey) else {
+      return
     }
-    commit(image)
-    return image
+    self.icon = image
   }
 
-  public func loadIcon(identifier: String, at path: String) {
+  public func loadIcon(identifier: String, at path: String, size: CGSize) {
     queue.async { [weak self] in
-      self?._loadIcon(identifier: identifier, at: path)
+      self?._loadIcon(identifier: identifier, at: path, size: size)
     }
   }
 
-  public func _loadIcon(identifier: String, at path: String) {
+  public func _loadIcon(identifier: String, at path: String, size: CGSize) {
+    let cacheKey = "\(identifier)_\(size.string)" as NSString
     os_signpost(.begin, log: osLog, name: "loadIcon")
     defer { os_signpost(.end, log: osLog, name: "loadIcon") }
-    if let image = preLoadIcon(identifier: identifier, at: path) {
+    if let image = Self.cache.object(forKey: cacheKey) {
       commit(image)
-    } else if let cachedImage = loadImageFromDisk(withFilename: identifier) {
-      Self.cache.setObject(cachedImage, forKey: identifier as NSString)
+      return
+    } else if let cachedImage = loadImageFromDisk(withFilename: identifier, size: size) {
+      Self.cache.setObject(cachedImage, forKey: cacheKey)
       commit(cachedImage)
       return
     }
@@ -67,15 +68,15 @@ public class IconController: ObservableObject {
     }
 
     var image = self.workspace.icon(forFile: applicationPath)
-    var imageRect: CGRect = .init(origin: .zero, size: CGSize(width: 128, height: 128))
+    var imageRect: CGRect = .init(origin: .zero, size: size)
     let imageRef = image.cgImage(forProposedRect: &imageRect, context: nil, hints: nil)
 
     if let imageRef = imageRef {
       image = NSImage(cgImage: imageRef, size: imageRect.size)
     }
 
-    try? self.saveImageToDisk(image, withFilename: identifier)
-    Self.cache.setObject(image, forKey: identifier as NSString)
+    try? self.saveImageToDisk(image, withFilename: identifier, size: size)
+    Self.cache.setObject(image, forKey: cacheKey)
     self.commit(image)
   }
 
@@ -96,13 +97,14 @@ public class IconController: ObservableObject {
     return data
   }
 
-  private func loadImageFromDisk(withFilename filename: String) -> NSImage? {
-    guard let applicationFile = try? applicationCacheDirectory().appendingPathComponent("\(filename).png"),
+  private func loadImageFromDisk(withFilename filename: String, size: CGSize) -> NSImage? {
+    guard let applicationFile = try? applicationCacheDirectory()
+            .appendingPathComponent("\(filename)_\(size.string).png"),
           FileManager.default.fileExists(atPath: applicationFile.path) else {
       return nil
     }
 
-    return NSImage.init(contentsOf: applicationFile)
+    return NSImage(contentsOfFile: applicationFile.path)
   }
 
   func saveImage(_ image: NSImage, to destination: URL, override: Bool = false) throws {
@@ -117,9 +119,9 @@ public class IconController: ObservableObject {
     }
   }
 
-  private func saveImageToDisk(_ image: NSImage, withFilename fileName: String) throws {
+  private func saveImageToDisk(_ image: NSImage, withFilename fileName: String, size: CGSize) throws {
     let applicationFile = try applicationCacheDirectory()
-      .appendingPathComponent("\(fileName).png")
+      .appendingPathComponent("\(fileName)_\(size.string).png")
     try saveImage(image, to: applicationFile)
   }
 
@@ -138,5 +140,11 @@ public class IconController: ObservableObject {
     }
 
     return url
+  }
+}
+
+private extension CGSize {
+  var string: String {
+    return "\(Int(width))x\(Int(height))"
   }
 }

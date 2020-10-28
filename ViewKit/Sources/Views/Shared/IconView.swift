@@ -19,22 +19,20 @@ struct IconView: View {
 
   init(icon: Icon) {
     self.icon = icon
-    iconLoader.preLoadIcon(identifier: icon.identifier, at: icon.path)
+    iconLoader.preLoadIcon(identifier: icon.identifier, at: icon.path, size: CGSize(width: 24, height: 24))
   }
 
   var body: some View {
     ZStack {
       if iconLoader.icon != nil {
         Image(nsImage: iconLoader.icon!)
-          .resizable()
-      } else {
-        Spacer().onAppear {
-          if iconLoader.icon == nil {
-            iconLoader.loadIcon(identifier: icon.identifier, at: icon.path)
-          }
-        }.frame(width: 24, height: 24)
       }
-    }.id(icon)
+    }.onAppear {
+      if iconLoader.icon == nil {
+        iconLoader.loadIcon(identifier: icon.identifier, at: icon.path, size: CGSize(width: 24, height: 24))
+      }
+    }
+    .frame(width: 24, height: 24)
   }
 }
 
