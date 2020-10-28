@@ -29,11 +29,11 @@ public class Toolbar: NSToolbar, NSToolbarDelegate {
                       willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
     switch itemIdentifier {
     case .space:
-      return NSToolbarItem.init(itemIdentifier: .space)
+      return NSToolbarItem(itemIdentifier: .space)
     case .separator:
-      return NSToolbarItem.init(itemIdentifier: .separator)
+      return NSToolbarItem(itemIdentifier: .separator)
     case .flexibleSpace:
-      return NSToolbarItem.init(itemIdentifier: .flexibleSpace)
+      return NSToolbarItem(itemIdentifier: .flexibleSpace)
     default:
       if itemIdentifier == Self.updates {
         return UpdatesToolbarItem(itemIdentifier: Self.updates)
