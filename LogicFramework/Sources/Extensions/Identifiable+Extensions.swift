@@ -87,11 +87,16 @@ public extension Array where Element: Identifiable {
   /// - Throws: The function will throw if the element does not exist inside
   ///           the collection.
   mutating func move(_ element: Element, to: Int) throws {
-    guard let index = self.firstIndex(where: { $0.id == element.id }) else {
+    guard let previousIndex = self.firstIndex(where: { $0.id == element.id }) else {
       throw IdentifiableCollectionError.unableToFindElement
     }
 
-    try self.remove(element, at: index)
-    self.add(element, at: to)
+    var newIndex = to
+    if newIndex > previousIndex {
+      newIndex -= 1
+    }
+
+    try self.remove(element, at: previousIndex)
+    self.add(element, at: newIndex)
   }
 }
