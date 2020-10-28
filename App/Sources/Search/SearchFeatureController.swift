@@ -16,7 +16,10 @@ final class SearchFeatureController: ViewController {
     self.userSelection = userSelection
     self.searchController = searchController
 
-    searchController.$state.sink(receiveValue: { [weak self] in
+    searchController.$state
+      .dropFirst()
+      .removeDuplicates()
+      .sink(receiveValue: { [weak self] in
       guard let self = self else { return }
       self.state = $0
     }).store(in: &anyCancellables)

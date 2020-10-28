@@ -36,7 +36,10 @@ final class WorkflowFeatureController: ViewController,
     self.groupsController = groupsController
     self.userSelection = userSelection
 
-    userSelection.$group.sink { [weak self] group in
+    userSelection.$group
+      .removeDuplicates()
+      .dropFirst()
+      .sink { [weak self] group in
       guard let group = group else {
         self?.userSelection.workflow = nil
         return
@@ -47,7 +50,10 @@ final class WorkflowFeatureController: ViewController,
       }
     }.store(in: &cancellables)
 
-    userSelection.$workflow.sink { [weak self] workflow in
+    userSelection.$workflow
+      .removeDuplicates()
+      .dropFirst()
+      .sink { [weak self] workflow in
       guard let self = self else { return }
       self.state = workflow
     }.store(in: &cancellables)

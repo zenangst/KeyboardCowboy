@@ -33,7 +33,9 @@ final class KeyboardShortcutsFeatureController: ViewController {
     self._state = Published(initialValue: state)
     self.userSelection = userSelection
 
-    userSelection.$workflow.sink { [weak self] workflow in
+    userSelection.$workflow
+      .removeDuplicates()
+      .sink { [weak self] workflow in
       guard let self = self else { return }
       self.state = workflow?.keyboardShortcuts ?? []
     }.store(in: &cancellables)
