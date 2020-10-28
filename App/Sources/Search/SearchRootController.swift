@@ -25,7 +25,9 @@ final class SearchRootController {
       groupSearch.$state,
       workflowSearch.$state,
       commandSearch.$state
-    ).sink(receiveValue: { [weak self] in
+    )
+    .dropFirst()
+    .sink(receiveValue: { [weak self] in
       guard let self = self else { return }
 
       var newState = self.state

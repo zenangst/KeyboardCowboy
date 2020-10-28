@@ -13,7 +13,9 @@ final class SearchWorkflowController: StateController {
   init(searchGroupController: SearchGroupsController) {
     self.searchGroupController = searchGroupController
 
-    searchGroupController.$state.sink(receiveValue: { [weak self] results in
+    searchGroupController.$state
+      .dropFirst()
+      .sink(receiveValue: { [weak self] results in
       guard let self = self,
             case .groups(let groups) = results else { return }
       let workflows = groups.flatMap({ self.searchForWorkflowByName(self.query, group: $0) })

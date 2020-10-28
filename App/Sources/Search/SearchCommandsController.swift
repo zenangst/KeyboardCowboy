@@ -13,7 +13,9 @@ final class SearchCommandsController: StateController {
   init(searchWorkflowController: SearchWorkflowController) {
     self.searchWorkflowController = searchWorkflowController
 
-    searchWorkflowController.$state.sink(receiveValue: { [weak self] results in
+    searchWorkflowController.$state
+      .dropFirst()
+      .sink(receiveValue: { [weak self] results in
       guard let self = self,
             case .workflows(let workflows) = results else { return }
       let commands = workflows.flatMap({ self.searchForCommandsByName(self.query, workflow: $0) })
