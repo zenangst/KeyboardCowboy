@@ -6,9 +6,9 @@ struct PlayArrowView: View {
       Circle()
         .fill(Color(.controlAccentColor))
       Text("▶︎")
-        .foregroundColor(Color(.white))
+        .foregroundColor(Color(NSColor.white))
     }
-    .shadow(color: Color(.black).opacity(0.25), radius: 1, x: 1, y: 2)
+    .shadow(color: Color(NSColor.black).opacity(0.25), radius: 1, x: 1, y: 2)
     .frame(width: 16, height: 16, alignment: .center)
     .offset(x: 7, y: 7)
   }

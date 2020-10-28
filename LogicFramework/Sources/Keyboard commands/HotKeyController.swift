@@ -56,7 +56,8 @@ final class HotKeyController: HotKeyControlling {
     var result: Unmanaged<CGEvent>? = Unmanaged.passUnretained(event)
 
     if type == .keyDown {
-      Debug.print("⌨️ Workflows: \(workflows.compactMap({ $0.name }).joined(separator: ", ").replacingOccurrences(of: "Open ", with: "")): \(invocations)")
+      let output = workflows.compactMap({ $0.name }).joined(separator: ", ").replacingOccurrences(of: "Open ", with: "")
+      Debug.print("⌨️ Workflows: \(output): \(invocations)")
     }
 
     for workflow in workflows where invocations < workflow.keyboardShortcuts.count {

@@ -107,10 +107,10 @@ private extension WorkflowView {
         saveAction: { newCommand in
           commandController.action(.createCommand(newCommand))()
           newCommandVisible = false
-      },
-      cancelAction: {
-        newCommandVisible = false
-      },
+        },
+        cancelAction: {
+          newCommandVisible = false
+        },
         selection: Command.application(.init(application: Application.empty())),
         command: Command.application(.init(application: Application.empty())))
     })

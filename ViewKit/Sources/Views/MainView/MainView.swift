@@ -51,26 +51,26 @@ private extension MainView {
                                   userSelection.group = nil
                                   userSelection.workflow = nil
                                   searchController.action(.search(newSearchText))()
-      }))
+                                 }))
         .frame(height: 48)
         .padding(.horizontal, 12)
         .padding(.top, 36)
-      GroupList(controller: groupController)
+      GroupList(groupController: groupController)
     }.edgesIgnoringSafeArea(.top)
   }
 
   @ViewBuilder
   var workflowList: some View {
-      if let group = userSelection.group,
-         !group.workflows.isEmpty {
-        WorkflowList(group: Binding(
-                      get: { group },
-                      set: {
-                        userSelection.group = $0
-                        userSelection.workflow = nil
-                      }),
-                     workflowController: workflowController)
-      }
+    if let group = userSelection.group,
+       !group.workflows.isEmpty {
+      WorkflowList(group: Binding(
+                    get: { group },
+                    set: {
+                      userSelection.group = $0
+                      userSelection.workflow = nil
+                    }),
+                   workflowController: workflowController)
+    }
   }
 
   @ViewBuilder
