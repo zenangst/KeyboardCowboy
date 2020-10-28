@@ -71,13 +71,7 @@ final class CommandsFeatureController: ViewController {
 
   private func moveCommand(_ command: Command, to index: Int, in workflow: Workflow) {
     var workflow = workflow
-    var newIndex = index
-    if let previousIndex = workflow.commands.firstIndex(of: command),
-       newIndex > previousIndex {
-      newIndex -= 1
-    }
-
-    try? workflow.commands.move(command, to: newIndex)
+    try? workflow.commands.move(command, to: index)
     delegate?.commandsFeatureController(self, didUpdateCommand: command, in: workflow)
   }
 
