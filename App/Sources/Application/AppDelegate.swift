@@ -17,7 +17,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
   var groupFeatureController: GroupsFeatureController?
   var directoryObserver: DirectoryObserver?
   var menubarController: MenubarController?
-  let userSelection  = UserSelection()
 
   var storageController: StorageControlling {
     let configuration = Configuration.Storage()
@@ -66,8 +65,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
       let coreController = try launchController.initialLoad(storageController: storageController)
       self.coreController = coreController
 
-      let featureFactory = FeatureFactory(coreController: coreController,
-                                          userSelection: userSelection)
+      let featureFactory = FeatureFactory(coreController: coreController)
       let menubarController = featureFactory.menuBar()
       menubarController.delegate = self
       self.menubarController = menubarController
@@ -79,10 +77,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
 
   private func createMainWindow(_ coreController: CoreControlling) -> NSWindow? {
     IconController.installedApplications = coreController.installedApplications
+    let userSelection = UserSelection()
+    let featureFactory = FeatureFactory(coreController: coreController)
+    let context = featureFactory.applicationStack(userSelection: userSelection)
 
-    let featureFactory = FeatureFactory(coreController: coreController,
-                                        userSelection: userSelection)
-    let context = featureFactory.applicationStack()
+    userSelection.group = context.groupsFeature.state.first
+    userSelection.workflow = context.groupsFeature.state.first?.workflows.first
+
     let mainView = MainView(
       applicationProvider: context.applicationProvider.erase(),
       commandController: context.commandFeature.erase(),
@@ -115,17 +116,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
       coreController.groupsController.reloadGroups(groups)
 
       self.groupFeatureController?.state = groups
-
-      if let selectedGroup = self.groupFeatureController?.userSelection.group,
-         let newGroup = groups.first(where: { $0.id == selectedGroup.id }) {
-        self.groupFeatureController?.userSelection.group = newGroup
-      }
-
-      if let selectedWorkflow = self.groupFeatureController?.userSelection.workflow,
-         let workflow = self.groupFeatureController?.userSelection.group?.workflows
-          .first(where: { $0.id == selectedWorkflow.id }) {
-        self.groupFeatureController?.userSelection.workflow = workflow
-      }
     }
   }
 

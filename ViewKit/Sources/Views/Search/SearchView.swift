@@ -18,7 +18,7 @@ struct SearchView: View {
           Spacer()
         }
 
-        ForEach(searchController.state.workflows) { workflow in
+        ForEach(searchController.state.workflows, id: \.self) { workflow in
           WorkflowListCell(workflow: workflow)
             .frame(height: 48)
             .padding(.horizontal, 10)
@@ -38,7 +38,7 @@ struct SearchView: View {
           HeaderView(title: "Commands")
           Spacer()
         }
-        ForEach(searchController.state.commands) { command in
+        ForEach(searchController.state.commands, id: \.self) { command in
           CommandView(command: command,
                       editAction: { _ in },
                       revealAction: { _ in },

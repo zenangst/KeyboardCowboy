@@ -5,7 +5,6 @@ import ViewKit
 
 final class FeatureFactory {
   private let coreController: CoreControlling
-  private let userSelection: UserSelection
   private var groupsController: GroupsControlling {
     coreController.groupsController
   }
@@ -14,10 +13,8 @@ final class FeatureFactory {
     coreController.installedApplications
   }
 
-  init(coreController: CoreControlling,
-       userSelection: UserSelection) {
+  init(coreController: CoreControlling) {
     self.coreController = coreController
-    self.userSelection = userSelection
   }
 
   func mainWindow(autosaveName: String, _ onClose: @escaping () -> Void) -> Window {
@@ -34,13 +31,13 @@ final class FeatureFactory {
   }
 
   // swiftlint:disable large_tuple
-  func applicationStack() -> (applicationProvider: ApplicationsProvider,
-                              commandFeature: CommandsFeatureController,
-                              groupsFeature: GroupsFeatureController,
-                              keyboardFeature: KeyboardShortcutsFeatureController,
-                              searchFeature: SearchFeatureController,
-                              workflowFeature: WorkflowFeatureController) {
-    let groupFeatureController = groupFeature()
+  func applicationStack(userSelection: UserSelection) -> (applicationProvider: ApplicationsProvider,
+                                                          commandFeature: CommandsFeatureController,
+                                                          groupsFeature: GroupsFeatureController,
+                                                          keyboardFeature: KeyboardShortcutsFeatureController,
+                                                          searchFeature: SearchFeatureController,
+                                                          workflowFeature: WorkflowFeatureController) {
+    let groupFeatureController = groupFeature(userSelection: userSelection)
 
     let workflowFeatureController = workflowFeature()
     workflowFeatureController.delegate = groupFeatureController
@@ -53,7 +50,7 @@ final class FeatureFactory {
 
     let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications)
 
-    let searchFeatureController = searchFeature(userSelection: userSelection)
+    let searchFeatureController = searchFeature()
 
     return (applicationProvider: applicationProvider,
             commandFeature: commandsController,
@@ -63,11 +60,11 @@ final class FeatureFactory {
             workflowFeature: workflowFeatureController)
   }
 
-  func groupFeature() -> GroupsFeatureController {
+  func groupFeature(userSelection: UserSelection) -> GroupsFeatureController {
     GroupsFeatureController(
       groupsController: groupsController,
-      userSelection: userSelection,
-      applications: installedApplications
+      applications: installedApplications,
+      userSelection: userSelection
     )
   }
 
@@ -76,27 +73,22 @@ final class FeatureFactory {
       state: Workflow(
         id: "", name: "",
         keyboardShortcuts: [], commands: []),
-      groupsController: groupsController,
-      userSelection: userSelection)
+      groupsController: groupsController)
   }
 
   func keyboardShortcutFeature() -> KeyboardShortcutsFeatureController {
-    KeyboardShortcutsFeatureController(groupsController: groupsController,
-                                       state: [],
-                                       userSelection: userSelection)
+    KeyboardShortcutsFeatureController(groupsController: groupsController)
   }
 
   func commandsFeature() -> CommandsFeatureController {
     CommandsFeatureController(groupsController: groupsController,
-                              installedApplications: installedApplications,
-                              state: [], userSelection: userSelection)
+                              installedApplications: installedApplications)
   }
 
-  func searchFeature(userSelection: UserSelection) -> SearchFeatureController {
+  func searchFeature() -> SearchFeatureController {
     let root = SearchRootController(groupsController: groupsController,
                                     groupSearch: SearchGroupsController())
-    let feature = SearchFeatureController(userSelection: userSelection,
-                                          searchController: root,
+    let feature = SearchFeatureController(searchController: root,
                                           query: .constant(""))
     return feature
   }

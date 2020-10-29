@@ -3,7 +3,6 @@ import ModelKit
 
 struct GroupListCell: View {
   typealias CommitHandler = (String, String) -> Void
-  @State var internalName: String
   @Binding var name: String
   @Binding var color: String
   let count: Int
@@ -13,7 +12,6 @@ struct GroupListCell: View {
        color: Binding<String>,
        count: Int,
        onCommit: @escaping CommitHandler) {
-    _internalName = State(initialValue: name.wrappedValue)
     _name = name
     _color = color
     self.count = count
@@ -46,10 +44,10 @@ private extension GroupListCell {
   var textField: some View {
     TextField(
       "",
-      text: $internalName,
+      text: $name,
       onEditingChanged: { _ in },
       onCommit: {
-        onCommit(internalName, color)
+        onCommit(name, color)
       })
       .foregroundColor(.primary)
       .lineSpacing(-2.0)

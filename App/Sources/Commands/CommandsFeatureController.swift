@@ -14,42 +14,27 @@ protocol CommandsFeatureControllerDelegate: AnyObject {
                                  didDeleteCommand command: Command, in workflow: Workflow)
 }
 
-final class CommandsFeatureController: ViewController {
+final class CommandsFeatureController: ActionController {
   weak var delegate: CommandsFeatureControllerDelegate?
-  @Published var state: [Command]
-  let userSelection: UserSelection
   let groupsController: GroupsControlling
   let installedApplications: [Application]
-  private var cancellables = [AnyCancellable]()
 
   init(groupsController: GroupsControlling,
-       installedApplications: [Application],
-       state: [Command], userSelection: UserSelection) {
+       installedApplications: [Application]) {
     self.groupsController = groupsController
     self.installedApplications = installedApplications
-    self._state = Published(initialValue: state)
-    self.userSelection = userSelection
-
-    userSelection.$workflow
-      .removeDuplicates()
-      .sink { [weak self] workflow in
-      guard let self = self else { return }
-      self.state = workflow?.commands ?? []
-    }.store(in: &cancellables)
   }
 
   func perform(_ action: CommandListView.Action) {
-    guard let workflow = userSelection.workflow else { return }
-
     switch action {
-    case .createCommand(let command):
+    case .createCommand(let command, let workflow):
       createCommand(command, in: workflow)
-    case .updateCommand(let command):
+    case .updateCommand(let command, let workflow):
       updateCommand(command, in: workflow)
-    case .deleteCommand(let command):
+    case .deleteCommand(let command, let workflow):
       deleteCommand(command, in: workflow)
-    case .moveCommand(let command, let to):
-      moveCommand(command, to: to, in: workflow)
+    case .moveCommand(let command, let offset, let workflow):
+      moveCommand(command, to: offset, in: workflow)
     case .runCommand:
       Swift.print("run command!")
     case .revealCommand:
@@ -71,9 +56,12 @@ final class CommandsFeatureController: ViewController {
     delegate?.commandsFeatureController(self, didCreateCommand: command, in: workflow)
   }
 
-  private func moveCommand(_ command: Command, to index: Int, in workflow: Workflow) {
+  private func moveCommand(_ command: Command, to offset: Int, in workflow: Workflow) {
+    guard let currentIndex = workflow.commands.firstIndex(of: command) else { return }
+
+    let newIndex = currentIndex + offset
     var workflow = workflow
-    try? workflow.commands.move(command, to: index)
+    try? workflow.commands.move(command, to: newIndex)
     delegate?.commandsFeatureController(self, didUpdateCommand: command, in: workflow)
   }
 

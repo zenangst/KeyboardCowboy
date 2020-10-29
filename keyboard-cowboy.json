@@ -1,6 +1,7 @@
 [
   {
     "rule" : {
+      "id" : "4A05FD54-8C8F-4119-BABE-9A031E6BD401",
       "bundleIdentifiers" : [
 
       ],
@@ -9,36 +10,18 @@
       ]
     },
     "id" : "405EAE02-7766-4DDA-93BD-ECFB98D7D950",
-    "name" : "Bundles",
+    "name" : "Hello world!",
     "workflows" : [
       {
         "id" : "55A05BDC-E8B1-4BE0-A5E9-7878135C977C",
         "commands" : [
           {
             "applicationCommand" : {
-              "id" : "FE9EB9B6-6B35-4CC9-A4E3-A94D3704BCE0",
-              "application" : {
-                "path" : "\/System\/Applications\/News.app",
-                "bundleIdentifier" : "com.apple.news",
-                "bundleName" : "News"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "64A08CCD-6F16-45A2-AB0B-773B9ED6E518",
-              "application" : {
-                "path" : "\/System\/Applications\/Notes.app",
-                "bundleIdentifier" : "com.apple.Notes",
-                "bundleName" : "Notes"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
               "id" : "B12F3EE9-3C42-4218-A745-C5C87A3A68E4",
+              "name" : "",
               "application" : {
                 "path" : "\/System\/Applications\/Calendar.app",
+                "id" : "884C0761-74D9-48A0-80E7-70A3DCBDDE99",
                 "bundleIdentifier" : "com.apple.Calendar",
                 "bundleName" : "Calendar"
               }
@@ -47,8 +30,10 @@
           {
             "applicationCommand" : {
               "id" : "45B15217-371E-4018-B37E-F95866E75268",
+              "name" : "",
               "application" : {
                 "path" : "\/System\/Applications\/Contacts.app",
+                "id" : "90855C70-4041-406B-965A-F891BCCFD48F",
                 "bundleIdentifier" : "com.apple.AddressBook",
                 "bundleName" : "Contacts"
               }
@@ -56,19 +41,11 @@
           },
           {
             "applicationCommand" : {
-              "id" : "21D6BE23-744A-41D0-8894-0A9463DC0331",
-              "application" : {
-                "path" : "\/System\/Applications\/Mail.app",
-                "bundleIdentifier" : "com.apple.mail",
-                "bundleName" : "Mail"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
               "id" : "5D0C0DB4-766C-4D39-94E3-F883894537DD",
+              "name" : "",
               "application" : {
                 "path" : "\/System\/Applications\/FindMy.app",
+                "id" : "9A75E081-AE1D-4C6A-8DE4-CA0BD77C9FA5",
                 "bundleIdentifier" : "com.apple.findmy",
                 "bundleName" : "FindMy"
               }
@@ -76,9 +53,47 @@
           },
           {
             "applicationCommand" : {
+              "id" : "21D6BE23-744A-41D0-8894-0A9463DC0331",
+              "name" : "",
+              "application" : {
+                "path" : "\/System\/Applications\/Mail.app",
+                "id" : "C72A71E4-9D62-4DD5-8769-316D431E4EA8",
+                "bundleIdentifier" : "com.apple.mail",
+                "bundleName" : "Mail"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "FE9EB9B6-6B35-4CC9-A4E3-A94D3704BCE0",
+              "name" : "",
+              "application" : {
+                "path" : "\/System\/Applications\/News.app",
+                "id" : "78CA39B8-A97A-4709-A9FC-39E75FA1D82B",
+                "bundleIdentifier" : "com.apple.news",
+                "bundleName" : "News"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "64A08CCD-6F16-45A2-AB0B-773B9ED6E518",
+              "name" : "",
+              "application" : {
+                "path" : "\/System\/Applications\/Notes.app",
+                "id" : "AB3238FE-B951-4181-87CD-CF5494331EF2",
+                "bundleIdentifier" : "com.apple.Notes",
+                "bundleName" : "Notes"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
               "id" : "3B6A7FDB-814D-4A7C-9A40-18DCC1A95FD1",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/1Password.app",
+                "id" : "43919E61-D554-496D-9DB4-0358E013A62B",
                 "bundleIdentifier" : "com.agilebits.onepassword-osx",
                 "bundleName" : "1Password"
               }
@@ -92,54 +107,80 @@
             "modifiers" : [
               "@"
             ]
+          },
+          {
+            "id" : "7776B46A-01F2-4697-9F9B-96B35CBAE5FC",
+            "key" : ""
           }
         ],
-        "name" : "Open office applications"
+        "name" : "Open office!"
       },
       {
         "id" : "559E6E27-B841-4119-826D-D8EDCD9858C4",
         "commands" : [
           {
             "applicationCommand" : {
-              "id" : "F4C3E1F9-7493-40BE-94BE-885E44B1405A",
+              "id" : "4EB7A758-46DB-4706-9EA9-4231220DC731",
+              "name" : "",
               "application" : {
-                "path" : "\/Applications\/1Password.app",
-                "bundleIdentifier" : "com.agilebits.onepassword-osx",
-                "bundleName" : "1Password"
+                "path" : "\/Applications\/Fantastical.app",
+                "id" : "E93A26E8-DE97-41E0-B150-6AC02F02AD16",
+                "bundleIdentifier" : "com.flexibits.fantastical2.mac",
+                "bundleName" : "Fantastical"
               }
             }
           },
           {
             "applicationCommand" : {
               "id" : "21E91858-222A-4EAA-9F0E-C2CB8113CEA2",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Airmail.app",
+                "id" : "5F9EEE26-9222-4D05-A9E9-A4ECCD4F2336",
                 "bundleIdentifier" : "it.bloop.airmail2",
                 "bundleName" : "Airmail"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "4EB7A758-46DB-4706-9EA9-4231220DC731",
-              "application" : {
-                "path" : "\/Applications\/Fantastical.app",
-                "bundleIdentifier" : "com.flexibits.fantastical2.mac",
-                "bundleName" : "Fantastical"
               }
             }
           }
         ],
         "keyboardShortcuts" : [
-
+          {
+            "id" : "CDBED2AB-43DC-4DDD-B546-166FA4B654D9",
+            "key" : "A",
+            "modifiers" : [
+              "@"
+            ]
+          },
+          {
+            "id" : "E728E885-C962-491E-97C3-2FDF60AEEFA6",
+            "key" : "S",
+            "modifiers" : [
+              "@"
+            ]
+          },
+          {
+            "id" : "E68E8840-0A94-458E-856F-127D9607C505",
+            "key" : "D",
+            "modifiers" : [
+              "@"
+            ]
+          },
+          {
+            "id" : "57F5B591-6B16-45ED-9EAB-5FA3BAA53241",
+            "key" : "G",
+            "modifiers" : [
+              "@"
+            ]
+          }
         ],
-        "name" : "My awesome workflow"
+        "name" : "Hello world!"
       }
     ],
-    "color" : "#000"
+    "color" : "#EB4B63"
   },
   {
     "rule" : {
+      "id" : "B28A7D7D-23E1-485F-8A46-A81399E1B40A",
       "bundleIdentifiers" : [
         "com.apple.finder"
       ],
@@ -201,6 +242,7 @@
   },
   {
     "rule" : {
+      "id" : "5A7067EF-2534-4457-BC27-AC6D3A9AD59B",
       "bundleIdentifiers" : [
         "com.apple.Safari"
       ],
@@ -239,6 +281,7 @@
   },
   {
     "rule" : {
+      "id" : "4FFC615B-77FC-4E1E-8770-6F38B9760C16",
       "bundleIdentifiers" : [
         "com.apple.dt.Xcode"
       ],
@@ -371,6 +414,7 @@
   },
   {
     "rule" : {
+      "id" : "346F1383-D99D-4ED9-A863-86EC6285055A",
       "bundleIdentifiers" : [
         "com.apple.news"
       ],
@@ -440,8 +484,10 @@
           {
             "applicationCommand" : {
               "id" : "AB1EB32D-254D-468C-9F31-870479239C65",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Cardhop.app",
+                "id" : "72734DCA-2B65-4BBE-B9C0-090861F8E07F",
                 "bundleIdentifier" : "com.flexibits.cardhop.mac",
                 "bundleName" : "Cardhop"
               }
@@ -470,8 +516,10 @@
           {
             "applicationCommand" : {
               "id" : "1E3596BC-2B72-442F-92DF-4E371DCD3EAC",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Find My.app",
+                "id" : "D822C9AC-DF83-4F85-94D9-99328971C7B4",
                 "bundleIdentifier" : "com.apple.findmy",
                 "bundleName" : "Find My"
               }
@@ -500,8 +548,10 @@
           {
             "applicationCommand" : {
               "id" : "F73EA749-ACC3-4599-8BF8-EB21B2388167",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Fantastical.app",
+                "id" : "DD1C49BD-BFA1-441C-A703-3A6A6DB77A74",
                 "bundleIdentifier" : "com.flexibits.fantastical2.mac",
                 "bundleName" : "Fantastical"
               }
@@ -530,8 +580,10 @@
           {
             "applicationCommand" : {
               "id" : "94E13B56-A0AF-429C-95FC-013447DF5085",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Messages.app",
+                "id" : "7C0ED9C1-6757-4853-9D2B-2E19F84C8DD7",
                 "bundleIdentifier" : "com.apple.MobileSMS",
                 "bundleName" : "Messages"
               }
@@ -560,8 +612,10 @@
           {
             "applicationCommand" : {
               "id" : "4652D020-7B50-4949-AF9C-D74B391A7291",
+              "name" : "",
               "application" : {
                 "path" : "\/System\/Applications\/Mail.app",
+                "id" : "3D552115-8D06-4B32-BE11-4F10EEB5A6C3",
                 "bundleIdentifier" : "com.apple.mail",
                 "bundleName" : "Mail"
               }
@@ -590,8 +644,10 @@
           {
             "applicationCommand" : {
               "id" : "398ECB06-9CA7-431C-89E5-E2D6212DC1F8",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Microsoft Edge.app",
+                "id" : "1FD061AD-ADAC-4FA0-B63B-DBDDD21DD901",
                 "bundleIdentifier" : "com.microsoft.edgemac",
                 "bundleName" : "Edge"
               }
@@ -620,8 +676,10 @@
           {
             "applicationCommand" : {
               "id" : "B9112BBF-75C2-4122-90D0-60C4A0217179",
+              "name" : "",
               "application" : {
                 "path" : "\/System\/Applications\/Home.app",
+                "id" : "E237C3CF-CCE0-4EE2-A2A4-1840D12AAC99",
                 "bundleIdentifier" : "com.apple.Home",
                 "bundleName" : "Home"
               }
@@ -650,8 +708,10 @@
           {
             "applicationCommand" : {
               "id" : "82AFE14E-08F3-4458-A9D1-CD9BDF790ED4",
+              "name" : "",
               "application" : {
                 "path" : "\/System\/Applications\/Photos.app",
+                "id" : "5742E904-D249-4135-8D6F-35F6A1959C79",
                 "bundleIdentifier" : "com.apple.Photos",
                 "bundleName" : "Photos"
               }
@@ -680,8 +740,10 @@
           {
             "applicationCommand" : {
               "id" : "A213DE60-9C16-4866-9A1D-B68E42E2F7B6",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Utilities\/Keychain Access.app",
+                "id" : "1BFA0548-C593-49A3-8046-F09561FDD352",
                 "bundleIdentifier" : "com.apple.keychainaccess",
                 "bundleName" : "Keychain"
               }
@@ -710,8 +772,10 @@
           {
             "applicationCommand" : {
               "id" : "6F4B68F2-C110-431A-A840-67B98C16965F",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Maps.app",
+                "id" : "903DEB9E-B079-4484-91DE-B547989AC276",
                 "bundleIdentifier" : "com.apple.Maps",
                 "bundleName" : "Maps"
               }
@@ -740,8 +804,10 @@
           {
             "applicationCommand" : {
               "id" : "D222F422-2889-46E3-9A11-9666393E4184",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Notes.app",
+                "id" : "252CB7B3-E911-4D3C-91A4-36B8A9C985C6",
                 "bundleIdentifier" : "com.apple.Notes",
                 "bundleName" : "Notes"
               }
@@ -770,8 +836,10 @@
           {
             "applicationCommand" : {
               "id" : "0AFEA4D4-606C-4FE8-9F7E-05AAC4F4A5A1",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Preview.app",
+                "id" : "46C9D9BC-3423-4F56-9431-DE07BAD6E9BE",
                 "bundleIdentifier" : "com.apple.Preview",
                 "bundleName" : "Preview"
               }
@@ -800,8 +868,10 @@
           {
             "applicationCommand" : {
               "id" : "59842939-6D48-4601-BF8E-9C1802B7D35C",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Reminders.app",
+                "id" : "78BD1013-DF72-43C2-A821-11C98B9870BA",
                 "bundleIdentifier" : "com.apple.Reminders",
                 "bundleName" : "Reminders"
               }
@@ -830,8 +900,10 @@
           {
             "applicationCommand" : {
               "id" : "84D0B429-1C79-4826-873B-013D31B0EDFE",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Music.app",
+                "id" : "5374EE9F-CA6A-4F36-83E1-058E880980A6",
                 "bundleIdentifier" : "com.apple.Music",
                 "bundleName" : "Music"
               }
@@ -860,8 +932,10 @@
           {
             "applicationCommand" : {
               "id" : "B48EEC6E-700E-4A0D-BFD6-C0B49A2AFC6D",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Twitter.app",
+                "id" : "A2962380-A148-4AE8-8864-0B50BD230596",
                 "bundleIdentifier" : "maccatalyst.com.atebits.Tweetie2",
                 "bundleName" : "Twitter"
               }
@@ -890,8 +964,10 @@
           {
             "applicationCommand" : {
               "id" : "9B803F55-AC59-4257-AF4D-864AE62A7F75",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Utilities\/System Preferences.app",
+                "id" : "939349CB-D881-449E-B5B0-0A0130415A63",
                 "bundleIdentifier" : "com.apple.SystemPreferences",
                 "bundleName" : "System Preferences"
               }
@@ -920,8 +996,10 @@
           {
             "applicationCommand" : {
               "id" : "97C2AB87-E517-4CAF-B434-FB014FBFB007",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Slack.app",
+                "id" : "1AABE026-508F-49BB-857D-7A859F4C64ED",
                 "bundleIdentifier" : "com.tinyspeck.slackmacgap",
                 "bundleName" : "Slack"
               }
@@ -953,8 +1031,10 @@
           {
             "applicationCommand" : {
               "id" : "8598DE48-4313-4D29-ACF5-DBEF87F1FEF0",
+              "name" : "",
               "application" : {
                 "path" : "\/System\/Library\/CoreServices\/Finder.app",
+                "id" : "8ED91F61-81CF-4B39-84C9-C049A3BD17B9",
                 "bundleIdentifier" : "com.apple.finder",
                 "bundleName" : "Finder"
               }
@@ -979,8 +1059,10 @@
           {
             "applicationCommand" : {
               "id" : "CB5B23C5-A2A4-4D10-814B-523A7959A2A5",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Safari.app",
+                "id" : "56F51F8E-DA80-4B14-9402-B46F8676B7EE",
                 "bundleIdentifier" : "com.apple.Safari",
                 "bundleName" : "Safari"
               }
@@ -1005,8 +1087,10 @@
           {
             "applicationCommand" : {
               "id" : "ABAE9E93-F6F3-4439-8DDA-441BF75FD54A",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Xcode.app",
+                "id" : "142865E5-01EC-4943-8816-B0261B2450C6",
                 "bundleIdentifier" : "com.apple.dt.Xcode",
                 "bundleName" : "Xcode"
               }
@@ -1031,8 +1115,10 @@
           {
             "applicationCommand" : {
               "id" : "2FF54D68-4720-42B7-B191-29647F6D4733",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/News.app",
+                "id" : "28B0A39F-183C-4940-BD9F-A575F07AF8D7",
                 "bundleIdentifier" : "com.apple.News",
                 "bundleName" : "Apple News"
               }
@@ -1061,8 +1147,10 @@
           {
             "applicationCommand" : {
               "id" : "411773E4-E1AB-48C5-8404-69A198352C43",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/GitUp.app",
+                "id" : "FCF85366-94B3-450D-A2B3-3A76C686782D",
                 "bundleIdentifier" : "co.gitup.mac",
                 "bundleName" : "GitUp"
               }
@@ -1095,8 +1183,10 @@
           {
             "applicationCommand" : {
               "id" : "4717B05B-D67B-44B0-BF9C-0D5E3B5B307C",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Utilities\/Activity Monitor.app",
+                "id" : "0A135C96-D837-432F-B816-8EB617816938",
                 "bundleIdentifier" : "com.apple.ActivityMonitor",
                 "bundleName" : "Activity Monitor"
               }
@@ -1125,8 +1215,10 @@
           {
             "applicationCommand" : {
               "id" : "3ED8A4F1-BC30-4331-AC57-53D1110873DA",
+              "name" : "",
               "application" : {
                 "path" : "\/Applications\/Utilities\/Terminal",
+                "id" : "C10C223E-1BC4-4416-9E68-934C00536598",
                 "bundleIdentifier" : "com.apple.Terminal",
                 "bundleName" : "Terminal"
               }
@@ -1149,13 +1241,15 @@
         "commands" : [
           {
             "openCommand" : {
+              "path" : "https:\/\/github.com\/",
               "id" : "97069D88-E34F-4369-A0BF-241A6028A33E",
               "application" : {
                 "path" : "\/Applications\/Safari.app",
+                "id" : "6747B010-679B-4E37-A586-42BD60DA7706",
                 "bundleIdentifier" : "com.apple.Safari",
                 "bundleName" : "Safari"
               },
-              "path" : "https:\/\/github.com\/"
+              "name" : ""
             }
           }
         ],
@@ -1181,6 +1275,7 @@
           {
             "keyboardCommand" : {
               "id" : "B6F2C6E3-D3EE-4A64-9C4B-D8932A6D178F",
+              "name" : "",
               "keyboardShortcut" : {
                 "id" : "597F4145-BE36-4FB9-974E-EA84AE7FAB37",
                 "key" : "←"
@@ -1205,6 +1300,7 @@
           {
             "keyboardCommand" : {
               "id" : "3C6CF338-14A6-4DEB-B97C-9AB4D5DC229E",
+              "name" : "",
               "keyboardShortcut" : {
                 "id" : "D0CA576D-DD56-4A08-AE84-75EE78560952",
                 "key" : "↑"
@@ -1229,6 +1325,7 @@
           {
             "keyboardCommand" : {
               "id" : "1E9759BF-AA93-4E5A-A955-B79889FDEF79",
+              "name" : "",
               "keyboardShortcut" : {
                 "id" : "6BCE083C-3557-48DD-BEE5-82BCA1248291",
                 "key" : "→"
@@ -1253,6 +1350,7 @@
           {
             "keyboardCommand" : {
               "id" : "FA8BE945-ECA4-489D-8228-831BCF52F2B0",
+              "name" : "",
               "keyboardShortcut" : {
                 "id" : "73F04DAF-01E7-4209-A982-87220AF36B68",
                 "key" : "↓"
@@ -1277,6 +1375,7 @@
           {
             "keyboardCommand" : {
               "id" : "0F21E5A9-3EC1-4EC7-9144-539FB30E8B80",
+              "name" : "",
               "keyboardShortcut" : {
                 "id" : "0A9F2BBF-27F3-44A4-9FAC-804D85927988",
                 "key" : "←"
@@ -1301,6 +1400,7 @@
           {
             "keyboardCommand" : {
               "id" : "3CCBCCA9-4073-4A0C-B70F-B740B52803EF",
+              "name" : "",
               "keyboardShortcut" : {
                 "id" : "0BF199B6-C233-4662-BEC9-218A2BDDA2B7",
                 "key" : "↑"
@@ -1325,6 +1425,7 @@
           {
             "keyboardCommand" : {
               "id" : "3E237A6C-A0D4-4D8E-9D2E-7F222C38E8AA",
+              "name" : "",
               "keyboardShortcut" : {
                 "id" : "F9F161B9-D171-4CA4-847E-D510E9262B9F",
                 "key" : "→"
@@ -1349,6 +1450,7 @@
           {
             "keyboardCommand" : {
               "id" : "CBE732B2-9CBF-4EE5-A1D4-3EEB8A76AB49",
+              "name" : "",
               "keyboardShortcut" : {
                 "id" : "89EDCA34-0CD5-4C44-BF32-378C9E25E355",
                 "key" : "↓"

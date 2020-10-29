@@ -1,6 +1,5 @@
 import ModelKit
 
-final class CommandPreviewController: ViewController {
-  let state = ModelFactory().workflowDetail().commands
+final class CommandPreviewController: ActionController {
   func perform(_ action: CommandListView.Action) {}
 }

@@ -52,6 +52,5 @@ struct ApplicationView_Previews: PreviewProvider, TestPreviewProvider {
       runAction: { _ in },
       showContextualMenu: true)
       .frame(maxWidth: 450)
-      .environmentObject(UserSelection())
   }
 }

@@ -25,78 +25,52 @@ final class WorkflowFeatureController: ViewController,
   weak var delegate: WorkflowFeatureControllerDelegate?
   @Published var state: Workflow?
   let groupsController: GroupsControlling
-  let userSelection: UserSelection
 
   private var cancellables = [AnyCancellable]()
 
-  public init(state: Workflow,
-              groupsController: GroupsControlling,
-              userSelection: UserSelection) {
+  public init(state: Workflow, groupsController: GroupsControlling) {
     self._state = Published(initialValue: state)
     self.groupsController = groupsController
-    self.userSelection = userSelection
-
-    userSelection.$group
-      .removeDuplicates()
-      .dropFirst()
-      .sink { [weak self] group in
-      guard let group = group else {
-        self?.userSelection.workflow = nil
-        return
-      }
-
-      if !group.workflows.containsElement(self?.userSelection.workflow) {
-        self?.userSelection.workflow = group.workflows.first
-      }
-    }.store(in: &cancellables)
-
-    userSelection.$workflow
-      .removeDuplicates()
-      .dropFirst()
-      .sink { [weak self] workflow in
-      guard let self = self else { return }
-      self.state = workflow
-    }.store(in: &cancellables)
   }
 
   // MARK: ViewController
 
   func perform(_ action: WorkflowList.Action) {
     switch action {
-    case .createWorkflow:
-      createWorkflow()
-    case .updateWorkflow(let workflow):
-      updateWorkflow(workflow)
-    case .deleteWorkflow(let workflow):
-      deleteWorkflow(workflow)
-    case .moveWorkflow(let workflow, let to):
-      moveWorkflow(workflow, to: to)
+    case .createWorkflow(let group):
+      createWorkflow(in: group)
+    case .updateWorkflow(let workflow, let group):
+      updateWorkflow(workflow, in: group)
+    case .deleteWorkflow(let workflow, let group):
+      deleteWorkflow(workflow, in: group)
+    case .moveWorkflow(let workflow, let to, let group):
+      moveWorkflow(workflow, to: to, in: group)
     }
   }
 
   // MARK: Private methods
 
-  func createWorkflow() {
-    guard var group = userSelection.group else { return }
+  func createWorkflow(in group: ModelKit.Group) {
+    var group = group
     let workflow = Workflow.empty()
     group.workflows.add(workflow)
     delegate?.workflowFeatureController(self, didCreateWorkflow: workflow, in: group)
   }
 
-  func updateWorkflow(_ workflow: Workflow) {
-    guard var group = groupsController.group(for: workflow) else { return }
+  func updateWorkflow(_ workflow: Workflow, in group: ModelKit.Group) {
+    var group = group
     try? group.workflows.replace(workflow)
     delegate?.workflowFeatureController(self, didUpdateWorkflow: workflow, in: group)
   }
 
-  func deleteWorkflow(_ workflow: Workflow) {
-    guard var group = groupsController.group(for: workflow) else { return }
+  func deleteWorkflow(_ workflow: Workflow, in group: ModelKit.Group) {
+    var group = group
     try? group.workflows.remove(workflow)
     delegate?.workflowFeatureController(self, didDeleteWorkflow: workflow, in: group)
   }
 
-  private func moveWorkflow(_ workflow: Workflow, to index: Int) {
-    guard var group = groupsController.group(for: workflow) else { return }
+  private func moveWorkflow(_ workflow: Workflow, to index: Int, in group: ModelKit.Group) {
+    var group = group
     try? group.workflows.move(workflow, to: index)
     delegate?.workflowFeatureController(self, didMoveWorkflow: workflow, in: group)
   }
@@ -106,19 +80,22 @@ final class WorkflowFeatureController: ViewController,
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
                                          didCreateKeyboardShortcut keyboardShortcut: KeyboardShortcut,
                                          in workflow: Workflow) {
-    updateWorkflow(workflow)
+    guard let group = groupsController.group(for: workflow) else { return }
+    updateWorkflow(workflow, in: group)
   }
 
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
                                          didUpdateKeyboardShortcut keyboardShortcut: KeyboardShortcut,
                                          in workflow: Workflow) {
-    updateWorkflow(workflow)
+    guard let group = groupsController.group(for: workflow) else { return }
+    updateWorkflow(workflow, in: group)
   }
 
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
                                          didDeleteKeyboardShortcut keyboardShortcut: KeyboardShortcut,
                                          in workflow: Workflow) {
-    updateWorkflow(workflow)
+    guard let group = groupsController.group(for: workflow) else { return }
+    updateWorkflow(workflow, in: group)
   }
 
   // MARK: CommandsFeatureControllerDelegate
@@ -126,16 +103,19 @@ final class WorkflowFeatureController: ViewController,
   func commandsFeatureController(_ controller: CommandsFeatureController,
                                  didCreateCommand command: Command,
                                  in workflow: Workflow) {
-    updateWorkflow(workflow)
+    guard let group = groupsController.group(for: workflow) else { return }
+    updateWorkflow(workflow, in: group)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didUpdateCommand command: Command,
                                  in workflow: Workflow) {
-    updateWorkflow(workflow)
+    guard let group = groupsController.group(for: workflow) else { return }
+    updateWorkflow(workflow, in: group)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didDeleteCommand command: Command,
                                  in workflow: Workflow) {
-    updateWorkflow(workflow)
+    guard let group = groupsController.group(for: workflow) else { return }
+    updateWorkflow(workflow, in: group)
   }
 }
