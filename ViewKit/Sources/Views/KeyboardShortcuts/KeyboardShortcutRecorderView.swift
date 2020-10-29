@@ -10,6 +10,9 @@ class KeyboardShortcutRecorderView: NSSearchField {
   private var cancellables = Set<AnyCancellable>()
   private let viewController: KeyboardShortcutRecorderViewController
   private let onCommit: OnCommit
+  private let minimumWidth: CGFloat = 130
+
+  override var canBecomeKeyView: Bool { return false }
 
   required init(keyboardShortcut: ModelKit.KeyboardShortcut?,
                 placeholder: String? = nil,
@@ -24,6 +27,12 @@ class KeyboardShortcutRecorderView: NSSearchField {
     self.delegate = viewController
     (self.cell as? NSSearchFieldCell)?.searchButtonCell = nil
     self.update(keyboardShortcut)
+
+    self.wantsLayer = true
+    self.translatesAutoresizingMaskIntoConstraints = false
+    self.setContentHuggingPriority(.defaultHigh, for: .vertical)
+    self.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+    self.widthAnchor.constraint(greaterThanOrEqualToConstant: minimumWidth).isActive = true
 
     self.viewController.onCommit = { [weak self] keyboardShortcut in
       guard let self = self else { return }

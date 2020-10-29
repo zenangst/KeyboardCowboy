@@ -4,61 +4,65 @@ import ModelKit
 struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
 
-  @ObservedObject var applicationProvider: ApplicationProvider
-  @ObservedObject var commandController: CommandController
-  @ObservedObject var keyboardShortcutController: KeyboardShortcutController
-  @ObservedObject var openPanelController: OpenPanelController
+  let applicationProvider: ApplicationProvider
+  let commandController: CommandController
+  let keyboardShortcutController: KeyboardShortcutController
+  let openPanelController: OpenPanelController
+  let workflowController: WorkflowController
   @State private var newCommandVisible: Bool = false
-  @Binding var workflow: Workflow
+  let workflow: Workflow
+  let group: ModelKit.Group
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      VStack {
-        name.padding(.horizontal)
-      }
-      .padding(.bottom, 16)
+    VStack(alignment: .leading) {
+      ScrollView {
+        name(workflow, in: group).padding(.horizontal)
 
-      if keyboardShortcutController.state.isEmpty {
-        addKeyboardShortcut.padding(.vertical, 8)
-      } else {
         VStack(alignment: .leading) {
-          HeaderView(title: "Keyboard shortcuts:").padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-          keyboardShortcuts.frame(
-            height: max(min(72 * CGFloat(keyboardShortcutController.state.count), 176), 72)
-          )
+          if workflow.keyboardShortcuts.isEmpty {
+            addKeyboardShortcut.padding(.vertical, 8)
+          } else {
+            HeaderView(title: "Keyboard shortcuts:")
+              .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+            keyboardShortcuts(for: workflow)
+          }
         }
-        .padding(.top, 12)
+
+        Divider().padding(16)
+
+        VStack(alignment: .leading) {
+          HeaderView(title: "Commands:")
+            .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+          commands(for: workflow)
+        }
       }
-
-      Divider()
-        .padding(16)
-
-      VStack(alignment: .leading) {
-        HeaderView(title: "Commands:").padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-        commands
-      }
-
       addCommandButton.padding(8)
-    }
+    }.background(LinearGradient(
+                  gradient: Gradient(colors: [Color(.clear), Color(.gridColor).opacity(0.5)]),
+                  startPoint: .top,
+                  endPoint: .bottom))
   }
 }
 
 private extension WorkflowView {
-  var name: some View {
-    TextField("", text: $workflow.name)
+  func name(_ workflow: Workflow, in group: ModelKit.Group) -> some View {
+    TextField("", text: Binding<String>(get: { workflow.name }, set: { name in
+      var workflow = workflow
+      workflow.name = name
+      workflowController.action(.updateWorkflow(workflow, in: group))()
+    }))
       .font(.largeTitle)
       .foregroundColor(.primary)
       .textFieldStyle(PlainTextFieldStyle())
   }
 
-  var keyboardShortcuts: some View {
-    KeyboardShortcutListView(keyboardShortcutController: keyboardShortcutController)
-      .background(Color(.windowBackgroundColor))
-      .cornerRadius(8.0)
-      .padding(.horizontal, 16)
+  func keyboardShortcuts(for workflow: Workflow) -> some View {
+    KeyboardShortcutListView(keyboardShortcutController: keyboardShortcutController,
+                             keyboardShortcuts: workflow.keyboardShortcuts,
+                             workflow: workflow)
       .frame(alignment: .top)
-      .listStyle(DefaultListStyle())
-      .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 3)
+      .padding(.bottom, 24)
+      .shadow(color: Color(.controlDarkShadowColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
   }
 
   var addKeyboardShortcut: some View {
@@ -66,25 +70,26 @@ private extension WorkflowView {
       RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
         .onTapGesture {
           keyboardShortcutController.perform(.createKeyboardShortcut(
-                                              keyboardShortcut: ModelKit.KeyboardShortcut.empty(),
-                                              index: keyboardShortcutController.state.count))
+                                              ModelKit.KeyboardShortcut.empty(),
+                                              index: workflow.keyboardShortcuts.count,
+                                              in: workflow))
         }
       Button("Add Keyboard Shortcut", action: {
         keyboardShortcutController.perform(.createKeyboardShortcut(
-                                            keyboardShortcut: ModelKit.KeyboardShortcut.empty(),
-                                            index: keyboardShortcutController.state.count))
+                                            ModelKit.KeyboardShortcut.empty(),
+                                            index: workflow.keyboardShortcuts.count,
+                                            in: workflow))
       })
       .buttonStyle(PlainButtonStyle())
     }.padding(8)
   }
 
-  var commands: some View {
+  func commands(for workflow: Workflow) -> some View {
     CommandListView(applicationProvider: applicationProvider,
                     commandController: commandController,
-                    openPanelController: openPanelController)
-      .cornerRadius(8.0)
+                    openPanelController: openPanelController,
+                    workflow: workflow)
       .frame(alignment: .top)
-      .padding(.horizontal, 16)
       .padding(.bottom, 24)
       .shadow(color: Color(.controlDarkShadowColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
   }
@@ -105,7 +110,7 @@ private extension WorkflowView {
         applicationProvider: applicationProvider,
         openPanelController: openPanelController,
         saveAction: { newCommand in
-          commandController.action(.createCommand(newCommand))()
+          commandController.action(.createCommand(newCommand, in: workflow))()
           newCommandVisible = false
         },
         cancelAction: {
@@ -129,7 +134,9 @@ struct WorkflowView_Previews: PreviewProvider, TestPreviewProvider {
                  commandController: CommandPreviewController().erase(),
                  keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
                  openPanelController: OpenPanelPreviewController().erase(),
-                 workflow: .constant(ModelFactory().workflowDetail()))
+                 workflowController: WorkflowPreviewController().erase(),
+                 workflow: ModelFactory().workflowDetail(),
+                 group: ModelFactory().groupList().first!)
       .frame(height: 668)
   }
 }

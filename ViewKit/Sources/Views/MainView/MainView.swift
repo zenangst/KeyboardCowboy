@@ -2,14 +2,14 @@ import SwiftUI
 import ModelKit
 
 public struct MainView: View {
-  @ObservedObject var applicationProvider: ApplicationProvider
-  @ObservedObject var commandController: CommandController
-  @ObservedObject var groupController: GroupController
-  @ObservedObject var keyboardShortcutController: KeyboardShortcutController
-  @ObservedObject var workflowController: WorkflowController
-  @ObservedObject var openPanelController: OpenPanelController
-  @ObservedObject var searchController: SearchController
   @EnvironmentObject var userSelection: UserSelection
+  let applicationProvider: ApplicationProvider
+  let commandController: CommandController
+  let groupController: GroupController
+  let keyboardShortcutController: KeyboardShortcutController
+  let workflowController: WorkflowController
+  let openPanelController: OpenPanelController
+  @ObservedObject var searchController: SearchController
   @State private var searchText: String = ""
 
   public init(applicationProvider: ApplicationProvider,
@@ -30,110 +30,31 @@ public struct MainView: View {
 
   public var body: some View {
     NavigationView {
-      sidebar.frame(minWidth: 200)
-      if searchText.isEmpty {
-        contentView
-      } else {
-        searchContext
+      VStack(alignment: .leading) {
+        SearchField(query: Binding(get: { searchText },
+                                   set: { newSearchText in
+                                    searchText = newSearchText
+                                    searchController.action(.search(newSearchText))()
+                                   }))
+          .frame(height: 48)
+          .padding(.horizontal, 12)
+        GroupList(applicationProvider: applicationProvider,
+                  commandController: commandController,
+                  groupController: groupController,
+                  keyboardShortcutController: keyboardShortcutController,
+                  openPanelController: openPanelController,
+                  workflowController: workflowController)
+          .frame(minWidth: 225)
       }
-    }.frame(minWidth: 845)
+    }
   }
 }
 
 // MARK: Extensions
 
 private extension MainView {
-  var sidebar: some View {
-    VStack(alignment: .leading) {
-      SearchField(query: Binding(get: { searchText },
-                                 set: { newSearchText in
-                                  searchText = newSearchText
-                                  userSelection.group = nil
-                                  userSelection.workflow = nil
-                                  searchController.action(.search(newSearchText))()
-                                 }))
-        .frame(height: 48)
-        .padding(.horizontal, 12)
-        .padding(.top, 36)
-      GroupList(groupController: groupController)
-    }.edgesIgnoringSafeArea(.top)
-  }
-
-  @ViewBuilder
-  var workflowList: some View {
-    if let group = userSelection.group,
-       !group.workflows.isEmpty {
-      WorkflowList(group: Binding(
-                    get: { group },
-                    set: {
-                      userSelection.group = $0
-                      userSelection.workflow = nil
-                    }),
-                   workflowController: workflowController)
-    }
-  }
-
-  @ViewBuilder
-  var workflowDetail: some View {
-    if let workflow = userSelection.workflow {
-      WorkflowView(
-        applicationProvider: applicationProvider,
-        commandController: commandController,
-        keyboardShortcutController: keyboardShortcutController,
-        openPanelController: openPanelController,
-        workflow:
-          Binding(
-            get: { workflow },
-            set: { workflow in
-              workflowController.action(.updateWorkflow(workflow))()
-            }))
-        .edgesIgnoringSafeArea(.top)
-    } else {
-      VStack {
-        Text("Select a workflow").padding()
-      }
-    }
-  }
-
   var searchContext: some View {
     SearchView(searchController: searchController)
-  }
-
-  var contentView: some View {
-    GeometryReader { geometry in
-      if let group = userSelection.group, !group.workflows.isEmpty {
-        HSplitView {
-          workflowList
-            .frame(minWidth: 225, maxWidth: 275)
-            .frame(height: geometry.size.height)
-            .padding(.top, 1)
-          workflowDetail
-            .frame(minWidth: 400, maxWidth: .infinity)
-            .frame(height: geometry.size.height)
-            .edgesIgnoringSafeArea(.top)
-            .background(LinearGradient(
-                          gradient: Gradient(colors: [Color(.clear), Color(.gridColor).opacity(0.5)]),
-                          startPoint: .top,
-                          endPoint: .bottom))
-        }
-      } else {
-        HStack {
-          Spacer()
-          HelperView(
-            text: "Start by adding a workflow",
-            contentView: Group {
-              HStack {
-                RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-                Button("Add Workflow", action: {
-                  workflowController.perform(.createWorkflow)
-                }).buttonStyle(PlainButtonStyle())
-              }
-            }.erase())
-            .frame(height: geometry.size.height)
-          Spacer()
-        }.padding()
-      }
-    }
   }
 }
 
@@ -151,8 +72,25 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
                openPanelController: OpenPanelPreviewController().erase(),
                searchController: SearchPreviewController().erase(),
                workflowController: WorkflowPreviewController().erase())
-        .environmentObject(UserSelection())
-        .frame(width: 960, height: 600, alignment: .leading)
+        .frame(width: 960, height: 620, alignment: .leading)
+
+      MainView(applicationProvider: ApplicationPreviewProvider().erase(),
+               commandController: CommandPreviewController().erase(),
+               groupController: GroupPreviewController().erase(),
+               keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
+               openPanelController: OpenPanelPreviewController().erase(),
+               searchController: SearchPreviewController().erase(),
+               workflowController: WorkflowPreviewController().erase())
+        .frame(width: 960, height: 620, alignment: .leading)
+
+      MainView(applicationProvider: ApplicationPreviewProvider().erase(),
+               commandController: CommandPreviewController().erase(),
+               groupController: GroupPreviewController().erase(),
+               keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
+               openPanelController: OpenPanelPreviewController().erase(),
+               searchController: SearchPreviewController().erase(),
+               workflowController: WorkflowPreviewController().erase())
+        .frame(width: 960, height: 620, alignment: .leading)
     }
   }
 }

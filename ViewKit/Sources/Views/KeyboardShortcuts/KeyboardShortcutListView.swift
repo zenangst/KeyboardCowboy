@@ -3,54 +3,53 @@ import ModelKit
 
 public struct KeyboardShortcutListView: View {
   public enum Action {
-    case createKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut, index: Int)
-    case updateKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut)
-    case deleteKeyboardShortcut(keyboardShortcut: ModelKit.KeyboardShortcut)
-    case moveCommand(keyboardShortcut: ModelKit.KeyboardShortcut, to: Int)
+    case createKeyboardShortcut(ModelKit.KeyboardShortcut, index: Int, in: Workflow)
+    case updateKeyboardShortcut(ModelKit.KeyboardShortcut, in: Workflow)
+    case deleteKeyboardShortcut(ModelKit.KeyboardShortcut, in: Workflow)
+    case moveCommand(ModelKit.KeyboardShortcut, to: Int, in: Workflow)
   }
 
-  @ObservedObject var keyboardShortcutController: KeyboardShortcutController
+  let keyboardShortcutController: KeyboardShortcutController
+  let keyboardShortcuts: [ModelKit.KeyboardShortcut]
+  let workflow: Workflow
 
   public var body: some View {
-    List {
-      ForEach(Array(keyboardShortcutController.state.enumerated()), id: \.element) { index, keyboardShortcut in
-        HStack {
-          Text("\(index + 1)").padding(.horizontal, 4)
-          KeyboardShortcutView(keyboardShortcut: Binding<ModelKit.KeyboardShortcut?>(get: {
-            keyboardShortcut
-          }, set: { keyboardShortcut in
-            if let keyboardShortcut = keyboardShortcut {
-              keyboardShortcutController.perform(.updateKeyboardShortcut(keyboardShortcut: keyboardShortcut))
-            }
-          }))
-          HStack(spacing: 4) {
-            Button("+", action: {
-              if let index = keyboardShortcutController.state.firstIndex(of: keyboardShortcut) {
-                keyboardShortcutController.perform(.createKeyboardShortcut(keyboardShortcut: KeyboardShortcut.empty(),
-                                                                           index: index + 1))
+    VStack {
+      ForEach(Array(keyboardShortcuts.enumerated()), id: \.element) { index, keyboardShortcut in
+        MovableView(element: keyboardShortcut, dragHandler: { offset, _ in
+          let indexOffset = Int(round(offset.height / 48))
+          keyboardShortcutController.perform(.moveCommand(keyboardShortcut, to: indexOffset, in: workflow))
+        }, {
+          HStack {
+            Text("\(index + 1)").padding(.horizontal, 4)
+            KeyboardShortcutView(keyboardShortcut: Binding<ModelKit.KeyboardShortcut?>(get: {
+              keyboardShortcut
+            }, set: { keyboardShortcut in
+              if let keyboardShortcut = keyboardShortcut {
+                keyboardShortcutController.perform(.updateKeyboardShortcut(keyboardShortcut, in: workflow))
               }
-            })
-            Button("-", action: {
-              keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut: keyboardShortcut))
-            })
+            }))
+            HStack(spacing: 4) {
+              Button("+", action: {
+                if let index = keyboardShortcuts.firstIndex(of: keyboardShortcut) {
+                  keyboardShortcutController.perform(.createKeyboardShortcut(KeyboardShortcut.empty(),
+                                                                             index: index + 1,
+                                                                             in: workflow))
+                }
+              })
+              Button("-", action: {
+                keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut, in: workflow))
+              })
+            }
           }
-        }
-        .padding(8)
-        .frame(height: 45)
-        .background(Color(.windowBackgroundColor))
-        .cornerRadius(8.0)
-        .tag(keyboardShortcut)
-      }.onMove(perform: { indices, newOffset in
-        for i in indices {
-          let keyboardShortcut = keyboardShortcutController.state[i]
-          keyboardShortcutController.perform(.moveCommand(keyboardShortcut: keyboardShortcut, to: newOffset))
-        }
-      }).onDelete(perform: { indexSet in
-        for index in indexSet {
-          let keyboardShortcut = keyboardShortcutController.state[index]
-          keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut: keyboardShortcut))
-        }
-      })
+          .padding(.horizontal, 8)
+          .frame(height: 48, alignment: .center)
+          .background(Color(.windowBackgroundColor))
+          .cornerRadius(8)
+          .padding(.horizontal)
+          .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+        })
+      }
     }
   }
 }
@@ -63,6 +62,9 @@ struct KeyboardShortcutListView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    KeyboardShortcutListView(keyboardShortcutController: KeyboardShortcutPreviewController().erase())
+    KeyboardShortcutListView(
+      keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
+      keyboardShortcuts: ModelFactory().keyboardShortcuts(),
+      workflow: ModelFactory().workflowDetail())
   }
 }

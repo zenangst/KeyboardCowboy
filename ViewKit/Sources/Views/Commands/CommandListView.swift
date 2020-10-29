@@ -3,81 +3,77 @@ import ModelKit
 
 public struct CommandListView: View {
   public enum Action {
-    case createCommand(Command)
-    case updateCommand(Command)
-    case deleteCommand(Command)
+    case createCommand(Command, in: Workflow)
+    case updateCommand(Command, in: Workflow)
+    case deleteCommand(Command, in: Workflow)
     case runCommand(Command)
-    case revealCommand(Command)
-    case moveCommand(Command, to: Int)
+    case revealCommand(Command, in: Workflow)
+    case moveCommand(Command, offset: Int, in: Workflow)
   }
 
   @ObservedObject var applicationProvider: ApplicationProvider
-  @ObservedObject var commandController: CommandController
+  var commandController: CommandController
   @ObservedObject var openPanelController: OpenPanelController
   @State private var selection: Command?
   @State private var editCommand: Command?
 
+  let workflow: Workflow
+
   public var body: some View {
-    List {
-      ForEach(commandController.state, id: \.self) { command in
-        HStack(spacing: 12) {
-          CommandView(
-            command: command,
-            editAction: { editCommand = $0 },
-            revealAction: { commandController.action(.revealCommand($0))() },
-            runAction: { commandController.action(.runCommand($0))() },
-            showContextualMenu: true)
-            .contextMenu(menuItems: {
-              Button("Edit", action: {
-                editCommand = command
-              })
-            })
-            .padding(.horizontal, 8)
-          Spacer()
-          Text("≣")
-            .font(.title)
-            .foregroundColor(Color(.secondaryLabelColor))
-            .padding(16)
-            .offset(x: 0, y: -2)
-        }
-        .frame(height: 48, alignment: .center)
-        .background(Color(.windowBackgroundColor))
-        .cornerRadius(8)
-        .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
-        .tag(command)
-        .id(command.id)
-        .contextMenu {
-          Button("Edit") { editCommand = command }
-          Divider()
-          Button("Delete") { commandController.perform(.deleteCommand(command)) }
-        }
-      }
-      .onMove(perform: { indices, newOffset in
-        for i in indices {
-          let command = commandController.state[i]
-          commandController.perform(.moveCommand(command, to: newOffset))
-        }
-      }).onDelete(perform: { indexSet in
-        for index in indexSet {
-          let command = commandController.state[index]
-          commandController.perform(.deleteCommand(command))
-        }
+    VStack(alignment: .leading) {
+      ForEach(workflow.commands) { command in
+        MovableView(
+          element: command,
+          dragHandler: { offset, command in
+            let indexOffset = round(offset.height / 48)
+            commandController.perform(.moveCommand(command, offset: Int(indexOffset), in: workflow))
+          }, {
+            HStack(spacing: 12) {
+              CommandView(
+                command: command,
+                editAction: { editCommand = $0 },
+                revealAction: { commandController.action(.revealCommand($0, in: workflow))() },
+                runAction: { commandController.action(.runCommand($0))() },
+                showContextualMenu: true)
+                .contextMenu(menuItems: {
+                  Button("Edit", action: {
+                    editCommand = command
+                  })
+                })
+                .padding(.horizontal, 8)
+              Spacer()
+              Text("≣")
+                .font(.title)
+                .foregroundColor(Color(.secondaryLabelColor))
+                .padding(16)
+                .offset(x: 0, y: -2)
+            }
+            .frame(height: 48, alignment: .center)
+            .background(Color(.windowBackgroundColor))
+            .cornerRadius(8)
+            .padding(.horizontal)
+            .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+            .contextMenu {
+              Button("Edit") { editCommand = command }
+              Divider()
+              Button("Delete") { commandController.perform(.deleteCommand(command, in: workflow)) }
+            }
+          })
+      }.sheet(item: $editCommand, content: { model in
+        EditCommandView(
+          applicationProvider: applicationProvider,
+          openPanelController: openPanelController,
+          saveAction: { newCommand in
+            commandController.action(.updateCommand(newCommand, in: workflow))()
+            editCommand = nil
+          },
+          cancelAction: {
+            editCommand = nil
+          },
+          selection: model,
+          command: model)
       })
     }
-    .sheet(item: $editCommand, content: { model in
-      EditCommandView(
-        applicationProvider: applicationProvider,
-        openPanelController: openPanelController,
-        saveAction: { newCommand in
-          commandController.action(.updateCommand(newCommand))()
-          editCommand = nil
-        },
-        cancelAction: {
-          editCommand = nil
-        },
-        selection: model,
-        command: model)
-    })
   }
 }
 
@@ -91,6 +87,7 @@ struct CommandListView_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     CommandListView(applicationProvider: ApplicationPreviewProvider().erase(),
                     commandController: CommandPreviewController().erase(),
-                    openPanelController: OpenPanelPreviewController().erase())
+                    openPanelController: OpenPanelPreviewController().erase(),
+                    workflow: ModelFactory().workflowDetail())
   }
 }

@@ -29,7 +29,7 @@ struct EditCommandView: View {
 private extension EditCommandView {
   var list: some View {
     List(selection: $selection) {
-      ForEach(commands) { command in
+      ForEach(commands, id: \.self) { command in
         CommandView(command: command,
                     editAction: { _ in },
                     revealAction: { _ in },
