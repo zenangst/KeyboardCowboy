@@ -39,7 +39,7 @@ private extension WorkflowListCell {
         if case .application(let applicationCommand) = command {
           IconView(icon: Icon(identifier: applicationCommand.application.bundleIdentifier,
                               path: applicationCommand.application.path))
-            .frame(width: 32, height: 32)
+            .frame(width: 48, height: 48)
         }
       }
     }
