@@ -86,14 +86,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
     userSelection.group = context.groupsFeature.state.first
     userSelection.workflow = context.groupsFeature.state.first?.workflows.first
 
-    let mainView = MainView(
-      applicationProvider: context.applicationProvider.erase(),
-      commandController: context.commandFeature.erase(),
-      groupController: context.groupsFeature.erase(),
-      keyboardShortcutController: context.keyboardFeature.erase(),
-      openPanelController: OpenPanelViewController().erase(),
-      searchController: context.searchFeature.erase(),
-      workflowController: context.workflowFeature.erase())
+    let mainView = context.factory.mainView()
       .environmentObject(userSelection)
 
     let window = featureFactory.mainWindow(autosaveName: "Main Window") { [weak self] in

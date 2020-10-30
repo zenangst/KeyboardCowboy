@@ -10,7 +10,7 @@ class ModelFactory {
   func groupList() -> [ModelKit.Group] {
     [
       ModelKit.Group(
-        id: UUID().uuidString,
+        id: "Group 1",
         name: "Bundles", color: "#000", workflows: [
           Workflow(
             id: UUID().uuidString, name: "Developer time",

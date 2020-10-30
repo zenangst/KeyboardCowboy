@@ -12,7 +12,7 @@ public class Window: NSWindow {
     let contentRect: CGRect = .init(origin: .zero, size: .init(width: 960, height: 480))
     let styleMask: NSWindow.StyleMask = [
       .titled, .closable, .miniaturizable,
-      .fullSizeContentView, .resizable]
+      .fullSizeContentView, .unifiedTitleAndToolbar, .resizable]
     super.init(contentRect: contentRect,
                styleMask: styleMask,
                backing: .buffered,
@@ -20,7 +20,7 @@ public class Window: NSWindow {
     self.setFrameAutosaveName(frameAutosaveName)
     self.toolbar = toolbar
     self.titlebarAppearsTransparent = true
-    self.titleVisibility = .visible
+    self.titleVisibility = .hidden
     self.isReleasedWhenClosed = false
   }
 

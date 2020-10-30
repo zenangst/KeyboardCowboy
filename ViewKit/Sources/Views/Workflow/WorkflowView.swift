@@ -1,26 +1,35 @@
 import SwiftUI
 import ModelKit
 
-struct WorkflowView: View {
+public struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
 
+  let workflow: Workflow
+  let group: ModelKit.Group
   let applicationProvider: ApplicationProvider
   let commandController: CommandController
   let keyboardShortcutController: KeyboardShortcutController
   let openPanelController: OpenPanelController
   let workflowController: WorkflowController
   @State private var newCommandVisible: Bool = false
-  let workflow: Workflow
-  let group: ModelKit.Group
 
-  var body: some View {
+  public var body: some View {
     VStack(alignment: .leading) {
       ScrollView {
         name(workflow, in: group).padding(.horizontal)
 
         VStack(alignment: .leading) {
           if workflow.keyboardShortcuts.isEmpty {
-            addKeyboardShortcut.padding(.vertical, 8)
+            VStack {
+              AddButton(text: "Add Keyboard Shortcut",
+                        alignment: .center,
+                        action: {
+                keyboardShortcutController.perform(.createKeyboardShortcut(
+                                                    ModelKit.KeyboardShortcut.empty(),
+                                                    index: workflow.keyboardShortcuts.count,
+                                                    in: workflow))
+              }).padding(.vertical, 8)
+            }
           } else {
             HeaderView(title: "Keyboard shortcuts:")
               .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
@@ -65,25 +74,6 @@ private extension WorkflowView {
       .shadow(color: Color(.controlDarkShadowColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
   }
 
-  var addKeyboardShortcut: some View {
-    HStack {
-      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-        .onTapGesture {
-          keyboardShortcutController.perform(.createKeyboardShortcut(
-                                              ModelKit.KeyboardShortcut.empty(),
-                                              index: workflow.keyboardShortcuts.count,
-                                              in: workflow))
-        }
-      Button("Add Keyboard Shortcut", action: {
-        keyboardShortcutController.perform(.createKeyboardShortcut(
-                                            ModelKit.KeyboardShortcut.empty(),
-                                            index: workflow.keyboardShortcuts.count,
-                                            in: workflow))
-      })
-      .buttonStyle(PlainButtonStyle())
-    }.padding(8)
-  }
-
   func commands(for workflow: Workflow) -> some View {
     CommandListView(applicationProvider: applicationProvider,
                     commandController: commandController,
@@ -95,16 +85,9 @@ private extension WorkflowView {
   }
 
   var addCommandButton: some View {
-    HStack(spacing: 4) {
-      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-        .onTapGesture {
-          newCommandVisible = true
-        }
-      Button("Add Command", action: {
-        newCommandVisible = true
-      })
-      .buttonStyle(PlainButtonStyle())
-    }
+    AddButton(text: "Add Command",
+              alignment: .left,
+              action: { newCommandVisible = true })
     .sheet(isPresented: $newCommandVisible, content: {
       EditCommandView(
         applicationProvider: applicationProvider,
@@ -130,13 +113,10 @@ struct WorkflowView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    WorkflowView(applicationProvider: ApplicationPreviewProvider().erase(),
-                 commandController: CommandPreviewController().erase(),
-                 keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
-                 openPanelController: OpenPanelPreviewController().erase(),
-                 workflowController: WorkflowPreviewController().erase(),
-                 workflow: ModelFactory().workflowDetail(),
-                 group: ModelFactory().groupList().first!)
+    DesignTimeFactory().workflowDetail(
+      ModelFactory().workflowDetail(),
+      group: ModelFactory().groupList().first!)
+      .environmentObject(UserSelection())
       .frame(height: 668)
   }
 }

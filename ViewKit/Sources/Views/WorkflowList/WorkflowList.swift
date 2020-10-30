@@ -12,11 +12,7 @@ public struct WorkflowList: View {
 
   static let idealWidth: CGFloat = 300
   @EnvironmentObject var userSelection: UserSelection
-  let applicationProvider: ApplicationProvider
-  let commandController: CommandController
-  let groupController: GroupController
-  let keyboardShortcutController: KeyboardShortcutController
-  let openPanelController: OpenPanelController
+  let factory: ViewFactory
   let group: ModelKit.Group
   let workflowController: WorkflowController
   @State private var selection: Workflow?
@@ -25,14 +21,7 @@ public struct WorkflowList: View {
     List {
       ForEach(group.workflows) { workflow in
         NavigationLink(
-          destination: WorkflowView(
-            applicationProvider: applicationProvider,
-            commandController: commandController,
-            keyboardShortcutController: keyboardShortcutController,
-            openPanelController: openPanelController,
-            workflowController: workflowController,
-            workflow: workflow,
-            group: group),
+          destination: factory.workflowDetail(workflow, group: group),
           tag: workflow,
           selection: $userSelection.workflow,
           label: {
@@ -56,27 +45,11 @@ public struct WorkflowList: View {
         }
       })
     }
-    .listStyle(PlainListStyle())
     .frame(minWidth: 275)
     .id(group.id)
     .introspectTableView(customize: {
       $0.allowsEmptySelection = false
     })
-  }
-}
-
-private extension WorkflowList {
-  func addButton(in group: ModelKit.Group) -> some View {
-    HStack(spacing: 4) {
-      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-        .onTapGesture {
-          workflowController.action(.createWorkflow(in: group))()
-        }
-      Button("Add Workflow", action: {
-        workflowController.action(.createWorkflow(in: group))()
-      })
-      .buttonStyle(PlainButtonStyle())
-    }
   }
 }
 
@@ -88,12 +61,7 @@ struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    WorkflowList(applicationProvider: ApplicationPreviewProvider().erase(),
-                 commandController: CommandPreviewController().erase(),
-                 groupController: GroupPreviewController().erase(),
-                 keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
-                 openPanelController: OpenPanelPreviewController().erase(),
-                 group: ModelFactory().groupList().first!,
-                 workflowController: WorkflowPreviewController().erase())
+    DesignTimeFactory().workflowList(group: ModelFactory().groupList().first!)
+      .environmentObject(UserSelection())
   }
 }
