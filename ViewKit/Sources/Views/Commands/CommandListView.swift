@@ -53,13 +53,16 @@ public struct CommandListView: View {
             .cornerRadius(8)
             .padding(.horizontal)
             .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+            .animation(.none)
             .contextMenu {
               Button("Edit") { editCommand = command }
               Divider()
               Button("Delete") { commandController.perform(.deleteCommand(command, in: workflow)) }
             }
           })
-      }.sheet(item: $editCommand, content: { model in
+      }
+      .animation(.easeIn)
+      .sheet(item: $editCommand, content: { model in
         EditCommandView(
           applicationProvider: applicationProvider,
           openPanelController: openPanelController,

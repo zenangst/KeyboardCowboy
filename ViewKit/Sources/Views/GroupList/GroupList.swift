@@ -23,60 +23,70 @@ public struct GroupList: View {
   @State private var selection: ModelKit.Group?
 
   public var body: some View {
-    List {
-      ForEach(groupController.state, id: \.id) { group in
-        NavigationLink(
-          destination: WorkflowList(
-            applicationProvider: applicationProvider,
-            commandController: commandController,
-            groupController: groupController,
-            keyboardShortcutController: keyboardShortcutController,
-            openPanelController: openPanelController,
-            group: group,
-            workflowController: workflowController),
-          tag: group,
-          selection: Binding<ModelKit.Group?>(
-            get: { userSelection.group },
-            set: {
-              if userSelection.group?.id != $0?.id {
-                userSelection.group = $0
+    VStack(alignment: .leading) {
+      List {
+        ForEach(groupController.state, id: \.id) { group in
+          NavigationLink(
+            destination: VStack {
+              NavigationView {
+                ZStack(alignment: .bottom) {
+                  WorkflowList(
+                    applicationProvider: applicationProvider,
+                    commandController: commandController,
+                    groupController: groupController,
+                    keyboardShortcutController: keyboardShortcutController,
+                    openPanelController: openPanelController,
+                    group: group,
+                    workflowController: workflowController)
+                  addWorkflowButton(in: group)
+                }
               }
+            },
+            tag: group,
+            selection: Binding<ModelKit.Group?>(
+              get: { userSelection.group },
+              set: {
+                if userSelection.group?.id != $0?.id {
+                  userSelection.group = $0
+                }
+              }
+            ),
+            label: {
+              GroupListCell(
+                name: Binding(get: { group.name }, set: { name in
+                  var group = group
+                  group.name = name
+                  groupController.perform(.updateGroup(group))
+                }),
+                color: Binding(get: { group.color }, set: { color in
+                  var group = group
+                  group.color = color
+                }),
+                count: group.workflows.count,
+                onCommit: { name, color in
+                  var group = group
+                  group.name = name
+                  group.color = color
+                  groupController.perform(.updateGroup(group))
+                }
+              )
+              .onTapGesture(count: 2, perform: {
+                editGroup = group
+              })
+              .id(group.id)
+            }).contextMenu {
+              Button("Show Info") { editGroup = group }
+              Divider()
+              Button("Delete") { groupController.action(.deleteGroup(group))() }
             }
-          ),
-          label: {
-            GroupListCell(
-              name: Binding(get: { group.name }, set: { name in
-                var group = group
-                group.name = name
-                groupController.perform(.updateGroup(group))
-              }),
-              color: Binding(get: { group.color }, set: { color in
-                var group = group
-                group.color = color
-              }),
-              count: group.workflows.count,
-              onCommit: { name, color in
-                var group = group
-                group.name = name
-                group.color = color
-                groupController.perform(.updateGroup(group))
-              }
-            )
-            .onTapGesture(count: 2, perform: {
-              editGroup = group
-            })
-            .id(group.id)
-          }).contextMenu {
-            Button("Show Info") { editGroup = group }
-            Divider()
-            Button("Delete") { groupController.action(.deleteGroup(group))() }
+        }.onMove(perform: { indices, newOffset in
+          for i in indices {
+            groupController.action(.moveGroup(from: i, to: newOffset))()
           }
-      }.onMove(perform: { indices, newOffset in
-        for i in indices {
-          groupController.action(.moveGroup(from: i, to: newOffset))()
-        }
-      })
-    }.sheet(item: $editGroup, content: editGroup)
+        })
+      }.sheet(item: $editGroup, content: editGroup)
+      addButton
+    }
   }
 }
 
@@ -90,6 +100,20 @@ private extension GroupList {
         groupController.perform(.createGroup)
       })
       .buttonStyle(PlainButtonStyle())
+    }.padding(8)
+  }
+
+  func addWorkflowButton(in group: ModelKit.Group) -> some View {
+    HStack(spacing: 4) {
+      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
+        .onTapGesture {
+          workflowController.action(.createWorkflow(in: group))()
+        }
+      Button("Add Workflow", action: {
+        workflowController.action(.createWorkflow(in: group))()
+      })
+      .buttonStyle(PlainButtonStyle())
+      Spacer()
     }.padding(8)
   }
 

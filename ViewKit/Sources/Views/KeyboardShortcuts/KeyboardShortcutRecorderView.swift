@@ -11,6 +11,7 @@ class KeyboardShortcutRecorderView: NSSearchField {
   private let viewController: KeyboardShortcutRecorderViewController
   private let onCommit: OnCommit
   private let minimumWidth: CGFloat = 130
+  private let minimumHeight: CGFloat = 22
 
   override var canBecomeKeyView: Bool { return false }
 
@@ -33,6 +34,7 @@ class KeyboardShortcutRecorderView: NSSearchField {
     self.setContentHuggingPriority(.defaultHigh, for: .vertical)
     self.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     self.widthAnchor.constraint(greaterThanOrEqualToConstant: minimumWidth).isActive = true
+    self.heightAnchor.constraint(greaterThanOrEqualToConstant: minimumHeight).isActive = true
 
     self.viewController.onCommit = { [weak self] keyboardShortcut in
       guard let self = self else { return }
