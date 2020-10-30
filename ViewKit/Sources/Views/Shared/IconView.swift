@@ -19,7 +19,7 @@ struct IconView: View {
 
   init(icon: Icon) {
     self.icon = icon
-    iconLoader.preLoadIcon(identifier: icon.identifier, at: icon.path, size: CGSize(width: 24, height: 24))
+    iconLoader.preLoadIcon(identifier: icon.identifier, at: icon.path, size: CGSize(width: 32, height: 32))
   }
 
   var body: some View {
@@ -29,10 +29,10 @@ struct IconView: View {
       }
     }.onAppear {
       if iconLoader.icon == nil {
-        iconLoader.loadIcon(identifier: icon.identifier, at: icon.path, size: CGSize(width: 24, height: 24))
+        iconLoader.loadIcon(identifier: icon.identifier, at: icon.path, size: CGSize(width: 32, height: 32))
       }
     }
-    .frame(width: 24, height: 24)
+    .frame(width: 32, height: 32)
   }
 }
 

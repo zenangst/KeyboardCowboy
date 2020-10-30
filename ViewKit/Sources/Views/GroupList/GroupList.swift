@@ -13,11 +13,8 @@ public struct GroupList: View {
   static let idealWidth: CGFloat = 300
 
   @EnvironmentObject var userSelection: UserSelection
-  let applicationProvider: ApplicationProvider
-  var commandController: CommandController
+  let factory: ViewFactory
   @ObservedObject var groupController: GroupController
-  let keyboardShortcutController: KeyboardShortcutController
-  let openPanelController: OpenPanelController
   let workflowController: WorkflowController
   @State private var editGroup: ModelKit.Group?
   @State private var selection: ModelKit.Group?
@@ -30,15 +27,10 @@ public struct GroupList: View {
             destination: VStack {
               NavigationView {
                 ZStack(alignment: .bottom) {
-                  WorkflowList(
-                    applicationProvider: applicationProvider,
-                    commandController: commandController,
-                    groupController: groupController,
-                    keyboardShortcutController: keyboardShortcutController,
-                    openPanelController: openPanelController,
-                    group: group,
-                    workflowController: workflowController)
-                  addWorkflowButton(in: group)
+                  factory.workflowList(group: group)
+                  AddButton(text: "Add Workflow", action: {
+                    workflowController.action(.createWorkflow(in: group))()
+                  })
                 }
               }
             },
@@ -85,7 +77,9 @@ public struct GroupList: View {
           }
         })
       }.sheet(item: $editGroup, content: editGroup)
-      addButton
+      AddButton(text: "Add Group", action: {
+        groupController.perform(.createGroup)
+      })
     }
   }
 }
@@ -93,30 +87,6 @@ public struct GroupList: View {
 // MARK: - Subviews
 
 private extension GroupList {
-  var addButton: some View {
-    HStack(spacing: 4) {
-      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-      Button("Add Group", action: {
-        groupController.perform(.createGroup)
-      })
-      .buttonStyle(PlainButtonStyle())
-    }.padding(8)
-  }
-
-  func addWorkflowButton(in group: ModelKit.Group) -> some View {
-    HStack(spacing: 4) {
-      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-        .onTapGesture {
-          workflowController.action(.createWorkflow(in: group))()
-        }
-      Button("Add Workflow", action: {
-        workflowController.action(.createWorkflow(in: group))()
-      })
-      .buttonStyle(PlainButtonStyle())
-      Spacer()
-    }.padding(8)
-  }
-
   func editGroup(_ group: ModelKit.Group) -> some View {
     EditGroup(
       name: group.name,
@@ -140,14 +110,8 @@ struct GroupList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    GroupList(
-      applicationProvider: ApplicationPreviewProvider().erase(),
-      commandController: CommandPreviewController().erase(),
-      groupController: GroupPreviewController().erase(),
-      keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
-      openPanelController: OpenPanelPreviewController().erase(),
-      workflowController: WorkflowPreviewController().erase()
-    )
+    DesignTimeFactory().groupList()
+      .environmentObject(UserSelection())
       .frame(width: GroupList.idealWidth)
   }
 }

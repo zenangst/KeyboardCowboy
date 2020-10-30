@@ -33,31 +33,38 @@ final class FeatureFactory {
   // swiftlint:disable large_tuple
   func applicationStack(userSelection: UserSelection) -> (applicationProvider: ApplicationsProvider,
                                                           commandFeature: CommandsFeatureController,
+                                                          factory: ViewFactory,
                                                           groupsFeature: GroupsFeatureController,
                                                           keyboardFeature: KeyboardShortcutsFeatureController,
                                                           searchFeature: SearchFeatureController,
                                                           workflowFeature: WorkflowFeatureController) {
-    let groupFeatureController = groupFeature(userSelection: userSelection)
-
-    let workflowFeatureController = workflowFeature()
-    workflowFeatureController.delegate = groupFeatureController
-
-    let keyboardFeatureController = keyboardShortcutFeature()
-    keyboardFeatureController.delegate = workflowFeatureController
-
-    let commandsController = commandsFeature()
-    commandsController.delegate = workflowFeatureController
-
     let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications)
+    let commandsController = commandsFeature()
+    let groupFeatureController = groupFeature(userSelection: userSelection)
+    let keyboardController = keyboardShortcutFeature()
+    let searchController = searchFeature()
+    let workflowController = workflowFeature()
 
-    let searchFeatureController = searchFeature()
+    workflowController.delegate = groupFeatureController
+    keyboardController.delegate = workflowController
+    commandsController.delegate = workflowController
+
+    let factory = AppViewFactory(applicationProvider: applicationProvider.erase(),
+                                 commandController: commandsController.erase(),
+                                 groupController: groupFeatureController.erase(),
+                                 keyboardShortcutController: keyboardController.erase(),
+                                 openPanelController: OpenPanelViewController().erase(),
+                                 searchController: searchController.erase(),
+                                 userSelection: userSelection,
+                                 workflowController: workflowController.erase())
 
     return (applicationProvider: applicationProvider,
             commandFeature: commandsController,
+            factory: factory,
             groupsFeature: groupFeatureController,
-            keyboardFeature: keyboardFeatureController,
-            searchFeature: searchFeatureController,
-            workflowFeature: workflowFeatureController)
+            keyboardFeature: keyboardController,
+            searchFeature: searchController,
+            workflowFeature: workflowController)
   }
 
   func groupFeature(userSelection: UserSelection) -> GroupsFeatureController {
