@@ -6,6 +6,7 @@ import SwiftUI
 import ViewKit
 import ModelKit
 
+let bundleIdentifier = Bundle.main.bundleIdentifier!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
@@ -17,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
   var groupFeatureController: GroupsFeatureController?
   var directoryObserver: DirectoryObserver?
   var menubarController: MenubarController?
+  static var internalChange: Bool = false
 
   var storageController: StorageControlling {
     let configuration = Configuration.Storage()
@@ -112,9 +114,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
   private func configureDirectoryObserver(_ coreController: CoreControlling) {
     directoryObserver = DirectoryObserver(at: URL(fileURLWithPath: storageController.path)) { [weak self] in
       guard let self = self,
-            let groups = try? self.storageController.load() else { return }
+            let groups = try? self.storageController.load(),
+            !Self.internalChange else { return }
       coreController.groupsController.reloadGroups(groups)
-
       self.groupFeatureController?.state = groups
     }
   }
@@ -124,7 +126,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
   func groupsFeatureController(_ controller: GroupsFeatureController,
                                didReloadGroups groups: [ModelKit.Group]) {
     do {
+      Self.internalChange = true
       try storageController.save(groups)
+      DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: {
+        Self.internalChange = false
+      })
     } catch let error {
       AppDelegateErrorController.handle(error)
     }

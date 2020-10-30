@@ -10,10 +10,11 @@ protocol GroupsFeatureControllerDelegate: AnyObject {
 final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate {
   weak var delegate: GroupsFeatureControllerDelegate?
 
-  @Published var state = [Group]()
+  var state = [Group]()
   var applications = [Application]()
   let groupsController: GroupsControlling
   let userSelection: UserSelection
+  let queue = DispatchQueue(label: "\(bundleIdentifier).GroupsFeatureController", qos: .userInteractive)
 
   init(groupsController: GroupsControlling, applications: [Application],
        userSelection: UserSelection) {
@@ -26,33 +27,44 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
   // MARK: ViewController
 
   func perform(_ action: GroupList.Action) {
-    switch action {
-    case .createGroup:
-      newGroup()
-    case .deleteGroup(let group):
-      delete(group)
-    case .updateGroup(let group):
-      save(group)
-    case .dropFile(let url):
-      processUrl(url)
-    case .moveGroup(let from, let to):
-      move(from: from, to: to)
+    queue.async { [weak self] in
+      guard let self = self else { return }
+      switch action {
+      case .createGroup:
+        self.newGroup()
+      case .deleteGroup(let group):
+        self.delete(group)
+      case .updateGroup(let group):
+        self.save(group)
+      case .dropFile(let url):
+        self.processUrl(url)
+      case .moveGroup(let from, let to):
+        self.move(from: from, to: to)
+      }
     }
   }
 
   // MARK: Private methods
 
-  private func reload(_ groups: [Group]) {
+  private func reload(_ groups: [Group], then handler: ((UserSelection) -> Void)? = nil) {
     self.groupsController.reloadGroups(groups)
     self.delegate?.groupsFeatureController(self, didReloadGroups: groups)
-    self.state = groups
+
+    DispatchQueue.main.async { [weak self] in
+      guard let self = self else { return }
+      self.state = groups
+      handler?(self.userSelection)
+    }
   }
 
   private func newGroup() {
     let group = Group.empty()
     var groups = groupsController.groups
     groups.append(group)
-    reload(groups)
+    reload(groups) { userSelection in
+      userSelection.group = group
+      userSelection.workflow = nil
+    }
   }
 
   private func processUrl(_ url: URL) {
@@ -63,7 +75,10 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
     var groups = groupsController.groups
     let group = Group.droppedApplication(application)
     groups.append(group)
-    reload(groups)
+    reload(groups) { userSelection in
+      userSelection.group = group
+      userSelection.workflow = nil
+    }
   }
 
   private func move(from: Int, to: Int) {
@@ -80,20 +95,26 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
     } else {
       groups.insert(group, at: max(newIndex, 0))
     }
-    reload(groups)
+    reload(groups) { userSelection in
+      userSelection.group = group
+    }
   }
 
   private func save(_ group: ModelKit.Group) {
     var groups = groupsController.groups
     try? groups.replace(group)
-    userSelection.group = group
-    reload(groups)
+    reload(groups) { userSelection in
+      userSelection.group = group
+    }
   }
 
   private func delete(_ group: ModelKit.Group) {
     var groups = groupsController.groups
     try? groups.remove(group)
-    reload(groups)
+    reload(groups) { userSelection in
+      userSelection.group = groups.first
+      userSelection.workflow = groups.first?.workflows.first
+    }
   }
 
   // MARK: WorkflowFeatureControllerDelegate
@@ -103,7 +124,10 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
                                  in group: Group) {
     var groups = self.groupsController.groups
     try? groups.replace(group)
-    reload(groups)
+    reload(groups) {
+      $0.group = group
+      $0.workflow = workflow
+    }
   }
 
   func workflowFeatureController(_ controller: WorkflowFeatureController,
@@ -111,9 +135,10 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
                                  in group: Group) {
     var groups = self.groupsController.groups
     try? groups.replace(group)
-    userSelection.group = group
-    userSelection.workflow = workflow
-    reload(groups)
+    reload(groups, then: {
+      $0.group = group
+      $0.workflow = workflow
+    })
   }
 
   func workflowFeatureController(_ controller: WorkflowFeatureController,
@@ -121,7 +146,10 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
                                  in group: Group) {
     var groups = self.groupsController.groups
     try? groups.replace(group)
-    reload(groups)
+    reload(groups) {
+      $0.group = group
+      $0.workflow = group.workflows.first
+    }
   }
 
   func workflowFeatureController(_ controller: WorkflowFeatureController,
@@ -129,8 +157,9 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
                                  in group: Group) {
     var groups = self.groupsController.groups
     try? groups.replace(group)
-    reload(groups)
-    userSelection.group = group
-    userSelection.workflow = workflow
+    reload(groups, then: { userSelection in
+      userSelection.group = group
+      userSelection.workflow = workflow
+    })
   }
 }

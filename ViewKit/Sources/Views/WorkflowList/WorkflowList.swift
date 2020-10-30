@@ -1,5 +1,6 @@
 import SwiftUI
 import ModelKit
+import Introspect
 
 public struct WorkflowList: View {
   public enum Action {
@@ -21,45 +22,46 @@ public struct WorkflowList: View {
   @State private var selection: Workflow?
 
   public var body: some View {
-    NavigationView {
-      List {
-        ForEach(group.workflows) { workflow in
-          NavigationLink(
-            destination: WorkflowView(
-              applicationProvider: applicationProvider,
-              commandController: commandController,
-              keyboardShortcutController: keyboardShortcutController,
-              openPanelController: openPanelController,
-              workflowController: workflowController,
-              workflow: workflow,
-              group: group),
-            tag: workflow,
-            selection: $userSelection.workflow,
-            label: {
-              WorkflowListCell(workflow: workflow)
-                .contextMenu {
-                  Button("Delete") {
-                    workflowController.perform(.deleteWorkflow(workflow, in: group))
-                  }
+    List {
+      ForEach(group.workflows) { workflow in
+        NavigationLink(
+          destination: WorkflowView(
+            applicationProvider: applicationProvider,
+            commandController: commandController,
+            keyboardShortcutController: keyboardShortcutController,
+            openPanelController: openPanelController,
+            workflowController: workflowController,
+            workflow: workflow,
+            group: group),
+          tag: workflow,
+          selection: $userSelection.workflow,
+          label: {
+            WorkflowListCell(workflow: workflow)
+              .contextMenu {
+                Button("Delete") {
+                  workflowController.perform(.deleteWorkflow(workflow, in: group))
                 }
-                .frame(height: 48)
-            })
-        }.onMove(perform: { indices, newOffset in
-          for i in indices {
-            let workflow = group.workflows[i]
-            workflowController.perform(.moveWorkflow(workflow, to: newOffset, in: group))
-          }
-        }).onDelete(perform: { indexSet in
-          for index in indexSet {
-            let workflow = group.workflows[index]
-            workflowController.perform(.deleteWorkflow(workflow, in: group))
-          }
-        })
-      }
-      .listStyle(PlainListStyle())
-      .frame(minWidth: 275)
-      .id(group.id)
+              }
+              .frame(height: 48)
+          })
+      }.onMove(perform: { indices, newOffset in
+        for i in indices {
+          let workflow = group.workflows[i]
+          workflowController.perform(.moveWorkflow(workflow, to: newOffset, in: group))
+        }
+      }).onDelete(perform: { indexSet in
+        for index in indexSet {
+          let workflow = group.workflows[index]
+          workflowController.perform(.deleteWorkflow(workflow, in: group))
+        }
+      })
     }
+    .listStyle(PlainListStyle())
+    .frame(minWidth: 275)
+    .id(group.id)
+    .introspectTableView(customize: {
+      $0.allowsEmptySelection = false
+    })
   }
 }
 
