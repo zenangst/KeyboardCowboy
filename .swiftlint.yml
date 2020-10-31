@@ -6,3 +6,4 @@ included:
 disabled_rules:
   - nesting
   - identifier_name
+  - orphaned_doc_comment
