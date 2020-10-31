@@ -66,9 +66,12 @@ final class AppleScriptController: AppleScriptControlling {
     var dictionary: NSDictionary?
     appleScript.executeAndReturnError(&dictionary)
     let errorNumber = dictionary?["NSAppleScriptErrorNumber"] as? Int ?? -999
-    // TODO: Improve error handling, this is based on the early prototype of the
-    //       application. We should add a dictionary of known errors and properly
-    //       map them into something user presentable.
+    /// **TODO**
+    ///
+    /// - Note: Improve error handling, this is based on the early prototype of the
+    ///         application. We should add a dictionary of known errors and properly
+    ///         map them into something user presentable.
+    /// - https://github.com/zenangst/KeyboardCowboy/issues/49
     if [-1743, -1719].contains(errorNumber) {
       let message = dictionary?["NSAppleScriptErrorMessage"] as? String
       throw AppleScriptControllingError.failedToRunAppleScript(message ?? "Unknown error")

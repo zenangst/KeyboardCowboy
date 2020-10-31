@@ -121,6 +121,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
     do {
       Self.internalChange = true
       try storageController.save(groups)
+      /// **TODO**
+      ///
+      /// - Important: Remove this delay and implement a proper way to enable and disable
+      ///              listening to file system events.
+      /// - https://github.com/zenangst/KeyboardCowboy/issues/143
       DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: {
         Self.internalChange = false
       })
