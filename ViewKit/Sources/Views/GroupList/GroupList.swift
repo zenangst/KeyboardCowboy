@@ -35,14 +35,7 @@ public struct GroupList: View {
               }
             },
             tag: group,
-            selection: Binding<ModelKit.Group?>(
-              get: { userSelection.group },
-              set: {
-                if userSelection.group?.id != $0?.id {
-                  userSelection.group = $0
-                }
-              }
-            ),
+            selection: $userSelection.group,
             label: {
               GroupListCell(
                 name: Binding(get: { group.name }, set: { name in
@@ -66,7 +59,9 @@ public struct GroupList: View {
                 editGroup = group
               })
               .id(group.id)
-            }).contextMenu {
+            })
+            .navigationViewStyle(DoubleColumnNavigationViewStyle())
+            .contextMenu {
               Button("Show Info") { editGroup = group }
               Divider()
               Button("Delete") { groupController.action(.deleteGroup(group))() }
@@ -76,7 +71,11 @@ public struct GroupList: View {
             groupController.action(.moveGroup(from: i, to: newOffset))()
           }
         })
-      }.sheet(item: $editGroup, content: editGroup)
+      }
+      .introspectTableView(customize: { tableView in
+        tableView.resignFirstResponder()
+        tableView.allowsEmptySelection = false
+      }).sheet(item: $editGroup, content: editGroup)
       AddButton(text: "Add Group", action: {
         groupController.perform(.createGroup)
       })
