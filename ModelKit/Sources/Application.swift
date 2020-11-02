@@ -45,8 +45,9 @@ public extension Application {
     Application(id: id, bundleIdentifier: "", bundleName: "", path: "")
   }
 
-  static func messages() -> Application {
+  static func messages(id: String = UUID().uuidString) -> Application {
     Application(
+      id: id,
       bundleIdentifier: "com.apple.MobileSMS",
       bundleName: "Messages",
       path: "/System/Applications/Messages.app")
@@ -59,43 +60,49 @@ public extension Application {
       bundleName: "Finder", path: "/System/Library/CoreServices/Finder.app")
   }
 
-  static func photoshop() -> Application {
+  static func photoshop(id: String = UUID().uuidString) -> Application {
     Application(
+      id: id,
       bundleIdentifier: "com.adobe.Photoshop",
       bundleName: "Photoshop",
       path: "/Applications/Adobe Photoshop 2020/Adobe Photoshop 2020.app")
   }
 
-  static func sketch() -> Application {
+  static func sketch(id: String = UUID().uuidString) -> Application {
     Application(
+      id: id,
       bundleIdentifier: "com.bohemiancoding.sketch3",
       bundleName: "Sketch",
       path: "/Applications/Sketch.app")
   }
 
-  static func safari() -> Application {
+  static func safari(id: String = UUID().uuidString) -> Application {
     Application(
+      id: id,
       bundleIdentifier: "com.apple.Safari",
       bundleName: "Safari",
       path: "/Applications/Safari.app")
   }
   
-  static func xcode() -> Application {
+  static func xcode(id: String = UUID().uuidString) -> Application {
     Application(
+      id: id,
       bundleIdentifier: "com.apple.dt.Xcode",
       bundleName: "Sketch",
       path: "/Applications/Xcode.app")
   }
 
-  static func music() -> Application {
+  static func music(id: String = UUID().uuidString) -> Application {
     Application(
+      id: id,
       bundleIdentifier: "com.apple.music",
       bundleName: "Music",
       path: "/System/Applications/Music.app")
   }
 
-  static func calendar() -> Application {
+  static func calendar(id: String = UUID().uuidString) -> Application {
     Application(
+      id: id,
       bundleIdentifier: "com.apple.calendar",
       bundleName: "Calendar",
       path: "/System/Applications/Calendar.app")
