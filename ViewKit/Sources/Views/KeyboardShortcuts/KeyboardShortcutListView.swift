@@ -51,7 +51,7 @@ public struct KeyboardShortcutListView: View {
           .animation(.none)
         })
       }
-    }.animation(.easeIn)
+    }.animation(.linear)
   }
 }
 

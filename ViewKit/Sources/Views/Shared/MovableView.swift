@@ -25,6 +25,7 @@ struct MovableView<Element, Content>: View where Content: View, Element: Hashabl
   @State private var offset: CGSize = .zero
   @State private var scaleFactor: CGFloat = 1.0
   @State private var isMoving: Bool = false
+  @State private var zIndex: Double = 1
 
   init(element: Element, dragHandler: @escaping DragHandler, _ contentView: () -> Content) {
     self.dragHandler = dragHandler
@@ -39,7 +40,6 @@ struct MovableView<Element, Content>: View where Content: View, Element: Hashabl
               x: 0,
               y: isMoving ? 5 : 0)
       .scaleEffect(withAnimation { self.scaleFactor })
-      .opacity(withAnimation { self.isMoving ? 0.8 : 1.0 })
       .offset(withAnimation { self.offset })
       .gesture(
         DragGesture()
@@ -50,16 +50,20 @@ struct MovableView<Element, Content>: View where Content: View, Element: Hashabl
             withAnimation { self.scaleFactor = 1.025 }
             self.isMoving = true
             self.offset.height = value.translation.height
+            self.zIndex = 2
           })
           .onEnded { _ in
             withAnimation {
               self.dragHandler(offset, element)
               self.scaleFactor = 1.0
+              self.offset = .zero
             }
-            self.offset = .zero
             self.isMoving = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+              self.zIndex = 1
+            }
           }
       )
-      .zIndex(isMoving ? 2 : 1)
+      .zIndex(withAnimation { self.zIndex })
   }
 }
