@@ -4,6 +4,9 @@ import SwiftUI
 import ModelKit
 
 class KeyboardShortcutRecorderView: NSSearchField {
+  static let enableNotification = Notification(name: Notification.Name("enableHotKeys"))
+  static let disableNotification = Notification(name: Notification.Name("disableHotKeys"))
+
   typealias OnCommit = (KeyboardShortcutRecorderView, ModelKit.KeyboardShortcut?) -> Void
 
   @State private var keyboardShortcut: ModelKit.KeyboardShortcut?
@@ -28,7 +31,6 @@ class KeyboardShortcutRecorderView: NSSearchField {
     self.delegate = viewController
     (self.cell as? NSSearchFieldCell)?.searchButtonCell = nil
     self.update(keyboardShortcut)
-
     self.wantsLayer = true
     self.translatesAutoresizingMaskIntoConstraints = false
     self.setContentHuggingPriority(.defaultHigh, for: .vertical)
@@ -38,8 +40,10 @@ class KeyboardShortcutRecorderView: NSSearchField {
 
     self.viewController.onCommit = { [weak self] keyboardShortcut in
       guard let self = self else { return }
+      self.window?.becomeFirstResponder()
       self.update(keyboardShortcut)
       self.onCommit(self, keyboardShortcut)
+      NotificationCenter.default.post(Self.enableNotification)
     }
   }
 
@@ -57,9 +61,12 @@ class KeyboardShortcutRecorderView: NSSearchField {
     newValue += keyboardShortcut.key
 
     stringValue = newValue
+    resignFirstResponder()
   }
 
   override func becomeFirstResponder() -> Bool {
+    NotificationCenter.default.post(Self.disableNotification)
+
     let shouldBecomeFirstResponder = super.becomeFirstResponder()
 
     guard shouldBecomeFirstResponder else {

@@ -11,6 +11,9 @@ let launchArguments = LaunchArgumentsController<LaunchArgument>()
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
                    GroupsFeatureControllerDelegate, MenubarControllerDelegate {
+  static let enableNotification = Notification.Name("enableHotKeys")
+  static let disableNotification = Notification.Name("disableHotKeys")
+
   weak var window: NSWindow?
   var shouldOpenMainWindow = launchArguments.isEnabled(.openWindowAtLaunch)
   var coreController: CoreControlling?
@@ -34,6 +37,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
 
     Debug.isEnabled = launchArguments.isEnabled(.debug)
 
+    NotificationCenter.default.addObserver(self, selector: #selector(enableHotKeys),
+                                           name: Self.enableNotification, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(disableHotKeys),
+                                           name: Self.disableNotification, object: nil)
+
     runApplication()
   }
 
@@ -51,6 +59,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
     }
 
     shouldOpenMainWindow = true
+  }
+
+  // MARK: Notifications
+
+  @objc private func enableHotKeys() {
+    if !launchArguments.isEnabled(.disableKeyboardShortcuts) {
+      coreController?.disableKeyboardShortcuts = false
+    }
+  }
+
+  @objc private func disableHotKeys() {
+    if !launchArguments.isEnabled(.disableKeyboardShortcuts) {
+      coreController?.disableKeyboardShortcuts = true
+    }
   }
 
   // MARK: Private methods
@@ -154,15 +176,5 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
 
   func windowDidBecomeKey(_ notification: Notification) {
     menubarController?.setState(.active)
-
-    if !launchArguments.isEnabled(.disableKeyboardShortcuts) {
-      coreController?.disableKeyboardShortcuts = true
-    }
-  }
-
-  func windowDidResignKey(_ notification: Notification) {
-    if !launchArguments.isEnabled(.disableKeyboardShortcuts) {
-      coreController?.disableKeyboardShortcuts = false
-    }
   }
 }
