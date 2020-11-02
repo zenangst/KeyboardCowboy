@@ -45,7 +45,9 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     DesignTimeFactory().mainView()
-      .environmentObject(UserSelection(group: ModelFactory().groupList().first!))
+      .environmentObject(UserSelection(
+                          group: ModelFactory().groupList().first!,
+                          workflow: ModelFactory().groupList().first!.workflows.first))
       .frame(width: 960, height: 620, alignment: .leading)
   }
 }

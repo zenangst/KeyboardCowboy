@@ -13,26 +13,29 @@ class ModelFactory {
         id: "Group 1",
         name: "Bundles", color: "#000", workflows: [
           Workflow(
-            id: UUID().uuidString, name: "Developer time",
-            keyboardShortcuts: keyboardShortcuts(),
+            id: "Workflow 1",
+            name: "Developer time",
+            keyboardShortcuts: keyboardShortcuts(id: "Keyboard Shortcut"),
             commands: [
-              Command.application(.init(application: (Application.calendar()))),
-              Command.application(.init(application: (Application.music()))),
-              Command.application(.init(application: (Application.xcode()))),
-              Command.script(.appleScript(.path("foo"), UUID().uuidString)),
-              Command.script(.shell(.path("foo"), UUID().uuidString)),
-              Command.open(.init(path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj")),
-              Command.open(.init(path: "https://www.github.com"))
+              Command.application(.init(id: "Calendar 1", application: (Application.calendar(id: "Calendar")))),
+              Command.application(.init(id: "Music 1", application: (Application.music(id: "Music")))),
+              Command.application(.init(id: "Xcode 1", application: (Application.xcode(id: "Xcode")))),
+              Command.script(.appleScript(.path("foo"), "AppleScript 1")),
+              Command.script(.shell(.path("foo"), "ShellScript 1")),
+              Command.open(.init(id: "Open 1", path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj")),
+              Command.open(.init(id: "Open 2", path: "https://www.github.com"))
             ]),
 
           Workflow(
+            id: "Design time 1",
             name: "Design time", keyboardShortcuts: [], commands: [
-              Command.application(.init(application: Application.photoshop())),
-              Command.application(.init(application: Application.sketch()))
+              Command.application(.init(id: "Application 1", application: Application.photoshop(id: "Photoshop"))),
+              Command.application(.init(id: "Application 2", application: Application.sketch(id: "Sketch")))
             ]),
           Workflow(
+            id: "Filing hours 1",
             name: "Filing hours", keyboardShortcuts: [], commands: [
-              Command.application(.init(application: Application.calendar()))
+              Command.application(.init(id: "Application 1", application: Application.calendar(id: "Calendar")))
             ])
         ]),
       ModelKit.Group(
@@ -140,15 +143,20 @@ class ModelFactory {
   // MARK: Private methods
 
   private func openWorkflows(_ applicationNames: (String, String) ...) -> [Workflow] {
-    applicationNames.compactMap({
+    applicationNames.enumerated().compactMap({ offset, element in
       Workflow(
-        name: "Open \($0.0)",
+        id: "Workflow: \(offset)",
+        name: "Open \(element.0)",
         keyboardShortcuts: [
-          KeyboardShortcut(id: UUID().uuidString, key: "fn"),
-          KeyboardShortcut(id: UUID().uuidString, key: "A")
+          KeyboardShortcut(id: "KeyboardShortcut\(offset)-1", key: "fn"),
+          KeyboardShortcut(id: "KeyboardShortcut\(offset)-2", key: "A")
         ],
         commands: [
-          Command.application(.init(application: Application(bundleIdentifier: $0.1, bundleName: $0.1, path: $0.1)))
+          Command.application(.init(application: Application(
+                                      id: "Application ID \(offset)",
+                                      bundleIdentifier: element.1,
+                                      bundleName: element.1,
+                                      path: element.1)))
         ]
       )
     })
@@ -182,9 +190,9 @@ class ModelFactory {
     })
   }
 
-    func keyboardShortcuts() -> [ModelKit.KeyboardShortcut] {
-    [.init(id: UUID().uuidString, key: "", modifiers: [.function]),
-     .init(id: UUID().uuidString, key: "A", modifiers: [.option, .command])]
+  func keyboardShortcuts(id: String = UUID().uuidString) -> [ModelKit.KeyboardShortcut] {
+    [.init(id: "\(id)-1", key: "", modifiers: [.function]),
+     .init(id: "\(id)-2", key: "A", modifiers: [.option, .command])]
   }
 
   func installedApplications() -> [Application] {
