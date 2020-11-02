@@ -45,7 +45,7 @@ public struct WorkflowView: View {
           commands(for: workflow)
         }
       }
-      addCommandButton.padding(8)
+      addCommandButton
     }.background(LinearGradient(
                   gradient: Gradient(colors: [Color(.clear), Color(.gridColor).opacity(0.5)]),
                   startPoint: .top,
