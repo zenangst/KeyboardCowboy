@@ -61,7 +61,7 @@ public struct CommandListView: View {
             }
           })
       }
-      .animation(.easeIn)
+      .animation(.linear)
       .sheet(item: $editCommand, content: { model in
         EditCommandView(
           applicationProvider: applicationProvider,
