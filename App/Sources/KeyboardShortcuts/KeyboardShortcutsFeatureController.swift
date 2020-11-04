@@ -22,7 +22,8 @@ final class KeyboardShortcutsFeatureController: ActionController {
   weak var delegate: KeyboardShortcutsFeatureControllerDelegate?
 
   let groupsController: GroupsControlling
-  private let queue = DispatchQueue(label: "\(bundleIdentifier).KeyboardShortcutsFeatureController", qos: .userInteractive)
+  private let queue = DispatchQueue(label: "\(bundleIdentifier).KeyboardShortcutsFeatureController",
+                                    qos: .userInteractive)
 
   init(groupsController: GroupsControlling) {
     self.groupsController = groupsController

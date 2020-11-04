@@ -13,6 +13,7 @@ public struct GroupList: View {
   static let idealWidth: CGFloat = 300
 
   @EnvironmentObject var userSelection: UserSelection
+  let applicationProvider: ApplicationProvider
   let factory: ViewFactory
   @ObservedObject var groupController: GroupController
   let workflowController: WorkflowController
@@ -90,10 +91,22 @@ private extension GroupList {
     EditGroup(
       name: group.name,
       color: group.color,
-      editAction: { name, color in
+      bundleIdentifiers: group.rule?.bundleIdentifiers ?? [],
+      applicationProvider: applicationProvider.erase(),
+      editAction: { name, color, bundleIdentifers in
         var group = group
         group.name = name
         group.color = color
+
+        var rule = group.rule ?? Rule()
+
+        if !bundleIdentifers.isEmpty {
+          rule.bundleIdentifiers = bundleIdentifers
+          group.rule = rule
+        } else {
+          group.rule = nil
+        }
+
         groupController.perform(.updateGroup(group))
         editGroup = nil
       },

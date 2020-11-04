@@ -22,7 +22,10 @@ public class DesignTimeFactory: ViewFactory {
   }
 
   public func groupList() -> GroupList {
-    GroupList(factory: self, groupController: groupController, workflowController: workflowController)
+    GroupList(applicationProvider: applicationProvider,
+              factory: self,
+              groupController: groupController,
+              workflowController: workflowController)
   }
 
   public func workflowList(group: ModelKit.Group) -> WorkflowList {
@@ -75,6 +78,7 @@ public class AppViewFactory: ViewFactory {
 
   public func groupList() -> GroupList {
     GroupList(
+      applicationProvider: applicationProvider,
       factory: self,
       groupController: groupController,
       workflowController: workflowController)
