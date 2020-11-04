@@ -1,12 +1,16 @@
 import SwiftUI
 import ModelKit
 
+// swiftlint:disable line_length
 struct EditGroup: View {
   @State private var showColorPopover = false
   @State private var hoverText: String = ""
   @State private var name: String
   @State private var color: String
-  private var editAction: (String, String) -> Void
+  @State private var bundleIdentifiers: Set<String>
+  @State private var selectedApplicationIndex: Int = 0
+  var installedApplications: [Application]
+  private var editAction: (String, String, [String]) -> Void
   private var cancelAction: () -> Void
 
   var firstRowColors: [String] = ["#EB5545", "#F2A23C", "#F9D64A", "#6BD35F", "#3984F7"]
@@ -14,15 +18,37 @@ struct EditGroup: View {
 
   init(name: String,
        color: String,
-       editAction: @escaping (String, String) -> Void,
+       bundleIdentifiers: [String],
+       applicationProvider: ApplicationProvider,
+       editAction: @escaping (String, String, [String]) -> Void,
        cancelAction: @escaping () -> Void) {
     _color = State(initialValue: color)
     _name = State(initialValue: name)
+    _bundleIdentifiers = State(initialValue: Set<String>(bundleIdentifiers))
     self.editAction = editAction
     self.cancelAction = cancelAction
+    self.installedApplications = applicationProvider.state
   }
 
   var body: some View {
+    VStack(spacing: 0) {
+      headerView.padding()
+      Divider().padding(.vertical, 8)
+      VStack(alignment: .leading) {
+        applicationRules
+      }
+      .frame(minHeight: 320, maxHeight: .infinity, alignment: .topLeading)
+      .frame(width: 480)
+      .padding()
+      Divider()
+      buttons.padding(.all, 10)
+    }
+  }
+}
+
+private extension EditGroup {
+  @ViewBuilder
+  var headerView: some View {
     HStack(alignment: .top) {
       icon
       VStack(alignment: .leading) {
@@ -30,19 +56,16 @@ struct EditGroup: View {
         HStack {
           nameView
         }
-        buttons
-      }.padding(.horizontal)
-    }.padding()
+      }
+    }
   }
-}
 
-private extension EditGroup {
   var icon: some View {
     ZStack {
       ColorView($color, selectAction: { _ in
         showColorPopover = true
       })
-        .frame(width: 64, height: 64)
+        .frame(width: 48, height: 48)
       Text(hoverText)
         .allowsHitTesting(false)
         .foregroundColor(.white)
@@ -73,6 +96,62 @@ private extension EditGroup {
     }
   }
 
+  var applicationView: some View {
+    Group {
+      Picker("Application:", selection: Binding(get: {
+        selectedApplicationIndex
+      }, set: {
+        selectedApplicationIndex = $0
+      })) {
+        ForEach(0..<installedApplications.count, id: \.self) { index in
+          Text(installedApplications[index].bundleName).tag(index)
+        }
+      }
+    }
+  }
+
+  @ViewBuilder
+  var applicationRules: some View {
+    Text("Rules").font(.headline)
+    HStack {
+      applicationView
+      Spacer()
+      Button("+", action: {
+        bundleIdentifiers.insert(
+          installedApplications[selectedApplicationIndex].bundleIdentifier
+        )
+      })
+    }
+    if !bundleIdentifiers.isEmpty {
+      applicationList
+    }
+    Text("Workflows in this group are only activated when the following applications are the frontmost application. The order of this list is irrelevant. If this list is empty, then the workflows are considered global.").font(.caption)
+  }
+
+  var applicationList: some View {
+    ScrollView {
+      VStack(alignment: .leading, spacing: 0) {
+        ForEach(installedApplications.filter({ bundleIdentifiers.contains($0.bundleIdentifier) }), id: \.id) { application in
+          VStack(spacing: 0) {
+            HStack {
+              IconView(icon: Icon(identifier: application.bundleIdentifier, path: application.path))
+              Text(application.bundleName)
+              Spacer()
+              Button("-", action: {
+                if let index = bundleIdentifiers.firstIndex(of: application.bundleIdentifier) {
+                  bundleIdentifiers.remove(at: index)
+                }
+              }).frame(width: 36, height: 36)
+            }
+            Divider()
+          }.padding(.horizontal, 8)
+        }
+      }
+    }
+    .background(Color(.textBackgroundColor))
+    .frame(minHeight: 72)
+  }
+
   var buttons: some View {
     HStack {
       Spacer()
@@ -80,7 +159,7 @@ private extension EditGroup {
         Text("Cancel").frame(minWidth: 60)
       })
 
-      Button(action: { editAction(name, color) }, label: {
+      Button(action: { editAction(name, color, Array(bundleIdentifiers)) }, label: {
         Text("OK").frame(minWidth: 60)
       })
     }
@@ -101,9 +180,13 @@ struct EditGroup_Previews: PreviewProvider, TestPreviewProvider {
     EditGroup(
       name: "Global shortcuts",
       color: "#EB4B63",
-      editAction: { _, _ in },
+      bundleIdentifiers: [
+        "com.apple.finder",
+        "com.apple.music"
+      ],
+      applicationProvider: ApplicationPreviewProvider().erase(),
+      editAction: { _, _, _ in },
       cancelAction: {}
-    )
-    .frame(maxWidth: 450)
+    ).fixedSize()
   }
 }
