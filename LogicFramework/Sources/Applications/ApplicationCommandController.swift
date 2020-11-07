@@ -32,20 +32,22 @@ final class ApplicationCommandController: ApplicationCommandControlling {
   // MARK: Public methods
 
   func run(_ command: ApplicationCommand) -> CommandPublisher {
-    let shouldActivate = ["com.apple.finder"]
-    let frontMostBundle = workspace.frontApplication?.bundleIdentifier
-    let needsLaunching = frontMostBundle == command.application.bundleIdentifier.lowercased()
-      && shouldActivate.contains(command.application.bundleIdentifier)
-
-    // Verify if the current application has any open windows
     do {
-      if windowListProvider.windowOwners().contains(command.application.bundleName) ||
-          !needsLaunching {
+
+      let isFrontMostApplication = command.application
+        .bundleIdentifier == workspace.frontApplication?.bundleIdentifier
+
+      if isFrontMostApplication {
         try activateApplication(command)
+        if !windowListProvider.windowOwners().contains(command.application.bundleName) {
+          try launchApplication(command)
+        }
       } else {
         try launchApplication(command)
+        if !windowListProvider.windowOwners().contains(command.application.bundleName) {
+          try activateApplication(command)
+        }
       }
-
       return Result.success(()).publisher.eraseToAnyPublisher()
     } catch {
       return Fail(error: error).eraseToAnyPublisher()
