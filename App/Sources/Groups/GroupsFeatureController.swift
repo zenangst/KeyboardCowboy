@@ -1,15 +1,11 @@
+import Combine
 import Foundation
 import LogicFramework
 import ViewKit
 import ModelKit
 
-protocol GroupsFeatureControllerDelegate: AnyObject {
-  func groupsFeatureController(_ controller: GroupsFeatureController, didReloadGroups groups: [Group])
-}
-
 final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDelegate {
-  weak var delegate: GroupsFeatureControllerDelegate?
-
+  var subject = PassthroughSubject<[Group], Never>()
   var state = [Group]()
   var applications = [Application]()
   let groupsController: GroupsControlling
@@ -47,8 +43,8 @@ final class GroupsFeatureController: ViewController, WorkflowFeatureControllerDe
   // MARK: Private methods
 
   private func reload(_ groups: [Group], then handler: ((UserSelection) -> Void)? = nil) {
-    self.groupsController.reloadGroups(groups)
-    self.delegate?.groupsFeatureController(self, didReloadGroups: groups)
+    groupsController.reloadGroups(groups)
+    subject.send(groups)
 
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
