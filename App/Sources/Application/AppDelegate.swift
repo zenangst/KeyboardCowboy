@@ -1,4 +1,5 @@
 import Cocoa
+import Combine
 import DirectoryObserver
 import LaunchArguments
 import LogicFramework
@@ -9,12 +10,13 @@ import ModelKit
 let bundleIdentifier = Bundle.main.bundleIdentifier!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
 
-class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
-                   GroupsFeatureControllerDelegate, MenubarControllerDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate,
+                   NSWindowDelegate, MenubarControllerDelegate {
   static let enableNotification = Notification.Name("enableHotKeys")
   static let disableNotification = Notification.Name("disableHotKeys")
 
   weak var window: NSWindow?
+  var cancellables = Set<AnyCancellable>()
   var shouldOpenMainWindow = launchArguments.isEnabled(.openWindowAtLaunch)
   var coreController: CoreControlling?
   let factory = ControllerFactory()
@@ -118,8 +120,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
     window.delegate = self
     window.contentView = NSHostingView(rootView: mainView)
 
-    context.groupsFeature.delegate = self
     self.groupFeatureController = context.groupsFeature
+
+    context.groupsFeature.subject
+      .debounce(for: 0.5, scheduler: RunLoop.main)
+      .throttle(for: 2.0, scheduler: RunLoop.main, latest: true)
+      .removeDuplicates()
+      .receive(on: DispatchQueue.global(qos: .userInitiated))
+      .sink(receiveValue: { groups in
+        self.saveGroupsToDisk(groups)
+    })
+      .store(in: &cancellables)
 
     configureDirectoryObserver(coreController)
 
@@ -136,10 +147,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate,
     }
   }
 
-  // MARK: GroupsFeatureControllerDelegate
-
-  func groupsFeatureController(_ controller: GroupsFeatureController,
-                               didReloadGroups groups: [ModelKit.Group]) {
+  private func saveGroupsToDisk(_ groups: [ModelKit.Group]) {
     do {
       Self.internalChange = true
       try storageController.save(groups)
