@@ -127,9 +127,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
       .throttle(for: 2.0, scheduler: RunLoop.main, latest: true)
       .removeDuplicates()
       .receive(on: DispatchQueue.global(qos: .userInitiated))
-      .sink(receiveValue: { groups in
-        self.saveGroupsToDisk(groups)
-    })
+      .sink { self.saveGroupsToDisk($0) }
       .store(in: &cancellables)
 
     configureDirectoryObserver(coreController)
