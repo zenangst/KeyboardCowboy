@@ -5,15 +5,18 @@ struct GroupListCell: View {
   typealias CommitHandler = (String, String) -> Void
   @Binding var name: String
   @Binding var color: String
+  let symbol: String
   let count: Int
   let onCommit: CommitHandler
 
   init(name: Binding<String>,
        color: Binding<String>,
+       symbol: String,
        count: Int,
        onCommit: @escaping CommitHandler) {
     _name = name
     _color = color
+    self.symbol = symbol
     self.count = count
     self.onCommit = onCommit
   }
@@ -37,7 +40,11 @@ private extension GroupListCell {
     ZStack {
       Circle().fill(Color(hex: color))
         .frame(width: 24, height: 24)
-      Text("⌨️")
+      Image(systemName: symbol)
+        .resizable(resizingMode: .stretch)
+        .renderingMode(.template)
+        .foregroundColor(.white)
+        .frame(width: 14, height: 12)
     }
   }
 
@@ -69,7 +76,9 @@ struct GroupListCell_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     let group = ModelFactory().groupListCell()
-    return GroupListCell(name: .constant(group.name), color: .constant(group.color),
+    return GroupListCell(name: .constant(group.name),
+                         color: .constant(group.color),
+                         symbol: group.symbol,
                          count: group.workflows.count, onCommit: { _, _ in })
   }
 }

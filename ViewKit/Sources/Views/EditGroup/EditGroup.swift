@@ -13,9 +13,6 @@ struct EditGroup: View {
   private var editAction: (String, String, [String]) -> Void
   private var cancelAction: () -> Void
 
-  var firstRowColors: [String] = ["#EB5545", "#F2A23C", "#F9D64A", "#6BD35F", "#3984F7"]
-  var secondRowColors: [String] = ["#B263EA", "#5D5FDE", "#A78F6D", "#98989D", "#EB4B63"]
-
   init(name: String,
        color: String,
        bundleIdentifiers: [String],
@@ -50,7 +47,7 @@ private extension EditGroup {
   @ViewBuilder
   var headerView: some View {
     HStack(alignment: .top) {
-      icon
+      icon.padding(.trailing)
       VStack(alignment: .leading) {
         Text("\"\(name)\" info").bold()
         HStack {
@@ -65,7 +62,7 @@ private extension EditGroup {
       ColorView($color, selectAction: { _ in
         showColorPopover = true
       })
-        .frame(width: 48, height: 48)
+        .frame(width: 36, height: 36)
       Text(hoverText)
         .allowsHitTesting(false)
         .foregroundColor(.white)
@@ -74,18 +71,8 @@ private extension EditGroup {
       hoverText = hovering ? "Edit" : ""
     })
     .popover(isPresented: $showColorPopover, content: {
-      VStack(spacing: 8) {
-        HStack(spacing: 8) {
-          ForEach(firstRowColors, id: \.self) { color in
-            ColorView(.constant(color), selectAction: selectColor)
-          }
-        }
-        HStack(spacing: 8) {
-          ForEach(secondRowColors, id: \.self) { color in
-            ColorView(.constant(color), selectAction: selectColor)
-          }
-        }
-      }.padding()
+      EditGroupPopover(selectColor: selectColor(_:))
+        .padding()
     })
   }
 
@@ -157,11 +144,11 @@ private extension EditGroup {
       Spacer()
       Button(action: cancelAction, label: {
         Text("Cancel").frame(minWidth: 60)
-      })
+      }).keyboardShortcut(.cancelAction)
 
       Button(action: { editAction(name, color, Array(bundleIdentifiers)) }, label: {
         Text("OK").frame(minWidth: 60)
-      })
+      }).keyboardShortcut(.defaultAction)
     }
   }
 

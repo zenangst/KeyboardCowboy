@@ -9,17 +9,20 @@ import Foundation
 ///          eligable for execution.
 public struct Group: Identifiable, Codable, Hashable {
   public let id: String
+  public let symbol: String
   public var name: String
   public var color: String
   public var rule: Rule?
   public var workflows: [Workflow]
 
   public init(id: String = UUID().uuidString,
+              symbol: String = "folder",
               name: String,
               color: String = "#000",
               rule: Rule? = nil,
               workflows: [Workflow] = []) {
     self.id = id
+    self.symbol = symbol
     self.name = name
     self.color = color
     self.rule = rule
@@ -29,6 +32,7 @@ public struct Group: Identifiable, Codable, Hashable {
   enum CodingKeys: String, CodingKey {
     case color
     case id
+    case symbol
     case name
     case rule
     case workflows
@@ -38,6 +42,7 @@ public struct Group: Identifiable, Codable, Hashable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    self.symbol = try container.decodeIfPresent(String.self, forKey: .symbol) ?? "folder"
     self.color = try container.decodeIfPresent(String.self, forKey: .color) ?? "#000"
     self.name = try container.decode(String.self, forKey: .name)
     self.rule = try container.decodeIfPresent(Rule.self, forKey: .rule)
@@ -47,7 +52,8 @@ public struct Group: Identifiable, Codable, Hashable {
 
 extension Group {
   static public func empty(id: String = UUID().uuidString) -> Group {
-    Group(id: id, name: "Untitled group", color: "#000")
+    Group(id: id, name: "Untitled group", color: "#000",
+          workflows: [Workflow.empty(id: id)])
   }
 
   static public func droppedApplication(id: String = UUID().uuidString,

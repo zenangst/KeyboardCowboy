@@ -17,15 +17,6 @@ final class FeatureFactory {
     self.coreController = coreController
   }
 
-  func mainWindow(autosaveName: String, _ onClose: @escaping () -> Void) -> Window {
-    let window = Window(autosaveName: autosaveName,
-                        toolbar: Toolbar(),
-                        onClose: onClose)
-    window.title = ProcessInfo.processInfo.processName
-    window.setFrameAutosaveName(autosaveName)
-    return window
-  }
-
   func menuBar() -> MenubarController {
     MenubarController()
   }

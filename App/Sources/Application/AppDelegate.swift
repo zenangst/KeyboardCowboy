@@ -11,19 +11,21 @@ let bundleIdentifier = Bundle.main.bundleIdentifier!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
 
 class AppDelegate: NSObject, NSApplicationDelegate,
-                   NSWindowDelegate, MenubarControllerDelegate {
+                   MenubarControllerDelegate,
+                   NSWindowDelegate {
   static let enableNotification = Notification.Name("enableHotKeys")
   static let disableNotification = Notification.Name("disableHotKeys")
 
-  weak var window: NSWindow?
-  var cancellables = Set<AnyCancellable>()
-  var shouldOpenMainWindow = launchArguments.isEnabled(.openWindowAtLaunch)
-  var coreController: CoreControlling?
+  @Published var mainView: MainView?
+  @Published var windowIsOpened: Bool = true
   let factory = ControllerFactory()
-  var groupFeatureController: GroupsFeatureController?
-  var directoryObserver: DirectoryObserver?
-  var menubarController: MenubarController?
   static var internalChange: Bool = false
+  var cancellables = Set<AnyCancellable>()
+  var coreController: CoreControlling?
+  var directoryObserver: DirectoryObserver?
+  var groupFeatureController: GroupsFeatureController?
+  var menubarController: MenubarController?
+  var userSelection = UserSelection()
 
   var storageController: StorageControlling {
     let configuration = Configuration.Storage()
@@ -31,9 +33,14 @@ class AppDelegate: NSObject, NSApplicationDelegate,
                                      fileName: configuration.fileName)
   }
 
+  override init() {
+    super.init()
+    windowIsOpened = launchArguments.isEnabled(.openWindowAtLaunch)
+  }
+
   // MARK: Application life cycle
 
-  func applicationDidFinishLaunching(_ notification: Notification) {
+  func applicationWillFinishLaunching(_ notification: Notification) {
     if launchArguments.isEnabled(.runningUnitTests) { return }
     if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil { return }
 
@@ -43,24 +50,15 @@ class AppDelegate: NSObject, NSApplicationDelegate,
                                            name: Self.enableNotification, object: nil)
     NotificationCenter.default.addObserver(self, selector: #selector(disableHotKeys),
                                            name: Self.disableNotification, object: nil)
-
     runApplication()
   }
 
-  func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-    if window == nil, let coreController = coreController {
-      createAndOpenWindow(coreController)
-    }
-    return true
+  func applicationDidBecomeActive(_ notification: Notification) {
+    windowIsOpened = true
   }
 
-  func applicationWillBecomeActive(_ notification: Notification) {
-    if shouldOpenMainWindow, window == nil,
-       let coreController = coreController {
-      createAndOpenWindow(coreController)
-    }
-
-    shouldOpenMainWindow = true
+  func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+    return true
   }
 
   // MARK: Notifications
@@ -79,31 +77,20 @@ class AppDelegate: NSObject, NSApplicationDelegate,
 
   // MARK: Private methods
 
-  private func createAndOpenWindow(_ coreController: CoreControlling) {
-    let window = createMainWindow(coreController)
-    window?.makeKeyAndOrderFront(NSApp)
-    self.window = window
-  }
-
   private func runApplication() {
     do {
       let launchController = AppDelegateLaunchController(factory: factory)
       let coreController = try launchController.initialLoad(storageController: storageController)
       self.coreController = coreController
-
-      let featureFactory = FeatureFactory(coreController: coreController)
-      let menubarController = featureFactory.menuBar()
-      menubarController.delegate = self
-      self.menubarController = menubarController
-
+      self.mainView = createMainView(coreController)
     } catch let error {
       AppDelegateErrorController.handle(error)
     }
   }
 
-  private func createMainWindow(_ coreController: CoreControlling) -> NSWindow? {
+  @discardableResult
+  func createMainView(_ coreController: CoreControlling) -> MainView {
     IconController.installedApplications = coreController.installedApplications
-    let userSelection = UserSelection()
     let featureFactory = FeatureFactory(coreController: coreController)
     let context = featureFactory.applicationStack(userSelection: userSelection)
 
@@ -111,16 +98,11 @@ class AppDelegate: NSObject, NSApplicationDelegate,
     userSelection.workflow = context.groupsFeature.state.first?.workflows.first
 
     let mainView = context.factory.mainView()
-      .environmentObject(userSelection)
-
-    let window = featureFactory.mainWindow(autosaveName: "Main Window") { [weak self] in
-      self?.groupFeatureController = nil
-      self?.window = nil
-    }
-    window.delegate = self
-    window.contentView = NSHostingView(rootView: mainView)
-
     self.groupFeatureController = context.groupsFeature
+
+    let menubarController = featureFactory.menuBar()
+    menubarController.delegate = self
+    self.menubarController = menubarController
 
     context.groupsFeature.subject
       .debounce(for: 0.5, scheduler: RunLoop.main)
@@ -131,8 +113,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
       .store(in: &cancellables)
 
     configureDirectoryObserver(coreController)
-
-    return window
+    return mainView
   }
 
   private func configureDirectoryObserver(_ coreController: CoreControlling) {
@@ -162,17 +143,6 @@ class AppDelegate: NSObject, NSApplicationDelegate,
     }
   }
 
-  // MARK: MenubarControllerDelegate
-
-  func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem) {
-    if let window = window {
-      window.makeKeyAndOrderFront(NSApp)
-    } else if window == nil, let coreController = coreController {
-      createAndOpenWindow(coreController)
-    }
-    NSApp.activate(ignoringOtherApps: true)
-  }
-
   // MARK: NSWindowDelegate
 
   func windowWillClose(_ notification: Notification) {
@@ -183,4 +153,10 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   func windowDidBecomeKey(_ notification: Notification) {
     menubarController?.setState(.active)
   }
+
+  // MARK: MenubarControllerDelegate
+
+    func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem) {
+      NSApp.activate(ignoringOtherApps: true)
+    }
 }

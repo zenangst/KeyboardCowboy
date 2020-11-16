@@ -19,20 +19,15 @@ public struct WorkflowList: View {
 
   public var body: some View {
     List {
-      ForEach(group.workflows) { workflow in
-        NavigationLink(
-          destination: factory.workflowDetail(workflow, group: group),
-          tag: workflow,
-          selection: $userSelection.workflow,
-          label: {
-            WorkflowListCell(workflow: workflow)
-              .contextMenu {
-                Button("Delete") {
-                  workflowController.perform(.deleteWorkflow(workflow, in: group))
-                }
-              }
-              .frame(height: 48)
-          })
+      ForEach(group.workflows, id: \.id) { workflow in
+        NavigationLink(destination: factory.workflowDetail(workflow, group: group),
+                       tag: workflow, selection: $userSelection.workflow) {
+          WorkflowListCell(workflow: workflow).frame(height: 48)
+        }.contextMenu {
+          Button("Delete") {
+            workflowController.perform(.deleteWorkflow(workflow, in: group))
+          }
+        }
       }.onMove(perform: { indices, newOffset in
         for i in indices {
           let workflow = group.workflows[i]
@@ -50,6 +45,8 @@ public struct WorkflowList: View {
     .introspectTableView(customize: {
       $0.allowsEmptySelection = false
     })
+    .navigationTitle("\(group.name)")
+    .navigationSubtitle("Workflows: \(group.workflows.count)")
   }
 }
 

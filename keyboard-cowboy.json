@@ -1,480 +1,5 @@
 [
   {
-    "rule" : {
-      "id" : "4A05FD54-8C8F-4119-BABE-9A031E6BD401",
-      "bundleIdentifiers" : [
-
-      ],
-      "days" : [
-
-      ]
-    },
-    "id" : "405EAE02-7766-4DDA-93BD-ECFB98D7D950",
-    "name" : "Hello world!",
-    "workflows" : [
-      {
-        "id" : "55A05BDC-E8B1-4BE0-A5E9-7878135C977C",
-        "commands" : [
-          {
-            "applicationCommand" : {
-              "id" : "B12F3EE9-3C42-4218-A745-C5C87A3A68E4",
-              "name" : "",
-              "application" : {
-                "path" : "\/System\/Applications\/Calendar.app",
-                "id" : "884C0761-74D9-48A0-80E7-70A3DCBDDE99",
-                "bundleIdentifier" : "com.apple.Calendar",
-                "bundleName" : "Calendar"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "45B15217-371E-4018-B37E-F95866E75268",
-              "name" : "",
-              "application" : {
-                "path" : "\/System\/Applications\/Contacts.app",
-                "id" : "90855C70-4041-406B-965A-F891BCCFD48F",
-                "bundleIdentifier" : "com.apple.AddressBook",
-                "bundleName" : "Contacts"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "5D0C0DB4-766C-4D39-94E3-F883894537DD",
-              "name" : "",
-              "application" : {
-                "path" : "\/System\/Applications\/FindMy.app",
-                "id" : "9A75E081-AE1D-4C6A-8DE4-CA0BD77C9FA5",
-                "bundleIdentifier" : "com.apple.findmy",
-                "bundleName" : "FindMy"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "21D6BE23-744A-41D0-8894-0A9463DC0331",
-              "name" : "",
-              "application" : {
-                "path" : "\/System\/Applications\/Mail.app",
-                "id" : "C72A71E4-9D62-4DD5-8769-316D431E4EA8",
-                "bundleIdentifier" : "com.apple.mail",
-                "bundleName" : "Mail"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "FE9EB9B6-6B35-4CC9-A4E3-A94D3704BCE0",
-              "name" : "",
-              "application" : {
-                "path" : "\/System\/Applications\/News.app",
-                "id" : "78CA39B8-A97A-4709-A9FC-39E75FA1D82B",
-                "bundleIdentifier" : "com.apple.news",
-                "bundleName" : "News"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "64A08CCD-6F16-45A2-AB0B-773B9ED6E518",
-              "name" : "",
-              "application" : {
-                "path" : "\/System\/Applications\/Notes.app",
-                "id" : "AB3238FE-B951-4181-87CD-CF5494331EF2",
-                "bundleIdentifier" : "com.apple.Notes",
-                "bundleName" : "Notes"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "3B6A7FDB-814D-4A7C-9A40-18DCC1A95FD1",
-              "name" : "",
-              "application" : {
-                "path" : "\/Applications\/1Password.app",
-                "id" : "43919E61-D554-496D-9DB4-0358E013A62B",
-                "bundleIdentifier" : "com.agilebits.onepassword-osx",
-                "bundleName" : "1Password"
-              }
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "FBFCCD8A-D13B-4601-B4A3-8549D49DB2D9",
-            "key" : "Å",
-            "modifiers" : [
-              "@"
-            ]
-          },
-          {
-            "id" : "7776B46A-01F2-4697-9F9B-96B35CBAE5FC",
-            "key" : ""
-          }
-        ],
-        "name" : "Open office!"
-      },
-      {
-        "id" : "559E6E27-B841-4119-826D-D8EDCD9858C4",
-        "commands" : [
-          {
-            "applicationCommand" : {
-              "id" : "4EB7A758-46DB-4706-9EA9-4231220DC731",
-              "name" : "",
-              "application" : {
-                "path" : "\/Applications\/Fantastical.app",
-                "id" : "E93A26E8-DE97-41E0-B150-6AC02F02AD16",
-                "bundleIdentifier" : "com.flexibits.fantastical2.mac",
-                "bundleName" : "Fantastical"
-              }
-            }
-          },
-          {
-            "applicationCommand" : {
-              "id" : "21E91858-222A-4EAA-9F0E-C2CB8113CEA2",
-              "name" : "",
-              "application" : {
-                "path" : "\/Applications\/Airmail.app",
-                "id" : "5F9EEE26-9222-4D05-A9E9-A4ECCD4F2336",
-                "bundleIdentifier" : "it.bloop.airmail2",
-                "bundleName" : "Airmail"
-              }
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "CDBED2AB-43DC-4DDD-B546-166FA4B654D9",
-            "key" : "A",
-            "modifiers" : [
-              "@"
-            ]
-          },
-          {
-            "id" : "E728E885-C962-491E-97C3-2FDF60AEEFA6",
-            "key" : "S",
-            "modifiers" : [
-              "@"
-            ]
-          },
-          {
-            "id" : "E68E8840-0A94-458E-856F-127D9607C505",
-            "key" : "D",
-            "modifiers" : [
-              "@"
-            ]
-          },
-          {
-            "id" : "57F5B591-6B16-45ED-9EAB-5FA3BAA53241",
-            "key" : "G",
-            "modifiers" : [
-              "@"
-            ]
-          }
-        ],
-        "name" : "Hello world!"
-      }
-    ],
-    "color" : "#EB4B63"
-  },
-  {
-    "rule" : {
-      "id" : "B28A7D7D-23E1-485F-8A46-A81399E1B40A",
-      "bundleIdentifiers" : [
-        "com.apple.finder"
-      ],
-      "days" : [
-
-      ]
-    },
-    "id" : "CCD5A3F2-429E-4B41-A82B-21D41B53DBAD",
-    "name" : "Finder",
-    "workflows" : [
-      {
-        "id" : "9ED26DED-0C11-4F71-B08C-DEFB62DE123A",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/Finder\/Share button.scpt"
-              },
-              "id" : "FC9DBEA2-9B6F-4EAD-86A2-DA6D2AB4A0DA"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "FBFCCD8A-D13B-4601-B4A3-8549D49DB2D9",
-            "key" : "Å",
-            "modifiers" : [
-              "@"
-            ]
-          }
-        ],
-        "name" : "Share"
-      },
-      {
-        "id" : "39E0D999-B91D-4745-90A6-407D1647C58C",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/Finder\/Action.scpt"
-              },
-              "id" : "E142BC7A-F6D8-4AEE-A22F-7B0FEEC5E6A4"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "70E3E399-8698-4EB3-B9AB-A07EAEE8FB6F",
-            "key" : "¨",
-            "modifiers" : [
-              "@"
-            ]
-          }
-        ],
-        "name" : "Action"
-      }
-    ],
-    "color" : "#EB5545"
-  },
-  {
-    "rule" : {
-      "id" : "5A7067EF-2534-4457-BC27-AC6D3A9AD59B",
-      "bundleIdentifiers" : [
-        "com.apple.Safari"
-      ],
-      "days" : [
-
-      ]
-    },
-    "id" : "DA37C167-E6CC-43C7-A1B3-D7EBE950F12C",
-    "name" : "Safari",
-    "workflows" : [
-      {
-        "id" : "817E839B-8CD2-40D6-B72F-BEB5F345E406",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/Safari\/Share button.scpt"
-              },
-              "id" : "9C61784D-C2B5-4FFC-8450-FF9CCE614781"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "D4041FBE-31DF-40F0-9EF2-217ED3A894FA",
-            "key" : "Å",
-            "modifiers" : [
-              "@"
-            ]
-          }
-        ],
-        "name" : "Share"
-      }
-    ],
-    "color" : "#A78F6D"
-  },
-  {
-    "rule" : {
-      "id" : "4FFC615B-77FC-4E1E-8770-6F38B9760C16",
-      "bundleIdentifiers" : [
-        "com.apple.dt.Xcode"
-      ],
-      "days" : [
-
-      ]
-    },
-    "id" : "266E40BA-330D-475D-B06C-06012ABAC159",
-    "name" : "Xcode",
-    "workflows" : [
-      {
-        "id" : "9A0A0A88-7732-40BC-A5BE-8BB6A524A291",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Recent Files.scpt"
-              },
-              "id" : "4FDF0739-E48C-4CA5-89BE-D6395D7E1E63"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "E1790585-CB89-4FF8-8348-3641FC498286",
-            "key" : "Å",
-            "modifiers" : [
-              "@"
-            ]
-          }
-        ],
-        "name" : "Recent files"
-      },
-      {
-        "id" : "5CAA163D-9E8E-4E4D-9E77-B5753C412B45",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Git Changes.scpt"
-              },
-              "id" : "0A58B052-2D2C-4AB4-A5C7-02B9540CC27E"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "9D8375D2-9044-4188-B89E-F48985D890B8",
-            "key" : "¨",
-            "modifiers" : [
-              "@"
-            ]
-          }
-        ],
-        "name" : "Git changes"
-      },
-      {
-        "id" : "D87ACCA3-1818-415A-9977-D26D90130518",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Show Previous Tab.scpt"
-              },
-              "id" : "E56C3CCC-C535-4E58-8466-0EB0165F7D16"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "2B51B080-17CB-4F41-AC8B-FCCCC3F0B61D",
-            "key" : "q",
-            "modifiers" : [
-              "^"
-            ]
-          }
-        ],
-        "name" : "Show Previous Tab"
-      },
-      {
-        "id" : "47A8B918-0D8C-4C15-A2A5-529908CBF8FE",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Show Next Tab.scpt"
-              },
-              "id" : "CF1C87D6-797E-4977-9EE2-1291BCFDA545"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "39C53F23-FCB0-43E4-825F-3939A0CAB53F",
-            "key" : "e",
-            "modifiers" : [
-              "^"
-            ]
-          }
-        ],
-        "name" : "Show Next Tab"
-      },
-      {
-        "id" : "BD651F88-C2B6-4684-A7F4-F153695E5A1A",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Edit Scheme.scpt"
-              },
-              "id" : "8A722B3B-E73F-4003-9317-ECE6A65ECA20"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "C479C9D4-6E9A-42ED-917D-E509A112E91F",
-            "key" : "m",
-            "modifiers" : [
-              "^",
-              "~",
-              "@"
-            ]
-          }
-        ],
-        "name" : "Edit Scheme"
-      }
-    ],
-    "color" : "#F9D64A"
-  },
-  {
-    "rule" : {
-      "id" : "346F1383-D99D-4ED9-A863-86EC6285055A",
-      "bundleIdentifiers" : [
-        "com.apple.news"
-      ],
-      "days" : [
-
-      ]
-    },
-    "id" : "FC41A373-251B-4B86-AEFE-4B037C397324",
-    "name" : "Apple News",
-    "workflows" : [
-      {
-        "id" : "F4286A01-0B0D-47DD-B4C6-1FC4E5A0D06E",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/News\/Back.scpt"
-              },
-              "id" : "C4CA8B68-BC50-43BF-9A43-0187EBEB79DC"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "4F8AE311-B6A3-418B-9426-ACE35BAAC994",
-            "key" : "X",
-            "modifiers" : [
-              "^"
-            ]
-          }
-        ],
-        "name" : "Back"
-      },
-      {
-        "id" : "8FA550CC-873F-4FD8-9BC4-ADD60D9E7AD6",
-        "commands" : [
-          {
-            "scriptCommand" : {
-              "appleScript" : {
-                "path" : "~\/iCloud\/Keyboard Cowboy\/News\/Share button.scpt"
-              },
-              "id" : "A3B6E142-1B24-4B4E-AB52-6BA3B32163AB"
-            }
-          }
-        ],
-        "keyboardShortcuts" : [
-          {
-            "id" : "CEF9B5A5-F9AA-4C01-A39F-9D7B04E67E56",
-            "key" : "Å",
-            "modifiers" : [
-              "@"
-            ]
-          }
-        ],
-        "name" : "Share button"
-      }
-    ],
-    "color" : "#6BD35F"
-  },
-  {
     "id" : "C5A19AB5-06FA-4572-B65F-8DFC3E9B7E00",
     "name" : "Globals",
     "workflows" : [
@@ -1496,5 +1021,301 @@
       }
     ],
     "color" : "#3984F7"
+  },
+  {
+    "rule" : {
+      "id" : "B28A7D7D-23E1-485F-8A46-A81399E1B40A",
+      "bundleIdentifiers" : [
+        "com.apple.finder"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "CCD5A3F2-429E-4B41-A82B-21D41B53DBAD",
+    "name" : "Finder",
+    "workflows" : [
+      {
+        "id" : "9ED26DED-0C11-4F71-B08C-DEFB62DE123A",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Finder\/Share button.scpt"
+              },
+              "id" : "FC9DBEA2-9B6F-4EAD-86A2-DA6D2AB4A0DA"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "FBFCCD8A-D13B-4601-B4A3-8549D49DB2D9",
+            "key" : "Å",
+            "modifiers" : [
+              "@"
+            ]
+          }
+        ],
+        "name" : "Share"
+      },
+      {
+        "id" : "39E0D999-B91D-4745-90A6-407D1647C58C",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Finder\/Action.scpt"
+              },
+              "id" : "E142BC7A-F6D8-4AEE-A22F-7B0FEEC5E6A4"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "70E3E399-8698-4EB3-B9AB-A07EAEE8FB6F",
+            "key" : "¨",
+            "modifiers" : [
+              "@"
+            ]
+          }
+        ],
+        "name" : "Action"
+      }
+    ],
+    "color" : "#EB5545"
+  },
+  {
+    "rule" : {
+      "id" : "5A7067EF-2534-4457-BC27-AC6D3A9AD59B",
+      "bundleIdentifiers" : [
+        "com.apple.Safari"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "DA37C167-E6CC-43C7-A1B3-D7EBE950F12C",
+    "name" : "Safari",
+    "workflows" : [
+      {
+        "id" : "817E839B-8CD2-40D6-B72F-BEB5F345E406",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Safari\/Share button.scpt"
+              },
+              "id" : "9C61784D-C2B5-4FFC-8450-FF9CCE614781"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "D4041FBE-31DF-40F0-9EF2-217ED3A894FA",
+            "key" : "Å",
+            "modifiers" : [
+              "@"
+            ]
+          }
+        ],
+        "name" : "Share"
+      }
+    ],
+    "color" : "#A78F6D"
+  },
+  {
+    "rule" : {
+      "id" : "4FFC615B-77FC-4E1E-8770-6F38B9760C16",
+      "bundleIdentifiers" : [
+        "com.apple.dt.Xcode"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "266E40BA-330D-475D-B06C-06012ABAC159",
+    "name" : "Xcode",
+    "workflows" : [
+      {
+        "id" : "9A0A0A88-7732-40BC-A5BE-8BB6A524A291",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Recent Files.scpt"
+              },
+              "id" : "4FDF0739-E48C-4CA5-89BE-D6395D7E1E63"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "E1790585-CB89-4FF8-8348-3641FC498286",
+            "key" : "Å",
+            "modifiers" : [
+              "@"
+            ]
+          }
+        ],
+        "name" : "Recent files"
+      },
+      {
+        "id" : "5CAA163D-9E8E-4E4D-9E77-B5753C412B45",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Git Changes.scpt"
+              },
+              "id" : "0A58B052-2D2C-4AB4-A5C7-02B9540CC27E"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "9D8375D2-9044-4188-B89E-F48985D890B8",
+            "key" : "¨",
+            "modifiers" : [
+              "@"
+            ]
+          }
+        ],
+        "name" : "Git changes"
+      },
+      {
+        "id" : "D87ACCA3-1818-415A-9977-D26D90130518",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Show Previous Tab.scpt"
+              },
+              "id" : "E56C3CCC-C535-4E58-8466-0EB0165F7D16"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "2B51B080-17CB-4F41-AC8B-FCCCC3F0B61D",
+            "key" : "q",
+            "modifiers" : [
+              "^"
+            ]
+          }
+        ],
+        "name" : "Show Previous Tab"
+      },
+      {
+        "id" : "47A8B918-0D8C-4C15-A2A5-529908CBF8FE",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Show Next Tab.scpt"
+              },
+              "id" : "CF1C87D6-797E-4977-9EE2-1291BCFDA545"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "39C53F23-FCB0-43E4-825F-3939A0CAB53F",
+            "key" : "e",
+            "modifiers" : [
+              "^"
+            ]
+          }
+        ],
+        "name" : "Show Next Tab"
+      },
+      {
+        "id" : "BD651F88-C2B6-4684-A7F4-F153695E5A1A",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Edit Scheme.scpt"
+              },
+              "id" : "8A722B3B-E73F-4003-9317-ECE6A65ECA20"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "C479C9D4-6E9A-42ED-917D-E509A112E91F",
+            "key" : "m",
+            "modifiers" : [
+              "^",
+              "~",
+              "@"
+            ]
+          }
+        ],
+        "name" : "Edit Scheme"
+      }
+    ],
+    "color" : "#F9D64A"
+  },
+  {
+    "rule" : {
+      "id" : "346F1383-D99D-4ED9-A863-86EC6285055A",
+      "bundleIdentifiers" : [
+        "com.apple.news"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "FC41A373-251B-4B86-AEFE-4B037C397324",
+    "name" : "Apple News",
+    "workflows" : [
+      {
+        "id" : "F4286A01-0B0D-47DD-B4C6-1FC4E5A0D06E",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/News\/Back.scpt"
+              },
+              "id" : "C4CA8B68-BC50-43BF-9A43-0187EBEB79DC"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "4F8AE311-B6A3-418B-9426-ACE35BAAC994",
+            "key" : "X",
+            "modifiers" : [
+              "^"
+            ]
+          }
+        ],
+        "name" : "Back"
+      },
+      {
+        "id" : "8FA550CC-873F-4FD8-9BC4-ADD60D9E7AD6",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/News\/Share button.scpt"
+              },
+              "id" : "A3B6E142-1B24-4B4E-AB52-6BA3B32163AB"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "CEF9B5A5-F9AA-4C01-A39F-9D7B04E67E56",
+            "key" : "Å",
+            "modifiers" : [
+              "@"
+            ]
+          }
+        ],
+        "name" : "Share button"
+      }
+    ],
+    "color" : "#6BD35F"
   }
 ]

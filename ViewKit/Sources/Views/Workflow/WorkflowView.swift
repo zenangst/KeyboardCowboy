@@ -14,40 +14,40 @@ public struct WorkflowView: View {
   @State private var newCommandVisible: Bool = false
 
   public var body: some View {
-    VStack(alignment: .leading) {
-      ScrollView {
-        name(workflow, in: group).padding(.horizontal)
+    ScrollView {
+      name(workflow, in: group)
+        .padding(.horizontal)
+        .padding(.top)
 
-        VStack(alignment: .leading) {
-          if workflow.keyboardShortcuts.isEmpty {
-            VStack {
-              AddButton(text: "Add Keyboard Shortcut",
-                        alignment: .center,
-                        action: {
-                keyboardShortcutController.perform(.createKeyboardShortcut(
-                                                    ModelKit.KeyboardShortcut.empty(),
-                                                    index: workflow.keyboardShortcuts.count,
-                                                    in: workflow))
-              }).padding(.vertical, 8)
-            }
-          } else {
-            HeaderView(title: "Keyboard shortcuts:")
-              .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-            keyboardShortcuts(for: workflow)
+      VStack(alignment: .leading) {
+        if workflow.keyboardShortcuts.isEmpty {
+          VStack {
+            AddButton(text: "Add Keyboard Shortcut",
+                      alignment: .center,
+                      action: {
+                        keyboardShortcutController.perform(.createKeyboardShortcut(
+                                                            ModelKit.KeyboardShortcut.empty(),
+                                                            index: workflow.keyboardShortcuts.count,
+                                                            in: workflow))
+                      }).padding(.vertical, 8)
           }
-        }
-
-        Divider().padding(16)
-
-        VStack(alignment: .leading) {
-          HeaderView(title: "Commands:")
+        } else {
+          HeaderView(title: "Keyboard shortcuts:")
             .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-          commands(for: workflow)
+          keyboardShortcuts(for: workflow)
         }
       }
-      addCommandButton
-    }.background(LinearGradient(
-                  gradient: Gradient(colors: [Color(.clear), Color(.gridColor).opacity(0.5)]),
+
+      Divider().padding(16)
+
+      VStack(alignment: .leading) {
+        HeaderView(title: "Commands:")
+          .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+        commands(for: workflow)
+      }
+    }
+    .background(LinearGradient(
+                  gradient: Gradient(colors: [Color(NSColor.clear), Color(.gridColor).opacity(0.5)]),
                   startPoint: .top,
                   endPoint: .bottom))
   }
@@ -71,7 +71,7 @@ private extension WorkflowView {
                              workflow: workflow)
       .frame(alignment: .top)
       .padding(.bottom, 24)
-      .shadow(color: Color(.controlDarkShadowColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
+      .shadow(color: Color(.separatorColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
   }
 
   func commands(for workflow: Workflow) -> some View {
@@ -81,27 +81,7 @@ private extension WorkflowView {
                     workflow: workflow)
       .frame(alignment: .top)
       .padding(.bottom, 24)
-      .shadow(color: Color(.controlDarkShadowColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
-  }
-
-  var addCommandButton: some View {
-    AddButton(text: "Add Command",
-              alignment: .left,
-              action: { newCommandVisible = true })
-    .sheet(isPresented: $newCommandVisible, content: {
-      EditCommandView(
-        applicationProvider: applicationProvider,
-        openPanelController: openPanelController,
-        saveAction: { newCommand in
-          commandController.action(.createCommand(newCommand, in: workflow))()
-          newCommandVisible = false
-        },
-        cancelAction: {
-          newCommandVisible = false
-        },
-        selection: Command.application(.init(application: Application.empty())),
-        command: Command.application(.init(application: Application.empty())))
-    })
+      .shadow(color: Color(.separatorColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
   }
 }
 

@@ -4,7 +4,7 @@ options:
   indentWidth: 2
   tabWidth: 2
   deploymentTarget:
-    macOS: "10.15"
+    macOS: "11.0"
   preGenCommand: "sh XcodeGen/preGenCommand.sh"
   postGenCommand: "sh XcodeGen/postGenCommand.sh"
 configFiles:
