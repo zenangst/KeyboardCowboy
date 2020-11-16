@@ -13,12 +13,18 @@ public class DesignTimeFactory: ViewFactory {
   let commandController = CommandPreviewController().erase()
   let groupController = GroupPreviewController().erase()
   let keyboardShortcutController = KeyboardShortcutPreviewController().erase()
-  let openPaneController = OpenPanelPreviewController().erase()
+  let openPanelController = OpenPanelPreviewController().erase()
   let searchController = SearchPreviewController().erase()
   let workflowController = WorkflowPreviewController().erase()
 
   public func mainView() -> MainView {
-    MainView(factory: self, searchController: searchController)
+    MainView(factory: self,
+             applicationProvider: applicationProvider,
+             commandController: commandController,
+             groupController: groupController,
+             openPanelController: openPanelController,
+             searchController: searchController,
+             workflowController: workflowController)
   }
 
   public func groupList() -> GroupList {
@@ -39,7 +45,7 @@ public class DesignTimeFactory: ViewFactory {
                  applicationProvider: applicationProvider,
                  commandController: commandController,
                  keyboardShortcutController: keyboardShortcutController,
-                 openPanelController: openPaneController,
+                 openPanelController: openPanelController,
                  workflowController: workflowController)
   }
 }
@@ -73,7 +79,13 @@ public class AppViewFactory: ViewFactory {
   }
 
   public func mainView() -> MainView {
-    MainView(factory: self, searchController: searchController)
+    MainView(factory: self,
+             applicationProvider: applicationProvider,
+             commandController: commandController,
+             groupController: groupController,
+             openPanelController: openPanelController,
+             searchController: searchController,
+             workflowController: workflowController)
   }
 
   public func groupList() -> GroupList {

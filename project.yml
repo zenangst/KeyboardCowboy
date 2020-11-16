@@ -4,7 +4,7 @@ options:
   indentWidth: 2
   tabWidth: 2
   deploymentTarget:
-    macOS: "10.15"
+    macOS: "11.0"
   preGenCommand: "sh XcodeGen/preGenCommand.sh"
   postGenCommand: "sh XcodeGen/postGenCommand.sh"
 configFiles:
@@ -20,6 +20,9 @@ packages:
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     from: 1.8.2
+  Introspect:
+    url: https://github.com/siteline/SwiftUI-Introspect
+    from: 0.1.1
 targets:
   Keyboard-Cowboy:
     type: application
@@ -100,6 +103,7 @@ targets:
     platform: "macOS"
     dependencies:
       - target: ModelKit
+      - package: Introspect
     sources:
       - ViewKit
       - Shared

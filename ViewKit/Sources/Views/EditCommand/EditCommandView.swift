@@ -138,12 +138,12 @@ private extension EditCommandView {
       Spacer()
       Button(action: cancelAction, label: {
         Text("Cancel").frame(minWidth: 60)
-      })
+      }).keyboardShortcut(.cancelAction)
       Button(action: {
         saveAction(command)
       }, label: {
         Text("OK").frame(minWidth: 60)
-      })
+      }).keyboardShortcut(.defaultAction)
     }
   }
 }

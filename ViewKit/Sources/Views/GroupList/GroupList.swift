@@ -24,59 +24,55 @@ public struct GroupList: View {
     VStack(alignment: .leading) {
       List {
         ForEach(groupController.state, id: \.id) { group in
-          NavigationLink(
-            destination: VStack {
-              NavigationView {
-                ZStack(alignment: .bottom) {
-                  factory.workflowList(group: group)
-                  AddButton(text: "Add Workflow", action: {
-                    workflowController.action(.createWorkflow(in: group))()
-                  })
-                }
+          NavigationLink(destination: factory.workflowList(group: group),
+                         tag: group, selection: Binding<ModelKit.Group?>(get: {
+                          userSelection.group
+                         }, set: { group in
+                          userSelection.group = group
+                          if let group = group {
+                            if let workflow = userSelection.workflow,
+                               !group.workflows.contains(workflow) {
+                              userSelection.workflow = group.workflows.first
+                            } else if userSelection.workflow == nil {
+                              userSelection.workflow = group.workflows.first
+                            }
+                          }
+                         })) {
+            GroupListCell(
+              name: Binding(get: { group.name }, set: { name in
+                var group = group
+                group.name = name
+                groupController.perform(.updateGroup(group))
+              }),
+              color: Binding(get: { group.color }, set: { color in
+                var group = group
+                group.color = color
+              }),
+              symbol: group.symbol,
+              count: group.workflows.count,
+              onCommit: { name, color in
+                var group = group
+                group.name = name
+                group.color = color
+                groupController.perform(.updateGroup(group))
               }
-            },
-            tag: group,
-            selection: $userSelection.group,
-            label: {
-              GroupListCell(
-                name: Binding(get: { group.name }, set: { name in
-                  var group = group
-                  group.name = name
-                  groupController.perform(.updateGroup(group))
-                }),
-                color: Binding(get: { group.color }, set: { color in
-                  var group = group
-                  group.color = color
-                }),
-                count: group.workflows.count,
-                onCommit: { name, color in
-                  var group = group
-                  group.name = name
-                  group.color = color
-                  groupController.perform(.updateGroup(group))
-                }
-              )
-              .onTapGesture(count: 2, perform: {
-                editGroup = group
-              })
-              .id(group.id)
+            )
+            .onTapGesture(count: 2, perform: {
+              editGroup = group
             })
-            .navigationViewStyle(DoubleColumnNavigationViewStyle())
-            .contextMenu {
-              Button("Show Info") { editGroup = group }
-              Divider()
-              Button("Delete") { groupController.action(.deleteGroup(group))() }
-            }
-        }.onMove(perform: { indices, newOffset in
+          }.contextMenu {
+            Button("Show Info") { editGroup = group }
+            Divider()
+            Button("Delete") { groupController.action(.deleteGroup(group))() }
+          }
+        }
+        .onMove(perform: { indices, newOffset in
           for i in indices {
             groupController.action(.moveGroup(from: i, to: newOffset))()
           }
         })
       }
-      .introspectTableView(customize: { tableView in
-        tableView.resignFirstResponder()
-        tableView.allowsEmptySelection = false
-      }).sheet(item: $editGroup, content: editGroup)
+      .sheet(item: $editGroup, content: editGroup)
       AddButton(text: "Add Group", action: {
         groupController.perform(.createGroup)
       })
