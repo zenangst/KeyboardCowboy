@@ -36,6 +36,7 @@ public class DesignTimeFactory: ViewFactory {
 
   public func workflowList(group: ModelKit.Group) -> WorkflowList {
     WorkflowList(factory: self, group: ModelFactory().groupList().first!,
+                 searchController: searchController,
                  workflowController: workflowController)
   }
 
@@ -97,7 +98,9 @@ public class AppViewFactory: ViewFactory {
   }
 
   public func workflowList(group: ModelKit.Group) -> WorkflowList {
-    WorkflowList(factory: self, group: group, workflowController: workflowController)
+    WorkflowList(factory: self, group: group,
+                 searchController: searchController,
+                 workflowController: workflowController)
   }
 
   public func workflowDetail(_ workflow: ModelKit.Workflow, group: ModelKit.Group) -> WorkflowView {

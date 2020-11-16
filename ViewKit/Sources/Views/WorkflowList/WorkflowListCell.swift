@@ -3,6 +3,7 @@ import ModelKit
 
 struct WorkflowListCell: View {
   let workflow: Workflow
+  @State var isHovering: Bool = false
 
   var body: some View {
     HStack {
@@ -14,7 +15,7 @@ struct WorkflowListCell: View {
           }.frame(minHeight: 48)
           Spacer()
           icon
-        }.padding(.horizontal, 10)
+        }.padding(.leading, 10)
       }
     }
   }
@@ -35,11 +36,28 @@ private extension WorkflowListCell {
 
   var icon: some View {
     ZStack {
-      ForEach(workflow.commands, id: \.self) { command in
-        if case .application(let applicationCommand) = command {
-          IconView(icon: Icon(identifier: applicationCommand.application.bundleIdentifier,
-                              path: applicationCommand.application.path))
-            .frame(width: 48, height: 48)
+      ForEach(0..<workflow.commands.count, id: \.self) { index in
+        let command = workflow.commands[index]
+        let cgIndex = CGFloat(index)
+        let multiplier = -cgIndex * 5
+        let shadowRadius = max(cgIndex - 1, 0)
+        let scale: CGFloat = isHovering
+          ? workflow.commands.count > 1 ? 0.9 + ( 0.05 * cgIndex) : 1.0
+          : 1.0
+
+        IconView(icon: command.icon).frame(width: 48, height: 48)
+          .scaleEffect(scale, anchor: .center)
+          .offset(x: isHovering ?  multiplier : 0,
+                  y: isHovering ? multiplier : 0)
+          .rotationEffect(.degrees( isHovering ? -Double(index) * 10 : 0 ))
+          .shadow(color: Color(NSColor.black).opacity( isHovering ? 0.025 : 0.005),
+                  radius: isHovering ? shadowRadius : 3,
+                  x: isHovering ? -multiplier : 0,
+                  y: isHovering ? -multiplier : 1)
+          .onHover { value in
+          withAnimation(.easeInOut(duration: 0.15)) {
+            if isHovering != value { isHovering = value }
+          }
         }
       }
     }
@@ -54,6 +72,10 @@ struct WorkflowListCell_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    WorkflowListCell(workflow: ModelFactory().workflowCell())
+    ForEach(ModelFactory().commands()) { command in
+      WorkflowListCell(workflow: ModelFactory().workflowCell(
+        [command], name: command.name
+      ))
+    }
   }
 }

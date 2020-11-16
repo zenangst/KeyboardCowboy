@@ -1,16 +1,24 @@
 import Foundation
 import ModelKit
+import LogicFramework
 import ViewKit
 import SwiftUI
 import Combine
 
 final class SearchFeatureController: ViewController {
   @Published var state = ModelKit.SearchResults.empty()
+  let groupController: GroupsControlling
+  let userSelection: UserSelection
   let searchController: SearchRootController
   var anyCancellables = [AnyCancellable]()
 
-  init(searchController: SearchRootController, query: Binding<String>) {
+  init(searchController: SearchRootController,
+       groupController: GroupsControlling,
+       query: Binding<String>,
+       userSelection: UserSelection) {
+    self.groupController = groupController
     self.searchController = searchController
+    self.userSelection = userSelection
 
     searchController.$state
       .dropFirst()
@@ -26,9 +34,15 @@ final class SearchFeatureController: ViewController {
     case .search(let query):
       searchController.search(for: query)
     case .selectCommand(let command):
-      break
+      if let workflow = groupController.workflow(for: command) {
+        userSelection.group = groupController.group(for: workflow)
+        userSelection.group = groupController.group(for: workflow)
+      }
+      userSelection.searchQuery = ""
     case .selectWorkflow(let workflow):
-      break
+      userSelection.group = groupController.group(for: workflow)
+      userSelection.workflow = workflow
+      userSelection.searchQuery = ""
     }
   }
 }

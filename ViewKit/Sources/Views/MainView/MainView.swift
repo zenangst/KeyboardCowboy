@@ -10,7 +10,6 @@ public struct MainView: View {
   let groupController: GroupController
   let openPanelController: OpenPanelController
   let workflowController: WorkflowController
-  @State private var searchText: String = ""
   @State private var newCommandVisible: Bool = false
 
   public init(factory: ViewFactory,
@@ -29,6 +28,7 @@ public struct MainView: View {
     self.workflowController = workflowController
   }
 
+  @ViewBuilder
   public var body: some View {
     NavigationView {
       sidebar
@@ -36,15 +36,35 @@ public struct MainView: View {
       EmptyView()
     }.toolbar {
       ToolbarItemGroup(placement: .navigation) {
-        Button(action: toggleSidebar, label: {
-          Image(systemName: "sidebar.left")
-        })
+        Button(action: toggleSidebar,
+               label: {
+                Image(systemName: "sidebar.left")
+                  .renderingMode(.template)
+                  .foregroundColor(Color(.systemGray))
+               })
+
+        if let group = userSelection.group {
+          Button(action: { workflowController.perform(.createWorkflow(in: group)) },
+                 label: {
+                  Image(systemName: "rectangle.stack.badge.plus")
+                    .renderingMode(.template)
+                    .foregroundColor(Color(.systemGray))
+                 })
+        }
+
+        HStack(spacing: 0) {
+          Divider()
+        }.padding(.trailing, 8)
       }
 
       ToolbarItemGroup {
         if let workflow = userSelection.workflow {
           Button(action: { newCommandVisible = true },
-                 label: { Image(systemName: "rectangle.stack.badge.plus") })
+                 label: {
+                  Image(systemName: "plus.app")
+                    .renderingMode(.template)
+                    .foregroundColor(Color(.systemGray))
+                 })
             .sheet(isPresented: $newCommandVisible, content: {
               EditCommandView(
                 applicationProvider: applicationProvider,
@@ -68,17 +88,13 @@ public struct MainView: View {
 // MARK: Extensions
 
 private extension MainView {
-  var searchContext: some View {
-    SearchView(searchController: searchController)
-  }
-
   var sidebar: some View {
     VStack(alignment: .leading) {
-      SearchField(query: Binding(
-                    get: { searchText },
-                    set: { newSearchText in
-                      searchText = newSearchText
-                      searchController.action(.search(newSearchText))()
+      SearchField(query: Binding<String>(
+                    get: { userSelection.searchQuery },
+                    set: {
+                      userSelection.searchQuery = $0
+                      searchController.perform(.search($0))
                     }))
         .frame(height: 48)
         .padding(.horizontal, 12)

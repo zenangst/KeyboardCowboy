@@ -11,6 +11,7 @@ public struct CommandListView: View {
     case moveCommand(Command, offset: Int, in: Workflow)
   }
 
+  @Environment(\.colorScheme) var colorScheme
   @ObservedObject var applicationProvider: ApplicationProvider
   var commandController: CommandController
   @ObservedObject var openPanelController: OpenPanelController
@@ -49,10 +50,20 @@ public struct CommandListView: View {
                 .offset(x: 0, y: -2)
             }
             .frame(height: 48, alignment: .center)
-            .background(Color(.windowBackgroundColor))
+            .background(LinearGradient(
+                          gradient: Gradient(
+                            stops:
+                              colorScheme == .dark
+                              ? [.init(color: Color(.gridColor).opacity(0.33), location: 0.33),
+                                 .init(color: Color(.gridColor).opacity(0.75), location: 1.0)]
+                              : [.init(color: Color(.textBackgroundColor).opacity(1), location: 0.0),
+                                 .init(color: Color(.textBackgroundColor).opacity(0.5), location: 1.0)]
+                          ),
+                          startPoint: .top,
+                          endPoint: .bottom))
             .cornerRadius(8)
             .padding(.horizontal)
-            .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+            .shadow(color: Color(.shadowColor).opacity(0.15), radius: 5, x: 0, y: 5)
             .animation(.none)
             .contextMenu {
               Button("Edit") { editCommand = command }

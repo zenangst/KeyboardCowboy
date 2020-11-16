@@ -55,7 +55,9 @@ struct SearchView: View {
             .tag(command)
         }
       }
-    }.padding()
+    }
+    .padding()
+    .frame(minWidth: 450)
   }
 }
 

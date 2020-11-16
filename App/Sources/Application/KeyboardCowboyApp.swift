@@ -11,13 +11,12 @@ struct KeyboardCowboyApp: App {
     WindowGroup {
       VStack {
         content
-      }.frame(minWidth: 640,
-              maxWidth: 1200,
-              minHeight: 540,
-              maxHeight: 1200)
+      }
+      .frame(minWidth: 640, maxWidth: 1200,
+             minHeight: 540, maxHeight: 1200)
       .onChange(of: scenePhase, perform: { _ in
         content = appDelegate.mainView?.environmentObject(appDelegate.userSelection).erase()
       })
-    }
+    }.windowToolbarStyle(UnifiedWindowToolbarStyle())
   }
 }
