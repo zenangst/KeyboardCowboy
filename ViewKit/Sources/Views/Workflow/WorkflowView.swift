@@ -14,42 +14,79 @@ public struct WorkflowView: View {
   @State private var newCommandVisible: Bool = false
 
   public var body: some View {
+    GeometryReader { g in
     ScrollView {
-      name(workflow, in: group)
+      VStack {
+        VStack {
+          name(workflow, in: group)
+        }
         .padding(.horizontal)
         .padding(.top)
+        .background(Color(.textBackgroundColor))
 
-      VStack(alignment: .leading) {
-        if workflow.keyboardShortcuts.isEmpty {
+        Divider()
+
+        VStack(alignment: .leading, spacing: 0) {
+          if workflow.keyboardShortcuts.isEmpty {
+            VStack {
+              AddButton(text: "Add Keyboard Shortcut",
+                        alignment: .center,
+                        action: {
+                          keyboardShortcutController.perform(.createKeyboardShortcut(
+                                                              ModelKit.KeyboardShortcut.empty(),
+                                                              index: workflow.keyboardShortcuts.count,
+                                                              in: workflow))
+                        }).padding(.vertical, 8)
+            }
+          } else {
+            HeaderView(title: "Keyboard shortcuts:")
+              .padding([.leading, .top])
+            keyboardShortcuts(for: workflow)
+              .padding(.top)
+          }
+        }.padding(.horizontal, 8)
+      }
+      .background(Color(.textBackgroundColor))
+
+      VStack(alignment: .leading, spacing: 0) {
+        HeaderView(title: "Commads:")
+          .padding([.leading, .top])
+        if workflow.commands.isEmpty {
           VStack {
-            AddButton(text: "Add Keyboard Shortcut",
+            AddButton(text: "Add Command",
                       alignment: .center,
-                      action: {
-                        keyboardShortcutController.perform(.createKeyboardShortcut(
-                                                            ModelKit.KeyboardShortcut.empty(),
-                                                            index: workflow.keyboardShortcuts.count,
-                                                            in: workflow))
-                      }).padding(.vertical, 8)
+                      action: { newCommandVisible = true }).padding(.vertical, 8)
+              .sheet(isPresented: $newCommandVisible, content: {
+                EditCommandView(
+                  applicationProvider: applicationProvider,
+                  openPanelController: openPanelController,
+                  saveAction: { newCommand in
+                    commandController.action(.createCommand(newCommand, in: workflow))()
+                    newCommandVisible = false
+                  },
+                  cancelAction: {
+                    newCommandVisible = false
+                  },
+                  selection: Command.application(.init(application: Application.empty())),
+                  command: Command.application(.init(application: Application.empty())))
+              })
           }
         } else {
-          HeaderView(title: "Keyboard shortcuts:")
-            .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-          keyboardShortcuts(for: workflow)
+          commands(for: workflow).padding(.top)
         }
       }
-
-      Divider().padding(16)
-
-      VStack(alignment: .leading) {
-        HeaderView(title: "Commands:")
-          .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-        commands(for: workflow)
-      }
+      .frame(alignment: .leading)
+      .padding(.horizontal, 8)
     }
     .background(LinearGradient(
-                  gradient: Gradient(colors: [Color(NSColor.clear), Color(.gridColor).opacity(0.5)]),
+                  gradient: Gradient(
+                    stops: [
+                      .init(color: Color(.windowBackgroundColor).opacity(0.25), location: 0.8),
+                      .init(color: Color(.gridColor).opacity(0.75), location: 1.0),
+                    ]),
                   startPoint: .top,
                   endPoint: .bottom))
+    }
   }
 }
 

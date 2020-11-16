@@ -14,7 +14,10 @@ struct SymbolView: View {
   var body: some View {
     ZStack {
       Circle()
+        .fill(Color.white)
+      Circle()
         .fill(Color(.textBackgroundColor))
+        .padding(padding)
       Image(systemName: symbol)
         .padding(padding)
     }

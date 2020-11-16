@@ -6,21 +6,24 @@ struct EditGroup: View {
   @State private var showColorPopover = false
   @State private var hoverText: String = ""
   @State private var name: String
+  @State private var symbol: String
   @State private var color: String
   @State private var bundleIdentifiers: Set<String>
   @State private var selectedApplicationIndex: Int = 0
   var installedApplications: [Application]
-  private var editAction: (String, String, [String]) -> Void
+  private var editAction: (String, String, String, [String]) -> Void
   private var cancelAction: () -> Void
 
   init(name: String,
        color: String,
+       symbol: String,
        bundleIdentifiers: [String],
        applicationProvider: ApplicationProvider,
-       editAction: @escaping (String, String, [String]) -> Void,
+       editAction: @escaping (String, String, String, [String]) -> Void,
        cancelAction: @escaping () -> Void) {
     _color = State(initialValue: color)
     _name = State(initialValue: name)
+    _symbol = State(initialValue: symbol)
     _bundleIdentifiers = State(initialValue: Set<String>(bundleIdentifiers))
     self.editAction = editAction
     self.cancelAction = cancelAction
@@ -46,8 +49,12 @@ struct EditGroup: View {
 private extension EditGroup {
   @ViewBuilder
   var headerView: some View {
-    HStack(alignment: .top) {
-      icon.padding(.trailing)
+    HStack(alignment: .center) {
+      icon
+        .padding()
+        .onTapGesture(perform: {
+          showColorPopover = true
+        })
       VStack(alignment: .leading) {
         Text("\"\(name)\" info").bold()
         HStack {
@@ -59,19 +66,21 @@ private extension EditGroup {
 
   var icon: some View {
     ZStack {
-      ColorView($color, selectAction: { _ in
-        showColorPopover = true
-      })
-        .frame(width: 36, height: 36)
+      ColorView($color, selectAction: { _ in })
+      Image(systemName: symbol).renderingMode(.template).foregroundColor(.white)
       Text(hoverText)
         .allowsHitTesting(false)
         .foregroundColor(.white)
+        .font(.caption)
+        .offset(x: 0, y: 12)
     }
+    .frame(width: 36, height: 36)
     .onHover(perform: { hovering in
       hoverText = hovering ? "Edit" : ""
     })
     .popover(isPresented: $showColorPopover, content: {
-      EditGroupPopover(selectColor: selectColor(_:))
+      EditGroupPopover(selectColor: selectColor(_:),
+                       selectSymbol: selectSymbol(_:))
         .padding()
     })
   }
@@ -146,7 +155,7 @@ private extension EditGroup {
         Text("Cancel").frame(minWidth: 60)
       }).keyboardShortcut(.cancelAction)
 
-      Button(action: { editAction(name, color, Array(bundleIdentifiers)) }, label: {
+      Button(action: { editAction(name, color, symbol, Array(bundleIdentifiers)) }, label: {
         Text("OK").frame(minWidth: 60)
       }).keyboardShortcut(.defaultAction)
     }
@@ -154,7 +163,10 @@ private extension EditGroup {
 
   func selectColor(_ newColor: String) {
     color = newColor
-    showColorPopover = false
+  }
+
+  func selectSymbol(_ newSymbol: String) {
+    symbol = newSymbol
   }
 }
 
@@ -167,12 +179,13 @@ struct EditGroup_Previews: PreviewProvider, TestPreviewProvider {
     EditGroup(
       name: "Global shortcuts",
       color: "#EB4B63",
+      symbol: "folder",
       bundleIdentifiers: [
         "com.apple.finder",
         "com.apple.music"
       ],
       applicationProvider: ApplicationPreviewProvider().erase(),
-      editAction: { _, _, _ in },
+      editAction: { _, _, _, _ in },
       cancelAction: {}
     ).fixedSize()
   }

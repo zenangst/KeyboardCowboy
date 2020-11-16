@@ -30,16 +30,24 @@ public struct KeyboardShortcutListView: View {
               }
             }))
             HStack(spacing: 4) {
-              Button("+", action: {
+              Button(action: {
                 if let index = keyboardShortcuts.firstIndex(of: keyboardShortcut) {
                   keyboardShortcutController.perform(.createKeyboardShortcut(KeyboardShortcut.empty(),
                                                                              index: index + 1,
                                                                              in: workflow))
                 }
-              })
-              Button("-", action: {
+              }, label: {
+                Image(systemName: "plus.circle.fill")
+                  .renderingMode(.template)
+                  .foregroundColor(Color(.systemGreen))
+              }).buttonStyle(PlainButtonStyle())
+              Button(action: {
                 keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut, in: workflow))
-              })
+              }, label: {
+                Image(systemName: "minus.circle.fill")
+                  .renderingMode(.template)
+                  .foregroundColor(Color(.systemRed))
+              }).buttonStyle(PlainButtonStyle())
             }
           }
           .padding(.horizontal, 8)

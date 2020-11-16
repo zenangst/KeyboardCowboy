@@ -24,6 +24,7 @@ struct EditGroupPopover: View {
   ]
 
   var selectColor: (String) -> Void
+  var selectSymbol: (String) -> Void
 
   var body: some View {
     VStack(spacing: 8) {
@@ -48,7 +49,7 @@ struct EditGroupPopover: View {
                   GridItem(.fixed(48)),
       ]) {
         ForEach(symbols, id: \.self) {
-          SymbolView(.constant($0), selectAction: { _ in })
+          SymbolView(.constant($0), selectAction: selectSymbol)
         }
       }
     }
@@ -61,6 +62,6 @@ struct EditGroupPopover_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    EditGroupPopover(selectColor: { _ in }).fixedSize()
+    EditGroupPopover(selectColor: { _ in }, selectSymbol: { _ in }).fixedSize()
   }
 }

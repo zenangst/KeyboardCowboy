@@ -87,12 +87,14 @@ private extension GroupList {
     EditGroup(
       name: group.name,
       color: group.color,
+      symbol: group.symbol,
       bundleIdentifiers: group.rule?.bundleIdentifiers ?? [],
       applicationProvider: applicationProvider.erase(),
-      editAction: { name, color, bundleIdentifers in
+      editAction: { name, color, symbol, bundleIdentifers in
         var group = group
         group.name = name
         group.color = color
+        group.symbol = symbol
 
         var rule = group.rule ?? Rule()
 

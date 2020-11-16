@@ -112,32 +112,55 @@ class ModelFactory {
   }
 
   /// Used by `WorkflowListCell.swift`
-  func workflowCell() -> Workflow {
-    workflow()
+  func workflowCell(_ commands: [Command]? = nil, name: String? = nil) -> Workflow {
+    workflow(commands, name: name)
   }
 
   /// Used by `WorkflowView.swift`
-  func workflowDetail() -> Workflow {
-    workflow()
+  func workflowDetail(_ commands: [Command]? = nil) -> Workflow {
+    workflow(commands)
   }
 
   func commands() -> [Command] {
     let result = [
-      Command.application(.init(application: Application.messages())),
-      Command.script(ScriptCommand.empty(.appleScript)),
-      Command.script(ScriptCommand.empty(.shell)),
-      Command.keyboard(.init(keyboardShortcut: KeyboardShortcut.empty())),
-      Command.open(.init(application: Application(
-                          bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
-                          bundleName: "",
-                          path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
-                         path: "~/Developer/Xcode.project")),
-
-      Command.open(.init(application: Application.safari(),
-                         path: "https://github.com"))
+      applicationCommand(),
+      appleScriptCommand(),
+      shellScriptCommand(),
+      keyboardCommand(),
+      openCommand(),
+      urlCommand()
     ]
 
     return result
+  }
+
+  func applicationCommand() -> Command {
+    Command.application(.init(application: Application.messages()))
+  }
+
+  func appleScriptCommand() -> Command {
+    Command.script(ScriptCommand.empty(.appleScript))
+  }
+
+  func shellScriptCommand() -> Command {
+    Command.script(ScriptCommand.empty(.shell))
+  }
+
+  func keyboardCommand() -> Command {
+    Command.keyboard(.init(keyboardShortcut: KeyboardShortcut.empty()))
+  }
+
+  func openCommand() -> Command {
+    Command.open(.init(application: Application(
+                        bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
+                        bundleName: "",
+                        path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
+                       path: "~/Developer/Xcode.project"))
+  }
+
+  func urlCommand() -> Command {
+    Command.open(.init(application: Application.safari(),
+                       path: "https://github.com"))
   }
 
   // MARK: Private methods
@@ -201,11 +224,11 @@ class ModelFactory {
     ]
   }
 
-  private func workflow() -> Workflow {
+  private func workflow(_ commands: [Command]? = nil, name: String? = nil) -> Workflow {
     Workflow(
       id: UUID().uuidString,
-      name: "Developer workflow",
+      name: name ?? "Developer Workflow",
       keyboardShortcuts: keyboardShortcuts(),
-      commands: commands())
+      commands: commands ?? self.commands())
   }
 }

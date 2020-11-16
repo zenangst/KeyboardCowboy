@@ -41,7 +41,6 @@ private extension GroupListCell {
       Circle().fill(Color(hex: color))
         .frame(width: 24, height: 24)
       Image(systemName: symbol)
-        .resizable(resizingMode: .stretch)
         .renderingMode(.template)
         .foregroundColor(.white)
         .frame(width: 14, height: 12)

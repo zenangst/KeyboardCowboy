@@ -33,7 +33,7 @@ final class FeatureFactory {
     let commandsController = commandsFeature()
     let groupFeatureController = groupFeature(userSelection: userSelection)
     let keyboardController = keyboardShortcutFeature()
-    let searchController = searchFeature()
+    let searchController = searchFeature(userSelection: userSelection)
     let workflowController = workflowFeature()
 
     workflowController.delegate = groupFeatureController
@@ -83,11 +83,13 @@ final class FeatureFactory {
                               installedApplications: installedApplications)
   }
 
-  func searchFeature() -> SearchFeatureController {
+  func searchFeature(userSelection: UserSelection) -> SearchFeatureController {
     let root = SearchRootController(groupsController: groupsController,
                                     groupSearch: SearchGroupsController())
     let feature = SearchFeatureController(searchController: root,
-                                          query: .constant(""))
+                                          groupController: groupsController,
+                                          query: .constant(""),
+                                          userSelection: userSelection)
     return feature
   }
 }

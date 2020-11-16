@@ -9,7 +9,7 @@ import Foundation
 ///          eligable for execution.
 public struct Group: Identifiable, Codable, Hashable {
   public let id: String
-  public let symbol: String
+  public var symbol: String
   public var name: String
   public var color: String
   public var rule: Rule?
