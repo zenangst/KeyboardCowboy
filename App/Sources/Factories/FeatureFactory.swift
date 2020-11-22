@@ -30,7 +30,7 @@ final class FeatureFactory {
                                                           searchFeature: SearchFeatureController,
                                                           workflowFeature: WorkflowFeatureController) {
     let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications)
-    let commandsController = commandsFeature()
+    let commandsController = commandsFeature(commandController: coreController.commandController)
     let groupFeatureController = groupFeature(userSelection: userSelection)
     let keyboardController = keyboardShortcutFeature()
     let searchController = searchFeature(userSelection: userSelection)
@@ -78,9 +78,11 @@ final class FeatureFactory {
     KeyboardShortcutsFeatureController(groupsController: groupsController)
   }
 
-  func commandsFeature() -> CommandsFeatureController {
-    CommandsFeatureController(groupsController: groupsController,
-                              installedApplications: installedApplications)
+  func commandsFeature(commandController: CommandControlling) -> CommandsFeatureController {
+    CommandsFeatureController(
+      commandController: commandController,
+      groupsController: groupsController,
+      installedApplications: installedApplications)
   }
 
   func searchFeature(userSelection: UserSelection) -> SearchFeatureController {
