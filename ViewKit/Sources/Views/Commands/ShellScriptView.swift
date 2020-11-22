@@ -47,6 +47,6 @@ struct ShellScriptView_Previews: PreviewProvider, TestPreviewProvider {
       editAction: { _ in },
       revealAction: { _ in },
       runAction: { _ in },
-      showContextualMenu: false)
+      showContextualMenu: true)
   }
 }

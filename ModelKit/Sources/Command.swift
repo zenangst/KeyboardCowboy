@@ -16,6 +16,15 @@ public enum Command: Identifiable, Codable, Hashable {
     case script = "scriptCommand"
   }
 
+  public var isKeyboardBinding: Bool {
+    switch self {
+    case .keyboard:
+      return true
+    default:
+      return false
+    }
+  }
+
   public var name: String {
     switch self {
     case .application(let command):
