@@ -14,7 +14,6 @@ public struct WorkflowView: View {
   @State private var newCommandVisible: Bool = false
 
   public var body: some View {
-    GeometryReader { g in
     ScrollView {
       VStack {
         VStack {
@@ -23,9 +22,7 @@ public struct WorkflowView: View {
         .padding(.horizontal)
         .padding(.top)
         .background(Color(.textBackgroundColor))
-
         Divider()
-
         VStack(alignment: .leading, spacing: 0) {
           if workflow.keyboardShortcuts.isEmpty {
             VStack {
@@ -86,7 +83,6 @@ public struct WorkflowView: View {
                     ]),
                   startPoint: .top,
                   endPoint: .bottom))
-    }
   }
 }
 

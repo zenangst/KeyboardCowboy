@@ -55,10 +55,10 @@ private extension WorkflowListCell {
                   x: isHovering ? -multiplier : 0,
                   y: isHovering ? -multiplier : 1)
           .onHover { value in
-          withAnimation(.easeInOut(duration: 0.15)) {
-            if isHovering != value { isHovering = value }
+            withAnimation(.easeInOut(duration: 0.15)) {
+              if isHovering != value { isHovering = value }
+            }
           }
-        }
       }
     }
   }
