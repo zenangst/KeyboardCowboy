@@ -18,12 +18,15 @@ final class CommandsFeatureController: ActionController {
   weak var delegate: CommandsFeatureControllerDelegate?
   let groupsController: GroupsControlling
   let installedApplications: [Application]
+  private let workspace: WorkspaceProviding
   private let queue = DispatchQueue(label: "\(bundleIdentifier).CommandsFeatureController", qos: .userInteractive)
 
   init(groupsController: GroupsControlling,
-       installedApplications: [Application]) {
+       installedApplications: [Application],
+       workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.groupsController = groupsController
     self.installedApplications = installedApplications
+    self.workspace = workspace
   }
 
   func perform(_ action: CommandListView.Action) {
@@ -40,13 +43,33 @@ final class CommandsFeatureController: ActionController {
         self.moveCommand(command, to: offset, in: workflow)
       case .runCommand:
         Swift.print("run command!")
-      case .revealCommand:
-        Swift.print("reveal command")
+      case .revealCommand(let command, _):
+        self.reveal(command)
       }
     }
   }
 
   // MARK: Private methods
+
+  private func reveal(_ command: Command) {
+    switch command {
+    case .application(let applicationCommand):
+      self.workspace.reveal(applicationCommand.application.path)
+    case .open(let command):
+      self.workspace.reveal(command.path)
+    case .script(let command):
+      switch command {
+      case .appleScript(.path(let path), _):
+        self.workspace.reveal(path)
+      case .shell(.path(let path), _):
+        self.workspace.reveal(path)
+      case .appleScript(.inline, _), .shell(.inline, _):
+        break
+      }
+    case .keyboard:
+      break
+    }
+  }
 
   private func createCommand(_ command: Command, in workflow: Workflow) {
     var workflow = workflow

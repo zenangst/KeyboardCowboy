@@ -22,20 +22,27 @@ struct AppleScriptView: View {
         Text(command.name).lineLimit(1)
         if showContextualMenu {
           HStack(spacing: 4) {
-            Button("Edit", action: { editAction(command) })
-              .foregroundColor(Color(.controlAccentColor))
+            Button(action: { editAction(command) }, label: {
+              Text("Edit")
+            }).foregroundColor(Color(.controlAccentColor))
+
             Text("|").foregroundColor(Color(.secondaryLabelColor))
-            Button("Reveal", action: { revealAction(command) })
-              .foregroundColor(Color(.controlAccentColor))
+
+            Button(action: { revealAction(command)}, label: {
+              Text("Reveal")
+            }).foregroundColor(Color(.controlAccentColor))
+
             Text("|").foregroundColor(Color(.secondaryLabelColor))
-            Button("Run Apple script", action: { runAction(command) })
-              .foregroundColor(Color(.controlAccentColor))
+
+            Button(action: { runAction(command) }, label: {
+              Text("Run")
+            }).foregroundColor(Color(.controlAccentColor))
           }
           .buttonStyle(LinkButtonStyle())
           .font(Font.caption)
         }
       }
-    }
+    }.frame(maxHeight: 32)
   }
 }
 
@@ -49,6 +56,6 @@ struct AppleScriptView_Previews: PreviewProvider, TestPreviewProvider {
                     editAction: { _ in },
                     revealAction: { _ in },
                     runAction: { _ in },
-                    showContextualMenu: false)
+                    showContextualMenu: true)
   }
 }

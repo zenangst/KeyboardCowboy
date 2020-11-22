@@ -17,6 +17,8 @@ public protocol WorkspaceProviding {
   func open(_ urls: [URL], withApplicationAt applicationURL: URL,
             config: NSWorkspace.OpenConfiguration,
             completionHandler: ((RunningApplication?, Error?) -> Void)?)
+
+  func reveal(_ path: String)
 }
 
 extension NSWorkspace: WorkspaceProviding {
@@ -43,5 +45,9 @@ extension NSWorkspace: WorkspaceProviding {
     open(urls, withApplicationAt: applicationUrl, configuration: config) { (runningApplication, error) in
       completionHandler?(runningApplication, error)
     }
+  }
+
+  public func reveal(_ path: String) {
+    selectFile(path, inFileViewerRootedAtPath: "")
   }
 }

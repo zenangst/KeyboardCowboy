@@ -18,17 +18,21 @@ struct OpenCommandView: View {
         Text(command.name).lineLimit(1)
         if showContextualMenu {
           HStack(spacing: 4) {
-            Button("Edit", action: { editAction(command) })
-              .foregroundColor(Color(.controlAccentColor))
+            Button(action: { editAction(command)}, label: {
+              Text("Edit")
+            }).foregroundColor(Color(.controlAccentColor))
+
             Text("|").foregroundColor(Color(.secondaryLabelColor))
-            Button("Reveal", action: { revealAction(command) })
-              .foregroundColor(Color(.controlAccentColor))
+
+            Button(action: { revealAction(command)}, label: {
+              Text("Reveal")
+            }).foregroundColor(Color(.controlAccentColor))
           }
           .buttonStyle(LinkButtonStyle())
           .font(Font.caption)
         }
       }
-    }
+    }.frame(maxHeight: 32)
   }
 }
 

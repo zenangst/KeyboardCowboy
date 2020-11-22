@@ -16,8 +16,9 @@ struct KeyboardCommandView: View {
         Text(command.name)
         if showContextualMenu {
           HStack(spacing: 4) {
-            Button("Edit", action: { editAction(command) })
-              .foregroundColor(Color(.controlAccentColor))
+            Button(action: { editAction(command) }, label: {
+              Text("Edit")
+            }).foregroundColor(Color(.controlAccentColor))
           }.buttonStyle(LinkButtonStyle())
           .font(Font.caption)
         }

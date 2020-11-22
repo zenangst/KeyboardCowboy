@@ -14,18 +14,25 @@ struct ApplicationView: View {
         IconView(icon: Icon(identifier: model.application.bundleIdentifier, path: model.application.path))
           .frame(width: 32, height: 32)
       }
-      VStack(alignment: .leading, spacing: 0) {
+      VStack(alignment: .leading, spacing: 2) {
         Text(command.name)
         if showContextualMenu {
           HStack(spacing: 4) {
-            Button("Edit", action: { editAction(command) })
-              .foregroundColor(Color(.controlAccentColor))
+            Button(action: { editAction(command) }, label: {
+              Text("Edit")
+            }).foregroundColor(Color(.controlAccentColor))
+
             Text("|").foregroundColor(Color(.secondaryLabelColor))
-            Button("Reveal", action: { revealAction(command)})
-              .foregroundColor(Color(.controlAccentColor))
+
+            Button(action: { revealAction(command)}, label: {
+              Text("Reveal")
+            }).foregroundColor(Color(.controlAccentColor))
+
             Text("|").foregroundColor(Color(.secondaryLabelColor))
-            Button("Run command", action: { runAction(command) })
-              .foregroundColor(Color(.controlAccentColor))
+
+            Button(action: { runAction(command) }, label: {
+              Text("Run")
+            }).foregroundColor(Color(.controlAccentColor))
           }
           .buttonStyle(LinkButtonStyle())
           .font(Font.caption)
@@ -33,9 +40,6 @@ struct ApplicationView: View {
       }
       Spacer()
     }
-    .alignmentGuide(.leading, computeValue: { dimension in
-      dimension[.leading]
-    })
   }
 }
 
@@ -51,6 +55,6 @@ struct ApplicationView_Previews: PreviewProvider, TestPreviewProvider {
       revealAction: { _ in },
       runAction: { _ in },
       showContextualMenu: true)
-      .frame(maxWidth: 450)
+      .frame(maxWidth: 450, maxHeight: 32)
   }
 }
