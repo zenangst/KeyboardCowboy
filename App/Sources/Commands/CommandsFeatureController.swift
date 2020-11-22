@@ -19,11 +19,14 @@ final class CommandsFeatureController: ActionController {
   let groupsController: GroupsControlling
   let installedApplications: [Application]
   private let workspace: WorkspaceProviding
+  private let commandController: CommandControlling
   private let queue = DispatchQueue(label: "\(bundleIdentifier).CommandsFeatureController", qos: .userInteractive)
 
-  init(groupsController: GroupsControlling,
+  init(commandController: CommandControlling,
+       groupsController: GroupsControlling,
        installedApplications: [Application],
        workspace: WorkspaceProviding = NSWorkspace.shared) {
+    self.commandController = commandController
     self.groupsController = groupsController
     self.installedApplications = installedApplications
     self.workspace = workspace
@@ -41,8 +44,8 @@ final class CommandsFeatureController: ActionController {
         self.deleteCommand(command, in: workflow)
       case .moveCommand(let command, let offset, let workflow):
         self.moveCommand(command, to: offset, in: workflow)
-      case .runCommand:
-        Swift.print("run command!")
+      case .runCommand(let command):
+        self.run(command)
       case .revealCommand(let command, _):
         self.reveal(command)
       }
@@ -69,6 +72,10 @@ final class CommandsFeatureController: ActionController {
     case .keyboard:
       break
     }
+  }
+
+  private func run(_ command: Command) {
+    commandController.run([command])
   }
 
   private func createCommand(_ command: Command, in workflow: Workflow) {

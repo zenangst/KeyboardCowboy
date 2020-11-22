@@ -2,6 +2,7 @@ import Cocoa
 import ModelKit
 
 public protocol CoreControlling: AnyObject {
+  var commandController: CommandControlling { get }
   var groupsController: GroupsControlling { get }
   var disableKeyboardShortcuts: Bool { get set }
   var groups: [Group] { get }
@@ -15,7 +16,7 @@ public protocol CoreControlling: AnyObject {
 public final class CoreController: NSObject, CoreControlling,
                                    CommandControllingDelegate,
                                    GroupsControllingDelegate {
-  let commandController: CommandControlling
+  public let commandController: CommandControlling
   public let groupsController: GroupsControlling
   let keycodeMapper: KeyCodeMapping
   var hotKeyController: HotKeyControlling?
