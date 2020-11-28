@@ -7,7 +7,7 @@ public struct GroupList: View {
     case updateGroup(ModelKit.Group)
     case deleteGroup(ModelKit.Group)
     case moveGroup(from: Int, to: Int)
-    case dropFile(URL)
+    case dropFile([URL])
   }
 
   static let idealWidth: CGFloat = 300
@@ -19,6 +19,7 @@ public struct GroupList: View {
   let workflowController: WorkflowController
   @State private var editGroup: ModelKit.Group?
   @State private var selection: ModelKit.Group?
+  @State var isDropping: Bool = false
 
   public var body: some View {
     VStack(alignment: .leading) {
@@ -72,6 +73,8 @@ public struct GroupList: View {
           }
         })
       }
+      .onDrop($isDropping) { groupController.perform(.dropFile($0)) }
+      .border(Color.accentColor, width: isDropping ? 5 : 0)
       .sheet(item: $editGroup, content: editGroup)
       AddButton(text: "Add Group", action: {
         groupController.perform(.createGroup)

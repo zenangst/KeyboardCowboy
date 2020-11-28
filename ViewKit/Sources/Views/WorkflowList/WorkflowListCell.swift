@@ -4,20 +4,22 @@ import ModelKit
 struct WorkflowListCell: View {
   let workflow: Workflow
   @State var isHovering: Bool = false
+  @EnvironmentObject var userSelection: UserSelection
 
   var body: some View {
-    HStack {
-      ZStack(alignment: .bottom) {
-        HStack {
-          VStack(alignment: .leading) {
-            name
-            numberOfCommands
-          }.frame(minHeight: 48)
-          Spacer()
-          icon
-        }.padding(.leading, 10)
+    ZStack(alignment: .bottom) {
+      HStack {
+        VStack(alignment: .leading) {
+          name
+          numberOfCommands
+        }
+        Spacer()
+        icon
+      }.padding(.leading, 10)
+      VStack {
+        Divider().opacity( userSelection.workflow == workflow ? 0 : 0.33)
       }
-    }
+    }.frame(height: 48)
   }
 }
 
@@ -75,7 +77,7 @@ struct WorkflowListCell_Previews: PreviewProvider, TestPreviewProvider {
     ForEach(ModelFactory().commands()) { command in
       WorkflowListCell(workflow: ModelFactory().workflowCell(
         [command], name: command.name
-      ))
+      )).environmentObject(UserSelection())
     }
   }
 }

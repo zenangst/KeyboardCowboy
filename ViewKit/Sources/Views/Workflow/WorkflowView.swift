@@ -12,6 +12,7 @@ public struct WorkflowView: View {
   let openPanelController: OpenPanelController
   let workflowController: WorkflowController
   @State private var newCommandVisible: Bool = false
+  @State var isDropping: Bool = false
 
   public var body: some View {
     ScrollView {
@@ -19,8 +20,7 @@ public struct WorkflowView: View {
         VStack {
           name(workflow, in: group)
         }
-        .padding(.horizontal)
-        .padding(.top)
+        .padding([.horizontal, .top])
         .background(Color(.textBackgroundColor))
         Divider()
         VStack(alignment: .leading, spacing: 0) {
@@ -72,6 +72,14 @@ public struct WorkflowView: View {
           commands(for: workflow).padding(.top)
         }
       }
+      .onDrop($isDropping) {
+        workflowController.perform(.drop($0, workflow, in: group))
+      }
+      .overlay(
+          RoundedRectangle(cornerRadius: 8)
+            .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
+            .padding(4)
+      )
       .frame(alignment: .leading)
       .padding(.horizontal, 8)
     }

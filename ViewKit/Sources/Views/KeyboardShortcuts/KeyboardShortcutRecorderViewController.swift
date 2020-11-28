@@ -17,7 +17,7 @@ class KeyboardShortcutRecorderViewController: NSObject, ObservableObject, NSSear
   }
 
   func didBecomeFirstResponder() {
-    let eventsOfInterest: NSEvent.EventTypeMask = [.keyUp, .flagsChanged]
+    let eventsOfInterest: NSEvent.EventTypeMask = [.keyUp]
     eventMonitor = NSEvent.addLocalMonitorForEvents(matching: eventsOfInterest, handler: { [weak self] e -> NSEvent? in
       guard let self = self else { return e }
       let modifiers = ModifierKey.fromNSEvent(e.modifierFlags)

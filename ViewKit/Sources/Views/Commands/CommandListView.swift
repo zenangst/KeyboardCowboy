@@ -62,6 +62,11 @@ public struct CommandListView: View {
                           startPoint: .top,
                           endPoint: .bottom))
             .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                  .stroke(Color(.windowFrameTextColor), lineWidth: 1)
+                  .opacity(0.05)
+            )
             .padding(.horizontal)
             .shadow(color: Color(.shadowColor).opacity(0.05), radius: 10, x: 0, y: 12.5)
             .animation(.none)

@@ -20,19 +20,25 @@ struct ApplicationView: View {
           HStack(spacing: 4) {
             Button(action: { editAction(command) }, label: {
               Text("Edit")
-            }).foregroundColor(Color(.controlAccentColor))
+            })
+            .foregroundColor(Color(.controlAccentColor))
+            .pointerHandOnHover()
 
             Text("|").foregroundColor(Color(.secondaryLabelColor))
 
             Button(action: { revealAction(command)}, label: {
               Text("Reveal")
-            }).foregroundColor(Color(.controlAccentColor))
+            })
+            .foregroundColor(Color(.controlAccentColor))
+            .pointerHandOnHover()
 
             Text("|").foregroundColor(Color(.secondaryLabelColor))
 
             Button(action: { runAction(command) }, label: {
               Text("Run")
-            }).foregroundColor(Color(.controlAccentColor))
+            })
+            .foregroundColor(Color(.controlAccentColor))
+            .pointerHandOnHover()
           }
           .buttonStyle(LinkButtonStyle())
           .font(Font.caption)

@@ -24,12 +24,16 @@ final class WorkflowFeatureController: ViewController,
                                  KeyboardShortcutsFeatureControllerDelegate {
   weak var delegate: WorkflowFeatureControllerDelegate?
   @Published var state: Workflow?
+  var applications = [Application]()
   let groupsController: GroupsControlling
   private var cancellables = [AnyCancellable]()
   private let queue = DispatchQueue(label: "\(bundleIdentifier).WorkflowFeatureController", qos: .userInteractive)
 
-  public init(state: Workflow, groupsController: GroupsControlling) {
+  public init(state: Workflow,
+              applications: [Application],
+              groupsController: GroupsControlling) {
     self._state = Published(initialValue: state)
+    self.applications = applications
     self.groupsController = groupsController
   }
 
@@ -47,26 +51,28 @@ final class WorkflowFeatureController: ViewController,
         self.deleteWorkflow(workflow, in: group)
       case .moveWorkflow(let workflow, let to, let group):
         self.moveWorkflow(workflow, to: to, in: group)
+      case .drop(let urls, let workflow, let group):
+        self.drop(urls, workflow: workflow, in: group)
       }
     }
   }
 
   // MARK: Private methods
 
-  func createWorkflow(in group: ModelKit.Group) {
+  private func createWorkflow(in group: ModelKit.Group) {
     var group = group
     let workflow = Workflow.empty()
     group.workflows.add(workflow)
     delegate?.workflowFeatureController(self, didCreateWorkflow: workflow, in: group)
   }
 
-  func updateWorkflow(_ workflow: Workflow, in group: ModelKit.Group) {
+  private func updateWorkflow(_ workflow: Workflow, in group: ModelKit.Group) {
     var group = group
     try? group.workflows.replace(workflow)
     delegate?.workflowFeatureController(self, didUpdateWorkflow: workflow, in: group)
   }
 
-  func deleteWorkflow(_ workflow: Workflow, in group: ModelKit.Group) {
+  private func deleteWorkflow(_ workflow: Workflow, in group: ModelKit.Group) {
     var group = group
     try? group.workflows.remove(workflow)
     delegate?.workflowFeatureController(self, didDeleteWorkflow: workflow, in: group)
@@ -76,6 +82,49 @@ final class WorkflowFeatureController: ViewController,
     var group = group
     try? group.workflows.move(workflow, to: index)
     delegate?.workflowFeatureController(self, didMoveWorkflow: workflow, in: group)
+  }
+
+  private func drop(_ urls: [URL], workflow: Workflow?, in group: Group) {
+    var group = group
+    let commands = generateCommands(urls)
+
+    if var existingWorkflow = workflow {
+      existingWorkflow.commands.append(contentsOf: commands)
+      try? group.workflows.replace(existingWorkflow)
+      delegate?.workflowFeatureController(self, didUpdateWorkflow: existingWorkflow, in: group)
+    } else {
+      var newWorkflow: Workflow = Workflow.empty()
+      newWorkflow.commands = commands
+      group.workflows.append(newWorkflow)
+      delegate?.workflowFeatureController(self, didCreateWorkflow: newWorkflow, in: group)
+    }
+  }
+
+  private func generateCommands(_ urls: [URL]) -> [Command] {
+    var commands = [Command]()
+    for url in urls {
+      switch url.dropType {
+      case .application:
+        guard let application = applications.first(where: { $0.path == url.path })
+        else { continue }
+        let applicationCommand = ApplicationCommand(
+          name: "Open \(application.bundleName)",
+          application: application)
+        commands.append(Command.application(applicationCommand))
+      case .file:
+        let name = "Open \(url.lastPathComponent)"
+        commands.append(Command.open(.init(name: name, path: url.path)))
+      case .web:
+        var name = "Open URL"
+        if let host = url.host {
+          name = "Open \(host)/\(url.lastPathComponent)"
+        }
+        commands.append(Command.open(.init(name: name, path: url.absoluteString)))
+      case .unsupported:
+        continue
+      }
+    }
+    return commands
   }
 
   // MARK: KeyboardShortcutsFeatureControllerDelegate
@@ -120,5 +169,26 @@ final class WorkflowFeatureController: ViewController,
                                  in workflow: Workflow) {
     guard let group = groupsController.group(for: workflow) else { return }
     updateWorkflow(workflow, in: group)
+  }
+}
+
+private enum DropType {
+  case application
+  case file
+  case web
+  case unsupported
+}
+
+private extension URL {
+  var dropType: DropType {
+    if isFileURL {
+      if lastPathComponent.contains(".app") {
+        return .application
+      } else {
+        return .file
+      }
+    } else {
+      return .web
+    }
   }
 }
