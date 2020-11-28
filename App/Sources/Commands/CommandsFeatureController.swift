@@ -58,8 +58,13 @@ final class CommandsFeatureController: ActionController {
     switch command {
     case .application(let applicationCommand):
       self.workspace.reveal(applicationCommand.application.path)
-    case .open(let command):
-      self.workspace.reveal(command.path)
+    case .open(let openCommand):
+
+      if openCommand.isUrl {
+        self.commandController.run([command])
+      } else {
+        self.workspace.reveal(openCommand.path)
+      }
     case .script(let command):
       switch command {
       case .appleScript(.path(let path), _):
