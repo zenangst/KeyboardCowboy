@@ -12,11 +12,19 @@ struct KeyboardCowboyApp: App {
       VStack {
         content
       }
-      .frame(minWidth: 640, maxWidth: 1200,
-             minHeight: 540, maxHeight: 1200)
+      .frame(minWidth: 960, minHeight: 720)
       .onChange(of: scenePhase, perform: { _ in
         content = appDelegate.mainView?.environmentObject(appDelegate.userSelection).erase()
       })
-    }.windowToolbarStyle(UnifiedWindowToolbarStyle())
+    }
+    .windowToolbarStyle(UnifiedWindowToolbarStyle())
+    .commands {
+      CommandGroup(after: CommandGroupPlacement.toolbar, addition: {
+        Button("Toggle Sidebar") {
+          NSApp.keyWindow?.firstResponder?.tryToPerform(
+            #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
+        }.keyboardShortcut("S")
+      })
+    }
   }
 }

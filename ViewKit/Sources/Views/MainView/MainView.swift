@@ -52,7 +52,9 @@ public struct MainView: View {
                  })
         }
 
-        HStack(spacing: 0) {
+        HStack(spacing: 2) {
+          Divider()
+          Divider()
           Divider()
         }.padding(.trailing, 8)
       }

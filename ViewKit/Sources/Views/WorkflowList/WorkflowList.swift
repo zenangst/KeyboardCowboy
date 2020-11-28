@@ -31,7 +31,7 @@ public struct WorkflowList: View {
           }.contextMenu {
             Button("Delete") {
               workflowController.perform(.deleteWorkflow(workflow, in: group))
-            }
+            }.keyboardShortcut(.delete, modifiers: [])
           }
         }.onMove(perform: { indices, newOffset in
           for i in indices {
