@@ -71,6 +71,7 @@ final class FeatureFactory {
       state: Workflow(
         id: "", name: "",
         keyboardShortcuts: [], commands: []),
+      applications: installedApplications,
       groupsController: groupsController)
   }
 

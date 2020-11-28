@@ -24,8 +24,8 @@ public extension Array where Element: Identifiable {
   ///   - element: The `Identifiable` element subject that should be
   ///              added to the collection
   ///   - index: The desired index where the element should be inserted.
-  mutating func add(_ element: Element, at index: Int = 0) {
-    if index < count {
+  mutating func add(_ element: Element, at index: Int? = nil) {
+    if let index = index, index < count {
       self.insert(element, at: Swift.max(index, 0))
     } else {
       self.append(element)

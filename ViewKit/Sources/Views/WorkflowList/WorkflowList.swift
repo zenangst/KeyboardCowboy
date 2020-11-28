@@ -8,26 +8,26 @@ public struct WorkflowList: View {
     case updateWorkflow(Workflow, in: ModelKit.Group)
     case deleteWorkflow(Workflow, in: ModelKit.Group)
     case moveWorkflow(Workflow, to: Int, in: ModelKit.Group)
+    case drop([URL], Workflow?, in: ModelKit.Group)
   }
-  
+
   static let idealWidth: CGFloat = 300
   @EnvironmentObject var userSelection: UserSelection
   let factory: ViewFactory
   let group: ModelKit.Group
   let searchController: SearchController
   let workflowController: WorkflowController
-  @State private var selection: Workflow?
-  
+  @State var isDropping: Bool = false
+
   public var body: some View {
     if !userSelection.searchQuery.isEmpty {
       SearchView(searchController: searchController)
     } else {
       List {
         ForEach(group.workflows, id: \.id) { workflow in
-          
           NavigationLink(destination: factory.workflowDetail(workflow, group: group),
                          tag: workflow, selection: $userSelection.workflow) {
-            WorkflowListCell(workflow: workflow).frame(height: 40)
+            WorkflowListCell(workflow: workflow)
           }.contextMenu {
             Button("Delete") {
               workflowController.perform(.deleteWorkflow(workflow, in: group))
@@ -45,6 +45,15 @@ public struct WorkflowList: View {
           }
         })
       }
+      .listRowInsets(.none)
+      .onDrop($isDropping) {
+        workflowController.perform(.drop($0, nil, in: group))
+      }
+      .overlay(
+          RoundedRectangle(cornerRadius: 8)
+            .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
+            .padding(4)
+      )
       .frame(minWidth: 275)
       .id(group.id)
       .introspectTableView(customize: {
@@ -63,7 +72,7 @@ struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
     testPreview.previewAllColorSchemes()
   }
-  
+
   static var testPreview: some View {
     DesignTimeFactory().workflowList(group: ModelFactory().groupList().first!)
       .environmentObject(UserSelection())

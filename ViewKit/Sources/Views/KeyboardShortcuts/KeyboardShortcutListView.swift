@@ -9,6 +9,7 @@ public struct KeyboardShortcutListView: View {
     case moveCommand(ModelKit.KeyboardShortcut, to: Int, in: Workflow)
   }
 
+  @Environment(\.colorScheme) var colorScheme
   let keyboardShortcutController: KeyboardShortcutController
   let keyboardShortcuts: [ModelKit.KeyboardShortcut]
   let workflow: Workflow
@@ -21,7 +22,7 @@ public struct KeyboardShortcutListView: View {
           keyboardShortcutController.perform(.moveCommand(keyboardShortcut, to: indexOffset, in: workflow))
         }, {
           HStack {
-            Text("\(index + 1)").padding(.horizontal, 4)
+            Text("\(index + 1).").padding(.horizontal, 4)
             KeyboardShortcutView(keyboardShortcut: Binding<ModelKit.KeyboardShortcut?>(get: {
               keyboardShortcut
             }, set: { keyboardShortcut in
@@ -50,10 +51,16 @@ public struct KeyboardShortcutListView: View {
               }).buttonStyle(PlainButtonStyle())
             }
           }
-          .padding(.horizontal, 8)
+          .padding(.horizontal)
           .frame(height: 48, alignment: .center)
           .background(Color(.windowBackgroundColor))
           .cornerRadius(8)
+          .overlay(
+              RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(.windowFrameTextColor),
+                        lineWidth: colorScheme == .dark ? 1 : 0)
+                .opacity(0.05)
+          )
           .padding(.horizontal)
           .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
           .animation(.none)
