@@ -95,7 +95,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
     let context = featureFactory.applicationStack(userSelection: userSelection)
 
     userSelection.group = context.groupsFeature.state.first
-    userSelection.workflow = context.groupsFeature.state.first?.workflows.first
+    userSelection.workflow = userSelection.group?.workflows.first
 
     let mainView = context.factory.mainView()
     self.groupFeatureController = context.groupsFeature

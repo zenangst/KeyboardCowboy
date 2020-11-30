@@ -12,7 +12,7 @@ struct KeyboardCowboyApp: App {
       VStack {
         content
       }
-      .frame(minWidth: 960, minHeight: 720)
+      .frame(minWidth: 800, minHeight: 520)
       .onChange(of: scenePhase, perform: { _ in
         content = appDelegate.mainView?.environmentObject(appDelegate.userSelection).erase()
       })
