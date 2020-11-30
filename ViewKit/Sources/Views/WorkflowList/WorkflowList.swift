@@ -18,6 +18,7 @@ public struct WorkflowList: View {
   let searchController: SearchController
   let workflowController: WorkflowController
   @State var isDropping: Bool = false
+  @State var selection: Workflow?
 
   public var body: some View {
     if !userSelection.searchQuery.isEmpty {
@@ -26,8 +27,14 @@ public struct WorkflowList: View {
       List {
         ForEach(group.workflows, id: \.id) { workflow in
           NavigationLink(destination: factory.workflowDetail(workflow, group: group),
-                         tag: workflow, selection: $userSelection.workflow) {
+                         tag: workflow, selection: Binding<Workflow?>(
+                          get: { selection },
+                          set: {
+                            userSelection.workflow = $0
+                            selection = $0
+                          })) {
             WorkflowListCell(workflow: workflow)
+              .frame(height: 48)
           }.contextMenu {
             Button("Delete") {
               workflowController.perform(.deleteWorkflow(workflow, in: group))
@@ -54,11 +61,16 @@ public struct WorkflowList: View {
             .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
             .padding(4)
       )
-      .frame(minWidth: 275)
       .id(group.id)
       .introspectTableView(customize: {
         $0.allowsEmptySelection = false
       })
+      .onAppear {
+        if selection == nil {
+          selection = userSelection.workflow
+        }
+      }
+      .frame(minWidth: 250)
       .navigationTitle("\(group.name)")
       .navigationSubtitle("Workflows: \(group.workflows.count)")
       .environment(\.defaultMinListRowHeight, 1)

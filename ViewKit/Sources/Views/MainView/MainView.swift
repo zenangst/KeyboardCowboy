@@ -31,7 +31,7 @@ public struct MainView: View {
   @ViewBuilder
   public var body: some View {
     NavigationView {
-      sidebar
+      sidebar.frame(minWidth: 225)
       EmptyView()
       EmptyView()
     }.toolbar {
@@ -102,9 +102,7 @@ private extension MainView {
         .padding(.horizontal, 12)
       factory.groupList()
         .listStyle(SidebarListStyle())
-        .frame(minWidth: 225)
-        .navigationViewStyle(DoubleColumnNavigationViewStyle())
-    }
+    }.navigationViewStyle(DoubleColumnNavigationViewStyle())
   }
 
   func toggleSidebar() {

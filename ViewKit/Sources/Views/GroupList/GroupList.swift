@@ -25,43 +25,31 @@ public struct GroupList: View {
     VStack(alignment: .leading) {
       List {
         ForEach(groupController.state, id: \.id) { group in
-          NavigationLink(destination: factory.workflowList(group: group),
-                         tag: group, selection: Binding<ModelKit.Group?>(get: {
-                          userSelection.group
-                         }, set: { group in
-                          userSelection.group = group
-                          if let group = group {
-                            if let workflow = userSelection.workflow,
-                               !group.workflows.contains(workflow) {
-                              userSelection.workflow = group.workflows.first
-                            } else if userSelection.workflow == nil {
-                              userSelection.workflow = group.workflows.first
-                            }
-                          }
-                         })) {
+          NavigationLink(
+            destination: factory.workflowList(group: group),
+            tag: group, selection: Binding<ModelKit.Group?>(get: {
+              userSelection.group
+            }, set: { group in
+              userSelection.group = group
+              if let group = group {
+                if let workflow = userSelection.workflow,
+                   !group.workflows.contains(workflow) {
+                  userSelection.workflow = group.workflows.first
+                } else if userSelection.workflow == nil {
+                  userSelection.workflow = group.workflows.first
+                }
+              }
+            })) {
             GroupListCell(
-              name: Binding(get: { group.name }, set: { name in
-                var group = group
-                group.name = name
-                groupController.perform(.updateGroup(group))
-              }),
-              color: Binding(get: { group.color }, set: { color in
-                var group = group
-                group.color = color
-              }),
+              name: group.name,
+              color: group.color,
               symbol: group.symbol,
               count: group.workflows.count,
-              onCommit: { name, color in
-                var group = group
-                group.name = name
-                group.color = color
-                groupController.perform(.updateGroup(group))
-              }
+              editAction: { editGroup = group }
             )
-            .onTapGesture(count: 2, perform: {
-              editGroup = group
-            })
-          }.contextMenu {
+          }
+          .frame(minHeight: 36)
+          .contextMenu {
             Button("Show Info") { editGroup = group }
             Divider()
             Button("Delete") { groupController.action(.deleteGroup(group))() }

@@ -3,31 +3,27 @@ import ModelKit
 
 struct GroupListCell: View {
   typealias CommitHandler = (String, String) -> Void
-  @Binding var name: String
-  @Binding var color: String
+  let name: String
+  let color: String
   let symbol: String
   let count: Int
-  let onCommit: CommitHandler
-
-  init(name: Binding<String>,
-       color: Binding<String>,
-       symbol: String,
-       count: Int,
-       onCommit: @escaping CommitHandler) {
-    _name = name
-    _color = color
-    self.symbol = symbol
-    self.count = count
-    self.onCommit = onCommit
-  }
+  let editAction: () -> Void
+  @State private var isHovering: Bool = false
+  @EnvironmentObject var userSelection: UserSelection
 
   var body: some View {
     HStack {
       icon
       textField
       Spacer()
+      if isHovering {
+        editButton(editAction)
+      }
       numberOfWorkflows
     }
+    .onHover(perform: { hovering in
+      isHovering = hovering
+    })
     .padding(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4))
     .frame(minHeight: 36)
   }
@@ -48,15 +44,17 @@ private extension GroupListCell {
   }
 
   var textField: some View {
-    TextField(
-      "",
-      text: $name,
-      onEditingChanged: { _ in },
-      onCommit: {
-        onCommit(name, color)
-      })
+    Text(name)
       .foregroundColor(.primary)
       .lineSpacing(-2.0)
+  }
+
+  func editButton(_ action: @escaping () -> Void) -> some View {
+    Button(action: action) {
+      Image(systemName: "ellipsis.circle")
+        .foregroundColor(Color(.secondaryLabelColor))
+    }
+    .buttonStyle(PlainButtonStyle())
   }
 
   var numberOfWorkflows: some View {
@@ -75,9 +73,12 @@ struct GroupListCell_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     let group = ModelFactory().groupListCell()
-    return GroupListCell(name: .constant(group.name),
-                         color: .constant(group.color),
+    return GroupListCell(name: group.name,
+                         color: group.color,
                          symbol: group.symbol,
-                         count: group.workflows.count, onCommit: { _, _ in })
+                         count: group.workflows.count,
+                         editAction: {})
+      .environmentObject(UserSelection())
+      .frame(width: 300)
   }
 }

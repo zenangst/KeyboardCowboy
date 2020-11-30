@@ -7,7 +7,7 @@ struct WorkflowListCell: View {
   @EnvironmentObject var userSelection: UserSelection
 
   var body: some View {
-    ZStack(alignment: .bottom) {
+    VStack(alignment: HorizontalAlignment.center, spacing: 0) {
       HStack {
         VStack(alignment: .leading) {
           name
@@ -16,9 +16,7 @@ struct WorkflowListCell: View {
         Spacer()
         icon
       }.padding(.leading, 10)
-      VStack {
-        Divider().opacity( userSelection.workflow == workflow ? 0 : 0.33)
-      }
+      Divider().opacity( userSelection.workflow == workflow ? 0 : 0.33)
     }.frame(height: 48)
   }
 }
