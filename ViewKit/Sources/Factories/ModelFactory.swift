@@ -135,7 +135,7 @@ class ModelFactory {
   }
 
   func applicationCommand() -> Command {
-    Command.application(.init(application: Application.messages()))
+    Command.application(.init(application: Application.messages(name: "Application")))
   }
 
   func appleScriptCommand() -> Command {
