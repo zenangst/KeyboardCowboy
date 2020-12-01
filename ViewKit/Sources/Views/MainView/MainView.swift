@@ -33,7 +33,12 @@ public struct MainView: View {
     NavigationView {
       sidebar.frame(minWidth: 225)
       EmptyView()
-      EmptyView()
+
+      if userSelection.searchQuery.isEmpty,
+         let workflow = userSelection.workflow,
+         let group = userSelection.group {
+        factory.workflowDetail(workflow, group: group).id(workflow.id)
+      }
     }.toolbar {
       ToolbarItemGroup(placement: .navigation) {
         Button(action: toggleSidebar,

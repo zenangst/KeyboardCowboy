@@ -26,7 +26,7 @@ public struct GroupList: View {
       List {
         ForEach(groupController.state, id: \.id) { group in
           NavigationLink(
-            destination: factory.workflowList(group: group),
+            destination: factory.workflowList(group: group, selectedWorkflow: userSelection.workflow),
             tag: group, selection: Binding<ModelKit.Group?>(get: {
               userSelection.group
             }, set: { group in
@@ -61,6 +61,7 @@ public struct GroupList: View {
           }
         })
       }
+      .navigationViewStyle(DoubleColumnNavigationViewStyle())
       .onDrop($isDropping) { groupController.perform(.dropFile($0)) }
       .border(Color.accentColor, width: isDropping ? 5 : 0)
       .sheet(item: $editGroup, content: editGroup)

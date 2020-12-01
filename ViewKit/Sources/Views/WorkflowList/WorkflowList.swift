@@ -17,29 +17,26 @@ public struct WorkflowList: View {
   let group: ModelKit.Group
   let searchController: SearchController
   let workflowController: WorkflowController
-  @State var isDropping: Bool = false
+  @State private var isDropping: Bool = false
   @State var selection: Workflow?
 
   public var body: some View {
-    if !userSelection.searchQuery.isEmpty {
-      SearchView(searchController: searchController)
-    } else {
-      List {
-        ForEach(group.workflows, id: \.id) { workflow in
-          NavigationLink(destination: factory.workflowDetail(workflow, group: group),
-                         tag: workflow, selection: Binding<Workflow?>(
-                          get: { selection },
-                          set: {
-                            userSelection.workflow = $0
-                            selection = $0
-                          })) {
-            WorkflowListCell(workflow: workflow)
-              .frame(height: 48)
-          }.contextMenu {
-            Button("Delete") {
-              workflowController.perform(.deleteWorkflow(workflow, in: group))
-            }.keyboardShortcut(.delete, modifiers: [])
-          }
+    if userSelection.searchQuery.isEmpty {
+      List(selection: Binding<Workflow?>(
+            get: { selection },
+            set: {
+              selection = $0
+              userSelection.workflow = $0
+            }) ) {
+        ForEach(group.workflows, id: \.self) { workflow in
+          WorkflowListCell(workflow: workflow)
+            .tag(workflow)
+            .frame(height: 48)
+            .contextMenu {
+              Button("Delete") {
+                workflowController.perform(.deleteWorkflow(workflow, in: group))
+              }.keyboardShortcut(.delete, modifiers: [])
+            }
         }.onMove(perform: { indices, newOffset in
           for i in indices {
             let workflow = group.workflows[i]
@@ -52,14 +49,13 @@ public struct WorkflowList: View {
           }
         })
       }
-      .listRowInsets(.none)
       .onDrop($isDropping) {
         workflowController.perform(.drop($0, nil, in: group))
       }
       .overlay(
-          RoundedRectangle(cornerRadius: 8)
-            .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
-            .padding(4)
+        RoundedRectangle(cornerRadius: 8)
+          .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
+          .padding(4)
       )
       .id(group.id)
       .introspectTableView(customize: {
@@ -71,9 +67,12 @@ public struct WorkflowList: View {
         }
       }
       .frame(minWidth: 250)
+      .navigationViewStyle(DoubleColumnNavigationViewStyle())
       .navigationTitle("\(group.name)")
       .navigationSubtitle("Workflows: \(group.workflows.count)")
       .environment(\.defaultMinListRowHeight, 1)
+    } else {
+      SearchView(searchController: searchController)
     }
   }
 }
@@ -86,7 +85,8 @@ struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    DesignTimeFactory().workflowList(group: ModelFactory().groupList().first!)
+    DesignTimeFactory().workflowList(group: ModelFactory().groupList().first!,
+                                     selectedWorkflow: nil)
       .environmentObject(UserSelection())
   }
 }

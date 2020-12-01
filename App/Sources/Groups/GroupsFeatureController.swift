@@ -15,6 +15,9 @@ final class GroupsFeatureController: ViewController,
 
   init(groupsController: GroupsControlling, applications: [Application],
        userSelection: UserSelection) {
+    userSelection.group = groupsController.groups.first
+    userSelection.workflow = groupsController.groups.first?.workflows.first
+
     self.applications = applications
     self.groupsController = groupsController
     self.state = groupsController.groups
