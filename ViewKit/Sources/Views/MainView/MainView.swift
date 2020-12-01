@@ -47,6 +47,7 @@ public struct MainView: View {
                   .renderingMode(.template)
                   .foregroundColor(Color(.systemGray))
                })
+          .help("Toggle Sidebar")
 
         if let group = userSelection.group {
           Button(action: { workflowController.perform(.createWorkflow(in: group)) },
@@ -55,6 +56,7 @@ public struct MainView: View {
                     .renderingMode(.template)
                     .foregroundColor(Color(.systemGray))
                  })
+            .help("Add Workflow to \"\(group.name)\"")
         }
 
         HStack(spacing: 2) {
@@ -72,6 +74,7 @@ public struct MainView: View {
                     .renderingMode(.template)
                     .foregroundColor(Color(.systemGray))
                  })
+            .help("Add Command to \"\(workflow.name)\"")
             .sheet(isPresented: $newCommandVisible, content: {
               EditCommandView(
                 applicationProvider: applicationProvider,
