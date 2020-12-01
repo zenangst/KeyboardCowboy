@@ -1,4 +1,5 @@
 import SwiftUI
+import ViewKit
 
 @main
 struct KeyboardCowboyApp: App {
@@ -7,14 +8,27 @@ struct KeyboardCowboyApp: App {
   @Environment(\.scenePhase) var scenePhase
   @State var content: AnyView?
 
+  let applicationName: String = "Keyboard Cowboy"
+
   var body: some Scene {
     WindowGroup {
-      VStack {
-        content
-      }
-      .frame(minWidth: 800, minHeight: 520)
+      ZStack {
+        if appDelegate.permissionController.hasPrivileges() {
+          content.frame(minWidth: 800, minHeight: 520)
+        } else {
+          ZStack {
+            Color(.windowBackgroundColor)
+            VStack {
+              Image("ApplicationIcon")
+                .resizable()
+                .frame(width: 256, height: 256)
+              Text(appDelegate.permissionController.informativeText)
+            }
+          }.frame(minWidth: 800, minHeight: 520)
+        }
+      }.frame(minWidth: 800, minHeight: 520)
       .onChange(of: scenePhase, perform: { _ in
-        content = appDelegate.mainView?.environmentObject(appDelegate.userSelection).erase()
+        content = appDelegate.mainView?.environmentObject(appDelegate.userData).erase()
       })
     }
     .windowToolbarStyle(UnifiedWindowToolbarStyle())

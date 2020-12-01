@@ -18,14 +18,17 @@ class AppDelegate: NSObject, NSApplicationDelegate,
 
   @Published var mainView: MainView?
   @Published var windowIsOpened: Bool = true
-  let factory = ControllerFactory()
+  private lazy var factory = ControllerFactory()
+  lazy var permissionController = factory.permissionsController()
+  lazy var userData = UserSelection(hasPrivileges: permissionController.hasPrivileges())
+
   static var internalChange: Bool = false
+
   var cancellables = Set<AnyCancellable>()
   var coreController: CoreControlling?
   var directoryObserver: DirectoryObserver?
   var groupFeatureController: GroupsFeatureController?
   var menubarController: MenubarController?
-  var userSelection = UserSelection()
 
   var storageController: StorageControlling {
     let configuration = Configuration.Storage()
@@ -92,7 +95,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   func createMainView(_ coreController: CoreControlling) -> MainView {
     IconController.installedApplications = coreController.installedApplications
     let featureFactory = FeatureFactory(coreController: coreController)
-    let context = featureFactory.applicationStack(userSelection: userSelection)
+    let context = featureFactory.applicationStack(userSelection: userData)
 
     let mainView = context.factory.mainView()
     self.groupFeatureController = context.groupsFeature
