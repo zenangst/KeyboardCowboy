@@ -1,2 +1,2 @@
 CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
-LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @executable_path/../../Frameworks @loader_path/Frameworks $(FRAMEWORK_SEARCH_PATHS)
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @executable_path/../../Frameworks @loader_path/Frameworks @executable_path/../Frameworks $(FRAMEWORK_SEARCH_PATHS)
