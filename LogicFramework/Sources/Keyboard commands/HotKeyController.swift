@@ -44,10 +44,12 @@ final class HotKeyController: HotKeyControlling {
     self.runLoopSource = try createRunLoopSource()
     Self.cache = keyCodeMapper.hashTable()
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
+    Debug.print("⌨️")
   }
 
   func monitor(_ workflows: [Workflow]) {
     Self.workflows = workflows
+    Debug.print("⌨️")
   }
 
   func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ event: CGEvent) -> Unmanaged<CGEvent>? {
@@ -101,6 +103,7 @@ final class HotKeyController: HotKeyControlling {
   // MARK: Private methods
 
   private func createMachPort() throws -> CFMachPort? {
+    Debug.print("⌨️")
     let tap: CGEventTapLocation = .cgSessionEventTap
     let place: CGEventTapPlacement = .headInsertEventTap
     let options: CGEventTapOptions = .defaultTap
@@ -121,20 +124,25 @@ final class HotKeyController: HotKeyControlling {
             userInfo: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())) else {
       throw RebindingControllingError.unableToCreateMachPort
     }
+    Debug.print("⌨️")
     return machPort
   }
 
   private func createRunLoopSource() throws -> CFRunLoopSource {
+    Debug.print("⌨️")
     guard let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, machPort, 0) else {
       throw RebindingControllingError.unableToCreateRunLoopSource
     }
+    Debug.print("⌨️")
     return runLoopSource
   }
 
   private func createEventSource() throws -> CGEventSource {
+    Debug.print("⌨️")
     guard let eventSource = CGEventSource(stateID: .privateState) else {
       throw RebindingControllingError.unableToCreateEventSource
     }
+    Debug.print("⌨️")
     return eventSource
   }
 
