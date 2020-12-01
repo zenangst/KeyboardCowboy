@@ -40,7 +40,6 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
         CODE_SIGN_IDENTITY: "-"
         CURRENT_PROJECT_VERSION: 1
-        EXCLUDED_ARCHS: "arm64"
         INFOPLIST_FILE: "App/Resources/Info.plist"
         MARKETING_VERSION: 0.0.1
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
@@ -70,7 +69,6 @@ targets:
       BUNDLE_LOADER: $(TEST_HOST)
       PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.UnitTests"
       TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Keyboard Cowboy.app/Contents/MacOS/Keyboard Cowboy"
-      EXCLUDED_ARCHS: "arm64"
   LogicFramework:
     type: framework
     platform: "macOS"
@@ -85,7 +83,6 @@ targets:
         MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "LogicFramework/Resources/Info.plist"
-        EXCLUDED_ARCHS: "arm64"
   ModelKit:
     type: framework
     platform: "macOS"
@@ -97,7 +94,6 @@ targets:
         MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "ModelKit/Resources/Info.plist"
-        EXCLUDED_ARCHS: "arm64"
   ViewKit:
     type: framework
     platform: "macOS"
@@ -113,7 +109,6 @@ targets:
         MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "ViewKit/Resources/Info.plist"
-        EXCLUDED_ARCHS: "arm64"
 schemes:
   Keyboard-Cowboy:
     build:
