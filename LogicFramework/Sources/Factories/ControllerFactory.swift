@@ -7,6 +7,10 @@ public final class ControllerFactory {
 
   public init() {}
 
+  public func permissionsController() -> PermissionsControlling {
+    PermissionsController()
+  }
+
   public func coreController(commandController: CommandControlling? = nil,
                              disableKeyboardShortcuts: Bool,
                              groupsController: GroupsControlling? = nil,
