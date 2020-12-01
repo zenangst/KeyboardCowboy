@@ -46,7 +46,7 @@ public struct WorkflowView: View {
       .background(Color(.textBackgroundColor))
 
       VStack(alignment: .leading, spacing: 0) {
-        HeaderView(title: "Commads:")
+        HeaderView(title: "Commands:")
           .padding([.leading, .top])
         if workflow.commands.isEmpty {
           VStack {
