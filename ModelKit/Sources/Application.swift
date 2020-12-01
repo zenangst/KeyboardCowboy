@@ -45,11 +45,11 @@ public extension Application {
     Application(id: id, bundleIdentifier: "", bundleName: "", path: "")
   }
 
-  static func messages(id: String = UUID().uuidString) -> Application {
+  static func messages(id: String = UUID().uuidString, name: String? = nil) -> Application {
     Application(
       id: id,
       bundleIdentifier: "com.apple.MobileSMS",
-      bundleName: "Messages",
+      bundleName: name ?? "Messages",
       path: "/System/Applications/Messages.app")
   }
 
