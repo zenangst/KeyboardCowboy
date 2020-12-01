@@ -44,6 +44,7 @@ targets:
         MARKETING_VERSION: 0.0.1
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
         PRODUCT_NAME: "Keyboard Cowboy"
+        ENABLE_HARDENED_RUNTIME: true
     preBuildScripts:
       - path: XcodeGen/Scripts/swiftlint.sh
         name: SwiftLint
