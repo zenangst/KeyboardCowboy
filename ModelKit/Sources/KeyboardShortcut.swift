@@ -39,7 +39,7 @@ public struct KeyboardShortcut: Identifiable, Codable, Hashable {
 }
 
 public extension KeyboardShortcut {
-  static func empty() -> KeyboardShortcut {
-    KeyboardShortcut(key: "")
+  static func empty(id: String = UUID().uuidString) -> KeyboardShortcut {
+    KeyboardShortcut(id: id, key: "")
   }
 }

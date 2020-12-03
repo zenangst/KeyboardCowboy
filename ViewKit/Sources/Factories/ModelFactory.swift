@@ -121,45 +121,47 @@ class ModelFactory {
     workflow(commands)
   }
 
-  func commands() -> [Command] {
+  func commands(id: String = UUID().uuidString) -> [Command] {
     let result = [
-      applicationCommand(),
-      appleScriptCommand(),
-      shellScriptCommand(),
-      keyboardCommand(),
-      openCommand(),
-      urlCommand()
+      applicationCommand(id: id),
+      appleScriptCommand(id: id),
+      shellScriptCommand(id: id),
+      keyboardCommand(id: id),
+      openCommand(id: id),
+      urlCommand(id: id)
     ]
 
     return result
   }
 
-  func applicationCommand() -> Command {
-    Command.application(.init(application: Application.messages(name: "Application")))
+  func applicationCommand(id: String) -> Command {
+    Command.application(.init(id: id, application: Application.messages(name: "Application")))
   }
 
-  func appleScriptCommand() -> Command {
-    Command.script(ScriptCommand.empty(.appleScript))
+  func appleScriptCommand(id: String) -> Command {
+    Command.script(ScriptCommand.empty(.appleScript, id: id))
   }
 
-  func shellScriptCommand() -> Command {
-    Command.script(ScriptCommand.empty(.shell))
+  func shellScriptCommand(id: String) -> Command {
+    Command.script(ScriptCommand.empty(.shell, id: id))
   }
 
-  func keyboardCommand() -> Command {
-    Command.keyboard(.init(keyboardShortcut: KeyboardShortcut.empty()))
+  func keyboardCommand(id: String) -> Command {
+    Command.keyboard(.init(id: id, keyboardShortcut: KeyboardShortcut.empty()))
   }
 
-  func openCommand() -> Command {
-    Command.open(.init(application: Application(
+  func openCommand(id: String) -> Command {
+    Command.open(.init(id: id,
+                       application: Application(
                         bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
                         bundleName: "",
                         path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
                        path: "~/Developer/Xcode.project"))
   }
 
-  func urlCommand() -> Command {
-    Command.open(.init(application: Application.safari(),
+  func urlCommand(id: String) -> Command {
+    Command.open(.init(id: id,
+                       application: Application.safari(),
                        path: "https://github.com"))
   }
 
@@ -229,6 +231,6 @@ class ModelFactory {
       id: UUID().uuidString,
       name: name ?? "Developer Workflow",
       keyboardShortcuts: keyboardShortcuts(),
-      commands: commands ?? self.commands())
+      commands: commands ?? self.commands(id: UUID().uuidString))
   }
 }

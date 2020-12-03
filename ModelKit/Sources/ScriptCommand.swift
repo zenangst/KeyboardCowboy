@@ -92,12 +92,12 @@ public enum ScriptCommand: Identifiable, Codable, Hashable {
 }
 
 public extension ScriptCommand {
-  static func empty(_ kind: ScriptCommand.CodingKeys) -> ScriptCommand {
+  static func empty(_ kind: ScriptCommand.CodingKeys, id: String = UUID().uuidString) -> ScriptCommand {
     switch kind {
     case .appleScript:
-      return ScriptCommand.appleScript(.path(""), UUID().uuidString)
+      return ScriptCommand.appleScript(.path(""), id)
     case .shell:
-      return ScriptCommand.shell(.path(""), UUID().uuidString)
+      return ScriptCommand.shell(.path(""), id)
     }
   }
 }

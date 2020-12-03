@@ -36,11 +36,6 @@ public struct CommandListView: View {
                 revealAction: { commandController.action(.revealCommand($0, in: workflow))() },
                 runAction: { commandController.action(.runCommand($0))() },
                 showContextualMenu: true)
-                .contextMenu(menuItems: {
-                  Button("Edit", action: {
-                    editCommand = command
-                  })
-                })
                 .padding(.horizontal, 8)
               Spacer()
               Text("≣")
