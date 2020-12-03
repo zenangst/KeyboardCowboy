@@ -26,7 +26,7 @@ public struct GroupList: View {
       List {
         ForEach(groupController.state, id: \.id) { group in
           NavigationLink(
-            destination: factory.workflowList(group: group, selectedWorkflow: userSelection.workflow),
+            destination: factory.workflowList(group: group, selectedWorkflow: userSelection.workflow).environmentObject(userSelection),
             tag: group, selection: Binding<ModelKit.Group?>(get: {
               userSelection.group
             }, set: { group in
@@ -52,7 +52,9 @@ public struct GroupList: View {
           .contextMenu {
             Button("Show Info") { editGroup = group }
             Divider()
-            Button("Delete") { groupController.action(.deleteGroup(group))() }
+            Button("Delete") {
+              groupController.action(.deleteGroup(group))()
+            }
           }
         }
         .onMove(perform: { indices, newOffset in
