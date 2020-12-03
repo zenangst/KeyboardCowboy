@@ -9,6 +9,7 @@ import ModelKit
 
 let bundleIdentifier = Bundle.main.bundleIdentifier!
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
+let appDelegate = AppDelegate()
 
 class AppDelegate: NSObject, NSApplicationDelegate,
                    MenubarControllerDelegate,
@@ -20,7 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   @Published var windowIsOpened: Bool = true
   private lazy var factory = ControllerFactory()
   lazy var permissionController = factory.permissionsController()
-  lazy var userData = UserSelection(hasPrivileges: permissionController.hasPrivileges())
+  lazy var userSelection = UserSelection(hasPrivileges: permissionController.hasPrivileges())
 
   static var internalChange: Bool = false
 
@@ -95,7 +96,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   func createMainView(_ coreController: CoreControlling) -> MainView {
     IconController.installedApplications = coreController.installedApplications
     let featureFactory = FeatureFactory(coreController: coreController)
-    let context = featureFactory.applicationStack(userSelection: userData)
+    let context = featureFactory.applicationStack(userSelection: userSelection)
 
     let mainView = context.factory.mainView()
     self.groupFeatureController = context.groupsFeature

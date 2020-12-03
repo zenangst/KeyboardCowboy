@@ -6,30 +6,24 @@ struct KeyboardCowboyApp: App {
   // swiftlint:disable weak_delegate
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   @Environment(\.scenePhase) var scenePhase
-  @State var content: AnyView?
-
-  let applicationName: String = "Keyboard Cowboy"
+  @State var content: MainView?
 
   var body: some Scene {
     WindowGroup {
-      ZStack {
+      Group {
         if appDelegate.permissionController.hasPrivileges() {
-          content.frame(minWidth: 800, minHeight: 520)
+          content
         } else {
-          ZStack {
-            Color(.windowBackgroundColor)
-            VStack {
-              Image("ApplicationIcon")
-                .resizable()
-                .frame(width: 256, height: 256)
-              Text(appDelegate.permissionController.informativeText)
-            }
-          }.frame(minWidth: 800, minHeight: 520)
+          PermissionsView()
         }
-      }.frame(minWidth: 800, minHeight: 520)
-      .onChange(of: scenePhase, perform: { _ in
-        content = appDelegate.mainView?.environmentObject(appDelegate.userData).erase()
+      }
+      .frame(minWidth: 800, minHeight: 520)
+      .onChange(of: scenePhase, perform: { phase in
+        if phase == .active {
+          content = appDelegate.mainView
+        }
       })
+      .environmentObject(appDelegate.userSelection)
     }
     .windowToolbarStyle(UnifiedWindowToolbarStyle())
     .commands {
