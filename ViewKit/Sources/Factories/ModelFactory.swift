@@ -216,8 +216,11 @@ class ModelFactory {
   }
 
   func keyboardShortcuts(id: String = UUID().uuidString) -> [ModelKit.KeyboardShortcut] {
-    [.init(id: "\(id)-1", key: "", modifiers: [.function]),
-     .init(id: "\(id)-2", key: "A", modifiers: [.option, .command])]
+    [
+      .init(id: "\(id)-1", key: "A", modifiers: [.function]),
+      .init(id: "\(id)-2", key: "A", modifiers: [.option, .command]),
+      .init(id: "\(id)-3", key: "X", modifiers: [.option]),
+    ]
   }
 
   func installedApplications() -> [Application] {

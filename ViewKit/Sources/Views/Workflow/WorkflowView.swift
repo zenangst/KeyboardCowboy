@@ -11,6 +11,7 @@ public struct WorkflowView: View {
   let keyboardShortcutController: KeyboardShortcutController
   let openPanelController: OpenPanelController
   let workflowController: WorkflowController
+  @Environment(\.colorScheme) var colorScheme
   @State private var newCommandVisible: Bool = false
   @State var isDropping: Bool = false
 
@@ -40,6 +41,7 @@ public struct WorkflowView: View {
               .padding([.leading, .top])
             keyboardShortcuts(for: workflow)
               .padding(.top)
+              .cornerRadius(8.0)
           }
         }.padding(.horizontal, 8)
       }
@@ -107,11 +109,20 @@ private extension WorkflowView {
   }
 
   func keyboardShortcuts(for workflow: Workflow) -> some View {
-    KeyboardShortcutListView(keyboardShortcutController: keyboardShortcutController,
+    KeyboardShortcutList(keyboardShortcutController: keyboardShortcutController,
                              keyboardShortcuts: workflow.keyboardShortcuts,
                              workflow: workflow)
+      .background(Color(.windowBackgroundColor))
       .frame(alignment: .top)
-      .padding(.bottom, 24)
+      .cornerRadius(8)
+      .padding([.bottom, .leading, .trailing], 16)
+      .overlay(
+          RoundedRectangle(cornerRadius: 8)
+            .stroke(Color(.windowFrameTextColor),
+                    lineWidth: 1)
+            .opacity(0.05)
+            .padding([.bottom, .leading, .trailing], 16)
+      )
       .shadow(color: Color(.separatorColor).opacity(0.05), radius: 5, x: 0, y: 2.5)
   }
 

@@ -7,17 +7,20 @@ struct WorkflowListCell: View {
   @EnvironmentObject var userSelection: UserSelection
 
   var body: some View {
-    VStack(alignment: HorizontalAlignment.center, spacing: 0) {
-      HStack {
-        VStack(alignment: .leading) {
+    VStack(alignment: .center, spacing: 0) {
+      HStack(alignment: .center) {
+        VStack(alignment: .leading, spacing: 3) {
           name
-          numberOfCommands
+          HStack {
+            numberOfCommands.font(.callout)
+            keyboardShortcuts().font(.caption)
+          }
         }
         Spacer()
         icon
       }.padding(.leading, 10)
       Divider().opacity( userSelection.workflow == workflow ? 0 : 0.33)
-    }.frame(height: 48)
+    }
   }
 }
 
@@ -32,6 +35,16 @@ private extension WorkflowListCell {
   var numberOfCommands: some View {
     Text("\(workflow.commands.count) commands")
       .foregroundColor(.secondary)
+  }
+
+  @ViewBuilder
+  func keyboardShortcuts() -> some View {
+    if !workflow.keyboardShortcuts.isEmpty {
+      Divider().frame(height: 10)
+    }
+    ForEach(workflow.keyboardShortcuts) { shortcut in
+      KeyboardShortcutView(shortcut: shortcut)
+    }
   }
 
   var icon: some View {

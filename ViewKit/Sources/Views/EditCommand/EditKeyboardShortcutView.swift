@@ -12,7 +12,7 @@ struct EditKeyboardShortcutView: View {
       }.padding()
       Divider()
       VStack {
-        KeyboardShortcutView(
+        KeyboardRecorderView(
           keyboardShortcut: Binding(
             get: { command.keyboardShortcut },
             set: { keyboardShortcut in

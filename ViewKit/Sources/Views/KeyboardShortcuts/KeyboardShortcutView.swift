@@ -2,22 +2,31 @@ import SwiftUI
 import ModelKit
 
 struct KeyboardShortcutView: View {
-  @Binding var keyboardShortcut: ModelKit.KeyboardShortcut?
+  let shortcut: ModelKit.KeyboardShortcut
 
   var body: some View {
-    Recorder(keyboardShortcut: $keyboardShortcut)
+    HStack(spacing: 0) {
+      Text("\(shortcut.modifersDisplayValue)")
+        .foregroundColor(.secondary)
+      Text("\(shortcut.key)")
+    }
+    .padding(1)
+    .padding(.horizontal, 4)
+    .overlay(
+      RoundedRectangle(cornerRadius: 4)
+        .stroke(Color(.separatorColor), lineWidth: 1)
+    )
   }
 }
 
-// MARK: - Previews
-
-struct KeyboardShortcutView_Previews: PreviewProvider, TestPreviewProvider {
+struct ShortcutView_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
     testPreview.previewAllColorSchemes()
   }
 
   static var testPreview: some View {
-    KeyboardShortcutView(keyboardShortcut: .constant(ModelFactory().keyboardShortcuts().first!))
-      .frame(width: 320)
+    KeyboardShortcutView(shortcut:
+      .init(key: "C", modifiers: [.command])
+    )
   }
 }
