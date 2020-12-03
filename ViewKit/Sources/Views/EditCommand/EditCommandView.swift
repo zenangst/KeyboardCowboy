@@ -8,7 +8,22 @@ struct EditCommandView: View {
   let cancelAction: () -> Void
   @State var selection: Command?
   @State var command: Command
-  private let commands = ModelFactory().commands()
+  private let commands: [Command]
+
+  init(applicationProvider: ApplicationProvider,
+       openPanelController: OpenPanelController,
+       saveAction: @escaping (Command) -> Void,
+       cancelAction: @escaping () -> Void,
+       selection: Command?,
+       command: Command) {
+    self.applicationProvider = applicationProvider
+    self.openPanelController = openPanelController
+    self.saveAction = saveAction
+    self.cancelAction = cancelAction
+    self.commands = ModelFactory().commands(id: command.id)
+    _command = .init(initialValue: command)
+    _selection = .init(initialValue: selection)
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -28,7 +43,12 @@ struct EditCommandView: View {
 
 private extension EditCommandView {
   var list: some View {
-    List(selection: $selection) {
+    List(selection: Binding<Command?>(get: { selection }, set: { newCommand in
+      if let newCommand = newCommand {
+        command = newCommand
+      }
+      selection = newCommand
+    }) ) {
       ForEach(commands, id: \.self) { command in
         CommandView(command: command,
                     editAction: { _ in },
@@ -49,13 +69,7 @@ private extension EditCommandView {
       case .application(let command):
         EditApplicationCommandView(
           command: Binding(
-            get: {
-              if case .application(let model) = self.command {
-                return model
-              } else {
-                return command
-              }
-            },
+            get: { command },
             set: { applicationCommand in
               self.command = .application(applicationCommand)
             }),
@@ -65,13 +79,7 @@ private extension EditCommandView {
         case .appleScript:
           EditAppleScriptView(
             command: Binding(
-              get: {
-                if case .script(let model) = self.command {
-                  return model
-                } else {
-                  return kind
-                }
-              },
+              get: { kind },
               set: { scriptCommand in
                 self.command = .script(scriptCommand)
               }),
@@ -79,13 +87,7 @@ private extension EditCommandView {
         case .shell:
           EditShellScriptView(
             command: Binding(
-              get: {
-                if case .script(let model) = self.command {
-                  return model
-                } else {
-                  return kind
-                }
-              },
+              get: { kind },
               set: { scriptCommand in
                 self.command = .script(scriptCommand)
               }),
@@ -95,26 +97,14 @@ private extension EditCommandView {
         if command.isUrl {
           EditOpenURLCommandView(
             command: Binding(
-              get: {
-                if case .open(let model) = self.command {
-                  return model
-                } else {
-                  return command
-                }
-              },
+              get: { command },
               set: { openCommand in
                 self.command = .open(openCommand)
               }))
         } else {
           EditOpenFileCommandView(
             command: Binding(
-              get: {
-                if case .open(let model) = self.command {
-                  return model
-                } else {
-                  return command
-                }
-              },
+              get: { command },
               set: { openCommand in
                 self.command = .open(openCommand)
               }),
