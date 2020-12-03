@@ -29,7 +29,7 @@ final class KeyboardShortcutsFeatureController: ActionController {
     self.groupsController = groupsController
   }
 
-  func perform(_ action: KeyboardShortcutListView.Action) {
+  func perform(_ action: KeyboardShortcutList.Action) {
     queue.async { [weak self] in
       guard let self = self else { return }
       switch action {

@@ -9,6 +9,11 @@ public struct KeyboardShortcut: Identifiable, Codable, Hashable {
   public let key: String
   public let modifiers: [ModifierKey]?
 
+  public var modifersDisplayValue: String {
+    let modifiers = self.modifiers?.compactMap({ $0.pretty }) ?? []
+    return modifiers.joined()
+  }
+
   enum CodingKeys: String, CodingKey {
     case id
     case key
