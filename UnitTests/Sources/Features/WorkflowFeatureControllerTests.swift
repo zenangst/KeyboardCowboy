@@ -10,7 +10,9 @@ class WorkflowFeatureControllerTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for callback")
     let group = Group.empty()
     let groupsController = GroupsController(groups: [group])
-    let coreController = CoreControllerMock(groupsController: groupsController) { state in
+    let commandController = CommandControllerMock()
+    let coreController = CoreControllerMock(commandController: commandController,
+                                            groupsController: groupsController) { state in
       switch state {
       case .respondTo,
            .reloadContext,
@@ -26,7 +28,7 @@ class WorkflowFeatureControllerTests: XCTestCase {
           return
         }
 
-        XCTAssertEqual(group.workflows.count, 1)
+        XCTAssertEqual(group.workflows.count, 2)
 
         expectation.fulfill()
       }
@@ -34,9 +36,8 @@ class WorkflowFeatureControllerTests: XCTestCase {
     groupsController.delegate = coreController
 
     let userSelection = UserSelection()
-    let factory = FeatureFactory(coreController: coreController,
-                                 userSelection: userSelection)
-    let groupsFeature = factory.groupFeature()
+    let factory = FeatureFactory(coreController: coreController)
+    let groupsFeature = factory.groupFeature(userSelection: userSelection)
     let workflowFeature = factory.workflowFeature()
 
     userSelection.group = group
@@ -44,7 +45,7 @@ class WorkflowFeatureControllerTests: XCTestCase {
 
     XCTAssertEqual(groupsController.groups.count, 1)
 
-    workflowFeature.perform(.createWorkflow)
+    workflowFeature.perform(.createWorkflow(in: group))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -58,7 +59,9 @@ class WorkflowFeatureControllerTests: XCTestCase {
     group.workflows = [workflow]
 
     let groupsController = GroupsController(groups: [group])
-    let coreController = CoreControllerMock(groupsController: groupsController) { state in
+    let commandController = CommandControllerMock()
+    let coreController = CoreControllerMock(commandController: commandController,
+                                            groupsController: groupsController) { state in
       switch state {
       case .respondTo,
            .reloadContext,
@@ -85,9 +88,8 @@ class WorkflowFeatureControllerTests: XCTestCase {
     groupsController.delegate = coreController
 
     let userSelection = UserSelection()
-    let factory = FeatureFactory(coreController: coreController,
-                                 userSelection: userSelection)
-    let groupsFeature = factory.groupFeature()
+    let factory = FeatureFactory(coreController: coreController)
+    let groupsFeature = factory.groupFeature(userSelection: userSelection)
     let workflowFeature = factory.workflowFeature()
 
     userSelection.group = group
@@ -96,7 +98,7 @@ class WorkflowFeatureControllerTests: XCTestCase {
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    workflowFeature.perform(.updateWorkflow(updatedWorkflow))
+    workflowFeature.perform(.updateWorkflow(updatedWorkflow, in: group))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -108,7 +110,9 @@ class WorkflowFeatureControllerTests: XCTestCase {
     group.workflows = [workflow]
 
     let groupsController = GroupsController(groups: [group])
-    let coreController = CoreControllerMock(groupsController: groupsController) { state in
+    let commandController = CommandControllerMock()
+    let coreController = CoreControllerMock(commandController: commandController,
+                                            groupsController: groupsController) { state in
       switch state {
       case .respondTo,
            .reloadContext,
@@ -133,9 +137,8 @@ class WorkflowFeatureControllerTests: XCTestCase {
     groupsController.delegate = coreController
 
     let userSelection = UserSelection()
-    let factory = FeatureFactory(coreController: coreController,
-                                 userSelection: userSelection)
-    let groupsFeature = factory.groupFeature()
+    let factory = FeatureFactory(coreController: coreController)
+    let groupsFeature = factory.groupFeature(userSelection: userSelection)
     let workflowFeature = factory.workflowFeature()
 
     userSelection.group = group
@@ -144,7 +147,7 @@ class WorkflowFeatureControllerTests: XCTestCase {
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    workflowFeature.perform(.deleteWorkflow(workflow))
+    workflowFeature.perform(.deleteWorkflow(workflow, in: group))
 
     wait(for: [expectation], timeout: 10.0)
   }

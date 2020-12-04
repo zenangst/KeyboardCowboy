@@ -11,6 +11,7 @@ class CoreControllerMock: CoreControlling, GroupsControllingDelegate {
     case didReloadGroups(groups: [Group])
   }
 
+  var commandController: CommandControlling
   var groupsController: GroupsControlling
   var disableKeyboardShortcuts: Bool = false
   var groups = [Group]()
@@ -18,7 +19,10 @@ class CoreControllerMock: CoreControlling, GroupsControllingDelegate {
   var handler: StateHandler
   var workflows: [Workflow] = []
 
-  init(groupsController: GroupsControlling, handler: @escaping StateHandler) {
+  init(commandController: CommandControlling,
+       groupsController: GroupsControlling,
+       handler: @escaping StateHandler) {
+    self.commandController = commandController
     self.groupsController = groupsController
     self.handler = handler
   }
