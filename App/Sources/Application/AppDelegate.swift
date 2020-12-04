@@ -158,6 +158,6 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   // MARK: MenubarControllerDelegate
 
     func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem) {
-      NSApp.activate(ignoringOtherApps: true)
+      NSWorkspace.shared.open(Bundle.main.bundleURL)
     }
 }
