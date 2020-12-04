@@ -27,6 +27,12 @@ struct KeyboardCowboyApp: App {
     }
     .windowToolbarStyle(UnifiedWindowToolbarStyle())
     .commands {
+      CommandGroup(after: CommandGroupPlacement.newItem, addition: {
+        Button("New Group") {
+          appDelegate.groupFeatureController?.perform(.createGroup)
+        }.keyboardShortcut("N")
+      })
+
       CommandGroup(after: CommandGroupPlacement.toolbar, addition: {
         Button("Toggle Sidebar") {
           NSApp.keyWindow?.firstResponder?.tryToPerform(

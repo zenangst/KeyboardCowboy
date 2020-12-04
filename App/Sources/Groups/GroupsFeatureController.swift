@@ -62,9 +62,10 @@ final class GroupsFeatureController: ViewController,
     let group = ModelKit.Group.empty()
     var groups = groupsController.groups
     groups.append(group)
+
     reload(groups) { userSelection in
       userSelection.group = group
-      userSelection.workflow = nil
+      userSelection.workflow = group.workflows.first
     }
   }
 
