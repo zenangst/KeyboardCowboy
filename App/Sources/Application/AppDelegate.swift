@@ -29,6 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   var coreController: CoreControlling?
   var directoryObserver: DirectoryObserver?
   var groupFeatureController: GroupsFeatureController?
+  var workflowFeatureController: WorkflowFeatureController?
   var menubarController: MenubarController?
 
   var storageController: StorageControlling {
@@ -97,6 +98,8 @@ class AppDelegate: NSObject, NSApplicationDelegate,
     IconController.installedApplications = coreController.installedApplications
     let featureFactory = FeatureFactory(coreController: coreController)
     let context = featureFactory.applicationStack(userSelection: userSelection)
+
+    self.workflowFeatureController = context.workflowFeature
 
     let mainView = context.factory.mainView()
     self.groupFeatureController = context.groupsFeature
