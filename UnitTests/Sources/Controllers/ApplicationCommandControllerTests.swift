@@ -65,7 +65,7 @@ class ApplicationCommandControllerTests: XCTestCase {
   }
 
   func testApplicationCommandControllerActivatingFailedToFindRunningApplication() {
-    windowListProvider.owners = [application.bundleName]
+    windowListProvider.owners = []
     workspaceProvider.applications = []
     let expectation = self.expectation(description: "Wait for error.")
     _ = controller.run(.init(application: application)).sink(
@@ -91,12 +91,14 @@ class ApplicationCommandControllerTests: XCTestCase {
   }
 
   func testApplicationCommandControllerActivatingFailedToActivate() {
-    windowListProvider.owners = [application.bundleName]
-    workspaceProvider.applications = [
-      RunningApplicationMock(
-        activate: false,
-        bundleIdentifier: application.bundleIdentifier)
-    ]
+    windowListProvider.owners = []
+
+    let runningApplication = RunningApplicationMock(
+      activate: false,
+      bundleIdentifier: application.bundleIdentifier)
+
+    workspaceProvider.frontApplication = runningApplication
+    workspaceProvider.applications = [runningApplication]
 
     let expectation = self.expectation(description: "Wait for error.")
     _ = controller.run(.init(application: application)).sink(

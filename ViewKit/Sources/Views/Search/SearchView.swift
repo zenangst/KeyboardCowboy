@@ -72,6 +72,6 @@ struct SearchView_Previews: PreviewProvider, TestPreviewProvider {
                   groups: ModelFactory().groupList(),
                   workflows: ModelFactory().workflowList(),
                   commands: ModelFactory().commands())
-    ).erase())
+    ).erase()).environmentObject(UserSelection())
   }
 }

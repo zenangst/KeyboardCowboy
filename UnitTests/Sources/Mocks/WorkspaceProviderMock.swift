@@ -36,4 +36,6 @@ class WorkspaceProviderMock: WorkspaceProviding {
     let ctx = openFileResult
     completionHandler?(ctx?.runningApplication, ctx?.error)
   }
+
+  func reveal(_ path: String) {}
 }

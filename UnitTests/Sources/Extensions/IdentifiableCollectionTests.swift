@@ -76,7 +76,7 @@ class IdentifiableCollectionTests: XCTestCase {
       Item(id: "C", contents: "C")
     ]
 
-    try subject.move(item, to: 2)
+    try subject.move(item, to: 3)
     XCTAssertEqual(secondResult, subject)
   }
 }

@@ -9,7 +9,9 @@ class GroupsFeatureControllerTests: XCTestCase {
   func testCreateGroup() {
     let expectation = self.expectation(description: "Wait for callback")
     let groupsController = GroupsController(groups: [])
-    let coreController = CoreControllerMock(groupsController: groupsController) { state in
+    let commandController = CommandControllerMock()
+    let coreController = CoreControllerMock(commandController: commandController,
+                                            groupsController: groupsController) { state in
       switch state {
       case .respondTo,
            .reloadContext,
@@ -24,9 +26,8 @@ class GroupsFeatureControllerTests: XCTestCase {
     }
     groupsController.delegate = coreController
 
-    let factory = FeatureFactory(coreController: coreController,
-                                 userSelection: UserSelection())
-    let groupsFeature = factory.groupFeature()
+    let factory = FeatureFactory(coreController: coreController)
+    let groupsFeature = factory.groupFeature(userSelection: UserSelection())
 
     XCTAssertEqual(groupsController.groups.count, 0)
 
@@ -39,7 +40,9 @@ class GroupsFeatureControllerTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for callback")
     let group = Group.empty()
     let groupsController = GroupsController(groups: [group])
-    let coreController = CoreControllerMock(groupsController: groupsController) { state in
+    let commandController = CommandControllerMock()
+    let coreController = CoreControllerMock(commandController: commandController,
+                                            groupsController: groupsController) { state in
       switch state {
       case .respondTo,
            .reloadContext,
@@ -55,9 +58,8 @@ class GroupsFeatureControllerTests: XCTestCase {
 
     groupsController.delegate = coreController
 
-    let factory = FeatureFactory(coreController: coreController,
-                                 userSelection: UserSelection())
-    let groupsFeature = factory.groupFeature()
+    let factory = FeatureFactory(coreController: coreController)
+    let groupsFeature = factory.groupFeature(userSelection: UserSelection())
 
     XCTAssertEqual(groupsController.groups.count, 1)
 
@@ -73,7 +75,9 @@ class GroupsFeatureControllerTests: XCTestCase {
     newGroup.name = "Updated group"
 
     let groupsController = GroupsController(groups: [oldGroup])
-    let coreController = CoreControllerMock(groupsController: groupsController) { state in
+    let commandController = CommandControllerMock()
+    let coreController = CoreControllerMock(commandController: commandController,
+                                            groupsController: groupsController) { state in
       switch state {
       case .respondTo,
            .reloadContext,
@@ -91,9 +95,9 @@ class GroupsFeatureControllerTests: XCTestCase {
 
     groupsController.delegate = coreController
 
-    let factory = FeatureFactory(coreController: coreController,
-                                 userSelection: UserSelection())
-    let groupsFeature = factory.groupFeature()
+    let userSelection = UserSelection()
+    let factory = FeatureFactory(coreController: coreController)
+    let groupsFeature = factory.groupFeature(userSelection: userSelection)
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertTrue(groupsController.groups.contains(oldGroup))
@@ -107,7 +111,9 @@ class GroupsFeatureControllerTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for callback")
     let application = Application.finder()
     let groupsController = GroupsController(groups: [])
-    let coreController = CoreControllerMock(groupsController: groupsController) { state in
+    let commandController = CommandControllerMock()
+    let coreController = CoreControllerMock(commandController: commandController,
+                                            groupsController: groupsController) { state in
       switch state {
       case .respondTo,
            .reloadContext,
@@ -134,11 +140,11 @@ class GroupsFeatureControllerTests: XCTestCase {
 
     groupsController.delegate = coreController
 
-    let factory = FeatureFactory(coreController: coreController,
-                                 userSelection: UserSelection())
-    let groupsFeature = factory.groupFeature()
+    let userSelection = UserSelection()
+    let factory = FeatureFactory(coreController: coreController)
+    let groupsFeature = factory.groupFeature(userSelection: userSelection)
 
-    groupsFeature.perform(.dropFile(URL(fileURLWithPath: application.path)))
+    groupsFeature.perform(.dropFile([URL(fileURLWithPath: application.path)]))
 
     wait(for: [expectation], timeout: 1.0)
   }
