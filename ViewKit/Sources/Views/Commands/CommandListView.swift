@@ -43,6 +43,7 @@ public struct CommandListView: View {
                 .foregroundColor(Color(.secondaryLabelColor))
                 .padding(16)
                 .offset(x: 0, y: -2)
+                .cursorOnHover(.closedHand)
             }
             .frame(height: 48)
             .background(LinearGradient(

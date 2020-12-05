@@ -22,7 +22,7 @@ struct ApplicationView: View {
               Text("Edit")
             })
             .foregroundColor(Color(.controlAccentColor))
-            .pointerHandOnHover()
+            .cursorOnHover(.pointingHand)
 
             Text("|").foregroundColor(Color(.secondaryLabelColor))
 
@@ -30,7 +30,7 @@ struct ApplicationView: View {
               Text("Reveal")
             })
             .foregroundColor(Color(.controlAccentColor))
-            .pointerHandOnHover()
+            .cursorOnHover(.pointingHand)
 
             Text("|").foregroundColor(Color(.secondaryLabelColor))
 
@@ -38,7 +38,7 @@ struct ApplicationView: View {
               Text("Run")
             })
             .foregroundColor(Color(.controlAccentColor))
-            .pointerHandOnHover()
+            .cursorOnHover(.pointingHand)
           }
           .buttonStyle(LinkButtonStyle())
           .font(Font.caption)

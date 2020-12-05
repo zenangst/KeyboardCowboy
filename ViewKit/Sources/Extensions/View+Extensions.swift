@@ -5,9 +5,9 @@ public extension View {
     AnyView(self)
   }
 
-  func pointerHandOnHover() -> some View {
+  func cursorOnHover(_ cursor: NSCursor) -> some View {
     onHover(perform: { hovering in
-      if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+      if hovering { cursor.push() } else { NSCursor.pop() }
     })
   }
 
