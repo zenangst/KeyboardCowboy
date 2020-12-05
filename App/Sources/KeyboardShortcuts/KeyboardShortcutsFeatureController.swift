@@ -22,26 +22,21 @@ final class KeyboardShortcutsFeatureController: ActionController {
   weak var delegate: KeyboardShortcutsFeatureControllerDelegate?
 
   let groupsController: GroupsControlling
-  private let queue = DispatchQueue(label: "\(bundleIdentifier).KeyboardShortcutsFeatureController",
-                                    qos: .userInteractive)
 
   init(groupsController: GroupsControlling) {
     self.groupsController = groupsController
   }
 
   func perform(_ action: KeyboardShortcutList.Action) {
-    queue.async { [weak self] in
-      guard let self = self else { return }
-      switch action {
-      case .createKeyboardShortcut(let keyboardShortcut, let index, let workflow):
-        self.createKeyboardShortcut(keyboardShortcut, at: index, in: workflow)
-      case .updateKeyboardShortcut(let keyboardShortcut, let workflow):
-        self.updateKeyboardShortcut(keyboardShortcut, in: workflow)
-      case .deleteKeyboardShortcut(let keyboardShortcut, let workflow):
-        self.deleteKeyboardShortcut(keyboardShortcut, in: workflow)
-      case .moveCommand(let keyboardShortcut, let to, let workflow):
-        self.moveKeyboardShortcut(keyboardShortcut, to: to, in: workflow)
-      }
+    switch action {
+    case .createKeyboardShortcut(let keyboardShortcut, let index, let workflow):
+      createKeyboardShortcut(keyboardShortcut, at: index, in: workflow)
+    case .updateKeyboardShortcut(let keyboardShortcut, let workflow):
+      updateKeyboardShortcut(keyboardShortcut, in: workflow)
+    case .deleteKeyboardShortcut(let keyboardShortcut, let workflow):
+      deleteKeyboardShortcut(keyboardShortcut, in: workflow)
+    case .moveCommand(let keyboardShortcut, let to, let workflow):
+      moveKeyboardShortcut(keyboardShortcut, to: to, in: workflow)
     }
   }
 
