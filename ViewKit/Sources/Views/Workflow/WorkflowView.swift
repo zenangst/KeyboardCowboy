@@ -4,7 +4,7 @@ import ModelKit
 public struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
 
-  let workflow: Workflow
+  @Binding var workflow: Workflow
   let group: ModelKit.Group
   let applicationProvider: ApplicationProvider
   let commandController: CommandController
@@ -111,7 +111,7 @@ private extension WorkflowView {
   func keyboardShortcuts(for workflow: Workflow) -> some View {
     KeyboardShortcutList(keyboardShortcutController: keyboardShortcutController,
                              keyboardShortcuts: workflow.keyboardShortcuts,
-                             workflow: workflow)
+                             workflow: $workflow)
       .background(Color(.windowBackgroundColor))
       .frame(alignment: .top)
       .cornerRadius(8)
@@ -146,7 +146,7 @@ struct WorkflowView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     DesignTimeFactory().workflowDetail(
-      ModelFactory().workflowDetail(),
+      .constant(ModelFactory().workflowDetail()),
       group: ModelFactory().groupList().first!)
       .environmentObject(UserSelection())
       .frame(height: 668)
