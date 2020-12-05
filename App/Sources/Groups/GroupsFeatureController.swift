@@ -11,7 +11,6 @@ final class GroupsFeatureController: ViewController,
   var applications = [Application]()
   let groupsController: GroupsControlling
   let userSelection: UserSelection
-  let queue = DispatchQueue(label: "\(bundleIdentifier).GroupsFeatureController", qos: .userInteractive)
 
   init(groupsController: GroupsControlling, applications: [Application],
        userSelection: UserSelection) {
@@ -27,22 +26,19 @@ final class GroupsFeatureController: ViewController,
   // MARK: ViewController
 
   func perform(_ action: GroupList.Action) {
-    queue.async { [weak self] in
-      guard let self = self else { return }
-      switch action {
-      case .createGroup:
-        self.newGroup()
-      case .deleteGroup(let group):
-        self.delete(group)
-      case .updateGroup(let group):
-        self.save(group)
-      case .dropFile(let urls):
-        for url in urls {
-          self.processUrl(url)
-        }
-      case .moveGroup(let from, let to):
-        self.move(from: from, to: to)
+    switch action {
+    case .createGroup:
+      newGroup()
+    case .deleteGroup(let group):
+      delete(group)
+    case .updateGroup(let group):
+      save(group)
+    case .dropFile(let urls):
+      for url in urls {
+        processUrl(url)
       }
+    case .moveGroup(let from, let to):
+      move(from: from, to: to)
     }
   }
 
@@ -51,11 +47,8 @@ final class GroupsFeatureController: ViewController,
   private func reload(_ groups: [ModelKit.Group], then handler: ((UserSelection) -> Void)? = nil) {
     groupsController.reloadGroups(groups)
     subject.send(groups)
-
-    DispatchQueue.main.async {
-      self.state = groups
-      handler?(self.userSelection)
-    }
+    self.state = groups
+    handler?(self.userSelection)
   }
 
   private func newGroup() {

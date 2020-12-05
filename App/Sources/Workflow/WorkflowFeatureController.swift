@@ -27,7 +27,6 @@ final class WorkflowFeatureController: ViewController,
   var applications = [Application]()
   let groupsController: GroupsControlling
   private var cancellables = [AnyCancellable]()
-  private let queue = DispatchQueue(label: "\(bundleIdentifier).WorkflowFeatureController", qos: .userInteractive)
 
   public init(state: Workflow,
               applications: [Application],
@@ -40,20 +39,17 @@ final class WorkflowFeatureController: ViewController,
   // MARK: ViewController
 
   func perform(_ action: WorkflowList.Action) {
-    queue.async { [weak self] in
-      guard let self = self else { return }
-      switch action {
-      case .createWorkflow(let group):
-        self.createWorkflow(in: group)
-      case .updateWorkflow(let workflow, let group):
-        self.updateWorkflow(workflow, in: group)
-      case .deleteWorkflow(let workflow, let group):
-        self.deleteWorkflow(workflow, in: group)
-      case .moveWorkflow(let workflow, let to, let group):
-        self.moveWorkflow(workflow, to: to, in: group)
-      case .drop(let urls, let workflow, let group):
-        self.drop(urls, workflow: workflow, in: group)
-      }
+    switch action {
+    case .createWorkflow(let group):
+      createWorkflow(in: group)
+    case .updateWorkflow(let workflow, let group):
+      updateWorkflow(workflow, in: group)
+    case .deleteWorkflow(let workflow, let group):
+      deleteWorkflow(workflow, in: group)
+    case .moveWorkflow(let workflow, let to, let group):
+      moveWorkflow(workflow, to: to, in: group)
+    case .drop(let urls, let workflow, let group):
+      drop(urls, workflow: workflow, in: group)
     }
   }
 

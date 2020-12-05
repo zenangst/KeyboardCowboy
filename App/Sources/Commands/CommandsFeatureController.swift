@@ -20,7 +20,6 @@ final class CommandsFeatureController: ActionController {
   let installedApplications: [Application]
   private let workspace: WorkspaceProviding
   private let commandController: CommandControlling
-  private let queue = DispatchQueue(label: "\(bundleIdentifier).CommandsFeatureController", qos: .userInteractive)
 
   init(commandController: CommandControlling,
        groupsController: GroupsControlling,
@@ -33,22 +32,19 @@ final class CommandsFeatureController: ActionController {
   }
 
   func perform(_ action: CommandListView.Action) {
-    queue.async { [weak self] in
-      guard let self = self else { return }
-      switch action {
-      case .createCommand(let command, let workflow):
-        self.createCommand(command, in: workflow)
-      case .updateCommand(let command, let workflow):
-        self.updateCommand(command, in: workflow)
-      case .deleteCommand(let command, let workflow):
-        self.deleteCommand(command, in: workflow)
-      case .moveCommand(let command, let offset, let workflow):
-        self.moveCommand(command, to: offset, in: workflow)
-      case .runCommand(let command):
-        self.run(command)
-      case .revealCommand(let command, _):
-        self.reveal(command)
-      }
+    switch action {
+    case .createCommand(let command, let workflow):
+      createCommand(command, in: workflow)
+    case .updateCommand(let command, let workflow):
+      updateCommand(command, in: workflow)
+    case .deleteCommand(let command, let workflow):
+      deleteCommand(command, in: workflow)
+    case .moveCommand(let command, let offset, let workflow):
+      moveCommand(command, to: offset, in: workflow)
+    case .runCommand(let command):
+      run(command)
+    case .revealCommand(let command, _):
+      reveal(command)
     }
   }
 
