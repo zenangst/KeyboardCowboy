@@ -33,8 +33,13 @@ private extension WorkflowListCell {
   }
 
   var numberOfCommands: some View {
-    Text("\(workflow.commands.count) commands")
-      .foregroundColor(.secondary)
+    Group {
+    if workflow.commands.count > 1 {
+      Text("\(workflow.commands.count) commands")
+    } else if workflow.commands.count > 0 {
+      Text("\(workflow.commands.count) command")
+    }
+    }.foregroundColor(.secondary)
   }
 
   @ViewBuilder
