@@ -37,7 +37,14 @@ public struct MainView: View {
       if userSelection.searchQuery.isEmpty,
          let workflow = userSelection.workflow,
          let group = userSelection.group {
-        factory.workflowDetail(workflow, group: group).id(workflow.id)
+        factory.workflowDetail(Binding<Workflow>(
+          get: {
+            userSelection.workflow ?? Workflow.empty()
+          }, set: {
+            userSelection.workflow = $0
+            workflowController.perform(.updateWorkflow($0, in: group))
+          }
+        ), group: group).id(workflow.id)
       }
     }.toolbar {
       ToolbarItemGroup(placement: .navigation) {

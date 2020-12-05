@@ -5,7 +5,7 @@ public protocol ViewFactory {
   func mainView() -> MainView
   func groupList() -> GroupList
   func workflowList(group: ModelKit.Group, selectedWorkflow: Workflow?) -> WorkflowList
-  func workflowDetail(_ workflow: ModelKit.Workflow, group: ModelKit.Group) -> WorkflowView
+  func workflowDetail(_ workflow: Binding<ModelKit.Workflow>, group: ModelKit.Group) -> WorkflowView
 }
 
 public class DesignTimeFactory: ViewFactory {
@@ -41,8 +41,8 @@ public class DesignTimeFactory: ViewFactory {
                  selection: selectedWorkflow)
   }
 
-  public func workflowDetail(_ workflow: Workflow, group: ModelKit.Group) -> WorkflowView {
-    WorkflowView(workflow: ModelFactory().workflowDetail(),
+  public func workflowDetail(_ workflow: Binding<Workflow>, group: ModelKit.Group) -> WorkflowView {
+    WorkflowView(workflow: .constant(ModelFactory().workflowDetail()),
                  group: ModelFactory().groupList().first!,
                  applicationProvider: applicationProvider,
                  commandController: commandController,
@@ -104,7 +104,7 @@ public class AppViewFactory: ViewFactory {
                  workflowController: workflowController)
   }
 
-  public func workflowDetail(_ workflow: ModelKit.Workflow, group: ModelKit.Group) -> WorkflowView {
+  public func workflowDetail(_ workflow: Binding<ModelKit.Workflow>, group: ModelKit.Group) -> WorkflowView {
     WorkflowView(
       workflow: workflow,
       group: group,

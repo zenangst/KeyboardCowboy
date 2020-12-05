@@ -12,7 +12,7 @@ public struct KeyboardShortcutList: View {
   @Environment(\.colorScheme) var colorScheme
   let keyboardShortcutController: KeyboardShortcutController
   let keyboardShortcuts: [ModelKit.KeyboardShortcut]
-  let workflow: Workflow
+  @Binding var workflow: Workflow
 
   public var body: some View {
     VStack(spacing: 1) {
@@ -74,6 +74,6 @@ struct KeyboardShortcutList_Previews: PreviewProvider, TestPreviewProvider {
     KeyboardShortcutList(
       keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
       keyboardShortcuts: ModelFactory().keyboardShortcuts(),
-      workflow: ModelFactory().workflowDetail())
+      workflow: .constant(ModelFactory().workflowDetail()))
   }
 }
