@@ -24,7 +24,15 @@ struct MovableView<Element, Content>: View where Content: View, Element: Hashabl
   @State private var opacity: Double = 1.0
   @State private var offset: CGSize = .zero
   @State private var scaleFactor: CGFloat = 1.0
-  @State private var isMoving: Bool = false
+  @State private var isMoving: Bool = false {
+    didSet {
+      if isMoving {
+        NSCursor.closedHand.push()
+      } else {
+        NSCursor.pop()
+      }
+    }
+  }
   @State private var zIndex: Double = 1
 
   init(element: Element, dragHandler: @escaping DragHandler, _ contentView: () -> Content) {

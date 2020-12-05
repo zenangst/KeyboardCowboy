@@ -49,6 +49,11 @@ public struct KeyboardShortcutList: View {
                   .renderingMode(.template)
                   .foregroundColor(Color(.systemRed))
               }).buttonStyle(PlainButtonStyle())
+              Text("≣")
+                .font(.title)
+                .padding(.leading, 8)
+                .offset(x: 0, y: -2)
+                .cursorOnHover(.closedHand)
             }
           }
           .frame(height: 48, alignment: .center)
