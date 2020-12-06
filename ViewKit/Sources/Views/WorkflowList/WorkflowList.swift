@@ -37,17 +37,17 @@ public struct WorkflowList: View {
                 workflowController.perform(.deleteWorkflow(workflow, in: group))
               }.keyboardShortcut(.delete, modifiers: [])
             }
-        }.onMove(perform: { indices, newOffset in
+        }.onMove { indices, newOffset in
           for i in indices {
             let workflow = group.workflows[i]
             workflowController.perform(.moveWorkflow(workflow, to: newOffset, in: group))
           }
-        }).onDelete(perform: { indexSet in
+        }.onDelete { indexSet in
           for index in indexSet {
             let workflow = group.workflows[index]
             workflowController.perform(.deleteWorkflow(workflow, in: group))
           }
-        })
+        }.onInsert(of: []) { _, _ in }
       }
       .onDrop($isDropping) {
         workflowController.perform(.drop($0, nil, in: group))

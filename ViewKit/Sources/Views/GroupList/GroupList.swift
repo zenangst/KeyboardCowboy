@@ -22,55 +22,54 @@ public struct GroupList: View {
   @State var isDropping: Bool = false
 
   public var body: some View {
-    VStack(alignment: .leading) {
-      List {
-        ForEach(groupController.state, id: \.id) { group in
-          NavigationLink(
-            destination: factory.workflowList(group: group, selectedWorkflow: userSelection.workflow).environmentObject(userSelection),
-            tag: group, selection: Binding<ModelKit.Group?>(get: {
-              userSelection.group
-            }, set: { group in
-              userSelection.group = group
-              if let group = group {
-                if let workflow = userSelection.workflow,
-                   !group.workflows.contains(workflow) {
-                  userSelection.workflow = group.workflows.first
-                } else if userSelection.workflow == nil {
-                  userSelection.workflow = group.workflows.first
-                }
+    List {
+      ForEach(groupController.state, id: \.id) { group in
+        NavigationLink(
+          destination: factory.workflowList(group: group, selectedWorkflow: userSelection.workflow).environmentObject(userSelection),
+          tag: group, selection: Binding<ModelKit.Group?>(get: {
+            userSelection.group
+          }, set: { group in
+            userSelection.group = group
+            if let group = group {
+              if let workflow = userSelection.workflow,
+                 !group.workflows.contains(workflow) {
+                userSelection.workflow = group.workflows.first
+              } else if userSelection.workflow == nil {
+                userSelection.workflow = group.workflows.first
               }
-            })) {
-            GroupListCell(
-              name: group.name,
-              color: group.color,
-              symbol: group.symbol,
-              count: group.workflows.count,
-              editAction: { editGroup = group }
-            )
-          }
-          .frame(minHeight: 36)
-          .contextMenu {
-            Button("Show Info") { editGroup = group }
-            Divider()
-            Button("Delete") {
-              groupController.action(.deleteGroup(group))()
             }
+          })) {
+          GroupListCell(
+            name: group.name,
+            color: group.color,
+            symbol: group.symbol,
+            count: group.workflows.count,
+            editAction: { editGroup = group }
+          )
+        }
+        .frame(minHeight: 36)
+        .contextMenu {
+          Button("Show Info") { editGroup = group }
+          Divider()
+          Button("Delete") {
+            groupController.action(.deleteGroup(group))()
           }
         }
-        .onMove(perform: { indices, newOffset in
-          for i in indices {
-            groupController.action(.moveGroup(from: i, to: newOffset))()
-          }
-        })
+        
       }
-      .navigationViewStyle(DoubleColumnNavigationViewStyle())
-      .onDrop($isDropping) { groupController.perform(.dropFile($0)) }
-      .border(Color.accentColor, width: isDropping ? 5 : 0)
-      .sheet(item: $editGroup, content: editGroup)
-      AddButton(text: "Add Group", action: {
-        groupController.perform(.createGroup)
-      })
+      .onInsert(of: []) { _, _ in }
+      .onMove { indices, newOffset in
+        for i in indices {
+          groupController.action(.moveGroup(from: i, to: newOffset))()
+        }
+      }
     }
+    .onDrop($isDropping) { groupController.perform(.dropFile($0)) }
+    .border(Color.accentColor, width: isDropping ? 5 : 0)
+    .sheet(item: $editGroup, content: editGroup)
+    AddButton(text: "Add Group", action: {
+      groupController.perform(.createGroup)
+    })
   }
 }
 

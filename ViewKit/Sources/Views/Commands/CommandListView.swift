@@ -18,7 +18,7 @@ public struct CommandListView: View {
   @State private var selection: Command?
   @State private var editCommand: Command?
 
-  let workflow: Workflow
+  @Binding var workflow: Workflow
 
   public var body: some View {
     VStack(alignment: .leading) {
@@ -103,6 +103,6 @@ struct CommandListView_Previews: PreviewProvider, TestPreviewProvider {
     CommandListView(applicationProvider: ApplicationPreviewProvider().erase(),
                     commandController: CommandPreviewController().erase(),
                     openPanelController: OpenPanelPreviewController().erase(),
-                    workflow: ModelFactory().workflowDetail())
+                    workflow: .constant(ModelFactory().workflowDetail()))
   }
 }
