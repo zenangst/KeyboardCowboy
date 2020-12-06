@@ -21,7 +21,9 @@ public extension View {
         let completion = {
           counter -= 1
           if counter == 0 {
-            handler(Array(urls))
+            DispatchQueue.main.async {
+              handler(Array(urls))
+            }
           }
         }
 

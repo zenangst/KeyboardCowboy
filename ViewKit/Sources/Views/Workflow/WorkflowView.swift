@@ -130,7 +130,7 @@ private extension WorkflowView {
     CommandListView(applicationProvider: applicationProvider,
                     commandController: commandController,
                     openPanelController: openPanelController,
-                    workflow: workflow)
+                    workflow: $workflow)
       .frame(alignment: .top)
       .padding(.bottom, 24)
       .shadow(color: Color(.separatorColor).opacity(0.05), radius: 5, x: 0, y: 2.5)

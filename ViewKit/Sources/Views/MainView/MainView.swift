@@ -33,13 +33,12 @@ public struct MainView: View {
     NavigationView {
       sidebar.frame(minWidth: 225)
       EmptyView()
-
       if userSelection.searchQuery.isEmpty,
          let workflow = userSelection.workflow,
          let group = userSelection.group {
         factory.workflowDetail(Binding<Workflow>(
           get: {
-            userSelection.workflow ?? Workflow.empty()
+            workflow
           }, set: {
             userSelection.workflow = $0
             workflowController.perform(.updateWorkflow($0, in: group))
@@ -116,8 +115,7 @@ private extension MainView {
         .frame(height: 48)
         .padding(.horizontal, 12)
       factory.groupList()
-        .listStyle(SidebarListStyle())
-    }.navigationViewStyle(DoubleColumnNavigationViewStyle())
+    }
   }
 
   func toggleSidebar() {
