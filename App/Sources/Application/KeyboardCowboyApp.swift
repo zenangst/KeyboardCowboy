@@ -7,6 +7,7 @@ struct KeyboardCowboyApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   @Environment(\.scenePhase) var scenePhase
   @State var content: MainView?
+  private var firstResponder: NSResponder? { NSApp.keyWindow?.firstResponder }
 
   var body: some Scene {
     WindowGroup {
@@ -27,15 +28,27 @@ struct KeyboardCowboyApp: App {
     }
     .windowToolbarStyle(UnifiedWindowToolbarStyle())
     .commands {
-      CommandGroup(after: CommandGroupPlacement.newItem, addition: {
+      CommandGroup(replacing: CommandGroupPlacement.pasteboard, addition: {
+        Button("Delete") {
+           firstResponder?.tryToPerform(#selector(NSText.delete(_:)), with: nil)
+        }.keyboardShortcut(.delete, modifiers: [])
+      })
+
+      CommandGroup(replacing: CommandGroupPlacement.newItem, addition: {
+        Button("New Workflow") {
+          if let group = appDelegate.userSelection.group {
+            appDelegate.workflowFeatureController?.perform(.createWorkflow(in: group))
+          }
+        }.keyboardShortcut("n", modifiers: [.command])
+
         Button("New Group") {
           appDelegate.groupFeatureController?.perform(.createGroup)
-        }.keyboardShortcut("N")
+        }.keyboardShortcut("N", modifiers: [.command, .shift])
       })
 
       CommandGroup(after: CommandGroupPlacement.toolbar, addition: {
         Button("Toggle Sidebar") {
-          NSApp.keyWindow?.firstResponder?.tryToPerform(
+          firstResponder?.tryToPerform(
             #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
         }.keyboardShortcut("S")
       })

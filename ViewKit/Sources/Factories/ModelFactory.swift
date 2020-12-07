@@ -128,7 +128,7 @@ class ModelFactory {
       shellScriptCommand(id: id),
       keyboardCommand(id: id),
       openCommand(id: id),
-      urlCommand(id: id)
+      urlCommand(id: id, application: nil)
     ]
 
     return result
@@ -159,9 +159,9 @@ class ModelFactory {
                        path: "~/Developer/Xcode.project"))
   }
 
-  func urlCommand(id: String) -> Command {
+  func urlCommand(id: String, application: Application?) -> Command {
     Command.open(.init(id: id,
-                       application: Application.safari(),
+                       application: application,
                        path: "https://github.com"))
   }
 

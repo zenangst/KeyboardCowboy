@@ -19,7 +19,8 @@ public struct GroupList: View {
   let workflowController: WorkflowController
   @State private var editGroup: ModelKit.Group?
   @State private var selection: ModelKit.Group?
-  @State var isDropping: Bool = false
+  @State private var isDropping: Bool = false
+  @State private var deleteGroup: ModelKit.Group?
 
   public var body: some View {
     List {
@@ -51,13 +52,12 @@ public struct GroupList: View {
         .contextMenu {
           Button("Show Info") { editGroup = group }
           Divider()
-          Button("Delete") {
-            groupController.action(.deleteGroup(group))()
-          }
+          Button("Delete", action: onDelete)
         }
-        
       }
-      .onInsert(of: []) { _, _ in }
+      .onInsert(of: []) { _, _ in
+        Swift.print("foo")
+      }
       .onMove { indices, newOffset in
         for i in indices {
           groupController.action(.moveGroup(from: i, to: newOffset))()
@@ -67,6 +67,24 @@ public struct GroupList: View {
     .onDrop($isDropping) { groupController.perform(.dropFile($0)) }
     .border(Color.accentColor, width: isDropping ? 5 : 0)
     .sheet(item: $editGroup, content: editGroup)
+    .sheet(item: $deleteGroup, content: { group in
+      VStack(spacing: 0) {
+        Text("Are you sure you want to delete the group “\(group.name)”?")
+          .padding()
+        Divider()
+        HStack {
+          Button("Cancel", action: {
+            deleteGroup = nil
+          }).keyboardShortcut(.cancelAction)
+          Button("Delete", action: {
+            deleteGroup = nil
+            groupController.perform(.deleteGroup(group))
+          }).keyboardShortcut(.defaultAction)
+        }.padding()
+      }
+    })
+    .onDeleteCommand(perform: onDelete)
+
     AddButton(text: "Add Group", action: {
       groupController.perform(.createGroup)
     })
@@ -102,6 +120,16 @@ private extension GroupList {
         editGroup = nil
       },
       cancelAction: { editGroup = nil })
+  }
+
+  func onDelete() {
+    if let group = userSelection.group {
+      if group.workflows.isEmpty {
+        groupController.perform(.deleteGroup(group))
+      } else {
+        deleteGroup = group
+      }
+    }
   }
 }
 

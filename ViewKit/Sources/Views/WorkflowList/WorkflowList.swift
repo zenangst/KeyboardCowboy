@@ -71,6 +71,11 @@ public struct WorkflowList: View {
       .navigationTitle("\(group.name)")
       .navigationSubtitle("Workflows: \(group.workflows.count)")
       .environment(\.defaultMinListRowHeight, 1)
+      .onDeleteCommand(perform: {
+        if let workflow = selection {
+          workflowController.perform(.deleteWorkflow(workflow, in: group))
+        }
+      })
     } else {
       SearchView(searchController: searchController)
     }
