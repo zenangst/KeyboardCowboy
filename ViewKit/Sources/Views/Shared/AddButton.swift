@@ -12,10 +12,12 @@ struct AddButton: View {
   var body: some View {
     HStack(spacing: 4) {
       if alignment == .center || alignment == .right { Spacer() }
-      RoundOutlinedButton(title: "+", color: Color(.secondaryLabelColor))
-        .onTapGesture(perform: action)
-      Button(text, action: action)
-        .buttonStyle(PlainButtonStyle())
+      Button(action: action, label: {
+        Label(
+          title: { Text(text) },
+          icon: { Image(systemName: "plus.circle") }
+        )
+      }).buttonStyle(PlainButtonStyle())
       if alignment == .center || alignment == .left { Spacer() }
     }.padding(8)
   }

@@ -9,12 +9,11 @@ struct GroupListCell: View {
   let count: Int
   let editAction: () -> Void
   @State private var isHovering: Bool = false
-  @EnvironmentObject var userSelection: UserSelection
 
   var body: some View {
     HStack {
       icon
-      textField
+      text
       Spacer()
       if isHovering {
         editButton(editAction)
@@ -33,17 +32,17 @@ struct GroupListCell: View {
 
 private extension GroupListCell {
   var icon: some View {
-    ZStack {
-      Circle().fill(Color(hex: color))
-        .frame(width: 24, height: 24)
-      Image(systemName: symbol)
-        .renderingMode(.template)
-        .foregroundColor(.white)
-        .frame(width: 14, height: 12)
-    }
+    Circle()
+      .fill(Color(hex: color))
+      .frame(width: 24, height: 24, alignment: .center)
+      .overlay(
+        Image(systemName: symbol)
+          .renderingMode(.template)
+          .foregroundColor(.white)
+      )
   }
 
-  var textField: some View {
+  var text: some View {
     Text(name)
       .foregroundColor(.primary)
       .lineSpacing(-2.0)
@@ -78,7 +77,6 @@ struct GroupListCell_Previews: PreviewProvider, TestPreviewProvider {
                          symbol: group.symbol,
                          count: group.workflows.count,
                          editAction: {})
-      .environmentObject(UserSelection())
       .frame(width: 300)
   }
 }
