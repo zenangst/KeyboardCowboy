@@ -31,6 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   var groupFeatureController: GroupsFeatureController?
   var workflowFeatureController: WorkflowFeatureController?
   var menubarController: MenubarController?
+  var settingsController: SettingsController?
 
   var storageController: StorageControlling {
     let configuration = Configuration.Storage()
@@ -46,6 +47,15 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   // MARK: Application life cycle
 
   func applicationWillFinishLaunching(_ notification: Notification) {
+    settingsController = SettingsController(userDefaults: .standard)
+    settingsController?.hideMenuBarIcon.sink(receiveValue: { newValue in
+      if newValue {
+        self.menubarController = nil
+      } else {
+        self.menubarController = self.createMenubarController()
+      }
+    }).store(in: &cancellables)
+
     if launchArguments.isEnabled(.runningUnitTests) { return }
     if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil { return }
 
@@ -103,10 +113,7 @@ class AppDelegate: NSObject, NSApplicationDelegate,
 
     let mainView = context.factory.mainView()
     self.groupFeatureController = context.groupsFeature
-
-    let menubarController = featureFactory.menuBar()
-    menubarController.delegate = self
-    self.menubarController = menubarController
+    self.menubarController = !UserDefaults.standard.hideMenuBarIcon ? createMenubarController() : nil
 
     context.groupsFeature.subject
       .debounce(for: 0.5, scheduler: RunLoop.main)
@@ -118,6 +125,12 @@ class AppDelegate: NSObject, NSApplicationDelegate,
 
     configureDirectoryObserver(coreController)
     return mainView
+  }
+
+  private func createMenubarController() -> MenubarController {
+    let menubarController = FeatureFactory.menuBar()
+    menubarController.delegate = self
+    return menubarController
   }
 
   private func configureDirectoryObserver(_ coreController: CoreControlling) {
