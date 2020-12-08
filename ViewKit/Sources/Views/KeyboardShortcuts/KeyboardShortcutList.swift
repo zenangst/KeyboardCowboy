@@ -9,17 +9,24 @@ public struct KeyboardShortcutList: View {
     case moveCommand(ModelKit.KeyboardShortcut, to: Int, in: Workflow)
   }
 
+  public enum UIAction {
+    case create(ModelKit.KeyboardShortcut, Int)
+    case update(ModelKit.KeyboardShortcut)
+    case move(ModelKit.KeyboardShortcut, Int)
+    case delete(ModelKit.KeyboardShortcut)
+  }
+
   @Environment(\.colorScheme) var colorScheme
-  let keyboardShortcutController: KeyboardShortcutController
-  let keyboardShortcuts: [ModelKit.KeyboardShortcut]
   @Binding var workflow: Workflow
+
+  let performAction: (UIAction) -> Void
 
   public var body: some View {
     VStack(spacing: 1) {
-      ForEach(Array(keyboardShortcuts.enumerated()), id: \.element) { index, keyboardShortcut in
+      ForEach(Array(workflow.keyboardShortcuts.enumerated()), id: \.element) { index, keyboardShortcut in
         MovableView(element: keyboardShortcut, dragHandler: { offset, _ in
           let indexOffset = Int(round(offset.height / 48))
-          keyboardShortcutController.perform(.moveCommand(keyboardShortcut, to: indexOffset, in: workflow))
+          performAction(.move(keyboardShortcut, indexOffset))
         }, {
           HStack {
             Text("\(index + 1).").padding(.leading, 4)
@@ -27,15 +34,13 @@ public struct KeyboardShortcutList: View {
               keyboardShortcut
             }, set: { keyboardShortcut in
               if let keyboardShortcut = keyboardShortcut {
-                keyboardShortcutController.perform(.updateKeyboardShortcut(keyboardShortcut, in: workflow))
+                performAction(.update(keyboardShortcut))
               }
             }))
             HStack(spacing: 4) {
               Button(action: {
-                if let index = keyboardShortcuts.firstIndex(of: keyboardShortcut) {
-                  keyboardShortcutController.perform(.createKeyboardShortcut(KeyboardShortcut.empty(),
-                                                                             index: index + 1,
-                                                                             in: workflow))
+                if let index = workflow.keyboardShortcuts.firstIndex(of: keyboardShortcut) {
+                  performAction(.create(KeyboardShortcut.empty(), index + 1))
                 }
               }, label: {
                 Image(systemName: "plus.circle.fill")
@@ -43,7 +48,7 @@ public struct KeyboardShortcutList: View {
                   .foregroundColor(Color(.systemGreen))
               }).buttonStyle(PlainButtonStyle())
               Button(action: {
-                keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut, in: workflow))
+                performAction(.delete(keyboardShortcut))
               }, label: {
                 Image(systemName: "minus.circle.fill")
                   .renderingMode(.template)
@@ -76,9 +81,6 @@ struct KeyboardShortcutList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    KeyboardShortcutList(
-      keyboardShortcutController: KeyboardShortcutPreviewController().erase(),
-      keyboardShortcuts: ModelFactory().keyboardShortcuts(),
-      workflow: .constant(ModelFactory().workflowDetail()))
+    KeyboardShortcutList(workflow: .constant(ModelFactory().workflowDetail())) { _ in }
   }
 }

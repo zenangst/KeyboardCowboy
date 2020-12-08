@@ -151,9 +151,18 @@ private extension WorkflowView {
       } else {
         HeaderView(title: "Keyboard shortcuts:")
           .padding([.leading, .top])
-        KeyboardShortcutList(keyboardShortcutController: keyboardShortcutController,
-                             keyboardShortcuts: workflow.keyboardShortcuts,
-                             workflow: $workflow)
+        KeyboardShortcutList(workflow: $workflow) { action in
+          switch action {
+          case .create(let keyboardShortcut, let index):
+            keyboardShortcutController.perform(.createKeyboardShortcut(keyboardShortcut, index: index, in: workflow))
+          case .update(let keyboardShortcut):
+            keyboardShortcutController.perform(.updateKeyboardShortcut(keyboardShortcut, in: workflow))
+          case .move(let keyboardShortcut, let index):
+            keyboardShortcutController.perform(.moveCommand(keyboardShortcut, to: index, in: workflow))
+          case .delete(let keyboardShortcut):
+            keyboardShortcutController.perform(.deleteKeyboardShortcut(keyboardShortcut, in: workflow))
+          }
+        }
           .background(Color(.windowBackgroundColor))
           .frame(alignment: .top)
           .cornerRadius(8)
