@@ -65,7 +65,6 @@ public struct WorkflowList: View {
         selection = userSelection.workflow
       }
     }
-    .frame(minWidth: 250)
     .navigationViewStyle(DoubleColumnNavigationViewStyle())
     .navigationTitle("\(group.name)")
     .navigationSubtitle("Workflows: \(group.workflows.count)")
@@ -86,6 +85,7 @@ public struct WorkflowList: View {
           .help("Add Workflow to \"\(group.name)\"")
       }
     }
+    .frame(minWidth: 250)
   }
 }
 
