@@ -17,7 +17,7 @@ final class FeatureFactory {
     self.coreController = coreController
   }
 
-  func menuBar() -> MenubarController {
+  static func menuBar() -> MenubarController {
     MenubarController()
   }
 

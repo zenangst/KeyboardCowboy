@@ -53,5 +53,9 @@ struct KeyboardCowboyApp: App {
         }.keyboardShortcut("S")
       })
     }
+
+    Settings {
+      SettingsView()
+    }
   }
 }
