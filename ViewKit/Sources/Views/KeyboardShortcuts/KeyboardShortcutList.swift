@@ -16,7 +16,6 @@ public struct KeyboardShortcutList: View {
     case delete(ModelKit.KeyboardShortcut)
   }
 
-  @Environment(\.colorScheme) var colorScheme
   @Binding var workflow: Workflow
 
   let performAction: (UIAction) -> Void
