@@ -23,7 +23,7 @@ public struct CommandListView: View {
   @State private var selection: Command?
   @Binding var workflow: Workflow
 
-  var performAction: (UIAction) -> Void
+  let performAction: (UIAction) -> Void
 
   public var body: some View {
     VStack {
