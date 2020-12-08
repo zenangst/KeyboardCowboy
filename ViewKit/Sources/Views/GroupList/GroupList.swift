@@ -26,7 +26,8 @@ public struct GroupList: View {
     List {
       ForEach(groupController.state, id: \.id) { group in
         NavigationLink(
-          destination: factory.workflowList(group: group, selectedWorkflow: userSelection.workflow).environmentObject(userSelection),
+          destination: factory.workflowList(group: group, selectedWorkflow: userSelection.workflow)
+            .environmentObject(userSelection),
           tag: group, selection: Binding<ModelKit.Group?>(get: {
             userSelection.group
           }, set: { group in
@@ -55,9 +56,7 @@ public struct GroupList: View {
           Button("Delete", action: onDelete)
         }
       }
-      .onInsert(of: []) { _, _ in
-        Swift.print("foo")
-      }
+      .onInsert(of: []) { _, _ in }
       .onMove { indices, newOffset in
         for i in indices {
           groupController.action(.moveGroup(from: i, to: newOffset))()
@@ -84,9 +83,17 @@ public struct GroupList: View {
       }
     })
     .onDeleteCommand(perform: onDelete)
-
-    AddButton(text: "Add Group", action: {
-      groupController.perform(.createGroup)
+    .toolbar(content: {
+      ToolbarItemGroup(placement: .automatic) {
+        Button(action: {
+          groupController.perform(.createGroup)
+        }, label: {
+          Image(systemName: "folder.badge.plus")
+            .renderingMode(.template)
+            .foregroundColor(Color(.systemGray))
+        })
+        .help("Add new Group")
+      }
     })
   }
 }

@@ -5,15 +5,19 @@ public struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
 
   @Binding var workflow: Workflow
+  @EnvironmentObject var userSelection: UserSelection
   let group: ModelKit.Group
   let applicationProvider: ApplicationProvider
   let commandController: CommandController
   let keyboardShortcutController: KeyboardShortcutController
   let openPanelController: OpenPanelController
+  @ObservedObject var searchController: SearchController
   let workflowController: WorkflowController
   @Environment(\.colorScheme) var colorScheme
   @State private var newCommandVisible: Bool = false
   @State var isDropping: Bool = false
+  @State var showSearch: Bool = false
+  @State var searchQuery: String = ""
 
   public var body: some View {
     ScrollView {
@@ -55,20 +59,6 @@ public struct WorkflowView: View {
             AddButton(text: "Add Command",
                       alignment: .center,
                       action: { newCommandVisible = true }).padding(.vertical, 8)
-              .sheet(isPresented: $newCommandVisible, content: {
-                EditCommandView(
-                  applicationProvider: applicationProvider,
-                  openPanelController: openPanelController,
-                  saveAction: { newCommand in
-                    commandController.action(.createCommand(newCommand, in: workflow))()
-                    newCommandVisible = false
-                  },
-                  cancelAction: {
-                    newCommandVisible = false
-                  },
-                  selection: Command.application(.init(application: Application.empty())),
-                  command: Command.application(.init(application: Application.empty())))
-              })
           }
         } else {
           commands(for: workflow).padding(.top)
@@ -93,6 +83,53 @@ public struct WorkflowView: View {
                     ]),
                   startPoint: .top,
                   endPoint: .bottom))
+    .toolbar(content: {
+      ToolbarItemGroup(placement: .automatic) {
+        SearchField(query: Binding<String>(
+                      get: { searchQuery },
+                      set: {
+                        searchQuery = $0
+                        searchController.perform(.search($0))
+
+                        if showSearch == $0.isEmpty {
+                          showSearch = !$0.isEmpty
+                        }
+                      }))
+          .frame(minWidth: 100, idealWidth: 200, maxWidth: .infinity)
+          .padding(.horizontal, 12)
+          .popover(isPresented: $showSearch, arrowEdge: .bottom, content: {
+            SearchView(searchController: searchController)
+              .frame(width: 300, alignment: .center)
+              .frame(minHeight: 300, maxHeight: 500)
+//              .frame(width: 300, height: 200, alignment: .center)
+          })
+      }
+
+      ToolbarItemGroup {
+        Spacer()
+        Button(action: { newCommandVisible = true },
+               label: {
+                Image(systemName: "plus.app")
+                  .renderingMode(.template)
+                  .foregroundColor(Color(.systemGray))
+               })
+          .help("Add Command to \"\(workflow.name)\"")
+      }
+    })
+    .sheet(isPresented: $newCommandVisible, content: {
+      EditCommandView(
+        applicationProvider: applicationProvider,
+        openPanelController: openPanelController,
+        saveAction: { newCommand in
+          commandController.action(.createCommand(newCommand, in: workflow))()
+          newCommandVisible = false
+        },
+        cancelAction: {
+          newCommandVisible = false
+        },
+        selection: Command.application(.init(application: Application.empty())),
+        command: Command.application(.init(application: Application.empty())))
+    })
   }
 }
 

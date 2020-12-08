@@ -6,58 +6,59 @@ struct SearchView: View {
 
   var body: some View {
     ScrollView {
-      HStack {
-        Text("Search results").font(.title)
-        Spacer()
-      }
-      Divider()
-
-      if !searchController.state.workflows.isEmpty {
+      LazyVStack {
         HStack {
-          HeaderView(title: "Workflows")
+          Text("Search results").font(.title)
           Spacer()
-        }
-
-        ForEach(searchController.state.workflows, id: \.self) { workflow in
-          WorkflowListCell(workflow: workflow)
-            .frame(height: 48)
-            .padding(.horizontal, 10)
-            .background(Color(.windowBackgroundColor))
-            .cornerRadius(8)
-            .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
-            .onTapGesture {
-              searchController.perform(.selectWorkflow(workflow))
-            }
-            .tag(workflow)
         }
         Divider()
-      }
 
-      if !searchController.state.commands.isEmpty {
-        HStack {
-          HeaderView(title: "Commands")
-          Spacer()
+        if !searchController.state.workflows.isEmpty {
+          HStack {
+            HeaderView(title: "Workflows")
+            Spacer()
+          }
+
+          ForEach(searchController.state.workflows, id: \.self) { workflow in
+            WorkflowListCell(workflow: workflow)
+              .frame(height: 48)
+              .padding(.horizontal, 10)
+              .background(Color(.windowBackgroundColor))
+              .cornerRadius(8)
+              .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+              .onTapGesture {
+                searchController.perform(.selectWorkflow(workflow))
+              }
+              .tag(workflow)
+          }
+          Divider()
         }
-        ForEach(searchController.state.commands, id: \.self) { command in
-          CommandView(command: command,
-                      editAction: { _ in },
-                      revealAction: { _ in },
-                      runAction: { _ in },
-                      showContextualMenu: false)
-            .frame(height: 48)
-            .padding(.horizontal, 10)
-            .background(Color(.windowBackgroundColor))
-            .cornerRadius(8)
-            .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
-            .onTapGesture {
-              searchController.perform(.selectCommand(command))
-            }
-            .tag(command)
+
+        if !searchController.state.commands.isEmpty {
+          HStack {
+            HeaderView(title: "Commands")
+            Spacer()
+          }
+          ForEach(searchController.state.commands, id: \.self) { command in
+            CommandView(command: command,
+                        editAction: { _ in },
+                        revealAction: { _ in },
+                        runAction: { _ in },
+                        showContextualMenu: false)
+              .frame(height: 48)
+              .padding(.horizontal, 10)
+              .background(Color(.windowBackgroundColor))
+              .cornerRadius(8)
+              .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+              .onTapGesture {
+                searchController.perform(.selectCommand(command))
+              }
+              .tag(command)
+          }
         }
       }
     }
     .padding()
-    .frame(minWidth: 450)
   }
 }
 

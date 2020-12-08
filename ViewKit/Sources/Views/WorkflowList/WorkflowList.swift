@@ -21,63 +21,70 @@ public struct WorkflowList: View {
   @State var selection: Workflow?
 
   public var body: some View {
-    if userSelection.searchQuery.isEmpty {
-      List(selection: Binding<Workflow?>(
-            get: { selection },
-            set: {
-              selection = $0
-              userSelection.workflow = $0
-            }) ) {
-        ForEach(group.workflows, id: \.self) { workflow in
-          WorkflowListCell(workflow: workflow)
-            .tag(workflow)
-            .frame(height: 48)
-            .contextMenu {
-              Button("Delete") {
-                workflowController.perform(.deleteWorkflow(workflow, in: group))
-              }.keyboardShortcut(.delete, modifiers: [])
-            }
-        }.onMove { indices, newOffset in
-          for i in indices {
-            let workflow = group.workflows[i]
-            workflowController.perform(.moveWorkflow(workflow, to: newOffset, in: group))
+    List(selection: Binding<Workflow?>(
+          get: { selection },
+          set: {
+            selection = $0
+            userSelection.workflow = $0
+          }) ) {
+      ForEach(group.workflows, id: \.self) { workflow in
+        WorkflowListCell(workflow: workflow)
+          .tag(workflow)
+          .frame(height: 48)
+          .contextMenu {
+            Button("Delete") {
+              workflowController.perform(.deleteWorkflow(workflow, in: group))
+            }.keyboardShortcut(.delete, modifiers: [])
           }
-        }.onDelete { indexSet in
-          for index in indexSet {
-            let workflow = group.workflows[index]
-            workflowController.perform(.deleteWorkflow(workflow, in: group))
-          }
-        }.onInsert(of: []) { _, _ in }
-      }
-      .onDrop($isDropping) {
-        workflowController.perform(.drop($0, nil, in: group))
-      }
-      .overlay(
-        RoundedRectangle(cornerRadius: 8)
-          .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
-          .padding(4)
-      )
-      .id(group.id)
-      .introspectTableView(customize: {
-        $0.allowsEmptySelection = false
-      })
-      .onAppear {
-        if selection == nil {
-          selection = userSelection.workflow
+      }.onMove { indices, newOffset in
+        for i in indices {
+          let workflow = group.workflows[i]
+          workflowController.perform(.moveWorkflow(workflow, to: newOffset, in: group))
         }
-      }
-      .frame(minWidth: 250)
-      .navigationViewStyle(DoubleColumnNavigationViewStyle())
-      .navigationTitle("\(group.name)")
-      .navigationSubtitle("Workflows: \(group.workflows.count)")
-      .environment(\.defaultMinListRowHeight, 1)
-      .onDeleteCommand(perform: {
-        if let workflow = selection {
+      }.onDelete { indexSet in
+        for index in indexSet {
+          let workflow = group.workflows[index]
           workflowController.perform(.deleteWorkflow(workflow, in: group))
         }
-      })
-    } else {
-      SearchView(searchController: searchController)
+      }.onInsert(of: []) { _, _ in }
+    }
+    .onDrop($isDropping) {
+      workflowController.perform(.drop($0, nil, in: group))
+    }
+    .overlay(
+      RoundedRectangle(cornerRadius: 8)
+        .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
+        .padding(4)
+    )
+    .id(group.id)
+    .introspectTableView(customize: {
+      $0.allowsEmptySelection = false
+    })
+    .onAppear {
+      if selection == nil {
+        selection = userSelection.workflow
+      }
+    }
+    .frame(minWidth: 250)
+    .navigationViewStyle(DoubleColumnNavigationViewStyle())
+    .navigationTitle("\(group.name)")
+    .navigationSubtitle("Workflows: \(group.workflows.count)")
+    .environment(\.defaultMinListRowHeight, 1)
+    .onDeleteCommand(perform: {
+      if let workflow = selection {
+        workflowController.perform(.deleteWorkflow(workflow, in: group))
+      }
+    })
+    .toolbar {
+      ToolbarItemGroup(placement: .primaryAction) {
+        Button(action: { workflowController.perform(.createWorkflow(in: group)) },
+               label: {
+                Image(systemName: "rectangle.stack.badge.plus")
+                  .renderingMode(.template)
+                  .foregroundColor(Color(.systemGray))
+               })
+          .help("Add Workflow to \"\(group.name)\"")
+      }
     }
   }
 }
