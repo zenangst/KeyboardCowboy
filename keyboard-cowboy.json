@@ -1,6 +1,7 @@
 [
   {
     "id" : "C5A19AB5-06FA-4572-B65F-8DFC3E9B7E00",
+    "symbol" : "folder",
     "name" : "Globals",
     "workflows" : [
       {
@@ -1033,6 +1034,7 @@
       ]
     },
     "id" : "CCD5A3F2-429E-4B41-A82B-21D41B53DBAD",
+    "symbol" : "folder",
     "name" : "Finder",
     "workflows" : [
       {
@@ -1095,6 +1097,7 @@
       ]
     },
     "id" : "DA37C167-E6CC-43C7-A1B3-D7EBE950F12C",
+    "symbol" : "folder",
     "name" : "Safari",
     "workflows" : [
       {
@@ -1134,6 +1137,7 @@
       ]
     },
     "id" : "266E40BA-330D-475D-B06C-06012ABAC159",
+    "symbol" : "folder",
     "name" : "Xcode",
     "workflows" : [
       {
@@ -1267,6 +1271,7 @@
       ]
     },
     "id" : "FC41A373-251B-4B86-AEFE-4B037C397324",
+    "symbol" : "folder",
     "name" : "Apple News",
     "workflows" : [
       {
