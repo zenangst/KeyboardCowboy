@@ -38,11 +38,9 @@ final class SearchFeatureController: ViewController {
         userSelection.group = groupController.group(for: workflow)
         userSelection.group = groupController.group(for: workflow)
       }
-      userSelection.searchQuery = ""
     case .selectWorkflow(let workflow):
       userSelection.group = groupController.group(for: workflow)
       userSelection.workflow = workflow
-      userSelection.searchQuery = ""
     }
   }
 }
