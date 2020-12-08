@@ -11,30 +11,35 @@ public struct CommandListView: View {
     case moveCommand(Command, offset: Int, in: Workflow)
   }
 
-  @Environment(\.colorScheme) var colorScheme
-  @ObservedObject var applicationProvider: ApplicationProvider
-  var commandController: CommandController
-  @ObservedObject var openPanelController: OpenPanelController
-  @State private var selection: Command?
-  @State private var editCommand: Command?
+  public enum UIAction {
+    case edit(Command)
+    case move(Command, Int)
+    case reveal(Command)
+    case run(Command)
+    case delete(Command)
+  }
 
+  @Environment(\.colorScheme) var colorScheme
+  @State private var selection: Command?
   @Binding var workflow: Workflow
 
+  var performAction: (UIAction) -> Void
+
   public var body: some View {
-    VStack(alignment: .leading) {
+    VStack {
       ForEach(workflow.commands) { command in
         MovableView(
           element: command,
           dragHandler: { offset, command in
             let indexOffset = round(offset.height / 48)
-            commandController.perform(.moveCommand(command, offset: Int(indexOffset), in: workflow))
+            performAction(.move(command, Int(indexOffset)))
           }, {
             HStack(spacing: 12) {
               CommandView(
                 command: command,
-                editAction: { editCommand = $0 },
-                revealAction: { commandController.action(.revealCommand($0, in: workflow))() },
-                runAction: { commandController.action(.runCommand($0))() },
+                editAction: { performAction(.edit($0)) },
+                revealAction: { performAction(.reveal($0)) },
+                runAction: { performAction(.run($0)) },
                 showContextualMenu: true)
                 .padding(.horizontal, 8)
               Spacer()
@@ -58,36 +63,32 @@ public struct CommandListView: View {
                           startPoint: .top,
                           endPoint: .bottom))
             .cornerRadius(8)
+            .onTapGesture {
+              if let tableView = NSApp.keyWindow?.firstResponder as? NSTableView {
+                tableView.isEnabled = false
+                tableView.resignFirstResponder()
+                tableView.isEnabled = true
+              }
+              selection = command
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                  .stroke(Color(.windowFrameTextColor), lineWidth: 1)
-                  .opacity(0.05)
+                  .stroke(selection == command
+                            ? Color(.controlAccentColor)
+                            : Color(.windowFrameTextColor),
+                          lineWidth: 1)
+                  .opacity(selection == command ? 1.0 : 0.05)
             )
             .padding(.horizontal)
             .shadow(color: Color(.shadowColor).opacity(0.05), radius: 10, x: 0, y: 12.5)
             .animation(.none)
             .contextMenu {
-              Button("Edit") { editCommand = command }
+              Button("Edit") { performAction(.edit(command)) }
               Divider()
-              Button("Delete") { commandController.perform(.deleteCommand(command, in: workflow)) }
+              Button("Delete") { performAction(.delete(command)) }
             }
           })
-      }
-      .animation(.linear)
-      .sheet(item: $editCommand, content: { model in
-        EditCommandView(
-          applicationProvider: applicationProvider,
-          openPanelController: openPanelController,
-          saveAction: { newCommand in
-            commandController.action(.updateCommand(newCommand, in: workflow))()
-            editCommand = nil
-          },
-          cancelAction: {
-            editCommand = nil
-          },
-          selection: model,
-          command: model)
-      })
+      }.animation(.linear)
     }
   }
 }
@@ -100,9 +101,6 @@ struct CommandListView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    CommandListView(applicationProvider: ApplicationPreviewProvider().erase(),
-                    commandController: CommandPreviewController().erase(),
-                    openPanelController: OpenPanelPreviewController().erase(),
-                    workflow: .constant(ModelFactory().workflowDetail()))
+    CommandListView(workflow: .constant(ModelFactory().workflowDetail())) { _ in }
   }
 }
