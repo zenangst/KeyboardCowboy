@@ -74,16 +74,16 @@ struct KeyboardCowboyApp: App {
         }.keyboardShortcut("N", modifiers: [.command, .shift])
       })
 
-    CommandGroup(after: CommandGroupPlacement.toolbar, addition: {
-    Button("Toggle Sidebar") {
-    firstResponder?.tryToPerform(
-    #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
-    }.keyboardShortcut("S")
-    })
-  }
+      CommandGroup(after: CommandGroupPlacement.toolbar, addition: {
+        Button("Toggle Sidebar") {
+          firstResponder?.tryToPerform(
+            #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
+        }.keyboardShortcut("S")
+      })
+    }
 
-  Settings {
-    SettingsView()
+    Settings {
+      SettingsView()
+    }
   }
-}
 }
