@@ -29,9 +29,22 @@ struct KeyboardCowboyApp: App {
     .windowToolbarStyle(UnifiedWindowToolbarStyle())
     .commands {
       CommandGroup(replacing: CommandGroupPlacement.pasteboard, addition: {
+
+        Button("Copy") {
+          firstResponder?.tryToPerform(#selector(NSText.copy(_:)), with: nil)
+        }.keyboardShortcut("c", modifiers: [.command])
+
+        Button("Paste") {
+          firstResponder?.tryToPerform(#selector(NSText.paste(_:)), with: nil)
+        }.keyboardShortcut("v", modifiers: [.command])
+
         Button("Delete") {
-           firstResponder?.tryToPerform(#selector(NSText.delete(_:)), with: nil)
+          firstResponder?.tryToPerform(#selector(NSText.delete(_:)), with: nil)
         }.keyboardShortcut(.delete, modifiers: [])
+
+        Button("Select All") {
+          firstResponder?.tryToPerform(#selector(NSText.selectAll(_:)), with: nil)
+        }.keyboardShortcut("a", modifiers: [.command])
       })
 
       CommandGroup(replacing: CommandGroupPlacement.newItem, addition: {
