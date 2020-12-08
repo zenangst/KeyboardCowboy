@@ -5,8 +5,8 @@ public struct WorkflowView: View {
   static let idealWidth: CGFloat = 500
 
   public enum SheetAction: Identifiable {
+    case newCommand(ModelKit.Command)
     case editCommand(ModelKit.Command)
-    case editWorkflow(ModelKit.Workflow)
 
     public var id: String { return UUID().uuidString }
   }
@@ -52,8 +52,10 @@ public struct WorkflowView: View {
                     ]),
                   startPoint: .top,
                   endPoint: .bottom))
+
     .toolbar(content: {
-      ToolbarItemGroup(placement: .automatic) {
+      ToolbarItemGroup {
+        Spacer()
         SearchField(query: Binding<String>(
                       get: { searchQuery },
                       set: {
@@ -71,11 +73,8 @@ public struct WorkflowView: View {
               .frame(width: 300, alignment: .center)
               .frame(minHeight: 300, maxHeight: 500)
           })
-      }
 
-      ToolbarItemGroup {
-        Spacer()
-        Button(action: { sheetAction = nil },
+        Button(action: { sheetAction = .newCommand(.application(.empty())) },
                label: {
                 Image(systemName: "plus.app")
                   .renderingMode(.template)
@@ -99,7 +98,7 @@ public struct WorkflowView: View {
           },
           selection: command,
           command: command)
-      case .editWorkflow(let workflow):
+      case .newCommand(let command):
         EditCommandView(
           applicationProvider: applicationProvider,
           openPanelController: openPanelController,
@@ -110,8 +109,8 @@ public struct WorkflowView: View {
           cancelAction: {
             sheetAction = nil
           },
-          selection: Command.application(.init(application: Application.empty())),
-          command: Command.application(.init(application: Application.empty())))
+          selection: command,
+          command: command)
       }
     })
   }
@@ -121,7 +120,6 @@ private extension WorkflowView {
   var headerSection: some View {
     name(workflow, in: group)
       .padding([.horizontal, .top])
-      .background(Color(.textBackgroundColor))
   }
 
   func name(_ workflow: Workflow, in group: ModelKit.Group) -> some View {
@@ -189,7 +187,7 @@ private extension WorkflowView {
         VStack {
           AddButton(text: "Add Command",
                     alignment: .center,
-                    action: { sheetAction = .editWorkflow(workflow) })
+                    action: { sheetAction = .newCommand( Command.empty(.application) ) })
             .padding(.vertical, 8)
         }
       } else {
