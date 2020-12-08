@@ -11,16 +11,16 @@ class SettingsController {
     self.userDefaults = userDefaults
 
     userDefaults.publisher(for: \.hideDockIcon)
-      .sink(receiveValue: { newValue in
+      .sink { newValue in
         if newValue {
           NSApp.setActivationPolicy(.accessory)
         } else {
           NSApp.setActivationPolicy(.regular)
         }
-      }).store(in: &subscriptions)
+      }.store(in: &subscriptions)
 
-    userDefaults.publisher(for: \.hideMenuBarIcon) .sink(receiveValue: { newValue in
-      self.hideMenuBarIcon.send(newValue)
-    }).store(in: &subscriptions)
+    userDefaults.publisher(for: \.hideMenuBarIcon).sink {
+      self.hideMenuBarIcon.send($0)
+    }.store(in: &subscriptions)
   }
 }
