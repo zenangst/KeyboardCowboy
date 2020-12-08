@@ -48,13 +48,13 @@ class AppDelegate: NSObject, NSApplicationDelegate,
 
   func applicationWillFinishLaunching(_ notification: Notification) {
     settingsController = SettingsController(userDefaults: .standard)
-    settingsController?.hideMenuBarIcon.sink(receiveValue: { newValue in
+    settingsController?.hideMenuBarIcon.sink { newValue in
       if newValue {
         self.menubarController = nil
       } else {
         self.menubarController = self.createMenubarController()
       }
-    }).store(in: &cancellables)
+    }.store(in: &cancellables)
 
     if launchArguments.isEnabled(.runningUnitTests) { return }
     if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil { return }
