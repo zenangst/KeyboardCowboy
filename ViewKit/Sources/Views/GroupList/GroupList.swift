@@ -11,8 +11,8 @@ public struct GroupList: View {
   }
 
   public enum SheetAction: Identifiable {
-    case editGroup(ModelKit.Group)
-    case deleteGroup(ModelKit.Group)
+    case edit(ModelKit.Group)
+    case delete(ModelKit.Group)
 
     public var id: String { return UUID().uuidString }
   }
@@ -51,12 +51,12 @@ public struct GroupList: View {
             color: group.color,
             symbol: group.symbol,
             count: group.workflows.count,
-            editAction: { sheetAction = .editGroup(group) }
+            editAction: { sheetAction = .edit(group) }
           )
         }
         .frame(minHeight: 36)
         .contextMenu {
-          Button("Show Info") { sheetAction = .editGroup(group) }
+          Button("Show Info") { sheetAction = .edit(group) }
           Divider()
           Button("Delete", action: onDelete)
         }
@@ -84,9 +84,9 @@ public struct GroupList: View {
       }
     }).sheet(item: $sheetAction, content: { action in
       switch action {
-      case .editGroup(let group):
+      case .edit(let group):
         editGroup(group)
-      case .deleteGroup(let group):
+      case .delete(let group):
         VStack(spacing: 0) {
           Text("Are you sure you want to delete the group “\(group.name)”?")
             .padding()
@@ -142,7 +142,7 @@ private extension GroupList {
       if group.workflows.isEmpty {
         groupController.perform(.deleteGroup(group))
       } else {
-        sheetAction = .deleteGroup(group)
+        sheetAction = .delete(group)
       }
     }
   }
