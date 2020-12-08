@@ -10,7 +10,6 @@ public struct MainView: View {
   let groupController: GroupController
   let openPanelController: OpenPanelController
   let workflowController: WorkflowController
-  @State private var newCommandVisible: Bool = false
 
   public init(factory: ViewFactory,
               applicationProvider: ApplicationProvider,
@@ -33,8 +32,7 @@ public struct MainView: View {
     NavigationView {
       sidebar.frame(minWidth: 225)
       EmptyView()
-      if userSelection.searchQuery.isEmpty,
-         let workflow = userSelection.workflow,
+      if let workflow = userSelection.workflow,
          let group = userSelection.group {
         factory.workflowDetail(Binding<Workflow>(
           get: {
@@ -43,59 +41,9 @@ public struct MainView: View {
             userSelection.workflow = $0
             workflowController.perform(.updateWorkflow($0, in: group))
           }
-        ), group: group).id(workflow.id)
-      }
-    }.toolbar {
-      ToolbarItemGroup(placement: .navigation) {
-        Button(action: toggleSidebar,
-               label: {
-                Image(systemName: "sidebar.left")
-                  .renderingMode(.template)
-                  .foregroundColor(Color(.systemGray))
-               })
-          .help("Toggle Sidebar")
-
-        if let group = userSelection.group {
-          Button(action: { workflowController.perform(.createWorkflow(in: group)) },
-                 label: {
-                  Image(systemName: "rectangle.stack.badge.plus")
-                    .renderingMode(.template)
-                    .foregroundColor(Color(.systemGray))
-                 })
-            .help("Add Workflow to \"\(group.name)\"")
-        }
-
-        HStack(spacing: 2) {
-          Divider()
-          Divider()
-          Divider()
-        }.padding(.trailing, 8)
-      }
-
-      ToolbarItemGroup {
-        if let workflow = userSelection.workflow {
-          Button(action: { newCommandVisible = true },
-                 label: {
-                  Image(systemName: "plus.app")
-                    .renderingMode(.template)
-                    .foregroundColor(Color(.systemGray))
-                 })
-            .help("Add Command to \"\(workflow.name)\"")
-            .sheet(isPresented: $newCommandVisible, content: {
-              EditCommandView(
-                applicationProvider: applicationProvider,
-                openPanelController: openPanelController,
-                saveAction: { newCommand in
-                  commandController.action(.createCommand(newCommand, in: workflow))()
-                  newCommandVisible = false
-                },
-                cancelAction: {
-                  newCommandVisible = false
-                },
-                selection: Command.application(.init(application: Application.empty())),
-                command: Command.application(.init(application: Application.empty())))
-            })
-        }
+        ), group: group)
+        .environmentObject(userSelection)
+        .id(workflow.id)
       }
     }
   }
@@ -105,17 +53,18 @@ public struct MainView: View {
 
 private extension MainView {
   var sidebar: some View {
-    VStack(alignment: .leading) {
-      SearchField(query: Binding<String>(
-                    get: { userSelection.searchQuery },
-                    set: {
-                      userSelection.searchQuery = $0
-                      searchController.perform(.search($0))
-                    }))
-        .frame(height: 48)
-        .padding(.horizontal, 12)
-      factory.groupList()
-    }
+    factory.groupList()
+      .toolbar(content: {
+        ToolbarItemGroup(placement: .primaryAction) {
+          Button(action: toggleSidebar,
+                 label: {
+                  Image(systemName: "sidebar.left")
+                    .renderingMode(.template)
+                    .foregroundColor(Color(.systemGray))
+                 })
+            .help("Toggle Sidebar")
+        }
+      })
   }
 
   func toggleSidebar() {

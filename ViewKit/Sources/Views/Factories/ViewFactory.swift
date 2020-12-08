@@ -48,6 +48,7 @@ public class DesignTimeFactory: ViewFactory {
                  commandController: commandController,
                  keyboardShortcutController: keyboardShortcutController,
                  openPanelController: openPanelController,
+                 searchController: searchController,
                  workflowController: workflowController)
   }
 }
@@ -112,6 +113,7 @@ public class AppViewFactory: ViewFactory {
       commandController: commandController,
       keyboardShortcutController: keyboardShortcutController,
       openPanelController: openPanelController,
+      searchController: searchController,
       workflowController: workflowController)
   }
 }
