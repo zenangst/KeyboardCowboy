@@ -1,5 +1,6 @@
 import SwiftUI
 import ViewKit
+import ModelKit
 
 @main
 struct KeyboardCowboyApp: App {
@@ -54,21 +55,35 @@ struct KeyboardCowboyApp: App {
           }
         }.keyboardShortcut("n", modifiers: [.command])
 
+        Button("New Keyboard shortcut") {
+          if let workflow = appDelegate.userSelection.workflow {
+            appDelegate.keyboardFeatureController?.perform(.createKeyboardShortcut(ModelKit.KeyboardShortcut.empty(),
+                                                                                   index: 999,
+                                                                                   in: workflow))
+          }
+        }.keyboardShortcut("k", modifiers: [.command])
+
+        Button("New Command") {
+          if let workflow = appDelegate.userSelection.workflow {
+            appDelegate.commandFeatureController?.perform(.createCommand(Command.application(.empty()), in: workflow))
+          }
+        }.keyboardShortcut("n", modifiers: [.control, .option, .command])
+
         Button("New Group") {
           appDelegate.groupFeatureController?.perform(.createGroup)
         }.keyboardShortcut("N", modifiers: [.command, .shift])
       })
 
-      CommandGroup(after: CommandGroupPlacement.toolbar, addition: {
-        Button("Toggle Sidebar") {
-          firstResponder?.tryToPerform(
-            #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
-        }.keyboardShortcut("S")
-      })
-    }
-
-    Settings {
-      SettingsView()
-    }
+    CommandGroup(after: CommandGroupPlacement.toolbar, addition: {
+    Button("Toggle Sidebar") {
+    firstResponder?.tryToPerform(
+    #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
+    }.keyboardShortcut("S")
+    })
   }
+
+  Settings {
+    SettingsView()
+  }
+}
 }

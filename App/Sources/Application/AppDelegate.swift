@@ -28,7 +28,9 @@ class AppDelegate: NSObject, NSApplicationDelegate,
   var cancellables = Set<AnyCancellable>()
   var coreController: CoreControlling?
   var directoryObserver: DirectoryObserver?
+  var commandFeatureController: CommandsFeatureController?
   var groupFeatureController: GroupsFeatureController?
+  var keyboardFeatureController: KeyboardShortcutsFeatureController?
   var workflowFeatureController: WorkflowFeatureController?
   var menubarController: MenubarController?
   var settingsController: SettingsController?
@@ -109,6 +111,8 @@ class AppDelegate: NSObject, NSApplicationDelegate,
     let featureFactory = FeatureFactory(coreController: coreController)
     let context = featureFactory.applicationStack(userSelection: userSelection)
 
+    self.commandFeatureController = context.commandFeature
+    self.keyboardFeatureController = context.keyboardFeature
     self.workflowFeatureController = context.workflowFeature
 
     let mainView = context.factory.mainView()
