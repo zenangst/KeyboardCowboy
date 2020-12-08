@@ -10,6 +10,13 @@ public struct GroupList: View {
     case dropFile([URL])
   }
 
+  public enum SheetAction: Identifiable {
+    case editGroup(ModelKit.Group)
+    case deleteGroup(ModelKit.Group)
+
+    public var id: String { return UUID().uuidString }
+  }
+
   static let idealWidth: CGFloat = 300
 
   @EnvironmentObject var userSelection: UserSelection
@@ -17,10 +24,8 @@ public struct GroupList: View {
   let factory: ViewFactory
   @ObservedObject var groupController: GroupController
   let workflowController: WorkflowController
-  @State private var editGroup: ModelKit.Group?
-  @State private var selection: ModelKit.Group?
+  @State private var sheetAction: SheetAction?
   @State private var isDropping: Bool = false
-  @State private var deleteGroup: ModelKit.Group?
 
   public var body: some View {
     List {
@@ -46,12 +51,12 @@ public struct GroupList: View {
             color: group.color,
             symbol: group.symbol,
             count: group.workflows.count,
-            editAction: { editGroup = group }
+            editAction: { sheetAction = .editGroup(group) }
           )
         }
         .frame(minHeight: 36)
         .contextMenu {
-          Button("Show Info") { editGroup = group }
+          Button("Show Info") { sheetAction = .editGroup(group) }
           Divider()
           Button("Delete", action: onDelete)
         }
@@ -65,23 +70,6 @@ public struct GroupList: View {
     }
     .onDrop($isDropping) { groupController.perform(.dropFile($0)) }
     .border(Color.accentColor, width: isDropping ? 5 : 0)
-    .sheet(item: $editGroup, content: editGroup)
-    .sheet(item: $deleteGroup, content: { group in
-      VStack(spacing: 0) {
-        Text("Are you sure you want to delete the group “\(group.name)”?")
-          .padding()
-        Divider()
-        HStack {
-          Button("Cancel", action: {
-            deleteGroup = nil
-          }).keyboardShortcut(.cancelAction)
-          Button("Delete", action: {
-            deleteGroup = nil
-            groupController.perform(.deleteGroup(group))
-          }).keyboardShortcut(.defaultAction)
-        }.padding()
-      }
-    })
     .onDeleteCommand(perform: onDelete)
     .toolbar(content: {
       ToolbarItemGroup(placement: .automatic) {
@@ -93,6 +81,26 @@ public struct GroupList: View {
             .foregroundColor(Color(.systemGray))
         })
         .help("Add new Group")
+      }
+    }).sheet(item: $sheetAction, content: { action in
+      switch action {
+      case .editGroup(let group):
+        editGroup(group)
+      case .deleteGroup(let group):
+        VStack(spacing: 0) {
+          Text("Are you sure you want to delete the group “\(group.name)”?")
+            .padding()
+          Divider()
+          HStack {
+            Button("Cancel", action: {
+              sheetAction = nil
+            }).keyboardShortcut(.cancelAction)
+            Button("Delete", action: {
+              sheetAction = nil
+              groupController.perform(.deleteGroup(group))
+            }).keyboardShortcut(.defaultAction)
+          }.padding()
+        }
       }
     })
   }
@@ -124,9 +132,9 @@ private extension GroupList {
         }
 
         groupController.perform(.updateGroup(group))
-        editGroup = nil
+        sheetAction = nil
       },
-      cancelAction: { editGroup = nil })
+      cancelAction: { sheetAction = nil })
   }
 
   func onDelete() {
@@ -134,7 +142,7 @@ private extension GroupList {
       if group.workflows.isEmpty {
         groupController.perform(.deleteGroup(group))
       } else {
-        deleteGroup = group
+        sheetAction = .deleteGroup(group)
       }
     }
   }
