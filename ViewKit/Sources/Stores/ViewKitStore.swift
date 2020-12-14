@@ -3,8 +3,8 @@ import SwiftUI
 
 open class ViewKitStore: ObservableObject {
   @Published public var groups: [ModelKit.Group]
-  public var selectedGroup: ModelKit.Group?
-  public var selectedWorkflow: Workflow?
+  @Published public var selectedGroup: ModelKit.Group?
+  @Published public var selectedWorkflow: Workflow?
   public static let keyInputSubject = KeyInputSubjectWrapper()
   public var context: ViewKitFeatureContext!
 

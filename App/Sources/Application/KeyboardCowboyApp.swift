@@ -15,7 +15,10 @@ struct KeyboardCowboyApp: App {
     }
     .windowToolbarStyle(UnifiedWindowToolbarStyle())
     .commands {
-      KeyboardCowboyCommands(store: store, keyInputSubject: Saloon.keyInputSubject)
+      KeyboardCowboyCommands(store: store,
+                             keyInputSubject: Saloon.keyInputSubject,
+                             selectedGroup: $store.selectedGroup,
+                             selectedWorkflow: $store.selectedWorkflow)
     }
 
     Settings {

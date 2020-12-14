@@ -33,6 +33,7 @@ struct DetailViewToolbar: ToolbarContent {
           .renderingMode(.template)
           .foregroundColor(Color(.systemGray))
       })
+      .keyboardShortcut("n", modifiers: [.control, .option, .command])
       .help("Add Command to \"\(workflowName)\"")
     }
   }
