@@ -3,97 +3,117 @@ import ModelKit
 
 public struct CommandListView: View {
   public enum Action {
-    case createCommand(Command, in: Workflow)
-    case updateCommand(Command, in: Workflow)
-    case deleteCommand(Command, in: Workflow)
-    case runCommand(Command)
-    case revealCommand(Command, in: Workflow)
-    case moveCommand(Command, offset: Int, in: Workflow)
-  }
-
-  public enum UIAction {
-    case edit(Command)
-    case move(Command, Int)
+    case create(Command, in: Workflow)
+    case edit(Command, in: Workflow)
+    case move(Command, offset: Int, in: Workflow)
+    case delete(Command, in: Workflow)
     case reveal(Command)
     case run(Command)
-    case delete(Command)
+    case drop([URL], Workflow)
+  }
+
+  public enum Sheet: Identifiable {
+    case create(Command)
+    case edit(Command)
+
+    public var id: String { return UUID().uuidString }
   }
 
   @Environment(\.colorScheme) var colorScheme
-  @State private var selection: Command?
+  @Binding var selection: Command?
   @Binding var workflow: Workflow
-
-  let performAction: (UIAction) -> Void
+  let perform: (Action) -> Void
+  let receive: (Sheet) -> Void
 
   public var body: some View {
     VStack {
-      ForEach(workflow.commands) { command in
-        MovableView(
-          element: command,
-          dragHandler: { offset, command in
-            let indexOffset = round(offset.height / 48)
-            performAction(.move(command, Int(indexOffset)))
-          }, {
-            HStack(spacing: 12) {
-              CommandView(
-                command: command,
-                editAction: { performAction(.edit($0)) },
-                revealAction: { performAction(.reveal($0)) },
-                runAction: { performAction(.run($0)) },
-                showContextualMenu: true)
-                .padding(.horizontal, 8)
-              Spacer()
-              Text("≣")
-                .font(.title)
-                .foregroundColor(Color(.secondaryLabelColor))
-                .padding(16)
-                .offset(x: 0, y: -2)
-                .cursorOnHover(.closedHand)
-            }
-            .frame(height: 48)
-            .background(LinearGradient(
-                          gradient: Gradient(
-                            stops:
-                              colorScheme == .dark
-                              ? [.init(color: Color(.gridColor).opacity(0.25), location: 0.33),
-                                 .init(color: Color(.gridColor).opacity(0.4), location: 1.0)]
-                              : [.init(color: Color(.textBackgroundColor).opacity(1), location: 0.0),
-                                 .init(color: Color(.textBackgroundColor).opacity(0.75), location: 1.0)]
-                          ),
-                          startPoint: .top,
-                          endPoint: .bottom))
-            .cornerRadius(8)
-            .onTapGesture {
-              if let tableView = NSApp.keyWindow?.firstResponder as? NSTableView {
-                tableView.isEnabled = false
-                tableView.resignFirstResponder()
-                tableView.isEnabled = true
-              }
-              selection = command
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                  .stroke(selection == command
-                            ? Color(.controlAccentColor)
-                            : Color(.windowFrameTextColor),
-                          lineWidth: 1)
-                  .opacity(selection == command ? 1.0 : 0.05)
-            )
-            .padding(.horizontal)
-            .shadow(color: Color(.shadowColor).opacity(0.05), radius: 10, x: 0, y: 12.5)
-            .animation(.none)
-            .contextMenu {
-              Button("Edit") { performAction(.edit(command)) }
-              Divider()
-              Button("Delete") { performAction(.delete(command)) }
-            }
-          })
-      }.animation(.linear)
+      if !workflow.commands.isEmpty {
+        list
+      } else {
+        addButton
+      }
     }
   }
 }
 
-// MARK: - Previews
+// MARK: Extentions
+
+extension CommandListView {
+  var list: some View {
+    ForEach(workflow.commands) { command in
+      MovableView(
+        element: command,
+        dragHandler: { offset, command in
+          let indexOffset = round(offset.height / 48)
+          perform(.move(command, offset: Int(indexOffset), in: workflow))
+        }, {
+          HStack(spacing: 12) {
+            CommandView(
+              command: command,
+              editAction: { receive(.edit($0)) },
+              revealAction: { perform(.reveal($0)) },
+              runAction: { perform(.run($0)) },
+              showContextualMenu: true)
+              .padding(.horizontal, 8)
+            Spacer()
+            Text("≣")
+              .font(.title)
+              .foregroundColor(Color(.secondaryLabelColor))
+              .padding(16)
+              .offset(x: 0, y: -2)
+              .cursorOnHover(.closedHand)
+          }
+          .frame(height: 48)
+          .background(LinearGradient(
+                        gradient: Gradient(
+                          stops:
+                            colorScheme == .dark
+                            ? [.init(color: Color(.gridColor).opacity(0.25), location: 0.33),
+                               .init(color: Color(.gridColor).opacity(0.4), location: 1.0)]
+                            : [.init(color: Color(.textBackgroundColor).opacity(1), location: 0.0),
+                               .init(color: Color(.textBackgroundColor).opacity(0.75), location: 1.0)]
+                        ),
+                        startPoint: .top,
+                        endPoint: .bottom))
+          .cornerRadius(8)
+          .onTapGesture {
+            if let tableView = NSApp.keyWindow?.firstResponder as? NSTableView {
+              tableView.isEnabled = false
+              tableView.resignFirstResponder()
+              tableView.isEnabled = true
+            }
+            selection = command
+          }
+          .overlay(
+            RoundedRectangle(cornerRadius: 8)
+              .stroke(selection == command
+                        ? Color(.controlAccentColor)
+                        : Color(.windowFrameTextColor),
+                      lineWidth: 1)
+              .opacity(selection == command ? 1.0 : 0.05)
+          )
+          .padding(.horizontal)
+          .shadow(color: Color(.shadowColor).opacity(0.05), radius: 10, x: 0, y: 12.5)
+          .animation(.none)
+          .contextMenu {
+            CommandListContextMenu(editAction: { receive(.edit(command)) },
+                                   deleteAction: { perform(.delete(command, in: workflow)) })
+          }
+        })
+    }
+    .animation(.linear)
+  }
+
+  var addButton: some View {
+    AddButton(text: "Add Command",
+              alignment: .center,
+              action: {
+                receive(.create(Command.empty(.application)))
+              }).padding(.vertical, 8)
+  }
+}
+
+// MARK: Previews
 
 struct CommandListView_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
@@ -101,6 +121,9 @@ struct CommandListView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    CommandListView(workflow: .constant(ModelFactory().workflowDetail())) { _ in }
+    CommandListView(selection: .constant(nil),
+                    workflow: .constant(ModelFactory().workflowDetail()),
+                    perform: { _ in },
+                    receive: { _ in })
   }
 }

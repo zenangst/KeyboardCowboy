@@ -10,4 +10,14 @@ extension UserDefaults {
     get { bool(forKey: #function) }
     set { set(newValue, forKey: #function) }
   }
+
+  @objc var groupSelection: String? {
+    get { string(forKey: #function) }
+    set { set(newValue, forKey: #function) }
+  }
+
+  @objc var workflowSelection: String? {
+    get { string(forKey: #function) }
+    set { set(newValue, forKey: #function) }
+  }
 }

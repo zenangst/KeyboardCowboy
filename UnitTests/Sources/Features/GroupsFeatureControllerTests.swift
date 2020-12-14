@@ -27,7 +27,7 @@ class GroupsFeatureControllerTests: XCTestCase {
     groupsController.delegate = coreController
 
     let factory = FeatureFactory(coreController: coreController)
-    let groupsFeature = factory.groupFeature(userSelection: UserSelection())
+    let groupsFeature = factory.groupFeature()
 
     XCTAssertEqual(groupsController.groups.count, 0)
 
@@ -59,7 +59,7 @@ class GroupsFeatureControllerTests: XCTestCase {
     groupsController.delegate = coreController
 
     let factory = FeatureFactory(coreController: coreController)
-    let groupsFeature = factory.groupFeature(userSelection: UserSelection())
+    let groupsFeature = factory.groupFeature()
 
     XCTAssertEqual(groupsController.groups.count, 1)
 
@@ -95,9 +95,8 @@ class GroupsFeatureControllerTests: XCTestCase {
 
     groupsController.delegate = coreController
 
-    let userSelection = UserSelection()
     let factory = FeatureFactory(coreController: coreController)
-    let groupsFeature = factory.groupFeature(userSelection: userSelection)
+    let groupsFeature = factory.groupFeature()
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertTrue(groupsController.groups.contains(oldGroup))
@@ -140,9 +139,8 @@ class GroupsFeatureControllerTests: XCTestCase {
 
     groupsController.delegate = coreController
 
-    let userSelection = UserSelection()
     let factory = FeatureFactory(coreController: coreController)
-    let groupsFeature = factory.groupFeature(userSelection: userSelection)
+    let groupsFeature = factory.groupFeature()
 
     groupsFeature.perform(.dropFile([URL(fileURLWithPath: application.path)]))
 

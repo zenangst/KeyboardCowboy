@@ -20,9 +20,6 @@ packages:
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     from: 1.8.2
-  Introspect:
-    url: https://github.com/siteline/SwiftUI-Introspect
-    from: 0.1.1
 targets:
   Keyboard-Cowboy:
     type: application
@@ -39,9 +36,9 @@ targets:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
         CODE_SIGN_IDENTITY: "-"
-        CURRENT_PROJECT_VERSION: 11
+        CURRENT_PROJECT_VERSION: 12
         INFOPLIST_FILE: "App/Resources/Info.plist"
-        MARKETING_VERSION: 0.1.0
+        MARKETING_VERSION: 0.2.0
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
         PRODUCT_NAME: "Keyboard Cowboy"
         ENABLE_HARDENED_RUNTIME: true
@@ -100,7 +97,6 @@ targets:
     platform: "macOS"
     dependencies:
       - target: ModelKit
-      - package: Introspect
     sources:
       - ViewKit
       - Shared

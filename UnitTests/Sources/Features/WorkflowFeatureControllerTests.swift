@@ -35,17 +35,15 @@ class WorkflowFeatureControllerTests: XCTestCase {
     }
     groupsController.delegate = coreController
 
-    let userSelection = UserSelection()
     let factory = FeatureFactory(coreController: coreController)
-    let groupsFeature = factory.groupFeature(userSelection: userSelection)
+    let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
 
-    userSelection.group = group
     workflowFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
 
-    workflowFeature.perform(.createWorkflow(in: group))
+    workflowFeature.perform(.create(groupId: group.id))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -87,18 +85,16 @@ class WorkflowFeatureControllerTests: XCTestCase {
     }
     groupsController.delegate = coreController
 
-    let userSelection = UserSelection()
     let factory = FeatureFactory(coreController: coreController)
-    let groupsFeature = factory.groupFeature(userSelection: userSelection)
+    let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
 
-    userSelection.group = group
     workflowFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    workflowFeature.perform(.updateWorkflow(updatedWorkflow, in: group))
+    workflowFeature.perform(.update(updatedWorkflow))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -136,18 +132,16 @@ class WorkflowFeatureControllerTests: XCTestCase {
     }
     groupsController.delegate = coreController
 
-    let userSelection = UserSelection()
     let factory = FeatureFactory(coreController: coreController)
-    let groupsFeature = factory.groupFeature(userSelection: userSelection)
+    let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
 
-    userSelection.group = group
     workflowFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    workflowFeature.perform(.deleteWorkflow(workflow, in: group))
+    workflowFeature.perform(.delete(workflow))
 
     wait(for: [expectation], timeout: 10.0)
   }

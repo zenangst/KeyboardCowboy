@@ -7,18 +7,18 @@ import Combine
 
 final class SearchFeatureController: ViewController {
   @Published var state = ModelKit.SearchResults.empty()
+  @AppStorage("groupSelection") var groupSelection: String?
+  @AppStorage("workflowSelection") var workflowSelection: String?
+
   let groupController: GroupsControlling
-  let userSelection: UserSelection
   let searchController: SearchRootController
   var anyCancellables = [AnyCancellable]()
 
-  init(searchController: SearchRootController,
-       groupController: GroupsControlling,
-       query: Binding<String>,
-       userSelection: UserSelection) {
+  init(groupController: GroupsControlling,
+       searchController: SearchRootController,
+       query: Binding<String>) {
     self.groupController = groupController
     self.searchController = searchController
-    self.userSelection = userSelection
 
     searchController.$state
       .dropFirst()
@@ -34,13 +34,16 @@ final class SearchFeatureController: ViewController {
     case .search(let query):
       searchController.search(for: query)
     case .selectCommand(let command):
-      if let workflow = groupController.workflow(for: command) {
-        userSelection.group = groupController.group(for: workflow)
-        userSelection.group = groupController.group(for: workflow)
+      if let workflow = groupController.workflow(for: command),
+         let group = groupController.group(for: workflow) {
+        groupSelection = group.id
+        workflowSelection = workflow.id
       }
     case .selectWorkflow(let workflow):
-      userSelection.group = groupController.group(for: workflow)
-      userSelection.workflow = workflow
+      if let group = groupController.group(for: workflow) {
+        groupSelection = group.id
+        workflowSelection = workflow.id
+      }
     }
   }
 }

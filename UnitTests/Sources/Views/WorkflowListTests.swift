@@ -5,7 +5,7 @@ class WorkflowListTests: XCTestCase {
   func testSnapshotPreviews() {
     assertPreview(
       from: WorkflowList_Previews.self,
-      size: CGSize(width: WorkflowList.idealWidth, height: 400)
+      size: CGSize(width: 300, height: 400)
     )
   }
 }

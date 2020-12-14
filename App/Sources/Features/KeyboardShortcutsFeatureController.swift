@@ -21,48 +21,42 @@ protocol KeyboardShortcutsFeatureControllerDelegate: AnyObject {
 final class KeyboardShortcutsFeatureController: ActionController {
   weak var delegate: KeyboardShortcutsFeatureControllerDelegate?
 
-  let groupsController: GroupsControlling
-
-  init(groupsController: GroupsControlling) {
-    self.groupsController = groupsController
-  }
-
-  func perform(_ action: KeyboardShortcutList.Action) {
+  func perform(_ action: KeyboardShortcutList.UIAction) {
     switch action {
-    case .createKeyboardShortcut(let keyboardShortcut, let index, let workflow):
-      createKeyboardShortcut(keyboardShortcut, at: index, in: workflow)
-    case .updateKeyboardShortcut(let keyboardShortcut, let workflow):
-      updateKeyboardShortcut(keyboardShortcut, in: workflow)
-    case .deleteKeyboardShortcut(let keyboardShortcut, let workflow):
-      deleteKeyboardShortcut(keyboardShortcut, in: workflow)
-    case .moveCommand(let keyboardShortcut, let to, let workflow):
-      moveKeyboardShortcut(keyboardShortcut, to: to, in: workflow)
+    case .create(let shortcut, let offset, let workflow):
+      create(shortcut, at: offset, in: workflow)
+    case .update(let shortcut, let workflow):
+      update(shortcut, in: workflow)
+    case .delete(let shortcut, let workflow):
+      delete(shortcut, in: workflow)
+    case .move(let shortcut, let offset, let workflow):
+      move(shortcut, to: offset, in: workflow)
     }
   }
 
   // MARK: Private methods
 
-  func createKeyboardShortcut(_ keyboardShortcut: KeyboardShortcut,
-                              at index: Int,
-                              in workflow: Workflow) {
+  func create(_ keyboardShortcut: KeyboardShortcut,
+              at index: Int,
+              in workflow: Workflow) {
     var workflow = workflow
     workflow.keyboardShortcuts.add(keyboardShortcut, at: index)
     delegate?.keyboardShortcutFeatureController(self, didCreateKeyboardShortcut: keyboardShortcut, in: workflow)
   }
 
-  func updateKeyboardShortcut(_ keyboardShortcut: KeyboardShortcut, in workflow: Workflow) {
+  func update(_ keyboardShortcut: KeyboardShortcut, in workflow: Workflow) {
     var workflow = workflow
     try? workflow.keyboardShortcuts.replace(keyboardShortcut)
     delegate?.keyboardShortcutFeatureController(self, didUpdateKeyboardShortcut: keyboardShortcut, in: workflow)
   }
 
-  func deleteKeyboardShortcut(_ keyboardShortcut: KeyboardShortcut, in workflow: Workflow) {
+  func delete(_ keyboardShortcut: KeyboardShortcut, in workflow: Workflow) {
     var workflow = workflow
     try? workflow.keyboardShortcuts.remove(keyboardShortcut)
     delegate?.keyboardShortcutFeatureController(self, didDeleteKeyboardShortcut: keyboardShortcut, in: workflow)
   }
 
-  func moveKeyboardShortcut(_ keyboardShortcut: KeyboardShortcut, to offset: Int, in workflow: Workflow) {
+  func move(_ keyboardShortcut: KeyboardShortcut, to offset: Int, in workflow: Workflow) {
     guard let currentIndex = workflow.keyboardShortcuts.firstIndex(of: keyboardShortcut) else { return }
 
     let newIndex = currentIndex + offset

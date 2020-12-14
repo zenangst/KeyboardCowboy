@@ -3,97 +3,91 @@ import LogicFramework
 import ViewKit
 import Combine
 import ModelKit
+import SwiftUI
 
 protocol WorkflowFeatureControllerDelegate: AnyObject {
   func workflowFeatureController(_ controller: WorkflowFeatureController,
                                  didCreateWorkflow workflow: Workflow,
-                                 in group: Group)
+                                 groupId: String) throws
   func workflowFeatureController(_ controller: WorkflowFeatureController,
-                                 didUpdateWorkflow workflow: Workflow,
-                                 in group: Group)
+                                 didUpdateWorkflow workflow: Workflow) throws
   func workflowFeatureController(_ controller: WorkflowFeatureController,
-                                 didDeleteWorkflow workflow: Workflow,
-                                 in group: Group)
+                                 didDeleteWorkflow workflow: Workflow) throws
   func workflowFeatureController(_ controller: WorkflowFeatureController,
                                  didMoveWorkflow workflow: Workflow,
-                                 in group: Group)
+                                 to offset: Int) throws
+  func workflowFeatureController(_ controller: WorkflowFeatureController,
+                                 didDropWorkflow workflow: Workflow,
+                                 groupId: String) throws
 }
 
 final class WorkflowFeatureController: ViewController,
-                                 CommandsFeatureControllerDelegate,
-                                 KeyboardShortcutsFeatureControllerDelegate {
+                                       CommandsFeatureControllerDelegate,
+                                       KeyboardShortcutsFeatureControllerDelegate {
+  @Published var state: Workflow = .empty()
   weak var delegate: WorkflowFeatureControllerDelegate?
-  @Published var state: Workflow?
   var applications = [Application]()
-  let groupsController: GroupsControlling
   private var cancellables = [AnyCancellable]()
 
-  public init(state: Workflow,
-              applications: [Application],
-              groupsController: GroupsControlling) {
-    self._state = Published(initialValue: state)
+  public init(applications: [Application]) {
     self.applications = applications
-    self.groupsController = groupsController
   }
 
   // MARK: ViewController
 
   func perform(_ action: WorkflowList.Action) {
     switch action {
-    case .createWorkflow(let group):
-      createWorkflow(in: group)
-    case .updateWorkflow(let workflow, let group):
-      updateWorkflow(workflow, in: group)
-    case .deleteWorkflow(let workflow, let group):
-      deleteWorkflow(workflow, in: group)
-    case .moveWorkflow(let workflow, let to, let group):
-      moveWorkflow(workflow, to: to, in: group)
-    case .drop(let urls, let workflow, let group):
-      drop(urls, workflow: workflow, in: group)
+    case .set(let workflow):
+      self.state = workflow
+    case .create(let groupId):
+      createWorkflow(groupId)
+    case .update(let workflow):
+      updateWorkflow(workflow)
+    case .delete(let workflow):
+      deleteWorkflow(workflow)
+    case .move(let workflow, let to):
+      moveWorkflow(workflow, to: to)
+    case .drop(let urls, let groupId, let workflow):
+      drop(urls, groupId: groupId, workflow: workflow)
     }
   }
 
   // MARK: Private methods
 
-  private func createWorkflow(in group: ModelKit.Group) {
-    var group = group
+  private func createWorkflow(_ groupId: String?) {
+    guard let groupId = groupId else { return }
     let workflow = Workflow.empty()
-    group.workflows.add(workflow)
-    delegate?.workflowFeatureController(self, didCreateWorkflow: workflow, in: group)
+    try? delegate?.workflowFeatureController(self, didCreateWorkflow: workflow, groupId: groupId)
   }
 
-  private func updateWorkflow(_ workflow: Workflow, in group: ModelKit.Group) {
-    var group = group
-    try? group.workflows.replace(workflow)
-    delegate?.workflowFeatureController(self, didUpdateWorkflow: workflow, in: group)
+  private func updateWorkflow(_ workflow: Workflow) {
+    perform(.set(workflow: workflow))
+    try? delegate?.workflowFeatureController(self, didUpdateWorkflow: workflow)
   }
 
-  private func deleteWorkflow(_ workflow: Workflow, in group: ModelKit.Group) {
-    var group = group
-    try? group.workflows.remove(workflow)
-    delegate?.workflowFeatureController(self, didDeleteWorkflow: workflow, in: group)
+  private func deleteWorkflow(_ workflow: Workflow) {
+    try? delegate?.workflowFeatureController(self, didDeleteWorkflow: workflow)
   }
 
-  private func moveWorkflow(_ workflow: Workflow, to index: Int, in group: ModelKit.Group) {
-    var group = group
-    try? group.workflows.move(workflow, to: index)
-    delegate?.workflowFeatureController(self, didMoveWorkflow: workflow, in: group)
+  private func moveWorkflow(_ workflow: Workflow, to index: Int) {
+    try? delegate?.workflowFeatureController(self, didMoveWorkflow: workflow, to: index)
   }
 
-  private func drop(_ urls: [URL], workflow: Workflow?, in group: Group) {
-    var group = group
+  private func drop(_ urls: [URL], groupId: String?, workflow: Workflow?) {
+    guard let groupId = groupId else { return }
+    var targetWorkflow: Workflow
     let commands = generateCommands(urls)
 
     if var existingWorkflow = workflow {
       existingWorkflow.commands.append(contentsOf: commands)
-      try? group.workflows.replace(existingWorkflow)
-      delegate?.workflowFeatureController(self, didUpdateWorkflow: existingWorkflow, in: group)
+      targetWorkflow = existingWorkflow
     } else {
       var newWorkflow: Workflow = Workflow.empty()
-      newWorkflow.commands = commands
-      group.workflows.append(newWorkflow)
-      delegate?.workflowFeatureController(self, didCreateWorkflow: newWorkflow, in: group)
+      newWorkflow.commands.append(contentsOf: commands)
+      targetWorkflow = newWorkflow
     }
+
+    try? delegate?.workflowFeatureController(self, didDropWorkflow: targetWorkflow, groupId: groupId)
   }
 
   private func generateCommands(_ urls: [URL]) -> [Command] {
@@ -126,24 +120,21 @@ final class WorkflowFeatureController: ViewController,
   // MARK: KeyboardShortcutsFeatureControllerDelegate
 
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
-                                         didCreateKeyboardShortcut keyboardShortcut: KeyboardShortcut,
+                                         didCreateKeyboardShortcut keyboardShortcut: ModelKit.KeyboardShortcut,
                                          in workflow: Workflow) {
-    guard let group = groupsController.group(for: workflow) else { return }
-    updateWorkflow(workflow, in: group)
+    updateWorkflow(workflow)
   }
 
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
-                                         didUpdateKeyboardShortcut keyboardShortcut: KeyboardShortcut,
+                                         didUpdateKeyboardShortcut keyboardShortcut: ModelKit.KeyboardShortcut,
                                          in workflow: Workflow) {
-    guard let group = groupsController.group(for: workflow) else { return }
-    updateWorkflow(workflow, in: group)
+    updateWorkflow(workflow)
   }
 
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
-                                         didDeleteKeyboardShortcut keyboardShortcut: KeyboardShortcut,
+                                         didDeleteKeyboardShortcut keyboardShortcut: ModelKit.KeyboardShortcut,
                                          in workflow: Workflow) {
-    guard let group = groupsController.group(for: workflow) else { return }
-    updateWorkflow(workflow, in: group)
+    updateWorkflow(workflow)
   }
 
   // MARK: CommandsFeatureControllerDelegate
@@ -151,20 +142,22 @@ final class WorkflowFeatureController: ViewController,
   func commandsFeatureController(_ controller: CommandsFeatureController,
                                  didCreateCommand command: Command,
                                  in workflow: Workflow) {
-    guard let group = groupsController.group(for: workflow) else { return }
-    updateWorkflow(workflow, in: group)
+    updateWorkflow(workflow)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didUpdateCommand command: Command,
                                  in workflow: Workflow) {
-    guard let group = groupsController.group(for: workflow) else { return }
-    updateWorkflow(workflow, in: group)
+    updateWorkflow(workflow)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didDeleteCommand command: Command,
                                  in workflow: Workflow) {
-    guard let group = groupsController.group(for: workflow) else { return }
-    updateWorkflow(workflow, in: group)
+    updateWorkflow(workflow)
+  }
+
+  func commandsFeatureController(_ controller: CommandsFeatureController, didDropCommands commands: [Command],
+                                 in workflow: Workflow) {
+    updateWorkflow(workflow)
   }
 }
 

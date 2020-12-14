@@ -10,112 +10,94 @@ public struct GroupList: View {
     case dropFile([URL])
   }
 
-  public enum SheetAction: Identifiable {
+  public enum Sheet: Identifiable {
     case edit(ModelKit.Group)
     case delete(ModelKit.Group)
 
     public var id: String { return UUID().uuidString }
   }
 
-  static let idealWidth: CGFloat = 300
-
-  @EnvironmentObject var userSelection: UserSelection
-  let applicationProvider: ApplicationProvider
-  let factory: ViewFactory
-  @ObservedObject var groupController: GroupController
-  let workflowController: WorkflowController
-  @State private var sheetAction: SheetAction?
+  @StateObject var store: ViewKitStore
+  @State private var sheet: Sheet?
   @State private var isDropping: Bool = false
+  @Binding var selection: String?
+  @Binding var workflowSelection: String?
 
   public var body: some View {
     List {
-      ForEach(groupController.state, id: \.id) { group in
+      ForEach(store.groups) { group in
         NavigationLink(
-          destination: factory.workflowList(group: group, selectedWorkflow: userSelection.workflow)
-            .environmentObject(userSelection),
-          tag: group, selection: Binding<ModelKit.Group?>(get: {
-            userSelection.group
-          }, set: { group in
-            userSelection.group = group
-            if let group = group {
-              if let workflow = userSelection.workflow,
-                 !group.workflows.contains(workflow) {
-                userSelection.workflow = group.workflows.first
-              } else if userSelection.workflow == nil {
-                userSelection.workflow = group.workflows.first
-              }
+          destination: WorkflowList(
+            store: store,
+            title: group.name,
+            subtitle: "Workflows: \(group.workflows.count)",
+            workflows: group.workflows,
+            selection: $workflowSelection),
+          tag: group.id,
+          selection: Binding<String?>(
+            get: {
+              selection
+            }, set: { newValue in
+              if newValue != selection { workflowSelection = group.workflows.first?.id }
+              selection = newValue
             }
-          })) {
-          GroupListCell(
-            name: group.name,
-            color: group.color,
-            symbol: group.symbol,
-            count: group.workflows.count,
-            editAction: { sheetAction = .edit(group) }
-          )
-        }
-        .frame(minHeight: 36)
-        .contextMenu {
-          Button("Show Info") { sheetAction = .edit(group) }
-          Divider()
-          Button("Delete", action: onDelete)
+          ),
+          label: {
+            GroupListView(group, editAction: { _ in
+              sheet = .edit(group)
+            })
+          }
+        ).contextMenu {
+          GroupListContextMenu(sheet: $sheet, group: group, deleteAction: { group in
+            store.context.groups.perform(.deleteGroup(group))
+          })
         }
       }
-      .onInsert(of: []) { _, _ in }
-      .onMove { indices, newOffset in
+      .onMove(perform: { indices, newOffset in
         for i in indices {
-          groupController.action(.moveGroup(from: i, to: newOffset))()
+          store.context.groups.perform(.moveGroup(from: i, to: newOffset))
+        }
+      })
+      .onInsert(of: [], perform: { _, _ in })
+    }
+    .onDrop($isDropping) { urls in
+      store.context.groups.perform(.dropFile(urls))
+    }
+    .onDeleteCommand(perform: {
+      if let group = store.selectedGroup {
+        if !group.workflows.isEmpty {
+          sheet = .delete(group)
+        } else {
+          store.context.groups.perform(.deleteGroup(group))
         }
       }
-    }
-    .onDrop($isDropping) { groupController.perform(.dropFile($0)) }
-    .border(Color.accentColor, width: isDropping ? 5 : 0)
-    .onDeleteCommand(perform: onDelete)
-    .toolbar(content: {
-      ToolbarItemGroup(placement: .automatic) {
-        Button(action: {
-          groupController.perform(.createGroup)
-        }, label: {
-          Image(systemName: "folder.badge.plus")
-            .renderingMode(.template)
-            .foregroundColor(Color(.systemGray))
-        })
-        .help("Add new Group")
-      }
-    }).sheet(item: $sheetAction, content: { action in
+    })
+    .overlay(
+      RoundedRectangle(cornerRadius: 8)
+        .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
+        .padding(4)
+    )
+    .sheet(item: $sheet, content: { action in
       switch action {
       case .edit(let group):
         editGroup(group)
       case .delete(let group):
-        VStack(spacing: 0) {
-          Text("Are you sure you want to delete the group “\(group.name)”?")
-            .padding()
-          Divider()
-          HStack {
-            Button("Cancel", action: {
-              sheetAction = nil
-            }).keyboardShortcut(.cancelAction)
-            Button("Delete", action: {
-              sheetAction = nil
-              groupController.perform(.deleteGroup(group))
-            }).keyboardShortcut(.defaultAction)
-          }.padding()
-        }
+        deleteGroup(group)
       }
     })
   }
 }
 
-// MARK: - Subviews
+// MARK: Extensions
 
-private extension GroupList {
+extension GroupList {
   func editGroup(_ group: ModelKit.Group) -> some View {
     EditGroup(
       name: group.name,
       color: group.color,
       symbol: group.symbol,
       bundleIdentifiers: group.rule?.bundleIdentifiers ?? [],
-      applicationProvider: applicationProvider.erase(),
+      applicationProvider: store.context.applicationProvider.erase(),
       editAction: { name, color, symbol, bundleIdentifers in
         var group = group
         group.name = name
@@ -131,24 +113,27 @@ private extension GroupList {
           group.rule = nil
         }
 
-        groupController.perform(.updateGroup(group))
-        sheetAction = nil
+        store.context.groups.perform(.updateGroup(group))
+        sheet = nil
       },
-      cancelAction: { sheetAction = nil })
+      cancelAction: { sheet = nil })
   }
 
-  func onDelete() {
-    if let group = userSelection.group {
-      if group.workflows.isEmpty {
-        groupController.perform(.deleteGroup(group))
-      } else {
-        sheetAction = .delete(group)
-      }
-    }
+  func deleteGroup(_ group: ModelKit.Group) -> some View {
+    ConfirmView(
+      config: .init(
+        text: "Are you sure you want to delete the group “\(group.name)”?",
+        confirmText: "Delete",
+        confirmAction: {
+          sheet = nil
+          store.context.groups.perform(.deleteGroup(group))
+        },
+        cancelText: "Cancel",
+        cancelAction: { sheet = nil }))
   }
 }
 
-// MARK: - Previews
+// MARK: Previews
 
 struct GroupList_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
@@ -156,8 +141,11 @@ struct GroupList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    DesignTimeFactory().groupList()
-      .environmentObject(UserSelection())
-      .frame(width: GroupList.idealWidth)
+    GroupList(store: .init(
+      groups: ModelFactory().groupList(),
+      context: .preview()
+    ),
+    selection: .constant(nil),
+    workflowSelection: .constant(nil))
   }
 }

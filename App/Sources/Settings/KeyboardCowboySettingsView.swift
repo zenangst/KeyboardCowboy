@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SettingsView: View {
+struct KeyboardCowboySettingsView: View {
   @AppStorage("hideMenuBarIcon") var hideMenubarIcon = false
   @AppStorage("hideDockIcon") var hideDockIcon = false
 
@@ -22,6 +22,6 @@ struct SettingsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
   static var previews: some View {
-    SettingsView()
+    KeyboardCowboySettingsView()
   }
 }

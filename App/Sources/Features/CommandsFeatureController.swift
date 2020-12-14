@@ -12,6 +12,8 @@ protocol CommandsFeatureControllerDelegate: AnyObject {
                                  didUpdateCommand command: Command, in workflow: Workflow)
   func commandsFeatureController(_ controller: CommandsFeatureController,
                                  didDeleteCommand command: Command, in workflow: Workflow)
+  func commandsFeatureController(_ controller: CommandsFeatureController,
+                                 didDropCommands commands: [Command], in workflow: Workflow)
 }
 
 final class CommandsFeatureController: ActionController {
@@ -33,18 +35,20 @@ final class CommandsFeatureController: ActionController {
 
   func perform(_ action: CommandListView.Action) {
     switch action {
-    case .createCommand(let command, let workflow):
-      createCommand(command, in: workflow)
-    case .updateCommand(let command, let workflow):
-      updateCommand(command, in: workflow)
-    case .deleteCommand(let command, let workflow):
-      deleteCommand(command, in: workflow)
-    case .moveCommand(let command, let offset, let workflow):
-      moveCommand(command, to: offset, in: workflow)
-    case .runCommand(let command):
-      run(command)
-    case .revealCommand(let command, _):
+    case .create(let command, let workflow):
+      create(command, in: workflow)
+    case .delete(let command, let workflow):
+      delete(command, in: workflow)
+    case .edit(let command, let workflow):
+      update(command, in: workflow)
+    case .move(let command, let offset, let workflow):
+      move(command, to: offset, in: workflow)
+    case .reveal(let command):
       reveal(command)
+    case .run(let command):
+      run(command)
+    case .drop(let urls, let workflow):
+      drop(urls, workflow: workflow)
     }
   }
 
@@ -79,19 +83,19 @@ final class CommandsFeatureController: ActionController {
     commandController.run([command])
   }
 
-  private func createCommand(_ command: Command, in workflow: Workflow) {
+  private func create(_ command: Command, in workflow: Workflow) {
     var workflow = workflow
     workflow.commands.append(command)
     delegate?.commandsFeatureController(self, didCreateCommand: command, in: workflow)
   }
 
-  private func updateCommand(_ command: Command, in workflow: Workflow) {
+  private func update(_ command: Command, in workflow: Workflow) {
     var workflow = workflow
     try? workflow.commands.replace(command)
     delegate?.commandsFeatureController(self, didCreateCommand: command, in: workflow)
   }
 
-  private func moveCommand(_ command: Command, to offset: Int, in workflow: Workflow) {
+  private func move(_ command: Command, to offset: Int, in workflow: Workflow) {
     guard let currentIndex = workflow.commands.firstIndex(of: command) else { return }
 
     let newIndex = currentIndex + offset
@@ -100,10 +104,17 @@ final class CommandsFeatureController: ActionController {
     delegate?.commandsFeatureController(self, didUpdateCommand: command, in: workflow)
   }
 
-  private func deleteCommand(_ command: Command, in workflow: Workflow) {
+  private func delete(_ command: Command, in workflow: Workflow) {
     var workflow = workflow
     try? workflow.commands.remove(command)
     delegate?.commandsFeatureController(self, didDeleteCommand: command, in: workflow)
+  }
+
+  private func drop(_ urls: [URL], workflow: Workflow) {
+    var workflow = workflow
+    let commands = generateCommands(urls)
+    workflow.commands.append(contentsOf: commands)
+    delegate?.commandsFeatureController(self, didDropCommands: commands, in: workflow)
   }
 
   private func application(from command: Application) -> Application? {
@@ -113,5 +124,53 @@ final class CommandsFeatureController: ActionController {
   private func defaultApplicationForPath(_ url: URL) -> Application? {
     guard let applicationPath = NSWorkspace.shared.urlForApplication(toOpen: url) else { return nil }
     return installedApplications.first(where: { $0.path == applicationPath.path })
+  }
+
+  private func generateCommands(_ urls: [URL]) -> [Command] {
+    var commands = [Command]()
+    for url in urls {
+      switch url.dropType {
+      case .application:
+        guard let application = installedApplications.first(where: { $0.path == url.path })
+        else { continue }
+        let applicationCommand = ApplicationCommand(
+          name: "Open \(application.bundleName)",
+          application: application)
+        commands.append(Command.application(applicationCommand))
+      case .file:
+        let name = "Open \(url.lastPathComponent)"
+        commands.append(Command.open(.init(name: name, path: url.path)))
+      case .web:
+        var name = "Open URL"
+        if let host = url.host {
+          name = "Open \(host)/\(url.lastPathComponent)"
+        }
+        commands.append(Command.open(.init(name: name, path: url.absoluteString)))
+      case .unsupported:
+        continue
+      }
+    }
+    return commands
+  }
+}
+
+private enum DropType {
+  case application
+  case file
+  case web
+  case unsupported
+}
+
+private extension URL {
+  var dropType: DropType {
+    if isFileURL {
+      if lastPathComponent.contains(".app") {
+        return .application
+      } else {
+        return .file
+      }
+    } else {
+      return .web
+    }
   }
 }

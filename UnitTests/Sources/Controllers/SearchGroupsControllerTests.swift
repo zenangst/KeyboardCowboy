@@ -11,7 +11,7 @@ class SearchGroupsControllerTests: XCTestCase {
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
-    let search = factory.searchFeature(userSelection: UserSelection())
+    let search = factory.searchFeature()
 
     let query = "My awesome group"
     let groups = [
@@ -33,7 +33,7 @@ class SearchGroupsControllerTests: XCTestCase {
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
-    let search = factory.searchFeature(userSelection: UserSelection())
+    let search = factory.searchFeature()
 
     let query = "Group"
     let groups = [
@@ -59,7 +59,7 @@ class SearchGroupsControllerTests: XCTestCase {
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
-    let search = factory.searchFeature(userSelection: UserSelection())
+    let search = factory.searchFeature()
 
     let query = "Group"
     let groups = [
@@ -83,7 +83,7 @@ class SearchGroupsControllerTests: XCTestCase {
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
-    let search = factory.searchFeature(userSelection: UserSelection())
+    let search = factory.searchFeature()
 
     let query = "Workflow A"
     let workflow = Workflow(name: "Workflow A")
@@ -115,7 +115,7 @@ class SearchGroupsControllerTests: XCTestCase {
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
-    let search = factory.searchFeature(userSelection: UserSelection())
+    let search = factory.searchFeature()
 
     let query = "Command A"
     let commandA = Command.open(.init(name: "Command A", path: "/path/to/file"))

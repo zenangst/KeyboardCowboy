@@ -32,6 +32,20 @@ public extension Array where Element: Identifiable {
     }
   }
 
+  /// Modify element using the elements identity and by passing the mutations
+  /// in the `change` closure.
+  ///
+  /// - Parameters:
+  ///   - element: The identifiable element that should be updated.
+  ///   - change: The closure where the mutations are handled and applied.
+  mutating func modify(_ element: Element, change: (inout Element) -> Element) throws {
+    guard let index = self.firstIndex(where: { $0.id == element.id }) else {
+      throw IdentifiableCollectionError.unableToFindElement
+    }
+    var element = self[index]
+    self[index] = change(&element)
+  }
+
   /// Replace an `Identifiable` element inside the collection.
   ///
   /// Uniqueness is determined by the `.id` of the `Identifiable` element.
