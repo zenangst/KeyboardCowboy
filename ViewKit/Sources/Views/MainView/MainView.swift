@@ -2,74 +2,32 @@ import SwiftUI
 import ModelKit
 
 public struct MainView: View {
-  @EnvironmentObject var userSelection: UserSelection
-  let factory: ViewFactory
-  @ObservedObject var searchController: SearchController
-  let applicationProvider: ApplicationProvider
-  let commandController: CommandController
+  @ObservedObject var store: ViewKitStore
+  @AppStorage("groupSelection") var groupSelection: String?
+  @AppStorage("workflowSelection") var workflowSelection: String?
   let groupController: GroupController
-  let openPanelController: OpenPanelController
-  let workflowController: WorkflowController
 
-  public init(factory: ViewFactory,
-              applicationProvider: ApplicationProvider,
-              commandController: CommandController,
-              groupController: GroupController,
-              openPanelController: OpenPanelController,
-              searchController: SearchController,
-              workflowController: WorkflowController) {
-    self.factory = factory
-    self.applicationProvider = applicationProvider
-    self.commandController = commandController
+  public init(store: ViewKitStore,
+              groupSelection: String? = nil,
+              workflowSelection: String? = nil,
+              groupController: GroupController) {
+    self.store = store
     self.groupController = groupController
-    self.openPanelController = openPanelController
-    self.searchController = searchController
-    self.workflowController = workflowController
+
+    if let groupSelection = groupSelection { self.groupSelection = groupSelection }
+    if let workflowSelection = workflowSelection { self.workflowSelection = workflowSelection }
   }
 
   @ViewBuilder
   public var body: some View {
     NavigationView {
-      sidebar.frame(minWidth: 225)
-      EmptyView()
-      if let workflow = userSelection.workflow,
-         let group = userSelection.group {
-        factory.workflowDetail(Binding<Workflow>(
-          get: {
-            workflow
-          }, set: {
-            userSelection.workflow = $0
-            workflowController.perform(.updateWorkflow($0, in: group))
-          }
-        ), group: group)
-        .environmentObject(userSelection)
-        .id(workflow.id)
-      }
+      SidebarView(store: store,
+                  selection: $groupSelection,
+                  workflowSelection: $workflowSelection)
+        .toolbar(content: { GroupListToolbar(groupController: groupController) })
+      ListPlaceHolder()
+      DetailViewPlaceHolder()
     }
-  }
-}
-
-// MARK: Extensions
-
-private extension MainView {
-  var sidebar: some View {
-    factory.groupList()
-      .toolbar(content: {
-        ToolbarItemGroup(placement: .primaryAction) {
-          Button(action: toggleSidebar,
-                 label: {
-                  Image(systemName: "sidebar.left")
-                    .renderingMode(.template)
-                    .foregroundColor(Color(.systemGray))
-                 })
-            .help("Toggle Sidebar")
-        }
-      })
-  }
-
-  func toggleSidebar() {
-    NSApp.keyWindow?.firstResponder?.tryToPerform(
-      #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
   }
 }
 
@@ -79,10 +37,18 @@ struct MainView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    DesignTimeFactory().mainView()
-      .environmentObject(UserSelection(
-                          group: ModelFactory().groupList().first!,
-                          workflow: ModelFactory().groupList().first!.workflows.first))
+    let groups = ModelFactory().groupList()
+    let context = ViewKitFeatureContext.preview()
+
+    context.workflow.perform(.set(workflow: groups.first!.workflows.first!))
+
+    return MainView(
+      store: .init(
+        groups: groups,
+        context: context),
+      groupSelection: groups.first?.id,
+      workflowSelection: groups.first?.workflows.first?.id,
+      groupController: GroupPreviewController().erase())
       .frame(width: 960, height: 620, alignment: .leading)
   }
 }

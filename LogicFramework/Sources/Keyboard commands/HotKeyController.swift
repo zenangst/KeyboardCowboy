@@ -63,6 +63,7 @@ final class HotKeyController: HotKeyControlling {
     }
 
     for workflow in workflows where invocations < workflow.keyboardShortcuts.count {
+      guard !workflow.keyboardShortcuts.isEmpty else { continue }
       let keyboardShortcut = workflow.keyboardShortcuts[invocations]
 
       guard let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()] else { continue }

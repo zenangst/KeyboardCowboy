@@ -1,5 +1,7 @@
 import LaunchArguments
 
+let launchArguments = LaunchArgumentsController<LaunchArgument>()
+
 enum LaunchArgument: String, LaunchArgumentType {
   // Used to avoid running the application when running unit tests
   case runningUnitTests = "-running-unit-tests"

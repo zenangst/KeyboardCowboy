@@ -3,7 +3,6 @@ import Combine
 import Foundation
 
 class SettingsController {
-  var hideMenuBarIcon = PassthroughSubject<Bool, Never>()
   private let userDefaults: UserDefaults
   private var subscriptions = Set<AnyCancellable>()
 
@@ -23,9 +22,5 @@ class SettingsController {
           NSApp.setActivationPolicy(.regular)
         }
       }.store(in: &subscriptions)
-
-    userDefaults.publisher(for: \.hideMenuBarIcon).sink {
-      self.hideMenuBarIcon.send($0)
-    }.store(in: &subscriptions)
   }
 }

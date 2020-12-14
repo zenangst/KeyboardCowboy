@@ -1,14 +1,27 @@
 import SwiftUI
 import ModelKit
 
-struct GroupListCell: View {
-  typealias CommitHandler = (String, String) -> Void
-  let name: String
-  let color: String
-  let symbol: String
-  let count: Int
-  let editAction: () -> Void
+struct GroupListViewConfig {
+  var name: String
+  var hexColor: String
+  var symbol: String
+  var count: Int
+}
+
+struct GroupListView: View {
+  typealias EditAction = (GroupListViewConfig) -> Void
+
+  @State private var config: GroupListViewConfig
   @State private var isHovering: Bool = false
+  let editAction: EditAction
+
+  init(_ group: ModelKit.Group, editAction: @escaping EditAction) {
+    _config = .init(wrappedValue: GroupListViewConfig(name: group.name,
+                                                      hexColor: group.color,
+                                                      symbol: group.symbol,
+                                                      count: group.workflows.count))
+    self.editAction = editAction
+  }
 
   var body: some View {
     HStack {
@@ -16,7 +29,7 @@ struct GroupListCell: View {
       text
       Spacer()
       if isHovering {
-        editButton(editAction)
+        editButton { editAction(config) }
       }
       numberOfWorkflows
     }
@@ -30,20 +43,20 @@ struct GroupListCell: View {
 
 // MARK: - Subviews
 
-private extension GroupListCell {
+private extension GroupListView {
   var icon: some View {
     Circle()
-      .fill(Color(hex: color))
+      .fill(Color(hex: config.hexColor))
       .frame(width: 24, height: 24, alignment: .center)
       .overlay(
-        Image(systemName: symbol)
+        Image(systemName: config.symbol)
           .renderingMode(.template)
           .foregroundColor(.white)
       )
   }
 
   var text: some View {
-    Text(name)
+    Text(config.name)
       .foregroundColor(.primary)
       .lineSpacing(-2.0)
   }
@@ -57,7 +70,7 @@ private extension GroupListCell {
   }
 
   var numberOfWorkflows: some View {
-    Text("\(count)")
+    Text("\(config.count)")
       .foregroundColor(.secondary)
       .padding(.vertical, 2)
   }
@@ -72,11 +85,7 @@ struct GroupListCell_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     let group = ModelFactory().groupListCell()
-    return GroupListCell(name: group.name,
-                         color: group.color,
-                         symbol: group.symbol,
-                         count: group.workflows.count,
-                         editAction: {})
+    return GroupListView(group, editAction: { _ in })
       .frame(width: 300)
   }
 }

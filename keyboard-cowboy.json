@@ -22,19 +22,19 @@
         ],
         "keyboardShortcuts" : [
           {
+            "id" : "F52FB64C-4E78-430B-849A-F6035A63BD54",
+            "key" : "A"
+          },
+          {
             "id" : "EE90A03C-98A3-44A3-933D-D363EA1FFC2B",
             "key" : "A",
             "modifiers" : [
               "^",
               "~"
             ]
-          },
-          {
-            "id" : "F52FB64C-4E78-430B-849A-F6035A63BD54",
-            "key" : "A"
           }
         ],
-        "name" : "Open Contacts"
+        "name" : "Open CardHop"
       },
       {
         "id" : "CA2EE8EF-5F2C-4DEF-8849-CDF6F9B91923",
@@ -1271,7 +1271,7 @@
       ]
     },
     "id" : "FC41A373-251B-4B86-AEFE-4B037C397324",
-    "symbol" : "folder",
+    "symbol" : "sparkles",
     "name" : "Apple News",
     "workflows" : [
       {
@@ -1322,5 +1322,52 @@
       }
     ],
     "color" : "#6BD35F"
+  },
+  {
+    "id" : "CF92373E-12C9-4304-8129-5713E775EED8",
+    "symbol" : "folder",
+    "name" : "Best group",
+    "workflows" : [
+      {
+        "id" : "CF92373E-12C9-4304-8129-5713E775EED8",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "A62A7384-4C30-4EE4-8F99-9CED435FCE45",
+              "name" : "",
+              "application" : {
+                "path" : "\/Applications\/Airmail.app",
+                "id" : "88ABCBE3-8DD5-44B5-B41B-E12D14772104",
+                "bundleIdentifier" : "it.bloop.airmail2",
+                "bundleName" : "Airmail"
+              }
+            }
+          },
+          {
+            "applicationCommand" : {
+              "id" : "28EC63AB-B371-42DA-A289-3F18ADDD0E96",
+              "name" : "",
+              "application" : {
+                "path" : "\/Applications\/1Password.app",
+                "id" : "31FDEEE6-0D8E-4470-BD80-EB2364852487",
+                "bundleIdentifier" : "com.agilebits.onepassword-osx",
+                "bundleName" : "1Password"
+              }
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "A81C056B-FACF-407A-A7A8-60A2D7073BF3",
+            "key" : "D",
+            "modifiers" : [
+              "@"
+            ]
+          }
+        ],
+        "name" : "Open Airm"
+      }
+    ],
+    "color" : "#EB4B63"
   }
 ]

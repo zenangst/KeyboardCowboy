@@ -2,7 +2,7 @@ import SwiftUI
 import ModelKit
 
 struct SearchView: View {
-  @ObservedObject var searchController: SearchController
+  @StateObject var searchController: SearchController
 
   var body: some View {
     ScrollView {
@@ -20,7 +20,7 @@ struct SearchView: View {
           }
 
           ForEach(searchController.state.workflows, id: \.self) { workflow in
-            WorkflowListCell(workflow: workflow)
+            WorkflowListView(workflow: workflow)
               .frame(height: 48)
               .padding(.horizontal, 10)
               .background(Color(.windowBackgroundColor))
@@ -73,6 +73,6 @@ struct SearchView_Previews: PreviewProvider, TestPreviewProvider {
                   groups: ModelFactory().groupList(),
                   workflows: ModelFactory().workflowList(),
                   commands: ModelFactory().commands())
-    ).erase()).environmentObject(UserSelection())
+    ).erase())
   }
 }
