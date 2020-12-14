@@ -28,7 +28,7 @@ public enum Command: Identifiable, Codable, Hashable {
   public var name: String {
     switch self {
     case .application(let command):
-      return command.name.isEmpty ? "Open \(command.application.bundleName)" : command.name
+      return command.name.isEmpty ? "Open \(command.application.displayName)" : command.name
     case .keyboard(let command):
       var keyboardShortcut = command.keyboardShortcut.modifiers?.compactMap({ $0.pretty }).joined() ?? ""
       keyboardShortcut += command.keyboardShortcut.key

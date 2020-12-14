@@ -12,6 +12,7 @@ public struct Application: Identifiable, Codable, Hashable {
   public let bundleIdentifier: String
   public let bundleName: String
   public let path: String
+  public private(set) var displayName: String = ""
 
   public init(id: String = UUID().uuidString,
               bundleIdentifier: String,
@@ -21,6 +22,7 @@ public struct Application: Identifiable, Codable, Hashable {
     self.bundleIdentifier = bundleIdentifier
     self.bundleName = bundleName
     self.path = path
+    self.displayName = FileManager().displayName(atPath: path)
   }
 
   enum CodingKeys: String, CodingKey {
@@ -37,6 +39,7 @@ public struct Application: Identifiable, Codable, Hashable {
     self.bundleIdentifier = try container.decode(String.self, forKey: .bundleIdentifier)
     self.bundleName = try container.decode(String.self, forKey: .bundleName)
     self.path = try container.decode(String.self, forKey: .path)
+    self.displayName = FileManager().displayName(atPath: path)
   }
 }
 

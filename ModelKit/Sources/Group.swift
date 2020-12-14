@@ -59,7 +59,7 @@ extension Group {
   static public func droppedApplication(id: String = UUID().uuidString,
                                         _ application: Application) -> Group {
     Group(id: id,
-          name: application.bundleName,
+          name: application.displayName,
           color: "#000",
           rule: Rule(bundleIdentifiers: [application.bundleIdentifier],
                      days: []),
