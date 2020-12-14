@@ -27,7 +27,7 @@ struct EditApplicationCommandView: View {
             command = ApplicationCommand(id: command.id, application: installedApplications[$0])
           })) {
             ForEach(0..<installedApplications.count, id: \.self) { index in
-              Text(installedApplications[index].bundleName).tag(index)
+              Text(installedApplications[index].displayName).tag(index)
             }
           }
         }.padding()

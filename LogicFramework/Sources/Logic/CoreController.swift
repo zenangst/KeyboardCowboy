@@ -76,7 +76,7 @@ public final class CoreController: NSObject, CoreControlling,
     self.installedApplications = fileIndexer.index(with: patterns, match: {
       $0.absoluteString.contains(".app")
     }, handler: applicationParser.process(_:))
-    .sorted(by: { $0.bundleName.lowercased() < $1.bundleName.lowercased() })
+    .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
   }
 
   @objc public func reloadContext() {

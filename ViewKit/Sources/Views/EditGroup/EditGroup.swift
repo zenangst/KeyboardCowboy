@@ -100,7 +100,7 @@ private extension EditGroup {
         selectedApplicationIndex = $0
       })) {
         ForEach(0..<installedApplications.count, id: \.self) { index in
-          Text(installedApplications[index].bundleName).tag(index)
+          Text(installedApplications[index].displayName).tag(index)
         }
       }
     }
@@ -131,7 +131,7 @@ private extension EditGroup {
           VStack(spacing: 0) {
             HStack {
               IconView(icon: Icon(identifier: application.bundleIdentifier, path: application.path))
-              Text(application.bundleName)
+              Text(application.displayName)
               Spacer()
               Button("-", action: {
                 if let index = bundleIdentifiers.firstIndex(of: application.bundleIdentifier) {
