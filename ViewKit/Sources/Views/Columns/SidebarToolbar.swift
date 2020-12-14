@@ -3,7 +3,7 @@ import SwiftUI
 struct SidebarToolbar: ToolbarContent {
   var body: some ToolbarContent {
     ToolbarItemGroup(placement: .primaryAction) {
-      Button(action: toggleSidebar,
+      Button(action: { NSApp.tryToPerform(.toggleSidebar) },
              label: {
               Image(systemName: "sidebar.left")
                 .renderingMode(.template)
@@ -11,10 +11,5 @@ struct SidebarToolbar: ToolbarContent {
              })
         .help("Toggle Sidebar")
     }
-  }
-
-  func toggleSidebar() {
-    NSApp.keyWindow?.firstResponder?.tryToPerform(
-      #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
   }
 }

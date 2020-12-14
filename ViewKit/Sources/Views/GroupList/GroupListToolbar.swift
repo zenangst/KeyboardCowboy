@@ -7,6 +7,7 @@ struct GroupListToolbar: ToolbarContent {
   var body: some ToolbarContent {
     ToolbarItemGroup(placement: .automatic) {
       Button(action: {
+        NSApp.tryToPerform(.showSidebar)
         groupController.perform(.createGroup)
       }, label: {
         Image(systemName: "folder.badge.plus")
