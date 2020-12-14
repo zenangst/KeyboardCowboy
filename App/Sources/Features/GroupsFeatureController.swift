@@ -91,7 +91,20 @@ final class GroupsFeatureController: ActionController,
 
   private func delete(_ group: ModelKit.Group) {
     var groups = groupsController.groups
-    try? groups.remove(group)
+
+    if let offset = groups.firstIndex(of: group) {
+      try? groups.remove(group)
+
+      // Select the "above" group when deleting the currently selected.
+      // In addition, select the first workflow in the group.
+      let nextIndex = max(0, offset - 1)
+      if groups.count > 0 {
+        let newSelectedGroup = groups[nextIndex]
+        groupSelection = newSelectedGroup.id
+        workflowSelection = newSelectedGroup.workflows.first?.id
+      }
+    }
+
     reload(groups)
   }
 
