@@ -1,16 +1,13 @@
+import BridgeKit
 import Cocoa
 import Combine
 import SwiftUI
 import ModelKit
 
 class KeyboardShortcutRecorderView: NSSearchField {
-  static let enableNotification = Notification(name: Notification.Name("enableHotKeys"))
-  static let disableNotification = Notification(name: Notification.Name("disableHotKeys"))
-
   typealias OnCommit = (KeyboardShortcutRecorderView, ModelKit.KeyboardShortcut?) -> Void
 
   @State private var keyboardShortcut: ModelKit.KeyboardShortcut?
-  private var cancellables = Set<AnyCancellable>()
   private let viewController: KeyboardShortcutRecorderViewController
   private let onCommit: OnCommit
   private let minimumWidth: CGFloat = 130
@@ -40,10 +37,10 @@ class KeyboardShortcutRecorderView: NSSearchField {
 
     self.viewController.onCommit = { [weak self] keyboardShortcut in
       guard let self = self else { return }
-      self.window?.becomeFirstResponder()
+      self.isEnabled = false
+      self.isEnabled = true
       self.update(keyboardShortcut)
       self.onCommit(self, keyboardShortcut)
-      NotificationCenter.default.post(Self.enableNotification)
     }
   }
 
@@ -65,11 +62,10 @@ class KeyboardShortcutRecorderView: NSSearchField {
   }
 
   override func becomeFirstResponder() -> Bool {
-    NotificationCenter.default.post(Self.disableNotification)
-
     let shouldBecomeFirstResponder = super.becomeFirstResponder()
 
     guard shouldBecomeFirstResponder else {
+      NotificationCenter.default.post(.enableHotKeys)
       return shouldBecomeFirstResponder
     }
 

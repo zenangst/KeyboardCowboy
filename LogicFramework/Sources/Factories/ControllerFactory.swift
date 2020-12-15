@@ -11,8 +11,8 @@ public final class ControllerFactory {
     PermissionsController()
   }
 
-  public func coreController(commandController: CommandControlling? = nil,
-                             disableKeyboardShortcuts: Bool,
+  public func coreController(_ initialState: CoreControllerState,
+                             commandController: CommandControlling? = nil,
                              groupsController: GroupsControlling? = nil,
                              keycodeMapper: KeyCodeMapping? = nil,
                              keyboardCommandController: KeyboardCommandControlling? = nil,
@@ -24,8 +24,8 @@ public final class ControllerFactory {
     let keyboardCommandController = keyboardCommandController ??
       KeyboardCommandController(keyCodeMapper: _keycodeMapper)
     let workflowController = workflowController ?? WorkflowController()
-    return CoreController(commandController: commandController,
-                          disableKeyboardShortcuts: disableKeyboardShortcuts,
+    return CoreController(initialState,
+                          commandController: commandController,
                           groupsController: groupsController,
                           keyboardCommandController: keyboardCommandController,
                           keycodeMapper: keycodeMapper,
