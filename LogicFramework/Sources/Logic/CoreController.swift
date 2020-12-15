@@ -11,12 +11,12 @@ public protocol CoreControlling: AnyObject {
   func activate(workflows: [Workflow])
   @discardableResult
   func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow]
-  func receive(_ context: inout HotKeyContext)
 }
 
 public final class CoreController: NSObject, CoreControlling,
                                    CommandControllingDelegate,
-                                   GroupsControllingDelegate {
+                                   GroupsControllingDelegate,
+                                   HotKeyControllingDelegate {
   private static var cache = [String: Int]()
   public let commandController: CommandControlling
   public let keyboardController: KeyboardCommandControlling
@@ -59,7 +59,7 @@ public final class CoreController: NSObject, CoreControlling,
     self.workspace = workspace
     Self.cache = keycodeMapper.hashTable()
     super.init()
-    self.hotKeyController?.coreController = self
+    self.hotKeyController?.delegate = self
     self.commandController.delegate = self
     self.loadApplications()
     self.reloadContext()
@@ -147,7 +147,7 @@ public final class CoreController: NSObject, CoreControlling,
     return workflows
   }
 
-  public func receive(_ context: inout HotKeyContext) {
+  public func hotKeyController(_ controller: HotKeyControlling, didReceiveContext context: HotKeyContext) {
     for workflow in activeWorkflows where invocations < workflow.keyboardShortcuts.count {
       guard !workflow.keyboardShortcuts.isEmpty else { continue }
 
