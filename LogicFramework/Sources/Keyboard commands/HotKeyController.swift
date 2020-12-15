@@ -24,7 +24,6 @@ enum RebindingControllingError: Error {
 }
 
 final class HotKeyController: HotKeyControlling {
-  private static var cache = [String: Int]()
   private var eventSource: CGEventSource!
   private var machPort: CFMachPort!
   private var runLoopSource: CFRunLoopSource!
