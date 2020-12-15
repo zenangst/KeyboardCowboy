@@ -11,12 +11,15 @@ public protocol CoreControlling: AnyObject {
   func activate(workflows: [Workflow])
   @discardableResult
   func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow]
+  func receive(_ context: inout HotKeyContext)
 }
 
 public final class CoreController: NSObject, CoreControlling,
                                    CommandControllingDelegate,
                                    GroupsControllingDelegate {
+  private static var cache = [String: Int]()
   public let commandController: CommandControlling
+  public let keyboardController: KeyboardCommandControlling
   public let groupsController: GroupsControlling
   let keycodeMapper: KeyCodeMapping
   var hotKeyController: HotKeyControlling?
@@ -34,6 +37,8 @@ public final class CoreController: NSObject, CoreControlling,
 
   private(set) var currentGroups = [Group]()
   private(set) var currentKeyboardShortcuts = [KeyboardShortcut]()
+  private var invocations: Int = 0
+  private var activeWorkflows = [Workflow]()
   private var frontmostApplicationObserver: NSKeyValueObservation?
 
   public init(commandController: CommandControlling,
@@ -48,10 +53,11 @@ public final class CoreController: NSObject, CoreControlling,
     self.disableKeyboardShortcuts = disableKeyboardShortcuts
     self.groupsController = groupsController
     self.keycodeMapper = keycodeMapper
-    self.hotKeyController = try? HotKeyController(keyCodeMapper: keycodeMapper,
-                                                        keyboardController: keyboardCommandController)
+    self.keyboardController = keyboardCommandController
+    self.hotKeyController = try? HotKeyController()
     self.workflowController = workflowController
     self.workspace = workspace
+    Self.cache = keycodeMapper.hashTable()
     super.init()
     self.hotKeyController?.coreController = self
     self.commandController.delegate = self
@@ -101,12 +107,12 @@ public final class CoreController: NSObject, CoreControlling,
 
     currentGroups = groupsController.filterGroups(using: contextRule)
     currentKeyboardShortcuts = []
-    hotKeyController?.invocations = 0
+    invocations = 0
     activate(workflows: currentGroups.flatMap({ $0.workflows }))
   }
 
   public func activate(workflows: [Workflow]) {
-    hotKeyController?.monitor(workflows)
+    activeWorkflows = workflows
   }
 
   public func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow] {
@@ -133,12 +139,48 @@ public final class CoreController: NSObject, CoreControlling,
       }
       reloadContext()
     } else {
-      hotKeyController?.invocations += 1
+      invocations += 1
       let workflowNames = workflowsToActivate.compactMap({ $0.name })
       Debug.print("🪃 Activating: \(workflowNames.joined(separator: ", ").replacingOccurrences(of: "Open ", with: ""))")
       activate(workflows: Array(workflowsToActivate))
     }
     return workflows
+  }
+
+  public func receive(_ context: inout HotKeyContext) {
+    for workflow in activeWorkflows where invocations < workflow.keyboardShortcuts.count {
+      guard !workflow.keyboardShortcuts.isEmpty else { continue }
+
+      // Verify that the current key code is in the list of cached keys.
+      let keyboardShortcut = workflow.keyboardShortcuts[invocations]
+      guard let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()],
+            context.keyCode == shortcutKeyCode else { continue }
+
+      // Check if the events modifier flags is a match for the current keyboard shortcut
+      var modifiersMatch: Bool = true
+      if let modifiers = keyboardShortcut.modifiers {
+        modifiersMatch = context.event.flags.isEqualTo(modifiers)
+      } else {
+        modifiersMatch = context.event.flags.isEmpty
+      }
+
+      guard modifiersMatch else { continue }
+
+      context.result = nil
+
+      if keyboardShortcut == workflow.keyboardShortcuts.last {
+        if case .keyboard(let command) = workflow.commands.last {
+          _ = keyboardController.run(command, type: context.type, eventSource: context.eventSource)
+        } else if context.type == .keyDown {
+          Debug.print("⌨️ Workflow: \(workflow.name): \(invocations)")
+          _ = respond(to: keyboardShortcut)
+        }
+      } else if context.type == .keyDown {
+        _ = respond(to: keyboardShortcut)
+      }
+
+      break
+    }
   }
 
   // MARK: CommandControllingDelegate

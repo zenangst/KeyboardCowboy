@@ -1,16 +1,19 @@
 import Carbon
 import Cocoa
-import ModelKit
+
+public struct HotKeyContext {
+  let keyCode: Int64
+  let event: CGEvent
+  let eventSource: CGEventSource
+  let type: CGEventType
+  var result: Unmanaged<CGEvent>?
+}
 
 /// A rebinding controller is responsible for intercepting keyboard shortcuts and posting
 /// alternate events when rebounded keys are invoked.
 public protocol HotKeyControlling {
-  init(keyCodeMapper: KeyCodeMapping,
-       keyboardController: KeyboardCommandControlling) throws
   var coreController: CoreControlling? { get set }
   var isEnabled: Bool { get set }
-  var invocations: Int { get set }
-  func monitor(_ workflows: [Workflow])
   func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ cgEvent: CGEvent) -> Unmanaged<CGEvent>?
 }
 
@@ -21,84 +24,33 @@ enum RebindingControllingError: Error {
 }
 
 final class HotKeyController: HotKeyControlling {
-  static var workflows = [Workflow]()
   private static var cache = [String: Int]()
   private var eventSource: CGEventSource!
   private var machPort: CFMachPort!
   private var runLoopSource: CFRunLoopSource!
-  private var keyboardController: KeyboardCommandControlling
   public weak var coreController: CoreControlling?
-
-  var invocations: Int = 0
 
   var isEnabled: Bool {
     set { machPort.map { CGEvent.tapEnable(tap: $0, enable: newValue) } }
     get { machPort.map(CGEvent.tapIsEnabled) ?? false }
   }
 
-  required init(keyCodeMapper: KeyCodeMapping,
-                keyboardController: KeyboardCommandControlling) throws {
-    self.keyboardController = keyboardController
+  required init() throws {
     self.eventSource = try createEventSource()
     self.machPort = try createMachPort()
     self.runLoopSource = try createRunLoopSource()
-    Self.cache = keyCodeMapper.hashTable()
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
-    Debug.print("⌨️")
-  }
-
-  func monitor(_ workflows: [Workflow]) {
-    Self.workflows = workflows
     Debug.print("⌨️")
   }
 
   func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ event: CGEvent) -> Unmanaged<CGEvent>? {
     let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-    let workflows = Self.workflows
-    var result: Unmanaged<CGEvent>? = Unmanaged.passUnretained(event)
-
-    if type == .keyDown {
-      let output = workflows.compactMap({ $0.name }).joined(separator: ", ").replacingOccurrences(of: "Open ", with: "")
-      Debug.print("⌨️ Workflows: \(output): \(invocations)")
-    }
-
-    for workflow in workflows where invocations < workflow.keyboardShortcuts.count {
-      guard !workflow.keyboardShortcuts.isEmpty else { continue }
-      let keyboardShortcut = workflow.keyboardShortcuts[invocations]
-
-      guard let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()] else { continue }
-
-      guard keyCode == shortcutKeyCode else { continue }
-
-      var modifiersMatch: Bool = true
-
-      if let modifiers = keyboardShortcut.modifiers {
-        modifiersMatch = eventFlagsMatchModifiers(event.flags, modifiers: modifiers)
-      } else {
-        modifiersMatch = event.flags.isDisjoint(with: [
-          .maskControl, .maskCommand, .maskAlternate, .maskShift, .maskSecondaryFn
-        ])
-      }
-
-      guard modifiersMatch else { continue }
-
-      result = nil
-
-      if keyboardShortcut == workflow.keyboardShortcuts.last {
-        if case .keyboard(let command) = workflow.commands.last {
-          _ = keyboardController.run(command, type: type, eventSource: self.eventSource)
-        } else if type == .keyDown {
-          Debug.print("⌨️ Workflow: \(workflow.name): \(invocations)")
-          coreController?.respond(to: keyboardShortcut)
-        }
-      } else if type == .keyDown {
-        coreController?.respond(to: keyboardShortcut)
-      }
-
-      break
-    }
-
-    return result
+    let result: Unmanaged<CGEvent>? = Unmanaged.passUnretained(event)
+    var context = HotKeyContext(keyCode: keyCode, event: event,
+                                eventSource: eventSource, type: type,
+                                result: result)
+    coreController?.receive(&context)
+    return context.result
   }
 
   // MARK: Private methods
@@ -145,22 +97,5 @@ final class HotKeyController: HotKeyControlling {
     }
     Debug.print("⌨️")
     return eventSource
-  }
-
-  private func eventFlagsMatchModifiers(_ flags: CGEventFlags, modifiers: [ModifierKey]) -> Bool {
-    var collectedModifiers = Set<ModifierKey>()
-
-    if flags.contains(.maskShift) { collectedModifiers.insert(.shift) }
-
-    if flags.contains(.maskControl) { collectedModifiers.insert(.control) }
-
-    if flags.contains(.maskAlternate) { collectedModifiers.insert(.option) }
-
-    if flags.contains(.maskCommand) { collectedModifiers.insert(.command) }
-
-    if flags.contains(.maskSecondaryFn) { collectedModifiers.insert(.function) }
-
-    let modifierSet = Set<ModifierKey>(modifiers)
-    return collectedModifiers == modifierSet
   }
 }
