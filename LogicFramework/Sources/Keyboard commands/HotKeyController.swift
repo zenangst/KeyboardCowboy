@@ -1,33 +1,48 @@
 import Carbon
 import Cocoa
 
-public struct HotKeyContext {
+/// A rebinding controller is responsible for intercepting keyboard shortcuts and posting
+/// alternate events when rebounded keys are invoked.
+public protocol HotKeyControlling {
+  var delegate: HotKeyControllingDelegate? { get set }
+  var isEnabled: Bool { get set }
+  func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ cgEvent: CGEvent) -> Unmanaged<CGEvent>?
+}
+
+public class HotKeyContext {
   let keyCode: Int64
   let event: CGEvent
   let eventSource: CGEventSource
   let type: CGEventType
   var result: Unmanaged<CGEvent>?
+
+  init(keyCode: Int64, event: CGEvent,
+       eventSource: CGEventSource, type: CGEventType,
+       result: Unmanaged<CGEvent>?) {
+    self.keyCode = keyCode
+    self.event = event
+    self.eventSource = eventSource
+    self.type = type
+    self.result = result
+  }
 }
 
-/// A rebinding controller is responsible for intercepting keyboard shortcuts and posting
-/// alternate events when rebounded keys are invoked.
-public protocol HotKeyControlling {
-  var coreController: CoreControlling? { get set }
-  var isEnabled: Bool { get set }
-  func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ cgEvent: CGEvent) -> Unmanaged<CGEvent>?
+public protocol HotKeyControllingDelegate: AnyObject {
+  func hotKeyController(_ controller: HotKeyControlling, didReceiveContext context: HotKeyContext)
 }
 
-enum RebindingControllingError: Error {
+enum HotKeyControllerError: Error {
   case unableToCreateMachPort
   case unableToCreateRunLoopSource
   case unableToCreateEventSource
 }
 
 final class HotKeyController: HotKeyControlling {
+  public weak var delegate: HotKeyControllingDelegate?
+
   private var eventSource: CGEventSource!
   private var machPort: CFMachPort!
   private var runLoopSource: CFRunLoopSource!
-  public weak var coreController: CoreControlling?
 
   var isEnabled: Bool {
     set { machPort.map { CGEvent.tapEnable(tap: $0, enable: newValue) } }
@@ -39,23 +54,21 @@ final class HotKeyController: HotKeyControlling {
     self.machPort = try createMachPort()
     self.runLoopSource = try createRunLoopSource()
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
-    Debug.print("⌨️")
   }
 
   func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ event: CGEvent) -> Unmanaged<CGEvent>? {
     let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
     let result: Unmanaged<CGEvent>? = Unmanaged.passUnretained(event)
-    var context = HotKeyContext(keyCode: keyCode, event: event,
+    let context = HotKeyContext(keyCode: keyCode, event: event,
                                 eventSource: eventSource, type: type,
                                 result: result)
-    coreController?.receive(&context)
+    delegate?.hotKeyController(self, didReceiveContext: context)
     return context.result
   }
 
   // MARK: Private methods
 
   private func createMachPort() throws -> CFMachPort? {
-    Debug.print("⌨️")
     let tap: CGEventTapLocation = .cgSessionEventTap
     let place: CGEventTapPlacement = .headInsertEventTap
     let options: CGEventTapOptions = .defaultTap
@@ -74,27 +87,23 @@ final class HotKeyController: HotKeyControlling {
               return Unmanaged.passUnretained(event)
             },
             userInfo: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())) else {
-      throw RebindingControllingError.unableToCreateMachPort
+      throw HotKeyControllerError.unableToCreateMachPort
     }
     Debug.print("⌨️")
     return machPort
   }
 
   private func createRunLoopSource() throws -> CFRunLoopSource {
-    Debug.print("⌨️")
     guard let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, machPort, 0) else {
-      throw RebindingControllingError.unableToCreateRunLoopSource
+      throw HotKeyControllerError.unableToCreateRunLoopSource
     }
-    Debug.print("⌨️")
     return runLoopSource
   }
 
   private func createEventSource() throws -> CGEventSource {
-    Debug.print("⌨️")
     guard let eventSource = CGEventSource(stateID: .privateState) else {
-      throw RebindingControllingError.unableToCreateEventSource
+      throw HotKeyControllerError.unableToCreateEventSource
     }
-    Debug.print("⌨️")
     return eventSource
   }
 }
