@@ -1,3 +1,4 @@
+import BridgeKit
 import Combine
 import Foundation
 import LogicFramework
@@ -19,9 +20,6 @@ typealias KeyboardCowboyStore = Saloon
 let bundleIdentifier = Bundle.main.bundleIdentifier!
 
 class Saloon: ViewKitStore, MenubarControllerDelegate {
-  static let enableNotification = Notification.Name("enableHotKeys")
-  static let disableNotification = Notification.Name("disableHotKeys")
-
   enum ApplicationState {
     case launching(LaunchView)
     case needsPermission(PermissionsView)
@@ -61,7 +59,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       let groups = try storageController.load()
       let groupsController = Self.factory.groupsController(groups: groups)
       let coreController = Self.factory.coreController(
-        disableKeyboardShortcuts: launchArguments.isEnabled(.disableKeyboardShortcuts),
+        launchArguments.isEnabled(.disableKeyboardShortcuts) ? .disabled : .enabled,
         groupsController: groupsController)
 
       self.coreController = coreController
@@ -158,15 +156,19 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   }
 
   private func subscribe(to notificationCenter: NotificationCenter) {
-    notificationCenter.publisher(for: Saloon.enableNotification).sink { _ in
+    notificationCenter.publisher(for: HotKeyNotification.enableHotKeys.notification).sink { _ in
       if !launchArguments.isEnabled(.disableKeyboardShortcuts) {
-        self.coreController?.disableKeyboardShortcuts = false
+        self.coreController?.setState(.enabled)
       }
     }.store(in: &subscriptions)
 
-    notificationCenter.publisher(for: Saloon.disableNotification).sink { _ in
+    notificationCenter.publisher(for: HotKeyNotification.enableRecordingHotKeys.notification).sink { _ in
+      self.coreController?.setState(.recording)
+    }.store(in: &subscriptions)
+
+    notificationCenter.publisher(for: HotKeyNotification.disableHotKeys.notification).sink { _ in
       if !launchArguments.isEnabled(.disableKeyboardShortcuts) {
-        self.coreController?.disableKeyboardShortcuts = true
+        self.coreController?.setState(.disabled)
       }
     }.store(in: &subscriptions)
   }

@@ -1,22 +1,32 @@
+import BridgeKit
 import Cocoa
+import Combine
 import ModelKit
 
 public protocol CoreControlling: AnyObject {
   var commandController: CommandControlling { get }
   var groupsController: GroupsControlling { get }
-  var disableKeyboardShortcuts: Bool { get set }
   var groups: [Group] { get }
   var installedApplications: [Application] { get }
+  func setState(_ newState: CoreControllerState)
   func reloadContext()
   func activate(workflows: [Workflow])
   @discardableResult
   func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow]
 }
 
+public enum CoreControllerState {
+  case disabled
+  case enabled
+  case recording
+}
+
 public final class CoreController: NSObject, CoreControlling,
                                    CommandControllingDelegate,
                                    GroupsControllingDelegate,
                                    HotKeyControllingDelegate {
+  var subject = PassthroughSubject<ModelKit.KeyboardShortcut, Never>()
+  private var transportController = TransportController.shared
   private static var cache = [String: Int]()
   public let commandController: CommandControlling
   public let keyboardController: KeyboardCommandControlling
@@ -29,20 +39,16 @@ public final class CoreController: NSObject, CoreControlling,
   private(set) public var installedApplications = [Application]()
 
   public var groups: [Group] { return groupsController.groups }
-  public var disableKeyboardShortcuts: Bool {
-    didSet {
-      hotKeyController?.isEnabled = !disableKeyboardShortcuts
-    }
-  }
 
   private(set) var currentGroups = [Group]()
   private(set) var currentKeyboardShortcuts = [KeyboardShortcut]()
   private var invocations: Int = 0
   private var activeWorkflows = [Workflow]()
   private var frontmostApplicationObserver: NSKeyValueObservation?
+  private var state: CoreControllerState = .disabled
 
-  public init(commandController: CommandControlling,
-              disableKeyboardShortcuts: Bool,
+  public init(_ initialState: CoreControllerState,
+              commandController: CommandControlling,
               groupsController: GroupsControlling,
               keyboardCommandController: KeyboardCommandControlling,
               keycodeMapper: KeyCodeMapping,
@@ -50,7 +56,6 @@ public final class CoreController: NSObject, CoreControlling,
               workspace: WorkspaceProviding) {
     self.cache = keycodeMapper.hashTable()
     self.commandController = commandController
-    self.disableKeyboardShortcuts = disableKeyboardShortcuts
     self.groupsController = groupsController
     self.keycodeMapper = keycodeMapper
     self.keyboardController = keyboardCommandController
@@ -67,8 +72,10 @@ public final class CoreController: NSObject, CoreControlling,
       \.frontmostApplication,
       options: [.new], changeHandler: { [weak self] _, _ in self?.reloadContext() })
 
-    self.hotKeyController?.isEnabled = !disableKeyboardShortcuts
+    self.state = initialState
     self.groupsController.delegate = self
+
+    setState(initialState)
   }
 
   public func loadApplications() {
@@ -83,6 +90,17 @@ public final class CoreController: NSObject, CoreControlling,
       $0.absoluteString.contains(".app")
     }, handler: applicationParser.process(_:))
     .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
+  }
+
+  public func setState(_ newState: CoreControllerState) {
+    state = newState
+
+    switch state {
+    case .disabled:
+      hotKeyController?.isEnabled = false
+    case .enabled, .recording:
+      hotKeyController?.isEnabled = true
+    }
   }
 
   @objc public func reloadContext() {
@@ -147,7 +165,7 @@ public final class CoreController: NSObject, CoreControlling,
     return workflows
   }
 
-  public func hotKeyController(_ controller: HotKeyControlling, didReceiveContext context: HotKeyContext) {
+  private func intercept(_ context: HotKeyContext) {
     for workflow in activeWorkflows where invocations < workflow.keyboardShortcuts.count {
       guard !workflow.keyboardShortcuts.isEmpty else { continue }
 
@@ -179,6 +197,46 @@ public final class CoreController: NSObject, CoreControlling,
         _ = respond(to: keyboardShortcut)
       }
 
+      break
+    }
+  }
+
+  func record(_ context: HotKeyContext) {
+    guard context.type == .keyDown,
+          let key = try? keycodeMapper.map(Int(context.keyCode), modifiers: 0) else {
+      setState(.enabled)
+      return
+    }
+
+    let blockList = [
+      36, 51, 117 // ↩, ⌫, ⌦
+    ]
+
+    let keyboardShortcut: KeyboardShortcut
+    if !blockList.contains(Int(context.keyCode)) {
+      let modifiers = ModifierKey.fromCGEvent(context.event.flags)
+      keyboardShortcut = KeyboardShortcut(
+        id: UUID().uuidString,
+        key: key,
+        modifiers: modifiers)
+    } else {
+      keyboardShortcut = KeyboardShortcut.empty()
+    }
+
+    TransportController.shared.send(keyboardShortcut)
+    context.result = nil
+    setState(.enabled)
+  }
+
+  // MARK: HotKeyControllingDelegate
+
+  public func hotKeyController(_ controller: HotKeyControlling, didReceiveContext context: HotKeyContext) {
+    switch state {
+    case .enabled:
+      intercept(context)
+    case .recording:
+      record(context)
+    case .disabled:
       break
     }
   }

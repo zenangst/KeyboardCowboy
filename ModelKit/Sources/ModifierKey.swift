@@ -12,6 +12,18 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
       .compactMap { eventModifierFlags.contains($0.modifierFlags) ? $0 : nil }
   }
 
+  public static func fromCGEvent(_ flags: CGEventFlags) -> [ModifierKey] {
+    var modifiers = [ModifierKey]()
+
+    if flags.contains(.maskShift) { modifiers.append(.shift) }
+    if flags.contains(.maskControl) { modifiers.append(.control) }
+    if flags.contains(.maskAlternate) { modifiers.append(.option) }
+    if flags.contains(.maskCommand) { modifiers.append(.command) }
+    if flags.contains(.maskSecondaryFn) { modifiers.append(.function) }
+
+    return modifiers
+  }
+
   public var pretty: String {
     switch self {
     case .function:
