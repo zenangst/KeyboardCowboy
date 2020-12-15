@@ -25,6 +25,7 @@ targets:
     type: application
     platform: "macOS"
     dependencies:
+      - target: BridgeKit
       - target: ModelKit
       - target: ViewKit
       - target: LogicFramework
@@ -84,6 +85,7 @@ targets:
     type: framework
     platform: "macOS"
     dependencies:
+      - target: BridgeKit
       - target: ModelKit
     sources:
       - LogicFramework
