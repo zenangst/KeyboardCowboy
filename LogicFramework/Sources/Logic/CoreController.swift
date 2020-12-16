@@ -35,6 +35,7 @@ public final class CoreController: NSObject, CoreControlling,
   let workflowController: WorkflowControlling
   let workspace: WorkspaceProviding
   var cache = [String: Int]()
+
   private(set) public var installedApplications = [Application]()
 
   public var groups: [Group] { return groupsController.groups }

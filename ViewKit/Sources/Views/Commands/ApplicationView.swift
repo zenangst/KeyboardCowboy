@@ -11,7 +11,7 @@ struct ApplicationView: View {
   var body: some View {
     HStack {
       if case .application(let model) = command {
-        IconView(icon: Icon(identifier: model.application.bundleIdentifier, path: model.application.path))
+        IconView(path: model.application.path)
           .frame(width: 32, height: 32)
       }
       VStack(alignment: .leading, spacing: 2) {

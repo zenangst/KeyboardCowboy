@@ -63,7 +63,7 @@ private extension WorkflowListView {
           ? workflow.commands.count > 1 ? 0.9 + ( 0.05 * cgIndex) : 1.0
           : 1.0
 
-        IconView(icon: command.icon).frame(width: 48, height: 48)
+        IconView(path: command.icon).frame(width: 48, height: 48)
           .scaleEffect(scale, anchor: .center)
           .offset(x: isHovering ?  multiplier : 0,
                   y: isHovering ? multiplier : 0)

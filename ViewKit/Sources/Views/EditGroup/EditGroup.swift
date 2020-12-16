@@ -130,7 +130,7 @@ private extension EditGroup {
         ForEach(installedApplications.filter({ bundleIdentifiers.contains($0.bundleIdentifier) }), id: \.id) { application in
           VStack(spacing: 0) {
             HStack {
-              IconView(icon: Icon(identifier: application.bundleIdentifier, path: application.path))
+              IconView(path: application.path)
               Text(application.displayName)
               Spacer()
               Button("-", action: {

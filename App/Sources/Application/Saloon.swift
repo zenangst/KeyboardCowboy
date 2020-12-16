@@ -47,6 +47,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private var menuBarController: MenubarController?
   private var subscriptions = Set<AnyCancellable>()
   private var loaded: Bool = false
+  private let pathFinderController = PathFinderController()
 
   @Published var state: ApplicationState = .launching(LaunchView())
 
@@ -64,7 +65,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         return
       }
 
-      let groups = try storageController.load()
+      var groups = try storageController.load()
       let groupsController = Self.factory.groupsController(groups: groups)
       let hotKeyController = try? Self.factory.hotkeyController()
       let coreController = Self.factory.coreController(
@@ -72,6 +73,8 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         groupsController: groupsController,
         hotKeyController: hotKeyController
       )
+
+      groups = pathFinderController.patch(groups, applications: coreController.installedApplications)
 
       self.coreController = coreController
 
