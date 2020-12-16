@@ -17,13 +17,13 @@ public struct Application: Identifiable, Codable, Hashable {
   public init(id: String = UUID().uuidString,
               bundleIdentifier: String,
               bundleName: String,
-              displyName: String? = nil,
+              displayName: String? = nil,
               path: String) {
     self.id = id
     self.bundleIdentifier = bundleIdentifier
     self.bundleName = bundleName
     self.path = path
-    self.displayName = displyName ?? FileManager().displayName(atPath: path)
+    self.displayName = displayName ?? FileManager().displayName(atPath: path)
   }
 
   enum CodingKeys: String, CodingKey {
@@ -54,7 +54,7 @@ public extension Application {
       id: id,
       bundleIdentifier: "com.apple.MobileSMS",
       bundleName: name ?? "Messages",
-      displyName: name,
+      displayName: name,
       path: "/System/Applications/Messages.app")
   }
 
