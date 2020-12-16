@@ -3,7 +3,15 @@ import ModelKit
 
 struct EditAppleScriptView: View {
   @Binding var command: ScriptCommand
-  @ObservedObject var openPanelController: OpenPanelController
+  @State var filePath: String
+  let openPanelController: OpenPanelController
+
+  init(command: Binding<ScriptCommand>,
+       openPanelController: OpenPanelController) {
+    _command = command
+    _filePath = State(initialValue: command.wrappedValue.path)
+    self.openPanelController = openPanelController
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -16,12 +24,9 @@ struct EditAppleScriptView: View {
         HStack {
           Text("Path:")
           TextField("file://", text: Binding(get: {
-            if case .appleScript(let source, _) = command,
-               case .path(let value) = source {
-              return value
-            }
-            return ""
+            filePath
           }, set: {
+            filePath = $0
             command = ScriptCommand.appleScript(.path($0), command.id)
           }))
         }
@@ -29,7 +34,9 @@ struct EditAppleScriptView: View {
           Spacer()
           Button("Browse", action: {
             openPanelController.perform(.selectFile(type: "scpt", handler: {
-              command = ScriptCommand.appleScript(.path($0), command.id)
+              let newCommand = ScriptCommand.appleScript(.path($0), command.id)
+              command = newCommand
+              filePath = newCommand.path
             }))
           })
         }

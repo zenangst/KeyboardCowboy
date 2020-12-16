@@ -24,6 +24,19 @@ public enum ScriptCommand: Identifiable, Codable, Hashable {
     }
   }
 
+  public var path: String {
+    switch self {
+    case .appleScript(let source, _),
+         .shell(let source, _):
+      switch source {
+      case .path(let path):
+        return path
+      case .inline(_):
+        return ""
+      }
+    }
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     let idContainer = try decoder.container(keyedBy: IdentifierCodingKeys.self)

@@ -29,15 +29,18 @@ struct EditCommandView: View {
     VStack(spacing: 0) {
       HStack(alignment: .top, spacing: 0) {
         list
-          .listStyle(PlainListStyle())
           .frame(width: 250)
-        editView
+          .listStyle(PlainListStyle())
+        VStack {
+          editView
+            .frame(width: 450)
+        }
       }.background(Color(.windowBackgroundColor))
 
       Divider()
       buttons.padding(8)
     }
-    .frame(width: 700, height: 400)
+    .frame(height: 400)
   }
 }
 
@@ -119,7 +122,8 @@ private extension EditCommandView {
           }
         ))
       case .none:
-        Text("Pick a command type:")
+        Text("Pick a command type")
+          .padding()
       }
   }
 
