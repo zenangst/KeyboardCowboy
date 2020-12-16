@@ -27,7 +27,6 @@ public final class CoreController: NSObject, CoreControlling,
                                    HotKeyControllingDelegate {
   var subject = PassthroughSubject<ModelKit.KeyboardShortcut, Never>()
   private var transportController = TransportController.shared
-  private static var cache = [String: Int]()
   public let commandController: CommandControlling
   public let keyboardController: KeyboardCommandControlling
   public let groupsController: GroupsControlling
@@ -50,6 +49,7 @@ public final class CoreController: NSObject, CoreControlling,
   public init(_ initialState: CoreControllerState,
               commandController: CommandControlling,
               groupsController: GroupsControlling,
+              hotKeyController: HotKeyControlling?,
               keyboardCommandController: KeyboardCommandControlling,
               keycodeMapper: KeyCodeMapping,
               workflowController: WorkflowControlling,
@@ -57,12 +57,11 @@ public final class CoreController: NSObject, CoreControlling,
     self.cache = keycodeMapper.hashTable()
     self.commandController = commandController
     self.groupsController = groupsController
-    self.keycodeMapper = keycodeMapper
+    self.hotKeyController = hotKeyController
     self.keyboardController = keyboardCommandController
-    self.hotKeyController = try? HotKeyController()
+    self.keycodeMapper = keycodeMapper
     self.workflowController = workflowController
     self.workspace = workspace
-    Self.cache = keycodeMapper.hashTable()
     super.init()
     self.hotKeyController?.delegate = self
     self.commandController.delegate = self
@@ -171,7 +170,7 @@ public final class CoreController: NSObject, CoreControlling,
 
       // Verify that the current key code is in the list of cached keys.
       let keyboardShortcut = workflow.keyboardShortcuts[invocations]
-      guard let shortcutKeyCode = Self.cache[keyboardShortcut.key.uppercased()],
+      guard let shortcutKeyCode = self.cache[keyboardShortcut.key.uppercased()],
             context.keyCode == shortcutKeyCode else { continue }
 
       // Check if the events modifier flags is a match for the current keyboard shortcut
