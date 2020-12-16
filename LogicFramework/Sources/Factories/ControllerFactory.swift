@@ -11,9 +11,14 @@ public final class ControllerFactory {
     PermissionsController()
   }
 
+  public func hotkeyController() throws -> HotKeyControlling {
+    try HotKeyController()
+  }
+
   public func coreController(_ initialState: CoreControllerState,
                              commandController: CommandControlling? = nil,
                              groupsController: GroupsControlling? = nil,
+                             hotKeyController: HotKeyControlling? = nil,
                              keycodeMapper: KeyCodeMapping? = nil,
                              keyboardCommandController: KeyboardCommandControlling? = nil,
                              workflowController: WorkflowControlling? = nil,
@@ -27,6 +32,7 @@ public final class ControllerFactory {
     return CoreController(initialState,
                           commandController: commandController,
                           groupsController: groupsController,
+                          hotKeyController: hotKeyController,
                           keyboardCommandController: keyboardCommandController,
                           keycodeMapper: keycodeMapper,
                           workflowController: workflowController,

@@ -55,12 +55,23 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     self.storageController = Self.factory.storageController(
       path: configuration.path,
       fileName: configuration.fileName)
+
     do {
+      // Don't run the entire app when running tests
+      if launchArguments.isEnabled(.runningUnitTests) ||
+         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil {
+        super.init(groups: [], context: .preview())
+        return
+      }
+
       let groups = try storageController.load()
       let groupsController = Self.factory.groupsController(groups: groups)
+      let hotKeyController = try? Self.factory.hotkeyController()
       let coreController = Self.factory.coreController(
         launchArguments.isEnabled(.disableKeyboardShortcuts) ? .disabled : .enabled,
-        groupsController: groupsController)
+        groupsController: groupsController,
+        hotKeyController: hotKeyController
+      )
 
       self.coreController = coreController
 
@@ -76,7 +87,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       self.state = .content(MainView(store: self, groupController: viewKitContext.groups))
     } catch let error {
       AppDelegateErrorController.handle(error)
-      super.init(groups: [], context: nil)
+      super.init(groups: [], context: .preview())
     }
   }
 
