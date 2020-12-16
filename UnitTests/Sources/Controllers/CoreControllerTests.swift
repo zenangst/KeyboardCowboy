@@ -20,8 +20,8 @@ class CoreControllerTests: XCTestCase {
 
     let workflowController = factory.workflowController()
     let controller = factory.coreController(
+      .disabled,
       commandController: commandController,
-      disableKeyboardShortcuts: true,
       groupsController: groupsController,
       workflowController: workflowController,
       workspace: workspace)

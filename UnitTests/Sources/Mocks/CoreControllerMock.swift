@@ -40,6 +40,10 @@ class CoreControllerMock: CoreControlling, GroupsControllingDelegate {
     return workflows
   }
 
+  func setState(_ newState: CoreControllerState) {
+    
+  }
+
   // MARK: GroupsControllingDelegate
 
   func groupsController(_ controller: GroupsControlling, didReloadGroups groups: [Group]) {
