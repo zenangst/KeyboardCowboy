@@ -3,7 +3,15 @@ import ModelKit
 
 struct EditOpenFileCommandView: View {
   @Binding var command: OpenCommand
-  @ObservedObject var openPanelController: OpenPanelController
+  @State var filePath: String
+  let openPanelController: OpenPanelController
+
+  init(command: Binding<OpenCommand>,
+       openPanelController: OpenPanelController) {
+    _command = command
+    _filePath = State(initialValue: command.wrappedValue.path)
+    self.openPanelController = openPanelController
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -16,8 +24,9 @@ struct EditOpenFileCommandView: View {
         HStack {
           Text("Path:")
           TextField("file://", text: Binding(get: {
-            command.path
+            filePath
           }, set: {
+            filePath = $0
             command = OpenCommand(id: command.id, path: $0)
           }))
         }
@@ -25,7 +34,9 @@ struct EditOpenFileCommandView: View {
           Spacer()
           Button("Browse", action: {
             openPanelController.perform(.selectFile(type: nil, handler: {
-              command = OpenCommand(id: command.id, path: $0)
+              let newCommand = OpenCommand(id: command.id, path: $0)
+              command = newCommand
+              filePath = newCommand.path
             }))
           })
         }
