@@ -1,38 +1,13 @@
 import SwiftUI
 
-struct Icon: Hashable, Identifiable {
-  let identifier: String
-  let path: String
-  let id: String
-
-  init(identifier: String, path: String) {
-    self.identifier = identifier
-    self.path = path
-    self.id = identifier + path
-  }
-}
-
 struct IconView: View {
-  @ObservedObject var iconLoader = IconController()
-
-  let icon: Icon
-
-  init(icon: Icon) {
-    self.icon = icon
-    iconLoader.preLoadIcon(identifier: icon.identifier, at: icon.path, size: CGSize(width: 32, height: 32))
-  }
+  let path: String
+  @StateObject var iconLoader = IconLoader()
 
   var body: some View {
     ZStack {
-      if iconLoader.icon != nil {
-        Image(nsImage: iconLoader.icon!)
-      }
-    }.onAppear {
-      if iconLoader.icon == nil {
-        iconLoader.loadIcon(identifier: icon.identifier, at: icon.path, size: CGSize(width: 32, height: 32))
-      }
-    }
-    .frame(width: 32, height: 32)
+      iconLoader.image
+    }.onAppear { iconLoader.load(path) }
   }
 }
 
@@ -43,10 +18,8 @@ struct IconView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     Group {
-      IconView(icon: Icon(identifier: "com.apple.Finder",
-                          path: "/System/Library/CoreServices/Finder.app"))
-      IconView(icon: Icon(identifier: "keyboard",
-                          path: "/System/Library/PreferencePanes/Keyboard.prefPane"))
+      IconView(path: "/System/Library/CoreServices/Finder.app")
+      IconView(path: "/System/Library/PreferencePanes/Keyboard.prefPane")
     }.frame(width: 48, height: 48)
   }
 }

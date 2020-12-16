@@ -9,7 +9,7 @@ struct KeyboardCommandView: View {
   var body: some View {
     HStack {
       ZStack {
-        IconView(icon: Icon(identifier: "keyboard-shortcut", path: "/System/Library/PreferencePanes/Keyboard.prefPane"))
+        IconView(path: "/System/Library/PreferencePanes/Keyboard.prefPane")
           .frame(width: 32, height: 32)
       }
       VStack(alignment: .leading, spacing: 0) {

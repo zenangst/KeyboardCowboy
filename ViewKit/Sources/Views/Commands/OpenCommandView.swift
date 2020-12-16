@@ -11,7 +11,7 @@ struct OpenCommandView: View {
     HStack {
       ZStack {
         if case .open(let openCommand) = command {
-          IconView(icon: Icon(identifier: openCommand.path, path: openCommand.application?.path ?? ""))
+          IconView(path: openCommand.application?.path ?? "")
         }
       }.frame(width: 32, height: 32)
       VStack(alignment: .leading, spacing: 0) {
