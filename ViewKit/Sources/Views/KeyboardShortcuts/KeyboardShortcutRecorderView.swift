@@ -5,11 +5,13 @@ import SwiftUI
 import ModelKit
 
 class KeyboardShortcutRecorderView: NSSearchField {
-  typealias OnCommit = (KeyboardShortcutRecorderView, ModelKit.KeyboardShortcut?) -> Void
+  typealias OnSuccess = (KeyboardShortcutRecorderView, ModelKit.KeyboardShortcut?) -> Void
+  typealias OnFailure = (KeyboardShortcutRecorderView, ModelKit.KeyboardShortcut?) -> Void
 
   @State private var keyboardShortcut: ModelKit.KeyboardShortcut?
   private let viewController: KeyboardShortcutRecorderViewController
-  private let onCommit: OnCommit
+  private let onSuccess: OnSuccess
+  private let onFailure: OnFailure
   private let minimumWidth: CGFloat = 130
   private let minimumHeight: CGFloat = 22
 
@@ -17,10 +19,12 @@ class KeyboardShortcutRecorderView: NSSearchField {
 
   required init(keyboardShortcut: ModelKit.KeyboardShortcut?,
                 placeholder: String? = nil,
-                onCommit: @escaping OnCommit) {
+                onSuccess: @escaping OnSuccess,
+                onFailure: @escaping OnFailure) {
     self.viewController = KeyboardShortcutRecorderViewController(keyboardShortcut: keyboardShortcut)
     self.keyboardShortcut = keyboardShortcut
-    self.onCommit = onCommit
+    self.onSuccess = onSuccess
+    self.onFailure = onFailure
     super.init(frame: .zero)
     self.placeholderString = placeholder
     self.centersPlaceholder = true
@@ -35,12 +39,21 @@ class KeyboardShortcutRecorderView: NSSearchField {
     self.widthAnchor.constraint(greaterThanOrEqualToConstant: minimumWidth).isActive = true
     self.heightAnchor.constraint(greaterThanOrEqualToConstant: minimumHeight).isActive = true
 
-    self.viewController.onCommit = { [weak self] keyboardShortcut in
+    self.viewController.onSuccess = { [weak self] keyboardShortcut in
       guard let self = self else { return }
       self.isEnabled = false
       self.isEnabled = true
       self.update(keyboardShortcut)
-      self.onCommit(self, keyboardShortcut)
+      self.onSuccess(self, keyboardShortcut)
+    }
+
+    self.viewController.onFailure = { [weak self] keyboardShortcut in
+      guard let self = self, let keyboardShortcut = keyboardShortcut else { return }
+
+      self.stringValue = "Unable to bind key: \(keyboardShortcut.key)"
+      self.isEnabled = false
+      self.isEnabled = true
+      self.onFailure(self, keyboardShortcut)
     }
   }
 
@@ -69,24 +82,32 @@ class KeyboardShortcutRecorderView: NSSearchField {
       return shouldBecomeFirstResponder
     }
 
+    self.wantsLayer = false
+    self.layer = nil
+
     viewController.didBecomeFirstResponder()
     return true
   }
 }
 
 struct Recorder: NSViewRepresentable {
-  typealias OnCommit = (ModelKit.KeyboardShortcut?) -> Void
+  typealias OnSuccess = (ModelKit.KeyboardShortcut?) -> Void
+  typealias OnFailure = (ModelKit.KeyboardShortcut?) -> Void
   typealias NSViewType = KeyboardShortcutRecorderView
 
   @Binding var keyboardShortcut: ModelKit.KeyboardShortcut?
+  @Binding var validationError: String?
 
   func makeNSView(context: Context) -> KeyboardShortcutRecorderView {
-    KeyboardShortcutRecorderView(keyboardShortcut: keyboardShortcut,
-                                 placeholder: "Record Keyboard Shortcut",
-                                 onCommit: { view, model in
-                                  view.resignFirstResponder()
-                                  keyboardShortcut = model
-                                 })
+    KeyboardShortcutRecorderView(
+      keyboardShortcut: keyboardShortcut,
+      placeholder: "Record Keyboard Shortcut",
+      onSuccess: { _, model in
+        keyboardShortcut = model
+      },
+      onFailure: { _, model in
+        validationError = "This keyboard shortcut is taken by the system."
+      })
   }
 
   func updateNSView(_ nsView: KeyboardShortcutRecorderView, context: Context) {}
@@ -100,10 +121,11 @@ struct Recorder_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    SwiftUI.Group {
-      Recorder(keyboardShortcut: .constant(nil))
+    Group {
+      Recorder(keyboardShortcut: .constant(nil), validationError: .constant(""))
       Recorder(keyboardShortcut: .constant(ModelKit.KeyboardShortcut(key: "F",
-                                                                     modifiers: [.command, .option])))
+                                                                     modifiers: [.command, .option])),
+               validationError: .constant(""))
     }
   }
 }

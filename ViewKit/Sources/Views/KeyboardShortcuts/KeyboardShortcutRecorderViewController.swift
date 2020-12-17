@@ -4,8 +4,10 @@ import SwiftUI
 import ModelKit
 
 class KeyboardShortcutRecorderViewController: NSObject, NSSearchFieldDelegate, TransportControllerReceiver {
-  typealias OnCommit = (ModelKit.KeyboardShortcut?) -> Void
-  var onCommit: OnCommit?
+  typealias OnSuccess = (ModelKit.KeyboardShortcut?) -> Void
+  typealias OnFailure = (ModelKit.KeyboardShortcut?) -> Void
+  var onSuccess: OnSuccess?
+  var onFailure: OnFailure?
 
   private var keyboardShortcut: ModelKit.KeyboardShortcut?
 
@@ -20,11 +22,17 @@ class KeyboardShortcutRecorderViewController: NSObject, NSSearchFieldDelegate, T
 
   // MARK: TransportControllerReceiver
 
-  func receive(_ keyboardShortcut: ModelKit.KeyboardShortcut) {
+  func receive(_ context: KeyboardShortcutValidationContext) {
     guard let existingKey = self.keyboardShortcut else { return }
-    let modifiedKey = ModelKit.KeyboardShortcut(id: existingKey.id,
-                                                key: keyboardShortcut.key,
-                                                modifiers: keyboardShortcut.modifiers)
-    onCommit?(modifiedKey)
+
+    switch context {
+    case .valid(let keyboardShortcut):
+      let modifiedKey = ModelKit.KeyboardShortcut(id: existingKey.id,
+                                                  key: keyboardShortcut.key,
+                                                  modifiers: keyboardShortcut.modifiers)
+      onSuccess?(modifiedKey)
+    case .invalid(let keyboardShortcut):
+      onFailure?(keyboardShortcut)
+    }
   }
 }

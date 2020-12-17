@@ -29,11 +29,13 @@ public final class ControllerFactory {
     let keyboardCommandController = keyboardCommandController ??
       KeyboardCommandController(keyCodeMapper: _keycodeMapper)
     let workflowController = workflowController ?? WorkflowController()
+    let keyboardValidator = KeyboardShortcutValidator(keycodeMapper: keycodeMapper)
     return CoreController(initialState,
                           commandController: commandController,
                           groupsController: groupsController,
                           hotKeyController: hotKeyController,
                           keyboardCommandController: keyboardCommandController,
+                          keyboardShortcutValidator: keyboardValidator,
                           keycodeMapper: keycodeMapper,
                           workflowController: workflowController,
                           workspace: workspace)
