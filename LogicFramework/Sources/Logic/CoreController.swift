@@ -30,7 +30,7 @@ public final class CoreController: NSObject, CoreControlling,
   public let commandController: CommandControlling
   public let keyboardController: KeyboardCommandControlling
   public let groupsController: GroupsControlling
-  let keycodeMapper: KeyCodeMapping
+  let keyboardShortcutValidator: KeyboardShortcutValidator
   var hotKeyController: HotKeyControlling?
   let workflowController: WorkflowControlling
   let workspace: WorkspaceProviding
@@ -52,6 +52,7 @@ public final class CoreController: NSObject, CoreControlling,
               groupsController: GroupsControlling,
               hotKeyController: HotKeyControlling?,
               keyboardCommandController: KeyboardCommandControlling,
+              keyboardShortcutValidator: KeyboardShortcutValidator,
               keycodeMapper: KeyCodeMapping,
               workflowController: WorkflowControlling,
               workspace: WorkspaceProviding) {
@@ -60,7 +61,7 @@ public final class CoreController: NSObject, CoreControlling,
     self.groupsController = groupsController
     self.hotKeyController = hotKeyController
     self.keyboardController = keyboardCommandController
-    self.keycodeMapper = keycodeMapper
+    self.keyboardShortcutValidator = keyboardShortcutValidator
     self.workflowController = workflowController
     self.workspace = workspace
     super.init()
@@ -202,30 +203,12 @@ public final class CoreController: NSObject, CoreControlling,
   }
 
   func record(_ context: HotKeyContext) {
-    guard context.type == .keyDown,
-          let key = try? keycodeMapper.map(Int(context.keyCode), modifiers: 0) else {
-      setState(.enabled)
-      return
-    }
-
-    let blockList = [
-      36, 51, 117 // ↩, ⌫, ⌦
-    ]
-
-    let keyboardShortcut: KeyboardShortcut
-    if !blockList.contains(Int(context.keyCode)) {
-      let modifiers = ModifierKey.fromCGEvent(context.event.flags)
-      keyboardShortcut = KeyboardShortcut(
-        id: UUID().uuidString,
-        key: key,
-        modifiers: modifiers)
-    } else {
-      keyboardShortcut = KeyboardShortcut.empty()
-    }
-
-    TransportController.shared.send(keyboardShortcut)
-    context.result = nil
     setState(.enabled)
+    guard context.type == .keyDown else { return }
+
+    let validationContext = keyboardShortcutValidator.validate(context)
+    TransportController.shared.send(validationContext)
+    context.result = nil
   }
 
   // MARK: HotKeyControllingDelegate
