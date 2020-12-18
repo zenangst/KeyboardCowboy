@@ -26,7 +26,7 @@ public struct WorkflowList: View {
       ForEach(workflows, id: \.id) { workflow in
         NavigationLink(
           destination: DetailView(context: store.context,
-                                  workflow: workflow),
+                                  workflowController: store.context.workflow),
           tag: workflow.id,
           selection: $selection,
           label: {
