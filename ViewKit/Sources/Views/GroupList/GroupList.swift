@@ -32,7 +32,8 @@ public struct GroupList: View {
             title: group.name,
             subtitle: "Workflows: \(group.workflows.count)",
             workflows: group.workflows,
-            selection: $workflowSelection),
+            selection: $workflowSelection)
+            .frame(minWidth: 250, idealWidth: 250),
           tag: group.id,
           selection: Binding<String?>(
             get: {
