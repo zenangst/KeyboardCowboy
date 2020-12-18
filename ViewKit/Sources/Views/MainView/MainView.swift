@@ -26,6 +26,7 @@ public struct MainView: View {
                   workflowSelection: $workflowSelection)
         .toolbar(content: { GroupListToolbar(groupController: groupController) })
       ListPlaceHolder()
+        .frame(minWidth: 250, idealWidth: 250)
       DetailViewPlaceHolder()
     }
   }

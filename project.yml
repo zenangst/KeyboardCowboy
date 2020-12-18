@@ -130,9 +130,9 @@ schemes:
     run:
       config: Debug
       commandLineArguments:
-        "-open-window-at-launch": false
+        "-open-window-at-launch": true
         "-demo-mode": true
-        "-disable-keyboard-shortcuts": false
+        "-disable-keyboard-shortcuts": true
         "-debug": false
       environmentVariables:
         SOURCE_ROOT: $(SRCROOT)
