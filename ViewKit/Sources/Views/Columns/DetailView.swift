@@ -8,30 +8,23 @@ struct DetailToolbarConfig {
 
 struct DetailView: View {
   let context: ViewKitFeatureContext
+  @ObservedObject var workflowController: WorkflowController
   @EnvironmentObject private var keyInputSubjectWrapper: KeyInputSubjectWrapper
   @State private var selectedCommand: Command?
   @State private var sheet: CommandListView.Sheet?
   @State private var config = DetailToolbarConfig()
   @State private var isDropping: Bool = false
-  @Binding var workflow: Workflow
-
-  init(context: ViewKitFeatureContext, workflow: Workflow) {
-    self.context = context
-    _workflow = Binding<Workflow>(
-      get: { context.workflow.state },
-      set: { context.workflow.perform(.update($0)) })
-  }
 
   var body: some View {
     ScrollView {
       VStack {
         VStack(alignment: .leading) {
-          WorkflowView(workflow) { config in
-            workflow.name = config.name
-            context.workflow.perform(.update(workflow))
-          }
+          TextField("", text: workflow.name)
+            .font(.largeTitle)
+            .foregroundColor(.primary)
+            .textFieldStyle(PlainTextFieldStyle())
           HeaderView(title: "Keyboard shortcuts:").padding([.top])
-          KeyboardShortcutList(workflow: $workflow,
+          KeyboardShortcutList(workflow: workflow,
                                performAction: context.keyboardsShortcuts.perform(_:))
             .cornerRadius(8)
         }.padding()
@@ -43,14 +36,14 @@ struct DetailView: View {
         HeaderView(title: "Commands:")
                 .padding([.leading, .top])
         CommandListView(selection: $selectedCommand,
-                        workflow: $workflow,
+                        workflow: workflow,
                         perform: context.commands.perform(_:),
                         receive: { sheet = $0 })
           .onReceive(context.keyInputSubjectWrapper, perform: receive(_:))
       }
       .padding(8)
       .onDrop($isDropping) { urls in
-        context.commands.perform(.drop(urls, workflow))
+        context.commands.perform(.drop(urls, workflowController.state))
       }.overlay(
         RoundedRectangle(cornerRadius: 8)
           .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
@@ -60,7 +53,7 @@ struct DetailView: View {
       DetailViewToolbar(
         config: $config,
         sheet: $sheet,
-        workflowName: workflow.name,
+        workflowName: workflowController.state.name,
         searchController: context.search)
     })
     .background(gradient)
@@ -71,6 +64,14 @@ struct DetailView: View {
 // MARK: Extensions
 
 extension DetailView {
+  var workflow: Binding<Workflow> {
+    Binding<Workflow>(get: {
+      workflowController.state
+    }, set: {
+      workflowController.perform(.update($0))
+    })
+  }
+
   var gradient: some View {
     LinearGradient(
       gradient: Gradient(
@@ -89,7 +90,7 @@ extension DetailView {
       EditCommandView(applicationProvider: context.applicationProvider,
                       openPanelController: context.openPanel,
                       saveAction: { newCommand in
-                        context.commands.perform(.create(newCommand, in: workflow))
+                        context.commands.perform(.create(newCommand, in: workflowController.state))
                         sheet = nil
                       },
                       cancelAction: { sheet = nil },
@@ -98,7 +99,7 @@ extension DetailView {
     case .edit(let command):
       EditCommandView(applicationProvider: context.applicationProvider, openPanelController: context.openPanel,
                       saveAction: { command in
-                        context.commands.perform(.edit(command, in: workflow))
+                        context.commands.perform(.edit(command, in: workflowController.state))
                         sheet = nil
                       },
                       cancelAction: { sheet = nil },
@@ -109,23 +110,23 @@ extension DetailView {
 
   func receive(_ subject: KeyInputSubjectWrapper.Output) {
     guard let command = selectedCommand,
-          let index = workflow.commands.firstIndex(of: command) else { return }
+          let index = workflowController.state.commands.firstIndex(of: command) else { return }
 
     let newIndex: Int
 
     switch subject {
     case .delete:
-      context.commands.perform(.delete(command, in: workflow))
+      context.commands.perform(.delete(command, in: workflowController.state))
       return
     case .upArrow:
       newIndex = max(index - 1, 0)
     case .downArrow:
-      newIndex = min(index + 1, workflow.commands.count - 1)
+      newIndex = min(index + 1, workflowController.state.commands.count - 1)
     default:
       return
     }
 
-    selectedCommand = workflow.commands[newIndex]
+    selectedCommand = workflowController.state.commands[newIndex]
   }
 }
 
@@ -144,7 +145,7 @@ struct DetailView_Previews: PreviewProvider, TestPreviewProvider {
 
     return DetailView(
       context: context,
-      workflow: workflow)
+      workflowController: context.workflow)
   }
 }
 
