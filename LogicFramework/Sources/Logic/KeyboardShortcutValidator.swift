@@ -5,7 +5,13 @@ import Foundation
 import ModelKit
 
 public class KeyboardShortcutValidator {
-  private let blockedKeyCodes = [36, 51, 53, 117] // ↩, ⌫, ⎋, ⌦
+  enum RestrictedKeyCode: Int, CaseIterable {
+    case backspace = 117
+    case delete = 51
+    case enter = 36
+    case escape = 53
+  }
+
   private let keycodeMapper: KeyCodeMapping
   private var systemKeyboardShortcuts = [KeyboardShortcut]()
 
@@ -44,11 +50,11 @@ public class KeyboardShortcutValidator {
     return result
   }
 
-  func validate(_ context: HotKeyContext) -> KeyboardShortcutValidationContext {
+  func validate(_ context: HotKeyContext) -> KeyboardShortcutUpdateContext {
     guard let key = try? keycodeMapper.map(Int(context.keyCode), modifiers: 0) else {
-      return .invalid(.empty())
+      return .systemShortcut(.empty())
     }
-    let validationContext: KeyboardShortcutValidationContext
+    let validationContext: KeyboardShortcutUpdateContext
     var keyboardShortcut: KeyboardShortcut
     let modifiers = ModifierKey.fromCGEvent(context.event.flags)
     keyboardShortcut = KeyboardShortcut(
@@ -60,9 +66,14 @@ public class KeyboardShortcutValidator {
       .first(where: { $0.key == keyboardShortcut.key &&
               $0.modifiers == keyboardShortcut.modifiers })
     if let systemKeyboardShortcut = systemKeyboardShortcut {
-      validationContext = .invalid(systemKeyboardShortcut)
-    } else if blockedKeyCodes.contains(Int(context.keyCode)) {
-      validationContext = .invalid(keyboardShortcut)
+      validationContext = .systemShortcut(systemKeyboardShortcut)
+    } else if let restrictedKeyCode = RestrictedKeyCode(rawValue: Int(context.keyCode)) {
+      switch restrictedKeyCode {
+      case .backspace, .delete:
+        validationContext = .delete(keyboardShortcut)
+      case .escape, .enter:
+        validationContext = .cancel(keyboardShortcut)
+      }
     } else {
       validationContext = .valid(keyboardShortcut)
     }

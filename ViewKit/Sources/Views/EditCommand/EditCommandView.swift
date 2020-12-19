@@ -118,7 +118,9 @@ private extension EditCommandView {
         EditKeyboardShortcutView(command: Binding(
           get: { command },
           set: { keyboardCommand in
-            self.command = .keyboard(keyboardCommand)
+            let command: Command = .keyboard(keyboardCommand)
+            self.command = command
+            self.selection = command
           }
         ))
       case .none:

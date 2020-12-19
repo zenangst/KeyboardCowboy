@@ -14,9 +14,15 @@ enum DragState {
   }
 }
 
-struct MovableView<Element, Content>: View where Content: View, Element: Hashable {
+struct MovableStack<Element, Content>: View where Content: View, Element: Hashable {
+  enum Axis {
+    case vertical
+    case horizontal
+  }
+
   typealias DragHandler = (CGSize, Element) -> Void
-  let contentView: Content
+  let axis: Axis
+  let content: Content
   let element: Element
   let dragHandler: DragHandler
 
@@ -24,25 +30,18 @@ struct MovableView<Element, Content>: View where Content: View, Element: Hashabl
   @State private var opacity: Double = 1.0
   @State private var offset: CGSize = .zero
   @State private var scaleFactor: CGFloat = 1.0
-  @State private var isMoving: Bool = false {
-    didSet {
-      if isMoving {
-        NSCursor.closedHand.push()
-      } else {
-        NSCursor.pop()
-      }
-    }
-  }
+  @State private var isMoving: Bool = false
   @State private var zIndex: Double = 1
 
-  init(element: Element, dragHandler: @escaping DragHandler, _ contentView: () -> Content) {
+  init(axis: Axis = .vertical, element: Element, dragHandler: @escaping DragHandler, content: () -> Content) {
+    self.axis = axis
     self.dragHandler = dragHandler
     self.element = element
-    self.contentView = contentView()
+    self.content = content()
   }
 
   var body: some View {
-    contentView
+    content
       .shadow(color: isMoving ? Color.black.opacity(0.25) : .clear ,
               radius: isMoving ? 5 : 0,
               x: 0,
@@ -57,7 +56,14 @@ struct MovableView<Element, Content>: View where Content: View, Element: Hashabl
           .onChanged({ value in
             withAnimation { self.scaleFactor = 1.025 }
             self.isMoving = true
-            self.offset.height = value.translation.height
+
+            switch axis {
+            case .horizontal:
+              self.offset.width = value.translation.width
+            case .vertical:
+              self.offset.height = value.translation.height
+            }
+
             self.zIndex = 2
           })
           .onEnded { _ in

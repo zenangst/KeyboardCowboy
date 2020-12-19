@@ -17,6 +17,7 @@ import SwiftUI
  */
 typealias KeyboardCowboyStore = Saloon
 
+let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
 let bundleIdentifier = Bundle.main.bundleIdentifier!
 
 class Saloon: ViewKitStore, MenubarControllerDelegate {
@@ -60,7 +61,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     do {
       // Don't run the entire app when running tests
       if launchArguments.isEnabled(.runningUnitTests) ||
-         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil {
+          isRunningPreview {
         super.init(groups: [], context: .preview())
         return
       }
