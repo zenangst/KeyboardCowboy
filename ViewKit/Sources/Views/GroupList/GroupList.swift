@@ -27,12 +27,15 @@ public struct GroupList: View {
     List {
       ForEach(store.groups) { group in
         NavigationLink(
-          destination: WorkflowList(
-            store: store,
-            title: group.name,
-            subtitle: "Workflows: \(group.workflows.count)",
-            workflows: group.workflows,
-            selection: $workflowSelection)
+          destination: DeferView({
+            WorkflowList(
+              store: store,
+              title: group.name,
+              subtitle: "Workflows: \(group.workflows.count)",
+              workflows: group.workflows,
+              selection: $workflowSelection)
+
+          })
             .frame(minWidth: 250, idealWidth: 250),
           tag: group.id,
           selection: Binding<String?>(
