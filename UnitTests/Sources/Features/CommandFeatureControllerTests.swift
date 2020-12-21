@@ -15,7 +15,7 @@ class CommandsFeatureControllerTests: XCTestCase {
     group.workflows = [workflow]
 
     let command = Command.application(.init(application: Application.finder()))
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let groupsController = GroupsController(groups: [group])
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
@@ -88,7 +88,7 @@ class CommandsFeatureControllerTests: XCTestCase {
     let updatedCommand = Command.keyboard(newKeyboardCommand)
 
     let groupsController = GroupsController(groups: [group])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {
@@ -170,7 +170,7 @@ class CommandsFeatureControllerTests: XCTestCase {
     group.workflows = [workflow]
 
     let groupsController = GroupsController(groups: [group])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {
@@ -241,7 +241,7 @@ class CommandsFeatureControllerTests: XCTestCase {
     group.workflows = [workflow]
 
     let groupsController = GroupsController(groups: [group])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {

@@ -7,7 +7,7 @@ class SearchGroupsControllerTests: XCTestCase {
 
   func testSearchForGroupWithPerfectNameMatch() {
     let groupsController = GroupsControllerMock { _ in }
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
@@ -29,7 +29,7 @@ class SearchGroupsControllerTests: XCTestCase {
 
   func testSearchForGroupWithPartialMatch() {
     let groupsController = GroupsControllerMock { _ in }
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
@@ -55,7 +55,7 @@ class SearchGroupsControllerTests: XCTestCase {
 
   func testSearchForGroupWithPartialMatchCaseInsensitive() {
     let groupsController = GroupsControllerMock { _ in }
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
@@ -79,7 +79,7 @@ class SearchGroupsControllerTests: XCTestCase {
 
   func testSearchForWorkflowByName() {
     let groupsController = GroupsControllerMock { _ in }
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)
@@ -111,7 +111,7 @@ class SearchGroupsControllerTests: XCTestCase {
 
   func testSearchForCommandByName() {
     let groupsController = GroupsControllerMock { _ in }
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { _ in }
     let factory = FeatureFactory(coreController: coreController)

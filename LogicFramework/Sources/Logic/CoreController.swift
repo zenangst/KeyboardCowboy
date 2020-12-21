@@ -13,6 +13,7 @@ public protocol CoreControlling: AnyObject {
   func activate(workflows: [Workflow])
   @discardableResult
   func respond(to keyboardShortcut: KeyboardShortcut) -> [Workflow]
+  func intercept(_ context: HotKeyContext)
 }
 
 public enum CoreControllerState {
@@ -166,7 +167,7 @@ public final class CoreController: NSObject, CoreControlling,
     return workflows
   }
 
-  private func intercept(_ context: HotKeyContext) {
+  public func intercept(_ context: HotKeyContext) {
     for workflow in activeWorkflows where invocations < workflow.keyboardShortcuts.count {
       guard !workflow.keyboardShortcuts.isEmpty else { continue }
 

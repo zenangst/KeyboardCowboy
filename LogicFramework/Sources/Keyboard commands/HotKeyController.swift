@@ -10,16 +10,17 @@ public protocol HotKeyControlling {
 }
 
 public class HotKeyContext {
-  let keyCode: Int64
+  var keyCode: Int64
   let event: CGEvent
-  let eventSource: CGEventSource
+  let eventSource: CGEventSource?
   let type: CGEventType
   var result: Unmanaged<CGEvent>?
 
-  init(keyCode: Int64, event: CGEvent,
-       eventSource: CGEventSource, type: CGEventType,
+  init(event: CGEvent,
+       eventSource: CGEventSource?,
+       type: CGEventType,
        result: Unmanaged<CGEvent>?) {
-    self.keyCode = keyCode
+    self.keyCode = event.getIntegerValueField(.keyboardEventKeycode)
     self.event = event
     self.eventSource = eventSource
     self.type = type
@@ -57,10 +58,10 @@ final class HotKeyController: HotKeyControlling {
   }
 
   func callback(_ proxy: CGEventTapProxy, _ type: CGEventType, _ event: CGEvent) -> Unmanaged<CGEvent>? {
-    let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
     let result: Unmanaged<CGEvent>? = Unmanaged.passUnretained(event)
-    let context = HotKeyContext(keyCode: keyCode, event: event,
-                                eventSource: eventSource, type: type,
+    let context = HotKeyContext(event: event,
+                                eventSource: eventSource,
+                                type: type,
                                 result: result)
     delegate?.hotKeyController(self, didReceiveContext: context)
     return context.result

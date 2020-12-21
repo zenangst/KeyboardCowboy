@@ -1,4 +1,4 @@
-import LogicFramework
+@testable import LogicFramework
 import ModelKit
 import XCTest
 
@@ -34,6 +34,65 @@ class CoreControllerTests: XCTestCase {
     let secondBatch = controller.respond(to: .init(id: id, key: "H"))
     XCTAssertEqual(secondBatch.count, 1)
     XCTAssertEqual(groups[0].workflows[1], secondBatch[0])
+  }
+
+  func testInterceptPerformance() {
+    let factory = ControllerFactory()
+    let id = UUID().uuidString
+    let groups = self.groups(id: id)
+    let expectation = self.expectation(description: "Wait for command controller to run commands")
+    let commandController = CommandControllerMock { _ in
+      expectation.fulfill()
+    }
+    let groupsController = factory.groupsController(groups: groups)
+    let runningApplication = RunningApplicationMock(activate: true, bundleIdentifier: "com.apple.finder")
+    let workspace = WorkspaceProviderMock(
+      applications: [runningApplication], launchApplicationResult: true,
+      openFileResult: WorkspaceProviderMock.OpenResult(nil, nil))
+
+    workspace.frontApplication = runningApplication
+
+    let workflowController = WorkflowControllerMock()
+    let controller = factory.coreController(
+      .disabled,
+      commandController: commandController,
+      groupsController: groupsController,
+      workflowController: workflowController,
+      workspace: workspace)
+
+    let event = CGEvent(keyboardEventSource: nil, virtualKey: 32, keyDown: true)!
+    let context = HotKeyContext(event: event,
+                                eventSource: nil,
+                                type: .keyDown,
+                                result: nil)
+
+    let keyCodeMapper = KeyCodeMapper.shared
+    var workflows = [Workflow]()
+
+    for (key, _) in keyCodeMapper.stringLookup {
+      let workflow = Workflow(name: key, keyboardShortcuts: [
+        KeyboardShortcut(key: key)
+      ], commands: [])
+      workflows.append(workflow)
+    }
+
+    workflowController.workflows = workflows
+    workflowController.filteredWorkflows = [
+      Workflow(name: "Success")
+    ]
+
+    controller.activate(workflows: workflows)
+
+    let start = CACurrentMediaTime()
+    measure {
+      controller.intercept(context)
+    }
+    let time = CACurrentMediaTime() - start
+    XCTAssertLessThan(time, 0.3)
+
+    Swift.print("⏱ Time: \(time)")
+
+    wait(for: [expectation], timeout: 1)
   }
 
   private func groups(id: String = UUID().uuidString) -> [Group] {
