@@ -1,0 +1,12 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Keyboard Cowboy</title>
+        <item>
+            <title>0.4.1</title>
+            <pubDate>Sun, 20 Dec 2020 19:50:28 +0100</pubDate>
+            <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+            <enclosure url="Keyboard_Cowboy_0.4.1.zip" sparkle:version="18" sparkle:shortVersionString="0.4.1" length="2871926" type="application/octet-stream"/>
+        </item>
+    </channel>
+</rss>

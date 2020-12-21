@@ -36,6 +36,8 @@
 	<true/>
 	<key>com.apple.security.automation.apple-events</key>
 	<true/>
+  <key>SUFeedURL</key>
+  <string>https://raw.githubusercontent.com/zenangst/KeyboardCowboy/master/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>ZxEpbxbd8TIwNev9bkzaLrHAaQUK/x0wBTHb4anScsc=</string>
 </dict>
