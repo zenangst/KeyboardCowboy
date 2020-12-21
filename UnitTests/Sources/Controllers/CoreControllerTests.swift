@@ -83,16 +83,11 @@ class CoreControllerTests: XCTestCase {
 
     controller.activate(workflows: workflows)
 
-    let start = CACurrentMediaTime()
     measure {
       controller.intercept(context)
     }
-    let time = CACurrentMediaTime() - start
-    XCTAssertLessThan(time, 0.3)
 
-    Swift.print("⏱ Time: \(time)")
-
-    wait(for: [expectation], timeout: 1)
+    wait(for: [expectation], timeout: 10)
   }
 
   private func groups(id: String = UUID().uuidString) -> [Group] {
