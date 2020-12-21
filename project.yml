@@ -20,6 +20,9 @@ packages:
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     from: 1.8.2
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    revision: "891afd44c7075e699924ed9b81d8dc94a5111dfd"
 targets:
   Keyboard-Cowboy:
     type: application
@@ -31,6 +34,7 @@ targets:
       - target: LogicFramework
       - package: DirectoryObserver
       - package: LaunchArguments
+      - package: Sparkle
     sources:
       - App
     settings:

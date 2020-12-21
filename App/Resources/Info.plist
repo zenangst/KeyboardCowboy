@@ -36,5 +36,7 @@
 	<true/>
 	<key>com.apple.security.automation.apple-events</key>
 	<true/>
+	<key>SUPublicEDKey</key>
+	<string>ZxEpbxbd8TIwNev9bkzaLrHAaQUK/x0wBTHb4anScsc=</string>
 </dict>
 </plist>
