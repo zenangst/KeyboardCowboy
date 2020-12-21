@@ -5,6 +5,7 @@ import LogicFramework
 import ModelKit
 import ViewKit
 import SwiftUI
+import Sparkle
 
 /*
  This type alias exists soley to restore some order to all the chaos.
@@ -102,6 +103,8 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     subscribe(to: UserDefaults.standard, context: context)
     subscribe(to: NotificationCenter.default)
     loaded = true
+
+    SUUpdater.shared()?.checkForUpdatesInBackground()
   }
 
   func receive(_ scenePhase: ScenePhase) {
