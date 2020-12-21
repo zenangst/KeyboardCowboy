@@ -10,7 +10,7 @@ class WorkflowFeatureControllerTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for callback")
     let group = Group.empty()
     let groupsController = GroupsController(groups: [group])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {
@@ -57,7 +57,7 @@ class WorkflowFeatureControllerTests: XCTestCase {
     group.workflows = [workflow]
 
     let groupsController = GroupsController(groups: [group])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {
@@ -106,7 +106,7 @@ class WorkflowFeatureControllerTests: XCTestCase {
     group.workflows = [workflow]
 
     let groupsController = GroupsController(groups: [group])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {

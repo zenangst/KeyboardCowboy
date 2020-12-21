@@ -9,7 +9,7 @@ class GroupsFeatureControllerTests: XCTestCase {
   func testCreateGroup() {
     let expectation = self.expectation(description: "Wait for callback")
     let groupsController = GroupsController(groups: [])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {
@@ -40,7 +40,7 @@ class GroupsFeatureControllerTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for callback")
     let group = Group.empty()
     let groupsController = GroupsController(groups: [group])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {
@@ -75,7 +75,7 @@ class GroupsFeatureControllerTests: XCTestCase {
     newGroup.name = "Updated group"
 
     let groupsController = GroupsController(groups: [oldGroup])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {
@@ -110,7 +110,7 @@ class GroupsFeatureControllerTests: XCTestCase {
     let expectation = self.expectation(description: "Wait for callback")
     let application = Application.finder()
     let groupsController = GroupsController(groups: [])
-    let commandController = CommandControllerMock()
+    let commandController = CommandControllerMock { _ in }
     let coreController = CoreControllerMock(commandController: commandController,
                                             groupsController: groupsController) { state in
       switch state {
