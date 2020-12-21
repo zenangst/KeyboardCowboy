@@ -145,4 +145,57 @@ class WorkflowFeatureControllerTests: XCTestCase {
 
     wait(for: [expectation], timeout: 10.0)
   }
+
+  func testDuplicateWorkflow() {
+    let expectation = self.expectation(description: "Wait for callback")
+    var workflow = Workflow.empty()
+    workflow.name = "Workflow Clone"
+    var group = Group.empty()
+    group.workflows = [workflow]
+
+    let groupsController = GroupsController(groups: [group])
+    let commandController = CommandControllerMock { _ in }
+    let coreController = CoreControllerMock(commandController: commandController,
+                                            groupsController: groupsController) { state in
+      switch state {
+      case .respondTo,
+           .reloadContext,
+           .activate:
+        XCTFail("Wrong state, should end up in `.didReloadGroups`")
+      case .didReloadGroups(let groups):
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groupsController.groups.count, 1)
+        XCTAssertEqual(groups, groupsController.groups)
+
+        guard let group = groups.first else {
+          XCTFail("Failed to find first group.")
+          return
+        }
+
+        XCTAssertEqual(group.workflows.count, 2)
+
+        XCTAssertEqual(group.workflows.first?.name, group.workflows.last?.name)
+        XCTAssertEqual(group.workflows.first?.keyboardShortcuts, group.workflows.last?.keyboardShortcuts)
+        XCTAssertEqual(group.workflows.first?.commands, group.workflows.last?.commands)
+
+        XCTAssertTrue(group.workflows.contains(workflow))
+
+        expectation.fulfill()
+      }
+    }
+    groupsController.delegate = coreController
+
+    let factory = FeatureFactory(coreController: coreController)
+    let groupsFeature = factory.groupFeature()
+    let workflowFeature = factory.workflowFeature()
+
+    workflowFeature.delegate = groupsFeature
+
+    XCTAssertEqual(groupsController.groups.count, 1)
+    XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
+
+    workflowFeature.perform(.duplicate(workflow, groupId: group.id))
+
+    wait(for: [expectation], timeout: 10.0)
+  }
 }

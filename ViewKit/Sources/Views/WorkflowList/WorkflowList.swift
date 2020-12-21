@@ -5,6 +5,7 @@ public struct WorkflowList: View {
   public enum Action {
     case set(workflow: Workflow)
     case create(groupId: String?)
+    case duplicate(Workflow, groupId: String?)
     case update(Workflow)
     case delete(Workflow)
     case move(Workflow, to: Int)
@@ -28,7 +29,6 @@ public struct WorkflowList: View {
           destination: DeferView({
             DetailView(context: store.context,
                        workflowController: store.context.workflow)
-            
           }),
           tag: workflow.id,
           selection: $selection,
@@ -36,7 +36,7 @@ public struct WorkflowList: View {
             WorkflowListView(workflow: workflow)
           })
           .contextMenu {
-            Button("Delete", action: { store.context.workflow.perform(.delete(workflow)) })
+            WorkflowListContextMenu(workflowController: store.context.workflow, workflow: workflow)
           }
       }
       .onMove(perform: { indices, newOffset in

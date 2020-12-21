@@ -40,13 +40,16 @@ final class WorkflowFeatureController: ViewController,
     case .set(let workflow):
       self.state = workflow
     case .create(let groupId):
-      createWorkflow(groupId)
+      create(groupId)
+    case .duplicate(let workflow, let groupId):
+      guard let groupId = groupId else { return }
+      duplicate(workflow, groupId: groupId)
     case .update(let workflow):
-      updateWorkflow(workflow)
+      update(workflow)
     case .delete(let workflow):
-      deleteWorkflow(workflow)
+      delete(workflow)
     case .move(let workflow, let to):
-      moveWorkflow(workflow, to: to)
+      move(workflow, to: to)
     case .drop(let urls, let groupId, let workflow):
       drop(urls, groupId: groupId, workflow: workflow)
     }
@@ -54,22 +57,31 @@ final class WorkflowFeatureController: ViewController,
 
   // MARK: Private methods
 
-  private func createWorkflow(_ groupId: String?) {
+  private func create(_ groupId: String?) {
     guard let groupId = groupId else { return }
     let workflow = Workflow.empty()
     try? delegate?.workflowFeatureController(self, didCreateWorkflow: workflow, groupId: groupId)
   }
 
-  private func updateWorkflow(_ workflow: Workflow) {
+  private func duplicate(_ workflow: Workflow, groupId: String?) {
+    guard let groupId = groupId else { return }
+
+    let newWorkflow = Workflow(name: workflow.name,
+                               keyboardShortcuts: workflow.keyboardShortcuts,
+                               commands: workflow.commands)
+    try? delegate?.workflowFeatureController(self, didCreateWorkflow: newWorkflow, groupId: groupId)
+  }
+
+  private func update(_ workflow: Workflow) {
     perform(.set(workflow: workflow))
     try? delegate?.workflowFeatureController(self, didUpdateWorkflow: workflow)
   }
 
-  private func deleteWorkflow(_ workflow: Workflow) {
+  private func delete(_ workflow: Workflow) {
     try? delegate?.workflowFeatureController(self, didDeleteWorkflow: workflow)
   }
 
-  private func moveWorkflow(_ workflow: Workflow, to index: Int) {
+  private func move(_ workflow: Workflow, to index: Int) {
     try? delegate?.workflowFeatureController(self, didMoveWorkflow: workflow, to: index)
   }
 
@@ -122,19 +134,19 @@ final class WorkflowFeatureController: ViewController,
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
                                          didCreateKeyboardShortcut keyboardShortcut: ModelKit.KeyboardShortcut,
                                          in workflow: Workflow) {
-    updateWorkflow(workflow)
+    update(workflow)
   }
 
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
                                          didUpdateKeyboardShortcut keyboardShortcut: ModelKit.KeyboardShortcut,
                                          in workflow: Workflow) {
-    updateWorkflow(workflow)
+    update(workflow)
   }
 
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
                                          didDeleteKeyboardShortcut keyboardShortcut: ModelKit.KeyboardShortcut,
                                          in workflow: Workflow) {
-    updateWorkflow(workflow)
+    update(workflow)
   }
 
   // MARK: CommandsFeatureControllerDelegate
@@ -142,22 +154,22 @@ final class WorkflowFeatureController: ViewController,
   func commandsFeatureController(_ controller: CommandsFeatureController,
                                  didCreateCommand command: Command,
                                  in workflow: Workflow) {
-    updateWorkflow(workflow)
+    update(workflow)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didUpdateCommand command: Command,
                                  in workflow: Workflow) {
-    updateWorkflow(workflow)
+    update(workflow)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didDeleteCommand command: Command,
                                  in workflow: Workflow) {
-    updateWorkflow(workflow)
+    update(workflow)
   }
 
   func commandsFeatureController(_ controller: CommandsFeatureController, didDropCommands commands: [Command],
                                  in workflow: Workflow) {
-    updateWorkflow(workflow)
+    update(workflow)
   }
 }
 
