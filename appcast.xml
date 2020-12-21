@@ -4,9 +4,9 @@
         <title>Keyboard Cowboy</title>
         <item>
             <title>0.4.1</title>
-            <pubDate>Sun, 20 Dec 2020 19:50:28 +0100</pubDate>
+            <pubDate>Mon, 21 Dec 2020 19:46:13 +0100</pubDate>
             <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/0.4.1/Keyboard.Cowboy.0.4.1.zip" sparkle:version="18" sparkle:shortVersionString="0.4.1" length="2871926" type="application/octet-stream"/>
+            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/0.4.1/Keyboard.Cowboy.zip" sparkle:version="18" sparkle:shortVersionString="0.4.1" length="4916039" type="application/octet-stream"/>
         </item>
     </channel>
 </rss>

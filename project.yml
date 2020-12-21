@@ -50,6 +50,9 @@ targets:
     preBuildScripts:
       - path: XcodeGen/Scripts/swiftlint.sh
         name: SwiftLint
+    postBuildScripts:
+      - path: XcodeGen/Scripts/generate_release_env.sh
+        name: Generate release environment
     entitlements:
       path: App/Resources/com.zenangst.Keyboard-Cowboy.entitlements
       properties:
@@ -164,6 +167,7 @@ fileGroups:
   - .github
   - .gitignore
   - .swiftlint.yml
+  - create_release.sh
   - appcast.xml
   - keyboard-cowboy.json
   - README.md
