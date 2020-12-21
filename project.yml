@@ -164,6 +164,7 @@ fileGroups:
   - .github
   - .gitignore
   - .swiftlint.yml
+  - appcast.xml
   - keyboard-cowboy.json
   - README.md
   - XcodeGen

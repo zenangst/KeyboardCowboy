@@ -1,4 +1,5 @@
 import Cocoa
+import Sparkle
 
 protocol MenubarControllerDelegate: class {
   func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem)
@@ -64,7 +65,7 @@ final class MenubarController {
   }
 
   @objc func checkForUpdates(_ menuItem: NSMenuItem) {
-    NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/releases")!)
+    SUUpdater.shared()?.checkForUpdates(menuItem)
   }
 
   // MARK: - Private methods
