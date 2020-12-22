@@ -2,7 +2,9 @@ import Cocoa
 import Foundation
 import ModelKit
 
-final class ApplicationParser {
+public final class ApplicationParser {
+  public init() {}
+
   /// Resolve an `Application` model from an application at a certain url.
   ///
   /// Parsing is done by invoking `Bundle(url:)` and verifying the contents
@@ -11,7 +13,7 @@ final class ApplicationParser {
   /// - Parameter url: The url of the application
   /// - Returns: A `Application` if all the validation critieras are met, otherwise
   ///            if will simply return `nil`
-  func process(_ url: URL) -> Application? {
+  public func process(_ url: URL) -> Application? {
     guard let bundle = Bundle(url: url),
           let bundleIdentifier = bundle.bundleIdentifier,
           let infoDictionary = bundle.infoDictionary else {

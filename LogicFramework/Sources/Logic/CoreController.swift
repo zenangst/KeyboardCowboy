@@ -37,8 +37,7 @@ public final class CoreController: NSObject, CoreControlling,
   let workspace: WorkspaceProviding
   var cache = [String: Int]()
 
-  private(set) public var installedApplications = [Application]()
-
+  public var installedApplications = [Application]()
   public var groups: [Group] { return groupsController.groups }
 
   private(set) var currentGroups = [Group]()
@@ -52,6 +51,7 @@ public final class CoreController: NSObject, CoreControlling,
               commandController: CommandControlling,
               groupsController: GroupsControlling,
               hotKeyController: HotKeyControlling?,
+              installedApplications: [Application],
               keyboardCommandController: KeyboardCommandControlling,
               keyboardShortcutValidator: KeyboardShortcutValidator,
               keycodeMapper: KeyCodeMapping,
@@ -60,6 +60,7 @@ public final class CoreController: NSObject, CoreControlling,
     self.cache = keycodeMapper.hashTable()
     self.commandController = commandController
     self.groupsController = groupsController
+    self.installedApplications = installedApplications
     self.hotKeyController = hotKeyController
     self.keyboardController = keyboardCommandController
     self.keyboardShortcutValidator = keyboardShortcutValidator
@@ -68,7 +69,6 @@ public final class CoreController: NSObject, CoreControlling,
     super.init()
     self.hotKeyController?.delegate = self
     self.commandController.delegate = self
-    self.loadApplications()
     self.reloadContext()
     frontmostApplicationObserver = NSWorkspace.shared.observe(
       \.frontmostApplication,
@@ -78,20 +78,6 @@ public final class CoreController: NSObject, CoreControlling,
     self.groupsController.delegate = self
 
     setState(initialState)
-  }
-
-  public func loadApplications() {
-    let fileIndexer = FileIndexController(baseUrl: URL(fileURLWithPath: "/"))
-    var patterns = FileIndexPatternsFactory.patterns()
-    patterns.append(contentsOf: FileIndexPatternsFactory.pathExtensions())
-    patterns.append(contentsOf: FileIndexPatternsFactory.lastPathComponents())
-
-    let applicationParser = ApplicationParser()
-
-    self.installedApplications = fileIndexer.index(with: patterns, match: {
-      $0.absoluteString.contains(".app")
-    }, handler: applicationParser.process(_:))
-    .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
   }
 
   public func setState(_ newState: CoreControllerState) {

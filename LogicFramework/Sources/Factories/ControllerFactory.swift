@@ -19,8 +19,9 @@ public final class ControllerFactory {
                              commandController: CommandControlling? = nil,
                              groupsController: GroupsControlling? = nil,
                              hotKeyController: HotKeyControlling? = nil,
-                             keycodeMapper: KeyCodeMapping? = nil,
+                             installedApplications: [Application],
                              keyboardCommandController: KeyboardCommandControlling? = nil,
+                             keycodeMapper: KeyCodeMapping? = nil,
                              workflowController: WorkflowControlling? = nil,
                              workspace: WorkspaceProviding = NSWorkspace.shared) -> CoreControlling {
     let commandController = commandController ?? self.commandController()
@@ -34,6 +35,7 @@ public final class ControllerFactory {
                           commandController: commandController,
                           groupsController: groupsController,
                           hotKeyController: hotKeyController,
+                          installedApplications: installedApplications,
                           keyboardCommandController: keyboardCommandController,
                           keyboardShortcutValidator: keyboardValidator,
                           keycodeMapper: keycodeMapper,
