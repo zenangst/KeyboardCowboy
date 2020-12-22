@@ -14,34 +14,22 @@
     </div>
     
     <div id="header" class="centered">
-      <div class="header-gradient1">
-        <div class="header-gradient2">
-          <div class="header-gradient3">
-            <div class="header-gradient4">
-              <div class="content">
-                <img src="../App/Resources/Assets.xcassets/ApplicationIcon.imageset/icon_256x256.png"/>
-                <h1>Keyboard Cowboy</h1>
-                <h2>The missing keyboard shortcut utility for macOS Big Sur</h2>
-                <section>
-                  <p>Elevate your macOS experience by creating workflows that are only a keystroke away.</p>
-                </section>
-                <div class="quick-links">
-                  <a href="#" class="filled">Download</a>
-                  <a href="#" class="outlined">Release notes</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <img src="../App/Resources/Assets.xcassets/ApplicationIcon.imageset/icon_256x256.png"/>
+      <h1>Keyboard Cowboy</h1>
+      <h2>The missing keyboard shortcut utility for macOS Big Sur</h2>
+      <section>
+        <p>Elevate your macOS experience by creating workflows that are only a keystroke away.</p>
+      </section>
+      <div class="quick-links">
+        <a href="#" class="filled">Download</a>
+        <a href="#" class="outlined">Release notes</a>
       </div>
     </div>
     <div id="groups" class="content-gradient">
       <section class="content">
-        <div class="tagline red-gradient foreground-white">
-          Group your workflows to make them contextual.
-        </div>
         <div>
-          <h3>Groups</h3>
+          <h2>Groups</h2>
+          <h3>Group your workflows to make them contextual.</h3>
           <p>
           A group is a container of workflows. Groups can be scoped to only be active when a certain criteria is met, such as having a specific application active and being the front-most application.
           </p>
@@ -61,22 +49,18 @@
       <section class="content">
         <div>
           <h2>Workflows</h2>
+          <h3>Have one keystroke fire of your workflow.</h3>
           <p>
-          A workflow is a composition of a collection of keyboard shortcuts that correspond to one or many commands that will run in sequence.
+          A workflow is a composition of a collection of keyboard shortcuts that correspond to one or many commands that will run in sequence. You can create workflows that contain a target action, like switching or opening applications. Or run entire workflows like opening all your work-related applications as soon as you arrive at work. Perhaps you are switching between design time and development time, then two separate workflows for jumping between contexts might suite you.
           </p>
         </div>
-        <div class="tagline orange-gradient foreground-white">
-          Have one keystroke fire of your workflow.
-        </div>
-        </div>
-    
+      </section>
+    </div>
     <div id="keyboard_shortcuts">
       <section class="content">
-        <div class="tagline yellow-gradient foreground-black">
-          One keystroke or emacs bindings, it is all up to you.
-        </div>
         <div>
           <h2>Keyboard Shortcuts</h2>
+          <h3>One keystroke or emacs bindings, it is all up to you.</h3>
           <p>
           A workflow can be triggered by one or a sequence of shortcuts. It could either be a single key or a key with one or more modifiers. But we didn't stop there, you can also combine multiple sequences of keyboard shortcuts to use cluster your shortcuts under one leading key.
           </p>
@@ -89,8 +73,9 @@
         <div>
           <h2 class="foreground-green">Commands</h2>
           <p>
-          Think about commands as plain instruction that macOS should carry out. It can be opening or activating an application, open a file, folder or web page.
-          Or if you want to do something more advanced, you can do this by running Apple- or Shellscripts.
+          Think about commands as plain instruction that macOS should carry out. It can be opening or activating an application, open a file, folder or web page. Or if you want to do something more advanced, you can do this by running Apple- or Shellscripts. 
+           The real power lies inside combining commands together and making them contextual. Context is added on the group level so that you can keep your context tidy and on point.
+
           </p>
         </div>
         <div class="tagline green-gradient foreground-white">
@@ -98,13 +83,15 @@
         </div>
       </section>
     </div>
-    
-    <div id="technical-background"></div>
+
     <div id="technical">
       <section class="content">
         <h2 class="foreground-red">Core Foundation</h2>
         <p>
-        Because the very nature of the application's core functionality is based around monitoring key strokes, we decided early on that Keyboard Cowboy should have a transparent development process and be 100% open source, readly available for anyone that wants to dig into the nitty gritty details.<br/><br/>
+        We didn’t want to hold back when packing the applications with incredible power, but like Uncle Ben so wisely said; “With great power comes great responsibility”. This led us to decide very early on that we needed a unique development process when building an application that monitors key strokes.
+        <br/><br/> Keyboard Cowboy should therefor have a transparent development process and be 100% open source, readily available for anyone that wants to dig into the nitty gritty details. <br/><br/>
+
+        The motivation behind monitoring rather than registering listeners came from the idea that you could rebind your keys to do what ever you like in any given context. It could be re-mapping ⌥W,⌥A,⌥S,⌥D keys to work as your arrow keys or spark new life into the fn-key by using it as a modifier for your keyboard shortcuts. This simply was not possible with global listeners. <br/>
         
         We also wrote down the following application definition which can be interpreted as our core values:<br/>
         
