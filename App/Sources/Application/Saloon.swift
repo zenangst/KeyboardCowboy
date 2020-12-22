@@ -67,16 +67,17 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         return
       }
 
+      let installedApplications = Self.loadApplications()
       var groups = try storageController.load()
+      groups = pathFinderController.patch(groups, applications: installedApplications)
       let groupsController = Self.factory.groupsController(groups: groups)
       let hotKeyController = try? Self.factory.hotkeyController()
       let coreController = Self.factory.coreController(
         launchArguments.isEnabled(.disableKeyboardShortcuts) ? .disabled : .enabled,
         groupsController: groupsController,
-        hotKeyController: hotKeyController
+        hotKeyController: hotKeyController,
+        installedApplications: installedApplications
       )
-
-      groups = pathFinderController.patch(groups, applications: coreController.installedApplications)
 
       self.coreController = coreController
 
@@ -126,6 +127,20 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   }
 
   // MARK: Private methods
+
+  private static func loadApplications() -> [Application] {
+    let fileIndexer = FileIndexController(baseUrl: URL(fileURLWithPath: "/"))
+    var patterns = FileIndexPatternsFactory.patterns()
+    patterns.append(contentsOf: FileIndexPatternsFactory.pathExtensions())
+    patterns.append(contentsOf: FileIndexPatternsFactory.lastPathComponents())
+
+    let applicationParser = ApplicationParser()
+
+    return fileIndexer.index(with: patterns, match: {
+      $0.absoluteString.contains(".app")
+    }, handler: applicationParser.process(_:))
+    .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
+  }
 
   private func subscribe(to context: FeatureContext) {
     context.groups.subject
