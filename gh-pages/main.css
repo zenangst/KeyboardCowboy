@@ -1,7 +1,7 @@
 :root {
   color-scheme: light dark;
   --background-color: #f5f5f5;
-  --primary-color: #111111;
+  --primary-color: #444;
   --secondary-color: #555;
   --content-background-color: #fff;
   --menu-background-color: rgba(255, 255, 255, 0.9);
@@ -39,13 +39,36 @@ body {
   margin: 0;
   background-color: var(--background-color);
   color: var(--primary-color);
-  font-family: -apple-system, "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  letter-spacing: -0.015em;
+  line-height: 1.33em;
 }
 
 h1,h2,h3,h4,h5 {
   padding: 0;
   margin: 0;
   color: var(-apple-system-control-accent);
+}
+
+h2 {
+  margin-bottom: 16px;
+  font-size: 56px;
+  letter-spacing: -1.5px;
+  line-height: 60px;
+  font-weight: 500;
+}
+
+h3 {
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-size: 24px;
+  line-height: 32px;
+  margin: 0;
+  margin-bottom: 20px;
+  font-weight: 400;
+  opacity: 50%;
 }
 
 hr {
@@ -80,10 +103,8 @@ p {
 
 #header {
   background-color: var(--content-background-color);
-  color: #fff;
-  background: black;
   margin: 0 0;
-  padding: 0 0;
+  padding: 20 0;
   border-bottom: 1px solid var(--content-background-color);
 }
 
@@ -144,14 +165,16 @@ div > .content {
 }
 
 #technical {
+  background:#000;
   position: relative;
   width: 100%;
   min-height: 650px;
   padding-top: 64;
   padding-bottom: 64;
   margin-bottom: -8px;
-  backdrop-filter: blur(32px) contrast(1.4);
-  -webkit-backdrop-filter: blur(32px) contrast(1.4);
+  letter-spacing: 0.0em;
+  line-height: 1.60em;
+  font-family: "SFMono-Regular", "Menlo", "Monaco", "Consolas";
 }
 
 #technical > section {
@@ -176,7 +199,7 @@ div > .content {
   width: 100%;
   height: 100%;
   background-position: center;
-  background-image: url('../UnitTests/Sources/Views/__Snapshots__/MainViewTests/testSnapshotPreviews.macOS11-0-Dark.png');
+  background-image: url('../UnitTests/Sources/Views/__Snapshots__/MainViewTests/testSnapshotPreviews.macOS11-1-Dark.png');
   z-index: -1;
 }
 
@@ -186,21 +209,13 @@ div > .content {
   justify-content: center;
 }
 
-#groups .content div {
-  width: 66%;
-  margin-right: 32px;
-}
-
-#groups .content div:nth-child(1) {
-  margin-left: -64px;
-}
-
 .tagline {
   padding: 32px;
-  font-size: 36px;
+  margin: 32px;
+  font-size: 24px;
   border-radius: 8px;
   font-weight: bold;
-  letter-spacing: -1px;
+  letter-spacing: 0.025em;
   box-shadow: 0px 10px 35px 1px var(--shadow-color);
 }
 
@@ -220,11 +235,6 @@ div > .content {
   justify-content: center;
 }
 
-#keyboard_shortcuts .content div {
-  width: 66%;
-  margin-right: 32px;
-}
-
 #commands .content {
   display: flex;
   align-items: center;
@@ -233,12 +243,6 @@ div > .content {
 
 #commands {
   background-color: var(--content-background-color)
-}
-
-#commands .content div {
-  width: 50%;
-  margin-right: -32px;
-  margin-left: 64px;
 }
 
 #pricing {
@@ -284,29 +288,6 @@ div > .content {
 .blurred {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-}
-
-.header-gradient1 {
-  background: linear-gradient(135deg, rgba(240,156,132,1) 5%, rgba(67,60,197,0) 50%);
-}
-
-.header-gradient2 {
-  background: linear-gradient(45deg, rgba(227,64,106,1) 5%, rgba(67,60,197,0) 50%);
-}
-
-.header-gradient3 {
-  background: linear-gradient(225deg, rgba(82,172,247,1.0) 5%, rgba(67,60,197,0) 50%);
-}
-
-.header-gradient4 {
-  background: linear-gradient(315deg, rgba(69,58,199,0.5) 5%, rgba(67,60,197,0) 50%);
-  padding-bottom: 32px;
-}
-
-.content-gradient {
-  background: linear-gradient(0deg,
-    var(--background-color) 0%,
-    var(--content-background-color) 100%);
 }
 
 .red-gradient {
