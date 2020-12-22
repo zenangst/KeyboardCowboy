@@ -2,6 +2,12 @@ import SwiftUI
 import ModelKit
 
 public struct GroupList: View {
+  public enum ViewState {
+    case empty
+    case hasContent([ModelKit.Group])
+    case hasSelection(Workflow, [ModelKit.Group])
+  }
+
   public enum Action {
     case createGroup
     case updateGroup(ModelKit.Group)
@@ -20,38 +26,18 @@ public struct GroupList: View {
   @StateObject var store: ViewKitStore
   @State private var sheet: Sheet?
   @State private var isDropping: Bool = false
-  @Binding var selection: String?
-  @Binding var workflowSelection: String?
+  @AppStorage("groupSelection") var groupSelection: String?
+  @AppStorage("workflowSelection") var workflowSelection: String?
+  @AppStorage("workflowSelections") var workflowSelections: String?
 
   public var body: some View {
-    List {
+    List(selection: selection) {
       ForEach(store.groups) { group in
-        NavigationLink(
-          destination: DeferView({
-            WorkflowList(
-              store: store,
-              title: group.name,
-              subtitle: "Workflows: \(group.workflows.count)",
-              workflows: group.workflows,
-              selection: $workflowSelection)
-
-          })
-            .frame(minWidth: 250, idealWidth: 250),
-          tag: group.id,
-          selection: Binding<String?>(
-            get: {
-              selection
-            }, set: { newValue in
-              if newValue != selection { workflowSelection = group.workflows.first?.id }
-              selection = newValue
-            }
-          ),
-          label: {
-            GroupListView(group, editAction: { _ in
-              sheet = .edit(group)
-            })
-          }
-        ).contextMenu {
+        GroupListView(group, editAction: { _ in
+          sheet = .edit(group)
+        })
+        .id(UUID())
+        .contextMenu {
           GroupListContextMenu(sheet: $sheet, group: group, deleteAction: { group in
             store.context.groups.perform(.deleteGroup(group))
           })
@@ -95,6 +81,19 @@ public struct GroupList: View {
 // MARK: Extensions
 
 extension GroupList {
+  var selection: Binding<String?> {
+    Binding<String?>(get: {
+      groupSelection
+    }, set: { newValue in
+      groupSelection = newValue
+      if let group = store.groups.first(where: { $0.id == newValue }) {
+        store.context.workflows.perform(.set(group: group))
+        workflowSelection = group.workflows.first?.id
+        workflowSelections = workflowSelection
+      }
+    })
+  }
+
   func editGroup(_ group: ModelKit.Group) -> some View {
     EditGroup(
       name: group.name,
@@ -148,8 +147,6 @@ struct GroupList_Previews: PreviewProvider, TestPreviewProvider {
     GroupList(store: .init(
       groups: ModelFactory().groupList(),
       context: .preview()
-    ),
-    selection: .constant(nil),
-    workflowSelection: .constant(nil))
+    ))
   }
 }

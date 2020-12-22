@@ -5,12 +5,13 @@ public struct MainView: View {
   @ObservedObject var store: ViewKitStore
   @AppStorage("groupSelection") var groupSelection: String?
   @AppStorage("workflowSelection") var workflowSelection: String?
-  let groupController: GroupController
+  @AppStorage("workflowSelections") var workflowSelections: String?
+  let groupController: GroupsController
 
   public init(store: ViewKitStore,
               groupSelection: String? = nil,
               workflowSelection: String? = nil,
-              groupController: GroupController) {
+              groupController: GroupsController) {
     self.store = store
     self.groupController = groupController
 
@@ -18,16 +19,35 @@ public struct MainView: View {
     if let workflowSelection = workflowSelection { self.workflowSelection = workflowSelection }
   }
 
-  @ViewBuilder
   public var body: some View {
     NavigationView {
-      SidebarView(store: store,
-                  selection: $groupSelection,
-                  workflowSelection: $workflowSelection)
+      SidebarView(store: store)
         .toolbar(content: { GroupListToolbar(groupController: groupController) })
-      ListPlaceHolder()
+
+      WorkflowList(
+        workflowController: store.context.workflow,
+        workflowsController: store.context.workflows,
+        workflowSelections: Binding<Set<String>>(
+          get: {
+            if let workflowSelections = workflowSelections {
+              return Set<String>(workflowSelections.split(separator: ",").compactMap(String.init))
+            } else {
+              return Set<String>()
+            }
+          },
+          set: { newValue in
+            workflowSelections = Array(newValue).joined(separator: ",")
+            workflowSelection = newValue.first
+          })
+      )
         .frame(minWidth: 250, idealWidth: 250)
-      DetailViewPlaceHolder()
+        .navigationTitle("\(store.selectedGroup?.name ?? "")")
+        .navigationSubtitle("Workflows")
+        .toolbar(content: {
+          WorkflowListToolbar(groupId: groupSelection, workflowsController: store.context.workflows)
+        })
+
+      DetailView(context: store.context, workflowController: store.context.workflow)
     }
   }
 }

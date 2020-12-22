@@ -6,7 +6,16 @@ struct DetailToolbarConfig {
   var searchQuery: String = ""
 }
 
-struct DetailView: View {
+public struct DetailView: View {
+  public enum ViewState {
+    case empty
+    case workflow(ModelKit.Workflow)
+  }
+
+  public enum Action {
+    case set(workflow: Workflow)
+  }
+
   let context: ViewKitFeatureContext
   @ObservedObject var workflowController: WorkflowController
   @EnvironmentObject private var keyInputSubjectWrapper: KeyInputSubjectWrapper
@@ -15,7 +24,7 @@ struct DetailView: View {
   @State private var config = DetailToolbarConfig()
   @State private var isDropping: Bool = false
 
-  var body: some View {
+  public var body: some View {
     ScrollView {
       VStack {
         VStack(alignment: .leading) {
@@ -68,7 +77,7 @@ extension DetailView {
     Binding<Workflow>(get: {
       workflowController.state
     }, set: {
-      workflowController.perform(.update($0))
+      workflowController.perform(.set(workflow: $0))
     })
   }
 

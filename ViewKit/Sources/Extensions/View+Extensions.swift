@@ -1,3 +1,4 @@
+import BridgeKit
 import SwiftUI
 
 public extension View {

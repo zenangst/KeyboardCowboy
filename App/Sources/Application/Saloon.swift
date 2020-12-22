@@ -129,13 +129,19 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
   private func subscribe(to context: FeatureContext) {
     context.groups.subject
+      .removeDuplicates()
       .receive(on: DispatchQueue.main)
       .sink { groups in
         self.groups = groups
+
+        if let selectedGroup = self.selectedGroup,
+           let group =  groups.first(where: { $0.id == selectedGroup.id }) {
+          self.context.workflows.perform(.set(group: group))
+        }
       }.store(in: &subscriptions)
 
     context.groups.subject
-      .debounce(for: 0.5, scheduler: RunLoop.main)
+      .debounce(for: 1.0, scheduler: RunLoop.current)
       .removeDuplicates()
       .receive(on: DispatchQueue.global(qos: .userInitiated))
       .sink { groups in
@@ -148,7 +154,10 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
                          context: ViewKitFeatureContext) {
     userDefaults.publisher(for: \.groupSelection).sink { newValue in
       guard let newValue = newValue else { return }
-      self.selectedGroup = self.groups.first(where: { $0.id == newValue })
+      if let newGroup = self.groups.first(where: { $0.id == newValue }) {
+        self.selectedGroup = newGroup
+        context.workflows.perform(.set(group: newGroup))
+      }
     }.store(in: &subscriptions)
 
     userDefaults.publisher(for: \.workflowSelection).sink { newValue in
