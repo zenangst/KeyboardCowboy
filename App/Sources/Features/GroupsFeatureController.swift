@@ -10,9 +10,10 @@ enum GroupsFeatureError: Error {
 }
 
 final class GroupsFeatureController: ActionController,
-                                     WorkflowFeatureControllerDelegate {
+                                     WorkflowsFeatureControllerDelegate {
   @AppStorage("groupSelection") var groupSelection: String?
   @AppStorage("workflowSelection") var workflowSelection: String?
+  @AppStorage("workflowSelections") var workflowSelections: String?
   var subject = PassthroughSubject<[ModelKit.Group], Never>()
   var applications = [Application]()
   let groupsController: GroupsControlling
@@ -119,9 +120,9 @@ final class GroupsFeatureController: ActionController,
 
   // MARK: WorkflowFeatureControllerDelegate
 
-  func workflowFeatureController(_ controller: WorkflowFeatureController,
-                                 didCreateWorkflow workflow: Workflow,
-                                 groupId: String) throws {
+  func workflowsFeatureController(_ controller: WorkflowsFeatureController,
+                                  didCreateWorkflow workflow: Workflow,
+                                  groupId: String) throws {
     guard var group = groupsController.groups.first(where: { $0.id == groupId }) else {
       return
     }
@@ -129,10 +130,12 @@ final class GroupsFeatureController: ActionController,
     group.workflows.add(workflow)
     try groups.replace(group)
     reload(groups)
+    workflowSelection = group.workflows.last?.id
+    workflowSelections = workflowSelection
   }
 
-  func workflowFeatureController(_ controller: WorkflowFeatureController,
-                                 didUpdateWorkflow workflow: Workflow) throws {
+  func workflowsFeatureController(_ controller: WorkflowsFeatureController,
+                                  didUpdateWorkflow workflow: Workflow) throws {
     workflowSelection = workflow.id
 
     var group = try findGroup(for: workflow)
@@ -142,18 +145,24 @@ final class GroupsFeatureController: ActionController,
     reload(groups)
   }
 
-  func workflowFeatureController(_ controller: WorkflowFeatureController,
-                                 didDeleteWorkflow workflow: Workflow) throws {
+  func workflowsFeatureController(_ controller: WorkflowsFeatureController,
+                                  didDeleteWorkflow workflow: Workflow) throws {
     var group = try findGroup(for: workflow)
     var groups = self.groupsController.groups
     try group.workflows.remove(workflow)
     try groups.replace(group)
     reload(groups)
+
+    if var array = workflowSelection?.split(separator: ",").compactMap(String.init),
+       let index = array.firstIndex(of: workflow.id) {
+      array.remove(at: index)
+      self.workflowSelections = array.joined(separator: ",")
+    }
   }
 
-  func workflowFeatureController(_ controller: WorkflowFeatureController,
-                                 didMoveWorkflow workflow: Workflow,
-                                 to offset: Int) throws {
+  func workflowsFeatureController(_ controller: WorkflowsFeatureController,
+                                  didMoveWorkflow workflow: Workflow,
+                                  to offset: Int) throws {
     var group = try findGroup(for: workflow)
     var groups = self.groupsController.groups
     try group.workflows.move(workflow, to: offset)
@@ -161,9 +170,9 @@ final class GroupsFeatureController: ActionController,
     reload(groups)
   }
 
-  func workflowFeatureController(_ controller: WorkflowFeatureController,
-                                 didDropWorkflow workflow: Workflow,
-                                 groupId: String) throws {
+  func workflowsFeatureController(_ controller: WorkflowsFeatureController,
+                                  didDropWorkflow workflow: Workflow,
+                                  groupId: String) throws {
     guard var group = groupsController.groups.first(where: { $0.id == groupId }) else {
       return
     }

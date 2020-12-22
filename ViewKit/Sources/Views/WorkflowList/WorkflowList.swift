@@ -1,68 +1,55 @@
-import SwiftUI
+import BridgeKit
 import ModelKit
+import SwiftUI
 
 public struct WorkflowList: View {
   public enum Action {
-    case set(workflow: Workflow)
+    case set(group: ModelKit.Group)
     case create(groupId: String?)
     case duplicate(Workflow, groupId: String?)
     case update(Workflow)
     case delete(Workflow)
+    case deleteMultiple(Set<String>)
     case move(Workflow, to: Int)
     case drop([URL], String?, Workflow?)
   }
 
   @AppStorage("groupSelection") var groupSelection: String?
-
-  let store: ViewKitStore
-  let title: String
-  let subtitle: String
-  let workflows: [Workflow]
-
-  @Binding var selection: String?
+  let workflowController: WorkflowController
+  @ObservedObject var workflowsController: WorkflowsController
+  @Binding var workflowSelections: Set<String>
   @State var isDropping: Bool = false
 
   public var body: some View {
-    List {
-      ForEach(workflows, id: \.id) { workflow in
-        NavigationLink(
-          destination: DeferView({
-            DetailView(context: store.context,
-                       workflowController: store.context.workflow)
-          }),
-          tag: workflow.id,
-          selection: $selection,
-          label: {
-            WorkflowListView(workflow: workflow)
-          })
-          .contextMenu {
-            WorkflowListContextMenu(workflowController: store.context.workflow, workflow: workflow)
-          }
+    List(selection: $workflowSelections) {
+      ForEach(workflowsController.state, id: \.id) { workflow in
+        DeferView({
+          WorkflowListView(workflow: workflow)
+            .frame(minHeight: 48)
+            .contextMenu {
+              WorkflowListContextMenu(workflowsController: workflowsController, workflow: workflow)
+            }
+        })
+        .frame(minHeight: 48)
+        .tag(workflow.id)
       }
       .onMove(perform: { indices, newOffset in
         for i in indices {
-          store.context.workflow.perform(.move(workflows[i], to: newOffset))
+          workflowsController.perform(.move(workflowsController.state[i], to: newOffset))
         }
       })
     }
-    .navigationTitle(title)
-    .navigationSubtitle(subtitle)
     .onDrop($isDropping) { urls in
-      store.context.workflow.perform(.drop(urls, groupSelection, nil))
+      workflowsController.perform(.drop(urls, groupSelection, nil))
     }
     .onDeleteCommand(perform: {
-      if let workflow = store.selectedWorkflow {
-        store.context.workflow.perform(.delete(workflow))
-      }
+      workflowsController.perform(.deleteMultiple(workflowSelections))
     })
     .overlay(
       RoundedRectangle(cornerRadius: 8)
         .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
         .padding(4)
     )
-    .toolbar(content: {
-      WorkflowListToolbar(groupId: groupSelection, workflowController: store.context.workflow)
-    })
   }
 }
 
@@ -76,12 +63,8 @@ struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     let groups = ModelFactory().groupList()
     return WorkflowList(
-      store: .init(
-        groups: groups,
-        context: .preview()),
-      title: "",
-      subtitle: "",
-      workflows: groups.first?.workflows ?? [],
-      selection: .constant(groups.first?.id))
+      workflowController: WorkflowPreviewController().erase(),
+      workflowsController: WorkflowsPreviewController().erase(),
+      workflowSelections: .constant(Set<String>(arrayLiteral: groups.first!.id)))
   }
 }

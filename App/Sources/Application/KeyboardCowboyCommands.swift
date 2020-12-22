@@ -51,7 +51,7 @@ struct KeyboardCowboyCommands: Commands {
     CommandGroup(replacing: CommandGroupPlacement.newItem, addition: {
       Button("New Workflow") {
         if let group = selectedGroup {
-          store.context.workflow.perform(.create(groupId: group.id))
+          store.context.workflows.perform(.create(groupId: group.id))
         }
       }.keyboardShortcut("n", modifiers: [.command])
 

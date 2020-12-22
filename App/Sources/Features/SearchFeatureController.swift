@@ -9,6 +9,7 @@ final class SearchFeatureController: ViewController {
   @Published var state = ModelKit.SearchResults.empty()
   @AppStorage("groupSelection") var groupSelection: String?
   @AppStorage("workflowSelection") var workflowSelection: String?
+  @AppStorage("workflowSelections") var workflowSelections: String?
 
   let groupController: GroupsControlling
   let searchController: SearchRootController
@@ -38,11 +39,13 @@ final class SearchFeatureController: ViewController {
          let group = groupController.group(for: workflow) {
         groupSelection = group.id
         workflowSelection = workflow.id
+        workflowSelections = workflowSelection
       }
     case .selectWorkflow(let workflow):
       if let group = groupController.group(for: workflow) {
         groupSelection = group.id
         workflowSelection = workflow.id
+        workflowSelections = workflowSelection
       }
     }
   }

@@ -2,7 +2,7 @@ import SwiftUI
 import ModelKit
 
 struct GroupListToolbar: ToolbarContent {
-  let groupController: GroupController
+  let groupController: GroupsController
 
   var body: some ToolbarContent {
     ToolbarItemGroup(placement: .automatic) {

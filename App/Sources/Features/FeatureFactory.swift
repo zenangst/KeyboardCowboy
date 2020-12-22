@@ -12,6 +12,7 @@ class FeatureContext {
   let openPanel: OpenPanelController
   let search: SearchFeatureController
   let workflow: WorkflowFeatureController
+  let workflows: WorkflowsFeatureController
 
   init(applicationProvider: ApplicationsProvider,
        commandFeature: CommandsFeatureController,
@@ -20,7 +21,8 @@ class FeatureContext {
        keyboardFeature: KeyboardShortcutsFeatureController,
        openPanel: OpenPanelController,
        searchFeature: SearchFeatureController,
-       workflowFeature: WorkflowFeatureController) {
+       workflowFeature: WorkflowFeatureController,
+       workflowsFeature: WorkflowsFeatureController) {
     self.applicationProvider = applicationProvider
     self.commands = commandFeature
     self.groups = groupsFeature
@@ -28,17 +30,19 @@ class FeatureContext {
     self.openPanel = openPanel
     self.search = searchFeature
     self.workflow = workflowFeature
+    self.workflows = workflowsFeature
   }
 
   func viewKitContext(keyInputSubjectWrapper: KeyInputSubjectWrapper) -> ViewKitFeatureContext {
-    ViewKitFeatureContext.init(applicationProvider: applicationProvider.erase(),
-                               commands: commands.erase(),
-                               groups: groups.erase(),
-                               keyInputSubjectWrapper: keyInputSubjectWrapper,
-                               keyboardsShortcuts: keyboardsShortcuts.erase(),
-                               openPanel: openPanel.erase(),
-                               search: search.erase(),
-                               workflow: workflow.erase())
+    ViewKitFeatureContext(applicationProvider: applicationProvider.erase(),
+                          commands: commands.erase(),
+                          groups: groups.erase(),
+                          keyInputSubjectWrapper: keyInputSubjectWrapper,
+                          keyboardsShortcuts: keyboardsShortcuts.erase(),
+                          openPanel: openPanel.erase(),
+                          search: search.erase(),
+                          workflow: workflow.erase(),
+                          workflows: workflows.erase())
   }
 }
 
@@ -67,10 +71,13 @@ final class FeatureFactory {
     let keyboardController = keyboardShortcutFeature()
     let searchController = searchFeature()
     let workflowController = workflowFeature()
+    let workflowsController = workflowsFeature(
+      workflowController: workflowController.erase())
 
-    workflowController.delegate = groupFeatureController
-    keyboardController.delegate = workflowController
-    commandsController.delegate = workflowController
+    workflowsController.delegate = groupFeatureController
+    keyboardController.delegate = workflowsController
+    commandsController.delegate = workflowsController
+    workflowController.delegate = workflowsController
 
     return FeatureContext(applicationProvider: applicationProvider,
                           commandFeature: commandsController,
@@ -79,7 +86,8 @@ final class FeatureFactory {
                           keyboardFeature: keyboardController,
                           openPanel: openPanelController.erase(),
                           searchFeature: searchController,
-                          workflowFeature: workflowController)
+                          workflowFeature: workflowController,
+                          workflowsFeature: workflowsController)
   }
 
   func groupFeature() -> GroupsFeatureController {
@@ -90,7 +98,12 @@ final class FeatureFactory {
   }
 
   func workflowFeature() -> WorkflowFeatureController {
-    WorkflowFeatureController(applications: installedApplications)
+    WorkflowFeatureController()
+  }
+
+  func workflowsFeature(workflowController: WorkflowController) -> WorkflowsFeatureController {
+    WorkflowsFeatureController(applications: installedApplications,
+                               workflowController: workflowController)
   }
 
   func keyboardShortcutFeature() -> KeyboardShortcutsFeatureController {
