@@ -23,6 +23,9 @@ packages:
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
     revision: "891afd44c7075e699924ed9b81d8dc94a5111dfd"
+  Introspect:
+    url: https://github.com/siteline/SwiftUI-Introspect
+    from: 0.1.2
 targets:
   Keyboard-Cowboy:
     type: application
@@ -120,6 +123,7 @@ targets:
     dependencies:
       - target: BridgeKit
       - target: ModelKit
+      - package: Introspect
     sources:
       - ViewKit
       - Shared

@@ -4,7 +4,6 @@ import ModelKit
 struct WorkflowListView: View {
   let workflow: Workflow
   @State private var isHovering: Bool = false
-  @State private var selected: Bool = false
 
   var body: some View {
     VStack(alignment: .center, spacing: 0) {
@@ -19,7 +18,7 @@ struct WorkflowListView: View {
         Spacer()
         icon
       }.padding(.leading, 10)
-      Divider().opacity(selected ? 0 : 0.33)
+      Divider().opacity(0.33)
     }
   }
 }

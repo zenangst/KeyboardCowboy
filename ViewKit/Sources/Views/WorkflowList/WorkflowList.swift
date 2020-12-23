@@ -1,4 +1,5 @@
 import BridgeKit
+import Introspect
 import ModelKit
 import SwiftUI
 
@@ -23,14 +24,10 @@ public struct WorkflowList: View {
   public var body: some View {
     List(selection: $workflowSelections) {
       ForEach(workflowsController.state, id: \.id) { workflow in
-        DeferView({
-          WorkflowListView(workflow: workflow)
-            .frame(minHeight: 48)
-            .contextMenu {
-              WorkflowListContextMenu(workflowsController: workflowsController, workflow: workflow)
-            }
-        })
-        .frame(minHeight: 48)
+        WorkflowListView(workflow: workflow)
+          .contextMenu {
+            WorkflowListContextMenu(workflowsController: workflowsController, workflow: workflow)
+          }
         .tag(workflow.id)
       }
       .onMove(perform: { indices, newOffset in
@@ -38,6 +35,9 @@ public struct WorkflowList: View {
           workflowsController.perform(.move(workflowsController.state[i], to: newOffset))
         }
       })
+    }
+    .introspectTableView { tableView in
+      tableView.rowHeight = 56
     }
     .onDrop($isDropping) { urls in
       workflowsController.perform(.drop(urls, groupSelection, nil))
