@@ -40,12 +40,12 @@ public struct MainView: View {
             workflowSelection = newValue.first
           })
       )
-        .frame(minWidth: 250, idealWidth: 250)
-        .navigationTitle("\(store.selectedGroup?.name ?? "")")
-        .navigationSubtitle("Workflows")
-        .toolbar(content: {
-          WorkflowListToolbar(groupId: groupSelection, workflowsController: store.context.workflows)
-        })
+      .frame(minWidth: 250, idealWidth: 250)
+      .navigationTitle("\(store.selectedGroup?.name ?? "")")
+      .navigationSubtitle("Workflows")
+      .toolbar(content: {
+        WorkflowListToolbar(groupId: groupSelection, workflowsController: store.context.workflows)
+      })
 
       DetailView(context: store.context, workflowController: store.context.workflow)
     }

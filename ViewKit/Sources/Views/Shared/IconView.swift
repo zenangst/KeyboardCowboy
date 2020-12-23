@@ -7,7 +7,9 @@ struct IconView: View {
   var body: some View {
     ZStack {
       iconLoader.image
-    }.onAppear { iconLoader.load(path) }
+    }
+    .onAppear { iconLoader.load(path) }
+    .onDisappear { iconLoader.cancel() }
   }
 }
 
