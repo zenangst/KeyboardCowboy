@@ -57,10 +57,12 @@ class CommandsFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
+    let workflowsFeature = factory.workflowsFeature(workflowController: workflowFeature.erase())
     let commandsFeature = factory.commandsFeature(commandController: commandController)
 
-    workflowFeature.delegate = groupsFeature
-    commandsFeature.delegate = workflowFeature
+    workflowFeature.delegate = workflowsFeature
+    workflowsFeature.delegate = groupsFeature
+    commandsFeature.delegate = workflowsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
@@ -137,10 +139,12 @@ class CommandsFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
+    let workflowsFeature = factory.workflowsFeature(workflowController: workflowFeature.erase())
     let commandsFeature = factory.commandsFeature(commandController: commandController)
 
-    workflowFeature.delegate = groupsFeature
-    commandsFeature.delegate = workflowFeature
+    workflowFeature.delegate = workflowsFeature
+    workflowsFeature.delegate = groupsFeature
+    commandsFeature.delegate = workflowsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
@@ -206,10 +210,12 @@ class CommandsFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
+    let workflowsFeature = factory.workflowsFeature(workflowController: workflowFeature.erase())
     let commandsFeature = factory.commandsFeature(commandController: commandController)
 
-    workflowFeature.delegate = groupsFeature
-    commandsFeature.delegate = workflowFeature
+    workflowFeature.delegate = workflowsFeature
+    workflowsFeature.delegate = groupsFeature
+    commandsFeature.delegate = workflowsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap { $0.workflows }.count, 1)
@@ -277,10 +283,12 @@ class CommandsFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
-    let commandsFeature = factory.commandsFeature(commandController: coreController.commandController)
+    let workflowsFeature = factory.workflowsFeature(workflowController: workflowFeature.erase())
+    let commandsFeature = factory.commandsFeature(commandController: commandController)
 
-    workflowFeature.delegate = groupsFeature
-    commandsFeature.delegate = workflowFeature
+    workflowFeature.delegate = workflowsFeature
+    workflowsFeature.delegate = groupsFeature
+    commandsFeature.delegate = workflowsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap { $0.workflows }.count, 1)

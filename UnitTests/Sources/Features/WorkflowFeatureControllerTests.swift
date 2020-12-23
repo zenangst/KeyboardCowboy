@@ -38,12 +38,13 @@ class WorkflowFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
+    let workflowsFeature = factory.workflowsFeature(workflowController: workflowFeature.erase())
 
-    workflowFeature.delegate = groupsFeature
+    workflowsFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
 
-    workflowFeature.perform(.create(groupId: group.id))
+    workflowsFeature.perform(.create(groupId: group.id))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -88,13 +89,14 @@ class WorkflowFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
+    let workflowsFeature = factory.workflowsFeature(workflowController: workflowFeature.erase())
 
-    workflowFeature.delegate = groupsFeature
+    workflowsFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    workflowFeature.perform(.update(updatedWorkflow))
+    workflowsFeature.perform(.update(updatedWorkflow))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -135,13 +137,14 @@ class WorkflowFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
+    let workflowsFeature = factory.workflowsFeature(workflowController: workflowFeature.erase())
 
-    workflowFeature.delegate = groupsFeature
+    workflowsFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    workflowFeature.perform(.delete(workflow))
+    workflowsFeature.perform(.delete(workflow))
 
     wait(for: [expectation], timeout: 10.0)
   }
@@ -188,13 +191,14 @@ class WorkflowFeatureControllerTests: XCTestCase {
     let factory = FeatureFactory(coreController: coreController)
     let groupsFeature = factory.groupFeature()
     let workflowFeature = factory.workflowFeature()
+    let workflowsFeature = factory.workflowsFeature(workflowController: workflowFeature.erase())
 
-    workflowFeature.delegate = groupsFeature
+    workflowsFeature.delegate = groupsFeature
 
     XCTAssertEqual(groupsController.groups.count, 1)
     XCTAssertEqual(groupsController.groups.flatMap({ $0.workflows }).count, 1)
 
-    workflowFeature.perform(.duplicate(workflow, groupId: group.id))
+    workflowsFeature.perform(.duplicate(workflow, groupId: group.id))
 
     wait(for: [expectation], timeout: 10.0)
   }

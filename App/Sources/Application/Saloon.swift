@@ -68,6 +68,9 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       }
 
       let installedApplications = Self.loadApplications()
+
+      
+
       var groups = try storageController.load()
       groups = pathFinderController.patch(groups, applications: installedApplications)
       let groupsController = Self.factory.groupsController(groups: groups)

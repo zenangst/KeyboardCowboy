@@ -23,6 +23,7 @@ class CoreControllerTests: XCTestCase {
       .disabled,
       commandController: commandController,
       groupsController: groupsController,
+      installedApplications: [],
       workflowController: workflowController,
       workspace: workspace)
 
@@ -57,6 +58,7 @@ class CoreControllerTests: XCTestCase {
       .disabled,
       commandController: commandController,
       groupsController: groupsController,
+      installedApplications: [],
       workflowController: workflowController,
       workspace: workspace)
 
