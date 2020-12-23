@@ -69,8 +69,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
       let installedApplications = Self.loadApplications()
 
-      
-
       var groups = try storageController.load()
       groups = pathFinderController.patch(groups, applications: installedApplications)
       let groupsController = Self.factory.groupsController(groups: groups)
@@ -131,8 +129,39 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
   // MARK: Private methods
 
+  static func applicationDirectories() -> [URL] {
+    var urls = [URL]()
+    if let userDirectory = try? FileManager.default.url(for: .applicationDirectory,
+                                                    in: .userDomainMask,
+                                                    appropriateFor: nil,
+                                                    create: false) {
+      urls.append(userDirectory)
+    }
+    if let applicationDirectory = try? FileManager.default.url(for: .allApplicationsDirectory,
+                                                           in: .localDomainMask,
+                                                           appropriateFor: nil,
+                                                           create: false) {
+      urls.append(applicationDirectory)
+    }
+    let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+    let coreServicesDirectory = URL(fileURLWithPath: "/System/Library/CoreServices")
+    let applicationDirectoryD = URL(fileURLWithPath: "/Developer/Applications")
+    let applicationDirectoryN = URL(fileURLWithPath: "/Network/Applications")
+    let applicationDirectoryND = URL(fileURLWithPath: "/Network/Developer/Applications")
+    let applicationDirectoryS = URL(fileURLWithPath: "/Users/Shared/Applications")
+    let systemApplicationsDirectory = URL(fileURLWithPath: "/System/Applications")
+
+    urls.append(contentsOf: [homeDirectory, coreServicesDirectory,
+                applicationDirectoryD, applicationDirectoryN,
+                applicationDirectoryND, applicationDirectoryS,
+                systemApplicationsDirectory])
+
+    return urls
+  }
+
   private static func loadApplications() -> [Application] {
-    let fileIndexer = FileIndexController(baseUrl: URL(fileURLWithPath: "/"))
+    let urls: [URL] = applicationDirectories()
+    let fileIndexer = FileIndexController(urls: urls)
     var patterns = FileIndexPatternsFactory.patterns()
     patterns.append(contentsOf: FileIndexPatternsFactory.pathExtensions())
     patterns.append(contentsOf: FileIndexPatternsFactory.lastPathComponents())
