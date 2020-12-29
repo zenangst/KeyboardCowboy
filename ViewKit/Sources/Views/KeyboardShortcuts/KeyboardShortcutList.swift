@@ -107,7 +107,7 @@ extension KeyboardShortcutList {
       title: keyboardShortcut.modifersDisplayValue,
       subtitle: keyboardShortcut.key
     )
-      .frame(minWidth: 32)
+    .frame(minWidth: 32)
     .padding(2)
     .foregroundColor(
       Color(selection == keyboardShortcut
