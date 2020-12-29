@@ -18,6 +18,8 @@ class CoreControllerMock: CoreControlling, GroupsControllingDelegate {
   var installedApplications = [Application]()
   var handler: StateHandler
   var workflows: [Workflow] = []
+  @Published public var currentKeyboardSequence = [KeyboardShortcut]()
+  public var publisher: Published<[KeyboardShortcut]>.Publisher { $currentKeyboardSequence }
 
   init(commandController: CommandControlling,
        groupsController: GroupsControlling,

@@ -42,7 +42,10 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private static let factory = ControllerFactory()
 
   private let storageController: StorageControlling
+  private let hudFeatureController = HUDFeatureController()
 
+  private var windowController: NSWindowController?
+  private var window: NSWindow?
   private var featureContext: FeatureContext?
   private var coreController: CoreControlling?
   private var settingsController: SettingsController?
@@ -107,6 +110,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     loaded = true
 
     SUUpdater.shared()?.checkForUpdatesInBackground()
+    createFloatingWindow()
   }
 
   func receive(_ scenePhase: ScenePhase) {
@@ -126,8 +130,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       assertionFailure("Unknown scene phase: \(scenePhase)")
     }
   }
-
-  // MARK: Private methods
 
   static func applicationDirectories() -> [URL] {
     var urls = [URL]()
@@ -157,6 +159,28 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
                 systemApplicationsDirectory])
 
     return urls
+  }
+
+  // MARK: Private methods
+
+  private func createFloatingWindow() {
+    let window = FloatingWindow(contentRect: .init(origin: .zero, size: CGSize(width: 300, height: 200)))
+    let windowController = NSWindowController(window: window)
+    var hudStack = HUDStack(hudProvider: hudFeatureController.erase())
+    hudStack.window = window
+    windowController.contentViewController = NSHostingController(rootView: hudStack)
+    windowController.window = window
+
+    coreController?.publisher.sink(receiveValue: { newValue in
+      self.hudFeatureController.state = newValue
+    }).store(in: &subscriptions)
+
+    windowController.showWindow(nil)
+
+    window.setFrameOrigin(.zero)
+
+    self.window = window
+    self.windowController = windowController
   }
 
   private static func loadApplications() -> [Application] {

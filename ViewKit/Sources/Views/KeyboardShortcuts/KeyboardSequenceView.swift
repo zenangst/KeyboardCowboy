@@ -1,16 +1,16 @@
 import SwiftUI
 import ModelKit
 
-struct KeyboardSequenceItem: View {
+public struct KeyboardSequenceItem: View {
   let title: String
   let subtitle: String
 
-  var body: some View {
+  public var body: some View {
     HStack(spacing: 0) {
       Text("\(title)")
       Text("\(subtitle)")
     }
-    .padding(1)
+    .font(.system(size: 12, design: .monospaced))
     .padding(.horizontal, 4)
   }
 }
