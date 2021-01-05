@@ -25,7 +25,7 @@ public struct MainView: View {
         .toolbar(content: { GroupListToolbar(groupController: groupController) })
 
       WorkflowList(
-        workflowController: store.context.workflow,
+        store: store,
         workflowsController: store.context.workflows,
         workflowSelections: Binding<Set<String>>(
           get: {

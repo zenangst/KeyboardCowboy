@@ -2,12 +2,21 @@ import SwiftUI
 import ModelKit
 
 struct WorkflowListContextMenu: View {
-  let workflowsController: WorkflowsController
+  let store: ViewKitStore
   let workflow: Workflow
+  @Binding var selections: Set<String>
   @AppStorage("groupSelection") var groupSelection: String?
 
   var body: some View {
-    Button("Duplicate", action: { workflowsController.perform(.duplicate(workflow, groupId: groupSelection)) })
-    Button("Delete", action: { workflowsController.perform(.delete(workflow)) })
+    Menu("Move To Group", content: {
+      ForEach(store.groups.filter({ $0.id != groupSelection })) { group in
+        Button(group.name, action: {
+          store.context.workflows.perform(.transfer(selections, to: group))
+        })
+      }
+    })
+    Divider()
+    Button("Duplicate", action: { store.context.workflows.perform(.duplicate(workflow, groupId: groupSelection)) })
+    Button("Delete", action: { store.context.workflows.perform(.delete(workflow)) })
   }
 }

@@ -13,6 +13,12 @@ open class ViewKitStore: ObservableObject {
     self.groups = groups
     self.context = context
   }
+
+  public static func preview() -> ViewKitStore {
+    let groups = ModelFactory().groupList()
+    let context = ViewKitFeatureContext.preview()
+    return ViewKitStore(groups: groups, context: context)
+  }
 }
 
 public class ViewKitFeatureContext {

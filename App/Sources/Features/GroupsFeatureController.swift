@@ -181,4 +181,27 @@ final class GroupsFeatureController: ActionController,
     try groups.replace(group)
     reload(groups)
   }
+
+  func workflowsFeatureController(_ controller: WorkflowsFeatureController, didTransferWorkflowIds workflowIds: Set<String>, toGroup group: ModelKit.Group) throws {
+    var newGroup = group
+    guard let groupId = groupSelection,
+      var currentGroup = groupsController.groups.first(where: { $0.id == groupId }) else {
+      return
+    }
+
+    var groups = self.groupsController.groups
+
+    for id in workflowIds {
+      guard let workflow = currentGroup.workflows.first(where: { $0.id == id }) else {
+        continue
+      }
+      try currentGroup.workflows.remove(workflow)
+      newGroup.workflows.add(workflow)
+
+      try groups.replace(currentGroup)
+      try groups.replace(newGroup)
+    }
+
+    reload(groups)
+  }
 }

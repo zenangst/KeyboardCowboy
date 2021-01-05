@@ -12,11 +12,12 @@ public struct WorkflowList: View {
     case delete(Workflow)
     case deleteMultiple(Set<String>)
     case move(Workflow, to: Int)
+    case transfer(Set<String>, to: ModelKit.Group)
     case drop([URL], String?, Workflow?)
   }
 
   @AppStorage("groupSelection") var groupSelection: String?
-  let workflowController: WorkflowController
+  let store: ViewKitStore
   @ObservedObject var workflowsController: WorkflowsController
   @Binding var workflowSelections: Set<String>
   @State var isDropping: Bool = false
@@ -26,7 +27,8 @@ public struct WorkflowList: View {
       ForEach(workflowsController.state, id: \.id) { workflow in
         WorkflowListView(workflow: workflow)
           .contextMenu {
-            WorkflowListContextMenu(workflowsController: workflowsController, workflow: workflow)
+            WorkflowListContextMenu(store: store, workflow: workflow,
+                                    selections: $workflowSelections)
           }
         .tag(workflow.id)
       }
@@ -63,7 +65,7 @@ struct WorkflowList_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     let groups = ModelFactory().groupList()
     return WorkflowList(
-      workflowController: WorkflowPreviewController().erase(),
+      store: ViewKitStore.preview(),
       workflowsController: WorkflowsPreviewController().erase(),
       workflowSelections: .constant(Set<String>(arrayLiteral: groups.first!.id)))
   }
