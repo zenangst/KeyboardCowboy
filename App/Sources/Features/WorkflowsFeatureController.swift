@@ -19,6 +19,9 @@ protocol WorkflowsFeatureControllerDelegate: AnyObject {
   func workflowsFeatureController(_ controller: WorkflowsFeatureController,
                                   didDropWorkflow workflow: Workflow,
                                   groupId: String) throws
+  func workflowsFeatureController(_ controller: WorkflowsFeatureController,
+                                  didTransferWorkflowIds workflowIds: Set<String>,
+                                  toGroup group: ModelKit.Group) throws
 }
 
 final class WorkflowsFeatureController: ViewController,
@@ -58,6 +61,8 @@ final class WorkflowsFeatureController: ViewController,
       move(workflow, to: to)
     case .drop(let urls, let groupId, let workflow):
       drop(urls, groupId: groupId, workflow: workflow)
+    case .transfer(let workflowIds, let group):
+      transferWorkflows(workflowIds, to: group)
     }
   }
 
@@ -139,6 +144,10 @@ final class WorkflowsFeatureController: ViewController,
       }
     }
     return commands
+  }
+
+  private func transferWorkflows(_ ids: Set<String>, to group: ModelKit.Group) {
+    try? delegate?.workflowsFeatureController(self, didTransferWorkflowIds: ids, toGroup: group)
   }
 
   // MARK: WorkflowFeatureControllerDelegate
