@@ -17,6 +17,10 @@ public extension View {
     })
   }
 
+  func whenRedacted<T: View>(apply modifier: @escaping (Self) -> T) -> some View {
+    RedactingView(content: self, modifier: modifier)
+  }
+
   func onDrop(_ isTargeted: Binding<Bool>?, _ handler: @escaping ([URL]) -> Void) -> some View {
     onDrop(
       of: [.fileURL, .application, .text, .utf8PlainText],

@@ -53,6 +53,7 @@ private extension GroupListView {
     ZStack {
     Circle()
       .fill(Color(hex: config.hexColor))
+      .clipped(antialiased: true)
       .frame(width: 24, height: 24, alignment: .center)
       .overlay(overlay)
       .shadow(radius: 2)
