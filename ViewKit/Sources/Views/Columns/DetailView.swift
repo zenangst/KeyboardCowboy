@@ -50,7 +50,7 @@ public struct DetailView: View {
           HeaderView(title: "Keyboard shortcuts:").padding([.top])
           KeyboardShortcutList(workflow: workflow,
                                performAction: context.keyboardsShortcuts.perform(_:))
-            .cornerRadius(8)
+            .cornerRadius(4)
         }.padding()
       }
       .padding([.leading, .trailing, .bottom], 8)
