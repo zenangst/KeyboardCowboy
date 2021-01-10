@@ -1,3 +1,4 @@
+import Cocoa
 import ModelKit
 
 extension Command {
@@ -9,8 +10,20 @@ extension Command {
       return "/System/Applications/Utilities/Script Editor.app"
     case .keyboard:
       return "/System/Library/PreferencePanes/Keyboard.prefPane"
-    case .open:
-      return "/System/Library/CoreServices/Finder.app"
+    case .open(let openCommand):
+      if openCommand.isUrl {
+        if let applicationPath = openCommand.application?.path {
+          return applicationPath
+        } else if let url = URL(string: openCommand.path),
+           let applicationUrl = NSWorkspace.shared.urlForApplication(toOpen: url),
+           let applicationPath = (applicationUrl as NSURL).path {
+          return applicationPath
+        } else {
+          return "/Applications/Safari.app"
+        }
+      } else {
+        return openCommand.path
+      }
     }
   }
 }
