@@ -1,9 +1,13 @@
 <html>
   <head>
     <title>Keyboard Cowboy</title>
-    <link rel="stylesheet" href="main.css">
-      <meta charset="utf-8"/>
-      </head>
+    <link rel="stylesheet" href="variables.css">
+    <link rel="stylesheet" href="identifiers.css">
+    <link rel="stylesheet" href="classes.css">
+    <link rel="stylesheet" href="body.css">
+    <link rel="stylesheet" href="elements.css">
+    <meta charset="utf-8"/>
+  </head>
   <body>
     <div class="centered" id="menu">
       <a href="#home">Home</a>
@@ -13,20 +17,57 @@
       <a href="#download">Download</a>
     </div>
     
-    <div id="header" class="centered">
-      <img src="../App/Resources/Assets.xcassets/ApplicationIcon.imageset/icon_256x256.png"/>
-      <h1>Keyboard Cowboy</h1>
-      <h2>The missing keyboard shortcut utility for macOS Big Sur</h2>
-      <section>
-        <p>Elevate your macOS experience by creating workflows that are only a keystroke away.</p>
+<!--    <div id="header">-->
+<!--      <section class="centered">-->
+<!--        <div class="zstack">-->
+<!--        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testAppScreenshot.macOS11-1-Dark.png"/>-->
+<!---->
+<!--        <div id="quick-links-container">-->
+<!--          <h1>Keyboard Cowboy</h1>-->
+<!--          <div class="quick-links">-->
+<!--            <a href="#" class="filled">Download v1.0.0</a>-->
+<!--            <a href="#" class="outlined">Release notes</a>-->
+<!--          </div>-->
+<!--        </div>-->
+<!---->
+<!--        <img src="../App/Resources/Assets.xcassets/ApplicationIcon.imageset/icon_256x256.png"/>-->
+<!--        </div>-->
+<!---->
+<!---->
+<!--      </section>-->
+<!--    </div>-->
+
+    <div>
+      <section class="hstack">
+        <div style="min-width: 450px">
+          <img src="../App/Resources/Assets.xcassets/ApplicationIcon.imageset/icon_256x256.png"/>
+          <h1>Keyboard Cowboy</h1>
+          <h3>
+            The missing keyboard shortcut utility
+          </h3>
+<!--          <p>-->
+<!--            Elevate your macOS Big Sur experience by creating workflows that are only a keystroke away.-->
+<!--          </p>-->
+<!--          <div id="tag" class="hstack">-->
+<!--            <p class="tagline">Composable</p>-->
+<!--            <p class="tagline">Open</p>-->
+<!--            <p class="tagline">Responsive</p>-->
+<!--            <p class="tagline">Easy</p>-->
+<!--            <p class="tagline">Secure</p>-->
+<!--          </div>-->
+
+          <div class="quick-links">
+            <a href="#" class="filled">Download v1.0.0</a>
+            <a href="#" class="outlined">Release notes</a>
+          </div>
+        </div>
+        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testAppScreenshot.macOS11-1-Dark.png" class="utility-image right-aligned"/>
       </section>
-      <div class="quick-links">
-        <a href="#" class="filled">Download</a>
-        <a href="#" class="outlined">Release notes</a>
-      </div>
     </div>
-    <div id="groups" class="content-gradient">
-      <section class="content">
+
+    <div class="alternate-background">
+      <section class="hstack">
+        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testGroupScreenshot.macOS11-1-Dark.png" class="left-aligned"/>
         <div>
           <h2>Groups</h2>
           <h3>Group your workflows to make them contextual.</h3>
@@ -45,47 +86,77 @@
       </section>
     </div>
     
-    <div id="workflows">
-      <section class="content">
+    <div>
+      <section class="hstack">
         <div>
           <h2>Workflows</h2>
           <h3>Have one keystroke fire of your workflow.</h3>
           <p>
-          A workflow is a composition of a collection of keyboard shortcuts that correspond to one or many commands that will run in sequence. You can create workflows that contain a target action, like switching or opening applications. Or run entire workflows like opening all your work-related applications as soon as you arrive at work. Perhaps you are switching between design time and development time, then two separate workflows for jumping between contexts might suite you.
+          A workflow is a composition of a collection of keyboard shortcuts that correspond to one or many commands that will run in sequence.
+          </p>
+
+
+
+          <p>You can create workflows that contain a target action, like switching or opening applications. Or run entire workflows like opening all your work-related applications as soon as you arrive at work.</p>
+
+          <p>Perhaps you are switching between design time and development time, then two separate workflows for jumping between contexts might suite you.
           </p>
         </div>
+        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testWorkflowScreenshot.macOS11-1-Dark.png" class="right-aligned"/>
       </section>
     </div>
-    <div id="keyboard_shortcuts">
-      <section class="content">
+
+    <div class="alternate-background">
+      <section class="hstack">
+        <div>
+          <div class="hstack key">
+            <div>⌃⌘A</div>
+            <div>F</div>
+            <div>=</div>
+            <div>Finder</div>
+          </div>
+
+          <div class="hstack key">
+            <div>⌃⌘A</div>
+            <div>S</div>
+            <div>=</div>
+            <div>Safari</div>
+          </div>
+
+          <div class="hstack key">
+            <div>⌃⌘A</div>
+            <div>W</div>
+            <div>=</div>
+            <div>Run Workflow</div>
+          </div>
+        </div>
         <div>
           <h2>Keyboard Shortcuts</h2>
           <h3>One keystroke or emacs bindings, it is all up to you.</h3>
           <p>
-          A workflow can be triggered by one or a sequence of shortcuts. It could either be a single key or a key with one or more modifiers. But we didn't stop there, you can also combine multiple sequences of keyboard shortcuts to use cluster your shortcuts under one leading key.
+          A workflow can be triggered by one or a sequence of shortcuts. It could either be a single key or a key with one or more modifiers. </p>
+
+          <p>
+          But we didn't stop there, you can also combine multiple sequences of keyboard shortcuts to use cluster your shortcuts under one leading key.
           </p>
         </div>
       </section>
     </div>
     
-    <div id="commands">
-      <section class="content">
+    <div>
+      <section class="hstack">
         <div>
-          <h2 class="foreground-green">Commands</h2>
+          <h2>Commands</h2>
           <p>
           Think about commands as plain instruction that macOS should carry out. It can be opening or activating an application, open a file, folder or web page. Or if you want to do something more advanced, you can do this by running Apple- or Shellscripts. 
            The real power lies inside combining commands together and making them contextual. Context is added on the group level so that you can keep your context tidy and on point.
-
           </p>
-        </div>
-        <div class="tagline green-gradient foreground-white">
-          One keystroke or emacs bindings, it is all up to you.
         </div>
       </section>
     </div>
 
     <div id="technical">
-      <section class="content">
+      <section>
         <h2 class="foreground-red">Core Foundation</h2>
         <p>
         We didn’t want to hold back when packing the applications with incredible power, but like Uncle Ben so wisely said; “With great power comes great responsibility”. This led us to decide very early on that we needed a unique development process when building an application that monitors key strokes.

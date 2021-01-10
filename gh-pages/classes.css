@@ -1,0 +1,78 @@
+.foreground-white   { color: #fff; }
+.foreground-blue   { color: var(--blue-color); }
+.foreground-purple { color: var(--purple-color); }
+.foreground-pink   { color: var(--pink-color); }
+.foreground-red   { color: var(--red-color); }
+.foreground-orange   { color: var(--orange-color); }
+.foreground-yellow   { color: var(--yellow-color); }
+.foreground-green   { color: var(--green-color); }
+.foreground-gray   { color: var(--gray-color); }
+
+.background-blue   { background-color: var(--blue-color); }
+.background-purple { background-color: var(--purple-color); }
+.background-pink   { background-color: var(--pink-color); }
+.background-red   { background-color: var(--red-color); }
+.background-orange   { background-color: var(--orange-color); }
+.background-yellow   { background-color: var(--yellow-color); }
+.background-green   { background-color: var(--green-color); }
+.background-gray   { background-color: var(--gray-color); }
+
+.secondary-foreground-color {
+  color: var(--secondary-color);
+}
+
+.centered {
+  text-align: center;
+}
+
+.alternate-background {
+  background-color: var(--content-background-color)
+}
+
+.zstack {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+
+.hstack {
+  display: flex;
+  align-items: center;
+}
+
+.tag {
+
+}
+
+.key {
+  display: inline-block;
+}
+
+.key > * {
+  display: block;
+  float: left;
+  font-family: var(--monospace-font);
+  padding: 4px 8px 4px 8px !important;
+  margin: 4px;
+  border-radius: 4px;
+  border: 1px solid var(--gray-color);
+}
+
+.tagline {
+  padding: 8px;
+  margin: 6px;
+  font-size: 18px;
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1),
+              0 8px 16px 0 rgba(0, 0, 0, 0.15);
+}
+
+.utility-image {
+  max-width: 560px !important;
+}
+
+.monospaced {
+  font-family: var(--monospace-font);
+}
