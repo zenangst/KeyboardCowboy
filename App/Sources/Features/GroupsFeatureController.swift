@@ -44,6 +44,11 @@ final class GroupsFeatureController: ActionController,
 
   // MARK: Private methods
 
+  private func setSelectionToWorkflow(_ workflow: Workflow) {
+    workflowSelection = workflow.id
+    workflowSelections = workflowSelection
+  }
+
   private func reload(_ groups: [ModelKit.Group]) {
     groupsController.reloadGroups(groups)
     subject.send(groups)
@@ -130,8 +135,8 @@ final class GroupsFeatureController: ActionController,
     group.workflows.add(workflow)
     try groups.replace(group)
     reload(groups)
-    workflowSelection = group.workflows.last?.id
-    workflowSelections = workflowSelection
+    controller.workflowController.perform(.set(workflow: workflow))
+    setSelectionToWorkflow(workflow)
   }
 
   func workflowsFeatureController(_ controller: WorkflowsFeatureController,
@@ -149,6 +154,13 @@ final class GroupsFeatureController: ActionController,
                                   didDeleteWorkflow workflow: Workflow) throws {
     var group = try findGroup(for: workflow)
     var groups = self.groupsController.groups
+    var newOffset: Int = 0
+
+    if let index = group.workflows.firstIndex(of: workflow),
+       group.workflows.count > 1 {
+      newOffset = max(index - 1, 0)
+    }
+
     try group.workflows.remove(workflow)
     try groups.replace(group)
     reload(groups)
@@ -157,6 +169,12 @@ final class GroupsFeatureController: ActionController,
        let index = array.firstIndex(of: workflow.id) {
       array.remove(at: index)
       self.workflowSelections = array.joined(separator: ",")
+    }
+
+    if !group.workflows.isEmpty {
+      let workflow = group.workflows[newOffset]
+      controller.workflowController.perform(.set(workflow: workflow))
+      setSelectionToWorkflow(workflow)
     }
   }
 
@@ -180,9 +198,14 @@ final class GroupsFeatureController: ActionController,
     group.workflows.add(workflow)
     try groups.replace(group)
     reload(groups)
+
+    controller.workflowController.perform(.set(workflow: workflow))
+    setSelectionToWorkflow(workflow)
   }
 
-  func workflowsFeatureController(_ controller: WorkflowsFeatureController, didTransferWorkflowIds workflowIds: Set<String>, toGroup group: ModelKit.Group) throws {
+  func workflowsFeatureController(_ controller: WorkflowsFeatureController,
+                                  didTransferWorkflowIds workflowIds: Set<String>,
+                                  toGroup group: ModelKit.Group) throws {
     var newGroup = group
     guard let groupId = groupSelection,
       var currentGroup = groupsController.groups.first(where: { $0.id == groupId }) else {
