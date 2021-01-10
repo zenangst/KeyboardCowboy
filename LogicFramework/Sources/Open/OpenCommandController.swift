@@ -34,14 +34,13 @@ final class OpenCommandController: OpenCommandControlling {
       let targetUrl: URL
 
       if let url = URL(string: path) {
-        if url.isFileURL {
+        if url.scheme == nil || url.isFileURL {
           targetUrl = URL(fileURLWithPath: path)
         } else {
           targetUrl = url
         }
       } else {
-        promise(.failure(OpenCommandControllingError.failedToOpenUrl))
-        return
+        targetUrl = URL(fileURLWithPath: path)
       }
 
       let config = NSWorkspace.OpenConfiguration()

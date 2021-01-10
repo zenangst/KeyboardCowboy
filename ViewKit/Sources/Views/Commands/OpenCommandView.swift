@@ -5,14 +5,13 @@ struct OpenCommandView: View {
   let command: Command
   let editAction: (Command) -> Void
   let revealAction: (Command) -> Void
+  let runAction: (Command) -> Void
   let showContextualMenu: Bool
 
   var body: some View {
     HStack {
       ZStack {
-        if case .open(let openCommand) = command {
-          IconView(path: openCommand.application?.path ?? "")
-        }
+        IconView(path: command.icon)
       }.frame(width: 32, height: 32)
       VStack(alignment: .leading, spacing: 0) {
         Text(command.name).lineLimit(1)
@@ -20,14 +19,21 @@ struct OpenCommandView: View {
           HStack(spacing: 4) {
             Button(action: { editAction(command)}, label: {
               Text("Edit")
-            }).foregroundColor(Color(.controlAccentColor))
+            })
 
             Text("|").foregroundColor(Color(.secondaryLabelColor))
 
             Button(action: { revealAction(command)}, label: {
               Text("Reveal")
-            }).foregroundColor(Color(.controlAccentColor))
+            })
+
+            Text("|").foregroundColor(Color(.secondaryLabelColor))
+
+            Button(action: { runAction(command) }, label: {
+              Text("Run")
+            })
           }
+          .foregroundColor(Color(.controlAccentColor))
           .buttonStyle(LinkButtonStyle())
           .font(Font.caption)
         }
@@ -46,6 +52,7 @@ struct OpenCommandView_Previews: PreviewProvider, TestPreviewProvider {
       command: Command.open(OpenCommand.empty()),
       editAction: { _ in },
       revealAction: { _ in },
+      runAction: { _ in },
       showContextualMenu: true)
   }
 }

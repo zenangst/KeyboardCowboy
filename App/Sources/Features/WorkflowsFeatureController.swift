@@ -112,6 +112,11 @@ final class WorkflowsFeatureController: ViewController,
       targetWorkflow = existingWorkflow
     } else {
       var newWorkflow: Workflow = Workflow.empty()
+
+      if commands.count == 1, let firstCommand = commands.first {
+        newWorkflow.name = firstCommand.name
+      }
+
       newWorkflow.commands.append(contentsOf: commands)
       targetWorkflow = newWorkflow
     }

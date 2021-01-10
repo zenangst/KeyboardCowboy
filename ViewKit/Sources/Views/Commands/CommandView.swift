@@ -28,7 +28,7 @@ struct CommandView: View {
       }
     case .open:
       OpenCommandView(command: command, editAction: editAction,
-                      revealAction: revealAction,
+                      revealAction: revealAction, runAction: runAction,
                       showContextualMenu: showContextualMenu)
     case .keyboard:
       KeyboardCommandView(command: command,
