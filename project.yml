@@ -212,3 +212,5 @@ fileGroups:
   - project.yml
   - Scripts
   - UnitTests/Sources/Views/__Snapshots__
+  - gh-pages
+  - ApplicationDefinition.md

@@ -10,14 +10,16 @@ extension XCTestCase {
     size: CGSize,
     file: StaticString = #file,
     testName: String = #function,
-    line: UInt = #line
+    line: UInt = #line,
+    redacted: Bool = false
   ) {
     assertScreenshot(
       provider.testPreview,
       size: size,
       file: file,
       testName: testName,
-      line: line
+      line: line,
+      redacted: redacted
     )
   }
 
@@ -26,7 +28,8 @@ extension XCTestCase {
     size: CGSize,
     file: StaticString = #file,
     testName: String = #function,
-    line: UInt = #line
+    line: UInt = #line,
+    redacted: Bool = false
   ) {
     let info = ProcessInfo.processInfo
     let version = "\(info.operatingSystemVersion.majorVersion).\(info.operatingSystemVersion.minorVersion)"
@@ -36,7 +39,6 @@ extension XCTestCase {
         .previewLayout(.sizeThatFits)
         .background(Color(.windowBackgroundColor))
         .colorScheme(scheme)
-//        .environment(\.sizeCategory, .accessibilityLarge)
         .redacted(reason: .placeholder)
 
       let window = SnapshotWindow(view, size: size)
