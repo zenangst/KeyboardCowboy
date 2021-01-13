@@ -15,17 +15,17 @@ h1,h2,h3,h4,h5 {
 
 h1 {
   font-size: 56px;
-  letter-spacing: 0px;
+  letter-spacing: -0.5px;
   line-height: 60px;
-  font-weight: 300;
+  font-weight: 500;
 }
 
 h2 {
   margin-bottom: 16px;
-  font-size: 56px;
+  font-size: 50px;
   letter-spacing: 0px;
   line-height: 60px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 h3 {

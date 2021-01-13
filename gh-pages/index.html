@@ -7,12 +7,16 @@
     <link rel="stylesheet" href="body.css">
     <link rel="stylesheet" href="elements.css">
     <meta charset="utf-8"/>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Keyboard Cowboy" />
+    <meta property="og:url" content="#" />
+    <meta property="og:image" content="../Screenshots/Sources/__Snapshots__/Screenshots/testAppScreenshot.macOS11-1-Dark.png" />
+    <meta property="og:description" content="The missing keyboard shortcut utility" />
   </head>
   <body>
     <div class="centered" id="menu">
-      <a href="#home">Home</a>
-      <a href="#overview">Overview</a>
-      <a href="#core-foundation">Core Foundation</a>
+      <a href="#header">Home</a>
+      <a href="#technical">Core Foundation</a>
       <a href="#pricing">Pricing</a>
       <a href="#download">Download</a>
     </div>
@@ -37,37 +41,59 @@
 <!--      </section>-->
 <!--    </div>-->
 
-    <div>
-      <section class="hstack">
+    <div id="header">
+      <section class="hstack flex-reverse">
+        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testAppScreenshot.macOS11-1-Dark.png" class="hero-image right-aligned" style="min-width: 500px"/>
         <div style="min-width: 450px">
-          <img src="../App/Resources/Assets.xcassets/ApplicationIcon.imageset/icon_256x256.png"/>
+          <img src="../App/Resources/Assets.xcassets/ApplicationIcon.imageset/icon_256x256.png" class="app-icon"/>
           <h1>Keyboard Cowboy</h1>
           <h3>
             The missing keyboard shortcut utility
           </h3>
-<!--          <p>-->
-<!--            Elevate your macOS Big Sur experience by creating workflows that are only a keystroke away.-->
-<!--          </p>-->
-<!--          <div id="tag" class="hstack">-->
-<!--            <p class="tagline">Composable</p>-->
-<!--            <p class="tagline">Open</p>-->
-<!--            <p class="tagline">Responsive</p>-->
-<!--            <p class="tagline">Easy</p>-->
-<!--            <p class="tagline">Secure</p>-->
-<!--          </div>-->
-
           <div class="quick-links">
             <a href="#" class="filled">Download v1.0.0</a>
-            <a href="#" class="outlined">Release notes</a>
+            <a href="#" class="outlined foreground-blue">Release notes</a>
           </div>
         </div>
-        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testAppScreenshot.macOS11-1-Dark.png" class="utility-image right-aligned"/>
       </section>
     </div>
 
-    <div class="alternate-background">
+    <div id="features" class="alternate-background">
+      <section>
+        <h2 class="centered">Features</h2>
+        <h3 class="centered">Elevate your macOS Big Sur experience by creating workflows that are only a keystroke away.</h3>
+        <div class="hstack">
+          <div>
+            <h4>Composable</h4>
+            <p>Tailor your experience to your context</p>
+          </div>
+
+          <div>
+            <h4>Open</h4>
+            <p>The development process is as transparent as the product itself</p>
+          </div>
+
+          <div>
+            <h4>Responsive</h4>
+            <p>The core is design to be lightning fast, never wasting a second to get the job done</p>
+          </div>
+
+          <div>
+            <h4>Easy</h4>
+            <p>Getting started is as easy as pie</p>
+          </div>
+
+          <div>
+            <h4>Secure</h4>
+            <p>The application is standing by to your command and is only listening for what you give it</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="groups">
       <section class="hstack">
-        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testGroupScreenshot.macOS11-1-Dark.png" class="left-aligned"/>
+        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testGroupScreenshot.macOS11-1-Light.png" class="left-aligned"/>
         <div>
           <h2>Groups</h2>
           <h3>Group your workflows to make them contextual.</h3>
@@ -86,8 +112,9 @@
       </section>
     </div>
     
-    <div>
-      <section class="hstack">
+    <div id="workflows" class="alternate-background">
+      <section class="hstack flex-reverse">
+        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testWorkflowScreenshot.macOS11-1-Dark.png" class="right-aligned"/>
         <div>
           <h2>Workflows</h2>
           <h3>Have one keystroke fire of your workflow.</h3>
@@ -102,13 +129,12 @@
           <p>Perhaps you are switching between design time and development time, then two separate workflows for jumping between contexts might suite you.
           </p>
         </div>
-        <img src="../Screenshots/Sources/__Snapshots__/Screenshots/testWorkflowScreenshot.macOS11-1-Dark.png" class="right-aligned"/>
       </section>
     </div>
 
-    <div class="alternate-background">
+    <div id="keyboard-shortcuts">
       <section class="hstack">
-        <div>
+        <div style="min-width:350px;">
           <div class="hstack key">
             <div>⌃⌘A</div>
             <div>F</div>
@@ -129,6 +155,13 @@
             <div>=</div>
             <div>Run Workflow</div>
           </div>
+
+          <div class="hstack key">
+            <div>fx</div>
+            <div>=</div>
+            <div>Run Xcode</div>
+          </div>
+
         </div>
         <div>
           <h2>Keyboard Shortcuts</h2>
@@ -143,8 +176,9 @@
       </section>
     </div>
     
-    <div>
+    <div id="commands"  class="alternate-background">
       <section class="hstack">
+        <div></div>
         <div>
           <h2>Commands</h2>
           <p>
@@ -182,10 +216,20 @@
     <div id="pricing">
       <section>
         <h2>Pricing</h2>
+        <h3>
+        The application is completely free.</h2>
+
         <p>
-        The application is completely free but if you have a dying urge to pay for software, you can always donate to one of the developers to ensure that the application keep getting updates. However, this is totally up to you.<br/><br/>
-        
+        If you have a dying urge to pay for software, you can always donate to one of the developers to ensure that the application keep getting updates. However, this is totally up to you.
+        </p>
+
+        <p>
         We eat our own dogfood and intend to keep the application up-to-date and best in class when it comes to being a keyboard shortcut manager for macOS.
+        </p>
+
+        <p>
+        <a href="#sponsor" class="button background-yellow foreground-white">Contribute</a>
+        <a href="#sponsor" class="button background-pink foreground-white">Sponsor</a>
         </p>
       </section>
     </div>
