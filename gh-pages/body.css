@@ -54,6 +54,10 @@ div > * {
   margin: 0px;
 }
 
+#header h3 {
+  margin: 0;
+}
+
 .hstack > img.left-aligned {
   margin-right: 96px;
 }
@@ -78,14 +82,19 @@ section.hstack > img {
 }
 
 .quick-links {
-  margin-top: 25px;
+  margin-top: 16px;
+  margin-left: -5px;
 }
 
 .quick-links > a {
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 18px;
   padding: 8px 16px;
   margin: 16px 4px;
+}
+
+.quick-links > a:first-child {
+  margin-left: 0px;
 }
 
 .quick-links a.filled {
@@ -96,6 +105,17 @@ section.hstack > img {
 .quick-links a.outlined {
   border: 1px solid var(--green-color);
   color: var(--green-color);
+}
+
+#features > section > div.hstack {
+  align-items: start;
+  align-content: start;
+  justify-content: center;
+  -webkit-flex-direction: row;
+}
+
+#features > section > div.hstack > div {
+  margin: 20px;
 }
 
 #overview > section {
@@ -111,6 +131,17 @@ section.hstack > img {
 
 #overview > div.content p {
   font-size: 48px;
+}
+
+#commands > section > div:first-child {
+  display: flex;
+  margin-left: -8px;
+  margin-right: 64px;
+}
+
+#commands > section > div:first-child > * {
+  margin: 8px;
+  display: block;
 }
 
 #technical > section {
