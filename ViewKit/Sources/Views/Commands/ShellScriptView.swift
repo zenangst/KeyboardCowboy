@@ -25,7 +25,7 @@ struct ShellScriptView: View {
             Button("Reveal", action: { revealAction(command) })
               .foregroundColor(Color(.controlAccentColor))
             Text("|").foregroundColor(Color(.secondaryLabelColor))
-            Button("Run Apple script", action: { runAction(command) })
+            Button("Run script", action: { runAction(command) })
               .foregroundColor(Color(.controlAccentColor))
           }
           .buttonStyle(LinkButtonStyle())

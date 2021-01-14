@@ -33,7 +33,7 @@ final class ShellScriptController: ShellScriptControlling {
     case .path(let path):
       let filePath = path.sanitizedPath
       command = """
-      sh \(filePath)
+      sh \"\(filePath)\"
       """
     }
     _ = Process().shell(command, shellPath: shellPath)
