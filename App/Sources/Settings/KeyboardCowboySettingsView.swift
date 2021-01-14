@@ -1,5 +1,6 @@
 import SwiftUI
 
+// swiftlint:disable line_length
 struct KeyboardCowboySettingsView: View {
   @AppStorage("hideMenuBarIcon") var hideMenubarIcon = false
   @AppStorage("hideDockIcon") var hideDockIcon = false

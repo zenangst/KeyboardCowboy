@@ -4,8 +4,8 @@ import Foundation
 /// Scripts can both point to a file on the file-system or have
 /// its underlying script bundled inside the command.
 public enum ScriptCommand: Identifiable, Codable, Hashable {
-  case appleScript(Source, String)
-  case shell(Source, String)
+  case appleScript(id: String, name: String?, source: Source)
+  case shell(id: String, name: String?, source: Source)
 
   public enum CodingKeys: CodingKey {
     case appleScript
@@ -14,20 +14,38 @@ public enum ScriptCommand: Identifiable, Codable, Hashable {
 
   enum IdentifierCodingKeys: CodingKey {
     case id
+    case name
   }
 
   public var id: String {
     switch self {
-    case .appleScript(_, let id),
-         .shell(_, let id):
+    case .appleScript(let id, _, _),
+         .shell(let id, _, _):
       return id
+    }
+  }
+
+  public var hasName: Bool {
+    switch self {
+    case .appleScript(_, let name, _),
+         .shell(_, let name, _):
+      return name != nil
+    }
+  }
+
+  public var name: String {
+    switch self {
+    case .appleScript(_, let name, _):
+      return name ?? "Run Apple Script"
+    case .shell(_, let name, _):
+      return name ?? "Run Shellscript"
     }
   }
 
   public var path: String {
     switch self {
-    case .appleScript(let source, _),
-         .shell(let source, _):
+    case .appleScript(_, _, let source),
+         .shell(_, _, let source):
       switch source {
       case .path(let path):
         return path
@@ -41,14 +59,15 @@ public enum ScriptCommand: Identifiable, Codable, Hashable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     let idContainer = try decoder.container(keyedBy: IdentifierCodingKeys.self)
     let id = try idContainer.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    let name = try idContainer.decodeIfPresent(String.self, forKey: .name)
 
     switch container.allKeys.first {
     case .appleScript:
       let source = try container.decode(Source.self, forKey: .appleScript)
-      self = .appleScript(source, id)
+      self = .appleScript(id: id, name: name, source: source)
     case .shell:
       let source = try container.decode(Source.self, forKey: .shell)
-      self = .shell(source, id)
+      self = .shell(id: id, name: name, source: source)
     case .none:
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
@@ -62,13 +81,23 @@ public enum ScriptCommand: Identifiable, Codable, Hashable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     var idContainer = encoder.container(keyedBy: IdentifierCodingKeys.self)
+    let commandId: String
+    var commandName: String?
+
     switch self {
-    case .appleScript(let value, let id):
-      try container.encode(value, forKey: .appleScript)
-      try idContainer.encode(id, forKey: .id)
-    case .shell(let value, let id):
-      try container.encode(value, forKey: .shell)
-      try idContainer.encode(id, forKey: .id)
+    case .appleScript(let id, let name, let source):
+      commandId = id
+      commandName = name
+      try container.encode(source, forKey: .appleScript)
+    case .shell(let id, let name, let source):
+      commandId = id
+      commandName = name
+      try container.encode(source, forKey: .shell)
+    }
+
+    try idContainer.encode(commandId, forKey: .id)
+    if commandName != nil {
+      try idContainer.encode(commandName, forKey: .name)
     }
   }
 
@@ -108,9 +137,9 @@ public extension ScriptCommand {
   static func empty(_ kind: ScriptCommand.CodingKeys, id: String = UUID().uuidString) -> ScriptCommand {
     switch kind {
     case .appleScript:
-      return ScriptCommand.appleScript(.path(""), id)
+      return ScriptCommand.appleScript(id: id, name: nil, source: .path(""))
     case .shell:
-      return ScriptCommand.shell(.path(""), id)
+      return ScriptCommand.shell(id: id, name: nil, source: .path(""))
     }
   }
 }

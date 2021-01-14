@@ -21,20 +21,35 @@ struct EditShellScriptView: View {
       }.padding()
       Divider()
       VStack {
-        HStack {
+        LazyVGrid(columns: [
+          GridItem(.fixed(50), alignment: .trailing),
+          GridItem(.flexible())
+        ], content: {
+          Text("Name:")
+          TextField(command.name, text: Binding(get: {
+            command.hasName ? command.name : ""
+          }, set: {
+            command = .shell(id: command.id,
+                             name: $0.isEmpty ? nil : $0,
+                             source: .path(command.path))
+          }))
+
           Text("Path:")
           TextField("file://", text: Binding(get: {
             filePath
           }, set: {
             filePath = $0
-            command = .shell(.path($0), command.id)
+            command = .shell(id: command.id,
+                             name: command.name,
+                             source: .path($0))
           }))
-        }
+        })
+
         HStack {
           Spacer()
           Button("Browse", action: {
             openPanelController.perform(.selectFile(type: "sh", handler: {
-              let newCommand = ScriptCommand.shell(.path($0), command.id)
+              let newCommand = ScriptCommand.shell(id: command.id, name: command.name, source: .path($0))
               command = newCommand
               filePath = newCommand.path
             }))

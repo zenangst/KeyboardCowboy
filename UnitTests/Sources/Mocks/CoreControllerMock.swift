@@ -42,13 +42,9 @@ class CoreControllerMock: CoreControlling, GroupsControllingDelegate {
     return workflows
   }
 
-  func intercept(_ context: HotKeyContext) {
-    
-  }
+  func intercept(_ context: HotKeyContext) {}
 
-  func setState(_ newState: CoreControllerState) {
-    
-  }
+  func setState(_ newState: CoreControllerState) {}
 
   // MARK: GroupsControllingDelegate
 

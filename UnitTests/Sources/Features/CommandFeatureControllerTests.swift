@@ -3,7 +3,6 @@
 @testable import ModelKit
 @testable import ViewKit
 import Foundation
-import ModelKit
 import XCTest
 
 // swiftlint:disable function_body_length type_body_length
@@ -159,14 +158,14 @@ class CommandsFeatureControllerTests: XCTestCase {
     let identifier = UUID().uuidString
     let command: Command = .open(.init(id: identifier, path: "path/to/file"))
     let commands: [Command] = [
-      .script(.appleScript(.path("path"), "appleScript")),
-      .script(.shell(.path("path"), "shellScript")),
+      .script(.appleScript(id: "appleScript", name: nil, source: .path("path"))),
+      .script(.shell(id: "shellScript", name: nil, source: .path("path"))),
       command
     ]
     let expected: [Command] = [
       command,
-      .script(.appleScript(.path("path"), "appleScript")),
-      .script(.shell(.path("path"), "shellScript"))
+      .script(.appleScript(id: "appleScript", name: nil, source: .path("path"))),
+      .script(.shell(id: "shellScript", name: nil, source: .path("path")))
     ]
     var group = Group.empty()
     var workflow = Workflow.empty()
@@ -231,14 +230,14 @@ class CommandsFeatureControllerTests: XCTestCase {
   func testDeleteCommand() {
     let expectation = self.expectation(description: "Wait for callback")
     let identifier = UUID().uuidString
-    let removedCommand: Command = .script(.appleScript(.path("path"), "appleScript"))
+    let removedCommand: Command = .script(.appleScript(id: "appleScript", name: nil, source: .path("path")))
     let commands: [Command] = [
       removedCommand,
-      .script(.shell(.path("path"), "shellScript")),
+      .script(.shell(id: "shellScript", name: nil, source: .path("path"))),
       .open(.init(id: identifier, path: "path/to/file"))
     ]
     let expected: [Command] = [
-      .script(.shell(.path("path"), "shellScript")),
+      .script(.shell(id: "shellScript", name: nil, source: .path("path"))),
       .open(.init(id: identifier, path: "path/to/file"))
     ]
     var group = Group.empty()

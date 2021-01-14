@@ -152,8 +152,8 @@ struct EditCommandView_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     let models = [
       Command.application(.init(application: Application.empty())),
-      Command.script(.appleScript(.path("path/to/applescript.scpt"), UUID().uuidString)),
-      Command.script(.shell(.path("path/to/script.sh"), UUID().uuidString)),
+      Command.script(.appleScript(id: UUID().uuidString, name: nil, source: .path("path/to/applescript.scpt"))),
+      Command.script(.shell(id: UUID().uuidString, name: nil, source: .path("path/to/script.sh"))),
       Command.keyboard(KeyboardCommand(keyboardShortcut: KeyboardShortcut.empty())),
       Command.open(OpenCommand(path: "http://www.github.com")),
       Command.open(OpenCommand.empty())
