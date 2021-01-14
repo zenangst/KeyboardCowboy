@@ -57,6 +57,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   @Published var state: ApplicationState = .launching(LaunchView())
 
   init() {
+    Debug.isEnabled = launchArguments.isEnabled(.debug)
     let configuration = Configuration.Storage()
     self.storageController = Self.factory.storageController(
       path: configuration.path,
