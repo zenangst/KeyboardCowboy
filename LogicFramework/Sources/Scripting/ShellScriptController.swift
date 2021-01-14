@@ -26,23 +26,56 @@ final class ShellScriptController: ShellScriptControlling {
   let shellPath: String = "/bin/bash"
 
   func run(_ source: ScriptCommand.Source) -> CommandPublisher {
-    let command: String
-    switch source {
-    case .inline(let inline):
-      command = inline
-    case .path(let path):
-      let filePath = path.sanitizedPath
-      command = """
-      sh \"\(filePath)\"
+    Future { promise in
+      var cwd: String = ""
+      let command: String
+      switch source {
+      case .inline(let inline):
+        command = inline
+      case .path(let path):
+        let filePath = path.sanitizedPath
+        cwd = (filePath as NSString).deletingLastPathComponent
+        command = """
+      /bin/sh \"\(filePath)\"
       """
-    }
-    _ = Process().shell(command, shellPath: shellPath)
-    return Result.success(()).publisher.eraseToAnyPublisher()
+      }
+
+      let ctx = Process().shell(command,
+                                shellPath: self.shellPath,
+                                cwd: cwd)
+
+      ctx.task.terminationHandler = { _ in
+        let errorController = ctx.errorController
+
+        if let errorMessage = errorController.string,
+           !errorMessage.isEmpty {
+          let error = NSError(domain: "com.zenangst.KeyboardCowboy.ShellScriptController",
+                              code: -999, userInfo: [
+                                NSLocalizedDescriptionKey: errorMessage
+                              ])
+          Debug.print("🛑 Unable to run: \(source)")
+          Debug.print("🛑 Error: \(error)")
+
+          promise(.failure(error))
+          return
+        }
+
+        promise(.success(()))
+      }
+    }.eraseToAnyPublisher()
   }
 }
 
+private class OutputController {
+  var string: String?
+}
+
 private extension Process {
-  func shell(_ command: String, shellPath: String) -> String {
+  func shell(_ command: String, shellPath: String, cwd: String) -> (task: Process,
+                                                                    outputController: OutputController,
+                                                                    errorController: OutputController) {
+    let outputController = OutputController()
+    let errorController = OutputController()
     let outputPipe = Pipe()
     let errorPipe = Pipe()
 
@@ -50,27 +83,29 @@ private extension Process {
     arguments = ["-c", command]
     standardOutput = outputPipe
     standardError = errorPipe
+    environment = ["PATH": "/usr/local/bin:/usr/bin:/bin:/usr/libexec:/usr/sbin:/sbin"]
+    currentDirectoryPath = cwd
 
     var data = Data()
     var error = Data()
 
+    launch()
+
     outputPipe.fileHandleForReading.readabilityHandler = { handler in
       data.append(handler.availableData)
+      outputController.string = String(data: data, encoding: .utf8)
     }
 
     errorPipe.fileHandleForReading.readabilityHandler = { handler in
       error.append(handler.availableData)
+      if error.count > 0 {
+        errorController.string = String(data: error, encoding: .utf8)
+      }
     }
 
-    launch()
-    waitUntilExit()
-
-    outputPipe.fileHandleForReading.readabilityHandler = nil
-    errorPipe.fileHandleForReading.readabilityHandler = nil
-
-    let result = data.toString()
-
-    return result
+    return (task: self,
+            outputController: outputController,
+            errorController: errorController)
   }
 }
 
