@@ -49,10 +49,10 @@ public class ModelFactory {
     let path = "/tmp/file"
     let script = "#!/usr/bin/env fish"
     return [
-      .appleScript(.inline(script), id),
-      .appleScript(.path(path), id),
-      .shell( .inline(script), id),
-      .shell(.path(path), id)
+      .appleScript(id: id, name: nil, source: .inline(script)),
+      .appleScript(id: id, name: nil, source: .path(path)),
+      .shell(id: id, name: nil, source: .inline(script)),
+      .shell(id: id, name: nil, source: .path(path))
     ]
   }
 

@@ -20,8 +20,8 @@ class ModelFactory {
               Command.application(.init(id: "Calendar 1", application: (Application.calendar(id: "Calendar")))),
               Command.application(.init(id: "Music 1", application: (Application.music(id: "Music")))),
               Command.application(.init(id: "Xcode 1", application: (Application.xcode(id: "Xcode")))),
-              Command.script(.appleScript(.path("foo"), "AppleScript 1")),
-              Command.script(.shell(.path("foo"), "ShellScript 1")),
+              Command.script(.appleScript(id: "AppleScript 1", name: nil, source: .path("foo"))),
+              Command.script(.shell(id: "ShellScript 1", name: nil, source: .path("foo"))),
               Command.open(.init(id: "Open 1", path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj")),
               Command.open(.init(id: "Open 2", path: "https://www.github.com"))
             ]),
@@ -193,7 +193,7 @@ class ModelFactory {
         name: "Run \($0) script",
         keyboardShortcuts: [],
         commands: [
-          Command.script(.appleScript(.path(""), "Run \($0)"))
+          Command.script(.appleScript(id: "Run \($0)", name: nil, source: .path("")))
         ])
     })
   }

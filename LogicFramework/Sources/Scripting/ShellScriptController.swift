@@ -66,14 +66,18 @@ final class ShellScriptController: ShellScriptControlling {
   }
 }
 
+private struct ProcessContext {
+  let task: Process
+  let outputController: OutputController
+  let errorController: OutputController
+}
+
 private class OutputController {
   var string: String?
 }
 
 private extension Process {
-  func shell(_ command: String, shellPath: String, cwd: String) -> (task: Process,
-                                                                    outputController: OutputController,
-                                                                    errorController: OutputController) {
+  func shell(_ command: String, shellPath: String, cwd: String) -> ProcessContext {
     let outputController = OutputController()
     let errorController = OutputController()
     let outputPipe = Pipe()
@@ -107,9 +111,9 @@ private extension Process {
       }
     }
 
-    return (task: self,
-            outputController: outputController,
-            errorController: errorController)
+    return ProcessContext(task: self,
+                          outputController: outputController,
+                          errorController: errorController)
   }
 }
 

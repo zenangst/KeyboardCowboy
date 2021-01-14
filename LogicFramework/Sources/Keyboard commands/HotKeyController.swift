@@ -46,8 +46,8 @@ final class HotKeyController: HotKeyControlling {
   private var runLoopSource: CFRunLoopSource!
 
   var isEnabled: Bool {
-    set { machPort.map { CGEvent.tapEnable(tap: $0, enable: newValue) } }
     get { machPort.map(CGEvent.tapIsEnabled) ?? false }
+    set { machPort.map { CGEvent.tapEnable(tap: $0, enable: newValue) } }
   }
 
   required init() throws {

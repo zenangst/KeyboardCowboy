@@ -67,11 +67,11 @@ final class CommandsFeatureController: ActionController {
       }
     case .script(let command):
       switch command {
-      case .appleScript(.path(let path), _):
+      case .appleScript(_, _, .path(let path)):
         self.workspace.reveal(path)
-      case .shell(.path(let path), _):
+      case .shell(_, _, .path(let path)):
         self.workspace.reveal(path)
-      case .appleScript(.inline, _), .shell(.inline, _):
+      case .appleScript(_, _, .inline), .shell(_, _, .inline):
         break
       }
     case .keyboard:

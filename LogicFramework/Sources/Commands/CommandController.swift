@@ -79,9 +79,9 @@ public final class CommandController: CommandControlling {
       subscribeToPublisher(openCommandController.run(openCommand), for: command)
     case .script(let scriptCommand):
       switch scriptCommand {
-      case .appleScript(let source, _):
+      case .appleScript(_, _, let source):
         subscribeToPublisher(appleScriptCommandController.run(source), for: command)
-      case .shell(let source, _):
+      case .shell(_, _, let source):
         subscribeToPublisher(shellScriptCommandController.run(source), for: command)
       }
     }

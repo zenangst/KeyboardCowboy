@@ -26,26 +26,40 @@ public enum Command: Identifiable, Codable, Hashable {
   }
 
   public var name: String {
-    switch self {
-    case .application(let command):
-      return command.name.isEmpty ? "Open \(command.application.displayName)" : command.name
-    case .keyboard(let command):
-      var keyboardShortcut = command.keyboardShortcut.modifiers?.compactMap({ $0.pretty }).joined() ?? ""
-      keyboardShortcut += command.keyboardShortcut.key
-      return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcut)" : command.name
-    case .open(let command):
-      if !command.name.isEmpty { return command.name }
-      if command.isUrl {
-        return "Open a URL: \(command.path)"
-      } else {
-        return "Open a file: \(command.path)"
+    get {
+      switch self {
+      case .application(let command):
+        return command.name.isEmpty ? "Open \(command.application.displayName)" : command.name
+      case .keyboard(let command):
+        var keyboardShortcut = command.keyboardShortcut.modifiers?.compactMap({ $0.pretty }).joined() ?? ""
+        keyboardShortcut += command.keyboardShortcut.key
+        return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcut)" : command.name
+      case .open(let command):
+        if !command.name.isEmpty { return command.name }
+        if command.isUrl {
+          return "Open a URL: \(command.path)"
+        } else {
+          return "Open a file: \(command.path)"
+        }
+      case .script(let command):
+        return command.name
       }
-    case .script(let command):
-      switch command {
-      case .appleScript:
-        return "Run Apple Script"
-      case .shell:
-        return "Run Shellscript"
+    }
+    set {
+      switch self {
+      case .application(var command):
+        command.name = newValue
+      case .keyboard(var command):
+        command.name = newValue
+      case .open(var command):
+        command.name = newValue
+      case .script(let command):
+        switch command {
+        case .appleScript(let id, _, let source):
+          self = .script(.appleScript(id: id, name: newValue, source: source))
+        case .shell(let id, _, let source):
+          self = .script(.shell(id: id, name: newValue, source: source))
+        }
       }
     }
   }
@@ -114,7 +128,7 @@ public extension Command {
     case .open:
       return Command.open(.init(path: ""))
     case .script:
-      return Command.script(.appleScript(.path(""), ""))
+      return Command.script(.appleScript(id: "", name: nil, source: .path("")))
     }
   }
 }
