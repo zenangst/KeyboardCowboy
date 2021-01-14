@@ -97,14 +97,9 @@
 }
 
 .app {
-  background-color: var(--blue-color);
-  border: 1px dashed #fff;
+/*  border: 1px dashed var(--blue-color);*/
   display: block;
-  width: 128px;
-  height: 128px;
-  border-radius: 32px;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1),
-              0 8px 16px 0 rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
 }
 
 .app-icon {
