@@ -135,6 +135,12 @@ final class WorkflowsFeatureController: ViewController,
           name: "Open \(application.bundleName)",
           application: application)
         commands.append(Command.application(applicationCommand))
+      case .applescript:
+        let name = "Run \(url.lastPathComponent)"
+        commands.append(Command.script(.appleScript(.path(url.path), name)))
+      case .shellscript:
+        let name = "Run \(url.lastPathComponent)"
+        commands.append(Command.script(.shell(.path(url.path), name)))
       case .file:
         let name = "Open \(url.lastPathComponent)"
         commands.append(Command.open(.init(name: name, path: url.path)))
@@ -199,14 +205,19 @@ final class WorkflowsFeatureController: ViewController,
     workflowController.perform(.set(workflow: workflow))
   }
 
-  func commandsFeatureController(_ controller: CommandsFeatureController, didDropCommands commands: [Command],
+  func commandsFeatureController(_ controller: CommandsFeatureController, didDropUrls urls: [URL],
                                  in workflow: Workflow) {
+    var workflow = workflow
+    let commands = generateCommands(urls)
+    workflow.commands.append(contentsOf: commands)
     workflowController.perform(.set(workflow: workflow))
   }
 }
 
 private enum DropType {
   case application
+  case applescript
+  case shellscript
   case file
   case web
   case unsupported
@@ -217,6 +228,10 @@ private extension URL {
     if isFileURL {
       if lastPathComponent.contains(".app") {
         return .application
+      } else if lastPathComponent.contains(".sh") {
+        return .shellscript
+      } else if lastPathComponent.contains(".scpt") {
+        return .applescript
       } else {
         return .file
       }

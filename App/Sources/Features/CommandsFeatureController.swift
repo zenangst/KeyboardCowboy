@@ -12,8 +12,8 @@ protocol CommandsFeatureControllerDelegate: AnyObject {
                                  didUpdateCommand command: Command, in workflow: Workflow)
   func commandsFeatureController(_ controller: CommandsFeatureController,
                                  didDeleteCommand command: Command, in workflow: Workflow)
-  func commandsFeatureController(_ controller: CommandsFeatureController,
-                                 didDropCommands commands: [Command], in workflow: Workflow)
+  func commandsFeatureController(_ controller: CommandsFeatureController, didDropUrls urls: [URL],
+                                 in workflow: Workflow)
 }
 
 final class CommandsFeatureController: ActionController {
@@ -111,10 +111,7 @@ final class CommandsFeatureController: ActionController {
   }
 
   private func drop(_ urls: [URL], workflow: Workflow) {
-    var workflow = workflow
-    let commands = generateCommands(urls)
-    workflow.commands.append(contentsOf: commands)
-    delegate?.commandsFeatureController(self, didDropCommands: commands, in: workflow)
+    delegate?.commandsFeatureController(self, didDropUrls: urls, in: workflow)
   }
 
   private func application(from command: Application) -> Application? {
@@ -124,33 +121,6 @@ final class CommandsFeatureController: ActionController {
   private func defaultApplicationForPath(_ url: URL) -> Application? {
     guard let applicationPath = NSWorkspace.shared.urlForApplication(toOpen: url) else { return nil }
     return installedApplications.first(where: { $0.path == applicationPath.path })
-  }
-
-  private func generateCommands(_ urls: [URL]) -> [Command] {
-    var commands = [Command]()
-    for url in urls {
-      switch url.dropType {
-      case .application:
-        guard let application = installedApplications.first(where: { $0.path == url.path })
-        else { continue }
-        let applicationCommand = ApplicationCommand(
-          name: "Open \(application.bundleName)",
-          application: application)
-        commands.append(Command.application(applicationCommand))
-      case .file:
-        let name = "Open \(url.lastPathComponent)"
-        commands.append(Command.open(.init(name: name, path: url.path)))
-      case .web:
-        var name = "Open URL"
-        if let host = url.host {
-          name = "Open \(host)/\(url.lastPathComponent)"
-        }
-        commands.append(Command.open(.init(name: name, path: url.absoluteString)))
-      case .unsupported:
-        continue
-      }
-    }
-    return commands
   }
 }
 
