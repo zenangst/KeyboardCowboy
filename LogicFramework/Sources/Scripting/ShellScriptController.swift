@@ -83,7 +83,11 @@ private extension Process {
     arguments = ["-c", command]
     standardOutput = outputPipe
     standardError = errorPipe
-    environment = ["PATH": "/usr/local/bin:/usr/bin:/bin:/usr/libexec:/usr/sbin:/sbin"]
+
+    var environment = ProcessInfo.processInfo.environment
+    environment["PATH"] = "/usr/local/bin:/usr/bin:/bin:/usr/libexec:/usr/sbin:/sbin"
+
+    self.environment = environment
     currentDirectoryPath = cwd
 
     var data = Data()
