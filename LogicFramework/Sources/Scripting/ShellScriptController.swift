@@ -23,8 +23,6 @@ public protocol ShellScriptControlling {
 }
 
 final class ShellScriptController: ShellScriptControlling {
-  let shellPath: String = "/bin/bash"
-
   func run(_ source: ScriptCommand.Source) -> CommandPublisher {
     Future { promise in
       var cwd: String = ""
@@ -36,15 +34,15 @@ final class ShellScriptController: ShellScriptControlling {
         let filePath = path.sanitizedPath
         cwd = (filePath as NSString).deletingLastPathComponent
         command = """
+      eval $(/usr/libexec/path_helper -s)
       /bin/sh \"\(filePath)\"
       """
       }
 
-      let ctx = Process().shell(command,
-                                shellPath: self.shellPath,
-                                cwd: cwd)
+      let ctx = Process().shell(command, cwd: cwd)
 
       ctx.task.terminationHandler = { _ in
+        let outputController = ctx.outputController
         let errorController = ctx.errorController
 
         if let errorMessage = errorController.string,
@@ -77,27 +75,23 @@ private class OutputController {
 }
 
 private extension Process {
-  func shell(_ command: String, shellPath: String, cwd: String) -> ProcessContext {
+  func shell(_ command: String, cwd: String) -> ProcessContext {
     let outputController = OutputController()
     let errorController = OutputController()
     let outputPipe = Pipe()
     let errorPipe = Pipe()
 
-    launchPath = shellPath
+    launchPath = "/bin/bash"
     arguments = ["-c", command]
     standardOutput = outputPipe
     standardError = errorPipe
-
-    var environment = ProcessInfo.processInfo.environment
-    environment["PATH"] = "/usr/local/bin:/usr/bin:/bin:/usr/libexec:/usr/sbin:/sbin"
-
-    self.environment = environment
     currentDirectoryPath = cwd
 
     var data = Data()
     var error = Data()
 
     launch()
+    waitUntilExit()
 
     outputPipe.fileHandleForReading.readabilityHandler = { handler in
       data.append(handler.availableData)
@@ -108,6 +102,7 @@ private extension Process {
       error.append(handler.availableData)
       if error.count > 0 {
         errorController.string = String(data: error, encoding: .utf8)
+        Debug.print("❌ \(String(data: error, encoding: .utf8))")
       }
     }
 
