@@ -25,38 +25,39 @@ public protocol ShellScriptControlling {
 final class ShellScriptController: ShellScriptControlling {
   func run(_ source: ScriptCommand.Source) -> CommandPublisher {
     Future { promise in
-      var cwd: String = ""
       let command: String
       switch source {
       case .inline(let inline):
         command = inline
+        let error = NSError(domain: "com.zenangst.KeyboardCowboy.ShellScriptController",
+                            code: -999, userInfo: [
+                              NSLocalizedDescriptionKey: "Inline scripts is not supported yet."
+                            ])
+        promise(.failure(error))
+        return
       case .path(let path):
         let filePath = path.sanitizedPath
-        cwd = (filePath as NSString).deletingLastPathComponent
-        command = """
-      eval $(/usr/libexec/path_helper -s)
-      /bin/sh \"\(filePath)\"
-      """
-      }
+        command = (filePath as NSString).lastPathComponent
+        let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
 
-      let ctx = Process().shell(command, cwd: cwd)
+        let ctx = Process().shell(command, at: url)
+        ctx.task.terminationHandler = { _ in
+          let errorController = ctx.errorController
 
-      ctx.task.terminationHandler = { _ in
-        let errorController = ctx.errorController
+          if let errorMessage = errorController.string,
+             !errorMessage.isEmpty {
+            let error = NSError(domain: "com.zenangst.KeyboardCowboy.ShellScriptController",
+                                code: -999, userInfo: [
+                                  NSLocalizedDescriptionKey: errorMessage
+                                ])
+            Debug.print("🛑 Unable to run: \(source)")
+            Debug.print("🛑 Error: \(error)")
+            promise(.failure(error))
+            return
+          }
 
-        if let errorMessage = errorController.string,
-           !errorMessage.isEmpty {
-          let error = NSError(domain: "com.zenangst.KeyboardCowboy.ShellScriptController",
-                              code: -999, userInfo: [
-                                NSLocalizedDescriptionKey: errorMessage
-                              ])
-          Debug.print("🛑 Unable to run: \(source)")
-          Debug.print("🛑 Error: \(error)")
-          promise(.failure(error))
-          return
+          promise(.success(()))
         }
-
-        promise(.success(()))
       }
     }.eraseToAnyPublisher()
   }
@@ -73,17 +74,17 @@ private class OutputController {
 }
 
 private extension Process {
-  func shell(_ command: String, cwd: String) -> ProcessContext {
+  func shell(_ command: String, at url: URL) -> ProcessContext {
     let outputController = OutputController()
     let errorController = OutputController()
     let outputPipe = Pipe()
     let errorPipe = Pipe()
 
-    launchPath = "/bin/bash"
-    arguments = ["-c", command]
+    launchPath = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+    arguments = ["-i", "-l", command]
     standardOutput = outputPipe
     standardError = errorPipe
-    currentDirectoryPath = cwd
+    currentDirectoryURL = url
 
     var data = Data()
     var error = Data()
