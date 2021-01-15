@@ -42,7 +42,6 @@ final class ShellScriptController: ShellScriptControlling {
       let ctx = Process().shell(command, cwd: cwd)
 
       ctx.task.terminationHandler = { _ in
-        let outputController = ctx.outputController
         let errorController = ctx.errorController
 
         if let errorMessage = errorController.string,
@@ -53,7 +52,6 @@ final class ShellScriptController: ShellScriptControlling {
                               ])
           Debug.print("🛑 Unable to run: \(source)")
           Debug.print("🛑 Error: \(error)")
-
           promise(.failure(error))
           return
         }
@@ -90,20 +88,18 @@ private extension Process {
     var data = Data()
     var error = Data()
 
-    launch()
-    waitUntilExit()
+    do {
+      try run()
 
-    outputPipe.fileHandleForReading.readabilityHandler = { handler in
-      data.append(handler.availableData)
+      data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+      error = errorPipe.fileHandleForReading.readDataToEndOfFile()
+
       outputController.string = String(data: data, encoding: .utf8)
-    }
+      errorController.string = String(data: error, encoding: .utf8)
 
-    errorPipe.fileHandleForReading.readabilityHandler = { handler in
-      error.append(handler.availableData)
-      if error.count > 0 {
-        errorController.string = String(data: error, encoding: .utf8)
-        Debug.print("❌ \(String(data: error, encoding: .utf8))")
-      }
+      waitUntilExit()
+    } catch let error {
+      Debug.print("❌ \(error)")
     }
 
     return ProcessContext(task: self,
