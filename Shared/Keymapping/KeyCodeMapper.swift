@@ -41,15 +41,16 @@ final class KeyCodeMapper: KeyCodeMapping {
 
     let modifiersCombinations: [UInt32] = [
       0,
-      UInt32(optionKey >> 8) & 0xFF,
       UInt32(shiftKey >> 8) & 0xFF,
     ]
 
     for integer in 0..<128 {
       for modifiers in modifiersCombinations {
         if let container = try? map(integer, modifiers: modifiers) {
-          table[container.displayValue] = integer
-          table[container.rawValue] = integer
+          if table[container.displayValue] == nil {
+            table[container.displayValue] = integer
+            table[container.rawValue] = integer
+          }
         }
       }
     }
