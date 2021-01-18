@@ -2,6 +2,8 @@ import Combine
 import Cocoa
 import Foundation
 import ModelKit
+import Quartz
+import Carbon.HIToolbox.Events
 
 public protocol KeyboardCommandControlling {
   /// - Parameter command: A `KeyboardCommand` that should be invoked.
@@ -30,11 +32,20 @@ class KeyboardCommandController: KeyboardCommandControlling {
            type: CGEventType,
            eventSource: CGEventSource?) -> CommandPublisher {
     return Future { [weak self] promise in
-      if let key = self?.cache[command.keyboardShortcut.key.uppercased()],
-         let cgKeyCode = CGKeyCode(exactly: key),
+      var flags = CGEventFlags()
+
+      guard let key = self?.cache[command.keyboardShortcut.key.uppercased()] else {
+        promise(.failure(KeyboardCommandControllingError.failedToRunCommand(command)))
+        return
+      }
+
+      command.keyboardShortcut.modifiers?.forEach { flags.insert($0.cgModifierFlags) }
+
+      if let cgKeyCode = CGKeyCode(exactly: key),
          let newEvent = CGEvent(keyboardEventSource: eventSource,
                                 virtualKey: cgKeyCode,
                                 keyDown: type == .keyDown) {
+        newEvent.flags = flags
         newEvent.post(tap: .cghidEventTap)
         promise(.success(()))
       } else {

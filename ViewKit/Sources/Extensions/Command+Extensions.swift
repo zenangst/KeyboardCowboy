@@ -8,7 +8,7 @@ extension Command {
       return applicationCommand.application.path
     case .script:
       return "/System/Applications/Utilities/Script Editor.app"
-    case .keyboard:
+    case .keyboard, .type:
       return "/System/Library/PreferencePanes/Keyboard.prefPane"
     case .open(let openCommand):
       if openCommand.isUrl {

@@ -123,6 +123,15 @@ private extension EditCommandView {
             self.selection = command
           }
         ))
+      case .type(let command):
+        EditTypeView(command: Binding(
+          get: { command },
+          set: { typeCommand in
+            let command: Command = .type(typeCommand)
+            self.command = command
+            self.selection = command
+          }
+        ))
       case .none:
         Text("Pick a command type")
           .padding()
@@ -149,26 +158,17 @@ struct EditCommandView_Previews: PreviewProvider, TestPreviewProvider {
     testPreview.previewAllColorSchemes()
   }
 
-  static var testPreview: some View {
-    let models = [
-      Command.application(.init(application: Application.empty())),
-      Command.script(.appleScript(id: UUID().uuidString, name: nil, source: .path("path/to/applescript.scpt"))),
-      Command.script(.shell(id: UUID().uuidString, name: nil, source: .path("path/to/script.sh"))),
-      Command.keyboard(KeyboardCommand(keyboardShortcut: KeyboardShortcut.empty())),
-      Command.open(OpenCommand(path: "http://www.github.com")),
-      Command.open(OpenCommand.empty())
-    ]
+  static func display(model: Command) -> some View {
+    EditCommandView(applicationProvider: ApplicationPreviewProvider().erase(),
+                    openPanelController: OpenPanelPreviewController().erase(),
+                    saveAction: { _ in },
+                    cancelAction: {},
+                    selection: model,
+                    command: model)
+      .previewDisplayName(model.name)
+  }
 
-    return Group {
-      ForEach(models) { model in
-        EditCommandView(applicationProvider: ApplicationPreviewProvider().erase(),
-                        openPanelController: OpenPanelPreviewController().erase(),
-                        saveAction: { _ in },
-                        cancelAction: {},
-                        selection: model,
-                        command: model)
-          .previewDisplayName(model.name)
-      }
-    }
+  static var testPreview: some View {
+    return display(model: Command.application(.init(application: Application.empty())))
   }
 }

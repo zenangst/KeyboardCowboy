@@ -75,6 +75,31 @@ public final class CommandController: CommandControlling {
       subscribeToPublisher(keyboardCommandController.run(keyboardCommand,
                                                          type: .keyDown,
                                                          eventSource: nil), for: command)
+    case .type(let command):
+      for key in command.input.compactMap(String.init) {
+        var modifiers = [ModifierKey]()
+
+        if key.uppercased() == key {
+          modifiers.append(.shift)
+        }
+
+        let keyboardCommand = KeyboardCommand(
+          keyboardShortcut:
+            KeyboardShortcut(key: key, modifiers: modifiers))
+
+        let command = Command.keyboard(keyboardCommand)
+
+        // Invoke keyboard command controller on the main thread.
+        DispatchQueue.main.async { [weak self] in
+          guard let self = self else { return }
+          self.subscribeToPublisher(self.keyboardCommandController.run(keyboardCommand,
+                                                             type: .keyDown,
+                                                             eventSource: nil), for: command)
+          self.subscribeToPublisher(self.keyboardCommandController.run(keyboardCommand,
+                                                             type: .keyUp,
+                                                             eventSource: nil), for: command)
+        }
+      }
     case .open(let openCommand):
       subscribeToPublisher(openCommandController.run(openCommand), for: command)
     case .script(let scriptCommand):

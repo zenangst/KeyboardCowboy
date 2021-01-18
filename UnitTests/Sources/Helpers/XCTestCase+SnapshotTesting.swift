@@ -41,7 +41,7 @@ extension XCTestCase {
       let window = SnapshotWindow(view, size: size)
       let expectation = self.expectation(description: "Wait for window to load")
 
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
         assertSnapshot(
           matching: window.viewController,
           as: .image,

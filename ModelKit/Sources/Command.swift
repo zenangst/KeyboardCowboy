@@ -8,12 +8,14 @@ public enum Command: Identifiable, Codable, Hashable {
   case keyboard(KeyboardCommand)
   case open(OpenCommand)
   case script(ScriptCommand)
+  case type(TypeCommand)
 
   public enum CodingKeys: String, CodingKey {
     case application = "applicationCommand"
     case keyboard = "keyboardCommand"
     case open = "openCommand"
     case script = "scriptCommand"
+    case type = "typeCommand"
   }
 
   public var isKeyboardBinding: Bool {
@@ -43,6 +45,8 @@ public enum Command: Identifiable, Codable, Hashable {
         }
       case .script(let command):
         return command.name
+      case .type(let command):
+        return command.name
       }
     }
     set {
@@ -60,6 +64,8 @@ public enum Command: Identifiable, Codable, Hashable {
         case .shell(let id, _, let source):
           self = .script(.shell(id: id, name: newValue, source: source))
         }
+      case .type(var command):
+        command.name = newValue
       }
     }
   }
@@ -73,6 +79,8 @@ public enum Command: Identifiable, Codable, Hashable {
     case .open(let command):
       return command.id
     case .script(let command):
+      return command.id
+    case .type(let command):
       return command.id
     }
   }
@@ -93,6 +101,9 @@ public enum Command: Identifiable, Codable, Hashable {
     case .script:
       let command = try container.decode(ScriptCommand.self, forKey: .script)
       self = .script(command)
+    case .type:
+      let command = try container.decode(TypeCommand.self, forKey: .type)
+      self = .type(command)
     case .none:
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
@@ -114,6 +125,8 @@ public enum Command: Identifiable, Codable, Hashable {
       try container.encode(command, forKey: .open)
     case .script(let command):
       try container.encode(command, forKey: .script)
+    case .type(let command):
+      try container.encode(command, forKey: .type)
     }
   }
 }
@@ -129,6 +142,8 @@ public extension Command {
       return Command.open(.init(path: ""))
     case .script:
       return Command.script(.appleScript(id: "", name: nil, source: .path("")))
+    case .type:
+      return Command.type(.init(name: "", input: ""))
     }
   }
 }

@@ -126,7 +126,7 @@ class CommandsFeatureControllerTests: XCTestCase {
           XCTAssertEqual(newCommand.id, updatedCommand.id)
           XCTAssertEqual(keyboardCommand.keyboardShortcut.key, newKeyboardCommand.keyboardShortcut.key)
           XCTAssertEqual(keyboardCommand.keyboardShortcut.modifiers, newKeyboardCommand.keyboardShortcut.modifiers)
-        case .application, .open, .script:
+        case .application, .open, .script, .type:
           XCTFail("Wrong command kind. Should be `.application`")
         }
 

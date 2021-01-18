@@ -1,9 +1,10 @@
 import Foundation
 import Carbon
+import ModelKit
 
 public protocol KeyCodeMapping {
   func hashTable() -> [String: Int]
-  func map(_ keyCode: Int, modifiers: Int) throws -> String
+  func map(_ keyCode: Int, modifiers: UInt32) throws -> (rawValue: String, displayValue: String)
 }
 
 public enum KeyCodeMappingError: Error {
@@ -16,8 +17,8 @@ final class KeyCodeMapper: KeyCodeMapping {
   static var inputController = InputSourceController()
   static var shared: KeyCodeMapper = KeyCodeMapper()
 
-  var keyCodeLookup = [Int: String]()
-  var stringLookup = [String: Int]()
+  private(set) public var keyCodeLookup = [Int: String]()
+  private(set) public var stringLookup = [String: Int]()
 
   init(inputSource: InputSource? = nil, then handler: (() -> KeyCodeMapper)? = nil) {
     let inputController = Self.inputController
@@ -37,18 +38,26 @@ final class KeyCodeMapper: KeyCodeMapping {
 
   func hashTable() -> [String: Int] {
     var table = [String: Int]()
+
+    let modifiersCombinations: [UInt32] = [
+      0,
+      UInt32(optionKey >> 8) & 0xFF,
+      UInt32(shiftKey >> 8) & 0xFF,
+    ]
+
     for integer in 0..<128 {
-      guard let char = try? map(integer, modifiers: 0) else { continue }
-      table[char] = integer
+      for modifiers in modifiersCombinations {
+        if let container = try? map(integer, modifiers: modifiers) {
+          table[container.displayValue] = integer
+          table[container.rawValue] = integer
+        }
+      }
     }
+
     return table
   }
 
-  func map(_ keyCode: Int, modifiers: Int) throws -> String {
-    if let specialKey = specialKeys[keyCode] {
-      return specialKey
-    }
-
+  func map(_ keyCode: Int, modifiers: UInt32) throws -> (rawValue: String, displayValue: String) {
     let layoutData = TISGetInputSourceProperty(inputSource.source, kTISPropertyUnicodeKeyLayoutData)
     let dataRef = unsafeBitCast(layoutData, to: CFData.self)
     let keyLayout = unsafeBitCast(CFDataGetBytePtr(dataRef), to: UnsafePointer<CoreServices.UCKeyboardLayout>.self)
@@ -60,7 +69,7 @@ final class KeyCodeMapper: KeyCodeMapping {
     let error = CoreServices.UCKeyTranslate(keyLayout,
                                             UInt16(keyCode),
                                             UInt16(CoreServices.kUCKeyActionDisplay),
-                                            UInt32(modifiers),
+                                            modifiers,
                                             UInt32(LMGetKbdType()),
                                             keyTranslateOptions,
                                             &deadKeyState,
@@ -72,7 +81,17 @@ final class KeyCodeMapper: KeyCodeMapping {
       throw KeyCodeMappingError.unableToMapKeyCode(keyCode)
     }
 
-    return NSString(characters: &chars, length: length).uppercased
+    let rawValue = NSString(characters: &chars, length: length) as String
+    let displayValue: String
+
+    if let specialKey = specialKeys[keyCode] {
+      displayValue = specialKey
+    } else {
+      displayValue = rawValue.uppercased()
+    }
+
+    return (rawValue: rawValue,
+            displayValue: displayValue)
   }
 
   var specialKeys: [Int: String] {
