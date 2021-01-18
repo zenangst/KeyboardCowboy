@@ -34,6 +34,9 @@ struct CommandView: View {
       KeyboardCommandView(command: command,
                           editAction: editAction,
                           showContextualMenu: showContextualMenu)
+    case .type:
+      TypeCommandView(command: command, editAction: editAction,
+                      showContextualMenu: showContextualMenu)
     }
   }
 }

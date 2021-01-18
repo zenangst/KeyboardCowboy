@@ -112,13 +112,8 @@ class ModelFactory {
   }
 
   /// Used by `WorkflowListCell.swift`
-  func workflowCell(_ commands: [Command]? = nil, name: String? = nil) -> Workflow {
+  func workflowDetail(_ commands: [Command]? = nil, name: String? = nil) -> Workflow {
     workflow(commands, name: name)
-  }
-
-  /// Used by `WorkflowView.swift`
-  func workflowDetail(_ commands: [Command]? = nil) -> Workflow {
-    workflow(commands)
   }
 
   func commands(id: String = UUID().uuidString) -> [Command] {
@@ -128,7 +123,8 @@ class ModelFactory {
       shellScriptCommand(id: id),
       keyboardCommand(id: id),
       openCommand(id: id),
-      urlCommand(id: id, application: nil)
+      urlCommand(id: id, application: nil),
+      typeCommand(id: id)
     ]
 
     return result
@@ -163,6 +159,10 @@ class ModelFactory {
     Command.open(.init(id: id,
                        application: application,
                        path: "https://github.com"))
+  }
+
+  func typeCommand(id: String) -> Command {
+    Command.type(.init(id: id, name: "Type input", input: ""))
   }
 
   // MARK: Private methods

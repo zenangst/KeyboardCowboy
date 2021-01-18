@@ -74,7 +74,7 @@ final class CommandsFeatureController: ActionController {
       case .appleScript(_, _, .inline), .shell(_, _, .inline):
         break
       }
-    case .keyboard:
+    case .keyboard, .type:
       break
     }
   }

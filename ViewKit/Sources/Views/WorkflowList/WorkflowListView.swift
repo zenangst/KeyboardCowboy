@@ -89,10 +89,21 @@ struct WorkflowListView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    ForEach(ModelFactory().commands()) { command in
-      WorkflowListView(workflow: ModelFactory().workflowCell(
-        [command], name: command.name
-      ))
+    let models = [
+      Command.application(.init(application: Application.messages())),
+      Command.script(.appleScript(id: UUID().uuidString, name: nil, source: .path("path/to/applescript.scpt"))),
+      Command.script(.shell(id: UUID().uuidString, name: nil, source: .path("path/to/script.sh"))),
+      Command.keyboard(KeyboardCommand(keyboardShortcut: KeyboardShortcut.empty())),
+      Command.open(OpenCommand(path: "http://www.github.com")),
+      Command.open(OpenCommand.empty())
+    ]
+
+    return Group {
+      ForEach(models) { command in
+        WorkflowListView(workflow: ModelFactory().workflowDetail(
+          [command], name: command.name
+        ))
+      }
     }
   }
 }

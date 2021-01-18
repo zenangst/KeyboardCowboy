@@ -36,14 +36,14 @@ public class KeyboardShortcutValidator {
         (shortcut[kHISymbolicHotKeyEnabled] as? Bool) == true,
         let carbonKeyCode = shortcut[kHISymbolicHotKeyCode] as? Int,
         let carbonModifiers = shortcut[kHISymbolicHotKeyModifiers] as? Int,
-        let key = try? keycodeMapper.map(carbonKeyCode, modifiers: carbonModifiers)
+        let container = try? keycodeMapper.map(carbonKeyCode, modifiers: UInt32(carbonModifiers))
       else {
         continue
       }
 
       let nsEventFlags = NSEvent.ModifierFlags(carbon: carbonModifiers)
       let modifiers = ModifierKey.fromNSEvent(nsEventFlags)
-      let keyboardShortcut = KeyboardShortcut(key: key, modifiers: modifiers)
+      let keyboardShortcut = KeyboardShortcut(key: container.displayValue, modifiers: modifiers)
       result.append(keyboardShortcut)
     }
 
@@ -51,7 +51,7 @@ public class KeyboardShortcutValidator {
   }
 
   func validate(_ context: HotKeyContext) -> KeyboardShortcutUpdateContext {
-    guard let key = try? keycodeMapper.map(Int(context.keyCode), modifiers: 0) else {
+    guard let container = try? keycodeMapper.map(Int(context.keyCode), modifiers: 0) else {
       return .systemShortcut(.empty())
     }
     let validationContext: KeyboardShortcutUpdateContext
@@ -59,7 +59,7 @@ public class KeyboardShortcutValidator {
     let modifiers = ModifierKey.fromCGEvent(context.event.flags)
     keyboardShortcut = KeyboardShortcut(
       id: UUID().uuidString,
-      key: key,
+      key: container.displayValue,
       modifiers: modifiers)
 
     let systemKeyboardShortcut = systemKeyboardShortcuts
