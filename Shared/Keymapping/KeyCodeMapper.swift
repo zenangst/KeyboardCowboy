@@ -47,9 +47,11 @@ final class KeyCodeMapper: KeyCodeMapping {
     for integer in 0..<128 {
       for modifiers in modifiersCombinations {
         if let container = try? map(integer, modifiers: modifiers) {
+          if table[container.rawValue] == nil {
+            table[container.rawValue] = integer
+          }
           if table[container.displayValue] == nil {
             table[container.displayValue] = integer
-            table[container.rawValue] = integer
           }
         }
       }
