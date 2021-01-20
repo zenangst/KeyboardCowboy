@@ -41,18 +41,20 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
   private static let factory = ControllerFactory()
 
+  private let builtInController: BuiltInCommandController
   private let storageController: StorageControlling
   private let hudFeatureController = HUDFeatureController()
-
-  private var windowController: NSWindowController?
-  private var window: NSWindow?
-  private var featureContext: FeatureContext?
-  private var coreController: CoreControlling?
-  private var settingsController: SettingsController?
-  private var menuBarController: MenubarController?
-  private var subscriptions = Set<AnyCancellable>()
-  private var loaded: Bool = false
   private let pathFinderController = PathFinderController()
+
+  private var coreController: CoreControlling?
+  private var featureContext: FeatureContext?
+  private var keyboardShortcutWindowController: NSWindowController?
+  private var loaded: Bool = false
+  private var menuBarController: MenubarController?
+  private var quickRunFeatureController: QuickRunFeatureController?
+  private var quickRunWindowController: NSWindowController?
+  private var settingsController: SettingsController?
+  private var subscriptions = Set<AnyCancellable>()
 
   @Published var state: ApplicationState = .launching(LaunchView())
 
@@ -62,6 +64,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     self.storageController = Self.factory.storageController(
       path: configuration.path,
       fileName: configuration.fileName)
+    self.builtInController = BuiltInCommandController()
 
     do {
       // Don't run the entire app when running tests
@@ -77,8 +80,10 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       groups = pathFinderController.patch(groups, applications: installedApplications)
       let groupsController = Self.factory.groupsController(groups: groups)
       let hotKeyController = try? Self.factory.hotkeyController()
+
       let coreController = Self.factory.coreController(
         launchArguments.isEnabled(.disableKeyboardShortcuts) ? .disabled : .enabled,
+        builtInCommandController: builtInController,
         groupsController: groupsController,
         hotKeyController: hotKeyController,
         installedApplications: installedApplications
@@ -92,6 +97,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
       super.init(groups: groups, context: viewKitContext)
 
+      self.quickRunFeatureController = QuickRunFeatureController(commandController: coreController.commandController)
       self.subscribe(to: context)
       self.context = viewKitContext
       self.featureContext = context
@@ -111,7 +117,8 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     loaded = true
 
     SUUpdater.shared()?.checkForUpdatesInBackground()
-    createFloatingWindow()
+    createKeyboardShortcutWindow()
+    createQuickRun()
   }
 
   func receive(_ scenePhase: ScenePhase) {
@@ -164,7 +171,24 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
   // MARK: Private methods
 
-  private func createFloatingWindow() {
+  private func createQuickRun() {
+    guard let quickRunFeatureController = quickRunFeatureController else { return }
+
+    let window = QuickRunWindow(contentRect: .init(origin: .zero, size: CGSize(width: 300, height: 200)))
+    let windowController = NSWindowController(window: window)
+    let contentView = QuickRunView(query: Binding<String>(get: { quickRunFeatureController.query },
+                                                          set: { quickRunFeatureController.query = $0 }),
+                                   viewController: quickRunFeatureController.erase(),
+                                   window: window)
+    windowController.contentViewController = NSHostingController(rootView: contentView)
+    windowController.windowFrameAutosaveName = "QuickRunWindow"
+    windowController.window = window
+    self.quickRunWindowController = windowController
+    self.quickRunFeatureController?.window = window
+    builtInController.windowController = windowController
+  }
+
+  private func createKeyboardShortcutWindow() {
     let window = FloatingWindow(contentRect: .init(origin: .zero, size: CGSize(width: 300, height: 200)))
     let windowController = NSWindowController(window: window)
     var hudStack = HUDStack(hudProvider: hudFeatureController.erase())
@@ -177,11 +201,9 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     }).store(in: &subscriptions)
 
     windowController.showWindow(nil)
-
     window.setFrameOrigin(.zero)
 
-    self.window = window
-    self.windowController = windowController
+    self.keyboardShortcutWindowController = windowController
   }
 
   private static func loadApplications() -> [Application] {
@@ -205,6 +227,8 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       .receive(on: DispatchQueue.main)
       .sink { groups in
         self.groups = groups
+
+        self.quickRunFeatureController?.storage = self.groups.flatMap({ $0.workflows })
 
         if let selectedGroup = self.selectedGroup,
            let group =  groups.first(where: { $0.id == selectedGroup.id }) {

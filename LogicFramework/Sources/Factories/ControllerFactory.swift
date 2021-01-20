@@ -17,6 +17,7 @@ public final class ControllerFactory {
 
   public func coreController(_ initialState: CoreControllerState,
                              commandController: CommandControlling? = nil,
+                             builtInCommandController: BuiltInCommandControlling,
                              groupsController: GroupsControlling? = nil,
                              hotKeyController: HotKeyControlling? = nil,
                              installedApplications: [Application],
@@ -24,7 +25,8 @@ public final class ControllerFactory {
                              keycodeMapper: KeyCodeMapping? = nil,
                              workflowController: WorkflowControlling? = nil,
                              workspace: WorkspaceProviding = NSWorkspace.shared) -> CoreControlling {
-    let commandController = commandController ?? self.commandController()
+    let commandController = commandController ??
+      self.commandController(builtInCommandController: builtInCommandController)
     let groupsController = groupsController ?? self._groupsController
     let keycodeMapper = keycodeMapper ?? self._keycodeMapper
     let keyboardCommandController = keyboardCommandController ??
@@ -59,6 +61,7 @@ public final class ControllerFactory {
   public func commandController(
     appleScriptCommandController: AppleScriptControlling? = nil,
     applicationCommandController: ApplicationCommandControlling? = nil,
+    builtInCommandController: BuiltInCommandControlling? = nil,
     keyboardCommandController: KeyboardCommandControlling? = nil,
     openCommandController: OpenCommandControlling? = nil,
     shellScriptCommandController: ShellScriptControlling? = nil
@@ -72,10 +75,12 @@ public final class ControllerFactory {
       KeyboardCommandController(keyCodeMapper: _keycodeMapper)
     let openCommandController = openCommandController ?? self.openCommandController(workspace: workspace)
     let appleScriptCommandController = appleScriptCommandController ?? AppleScriptController()
+    let builtInCommandController = builtInCommandController ?? BuiltInCommandControllerMock()
     let shellScriptCommandController = shellScriptCommandController ?? ShellScriptController()
 
     return CommandController(appleScriptCommandController: appleScriptCommandController,
                              applicationCommandController: applicationCommandController,
+                             builtInCommandController: builtInCommandController,
                              keyboardCommandController: keyboardCommandController,
                              openCommandController: openCommandController,
                              shellScriptCommandController: shellScriptCommandController)

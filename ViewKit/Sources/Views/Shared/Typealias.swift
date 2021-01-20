@@ -4,6 +4,7 @@ public typealias ApplicationProvider = AnyStateController<[Application]>
 public typealias CommandsController = AnyActionController<CommandListView.Action>
 public typealias GroupsController = AnyActionController<GroupList.Action>
 public typealias HUDProvider = AnyStateController<[KeyboardShortcut]>
+public typealias QuickRunViewController = AnyViewController<[Workflow], QuickRunView.Action>
 public typealias KeyboardShortcutsController = AnyActionController<KeyboardShortcutList.UIAction>
 public typealias OpenPanelController = AnyViewController<String, OpenPanelAction>
 public typealias SearchController = AnyViewController<ModelKit.SearchResults, SearchResultsList.Action>
