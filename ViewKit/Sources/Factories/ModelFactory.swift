@@ -124,7 +124,8 @@ class ModelFactory {
       keyboardCommand(id: id),
       openCommand(id: id),
       urlCommand(id: id, application: nil),
-      typeCommand(id: id)
+      typeCommand(id: id),
+      Command.builtIn(.init(kind: .quickRun))
     ]
 
     return result

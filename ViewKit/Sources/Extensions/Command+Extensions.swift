@@ -6,6 +6,11 @@ extension Command {
     switch self {
     case .application(let applicationCommand):
       return applicationCommand.application.path
+    case .builtIn(let command):
+      switch command.kind {
+      case .quickRun:
+        return "ApplicationIcon"
+      }
     case .script:
       return "/System/Applications/Utilities/Script Editor.app"
     case .keyboard, .type:

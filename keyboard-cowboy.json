@@ -712,6 +712,27 @@
           }
         ],
         "name" : "Open Keynote"
+      },
+      {
+        "id" : "9DD8F0FD-D581-4D21-9899-61071EFE5040",
+        "commands" : [
+          {
+            "builtInCommand" : {
+              "id" : "BBA45D4D-C846-43AB-BF2C-20D66DAF9D85",
+              "kind" : "quickRun"
+            }
+          }
+        ],
+        "keyboardShortcuts" : [
+          {
+            "id" : "05E11228-8A1F-40D6-89A1-8CC1AADD3F43",
+            "key" : "K",
+            "modifiers" : [
+              "fn"
+            ]
+          }
+        ],
+        "name" : "Open Quick Run"
       }
     ],
     "color" : "#A78F6D"

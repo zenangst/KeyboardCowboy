@@ -29,6 +29,7 @@ public final class CommandController: CommandControlling {
   weak public var delegate: CommandControllingDelegate?
 
   let applicationCommandController: ApplicationCommandControlling
+  let builtInCommandController: BuiltInCommandControlling
   let keyboardCommandController: KeyboardCommandControlling
   let openCommandController: OpenCommandControlling
   let appleScriptCommandController: AppleScriptControlling
@@ -42,11 +43,13 @@ public final class CommandController: CommandControlling {
 
   init(appleScriptCommandController: AppleScriptControlling,
        applicationCommandController: ApplicationCommandControlling,
+       builtInCommandController: BuiltInCommandControlling,
        keyboardCommandController: KeyboardCommandControlling,
        openCommandController: OpenCommandControlling,
        shellScriptCommandController: ShellScriptControlling) {
     self.appleScriptCommandController = appleScriptCommandController
     self.applicationCommandController = applicationCommandController
+    self.builtInCommandController = builtInCommandController
     self.keyboardCommandController = keyboardCommandController
     self.openCommandController = openCommandController
     self.shellScriptCommandController = shellScriptCommandController
@@ -71,6 +74,8 @@ public final class CommandController: CommandControlling {
     switch command {
     case .application(let applicationCommand):
       subscribeToPublisher(applicationCommandController.run(applicationCommand), for: command)
+    case .builtIn(let builtInCommand):
+      subscribeToPublisher(builtInCommandController.run(builtInCommand), for: command)
     case .keyboard(let keyboardCommand):
       subscribeToPublisher(keyboardCommandController.run(keyboardCommand,
                                                          type: .keyDown,

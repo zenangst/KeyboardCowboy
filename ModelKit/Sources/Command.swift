@@ -5,6 +5,7 @@ import Foundation
 /// All underlying data-types are both `Codable` and `Hashable`.
 public enum Command: Identifiable, Codable, Hashable {
   case application(ApplicationCommand)
+  case builtIn(BuiltInCommand)
   case keyboard(KeyboardCommand)
   case open(OpenCommand)
   case script(ScriptCommand)
@@ -12,6 +13,7 @@ public enum Command: Identifiable, Codable, Hashable {
 
   public enum CodingKeys: String, CodingKey {
     case application = "applicationCommand"
+    case builtIn = "builtInCommand"
     case keyboard = "keyboardCommand"
     case open = "openCommand"
     case script = "scriptCommand"
@@ -32,6 +34,8 @@ public enum Command: Identifiable, Codable, Hashable {
       switch self {
       case .application(let command):
         return command.name.isEmpty ? "Open \(command.application.displayName)" : command.name
+      case .builtIn(let command):
+        return command.name
       case .keyboard(let command):
         var keyboardShortcut = command.keyboardShortcut.modifiers?.compactMap({ $0.pretty }).joined() ?? ""
         keyboardShortcut += command.keyboardShortcut.key
@@ -53,6 +57,8 @@ public enum Command: Identifiable, Codable, Hashable {
       switch self {
       case .application(var command):
         command.name = newValue
+      case .builtIn:
+        break
       case .keyboard(var command):
         command.name = newValue
       case .open(var command):
@@ -74,6 +80,8 @@ public enum Command: Identifiable, Codable, Hashable {
     switch self {
     case .application(let command):
       return command.id
+    case .builtIn(let command):
+      return command.id
     case .keyboard(let command):
       return command.id
     case .open(let command):
@@ -92,6 +100,9 @@ public enum Command: Identifiable, Codable, Hashable {
     case .application:
       let command = try container.decode(ApplicationCommand.self, forKey: .application)
       self = .application(command)
+    case .builtIn:
+      let command = try container.decode(BuiltInCommand.self, forKey: .builtIn)
+      self = .builtIn(command)
     case .keyboard:
       let command = try container.decode(KeyboardCommand.self, forKey: .keyboard)
       self = .keyboard(command)
@@ -119,6 +130,8 @@ public enum Command: Identifiable, Codable, Hashable {
     switch self {
     case .application(let command):
       try container.encode(command, forKey: .application)
+    case .builtIn(let command):
+      try container.encode(command, forKey: .builtIn)
     case .keyboard(let command):
       try container.encode(command, forKey: .keyboard)
     case .open(let command):
@@ -136,6 +149,8 @@ public extension Command {
     switch kind {
     case .application:
       return Command.application(ApplicationCommand.empty())
+    case .builtIn:
+      return Command.builtIn(.init(kind: .quickRun))
     case .keyboard:
       return Command.keyboard(KeyboardCommand.empty())
     case .open:

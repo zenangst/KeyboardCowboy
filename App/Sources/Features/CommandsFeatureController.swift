@@ -59,7 +59,6 @@ final class CommandsFeatureController: ActionController {
     case .application(let applicationCommand):
       self.workspace.reveal(applicationCommand.application.path)
     case .open(let openCommand):
-
       if openCommand.isUrl {
         self.commandController.run([command])
       } else {
@@ -74,7 +73,7 @@ final class CommandsFeatureController: ActionController {
       case .appleScript(_, _, .inline), .shell(_, _, .inline):
         break
       }
-    case .keyboard, .type:
+    case .keyboard, .type, .builtIn:
       break
     }
   }
