@@ -1,6 +1,7 @@
 import Cocoa
 import SwiftUI
 import ModelKit
+import Introspect
 
 public struct QuickRunView: View {
   public enum Action {
@@ -8,14 +9,17 @@ public struct QuickRunView: View {
   }
 
   public var window: EventWindow
+  @Binding var shouldActivate: Bool
   @Binding var query: String
   @ObservedObject var viewController: QuickRunViewController
 
   @State private var selection: String?
 
-  public init(query: Binding<String>,
+  public init(shouldActivate: Binding<Bool>,
+              query: Binding<String>,
               viewController: QuickRunViewController,
               window: EventWindow) {
+    _shouldActivate = shouldActivate
     _query = query
     _viewController = ObservedObject(wrappedValue: viewController)
     self.window = window
@@ -32,17 +36,28 @@ public struct QuickRunView: View {
         })
           .foregroundColor(.primary)
           .textFieldStyle(PlainTextFieldStyle())
+        .introspectTextField { textField in
+          if self.shouldActivate {
+            textField.becomeFirstResponder()
+            self.shouldActivate = false
+          }
+          textField.focusRingType = .none
+        }
       }
       .font(.largeTitle)
-      .padding()
+      .padding(.horizontal)
+      .padding(.vertical, 8)
       Divider()
       List(selection: $selection) {
         ForEach(viewController.state, id: \.id) { workflow in
           WorkflowListView(workflow: workflow)
             .tag(workflow.id)
         }
+      }.introspectTableView { tableView in
+        tableView.isContinuous = true
       }
     }
+    .ignoresSafeArea(.container, edges: .top)
     .frame(minWidth: 300)
     .onReceive(window.keyEventPublisher, perform: keyPressed(with:))
   }
@@ -80,9 +95,11 @@ private enum KeyCode: UInt16 {
 
 struct QuickRunStack_Previews: PreviewProvider {
   static var previews: some View {
-    QuickRunView(query: .constant("Open Mail Workflow"),
-                 viewController: QuickRunPreviewViewController().erase(),
-                 window: MockWindow())
+    QuickRunView(
+      shouldActivate: .constant(true),
+      query: .constant("Open Mail Workflow"),
+      viewController: QuickRunPreviewViewController().erase(),
+      window: MockWindow())
       .frame(width: 420, alignment: .center)
   }
 }

@@ -22,23 +22,6 @@ let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PR
 let bundleIdentifier = Bundle.main.bundleIdentifier!
 
 class Saloon: ViewKitStore, MenubarControllerDelegate {
-  enum ApplicationState {
-    case launching(LaunchView)
-    case needsPermission(PermissionsView)
-    case content(MainView)
-
-    var currentView: AnyView {
-      switch self {
-      case .launching(let view):
-        return view.erase()
-      case .needsPermission(let view):
-        return view.erase()
-      case .content(let view):
-        return view.erase()
-      }
-    }
-  }
-
   private static let factory = ControllerFactory()
 
   private let builtInController: BuiltInCommandController
@@ -55,8 +38,10 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private var quickRunWindowController: NSWindowController?
   private var settingsController: SettingsController?
   private var subscriptions = Set<AnyCancellable>()
+  private var shouldFocusOnQuickRunTextField: Bool = true
 
-  @Published var state: ApplicationState = .launching(LaunchView())
+  @Environment(\.scenePhase) var scenePhase
+  @Published var state: ApplicationState = .launching
 
   init() {
     Debug.isEnabled = launchArguments.isEnabled(.debug)
@@ -101,7 +86,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       self.subscribe(to: context)
       self.context = viewKitContext
       self.featureContext = context
-      self.state = .content(MainView(store: self, groupController: viewKitContext.groups))
     } catch let error {
       AppDelegateErrorController.handle(error)
       super.init(groups: [], context: .preview())
@@ -125,14 +109,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     switch scenePhase {
     case .active:
       initialLoad()
-      if UserDefaults.standard.hideDockIcon {
-        NSApp.setActivationPolicy(.regular)
-      }
-    case .background:
-      if UserDefaults.standard.hideDockIcon {
-        NSApp.setActivationPolicy(.accessory)
-      }
-    case .inactive:
+    case .background, .inactive:
       break
     @unknown default:
       assertionFailure("Unknown scene phase: \(scenePhase)")
@@ -176,10 +153,16 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
     let window = QuickRunWindow(contentRect: .init(origin: .zero, size: CGSize(width: 300, height: 200)))
     let windowController = NSWindowController(window: window)
-    let contentView = QuickRunView(query: Binding<String>(get: { quickRunFeatureController.query },
-                                                          set: { quickRunFeatureController.query = $0 }),
-                                   viewController: quickRunFeatureController.erase(),
-                                   window: window)
+
+    let contentView = QuickRunView(
+      shouldActivate: Binding<Bool>(
+        get: { self.shouldFocusOnQuickRunTextField },
+        set: { self.shouldFocusOnQuickRunTextField = $0 }),
+      query: Binding<String>(
+        get: { quickRunFeatureController.query },
+        set: { quickRunFeatureController.query = $0 }),
+      viewController: quickRunFeatureController.erase(),
+      window: window)
     windowController.contentViewController = NSHostingController(rootView: contentView)
     windowController.windowFrameAutosaveName = "QuickRunWindow"
     windowController.window = window
@@ -294,6 +277,16 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         self.coreController?.setState(.disabled)
       }
     }.store(in: &subscriptions)
+
+    var notificationsEnabled: Bool = launchArguments.isEnabled(.openWindowAtLaunch)
+
+    notificationCenter.publisher(for: NSApplication.didBecomeActiveNotification)
+      .sink { _ in
+        if self.loaded && notificationsEnabled {
+          self.openMainWindow()
+        }
+        notificationsEnabled = true
+      }.store(in: &subscriptions)
   }
 
   private func saveGroupsToDisk(_ groups: [ModelKit.Group]) {
@@ -304,9 +297,17 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     }
   }
 
+  private func openMainWindow() {
+    if NSApp.mainWindow?.className.contains("AppWindow") == true {
+      NSApp.mainWindow?.center()
+    }
+    NSWorkspace.shared.open(Bundle.main.bundleURL)
+    receive(.active)
+    state = .content(MainView(store: self, groupController: context.groups))
+  }
+
   // MARK: MenubarControllerDelegate
   func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem) {
-    receive(.active)
-    NSWorkspace.shared.open(Bundle.main.bundleURL)
+    openMainWindow()
   }
 }

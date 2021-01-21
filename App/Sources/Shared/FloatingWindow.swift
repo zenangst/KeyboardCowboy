@@ -3,7 +3,7 @@ import Cocoa
 class FloatingWindow: NSWindow {
   required init(contentRect: CGRect) {
     super.init(contentRect: contentRect,
-               styleMask: [.borderless, .nonactivatingPanel],
+               styleMask: [.borderless],
                backing: .buffered,
                defer: false)
     collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]

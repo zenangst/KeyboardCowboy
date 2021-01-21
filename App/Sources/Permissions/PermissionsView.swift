@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PermissionsView: View {
+struct PermissionsView: View, Equatable {
   let text: String
 
   var body: some View {
