@@ -298,10 +298,10 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   }
 
   private func openMainWindow() {
-    if NSApp.mainWindow?.className.contains("AppWindow") == true {
+    if NSApp.mainWindow?.className.contains("AppWindow") == true || NSApp.mainWindow == nil {
       NSApp.mainWindow?.center()
+      NSWorkspace.shared.open(Bundle.main.bundleURL)
     }
-    NSWorkspace.shared.open(Bundle.main.bundleURL)
     receive(.active)
     state = .content(MainView(store: self, groupController: context.groups))
   }
