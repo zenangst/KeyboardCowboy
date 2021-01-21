@@ -17,7 +17,6 @@ class BuiltInCommandController: BuiltInCommandControlling {
           } else {
             NSApp.activate(ignoringOtherApps: true)
             self.windowController?.showWindow(nil)
-            self.windowController?.becomeFirstResponder()
           }
         }
         promise(.success(()))

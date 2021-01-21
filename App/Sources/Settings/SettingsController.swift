@@ -12,14 +12,14 @@ class SettingsController {
     userDefaults.publisher(for: \.hideDockIcon)
       .sink { newValue in
         if launchArguments.isEnabled(.openWindowAtLaunch) {
-          NSApp.setActivationPolicy(.regular)
+          //NSApp.setActivationPolicy(.regular)
           return
         }
 
         if newValue {
-          NSApp.setActivationPolicy(.accessory)
+          // NSApp.setActivationPolicy(.accessory)
         } else {
-          NSApp.setActivationPolicy(.regular)
+          // NSApp.setActivationPolicy(.regular)
         }
       }.store(in: &subscriptions)
   }
