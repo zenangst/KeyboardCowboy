@@ -49,13 +49,14 @@ public struct QuickRunView: View {
         Divider()
         List(selection: $selection) {
           ForEach(viewController.state, id: \.id) { workflow in
-            WorkflowListView(workflow: workflow)
-              .tag(workflow.id)
-              .onTapGesture {
-                selection = workflow.id
-                viewController.perform(.run(workflow.id))
-                selection = ""
-              }
+            DeferView {
+              WorkflowListView(workflow: workflow)
+            }
+            .tag(workflow.id)
+            .onTapGesture {
+              selection = workflow.id
+              viewController.perform(.run(workflow.id))
+            }
           }
         }
       }
@@ -71,6 +72,10 @@ public struct QuickRunView: View {
   func keyPressed(with event: NSEvent, scrollViewProxy: ScrollViewProxy) {
     guard !viewController.state.isEmpty,
           let keyCode = KeyCode(rawValue: event.keyCode) else { return }
+
+    if self.selection == nil {
+      selection = viewController.state.first?.id
+    }
 
     if let selection = selection,
        let index = viewController.state.firstIndex(where: { $0.id == selection }) {
@@ -94,8 +99,6 @@ public struct QuickRunView: View {
       withAnimation {
         scrollViewProxy.scrollTo(newSelection, anchor: .top)
       }
-    } else {
-      selection = viewController.state.first?.id
     }
   }
 }
