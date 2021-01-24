@@ -5,6 +5,10 @@ struct EditBuiltInCommand: View {
   @State private var selection: String = ""
   @Binding var command: BuiltInCommand
 
+  init(command: Binding<BuiltInCommand>) {
+    _command = command
+  }
+
   var body: some View {
     VStack(spacing: 0) {
       HStack {
@@ -12,17 +16,20 @@ struct EditBuiltInCommand: View {
         Spacer()
       }.padding()
       Divider()
-        VStack {
-          Picker("Command: ", selection: Binding(get: {
-            selection
-          }, set: {
-            selection = $0
-          })) {
-            ForEach(BuiltInCommand.Kind.allCases) { command in
-              Text(command.rawValue)
-            }
+      VStack {
+        Picker("Command: ", selection: Binding(get: {
+          selection
+        }, set: {
+          selection = $0
+        })) {
+          ForEach(BuiltInCommand.Kind.allCases) { command in
+            Text(command.displayValue)
+              .id(command.id)
           }
-        }.padding()
+        }
+      }.padding()
+    }.onAppear {
+      selection = command.kind.rawValue
     }
   }
 }
