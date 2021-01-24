@@ -16,7 +16,10 @@ struct CommandView: View {
                       revealAction: revealAction, runAction: runAction,
                       showContextualMenu: showContextualMenu)
     case .builtIn:
-      Text("This works!")
+      BuiltInView(command: command,
+                  editAction: editAction,
+                  runAction: runAction,
+                  showContextualMenu: showContextualMenu)
     case .script(let kind):
       switch kind {
       case .appleScript:
