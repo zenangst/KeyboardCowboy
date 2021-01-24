@@ -16,6 +16,7 @@ public final class ControllerFactory {
   }
 
   public func coreController(_ initialState: CoreControllerState,
+                             bundleIdentifier: String,
                              commandController: CommandControlling? = nil,
                              builtInCommandController: BuiltInCommandControlling,
                              groupsController: GroupsControlling? = nil,
@@ -34,6 +35,7 @@ public final class ControllerFactory {
     let workflowController = workflowController ?? WorkflowController()
     let keyboardValidator = KeyboardShortcutValidator(keycodeMapper: keycodeMapper)
     return CoreController(initialState,
+                          bundleIdentifier: bundleIdentifier,
                           commandController: commandController,
                           groupsController: groupsController,
                           hotKeyController: hotKeyController,

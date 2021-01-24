@@ -17,6 +17,7 @@ class QuickRunWindow: NSWindow, EventWindow {
     level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(CGWindowLevelKey.maximumWindow)))
     titlebarAppearsTransparent = true
     titleVisibility = .hidden
+    isMovableByWindowBackground = true
     standardWindowButton(.closeButton)?.isHidden = true
     standardWindowButton(.zoomButton)?.isHidden = true
     standardWindowButton(.miniaturizeButton)?.isHidden = true
@@ -25,4 +26,6 @@ class QuickRunWindow: NSWindow, EventWindow {
   override func keyUp(with event: NSEvent) {
     publisher.send(event)
   }
+
+  override var acceptsFirstResponder: Bool { return true }
 }
