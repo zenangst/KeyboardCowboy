@@ -46,10 +46,12 @@ public final class CoreController: NSObject, CoreControlling,
   @Published public var currentKeyboardSequence = [KeyboardShortcut]()
   public var publisher: Published<[KeyboardShortcut]>.Publisher { $currentKeyboardSequence }
   private var activeWorkflows = [Workflow]()
-  private var frontmostApplicationObserver: NSKeyValueObservation?
   private var state: CoreControllerState = .disabled
+  private var subscriptions = [AnyCancellable]()
+  private var previousApplicationBundleIdentifier: String = ""
 
   public init(_ initialState: CoreControllerState,
+              bundleIdentifier: String,
               commandController: CommandControlling,
               groupsController: GroupsControlling,
               hotKeyController: HotKeyControlling?,
@@ -71,10 +73,18 @@ public final class CoreController: NSObject, CoreControlling,
     super.init()
     self.hotKeyController?.delegate = self
     self.commandController.delegate = self
-    self.reloadContext()
-    frontmostApplicationObserver = NSWorkspace.shared.observe(
-      \.frontmostApplication,
-      options: [.new], changeHandler: { [weak self] _, _ in self?.reloadContext() })
+
+    NSWorkspace.shared
+      .publisher(for: \.frontmostApplication)
+      .removeDuplicates()
+      .filter({ $0?.bundleIdentifier != bundleIdentifier })
+      .filter({ $0?.bundleIdentifier != self.previousApplicationBundleIdentifier })
+      .sink(receiveValue: { [weak self] application in
+        self?.reloadContext()
+        if let bundleIdentifier = application?.bundleIdentifier {
+          self?.previousApplicationBundleIdentifier = bundleIdentifier
+        }
+      }).store(in: &subscriptions)
 
     self.state = initialState
     self.groupsController.delegate = self
@@ -98,15 +108,13 @@ public final class CoreController: NSObject, CoreControlling,
       withTarget: self,
       selector: #selector(reloadContext),
       object: nil)
+
     Debug.print("🪀 Reloading context")
     var contextRule = Rule()
 
-    if let runningApplication = workspace.frontApplication,
-       let bundleIdentifier = runningApplication.bundleIdentifier {
-      contextRule.bundleIdentifiers = installedApplications
-        .compactMap({ $0.bundleIdentifier })
-        .filter({ $0 == bundleIdentifier })
-    }
+    contextRule.bundleIdentifiers = installedApplications
+      .compactMap({ $0.bundleIdentifier })
+      .filter({ $0 == previousApplicationBundleIdentifier })
 
     if let weekDay = DateComponents().weekday,
        let day = Rule.Day(rawValue: weekDay) {
@@ -145,12 +153,22 @@ public final class CoreController: NSObject, CoreControlling,
     }
 
     currentKeyboardSequence.append(keyboardShortcut)
-    if workflows.count == 1 && shortcutsToActivate.isEmpty {
+    if shortcutsToActivate.isEmpty {
       currentKeyboardSequence.append(KeyboardShortcut(key: "="))
+
+      let shouldCombineResult = workflows.count > 1
+
       for workflow in workflows {
-        currentKeyboardSequence.append(KeyboardShortcut(key: "\(workflow.name)"))
+        if !shouldCombineResult {
+          currentKeyboardSequence.append(KeyboardShortcut(key: "\(workflow.name)"))
+        }
         commandController.run(workflow.commands)
       }
+
+      if shouldCombineResult {
+        currentKeyboardSequence.append(KeyboardShortcut(key: "\(workflows.count) workflows"))
+      }
+
       reloadContext()
     } else {
       let workflowNames = workflowsToActivate.compactMap({ $0.name })

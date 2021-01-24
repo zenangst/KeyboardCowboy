@@ -38,7 +38,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private var quickRunWindowController: NSWindowController?
   private var settingsController: SettingsController?
   private var subscriptions = Set<AnyCancellable>()
-  private var shouldFocusOnQuickRunTextField: Bool = true
 
   @Environment(\.scenePhase) var scenePhase
   @Published var state: ApplicationState = .launching
@@ -68,6 +67,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
       let coreController = Self.factory.coreController(
         launchArguments.isEnabled(.disableKeyboardShortcuts) ? .disabled : .enabled,
+        bundleIdentifier: bundleIdentifier,
         builtInCommandController: builtInController,
         groupsController: groupsController,
         hotKeyController: hotKeyController,
@@ -151,21 +151,10 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private func createQuickRun() {
     guard let quickRunFeatureController = quickRunFeatureController else { return }
 
-    let window = QuickRunWindow(contentRect: .init(origin: .zero, size: CGSize(width: 300, height: 200)))
-    let windowController = NSWindowController(window: window)
-
-    let contentView = QuickRunView(
-      shouldActivate: Binding<Bool>(
-        get: { self.shouldFocusOnQuickRunTextField },
-        set: { self.shouldFocusOnQuickRunTextField = $0 }),
-      query: Binding<String>(
-        get: { quickRunFeatureController.query },
-        set: { quickRunFeatureController.query = $0 }),
-      viewController: quickRunFeatureController.erase(),
-      window: window)
-    windowController.contentViewController = NSHostingController(rootView: contentView)
-    windowController.windowFrameAutosaveName = "QuickRunWindow"
-    windowController.window = window
+    let window = QuickRunWindow(contentRect: .init(origin: .zero, size: CGSize(width: 300, height: 500)))
+    window.minSize.height = 530
+    let windowController = QuickRunWindowController(window: window,
+                                                    featureController: quickRunFeatureController)
     self.quickRunWindowController = windowController
     self.quickRunFeatureController?.window = window
     builtInController.windowController = windowController
@@ -298,12 +287,15 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   }
 
   private func openMainWindow() {
-    if NSApp.mainWindow?.className.contains("AppWindow") == true || NSApp.mainWindow == nil {
+    let quickRunIsOpen = quickRunWindowController?.window?.isVisible == true
+
+    if !quickRunIsOpen && (NSApp.mainWindow?.className.contains("AppWindow") == true ||
+        NSApp.mainWindow == nil) {
       NSApp.mainWindow?.center()
       NSWorkspace.shared.open(Bundle.main.bundleURL)
+      receive(.active)
+      state = .content(MainView(store: self, groupController: context.groups))
     }
-    receive(.active)
-    state = .content(MainView(store: self, groupController: context.groups))
   }
 
   // MARK: MenubarControllerDelegate
