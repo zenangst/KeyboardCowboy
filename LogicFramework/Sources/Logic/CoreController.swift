@@ -80,10 +80,10 @@ public final class CoreController: NSObject, CoreControlling,
       .filter({ $0?.bundleIdentifier != bundleIdentifier })
       .filter({ $0?.bundleIdentifier != self.previousApplicationBundleIdentifier })
       .sink(receiveValue: { [weak self] application in
-        self?.reloadContext()
         if let bundleIdentifier = application?.bundleIdentifier {
           self?.previousApplicationBundleIdentifier = bundleIdentifier
         }
+        self?.reloadContext()
       }).store(in: &subscriptions)
 
     self.state = initialState
