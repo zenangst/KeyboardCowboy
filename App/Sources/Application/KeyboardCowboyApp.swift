@@ -20,7 +20,7 @@ struct KeyboardCowboyApp: App {
         store.receive($0)
       })
       .onReceive(store.$state, perform: { value in
-        guard !isRunningPreview else { return }
+        if isRunningPreview { return }
         minWidth = 800
         minHeight = 520
         appState = value

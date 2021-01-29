@@ -59,7 +59,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       }
 
       let installedApplications = Self.loadApplications()
-
       var groups = try storageController.load()
       groups = pathFinderController.patch(groups, applications: installedApplications)
       let groupsController = Self.factory.groupsController(groups: groups)
@@ -199,7 +198,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       .receive(on: DispatchQueue.main)
       .sink { groups in
         self.groups = groups
-
         self.quickRunFeatureController?.storage = self.groups.flatMap({ $0.workflows })
 
         if let selectedGroup = self.selectedGroup,
@@ -268,13 +266,24 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     }.store(in: &subscriptions)
 
     var notificationsEnabled: Bool = launchArguments.isEnabled(.openWindowAtLaunch)
-
     notificationCenter.publisher(for: NSApplication.didBecomeActiveNotification)
       .sink { _ in
         if self.loaded && notificationsEnabled {
           self.openMainWindow()
         }
         notificationsEnabled = true
+      }.store(in: &subscriptions)
+
+    NSWorkspace.shared
+      .publisher(for: \.frontmostApplication)
+      .sink { runningApplication in
+        guard runningApplication?.bundleIdentifier != bundleIdentifier else {
+          return
+        }
+
+        if UserDefaults.standard.hideDockIcon && NSApp.mainWindow == nil {
+          NSApp.setActivationPolicy(.accessory)
+        }
       }.store(in: &subscriptions)
   }
 
@@ -293,6 +302,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         NSApp.mainWindow == nil) {
       NSApp.mainWindow?.center()
       NSWorkspace.shared.open(Bundle.main.bundleURL)
+
       receive(.active)
       state = .content(MainView(store: self, groupController: context.groups))
     }
