@@ -6,26 +6,24 @@ import Introspect
 @main
 struct KeyboardCowboyApp: App {
   @StateObject private var store = Saloon()
-  @Environment(\.scenePhase) var scenePhase
-  @State private var appState: ApplicationState = .launching
+  @State private var applicationState: ApplicationState = .launching
   @State private var minWidth: CGFloat = 0
   @State private var minHeight: CGFloat = 0
 
   var body: some Scene {
     WindowGroup {
-      Unwrap(appState, content: { state in
-        state.currentView
-      })
-      .onChange(of: scenePhase, perform: {
-        store.receive($0)
-      })
+      Unwrap(applicationState) {
+        $0.currentView
+      }
       .onReceive(store.$state, perform: { value in
-        if isRunningPreview { return }
+        guard !isRunningPreview else { return }
         minWidth = 800
         minHeight = 520
-        appState = value
+        applicationState = value
       })
-      .frame(minWidth: minWidth, minHeight: minHeight)
+      .frame(minWidth: minWidth,
+             minHeight: minHeight,
+             alignment: .center)
     }
     .windowToolbarStyle(UnifiedWindowToolbarStyle())
     .commands {
