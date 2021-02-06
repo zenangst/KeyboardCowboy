@@ -39,8 +39,9 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private var settingsController: SettingsController?
   private var subscriptions = Set<AnyCancellable>()
 
-  @Environment(\.scenePhase) var scenePhase
-  @Published var state: ApplicationState = .launching
+  private weak var mainWindow: NSWindow?
+
+  @Published var state: ApplicationState = .initial
 
   init() {
     Debug.isEnabled = launchArguments.isEnabled(.debug)
@@ -85,33 +86,11 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       self.subscribe(to: context)
       self.context = viewKitContext
       self.featureContext = context
+      self.state = .launching
+      self.subscribe(to: NSApplication.shared)
     } catch let error {
       AppDelegateErrorController.handle(error)
       super.init(groups: [], context: .preview())
-    }
-  }
-
-  public func initialLoad() {
-    guard !loaded else { return }
-
-    settingsController = SettingsController(userDefaults: .standard)
-    subscribe(to: UserDefaults.standard, context: context)
-    subscribe(to: NotificationCenter.default)
-    loaded = true
-
-    SUUpdater.shared()?.checkForUpdatesInBackground()
-    createKeyboardShortcutWindow()
-    createQuickRun()
-  }
-
-  func receive(_ scenePhase: ScenePhase) {
-    switch scenePhase {
-    case .active:
-      initialLoad()
-    case .background, .inactive:
-      break
-    @unknown default:
-      assertionFailure("Unknown scene phase: \(scenePhase)")
     }
   }
 
@@ -146,6 +125,28 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   }
 
   // MARK: Private methods
+
+  private func set(_ newState: ApplicationState) {
+    switch newState {
+    case .initial, .needsPermission:
+      break
+    case .launching:
+      set(.launched)
+      if UserDefaults.standard.hideDockIcon {
+        NSApp.setActivationPolicy(.accessory)
+      }
+    case .launched:
+      settingsController = SettingsController(userDefaults: .standard)
+      subscribe(to: UserDefaults.standard, context: context)
+      subscribe(to: NotificationCenter.default)
+      subscribe(to: NSWorkspace.shared)
+      SUUpdater.shared()?.checkForUpdatesInBackground()
+      createKeyboardShortcutWindow()
+      createQuickRun()
+    case .content(let view):
+      state = .content(view)
+    }
+  }
 
   private func createQuickRun() {
     guard let quickRunFeatureController = quickRunFeatureController else { return }
@@ -190,6 +191,40 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       $0.absoluteString.contains(".app")
     }, handler: applicationParser.process(_:))
     .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
+  }
+
+  private func subscribe(to application: NSApplication) {
+    application.publisher(for: \.isRunning)
+      .sink { [weak self] value in
+        guard value == true else { return }
+        self?.set(.launching)
+      }.store(in: &subscriptions)
+
+    application.publisher(for: \.mainWindow)
+      .sink { [weak self] mainWindow in
+        guard let mainWindow = mainWindow else { return }
+
+        self?.mainWindow = mainWindow
+
+        if mainWindow.frame.origin.x < 0 {
+          mainWindow.center()
+        }
+      }.store(in: &subscriptions)
+  }
+
+  private func subscribe(to workspace: NSWorkspace) {
+    workspace
+      .publisher(for: \.frontmostApplication)
+      .sink { [weak self] runningApplication in
+        guard let self = self,
+              runningApplication?.bundleIdentifier != bundleIdentifier else {
+          return
+        }
+
+        if UserDefaults.standard.hideDockIcon && self.mainWindow == nil {
+          NSApp.setActivationPolicy(.accessory)
+        }
+      }.store(in: &subscriptions)
   }
 
   private func subscribe(to context: FeatureContext) {
@@ -268,22 +303,10 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     var notificationsEnabled: Bool = launchArguments.isEnabled(.openWindowAtLaunch)
     notificationCenter.publisher(for: NSApplication.didBecomeActiveNotification)
       .sink { _ in
-        if self.loaded && notificationsEnabled {
+        if notificationsEnabled {
           self.openMainWindow()
         }
         notificationsEnabled = true
-      }.store(in: &subscriptions)
-
-    NSWorkspace.shared
-      .publisher(for: \.frontmostApplication)
-      .sink { runningApplication in
-        guard runningApplication?.bundleIdentifier != bundleIdentifier else {
-          return
-        }
-
-        if UserDefaults.standard.hideDockIcon && NSApp.mainWindow == nil {
-          NSApp.setActivationPolicy(.accessory)
-        }
       }.store(in: &subscriptions)
   }
 
@@ -297,19 +320,16 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
   private func openMainWindow() {
     let quickRunIsOpen = quickRunWindowController?.window?.isVisible == true
-
-    if !quickRunIsOpen && (NSApp.mainWindow?.className.contains("AppWindow") == true ||
-        NSApp.mainWindow == nil) {
-      NSApp.mainWindow?.center()
+    if !quickRunIsOpen {
+      set(.content(MainView(store: self, groupController: context.groups)))
       NSWorkspace.shared.open(Bundle.main.bundleURL)
-
-      receive(.active)
-      state = .content(MainView(store: self, groupController: context.groups))
+      mainWindow?.orderFrontRegardless()
     }
   }
 
   // MARK: MenubarControllerDelegate
   func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem) {
+    quickRunWindowController?.window?.close()
     openMainWindow()
   }
 }
