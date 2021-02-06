@@ -25,7 +25,9 @@ public struct HUDStack: View {
     .padding(2)
     .animation(.easeInOut)
     .onReceive(hudProvider.publisher, perform: { _ in
-      window?.setFrameOrigin(.init(x: 4, y: 0))
+      let screenOffset = NSScreen.main?.visibleFrame.origin.x ?? 0
+      let x = 4 + screenOffset
+      window?.setFrameOrigin(.init(x: x, y: 0))
     })
     .frame(width: 300)
   }
