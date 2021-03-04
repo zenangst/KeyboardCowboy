@@ -153,6 +153,12 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       .sink { [weak self] value in
         guard value == true else { return }
         self?.set(.launching)
+
+        if launchArguments.isEnabled(.openWindowAtLaunch) {
+          self?.setContentView()
+          NSApp.activate(ignoringOtherApps: true)
+          NSApp.setActivationPolicy(.regular)
+        }
       }.store(in: &subscriptions)
 
     application.publisher(for: \.mainWindow)
@@ -249,15 +255,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         self.coreController?.setState(.disabled)
       }
     }.store(in: &subscriptions)
-
-    var notificationsEnabled: Bool = launchArguments.isEnabled(.openWindowAtLaunch)
-    notificationCenter.publisher(for: NSApplication.didBecomeActiveNotification)
-      .sink { _ in
-        if notificationsEnabled {
-          self.openMainWindow()
-        }
-        notificationsEnabled = true
-      }.store(in: &subscriptions)
   }
 
   private func saveGroupsToDisk(_ groups: [ModelKit.Group]) {
@@ -268,10 +265,14 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     }
   }
 
+  private func setContentView() {
+    set(.content(MainView(store: self, groupController: context.groups)))
+  }
+
   private func openMainWindow() {
     let quickRunIsOpen = quickRunWindowController?.window?.isVisible == true
     if !quickRunIsOpen {
-      set(.content(MainView(store: self, groupController: context.groups)))
+      setContentView()
       NSWorkspace.shared.open(Bundle.main.bundleURL)
       mainWindow?.orderFrontRegardless()
     }
