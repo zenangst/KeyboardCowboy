@@ -136,11 +136,13 @@ final class WorkflowsFeatureController: ViewController,
           application: application)
         commands.append(Command.application(applicationCommand))
       case .applescript:
+        let name = "Run \(url.lastPathComponent)"
         commands.append(Command.script(.appleScript(id: UUID().uuidString,
-                                                    name: nil, source: .path(url.path))))
+                                                    name: name, source: .path(url.path))))
       case .shellscript:
+        let name = "Run \(url.lastPathComponent)"
         commands.append(Command.script(.shell(id: UUID().uuidString,
-                                              name: nil, source: .path(url.path))))
+                                              name: name, source: .path(url.path))))
       case .file:
         let name = "Open \(url.lastPathComponent)"
         commands.append(Command.open(.init(name: name, path: url.path)))
