@@ -18,20 +18,22 @@ struct EditApplicationCommandView: View {
         Spacer()
       }.padding()
       Divider()
-      HelperView(text: "Pick the application that you want to launch/activate", contentView: Group {
-        VStack {
-          Picker("Application: ", selection: Binding(get: {
-            selection
-          }, set: {
-            selection = $0
-            command = ApplicationCommand(id: command.id, application: installedApplications[$0])
-          })) {
-            ForEach(0..<installedApplications.count, id: \.self) { index in
-              Text(installedApplications[index].displayName).tag(index)
+      HelperView(text: "Pick the application that you want to launch/activate", {
+        Group {
+          VStack {
+            Picker("Application: ", selection: Binding(get: {
+              selection
+            }, set: {
+              selection = $0
+              command = ApplicationCommand(id: command.id, application: installedApplications[$0])
+            })) {
+              ForEach(0..<installedApplications.count, id: \.self) { index in
+                Text(installedApplications[index].displayName).tag(index)
+              }
             }
-          }
-        }.padding()
-      }.erase())
+          }.padding()
+        }
+      })
     }.onAppear {
       if let index = installedApplications
           .firstIndex(where: { command.application.bundleIdentifier == $0.bundleIdentifier }) {
