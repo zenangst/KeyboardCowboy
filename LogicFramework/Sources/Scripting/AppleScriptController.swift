@@ -26,6 +26,7 @@ enum AppleScriptControllingError: Error {
 final class AppleScriptController: AppleScriptControlling {
   let queue: DispatchQueue = .init(label: "com.zenangst.Keyboard-Cowboy.AppleScriptControllerQueue",
                                    qos: .userInitiated)
+  var cache = [String: NSAppleScript]()
 
   func run(_ source: ScriptCommand.Source) -> CommandPublisher {
     Future { [weak self] promise in
@@ -42,13 +43,22 @@ final class AppleScriptController: AppleScriptControlling {
           appleScript = script
         case .path(let path):
           let filePath = path.sanitizedPath
-          var dictionary: NSDictionary?
-          let url = URL(fileURLWithPath: filePath)
-          guard let script = NSAppleScript(contentsOf: url, error: &dictionary) else {
-            promise(.failure(AppleScriptControllingError.failedToLoadAppleScriptAtUrl(url, dictionary)))
-            return
+          if let cachedScript = self.cache[filePath] {
+            appleScript = cachedScript
+          } else {
+            var dictionary: NSDictionary?
+            let url = URL(fileURLWithPath: filePath)
+            guard let script = NSAppleScript(contentsOf: url, error: &dictionary) else {
+              promise(.failure(AppleScriptControllingError.failedToLoadAppleScriptAtUrl(url, dictionary)))
+              return
+            }
+            appleScript = script
+            self.cache[filePath] = appleScript
           }
-          appleScript = script
+        }
+
+        if !appleScript.isCompiled {
+          appleScript.compileAndReturnError(nil)
         }
 
         do {
