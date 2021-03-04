@@ -12,24 +12,6 @@ enum ApplicationState: Equatable {
   case needsPermission(PermissionsView)
   case content(MainView)
 
-  var minWidth: CGFloat {
-    switch self {
-    case .initial, .launched, .launching:
-      return 0
-    case .content, .needsPermission:
-      return 800
-    }
-  }
-
-  var minHeight: CGFloat {
-    switch self {
-    case .initial, .launched, .launching:
-      return 0
-    case .content, .needsPermission:
-      return 520
-    }
-  }
-
   var stringValue: String {
     switch self {
     case .initial:
