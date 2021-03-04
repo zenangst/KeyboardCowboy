@@ -6,6 +6,15 @@ public extension View {
     AnyView(self)
   }
 
+  @ViewBuilder
+  func placeholder<T>(if condition: Bool, _ view: @autoclosure () -> T) -> some View where T: View {
+    if condition {
+      view()
+    } else {
+      self
+    }
+  }
+
   func cursorOnHover(_ cursor: NSCursor) -> some View {
     onHover(perform: { hovering in
       if hovering { cursor.push() } else { NSCursor.pop() }
