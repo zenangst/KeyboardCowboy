@@ -17,12 +17,19 @@ public class PathFinderController {
         for (cOffset, command) in workflow.commands.enumerated() {
 
           if case .application(let appCommand) = command,
-             let application = appDictionary[appCommand.application.bundleIdentifier] {
+             let installedApplication = appDictionary[appCommand.application.bundleIdentifier] {
+
+            var newApplication = Application(
+              id: appCommand.application.id,
+              bundleIdentifier: installedApplication.bundleIdentifier,
+              bundleName: installedApplication.bundleName,
+              path: installedApplication.path)
+            newApplication.isElectronApp = installedApplication.isElectronApp
 
             let newCommand = Command.application(.init(
               id: appCommand.id,
               name: appCommand.name,
-              application: application
+              application: newApplication
             ))
 
             groups[gOffset].workflows[wOffset].commands[cOffset] = newCommand
