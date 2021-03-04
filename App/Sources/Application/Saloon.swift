@@ -22,7 +22,7 @@ let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PR
 let bundleIdentifier = Bundle.main.bundleIdentifier!
 
 class Saloon: ViewKitStore, MenubarControllerDelegate {
-  private static let factory = ControllerFactory()
+  private static let factory = ControllerFactory.shared
 
   private let builtInController: BuiltInCommandController
   private let storageController: StorageControlling
@@ -59,11 +59,11 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         return
       }
 
-      let installedApplications = Self.loadApplications()
+      let installedApplications = ApplicationController.loadApplications()
       var groups = try storageController.load()
       groups = pathFinderController.patch(groups, applications: installedApplications)
       let groupsController = Self.factory.groupsController(groups: groups)
-      let hotKeyController = try? Self.factory.hotkeyController()
+      let hotKeyController = try Self.factory.hotkeyController()
 
       let coreController = Self.factory.coreController(
         launchArguments.isEnabled(.disableKeyboardShortcuts) ? .disabled : .enabled,
@@ -89,39 +89,9 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       self.state = .launching
       self.subscribe(to: NSApplication.shared)
     } catch let error {
-      AppDelegateErrorController.handle(error)
+      ErrorController.handle(error)
       super.init(groups: [], context: .preview())
     }
-  }
-
-  static func applicationDirectories() -> [URL] {
-    var urls = [URL]()
-    if let userDirectory = try? FileManager.default.url(for: .applicationDirectory,
-                                                    in: .userDomainMask,
-                                                    appropriateFor: nil,
-                                                    create: false) {
-      urls.append(userDirectory)
-    }
-    if let applicationDirectory = try? FileManager.default.url(for: .allApplicationsDirectory,
-                                                           in: .localDomainMask,
-                                                           appropriateFor: nil,
-                                                           create: false) {
-      urls.append(applicationDirectory)
-    }
-    let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
-    let coreServicesDirectory = URL(fileURLWithPath: "/System/Library/CoreServices")
-    let applicationDirectoryD = URL(fileURLWithPath: "/Developer/Applications")
-    let applicationDirectoryN = URL(fileURLWithPath: "/Network/Applications")
-    let applicationDirectoryND = URL(fileURLWithPath: "/Network/Developer/Applications")
-    let applicationDirectoryS = URL(fileURLWithPath: "/Users/Shared/Applications")
-    let systemApplicationsDirectory = URL(fileURLWithPath: "/System/Applications")
-
-    urls.append(contentsOf: [homeDirectory, coreServicesDirectory,
-                applicationDirectoryD, applicationDirectoryN,
-                applicationDirectoryND, applicationDirectoryS,
-                systemApplicationsDirectory])
-
-    return urls
   }
 
   // MARK: Private methods
@@ -178,21 +148,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     self.keyboardShortcutWindowController = windowController
   }
 
-  private static func loadApplications() -> [Application] {
-    let urls: [URL] = applicationDirectories()
-    let fileIndexer = FileIndexController(urls: urls)
-    var patterns = FileIndexPatternsFactory.patterns()
-    patterns.append(contentsOf: FileIndexPatternsFactory.pathExtensions())
-    patterns.append(contentsOf: FileIndexPatternsFactory.lastPathComponents())
-
-    let applicationParser = ApplicationParser()
-
-    return fileIndexer.index(with: patterns, match: {
-      $0.absoluteString.contains(".app")
-    }, handler: applicationParser.process(_:))
-    .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
-  }
-
   private func subscribe(to application: NSApplication) {
     application.publisher(for: \.isRunning)
       .sink { [weak self] value in
@@ -203,12 +158,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     application.publisher(for: \.mainWindow)
       .sink { [weak self] mainWindow in
         guard let mainWindow = mainWindow else { return }
-
         self?.mainWindow = mainWindow
-
-        if mainWindow.frame.origin.x < 0 {
-          mainWindow.center()
-        }
       }.store(in: &subscriptions)
   }
 
@@ -314,7 +264,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     do {
       try storageController.save(groups)
     } catch let error {
-      AppDelegateErrorController.handle(error)
+      ErrorController.handle(error)
     }
   }
 

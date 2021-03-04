@@ -32,7 +32,7 @@ public protocol HotKeyControllingDelegate: AnyObject {
   func hotKeyController(_ controller: HotKeyControlling, didReceiveContext context: HotKeyContext)
 }
 
-enum HotKeyControllerError: Error {
+public enum HotKeyControllerError: Error {
   case unableToCreateMachPort
   case unableToCreateRunLoopSource
   case unableToCreateEventSource
@@ -75,6 +75,15 @@ final class HotKeyController: HotKeyControlling {
     let options: CGEventTapOptions = .defaultTap
     let mask: CGEventMask = 1 << CGEventType.keyDown.rawValue
       | 1 << CGEventType.keyUp.rawValue
+
+    // Taps placed at `kCGHIDEventTap', `kCGSessionEventTap',
+    // `kCGAnnotatedSessionEventTap', or on a specific process may only receive
+    // key up and down events if access for assistive devices is enabled
+    // (Preferences Accessibility panel, Keyboard view) or the caller is enabled
+    // for assistive device access, as by `AXMakeProcessTrusted'. If the tap is
+    // not permitted to monitor these events when the tap is created, then the
+    // appropriate bits in the mask are cleared. If that results in an empty
+    // mask, then NULL is returned.
     guard let machPort = CGEvent.tapCreate(
             tap: tap,
             place: place,

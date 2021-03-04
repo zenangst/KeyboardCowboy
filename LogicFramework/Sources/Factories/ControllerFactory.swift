@@ -2,10 +2,11 @@ import Cocoa
 import ModelKit
 
 public final class ControllerFactory {
+  public static let shared: ControllerFactory = .init()
   private let _keycodeMapper = KeyCodeMapper.shared
   private let _groupsController = GroupsController(groups: [])
 
-  public init() {}
+  private init() {}
 
   public func permissionsController() -> PermissionsControlling {
     PermissionsController()

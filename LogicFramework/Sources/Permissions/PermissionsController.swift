@@ -3,6 +3,7 @@ import Cocoa
 public protocol PermissionsControlling {
   var informativeText: String { get }
   func hasPrivileges() -> Bool
+  func displayModal()
 }
 
 final class PermissionsController: PermissionsControlling {
@@ -31,7 +32,7 @@ final class PermissionsController: PermissionsControlling {
 
   /// Display modal message using `NSAlert` and ask the user to provide
   /// accessibility permissions for the application
-  func displayModal() {
+  public func displayModal() {
     let alert = NSAlert()
     alert.messageText = "Enable Accessibility"
     alert.informativeText = informativeText
