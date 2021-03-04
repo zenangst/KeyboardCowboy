@@ -2,10 +2,6 @@ import BridgeKit
 import SwiftUI
 
 public extension View {
-  func erase() -> AnyView {
-    AnyView(self)
-  }
-
   @ViewBuilder
   func placeholder<T>(if condition: Bool, _ view: @autoclosure () -> T) -> some View where T: View {
     if condition {

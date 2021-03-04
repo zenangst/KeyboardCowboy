@@ -32,9 +32,9 @@ enum ApplicationState: Equatable {
     case .launching, .launched, .initial:
       return nil
     case .needsPermission(let view):
-      return view.erase()
+      return AnyView(view)
     case .content(let view):
-      return view.erase()
+      return AnyView(view)
     }
   }
 }
