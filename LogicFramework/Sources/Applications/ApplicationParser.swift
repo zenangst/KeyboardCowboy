@@ -32,9 +32,19 @@ public final class ApplicationParser {
     let keys = ["CFBundleIconFile", "CFBundleIconName"]
     guard checkDictionary(dictionary: infoDictionary, for: keys) else { return nil }
 
-    return Application(bundleIdentifier: bundleIdentifier,
-                       bundleName: resolvedBundleName,
-                       path: bundle.bundlePath)
+    var application = Application(bundleIdentifier: bundleIdentifier,
+                                  bundleName: resolvedBundleName,
+                                  path: bundle.bundlePath)
+
+    var isElectron: Bool = false
+    if let privateFrameworksPath = bundle.privateFrameworksPath {
+      let electronPath = "\(privateFrameworksPath)/Electron Framework.framework"
+      isElectron = FileManager.default.fileExists(atPath: electronPath)
+    }
+
+    application.isElectronApp = isElectron
+
+    return application
   }
 
   /// Verify existence of certain keys, only one of the keys must match

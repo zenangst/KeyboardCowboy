@@ -17,8 +17,8 @@ public class PathFinderController {
         for (cOffset, command) in workflow.commands.enumerated() {
 
           if case .application(let appCommand) = command,
-             let application = appDictionary[appCommand.application.bundleIdentifier],
-             application.path != appCommand.application.path {
+             let application = appDictionary[appCommand.application.bundleIdentifier] {
+
             let newCommand = Command.application(.init(
               id: appCommand.id,
               name: appCommand.name,

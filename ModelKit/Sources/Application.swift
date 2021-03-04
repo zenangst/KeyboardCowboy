@@ -12,6 +12,7 @@ public struct Application: Identifiable, Codable, Hashable {
   public let bundleIdentifier: String
   public let bundleName: String
   public let path: String
+  public var isElectronApp: Bool = false
   public private(set) var displayName: String = ""
 
   public init(id: String = UUID().uuidString,

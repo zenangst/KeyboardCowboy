@@ -21,6 +21,7 @@ public enum ApplicationCommandControllingError: Error {
 }
 
 final class ApplicationCommandController: ApplicationCommandControlling {
+  let config = NSWorkspace.OpenConfiguration()
   let windowListProvider: WindowListProviding
   let workspace: WorkspaceProviding
 
@@ -32,26 +33,44 @@ final class ApplicationCommandController: ApplicationCommandControlling {
   // MARK: Public methods
 
   func run(_ command: ApplicationCommand) -> CommandPublisher {
-    do {
+    Future { [weak self] promise in
+      guard let self = self else { return }
+      if command.application.isElectronApp {
+        self.workspace.open(URL(fileURLWithPath: command.application.path), config: self.config, completionHandler: nil)
+        promise(.success(()))
+      }
 
       let isFrontMostApplication = command.application
-        .bundleIdentifier == workspace.frontApplication?.bundleIdentifier
+        .bundleIdentifier == self.workspace.frontApplication?.bundleIdentifier
 
-      if isFrontMostApplication {
-        try activateApplication(command)
-        if !windowListProvider.windowOwners().contains(command.application.bundleName) {
-          try launchApplication(command)
+      if isFrontMostApplication, self.activateApplication(command) != nil {
+        if !self.windowListProvider.windowOwners().contains(command.application.bundleName) {
+          self.launchApplication(command, completion: { error in
+            if let error = error {
+              promise(.failure(error))
+            } else {
+              promise(.success(()))
+            }
+          })
+        } else {
+          promise(.success(()))
         }
       } else {
-        try launchApplication(command)
-        if !windowListProvider.windowOwners().contains(command.application.bundleName) {
-          try activateApplication(command)
+        self.launchApplication(command) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else if !self.windowListProvider.windowOwners().contains(command.application.bundleName) {
+            if let error = self.activateApplication(command) {
+              promise(.failure(error))
+            } else {
+              promise(.success(()))
+            }
+          } else {
+            promise(.success(()))
+          }
         }
       }
-      return Result.success(()).publisher.eraseToAnyPublisher()
-    } catch {
-      return Fail(error: error).eraseToAnyPublisher()
-    }
+    }.eraseToAnyPublisher()
   }
 
   /// Launch an application using the applications bundle identifier
@@ -61,12 +80,9 @@ final class ApplicationCommandController: ApplicationCommandControlling {
   ///                      bundle identifier.
   /// - Throws: If `NSWorkspace.launchApplication` returns `false`, the method will throw
   ///           `ApplicationCommandControllingError.failedToLaunch`
-  private func launchApplication(_ command: ApplicationCommand) throws {
-    if !workspace.launchApplication(withBundleIdentifier: command.application.bundleIdentifier,
-                                    options: .default,
-                                    additionalEventParamDescriptor: nil,
-                                    launchIdentifier: nil) {
-      throw ApplicationCommandControllingError.failedToLaunch(command)
+  private func launchApplication(_ command: ApplicationCommand, completion: @escaping (Error?) -> Void) {
+    workspace.open(URL(fileURLWithPath: command.application.path), config: config) { _, error in
+      completion(error)
     }
   }
 
@@ -82,14 +98,14 @@ final class ApplicationCommandController: ApplicationCommandControlling {
   /// - Throws: If the method cannot match a running application then
   ///           a `.failedToFindRunningApplication` will be thrown.
   ///           If `.activate` should fail, then another error will be thrown: `.failedToActivate`
-  private func activateApplication(_ command: ApplicationCommand) throws {
+  private func activateApplication(_ command: ApplicationCommand) -> Error? {
     guard
       let runningApplication = workspace
         .applications
         .first(where:
                 { $0.bundleIdentifier?.lowercased() == command.application.bundleIdentifier.lowercased() }
         ) else {
-      throw ApplicationCommandControllingError.failedToFindRunningApplication(command)
+      return ApplicationCommandControllingError.failedToFindRunningApplication(command)
     }
 
     var options: NSApplication.ActivationOptions = .activateIgnoringOtherApps
@@ -99,7 +115,9 @@ final class ApplicationCommandController: ApplicationCommandControlling {
     }
 
     if !runningApplication.activate(options: options) {
-      throw ApplicationCommandControllingError.failedToActivate(command)
+      return ApplicationCommandControllingError.failedToActivate(command)
+    } else {
+      return nil
     }
   }
 }
