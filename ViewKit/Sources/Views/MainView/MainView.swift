@@ -40,6 +40,10 @@ public struct MainView: View {
             workflowSelection = newValue.first
           })
       )
+      .placeholder(if: store.context.workflows.isEmpty,
+        Button(action: { store.context.workflows.perform(.create(groupId: groupSelection)) },
+               label: { Text("Add workflow") })
+      )
       .frame(minWidth: 250, idealWidth: 250)
       .navigationTitle("\(store.selectedGroup?.name ?? "")")
       .navigationSubtitle("Workflows")
@@ -48,6 +52,11 @@ public struct MainView: View {
       })
 
       DetailView(context: store.context, workflowController: store.context.workflow)
+        .placeholder(if: store.context.workflows.isEmpty,
+                     DetailViewPlaceHolder().toolbar(content: {
+                      ToolbarItemGroup { Spacer() }
+                     })
+        )
     }
   }
 }
