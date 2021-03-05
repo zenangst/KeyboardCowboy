@@ -15,7 +15,7 @@ class StorageControllerTests: XCTestCase {
   }
 
   func testStorageController() throws {
-    let controller = ControllerFactory().storageController(path: tmpPath)
+    let controller = ControllerFactory.shared.storageController(path: tmpPath)
     let groups = [
       Group(name: "A", color: "#000"),
       Group(name: "B", color: "#000"),

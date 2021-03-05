@@ -3,7 +3,7 @@ import ModelKit
 import LogicFramework
 
 class ApplicationController {
-  static private func commonPaths() -> [URL] {
+  static func commonPaths() -> [URL] {
     var urls = [URL]()
     if let userDirectory = try? FileManager.default.url(for: .applicationDirectory,
                                                     in: .userDomainMask,

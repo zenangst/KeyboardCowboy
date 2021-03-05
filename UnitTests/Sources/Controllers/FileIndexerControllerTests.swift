@@ -33,7 +33,8 @@ class FileIndexerControllerTests: XCTestCase {
     let entireDiskResult = CACurrentMediaTime() - start
 
     start = CACurrentMediaTime()
-    let controller2 = FileIndexController(urls: Saloon.applicationDirectories())
+
+    let controller2 = FileIndexController(urls: ApplicationController.commonPaths())
     _ = controller2.index(with: patterns, match: match, handler: handler)
     let targetedDirectoriesResult = CACurrentMediaTime() - start
 

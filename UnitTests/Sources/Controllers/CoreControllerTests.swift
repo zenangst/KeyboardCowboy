@@ -4,7 +4,7 @@ import XCTest
 
 class CoreControllerTests: XCTestCase {
   func testCoreController() {
-    let factory = ControllerFactory()
+    let factory = ControllerFactory.shared
     let id = UUID().uuidString
     let groups = self.groups(id: id)
     let openCommandController = OpenCommandControllerMock(.success(()))
@@ -18,10 +18,13 @@ class CoreControllerTests: XCTestCase {
 
     workspace.frontApplication = runningApplication
 
+    let builtInController = BuiltInCommandControllerMock()
     let workflowController = factory.workflowController()
     let controller = factory.coreController(
       .disabled,
+      bundleIdentifier: "com.zenangst.KeyboardCowboy.UnitTests",
       commandController: commandController,
+      builtInCommandController: builtInController,
       groupsController: groupsController,
       installedApplications: [],
       workflowController: workflowController,
@@ -38,7 +41,7 @@ class CoreControllerTests: XCTestCase {
   }
 
   func testInterceptPerformance() {
-    let factory = ControllerFactory()
+    let factory = ControllerFactory.shared
     let id = UUID().uuidString
     let groups = self.groups(id: id)
     let expectation = self.expectation(description: "Wait for command controller to run commands")
@@ -54,9 +57,12 @@ class CoreControllerTests: XCTestCase {
     workspace.frontApplication = runningApplication
 
     let workflowController = WorkflowControllerMock()
+    let builtInController = BuiltInCommandControllerMock()
     let controller = factory.coreController(
       .disabled,
+      bundleIdentifier: "com.zenangst.KeyboardCowboy.UnitTests",
       commandController: commandController,
+      builtInCommandController: builtInController,
       groupsController: groupsController,
       installedApplications: [],
       workflowController: workflowController,

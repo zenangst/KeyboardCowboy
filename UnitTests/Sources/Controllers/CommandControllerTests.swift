@@ -4,7 +4,7 @@ import XCTest
 
 class CommandControllerTests: XCTestCase {
   let modelFactory = ModelFactory()
-  let controllerFactory = ControllerFactory()
+  let controllerFactory = ControllerFactory.shared
 
   func testCommandControllerRunningCommandsSuccessfully() {
     let commands: [Command] = [
