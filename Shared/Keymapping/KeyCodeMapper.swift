@@ -52,6 +52,7 @@ final class KeyCodeMapper: KeyCodeMapping {
           }
           if table[container.displayValue] == nil {
             table[container.displayValue] = integer
+            table[container.displayValue.uppercased()] = integer
           }
         }
       }
