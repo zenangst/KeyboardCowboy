@@ -18,7 +18,9 @@ class QuickRunFeatureController: ViewController {
       if newValue.isEmpty {
         state = storage
       } else {
-        state = storage.filter({ $0.name.lowercased().contains(newValue.lowercased()) })
+        state = storage
+          .filter({ $0.name.lowercased().contains(newValue.lowercased()) })
+          .unique(by: { $0.name })
       }
     }
   }
@@ -37,4 +39,19 @@ class QuickRunFeatureController: ViewController {
       window?.close()
     }
   }
+}
+
+private extension Array {
+    func unique<T: Hashable>(by: ((Element) -> (T))) -> [Element] {
+        var set = Set<T>()
+        var arrayOrdered = [Element]()
+        for value in self {
+            if !set.contains(by(value)) {
+                set.insert(by(value))
+                arrayOrdered.append(value)
+            }
+        }
+
+        return arrayOrdered
+    }
 }

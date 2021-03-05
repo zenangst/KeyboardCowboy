@@ -113,8 +113,8 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       SUUpdater.shared()?.checkForUpdatesInBackground()
       createKeyboardShortcutWindow()
       createQuickRun()
-    case .content(let view):
-      state = .content(view)
+    case .content:
+      state = newState
     }
   }
 

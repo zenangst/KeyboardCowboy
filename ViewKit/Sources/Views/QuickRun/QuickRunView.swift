@@ -34,13 +34,14 @@ public struct QuickRunView: View {
           TextField("", text: $query)
             .foregroundColor(.primary)
             .textFieldStyle(PlainTextFieldStyle())
+            .colorMultiply(Color.accentColor)
             .introspectTextField { textField in
+              textField.focusRingType = .none
               guard textField.window?.isVisible == false else { return }
               if self.shouldActivate {
                 textField.becomeFirstResponder()
                 self.shouldActivate = false
               }
-              textField.focusRingType = .none
             }
         }
         .font(.largeTitle)
