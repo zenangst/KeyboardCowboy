@@ -27,5 +27,5 @@ class QuickRunWindow: NSWindow, EventWindow {
     publisher.send(event)
   }
 
-  override var acceptsFirstResponder: Bool { return true }
+  override var acceptsFirstResponder: Bool { true }
 }
