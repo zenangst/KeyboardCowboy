@@ -105,7 +105,9 @@ final class WorkflowsFeatureController: ViewController,
   private func drop(_ urls: [URL], groupId: String?, workflow: Workflow?) {
     guard let groupId = groupId else { return }
     var targetWorkflow: Workflow
-    let commands = generateCommands(urls)
+    let commands = DropCommandsController.generateCommands(
+      from: urls,
+      applications: applications)
 
     if var existingWorkflow = workflow {
       existingWorkflow.commands.append(contentsOf: commands)
@@ -122,41 +124,6 @@ final class WorkflowsFeatureController: ViewController,
     }
 
     try? delegate?.workflowsFeatureController(self, didDropWorkflow: targetWorkflow, groupId: groupId)
-  }
-
-  private func generateCommands(_ urls: [URL]) -> [Command] {
-    var commands = [Command]()
-    for url in urls {
-      switch url.dropType {
-      case .application:
-        guard let application = applications.first(where: { $0.path == url.path })
-        else { continue }
-        let applicationCommand = ApplicationCommand(
-          name: "Open \(application.bundleName)",
-          application: application)
-        commands.append(Command.application(applicationCommand))
-      case .applescript:
-        let name = "Run \(url.lastPathComponent)"
-        commands.append(Command.script(.appleScript(id: UUID().uuidString,
-                                                    name: name, source: .path(url.path))))
-      case .shellscript:
-        let name = "Run \(url.lastPathComponent)"
-        commands.append(Command.script(.shell(id: UUID().uuidString,
-                                              name: name, source: .path(url.path))))
-      case .file:
-        let name = "Open \(url.lastPathComponent)"
-        commands.append(Command.open(.init(name: name, path: url.path)))
-      case .web:
-        var name = "Open URL"
-        if let host = url.host {
-          name = "Open \(host)/\(url.lastPathComponent)"
-        }
-        commands.append(Command.open(.init(name: name, path: url.absoluteString)))
-      case .unsupported:
-        continue
-      }
-    }
-    return commands
   }
 
   private func transferWorkflows(_ ids: Set<String>, to group: ModelKit.Group) {
@@ -210,35 +177,9 @@ final class WorkflowsFeatureController: ViewController,
   func commandsFeatureController(_ controller: CommandsFeatureController, didDropUrls urls: [URL],
                                  in workflow: Workflow) {
     var workflow = workflow
-    let commands = generateCommands(urls)
+    let commands = DropCommandsController.generateCommands(from: urls,
+                                                           applications: applications)
     workflow.commands.append(contentsOf: commands)
     workflowController.perform(.set(workflow: workflow))
-  }
-}
-
-private enum DropType {
-  case application
-  case applescript
-  case shellscript
-  case file
-  case web
-  case unsupported
-}
-
-private extension URL {
-  var dropType: DropType {
-    if isFileURL {
-      if lastPathComponent.contains(".app") {
-        return .application
-      } else if lastPathComponent.contains(".sh") {
-        return .shellscript
-      } else if lastPathComponent.contains(".scpt") {
-        return .applescript
-      } else {
-        return .file
-      }
-    } else {
-      return .web
-    }
   }
 }

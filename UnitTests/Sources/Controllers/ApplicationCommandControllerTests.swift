@@ -3,7 +3,7 @@
 import XCTest
 
 class ApplicationCommandControllerTests: XCTestCase {
-  let controllerFactory = ControllerFactory()
+  let controllerFactory = ControllerFactory.shared
   let application = ModelFactory.application()
   lazy var windowListProvider = WindowListProviderMock([])
   lazy var workspaceProvider = WorkspaceProviderMock()
