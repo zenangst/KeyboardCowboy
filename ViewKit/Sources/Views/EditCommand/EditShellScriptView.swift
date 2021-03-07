@@ -35,7 +35,7 @@ struct EditShellScriptView: View {
           }))
 
           Text("Path:")
-          TextField("file://", text: Binding(get: {
+          TextField("file://", text: Binding<String>(get: {
             filePath
           }, set: {
             filePath = $0

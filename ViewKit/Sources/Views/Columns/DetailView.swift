@@ -1,5 +1,6 @@
 import ModelKit
 import SwiftUI
+import MbSwiftUIFirstResponder
 
 struct DetailToolbarConfig {
   var showSearch: Bool = false
@@ -7,6 +8,10 @@ struct DetailToolbarConfig {
 }
 
 public struct DetailView: View {
+  enum FirstResponders: Int {
+    case name
+  }
+
   public enum ViewState {
     case empty
     case workflow(ModelKit.Workflow)
@@ -23,12 +28,22 @@ public struct DetailView: View {
   @State private var sheet: CommandListView.Sheet?
   @State private var config = DetailToolbarConfig()
   @State private var isDropping: Bool = false
+  @Binding private var firstResponder: FirstResponders?
+
+  init(context: ViewKitFeatureContext,
+       firstResponder: Binding<FirstResponders?> = .constant(nil),
+       workflowController: WorkflowController) {
+    self.context = context
+    _firstResponder = firstResponder
+    self.workflowController = workflowController
+  }
 
   public var body: some View {
     ScrollView {
       VStack {
         VStack(alignment: .leading) {
           TextField("", text: workflow.name)
+            .firstResponder(id: FirstResponders.name, firstResponder: $firstResponder)
             .font(.largeTitle)
             .foregroundColor(.primary)
             .textFieldStyle(PlainTextFieldStyle())
@@ -77,6 +92,7 @@ extension DetailView {
     Binding<Workflow>(get: {
       workflowController.state
     }, set: {
+      firstResponder = .name
       workflowController.perform(.set(workflow: $0))
     })
   }

@@ -26,6 +26,9 @@ packages:
   Introspect:
     url: https://github.com/siteline/SwiftUI-Introspect
     from: 0.1.2
+  MbSwiftUIFirstResponder:
+    url: https://github.com/mobilinked/MbSwiftUIFirstResponder
+    branch: main
 targets:
   Keyboard-Cowboy:
     type: application
@@ -124,6 +127,7 @@ targets:
       - target: BridgeKit
       - target: ModelKit
       - package: Introspect
+      - package: MbSwiftUIFirstResponder
     sources:
       - ViewKit
       - Shared

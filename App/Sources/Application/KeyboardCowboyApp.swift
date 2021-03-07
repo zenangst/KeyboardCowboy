@@ -23,10 +23,16 @@ struct KeyboardCowboyApp: App {
     }
     .windowToolbarStyle(UnifiedWindowToolbarStyle())
     .commands {
-      KeyboardCowboyCommands(store: store,
-                             keyInputSubject: Saloon.keyInputSubject,
-                             selectedGroup: $store.selectedGroup,
-                             selectedWorkflow: $store.selectedWorkflow)
+      KeyboardCowboyCommands(
+        store: store,
+        keyInputSubject: Saloon.keyInputSubject,
+        selectedGroup: $store.selectedGroup,
+        selectedWorkflow: $store.selectedWorkflow,
+        newWorkflowAction: {
+          if let group = $store.selectedGroup.wrappedValue {
+            store.context.workflows.perform(.create(groupId: group.id))
+          }
+        })
     }
     Settings {
       KeyboardCowboySettingsView()
