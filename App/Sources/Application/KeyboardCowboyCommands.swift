@@ -9,6 +9,8 @@ struct KeyboardCowboyCommands: Commands {
   @Binding var selectedGroup: ModelKit.Group?
   @Binding var selectedWorkflow: ModelKit.Workflow?
 
+  let newWorkflowAction: () -> Void
+
   private var firstResponder: NSResponder? { NSApp.keyWindow?.firstResponder }
 
   var body: some Commands {
@@ -50,9 +52,7 @@ struct KeyboardCowboyCommands: Commands {
 
     CommandGroup(replacing: CommandGroupPlacement.newItem, addition: {
       Button("New Workflow") {
-        if let group = selectedGroup {
-          store.context.workflows.perform(.create(groupId: group.id))
-        }
+        newWorkflowAction()
       }.keyboardShortcut("n", modifiers: [.command])
 
       Button("New Keyboard shortcut") {

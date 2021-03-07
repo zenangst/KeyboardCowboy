@@ -1,9 +1,13 @@
 import Cocoa
 import SwiftUI
 import ModelKit
-import Introspect
+import MbSwiftUIFirstResponder
 
 public struct QuickRunView: View {
+  enum FirstResponders: Int {
+    case textField
+  }
+
   public enum Action {
     case run(String?)
   }
@@ -13,6 +17,7 @@ public struct QuickRunView: View {
   @Binding var query: String
   @ObservedObject var viewController: QuickRunViewController
   @State private var selection: String?
+  @State private var firstResponder: FirstResponders? = .textField
 
   public init(shouldActivate: Binding<Bool>,
               query: Binding<String>,
@@ -31,17 +36,14 @@ public struct QuickRunView: View {
           Image("ApplicationIcon")
             .resizable()
             .frame(width: 48, height: 48, alignment: .center)
+
           TextField("", text: $query)
+            .firstResponder(id: FirstResponders.textField, firstResponder: $firstResponder)
             .foregroundColor(.primary)
             .textFieldStyle(PlainTextFieldStyle())
             .colorMultiply(Color.accentColor)
             .introspectTextField { textField in
               textField.focusRingType = .none
-              guard textField.window?.isVisible == false else { return }
-              if self.shouldActivate {
-                textField.becomeFirstResponder()
-                self.shouldActivate = false
-              }
             }
         }
         .font(.largeTitle)
@@ -84,13 +86,17 @@ public struct QuickRunView: View {
       switch keyCode {
       case .enter:
         viewController.perform(.run(selection))
+        firstResponder = .textField
         return
       case .arrowUp:
         newIndex = max(index - 1, 0)
+        firstResponder = nil
       case .arrowDown:
         newIndex = max(min(index + 1, viewController.state.count - 1), 0)
+        firstResponder = nil
       case .escape:
         window.close()
+        firstResponder = .textField
         return
       }
 

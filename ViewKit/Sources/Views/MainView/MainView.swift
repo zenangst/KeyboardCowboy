@@ -8,6 +8,8 @@ public struct MainView: View {
   @AppStorage("workflowSelections") var workflowSelections: String?
   let groupController: GroupsController
 
+  @State var detailFirstResponder: DetailView.FirstResponders?
+
   public init(store: ViewKitStore,
               groupSelection: String? = nil,
               workflowSelection: String? = nil,
@@ -22,6 +24,8 @@ public struct MainView: View {
   public var body: some View {
     NavigationView {
       SidebarView(store: store)
+        .listStyle(SidebarListStyle())
+        .navigationTitle("Groups")
         .toolbar(content: { GroupListToolbar(groupController: groupController) })
 
       WorkflowList(
@@ -41,23 +45,36 @@ public struct MainView: View {
           })
       )
       .placeholder(if: store.context.workflows.isEmpty,
-        Button(action: { store.context.workflows.perform(.create(groupId: groupSelection)) },
-               label: { Text("Add workflow") })
+        Button(action: {
+          store.context.workflows.perform(.create(groupId: groupSelection))
+          selectNameField()
+        }, label: { Text("Add workflow") })
       )
       .frame(minWidth: 250, idealWidth: 250)
       .navigationTitle("\(store.selectedGroup?.name ?? "")")
       .navigationSubtitle("Workflows")
       .toolbar(content: {
-        WorkflowListToolbar(groupId: groupSelection, workflowsController: store.context.workflows)
+        WorkflowListToolbar(action: selectNameField,
+                            groupId: groupSelection,
+        workflowsController: store.context.workflows)
       })
 
-      DetailView(context: store.context, workflowController: store.context.workflow)
+      DetailView(context: store.context,
+                 firstResponder: $detailFirstResponder,
+                 workflowController: store.context.workflow)
         .placeholder(if: store.context.workflows.isEmpty,
                      DetailViewPlaceHolder().toolbar(content: {
                       ToolbarItemGroup { Spacer() }
                      })
         )
     }
+  }
+
+  public func selectNameField() {
+    detailFirstResponder = nil
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+      self.detailFirstResponder = .name
+    })
   }
 }
 
