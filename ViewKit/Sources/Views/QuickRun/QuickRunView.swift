@@ -76,12 +76,16 @@ public struct QuickRunView: View {
     guard !viewController.state.isEmpty,
           let keyCode = KeyCode(rawValue: event.keyCode) else { return }
 
+    var offset: Int = 0
+
     if self.selection == nil {
       selection = viewController.state.first?.id
+      offset = -1
     }
 
     if let selection = selection,
-       let index = viewController.state.firstIndex(where: { $0.id == selection }) {
+       var index = viewController.state.firstIndex(where: { $0.id == selection }) {
+      index += offset
       let newIndex: Int
       switch keyCode {
       case .enter:
@@ -90,7 +94,7 @@ public struct QuickRunView: View {
         return
       case .arrowUp:
         newIndex = max(index - 1, 0)
-        firstResponder = nil
+        firstResponder = index == newIndex ? .textField : nil
       case .arrowDown:
         newIndex = max(min(index + 1, viewController.state.count - 1), 0)
         firstResponder = nil
