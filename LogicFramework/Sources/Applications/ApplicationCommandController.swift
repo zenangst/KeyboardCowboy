@@ -36,8 +36,14 @@ final class ApplicationCommandController: ApplicationCommandControlling {
     Future { [weak self] promise in
       guard let self = self else { return }
       if command.application.isElectronApp {
-        self.workspace.open(URL(fileURLWithPath: command.application.path), config: self.config, completionHandler: nil)
-        promise(.success(()))
+        self.launchApplication(command, completion: { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
+          }
+        })
+        return
       }
 
       let isFrontMostApplication = command.application
