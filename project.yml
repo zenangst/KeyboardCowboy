@@ -49,7 +49,7 @@ targets:
         CODE_SIGN_IDENTITY: "-"
         CURRENT_PROJECT_VERSION: 61
         INFOPLIST_FILE: "App/Resources/Info.plist"
-        MARKETING_VERSION: 0.10.0
+        MARKETING_VERSION: 0.11.0
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
         PRODUCT_NAME: "Keyboard Cowboy"
         ENABLE_HARDENED_RUNTIME: true
