@@ -280,7 +280,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
 
   // MARK: MenubarControllerDelegate
   func menubarController(_ controller: MenubarController, didTapOpenApplication openApplicationMenuItem: NSMenuItem) {
-    quickRunWindowController?.window?.close()
+    quickRunWindowController?.close()
     openMainWindow()
   }
 }

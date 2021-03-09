@@ -4,7 +4,7 @@ import ModelKit
 import MbSwiftUIFirstResponder
 
 public struct QuickRunView: View {
-  enum FirstResponders: Int {
+  public enum FirstResponder: Int {
     case textField
   }
 
@@ -13,17 +13,16 @@ public struct QuickRunView: View {
   }
 
   public var window: EventWindow
-  @Binding var shouldActivate: Bool
+  @Binding var firstResponder: FirstResponder?
   @Binding var query: String
   @ObservedObject var viewController: QuickRunViewController
   @State private var selection: String?
-  @State private var firstResponder: FirstResponders? = .textField
 
-  public init(shouldActivate: Binding<Bool>,
+  public init(firstResponder: Binding<FirstResponder?>,
               query: Binding<String>,
               viewController: QuickRunViewController,
               window: EventWindow) {
-    _shouldActivate = shouldActivate
+    _firstResponder = firstResponder
     _query = query
     _viewController = ObservedObject(wrappedValue: viewController)
     self.window = window
@@ -38,7 +37,7 @@ public struct QuickRunView: View {
             .frame(width: 48, height: 48, alignment: .center)
 
           TextField("", text: $query)
-            .firstResponder(id: FirstResponders.textField, firstResponder: $firstResponder)
+            .firstResponder(id: FirstResponder.textField, firstResponder: $firstResponder)
             .foregroundColor(.primary)
             .textFieldStyle(PlainTextFieldStyle())
             .colorMultiply(Color.accentColor)
@@ -72,6 +71,10 @@ public struct QuickRunView: View {
     }
   }
 
+  public func focusOnTextField() {
+    firstResponder = .textField
+  }
+
   func keyPressed(with event: NSEvent, scrollViewProxy: ScrollViewProxy) {
     guard !viewController.state.isEmpty,
           let keyCode = KeyCode(rawValue: event.keyCode) else { return }
@@ -88,19 +91,19 @@ public struct QuickRunView: View {
       index += offset
       let newIndex: Int
       switch keyCode {
-      case .enter:
-        viewController.perform(.run(selection))
-        firstResponder = .textField
-        return
       case .arrowUp:
         newIndex = max(index - 1, 0)
         firstResponder = index == newIndex ? .textField : nil
       case .arrowDown:
         newIndex = max(min(index + 1, viewController.state.count - 1), 0)
         firstResponder = nil
+      case .enter:
+        viewController.perform(.run(selection))
+        fallthrough
       case .escape:
-        window.close()
         firstResponder = .textField
+        window.close()
+        self.selection = nil
         return
       }
 
@@ -112,7 +115,7 @@ public struct QuickRunView: View {
       }
     }
   }
-}
+  }
 
 private enum KeyCode: UInt16 {
   case enter = 36
@@ -124,7 +127,7 @@ private enum KeyCode: UInt16 {
 struct QuickRunStack_Previews: PreviewProvider {
   static var previews: some View {
     QuickRunView(
-      shouldActivate: .constant(true),
+      firstResponder: .constant(nil),
       query: .constant("Open Mail Workflow"),
       viewController: QuickRunPreviewViewController().erase(),
       window: MockWindow())
