@@ -24,7 +24,7 @@ public class PathFinderController {
               bundleIdentifier: installedApplication.bundleIdentifier,
               bundleName: installedApplication.bundleName,
               path: installedApplication.path)
-            newApplication.isElectronApp = installedApplication.isElectronApp
+            newApplication.metadata = installedApplication.metadata
 
             let newCommand = Command.application(.init(
               id: appCommand.id,

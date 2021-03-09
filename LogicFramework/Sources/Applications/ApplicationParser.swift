@@ -42,7 +42,8 @@ public final class ApplicationParser {
       isElectron = FileManager.default.fileExists(atPath: electronPath)
     }
 
-    application.isElectronApp = isElectron
+    application.metadata.isElectron = isElectron
+    application.metadata.isAgent = infoDictionary["LSUIElement"] != nil
 
     return application
   }

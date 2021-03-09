@@ -249,7 +249,9 @@ public final class CoreController: NSObject, CoreControlling,
 
   // MARK: CommandControllingDelegate
 
-  public func commandController(_ controller: CommandController, failedRunning command: Command, commands: [Command]) {
+  public func commandController(_ controller: CommandController, failedRunning command: Command,
+                                with error: Error, commands: [Command]) {
+    if Debug.isEnabled { ErrorController.displayModal(for: error) }
     Debug.print("🛑 Failed running: \(command)")
   }
 

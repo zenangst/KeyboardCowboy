@@ -8,11 +8,16 @@ import Foundation
 /// `Application` is used to launch applications and as a
 /// part of `Group` rules.
 public struct Application: Identifiable, Codable, Hashable {
+  public struct Metadata: Hashable {
+    public var isAgent: Bool = false
+    public var isElectron: Bool = false
+  }
+
   public let id: String
   public let bundleIdentifier: String
   public let bundleName: String
   public let path: String
-  public var isElectronApp: Bool = false
+  public var metadata: Metadata = Metadata()
   public private(set) var displayName: String = ""
 
   public init(id: String = UUID().uuidString,

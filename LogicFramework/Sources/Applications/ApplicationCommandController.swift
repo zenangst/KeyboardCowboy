@@ -15,9 +15,9 @@ public protocol ApplicationCommandControlling {
 }
 
 public enum ApplicationCommandControllingError: Error {
-  case failedToLaunch(ApplicationCommand)
-  case failedToFindRunningApplication(ApplicationCommand)
-  case failedToActivate(ApplicationCommand)
+  case failedToLaunch
+  case failedToFindRunningApplication
+  case failedToActivate
 }
 
 final class ApplicationCommandController: ApplicationCommandControlling {
@@ -35,7 +35,7 @@ final class ApplicationCommandController: ApplicationCommandControlling {
   func run(_ command: ApplicationCommand) -> CommandPublisher {
     Future { [weak self] promise in
       guard let self = self else { return }
-      if command.application.isElectronApp {
+      if command.application.metadata.isElectron {
         self.launchApplication(command, completion: { error in
           if let error = error {
             promise(.failure(error))
@@ -111,7 +111,7 @@ final class ApplicationCommandController: ApplicationCommandControlling {
         .first(where:
                 { $0.bundleIdentifier?.lowercased() == command.application.bundleIdentifier.lowercased() }
         ) else {
-      return ApplicationCommandControllingError.failedToFindRunningApplication(command)
+      return ApplicationCommandControllingError.failedToFindRunningApplication
     }
 
     var options: NSApplication.ActivationOptions = .activateIgnoringOtherApps
@@ -121,7 +121,7 @@ final class ApplicationCommandController: ApplicationCommandControlling {
     }
 
     if !runningApplication.activate(options: options) {
-      return ApplicationCommandControllingError.failedToActivate(command)
+      return ApplicationCommandControllingError.failedToActivate
     } else {
       return nil
     }
