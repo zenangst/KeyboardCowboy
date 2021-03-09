@@ -38,7 +38,6 @@ class BuiltInCommandController: BuiltInCommandControlling {
           } else {
             NSApp.activate(ignoringOtherApps: true)
             NSApp.mainWindow?.close()
-            windowController.viewController.shouldFocusOnQuickRunTextField = true
             windowController.showWindow(nil)
             windowController.becomeFirstResponder()
           }
