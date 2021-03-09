@@ -17,10 +17,27 @@ public protocol AppleScriptControlling {
   func run(_ source: ScriptCommand.Source) -> CommandPublisher
 }
 
-enum AppleScriptControllingError: Error {
+enum AppleScriptControllingError: Error, DebuggableError {
   case failedToCreateInlineAppleScript
   case failedToLoadAppleScriptAtUrl(URL, NSDictionary?)
-  case failedToRunAppleScript(String?)
+  case failedToRunAppleScript(Error)
+
+  var underlyingError: Error {
+    switch self {
+    case .failedToCreateInlineAppleScript:
+      return NSError(domain: "com.zenangst.KeyboardCowboy",
+                     code: -999, userInfo: [
+                      NSLocalizedDescriptionKey: "Unable to create inline script"
+                     ])
+    case .failedToLoadAppleScriptAtUrl(let url, _):
+      return NSError(domain: "com.zenangst.KeyboardCowboy",
+                     code: -999, userInfo: [
+                      NSLocalizedDescriptionKey: "Unable to load AppleScript at path: \(url.absoluteString)"
+                     ])
+    case .failedToRunAppleScript(let error):
+      return error
+    }
+  }
 }
 
 final class AppleScriptController: AppleScriptControlling {
@@ -58,7 +75,14 @@ final class AppleScriptController: AppleScriptControlling {
         }
 
         if !appleScript.isCompiled {
-          appleScript.compileAndReturnError(nil)
+          var compilerError: NSDictionary?
+          appleScript.compileAndReturnError(&compilerError)
+          if let compilerError = compilerError {
+            let error = NSError(domain: "com.zenangst.KeyboardCowboy.AppleScriptController",
+                                code: -999, userInfo: compilerError as? [String: Any])
+            promise(.failure(error))
+            return
+          }
         }
 
         do {
@@ -72,19 +96,24 @@ final class AppleScriptController: AppleScriptControlling {
     .eraseToAnyPublisher()
   }
 
+  private func createError(from dictionary: NSDictionary) -> Error? {
+    let code = dictionary[NSAppleScript.errorNumber] as? Int ?? 0
+    let errorMessage = dictionary[NSAppleScript.errorMessage] as? String ?? "Missing error message"
+    let descriptionMessage = dictionary[NSAppleScript.errorBriefMessage] ?? "Missing description"
+    let errorDomain = "com.zenangst.KeyboardCowboy.AppleScriptController"
+    let error = NSError(domain: errorDomain, code: code, userInfo: [
+      NSLocalizedFailureReasonErrorKey: errorMessage,
+      NSLocalizedDescriptionKey: descriptionMessage
+    ])
+    return error
+  }
+
   private func run(_ appleScript: NSAppleScript) throws {
     var dictionary: NSDictionary?
     appleScript.executeAndReturnError(&dictionary)
-    let errorNumber = dictionary?["NSAppleScriptErrorNumber"] as? Int ?? -999
-    /// **TODO**
-    ///
-    /// - Note: Improve error handling, this is based on the early prototype of the
-    ///         application. We should add a dictionary of known errors and properly
-    ///         map them into something user presentable.
-    /// - https://github.com/zenangst/KeyboardCowboy/issues/49
-    if [-1743, -1719].contains(errorNumber) {
-      let message = dictionary?["NSAppleScriptErrorMessage"] as? String
-      throw AppleScriptControllingError.failedToRunAppleScript(message ?? "Unknown error")
+    if let dictionary = dictionary,
+       let error = createError(from: dictionary) {
+      throw AppleScriptControllingError.failedToRunAppleScript(error)
     }
   }
 }
