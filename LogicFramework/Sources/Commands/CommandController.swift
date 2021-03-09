@@ -6,6 +6,7 @@ public typealias CommandPublisher = AnyPublisher<Void, Error>
 
 public protocol CommandControllingDelegate: AnyObject {
   func commandController(_ controller: CommandController, failedRunning command: Command,
+                         with error: Error,
                          commands: [Command])
   func commandController(_ controller: CommandController, runningCommand command: Command)
   func commandController(_ controller: CommandController, didFinishRunning commands: [Command])
@@ -81,38 +82,46 @@ public final class CommandController: CommandControlling {
                                                          type: .keyDown,
                                                          eventSource: nil), for: command)
     case .type(let command):
-      for key in command.input.compactMap(String.init) {
-        var modifiers = [ModifierKey]()
-
-        if key.uppercased() == key {
-          modifiers.append(.shift)
-        }
-
-        let keyboardCommand = KeyboardCommand(
-          keyboardShortcut:
-            KeyboardShortcut(key: key, modifiers: modifiers))
-
-        let command = Command.keyboard(keyboardCommand)
-
-        // Invoke keyboard command controller on the main thread.
-        DispatchQueue.main.async { [weak self] in
-          guard let self = self else { return }
-          self.subscribeToPublisher(self.keyboardCommandController.run(keyboardCommand,
-                                                             type: .keyDown,
-                                                             eventSource: nil), for: command)
-          self.subscribeToPublisher(self.keyboardCommandController.run(keyboardCommand,
-                                                             type: .keyUp,
-                                                             eventSource: nil), for: command)
-        }
-      }
+      handle(command)
     case .open(let openCommand):
       subscribeToPublisher(openCommandController.run(openCommand), for: command)
     case .script(let scriptCommand):
-      switch scriptCommand {
-      case .appleScript(_, _, let source):
-        subscribeToPublisher(appleScriptCommandController.run(source), for: command)
-      case .shell(_, _, let source):
-        subscribeToPublisher(shellScriptCommandController.run(source), for: command)
+      handle(scriptCommand, command: command)
+    }
+  }
+
+  private func handle(_ scriptCommand: ScriptCommand, command: Command) {
+    switch scriptCommand {
+    case .appleScript(_, _, let source):
+      subscribeToPublisher(appleScriptCommandController.run(source), for: command)
+    case .shell(_, _, let source):
+      subscribeToPublisher(shellScriptCommandController.run(source), for: command)
+    }
+  }
+
+  private func handle(_ command: TypeCommand) {
+    for key in command.input.compactMap(String.init) {
+      var modifiers = [ModifierKey]()
+
+      if key.uppercased() == key {
+        modifiers.append(.shift)
+      }
+
+      let keyboardCommand = KeyboardCommand(
+        keyboardShortcut:
+          KeyboardShortcut(key: key, modifiers: modifiers))
+
+      let command = Command.keyboard(keyboardCommand)
+
+      // Invoke keyboard command controller on the main thread.
+      DispatchQueue.main.async { [weak self] in
+        guard let self = self else { return }
+        self.subscribeToPublisher(self.keyboardCommandController.run(keyboardCommand,
+                                                           type: .keyDown,
+                                                           eventSource: nil), for: command)
+        self.subscribeToPublisher(self.keyboardCommandController.run(keyboardCommand,
+                                                           type: .keyUp,
+                                                           eventSource: nil), for: command)
       }
     }
   }
@@ -130,7 +139,12 @@ public final class CommandController: CommandControlling {
           guard let self = self else { return }
           switch completion {
           case .failure(let error):
-            self.abortQueue(command, error: error)
+            if case let .application(command) = command,
+               command.application.metadata.isAgent {
+              self.runQueue()
+            } else {
+              self.abortQueue(command, error: error)
+            }
           case .finished:
             self.cancellables.removeAll()
             self.runQueue()
@@ -142,15 +156,25 @@ public final class CommandController: CommandControlling {
   }
 
   private func abortQueue(_ command: Command, error: Error) {
-    switch error {
-    case let error as ApplicationCommandControllingError:
-      var commands: [Command] = finishedCommands
-      commands.append(contentsOf: currentQueue)
-      self.handle(error, commands: commands)
-    default:
-      break
-    }
+    var commands: [Command] = finishedCommands
+    commands.append(contentsOf: currentQueue)
     currentQueue.removeAll()
+
+    DispatchQueue.main.async { [weak self] in
+      guard let self = self else { return }
+      switch error {
+      case let error as AppleScriptControllingError:
+        self.handle(error, command: command, commands: commands)
+      case let error as ApplicationCommandControllingError:
+        self.handle(error, command: command, commands: commands)
+      case let error as OpenCommandControllingError:
+        self.handle(error, command: command, commands: commands)
+      case let error as ShellScriptControllingError:
+        self.handle(error, command: command, commands: commands)
+      default:
+        break
+      }
+    }
   }
 
   private func runQueue() {
@@ -169,19 +193,49 @@ public final class CommandController: CommandControlling {
     }
   }
 
+  // MARK: Error handling
+
+  private func handle(_ appleScriptError: AppleScriptControllingError,
+                      command: Command,
+                      commands: [Command]) {
+    switch appleScriptError {
+    case .failedToCreateInlineAppleScript,
+         .failedToLoadAppleScriptAtUrl,
+         .failedToRunAppleScript:
+      delegate?.commandController(self, failedRunning: command,
+                                  with: appleScriptError, commands: commands)
+    }
+  }
+
   private func handle(_ applicationError: ApplicationCommandControllingError,
+                      command: Command,
                       commands: [Command]) {
     switch applicationError {
-    case .failedToActivate(let command),
-         .failedToFindRunningApplication(let command),
-         .failedToLaunch(let command):
-      DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
-        self.delegate?.commandController(
-          self,
-          failedRunning: .application(command),
-          commands: commands)
-      }
+    case .failedToActivate,
+         .failedToFindRunningApplication,
+         .failedToLaunch:
+      delegate?.commandController(self, failedRunning: command,
+                                  with: applicationError, commands: commands)
+    }
+  }
+
+  private func handle(_ openCommandError: OpenCommandControllingError,
+                      command: Command,
+                      commands: [Command]) {
+    switch openCommandError {
+    case .failedToOpenUrl:
+      self.delegate?.commandController(self, failedRunning: command,
+                                       with: openCommandError, commands: commands)
+    }
+  }
+
+  private func handle(_ shellCommandError: ShellScriptControllingError,
+                      command: Command,
+                      commands: [Command]) {
+    switch shellCommandError {
+    case .failedToRunShellScript:
+      self.delegate?.commandController(self, failedRunning: command,
+                                       with: shellCommandError, commands: commands)
     }
   }
 }

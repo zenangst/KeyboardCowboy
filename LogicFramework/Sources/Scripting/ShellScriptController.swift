@@ -22,6 +22,10 @@ public protocol ShellScriptControlling {
   func run(_ source: ScriptCommand.Source) -> CommandPublisher
 }
 
+enum ShellScriptControllingError: Error {
+  case failedToRunShellScript(Error)
+}
+
 final class ShellScriptController: ShellScriptControlling {
   func run(_ source: ScriptCommand.Source) -> CommandPublisher {
     Future { promise in
@@ -52,7 +56,7 @@ final class ShellScriptController: ShellScriptControlling {
                                 ])
             Debug.print("🛑 Unable to run: \(source)")
             Debug.print("🛑 Error: \(error)")
-            promise(.failure(error))
+            promise(.failure(ShellScriptControllingError.failedToRunShellScript(error)))
             return
           }
 

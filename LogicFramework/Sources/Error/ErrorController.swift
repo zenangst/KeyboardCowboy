@@ -1,12 +1,11 @@
 import Cocoa
-import LogicFramework
 
-final class ErrorController {
+public final class ErrorController {
   static private let factory = ControllerFactory.shared
 
   /// Display an error using `NSAlert`
   /// - Parameter error: The error that should be displayed
-  static func handle(_ error: Error) {
+  public static func handle(_ error: Error) {
     let permissionController = factory.permissionsController()
     if !permissionController.hasPrivileges() {
       permissionController.displayModal()
