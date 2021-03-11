@@ -47,7 +47,7 @@ targets:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
         CODE_SIGN_IDENTITY: "-"
-        CURRENT_PROJECT_VERSION: 62
+        CURRENT_PROJECT_VERSION: 65
         INFOPLIST_FILE: "App/Resources/Info.plist"
         MARKETING_VERSION: 0.12.0
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
