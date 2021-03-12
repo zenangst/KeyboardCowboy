@@ -17,7 +17,7 @@ do
   then
     printf "$OUTPUT"
     printf "\n"
-        echo "${GREEN}Succeded:${NC} $x\n" >&2
+    echo "${GREEN}Succeeded:${NC} $x\n" >&2
   else
     echo "${RED}Failed:${NC}\n" >&2
     echo "Re-run the failed step:\n\n >\t sh $PIPELINE_PATH/$x\n\n"
