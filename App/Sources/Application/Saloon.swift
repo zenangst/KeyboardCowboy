@@ -262,6 +262,8 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       try storageController.save(groups)
     } catch let error {
       ErrorController.handle(error)
+      NSApp.setActivationPolicy(.regular)
+      NSApp.activate(ignoringOtherApps: true)
     }
   }
 
