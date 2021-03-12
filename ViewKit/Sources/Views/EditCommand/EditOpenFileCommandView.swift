@@ -30,6 +30,17 @@ struct EditOpenFileCommandView: View {
       Divider()
       VStack {
         HStack {
+          Text("Name:").frame(width: 80, alignment: .trailing)
+          TextField(command.name, text: Binding(get: {
+            command.name
+          }, set: {
+            command = .init(id: command.id,
+                            name: $0,
+                            application: command.application,
+                            path: command.path)
+          }))
+        }
+        HStack {
           Text("Path:").frame(width: 80, alignment: .trailing)
           TextField("file://", text: Binding<String>(get: {
             filePath
