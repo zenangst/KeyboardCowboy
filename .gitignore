@@ -6,3 +6,7 @@ Keyboard-Cowboy.xcodeproj/xcuserdata/*
 Release/*.zip
 Release/*.app
 Release/.*
+.env
+exportOptions.plist
+Build/*.xcarchive
+Build/Releases/*
