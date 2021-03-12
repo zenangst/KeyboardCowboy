@@ -49,7 +49,7 @@ targets:
         CODE_SIGN_IDENTITY: "-"
         CURRENT_PROJECT_VERSION: 65
         INFOPLIST_FILE: "App/Resources/Info.plist"
-        MARKETING_VERSION: 0.12.0
+        MARKETING_VERSION: 0.12.1
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
         PRODUCT_NAME: "Keyboard Cowboy"
         ENABLE_HARDENED_RUNTIME: true
@@ -181,4 +181,5 @@ fileGroups:
   - README.md
   - XcodeGen
   - project.yml
+  - Scripts
   - UnitTests/Sources/Views/__Snapshots__
