@@ -37,7 +37,7 @@ if [[ "$OUTPUT" =~ $TICKET_PATTERN ]]; then
     if [[ "$INFO" =~ $STATUS_MESSAGE_PATTERN ]]; then
       STATUS=${BASH_REMATCH[1]}
       if [ "$STATUS" == "Package Approved" ]; then
-        echo "✅ Package is approved"
+        echo "📦 Package is approved"
         break
       else
         echo "🚦 Current status: $STATUS"
