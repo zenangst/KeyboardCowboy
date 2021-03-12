@@ -2,15 +2,23 @@ import SwiftUI
 import ModelKit
 
 struct EditOpenFileCommandView: View {
+  @State private var applicationIdentifier: String = ""
   @Binding var command: OpenCommand
   @State var filePath: String
-  let openPanelController: OpenPanelController
+  private let openPanelController: OpenPanelController
+  private var installedApplications: [Application]
+  private var noApplication: Application = Application.empty()
 
   init(command: Binding<OpenCommand>,
-       openPanelController: OpenPanelController) {
+       openPanelController: OpenPanelController,
+       installedApplications: [Application]) {
     _command = command
     _filePath = State(initialValue: command.wrappedValue.path)
     self.openPanelController = openPanelController
+
+    var installedApplications = installedApplications
+    installedApplications.insert(noApplication, at: 0)
+    self.installedApplications = installedApplications
   }
 
   var body: some View {
@@ -22,16 +30,16 @@ struct EditOpenFileCommandView: View {
       Divider()
       VStack {
         HStack {
-          Text("Path:")
+          Text("Path:").frame(width: 80, alignment: .trailing)
           TextField("file://", text: Binding<String>(get: {
             filePath
           }, set: {
             filePath = $0
-            command = OpenCommand(id: command.id, path: $0)
+            command = .init(id: command.id,
+                            name: command.name,
+                            application: command.application,
+                            path: $0)
           }))
-        }
-        HStack {
-          Spacer()
           Button("Browse", action: {
             openPanelController.perform(.selectFile(type: nil, handler: {
               let newCommand = OpenCommand(id: command.id, path: $0)
@@ -40,7 +48,38 @@ struct EditOpenFileCommandView: View {
             }))
           })
         }
+        HStack(spacing: 0) {
+          Text("Application:").frame(width: 80, alignment: .trailing)
+          Picker("", selection: Binding(get: {
+            applicationIdentifier
+          }, set: {
+            applicationIdentifier = $0
+
+            var application: Application? = installedApplications
+              .first(where: { $0.id == applicationIdentifier })
+            if application == noApplication {
+              application = nil
+            }
+
+            command = .init(id: command.id, name: command.name,
+                            application: application, path: command.path)
+          })) {
+            ForEach(installedApplications, id: \.id) { element in
+              Text(element.displayName)
+                .tag(element.id)
+            }
+          }
+        }
       }.padding()
+    }.onAppear {
+      if let application = installedApplications
+          .first(where: { command.application?.bundleIdentifier == $0.bundleIdentifier }) {
+        applicationIdentifier = application.id
+      } else if !installedApplications.isEmpty {
+        command = .init(id: command.id,
+                        application: installedApplications.first!,
+                        path: "")
+      }
     }
   }
 }
@@ -53,6 +92,7 @@ struct EditOpenFileCommandView_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     EditOpenFileCommandView(
       command: .constant(OpenCommand(path: "")),
-      openPanelController: OpenPanelPreviewController().erase())
+      openPanelController: OpenPanelPreviewController().erase(),
+      installedApplications: ModelFactory().installedApplications())
   }
 }

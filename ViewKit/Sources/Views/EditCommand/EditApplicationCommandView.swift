@@ -51,9 +51,8 @@ struct EditApplicationCommandView_Previews: PreviewProvider, TestPreviewProvider
   }
 
   static var testPreview: some View {
-    let models = ModelFactory().installedApplications()
-    return EditApplicationCommandView(
+    EditApplicationCommandView(
       command: .constant(ApplicationCommand(application: .finder())),
-      installedApplications: models)
+      installedApplications: ModelFactory().installedApplications())
   }
 }

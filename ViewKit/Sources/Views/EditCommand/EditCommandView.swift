@@ -103,7 +103,8 @@ private extension EditCommandView {
               get: { command },
               set: { openCommand in
                 self.command = .open(openCommand)
-              }))
+              }),
+            installedApplications: applicationProvider.state)
         } else {
           EditOpenFileCommandView(
             command: Binding(
@@ -111,7 +112,8 @@ private extension EditCommandView {
               set: { openCommand in
                 self.command = .open(openCommand)
               }),
-            openPanelController: openPanelController)
+            openPanelController: openPanelController,
+            installedApplications: applicationProvider.state)
         }
         EmptyView()
       case .keyboard(let command):
