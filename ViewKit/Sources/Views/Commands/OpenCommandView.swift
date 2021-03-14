@@ -12,6 +12,15 @@ struct OpenCommandView: View {
     HStack {
       ZStack {
         IconView(path: command.icon)
+          .frame(width: 32, height: 32)
+        if case .open(let model) = command,
+           let application = model.application {
+          IconView(path: application.path)
+            .frame(width: 16, height: 16)
+            .offset(x: 12, y: 12)
+            .shadow(color: Color(.shadowColor).opacity(0.66),
+                    radius: 2)
+        }
       }.frame(width: 32, height: 32)
       VStack(alignment: .leading, spacing: 0) {
         Text(command.name).lineLimit(1)
@@ -49,7 +58,8 @@ struct OpenCommandView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     OpenCommandView(
-      command: Command.open(OpenCommand.empty()),
+      command: Command.open(OpenCommand(id: UUID().uuidString,
+                                        name: "Open Application folder in Finder", application: Application.finder(), path: "/Applications")),
       editAction: { _ in },
       revealAction: { _ in },
       runAction: { _ in },

@@ -34,7 +34,7 @@ struct EditOpenURLCommandView: View {
           }))
         }
         HStack {
-          Text("URL:").frame(width: 100, alignment: .trailing)
+          Text("URL:").frame(width: 80, alignment: .trailing)
           TextField("http://", text: Binding(get: {
             command.path
           }, set: {
@@ -45,7 +45,7 @@ struct EditOpenURLCommandView: View {
           }))
         }
         HStack(spacing: 0) {
-          Text("Application:").frame(width: 100, alignment: .trailing)
+          Text("Application:").frame(width: 80, alignment: .trailing)
           Picker("", selection: Binding(get: {
             applicationIdentifier
           }, set: {
