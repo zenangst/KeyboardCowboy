@@ -13,6 +13,7 @@ struct GroupListView: View {
 
   @State private var config: GroupListViewConfig
   @State private var isHovering: Bool = false
+  private var bundleIdentifier: String?
   let editAction: EditAction
 
   init(_ group: ModelKit.Group, editAction: @escaping EditAction) {
@@ -21,6 +22,10 @@ struct GroupListView: View {
                                                       symbol: group.symbol,
                                                       count: group.workflows.count))
     self.editAction = editAction
+
+    if let bundleIdentifier = group.rule?.bundleIdentifiers.first {
+      self.bundleIdentifier = bundleIdentifier
+    }
   }
 
   var body: some View {
@@ -45,14 +50,27 @@ struct GroupListView: View {
 
 private extension GroupListView {
   var icon: some View {
+    ZStack {
     Circle()
       .fill(Color(hex: config.hexColor))
       .frame(width: 24, height: 24, alignment: .center)
-      .overlay(
-        Image(systemName: config.symbol)
-          .renderingMode(.template)
-          .foregroundColor(.white)
+      .overlay(overlay)
+      .shadow(radius: 2)
+    }
+  }
+
+  var overlay: AnyView {
+    if let bundleIdentifier = bundleIdentifier,
+       let applicationIcon = IconController.shared.createIconView(bundleIdentifier) {
+      return AnyView(
+        applicationIcon.frame(width: 18, height: 18, alignment: .center)
+          .accentColor(.gray)
       )
+    } else {
+      return AnyView(Image(systemName: config.symbol)
+        .renderingMode(.template)
+        .foregroundColor(.white))
+    }
   }
 
   var text: some View {

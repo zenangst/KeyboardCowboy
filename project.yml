@@ -29,6 +29,11 @@ packages:
   MbSwiftUIFirstResponder:
     url: https://github.com/mobilinked/MbSwiftUIFirstResponder
     branch: main
+settingGroups:
+  app:
+    CODE_SIGN_IDENTITY: "Apple Development"
+    CODE_SIGN_STYLE: "Automatic"
+    DEVELOPMENT_TEAM: ${TEAM_ID}
 targets:
   Keyboard-Cowboy:
     type: application
@@ -44,15 +49,15 @@ targets:
     sources:
       - App
     settings:
+      groups: [app]
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
-        CODE_SIGN_IDENTITY: "-"
-        CURRENT_PROJECT_VERSION: 71
+        CURRENT_PROJECT_VERSION: 72
+        ENABLE_HARDENED_RUNTIME: true
         INFOPLIST_FILE: "App/Resources/Info.plist"
-        MARKETING_VERSION: 0.14.0
+        MARKETING_VERSION: 0.14.1
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
         PRODUCT_NAME: "Keyboard Cowboy"
-        ENABLE_HARDENED_RUNTIME: true
     preBuildScripts:
       - path: XcodeGen/Scripts/swiftlint.sh
         name: SwiftLint
@@ -89,11 +94,12 @@ targets:
     sources:
       - BridgeKit
     settings:
+      groups: [app]
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.BridgeKit"
-        MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "BridgeKit/Resources/Info.plist"
+        MARKETING_VERSION: 1.0.0
+        PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.BridgeKit"
   LogicFramework:
     type: framework
     platform: "macOS"
@@ -104,17 +110,19 @@ targets:
       - LogicFramework
       - Shared
     settings:
+      groups: [app]
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.Logic"
-        MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: 1
         INFOPLIST_FILE: "LogicFramework/Resources/Info.plist"
+        MARKETING_VERSION: 1.0.0
+        PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.Logic"
   ModelKit:
     type: framework
     platform: "macOS"
     sources:
       - ModelKit
     settings:
+      groups: [app]
       base:
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.ModelKit"
         MARKETING_VERSION: 1.0.0
@@ -132,6 +140,7 @@ targets:
       - ViewKit
       - Shared
     settings:
+      groups: [app]
       base:
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy.ViewKit"
         MARKETING_VERSION: 1.0.0

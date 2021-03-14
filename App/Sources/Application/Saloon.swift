@@ -55,11 +55,13 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       // Don't run the entire app when running tests
       if launchArguments.isEnabled(.runningUnitTests) ||
           isRunningPreview {
+        self.state = .launched
         super.init(groups: [], context: .preview())
         return
       }
 
       let installedApplications = ApplicationController.loadApplications()
+      IconController.shared.applications = installedApplications
       var groups = try storageController.load()
       groups = pathFinderController.patch(groups, applications: installedApplications)
       let groupsController = Self.factory.groupsController(groups: groups)

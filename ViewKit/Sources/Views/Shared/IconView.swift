@@ -6,8 +6,10 @@ struct IconView: View {
 
   var body: some View {
     ZStack {
-      iconLoader.image
+      iconLoader.image?
+        .resizable()
     }
+    .frame(minWidth: 12, minHeight: 12)
     .onAppear { iconLoader.load(path) }
     .onDisappear { iconLoader.cancel() }
   }

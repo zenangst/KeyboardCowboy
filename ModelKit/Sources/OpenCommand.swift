@@ -53,6 +53,6 @@ public struct OpenCommand: Identifiable, Codable, Hashable {
 
 public extension OpenCommand {
   static func empty() -> OpenCommand {
-    OpenCommand(path: "")
+    OpenCommand(path: "/Applications")
   }
 }

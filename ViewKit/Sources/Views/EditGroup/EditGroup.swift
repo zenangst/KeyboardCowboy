@@ -131,6 +131,7 @@ private extension EditGroup {
           VStack(spacing: 0) {
             HStack {
               IconView(path: application.path)
+                .frame(width: 32, height: 32)
               Text(application.displayName)
               Spacer()
               Button("-", action: {
