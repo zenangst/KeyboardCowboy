@@ -55,7 +55,7 @@ targets:
         CURRENT_PROJECT_VERSION: 72
         ENABLE_HARDENED_RUNTIME: true
         INFOPLIST_FILE: "App/Resources/Info.plist"
-        MARKETING_VERSION: 0.14.1
+        MARKETING_VERSION: 0.14.2
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
         PRODUCT_NAME: "Keyboard Cowboy"
     preBuildScripts:

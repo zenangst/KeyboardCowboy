@@ -8,6 +8,8 @@ NC='\033[0m' # No Color
 PIPELINE_PATH="Scripts/release_pipeline"
 PIPELINE=`ls -1 $PIPELINE_PATH`
 
+sh configure.sh
+
 for x in $PIPELINE
 do
   printf "${LIGHT_PURPLE}Running:${NC} $x\n"
