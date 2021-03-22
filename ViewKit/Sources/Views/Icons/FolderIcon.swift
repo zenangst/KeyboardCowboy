@@ -1,64 +1,88 @@
 import SwiftUI
 
 struct FolderIcon: View {
+  @Environment(\.colorScheme) var colorScheme
+
   var havelockBlue: NSColor {
-    NSColor(red:0.31, green:0.51, blue:0.76, alpha:1.00)
+    var color = NSColor(red:0.31, green:0.51, blue:0.76, alpha:1.00)
+    if colorScheme == .dark {
+      color = color.blended(withFraction: 0.25, of: NSColor.systemIndigo) ?? color
+    }
+    return color
   }
 
   var blueGray: NSColor {
-    NSColor(red:0.42, green:0.62, blue:0.80, alpha:1.00)
+    var color = NSColor(red:0.42, green:0.62, blue:0.80, alpha:1.00)
+    if colorScheme == .dark {
+      color = color.blended(withFraction: 0.25, of: NSColor.systemIndigo) ?? color
+    }
+    return color
   }
 
   var babyBlue: NSColor {
-    NSColor(red:0.60, green:0.80, blue:0.95, alpha:1.00)
+    var color = NSColor(red:0.60, green:0.80, blue:0.95, alpha:1.00)
+    if colorScheme == .dark {
+      color = color.blended(withFraction: 0.25, of: NSColor.systemIndigo) ?? color
+    }
+    return color
   }
 
   var body: some View {
-    ZStack(alignment: .topLeading) {
-      Text("macOS")
-        .frame(width: 57, height: 42)
-        .background(RoundedCorners(tl: 0, tr: 0,
-                                   bl: 4, br: 4)
-                      .fill(
-                        LinearGradient(
-                                      gradient: Gradient(
-                                        stops:
-                                          [.init(color: Color(blueGray),
-                                                 location: 0.33),
-                                             .init(color: Color(havelockBlue), location: 1.0)]
-                                      ),
-                                      startPoint: .top,
-                                      endPoint: .bottom)
+    GeometryReader { proxy in
+      ZStack(alignment: .center) {
+        GeometryReader { proxy in
+          Text("macOS")
+            .foregroundColor(.white)
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
+            .font(Font.system(size: proxy.size.width * 0.20, weight: .heavy, design: .rounded))
+            .background(RoundedCorners(tl: 0, tr: proxy.size.width * 0.025,
+                                       bl: proxy.size.width * 0.05,
+                                       br: proxy.size.width * 0.05)
+                          .fill(
+                            LinearGradient(
+                              gradient: Gradient(
+                                stops:
+                                  [.init(color: Color(blueGray),
+                                         location: 0.33),
+                                   .init(color: Color(havelockBlue), location: 1.0)]
+                              ),
+                              startPoint: .top,
+                              endPoint: .bottom)
 
-                      ))
-        .offset(x: 0, y: 2)
-        .shadow(radius: 2)
+                          ))
+            .shadow(radius: 2)
 
-      Text("")
-        .frame(width: 57, height: 1.5)
-        .shadow(color: Color(blueGray), radius: 5, x: 0, y: -2)
-        .background(RoundedCorners(tl: 4, tr: 4,
-                                   bl: 0, br: 0)
-                      .fill(Color(havelockBlue)))
-        .offset(x: 0, y: 1.0)
+          Text("")
+            .frame(width: proxy.size.width, height: proxy.size.height * 0.025)
+            .shadow(color: Color(blueGray), radius: 5, x: 0, y: -2)
+            .background(RoundedCorners(tl: proxy.size.width * 0.05,
+                                       tr: proxy.size.width * 0.05,
+                                       bl: 0, br: 0)
+                          .fill(Color(havelockBlue)))
+            .offset(x: 0, y: -proxy.size.height * 0.0025)
 
-      Text("")
-        .frame(width: 27, height: 4)
-        .background(RoundedCorners(tl: 4, tr: 8,
-                                   bl: 0, br: 0)
-                      .fill(
-                        LinearGradient(
-                                      gradient: Gradient(
-                                        stops:
-                                          [.init(color: Color(blueGray),
-                                                 location: 0.33),
-                                             .init(color: Color(havelockBlue), location: 1.0)]
-                                      ),
-                                      startPoint: .top,
-                                      endPoint: .bottom)
-
-                      ))
-        .offset(x: 1, y: -3)
+          Text("")
+            .frame(width: proxy.size.width * 0.47,
+                   height: proxy.size.height * 0.1)
+            .background(RoundedCorners(tl: proxy.size.width * 0.10,
+                                       tr: proxy.size.width * 0.10,
+                                       bl: 0, br: 0)
+                          .fill(
+                            LinearGradient(
+                              gradient: Gradient(
+                                stops:
+                                  [.init(color: Color(blueGray),
+                                         location: 0.33),
+                                   .init(color: Color(havelockBlue), location: 1.0)]
+                              ),
+                              startPoint: .top,
+                              endPoint: .bottom)
+                          ))
+            .offset(x: 0, y: -proxy.size.height * 0.1)
+        }
+      }
+      .padding([.leading, .trailing], proxy.size.width * 0.075 )
+      .padding([.top, .bottom], proxy.size.width * 0.2)
     }
   }
 }
@@ -110,7 +134,7 @@ struct FolderIcon_Previews: PreviewProvider, TestPreviewProvider {
   static var testPreview: some View {
     HStack {
       FolderIcon()
-        .frame(width: 57, height: 57)
+        .frame(width: 128, height: 128)
     }
   }
 }
