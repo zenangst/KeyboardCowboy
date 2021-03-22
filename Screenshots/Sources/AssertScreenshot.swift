@@ -11,7 +11,8 @@ extension XCTestCase {
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line,
-    redacted: Bool = false
+    redacted: Bool = false,
+    transparent: Bool = false
   ) {
     assertScreenshot(
       provider.testPreview,
@@ -19,7 +20,8 @@ extension XCTestCase {
       file: file,
       testName: testName,
       line: line,
-      redacted: redacted
+      redacted: redacted,
+      transparent: transparent
     )
   }
 
@@ -29,7 +31,8 @@ extension XCTestCase {
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line,
-    redacted: Bool = false
+    redacted: Bool = false,
+    transparent: Bool = false
   ) {
     let info = ProcessInfo.processInfo
     let version = "\(info.operatingSystemVersion.majorVersion).\(info.operatingSystemVersion.minorVersion)"
@@ -37,17 +40,17 @@ extension XCTestCase {
     for scheme in ColorScheme.allCases {
       let view = view
         .previewLayout(.sizeThatFits)
-        .background(Color(.windowBackgroundColor))
+        .background(Color( transparent ? .clear : .windowBackgroundColor))
         .colorScheme(scheme)
         .redacted(reason: .placeholder)
 
       let window = SnapshotWindow(view, size: size)
       let expectation = self.expectation(description: "Wait for window to load")
 
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         assertSnapshot(
           matching: window.viewController,
-          as: .image,
+          as: .image(precision: 1.0),
           named: "macOS\(version)-\(scheme.name)",
           file: file,
           testName: testName,
@@ -68,14 +71,13 @@ private class SnapshotWindow<Content>: NSWindow where Content: View {
 
   init(_ view: Content, size: CGSize) {
     let viewController = NSHostingController(rootView: view)
-    viewController.view.wantsLayer = true
-    viewController.view.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
     self.viewController = viewController
     super.init(contentRect: .zero,
                styleMask: [.closable, .miniaturizable, .resizable],
                backing: .buffered, defer: false)
     self.contentViewController = viewController
     setFrame(.init(origin: .zero, size: size), display: true)
+    backgroundColor = .clear
   }
 }
 

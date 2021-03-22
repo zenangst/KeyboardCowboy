@@ -15,7 +15,7 @@ struct FolderIcon: View {
 
   var body: some View {
     ZStack(alignment: .topLeading) {
-      Text("")
+      Text("macOS")
         .frame(width: 57, height: 42)
         .background(RoundedCorners(tl: 0, tr: 0,
                                    bl: 4, br: 4)
@@ -32,6 +32,7 @@ struct FolderIcon: View {
 
                       ))
         .offset(x: 0, y: 2)
+        .shadow(radius: 2)
 
       Text("")
         .frame(width: 57, height: 1.5)
@@ -59,7 +60,6 @@ struct FolderIcon: View {
                       ))
         .offset(x: 1, y: -3)
     }
-    .frame(width: 57, height: 57)
   }
 }
 
@@ -102,14 +102,15 @@ struct RoundedCorners: Shape {
     }
 }
 
-struct FolderIcon_Previews: PreviewProvider {
+struct FolderIcon_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
+    testPreview.previewAllColorSchemes()
+  }
+
+  static var testPreview: some View {
     HStack {
-      AppsIcon()
-      ScriptIcon()
-      KeyboardIcon()
       FolderIcon()
-      URLIcon()
+        .frame(width: 57, height: 57)
     }
   }
 }

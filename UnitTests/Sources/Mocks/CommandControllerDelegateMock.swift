@@ -26,7 +26,9 @@ class CommandControllerDelegateMock: CommandControllingDelegate {
     handler(.finished(commands))
   }
 
-  func commandController(_ controller: CommandController, failedRunning command: Command, commands: [Command]) {
+  func commandController(_ controller: CommandController,
+                         failedRunning command: Command, with error: Error,
+                         commands: [Command]) {
     handler(.failedRunning(command, commands: commands))
   }
 }

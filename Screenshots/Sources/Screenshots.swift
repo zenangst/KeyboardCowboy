@@ -31,4 +31,49 @@ class Screenshots: XCTestCase {
       size: CGSize(width: 300, height: 400)
     )
   }
+
+  func testAppsIconScreenshot() {
+    assertScreenshot(
+      from: AppsIcon_Previews.self,
+      size: CGSize(width: 57, height: 57),
+      redacted: false,
+      transparent: true
+    )
+  }
+
+  func testFolderIconScreenshot() {
+    assertScreenshot(
+      from: FolderIcon_Previews.self,
+      size: CGSize(width: 57, height: 57),
+      redacted: false,
+      transparent: true
+    )
+  }
+
+  func testKeyboardIconScreenshot() {
+    assertScreenshot(
+      from: KeyboardIcon_Previews.self,
+      size: CGSize(width: 57, height: 57),
+      redacted: false,
+      transparent: true
+    )
+  }
+
+  func testScriptIconScreenshot() {
+    assertScreenshot(
+      from: ScriptIcon_Previews.self,
+      size: CGSize(width: 57, height: 57),
+      redacted: false,
+      transparent: true
+    )
+  }
+
+  func testURLIconScreenshot() {
+    assertScreenshot(
+      from: URLIcon_Previews.self,
+      size: CGSize(width: 57, height: 57),
+      redacted: false,
+      transparent: true
+    )
+  }
 }
