@@ -44,7 +44,7 @@ class CommandControllerTests: XCTestCase {
     let commands: [Command] = [.application(applicationCommand)]
     let controller = controllerFactory.commandController(
       applicationCommandController: ApplicationCommandControllerMock(
-         .failure(ApplicationCommandControllingError.failedToLaunch(applicationCommand))
+         .failure(ApplicationCommandControllingError.failedToFindRunningApplication)
       )
     )
 
