@@ -11,7 +11,7 @@ extension XCTestCase {
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line,
-    redacted: Bool = false,
+    redacted: Bool = true,
     transparent: Bool = false
   ) {
     assertScreenshot(
@@ -31,20 +31,29 @@ extension XCTestCase {
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line,
-    redacted: Bool = false,
+    redacted: Bool = true,
     transparent: Bool = false
   ) {
     let info = ProcessInfo.processInfo
     let version = "\(info.operatingSystemVersion.majorVersion).\(info.operatingSystemVersion.minorVersion)"
 
     for scheme in ColorScheme.allCases {
-      let view = view
-        .previewLayout(.sizeThatFits)
-        .background(Color( transparent ? .clear : .windowBackgroundColor))
-        .colorScheme(scheme)
-        .redacted(reason: .placeholder)
+      let anyView: AnyView
 
-      let window = SnapshotWindow(view, size: size)
+      if redacted {
+        anyView = AnyView(view
+          .previewLayout(.sizeThatFits)
+          .background(Color( transparent ? .clear : .windowBackgroundColor))
+          .colorScheme(scheme)
+          .redacted(reason: .placeholder))
+      } else {
+        anyView = AnyView(view
+          .previewLayout(.sizeThatFits)
+          .background(Color( transparent ? .clear : .windowBackgroundColor))
+          .colorScheme(scheme))
+      }
+
+      let window = SnapshotWindow(anyView, size: size)
       let expectation = self.expectation(description: "Wait for window to load")
 
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

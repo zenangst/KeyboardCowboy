@@ -50,9 +50,9 @@ class Screenshots: XCTestCase {
     )
   }
 
-  func testKeyboardIconScreenshot() {
+  func testCommandKeyIconScreenshot() {
     assertScreenshot(
-      from: KeyboardIcon_Previews.self,
+      from: CommandKeyIcon_Previews.self,
       size: CGSize(width: 57, height: 57),
       redacted: false,
       transparent: true

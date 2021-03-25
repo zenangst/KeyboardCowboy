@@ -1,6 +1,8 @@
 import Cocoa
 
-public enum ModifierKey: String, CaseIterable, Codable, Hashable {
+public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable {
+  public var id: String { return rawValue }
+
   case shift = "$"
   case function = "fn"
   case control = "^"
@@ -22,6 +24,49 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable {
     if flags.contains(.maskSecondaryFn) { modifiers.append(.function) }
 
     return modifiers
+  }
+
+  public var symbol: String {
+    switch self {
+    case .function:
+      return "globe"
+    case .shift:
+      return ""
+    case .control:
+      return ""
+    case .option:
+      return ""
+    case .command:
+      return ""
+    }
+  }
+
+  public var writtenValue: String {
+    switch self {
+    case .function, .shift:
+      return ""
+    case .control:
+      return "control"
+    case .option:
+      return "option"
+    case .command:
+      return "command"
+    }
+  }
+
+  public var keyValue: String {
+    switch self {
+    case .function:
+      return "fn"
+    case .shift:
+      return "⇧"
+    case .control:
+      return "⌃"
+    case .option:
+      return "⌥"
+    case .command:
+      return "⌘"
+    }
   }
 
   public var pretty: String {

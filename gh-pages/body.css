@@ -153,156 +153,16 @@ section.hstack > img {
   margin-bottom: 16px;
 }
 
+#features div.hstack > div > img {
+  width: 96px;
+  height: 96px;
+  display: block;
+}
+
 div.illustration > div:first-child {
   box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.6),
               0 4px 2px 0 rgba(0, 0, 0, 0.1),
               0 8px 4px 0 rgba(0, 0, 0, 0.15);
-}
-
-#features div.app {
-  color: #fff;
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
-  opacity: 0.9;
-  background: var(--blue-color);
-  transform: rotate(0deg);
-}
-
-#features div.app:before {
-  content: '';
-  width: 100%;
-  height: 100%;
-  display: block;
-  border-radius: 12px;
-  position: absolute;
-  opacity: 0.7;
-  background: var(--blue-color);
-  transform: rotate(-10deg) translate(-25%, -25%)
-}
-
-#features div.app:after {
-  content: '';
-  width: 100%;
-  height: 100%;
-  display: block;
-  position: absolute;
-  border-radius: 12px;
-  opacity: 0.5;
-  background: var(--blue-color);
-  transform: rotate(-20deg) translate(-50%, -50%)
-}
-
-#features div.scripts {
-  background-color: black;
-  margin-bottom: 16px;
-  padding: 12px;
-  width: 29px;
-  height: 29px;
-  text-transform: uppercase;
-  text-align: left;
-  border-radius: 12px;
-  font-family: var(--monospace-font);
-  font-size: 14px;
-  color: var(--green-color);
-  border-left: 2px solid var(--gray-color);
-  border-top: 2px solid var(--gray-color);
-  border-right: 2px solid var(--gray-color);
-  border-bottom: 2px solid var(--gray-color);
-}
-
-#features div.keyboard-shortcut {
-  margin-bottom: 16px;
-  text-align: center;
-  width: 72px;
-  height: 48px;
-  text-transform: uppercase;
-  border-radius: 6px;
-  font-family: var(--monospace-font);
-  color: #fff;
-  border: 1px solid var(--gray-color);
-  background: linear-gradient(180deg,
-    rgba(0,0,0,0.9) 0%,
-    rgba(0,0,0,1) 100%);
-  position: absolute;
-}
-
-#features div.keyboard-shortcut:after {
-  content: '⌘';
-  font-family: var(--monospace-font);
-  font-size: 16px;
-  font-weight: 900;
-  position: absolute;
-  right: 6px;
-  top: 2px;
-}
-
-#features div.keyboard-shortcut:before {
-  content: 'command';
-  font-family: var(--monospace-font);
-  font-size: 11px;
-  position: absolute;
-  left: 13px;
-  bottom: 2px;
-  text-transform: lowercase;
-}
-
-#features div.folder {
-  background-color: #8ACEF7;
-  text-align: center;
-  width: 64px;
-  height: 48px;
-  text-transform: uppercase;
-  text-align: center;
-  border-radius: 6px;
-  font-family: var(--monospace-font);
-  font-size: 26px;
-  position: absolute;
-}
-
-#features div.folder:after {
-  content: '';
-  width: 64px;
-  height: 4px;
-  background-color: #2A73C0;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  border-radius: 3px 8px 0px 0px;
-  background: linear-gradient(180deg,
-    #5AA0D0 0%,
-    #2A73C0 100%);
-  border-bottom: 1px solid #8FCDF2;
-}
-
-#features div.folder:before {
-  content: '';
-  width: 24px;
-  height: 6px;
-  background-color: #5AA0D0;
-  position: absolute;
-  top: -6px;
-  left: 0.5px;
-  border-radius: 4px 8px 0px 0px;
-  background: #5AA0D0;
-  border: 1px solid #5AA0D0;
-}
-
-#features div.url-scheme {
-  padding-top: 24px;
-  display: block;
-  text-transform: uppercase;
-  text-align: center;
-  border-radius: 8px;
-  font-family: var(--monospace-font);
-  font-size: 11px;
-  font-weight: 800;
-  background-color: #86D06D;
-  color: #62AB34;
-  border-left: 1px solid #62AB34;
-  border-top: 1px solid #62AB34;
-  border-right: 1px solid #62AB34;
-  border-bottom: 1px solid #62AB34;
 }
 
 #features > section > div.hstack > div:first-child,
