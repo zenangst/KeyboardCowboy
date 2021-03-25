@@ -11,16 +11,20 @@ public struct HUDStack: View {
 
   public var body: some View {
     ScrollView(.horizontal) {
-      HStack(spacing: 2) {
+      HStack(spacing: 4) {
         ForEach(hudProvider.state) { keyboardShortcut in
-          KeyboardSequenceItem(title: keyboardShortcut.modifersDisplayValue, subtitle: keyboardShortcut.key)
-            .padding(2)
-            .foregroundColor(Color(NSColor.textColor))
-            .background(Color(NSColor.textBackgroundColor))
-            .cornerRadius(4)
-            .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+          if let modifiers = keyboardShortcut.modifiers,
+             !modifiers.isEmpty {
+            ForEach(modifiers) { modifier in
+              ModifierKeyIcon(key: modifier)
+            }
+          } else {
+            RegularKeyIcon(letter: "\(keyboardShortcut.key)")
+              .aspectRatio(contentMode: .fit)
+              .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+          }
         }
-      }.frame(minWidth: 32, minHeight: 32)
+      }.frame(height: 32)
     }
     .padding(2)
     .animation(.easeInOut)
@@ -29,12 +33,12 @@ public struct HUDStack: View {
       let x = 4 + screenOffset
       window?.setFrameOrigin(.init(x: x, y: 0))
     })
-    .frame(width: 300)
   }
 }
 
 struct HUDStack_Previews: PreviewProvider {
   static var previews: some View {
     HUDStack(hudProvider: HUDPreviewProvider().erase())
+      .frame(width: 600)
   }
 }

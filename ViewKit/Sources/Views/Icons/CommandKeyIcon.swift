@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct KeyboardIcon: View {
+struct CommandKeyIcon: View {
   var body: some View {
     GeometryReader { proxy in
       ZStack {
@@ -19,16 +19,15 @@ struct KeyboardIcon: View {
 
           Group {
             Text("⌘")
-              .font(
-                Font.custom("Menlo", fixedSize: proxy.size.width * 0.28))
+              .font(Font.system(size: proxy.size.width * 0.17, weight: .regular, design: .rounded))
           }
           .frame(width: proxy.size.width, alignment: .trailing)
-          .offset(x: -proxy.size.width * 0.065,
+          .offset(x: -proxy.size.width * 0.075,
                   y: proxy.size.width * 0.065)
 
           Group {
-            Text("command").font(
-              Font.custom("Menlo",fixedSize: proxy.size.width * 0.18))
+            Text("command")
+              .font(Font.system(size: proxy.size.width * 0.19, weight: .regular, design: .rounded))
           }
           .frame(width: proxy.size.width, height: proxy.size.height,
                   alignment: .bottom)
@@ -41,13 +40,13 @@ struct KeyboardIcon: View {
   }
 }
 
-struct KeyboardIcon_Previews: PreviewProvider, TestPreviewProvider {
+struct CommandKeyIcon_Previews: PreviewProvider, TestPreviewProvider {
   static var previews: some View {
     testPreview.previewAllColorSchemes()
   }
 
   static var testPreview: some View {
-    KeyboardIcon()
+    CommandKeyIcon()
       .frame(width: 128, height: 128)
   }
 }

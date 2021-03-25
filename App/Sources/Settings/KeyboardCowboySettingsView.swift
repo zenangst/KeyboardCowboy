@@ -17,7 +17,7 @@ struct KeyboardCowboySettingsView: View {
       Divider()
     }
     .padding()
-    .frame(width: 350, height: 250, alignment: .center)
+    .frame(width: 350, height: 250, alignment: .top)
   }
 }
 

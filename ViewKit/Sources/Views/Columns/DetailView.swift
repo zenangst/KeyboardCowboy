@@ -44,9 +44,12 @@ public struct DetailView: View {
         VStack(alignment: .leading) {
           TextField("", text: workflow.name)
             .firstResponder(id: FirstResponders.name, firstResponder: $firstResponder)
-            .font(.largeTitle)
-            .foregroundColor(.primary)
             .textFieldStyle(PlainTextFieldStyle())
+            .whenRedacted(apply: { _ in
+              Text(workflow.name.wrappedValue)
+            })
+            .foregroundColor(.primary)
+            .font(.largeTitle)
           HeaderView(title: "Keyboard shortcuts:").padding([.top])
           KeyboardShortcutList(workflow: workflow,
                                performAction: context.keyboardsShortcuts.perform(_:))
