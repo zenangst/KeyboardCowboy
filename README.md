@@ -33,7 +33,7 @@ Created project at /path/KeyboardCowboy3/Keyboard Cowboy.xcodeproj
 
 #### Install developer dependencies
 
-The proejct relies on both `SwiftLint` and that component can be installed using Homebrew.
+The project relies on both `SwiftLint` and that component can be installed using Homebrew.
 
 ```fish
 brew install swiftlint
