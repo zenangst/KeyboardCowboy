@@ -16,46 +16,51 @@ public struct HUDStack: View {
     ScrollViewReader { proxy in
       ScrollView(.horizontal) {
         HStack(spacing: 2) {
-          ForEach(hudProvider.state) { keyboardShortcut in
-            if hudProvider.state.first != keyboardShortcut,
-               hudProvider.state.last != keyboardShortcut {
-              Spacer().frame(width: 2)
-              Text("+")
-                .foregroundColor(Color(.textColor).opacity(0.5))
-                .font(Font.system(size: 12, weight: .regular, design: .rounded))
-              Spacer().frame(width: 2)
-            } else if hudProvider.state.last == keyboardShortcut {
-              Spacer().frame(width: 2)
-              Text("=")
-                .foregroundColor(Color(.textColor).opacity(0.5))
-                .font(Font.system(size: 12, weight: .regular, design: .rounded))
-              Spacer().frame(width: 2)
-            }
+          ForEach(hudProvider.state, id: \.id) { keyboardShortcut in
+            Group {
+              if hudProvider.state.first != keyboardShortcut,
+                 hudProvider.state.last != keyboardShortcut {
+                Spacer().frame(width: 2)
+                Text("+")
+                  .foregroundColor(Color(.textColor).opacity(0.5))
+                  .font(Font.system(size: 12, weight: .regular, design: .rounded))
+                Spacer().frame(width: 2)
+              } else if hudProvider.state.last == keyboardShortcut {
+                Spacer().frame(width: 2)
+                Text("=")
+                  .foregroundColor(Color(.textColor).opacity(0.5))
+                  .font(Font.system(size: 12, weight: .regular, design: .rounded))
+                Spacer().frame(width: 2)
+              }
 
-            if let modifiers = keyboardShortcut.modifiers,
-               !modifiers.isEmpty {
-              ForEach(modifiers) { modifier in
-                ModifierKeyIcon(key: modifier)
-                  .aspectRatio(contentMode: .fit)
+              Group {
+              if let modifiers = keyboardShortcut.modifiers,
+                 !modifiers.isEmpty {
+                ForEach(modifiers) { modifier in
+                  ModifierKeyIcon(key: modifier)
+                    .frame(minWidth: modifier == .shift || modifier == .command ? 48 : 32, maxWidth: 48)
+                }
+              }
+
+              RegularKeyIcon(letter: "\(keyboardShortcut.key)",
+                             glow: hudProvider.state.last == keyboardShortcut)
+                .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+                .frame(minWidth: 32)
               }
             }
-
-            RegularKeyIcon(letter: "\(keyboardShortcut.key)",
-                           glow: hudProvider.state.last == keyboardShortcut)
-              .aspectRatio(contentMode: .fit)
-              .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
-              .onAppear(perform: {
-                if let lastId = hudProvider.state.last {
-                  proxy.scrollTo(lastId)
-                }
-              })
-              .id(keyboardShortcut.id)
+            .id(keyboardShortcut.id)
+            .onAppear(perform: {
+              if let lastId = hudProvider.state.last {
+                proxy.scrollTo(lastId)
+              }
+            })
           }
-        }.frame(height: 32)
+        }
       }
+      .frame(height: 32)
       .padding(.vertical, 4)
       .padding(.horizontal, 2)
-      .animation(animation)
+//      .animation(animation)
       .shadow(radius: 1, y: 2)
       .onReceive(hudProvider.publisher, perform: { _ in
         let screenOffset = NSScreen.main?.visibleFrame.origin.x ?? 0

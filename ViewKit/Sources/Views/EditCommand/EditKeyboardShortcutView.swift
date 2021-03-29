@@ -15,17 +15,17 @@ struct EditKeyboardShortcutView: View {
         Spacer()
       }.padding()
       Divider()
-      VStack {
-        item(command.keyboardShortcut)
+      Spacer().frame(height: 8)
+      HStack(spacing: 8) {
+        key(command.keyboardShortcut)
           .onTapGesture {
             TransportController.shared.receiver = transportDelegate
             NotificationCenter.default.post(.enableRecordingHotKeys)
             selection = command.keyboardShortcut
           }
+          .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
       }
-      .padding([.leading, .trailing], 4)
-      .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
-      .padding()
+      .padding(4)
     }.onReceive(transportDelegate.$state, perform: { context in
       guard let context = context,
             let selection = selection else {
@@ -49,35 +49,31 @@ struct EditKeyboardShortcutView: View {
     })
   }
 
-  func item(_ keyboardShortcut: ModelKit.KeyboardShortcut) -> some View {
-    KeyboardSequenceItem(
-      title: keyboardShortcut.modifersDisplayValue,
-      subtitle: keyboardShortcut.key.isEmpty ? "Record keyboard shortcut" : keyboardShortcut.key
+  func key(_ keyboardShortcut: ModelKit.KeyboardShortcut) -> some View {
+    HStack {
+      Spacer()
+      if let modifiers = keyboardShortcut.modifiers,
+         !modifiers.isEmpty {
+        ForEach(modifiers) { modifier in
+          ModifierKeyIcon(key: modifier)
+            .frame(minWidth: modifier == .shift || modifier == .command ? 48 : 32, maxWidth: 48)
+        }
+      }
+
+      RegularKeyIcon(letter: keyboardShortcut.key.isEmpty ? "Record keyboard shortcut" : keyboardShortcut.key,
+                     glow: selection == command.keyboardShortcut)
+      Spacer()
+    }
+    .frame(height: 32)
+    .padding(.vertical, 4)
+    .overlay(
+      RoundedRectangle(cornerRadius: 4)
+        .stroke(
+          selection == command.keyboardShortcut
+            ? Color(.controlAccentColor)
+            : Color(NSColor.systemGray.withSystemEffect(.disabled)),
+          lineWidth: 1)
     )
-      .frame(minWidth: 32)
-      .padding(2)
-      .foregroundColor(
-        Color(selection == keyboardShortcut
-                ? NSColor.controlAccentColor.withSystemEffect(.pressed)
-                : NSColor.textColor
-        )
-      )
-      .background(
-        Color(selection == keyboardShortcut
-                ? NSColor.controlAccentColor.withAlphaComponent(0.33)
-                : NSColor.textBackgroundColor
-        )
-      )
-      .overlay(
-        RoundedRectangle(cornerRadius: 4)
-          .stroke(
-            selection == keyboardShortcut
-              ? Color(.controlAccentColor)
-              : Color(NSColor.systemGray.withSystemEffect(.disabled)),
-            lineWidth: 1)
-      )
-      .cornerRadius(4)
-      .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
   }
 }
 
@@ -86,8 +82,19 @@ struct EditKeyboardShortcutView_Previews: PreviewProvider, TestPreviewProvider {
     testPreview.previewAllColorSchemes()
   }
 
+  static let examples: [KeyboardCommand] = [
+    KeyboardCommand.empty(),
+    KeyboardCommand.init(keyboardShortcut: .init(key: "A", modifiers: [.command])),
+    KeyboardCommand.init(keyboardShortcut: .init(key: "C", modifiers: [.control, .option, .command])),
+    KeyboardCommand.init(keyboardShortcut: .init(key: "W", modifiers: [])),
+  ]
+
   static var testPreview: some View {
-    EditKeyboardShortcutView(
-      command: .constant(KeyboardCommand.empty()))
+    VStack {
+      ForEach(Self.examples) { command in
+        EditKeyboardShortcutView(
+          command: .constant(command))
+      }
+    }
   }
 }
