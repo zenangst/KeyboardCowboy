@@ -66,13 +66,16 @@ extension KeyboardShortcutList {
   var list: some View {
     HStack {
       ScrollView(.horizontal) {
-        HStack(spacing: 4) {
+        HStack(spacing: 20) {
           ForEach(workflow.keyboardShortcuts) { keyboardShortcut in
             MovableStack(axis: .horizontal, element: keyboardShortcut, dragHandler: { offset, _ in
               let indexOffset = Int(round(offset.width / 48))
               performAction(.move(keyboardShortcut, offset: indexOffset, in: workflow))
               selection = nil
-            }, content: { item(keyboardShortcut) })
+            }, content: {
+              key(keyboardShortcut)
+                .frame(height: 32)
+            })
             .onTapGesture {
               onTap()
               selection = keyboardShortcut
@@ -102,25 +105,22 @@ extension KeyboardShortcutList {
     })
   }
 
-  func item(_ keyboardShortcut: ModelKit.KeyboardShortcut) -> some View {
-    KeyboardSequenceItem(
-      title: keyboardShortcut.modifersDisplayValue,
-      subtitle: keyboardShortcut.key
-    )
-    .frame(minWidth: 32)
+  func key(_ keyboardShortcut: ModelKit.KeyboardShortcut) -> some View {
+    HStack(spacing: 4) {
+      if let modifiers = keyboardShortcut.modifiers,
+         !modifiers.isEmpty {
+        ForEach(modifiers) { modifier in
+          ModifierKeyIcon(key: modifier)
+            .frame(minWidth: modifier == .shift || modifier == .command ? 48 : 32, maxWidth: 48)
+        }
+      }
+
+      RegularKeyIcon(letter: "\(keyboardShortcut.key)",
+                     glow: false)
+        .aspectRatio(contentMode: .fit)
+        .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+    }
     .padding(2)
-    .foregroundColor(
-      Color(selection == keyboardShortcut
-              ? NSColor.controlAccentColor.withSystemEffect(.pressed)
-              : NSColor.textColor
-      )
-    )
-    .background(
-      Color(selection == keyboardShortcut
-              ? NSColor.controlAccentColor.withAlphaComponent(0.33)
-              : NSColor.textBackgroundColor
-      )
-    )
     .overlay(
       RoundedRectangle(cornerRadius: 4)
         .stroke(
@@ -129,8 +129,6 @@ extension KeyboardShortcutList {
             : Color(NSColor.systemGray.withSystemEffect(.disabled)),
           lineWidth: 1)
     )
-    .cornerRadius(4)
-    .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
   }
 
   var addButton: some View {

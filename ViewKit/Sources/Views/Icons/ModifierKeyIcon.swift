@@ -44,17 +44,18 @@ struct ModifierKeyIcon: View, KeyView {
           .font(Font.system(size: {
             switch key {
             case .command:
-              return proxy.size.width * 0.18
+              return proxy.size.height * 0.18
             default:
-              return proxy.size.width * 0.25
+              return proxy.size.height * 0.25
             }
           }(), weight: .regular, design: .rounded))
           .frame(height: proxy.size.height, alignment: .bottom)
           .offset(y: -proxy.size.width * 0.065)
       }
+      .fixedSize(horizontal: true, vertical: true)
       .foregroundColor(
         Color(.textColor)
-          .opacity(0.5)
+          .opacity(0.66)
       )
     }
   }

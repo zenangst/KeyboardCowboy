@@ -18,7 +18,7 @@ extension KeyView {
         .cornerRadius(
           proxy.size.height * 0.1
         )
-        .padding(proxy.size.width > 64 ? 2 : 1)
+        .padding(proxy.size.height > 64 ? 2 : 1)
         .shadow(radius: 1, y: 2)
     }.shadow(radius: 2, y: 2)
   }
@@ -40,18 +40,18 @@ struct RegularKeyIcon: View, KeyView {
     GeometryReader { proxy in
       ZStack {
         keyBackgroundView(proxy)
-          .foregroundColor(Color(.textColor).opacity(0.5))
+          .foregroundColor(Color(.textColor).opacity(0.66))
         Text(letter)
-          .font(Font.system(size: proxy.size.width * 0.3, weight: .regular, design: .rounded))
+          .font(Font.system(size: proxy.size.height * 0.3, weight: .regular, design: .rounded))
           .foregroundColor(.clear)
           .overlay(
             Rectangle()
               .foregroundColor(glow
                                 ? Color.accentColor .opacity(0.5)
-                                : Color(.textColor).opacity(0.5))
+                                : Color(.textColor).opacity(0.66))
               .mask(
                 Text(letter)
-                  .font(Font.system(size: proxy.size.width * 0.3, weight: .regular, design: .rounded))
+                  .font(Font.system(size: proxy.size.height * 0.3, weight: .regular, design: .rounded))
               )
           )
           .shadow(color:
@@ -59,10 +59,11 @@ struct RegularKeyIcon: View, KeyView {
                   radius: 1,
                   y: glow ? 0 : 2
           )
-          .aspectRatio(contentMode: .fill)
-          .frame(alignment: .center)
-          .padding(.horizontal, proxy.size.width * 0.2)
-      }.onAppear {
+          .padding(.horizontal, proxy.size.height * 0.2)
+      }
+      .frame(minWidth: proxy.size.height)
+      .fixedSize(horizontal: true, vertical: false)
+      .onAppear {
         if glow {
           withAnimation(animation, { glow.toggle() })
         }
