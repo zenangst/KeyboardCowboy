@@ -5,6 +5,7 @@ public final class FileIndexPatternsFactory {
   public static func patterns() -> [FileIndexPattern] {
     [
       .ignorePattern("/Applications/Adobe Photoshop 2020"),
+      .ignorePattern("/Applications/Unity/Hub"),
       .ignorePattern("/Library/Apple"),
       .ignorePattern("/Library/Application Support"),
       .ignorePattern("/Library/Backblaze"),
@@ -122,6 +123,7 @@ public final class FileIndexPatternsFactory {
       .ignorePathExtension("md"),
       .ignorePathExtension("md"),
       .ignorePathExtension("mm"),
+      .ignorePathExtension("movpkg"),
       .ignorePathExtension("pbxproj"),
       .ignorePathExtension("photoslibrary"),
       .ignorePathExtension("playground"),
@@ -149,12 +151,14 @@ public final class FileIndexPatternsFactory {
 
   public static func lastPathComponents() -> [FileIndexPattern] {
     [
+      .ignoreLastPathComponent("Artifacts"),
       .ignoreLastPathComponent("Assets"),
       .ignoreLastPathComponent("Caches"),
       .ignoreLastPathComponent("Contents"),
       .ignoreLastPathComponent("Developer"),
       .ignoreLastPathComponent("Gemfile"),
       .ignoreLastPathComponent("LICENSE"),
+      .ignoreLastPathComponent("PackageCache"),
       .ignoreLastPathComponent("Perl"),
       .ignoreLastPathComponent("PlugIns"),
       .ignoreLastPathComponent("Podfile"),
