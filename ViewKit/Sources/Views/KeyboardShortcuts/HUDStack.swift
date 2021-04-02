@@ -60,7 +60,6 @@ public struct HUDStack: View {
       .frame(height: 32)
       .padding(.vertical, 4)
       .padding(.horizontal, 2)
-//      .animation(animation)
       .shadow(radius: 1, y: 2)
       .onReceive(hudProvider.publisher, perform: { _ in
         let screenOffset = NSScreen.main?.visibleFrame.origin.x ?? 0
