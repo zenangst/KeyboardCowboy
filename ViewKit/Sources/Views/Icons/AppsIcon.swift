@@ -1,7 +1,9 @@
 import SwiftUI
 
-struct AppsIcon: View {
-  var body: some View {
+public struct AppsIcon: View {
+  public init() {}
+
+  public var body: some View {
     GeometryReader { proxy in
       ZStack {
         app(Color(.systemRed))
