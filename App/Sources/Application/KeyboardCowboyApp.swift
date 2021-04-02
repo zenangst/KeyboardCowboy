@@ -18,7 +18,10 @@ struct KeyboardCowboyApp: App {
           .onReceive(store.$state, perform: {
             applicationIsActive = $0.currentView != nil
           })
-          .frame(minWidth: 800, minHeight: 0)
+          .frame(minWidth: 800, minHeight: 10)
+          .onChange(of: NSApplication.shared.windows, perform: { windows in
+            store.dismissStartupWindows(windows)
+          })
       }
     }
     .windowToolbarStyle(UnifiedWindowToolbarStyle())

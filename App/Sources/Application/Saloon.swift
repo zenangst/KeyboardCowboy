@@ -22,6 +22,7 @@ let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PR
 let bundleIdentifier = Bundle.main.bundleIdentifier!
 
 class Saloon: ViewKitStore, MenubarControllerDelegate {
+  @Environment(\.scenePhase) private var scenePhase
   private static let factory = ControllerFactory.shared
 
   private let builtInController: BuiltInCommandController
@@ -94,6 +95,19 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       ErrorController.handle(error)
       super.init(groups: [], context: .preview())
     }
+  }
+
+  public func dismissStartupWindows(_ windows: [NSWindow]) {
+    guard scenePhase != .active else { return }
+
+    let openWindowAtLaunch = launchArguments.isEnabled(.openWindowAtLaunch) ||
+      UserDefaults.standard.openWindowOnLaunch
+
+    guard !openWindowAtLaunch else { return }
+
+    windows
+      .first(where: { $0.description.contains("AppWindow") })?
+      .close()
   }
 
   // MARK: Private methods
@@ -231,6 +245,15 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         context.workflow.perform(.set(workflow: selectedWorkflow))
       }
       self.selectedWorkflow = selectedWorkflow
+    }.store(in: &subscriptions)
+
+    userDefaults.publisher(for: \.openWindowOnLaunch).sink { [weak self] newValue in
+      guard let self = self else { return }
+      if newValue {
+        self.setContentView()
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.setActivationPolicy(.regular)
+      }
     }.store(in: &subscriptions)
 
     userDefaults.publisher(for: \.hideMenuBarIcon).sink { newValue in
