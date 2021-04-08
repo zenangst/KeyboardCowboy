@@ -57,8 +57,10 @@ public final class FileIndexController: FileIndexControlling {
     var items = [T]()
 
     for url in urls {
+      #if DEBUG
       let signpostID = OSSignpostID(log: osLog, object: NSString(string: url.absoluteString))
       os_signpost(.begin, log: osLog, name: #function, signpostID: signpostID, "%@ - Start", url.absoluteString)
+      #endif
       let fileManager = FileManager()
       let enumerator = fileManager.enumerator(at: url,
                                               includingPropertiesForKeys: nil,
@@ -70,15 +72,21 @@ public final class FileIndexController: FileIndexControlling {
           continue
         }
 
-        let signpostID = OSSignpostID(log: osLog, object: NSString(string: fileURL.path))
-        os_signpost(.begin, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
+        #if DEBUG
+          let signpostID = OSSignpostID(log: osLog, object: NSString(string: fileURL.path))
+          os_signpost(.begin, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
+        #endif
 
         if match(fileURL), let object = handler(fileURL.absoluteURL) {
           items.append(object)
         }
-        os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
+        #if DEBUG
+          os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
+        #endif
       }
+      #if DEBUG
       os_signpost(.end, log: osLog, name: #function, signpostID: signpostID, "%@ - End", url.absoluteString)
+      #endif
     }
 
     return items
