@@ -61,51 +61,29 @@ public final class FileIndexController: FileIndexControlling {
       os_signpost(.begin, log: osLog, name: #function, signpostID: signpostID, "%@ - Start", url.absoluteString)
       let fileManager = FileManager()
       let enumerator = fileManager.enumerator(at: url,
-                                              includingPropertiesForKeys: [.isApplicationKey],
+                                              includingPropertiesForKeys: nil,
                                               options: [.skipsHiddenFiles])!
 
-      var ignoredPatterns = Set<URL>()
-      var ignoredPathExtensions = Set<String>()
-      var ignoredLastPathComponents = Set<String>()
-      for pattern in patterns {
-        switch pattern {
-        case .ignoreLastPathComponent(let pathComponent):
-          ignoredLastPathComponents.insert(pathComponent)
-        case .ignorePathExtension(let pathExtension):
-          ignoredPathExtensions.insert(pathExtension)
-        case .ignorePattern(let pattern):
-          let url = URL(fileURLWithPath: (pattern as NSString).expandingTildeInPath)
-          ignoredPatterns.insert(url)
-        }
-      }
-
-      for case let fileURL as URL in enumerator {
+      while let fileURL = enumerator.nextObject() as? URL {
         let signpostID = OSSignpostID(log: osLog, object: NSString(string: fileURL.path))
-        os_signpost(.begin, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
+        os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
 
-        if ignoredLastPathComponents.contains(fileURL.lastPathComponent) ||
-            ignoredPathExtensions.contains(fileURL.pathExtension) ||
-            ignoredPatterns.contains(fileURL) {
-          enumerator.skipDescendants()
-          os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
-          continue
-        }
+        Swift.print(fileURL)
+
+
+
 
         guard match(fileURL) else {
           os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
           continue
         }
 
-        os_signpost(.begin, log: osLog, name: "applicationParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
         if let object = handler(fileURL) {
           items.append(object)
         }
-        os_signpost(.end, log: osLog, name: "applicationParsing", signpostID: signpostID, "%@ - End", fileURL.path)
-
-        enumerator.skipDescendents()
         os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
+        enumerator.skipDescendents()
       }
-
       os_signpost(.end, log: osLog, name: #function, signpostID: signpostID, "%@ - End", url.absoluteString)
     }
 

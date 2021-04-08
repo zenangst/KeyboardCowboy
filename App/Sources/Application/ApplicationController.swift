@@ -25,9 +25,9 @@ class ApplicationController {
     let systemApplicationsDirectory = URL(fileURLWithPath: "/System/Applications")
 
     urls.append(contentsOf: [coreServicesDirectory,
-                applicationDirectoryD, applicationDirectoryN,
-                applicationDirectoryND, applicationDirectoryS,
-                systemApplicationsDirectory])
+                             applicationDirectoryD, applicationDirectoryN,
+                             applicationDirectoryND, applicationDirectoryS,
+                             systemApplicationsDirectory])
 
     return urls
   }
