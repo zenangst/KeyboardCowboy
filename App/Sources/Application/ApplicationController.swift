@@ -17,7 +17,6 @@ class ApplicationController {
                                                            create: false) {
       urls.append(applicationDirectory)
     }
-    let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
     let coreServicesDirectory = URL(fileURLWithPath: "/System/Library/CoreServices")
     let applicationDirectoryD = URL(fileURLWithPath: "/Developer/Applications")
     let applicationDirectoryN = URL(fileURLWithPath: "/Network/Applications")
@@ -25,7 +24,7 @@ class ApplicationController {
     let applicationDirectoryS = URL(fileURLWithPath: "/Users/Shared/Applications")
     let systemApplicationsDirectory = URL(fileURLWithPath: "/System/Applications")
 
-    urls.append(contentsOf: [homeDirectory, coreServicesDirectory,
+    urls.append(contentsOf: [coreServicesDirectory,
                 applicationDirectoryD, applicationDirectoryN,
                 applicationDirectoryND, applicationDirectoryS,
                 systemApplicationsDirectory])
@@ -43,7 +42,7 @@ class ApplicationController {
     let applicationParser = ApplicationParser()
 
     return fileIndexer.index(with: patterns, match: {
-      $0.absoluteString.contains(".app")
+      $0.absoluteString.hasSuffix(".app/")
     }, handler: applicationParser.process(_:))
     .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
   }
