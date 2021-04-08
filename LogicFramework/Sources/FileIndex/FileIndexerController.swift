@@ -82,21 +82,19 @@ public final class FileIndexController: FileIndexControlling {
       for case let fileURL as URL in enumerator {
         let signpostID = OSSignpostID(log: osLog, object: NSString(string: fileURL.path))
         os_signpost(.begin, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
-        defer { os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - Start", fileURL.path) }
-
-        // Exclude .git directories
-        if fileManager.fileExists(atPath: fileURL.path.appending("/.git")) {
-          enumerator.skipDescendants()
-        }
 
         if ignoredLastPathComponents.contains(fileURL.lastPathComponent) ||
             ignoredPathExtensions.contains(fileURL.pathExtension) ||
             ignoredPatterns.contains(fileURL) {
           enumerator.skipDescendants()
+          os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
           continue
         }
 
-        guard match(fileURL) else { continue }
+        guard match(fileURL) else {
+          os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
+          continue
+        }
 
         os_signpost(.begin, log: osLog, name: "applicationParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
         if let object = handler(fileURL) {
@@ -105,6 +103,7 @@ public final class FileIndexController: FileIndexControlling {
         os_signpost(.end, log: osLog, name: "applicationParsing", signpostID: signpostID, "%@ - End", fileURL.path)
 
         enumerator.skipDescendents()
+        os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
       }
 
       os_signpost(.end, log: osLog, name: #function, signpostID: signpostID, "%@ - End", url.absoluteString)
