@@ -61,7 +61,7 @@ public final class FileIndexController: FileIndexControlling {
       os_signpost(.begin, log: osLog, name: #function, signpostID: signpostID, "%@ - Start", url.absoluteString)
       let fileManager = FileManager()
       let enumerator = fileManager.enumerator(at: url,
-                                              includingPropertiesForKeys: nil,
+                                              includingPropertiesForKeys: [.isApplicationKey],
                                               options: [.skipsHiddenFiles])!
 
       var ignoredPatterns = Set<URL>()
