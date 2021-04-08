@@ -194,12 +194,14 @@ public final class CoreController: NSObject, CoreControlling,
       guard let shortcutKeyCode = self.cache[keyboardShortcut.key.uppercased()],
             context.keyCode == shortcutKeyCode else { continue }
 
+      let eventModifiers = ModifierKey.fromCGEvent(context.event, specialKeys: Array(KeyCodes.specialKeys.keys))
+
       // Check if the events modifier flags is a match for the current keyboard shortcut
       var modifiersMatch: Bool = true
       if let modifiers = keyboardShortcut.modifiers {
-        modifiersMatch = context.event.flags.isEqualTo(modifiers)
+        modifiersMatch = eventModifiers == modifiers
       } else {
-        modifiersMatch = context.event.flags.isEmpty
+        modifiersMatch = eventModifiers.isEmpty
       }
 
       guard modifiersMatch else { continue }

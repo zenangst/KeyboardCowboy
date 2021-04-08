@@ -14,14 +14,17 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable {
       .compactMap { eventModifierFlags.contains($0.modifierFlags) ? $0 : nil }
   }
 
-  public static func fromCGEvent(_ flags: CGEventFlags) -> [ModifierKey] {
+  public static func fromCGEvent(_ event: CGEvent, specialKeys: [Int]) -> [ModifierKey] {
+    let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
+    let flags = event.flags
+    let isSpecialKey = specialKeys.contains(keyCode)
     var modifiers = [ModifierKey]()
 
     if flags.contains(.maskShift) { modifiers.append(.shift) }
     if flags.contains(.maskControl) { modifiers.append(.control) }
     if flags.contains(.maskAlternate) { modifiers.append(.option) }
     if flags.contains(.maskCommand) { modifiers.append(.command) }
-    if flags.contains(.maskSecondaryFn) { modifiers.append(.function) }
+    if flags.contains(.maskSecondaryFn) && !isSpecialKey { modifiers.append(.function) }
 
     return modifiers
   }

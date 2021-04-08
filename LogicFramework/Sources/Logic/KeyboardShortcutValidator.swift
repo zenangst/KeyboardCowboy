@@ -54,9 +54,11 @@ public class KeyboardShortcutValidator {
     guard let container = try? keycodeMapper.map(Int(context.keyCode), modifiers: 0) else {
       return .systemShortcut(.empty())
     }
+
     let validationContext: KeyboardShortcutUpdateContext
     var keyboardShortcut: KeyboardShortcut
-    let modifiers = ModifierKey.fromCGEvent(context.event.flags)
+    let modifiers = ModifierKey.fromCGEvent(context.event, specialKeys: Array(KeyCodes.specialKeys.keys))
+
     keyboardShortcut = KeyboardShortcut(
       id: UUID().uuidString,
       key: container.displayValue,
