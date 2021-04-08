@@ -52,10 +52,10 @@ targets:
       groups: [app]
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
-        CURRENT_PROJECT_VERSION: 90
+        CURRENT_PROJECT_VERSION: 91
         ENABLE_HARDENED_RUNTIME: true
         INFOPLIST_FILE: "App/Resources/Info.plist"
-        MARKETING_VERSION: 0.15.0
+        MARKETING_VERSION: 0.15.1
         PRODUCT_BUNDLE_IDENTIFIER: "com.zenangst.Keyboard-Cowboy"
         PRODUCT_NAME: "Keyboard Cowboy"
     preBuildScripts:
