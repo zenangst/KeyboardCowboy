@@ -66,7 +66,7 @@ public final class FileIndexController: FileIndexControlling {
                                               includingPropertiesForKeys: nil,
                                               options: [.skipsHiddenFiles, .producesRelativePathURLs])!
       while let fileURL = enumerator.nextObject() as? URL {
-        let depth = fileURL.relativeString.contains("Xcode") ? 5 : 1
+        let depth = fileURL.relativeString.contains("Xcode") ? 5 : 2
         guard (fileURL.relativeString.components(separatedBy: "/").count - 1) <= depth else {
           enumerator.skipDescendents()
           continue
