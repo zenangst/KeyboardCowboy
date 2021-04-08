@@ -19,13 +19,6 @@ class ApplicationController {
       urls.append(applicationDirectory)
     }
 
-    if let utilsDirectory = try? FileManager.default.url(for: .adminApplicationDirectory,
-                                                       in: .systemDomainMask,
-                                                       appropriateFor: nil,
-                                                       create: false) {
-      urls.append(utilsDirectory)
-    }
-
     if let coreServices = try? FileManager.default.url(for: .coreServiceDirectory,
                                                        in: .systemDomainMask,
                                                        appropriateFor: nil,
@@ -33,15 +26,13 @@ class ApplicationController {
       urls.append(coreServices)
     }
 
-    let coreServicesAppsDirectory = URL(fileURLWithPath: "/System/Library/CoreServices/Applications")
     let applicationDirectoryD = URL(fileURLWithPath: "/Developer/Applications")
     let applicationDirectoryN = URL(fileURLWithPath: "/Network/Applications")
     let applicationDirectoryND = URL(fileURLWithPath: "/Network/Developer/Applications")
     let applicationDirectoryS = URL(fileURLWithPath: "/Users/Shared/Applications")
     let systemApplicationsDirectory = URL(fileURLWithPath: "/System/Applications")
 
-    urls.append(contentsOf: [coreServicesAppsDirectory,
-                             applicationDirectoryD, applicationDirectoryN,
+    urls.append(contentsOf: [applicationDirectoryD, applicationDirectoryN,
                              applicationDirectoryND, applicationDirectoryS,
                              systemApplicationsDirectory])
 
