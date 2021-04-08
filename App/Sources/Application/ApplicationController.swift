@@ -47,15 +47,10 @@ class ApplicationController {
     patterns.append(contentsOf: FileIndexPatternsFactory.lastPathComponents())
 
     let applicationParser = ApplicationParser()
-
-    let startTime = CACurrentMediaTime()
-
     let result = fileIndexer.index(with: patterns, match: {
       $0.absoluteString.hasSuffix(".app/")
     }, handler: applicationParser.process(_:))
     .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
-
-    Swift.print("Total time: \( CACurrentMediaTime() - startTime )")
 
     return result
   }
