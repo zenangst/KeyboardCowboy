@@ -62,27 +62,21 @@ public final class FileIndexController: FileIndexControlling {
       let fileManager = FileManager()
       let enumerator = fileManager.enumerator(at: url,
                                               includingPropertiesForKeys: nil,
-                                              options: [.skipsHiddenFiles])!
-
+                                              options: [.skipsHiddenFiles, .producesRelativePathURLs])!
       while let fileURL = enumerator.nextObject() as? URL {
-        let signpostID = OSSignpostID(log: osLog, object: NSString(string: fileURL.path))
-        os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
-
-        Swift.print(fileURL)
-
-
-
-
-        guard match(fileURL) else {
-          os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
+        let depth = fileURL.relativeString.contains("Xcode") ? 5 : 1
+        guard (fileURL.relativeString.components(separatedBy: "/").count - 1) <= depth else {
+          enumerator.skipDescendents()
           continue
         }
 
-        if let object = handler(fileURL) {
+        let signpostID = OSSignpostID(log: osLog, object: NSString(string: fileURL.path))
+        os_signpost(.begin, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - Start", fileURL.path)
+
+        if match(fileURL), let object = handler(fileURL.absoluteURL) {
           items.append(object)
         }
         os_signpost(.end, log: osLog, name: "pathParsing", signpostID: signpostID, "%@ - End", fileURL.path)
-        enumerator.skipDescendents()
       }
       os_signpost(.end, log: osLog, name: #function, signpostID: signpostID, "%@ - End", url.absoluteString)
     }
