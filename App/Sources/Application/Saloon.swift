@@ -62,6 +62,12 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       }
 
       let installedApplications = ApplicationController.loadApplications()
+
+      installedApplications.forEach({ tim in
+        Swift.print(tim.displayName)
+      })
+
+      Swift.print(installedApplications.count)
       IconController.shared.applications = installedApplications
       var groups = try storageController.load()
       groups = pathFinderController.patch(groups, applications: installedApplications)
