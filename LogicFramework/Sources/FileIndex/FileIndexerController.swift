@@ -4,32 +4,13 @@ import CoreGraphics
 import OSLog
 
 protocol FileIndexControlling: AnyObject {
-  func asyncIndex<T>(with patterns: [FileIndexPattern], match: @escaping (URL) -> Bool,
+  func asyncIndex<T>(match: @escaping (URL) -> Bool,
                      handler: @escaping (URL) -> T?) -> AnyPublisher<[T], Never>
-  func index<T>(with patterns: [FileIndexPattern], match: (URL) -> Bool, handler: (URL) -> T?) -> [T]
-}
-
-public enum FileIndexPattern {
-  case ignorePattern(String)
-  case ignorePathExtension(String)
-  case ignoreLastPathComponent(String)
+  func index<T>(match: (URL) -> Bool, handler: (URL) -> T?) -> [T]
 }
 
 /// A file index controller iterates of the file-system to produce
 /// object that can represent the contents found on disk.
-///
-/// The internal algorithm is based on pattern matching.
-/// It supports different types of patterns, such as:
-///
-/// - `.ignoreLastPathComponent`: Verify that the current paths
-///   last component is does not match.
-/// - `.ignoredPathExtensions`: Verify that the current paths extension
-///   does not match.
-/// - `.ignorePattern`: Verify that the current path does not contain
-///   the ignored pattern.
-///
-/// If a match occurs, the enumerator will skip looking for
-/// any descendants inside the current path and continue iterating.
 ///
 /// - Note: All matching is done by calling `.contains` using `String`'s.
 ///         Patterns do currently not support any form of regular expressions.
@@ -48,12 +29,12 @@ public final class FileIndexController: FileIndexControlling {
     self.urls = urls
   }
 
-  public func asyncIndex<T>(with patterns: [FileIndexPattern], match: @escaping (URL) -> Bool,
+  public func asyncIndex<T>(match: @escaping (URL) -> Bool,
                             handler: @escaping (URL) -> T?) -> AnyPublisher<[T], Never> {
-    Just(index(with: patterns, match: match, handler: { handler($0) })).eraseToAnyPublisher()
+    Just(index(match: match, handler: { handler($0) })).eraseToAnyPublisher()
   }
 
-  public func index<T>(with patterns: [FileIndexPattern], match: (URL) -> Bool, handler: (URL) -> T?) -> [T] {
+  public func index<T>(match: (URL) -> Bool, handler: (URL) -> T?) -> [T] {
     var items = [T]()
 
     for url in urls {

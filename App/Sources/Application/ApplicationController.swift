@@ -42,15 +42,11 @@ class ApplicationController {
   static func loadApplications() -> [Application] {
     let urls: [URL] = Self.commonPaths()
     let fileIndexer = FileIndexController(urls: urls)
-    var patterns = FileIndexPatternsFactory.patterns()
-    patterns.append(contentsOf: FileIndexPatternsFactory.pathExtensions())
-    patterns.append(contentsOf: FileIndexPatternsFactory.lastPathComponents())
 
     let applicationParser = ApplicationParser()
-    let result = fileIndexer.index(with: patterns, match: {
-      $0.absoluteString.hasSuffix(".app/")
-    }, handler: applicationParser.process(_:))
-    .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
+    let result = fileIndexer.index(match: { $0.absoluteString.hasSuffix(".app/") },
+                                   handler: applicationParser.process(_:))
+      .sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
 
     return result
   }
