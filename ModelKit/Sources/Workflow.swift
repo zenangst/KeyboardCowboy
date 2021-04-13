@@ -5,10 +5,30 @@ import Foundation
 /// `Group`-level or that the workflow matches the current
 /// keyboard invocation.
 public struct Workflow: Identifiable, Codable, Hashable {
+  public struct MetaData: Codable, Hashable {
+    public var runWhenApplicationsAreLaunched: [String] = []
+    public var runWhenApplicationsAreClosed: [String] = []
+
+    var isEncodable: Bool {
+      !runWhenApplicationsAreLaunched.isEmpty ||
+        !runWhenApplicationsAreClosed.isEmpty
+    }
+
+    public func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      if !runWhenApplicationsAreLaunched.isEmpty {
+        try container.encode(runWhenApplicationsAreLaunched, forKey: .runWhenApplicationsAreLaunched)
+      }
+      if !runWhenApplicationsAreClosed.isEmpty {
+        try container.encode(runWhenApplicationsAreClosed, forKey: .runWhenApplicationsAreClosed)
+      }
+    }
+  }
   public let id: String
   public var commands: [Command]
   public var keyboardShortcuts: [KeyboardShortcut]
   public var name: String
+  public var metadata: MetaData = MetaData()
 
   public var isRebinding: Bool {
     if commands.count == 1, case .keyboard = commands.first { return true }
@@ -23,9 +43,10 @@ public struct Workflow: Identifiable, Codable, Hashable {
   }
 
   enum CodingKeys: String, CodingKey {
-    case id
     case commands
+    case id
     case keyboardShortcuts
+    case metadata
     case name
   }
 
@@ -36,6 +57,22 @@ public struct Workflow: Identifiable, Codable, Hashable {
     self.name = try container.decode(String.self, forKey: .name)
     self.commands = try container.decode([Command].self, forKey: .commands)
     self.keyboardShortcuts = try container.decode([KeyboardShortcut].self, forKey: .keyboardShortcuts)
+    self.metadata = try container.decodeIfPresent(MetaData.self, forKey: .metadata) ?? MetaData()
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(id, forKey: .id)
+    try container.encode(name, forKey: .name)
+    if !commands.isEmpty {
+      try container.encode(commands, forKey: .commands)
+    }
+    if !keyboardShortcuts.isEmpty {
+      try container.encode(keyboardShortcuts, forKey: .keyboardShortcuts)
+    }
+    if metadata.isEncodable {
+      try container.encode(metadata, forKey: .metadata)
+    }
   }
 }
 
