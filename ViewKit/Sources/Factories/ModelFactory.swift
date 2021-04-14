@@ -15,7 +15,7 @@ class ModelFactory {
           Workflow(
             id: "Workflow 1",
             name: "Developer time",
-            keyboardShortcuts: keyboardShortcuts(id: "Keyboard Shortcut"),
+            trigger: .keyboardShortcuts(keyboardShortcuts(id: "Keyboard Shortcut")),
             commands: [
               Command.application(.init(id: "Calendar 1", application: (Application.calendar(id: "Calendar")))),
               Command.application(.init(id: "Music 1", application: (Application.music(id: "Music")))),
@@ -28,13 +28,13 @@ class ModelFactory {
 
           Workflow(
             id: "Design time 1",
-            name: "Design time", keyboardShortcuts: [], commands: [
+            name: "Design time", trigger: nil, commands: [
               Command.application(.init(id: "Application 1", application: Application.photoshop(id: "Photoshop"))),
               Command.application(.init(id: "Application 2", application: Application.sketch(id: "Sketch")))
             ]),
           Workflow(
             id: "Filing hours 1",
-            name: "Filing hours", keyboardShortcuts: [], commands: [
+            name: "Filing hours", trigger: nil, commands: [
               Command.application(.init(id: "Application 1", application: Application.calendar(id: "Calendar")))
             ])
         ]),
@@ -173,10 +173,10 @@ class ModelFactory {
       Workflow(
         id: "Workflow: \(offset)",
         name: "Open \(element.0)",
-        keyboardShortcuts: [
+        trigger: .keyboardShortcuts([
           KeyboardShortcut(id: "KeyboardShortcut\(offset)-1", key: "fn"),
           KeyboardShortcut(id: "KeyboardShortcut\(offset)-2", key: "A")
-        ],
+        ]),
         commands: [
           Command.application(.init(application: Application(
                                       id: "Application ID \(offset)",
@@ -192,7 +192,7 @@ class ModelFactory {
     scriptNames.compactMap({
       Workflow(
         name: "Run \($0) script",
-        keyboardShortcuts: [],
+        trigger: .none,
         commands: [
           Command.script(.appleScript(id: "Run \($0)", name: nil, source: .path("")))
         ])
@@ -203,7 +203,7 @@ class ModelFactory {
     scriptNames.compactMap({
       Workflow(
         name: "Rebind \($0)",
-        keyboardShortcuts: [],
+        trigger: .none,
         commands: [
           Command.keyboard(.init(keyboardShortcut: KeyboardShortcut.empty()))
         ])
@@ -234,7 +234,7 @@ class ModelFactory {
     Workflow(
       id: UUID().uuidString,
       name: name ?? "Developer Workflow",
-      keyboardShortcuts: keyboardShortcuts(),
+      trigger: .keyboardShortcuts(keyboardShortcuts()),
       commands: commands ?? self.commands(id: UUID().uuidString))
   }
 }

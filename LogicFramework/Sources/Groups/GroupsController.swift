@@ -64,7 +64,10 @@ final class GroupsController: GroupsControlling {
   public func workflow(for keyboardShortcut: KeyboardShortcut) -> Workflow? {
     groups
       .flatMap { $0.workflows }
-      .first(where: { $0.keyboardShortcuts.containsElement(keyboardShortcut) })
+      .first(where: {
+        guard case let .keyboardShortcuts(shortcuts) = $0.trigger else { return false }
+        return shortcuts.containsElement(keyboardShortcut)
+      })
   }
 }
 

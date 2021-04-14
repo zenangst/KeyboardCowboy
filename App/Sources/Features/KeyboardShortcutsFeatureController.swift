@@ -40,28 +40,59 @@ final class KeyboardShortcutsFeatureController: ActionController {
               at index: Int,
               in workflow: Workflow) {
     var workflow = workflow
-    workflow.keyboardShortcuts.add(keyboardShortcut, at: index)
+
+    switch workflow.trigger {
+    case var .keyboardShortcuts(shortcuts):
+      shortcuts.add(keyboardShortcut, at: index)
+      workflow.trigger = .keyboardShortcuts(shortcuts)
+    case .none:
+      break
+    }
+
     delegate?.keyboardShortcutFeatureController(self, didCreateKeyboardShortcut: keyboardShortcut, in: workflow)
   }
 
   func update(_ keyboardShortcut: KeyboardShortcut, in workflow: Workflow) {
     var workflow = workflow
-    try? workflow.keyboardShortcuts.replace(keyboardShortcut)
+
+    switch workflow.trigger {
+    case var .keyboardShortcuts(shortcuts):
+      try? shortcuts.replace(keyboardShortcut)
+      workflow.trigger = .keyboardShortcuts(shortcuts)
+    case .none:
+      break
+    }
+
     delegate?.keyboardShortcutFeatureController(self, didUpdateKeyboardShortcut: keyboardShortcut, in: workflow)
   }
 
   func delete(_ keyboardShortcut: KeyboardShortcut, in workflow: Workflow) {
     var workflow = workflow
-    try? workflow.keyboardShortcuts.remove(keyboardShortcut)
+
+    switch workflow.trigger {
+    case var .keyboardShortcuts(shortcuts):
+      try? shortcuts.remove(keyboardShortcut)
+      workflow.trigger = .keyboardShortcuts(shortcuts)
+    case .none:
+      break
+    }
+
     delegate?.keyboardShortcutFeatureController(self, didDeleteKeyboardShortcut: keyboardShortcut, in: workflow)
   }
 
   func move(_ keyboardShortcut: KeyboardShortcut, to offset: Int, in workflow: Workflow) {
-    guard let currentIndex = workflow.keyboardShortcuts.firstIndex(of: keyboardShortcut) else { return }
-
-    let newIndex = currentIndex + offset
     var workflow = workflow
-    try? workflow.keyboardShortcuts.move(keyboardShortcut, to: newIndex)
+
+    switch workflow.trigger {
+    case var .keyboardShortcuts(shortcuts):
+      guard let currentIndex = shortcuts.firstIndex(of: keyboardShortcut) else { return }
+      let newIndex = currentIndex + offset
+      try? shortcuts.move(keyboardShortcut, to: newIndex)
+      workflow.trigger = .keyboardShortcuts(shortcuts)
+    case .none:
+      break
+    }
+
     delegate?.keyboardShortcutFeatureController(self, didUpdateKeyboardShortcut: keyboardShortcut, in: workflow)
   }
 }
