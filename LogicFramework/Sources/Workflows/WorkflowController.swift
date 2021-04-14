@@ -27,13 +27,15 @@ final class WorkflowController: WorkflowControlling {
 
   public func filterWorkflows(from groups: [Group], keyboardShortcuts: [KeyboardShortcut]) -> [Workflow] {
     groups.flatMap { $0.workflows }
-      .filter {
-        if keyboardShortcuts.count < $0.keyboardShortcuts.count {
-          let lhs = $0.keyboardShortcuts.rawValue
+      .filter { workflow in
+        guard case let .keyboardShortcuts(shortcuts) = workflow.trigger else { return false }
+
+        if keyboardShortcuts.count < shortcuts.count {
+          let lhs = shortcuts.rawValue
           let rhs = keyboardShortcuts.rawValue
           return lhs.starts(with: rhs)
         } else {
-          return $0.keyboardShortcuts.rawValue == keyboardShortcuts.rawValue
+          return shortcuts.rawValue == keyboardShortcuts.rawValue
         }
       }
   }

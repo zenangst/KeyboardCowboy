@@ -78,7 +78,7 @@ final class WorkflowsFeatureController: ViewController,
     guard let groupId = groupId else { return }
 
     let newWorkflow = Workflow(name: workflow.name,
-                               keyboardShortcuts: workflow.keyboardShortcuts,
+                               trigger: workflow.trigger,
                                commands: workflow.commands)
     try? delegate?.workflowsFeatureController(self, didCreateWorkflow: newWorkflow, groupId: groupId)
   }

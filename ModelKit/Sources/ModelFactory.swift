@@ -67,7 +67,7 @@ public class ModelFactory {
     Workflow(
       id: id,
       name: name,
-      keyboardShortcuts: keyboardShortcuts?(self) ?? [keyboardShortcut(id: id, modifiers: [.control, .option])],
+      trigger: .keyboardShortcuts(keyboardShortcuts?(self) ?? [keyboardShortcut(id: id, modifiers: [.control, .option])]),
       commands: commands?(self) ?? [.application(applicationCommand(id: id))])
   }
 }

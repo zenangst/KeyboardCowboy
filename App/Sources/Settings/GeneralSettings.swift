@@ -4,7 +4,7 @@ struct GeneralSettings: View {
   @AppStorage("openWindowOnLaunch") var openWindowOnLaunch = false
   @AppStorage("hideMenuBarIcon") var hideMenubarIcon = false
   @AppStorage("hideDockIcon") var hideDockIcon = false
-  
+
   var body: some View {
     Form {
       VStack(alignment: .center) {

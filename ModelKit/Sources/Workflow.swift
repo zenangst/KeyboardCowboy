@@ -24,9 +24,44 @@ public struct Workflow: Identifiable, Codable, Hashable {
       }
     }
   }
+
+  public enum Trigger: Hashable, Codable {
+    case keyboardShortcuts([KeyboardShortcut])
+
+    public enum CodingKeys: String, CodingKey {
+      case keyboardShortcuts
+    }
+
+    public init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      switch container.allKeys.first {
+      case .keyboardShortcuts:
+        let keyboardShortcuts = try container.decode([KeyboardShortcut].self, forKey: .keyboardShortcuts)
+        self = .keyboardShortcuts(keyboardShortcuts)
+      case .none:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: container.codingPath,
+            debugDescription: "Unabled to decode enum."
+          )
+        )
+      }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      switch self {
+      case .keyboardShortcuts(let keyboardShortcuts):
+        try container.encode(keyboardShortcuts, forKey: .keyboardShortcuts)
+      }
+    }
+  }
+
   public let id: String
   public var commands: [Command]
-  public var keyboardShortcuts: [KeyboardShortcut]
+  public var trigger: Trigger?
+  @available(*, deprecated, message: "Use .trigger instead.")
+  public var keyboardShortcuts: [KeyboardShortcut] = []
   public var name: String
   public var metadata: MetaData = MetaData()
 
@@ -35,16 +70,19 @@ public struct Workflow: Identifiable, Codable, Hashable {
     return false
   }
 
-  public init(id: String = UUID().uuidString, name: String, keyboardShortcuts: [KeyboardShortcut] = [], commands: [Command] = []) {
+  public init(id: String = UUID().uuidString, name: String,
+              trigger: Trigger?,
+              commands: [Command] = []) {
     self.id = id
     self.commands = commands
-    self.keyboardShortcuts = keyboardShortcuts
+    self.trigger = trigger
     self.name = name
   }
 
   enum CodingKeys: String, CodingKey {
     case commands
     case id
+    case trigger
     case keyboardShortcuts
     case metadata
     case name
@@ -56,8 +94,15 @@ public struct Workflow: Identifiable, Codable, Hashable {
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.name = try container.decode(String.self, forKey: .name)
     self.commands = try container.decode([Command].self, forKey: .commands)
-    self.keyboardShortcuts = try container.decode([KeyboardShortcut].self, forKey: .keyboardShortcuts)
+
+    // Migrate keyboard shortcuts to trigger property
+    if let keyboardShortcuts = try? container.decode([KeyboardShortcut].self, forKey: .keyboardShortcuts) {
+      self.trigger = .keyboardShortcuts(keyboardShortcuts)
+    } else {
+      self.trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
+    }
     self.metadata = try container.decodeIfPresent(MetaData.self, forKey: .metadata) ?? MetaData()
+
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -67,9 +112,12 @@ public struct Workflow: Identifiable, Codable, Hashable {
     if !commands.isEmpty {
       try container.encode(commands, forKey: .commands)
     }
-    if !keyboardShortcuts.isEmpty {
-      try container.encode(keyboardShortcuts, forKey: .keyboardShortcuts)
+
+    // Trigger takes precedence over keyboard shortcuts.
+    if let trigger = trigger {
+      try container.encode(trigger, forKey: .trigger)
     }
+
     if metadata.isEncodable {
       try container.encode(metadata, forKey: .metadata)
     }
@@ -81,7 +129,7 @@ extension Workflow {
     Workflow(
       id: id,
       name: "Untitled workflow",
-      keyboardShortcuts: [],
+      trigger: nil,
       commands: []
     )
   }

@@ -30,9 +30,10 @@ public struct KeyboardShortcutList: View {
 
   public var body: some View {
     VStack(spacing: 1) {
-      if !workflow.keyboardShortcuts.isEmpty {
-        list
-      } else {
+      switch workflow.trigger {
+      case .keyboardShortcuts(let shortcuts):
+        list(shortcuts)
+      case .none:
         addButton
       }
     }.onReceive(transportDelegate.$state, perform: { context in
@@ -63,11 +64,11 @@ public struct KeyboardShortcutList: View {
 // MARK: Extensions
 
 extension KeyboardShortcutList {
-  var list: some View {
+  func list(_ keyboardShortcuts: [ModelKit.KeyboardShortcut]) -> some View {
     HStack {
       ScrollView(.horizontal) {
         HStack(spacing: 20) {
-          ForEach(workflow.keyboardShortcuts) { keyboardShortcut in
+          ForEach(keyboardShortcuts) { keyboardShortcut in
             MovableStack(axis: .horizontal, element: keyboardShortcut, dragHandler: { offset, _ in
               let indexOffset = Int(round(offset.width / 48))
               performAction(.move(keyboardShortcut, offset: indexOffset, in: workflow))

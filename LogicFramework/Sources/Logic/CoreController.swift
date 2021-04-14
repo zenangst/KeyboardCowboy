@@ -141,8 +141,12 @@ public final class CoreController: NSObject, CoreControlling,
     let currentCount = currentKeyboardShortcuts.count
     var shortcutsToActivate = Set<KeyboardShortcut>()
     var workflowsToActivate = Set<Workflow>()
-    for workflow in workflows where workflow.keyboardShortcuts.count >= currentCount {
-      guard let validShortcut = workflow.keyboardShortcuts[currentCount..<workflow.keyboardShortcuts.count].first
+    for workflow in workflows {
+      guard case let .keyboardShortcuts(shortcuts) = workflow.trigger,
+            shortcuts.count >= currentCount
+            else { continue }
+
+      guard let validShortcut = shortcuts[currentCount..<shortcuts.count].first
       else { continue }
       workflowsToActivate.insert(workflow)
       shortcutsToActivate.insert(validShortcut)
@@ -186,11 +190,14 @@ public final class CoreController: NSObject, CoreControlling,
 
   public func intercept(_ context: HotKeyContext) {
     let counter = currentKeyboardShortcuts.count
-    for workflow in activeWorkflows where counter < workflow.keyboardShortcuts.count {
-      guard !workflow.keyboardShortcuts.isEmpty else { continue }
+    for workflow in activeWorkflows {
+      guard case let .keyboardShortcuts(shortcuts) = workflow.trigger,
+            !shortcuts.isEmpty,
+            counter < shortcuts.count
+            else { continue }
 
       // Verify that the current key code is in the list of cached keys.
-      let keyboardShortcut = workflow.keyboardShortcuts[counter]
+      let keyboardShortcut = shortcuts[counter]
       guard let shortcutKeyCode = self.cache[keyboardShortcut.key.uppercased()],
             context.keyCode == shortcutKeyCode else { continue }
 
@@ -208,7 +215,7 @@ public final class CoreController: NSObject, CoreControlling,
 
       context.result = nil
 
-      if keyboardShortcut == workflow.keyboardShortcuts.last {
+      if keyboardShortcut == shortcuts.last {
         if case .keyboard(let command) = workflow.commands.last {
           _ = keyboardController.run(command, type: context.type, eventSource: context.eventSource)
         } else if context.type == .keyDown {

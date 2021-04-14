@@ -12,7 +12,12 @@ struct WorkflowListView: View {
           name
           HStack {
             numberOfCommands.font(.callout)
-            keyboardShortcuts().font(.caption)
+            switch workflow.trigger {
+            case .keyboardShortcuts(let shortcuts):
+              keyboardShortcuts(shortcuts).font(.caption)
+            case .none:
+              Spacer()
+            }
           }
         }.frame(height: 48)
         Spacer()
@@ -42,11 +47,11 @@ private extension WorkflowListView {
   }
 
   @ViewBuilder
-  func keyboardShortcuts() -> some View {
-    if !workflow.keyboardShortcuts.isEmpty {
+  func keyboardShortcuts(_ shortcuts: [ModelKit.KeyboardShortcut]) -> some View {
+    if !shortcuts.isEmpty {
       Divider().frame(height: 10)
     }
-    ForEach(workflow.keyboardShortcuts) { shortcut in
+    ForEach(shortcuts) { shortcut in
       KeyboardShortcutView(shortcut: shortcut)
     }
   }
