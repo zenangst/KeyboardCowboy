@@ -2,29 +2,18 @@ import SwiftUI
 import ViewKit
 import ModelKit
 import Introspect
+import Combine
 
 @main
 struct KeyboardCowboyApp: App {
+  @Environment(\.scenePhase) private var scenePhase
   @StateObject private var store = Saloon()
-  @State var applicationIsActive: Bool = false
 
   var body: some Scene {
     WindowGroup {
-      if applicationIsActive {
-        $store.state.wrappedValue.currentView
-          .frame(minWidth: 800, minHeight: 520)
-      } else {
-        ZStack {}
-          .onReceive(store.$state, perform: {
-            applicationIsActive = $0.currentView != nil
-          })
-          .frame(minWidth: 800, minHeight: 10)
-          .onChange(of: NSApplication.shared.windows, perform: { windows in
-            store.dismissStartupWindows(windows)
-          })
-      }
+      $store.view.wrappedValue
+        .onChange(of: scenePhase, perform: store.scenePhaseChanged(_:))
     }
-    .windowToolbarStyle(UnifiedWindowToolbarStyle())
     .commands {
       KeyboardCowboyCommands(
         store: store,

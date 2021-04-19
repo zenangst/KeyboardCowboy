@@ -40,32 +40,25 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private var settingsController: SettingsController?
   private var subscriptions = Set<AnyCancellable>()
   private var taggedRunningApplications = Set<String>()
+  private var state: ApplicationState = .initial
 
   private weak var mainWindow: NSWindow?
 
-  @Published var state: ApplicationState = .initial
+  @Published var view: ApplicationView = .hidden
 
   init() {
+
     Debug.isEnabled = launchArguments.isEnabled(.debug)
     let configuration = Configuration.Storage()
     self.storageController = Self.factory.storageController(
       path: configuration.path,
       fileName: configuration.fileName)
     self.builtInController = BuiltInCommandController()
+    let installedApplications = ApplicationController.loadApplications()
+
+    IconController.shared.applications = installedApplications
 
     do {
-      // Don't run the entire app when running tests
-      if launchArguments.isEnabled(.runningUnitTests) ||
-          isRunningPreview {
-        self.state = .launched
-        super.init(groups: [], context: .preview())
-        return
-      }
-
-      let installedApplications = ApplicationController.loadApplications()
-
-      IconController.shared.applications = installedApplications
-
       var groups = try storageController.load()
       groups = pathFinderController.patch(groups, applications: installedApplications)
       let groupsController = Self.factory.groupsController(groups: groups)
@@ -92,7 +85,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       self.subscribe(to: context)
       self.context = viewKitContext
       self.featureContext = context
-      self.state = .launching
       self.subscribe(to: NSApplication.shared)
     } catch let error {
       ErrorController.handle(error)
@@ -100,40 +92,36 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     }
   }
 
-  public func dismissStartupWindows(_ windows: [NSWindow]) {
-    guard scenePhase != .active else { return }
+  // MARK: Public methods
 
-    let openWindowAtLaunch = launchArguments.isEnabled(.openWindowAtLaunch) ||
-      UserDefaults.standard.openWindowOnLaunch
-
-    guard !openWindowAtLaunch else { return }
-
-    windows
-      .first(where: { $0.description.contains("AppWindow") })?
-      .close()
+  func scenePhaseChanged(_ phase: ScenePhase) {
+    switch phase {
+    case .active:
+      if state != .launched { set(.launched) }
+    default:
+      break
+    }
   }
 
   // MARK: Private methods
 
   private func set(_ newState: ApplicationState) {
     switch newState {
-    case .initial, .needsPermission:
+    case .initial:
       break
     case .launching:
-      set(.launched)
       if UserDefaults.standard.hideDockIcon {
         NSApp.setActivationPolicy(.accessory)
       }
+      state = .launching
     case .launched:
       settingsController = SettingsController(userDefaults: .standard)
       subscribe(to: UserDefaults.standard, context: context)
       subscribe(to: NotificationCenter.default)
-      subscribe(to: NSWorkspace.shared)
       SUUpdater.shared()?.checkForUpdatesInBackground()
       createKeyboardShortcutWindow()
       createQuickRun()
-    case .content:
-      state = newState
+      state = .launched
     }
   }
 
@@ -169,6 +157,17 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     self.keyboardShortcutWindowController = windowController
   }
 
+  private func fixMainWindowCrash() {
+    guard let mainWindow = mainWindow else { return }
+    // Fix *** Assertion failure in +[NSToolbarView newViewForToolbar:inWindow:attachedToEdge:]
+    if mainWindow.frame.size.width < 800 {
+      mainWindow.minSize.width = 800
+      mainWindow.setFrame(.init(origin: mainWindow.frame.origin,
+                                size: CGSize(width: 800, height: 0)), display: false)
+      mainWindow.center()
+    }
+  }
+
   private func subscribe(to application: NSApplication) {
     application.publisher(for: \.isRunning)
       .sink { [weak self] value in
@@ -176,7 +175,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         self?.set(.launching)
 
         if launchArguments.isEnabled(.openWindowAtLaunch) {
-          self?.setContentView()
           NSApp.activate(ignoringOtherApps: true)
           NSApp.setActivationPolicy(.regular)
         }
@@ -186,6 +184,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       .sink { [weak self] mainWindow in
         guard let mainWindow = mainWindow else { return }
         self?.mainWindow = mainWindow
+        self?.fixMainWindowCrash()
       }.store(in: &subscriptions)
   }
 
@@ -329,10 +328,12 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   }
 
   private func setContentView() {
-    set(.content(MainView(store: self, groupController: context.groups)))
+    guard !isRunningPreview else { return }
+    fixMainWindowCrash()
+    view = .content(MainView(store: self, groupController: context.groups))
   }
 
-  private func openMainWindow() {
+  func openMainWindow() {
     let quickRunIsOpen = quickRunWindowController?.window?.isVisible == true
     if !quickRunIsOpen {
       setContentView()
