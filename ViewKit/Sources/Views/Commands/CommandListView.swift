@@ -124,7 +124,7 @@ struct CommandListView_Previews: PreviewProvider, TestPreviewProvider {
 
   static var testPreview: some View {
     CommandListView(selection: .constant(nil),
-                    workflow: .constant(ModelFactory().workflowDetail()),
+                    workflow: .constant(ModelFactory().workflowDetail(trigger: .keyboardShortcuts(ModelFactory().keyboardShortcuts()))),
                     perform: { _ in },
                     receive: { _ in })
   }

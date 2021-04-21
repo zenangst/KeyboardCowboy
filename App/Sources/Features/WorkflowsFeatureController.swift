@@ -27,7 +27,8 @@ protocol WorkflowsFeatureControllerDelegate: AnyObject {
 final class WorkflowsFeatureController: ViewController,
                                         WorkflowFeatureControllerDelegate,
                                         CommandsFeatureControllerDelegate,
-                                        KeyboardShortcutsFeatureControllerDelegate {
+                                        KeyboardShortcutsFeatureControllerDelegate,
+                                        ApplicationTriggerFeatureControllerDelegate {
   @Published var state: [ModelKit.Workflow] = []
   weak var delegate: WorkflowsFeatureControllerDelegate?
   var applications = [Application]()
@@ -156,6 +157,12 @@ final class WorkflowsFeatureController: ViewController,
     workflowController.perform(.set(workflow: workflow))
   }
 
+  func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
+                                         didClearTrigger trigger: Workflow.Trigger,
+                                         in workflow: Workflow) {
+    workflowController.perform(.set(workflow: workflow))
+  }
+
   // MARK: CommandsFeatureControllerDelegate
 
   func commandsFeatureController(_ controller: CommandsFeatureController,
@@ -180,6 +187,38 @@ final class WorkflowsFeatureController: ViewController,
     let commands = DropCommandsController.generateCommands(from: urls,
                                                            applications: applications)
     workflow.commands.append(contentsOf: commands)
+    workflowController.perform(.set(workflow: workflow))
+  }
+
+  // MARK: ApplicationTriggerFeatureControllerDelegate
+
+  func applicationTriggerFeatureContorller(_ controller: ApplicationTriggerFeatureController,
+                                           didCreateEmptyApplicationTrigger: Workflow.Trigger,
+                                           in workflow: Workflow) {
+    workflowController.perform(.set(workflow: workflow))
+  }
+
+  func applicationTriggerFeatureController(_ controller: ApplicationTriggerFeatureController,
+                                           didApplicationTrigger applicationTrigger: ApplicationTrigger,
+                                           in workflow: Workflow) {
+    workflowController.perform(.set(workflow: workflow))
+  }
+
+  func applicationTriggerFeatureController(_ controller: ApplicationTriggerFeatureController,
+                                           didUpdateApplicationTrigger applicationTrigger: ApplicationTrigger,
+                                           in workflow: Workflow) {
+    workflowController.perform(.set(workflow: workflow))
+  }
+
+  func applicationTriggerFeatureController(_ controller: ApplicationTriggerFeatureController,
+                                           didDeleteApplicationTrigger applicationTrigger: ApplicationTrigger,
+                                           in workflow: Workflow) {
+    workflowController.perform(.set(workflow: workflow))
+  }
+
+  func applicationTriggerFeatureController(_ controller: ApplicationTriggerFeatureController,
+                                           didClearTrigger trigger: Workflow.Trigger,
+                                           in workflow: Workflow) {
     workflowController.perform(.set(workflow: workflow))
   }
 }

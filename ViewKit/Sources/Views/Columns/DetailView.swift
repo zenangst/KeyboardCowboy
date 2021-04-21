@@ -40,7 +40,7 @@ public struct DetailView: View {
 
   public var body: some View {
     ScrollView {
-      VStack {
+      VStack(spacing: 0) {
         VStack(alignment: .leading) {
           TextField("", text: workflow.name)
             .firstResponder(id: FirstResponders.name, firstResponder: $firstResponder)
@@ -50,11 +50,15 @@ public struct DetailView: View {
             })
             .foregroundColor(.primary)
             .font(.largeTitle)
-          HeaderView(title: "Keyboard shortcuts:").padding([.top])
-          KeyboardShortcutList(workflow: workflow,
-                               performAction: context.keyboardsShortcuts.perform(_:))
-            .cornerRadius(4)
-        }.padding()
+        }.padding([.top, .leading, .trailing])
+
+        VStack {
+          HStack {
+            TriggerView(context: context, workflow: workflow)
+            Spacer()
+          }
+        }
+        .padding()
       }
       .padding([.leading, .trailing, .bottom], 8)
       .background(Color(.textBackgroundColor))
@@ -76,6 +80,11 @@ public struct DetailView: View {
           .stroke(Color.accentColor, lineWidth: isDropping ? 5 : 0)
           .padding(4)
       )
+
+      if case .application = workflow.wrappedValue.trigger {
+        HelperView(text: "When using Application triggers, commands will run in the background", {})
+      }
+
     }.toolbar(content: {
       DetailViewToolbar(
         config: $config,
@@ -166,7 +175,8 @@ struct DetailView_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    let workflow = ModelFactory().workflowDetail()
+    var workflow = ModelFactory().workflowDetail(trigger: .keyboardShortcuts(ModelFactory().keyboardShortcuts()))
+    workflow.trigger = nil
     let context: ViewKitFeatureContext = .preview()
 
     context.workflow.perform(.set(workflow: workflow))

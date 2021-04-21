@@ -20,6 +20,7 @@ public struct KeyboardShortcutList: View {
     case update(ModelKit.KeyboardShortcut, in: Workflow)
     case move(ModelKit.KeyboardShortcut, offset: Int, in: Workflow)
     case delete(ModelKit.KeyboardShortcut, in: Workflow)
+    case clear(Workflow)
   }
 
   @State var isShowingError: Bool = false
@@ -30,11 +31,8 @@ public struct KeyboardShortcutList: View {
 
   public var body: some View {
     VStack(spacing: 1) {
-      switch workflow.trigger {
-      case .keyboardShortcuts(let shortcuts):
+      if case let .keyboardShortcuts(shortcuts) = workflow.trigger {
         list(shortcuts)
-      case .none:
-        addButton
       }
     }.onReceive(transportDelegate.$state, perform: { context in
       guard let selection = selection,
@@ -84,7 +82,8 @@ extension KeyboardShortcutList {
           }
         }
         .padding([.vertical], 4)
-      }.onTapGesture {
+      }
+      .onTapGesture {
         addKeyboardShortcut()
       }
       Button(action: addKeyboardShortcut,
@@ -132,13 +131,6 @@ extension KeyboardShortcutList {
     )
   }
 
-  var addButton: some View {
-    AddButton(text: "Add Keyboard Shortcut",
-              alignment: .center,
-              action: addKeyboardShortcut)
-      .padding(.vertical, 8)
-  }
-
   func onTap() {
     TransportController.shared.receiver = transportDelegate
     NotificationCenter.default.post(.enableRecordingHotKeys)
@@ -162,7 +154,7 @@ struct KeyboardShortcutList_Previews: PreviewProvider, TestPreviewProvider {
   }
 
   static var testPreview: some View {
-    KeyboardShortcutList(workflow: .constant(ModelFactory().workflowDetail()),
+    KeyboardShortcutList(workflow: .constant(ModelFactory().workflowDetail(trigger: .keyboardShortcuts(ModelFactory().keyboardShortcuts()))),
                          performAction: { _ in })
   }
 }

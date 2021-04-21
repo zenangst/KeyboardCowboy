@@ -25,6 +25,7 @@ public class ViewKitFeatureContext {
   let keyInputSubjectWrapper: KeyInputSubjectWrapper
 
   public var applicationProvider: ApplicationProvider = ApplicationPreviewProvider().erase()
+  public var applicationTrigger: ApplicationTriggerController = ApplicationTriggerPreviewController().erase()
   public var commands: CommandsController = CommandPreviewController().erase()
   public var groups: GroupsController = GroupPreviewController().erase()
   public var keyboardsShortcuts = KeyboardShortcutPreviewController().erase()
@@ -34,6 +35,7 @@ public class ViewKitFeatureContext {
   public var workflows: WorkflowsController = WorkflowsPreviewController().erase()
 
   public init(applicationProvider: ApplicationProvider,
+              applicationTrigger: ApplicationTriggerController,
               commands: CommandsController,
               groups: GroupsController,
               keyInputSubjectWrapper: KeyInputSubjectWrapper,
@@ -44,6 +46,7 @@ public class ViewKitFeatureContext {
               workflows: WorkflowsController
   ) {
     self.applicationProvider = applicationProvider
+    self.applicationTrigger = applicationTrigger
     self.commands = commands
     self.groups = groups
     self.keyInputSubjectWrapper = keyInputSubjectWrapper
@@ -56,6 +59,7 @@ public class ViewKitFeatureContext {
 
   public static func preview() -> ViewKitFeatureContext {
     ViewKitFeatureContext(applicationProvider: ApplicationPreviewProvider().erase(),
+                          applicationTrigger: ApplicationTriggerPreviewController().erase(),
                           commands: CommandPreviewController().erase(),
                           groups: GroupPreviewController().erase(),
                           keyInputSubjectWrapper: KeyInputSubjectWrapper(),

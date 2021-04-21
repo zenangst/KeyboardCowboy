@@ -23,6 +23,11 @@ public extension View {
     }
   }
 
+  func print(_ value: Any) -> Self {
+    Swift.print(value)
+    return self
+  }
+
   func cursorOnHover(_ cursor: NSCursor) -> some View {
     onHover(perform: { hovering in
       if hovering { cursor.push() } else { NSCursor.pop() }

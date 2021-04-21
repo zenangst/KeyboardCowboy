@@ -1,6 +1,7 @@
 import ModelKit
 
 public typealias ApplicationProvider = AnyStateController<[Application]>
+public typealias ApplicationTriggerController = AnyActionController<ApplicationTriggerList.UIAction>
 public typealias CommandsController = AnyActionController<CommandListView.Action>
 public typealias GroupsController = AnyActionController<GroupList.Action>
 public typealias HUDProvider = AnyStateController<[KeyboardShortcut]>
