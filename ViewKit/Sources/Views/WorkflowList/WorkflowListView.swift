@@ -13,6 +13,8 @@ struct WorkflowListView: View {
           HStack {
             numberOfCommands.font(.callout)
             switch workflow.trigger {
+            case .application:
+              Spacer()
             case .keyboardShortcuts(let shortcuts):
               keyboardShortcuts(shortcuts).font(.caption)
             case .none:
@@ -60,29 +62,29 @@ private extension WorkflowListView {
     ZStack {
       ForEach(0..<workflow.commands.count, id: \.self) { index in
         let command = workflow.commands[index]
-        let cgIndex = CGFloat(index)
-        let multiplierX = -cgIndex * 5 - 10
-        let multiplierY = -cgIndex * 5
-        let shadowRadius = max(cgIndex - 1, 0)
-        let scale: CGFloat = isHovering
-          ? workflow.commands.count > 1 ? 0.9 + ( 0.05 * cgIndex) : 1.0
-          : 1.0
+//        let cgIndex = CGFloat(index)
+//        let multiplierX = -cgIndex * 5 - 10
+//        let multiplierY = -cgIndex * 5
+//        let shadowRadius = max(cgIndex - 1, 0)
+//        let scale: CGFloat = isHovering
+//          ? workflow.commands.count > 1 ? 0.9 + ( 0.05 * cgIndex) : 1.0
+//          : 1.0
 
         IconView(path: command.icon)
           .frame(width: 32, height: 32)
-          .scaleEffect(scale, anchor: .center)
-          .offset(x: isHovering ?  multiplierX : -10,
-                  y: isHovering ? multiplierY : 0)
-          .rotationEffect(.degrees( isHovering ? -Double(index) * 10 : 0 ))
-          .shadow(color: Color(NSColor.black).opacity( isHovering ? 0.025 : 0.005),
-                  radius: isHovering ? shadowRadius : 3,
-                  x: isHovering ? -multiplierX : 0,
-                  y: isHovering ? -multiplierY : 1)
-          .onHover { value in
-            withAnimation(.easeInOut(duration: 0.15)) {
-              if isHovering != value { isHovering = value }
-            }
-          }
+//          .scaleEffect(scale, anchor: .center)
+//          .offset(x: isHovering ?  multiplierX : -10,
+//                  y: isHovering ? multiplierY : 0)
+//          .rotationEffect(.degrees( isHovering ? -Double(index) * 10 : 0 ))
+//          .shadow(color: Color(NSColor.black).opacity( isHovering ? 0.025 : 0.005),
+//                  radius: isHovering ? shadowRadius : 3,
+//                  x: isHovering ? -multiplierX : 0,
+//                  y: isHovering ? -multiplierY : 1)
+//          .onHover { value in
+//            withAnimation(.easeInOut(duration: 0.15)) {
+//              if isHovering != value { isHovering = value }
+//            }
+//          }
       }
     }
   }
@@ -108,7 +110,9 @@ struct WorkflowListView_Previews: PreviewProvider, TestPreviewProvider {
     return Group {
       ForEach(models) { command in
         WorkflowListView(workflow: ModelFactory().workflowDetail(
-          [command], name: command.name
+          [command],
+          trigger: .keyboardShortcuts(ModelFactory().keyboardShortcuts()),
+          name: command.name
         ))
       }
     }

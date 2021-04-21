@@ -26,15 +26,20 @@ public struct Workflow: Identifiable, Codable, Hashable {
   }
 
   public enum Trigger: Hashable, Codable {
+    case application([ApplicationTrigger])
     case keyboardShortcuts([KeyboardShortcut])
 
     public enum CodingKeys: String, CodingKey {
+      case application
       case keyboardShortcuts
     }
 
     public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       switch container.allKeys.first {
+      case .application:
+        let applicationTrigger = try container.decode([ApplicationTrigger].self, forKey: .application)
+        self = .application(applicationTrigger)
       case .keyboardShortcuts:
         let keyboardShortcuts = try container.decode([KeyboardShortcut].self, forKey: .keyboardShortcuts)
         self = .keyboardShortcuts(keyboardShortcuts)
@@ -51,6 +56,8 @@ public struct Workflow: Identifiable, Codable, Hashable {
     public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       switch self {
+      case .application(let trigger):
+        try container.encode(trigger, forKey: .application)
       case .keyboardShortcuts(let keyboardShortcuts):
         try container.encode(keyboardShortcuts, forKey: .keyboardShortcuts)
       }
@@ -93,10 +100,10 @@ public struct Workflow: Identifiable, Codable, Hashable {
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.name = try container.decode(String.self, forKey: .name)
-    self.commands = try container.decode([Command].self, forKey: .commands)
+    self.commands = try container.decodeIfPresent([Command].self, forKey: .commands) ?? []
 
     // Migrate keyboard shortcuts to trigger property
-    if let keyboardShortcuts = try? container.decode([KeyboardShortcut].self, forKey: .keyboardShortcuts) {
+    if let keyboardShortcuts = try? container.decodeIfPresent([KeyboardShortcut].self, forKey: .keyboardShortcuts) {
       self.trigger = .keyboardShortcuts(keyboardShortcuts)
     } else {
       self.trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)

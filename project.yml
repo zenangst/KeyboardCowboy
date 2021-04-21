@@ -29,6 +29,9 @@ packages:
   MbSwiftUIFirstResponder:
     url: https://github.com/mobilinked/MbSwiftUIFirstResponder
     branch: main
+  InterposeKit:
+    url: https://github.com/steipete/InterposeKit
+    from: 0.0.2
 settingGroups:
   app:
     CODE_SIGN_IDENTITY: "Apple Development"
@@ -46,6 +49,7 @@ targets:
       - package: DirectoryObserver
       - package: LaunchArguments
       - package: Sparkle
+      - package: InterposeKit
     sources:
       - App
     settings:

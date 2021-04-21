@@ -112,8 +112,10 @@ class ModelFactory {
   }
 
   /// Used by `WorkflowListCell.swift`
-  func workflowDetail(_ commands: [Command]? = nil, name: String? = nil) -> Workflow {
-    workflow(commands, name: name)
+  func workflowDetail(_ commands: [Command]? = nil,
+                      trigger: Workflow.Trigger?,
+                      name: String? = nil) -> Workflow {
+    workflow(commands, trigger: trigger, name: name)
   }
 
   func commands(id: String = UUID().uuidString) -> [Command] {
@@ -230,11 +232,13 @@ class ModelFactory {
     ]
   }
 
-  private func workflow(_ commands: [Command]? = nil, name: String? = nil) -> Workflow {
+  private func workflow(_ commands: [Command]? = nil,
+                        trigger: Workflow.Trigger? = nil,
+                        name: String? = nil) -> Workflow {
     Workflow(
       id: UUID().uuidString,
       name: name ?? "Developer Workflow",
-      trigger: .keyboardShortcuts(keyboardShortcuts()),
+      trigger: trigger,
       commands: commands ?? self.commands(id: UUID().uuidString))
   }
 }

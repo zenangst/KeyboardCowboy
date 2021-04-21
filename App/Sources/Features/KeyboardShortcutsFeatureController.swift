@@ -15,7 +15,9 @@ protocol KeyboardShortcutsFeatureControllerDelegate: AnyObject {
   func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
                                          didDeleteKeyboardShortcut keyboardShortcut: KeyboardShortcut,
                                          in workflow: Workflow)
-
+  func keyboardShortcutFeatureController(_ controller: KeyboardShortcutsFeatureController,
+                                         didClearTrigger trigger: Workflow.Trigger,
+                                         in workflow: Workflow)
 }
 
 final class KeyboardShortcutsFeatureController: ActionController {
@@ -31,6 +33,10 @@ final class KeyboardShortcutsFeatureController: ActionController {
       delete(shortcut, in: workflow)
     case .move(let shortcut, let offset, let workflow):
       move(shortcut, to: offset, in: workflow)
+    case .clear(var workflow):
+      guard let trigger = workflow.trigger else { return }
+      workflow.trigger = nil
+      delegate?.keyboardShortcutFeatureController(self, didClearTrigger: trigger, in: workflow)
     }
   }
 
@@ -45,8 +51,8 @@ final class KeyboardShortcutsFeatureController: ActionController {
     case var .keyboardShortcuts(shortcuts):
       shortcuts.add(keyboardShortcut, at: index)
       workflow.trigger = .keyboardShortcuts(shortcuts)
-    case .none:
-      break
+    case .none, .application:
+      workflow.trigger = .keyboardShortcuts([keyboardShortcut])
     }
 
     delegate?.keyboardShortcutFeatureController(self, didCreateKeyboardShortcut: keyboardShortcut, in: workflow)
@@ -59,7 +65,7 @@ final class KeyboardShortcutsFeatureController: ActionController {
     case var .keyboardShortcuts(shortcuts):
       try? shortcuts.replace(keyboardShortcut)
       workflow.trigger = .keyboardShortcuts(shortcuts)
-    case .none:
+    case .none, .application:
       break
     }
 
@@ -72,8 +78,13 @@ final class KeyboardShortcutsFeatureController: ActionController {
     switch workflow.trigger {
     case var .keyboardShortcuts(shortcuts):
       try? shortcuts.remove(keyboardShortcut)
-      workflow.trigger = .keyboardShortcuts(shortcuts)
-    case .none:
+
+      if shortcuts.isEmpty {
+        workflow.trigger = nil
+      } else {
+        workflow.trigger = .keyboardShortcuts(shortcuts)
+      }
+    case .none, .application:
       break
     }
 
@@ -89,7 +100,7 @@ final class KeyboardShortcutsFeatureController: ActionController {
       let newIndex = currentIndex + offset
       try? shortcuts.move(keyboardShortcut, to: newIndex)
       workflow.trigger = .keyboardShortcuts(shortcuts)
-    case .none:
+    case .none, .application:
       break
     }
 

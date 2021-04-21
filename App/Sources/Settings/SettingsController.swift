@@ -11,11 +11,11 @@ class SettingsController {
 
     userDefaults.publisher(for: \.hideDockIcon)
       .sink { newValue in
-        if newValue {
-          NSApp.setActivationPolicy(.accessory)
-        } else {
-          NSApp.setActivationPolicy(.regular)
-        }
+//        if newValue {
+//          NSApp.setActivationPolicy(.accessory)
+//        } else {
+//          NSApp.setActivationPolicy(.regular)
+//        }
       }.store(in: &subscriptions)
   }
 }

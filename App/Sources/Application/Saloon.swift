@@ -47,7 +47,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   @Published var view: ApplicationView = .hidden
 
   init() {
-
+    MacOSWorkarounds.installMacTouchBarHack
     Debug.isEnabled = launchArguments.isEnabled(.debug)
     let configuration = Configuration.Storage()
     self.storageController = Self.factory.storageController(
@@ -95,11 +95,8 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   // MARK: Public methods
 
   func scenePhaseChanged(_ phase: ScenePhase) {
-    switch phase {
-    case .active:
-      if state != .launched { set(.launched) }
-    default:
-      break
+    if case .active = phase, state != .launched {
+      set(.launched)
     }
   }
 
@@ -110,9 +107,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     case .initial:
       break
     case .launching:
-      if UserDefaults.standard.hideDockIcon {
-        NSApp.setActivationPolicy(.accessory)
-      }
       state = .launching
     case .launched:
       settingsController = SettingsController(userDefaults: .standard)
@@ -157,26 +151,17 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     self.keyboardShortcutWindowController = windowController
   }
 
-  private func fixMainWindowCrash() {
-    guard let mainWindow = mainWindow else { return }
-    // Fix *** Assertion failure in +[NSToolbarView newViewForToolbar:inWindow:attachedToEdge:]
-    if mainWindow.frame.size.width < 800 {
-      mainWindow.minSize.width = 800
-      mainWindow.setFrame(.init(origin: mainWindow.frame.origin,
-                                size: CGSize(width: 800, height: 0)), display: false)
-      mainWindow.center()
-    }
-  }
-
   private func subscribe(to application: NSApplication) {
     application.publisher(for: \.isRunning)
       .sink { [weak self] value in
         guard value == true else { return }
         self?.set(.launching)
 
-        if launchArguments.isEnabled(.openWindowAtLaunch) {
-          NSApp.activate(ignoringOtherApps: true)
-          NSApp.setActivationPolicy(.regular)
+        if UserDefaults.standard.openWindowOnLaunch ||
+            launchArguments.isEnabled(.openWindowAtLaunch) {
+          self?.openMainWindow()
+        } else {
+          NSApp.setActivationPolicy(UserDefaults.standard.hideDockIcon ? .accessory : .regular)
         }
       }.store(in: &subscriptions)
 
@@ -184,7 +169,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       .sink { [weak self] mainWindow in
         guard let mainWindow = mainWindow else { return }
         self?.mainWindow = mainWindow
-        self?.fixMainWindowCrash()
       }.store(in: &subscriptions)
   }
 
@@ -280,15 +264,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       self.selectedWorkflow = selectedWorkflow
     }.store(in: &subscriptions)
 
-    userDefaults.publisher(for: \.openWindowOnLaunch).sink { [weak self] newValue in
-      guard let self = self else { return }
-      if newValue {
-        self.setContentView()
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.setActivationPolicy(.regular)
-      }
-    }.store(in: &subscriptions)
-
     userDefaults.publisher(for: \.hideMenuBarIcon).sink { newValue in
       if newValue {
         self.menuBarController = nil
@@ -327,16 +302,15 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
     }
   }
 
-  private func setContentView() {
+  private func createContentView() {
     guard !isRunningPreview else { return }
-    fixMainWindowCrash()
     view = .content(MainView(store: self, groupController: context.groups))
   }
 
   func openMainWindow() {
     let quickRunIsOpen = quickRunWindowController?.window?.isVisible == true
     if !quickRunIsOpen {
-      setContentView()
+      createContentView()
       NSWorkspace.shared.open(Bundle.main.bundleURL)
       mainWindow?.orderFrontRegardless()
     }

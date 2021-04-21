@@ -11,9 +11,9 @@ enum ApplicationView: View {
     case .hidden:
       Spacer()
     case .content(let view):
-      view.frame(width: 800, height: 520)
+      view.frame(minWidth: 900, minHeight: 520)
     case .needsPermission(let view):
-      view.frame(width: 800, height: 520)
+      view.frame(minWidth: 800, minHeight: 520)
     }
   }
 }

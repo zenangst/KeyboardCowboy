@@ -6,6 +6,7 @@ import SwiftUI
 
 class FeatureContext {
   var applicationProvider: ApplicationsProvider
+  let applicationTrigger: ApplicationTriggerFeatureController
   let commands: CommandsFeatureController
   let groups: GroupsFeatureController
   let keyboardsShortcuts: KeyboardShortcutsFeatureController
@@ -15,6 +16,7 @@ class FeatureContext {
   let workflows: WorkflowsFeatureController
 
   init(applicationProvider: ApplicationsProvider,
+       applicationTrigger: ApplicationTriggerFeatureController,
        commandFeature: CommandsFeatureController,
        groupsFeature: GroupsFeatureController,
        keyInputSubjectWrapper: KeyInputSubjectWrapper,
@@ -24,6 +26,7 @@ class FeatureContext {
        workflowFeature: WorkflowFeatureController,
        workflowsFeature: WorkflowsFeatureController) {
     self.applicationProvider = applicationProvider
+    self.applicationTrigger = applicationTrigger
     self.commands = commandFeature
     self.groups = groupsFeature
     self.keyboardsShortcuts = keyboardFeature
@@ -35,6 +38,7 @@ class FeatureContext {
 
   func viewKitContext(keyInputSubjectWrapper: KeyInputSubjectWrapper) -> ViewKitFeatureContext {
     ViewKitFeatureContext(applicationProvider: applicationProvider.erase(),
+                          applicationTrigger: applicationTrigger.erase(),
                           commands: commands.erase(),
                           groups: groups.erase(),
                           keyInputSubjectWrapper: keyInputSubjectWrapper,
@@ -65,6 +69,7 @@ final class FeatureFactory {
 
   func featureContext(keyInputSubjectWrapper: KeyInputSubjectWrapper) -> FeatureContext {
     let applicationProvider = ApplicationsProvider(applications: coreController.installedApplications)
+    let applicationTrigger = ApplicationTriggerFeatureController()
     let commandsController = commandsFeature(commandController: coreController.commandController)
     let openPanelController = OpenPanelViewController()
     let groupFeatureController = groupFeature()
@@ -75,11 +80,13 @@ final class FeatureFactory {
       workflowController: workflowController.erase())
 
     workflowsController.delegate = groupFeatureController
+    applicationTrigger.delegate = workflowsController
     keyboardController.delegate = workflowsController
     commandsController.delegate = workflowsController
     workflowController.delegate = workflowsController
 
     return FeatureContext(applicationProvider: applicationProvider,
+                          applicationTrigger: applicationTrigger,
                           commandFeature: commandsController,
                           groupsFeature: groupFeatureController,
                           keyInputSubjectWrapper: keyInputSubjectWrapper,
