@@ -42,7 +42,6 @@ struct GroupListView: View {
       isHovering = hovering
     })
     .padding(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4))
-    .frame(minHeight: 36)
   }
 }
 
@@ -51,12 +50,16 @@ struct GroupListView: View {
 private extension GroupListView {
   var icon: some View {
     ZStack {
-    Circle()
+    Rectangle()
       .fill(Color(hex: config.hexColor))
-      .clipped(antialiased: true)
-      .frame(width: 24, height: 24, alignment: .center)
       .overlay(overlay)
-      .shadow(radius: 2)
+      .clipped(antialiased: true)
+      .cornerRadius(24, antialiased: true)
+      .frame(width: 24, height: 24, alignment: .center)
+      .shadow(
+        color: Color(.sRGBLinear, white: 0, opacity: 0.2),
+        radius: 1,
+        y: 1)
     }
   }
 
@@ -64,13 +67,20 @@ private extension GroupListView {
     if let bundleIdentifier = bundleIdentifier,
        let applicationIcon = IconController.shared.createIconView(bundleIdentifier) {
       return AnyView(
-        applicationIcon.frame(width: 18, height: 18, alignment: .center)
+        applicationIcon
           .accentColor(.gray)
+          .frame(width: 30, height: 30, alignment: .center)
+          .clipped()
       )
     } else {
       return AnyView(Image(systemName: config.symbol)
-        .renderingMode(.template)
-        .foregroundColor(.white))
+                      .resizable()
+                      .renderingMode(.template)
+                      .aspectRatio(contentMode: .fill)
+                      .foregroundColor(.white)
+                      .frame(width: 12, height: 12, alignment: .center)
+      )
+
     }
   }
 

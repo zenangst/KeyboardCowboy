@@ -24,7 +24,6 @@ public struct MainView: View {
   public var body: some View {
     NavigationView {
       SidebarView(store: store)
-        .listStyle(SidebarListStyle())
         .navigationTitle("Groups")
         .toolbar(content: { GroupListToolbar(groupController: groupController) })
 
