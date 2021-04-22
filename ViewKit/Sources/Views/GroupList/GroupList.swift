@@ -32,24 +32,28 @@ public struct GroupList: View {
 
   public var body: some View {
     List(selection: selection) {
-      ForEach(store.groups) { group in
-        GroupListView(group, editAction: { _ in
-          sheet = .edit(group)
-        })
-        .id(UUID())
-        .contextMenu {
-          GroupListContextMenu(sheet: $sheet, group: group, deleteAction: { group in
-            store.context.groups.perform(.deleteGroup(group))
+      Section(header: Text("Groups")) {
+        ForEach(store.groups) { group in
+          GroupListView(group, editAction: { _ in
+            sheet = .edit(group)
           })
+          .id(UUID())
+          .contextMenu {
+            GroupListContextMenu(sheet: $sheet, group: group, deleteAction: { group in
+              store.context.groups.perform(.deleteGroup(group))
+            })
+          }
         }
+        .onMove(perform: { indices, newOffset in
+          for i in indices {
+            store.context.groups.perform(.moveGroup(from: i, to: newOffset))
+          }
+        })
+        .onInsert(of: [], perform: { _, _ in })
       }
-      .onMove(perform: { indices, newOffset in
-        for i in indices {
-          store.context.groups.perform(.moveGroup(from: i, to: newOffset))
-        }
-      })
-      .onInsert(of: [], perform: { _, _ in })
+      .collapsible(true)
     }
+    .listStyle(SidebarListStyle())
     .onDrop($isDropping) { urls in
       store.context.groups.perform(.dropFile(urls))
     }
