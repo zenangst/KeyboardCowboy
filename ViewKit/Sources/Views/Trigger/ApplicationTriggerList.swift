@@ -76,17 +76,14 @@ public struct ApplicationTriggerList: View {
   var applicationView: some View {
     Group {
       VStack {
-        Picker("", selection: Binding(get: {
-          selectedApplicationIndex
-        }, set: {
-          selectedApplicationIndex = $0
-        })) {
+        Picker("", selection: $selectedApplicationIndex) {
           Text("Choose application …").tag(0)
           Divider()
           ForEach(1..<installedApplications.count, id: \.self) { index in
             Text(installedApplications[index].displayName).tag(index)
           }
-        }.offset(x: -4.0, y: 0.0)
+        }
+        .offset(x: -4.0, y: 0.0)
       }
     }
   }
