@@ -9,7 +9,7 @@ public class ModelFactory {
   }
 
   func applicationCommand(id: String = UUID().uuidString) -> ApplicationCommand {
-    .init(id: id, application: Self.application(id: id))
+    .init(id: id, action: .open, application: Self.application(id: id))
   }
 
   func days() -> [Rule.Day] {

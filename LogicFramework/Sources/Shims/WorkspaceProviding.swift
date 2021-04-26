@@ -33,8 +33,7 @@ extension NSWorkspace: WorkspaceProviding {
   public func open(_ url: URL,
                    config: NSWorkspace.OpenConfiguration,
                    completionHandler: WorkspaceCompletion?) {
-    let configuration: NSWorkspace.OpenConfiguration = .init()
-    open(url, configuration: configuration) { (runningApplication, error) in
+    open(url, configuration: config) { (runningApplication, error) in
       completionHandler?(runningApplication, error)
     }
   }

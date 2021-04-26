@@ -33,7 +33,7 @@ public enum Command: Identifiable, Codable, Hashable {
     get {
       switch self {
       case .application(let command):
-        return command.name.isEmpty ? "Open \(command.application.displayName)" : command.name
+        return command.name.isEmpty ? "\(command.action.displayValue) \(command.application.displayName)" : command.name
       case .builtIn(let command):
         return command.name
       case .keyboard(let command):

@@ -5,26 +5,6 @@ import Foundation
 /// `Group`-level or that the workflow matches the current
 /// keyboard invocation.
 public struct Workflow: Identifiable, Codable, Hashable {
-  public struct MetaData: Codable, Hashable {
-    public var runWhenApplicationsAreLaunched: [String] = []
-    public var runWhenApplicationsAreClosed: [String] = []
-
-    var isEncodable: Bool {
-      !runWhenApplicationsAreLaunched.isEmpty ||
-        !runWhenApplicationsAreClosed.isEmpty
-    }
-
-    public func encode(to encoder: Encoder) throws {
-      var container = encoder.container(keyedBy: CodingKeys.self)
-      if !runWhenApplicationsAreLaunched.isEmpty {
-        try container.encode(runWhenApplicationsAreLaunched, forKey: .runWhenApplicationsAreLaunched)
-      }
-      if !runWhenApplicationsAreClosed.isEmpty {
-        try container.encode(runWhenApplicationsAreClosed, forKey: .runWhenApplicationsAreClosed)
-      }
-    }
-  }
-
   public enum Trigger: Hashable, Codable {
     case application([ApplicationTrigger])
     case keyboardShortcuts([KeyboardShortcut])
@@ -70,7 +50,6 @@ public struct Workflow: Identifiable, Codable, Hashable {
   @available(*, deprecated, message: "Use .trigger instead.")
   public var keyboardShortcuts: [KeyboardShortcut] = []
   public var name: String
-  public var metadata: MetaData = MetaData()
 
   public var isRebinding: Bool {
     if commands.count == 1, case .keyboard = commands.first { return true }
@@ -108,8 +87,6 @@ public struct Workflow: Identifiable, Codable, Hashable {
     } else {
       self.trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
     }
-    self.metadata = try container.decodeIfPresent(MetaData.self, forKey: .metadata) ?? MetaData()
-
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -123,10 +100,6 @@ public struct Workflow: Identifiable, Codable, Hashable {
     // Trigger takes precedence over keyboard shortcuts.
     if let trigger = trigger {
       try container.encode(trigger, forKey: .trigger)
-    }
-
-    if metadata.isEncodable {
-      try container.encode(metadata, forKey: .metadata)
     }
   }
 }

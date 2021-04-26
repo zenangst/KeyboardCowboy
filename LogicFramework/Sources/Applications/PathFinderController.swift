@@ -29,6 +29,7 @@ public class PathFinderController {
             let newCommand = Command.application(.init(
               id: appCommand.id,
               name: appCommand.name,
+              action: appCommand.action,
               application: newApplication
             ))
 

@@ -213,7 +213,8 @@ public final class CommandController: CommandControlling {
     switch applicationError {
     case .failedToActivate,
          .failedToFindRunningApplication,
-         .failedToLaunch:
+         .failedToLaunch,
+         .failedToClose:
       delegate?.commandController(self, failedRunning: command,
                                   with: applicationError, commands: commands)
     }
