@@ -30,6 +30,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private let hudFeatureController = HUDFeatureController()
   private let pathFinderController = PathFinderController()
 
+  private var applicationTrigger: ApplicationTriggerControlling?
   private var coreController: CoreControlling?
   private var featureContext: FeatureContext?
   private var keyboardShortcutWindowController: NSWindowController?
@@ -39,7 +40,6 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
   private var quickRunWindowController: NSWindowController?
   private var settingsController: SettingsController?
   private var subscriptions = Set<AnyCancellable>()
-  private var taggedRunningApplications = Set<String>()
   private var state: ApplicationState = .initial
 
   private weak var mainWindow: NSWindow?
@@ -73,6 +73,8 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
         installedApplications: installedApplications
       )
 
+      self.applicationTrigger = Self.factory.applicationTriggerController()
+
       self.coreController = coreController
 
       let context = FeatureFactory(coreController: coreController).featureContext(
@@ -86,6 +88,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       self.context = viewKitContext
       self.featureContext = context
       self.subscribe(to: NSApplication.shared)
+      self.subscribe(to: NSWorkspace.shared)
     } catch let error {
       ErrorController.handle(error)
       super.init(groups: [], context: .preview())
@@ -181,41 +184,12 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
           return
         }
 
-        if UserDefaults.standard.hideDockIcon && self.mainWindow == nil {
-          NSApp.setActivationPolicy(.accessory)
+        if !launchArguments.isEnabled(.openWindowAtLaunch) {
+          if UserDefaults.standard.hideDockIcon && self.mainWindow == nil {
+            NSApp.setActivationPolicy(.accessory)
+          }
         }
       }.store(in: &subscriptions)
-
-    workspace
-      .publisher(for: \.runningApplications)
-      .sink { [weak self] runningsApplications in
-        guard let coreController = self?.coreController,
-              let taggedRunningApplications = self?.taggedRunningApplications else { return }
-
-        for application in runningsApplications {
-          // Ensure that there is a bundle identifier attached to the application
-          guard let bundleIdentifier = application.bundleIdentifier else { return }
-
-          // Only invoke this if the application hasn't already been tagged.
-          guard taggedRunningApplications.contains(bundleIdentifier) else { continue }
-
-          for workflow in coreController.groups.flatMap({ $0.workflows }) {
-            if workflow.metadata.runWhenApplicationsAreLaunched.contains(bundleIdentifier) {
-              self?.taggedRunningApplications.insert(bundleIdentifier)
-            }
-          }
-        }
-
-        for bundleIdentifier in taggedRunningApplications {
-          for workflow in coreController.groups.flatMap({ $0.workflows }) {
-            if workflow.metadata.runWhenApplicationsAreLaunched.contains(bundleIdentifier) {
-              // Run workflows that are annotated as running when something gets removed.
-              self?.taggedRunningApplications.remove(bundleIdentifier)
-            }
-          }
-        }
-      }
-      .store(in: &subscriptions)
   }
 
   private func subscribe(to context: FeatureContext) {
@@ -237,6 +211,7 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       .removeDuplicates()
       .receive(on: DispatchQueue.global(qos: .userInitiated))
       .sink { groups in
+        self.applicationTrigger?.recieve(groups)
         self.saveGroupsToDisk(groups)
       }
       .store(in: &subscriptions)

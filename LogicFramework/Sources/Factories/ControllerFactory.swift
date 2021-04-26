@@ -16,6 +16,11 @@ public final class ControllerFactory {
     try HotKeyController()
   }
 
+  public func applicationTriggerController() -> ApplicationTriggerControlling {
+    ApplicationTriggerController(commandController: self.commandController(),
+                                 workspace: .shared)
+  }
+
   public func coreController(_ initialState: CoreControllerState,
                              bundleIdentifier: String,
                              commandController: CommandControlling? = nil,
