@@ -8,14 +8,20 @@ public enum OpenPanelAction {
 
 struct EditApplicationCommandView: View {
   @State private var selection: Int = 0
-  @State private var modifiers: [ApplicationCommand.Modifier]
-  @Binding var command: ApplicationCommand
+  @State var command: ApplicationCommand {
+    willSet {
+      update(newValue)
+    }
+  }
   var installedApplications: [Application]
+  var update: (ApplicationCommand) -> Void
 
-  init(command: Binding<ApplicationCommand>, installedApplications: [Application]) {
-    self._command = command
-    self._modifiers = State(initialValue: command.modifiers.wrappedValue)
+  init(command: ApplicationCommand,
+       installedApplications: [Application],
+       update: @escaping (ApplicationCommand) -> Void = { _ in }) {
+    self._command = State(initialValue: command)
     self.installedApplications = installedApplications
+    self.update = update
   }
 
   var body: some View {
@@ -29,24 +35,20 @@ struct EditApplicationCommandView: View {
         Group {
           VStack {
             HStack {
-              Picker("", selection: Binding(get: {
-                command.action
-              }, set: { newAction in
-                command = ApplicationCommand(id: command.id,
-                                             action: newAction,
-                                             application: command.application)
-              })) {
+              Picker("", selection: Binding<ApplicationCommand.Action>(
+                get: { command.action },
+                set: { command.action = $0 }
+              )) {
                 ForEach(ApplicationCommand.Action.allCases) { action in
                   Text(action.displayValue).tag(action)
                 }
               }.frame(maxWidth: 80)
-              Picker("", selection: Binding(get: {
+
+              Picker("", selection: Binding<Int>(get: {
                 selection
               }, set: {
                 selection = $0
-                command = ApplicationCommand(id: command.id,
-                                             action: command.action,
-                                             application: installedApplications[$0])
+                command.application = installedApplications[$0]
               })) {
                 ForEach(0..<installedApplications.count, id: \.self) { index in
                   Text(installedApplications[index].displayName).tag(index)
@@ -61,9 +63,10 @@ struct EditApplicationCommandView: View {
               HStack {
                 ForEach(ApplicationCommand.Modifier.allCases) { modifier in
                   Toggle(modifier.displayValue, isOn: Binding<Bool>(get: {
-                    modifiers.contains(modifier)
+                    command.modifiers.contains(modifier)
                   }, set: { _ in
-                    if let index = modifiers.firstIndex(of: modifier) {
+                    var modifiers = command.modifiers
+                    if let index = command.modifiers.firstIndex(of: modifier) {
                       modifiers.remove(at: index)
                     } else {
                       modifiers.append(modifier)
@@ -82,7 +85,8 @@ struct EditApplicationCommandView: View {
           .firstIndex(where: { command.application.bundleIdentifier == $0.bundleIdentifier }) {
         selection = index
       } else if !installedApplications.isEmpty {
-        command = .init(id: command.id, application: installedApplications.first!)
+        selection = 0
+        command.application = installedApplications.first!
       }
     }
   }
@@ -95,7 +99,7 @@ struct EditApplicationCommandView_Previews: PreviewProvider, TestPreviewProvider
 
   static var testPreview: some View {
     EditApplicationCommandView(
-      command: .constant(ApplicationCommand(application: .finder())),
+      command: ApplicationCommand(application: .finder()),
       installedApplications: ModelFactory().installedApplications())
   }
 }
