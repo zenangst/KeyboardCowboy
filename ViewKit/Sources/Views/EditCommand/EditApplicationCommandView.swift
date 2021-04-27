@@ -75,7 +75,7 @@ struct EditApplicationCommandView: View {
                   })).tag(modifier)
                 }
                 Spacer()
-              }
+              }.font(Font.caption2)
             }
           }.padding()
         }
