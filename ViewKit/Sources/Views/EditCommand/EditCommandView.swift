@@ -71,12 +71,10 @@ private extension EditCommandView {
       switch selection {
       case .application(let command):
         EditApplicationCommandView(
-          command: Binding(
-            get: { command },
-            set: { applicationCommand in
-              self.command = .application(applicationCommand)
-            }),
-          installedApplications: applicationProvider.state)
+          command: command,
+          installedApplications: applicationProvider.state) { applicationCommand in
+          self.command = .application(applicationCommand)
+        }
       case .script(let kind):
         switch kind {
         case .appleScript:
