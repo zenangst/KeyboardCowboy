@@ -36,6 +36,14 @@ final class ApplicationCommandController: ApplicationCommandControlling {
     Future { [weak self] promise in
       guard let self = self else { return }
 
+      if command.modifiers.contains(.onlyIfNotRunning) {
+        let bundleIdentifiers = self.workspace.applications.compactMap({ $0.bundleIdentifier })
+        if bundleIdentifiers.contains(command.application.bundleIdentifier) {
+          promise(.success(()))
+          return
+        }
+      }
+
       switch command.action {
       case .open:
         self.openApplication(command: command, promise: promise)

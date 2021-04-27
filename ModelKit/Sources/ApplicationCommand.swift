@@ -9,9 +9,12 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable {
       switch self {
       case .background: return "Open in background"
       case .hidden: return "Hide when opening"
+      case .onlyIfNotRunning: return "Open if not running"
       }
     }
-    case background, hidden
+    case background
+    case hidden
+    case onlyIfNotRunning
   }
 
   public enum Action: String, Codable, Hashable, CaseIterable, Identifiable {
