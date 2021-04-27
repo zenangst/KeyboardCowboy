@@ -31,30 +31,21 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
         guard !self.storage.isEmpty else { return }
         let bundleIdentifiers = runningsApplications.compactMap({ $0.bundleIdentifier })
         self.process(bundleIdentifiers)
+      }
+      .store(in: &subscriptions)
 
-//        for application in runningsApplications {
-//          // Ensure that there is a bundle identifier attached to the application
-//          guard let bundleIdentifier = application.bundleIdentifier else { return }
-//
-//          // Only invoke this if the application hasn't already been tagged.
-//          guard taggedRunningApplications.contains(bundleIdentifier) else { continue }
-//
-//          for workflow in coreController.groups.flatMap({ $0.workflows }) {
-//            if workflow.metadata.runWhenApplicationsAreLaunched.contains(bundleIdentifier) {
-//
-//              self?.taggedRunningApplications.insert(bundleIdentifier)
-//            }
-//          }
-//        }
-//
-//        for bundleIdentifier in taggedRunningApplications {
-//          for workflow in coreController.groups.flatMap({ $0.workflows }) {
-//            if workflow.metadata.runWhenApplicationsAreLaunched.contains(bundleIdentifier) {
-//              // Run workflows that are annotated as running when something gets removed.
-//              self?.taggedRunningApplications.remove(bundleIdentifier)
-//            }
-//          }
-//        }
+    workspace.publisher(for: \.frontmostApplication)
+      .sink { runningApplication in
+        guard let bundleIdentifier = runningApplication?.bundleIdentifier,
+              let storage = self.storage[bundleIdentifier] else { return }
+
+        let matches: [ApplicationTriggerContainer] = storage.filter({
+          $0.trigger.contexts.contains(.frontMost)
+        })
+
+        for match in matches {
+          commandController.run(match.workflow.commands)
+        }
       }
       .store(in: &subscriptions)
   }
@@ -97,7 +88,7 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
         if !launched.contains(container),
            container.trigger.contexts.contains(.launched) {
           launched.insert(container)
-          commandController.run(container.workflow.commands(with: [.background]))
+          commandController.run(container.workflow.commands)
           self.tagged[.launched] = launched
         }
       }
@@ -117,21 +108,5 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
         }
       }
     }
-  }
-}
-
-extension Workflow {
-  func commands(with modifiers: [ApplicationCommand.Modifier]) -> [Command] {
-    var commands = self.commands
-    for (offset, command) in commands.enumerated() {
-      switch command {
-      case .application(var applicationCommand):
-        applicationCommand.modifiers = [.background]
-        commands[offset] = .application(applicationCommand)
-      default:
-        break
-      }
-    }
-    return commands
   }
 }
