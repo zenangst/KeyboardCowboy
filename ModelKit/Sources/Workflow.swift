@@ -47,6 +47,7 @@ public struct Workflow: Identifiable, Codable, Hashable {
   public let id: String
   public var commands: [Command]
   public var trigger: Trigger?
+  public var isEnabled: Bool = true
   @available(*, deprecated, message: "Use .trigger instead.")
   public var keyboardShortcuts: [KeyboardShortcut] = []
   public var name: String
@@ -72,6 +73,7 @@ public struct Workflow: Identifiable, Codable, Hashable {
     case keyboardShortcuts
     case metadata
     case name
+    case enabled
   }
 
   public init(from decoder: Decoder) throws {
@@ -87,6 +89,8 @@ public struct Workflow: Identifiable, Codable, Hashable {
     } else {
       self.trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
     }
+
+    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .enabled) ?? true
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -100,6 +104,10 @@ public struct Workflow: Identifiable, Codable, Hashable {
     // Trigger takes precedence over keyboard shortcuts.
     if let trigger = trigger {
       try container.encode(trigger, forKey: .trigger)
+    }
+
+    if isEnabled == false {
+      try container.encode(isEnabled, forKey: .enabled)
     }
   }
 }

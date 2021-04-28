@@ -123,7 +123,10 @@ public final class CoreController: NSObject, CoreControlling,
 
     currentGroups = groupsController.filterGroups(using: contextRule)
     currentKeyboardShortcuts = []
-    activate(workflows: currentGroups.flatMap({ $0.workflows }))
+    activate(workflows: currentGroups
+              .flatMap({ $0.workflows })
+              .filter({ $0.isEnabled })
+    )
   }
 
   public func activate(workflows: [Workflow]) {
@@ -141,7 +144,7 @@ public final class CoreController: NSObject, CoreControlling,
     let currentCount = currentKeyboardShortcuts.count
     var shortcutsToActivate = Set<KeyboardShortcut>()
     var workflowsToActivate = Set<Workflow>()
-    for workflow in workflows {
+    for workflow in workflows where workflow.isEnabled {
       guard case let .keyboardShortcuts(shortcuts) = workflow.trigger,
             shortcuts.count >= currentCount
             else { continue }
@@ -162,7 +165,7 @@ public final class CoreController: NSObject, CoreControlling,
 
       let shouldCombineResult = workflows.count > 1
 
-      for workflow in workflows {
+      for workflow in workflows where workflow.isEnabled {
         if !shouldCombineResult {
           currentKeyboardSequence.append(KeyboardShortcut(key: "\(workflow.name)"))
         }

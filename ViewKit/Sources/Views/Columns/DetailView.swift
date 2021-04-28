@@ -42,6 +42,7 @@ public struct DetailView: View {
     ScrollView {
       VStack(spacing: 0) {
         VStack(alignment: .leading) {
+          HStack {
           TextField("", text: workflow.name)
             .firstResponder(id: FirstResponders.name, firstResponder: $firstResponder)
             .textFieldStyle(PlainTextFieldStyle())
@@ -50,6 +51,11 @@ public struct DetailView: View {
             })
             .foregroundColor(.primary)
             .font(.largeTitle)
+            Spacer()
+            Toggle("Enabled", isOn: workflow.isEnabled)
+              .toggleStyle(SwitchToggleStyle())
+              .font(.callout)
+          }
         }.padding([.top, .leading, .trailing])
 
         VStack {
