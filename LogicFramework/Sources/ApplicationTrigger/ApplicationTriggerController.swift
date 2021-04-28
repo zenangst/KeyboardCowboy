@@ -55,7 +55,7 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
   public func recieve(_ groups: [Group]) {
     storage.removeAll()
     let workflows = groups.flatMap({ $0.workflows })
-    for workflow in workflows {
+    for workflow in workflows where workflow.isEnabled {
       switch workflow.trigger {
       case .application(let triggers):
         for trigger in triggers {
