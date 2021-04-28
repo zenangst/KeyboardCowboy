@@ -18,7 +18,7 @@ class GroupControllerTests: XCTestCase {
               Workflow(
                 id: UUID().uuidString,
                 name: "Xcode workflow",
-                keyboardShortcuts: [],
+                trigger: .keyboardShortcuts([]),
                 commands: []
               )]),
       Group(name: "Group: Only when Calendar is active",
@@ -27,7 +27,7 @@ class GroupControllerTests: XCTestCase {
               Workflow(
                 id: UUID().uuidString,
                 name: "Calendar workflow",
-                keyboardShortcuts: [],
+                trigger: .keyboardShortcuts([]),
                 commands: []
                 )]),
       Group(name: "Group: Global Xcode workflow",
@@ -36,7 +36,7 @@ class GroupControllerTests: XCTestCase {
               Workflow(
                 id: UUID().uuidString,
                 name: "Open Xcode",
-                keyboardShortcuts: [],
+                trigger: .keyboardShortcuts([]),
                 commands: []
               )]),
       Group(name: "Group: Day-based rule",
@@ -45,7 +45,7 @@ class GroupControllerTests: XCTestCase {
               Workflow(
                 id: UUID().uuidString,
                 name: "Open Time tracker",
-                keyboardShortcuts: [],
+                trigger: .keyboardShortcuts([]),
                 commands: []
               )])
     ]

@@ -78,15 +78,15 @@ class CoreControllerTests: XCTestCase {
     var workflows = [Workflow]()
 
     for (key, _) in keyCodeMapper.stringLookup {
-      let workflow = Workflow(name: key, keyboardShortcuts: [
+      let workflow = Workflow(name: key, trigger: .keyboardShortcuts([
         KeyboardShortcut(key: key)
-      ], commands: [])
+      ]), commands: [])
       workflows.append(workflow)
     }
 
     workflowController.workflows = workflows
     workflowController.filteredWorkflows = [
-      Workflow(name: "Success")
+      Workflow(name: "Success", trigger: nil)
     ]
 
     controller.activate(workflows: workflows)
@@ -106,9 +106,9 @@ class CoreControllerTests: XCTestCase {
                 Workflow(
                   id: id,
                   name: "Open Finder",
-                  keyboardShortcuts: [
+                  trigger: .keyboardShortcuts([
                     KeyboardShortcut(id: id, key: "F", modifiers: [.control, .option])
-                  ],
+                  ]),
                   commands: [
                     .application(.init(application: .init(
                                         bundleIdentifier: "com.apple.finder",
@@ -118,10 +118,10 @@ class CoreControllerTests: XCTestCase {
                 Workflow(
                   id: id,
                   name: "Open GitHub - Homepage",
-                  keyboardShortcuts: [
+                  trigger: .keyboardShortcuts([
                     KeyboardShortcut(id: id, key: "G", modifiers: [.control, .option]),
                     KeyboardShortcut(id: id, key: "H")
-                  ],
+                  ]),
                   commands: [
                     .open(.init(application: .init(bundleIdentifier: "com.apple.Safari",
                                                    bundleName: "Safari",
@@ -131,10 +131,10 @@ class CoreControllerTests: XCTestCase {
                 Workflow(
                   id: id,
                   name: "Open GitHub - Participating",
-                  keyboardShortcuts: [
+                  trigger: .keyboardShortcuts([
                     KeyboardShortcut(id: id, key: "G", modifiers: [.control, .option]),
                     KeyboardShortcut(id: id, key: "P")
-                  ],
+                  ]),
                   commands: [
                     .open(.init(
                             application: .init(bundleIdentifier: "com.apple.Safari",
