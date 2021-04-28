@@ -13,7 +13,16 @@ struct WorkflowListView: View {
           HStack {
             numberOfCommands.font(.callout)
             switch workflow.trigger {
-            case .application:
+            case .application(let triggers):
+              ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 1) {
+                  ForEach(triggers) { trigger in
+                    IconView(path: trigger.application.path)
+                      .frame(width: 12, height: 12)
+                    contextView(trigger.contexts)
+                  }
+                }
+              }
               Spacer()
             case .keyboardShortcuts(let shortcuts):
               keyboardShortcuts(shortcuts).font(.caption)
@@ -26,7 +35,32 @@ struct WorkflowListView: View {
         icon
       }.padding(.leading, 10)
       Divider().opacity(0.33)
+    }.opacity(workflow.isEnabled ? 1.0 : 0.6)
+  }
+
+  @ViewBuilder
+  func contextView(_ contexts: Set<ApplicationTrigger.Context>) -> some View {
+    HStack(spacing: 1) {
+      if contexts.contains(.closed) {
+        Circle().fill(Color(.systemRed))
+          .frame(width: 6)
+      }
+      if contexts.contains(.launched) {
+        Circle().fill(Color(.systemYellow))
+          .frame(width: 6)
+      }
+      if contexts.contains(.frontMost) {
+        Circle().fill(Color(.systemGreen))
+          .frame(width: 6)
+      }
     }
+    .frame(height: 10)
+    .padding(.horizontal, 1)
+    .overlay(
+      RoundedRectangle(cornerRadius: 4)
+        .stroke(Color(NSColor.systemGray.withSystemEffect(.disabled)), lineWidth: 1)
+    )
+    .opacity(0.8)
   }
 }
 
@@ -111,7 +145,7 @@ struct WorkflowListView_Previews: PreviewProvider, TestPreviewProvider {
       ForEach(models) { command in
         WorkflowListView(workflow: ModelFactory().workflowDetail(
           [command],
-          trigger: .keyboardShortcuts(ModelFactory().keyboardShortcuts()),
+          trigger: .application([ApplicationTrigger(application: Application.finder(), contexts: [.frontMost, .closed, .launched])]),
           name: command.name
         ))
       }
