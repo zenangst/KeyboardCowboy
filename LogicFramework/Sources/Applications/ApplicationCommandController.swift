@@ -84,8 +84,8 @@ final class ApplicationCommandController: ApplicationCommandControlling {
     if isFrontMostApplication, activateApplication(command) != nil {
       if !windowListProvider.windowOwners().contains(command.application.bundleName) {
         launchApplication(command, completion: { error in
-          if let error = error {
-            promise(.failure(error))
+          if error != nil {
+            promise(.failure(ApplicationCommandControllingError.failedToActivate))
           } else {
             promise(.success(()))
           }
@@ -95,8 +95,8 @@ final class ApplicationCommandController: ApplicationCommandControlling {
       }
     } else {
       launchApplication(command) { error in
-        if let error = error {
-          promise(.failure(error))
+        if error != nil {
+          promise(.failure(ApplicationCommandControllingError.failedToLaunch))
         } else if !self.windowListProvider.windowOwners().contains(command.application.bundleName) {
           if let error = self.activateApplication(command) {
             promise(.failure(error))

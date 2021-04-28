@@ -57,7 +57,7 @@ public struct Workflow: Identifiable, Codable, Hashable {
   }
 
   public init(id: String = UUID().uuidString, name: String,
-              trigger: Trigger?,
+              trigger: Trigger? = nil,
               commands: [Command] = []) {
     self.id = id
     self.commands = commands

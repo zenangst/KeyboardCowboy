@@ -30,7 +30,8 @@ public class PathFinderController {
               id: appCommand.id,
               name: appCommand.name,
               action: appCommand.action,
-              application: newApplication
+              application: newApplication,
+              modifiers: appCommand.modifiers
             ))
 
             groups[gOffset].workflows[wOffset].commands[cOffset] = newCommand

@@ -18,11 +18,13 @@ class GroupTests: XCTestCase {
         bundleIdentifiers: ["com.apple.Finder"],
         days: [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday])) { _ in
       return [
-        Workflow(id: id, name: "Open/activate Finder", keyboardShortcuts: [
-          KeyboardShortcut(id: id, key: "A", modifiers: [.control, .option])
-        ], commands: [
-          .application(.init(id: id, application: Application.finder(id: id)))
-        ])
+        Workflow(id: id, name: "Open/activate Finder",
+                 trigger: .keyboardShortcuts([
+                  KeyboardShortcut(id: id, key: "A", modifiers: [.control, .option])
+                 ]),
+                 commands: [
+                  .application(.init(id: id, application: Application.finder(id: id)))
+                 ])
       ]
     }
     let json: [String: Any] = [

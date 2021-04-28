@@ -6,7 +6,8 @@ import XCTest
 
 class ApplicationCommandTests: XCTestCase {
   func testJSONEncoding() throws {
-    assertSnapshot(matching: try ModelFactory().applicationCommand(id: "foobar").toString(), as: .dump)
+    let result = ModelFactory().applicationCommand(id: "foobar")
+    assertSnapshot(matching: try result.toString(), as: .dump)
   }
 
   func testJSONDecoding() throws {
