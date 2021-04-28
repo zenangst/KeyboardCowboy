@@ -16,7 +16,7 @@ public struct ApplicationTrigger: Hashable, Identifiable, Codable {
   public enum Context: String, Hashable, Codable, CaseIterable, Identifiable {
     public var id: String { rawValue }
 
-    case launched, closed, frontMost
+    case closed, launched, frontMost
 
     public var displayName: String {
       switch self {
