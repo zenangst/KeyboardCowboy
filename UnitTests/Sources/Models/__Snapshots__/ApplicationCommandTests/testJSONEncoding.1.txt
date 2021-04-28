@@ -1,1 +1,1 @@
-- "{\"id\":\"foobar\",\"name\":\"\",\"application\":{\"path\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\",\"id\":\"foobar\",\"bundleIdentifier\":\"com.apple.Finder\",\"bundleName\":\"Finder\"}}"
+- "{\"id\":\"foobar\",\"application\":{\"path\":\"\\/System\\/Library\\/CoreServices\\/Finder.app\",\"id\":\"foobar\",\"bundleIdentifier\":\"com.apple.Finder\",\"bundleName\":\"Finder\"},\"name\":\"\",\"modifiers\":[],\"action\":\"open\"}"
