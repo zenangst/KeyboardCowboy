@@ -131,21 +131,26 @@ struct WorkflowListView_Previews: PreviewProvider, TestPreviewProvider {
     testPreview.previewAllColorSchemes()
   }
 
-  static var testPreview: some View {
-    let models = [
-      Command.application(.init(application: Application.messages())),
-      Command.script(.appleScript(id: UUID().uuidString, name: nil, source: .path("path/to/applescript.scpt"))),
-      Command.script(.shell(id: UUID().uuidString, name: nil, source: .path("path/to/script.sh"))),
-      Command.keyboard(KeyboardCommand(keyboardShortcut: KeyboardShortcut.empty())),
-      Command.open(OpenCommand(path: "http://www.github.com")),
-      Command.open(OpenCommand.empty())
-    ]
+  static let models = [
+    Command.application(.init(application: Application.messages())),
+    Command.script(.appleScript(id: UUID().uuidString, name: nil, source: .path("path/to/applescript.scpt"))),
+    Command.script(.shell(id: UUID().uuidString, name: nil, source: .path("path/to/script.sh"))),
+    Command.keyboard(KeyboardCommand(keyboardShortcut: KeyboardShortcut.empty())),
+    Command.open(OpenCommand(path: "http://www.github.com")),
+    Command.open(OpenCommand.empty())
+  ]
 
-    return Group {
+  @ViewBuilder
+  static var testPreview: some View {
+    WorkflowListView(workflow: ModelFactory().workflowDetail(
+                      trigger: .application([ApplicationTrigger(application: Application.finder(),
+                                                                contexts: [.frontMost, .closed, .launched])])))
+
+    Group {
       ForEach(models) { command in
         WorkflowListView(workflow: ModelFactory().workflowDetail(
           [command],
-          trigger: .application([ApplicationTrigger(application: Application.finder(), contexts: [.frontMost, .closed, .launched])]),
+          trigger: .keyboardShortcuts(ModelFactory().keyboardShortcuts()),
           name: command.name
         ))
       }
