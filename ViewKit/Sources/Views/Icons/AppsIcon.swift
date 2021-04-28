@@ -11,13 +11,13 @@ public struct AppsIcon: View {
           .offset(x: proxy.size.width * 0.2,
                   y: proxy.size.height * 0.20)
           .opacity(0.4)
-        app(Color(.systemOrange))
+        app(Color(.systemYellow))
           .rotationEffect(.degrees(-10))
           .offset(x: proxy.size.width * 0.30,
                   y: proxy.size.height * 0.20)
-          .opacity(0.6)
-        app(Color(.systemYellow))
-          .opacity(0.8)
+          .opacity(0.5)
+        app(Color(.systemGreen))
+          .opacity(0.7)
           .rotationEffect(.degrees(5))
           .offset(x: proxy.size.width * 0.40,
                   y: proxy.size.height * 0.25)
