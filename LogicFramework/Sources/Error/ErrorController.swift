@@ -6,12 +6,7 @@ public final class ErrorController {
   /// Display an error using `NSAlert`
   /// - Parameter error: The error that should be displayed
   public static func handle(_ error: Error) {
-    let permissionController = factory.permissionsController()
-    if !permissionController.hasPrivileges() {
-      permissionController.displayModal()
-      return
-    }
-    displayModal(for: error)
+      displayModal(for: error)
   }
 
   static func displayModal(for error: Error) {
