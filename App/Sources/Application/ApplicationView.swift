@@ -13,7 +13,7 @@ enum ApplicationView: View {
     case .content(let view):
       view.frame(minWidth: 900, minHeight: 520)
     case .needsPermission(let view):
-      view.frame(minWidth: 800, minHeight: 520)
+      view.frame(minWidth: 600, minHeight: 320)
     }
   }
 }

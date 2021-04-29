@@ -90,7 +90,24 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       self.subscribe(to: NSApplication.shared)
       self.subscribe(to: NSWorkspace.shared)
     } catch let error {
-      ErrorController.handle(error)
+      let permissionController = Self.factory.permissionsController()
+      if !permissionController.hasPrivileges() {
+        let applicationName = ProcessInfo.processInfo.processName
+        let text = """
+    \(applicationName) requires access to accessibility.
+
+    To enable this, click on \"Open System Preferences\" on the dialog that just appeared.
+
+    When the setting is enabled, restart \(applicationName) and you should be ready to go.
+
+    If you have already granted permission, try and disable and enable the current
+    entry inside the list of applications under "Allow the apps below to control your computer."
+    """
+        view = .needsPermission(PermissionsView(text: text))
+      } else {
+        ErrorController.handle(error)
+      }
+
       super.init(groups: [], context: .preview())
     }
   }
