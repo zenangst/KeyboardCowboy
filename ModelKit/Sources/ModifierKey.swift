@@ -1,3 +1,4 @@
+import Carbon
 import Cocoa
 
 public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable {
@@ -15,6 +16,11 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable {
   }
 
   public static func fromCGEvent(_ event: CGEvent, specialKeys: [Int]) -> [ModifierKey] {
+    var specialKeys = specialKeys
+    // Don't treat Space as a special key because it breaks binding it
+    // together with the fn-key
+    specialKeys.removeAll(where: { $0 == kVK_Space })
+
     let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
     let flags = event.flags
     let isSpecialKey = specialKeys.contains(keyCode)
