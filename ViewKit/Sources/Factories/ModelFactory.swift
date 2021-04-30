@@ -223,6 +223,7 @@ class ModelFactory {
       .init(id: "\(id)-1", key: "A", modifiers: [.function]),
       .init(id: "\(id)-2", key: "A", modifiers: [.option, .command]),
       .init(id: "\(id)-3", key: "X", modifiers: [.option]),
+      .init(id: "\(id)-4", key: "Space", modifiers: [.function]),
     ]
   }
 
