@@ -73,12 +73,19 @@ extension KeyboardShortcutList {
               selection = nil
             }, content: {
               key(keyboardShortcut)
-                .frame(height: 32)
             })
             .onTapGesture {
               onTap()
               selection = keyboardShortcut
             }
+            .overlay(
+              RoundedRectangle(cornerRadius: 4)
+                .stroke(
+                  selection == keyboardShortcut
+                  ? Color(.controlAccentColor)
+                    : Color(NSColor.systemGray.withSystemEffect(.disabled)),
+                  lineWidth: 1)
+            ).frame(height: 32)
           }
         }
         .padding([.vertical], 4)
@@ -115,20 +122,19 @@ extension KeyboardShortcutList {
         }
       }
 
-      RegularKeyIcon(letter: "\(keyboardShortcut.key)",
-                     glow: false)
-        .aspectRatio(contentMode: .fit)
-        .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+      if keyboardShortcut.key.lowercased() == "space" {
+        RegularKeyIcon(letter: "\(keyboardShortcut.key)",
+                       glow: selection == keyboardShortcut)
+          .frame(width: 64)
+          .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+      } else {
+        RegularKeyIcon(letter: "\(keyboardShortcut.key)",
+                       glow: selection == keyboardShortcut)
+          .frame(width: 32)
+          .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+      }
     }
     .padding(2)
-    .overlay(
-      RoundedRectangle(cornerRadius: 4)
-        .stroke(
-          selection == keyboardShortcut
-          ? Color(.controlAccentColor)
-            : Color(NSColor.systemGray.withSystemEffect(.disabled)),
-          lineWidth: 1)
-    )
   }
 
   func onTap() {

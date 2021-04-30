@@ -45,7 +45,6 @@ public struct HUDStack: View {
               RegularKeyIcon(letter: "\(keyboardShortcut.key)",
                              glow: hudProvider.state.last == keyboardShortcut)
                 .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
-                .frame(minWidth: 32)
               }
             }
             .id(keyboardShortcut.id)
