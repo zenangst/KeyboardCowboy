@@ -128,14 +128,15 @@ section.hstack > img {
 #features > section > div.hstack {
   align-items: start;
   align-content: start;
-  justify-content: center;
-  -webkit-flex-direction: row;
+/*  justify-content: center;*/
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 #features > section > div.hstack > div {
-  flex-grow: 1;
+  flex-grow: 2;
   flex-shrink: 1;
-  flex-basis: 0;
+  max-width: 50%;
   margin-top: 40px;
   padding-left: 10px;
   padding-right: 10px;
