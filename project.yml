@@ -56,7 +56,7 @@ targets:
       groups: [app]
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
-        CURRENT_PROJECT_VERSION: 112
+        CURRENT_PROJECT_VERSION: 115
         ENABLE_HARDENED_RUNTIME: true
         INFOPLIST_FILE: "App/Resources/Info.plist"
         MARKETING_VERSION: 0.16.1
