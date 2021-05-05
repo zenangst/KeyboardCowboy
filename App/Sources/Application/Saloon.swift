@@ -19,6 +19,7 @@ import Sparkle
 typealias KeyboardCowboyStore = Saloon
 
 let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
+let isRunningTests = NSClassFromString("XCTest") != nil
 let bundleIdentifier = Bundle.main.bundleIdentifier!
 
 class Saloon: ViewKitStore, MenubarControllerDelegate {
@@ -54,6 +55,9 @@ class Saloon: ViewKitStore, MenubarControllerDelegate {
       path: configuration.path,
       fileName: configuration.fileName)
     self.builtInController = BuiltInCommandController()
+
+    if isRunningTests { super.init(groups: [], context: .preview()); return }
+
     let installedApplications = ApplicationController.loadApplications()
 
     IconController.shared.applications = installedApplications
