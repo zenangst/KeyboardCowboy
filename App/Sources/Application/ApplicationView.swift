@@ -9,7 +9,7 @@ enum ApplicationView: View {
   var body: some View {
     switch self {
     case .hidden:
-      Spacer()
+      ZStack {}
     case .content(let view):
       view.frame(minWidth: 900, minHeight: 520)
     case .needsPermission(let view):
