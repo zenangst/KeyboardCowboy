@@ -44,15 +44,14 @@ class ApplicationTriggerControllerTests: XCTestCase {
 
     // Verify that indexing of application triggers work correctly.
 
-    XCTAssertEqual(ctx.controller.storage.count, 3)
+    XCTAssertEqual(ctx.controller.openActions.count, 1)
+    XCTAssertEqual(ctx.controller.closeActions.count, 1)
+    XCTAssertEqual(ctx.controller.activateActions.count, 2)
 
-    XCTAssertNotNil(ctx.controller.storage[Application.finder().bundleIdentifier])
-    XCTAssertNotNil(ctx.controller.storage[Application.calendar().bundleIdentifier])
-    XCTAssertNotNil(ctx.controller.storage[Application.messages().bundleIdentifier])
-
-    XCTAssertEqual(ctx.controller.storage[Application.finder().bundleIdentifier]?.count, 1)
-    XCTAssertEqual(ctx.controller.storage[Application.calendar().bundleIdentifier]?.count, 2)
-    XCTAssertEqual(ctx.controller.storage[Application.messages().bundleIdentifier]?.count, 1)
+    XCTAssertEqual(ctx.controller.activateActions[Application.finder().bundleIdentifier], [Self.workflows[0]])
+    XCTAssertEqual(ctx.controller.openActions[Application.calendar().bundleIdentifier], [Self.workflows[1]])
+    XCTAssertEqual(ctx.controller.closeActions[Application.calendar().bundleIdentifier], [Self.workflows[2]])
+    XCTAssertEqual(ctx.controller.activateActions[Application.messages().bundleIdentifier], [Self.workflows[3]])
 
     // Check that the Finder command is invoked
     do {
@@ -92,8 +91,6 @@ class ApplicationTriggerControllerTests: XCTestCase {
 
     // Check that calendar gets tagged as launched.
     do {
-      XCTAssertNil(ctx.controller.tagged[.launched])
-      XCTAssertNil(ctx.controller.tagged[.closed])
 
       let bundleIdentifiers = [
         Application.finder().bundleIdentifier,
@@ -106,7 +103,6 @@ class ApplicationTriggerControllerTests: XCTestCase {
         XCTAssertEqual(commands, [Self.calendarLaunchedCommand])
       }
       ctx.controller.process(bundleIdentifiers)
-      XCTAssertEqual(ctx.controller.tagged[.launched]?.count, 1)
 
       // Calendar launch commands should not be executed twice unless
       // calendar is closed and untagged.
@@ -114,7 +110,6 @@ class ApplicationTriggerControllerTests: XCTestCase {
         XCTFail("Do not invoke launch commands twice")
       }
       ctx.controller.process(bundleIdentifiers)
-      XCTAssertEqual(ctx.controller.tagged[.launched]?.count, 1)
     }
 
     // Check that Calendar gets untagged when it is closed and only runs once.
@@ -129,13 +124,11 @@ class ApplicationTriggerControllerTests: XCTestCase {
         XCTAssertEqual(commands, [Self.calendarClosedCommand])
       }
       ctx.controller.process(bundleIdentifiers)
-      XCTAssertEqual(ctx.controller.tagged[.launched]?.count, 0)
 
       ctx.command.handler = { _ in
         XCTFail("Calendar is already closed and shouldn't be invoked again")
       }
       ctx.controller.process(bundleIdentifiers)
-      XCTAssertEqual(ctx.controller.tagged[.launched]?.count, 0)
     }
   }
 
@@ -147,7 +140,42 @@ class ApplicationTriggerControllerTests: XCTestCase {
 
     ctx.controller.recieve(groups)
 
-    XCTAssertNil(ctx.controller.storage[Application.finder().bundleIdentifier])
+    XCTAssertEqual(ctx.controller.openActions.count, 0)
+    XCTAssertEqual(ctx.controller.closeActions.count, 0)
+    XCTAssertEqual(ctx.controller.activateActions.count, 0)
+  }
+
+  func testPerformance() {
+    let ctx = context { _ in }
+    let amount: Int = 100
+
+    var groups = [Group]()
+    for x in 0..<amount {
+      var group = Group(name: "Group \(x)")
+      for y in 0..<amount {
+        let application: Application = y % 2 == 0 ? .music() : .messages()
+        let context: ApplicationTrigger.Context = y % 2 != 0 ? .launched : .closed
+        let trigger: ApplicationTrigger = ApplicationTrigger(
+          application: .finder(),
+          contexts: [context])
+        var workflow = Workflow(name: "Workflow \(x)-\(y)", trigger: .application([trigger]))
+
+        for z in 0..<amount {
+          let command: Command = .application(
+            ApplicationCommand(name: "Command \(x)-\(y)-\(z)",
+                               application: application))
+          workflow.commands = [command]
+        }
+        group.workflows = [workflow]
+      }
+      groups.append(group)
+    }
+
+    ctx.controller.recieve(groups)
+
+    ctx.controller.process([Application.finder().bundleIdentifier])
+
+    ctx.controller.process([])
   }
 
   private func context(_ handler: @escaping ([Command]) -> Void) -> (controller: ApplicationTriggerController,
