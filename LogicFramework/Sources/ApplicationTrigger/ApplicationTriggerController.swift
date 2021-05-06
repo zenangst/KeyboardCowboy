@@ -3,14 +3,15 @@ import Combine
 import ModelKit
 import Foundation
 
-private struct ApplicationTriggerContainer: Hashable {
+struct ApplicationTriggerContainer: Hashable {
   let trigger: ApplicationTrigger
   var workflow: Workflow
 }
 
 public protocol ApplicationTriggerControlling: AnyObject {
   init(commandController: CommandControlling,
-       workspace: NSWorkspace)
+       workspace: NSWorkspace,
+       runningTests: Bool)
 
   func recieve(_ groups: [Group])
 }
@@ -19,14 +20,18 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
   private var commandController: CommandControlling
   private var subscriptions: [AnyCancellable] = .init()
   private var workflows: [Workflow] = .init()
-  private var storage: [String: [ApplicationTriggerContainer]] = .init()
-  private var tagged: [ApplicationTrigger.Context: Set<ApplicationTriggerContainer>] = .init()
+  private(set) var storage: [String: [ApplicationTriggerContainer]] = .init()
+  private(set) var tagged: [ApplicationTrigger.Context: Set<ApplicationTriggerContainer>] = .init()
 
   required public init(commandController: CommandControlling,
-                       workspace: NSWorkspace) {
+                       workspace: NSWorkspace,
+                       runningTests: Bool = false) {
     self.commandController = commandController
+
+    guard !runningTests else { return }
+
     workspace
-      .publisher(for: \.runningApplications)
+      .publisher(for: \.applications)
       .sink { runningsApplications in
         guard !self.storage.isEmpty else { return }
         let bundleIdentifiers = runningsApplications.compactMap({ $0.bundleIdentifier })
@@ -34,18 +39,13 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
       }
       .store(in: &subscriptions)
 
-    workspace.publisher(for: \.frontmostApplication)
+    workspace.publisher(for: \.frontApplication)
       .sink { runningApplication in
-        guard let bundleIdentifier = runningApplication?.bundleIdentifier,
-              let storage = self.storage[bundleIdentifier] else { return }
-
-        let matches: [ApplicationTriggerContainer] = storage.filter({
-          $0.trigger.contexts.contains(.frontMost)
-        })
-
-        for match in matches {
-          commandController.run(match.workflow.commands)
+        guard let runningApplication = runningApplication else {
+          return
         }
+
+        self.process(runningApplication)
       }
       .store(in: &subscriptions)
   }
@@ -53,6 +53,7 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
   // MARK: Public methods
 
   public func recieve(_ groups: [Group]) {
+    tagged.removeAll()
     storage.removeAll()
     let workflows = groups.flatMap({ $0.workflows })
     for workflow in workflows where workflow.isEnabled {
@@ -77,9 +78,22 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
     }
   }
 
-  // MARK: Private methods
+  // MARK: Internal methods
 
-  private func process(_ bundleIdentifiers: [String]) {
+  func process(_ frontMostApplication: RunningApplication) {
+    guard let bundleIdentifier = frontMostApplication.bundleIdentifier,
+          let storage = self.storage[bundleIdentifier] else { return }
+
+    let matches: [ApplicationTriggerContainer] = storage.filter({
+      $0.trigger.contexts.contains(.frontMost)
+    })
+
+    for match in matches {
+      commandController.run(match.workflow.commands)
+    }
+  }
+
+  func process(_ bundleIdentifiers: [String]) {
     for bundleIdentifier in bundleIdentifiers {
       guard let containers = storage[bundleIdentifier] else { continue }
 
