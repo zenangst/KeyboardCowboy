@@ -17,11 +17,13 @@ public protocol ApplicationTriggerControlling: AnyObject {
 }
 
 public class ApplicationTriggerController: ApplicationTriggerControlling {
+  private var bundleIdentifiers = [String]()
   private var commandController: CommandControlling
   private var subscriptions: [AnyCancellable] = .init()
-  private var workflows: [Workflow] = .init()
-  private(set) var storage: [String: [ApplicationTriggerContainer]] = .init()
-  private(set) var tagged: [ApplicationTrigger.Context: Set<ApplicationTriggerContainer>] = .init()
+
+  private(set) var openActions = [String: [Workflow]]()
+  private(set) var activateActions = [String: [Workflow]]()
+  private(set) var closeActions = [String: [Workflow]]()
 
   required public init(commandController: CommandControlling,
                        workspace: NSWorkspace,
@@ -31,15 +33,14 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
     guard !runningTests else { return }
 
     workspace
-      .publisher(for: \.applications)
+      .publisher(for: \.runningApplications)
       .sink { runningsApplications in
-        guard !self.storage.isEmpty else { return }
         let bundleIdentifiers = runningsApplications.compactMap({ $0.bundleIdentifier })
         self.process(bundleIdentifiers)
       }
       .store(in: &subscriptions)
 
-    workspace.publisher(for: \.frontApplication)
+    workspace.publisher(for: \.frontmostApplication)
       .sink { runningApplication in
         guard let runningApplication = runningApplication else {
           return
@@ -53,24 +54,28 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
   // MARK: Public methods
 
   public func recieve(_ groups: [Group]) {
-    tagged.removeAll()
-    storage.removeAll()
     let workflows = groups.flatMap({ $0.workflows })
     for workflow in workflows where workflow.isEnabled {
       switch workflow.trigger {
       case .application(let triggers):
         for trigger in triggers {
-          let container = ApplicationTriggerContainer(trigger: trigger,
-                                                      workflow: workflow)
-          let values: [ApplicationTriggerContainer]
-          if var previousValues = storage[trigger.application.bundleIdentifier] {
-            previousValues.append(container)
-            values = previousValues
-          } else {
-            values = [container]
+          if trigger.contexts.contains(.closed) {
+            var closeActions = self.closeActions[trigger.application.bundleIdentifier] ?? []
+            closeActions.append(workflow)
+            self.closeActions[trigger.application.bundleIdentifier] = closeActions
           }
 
-          storage[trigger.application.bundleIdentifier] = values
+          if trigger.contexts.contains(.launched) {
+            var openActions = self.openActions[trigger.application.bundleIdentifier] ?? []
+            openActions.append(workflow)
+            self.openActions[trigger.application.bundleIdentifier] = openActions
+          }
+
+          if trigger.contexts.contains(.frontMost) {
+            var activateActions = self.activateActions[trigger.application.bundleIdentifier] ?? []
+            activateActions.append(workflow)
+            self.activateActions[trigger.application.bundleIdentifier] = activateActions
+          }
         }
       case .keyboardShortcuts, .none:
         break
@@ -82,45 +87,32 @@ public class ApplicationTriggerController: ApplicationTriggerControlling {
 
   func process(_ frontMostApplication: RunningApplication) {
     guard let bundleIdentifier = frontMostApplication.bundleIdentifier,
-          let storage = self.storage[bundleIdentifier] else { return }
+          let workflows = self.activateActions[bundleIdentifier] else { return }
 
-    let matches: [ApplicationTriggerContainer] = storage.filter({
-      $0.trigger.contexts.contains(.frontMost)
-    })
-
-    for match in matches {
-      commandController.run(match.workflow.commands)
+    for workflow in workflows {
+      commandController.run(workflow.commands)
     }
   }
 
   func process(_ bundleIdentifiers: [String]) {
-    for bundleIdentifier in bundleIdentifiers {
-      guard let containers = storage[bundleIdentifier] else { continue }
+    let difference = bundleIdentifiers.difference(from: self.bundleIdentifiers)
 
-      var launched: Set<ApplicationTriggerContainer> = tagged[.launched] ?? []
-      for container in containers {
-        if !launched.contains(container),
-           container.trigger.contexts.contains(.launched) {
-          launched.insert(container)
-          commandController.run(container.workflow.commands)
-          self.tagged[.launched] = launched
-        }
+    if difference.isEmpty { return }
+
+    var workflows = [Workflow]()
+    for change in difference {
+      switch change {
+      case .insert(_, let bundleIdentifier, _):
+        workflows.append(contentsOf: openActions[bundleIdentifier] ?? [])
+      case .remove(_, let bundleIdentifier, _):
+        workflows.append(contentsOf: closeActions[bundleIdentifier] ?? [])
       }
     }
 
-    if var launched = tagged[.launched] {
-      for container in launched where !bundleIdentifiers.contains(container.trigger.application.bundleIdentifier) {
-        defer {
-          launched.remove(container)
-          self.tagged[.launched] = launched
-        }
-
-        guard let containers = storage[container.trigger.application.bundleIdentifier] else { continue }
-
-        for container in containers where container.trigger.contexts.contains(.closed) {
-          commandController.run(container.workflow.commands)
-        }
-      }
+    for workflow in workflows {
+      commandController.run(workflow.commands)
     }
+
+    self.bundleIdentifiers = bundleIdentifiers
   }
 }
