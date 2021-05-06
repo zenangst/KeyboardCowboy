@@ -18,7 +18,7 @@ public final class ControllerFactory {
 
   public func applicationTriggerController() -> ApplicationTriggerControlling {
     ApplicationTriggerController(commandController: self.commandController(),
-                                 workspace: .shared)
+                                 workspace: NSWorkspace.shared)
   }
 
   public func coreController(_ initialState: CoreControllerState,

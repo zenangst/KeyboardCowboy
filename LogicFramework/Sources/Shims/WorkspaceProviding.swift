@@ -23,11 +23,11 @@ public protocol WorkspaceProviding {
 
 extension NSWorkspace: WorkspaceProviding {
   public var applications: [RunningApplication] {
-    return runningApplications
+    runningApplications
   }
 
   public var frontApplication: RunningApplication? {
-    return frontmostApplication
+    frontmostApplication
   }
 
   public func open(_ url: URL,
