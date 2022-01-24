@@ -4,6 +4,7 @@ public struct TypeCommand: Identifiable, Codable, Hashable {
   public let id: String
   public var name: String
   public var input: String
+  public var isEnabled: Bool = true
 
   public init(id: String = UUID().uuidString,
               name: String,

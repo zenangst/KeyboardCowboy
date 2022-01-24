@@ -34,6 +34,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable {
   public var application: Application
   public var action: Action
   public var modifiers: [Modifier]
+  public var isEnabled: Bool = true
 
   public init(id: String = UUID().uuidString, name: String = "",
               action: Action = .open,
@@ -52,6 +53,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable {
     case action
     case application
     case modifiers
+    case isEnabled = "enabled"
   }
 
   public init(from decoder: Decoder) throws {
@@ -62,6 +64,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable {
     self.action = try container.decodeIfPresent(Action.self, forKey: .action) ?? .open
     self.application = try container.decode(Application.self, forKey: .application)
     self.modifiers = try container.decodeIfPresent([Modifier].self, forKey: .modifiers) ?? []
+    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
   }
 }
 

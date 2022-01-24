@@ -6,7 +6,7 @@ struct CommandView: View {
   @State var command: Command
 
   var body: some View {
-    HStack(alignment: .center) {
+    HStack(alignment: .center, spacing: 0) {
       icon
         .frame(width: 36, height: 36)
       VStack(alignment: .leading, spacing: 0) {
@@ -14,6 +14,13 @@ struct CommandView: View {
         CommandActionsView()
       }
       Spacer()
+
+      VStack {
+        Toggle("", isOn: Binding<Bool>(get: { command.isEnabled },
+                                       set: { command.isEnabled = $0 }))
+          .toggleStyle(SwitchToggleStyle())
+      }.font(Font.caption)
+
       Text("≣")
         .font(.title)
         .foregroundColor(Color(.secondaryLabelColor))

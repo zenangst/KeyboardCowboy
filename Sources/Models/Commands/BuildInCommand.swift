@@ -32,9 +32,24 @@ public struct BuiltInCommand: Identifiable, Codable, Hashable {
     }
   }
 
+  public var isEnabled: Bool = true
+
+  enum CodingKeys: String, CodingKey {
+    case id, kind
+    case isEnabled = "enabled"
+  }
+
   public init(id: String = UUID().uuidString,
               kind: Kind) {
     self.id = id
     self.kind = kind
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    self.kind = try container.decode(Kind.self, forKey: .kind)
+    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
   }
 }

@@ -6,6 +6,7 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable {
   public let id: String
   public var name: String
   public let keyboardShortcut: KeyShortcut
+  public var isEnabled: Bool = true
 
   public init(id: String = UUID().uuidString,
               name: String = "",
@@ -19,6 +20,7 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable {
     case id
     case name
     case keyboardShortcut
+    case isEnabled = "enabled"
   }
 
   public init(from decoder: Decoder) throws {
@@ -27,6 +29,7 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable {
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
     self.keyboardShortcut = try container.decode(KeyShortcut.self, forKey: .keyboardShortcut)
+    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
   }
 }
 

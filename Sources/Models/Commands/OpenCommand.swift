@@ -13,6 +13,7 @@ public struct OpenCommand: Identifiable, Codable, Hashable {
   /// difference between the two in terms of UI.
   public let path: String
   public var name: String
+  public var isEnabled: Bool = true
 
   public var isUrl: Bool {
     if let url = URL(string: path) {
@@ -40,6 +41,7 @@ public struct OpenCommand: Identifiable, Codable, Hashable {
     case application
     case name
     case path
+    case isEnabled = "enabled"
   }
 
   public init(from decoder: Decoder) throws {
@@ -49,6 +51,7 @@ public struct OpenCommand: Identifiable, Codable, Hashable {
     self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
     self.application = try container.decodeIfPresent(Application.self, forKey: .application)
     self.path = try container.decode(String.self, forKey: .path)
+    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
   }
 }
 

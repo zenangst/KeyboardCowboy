@@ -66,10 +66,12 @@ public enum Command: Identifiable, Codable, Hashable {
         command.name = newValue
       case .script(let command):
         switch command {
-        case .appleScript(let id, _, let source):
-          self = .script(.appleScript(id: id, name: newValue, source: source))
-        case .shell(let id, _, let source):
-          self = .script(.shell(id: id, name: newValue, source: source))
+        case .appleScript(let id, let isEnabled, _, let source):
+          self = .script(.appleScript(id: id, isEnabled: isEnabled,
+                                      name: newValue, source: source))
+        case .shell(let id, let isEnabled, _, let source):
+          self = .script(.shell(id: id, isEnabled: isEnabled,
+                                name: newValue, source: source))
         }
       case .type(var command):
         command.name = newValue
@@ -91,6 +93,47 @@ public enum Command: Identifiable, Codable, Hashable {
       return command.id
     case .type(let command):
       return command.id
+    }
+  }
+
+  public var isEnabled: Bool {
+    get {
+      switch self {
+      case .application(let applicationCommand):
+        return applicationCommand.isEnabled
+      case .builtIn(let builtInCommand):
+        return builtInCommand.isEnabled
+      case .keyboard(let keyboardCommand):
+        return keyboardCommand.isEnabled
+      case .open(let openCommand):
+        return openCommand.isEnabled
+      case .script(let scriptCommand):
+        return scriptCommand.isEnabled
+      case .type(let typeCommand):
+        return typeCommand.isEnabled
+      }
+    }
+    set {
+      switch self {
+      case .application(var applicationCommand):
+        applicationCommand.isEnabled = newValue
+        self = .application(applicationCommand)
+      case .builtIn(var builtInCommand):
+        builtInCommand.isEnabled = newValue
+        self = .builtIn(builtInCommand)
+      case .keyboard(var keyboardCommand):
+        keyboardCommand.isEnabled = newValue
+        self = .keyboard(keyboardCommand)
+      case .open(var openCommand):
+        openCommand.isEnabled = newValue
+        self = .open(openCommand)
+      case .script(var scriptCommand):
+        scriptCommand.isEnabled = newValue
+        self = .script(scriptCommand)
+      case .type(var typeCommand):
+        typeCommand.isEnabled = newValue
+        self = .type(typeCommand)
+      }
     }
   }
 
@@ -157,7 +200,8 @@ public extension Command {
     case .open:
       return Command.open(.init(path: ""))
     case .script:
-      return Command.script(.appleScript(id: "", name: nil, source: .path("")))
+      return Command.script(.appleScript(id: "", isEnabled: true,
+                                         name: nil, source: .path("")))
     case .type:
       return Command.type(.init(name: "", input: ""))
     }

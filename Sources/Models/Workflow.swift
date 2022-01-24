@@ -75,7 +75,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable {
     case keyboardShortcuts
     case metadata
     case name
-    case enabled
+    case isEnabled = "enabled"
   }
 
   public init(from decoder: Decoder) throws {
@@ -92,7 +92,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable {
       self.trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
     }
 
-    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .enabled) ?? true
+    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -109,7 +109,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable {
     }
 
     if isEnabled == false {
-      try container.encode(isEnabled, forKey: .enabled)
+      try container.encode(isEnabled, forKey: .isEnabled)
     }
   }
 }

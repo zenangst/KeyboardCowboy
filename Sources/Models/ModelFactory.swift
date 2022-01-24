@@ -50,10 +50,10 @@ public class ModelFactory {
     let path = "/tmp/file"
     let script = "#!/usr/bin/env fish"
     return [
-      .appleScript(id: id, name: nil, source: .inline(script)),
-      .appleScript(id: id, name: nil, source: .path(path)),
-      .shell(id: id, name: nil, source: .inline(script)),
-      .shell(id: id, name: nil, source: .path(path))
+      .appleScript(id: id, isEnabled: true, name: nil, source: .inline(script)),
+      .appleScript(id: id, isEnabled: true, name: nil, source: .path(path)),
+      .shell(id: id, isEnabled: true, name: nil, source: .inline(script)),
+      .shell(id: id, isEnabled: true, name: nil, source: .path(path))
     ]
   }
 
