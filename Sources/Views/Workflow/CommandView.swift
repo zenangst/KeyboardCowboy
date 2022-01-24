@@ -3,7 +3,7 @@ import SwiftUI
 
 struct CommandView: View {
   @Environment(\.colorScheme) var colorScheme
-  @State var command: Command
+  @Binding var command: Command
 
   var body: some View {
     HStack(alignment: .center) {
@@ -87,6 +87,6 @@ struct CommandView: View {
 
 struct CommandView_Previews: PreviewProvider {
   static var previews: some View {
-    CommandView(command: Command.application(.init(application: Application.finder())))
+    CommandView(command: .constant(Command.application(.init(application: Application.finder()))))
   }
 }

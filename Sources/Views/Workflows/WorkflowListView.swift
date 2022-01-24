@@ -41,7 +41,7 @@ struct WorkflowListView: View {
 
   func icons(_ commands: [Command]) -> some View {
     ZStack {
-      ForEach(commands, id: \.self) { command in
+      ForEach(commands) { command in
         switch command {
         case .application(let command):
           IconView(path: command.application.path)

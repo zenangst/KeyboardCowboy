@@ -5,7 +5,7 @@ struct ApplicationTriggerListView: View {
   var applicationTriggers: [ApplicationTrigger]
 
   var body: some View {
-    ForEach(applicationTriggers, id: \.self) { applicationTrigger in
+    ForEach(applicationTriggers) { applicationTrigger in
       contextView(applicationTrigger.contexts)
     }
   }

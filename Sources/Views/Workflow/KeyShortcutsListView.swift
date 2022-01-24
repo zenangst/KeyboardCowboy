@@ -10,7 +10,7 @@ struct KeyShortcutsListView: View {
          RegularKeyIcon(letter: "Record keyboard shortcut")
             .fixedSize()
         } else {
-          ForEach(keyboardShortcuts, id: \.self) { keyboardShortcut in
+          ForEach(keyboardShortcuts) { keyboardShortcut in
             key(keyboardShortcut)
               .overlay(
                 RoundedRectangle(cornerRadius: 4)
@@ -18,6 +18,7 @@ struct KeyShortcutsListView: View {
                     Color(NSColor.systemGray.withSystemEffect(.disabled)),
                     lineWidth: 1)
               )
+              .id(keyboardShortcut.id)
           }
         }
       }

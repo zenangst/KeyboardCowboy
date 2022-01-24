@@ -8,8 +8,7 @@ struct WorkflowCommandsListView: View {
     VStack(alignment: .leading) {
       Label("Commands:", image: "")
         .labelStyle(HeaderLabelStyle())
-      ForEach(workflow.commands, id: \.self,
-              content: { CommandView(command: $0) })
+      ForEach($workflow.commands, content: { CommandView(command: $0) })
     }
   }
 }
