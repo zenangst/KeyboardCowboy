@@ -2,16 +2,17 @@ import SwiftUI
 
 struct WorkflowGroupListView: View {
   @ObservedObject var store: WorkflowGroupStore
-  @Binding var selection: Set<WorkflowGroup>
+  @Binding var selection: Set<String>
 
   var body: some View {
     VStack(alignment: .leading) {
       Label("Groups", image: "")
         .labelStyle(HeaderLabelStyle())
         .padding(.leading)
-      List(store.groups, id: \.self,
-           selection: $selection,
-           rowContent: WorkflowGroupView.init)
+      List(store.groups, selection: $selection) { group in
+        WorkflowGroupView(group: group)
+          .id(group.id)
+      }
       .listStyle(SidebarListStyle())
     }
   }

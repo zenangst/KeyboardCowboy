@@ -2,11 +2,11 @@ import SwiftUI
 
 struct ContentView: View {
   @StateObject var store: Saloon
-  @Binding var selectedGroups: Set<WorkflowGroup>
-  @Binding var selectedWorkflows: Set<Workflow>
+  @Binding var selectedGroups: [WorkflowGroup]
+  @Binding var selectedWorkflows: [Workflow]
 
-  @AppStorage("selectedGroupIds") private var groupIds = [String]()
-  @AppStorage("selectedWorkflowIds") private var workflowIds = [String]()
+  @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
+  @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
 
   init(store: Saloon) {
     _store = .init(wrappedValue: store)
@@ -19,30 +19,33 @@ struct ContentView: View {
   var body: some View {
     NavigationView {
       SidebarView(store: store.groupStore,
-                  selection: $selectedGroups)
-        .onChange(of: selectedGroups) { groups in
-          groupIds = groups.compactMap({ $0.id })
-
-          if let firstGroup = groups.first,
+                  selection: $groupIds)
+        .toolbar(content: { SidebarToolbar() })
+        .frame(minWidth: 200)
+        .onChange(of: groupIds) { groupIds in
+          selectedGroups = store.groupStore.groups.filter({ groupIds.contains($0.id) })
+          if let firstGroup = selectedGroups.first,
              let firstWorkflow = firstGroup.workflows.first {
             selectedWorkflows = [firstWorkflow]
           } else {
             selectedWorkflows = []
           }
         }
-        .toolbar(content: { SidebarToolbar() })
-        .frame(minWidth: 200)
 
       MainView(workflowGroups: $selectedGroups,
-               selection: $selectedWorkflows)
-        .onChange(of: selectedWorkflows) { workflows in
-          workflowIds = workflows.compactMap({ $0.id })
-        }
+               selection: $workflowIds)
         .toolbar(content: { MainViewToolbar() })
         .frame(minWidth: 240)
+        .onChange(of: workflowIds) { workflowIds in
+          selectedWorkflows = selectedGroups
+            .flatMap({ $0.workflows })
+            .filter({ workflowIds.contains($0.id) })
+        }
 
       DetailView(workflows: $selectedWorkflows)
         .toolbar(content: { DetailToolbar() })
+        .onChange(of: selectedWorkflows,
+                  perform: { store.receive($0) })
     }
   }
 }

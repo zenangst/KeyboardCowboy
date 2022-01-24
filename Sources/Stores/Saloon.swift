@@ -7,8 +7,8 @@ let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PR
 final class Saloon: ObservableObject {
   private let storage: Storage
   private(set) var groupStore = WorkflowGroupStore()
-  @Published var selectedGroups = Set<WorkflowGroup>()
-  @Published var selectedWorkflows = Set<Workflow>()
+  @Published var selectedGroups = [WorkflowGroup]()
+  @Published var selectedWorkflows = [Workflow]()
 
   @AppStorage("selectedGroupIds") private var initialSelectedGroups = [String]()
   @AppStorage("selectedWorkflowIds") private var initialSelectedWorkflows = [String]()
@@ -21,16 +21,43 @@ final class Saloon: ObservableObject {
     }
   }
 
+  func receive(_ newWorkflows: [Workflow]) {
+    var groups = [WorkflowGroup]()
+    for newWorkflow in newWorkflows {
+      guard let group = groupStore.groups.first(where: { group in
+        let workflowIds = group.workflows.compactMap({ $0.id })
+        return workflowIds.contains(newWorkflow.id)
+      })
+      else { continue }
+
+      groups.append(group)
+
+      guard let groupIndex = groupStore.groups.firstIndex(of: group)
+      else { continue }
+
+      guard let workflowIndex = group.workflows.firstIndex(where: { $0.id == newWorkflow.id })
+      else { continue }
+
+      let oldWorkflow = groupStore.groups[groupIndex].workflows[workflowIndex]
+      if oldWorkflow == newWorkflow {
+        continue
+      }
+
+      groupStore.groups[groupIndex].workflows[workflowIndex] = newWorkflow
+    }
+
+    initialSelection()
+  }
+
   /// Configure the initial selection on start
   private func initialSelection() {
-    selectedGroups = Set<WorkflowGroup>(groupStore.groups.filter({
+    selectedGroups = groupStore.groups.filter({
       initialSelectedGroups.contains($0.id)
-    }))
-    selectedWorkflows = Set<Workflow>(
-      selectedGroups
+    })
+    selectedWorkflows = selectedGroups
         .flatMap({ $0.workflows })
         .filter({
           initialSelectedWorkflows.contains($0.id)
-        }))
+        })
   }
 }

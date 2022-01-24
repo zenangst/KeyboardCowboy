@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowView: View {
-  @State var workflow: Workflow
+  @Binding var workflow: Workflow
 
   var body: some View {
     ScrollView {
@@ -37,11 +37,11 @@ struct WorkflowView: View {
 
 struct WorkflowView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowView(workflow: Workflow.designTime(
+    WorkflowView(workflow: .constant(Workflow.designTime(
       .keyboardShortcuts( [
         .init(key: "A", modifiers: [.command]),
         .init(key: "B", modifiers: [.function]),
       ])
-    ))
+    )))
   }
 }

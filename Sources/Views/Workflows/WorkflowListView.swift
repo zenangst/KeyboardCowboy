@@ -3,10 +3,10 @@ import SwiftUI
 
 struct WorkflowListView: View {
   var workflows: [Workflow]
-  @Binding var selection: Set<Workflow>
+  @Binding var selection: Set<String>
 
   var body: some View {
-    List(workflows, id: \.self, selection: $selection) { workflow in
+    List(workflows, selection: $selection) { workflow in
       HStack {
         VStack(alignment: .leading, spacing: 0) {
           Text(workflow.name)
@@ -20,7 +20,9 @@ struct WorkflowListView: View {
         }
         Spacer()
         icons(workflow.commands)
-      }.padding(4)
+      }
+      .padding(4)
+      .id(workflow.id)
     }.listStyle(InsetListStyle())
   }
 

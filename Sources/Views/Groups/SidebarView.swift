@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SidebarView: View {
   @ObservedObject var store: WorkflowGroupStore
-  @Binding var selection: Set<WorkflowGroup>
+  @Binding var selection: Set<String>
 
   var body: some View {
     WorkflowGroupListView(store: store, selection: $selection)
