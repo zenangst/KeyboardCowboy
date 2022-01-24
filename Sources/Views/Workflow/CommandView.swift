@@ -6,7 +6,7 @@ struct CommandView: View {
   @State var command: Command
 
   var body: some View {
-    HStack(alignment: .center, spacing: 0) {
+    HStack(alignment: .center) {
       icon
         .frame(width: 36, height: 36)
       VStack(alignment: .leading, spacing: 0) {
@@ -24,10 +24,10 @@ struct CommandView: View {
       Text("≣")
         .font(.title)
         .foregroundColor(Color(.secondaryLabelColor))
-        .padding(16)
+        .padding(.horizontal, 16)
         .offset(x: 0, y: -2)
     }
-    .padding(.horizontal)
+    .padding(4)
     .background(gradient)
     .cornerRadius(8)
     .overlay(

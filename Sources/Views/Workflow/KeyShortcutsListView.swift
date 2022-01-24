@@ -27,11 +27,11 @@ struct KeyShortcutsListView: View {
       Button(action: {},
              label: { Image(systemName: "plus.square.fill") })
         .buttonStyle(PlainButtonStyle())
-        .padding(.trailing, 4)
+        .padding(.horizontal, 16)
     }
     .padding(4)
     .background(Color(.windowBackgroundColor))
-    .cornerRadius(4)
+    .cornerRadius(8)
     .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
   }
 
