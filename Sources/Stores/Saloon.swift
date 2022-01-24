@@ -54,6 +54,8 @@ final class Saloon: ObservableObject {
     }
 
     initialSelection()
+
+    try? storage.save(groupStore.groups)
   }
 
   /// Configure the initial selection on start

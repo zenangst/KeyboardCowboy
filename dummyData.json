@@ -21,6 +21,7 @@
           {
             "applicationCommand" : {
               "id" : "A282831D-DD93-4A7A-A0FF-ADD79F5334FB",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/News.app",
                 "id" : "13AFB35D-89E5-47DC-9A98-46215D6011DC",
@@ -54,6 +55,7 @@
           {
             "applicationCommand" : {
               "id" : "E511C542-7112-4AC1-A973-7C1D13D59B42",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Podcasts.app",
                 "id" : "B7C1EACC-7F2E-4ABF-9249-7C43A4398AF8",
@@ -87,6 +89,7 @@
           {
             "applicationCommand" : {
               "id" : "D83AC45B-4B36-455E-B327-148DBA3C4732",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Music.app",
                 "id" : "B07ED222-3C93-4DAE-84A9-0211FDD3BD52",
@@ -120,6 +123,7 @@
           {
             "applicationCommand" : {
               "id" : "2454BE9E-346D-4306-986D-F2A3FF6DC1A4",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Home.app",
                 "id" : "690BC747-BD2B-481B-BC82-DFE3BD4481CE",
@@ -153,6 +157,7 @@
           {
             "applicationCommand" : {
               "id" : "98232229-D285-4755-A1B8-32F764031946",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Twitterrific.app",
                 "id" : "9BE0727D-E56B-4613-9752-751D0F2F922F",
@@ -186,6 +191,7 @@
           {
             "applicationCommand" : {
               "id" : "892F62D4-E9BE-4936-9173-AEE100EF0CEE",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/System Preferences.app",
                 "id" : "6F5DC317-CA77-4D6B-8762-FC6F180F1F84",
@@ -219,6 +225,7 @@
           {
             "applicationCommand" : {
               "id" : "6BD85A94-9E9E-4F2A-940F-F35E65C3EBE4",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Cardhop.app",
                 "id" : "E4041238-CB8D-4FF7-9320-D7B739400F28",
@@ -252,6 +259,7 @@
           {
             "applicationCommand" : {
               "id" : "2C8ABA11-AE11-457C-B380-98055C59797F",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Utilities\/Terminal.app",
                 "id" : "92EB4ACB-ECF4-44BE-9EDA-D9704D24F6B9",
@@ -286,6 +294,7 @@
           {
             "applicationCommand" : {
               "id" : "F3DE9DAB-DC1F-4A3A-879F-CD3DF7EA93B6",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Discord.app",
                 "id" : "1562BFFB-1A00-4FE5-9985-C67D253FB3E3",
@@ -319,6 +328,7 @@
           {
             "applicationCommand" : {
               "id" : "974EB878-F813-47CB-9B84-7E89F7621B65",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Preview.app",
                 "id" : "6A7FF1F2-88FB-4ADA-8F9F-FCC123F9953E",
@@ -352,6 +362,7 @@
           {
             "applicationCommand" : {
               "id" : "383342EE-9F68-4786-8B0C-8C6E8979AACE",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Microsoft Teams.app",
                 "id" : "48A1D2C5-3EA6-498A-A405-6C2B0E44F584",
@@ -385,6 +396,7 @@
           {
             "applicationCommand" : {
               "id" : "72A913D7-7F0C-4339-8FC2-65D17A5FA2B0",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Slack.app",
                 "id" : "6F934896-CC4E-43F4-A7DC-4EE57564CD7B",
@@ -418,6 +430,7 @@
           {
             "applicationCommand" : {
               "id" : "8FA97726-3E4C-4CA4-B3BA-ECCD76C1CC4D",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/FindMy.app",
                 "id" : "F5E0EE84-A37A-4294-8ECA-F68A8316B568",
@@ -451,6 +464,7 @@
           {
             "applicationCommand" : {
               "id" : "261C66DE-300A-4F28-BF4B-1272976791C5",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Messages.app",
                 "id" : "699264E6-53D9-4076-A081-A238C4067AF1",
@@ -484,6 +498,7 @@
           {
             "applicationCommand" : {
               "id" : "B26AB053-9B07-4285-8803-A936A73434AB",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Mail.app",
                 "id" : "4C310F67-E30C-4883-9DA5-A1D236D8CA41",
@@ -517,6 +532,7 @@
           {
             "applicationCommand" : {
               "id" : "28E7E16F-ED9F-4297-8382-E0290616B253",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Fantastical.app",
                 "id" : "0F49BF72-CAE0-416A-BD9A-BD810EBD4533",
@@ -550,6 +566,7 @@
           {
             "applicationCommand" : {
               "id" : "0C0E4BB4-E71C-4DC2-8433-C091C59D84F2",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Reminders.app",
                 "id" : "2F59AFAF-A722-46C5-9B2C-06B8CF045D90",
@@ -583,6 +600,7 @@
           {
             "applicationCommand" : {
               "id" : "650B3C7E-D6C0-4470-B53F-9A776D74DE5A",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Notes.app",
                 "id" : "CF4745FE-6ED4-4BC0-9A63-AF99FA6C6790",
@@ -616,6 +634,7 @@
           {
             "applicationCommand" : {
               "id" : "F8DA3FA3-C2F8-4668-A821-C8C4C724DE35",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Safari.app",
                 "id" : "7C63E1AD-AFBA-4FE5-8437-5083AC9D6A3B",
@@ -649,6 +668,7 @@
           {
             "applicationCommand" : {
               "id" : "FF4FE3D4-CD2E-4680-AD53-8FD1F3E74529",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Library\/CoreServices\/Finder.app",
                 "id" : "23A39854-6C9E-4565-A5F9-FCECEE8953EE",
@@ -682,6 +702,7 @@
           {
             "applicationCommand" : {
               "id" : "D1C83001-9D1B-43C1-9D14-848E1967F45D",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Photos.app",
                 "id" : "42D061C2-99C0-4BE8-AB6E-5A22ED389BD5",
@@ -716,6 +737,7 @@
           {
             "applicationCommand" : {
               "id" : "9EDF33E4-76E1-40C9-B2CF-6CA7A3D37E70",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Stocks.app",
                 "id" : "1919FC0A-1DD3-4ADE-A6DB-B9878817CCF6",
@@ -750,6 +772,7 @@
           {
             "applicationCommand" : {
               "id" : "8C1FF946-6CAC-4BFD-92C6-4EF7E328AE70",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Keyboard Cowboy.app",
                 "id" : "F6C38D40-F9D2-4616-8F6D-2B8FA999EC16",
@@ -784,6 +807,7 @@
           {
             "applicationCommand" : {
               "id" : "2693070D-3839-4406-BB1A-1A795B996948",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Numbers.app",
                 "id" : "6CD693CC-74D1-403E-8CC2-34F4A2B4243D",
@@ -818,6 +842,7 @@
           {
             "applicationCommand" : {
               "id" : "99F20DA6-534E-483E-95DF-8BFDB4819A6E",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Pages.app",
                 "id" : "CECCEF87-CE68-4626-9215-CEB24E0B16DE",
@@ -852,6 +877,7 @@
           {
             "applicationCommand" : {
               "id" : "B7C12BAD-917F-4FF9-813B-BEECA94DFB1C",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Keynote.app",
                 "id" : "7F9BFC4B-CDFA-46C3-8847-E17DBA900B0A",
@@ -885,7 +911,8 @@
           {
             "builtInCommand" : {
               "id" : "BBA45D4D-C846-43AB-BF2C-20D66DAF9D85",
-              "kind" : "quickRun"
+              "kind" : "quickRun",
+              "enabled" : true
             }
           }
         ],
@@ -1308,6 +1335,7 @@
           {
             "applicationCommand" : {
               "id" : "D3D35A57-0F31-4931-A534-B102DF3C15D8",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Cardhop.app",
                 "id" : "C6B07A50-112E-4FE3-ACE1-3E46063A40C2",
@@ -1346,6 +1374,7 @@
           {
             "applicationCommand" : {
               "id" : "8F80D874-5CE5-4B81-A3CD-1C6659FED81D",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/FindMy.app",
                 "id" : "F8663D85-743B-456E-BC25-CDE93E0733FF",
@@ -1384,6 +1413,7 @@
           {
             "applicationCommand" : {
               "id" : "866C373B-37AE-4093-BEE8-A3C46D14A591",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Calendar.app",
                 "id" : "AA17C8D3-F6A8-4F43-AC1E-04DBAFF3BC31",
@@ -1422,6 +1452,7 @@
           {
             "applicationCommand" : {
               "id" : "1F6F0797-0625-4417-95B6-88C2F09273BF",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Messages.app",
                 "id" : "FE371BEB-A300-4597-B856-FBE29BF21DFE",
@@ -1464,6 +1495,7 @@
           {
             "applicationCommand" : {
               "id" : "AE8054D1-E525-413D-9C6A-78D17E6B4276",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Discord.app",
                 "id" : "10C901EE-012F-4719-9326-A0FC8D20C8CF",
@@ -1502,6 +1534,7 @@
           {
             "applicationCommand" : {
               "id" : "1FE78048-BE73-4CA2-89F5-5D10FC5E68FD",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Mail.app",
                 "id" : "4C310F67-E30C-4883-9DA5-A1D236D8CA40",
@@ -1540,6 +1573,7 @@
           {
             "applicationCommand" : {
               "id" : "4D19C2AB-50AC-447B-A2DF-82F7D204E09D",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Microsoft Edge.app",
                 "id" : "EE1CCCD6-D4CA-468A-A17E-933AC23AA304",
@@ -1578,6 +1612,7 @@
           {
             "applicationCommand" : {
               "id" : "3515A8D7-44EC-4326-9B11-9ADA91D33639",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Home.app",
                 "id" : "C3CD041B-C109-43D8-843B-894C2CB26CB5",
@@ -1616,6 +1651,7 @@
           {
             "applicationCommand" : {
               "id" : "DB2AF82D-8AB1-409D-93DA-124B6A8CB649",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Photos.app",
                 "id" : "7C167BC7-7C09-4834-A857-B020424688E8",
@@ -1654,6 +1690,7 @@
           {
             "applicationCommand" : {
               "id" : "E22B164C-10EC-414F-A864-F8B24BFB1CCA",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Utilities\/Keychain Access.app",
                 "id" : "A2968C8F-488F-4225-BDAE-76205D5D124D",
@@ -1688,6 +1725,7 @@
           {
             "applicationCommand" : {
               "id" : "8B28BA0C-536C-425A-9294-6BC7272AEF0F",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Maps.app",
                 "id" : "3373B392-9B87-45F7-9099-6282A35B216E",
@@ -1726,6 +1764,7 @@
           {
             "applicationCommand" : {
               "id" : "7EDBB7ED-565E-483D-A637-EC9C500694DC",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Notes.app",
                 "id" : "6A2C6EE5-5F9F-4CD7-81DD-35E5617B7020",
@@ -1764,6 +1803,7 @@
           {
             "applicationCommand" : {
               "id" : "FD46B0DE-D8F1-4D4D-8A61-6C012A5E89D6",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Preview.app",
                 "id" : "270A5D55-AEB6-43F8-B54E-795C6489A5D3",
@@ -1802,6 +1842,7 @@
           {
             "applicationCommand" : {
               "id" : "234F58C6-2E4A-4C54-A94B-C6767FEF78DF",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Reminders.app",
                 "id" : "5732FFBD-8E37-4B47-9803-0E03FF495155",
@@ -1840,6 +1881,7 @@
           {
             "applicationCommand" : {
               "id" : "A182FFAC-CFD2-4D84-856A-DB00F00DCE24",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Music.app",
                 "id" : "65D2D4E2-E728-411A-AB93-323101C64DC3",
@@ -1878,6 +1920,7 @@
           {
             "applicationCommand" : {
               "id" : "C775DABC-387C-4F9C-8C20-860223816753",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Twitterrific.app",
                 "id" : "39299BC1-1712-477C-B537-60C7EA07E777",
@@ -1916,6 +1959,7 @@
           {
             "applicationCommand" : {
               "id" : "52AF4AD1-6AB1-4746-875F-AB9E946F7ADB",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/System Preferences.app",
                 "id" : "164188F3-712E-40D3-A6DB-01C32F299832",
@@ -1957,6 +2001,7 @@
           {
             "applicationCommand" : {
               "id" : "84DF48D2-3610-40BB-AD1B-1010A55B9DCD",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Slack.app",
                 "id" : "0D743602-29B5-4CE8-8182-D8B16AC4A5C1",
@@ -1991,6 +2036,7 @@
           {
             "applicationCommand" : {
               "id" : "ACF4DA3D-2E90-4F6F-8D95-CBA2690B7FBF",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Library\/CoreServices\/Finder.app",
                 "id" : "9FD26E1E-7784-4AC0-A684-201C941D3089",
@@ -2025,6 +2071,7 @@
           {
             "applicationCommand" : {
               "id" : "AF98EF56-E684-48E6-AD4B-A597E6D76711",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Safari.app",
                 "id" : "C2591B43-D9F5-42B2-86CE-43E6F5798248",
@@ -2059,6 +2106,7 @@
           {
             "applicationCommand" : {
               "id" : "62112217-D9AB-4A96-BA31-CE7D7132C505",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Xcode.app",
                 "id" : "3C7296AB-82C6-4BCD-AB4F-B92AC5410686",
@@ -2097,6 +2145,7 @@
           {
             "applicationCommand" : {
               "id" : "89986D76-8F72-4039-A340-FFAABFC3BD0E",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/News.app",
                 "id" : "BFB9D15A-3CE9-4EEC-8E1C-6E52F215EF00",
@@ -2139,6 +2188,7 @@
           {
             "applicationCommand" : {
               "id" : "5BC67330-FEA1-40E9-8F09-ADBD3DB968F7",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/GitUp.app",
                 "id" : "BAB4749D-EC3B-42AC-AAA9-52C0DB754166",
@@ -2177,6 +2227,7 @@
           {
             "applicationCommand" : {
               "id" : "BA0AE0F1-1C06-4DA9-A931-0390E511F2CD",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Utilities\/Activity Monitor.app",
                 "id" : "C0392E70-25B7-4E05-8B0C-C00DE36ABB34",
@@ -2210,6 +2261,7 @@
           {
             "applicationCommand" : {
               "id" : "CB84E56C-A9AD-442C-B7BB-5737B2837E10",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Utilities\/Terminal.app",
                 "id" : "92EB4ACB-ECF4-44BE-9EDA-D9704D24F6B9",
@@ -2249,6 +2301,7 @@
             "openCommand" : {
               "path" : "https:\/\/github.com\/",
               "id" : "BF692E19-028E-4BFA-88A9-047F3C25D38C",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Safari.app",
                 "id" : "3CE99413-AFE3-462B-8EF1-5F25A5C2AFBE",
@@ -2278,6 +2331,7 @@
           {
             "keyboardCommand" : {
               "id" : "1010290B-2A7D-4DEA-9F0C-DDD8571CB675",
+              "enabled" : true,
               "name" : "",
               "keyboardShortcut" : {
                 "id" : "86561265-D925-4C74-BBE2-7CFCF45E5249",
@@ -2305,6 +2359,7 @@
           {
             "keyboardCommand" : {
               "id" : "57C3D117-10C4-4011-A628-E5952C3B9F44",
+              "enabled" : true,
               "name" : "",
               "keyboardShortcut" : {
                 "id" : "AF00F3ED-5818-4D17-93F8-92D90E9C2AE0",
@@ -2332,6 +2387,7 @@
           {
             "keyboardCommand" : {
               "id" : "1C6B0960-F43A-446B-9D33-C67A33EC8671",
+              "enabled" : true,
               "name" : "",
               "keyboardShortcut" : {
                 "id" : "B296321A-A04C-4700-8754-CA1556DA443F",
@@ -2359,6 +2415,7 @@
           {
             "keyboardCommand" : {
               "id" : "89687E14-61BE-41F5-9FBE-821704D4E846",
+              "enabled" : true,
               "name" : "",
               "keyboardShortcut" : {
                 "id" : "4B8CCCD4-8C49-44F3-BB6B-EEBBE4877D47",
@@ -2386,6 +2443,7 @@
           {
             "keyboardCommand" : {
               "id" : "2E949540-F883-4FCF-B899-B4658CAE8202",
+              "enabled" : true,
               "name" : "",
               "keyboardShortcut" : {
                 "id" : "F838CA61-864E-45F9-9FC3-DFC97F14D15D",
@@ -2413,6 +2471,7 @@
           {
             "keyboardCommand" : {
               "id" : "41397BA8-4766-492B-949F-FAB4F3C103C7",
+              "enabled" : true,
               "name" : "",
               "keyboardShortcut" : {
                 "id" : "936B9DAF-17DC-43C6-9E09-E323BC29AC1C",
@@ -2440,6 +2499,7 @@
           {
             "keyboardCommand" : {
               "id" : "E5C1FDF6-7672-4B8E-B1E9-555BEB95D978",
+              "enabled" : true,
               "name" : "",
               "keyboardShortcut" : {
                 "id" : "E7A37AAA-AE5A-4748-8852-7E0E7E7BE002",
@@ -2467,6 +2527,7 @@
           {
             "keyboardCommand" : {
               "id" : "7A654F22-B574-4A48-87A7-9E1C136D9CB4",
+              "enabled" : true,
               "name" : "",
               "keyboardShortcut" : {
                 "id" : "60FF11B5-DBDD-416E-A96F-58B71F72F774",
@@ -2554,9 +2615,10 @@
         "commands" : [
           {
             "openCommand" : {
+              "path" : "https:\/\/www.youtube.com",
               "id" : "34650CD7-C4CB-4036-8D20-EA83C8971597",
-              "name" : "",
-              "path" : "https:\/\/www.youtube.com"
+              "enabled" : true,
+              "name" : ""
             }
           }
         ],
@@ -2579,9 +2641,10 @@
         "commands" : [
           {
             "openCommand" : {
+              "path" : "https:\/\/www.imdb.com",
               "id" : "051C7D0F-7A55-4869-8E4F-E5739008117F",
-              "name" : "",
-              "path" : "https:\/\/www.imdb.com"
+              "enabled" : true,
+              "name" : ""
             }
           }
         ],
@@ -2604,9 +2667,10 @@
         "commands" : [
           {
             "openCommand" : {
+              "path" : "https:\/\/github.com",
               "id" : "BCB0FB91-C927-4193-9666-2664DDB6C03D",
-              "name" : "",
-              "path" : "https:\/\/github.com"
+              "enabled" : true,
+              "name" : ""
             }
           }
         ],
@@ -2637,6 +2701,7 @@
           {
             "applicationCommand" : {
               "id" : "A346F3C1-BDBF-4D5B-8F67-71C549575707",
+              "enabled" : true,
               "application" : {
                 "path" : "\/System\/Applications\/Utilities\/Terminal.app",
                 "id" : "92EB4ACB-ECF4-44BE-9EDA-D9704D24F6B9",
@@ -2670,6 +2735,7 @@
           {
             "applicationCommand" : {
               "id" : "8537608E-A729-4921-9755-13DE1C945B6A",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Xcode.app\/Contents\/Applications\/Instruments.app",
                 "id" : "052CEBB8-454D-4FBB-9337-5FCBF5E59740",
@@ -2703,6 +2769,7 @@
           {
             "applicationCommand" : {
               "id" : "B26AB053-9B07-4285-8803-A936A73434AA",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Xcode.app\/Contents\/Developer\/Applications\/Simulator.app",
                 "id" : "3C7296AB-82C6-4BCD-AB4F-B92AC5410687",
@@ -2736,6 +2803,7 @@
           {
             "applicationCommand" : {
               "id" : "4B042CE5-DBF8-4B6D-AD4D-46948C5FCE2D",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Xcode.app",
                 "id" : "ED75837F-947B-4C31-A753-4023072A0DC6",
@@ -2769,6 +2837,7 @@
           {
             "applicationCommand" : {
               "id" : "87778401-0E68-4EC8-B6C0-BAFB1247945F",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/GitUp.app",
                 "id" : "6EEEDFE6-4E07-4AD8-8D4E-67773B4793AD",
@@ -2793,6 +2862,7 @@
             "openCommand" : {
               "path" : "http:\/\/www.github.com\/zenangst",
               "id" : "89D29927-F760-4D64-8D92-B2A5366F9B7F",
+              "enabled" : true,
               "application" : {
                 "path" : "\/Applications\/Safari.app",
                 "id" : "BD5A7364-F06C-4F81-A0AF-A85ED5B262A1",
@@ -2822,9 +2892,10 @@
         "commands" : [
           {
             "openCommand" : {
+              "path" : "\/Applications",
               "id" : "51E19F1E-C0B2-45A5-909C-F057361F90F5",
-              "name" : "Open Applications",
-              "path" : "\/Applications"
+              "enabled" : true,
+              "name" : "Open Applications"
             }
           }
         ],
