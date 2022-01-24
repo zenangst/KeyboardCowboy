@@ -22,6 +22,7 @@ struct WorkflowListView: View {
         icons(workflow.commands)
       }
       .padding(4)
+      .opacity(workflow.isEnabled ? 1.0 : 0.6)
       .id(workflow.id)
     }.listStyle(InsetListStyle())
   }

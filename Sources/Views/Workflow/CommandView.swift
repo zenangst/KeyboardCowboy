@@ -35,6 +35,7 @@ struct CommandView: View {
         .stroke(Color(.windowFrameTextColor), lineWidth: 1)
         .opacity(0.05)
     )
+    .opacity(command.isEnabled ? 1.0 : 0.6)
   }
 
   @ViewBuilder
