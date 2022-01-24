@@ -1,0 +1,2836 @@
+[
+  {
+    "id" : "06DC7699-C429-43CE-A1D7-9376F3A55D6D",
+    "symbol" : "flame",
+    "name" : "fn-key",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "9E84F8E3-00AE-4D31-80DF-9A10988AC731",
+              "key" : "Space",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "C3B92979-B589-451D-9CD1-79B3E0B3A8AD",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "A282831D-DD93-4A7A-A0FF-ADD79F5334FB",
+              "application" : {
+                "path" : "\/System\/Applications\/News.app",
+                "id" : "13AFB35D-89E5-47DC-9A98-46215D6011DC",
+                "bundleIdentifier" : "com.apple.news",
+                "bundleName" : "News"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open News"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "38A72F6E-C8F6-4BE1-8172-CB0A46832CCC",
+              "key" : "U",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "ECB59295-54F6-4395-B32A-04411A14C770",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "E511C542-7112-4AC1-A973-7C1D13D59B42",
+              "application" : {
+                "path" : "\/System\/Applications\/Podcasts.app",
+                "id" : "B7C1EACC-7F2E-4ABF-9249-7C43A4398AF8",
+                "bundleIdentifier" : "com.apple.podcasts",
+                "bundleName" : "Podcasts"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Podcast"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "56B7B862-736F-4FCA-8D13-8F993CA91D01",
+              "key" : "Y",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "24BDED43-0806-47AE-8445-CDE50EB9AA02",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "D83AC45B-4B36-455E-B327-148DBA3C4732",
+              "application" : {
+                "path" : "\/System\/Applications\/Music.app",
+                "id" : "B07ED222-3C93-4DAE-84A9-0211FDD3BD52",
+                "bundleIdentifier" : "com.apple.Music",
+                "bundleName" : "Music"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Music"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "CE5A659C-5339-4609-812D-163DD30468E7",
+              "key" : "H",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "23E452F6-1A01-4EF2-B897-2FDFA0AF021B",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "2454BE9E-346D-4306-986D-F2A3FF6DC1A4",
+              "application" : {
+                "path" : "\/System\/Applications\/Home.app",
+                "id" : "690BC747-BD2B-481B-BC82-DFE3BD4481CE",
+                "bundleIdentifier" : "com.apple.Home",
+                "bundleName" : "Home"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Home"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "2EDB2376-A20B-42B2-97F2-A6E95F790458",
+              "key" : "T",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "B678400B-C0B4-41E7-A5F8-264C998D3344",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "98232229-D285-4755-A1B8-32F764031946",
+              "application" : {
+                "path" : "\/Applications\/Twitterrific.app",
+                "id" : "9BE0727D-E56B-4613-9752-751D0F2F922F",
+                "bundleIdentifier" : "com.iconfactory.Twitterrific5",
+                "bundleName" : "Twitterrific"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Twitterific"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "4708883F-0723-4EA0-9B63-D1D223C582F3",
+              "key" : ".",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "C441B9FC-378F-4538-907D-57A9B335FC31",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "892F62D4-E9BE-4936-9173-AEE100EF0CEE",
+              "application" : {
+                "path" : "\/System\/Applications\/System Preferences.app",
+                "id" : "6F5DC317-CA77-4D6B-8762-FC6F180F1F84",
+                "bundleIdentifier" : "com.apple.systempreferences",
+                "bundleName" : "System Preferences"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open System Preferences"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "FB8EA07A-DB54-4E36-BD71-A6B57E9C44F6",
+              "key" : "A",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "6545F5F1-9EE2-4B28-A8FE-A9557135BF62",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "6BD85A94-9E9E-4F2A-940F-F35E65C3EBE4",
+              "application" : {
+                "path" : "\/Applications\/Cardhop.app",
+                "id" : "E4041238-CB8D-4FF7-9320-D7B739400F28",
+                "bundleIdentifier" : "com.flexibits.cardhop.mac",
+                "bundleName" : "Cardhop"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Contacts"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "9CA334C8-770B-422C-BF1D-BE345734F953",
+              "key" : "§",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "0919F055-A1CD-4CB0-A67C-61CDB425A5CB",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "2C8ABA11-AE11-457C-B380-98055C59797F",
+              "application" : {
+                "path" : "\/System\/Applications\/Utilities\/Terminal.app",
+                "id" : "92EB4ACB-ECF4-44BE-9EDA-D9704D24F6B9",
+                "bundleIdentifier" : "com.apple.Terminal",
+                "bundleName" : "Terminal"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Terminal"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "8D65A901-A462-464F-82A8-AEDE1A794766",
+              "key" : "D",
+              "modifiers" : [
+                "@",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "84A0455C-1CE9-4068-94B6-C5BB33CF5A4D",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "F3DE9DAB-DC1F-4A3A-879F-CD3DF7EA93B6",
+              "application" : {
+                "path" : "\/Applications\/Discord.app",
+                "id" : "1562BFFB-1A00-4FE5-9985-C67D253FB3E3",
+                "bundleIdentifier" : "com.hnc.Discord",
+                "bundleName" : "Discord"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Discord"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "1CB0988B-AFEF-4FFC-A3D8-B6C801B50CB6",
+              "key" : "P",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "795FB521-17BF-410E-AFB2-ECEE90EEFCBF",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "974EB878-F813-47CB-9B84-7E89F7621B65",
+              "application" : {
+                "path" : "\/System\/Applications\/Preview.app",
+                "id" : "6A7FF1F2-88FB-4ADA-8F9F-FCC123F9953E",
+                "bundleIdentifier" : "com.apple.Preview",
+                "bundleName" : "Preview"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Preview"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "4E9A14FC-5BE2-4403-8483-15596AC5EF7A",
+              "key" : "G",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "8A4658BA-25EC-4EBB-B768-1C728DCF2D82",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "383342EE-9F68-4786-8B0C-8C6E8979AACE",
+              "application" : {
+                "path" : "\/Applications\/Microsoft Teams.app",
+                "id" : "48A1D2C5-3EA6-498A-A405-6C2B0E44F584",
+                "bundleIdentifier" : "com.microsoft.teams",
+                "bundleName" : "Microsoft Teams"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Teams"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "E79194AE-06D6-46B9-B452-FF8E3B2EC03D",
+              "key" : "V",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "3C03CD7E-48B7-4DFF-A59D-AB2FD0F34B30",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "72A913D7-7F0C-4339-8FC2-65D17A5FA2B0",
+              "application" : {
+                "path" : "\/Applications\/Slack.app",
+                "id" : "6F934896-CC4E-43F4-A7DC-4EE57564CD7B",
+                "bundleIdentifier" : "com.tinyspeck.slackmacgap",
+                "bundleName" : "Slack"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Slack"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "E67088EF-47C2-4615-860D-5D52516DAEA5",
+              "key" : "B",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "094C456F-3178-490D-8E04-2DE503A17340",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "8FA97726-3E4C-4CA4-B3BA-ECCD76C1CC4D",
+              "application" : {
+                "path" : "\/System\/Applications\/FindMy.app",
+                "id" : "F5E0EE84-A37A-4294-8ECA-F68A8316B568",
+                "bundleIdentifier" : "com.apple.findmy",
+                "bundleName" : "FindMy"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Find My"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "BAE1E8FC-6446-4D55-8E25-A81E7E9343B8",
+              "key" : "D",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "948FFD84-3693-4FEA-A4AA-48A93183D46F",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "261C66DE-300A-4F28-BF4B-1272976791C5",
+              "application" : {
+                "path" : "\/System\/Applications\/Messages.app",
+                "id" : "699264E6-53D9-4076-A081-A238C4067AF1",
+                "bundleIdentifier" : "com.apple.MobileSMS",
+                "bundleName" : "Messages"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Messages"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "F6514241-302C-4ABB-9371-3DB4F9B5F6AE",
+              "key" : "M",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "1515E8A9-DD44-49EC-9ADE-8CAA55783D73",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "B26AB053-9B07-4285-8803-A936A73434AB",
+              "application" : {
+                "path" : "\/System\/Applications\/Mail.app",
+                "id" : "4C310F67-E30C-4883-9DA5-A1D236D8CA41",
+                "bundleIdentifier" : "com.apple.mail",
+                "bundleName" : "Mail"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Mail"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "D5E5CD6C-E1DF-4718-AFDB-75DF026966CB",
+              "key" : "C",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "59FB0AFA-0C39-40A9-8CDD-5A3FAA64F8AB",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "28E7E16F-ED9F-4297-8382-E0290616B253",
+              "application" : {
+                "path" : "\/Applications\/Fantastical.app",
+                "id" : "0F49BF72-CAE0-416A-BD9A-BD810EBD4533",
+                "bundleIdentifier" : "com.flexibits.fantastical2.mac",
+                "bundleName" : "Fantastical"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Calendar"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "72818191-F619-42E7-925F-E6B1E4491184",
+              "key" : "R",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "BC267432-D705-44E1-A938-CEFF00D43E40",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "0C0E4BB4-E71C-4DC2-8433-C091C59D84F2",
+              "application" : {
+                "path" : "\/System\/Applications\/Reminders.app",
+                "id" : "2F59AFAF-A722-46C5-9B2C-06B8CF045D90",
+                "bundleIdentifier" : "com.apple.reminders",
+                "bundleName" : "Reminders"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Reminders"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "7E86C535-575A-49DE-AE75-D21E6F56FECD",
+              "key" : "N",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "AF46B738-8BD7-4C72-9042-BC08189E5B8D",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "650B3C7E-D6C0-4470-B53F-9A776D74DE5A",
+              "application" : {
+                "path" : "\/System\/Applications\/Notes.app",
+                "id" : "CF4745FE-6ED4-4BC0-9A63-AF99FA6C6790",
+                "bundleIdentifier" : "com.apple.Notes",
+                "bundleName" : "Notes"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Notes"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "264E1F97-E1FB-4411-8C3E-80BD8BBE2C37",
+              "key" : "S",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "AF0F0DA7-57A6-4D34-A13E-4F65497EFE5F",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "F8DA3FA3-C2F8-4668-A821-C8C4C724DE35",
+              "application" : {
+                "path" : "\/Applications\/Safari.app",
+                "id" : "7C63E1AD-AFBA-4FE5-8437-5083AC9D6A3B",
+                "bundleIdentifier" : "com.apple.Safari",
+                "bundleName" : "Safari"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Safari"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "25EA08FF-FADA-4E72-90F9-141F13585C52",
+              "key" : "F",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "17B72BCA-E184-4CD9-972E-C871A17C3EF0",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "FF4FE3D4-CD2E-4680-AD53-8FD1F3E74529",
+              "application" : {
+                "path" : "\/System\/Library\/CoreServices\/Finder.app",
+                "id" : "23A39854-6C9E-4565-A5F9-FCECEE8953EE",
+                "bundleIdentifier" : "com.apple.finder",
+                "bundleName" : "Finder"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Finder"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "0FA060E4-2645-4EBA-A4F9-F27CB4213B43",
+              "key" : "I",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "59AB3BE2-D230-4BB2-B620-724714EBE4B0",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "D1C83001-9D1B-43C1-9D14-848E1967F45D",
+              "application" : {
+                "path" : "\/System\/Applications\/Photos.app",
+                "id" : "42D061C2-99C0-4BE8-AB6E-5A22ED389BD5",
+                "bundleIdentifier" : "com.apple.Photos",
+                "bundleName" : "Photos"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Photos"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "895CF456-34E8-4519-9215-B0A35D2A0A45",
+              "key" : "S",
+              "modifiers" : [
+                "@",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "AD9E767B-7AF9-4B4F-A55A-0FB2C9267F05",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "9EDF33E4-76E1-40C9-B2CF-6CA7A3D37E70",
+              "application" : {
+                "path" : "\/System\/Applications\/Stocks.app",
+                "id" : "1919FC0A-1DD3-4ADE-A6DB-B9878817CCF6",
+                "bundleIdentifier" : "com.apple.stocks",
+                "bundleName" : "Stocks"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Stocks"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "02F83446-FF03-475D-B546-A0747F54C1DF",
+              "key" : "0",
+              "modifiers" : [
+                "~",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "29F3A4E4-7D82-430D-A369-467F123F4B9F",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "8C1FF946-6CAC-4BFD-92C6-4EF7E328AE70",
+              "application" : {
+                "path" : "\/Applications\/Keyboard Cowboy.app",
+                "id" : "F6C38D40-F9D2-4616-8F6D-2B8FA999EC16",
+                "bundleIdentifier" : "com.zenangst.Keyboard-Cowboy",
+                "bundleName" : "Keyboard Cowboy"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Keyboard Cowboy"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "976DDA4C-C685-4A55-8857-9AF8ECACF13A",
+              "key" : "N",
+              "modifiers" : [
+                "~",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "651BD9C3-0122-4C6B-98F8-8181FBDF1341",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "2693070D-3839-4406-BB1A-1A795B996948",
+              "application" : {
+                "path" : "\/Applications\/Numbers.app",
+                "id" : "6CD693CC-74D1-403E-8CC2-34F4A2B4243D",
+                "bundleIdentifier" : "com.apple.iWork.Numbers",
+                "bundleName" : "Numbers"
+              },
+              "name" : "Open Numbers",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Numbers"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "1D27FC20-1DF5-4ADD-A934-61FA4E9BAE26",
+              "key" : "P",
+              "modifiers" : [
+                "~",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "BFF36C39-2C74-4B2B-83A1-06B769ADEE92",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "99F20DA6-534E-483E-95DF-8BFDB4819A6E",
+              "application" : {
+                "path" : "\/Applications\/Pages.app",
+                "id" : "CECCEF87-CE68-4626-9215-CEB24E0B16DE",
+                "bundleIdentifier" : "com.apple.iWork.Pages",
+                "bundleName" : "Pages"
+              },
+              "name" : "Open Pages",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Pages"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "B462CD4C-7D6E-4B7F-8F06-AA473327BEFA",
+              "key" : "K",
+              "modifiers" : [
+                "~",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "263619C6-6F08-438C-BBD1-815A318EA134",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "B7C12BAD-917F-4FF9-813B-BEECA94DFB1C",
+              "application" : {
+                "path" : "\/Applications\/Keynote.app",
+                "id" : "7F9BFC4B-CDFA-46C3-8847-E17DBA900B0A",
+                "bundleIdentifier" : "com.apple.iWork.Keynote",
+                "bundleName" : "Keynote"
+              },
+              "name" : "Open Keynote",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Keynote"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "05E11228-8A1F-40D6-89A1-8CC1AADD3F43",
+              "key" : "K",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "9DD8F0FD-D581-4D21-9899-61071EFE5040",
+        "commands" : [
+          {
+            "builtInCommand" : {
+              "id" : "BBA45D4D-C846-43AB-BF2C-20D66DAF9D85",
+              "kind" : "quickRun"
+            }
+          }
+        ],
+        "name" : "Open Quick Run"
+      }
+    ],
+    "color" : "#A78F6D"
+  },
+  {
+    "rule" : {
+      "id" : "DA17FCA5-A3D3-4ED5-B7FB-CDEC0BDE67AC",
+      "bundleIdentifiers" : [
+        "com.apple.finder"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "0CC1700A-2E51-46D4-B1C8-FF42970CD510",
+    "symbol" : "archivebox",
+    "name" : "Finder",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "715293C9-FC64-4936-B572-0520C5BD281B",
+              "key" : "Å",
+              "modifiers" : [
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "4141687E-EF7B-42FF-9FC9-564CBA5D9477",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Finder\/Share button.scpt"
+              },
+              "id" : "EDDC3FD6-D1EA-42A0-8A76-E005BCDF038F"
+            }
+          }
+        ],
+        "name" : "Share"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "47DCA0DD-6DDC-4A5D-9900-D9EBF9D5C792",
+              "key" : "¨",
+              "modifiers" : [
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "E6ADACFA-18C4-4752-AEC7-C50D83ED7378",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Finder\/Action.scpt"
+              },
+              "id" : "3C2E2D27-432F-4A67-975E-652D88C49E45"
+            }
+          }
+        ],
+        "name" : "Action"
+      }
+    ],
+    "color" : "#EB5545"
+  },
+  {
+    "rule" : {
+      "id" : "D9E570C6-0FA8-4A62-986A-B47BBA539DA6",
+      "bundleIdentifiers" : [
+        "com.apple.Safari"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "D105B847-175C-40A0-8CDE-0E9D7DA1378D",
+    "symbol" : "link",
+    "name" : "Safari",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "980DA360-BB53-4A72-B4C5-5F0DFFDADB0F",
+              "key" : "Å",
+              "modifiers" : [
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "050DBED2-389C-4E04-8758-202AA836ED63",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Safari\/Share button.scpt"
+              },
+              "id" : "AA524BFD-1AF1-4E8A-89BE-C92BBF130765"
+            }
+          }
+        ],
+        "name" : "Share"
+      }
+    ],
+    "color" : "#F2A23C"
+  },
+  {
+    "rule" : {
+      "id" : "54A62770-C4E4-4E4D-9A6F-3929838A5B21",
+      "bundleIdentifiers" : [
+        "com.apple.dt.Xcode"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "75F4F49E-19BB-4A93-A259-02D84ECEE317",
+    "symbol" : "bolt",
+    "name" : "Xcode",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "A9D1C7A4-DA0E-4A06-BF14-DFE53417F5A6",
+              "key" : "Space",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "CEBA1E01-7CCD-4C1C-9D13-8A0A915154E0",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Recent Files.scpt"
+              },
+              "id" : "81D6B84E-1392-4B1C-BD65-8C98B87B1B27"
+            }
+          }
+        ],
+        "name" : "Recent files"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "82C20608-001D-4D15-9605-7BE648D02D6D",
+              "key" : "¨",
+              "modifiers" : [
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "2D627750-19A9-47C4-9C43-8F08A936A355",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Git Changes.scpt"
+              },
+              "id" : "CCC03399-0967-43F9-A08F-F3F1B1DF318A"
+            }
+          }
+        ],
+        "name" : "Git changes"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "877583C9-54A2-4D3C-A45E-1E7B2C503554",
+              "key" : "q",
+              "modifiers" : [
+                "^"
+              ]
+            }
+          ]
+        },
+        "id" : "CF866A65-14EA-471F-A34C-19CCD3E23A46",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Show Previous Tab.scpt"
+              },
+              "id" : "1D62329C-3EC4-4D66-9E3F-B3C8F015964F"
+            }
+          }
+        ],
+        "name" : "Show Previous Tab"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "D221B9AC-8A16-49D3-86B5-E56216E93EC4",
+              "key" : "e",
+              "modifiers" : [
+                "^"
+              ]
+            }
+          ]
+        },
+        "id" : "73FFC32D-9704-4C11-B630-D63175CF1AE5",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Show Next Tab.scpt"
+              },
+              "id" : "5FB215FE-CB5C-4B53-A10E-2BC091BD4EF7"
+            }
+          }
+        ],
+        "name" : "Show Next Tab"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "73518CD3-0A8D-4767-ABFB-1EAC9EE33432",
+              "key" : "m",
+              "modifiers" : [
+                "^",
+                "~",
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "82F6E6E8-FB06-4076-9CE3-231E74B9D6BA",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Xcode\/Edit Scheme.scpt"
+              },
+              "id" : "204540F8-050E-4F93-9082-F8822E90B625"
+            }
+          }
+        ],
+        "name" : "Edit Scheme"
+      }
+    ],
+    "color" : "#F9D64A"
+  },
+  {
+    "rule" : {
+      "id" : "1C15DCDC-6C2C-40BF-AC01-4302D71E9583",
+      "bundleIdentifiers" : [
+        "com.apple.news"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "4F20C153-DBA5-48F5-98D8-3EAC1FF5B517",
+    "symbol" : "book",
+    "name" : "Apple News",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "4FCA33BD-0A91-499B-AB9C-C51CC2043BAF",
+              "key" : "X",
+              "modifiers" : [
+                "^"
+              ]
+            }
+          ]
+        },
+        "id" : "6ED3DCE9-3CDC-40AB-AD96-4367EBA52A1B",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/News\/Back.scpt"
+              },
+              "id" : "2B5BFA0D-CD69-4323-B204-0FC9BBF4118A"
+            }
+          }
+        ],
+        "name" : "Back"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "19A7B29F-9D54-4183-B36E-68E9CFC5A2E7",
+              "key" : "Å",
+              "modifiers" : [
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "A6662AFB-3BBA-48FD-A6B9-F1E5BC2C9FD1",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/News\/Share button.scpt"
+              },
+              "id" : "917E357B-DE99-43E4-9CDB-FCE3E6A55468"
+            }
+          }
+        ],
+        "name" : "Share button"
+      }
+    ],
+    "color" : "#6BD35F"
+  },
+  {
+    "rule" : {
+      "id" : "D9E570C6-0FA8-4A62-986A-B47BBA539DA6",
+      "bundleIdentifiers" : [
+        "com.apple.MobileSMS"
+      ],
+      "days" : [
+
+      ]
+    },
+    "id" : "BFF763C8-57BF-4C40-BE37-4D1704B8B067",
+    "symbol" : "star",
+    "name" : "Messages",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "B684700A-4804-446A-8993-40FED5335B3E",
+              "key" : "Q",
+              "modifiers" : [
+                "^"
+              ]
+            }
+          ]
+        },
+        "id" : "0FE845C4-7E0A-4F21-9E49-AFD41275E3F0",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "\/Users\/christofferwinterkvist\/Library\/Mobile Documents\/com~apple~CloudDocs\/Keyboard Cowboy\/Messages\/Previous conversation.scpt"
+              },
+              "id" : "195EDFB0-3C94-4634-8DBE-A5B1C5521580"
+            }
+          }
+        ],
+        "name" : "Previous Conversation"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "58D0A2E7-3D4D-4AFC-BDBD-7D514831279D",
+              "key" : "E",
+              "modifiers" : [
+                "^"
+              ]
+            }
+          ]
+        },
+        "id" : "BEA427A3-A236-4EA3-9922-23781C0020DE",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "\/Users\/christofferwinterkvist\/Library\/Mobile Documents\/com~apple~CloudDocs\/Keyboard Cowboy\/Messages\/Next conversation.scpt"
+              },
+              "id" : "9981F79D-5958-4377-A82C-3D24A75124A1"
+            }
+          }
+        ],
+        "name" : "Next conversation"
+      }
+    ],
+    "color" : "#3984F7"
+  },
+  {
+    "id" : "FE313F49-B33F-4DEF-A3D6-097C3A2AAC23",
+    "symbol" : "checkmark.seal",
+    "name" : "Global",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "26948019-0499-483C-AEAC-3BE95983091E",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "5A6E6B5A-6F46-4343-AC28-85F0A8624E62",
+              "key" : "A"
+            }
+          ]
+        },
+        "id" : "F3A6E5A2-4D37-4AAB-85BF-FD189E67AF03",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "D3D35A57-0F31-4931-A534-B102DF3C15D8",
+              "application" : {
+                "path" : "\/Applications\/Cardhop.app",
+                "id" : "C6B07A50-112E-4FE3-ACE1-3E46063A40C2",
+                "bundleIdentifier" : "com.flexibits.cardhop.mac",
+                "bundleName" : "Cardhop"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Contacts"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "DF23C04B-CEF3-4B97-A1A1-D5726CB4BDFE",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "18CDA6E8-1753-4611-A3BB-45EE6AF7861C",
+              "key" : "B"
+            }
+          ]
+        },
+        "id" : "659D17DE-D8F3-4793-93E6-142B0DC12776",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "8F80D874-5CE5-4B81-A3CD-1C6659FED81D",
+              "application" : {
+                "path" : "\/System\/Applications\/FindMy.app",
+                "id" : "F8663D85-743B-456E-BC25-CDE93E0733FF",
+                "bundleIdentifier" : "com.apple.findmy",
+                "bundleName" : "FindMy"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Find My"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "24409153-6C73-4FCB-BB0C-D420A3A57023",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "FE152441-8DD1-458D-A7DC-87F6D8775D10",
+              "key" : "C"
+            }
+          ]
+        },
+        "id" : "219E61EA-D3BC-4DB2-9CE8-4C6B603B51E0",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "866C373B-37AE-4093-BEE8-A3C46D14A591",
+              "application" : {
+                "path" : "\/System\/Applications\/Calendar.app",
+                "id" : "AA17C8D3-F6A8-4F43-AC1E-04DBAFF3BC31",
+                "bundleIdentifier" : "com.apple.iCal",
+                "bundleName" : "Calendar"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Calendar"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "E63097B4-ED77-43F5-A4C4-470D33F6A19D",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "CA1D34C8-BDC7-49E1-B05A-F152AE430F8F",
+              "key" : "D"
+            }
+          ]
+        },
+        "id" : "A4FA4DD6-3FBC-4380-8048-AC84E8C87CBC",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "1F6F0797-0625-4417-95B6-88C2F09273BF",
+              "application" : {
+                "path" : "\/System\/Applications\/Messages.app",
+                "id" : "FE371BEB-A300-4597-B856-FBE29BF21DFE",
+                "bundleIdentifier" : "com.apple.MobileSMS",
+                "bundleName" : "Messages"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Messages"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "651D1B9E-43BF-448C-B21F-DF0D1F1225F8",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "5AD80E3B-850C-455C-9478-4CD65FDE86C1",
+              "key" : "D",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "9E42B14E-F550-4F4A-9BB6-B238BF16090C",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "AE8054D1-E525-413D-9C6A-78D17E6B4276",
+              "application" : {
+                "path" : "\/Applications\/Discord.app",
+                "id" : "10C901EE-012F-4719-9326-A0FC8D20C8CF",
+                "bundleIdentifier" : "com.hnc.Discord",
+                "bundleName" : "Discord"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Discord"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "98789882-A7C5-4D8C-B683-EFB6106FF06C",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "FF0A7E6A-244F-4EC4-B9BD-AB60E61F652C",
+              "key" : "E"
+            }
+          ]
+        },
+        "id" : "86CB2DAF-6330-444C-9F30-E84A3D882210",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "1FE78048-BE73-4CA2-89F5-5D10FC5E68FD",
+              "application" : {
+                "path" : "\/System\/Applications\/Mail.app",
+                "id" : "4C310F67-E30C-4883-9DA5-A1D236D8CA40",
+                "bundleIdentifier" : "com.apple.mail",
+                "bundleName" : "Mail"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Mail"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "8A7256BA-7BD3-4CCC-9AB2-E38A0AB8259A",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "5AB79698-7262-4577-8FCF-F1A91D6FFCC6",
+              "key" : "G"
+            }
+          ]
+        },
+        "id" : "C3EA2F74-0B69-4CE6-A4C5-1F7A20456E4B",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "4D19C2AB-50AC-447B-A2DF-82F7D204E09D",
+              "application" : {
+                "path" : "\/Applications\/Microsoft Edge.app",
+                "id" : "EE1CCCD6-D4CA-468A-A17E-933AC23AA304",
+                "bundleIdentifier" : "com.microsoft.edgemac",
+                "bundleName" : "Microsoft Edge"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Edge"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "4910FFA0-B526-48EB-863F-0358C95E5308",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "98D0F777-A6E2-4CA7-B47D-279121E6AC5B",
+              "key" : "H"
+            }
+          ]
+        },
+        "id" : "0F244F56-B5A4-4535-80F0-350F422F076C",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "3515A8D7-44EC-4326-9B11-9ADA91D33639",
+              "application" : {
+                "path" : "\/System\/Applications\/Home.app",
+                "id" : "C3CD041B-C109-43D8-843B-894C2CB26CB5",
+                "bundleIdentifier" : "com.apple.Home",
+                "bundleName" : "Home"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Home"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "58D47961-D4F9-4695-A41E-043CBA7287FA",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "5E5DB6A7-B398-42D0-891E-891B965A999E",
+              "key" : "I"
+            }
+          ]
+        },
+        "id" : "BA2B42B0-295B-452B-BE4A-D7FE28944AD6",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "DB2AF82D-8AB1-409D-93DA-124B6A8CB649",
+              "application" : {
+                "path" : "\/System\/Applications\/Photos.app",
+                "id" : "7C167BC7-7C09-4834-A857-B020424688E8",
+                "bundleIdentifier" : "com.apple.Photos",
+                "bundleName" : "Photos"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Photos"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "897C845F-0FED-4682-837A-8718FB029579",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "93206AB4-8472-48B0-B28E-99A412051DDE",
+              "key" : "K"
+            }
+          ]
+        },
+        "id" : "39133E49-30E6-4AA6-A323-F36F5E25E40E",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "E22B164C-10EC-414F-A864-F8B24BFB1CCA",
+              "application" : {
+                "path" : "\/System\/Applications\/Utilities\/Keychain Access.app",
+                "id" : "A2968C8F-488F-4225-BDAE-76205D5D124D",
+                "bundleIdentifier" : "com.apple.keychainaccess",
+                "bundleName" : "Keychain Access"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Keychain"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "7B167483-5F7F-420C-ADC7-260728539A0C",
+              "key" : "M",
+              "modifiers" : [
+                "@",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "F763835E-BA57-475F-A1DD-3317483C2F7F",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "8B28BA0C-536C-425A-9294-6BC7272AEF0F",
+              "application" : {
+                "path" : "\/System\/Applications\/Maps.app",
+                "id" : "3373B392-9B87-45F7-9099-6282A35B216E",
+                "bundleIdentifier" : "com.apple.Maps",
+                "bundleName" : "Maps"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Maps"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "1FE66E35-6671-485C-94FD-64F2E8E9BA14",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "4AB6A2C0-07A4-42B5-9537-B796728DBA4B",
+              "key" : "N"
+            }
+          ]
+        },
+        "id" : "2AC6DAA0-5D63-4DB9-9855-46EEB5E9A6AD",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "7EDBB7ED-565E-483D-A637-EC9C500694DC",
+              "application" : {
+                "path" : "\/System\/Applications\/Notes.app",
+                "id" : "6A2C6EE5-5F9F-4CD7-81DD-35E5617B7020",
+                "bundleIdentifier" : "com.apple.Notes",
+                "bundleName" : "Notes"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Notes"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "67DD3749-014F-475A-B99D-2B88CF145AB4",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "5F6194DF-63FF-4C35-A368-D42E864EA839",
+              "key" : "P"
+            }
+          ]
+        },
+        "id" : "FA6BA4C1-839B-44E7-99B8-CF7CE8568793",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "FD46B0DE-D8F1-4D4D-8A61-6C012A5E89D6",
+              "application" : {
+                "path" : "\/System\/Applications\/Preview.app",
+                "id" : "270A5D55-AEB6-43F8-B54E-795C6489A5D3",
+                "bundleIdentifier" : "com.apple.Preview",
+                "bundleName" : "Preview"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Preview"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "6A6AC0BE-C640-47B9-9163-BB46EBC68BDB",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "43741AB6-F117-4546-8B0C-C086DBF24DFF",
+              "key" : "R"
+            }
+          ]
+        },
+        "id" : "1FACA224-8F59-450F-8F99-EEEECCE08C1C",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "234F58C6-2E4A-4C54-A94B-C6767FEF78DF",
+              "application" : {
+                "path" : "\/System\/Applications\/Reminders.app",
+                "id" : "5732FFBD-8E37-4B47-9803-0E03FF495155",
+                "bundleIdentifier" : "com.apple.reminders",
+                "bundleName" : "Reminders"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Reminders"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "D1379B7A-3BFE-44CC-92FC-951DAE54D542",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "849D93D8-4760-4E41-95B9-79A1370166E2",
+              "key" : "S"
+            }
+          ]
+        },
+        "id" : "411CD258-368B-4C10-92EA-8EA8A6904AEA",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "A182FFAC-CFD2-4D84-856A-DB00F00DCE24",
+              "application" : {
+                "path" : "\/System\/Applications\/Music.app",
+                "id" : "65D2D4E2-E728-411A-AB93-323101C64DC3",
+                "bundleIdentifier" : "com.apple.Music",
+                "bundleName" : "Music"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Music"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "C4F27509-A7B0-4B6E-9861-C1C37044370C",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "CE220715-E751-4D5E-8450-419B9582ED8D",
+              "key" : "T"
+            }
+          ]
+        },
+        "id" : "3D4D708D-F823-48FA-8685-473E3A684471",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "C775DABC-387C-4F9C-8C20-860223816753",
+              "application" : {
+                "path" : "\/Applications\/Twitterrific.app",
+                "id" : "39299BC1-1712-477C-B537-60C7EA07E777",
+                "bundleIdentifier" : "com.iconfactory.Twitterrific5",
+                "bundleName" : "Twitterrific"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Twitterrific"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "312C3E36-B339-457B-9F57-9C659A9FA462",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "79275CEA-8180-4FDF-85A5-C6DCE60FB112",
+              "key" : "."
+            }
+          ]
+        },
+        "id" : "A6E47EA2-619D-4FD7-A672-B6DDB6457023",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "52AF4AD1-6AB1-4746-875F-AB9E946F7ADB",
+              "application" : {
+                "path" : "\/System\/Applications\/System Preferences.app",
+                "id" : "164188F3-712E-40D3-A6DB-01C32F299832",
+                "bundleIdentifier" : "com.apple.systempreferences",
+                "bundleName" : "System Preferences"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open System Preferences"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "733AEA68-1729-497A-9427-24B8DBB5A9DE",
+              "key" : "A",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "C2D029FF-0C56-4B66-B307-C6C833768E6A",
+              "key" : "S",
+              "modifiers" : [
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "0D807140-C961-49A5-834F-B46E24F95E03",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "84DF48D2-3610-40BB-AD1B-1010A55B9DCD",
+              "application" : {
+                "path" : "\/Applications\/Slack.app",
+                "id" : "0D743602-29B5-4CE8-8182-D8B16AC4A5C1",
+                "bundleIdentifier" : "com.tinyspeck.slackmacgap",
+                "bundleName" : "Slack"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Slack"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "6BEBD562-9CB7-4163-905D-2907324C0052",
+              "key" : "F",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "2F787201-10B8-4D31-9D8F-529A251CCCCF",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "ACF4DA3D-2E90-4F6F-8D95-CBA2690B7FBF",
+              "application" : {
+                "path" : "\/System\/Library\/CoreServices\/Finder.app",
+                "id" : "9FD26E1E-7784-4AC0-A684-201C941D3089",
+                "bundleIdentifier" : "com.apple.finder",
+                "bundleName" : "Finder"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Finder"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "78D70ACC-4CA0-496A-BAF8-A104257B74F1",
+              "key" : "S",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "9C22CD62-C642-4A96-858D-DF03ED050FAF",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "AF98EF56-E684-48E6-AD4B-A597E6D76711",
+              "application" : {
+                "path" : "\/Applications\/Safari.app",
+                "id" : "C2591B43-D9F5-42B2-86CE-43E6F5798248",
+                "bundleIdentifier" : "com.apple.Safari",
+                "bundleName" : "Safari"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Safari"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "91AE35B8-BB4A-4F94-824F-C491C4EF6A31",
+              "key" : "E",
+              "modifiers" : [
+                "^",
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "8CFD5B05-062E-4E28-A869-CE41066438CC",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "62112217-D9AB-4A96-BA31-CE7D7132C505",
+              "application" : {
+                "path" : "\/Applications\/Xcode.app",
+                "id" : "3C7296AB-82C6-4BCD-AB4F-B92AC5410686",
+                "bundleIdentifier" : "com.apple.dt.Xcode",
+                "bundleName" : "Xcode"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Xcode"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "AF6EAC24-F0B1-4229-93D5-826987D84729",
+              "key" : "G",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "6501C064-B672-4C13-AABB-F21CAB1C796D",
+              "key" : "R"
+            }
+          ]
+        },
+        "id" : "1B2C8533-5FFE-480C-9B8A-BC5020F31471",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "89986D76-8F72-4039-A340-FFAABFC3BD0E",
+              "application" : {
+                "path" : "\/System\/Applications\/News.app",
+                "id" : "BFB9D15A-3CE9-4EEC-8E1C-6E52F215EF00",
+                "bundleIdentifier" : "com.apple.news",
+                "bundleName" : "News"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open News"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "FE77DBB0-365F-4C2A-BD93-B458E06DC7BA",
+              "key" : "D",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "78C196B6-E0E5-450A-A9F3-EDC98DC0EABC",
+              "key" : "G",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "26FFE1E7-5651-4532-8D19-C700D79F4F73",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "5BC67330-FEA1-40E9-8F09-ADBD3DB968F7",
+              "application" : {
+                "path" : "\/Applications\/GitUp.app",
+                "id" : "BAB4749D-EC3B-42AC-AAA9-52C0DB754166",
+                "bundleIdentifier" : "co.gitup.mac",
+                "bundleName" : "GitUp"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open GitUp"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "0A8D36B8-50FA-43FF-97B2-252905576D5F",
+              "key" : "D",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "98E0AB1F-D965-4B61-8B3A-B7CB8470821A",
+              "key" : "A"
+            }
+          ]
+        },
+        "id" : "557C4F58-6922-4677-A058-CC4C682FE910",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "BA0AE0F1-1C06-4DA9-A931-0390E511F2CD",
+              "application" : {
+                "path" : "\/System\/Applications\/Utilities\/Activity Monitor.app",
+                "id" : "C0392E70-25B7-4E05-8B0C-C00DE36ABB34",
+                "bundleIdentifier" : "com.apple.ActivityMonitor",
+                "bundleName" : "Activity Monitor"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Activity Monitor"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "0373F796-D212-4E12-B006-29DA60BB9CFD",
+              "key" : "§",
+              "modifiers" : [
+                "^"
+              ]
+            }
+          ]
+        },
+        "id" : "D8736A17-EBF7-4414-B4F4-31C1BE27B2E7",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "CB84E56C-A9AD-442C-B7BB-5737B2837E10",
+              "application" : {
+                "path" : "\/System\/Applications\/Utilities\/Terminal.app",
+                "id" : "92EB4ACB-ECF4-44BE-9EDA-D9704D24F6B9",
+                "bundleIdentifier" : "com.apple.Terminal",
+                "bundleName" : "Terminal"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Terminal"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "CE579BCD-B607-4A17-85E2-2C98B309C973",
+              "key" : "G",
+              "modifiers" : [
+                "^",
+                "~"
+              ]
+            },
+            {
+              "id" : "7DBDC07D-38D8-4C70-B542-641B735F1E30",
+              "key" : "G"
+            }
+          ]
+        },
+        "id" : "001606E1-66FD-487F-A927-92ED6864FD2E",
+        "commands" : [
+          {
+            "openCommand" : {
+              "path" : "https:\/\/github.com\/",
+              "id" : "BF692E19-028E-4BFA-88A9-047F3C25D38C",
+              "application" : {
+                "path" : "\/Applications\/Safari.app",
+                "id" : "3CE99413-AFE3-462B-8EF1-5F25A5C2AFBE",
+                "bundleIdentifier" : "com.apple.Safari",
+                "bundleName" : "Safari"
+              },
+              "name" : ""
+            }
+          }
+        ],
+        "name" : "Open GitHub"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "9757F177-D249-48BD-A7A1-040694C3370A",
+              "key" : "a",
+              "modifiers" : [
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "5012006E-F504-4705-8CD0-992222768A3F",
+        "commands" : [
+          {
+            "keyboardCommand" : {
+              "id" : "1010290B-2A7D-4DEA-9F0C-DDD8571CB675",
+              "name" : "",
+              "keyboardShortcut" : {
+                "id" : "86561265-D925-4C74-BBE2-7CFCF45E5249",
+                "key" : "←"
+              }
+            }
+          }
+        ],
+        "name" : "Rebind ⌥a to ←"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "DE4E8414-1B86-4C57-BBCA-6D6936E4DCE3",
+              "key" : "w",
+              "modifiers" : [
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "317C9EE1-78BD-4D75-8454-9AECA0FC6BAF",
+        "commands" : [
+          {
+            "keyboardCommand" : {
+              "id" : "57C3D117-10C4-4011-A628-E5952C3B9F44",
+              "name" : "",
+              "keyboardShortcut" : {
+                "id" : "AF00F3ED-5818-4D17-93F8-92D90E9C2AE0",
+                "key" : "↑"
+              }
+            }
+          }
+        ],
+        "name" : "Rebind ⌥w to ↑"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "8985BC4E-1E39-4BF2-B5B9-676A91CF23B4",
+              "key" : "d",
+              "modifiers" : [
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "13ED7E8D-31CB-493A-82CA-AD74CBD1AB30",
+        "commands" : [
+          {
+            "keyboardCommand" : {
+              "id" : "1C6B0960-F43A-446B-9D33-C67A33EC8671",
+              "name" : "",
+              "keyboardShortcut" : {
+                "id" : "B296321A-A04C-4700-8754-CA1556DA443F",
+                "key" : "→"
+              }
+            }
+          }
+        ],
+        "name" : "Rebind ⌥d to →"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "A7E3AD43-ECB9-4C31-B61C-431F61A42D25",
+              "key" : "s",
+              "modifiers" : [
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "1ACDBA6B-9EA9-4D92-82EC-D81EAA692914",
+        "commands" : [
+          {
+            "keyboardCommand" : {
+              "id" : "89687E14-61BE-41F5-9FBE-821704D4E846",
+              "name" : "",
+              "keyboardShortcut" : {
+                "id" : "4B8CCCD4-8C49-44F3-BB6B-EEBBE4877D47",
+                "key" : "↓"
+              }
+            }
+          }
+        ],
+        "name" : "Rebind ⌥s to ↓"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "053644BB-C741-4529-AF82-FB12B2F95303",
+              "key" : "l",
+              "modifiers" : [
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "45401616-5F58-49B7-A571-D5E0B8D3030E",
+        "commands" : [
+          {
+            "keyboardCommand" : {
+              "id" : "2E949540-F883-4FCF-B899-B4658CAE8202",
+              "name" : "",
+              "keyboardShortcut" : {
+                "id" : "F838CA61-864E-45F9-9FC3-DFC97F14D15D",
+                "key" : "←"
+              }
+            }
+          }
+        ],
+        "name" : "Rebind ⌥l to ←"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "6525C5F2-3FCB-4C4C-99CB-B687C2676A04",
+              "key" : "p",
+              "modifiers" : [
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "82AF3359-CE4B-4328-A81F-932C35E929C8",
+        "commands" : [
+          {
+            "keyboardCommand" : {
+              "id" : "41397BA8-4766-492B-949F-FAB4F3C103C7",
+              "name" : "",
+              "keyboardShortcut" : {
+                "id" : "936B9DAF-17DC-43C6-9E09-E323BC29AC1C",
+                "key" : "↑"
+              }
+            }
+          }
+        ],
+        "name" : "Rebind ⌥p to ↑"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "1371B765-80AE-4E9B-AD2E-E42C91A8F1AF",
+              "key" : "ä",
+              "modifiers" : [
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "AD44B773-4DD5-4B69-98DB-37A7AE1772B7",
+        "commands" : [
+          {
+            "keyboardCommand" : {
+              "id" : "E5C1FDF6-7672-4B8E-B1E9-555BEB95D978",
+              "name" : "",
+              "keyboardShortcut" : {
+                "id" : "E7A37AAA-AE5A-4748-8852-7E0E7E7BE002",
+                "key" : "→"
+              }
+            }
+          }
+        ],
+        "name" : "Rebind ⌥ä to →"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "8BA454B8-401C-4256-86E6-A7883A656D18",
+              "key" : "ö",
+              "modifiers" : [
+                "~"
+              ]
+            }
+          ]
+        },
+        "id" : "DF33C7DA-E8DB-4782-976F-7229E92600E7",
+        "commands" : [
+          {
+            "keyboardCommand" : {
+              "id" : "7A654F22-B574-4A48-87A7-9E1C136D9CB4",
+              "name" : "",
+              "keyboardShortcut" : {
+                "id" : "60FF11B5-DBDD-416E-A96F-58B71F72F774",
+                "key" : "↓"
+              }
+            }
+          }
+        ],
+        "name" : "Rebind ⌥ö to ↓"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "881E314B-FC32-41D8-8A33-D00C7E26E681",
+              "key" : "0",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "67B16B3C-CC05-4E93-970C-C20E0191CFD0",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "~\/iCloud\/Keyboard Cowboy\/Open Control Center.scpt"
+              },
+              "id" : "425940BF-35F4-4587-B711-520BA886C173"
+            }
+          }
+        ],
+        "name" : "Open Control Center"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "5FEEEB62-1566-4E1E-A564-34DCB0B7B87D",
+              "key" : "0",
+              "modifiers" : [
+                "^",
+                "~",
+                "@"
+              ]
+            }
+          ]
+        },
+        "id" : "EB1933FB-2105-462B-98E2-09336F21E42F",
+        "commands" : [
+          {
+            "scriptCommand" : {
+              "appleScript" : {
+                "path" : "\/Users\/christofferwinterkvist\/Library\/Mobile Documents\/com~apple~CloudDocs\/Keyboard Cowboy\/Toggle System Menubar.scpt"
+              },
+              "id" : "BFCC6409-29C3-46BA-9FF3-3812C468B7A2"
+            }
+          }
+        ],
+        "name" : "Toggle System Menubar"
+      }
+    ],
+    "color" : "#B263EA"
+  },
+  {
+    "id" : "B10568D8-7257-4395-8FD9-352EB9231A74",
+    "symbol" : "tag",
+    "name" : "Web pages",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "A66419AA-5F5F-414B-A328-46543A9B9EA1",
+              "key" : "Y",
+              "modifiers" : [
+                "~",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "98243681-60AA-455B-A468-320565695823",
+        "commands" : [
+          {
+            "openCommand" : {
+              "id" : "34650CD7-C4CB-4036-8D20-EA83C8971597",
+              "name" : "",
+              "path" : "https:\/\/www.youtube.com"
+            }
+          }
+        ],
+        "name" : "Open YouTube"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "651F9272-7F30-46EE-80B4-40FB27E5C5C6",
+              "key" : "I",
+              "modifiers" : [
+                "~",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "DCB8EBAA-FA43-4072-BC36-45F05B5197E4",
+        "commands" : [
+          {
+            "openCommand" : {
+              "id" : "051C7D0F-7A55-4869-8E4F-E5739008117F",
+              "name" : "",
+              "path" : "https:\/\/www.imdb.com"
+            }
+          }
+        ],
+        "name" : "Open IMDb"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "55300719-E9DC-4332-B7F7-55280E9084CB",
+              "key" : "G",
+              "modifiers" : [
+                "~",
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "E0CA6A84-1BBF-46E7-A81B-C41377FAEC55",
+        "commands" : [
+          {
+            "openCommand" : {
+              "id" : "BCB0FB91-C927-4193-9666-2664DDB6C03D",
+              "name" : "",
+              "path" : "https:\/\/github.com"
+            }
+          }
+        ],
+        "name" : "Open GitHub"
+      }
+    ],
+    "color" : "#5D5FDE"
+  },
+  {
+    "id" : "1866BFB8-8421-4AF5-A265-74C3B8722167",
+    "symbol" : "sparkles",
+    "name" : "Development",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "209F6D06-31D9-4484-9F38-40C697579193",
+              "key" : "W",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "8E2205AF-EA30-42FE-A14C-57DA5568C619",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "A346F3C1-BDBF-4D5B-8F67-71C549575707",
+              "application" : {
+                "path" : "\/System\/Applications\/Utilities\/Terminal.app",
+                "id" : "92EB4ACB-ECF4-44BE-9EDA-D9704D24F6B9",
+                "bundleIdentifier" : "com.apple.Terminal",
+                "bundleName" : "Terminal"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "This works!"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "30DD1CF1-FE29-43FD-AF55-CAD5289C353E",
+              "key" : "Z",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "44D039E0-6774-4A97-9971-48286F7209F5",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "8537608E-A729-4921-9755-13DE1C945B6A",
+              "application" : {
+                "path" : "\/Applications\/Xcode.app\/Contents\/Applications\/Instruments.app",
+                "id" : "052CEBB8-454D-4FBB-9337-5FCBF5E59740",
+                "bundleIdentifier" : "com.apple.dt.Instruments",
+                "bundleName" : "Instruments"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Instruments"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "5A8EFD44-215B-4FC6-A315-BC680ACFCB22",
+              "key" : "X",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "0007DC05-959D-4A02-A076-B58C2C565C33",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "B26AB053-9B07-4285-8803-A936A73434AA",
+              "application" : {
+                "path" : "\/Applications\/Xcode.app\/Contents\/Developer\/Applications\/Simulator.app",
+                "id" : "3C7296AB-82C6-4BCD-AB4F-B92AC5410687",
+                "bundleIdentifier" : "com.apple.iphonesimulator",
+                "bundleName" : "Simulator"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Simulator"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "3D32408D-1B80-45AB-B7A7-EBAA6348109B",
+              "key" : "E",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "5C26AED4-BE2A-4A02-9B65-6D6D156EAEAE",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "4B042CE5-DBF8-4B6D-AD4D-46948C5FCE2D",
+              "application" : {
+                "path" : "\/Applications\/Xcode.app",
+                "id" : "ED75837F-947B-4C31-A753-4023072A0DC6",
+                "bundleIdentifier" : "com.apple.dt.Xcode",
+                "bundleName" : "Xcode"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Xcode"
+      },
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+            {
+              "id" : "1207A8E2-97DB-47BD-9B2C-EAF596FBBF38",
+              "key" : "Q",
+              "modifiers" : [
+                "fn"
+              ]
+            }
+          ]
+        },
+        "id" : "CC9E44C8-EA44-409C-8530-A9AE1BD0270D",
+        "commands" : [
+          {
+            "applicationCommand" : {
+              "id" : "87778401-0E68-4EC8-B6C0-BAFB1247945F",
+              "application" : {
+                "path" : "\/Applications\/GitUp.app",
+                "id" : "6EEEDFE6-4E07-4AD8-8D4E-67773B4793AD",
+                "bundleIdentifier" : "co.gitup.mac",
+                "bundleName" : "GitUp"
+              },
+              "name" : "",
+              "modifiers" : [
+
+              ],
+              "action" : "open"
+            }
+          }
+        ],
+        "name" : "Open Git client"
+      },
+      {
+        "id" : "3FF2E387-3D0E-4BEF-BFA7-18BBC0A6213A",
+        "name" : "Testing",
+        "commands" : [
+          {
+            "openCommand" : {
+              "path" : "http:\/\/www.github.com\/zenangst",
+              "id" : "89D29927-F760-4D64-8D92-B2A5366F9B7F",
+              "application" : {
+                "path" : "\/Applications\/Safari.app",
+                "id" : "BD5A7364-F06C-4F81-A0AF-A85ED5B262A1",
+                "bundleIdentifier" : "com.apple.Safari",
+                "bundleName" : "Safari"
+              },
+              "name" : "YEAH!"
+            }
+          }
+        ]
+      }
+    ],
+    "color" : "#98989D"
+  },
+  {
+    "id" : "8A2BA547-D419-4E81-AE46-CC1F4676C5B3",
+    "symbol" : "folder",
+    "name" : "Folders",
+    "workflows" : [
+      {
+        "trigger" : {
+          "keyboardShortcuts" : [
+
+          ]
+        },
+        "id" : "AD5AF297-F381-43C3-B01D-E05AD796D941",
+        "commands" : [
+          {
+            "openCommand" : {
+              "id" : "51E19F1E-C0B2-45A5-909C-F057361F90F5",
+              "name" : "Open Applications",
+              "path" : "\/Applications"
+            }
+          }
+        ],
+        "name" : "Open Applications"
+      }
+    ],
+    "color" : "#000"
+  }
+]
