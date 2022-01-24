@@ -5,7 +5,10 @@ let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PR
 
 @MainActor
 final class Saloon: ObservableObject {
+  @Published var preferences: AppPreferences
+
   private let storage: Storage
+
   private(set) var groupStore = WorkflowGroupStore()
   @Published var selectedGroups = [WorkflowGroup]()
   @Published var selectedWorkflows = [Workflow]()
@@ -13,9 +16,13 @@ final class Saloon: ObservableObject {
   @AppStorage("selectedGroupIds") private var initialSelectedGroups = [String]()
   @AppStorage("selectedWorkflowIds") private var initialSelectedWorkflows = [String]()
 
-  init() {
-    self.storage = Storage(path: "~/Developer/KC", fileName: "dummyData.json")
+  init(_ preferences: AppPreferences = .designTime()) {
+    self.preferences = preferences
+    self.storage = Storage(preferences.storageConfiguration)
     Task {
+      if preferences.hideAppOnLaunch {
+        NSApp.hide(self)
+      }
       self.groupStore.groups = try await storage.load()
       initialSelection()
     }

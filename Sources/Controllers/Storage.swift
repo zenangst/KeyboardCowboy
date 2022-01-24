@@ -6,16 +6,15 @@ enum StorageError: Error {
 }
 
 final class Storage {
-  var path: String
-  var fileName: String
+  var configuration: StorageConfiguration
 
-  init(path: String, fileName: String) {
-    self.path = (path as NSString).expandingTildeInPath
-    self.fileName = fileName
+  internal init(_ configuration: StorageConfiguration) {
+    self.configuration = configuration
   }
 
   func load() async throws -> [WorkflowGroup] {
-    let fileUrl = URL(fileURLWithPath: path).appendingPathComponent(fileName)
+    let fileUrl = URL(fileURLWithPath: configuration.path)
+      .appendingPathComponent(configuration.filename)
     let decoder = JSONDecoder()
     let fileManager = FileManager()
 
