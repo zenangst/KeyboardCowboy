@@ -26,9 +26,9 @@ struct ContentView: View {
           selectedGroups = store.groupStore.groups.filter({ groupIds.contains($0.id) })
           if let firstGroup = selectedGroups.first,
              let firstWorkflow = firstGroup.workflows.first {
-            selectedWorkflows = [firstWorkflow]
+            workflowIds = [firstWorkflow.id]
           } else {
-            selectedWorkflows = []
+            workflowIds = []
           }
         }
 
