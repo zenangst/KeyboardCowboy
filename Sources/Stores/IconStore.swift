@@ -1,7 +1,7 @@
 import Cocoa
 import SwiftUI
 
-class IconStore: ObservableObject {
+final class IconStore: ObservableObject {
   @Published public private(set) var image: Image?
 
   func load(_ path: String) {

@@ -5,7 +5,9 @@ struct WorkflowGroupListView: View {
     case edit(WorkflowGroup)
     case delete(WorkflowGroup)
   }
-  @ObservedObject var store: WorkflowGroupStore
+
+  @ObservedObject var appStore: ApplicationStore
+  @ObservedObject var groupStore: WorkflowGroupStore
   @Binding var selection: Set<String>
 
   let action: (Action) -> Void
@@ -15,24 +17,21 @@ struct WorkflowGroupListView: View {
       Label("Groups", image: "")
         .labelStyle(HeaderLabelStyle())
         .padding(.leading)
-      List(store.groups, selection: $selection) { group in
-        WorkflowGroupView(group: group)
-          .contextMenu { contextMenu(group) }
+      List(groupStore.groups, selection: $selection) { group in
+        WorkflowGroupView(applicationStore: appStore,
+                          group: Binding<WorkflowGroup>(get: { group }, set: { _ in }))
+          .contextMenu { contextMenuView(group) }
           .id(group.id)
       }
       .listStyle(SidebarListStyle())
     }
   }
 
-  func contextMenu(_ group: WorkflowGroup) -> some View {
+  func contextMenuView(_ group: WorkflowGroup) -> some View {
     VStack {
-      Button("Info", action: {
-        action(.edit(group))
-      })
+      Button("Info", action: { action(.edit(group)) })
       Divider()
-      Button("Delete", action: {
-        action(.delete(group))
-      })
+      Button("Delete", action: { action(.delete(group)) })
     }
   }
 }
@@ -40,7 +39,8 @@ struct WorkflowGroupListView: View {
 struct WorkflowGroupListView_Previews: PreviewProvider {
   static let store = Saloon()
   static var previews: some View {
-    WorkflowGroupListView(store: store.groupStore,
+    WorkflowGroupListView(appStore: ApplicationStore(),
+                          groupStore: store.groupStore,
                           selection: .constant([]),
                           action: { _ in })
   }

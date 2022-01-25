@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import SwiftUI
 
@@ -8,7 +9,9 @@ final class Saloon: ObservableObject {
   @Published var preferences: AppPreferences
 
   private let storage: Storage
+  private var subscription: AnyCancellable?
 
+  private(set) var applicationStore = ApplicationStore()
   private(set) var groupStore = WorkflowGroupStore()
   @Published var selectedGroups = [WorkflowGroup]()
   @Published var selectedWorkflows = [Workflow]()
@@ -25,24 +28,23 @@ final class Saloon: ObservableObject {
       }
       self.groupStore.groups = try await storage.load()
       self.storage.subscribe(to: self.groupStore.$groups)
-      initialSelection()
+      self.subscribe(to: self.groupStore.$groups)
     }
   }
 
-  func receive(_ newWorkflows: [Workflow]) {
-    groupStore.receive(newWorkflows)
-    initialSelection()
-  }
-
-  /// Configure the initial selection on start
-  private func initialSelection() {
-    selectedGroups = groupStore.groups.filter({
-      initialSelectedGroups.contains($0.id)
-    })
-    selectedWorkflows = selectedGroups
-        .flatMap({ $0.workflows })
-        .filter({
-          initialSelectedWorkflows.contains($0.id)
+  func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
+    subscription = publisher
+      .throttle(for: 0.1, scheduler: RunLoop.main, latest: true)
+      .sink { [weak self] groups in
+        guard let self = self else { return }
+        self.selectedGroups = groups.filter({
+          self.initialSelectedGroups.contains($0.id)
         })
+        self.selectedWorkflows = self.selectedGroups
+          .flatMap({ $0.workflows })
+          .filter({
+            self.initialSelectedWorkflows.contains($0.id)
+          })
+    }
   }
 }

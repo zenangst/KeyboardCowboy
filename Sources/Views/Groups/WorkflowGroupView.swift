@@ -1,37 +1,38 @@
+import Apps
 import SwiftUI
 
 struct WorkflowGroupView: View {
-  @State var group: WorkflowGroup
+  @ObservedObject var applicationStore: ApplicationStore
+  @Binding var group: WorkflowGroup
 
   var body: some View {
     HStack {
-      Rectangle()
-        .fill(Color(hex: group.color))
-        .overlay(overlay)
-        .clipped(antialiased: true)
-        .cornerRadius(24, antialiased: true)
-        .frame(width: 24, height: 24, alignment: .center)
-        .shadow(
-          color: Color(.sRGBLinear, white: 0, opacity: 0.2),
-          radius: 1,
-          y: 1)
+      icon
+        .frame(width: 24, height: 24)
       Text(group.name)
+      Spacer()
+      Text("\(group.workflows.count)")
+        .font(.callout)
     }
   }
 
   @ViewBuilder
-  var overlay: some View {
-    Image(systemName: group.symbol)
-      .resizable()
-      .renderingMode(.template)
-      .aspectRatio(contentMode: .fill)
-      .foregroundColor(.white)
-      .frame(width: 12, height: 12, alignment: .center)
+  var icon: some View {
+    if let rule = group.rule,
+       let bundleIdentifier = rule.bundleIdentifiers.first,
+       let application = applicationStore.dictionary[bundleIdentifier] {
+      IconView(path: application.path)
+        .frame(width: 30, height: 30)
+        .mask(Circle().frame(width: 24, height: 24))
+    } else {
+      WorkflowGroupIconView(group: group, size: 24)
+    }
   }
 }
 
 struct WorkflowGroupView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowGroupView(group: WorkflowGroup.designTime())
+    WorkflowGroupView(applicationStore: ApplicationStore(),
+                      group: .constant(WorkflowGroup.designTime()))
   }
 }

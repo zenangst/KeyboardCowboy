@@ -2,8 +2,9 @@ import SwiftUI
 
 struct ContentView: View {
   @StateObject var store: Saloon
-  @Binding var selectedGroups: [WorkflowGroup]
-  @Binding var selectedWorkflows: [Workflow]
+
+  @Binding private var selectedGroups: [WorkflowGroup]
+  @Binding private var selectedWorkflows: [Workflow]
 
   @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
   @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
@@ -18,13 +19,26 @@ struct ContentView: View {
 
   var body: some View {
     NavigationView {
-      SidebarView(store: store.groupStore,
-                  selection: $groupIds)
-        .toolbar(content: { SidebarToolbar() })
+      SidebarView(
+        appStore: store.applicationStore,
+        groupStore: store.groupStore,
+        selection: $groupIds)
+        .toolbar(content: {
+          SidebarToolbar { action in
+            switch action {
+            case .addGroup:
+              store.groupStore.add(WorkflowGroup.empty())
+            case .toggleSidebar:
+              NSApp.keyWindow?.firstResponder?.tryToPerform(
+                #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
+            }
+          }
+        })
         .frame(minWidth: 200)
+        // Handle group id updates.
         .onChange(of: groupIds) { groupIds in
-          selectedGroups = store.groupStore.groups.filter({ groupIds.contains($0.id) })
-          if let firstGroup = selectedGroups.first,
+          store.selectedGroups = store.groupStore.groups.filter({ groupIds.contains($0.id) })
+          if let firstGroup = store.selectedGroups.first,
              let firstWorkflow = firstGroup.workflows.first {
             workflowIds = [firstWorkflow.id]
           } else {
@@ -32,20 +46,40 @@ struct ContentView: View {
           }
         }
 
-      MainView(workflowGroups: $selectedGroups,
-               selection: $workflowIds)
-        .toolbar(content: { MainViewToolbar() })
-        .frame(minWidth: 240)
+      MainView(
+        action: { action in
+          switch action {
+          case .add:
+            break
+          case .delete(let workflow):
+            store.groupStore.remove(workflow)
+          }
+        },
+        groups: $store.selectedGroups,
+        selection: $workflowIds)
+        .toolbar(content: {
+          MainViewToolbar { action in
+            switch action {
+            case .add:
+              let workflow = Workflow.empty()
+              store.groupStore.add(workflow)
+            }
+          }
+        })
+        // Handle selection updates on workflows
         .onChange(of: workflowIds) { workflowIds in
-          selectedWorkflows = selectedGroups
+          store.selectedWorkflows = store.selectedGroups
             .flatMap({ $0.workflows })
             .filter({ workflowIds.contains($0.id) })
         }
 
-      DetailView(workflows: $selectedWorkflows)
+      DetailView(workflows: $store.selectedWorkflows)
         .toolbar(content: { DetailToolbar() })
+        // Handle workflow updates
         .onChange(of: selectedWorkflows,
-                  perform: { store.receive($0) })
+                  perform: { foo in
+          store.groupStore.receive(foo)
+        })
     }
   }
 }

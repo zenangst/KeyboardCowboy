@@ -1,0 +1,26 @@
+import Apps
+import Combine
+import Foundation
+
+final class ApplicationStore: ObservableObject {
+  @Published private(set) var applications = [Application]()
+  @Published private(set) var dictionary = [String: Application]()
+  var subscription: AnyCancellable?
+
+  init() {
+    reload()
+  }
+
+  func reload() {
+    subscription = ApplicationController.asyncLoadApplications()
+      .sink { [weak self] applications in
+        self?.applications = applications
+        var applicationDictionary = [String: Application]()
+        for application in applications {
+          applicationDictionary[application.bundleIdentifier] = application
+        }
+        self?.dictionary = applicationDictionary
+        self?.subscription = nil
+      }
+  }
+}
