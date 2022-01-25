@@ -16,8 +16,8 @@ final class Saloon: ObservableObject {
   @Published var selectedGroups = [WorkflowGroup]()
   @Published var selectedWorkflows = [Workflow]()
 
-  @AppStorage("selectedGroupIds") private var initialSelectedGroups = [String]()
-  @AppStorage("selectedWorkflowIds") private var initialSelectedWorkflows = [String]()
+  @AppStorage("selectedGroupIds") var selectedGroupIds = [String]()
+  @AppStorage("selectedWorkflowIds") var selectedWorkflowIds = [String]()
 
   init(_ preferences: AppPreferences = .designTime()) {
     self.preferences = preferences
@@ -38,12 +38,12 @@ final class Saloon: ObservableObject {
       .sink { [weak self] groups in
         guard let self = self else { return }
         self.selectedGroups = groups.filter({
-          self.initialSelectedGroups.contains($0.id)
+          self.selectedGroupIds.contains($0.id)
         })
         self.selectedWorkflows = self.selectedGroups
           .flatMap({ $0.workflows })
           .filter({
-            self.initialSelectedWorkflows.contains($0.id)
+            self.selectedWorkflowIds.contains($0.id)
           })
     }
   }

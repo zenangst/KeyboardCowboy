@@ -27,7 +27,9 @@ struct ContentView: View {
           SidebarToolbar { action in
             switch action {
             case .addGroup:
-              store.groupStore.add(WorkflowGroup.empty())
+              let group = WorkflowGroup.empty()
+              store.groupStore.add(group)
+              groupIds = [group.id]
             case .toggleSidebar:
               NSApp.keyWindow?.firstResponder?.tryToPerform(
                 #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
@@ -37,7 +39,9 @@ struct ContentView: View {
         .frame(minWidth: 200)
         // Handle group id updates.
         .onChange(of: groupIds) { groupIds in
+          store.selectedGroupIds = Array(groupIds)
           store.selectedGroups = store.groupStore.groups.filter({ groupIds.contains($0.id) })
+          store.groupStore.selectedGroupIds = Array(groupIds)
           if let firstGroup = store.selectedGroups.first,
              let firstWorkflow = firstGroup.workflows.first {
             workflowIds = [firstWorkflow.id]

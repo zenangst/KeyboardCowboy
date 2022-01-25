@@ -30,8 +30,10 @@ struct WorkflowGroupListView: View {
   func contextMenuView(_ group: WorkflowGroup) -> some View {
     VStack {
       Button("Info", action: { action(.edit(group)) })
+        .keyboardShortcut(.init("I"))
       Divider()
       Button("Delete", action: { action(.delete(group)) })
+        .keyboardShortcut(.init(.delete, modifiers: []))
     }
   }
 }

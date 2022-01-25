@@ -2,9 +2,8 @@ import SwiftUI
 
 final class WorkflowGroupStore: ObservableObject {
   @Published var groups = [WorkflowGroup]()
-  @Published var selectedGroups = [WorkflowGroup]()
 
-  @AppStorage("selectedGroupIds") private var selectedGroupIds = [String]()
+  @AppStorage("selectedGroupIds") var selectedGroupIds = [String]()
 
   init(_ groups: [WorkflowGroup] = []) {
     _groups = .init(initialValue: groups)
