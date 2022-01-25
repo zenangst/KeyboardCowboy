@@ -1,4 +1,5 @@
 import Apps
+import Combine
 import Foundation
 
 enum StorageError: Error {
@@ -13,6 +14,8 @@ final class Storage {
   private let decoder: JSONDecoder
   private let fileManager: FileManager
 
+  private var subscription: AnyCancellable?
+
   internal init(_ configuration: StorageConfiguration,
                 decoder: JSONDecoder = .init(),
                 encoder: JSONEncoder = .init(),
@@ -22,6 +25,14 @@ final class Storage {
     self.encoder = encoder
     self.decoder = decoder
     self.fileManager = fileManager
+  }
+
+  func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
+    subscription = publisher
+      .dropFirst()
+      .sink { [weak self] groups in
+      try? self?.save(groups)
+    }
   }
 
   func load() async throws -> [WorkflowGroup] {

@@ -24,38 +24,14 @@ final class Saloon: ObservableObject {
         NSApp.hide(self)
       }
       self.groupStore.groups = try await storage.load()
+      self.storage.subscribe(to: self.groupStore.$groups)
       initialSelection()
     }
   }
 
   func receive(_ newWorkflows: [Workflow]) {
-    var groups = [WorkflowGroup]()
-    for newWorkflow in newWorkflows {
-      guard let group = groupStore.groups.first(where: { group in
-        let workflowIds = group.workflows.compactMap({ $0.id })
-        return workflowIds.contains(newWorkflow.id)
-      })
-      else { continue }
-
-      groups.append(group)
-
-      guard let groupIndex = groupStore.groups.firstIndex(of: group)
-      else { continue }
-
-      guard let workflowIndex = group.workflows.firstIndex(where: { $0.id == newWorkflow.id })
-      else { continue }
-
-      let oldWorkflow = groupStore.groups[groupIndex].workflows[workflowIndex]
-      if oldWorkflow == newWorkflow {
-        continue
-      }
-
-      groupStore.groups[groupIndex].workflows[workflowIndex] = newWorkflow
-    }
-
+    groupStore.receive(newWorkflows)
     initialSelection()
-
-    try? storage.save(groupStore.groups)
   }
 
   /// Configure the initial selection on start

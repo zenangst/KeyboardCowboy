@@ -5,7 +5,16 @@ struct SidebarView: View {
   @Binding var selection: Set<String>
 
   var body: some View {
-    WorkflowGroupListView(store: store, selection: $selection)
+    WorkflowGroupListView(store: store,
+                          selection: $selection,
+                          action: { action in
+      switch action {
+      case .edit:
+        break
+      case .delete(let group):
+        store.remove(group)
+      }
+    })
   }
 }
 
