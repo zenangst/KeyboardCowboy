@@ -27,7 +27,6 @@ struct WorkflowShortcutsView: View {
           Button("Keyboard Shortcut", action: {})
         }
       }
-      Divider().padding(.bottom)
     }
     .labelStyle(HeaderLabelStyle())
   }

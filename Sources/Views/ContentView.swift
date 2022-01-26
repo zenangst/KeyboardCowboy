@@ -70,6 +70,7 @@ struct ContentView: View {
             }
           }
         })
+        .frame(minWidth: 240)
         // Handle selection updates on workflows
         .onChange(of: workflowIds) { workflowIds in
           store.selectedWorkflows = store.selectedGroups
@@ -78,13 +79,20 @@ struct ContentView: View {
         }
 
       DetailView(workflows: $store.selectedWorkflows)
-        .toolbar(content: { DetailToolbar() })
+        .toolbar(content: { DetailToolbar { action in
+          switch action {
+          case .addCommand:
+            guard !selectedWorkflows.isEmpty else { return }
+            selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A")))) 
+          }
+        }})
         // Handle workflow updates
         .onChange(of: selectedWorkflows,
                   perform: { foo in
           store.groupStore.receive(foo)
         })
-    }
+        .frame(minWidth: 360, minHeight: 400)
+    }.searchable(text: .constant(""))
   }
 }
 

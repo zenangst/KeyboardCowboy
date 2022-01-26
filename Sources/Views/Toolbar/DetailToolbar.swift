@@ -1,12 +1,17 @@
 import SwiftUI
 
 struct DetailToolbar: ToolbarContent {
+  enum Action {
+    case addCommand
+  }
+
+  var action: (Action) -> Void
+
   var body: some ToolbarContent {
     ToolbarItemGroup(placement: .primaryAction) {
-      Spacer()
-      Button(action: { },
+      Button(action: { action(.addCommand) },
              label: {
-        Image(systemName: "rectangle.stack.badge.plus")
+        Image(systemName: "plus.square.dashed")
           .renderingMode(.template)
           .foregroundColor(Color(.systemGray))
       })

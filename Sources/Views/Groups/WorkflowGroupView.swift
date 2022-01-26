@@ -12,6 +12,7 @@ struct WorkflowGroupView: View {
       Text(group.name)
       Spacer()
       Text("\(group.workflows.count)")
+        .foregroundColor(.secondary)
         .font(.callout)
     }
   }
