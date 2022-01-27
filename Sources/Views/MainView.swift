@@ -28,7 +28,7 @@ struct MainView: View {
             self.action(.delete(workflow))
           }
         })
-          .navigationTitle(group.name.wrappedValue)
+          .navigationTitle(store.navigationTitle)
           .navigationSubtitle("Workflows")
       }
     }
