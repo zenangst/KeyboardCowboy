@@ -76,12 +76,16 @@ struct WorkflowRowView: View, Equatable {
   }
 
   static func == (lhs: WorkflowRowView, rhs: WorkflowRowView) -> Bool {
-    lhs.workflow == rhs.workflow
+    lhs.workflow.id == rhs.workflow.id &&
+    lhs.workflow.isEnabled == rhs.workflow.isEnabled &&
+    lhs.workflow.name == rhs.workflow.name &&
+    lhs.workflow.trigger == rhs.workflow.trigger &&
+    lhs.workflow.commands == rhs.workflow.commands
   }
 }
 
-//struct WorkflowRowView_Previews: PreviewProvider {
-//    static var previews: some View {
-//      WorkflowRowView(workflow: .constant(Workflow.designTime(.none)))
-//    }
-//}
+struct WorkflowRowView_Previews: PreviewProvider {
+    static var previews: some View {
+      WorkflowRowView(workflow: .constant(Workflow.designTime(.none)))
+    }
+}

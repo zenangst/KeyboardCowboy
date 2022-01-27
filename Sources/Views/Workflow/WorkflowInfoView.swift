@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WorkflowInfoView: View {
+struct WorkflowInfoView: View, Equatable {
   @Binding var workflow: Workflow
 
   var body: some View {
@@ -12,6 +12,11 @@ struct WorkflowInfoView: View {
         .toggleStyle(SwitchToggleStyle())
         .font(.callout)
     }
+  }
+
+  static func == (lhs: WorkflowInfoView, rhs: WorkflowInfoView) -> Bool {
+    lhs.workflow.name == rhs.workflow.name &&
+    lhs.workflow.isEnabled == rhs.workflow.isEnabled
   }
 }
 

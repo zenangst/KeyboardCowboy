@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct KeyShortcutsListView: View {
+struct KeyShortcutsListView: View, Equatable {
   @State var keyboardShortcuts: [KeyShortcut]
 
   var body: some View {
@@ -59,6 +59,10 @@ struct KeyShortcutsListView: View {
       }
     }
     .padding(2)
+  }
+
+  static func == (lhs: KeyShortcutsListView, rhs: KeyShortcutsListView) -> Bool {
+    lhs.keyboardShortcuts == rhs.keyboardShortcuts
   }
 }
 

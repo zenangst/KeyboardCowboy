@@ -1,7 +1,7 @@
 import Apps
 import SwiftUI
 
-struct WorkflowView: View {
+struct WorkflowView: View, Equatable {
   @Binding var workflow: Workflow
 
   var body: some View {
@@ -32,6 +32,10 @@ struct WorkflowView: View {
         ]),
       startPoint: .top,
       endPoint: .bottom)
+  }
+
+  static func == (lhs: WorkflowView, rhs: WorkflowView) -> Bool {
+    lhs.workflow == rhs.workflow
   }
 }
 

@@ -1,7 +1,7 @@
 import Apps
 import SwiftUI
 
-struct WorkflowShortcutsView: View {
+struct WorkflowShortcutsView: View, Equatable {
   @Binding var workflow: Workflow
   var body: some View {
     VStack(alignment: .leading) {
@@ -37,6 +37,10 @@ struct WorkflowShortcutsView: View {
     Button(action: { },
            label: { Image(systemName: "xmark.circle") })
     .buttonStyle(PlainButtonStyle())
+  }
+
+  static func == (lhs: WorkflowShortcutsView, rhs: WorkflowShortcutsView) -> Bool {
+    lhs.workflow.trigger == rhs.workflow.trigger
   }
 }
 

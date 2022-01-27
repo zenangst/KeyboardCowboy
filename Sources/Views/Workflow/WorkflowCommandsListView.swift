@@ -1,7 +1,7 @@
 import Apps
 import SwiftUI
 
-struct WorkflowCommandsListView: View {
+struct WorkflowCommandsListView: View, Equatable {
   @Binding var workflow: Workflow
 
   var body: some View {
@@ -11,8 +11,14 @@ struct WorkflowCommandsListView: View {
           .labelStyle(HeaderLabelStyle())
         Spacer()
       }
-      ForEach($workflow.commands, content: { CommandView(command: $0) })
+      ForEach($workflow.commands, content: {
+        CommandView(command: $0)
+      })
     }
+  }
+
+  static func == (lhs: WorkflowCommandsListView, rhs: WorkflowCommandsListView) -> Bool {
+    lhs.workflow.commands == rhs.workflow.commands
   }
 }
 

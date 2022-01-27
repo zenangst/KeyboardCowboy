@@ -1,7 +1,7 @@
 import Apps
 import SwiftUI
 
-struct WorkflowGroupView: View {
+struct WorkflowGroupView: View, Equatable {
   @ObservedObject var applicationStore: ApplicationStore
   @Binding var group: WorkflowGroup
 
@@ -28,6 +28,12 @@ struct WorkflowGroupView: View {
     } else {
       WorkflowGroupIconView(group: group, size: 24)
     }
+  }
+
+  static func == (lhs: WorkflowGroupView, rhs: WorkflowGroupView) -> Bool {
+    lhs.group.name == rhs.group.name &&
+    lhs.group.rule == rhs.group.rule &&
+    lhs.group.workflows.count == rhs.group.workflows.count
   }
 }
 

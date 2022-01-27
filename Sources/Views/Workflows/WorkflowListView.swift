@@ -1,7 +1,7 @@
 import Apps
 import SwiftUI
 
-struct WorkflowListView: View {
+struct WorkflowListView: View, Equatable {
   enum Action {
     case delete(Workflow)
   }
@@ -17,9 +17,6 @@ struct WorkflowListView: View {
           .contextMenu { contextMenuView(workflow) }
           .id(workflow.id)
       }
-      .onChange(of: selection, perform: { selection in
-        proxy.scrollTo(selection.first)
-      })
       .onAppear(perform: {
         proxy.scrollTo(selection.first)
       })
@@ -31,6 +28,10 @@ struct WorkflowListView: View {
     VStack {
       Button("Delete", action: { action(.delete(workflow.wrappedValue)) })
     }
+  }
+
+  static func == (lhs: WorkflowListView, rhs: WorkflowListView) -> Bool {
+    lhs.workflows == rhs.workflows
   }
 }
 

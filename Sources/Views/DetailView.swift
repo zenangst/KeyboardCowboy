@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct DetailView: View {
+struct DetailView: View, Equatable {
   @Binding var workflows: [Workflow]
 
   var body: some View {
@@ -9,6 +9,10 @@ struct DetailView: View {
     } else {
       ForEach($workflows, content: WorkflowView.init)
     }
+  }
+
+  static func == (lhs: DetailView, rhs: DetailView) -> Bool {
+    lhs.workflows == rhs.workflows
   }
 }
 
