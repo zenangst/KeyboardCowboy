@@ -12,15 +12,18 @@ final class ApplicationStore: ObservableObject {
   }
 
   func reload() {
-    subscription = ApplicationController.asyncLoadApplications()
-      .sink { [weak self] applications in
-        self?.applications = applications
-        var applicationDictionary = [String: Application]()
-        for application in applications {
-          applicationDictionary[application.bundleIdentifier] = application
+    Task.detached(priority: .userInitiated) {
+      self.subscription = ApplicationController.asyncLoadApplications()
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] applications in
+          self?.applications = applications
+          var applicationDictionary = [String: Application]()
+          for application in applications {
+            applicationDictionary[application.bundleIdentifier] = application
+          }
+          self?.dictionary = applicationDictionary
+          self?.subscription = nil
         }
-        self?.dictionary = applicationDictionary
-        self?.subscription = nil
-      }
+    }
   }
 }

@@ -29,6 +29,10 @@ final class Saloon: ObservableObject {
       self.groupStore.groups = try await storage.load()
       self.storage.subscribe(to: self.groupStore.$groups)
       self.subscribe(to: self.groupStore.$groups)
+
+      // Remove ids that could be stored in `AppStorage`
+      let validGroupIds = groupStore.groups.compactMap({ $0.id })
+      selectedGroupIds.removeAll(where: { !validGroupIds.contains($0) })
     }
   }
 
