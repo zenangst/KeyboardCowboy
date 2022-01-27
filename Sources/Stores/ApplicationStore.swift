@@ -12,7 +12,7 @@ final class ApplicationStore: ObservableObject {
   }
 
   func reload() {
-    Task.detached(priority: .userInitiated) {
+    Task(priority: .userInitiated) {
       self.subscription = ApplicationController.asyncLoadApplications()
         .receive(on: DispatchQueue.main)
         .sink { [weak self] applications in
