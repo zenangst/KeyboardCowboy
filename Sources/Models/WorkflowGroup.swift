@@ -72,8 +72,12 @@ extension WorkflowGroup {
     let application = Application.finder()
     return WorkflowGroup(id: UUID().uuidString,
                          name: application.displayName,
-                         color: "#000",
-                         rule: Rule(bundleIdentifiers: [application.bundleIdentifier],
+                         color: "#6BD35F",
+                         rule: Rule(bundleIdentifiers: [
+                          application.bundleIdentifier,
+                          Application.music().bundleIdentifier,
+                          Application.xcode().bundleIdentifier,
+                         ],
                                     days: []),
                          workflows: [
                           Workflow.designTime(nil),

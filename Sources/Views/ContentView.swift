@@ -75,8 +75,8 @@ struct ContentView: View {
         // Handle selection updates on workflows
         .onChange(of: workflowIds) { workflowIds in
           store.selectedWorkflows = store.selectedGroups
-            .flatMap({ $0.workflows })
-            .filter({ workflowIds.contains($0.id) })
+            .flatMap { $0.workflows }
+            .filter { workflowIds.contains($0.id) }
         }
 
       DetailView(workflows: $store.selectedWorkflows)

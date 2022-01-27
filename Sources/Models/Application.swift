@@ -57,7 +57,7 @@ public extension Application {
   static func music(id: String = UUID().uuidString) -> Application {
     Application(
       id: id,
-      bundleIdentifier: "com.apple.music",
+      bundleIdentifier: "com.apple.Music",
       bundleName: "Music",
       path: "/System/Applications/Music.app")
   }

@@ -7,25 +7,33 @@ struct EditWorfklowGroupView: View {
   }
 
   @ObservedObject var applicationStore: ApplicationStore
+  @State var editIcon: WorkflowGroup?
   @State var group: WorkflowGroup
   var action: (Action) -> Void
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack {
-        WorkflowGroupIconView(group: group, size: 48)
+        WorkflowGroupIconView(group: $group, size: 48)
+          .onTapGesture {
+            editIcon = group
+          }
+          .popover(item: $editIcon, arrowEdge: .bottom, content: { _ in
+            EditGroupIconView(group: $group)
+          })
         TextField("Name:", text: $group.name)
           .textFieldStyle(LargeTextFieldStyle())
-          .onSubmit {
-            action(.ok(group))
-          }
+          .onSubmit { action(.ok(group)) }
       }.padding()
 
       Divider()
 
+      RuleListView(applicationStore: applicationStore,
+                   group: $group)
+        .padding()
+        .background(Color(.windowBackgroundColor.withAlphaComponent(0.5)))
+
       VStack(alignment: .leading, spacing: 16) {
-        RuleListView(applicationStore: applicationStore,
-                     group: $group)
         VStack(alignment: .leading) {
           Text("Workflows in this group are only activated when the following applications are the frontmost app.")
           Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")

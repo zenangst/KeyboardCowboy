@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct WorkflowGroupIconView: View {
-  @State var group: WorkflowGroup
+  @Binding var group: WorkflowGroup
+  @State var isHovering: Bool = false
 
   let size: CGFloat
 
@@ -16,22 +17,31 @@ struct WorkflowGroupIconView: View {
         color: Color(.sRGBLinear, white: 0, opacity: 0.2),
         radius: 1,
         y: 1)
+      .onHover { value in
+        self.isHovering = value
+      }
   }
 
   @ViewBuilder
   var overlay: some View {
-    Image(systemName: group.symbol)
-      .resizable()
-      .renderingMode(.template)
-      .aspectRatio(contentMode: .fill)
-      .foregroundColor(.white)
-      .frame(width: 15, height: 15, alignment: .center)
+    ZStack {
+      Image(systemName: group.symbol)
+        .resizable()
+        .renderingMode(.template)
+        .aspectRatio(contentMode: .fill)
+        .foregroundColor(.white)
+        .frame(width: 15, height: 15, alignment: .center)
+      Text("Edit")
+        .font(.caption)
+        .offset(x: 0, y: 15)
+        .opacity(isHovering ? 1.0 : 0.0)
+    }.cursorOnHover(.pointingHand)
   }
 }
 
 struct WorkflowGroupIconView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowGroupIconView(group: WorkflowGroup.designTime(),
+    WorkflowGroupIconView(group: .constant(WorkflowGroup.designTime()),
                           size: 48)
   }
 }
