@@ -36,7 +36,7 @@ extension KeyView {
 
 public struct RegularKeyIcon: View, KeyView {
   @Environment(\.colorScheme) var colorScheme
-  var letters: [Letter]
+  @State var letters: [Letter]
   var width: CGFloat
   var height: CGFloat
   var alignment: Alignment
@@ -50,7 +50,7 @@ public struct RegularKeyIcon: View, KeyView {
               height: CGFloat = 32,
               alignment: Alignment = .center,
               glow: Bool = false) {
-    self.letters = letters.compactMap({ Letter(string: $0.uppercased()) })
+    _letters =  .init(initialValue: letters.compactMap({ Letter(string: $0.uppercased()) }))
     self.width = width
     self.height = height
     self.alignment = alignment
@@ -61,8 +61,7 @@ public struct RegularKeyIcon: View, KeyView {
               width: CGFloat = 32,
               height: CGFloat = 32,
               alignment: Alignment = .center, glow: Bool = false) {
-    self.letters = letter
-      .compactMap({ Letter(string: $0.uppercased()) })
+    _letters = .init(initialValue: letter.compactMap({ Letter(string: $0.uppercased()) }))
     self.width = width
     self.height = height
     self.alignment = alignment

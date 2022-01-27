@@ -2,11 +2,17 @@ import SwiftUI
 
 final class WorkflowGroupStore: ObservableObject {
   @Published var groups = [WorkflowGroup]()
+  @Published var selectedGroups = [WorkflowGroup]()
 
-  @AppStorage("selectedGroupIds") var selectedGroupIds = [String]()
+  @AppStorage("selectedGroupIds") var selectedGroupIds = [String]() {
+    didSet {
+     updateSelectedGroups()
+    }
+  }
 
   init(_ groups: [WorkflowGroup] = []) {
     _groups = .init(initialValue: groups)
+    _selectedGroups = .init(initialValue: groups.filter({ selectedGroupIds.contains($0.id) }))
   }
 
   func add(_ group: WorkflowGroup) {
@@ -68,6 +74,7 @@ final class WorkflowGroupStore: ObservableObject {
     }
 
     groups = newGroups
+    updateSelectedGroups()
   }
 
   func remove(_ group: WorkflowGroup) {
@@ -86,5 +93,11 @@ final class WorkflowGroupStore: ObservableObject {
     var modifiedGroups = groups
     modifiedGroups[groupIndex].workflows.removeAll(where: { $0.id == workflow.id })
     groups = modifiedGroups
+  }
+
+  // MARK: Private methods
+
+  private func updateSelectedGroups() {
+    selectedGroups = groups.filter({ selectedGroupIds.contains($0.id) })
   }
 }

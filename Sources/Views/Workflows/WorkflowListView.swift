@@ -11,17 +11,25 @@ struct WorkflowListView: View {
   var action: (Action) -> Void
 
   var body: some View {
-    List($workflows, selection: $selection) { workflow in
-      WorkflowRowView(workflow: workflow)
-        .contextMenu { contextMenuView(workflow.wrappedValue) }
-        .id(workflow.id)
+    ScrollViewReader { proxy in
+      List($workflows, selection: $selection) { workflow in
+        WorkflowRowView(workflow: workflow)
+          .contextMenu { contextMenuView(workflow) }
+          .id(workflow.id)
+      }
+      .onChange(of: selection, perform: { selection in
+        proxy.scrollTo(selection.first)
+      })
+      .onAppear(perform: {
+        proxy.scrollTo(selection.first)
+      })
+      .listStyle(InsetListStyle())
     }
-    .listStyle(InsetListStyle())
   }
 
-  func contextMenuView(_ workflow: Workflow) -> some View {
+  func contextMenuView(_ workflow: Binding<Workflow>) -> some View {
     VStack {
-      Button("Delete", action: { action(.delete(workflow)) })
+      Button("Delete", action: { action(.delete(workflow.wrappedValue)) })
     }
   }
 }
@@ -30,7 +38,7 @@ struct WorkflowListView_Previews: PreviewProvider {
   static let store = Saloon()
   static var previews: some View {
     WorkflowListView(
-      workflows: .constant(Array(store.selectedGroups.flatMap({ $0.workflows }))),
+      workflows: .constant(store.groupStore.selectedGroups.flatMap({ $0.workflows })),
       selection: .constant([]), action: { _ in })
       .previewLayout(.sizeThatFits)
   }

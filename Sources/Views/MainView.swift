@@ -1,12 +1,12 @@
 import SwiftUI
 
-struct MainView: View, Equatable {
+struct MainView: View {
   enum Action {
     case add
     case delete(Workflow)
   }
   var action: (Action) -> Void
-  @Binding var groups: [WorkflowGroup]
+  @ObservedObject var store: WorkflowGroupStore
   @Binding var selection: Set<String>
 
   @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
@@ -14,14 +14,13 @@ struct MainView: View, Equatable {
   var body: some View {
     if groupIds.isEmpty {
       Text("No group selected")
-    } else if groups.isEmpty {
+    } else if store.groups.isEmpty {
       Text("No workflows in group")
-    } else if groups.count > 1 {
+    } else if groupIds.count > 1 {
       Text("Multiple groups selected")
     } else {
-      ForEach(groups, id: \.self) { group in
-        WorkflowListView(workflows: Binding<[Workflow]>(get: { group.workflows },
-                                                        set: { _ in }),
+      ForEach($store.selectedGroups) { group in
+        WorkflowListView(workflows: group.workflows,
                          selection: $selection,
                          action: { action in
           switch action {
@@ -29,15 +28,10 @@ struct MainView: View, Equatable {
             self.action(.delete(workflow))
           }
         })
-          .navigationTitle(group.name)
+          .navigationTitle(group.name.wrappedValue)
           .navigationSubtitle("Workflows")
       }
     }
-  }
-
-  static func == (lhs: MainView, rhs: MainView) -> Bool {
-    let result = lhs.groups == rhs.groups
-    return result
   }
 }
 
@@ -47,7 +41,7 @@ struct MainView_Previews: PreviewProvider {
     VStack {
       MainView(
         action: { _ in },
-        groups: .constant(store.groupStore.groups),
+        store: store.groupStore,
         selection: .constant([]))
     }
   }

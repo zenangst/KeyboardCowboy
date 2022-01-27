@@ -32,4 +32,12 @@ extension Color {
       blue: blue / 255.0,
       opacity: 1.0)
   }
+
+  static var random: Color {
+    return Color(
+      red: .random(in: 0...1),
+      green: .random(in: 0...1),
+      blue: .random(in: 0...1)
+    )
+  }
 }

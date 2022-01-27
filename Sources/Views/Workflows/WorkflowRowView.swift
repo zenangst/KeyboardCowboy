@@ -1,27 +1,28 @@
 import SwiftUI
 
-struct WorkflowRowView: View {
+struct WorkflowRowView: View, Equatable {
   @Binding var workflow: Workflow
-    var body: some View {
-      HStack {
-        VStack(alignment: .leading, spacing: 0) {
-          Text(workflow.name)
-          HStack {
-            Text("\(workflow.commands.count) command") + Text(workflow.commands.count > 1 ? "s" : "")
-            if let trigger = workflow.trigger {
-              Divider().frame(height: 10)
-              triggers(trigger)
-            }
+
+  var body: some View {
+    HStack {
+      VStack(alignment: .leading, spacing: 0) {
+        Text(workflow.name)
+        HStack {
+          Text("\(workflow.commands.count) command") + Text(workflow.commands.count > 1 ? "s" : "")
+          if let trigger = workflow.trigger {
+            Divider().frame(height: 10)
+            triggers(trigger)
           }
-          .font(Font.caption)
-          .foregroundColor(Color(.secondaryLabelColor))
         }
-        Spacer()
-        icons(workflow.commands)
+        .font(Font.caption)
+        .foregroundColor(Color(.secondaryLabelColor))
       }
-      .padding(4)
-      .opacity(workflow.isEnabled ? 1.0 : 0.6)
+      Spacer()
+      icons(workflow.commands)
     }
+    .padding(4)
+    .opacity(workflow.isEnabled ? 1.0 : 0.6)
+  }
 
   @ViewBuilder
   func triggers(_ trigger: Workflow.Trigger) -> some View {
@@ -73,10 +74,14 @@ struct WorkflowRowView: View {
       }
     }
   }
+
+  static func == (lhs: WorkflowRowView, rhs: WorkflowRowView) -> Bool {
+    lhs.workflow == rhs.workflow
+  }
 }
 
-struct WorkflowRowView_Previews: PreviewProvider {
-    static var previews: some View {
-      WorkflowRowView(workflow: .constant(Workflow.designTime(.none)))
-    }
-}
+//struct WorkflowRowView_Previews: PreviewProvider {
+//    static var previews: some View {
+//      WorkflowRowView(workflow: .constant(Workflow.designTime(.none)))
+//    }
+//}

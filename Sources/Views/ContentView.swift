@@ -59,7 +59,7 @@ struct ContentView: View {
             store.groupStore.remove(workflow)
           }
         },
-        groups: $store.selectedGroups,
+        store: store.groupStore,
         selection: $workflowIds)
         .toolbar(content: {
           MainViewToolbar { action in
@@ -67,6 +67,7 @@ struct ContentView: View {
             case .add:
               let workflow = Workflow.empty()
               store.groupStore.add(workflow)
+              workflowIds = [workflow.id]
             }
           }
         })
@@ -83,13 +84,13 @@ struct ContentView: View {
           switch action {
           case .addCommand:
             guard !selectedWorkflows.isEmpty else { return }
-            selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A")))) 
+            selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A"))))
           }
         }})
         // Handle workflow updates
         .onChange(of: selectedWorkflows,
-                  perform: { foo in
-          store.groupStore.receive(foo)
+                  perform: { workflow in
+          store.groupStore.receive(workflow)
         })
         .frame(minWidth: 360, minHeight: 400)
     }.searchable(text: .constant(""))
