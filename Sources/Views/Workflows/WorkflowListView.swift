@@ -17,6 +17,9 @@ struct WorkflowListView: View, Equatable {
           .contextMenu { contextMenuView(workflow) }
           .id(workflow.id)
       }
+      .onChange(of: selection, perform: {
+        proxy.scrollTo($0.first)
+      })
       .onAppear(perform: {
         proxy.scrollTo(selection.first)
       })

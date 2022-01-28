@@ -93,7 +93,8 @@ struct ContentView: View {
           store.groupStore.receive(workflow)
         })
         .frame(minWidth: 360, minHeight: 400)
-    }.searchable(text: .constant(""))
+    }
+    .searchable(text: .constant(""))
   }
 }
 
