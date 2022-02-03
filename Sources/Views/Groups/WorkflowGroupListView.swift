@@ -24,6 +24,10 @@ struct WorkflowGroupListView: View {
           .id(group.id)
       }
       .listStyle(SidebarListStyle())
+      .onDeleteCommand(perform: {
+        let selectedGroups = groupStore.groups.filter({ selection.contains($0.id) })
+        groupStore.remove(selectedGroups)
+      })
     }
   }
 

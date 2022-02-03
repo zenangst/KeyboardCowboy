@@ -20,7 +20,8 @@ struct MainView: View {
       Text("Multiple groups selected")
     } else {
       ForEach($store.selectedGroups) { group in
-        WorkflowListView(workflows: group.workflows,
+        WorkflowListView(store: store,
+                         workflows: group.workflows,
                          selection: $selection,
                          action: { action in
           switch action {

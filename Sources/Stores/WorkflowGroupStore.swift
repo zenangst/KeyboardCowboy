@@ -83,9 +83,17 @@ final class WorkflowGroupStore: ObservableObject {
     updateSelectedGroups()
   }
 
+  func remove(_ groups: [WorkflowGroup]) {
+    groups.forEach(remove(_:))
+  }
+
   func remove(_ group: WorkflowGroup) {
     groups.removeAll(where: { $0.id == group.id })
     selectedGroupIds.removeAll(where: { $0 == group.id })
+  }
+
+  func remove(_ workflows: [Workflow]) {
+    workflows.forEach(remove(_:))
   }
 
   func remove(_ workflow: Workflow) {

@@ -5,6 +5,8 @@ struct WorkflowListView: View, Equatable {
   enum Action {
     case delete(Workflow)
   }
+
+  let store: WorkflowGroupStore
   @Binding var workflows: [Workflow]
   @Binding var selection: Set<String>
 
@@ -24,6 +26,10 @@ struct WorkflowListView: View, Equatable {
         proxy.scrollTo(selection.first)
       })
       .listStyle(InsetListStyle())
+      .onDeleteCommand(perform: {
+        let selectedWorkflows = workflows.filter { selection.contains($0.id) }
+        store.remove(selectedWorkflows)
+      })
     }
   }
 
@@ -42,6 +48,7 @@ struct WorkflowListView_Previews: PreviewProvider {
   static let store = Saloon()
   static var previews: some View {
     WorkflowListView(
+      store: store.groupStore,
       workflows: .constant(store.groupStore.selectedGroups.flatMap({ $0.workflows })),
       selection: .constant([]), action: { _ in })
       .previewLayout(.sizeThatFits)

@@ -9,9 +9,8 @@ struct KeyboardCowboy: App {
     WindowGroup {
       ContentView(store: store)
     }.onChange(of: scenePhase) { phase in
-      if case .active = phase {
-        store.applicationStore.reload()
-      }
+      guard case .active = phase else { return }
+      store.applicationStore.reload()
     }
   }
 }
