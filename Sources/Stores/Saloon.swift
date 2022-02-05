@@ -12,7 +12,7 @@ final class Saloon: ObservableObject {
   private var subscription: AnyCancellable?
 
   private(set) var applicationStore = ApplicationStore()
-  private(set) var groupStore = WorkflowGroupStore()
+  private(set) var groupStore = GroupStore()
   @Published var selectedGroups = [WorkflowGroup]()
   @Published var selectedWorkflows = [Workflow]()
 

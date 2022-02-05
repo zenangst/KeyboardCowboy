@@ -7,7 +7,7 @@ struct WorkflowGroupListView: View {
   }
 
   @ObservedObject var appStore: ApplicationStore
-  @ObservedObject var groupStore: WorkflowGroupStore
+  @ObservedObject var groupStore: GroupStore
   @Binding var selection: Set<String>
 
   let action: (Action) -> Void

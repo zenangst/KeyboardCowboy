@@ -1,6 +1,6 @@
 import SwiftUI
 
-final class WorkflowGroupStore: ObservableObject {
+final class GroupStore: ObservableObject {
   @Published var groups = [WorkflowGroup]()
   @Published var selectedGroups = [WorkflowGroup]()
   @Published var navigationTitle: String = ""

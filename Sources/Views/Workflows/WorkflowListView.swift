@@ -6,7 +6,7 @@ struct WorkflowListView: View, Equatable {
     case delete(Workflow)
   }
 
-  let store: WorkflowGroupStore
+  let store: GroupStore
   @Binding var workflows: [Workflow]
   @Binding var selection: Set<String>
 

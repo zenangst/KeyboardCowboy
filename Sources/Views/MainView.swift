@@ -6,7 +6,7 @@ struct MainView: View {
     case delete(Workflow)
   }
   var action: (Action) -> Void
-  @ObservedObject var store: WorkflowGroupStore
+  @ObservedObject var store: GroupStore
   @Binding var selection: Set<String>
 
   @AppStorage("selectedGroupIds") private var groupIds = Set<String>()

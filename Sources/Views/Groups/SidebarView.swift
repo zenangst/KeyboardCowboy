@@ -13,7 +13,7 @@ struct SidebarView: View {
   }
 
   @ObservedObject var appStore: ApplicationStore
-  @ObservedObject var groupStore: WorkflowGroupStore
+  @ObservedObject var groupStore: GroupStore
   @State var sheet: Sheet?
   @Binding var selection: Set<String>
 
