@@ -6,6 +6,7 @@ struct WorkflowListView: View, Equatable {
     case delete(Workflow)
   }
 
+  let applicationStore: ApplicationStore
   let store: GroupStore
   @Binding var workflows: [Workflow]
   @Binding var selection: Set<String>
@@ -15,7 +16,7 @@ struct WorkflowListView: View, Equatable {
   var body: some View {
     ScrollViewReader { proxy in
       List($workflows, selection: $selection) { workflow in
-        WorkflowRowView(workflow: workflow)
+        WorkflowRowView(applicationStore: applicationStore, workflow: workflow)
           .contextMenu { contextMenuView(workflow) }
           .id(workflow.id)
       }
@@ -72,6 +73,7 @@ struct WorkflowListView_Previews: PreviewProvider {
   static let store = Saloon()
   static var previews: some View {
     WorkflowListView(
+      applicationStore: ApplicationStore(),
       store: store.groupStore,
       workflows: .constant(store.groupStore.selectedGroups.flatMap({ $0.workflows })),
       selection: .constant([]), action: { _ in })

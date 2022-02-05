@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkflowRowView: View, Equatable {
+  let applicationStore: ApplicationStore
   @Binding var workflow: Workflow
 
   var body: some View {
@@ -29,9 +30,36 @@ struct WorkflowRowView: View, Equatable {
     switch trigger {
     case .keyboardShortcuts(let shortcuts):
       ForEach(shortcuts, content: KeyboardShortcutView.init)
-    case .application(let applicationTriggers):
-      ApplicationTriggerListView(applicationTriggers: applicationTriggers)
+    case .application(let triggers):
+      ZStack {
+        ForEach(triggers) { contextView($0.contexts) }
+      }
     }
+  }
+
+  @ViewBuilder
+  func contextView(_ contexts: Set<ApplicationTrigger.Context>) -> some View {
+    HStack(spacing: 1) {
+      if contexts.contains(.closed) {
+        Circle().fill(Color(.systemRed))
+          .frame(width: 6)
+      }
+      if contexts.contains(.launched) {
+        Circle().fill(Color(.systemYellow))
+          .frame(width: 6)
+      }
+      if contexts.contains(.frontMost) {
+        Circle().fill(Color(.systemGreen))
+          .frame(width: 6)
+      }
+    }
+    .frame(height: 10)
+    .padding(.horizontal, 1)
+    .overlay(
+      RoundedRectangle(cornerRadius: 4)
+        .stroke(Color(NSColor.systemGray.withSystemEffect(.disabled)), lineWidth: 1)
+    )
+    .opacity(0.8)
   }
 
   func icons(_ commands: [Command]) -> some View {
@@ -86,6 +114,8 @@ struct WorkflowRowView: View, Equatable {
 
 struct WorkflowRowView_Previews: PreviewProvider {
     static var previews: some View {
-      WorkflowRowView(workflow: .constant(Workflow.designTime(.none)))
+      WorkflowRowView(
+        applicationStore: ApplicationStore(),
+        workflow: .constant(Workflow.designTime(.none)))
     }
 }

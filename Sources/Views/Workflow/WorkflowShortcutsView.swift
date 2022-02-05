@@ -2,20 +2,38 @@ import Apps
 import SwiftUI
 
 struct WorkflowShortcutsView: View, Equatable {
+  let applicationStore: ApplicationStore
   @Binding var workflow: Workflow
+
   var body: some View {
     VStack(alignment: .leading) {
       switch workflow.trigger {
       case .application(let applicationTriggers):
         HStack {
           Label("Application Trigger:", image: "")
-          closeButton
+          removeButton
         }
-        ApplicationTriggerListView(applicationTriggers: applicationTriggers)
+        ApplicationTriggerListView(
+          action: { action in
+            guard case .application(var triggers) = workflow.trigger else { return }
+            switch action {
+            case .add(let application):
+              triggers.append(.init(application: application))
+            case .remove(let application):
+              triggers.removeAll(where: { $0.application == application })
+            }
+            workflow.trigger = .application(triggers)
+          },
+          applicationStore: applicationStore,
+          applicationTriggers: Binding<[ApplicationTrigger]>(get: {
+            applicationTriggers
+          }, set: { triggers in
+            workflow.trigger = .application(triggers)
+          }) )
       case .keyboardShortcuts(let keyboardShortcuts):
         HStack {
           Label("Keyboard Shortcuts:", image: "")
-          closeButton
+          removeButton
         }
         KeyShortcutsListView(keyboardShortcuts: keyboardShortcuts)
       case .none:
@@ -23,8 +41,12 @@ struct WorkflowShortcutsView: View, Equatable {
           Label("Trigger:", image: "")
         }
         HStack {
-          Button("Application", action: {})
-          Button("Keyboard Shortcut", action: {})
+          Button("Application", action: {
+            workflow.trigger = .application([])
+          })
+          Button("Keyboard Shortcut", action: {
+            workflow.trigger = .keyboardShortcuts([])
+          })
         }
       }
     }
@@ -32,9 +54,9 @@ struct WorkflowShortcutsView: View, Equatable {
   }
 
   @ViewBuilder
-  var closeButton: some View {
+  var removeButton: some View {
     Spacer()
-    Button(action: { },
+    Button(action: { workflow.trigger = nil },
            label: { Image(systemName: "xmark.circle") })
     .buttonStyle(PlainButtonStyle())
   }
@@ -51,6 +73,8 @@ struct WorkflowShortcutsView_Previews: PreviewProvider {
     ])
   )
   static var previews: some View {
-    WorkflowShortcutsView(workflow: .constant(workflow))
+    WorkflowShortcutsView(
+      applicationStore: ApplicationStore(),
+      workflow: .constant(workflow))
   }
 }

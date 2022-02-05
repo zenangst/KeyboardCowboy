@@ -59,6 +59,7 @@ struct ContentView: View {
             store.groupStore.remove(workflow)
           }
         },
+        applicationStore: store.applicationStore,
         store: store.groupStore,
         selection: $workflowIds)
         .toolbar(content: {
@@ -79,7 +80,9 @@ struct ContentView: View {
             .filter { workflowIds.contains($0.id) }
         }
 
-      DetailView(workflows: $store.selectedWorkflows)
+      DetailView(
+        applicationStore: store.applicationStore,
+        workflows: $store.selectedWorkflows)
         .toolbar(content: { DetailToolbar { action in
           switch action {
           case .addCommand:

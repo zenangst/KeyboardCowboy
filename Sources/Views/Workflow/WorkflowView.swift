@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowView: View, Equatable {
+  let applicationStore: ApplicationStore
   @Binding var workflow: Workflow
 
   var body: some View {
@@ -9,7 +10,10 @@ struct WorkflowView: View, Equatable {
       VStack(alignment: .leading) {
         WorkflowInfoView(workflow: $workflow)
           .padding([.leading, .trailing, .bottom], 8)
-        WorkflowShortcutsView(workflow: $workflow)
+        WorkflowShortcutsView(
+          applicationStore: applicationStore,
+          workflow: $workflow
+        )
           .padding(8)
       }
       .padding()
@@ -41,7 +45,9 @@ struct WorkflowView: View, Equatable {
 
 struct WorkflowView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowView(workflow: .constant(Workflow.designTime(
+    WorkflowView(
+      applicationStore: ApplicationStore(),
+      workflow: .constant(Workflow.designTime(
       .keyboardShortcuts( [
         .init(key: "A", modifiers: [.command]),
         .init(key: "B", modifiers: [.function]),

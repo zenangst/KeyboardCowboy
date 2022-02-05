@@ -6,6 +6,7 @@ struct MainView: View {
     case delete(Workflow)
   }
   var action: (Action) -> Void
+  let applicationStore: ApplicationStore
   @ObservedObject var store: GroupStore
   @Binding var selection: Set<String>
 
@@ -20,10 +21,12 @@ struct MainView: View {
       Text("Multiple groups selected")
     } else {
       ForEach($store.selectedGroups) { group in
-        WorkflowListView(store: store,
-                         workflows: group.workflows,
-                         selection: $selection,
-                         action: { action in
+        WorkflowListView(
+          applicationStore: applicationStore,
+          store: store,
+          workflows: group.workflows,
+          selection: $selection,
+          action: { action in
           switch action {
           case .delete(let workflow):
             self.action(.delete(workflow))
@@ -42,6 +45,7 @@ struct MainView_Previews: PreviewProvider {
     VStack {
       MainView(
         action: { _ in },
+        applicationStore: ApplicationStore(),
         store: store.groupStore,
         selection: .constant([]))
     }

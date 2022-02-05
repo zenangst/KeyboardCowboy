@@ -1,13 +1,16 @@
 import SwiftUI
 
 struct DetailView: View, Equatable {
+  let applicationStore: ApplicationStore
   @Binding var workflows: [Workflow]
 
   var body: some View {
     if workflows.count > 1 {
       Text("Multiple workflows selected")
     } else {
-      ForEach($workflows, content: WorkflowView.init)
+      ForEach($workflows, content: { workflow in
+        WorkflowView(applicationStore: applicationStore, workflow: workflow)
+      })
     }
   }
 
@@ -18,7 +21,9 @@ struct DetailView: View, Equatable {
 
 struct DetailView_Previews: PreviewProvider {
   static var previews: some View {
-    DetailView(workflows: .constant([
+    DetailView(
+      applicationStore: ApplicationStore(),
+      workflows: .constant([
       Workflow.designTime(nil)
     ]))
   }
