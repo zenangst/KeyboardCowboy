@@ -24,6 +24,27 @@ struct WorkflowGroupListView: View {
           .id(group.id)
       }
       .listStyle(SidebarListStyle())
+      .onCopyCommand(perform: {
+        groupStore.groups
+          .filter { selection.contains($0.id) }
+          .compactMap {
+            guard let string = try? $0.asString() else { return nil }
+            return NSItemProvider(object: string as NSString)
+          }
+      })
+      .onPasteCommand(of: [.text], perform: { items in
+        let decoder = JSONDecoder()
+        for item in items {
+          item.loadObject(ofClass: NSString.self) { reading, error in
+            guard let output = reading as? String,
+                  let data = output.data(using: .utf8),
+                  let group = try? decoder.decode(WorkflowGroup.self, from: data) else { return }
+            DispatchQueue.main.async {
+              self.groupStore.add(group.copy())
+            }
+          }
+        }
+      })
       .onDeleteCommand(perform: {
         let selectedGroups = groupStore.groups.filter({ selection.contains($0.id) })
         groupStore.remove(selectedGroups)

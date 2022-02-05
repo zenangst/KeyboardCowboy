@@ -9,7 +9,7 @@ import Foundation
 ///          All rules have to return `true` for workflows to be
 ///          eligable for execution.
 public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable {
-  public let id: String
+  public private(set) var id: String
   public var symbol: String
   public var name: String
   public var color: String
@@ -28,6 +28,13 @@ public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable {
     self.color = color
     self.rule = rule
     self.workflows = workflows
+  }
+
+  public func copy() -> Self {
+    var clone = self
+    clone.id = UUID().uuidString
+    clone.name += " copy"
+    return clone
   }
 
   enum CodingKeys: String, CodingKey {

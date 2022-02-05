@@ -57,6 +57,17 @@ final class WorkflowGroupStore: ObservableObject {
     groups = modifiedGroups
   }
 
+  func updateGroups(_ groups: [WorkflowGroup]) {
+    let oldGroups = self.groups
+    var newGroups = self.groups
+    for group in groups {
+      guard let index = oldGroups.firstIndex(where: { $0.id == group.id }) else { return }
+      newGroups[index] = group
+    }
+    self.groups = newGroups
+    updateSelectedGroups()
+  }
+
   func receive(_ newWorkflows: [Workflow]) {
     var newGroups = groups
     for newWorkflow in newWorkflows {
@@ -69,7 +80,10 @@ final class WorkflowGroupStore: ObservableObject {
       guard let groupIndex = newGroups.firstIndex(of: group) else { continue }
 
       guard let workflowIndex = group.workflows.firstIndex(where: { $0.id == newWorkflow.id })
-      else { continue }
+      else {
+        newGroups[groupIndex].workflows.append(newWorkflow)
+        continue
+      }
 
       let oldWorkflow = groups[groupIndex].workflows[workflowIndex]
       if oldWorkflow == newWorkflow {

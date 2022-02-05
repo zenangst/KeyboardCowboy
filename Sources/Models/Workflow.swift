@@ -44,7 +44,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable {
     }
   }
 
-  public let id: String
+  public private(set) var id: String
   public var commands: [Command]
   public var trigger: Trigger?
   public var isEnabled: Bool = true
@@ -66,6 +66,13 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable {
     self.trigger = trigger
     self.name = name
     self.isEnabled = isEnabled
+  }
+
+  public func copy() -> Self {
+    var clone = self
+    clone.id = UUID().uuidString
+    clone.name += " copy"
+    return clone
   }
 
   enum CodingKeys: String, CodingKey {

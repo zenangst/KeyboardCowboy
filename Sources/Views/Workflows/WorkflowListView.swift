@@ -26,6 +26,30 @@ struct WorkflowListView: View, Equatable {
         proxy.scrollTo(selection.first)
       })
       .listStyle(InsetListStyle())
+      .onCopyCommand(perform: {
+        workflows
+          .filter { selection.contains($0.id) }
+          .compactMap {
+            guard let string = try? $0.asString() else { return nil }
+            return NSItemProvider(object: string as NSString)
+          }
+      })
+      .onPasteCommand(of: [.text], perform: { items in
+        let decoder = JSONDecoder()
+        guard var group = store.selectedGroups.first else { return }
+        for item in items {
+          item.loadObject(ofClass: NSString.self) { reading, error in
+            guard let output = reading as? String,
+                  let data = output.data(using: .utf8),
+                  let workflow = try? decoder.decode(Workflow.self, from: data) else { return }
+            DispatchQueue.main.async {
+              workflows.append(workflow.copy())
+              group.workflows = workflows
+              store.updateGroups([group])
+            }
+          }
+        }
+      })
       .onDeleteCommand(perform: {
         let selectedWorkflows = workflows.filter { selection.contains($0.id) }
         store.remove(selectedWorkflows)
