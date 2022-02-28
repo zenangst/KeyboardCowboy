@@ -34,7 +34,8 @@ struct CommandView: View {
       ZStack {
         gradient
         RoundedRectangle(cornerRadius: 8)
-          .stroke(Color.accentColor.opacity(responder.isFirstReponder ? 0.5 : 0.0))
+          .stroke(Color.accentColor.opacity(responder.isFirstReponder ?
+                                            responder.isSelected ? 1.0 : 0.5 : 0.0))
           .opacity(responder.isFirstReponder ? 1.0 : 0.05)
 
         RoundedRectangle(cornerRadius: 8)
