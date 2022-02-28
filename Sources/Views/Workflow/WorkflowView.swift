@@ -10,11 +10,12 @@ struct WorkflowView: View, Equatable {
       VStack(alignment: .leading) {
         WorkflowInfoView(workflow: $workflow)
           .padding([.leading, .trailing, .bottom], 8)
+
         WorkflowShortcutsView(
           applicationStore: applicationStore,
           workflow: $workflow
         )
-          .padding(8)
+        .padding(8)
       }
       .padding()
       .background(Color(.textBackgroundColor))

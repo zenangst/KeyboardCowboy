@@ -35,11 +35,21 @@ struct ApplicationTriggerListView: View {
       }
       Spacer()
       ForEach($applicationTriggers) { applicationTrigger in
-        HStack {
-          ApplicationTriggerView(trigger: applicationTrigger)
-          Button(action: { action(.remove(applicationTrigger.application.wrappedValue)) },
-                 label: { Image(systemName: "xmark.circle") })
-          .buttonStyle(PlainButtonStyle())
+        ResponderView(applicationTrigger) { responder in
+          HStack {
+            ApplicationTriggerView(trigger: applicationTrigger)
+            Button(action: { action(.remove(applicationTrigger.application.wrappedValue)) },
+                   label: { Image(systemName: "xmark.circle") })
+            .buttonStyle(PlainButtonStyle())
+          }
+          .padding(8)
+          .background(Color(.windowBackgroundColor).opacity(0.5))
+          .cornerRadius(8)
+          .overlay(
+            RoundedRectangle(cornerRadius: 8)
+              .stroke(Color(responder.isFirstReponder ? .controlAccentColor : .windowFrameTextColor), lineWidth: 1)
+              .opacity(responder.isFirstReponder ? 1.0 : 0.05)
+          )
         }
       }
     }

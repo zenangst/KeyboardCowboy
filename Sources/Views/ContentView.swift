@@ -1,6 +1,12 @@
 import SwiftUI
 
 struct ContentView: View {
+  enum Focus {
+    case sidebar
+    case main
+    case detail
+  }
+
   @StateObject var store: Saloon
 
   @Binding private var selectedGroups: [WorkflowGroup]
@@ -8,6 +14,8 @@ struct ContentView: View {
 
   @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
   @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
+
+  @FocusState private var focus: Focus?
 
   init(store: Saloon) {
     _store = .init(wrappedValue: store)
@@ -36,6 +44,7 @@ struct ContentView: View {
             }
           }
         })
+        .focused($focus, equals: .sidebar)
         .frame(minWidth: 200)
         // Handle group id updates.
         .onChange(of: groupIds) { groupIds in
@@ -62,23 +71,24 @@ struct ContentView: View {
         applicationStore: store.applicationStore,
         store: store.groupStore,
         selection: $workflowIds)
-        .toolbar(content: {
-          MainViewToolbar { action in
-            switch action {
-            case .add:
-              let workflow = Workflow.empty()
-              store.groupStore.add(workflow)
-              workflowIds = [workflow.id]
-            }
+      .focused($focus, equals: .main)
+      .toolbar(content: {
+        MainViewToolbar { action in
+          switch action {
+          case .add:
+            let workflow = Workflow.empty()
+            store.groupStore.add(workflow)
+            workflowIds = [workflow.id]
           }
-        })
-        .frame(minWidth: 240)
-        // Handle selection updates on workflows
-        .onChange(of: workflowIds) { workflowIds in
-          store.selectedWorkflows = store.selectedGroups
-            .flatMap { $0.workflows }
-            .filter { workflowIds.contains($0.id) }
         }
+      })
+      .frame(minWidth: 240)
+      // Handle selection updates on workflows
+      .onChange(of: workflowIds) { workflowIds in
+        store.selectedWorkflows = store.selectedGroups
+          .flatMap { $0.workflows }
+          .filter { workflowIds.contains($0.id) }
+      }
 
       DetailView(
         applicationStore: store.applicationStore,
@@ -98,6 +108,7 @@ struct ContentView: View {
         .frame(minWidth: 360, minHeight: 400)
     }
     .searchable(text: .constant(""))
+    .focused($focus, equals: .detail)
   }
 }
 

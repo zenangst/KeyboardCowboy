@@ -4,6 +4,7 @@ import SwiftUI
 struct CommandView: View {
   @Environment(\.colorScheme) var colorScheme
   @Binding var command: Command
+  @ObservedObject var responder: Responder
 
   var body: some View {
     HStack(alignment: .center) {
@@ -23,19 +24,25 @@ struct CommandView: View {
 
       Text("≣")
         .font(.title)
-        .foregroundColor(Color(.secondaryLabelColor))
+        .foregroundColor(Color(.windowFrameTextColor))
         .padding(.horizontal, 16)
         .offset(x: 0, y: -2)
     }
     .padding(4)
-    .background(gradient)
     .cornerRadius(8)
-    .overlay(
-      RoundedRectangle(cornerRadius: 8)
-        .stroke(Color(.windowFrameTextColor), lineWidth: 1)
-        .opacity(0.05)
+    .background(
+      ZStack {
+        gradient
+        RoundedRectangle(cornerRadius: 8)
+          .stroke(Color.accentColor.opacity(responder.isFirstReponder ? 0.5 : 0.0))
+          .opacity(responder.isFirstReponder ? 1.0 : 0.05)
+
+        RoundedRectangle(cornerRadius: 8)
+          .fill(Color.accentColor.opacity(responder.isSelected ? 0.5 : 0.0))
+          .opacity(responder.isSelected ? 1.0 : 0.05)
+      }
     )
-    .opacity(command.isEnabled ? 1.0 : 0.6)
+    .opacity(command.isEnabled ? 1.0 : 0.8)
   }
 
   @ViewBuilder
@@ -87,6 +94,7 @@ struct CommandView: View {
 
 struct CommandView_Previews: PreviewProvider {
   static var previews: some View {
-    CommandView(command: .constant(Command.application(.init(application: Application.finder()))))
+    CommandView(command: .constant(Command.application(.init(application: Application.finder()))),
+                responder: Responder())
   }
 }

@@ -32,8 +32,8 @@ struct MainView: View {
             self.action(.delete(workflow))
           }
         })
-          .navigationTitle(store.navigationTitle)
-          .navigationSubtitle("Workflows")
+        .navigationTitle(store.navigationTitle)
+        .navigationSubtitle("Workflows")
       }
     }
   }

@@ -30,10 +30,8 @@ struct WorkflowListView: View, Equatable {
       .onCopyCommand(perform: {
         workflows
           .filter { selection.contains($0.id) }
-          .compactMap {
-            guard let string = try? $0.asString() else { return nil }
-            return NSItemProvider(object: string as NSString)
-          }
+          .compactMap({ try? $0.asString() })
+          .compactMap { NSItemProvider(object: $0 as NSString) }
       })
       .onPasteCommand(of: [.text], perform: { items in
         let decoder = JSONDecoder()

@@ -3,7 +3,11 @@ import SwiftUI
 @main
 struct KeyboardCowboy: App {
   @Environment(\.scenePhase) private var scenePhase
-  @StateObject var store: Saloon = .init()
+  @StateObject var store: Saloon
+
+  init() {
+    _store = .init(wrappedValue: Saloon())
+  }
 
   var body: some Scene {
     WindowGroup {

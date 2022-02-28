@@ -2,6 +2,11 @@ import Apps
 import SwiftUI
 
 struct WorkflowCommandsListView: View, Equatable {
+  enum Focusable: Hashable {
+    case none
+    case row(id: String)
+  }
+
   @Binding var workflow: Workflow
 
   var body: some View {
@@ -11,9 +16,13 @@ struct WorkflowCommandsListView: View, Equatable {
           .labelStyle(HeaderLabelStyle())
         Spacer()
       }
-      ForEach($workflow.commands, content: {
-        CommandView(command: $0)
-      })
+      LazyVStack {
+        ForEach($workflow.commands, id: \.self, content: { command in
+          ResponderView(command) { responder in
+            CommandView(command: command, responder: responder)
+          }
+        })
+      }
     }
   }
 
