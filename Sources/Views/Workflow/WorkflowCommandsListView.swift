@@ -20,6 +20,7 @@ struct WorkflowCommandsListView: View, Equatable {
         ForEach($workflow.commands, id: \.self, content: { command in
           ResponderView(command) { responder in
             CommandView(command: command, responder: responder)
+              .equatable()
           }
         })
       }

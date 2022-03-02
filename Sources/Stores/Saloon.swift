@@ -23,6 +23,7 @@ final class Saloon: ObservableObject {
     self.groupStore = GroupStore()
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
+
     Task {
       if preferences.hideAppOnLaunch {
         NSApp.hide(self)
@@ -34,7 +35,6 @@ final class Saloon: ObservableObject {
       // Remove ids that could be stored in `AppStorage`
       let validGroupIds = groupStore.groups.compactMap({ $0.id })
       selectedGroupIds.removeAll(where: { !validGroupIds.contains($0) })
-
       // Generate performance set
 //      for x in 0..<100 {
 //        var group = WorkflowGroup(name: "Group \(x + 1)")

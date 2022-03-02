@@ -12,6 +12,7 @@ struct KeyboardCowboy: App {
   var body: some Scene {
     WindowGroup {
       ContentView(store: store)
+        .equatable()
     }.onChange(of: scenePhase) { phase in
       guard case .active = phase else { return }
       store.applicationStore.reload()

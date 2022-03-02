@@ -1,7 +1,7 @@
 import Apps
 import SwiftUI
 
-struct CommandView: View {
+struct CommandView: View, Equatable {
   @Environment(\.colorScheme) var colorScheme
   @Binding var command: Command
   @ObservedObject var responder: Responder
@@ -44,6 +44,10 @@ struct CommandView: View {
       }
     )
     .opacity(command.isEnabled ? 1.0 : 0.8)
+  }
+
+  static func ==(lhs: CommandView, rhs: CommandView) -> Bool {
+    lhs.command == rhs.command
   }
 
   @ViewBuilder

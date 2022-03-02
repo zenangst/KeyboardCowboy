@@ -13,6 +13,7 @@ struct WorkflowShortcutsView: View, Equatable {
           Label("Application Trigger:", image: "")
           removeButton
         }
+        // TODO: This is a bottleneck
         ApplicationTriggerListView(
           action: { action in
             guard case .application(var triggers) = workflow.trigger else { return }

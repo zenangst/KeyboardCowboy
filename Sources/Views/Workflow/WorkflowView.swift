@@ -12,12 +12,14 @@ struct WorkflowView: View, Equatable {
         WorkflowInfoView(
           focus: _focus,
           workflow: $workflow)
-          .padding([.leading, .trailing, .bottom], 8)
+        .equatable()
+        .padding([.leading, .trailing, .bottom], 8)
 
         WorkflowShortcutsView(
           applicationStore: applicationStore,
           workflow: $workflow
         )
+        .equatable()
         .padding(8)
       }
       .padding()
@@ -25,6 +27,7 @@ struct WorkflowView: View, Equatable {
 
       VStack(alignment: .leading) {
         WorkflowCommandsListView(workflow: $workflow)
+          .equatable()
           .padding(8)
       }.padding([.leading, .trailing])
     }

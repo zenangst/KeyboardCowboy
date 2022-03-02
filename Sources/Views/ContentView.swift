@@ -1,6 +1,9 @@
 import SwiftUI
 
-struct ContentView: View {
+struct ContentView: View, Equatable {
+  static func ==(lhs: ContentView, rhs: ContentView) -> Bool {
+    return true
+  }
   @StateObject var store: Saloon
 
   @Binding private var selectedGroups: [WorkflowGroup]
@@ -12,7 +15,6 @@ struct ContentView: View {
   @FocusState private var focus: Focus?
 
   init(store: Saloon) {
-    _focus = FocusState<Focus?>()
     _store = .init(wrappedValue: store)
     _selectedGroups = .init(get: { store.selectedGroups },
                             set: { store.selectedGroups = $0 })
@@ -77,6 +79,7 @@ struct ContentView: View {
             let workflow = Workflow.empty()
             store.groupStore.add(workflow)
             workflowIds = [workflow.id]
+            focus = .detail(.info(workflow))
           }
         }
       })
@@ -87,7 +90,6 @@ struct ContentView: View {
           .flatMap { $0.workflows }
           .filter { workflowIds.contains($0.id) }
       }
-
 
       DetailView(
         applicationStore: store.applicationStore,
