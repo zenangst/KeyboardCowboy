@@ -1,6 +1,7 @@
 import SwiftUI
 
-final class GroupStore: ObservableObject {
+@MainActor
+final class GroupStore: ObservableObject, Sendable {
   @Published var groups = [WorkflowGroup]()
   @Published var selectedGroups = [WorkflowGroup]()
   @Published var navigationTitle: String = ""
@@ -69,6 +70,46 @@ final class GroupStore: ObservableObject {
   }
 
   func receive(_ newWorkflows: [Workflow]) {
+    Task {
+      let newGroups = await updateGroups(with: newWorkflows)
+      groups = newGroups
+      updateSelectedGroups()
+    }
+  }
+
+  func remove(_ groups: [WorkflowGroup]) {
+    for group in groups {
+      remove(group)
+    }
+  }
+
+  func remove(_ group: WorkflowGroup) {
+    groups.removeAll(where: { $0.id == group.id })
+    selectedGroupIds.removeAll(where: { $0 == group.id })
+  }
+
+  func remove(_ workflows: [Workflow]) {
+    for workflow in workflows {
+      remove(workflow)
+    }
+  }
+
+  func remove(_ workflow: Workflow) {
+    guard let groupIndex = groups.firstIndex(where: {
+      let ids = $0.workflows.compactMap({ $0.id })
+      return ids.contains(workflow.id)
+    }) else {
+      return
+    }
+
+    var modifiedGroups = groups
+    modifiedGroups[groupIndex].workflows.removeAll(where: { $0.id == workflow.id })
+    groups = modifiedGroups
+  }
+
+  // MARK: Private methods
+
+  private func updateGroups(with newWorkflows: [Workflow]) async -> [WorkflowGroup] {
     var newGroups = groups
     for newWorkflow in newWorkflows {
       guard let group = newGroups.first(where: { group in
@@ -92,38 +133,8 @@ final class GroupStore: ObservableObject {
 
       newGroups[groupIndex].workflows[workflowIndex] = newWorkflow
     }
-
-    groups = newGroups
-    updateSelectedGroups()
+    return newGroups
   }
-
-  func remove(_ groups: [WorkflowGroup]) {
-    groups.forEach(remove(_:))
-  }
-
-  func remove(_ group: WorkflowGroup) {
-    groups.removeAll(where: { $0.id == group.id })
-    selectedGroupIds.removeAll(where: { $0 == group.id })
-  }
-
-  func remove(_ workflows: [Workflow]) {
-    workflows.forEach(remove(_:))
-  }
-
-  func remove(_ workflow: Workflow) {
-    guard let groupIndex = groups.firstIndex(where: {
-      let ids = $0.workflows.compactMap({ $0.id })
-      return ids.contains(workflow.id)
-    }) else {
-      return
-    }
-
-    var modifiedGroups = groups
-    modifiedGroups[groupIndex].workflows.removeAll(where: { $0.id == workflow.id })
-    groups = modifiedGroups
-  }
-
-  // MARK: Private methods
 
   private func updateSelectedGroups() {
     selectedGroups = groups.filter({ selectedGroupIds.contains($0.id) })

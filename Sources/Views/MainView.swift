@@ -7,6 +7,7 @@ struct MainView: View {
   }
   var action: (Action) -> Void
   let applicationStore: ApplicationStore
+  @FocusState var focus: Focus?
   @ObservedObject var store: GroupStore
   @Binding var selection: Set<String>
 
@@ -20,21 +21,25 @@ struct MainView: View {
     } else if groupIds.count > 1 {
       Text("Multiple groups selected")
     } else {
-      ForEach($store.selectedGroups) { group in
-        WorkflowListView(
-          applicationStore: applicationStore,
-          store: store,
-          workflows: group.workflows,
-          selection: $selection,
-          action: { action in
-          switch action {
-          case .delete(let workflow):
-            self.action(.delete(workflow))
-          }
-        })
-        .navigationTitle(store.navigationTitle)
-        .navigationSubtitle("Workflows")
+      Group {
+        ForEach($store.selectedGroups) { group in
+          WorkflowListView(
+            applicationStore: applicationStore,
+            groupId: group.id,
+            store: store,
+            workflows: group.workflows,
+            selection: $selection,
+            action: { action in
+              switch action {
+              case .delete(let workflow):
+                self.action(.delete(workflow))
+              }
+            })
+          .navigationTitle(store.navigationTitle)
+          .navigationSubtitle("Workflows")
+        }
       }
+      .focused($focus, equals: .main(.groupComponent))
     }
   }
 }

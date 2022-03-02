@@ -4,7 +4,7 @@ import Foundation
 /// be invoked when certain criteras are met, either
 /// `Group`-level or that the workflow matches the current
 /// keyboard invocation.
-public struct Workflow: Identifiable, Equatable, Codable, Hashable {
+public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   public enum Trigger: Hashable, Codable {
     case application([ApplicationTrigger])
     case keyboardShortcuts([KeyShortcut])

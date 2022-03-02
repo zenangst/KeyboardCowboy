@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DetailView: View, Equatable {
   let applicationStore: ApplicationStore
+  @FocusState var focus: Focus?
   @Binding var workflows: [Workflow]
 
   var body: some View {
@@ -9,7 +10,9 @@ struct DetailView: View, Equatable {
       Text("Multiple workflows selected")
     } else {
       ForEach($workflows, content: { workflow in
-        WorkflowView(applicationStore: applicationStore, workflow: workflow)
+        WorkflowView(applicationStore: applicationStore,
+                     focus: _focus,
+                     workflow: workflow)
       })
     }
   }

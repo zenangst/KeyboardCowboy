@@ -1,12 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-  enum Focus {
-    case sidebar
-    case main
-    case detail
-  }
-
   @StateObject var store: Saloon
 
   @Binding private var selectedGroups: [WorkflowGroup]
@@ -18,46 +12,50 @@ struct ContentView: View {
   @FocusState private var focus: Focus?
 
   init(store: Saloon) {
+    _focus = FocusState<Focus?>()
     _store = .init(wrappedValue: store)
     _selectedGroups = .init(get: { store.selectedGroups },
                             set: { store.selectedGroups = $0 })
     _selectedWorkflows = .init(get: { store.selectedWorkflows },
                                set: { store.selectedWorkflows = $0 })
+
+    focus = .main(.groupComponent)
   }
 
   var body: some View {
     NavigationView {
       SidebarView(
         appStore: store.applicationStore,
+        focus: _focus,
         groupStore: store.groupStore,
-        selection: $groupIds)
-        .toolbar(content: {
-          SidebarToolbar { action in
-            switch action {
-            case .addGroup:
-              let group = WorkflowGroup.empty()
-              store.groupStore.add(group)
-              groupIds = [group.id]
-            case .toggleSidebar:
-              NSApp.keyWindow?.firstResponder?.tryToPerform(
-                #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
-            }
-          }
-        })
-        .focused($focus, equals: .sidebar)
-        .frame(minWidth: 200)
-        // Handle group id updates.
-        .onChange(of: groupIds) { groupIds in
-          store.selectedGroupIds = Array(groupIds)
-          store.selectedGroups = store.groupStore.groups.filter({ groupIds.contains($0.id) })
-          store.groupStore.selectedGroupIds = Array(groupIds)
-          if let firstGroup = store.selectedGroups.first,
-             let firstWorkflow = firstGroup.workflows.first {
-            workflowIds = [firstWorkflow.id]
-          } else {
-            workflowIds = []
+        selection: $groupIds
+      )
+      .toolbar(content: {
+        SidebarToolbar { action in
+          switch action {
+          case .addGroup:
+            let group = WorkflowGroup.empty()
+            store.groupStore.add(group)
+            groupIds = [group.id]
+          case .toggleSidebar:
+            NSApp.keyWindow?.firstResponder?.tryToPerform(
+              #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
           }
         }
+      })
+      .frame(minWidth: 200)
+      // Handle group id updates.
+      .onChange(of: groupIds) { groupIds in
+        store.selectedGroupIds = Array(groupIds)
+        store.selectedGroups = store.groupStore.groups.filter({ groupIds.contains($0.id) })
+        store.groupStore.selectedGroupIds = Array(groupIds)
+        if let firstGroup = store.selectedGroups.first,
+           let firstWorkflow = firstGroup.workflows.first {
+          workflowIds = [firstWorkflow.id]
+        } else {
+          workflowIds = []
+        }
+      }
 
       MainView(
         action: { action in
@@ -69,9 +67,9 @@ struct ContentView: View {
           }
         },
         applicationStore: store.applicationStore,
+        focus: _focus,
         store: store.groupStore,
         selection: $workflowIds)
-      .focused($focus, equals: .main)
       .toolbar(content: {
         MainViewToolbar { action in
           switch action {
@@ -90,25 +88,27 @@ struct ContentView: View {
           .filter { workflowIds.contains($0.id) }
       }
 
+
       DetailView(
         applicationStore: store.applicationStore,
+        focus: _focus,
         workflows: $store.selectedWorkflows)
-        .toolbar(content: { DetailToolbar { action in
-          switch action {
-          case .addCommand:
-            guard !selectedWorkflows.isEmpty else { return }
-            selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A"))))
-          }
-        }})
-        // Handle workflow updates
-        .onChange(of: selectedWorkflows,
-                  perform: { workflow in
-          store.groupStore.receive(workflow)
-        })
-        .frame(minWidth: 360, minHeight: 400)
+      .equatable()
+      .toolbar(content: { DetailToolbar { action in
+        switch action {
+        case .addCommand:
+          guard !selectedWorkflows.isEmpty else { return }
+          selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A"))))
+        }
+      }})
+      // Handle workflow updates
+      .onChange(of: selectedWorkflows,
+                perform: { workflow in
+        store.groupStore.receive(workflow)
+      })
+      .frame(minWidth: 360, minHeight: 400)
     }
     .searchable(text: .constant(""))
-    .focused($focus, equals: .detail)
   }
 }
 

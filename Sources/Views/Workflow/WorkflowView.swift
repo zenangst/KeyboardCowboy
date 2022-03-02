@@ -3,12 +3,15 @@ import SwiftUI
 
 struct WorkflowView: View, Equatable {
   let applicationStore: ApplicationStore
+  @FocusState var focus: Focus?
   @Binding var workflow: Workflow
 
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
-        WorkflowInfoView(workflow: $workflow)
+        WorkflowInfoView(
+          focus: _focus,
+          workflow: $workflow)
           .padding([.leading, .trailing, .bottom], 8)
 
         WorkflowShortcutsView(

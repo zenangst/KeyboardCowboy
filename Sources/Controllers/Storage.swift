@@ -29,13 +29,13 @@ final class Storage {
 
   func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
     subscription = publisher
-      // Skip the first empty state and the first time it gets loaded from disk.
+    // Skip the first empty state and the first time it gets loaded from disk.
       .dropFirst(2)
-      .throttle(for: 0.5, scheduler: RunLoop.main, latest: true)
+      .debounce(for: 0.5, scheduler: DispatchQueue.global(qos: .utility))
       .removeDuplicates()
       .sink { [weak self] groups in
-      try? self?.save(groups)
-    }
+        try? self?.save(groups)
+      }
   }
 
   func load() async throws -> [WorkflowGroup] {

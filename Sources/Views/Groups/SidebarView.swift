@@ -13,6 +13,7 @@ struct SidebarView: View {
   }
 
   @ObservedObject var appStore: ApplicationStore
+  @FocusState var focus: Focus?
   @ObservedObject var groupStore: GroupStore
   @State var sheet: Sheet?
   @Binding var selection: Set<String>
@@ -21,7 +22,12 @@ struct SidebarView: View {
     WorkflowGroupListView(
       appStore: appStore,
       groupStore: groupStore,
-      selection: $selection,
+      selection: Binding<Set<String>>(get: {
+        selection
+      }, set: {
+        selection = $0
+        focus = .main(.groupComponent)
+      }),
       action: { action in
       switch action {
       case .edit(let group):
@@ -29,7 +35,8 @@ struct SidebarView: View {
       case .delete(let group):
         groupStore.remove(group)
       }
-    }).sheet(item: $sheet, content: { sheet in
+    })
+    .sheet(item: $sheet) { sheet in
       switch sheet {
       case .edit(let group):
         EditWorfklowGroupView(applicationStore: appStore, group: group) { action in
@@ -42,7 +49,8 @@ struct SidebarView: View {
           }
         }
       }
-    })
+    }
+    .focused($focus, equals: .sidebar)
   }
 }
 
