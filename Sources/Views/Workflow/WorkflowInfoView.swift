@@ -6,7 +6,7 @@ struct WorkflowInfoView: View, Equatable {
 
   var body: some View {
     HStack {
-      TextField("", text: $workflow.name)
+      TextField("Workflow name", text: $workflow.name)
         .textFieldStyle(LargeTextFieldStyle())
         .focused($focus, equals: .detail(.info(workflow)))
       Spacer()

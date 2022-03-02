@@ -53,6 +53,17 @@ final class ResponderChain {
     slice.forEach { $0.isSelected = responder.isSelected }
   }
 
+  func selectNamespace(_ namespace: Namespace.ID) {
+    let namedSpaceResponders = self.responders.filter({ $0.namespace == namespace })
+    let selectedResponders = namedSpaceResponders.filter({ $0.isSelected == true })
+
+    if namedSpaceResponders.count == selectedResponders.count {
+      namedSpaceResponders.forEach({ $0.isSelected.toggle() })
+    } else {
+      namedSpaceResponders.forEach({ $0.isSelected = true })
+    }
+  }
+
   func makeFirstResponder(_ id: String) {
     guard let responder = responders.first(where: { $0.id == id }) else { return }
     subscription = responder.$makeFirstResponder
@@ -89,20 +100,28 @@ final class ResponderChain {
 
   func add(_ responder: Responder) {
     clean()
-    responders.append(responder)
+    if let firstIndex = responders.firstIndex(where: { $0.id == responder.id }) {
+      responders[firstIndex] = responder
+    } else {
+      responders.append(responder)
+    }
   }
 }
 
 final class Responder: ObservableObject {
+  weak var view: NSView?
+
   let id: String
+  var namespace: Namespace.ID?
+
   @Published var isFirstReponder: Bool
   @Published var isHovering: Bool
   @Published var isSelected: Bool
   @Published var makeFirstResponder: ((Bool) -> Void)?
-  weak var view: NSView?
 
-  init(_ id: String = UUID().uuidString) {
+  init(_ id: String = UUID().uuidString, namespace: Namespace.ID? = nil) {
     self.id = id
+    self.namespace = namespace
     _isFirstReponder = .init(initialValue: false)
     _isHovering = .init(initialValue: false)
     _isSelected = .init(initialValue: false)
@@ -114,14 +133,16 @@ struct ResponderView<Content>: View where Content: View {
   let content: (Responder) -> Content
 
   init<T: Identifiable>(_ identifiable: T,
+                        namespace: Namespace.ID? = nil,
                         content: @escaping (Responder) -> Content) where T.ID == String {
-    _responder = .init(wrappedValue: .init(identifiable.id))
+    _responder = .init(wrappedValue: .init(identifiable.id, namespace: namespace))
     self.content = content
   }
 
   init(_ id: String = UUID().uuidString,
+       namespace: Namespace.ID? = nil,
        content: @escaping (Responder) -> Content) {
-    _responder = .init(wrappedValue: .init(id))
+    _responder = .init(wrappedValue: .init(id, namespace: namespace))
     self.content = content
   }
 
@@ -142,6 +163,22 @@ struct ResponderView<Content>: View where Content: View {
   }
 }
 
+struct ResponderBackgroundView: View {
+  @StateObject var responder: Responder
+
+  @ViewBuilder
+  var body: some View {
+    RoundedRectangle(cornerRadius: 8)
+      .stroke(Color.accentColor.opacity(responder.isFirstReponder ?
+                                        responder.isSelected ? 1.0 : 0.5 : 0.0))
+      .opacity(responder.isFirstReponder ? 1.0 : 0.05)
+
+    RoundedRectangle(cornerRadius: 8)
+      .fill(Color.accentColor.opacity((responder.isFirstReponder || responder.isSelected) ? 0.5 : 0.0))
+      .opacity((responder.isFirstReponder || responder.isSelected) ? 1.0 : 0.05)
+  }
+}
+
 private struct ResponderRepresentable: NSViewRepresentable {
   @StateObject var responder: Responder
 
@@ -152,7 +189,9 @@ private struct ResponderRepresentable: NSViewRepresentable {
     return view
   }
 
-  func updateNSView(_ nsView: Self.NSViewType, context: Context) { }
+  func updateNSView(_ nsView: Self.NSViewType, context: Context) {
+    responder.view = nsView
+  }
 }
 
 private final class FocusNSView: NSControl {
@@ -180,8 +219,13 @@ private final class FocusNSView: NSControl {
 
   override func keyDown(with event: NSEvent) {
     super.keyDown(with: event)
-
     switch Int(event.keyCode) {
+    case kVK_ANSI_A:
+      guard let namespace = responder.namespace,
+            event.modifierFlags.contains(.command) else { return }
+      ResponderChain.shared.selectNamespace(namespace)
+    case kVK_Escape:
+      ResponderChain.shared.resetSelection()
     case kVK_DownArrow:
       ResponderChain.shared.setNextResponder(responder)
     case kVK_UpArrow:
@@ -210,3 +254,4 @@ private final class FocusNSView: NSControl {
     }
   }
 }
+

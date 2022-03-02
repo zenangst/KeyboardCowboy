@@ -10,6 +10,7 @@ struct ApplicationTriggerListView: View {
   @ObservedObject var applicationStore: ApplicationStore
   @Binding var applicationTriggers: [ApplicationTrigger]
   @State var selection: String = ""
+  @Namespace var namespace
 
   var body: some View {
     VStack {
@@ -35,7 +36,7 @@ struct ApplicationTriggerListView: View {
       }
       Spacer()
       ForEach($applicationTriggers) { applicationTrigger in
-        ResponderView(applicationTrigger) { responder in
+        ResponderView(applicationTrigger, namespace: namespace) { responder in
           HStack {
             ApplicationTriggerView(trigger: applicationTrigger)
             Button(action: { action(.remove(applicationTrigger.application.wrappedValue)) },
@@ -45,11 +46,7 @@ struct ApplicationTriggerListView: View {
           .padding(8)
           .background(Color(.windowBackgroundColor).opacity(0.5))
           .cornerRadius(8)
-          .overlay(
-            RoundedRectangle(cornerRadius: 8)
-              .stroke(Color(responder.isFirstReponder ? .controlAccentColor : .windowFrameTextColor), lineWidth: 1)
-              .opacity(responder.isFirstReponder ? 1.0 : 0.05)
-          )
+          .background(ResponderBackgroundView(responder: responder))
         }
       }
     }

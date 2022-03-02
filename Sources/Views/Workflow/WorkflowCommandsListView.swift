@@ -8,6 +8,7 @@ struct WorkflowCommandsListView: View, Equatable {
   }
 
   @Binding var workflow: Workflow
+  @Namespace var namespace
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -18,9 +19,12 @@ struct WorkflowCommandsListView: View, Equatable {
       }
       LazyVStack {
         ForEach($workflow.commands, id: \.self, content: { command in
-          ResponderView(command) { responder in
+          ResponderView(command, namespace: namespace) { responder in
             CommandView(command: command, responder: responder)
               .equatable()
+          }
+          .onDeleteCommand {
+            workflow.commands.removeAll(where: { $0.id == command.id })
           }
         })
       }
