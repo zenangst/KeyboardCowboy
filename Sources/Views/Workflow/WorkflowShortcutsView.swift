@@ -42,12 +42,8 @@ struct WorkflowShortcutsView: View, Equatable {
           Label("Trigger:", image: "")
         }
         HStack {
-          Button("Application", action: {
-            workflow.trigger = .application([])
-          })
-          Button("Keyboard Shortcut", action: {
-            workflow.trigger = .keyboardShortcuts([])
-          })
+          Button("Application", action: { workflow.trigger = .application([]) })
+          Button("Keyboard Shortcut", action: { workflow.trigger = .keyboardShortcuts([]) })
         }
       }
     }

@@ -28,7 +28,13 @@ final class Saloon: ObservableObject {
       if preferences.hideAppOnLaunch {
         NSApp.hide(self)
       }
-      self.groupStore.groups = try await storage.load()
+      do {
+        self.groupStore.groups = try await storage.load()
+      } catch let error {
+        self.groupStore.groups = []
+        Swift.print(error)
+      }
+
       self.storage.subscribe(to: self.groupStore.$groups)
       self.subscribe(to: self.groupStore.$groups)
 

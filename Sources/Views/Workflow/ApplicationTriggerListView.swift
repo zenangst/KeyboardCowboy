@@ -6,47 +6,33 @@ struct ApplicationTriggerListView: View {
     case add(Application)
     case remove(Application)
   }
+
   let action: (Action) -> Void
-  @ObservedObject var applicationStore: ApplicationStore
+  @StateObject var applicationStore: ApplicationStore
   @Binding var applicationTriggers: [ApplicationTrigger]
   @State var selection: String = ""
   @Namespace var namespace
 
   var body: some View {
     VStack {
-      HStack {
-        Picker("Application",
-               selection: $selection,
-               content: {
-          ForEach(applicationStore.applications.filter({ application in
-            !applicationTriggers
-              .compactMap({ $0.application.bundleIdentifier })
-              .contains(application.bundleIdentifier)
-          }), id: \.bundleIdentifier) { application in
-            Text(application.displayName)
-              .id(application.bundleIdentifier)
-          }
-        })
-        Button("Add") {
-          guard let application = applicationStore.applications.first(where: {
-            $0.bundleIdentifier == selection
-          }) else { return }
-          action(.add(application))
-        }
+      ApplicationPickerView(applicationStore.applications) { application in
+        self.action(.add(application))
       }
       Spacer()
-      ForEach($applicationTriggers) { applicationTrigger in
-        ResponderView(applicationTrigger, namespace: namespace) { responder in
-          HStack {
-            ApplicationTriggerView(trigger: applicationTrigger)
-            Button(action: { action(.remove(applicationTrigger.application.wrappedValue)) },
-                   label: { Image(systemName: "xmark.circle") })
-            .buttonStyle(PlainButtonStyle())
+      LazyVStack {
+        ForEach($applicationTriggers) { applicationTrigger in
+          ResponderView(applicationTrigger, namespace: namespace) { responder in
+            HStack {
+              ApplicationTriggerView(trigger: applicationTrigger)
+              Button(action: { action(.remove(applicationTrigger.application.wrappedValue)) },
+                     label: { Image(systemName: "xmark.circle") })
+              .buttonStyle(PlainButtonStyle())
+            }
+            .padding(8)
+            .background(Color(.windowBackgroundColor).opacity(0.5))
+            .cornerRadius(8)
+            .background(ResponderBackgroundView(responder: responder))
           }
-          .padding(8)
-          .background(Color(.windowBackgroundColor).opacity(0.5))
-          .cornerRadius(8)
-          .background(ResponderBackgroundView(responder: responder))
         }
       }
     }
