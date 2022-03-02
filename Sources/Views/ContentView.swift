@@ -26,25 +26,9 @@ struct ContentView: View, Equatable {
 
   var body: some View {
     NavigationView {
-      SidebarView(
-        appStore: store.applicationStore,
-        focus: _focus,
-        groupStore: store.groupStore,
-        selection: $groupIds
-      )
-      .toolbar(content: {
-        SidebarToolbar { action in
-          switch action {
-          case .addGroup:
-            let group = WorkflowGroup.empty()
-            store.groupStore.add(group)
-            groupIds = [group.id]
-          case .toggleSidebar:
-            NSApp.keyWindow?.firstResponder?.tryToPerform(
-              #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
-          }
-        }
-      })
+      SidebarView(appStore: store.applicationStore, focus: _focus,
+                  groupStore: store.groupStore, selection: $groupIds)
+      .toolbar { SidebarToolbar(action: handleSidebar(_:)) }
       .frame(minWidth: 200)
       // Handle group id updates.
       .onChange(of: groupIds) { groupIds in
@@ -59,30 +43,9 @@ struct ContentView: View, Equatable {
         }
       }
 
-      MainView(
-        action: { action in
-          switch action {
-          case .add:
-            break
-          case .delete(let workflow):
-            store.groupStore.remove(workflow)
-          }
-        },
-        applicationStore: store.applicationStore,
-        focus: _focus,
-        store: store.groupStore,
-        selection: $workflowIds)
-      .toolbar(content: {
-        MainViewToolbar { action in
-          switch action {
-          case .add:
-            let workflow = Workflow.empty()
-            store.groupStore.add(workflow)
-            workflowIds = [workflow.id]
-            focus = .detail(.info(workflow))
-          }
-        }
-      })
+      MainView(action: handleMainAction(_:), applicationStore: store.applicationStore,
+               focus: _focus, store: store.groupStore, selection: $workflowIds)
+      .toolbar { MainViewToolbar(action: handleToolbarAction(_:)) }
       .frame(minWidth: 240)
       // Handle selection updates on workflows
       .onChange(of: workflowIds) { workflowIds in
@@ -91,18 +54,10 @@ struct ContentView: View, Equatable {
           .filter { workflowIds.contains($0.id) }
       }
 
-      DetailView(
-        applicationStore: store.applicationStore,
-        focus: _focus,
-        workflows: $store.selectedWorkflows)
+      DetailView(applicationStore: store.applicationStore,
+                 focus: _focus, workflows: $store.selectedWorkflows)
       .equatable()
-      .toolbar(content: { DetailToolbar { action in
-        switch action {
-        case .addCommand:
-          guard !selectedWorkflows.isEmpty else { return }
-          selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A"))))
-        }
-      }})
+      .toolbar { DetailToolbar(action: handleDetailToolbarAction(_:)) }
       // Handle workflow updates
       .onChange(of: selectedWorkflows,
                 perform: { workflow in
@@ -111,6 +66,47 @@ struct ContentView: View, Equatable {
       .frame(minWidth: 360, minHeight: 400)
     }
     .searchable(text: .constant(""))
+  }
+
+  // MARK: Private methods
+
+  private func handleSidebar(_ action: SidebarToolbar.Action) {
+    switch action {
+    case .addGroup:
+      let group = WorkflowGroup.empty()
+      store.groupStore.add(group)
+      groupIds = [group.id]
+    case .toggleSidebar:
+      NSApp.keyWindow?.firstResponder?.tryToPerform(
+        #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
+    }
+  }
+
+  private func handleMainAction(_ action: MainView.Action) {
+    switch action {
+    case .add:
+      break
+    case .delete(let workflow):
+      store.groupStore.remove(workflow)
+    }
+  }
+
+  private func handleToolbarAction(_ action: MainViewToolbar.Action) {
+    switch action {
+    case .add:
+      let workflow = Workflow.empty()
+      store.groupStore.add(workflow)
+      workflowIds = [workflow.id]
+      focus = .detail(.info(workflow))
+    }
+  }
+
+  private func handleDetailToolbarAction(_ action: DetailToolbar.Action) {
+    switch action {
+    case .addCommand:
+      guard !selectedWorkflows.isEmpty else { return }
+      selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A"))))
+    }
   }
 }
 
