@@ -4,7 +4,7 @@ import Foundation
 /// translates into a keyboard shortcut. This is
 /// used to match if a certain `Workflow` is eligiable
 /// to be invoked.
-public struct KeyShortcut: Identifiable, Codable, Hashable {
+public struct KeyShortcut: Identifiable, Codable, Hashable, Sendable {
   public let id: String
   public let key: String
   public let modifiers: [ModifierKey]?

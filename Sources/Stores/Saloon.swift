@@ -12,7 +12,7 @@ final class Saloon: ObservableObject {
   private var subscription: AnyCancellable?
 
   private(set) var applicationStore = ApplicationStore()
-  private(set) var groupStore = GroupStore()
+  private(set) var groupStore: GroupStore
   @Published var selectedGroups = [WorkflowGroup]()
   @Published var selectedWorkflows = [Workflow]()
 
@@ -20,6 +20,7 @@ final class Saloon: ObservableObject {
   @AppStorage("selectedWorkflowIds") var selectedWorkflowIds = [String]()
 
   init(_ preferences: AppPreferences = .performance()) {
+    self.groupStore = GroupStore()
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
     Task {
@@ -45,7 +46,6 @@ final class Saloon: ObservableObject {
 //
 //        groupStore.add(group)
 //      }
-
     }
   }
 

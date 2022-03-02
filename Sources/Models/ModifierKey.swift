@@ -1,7 +1,7 @@
 import Carbon
 import Cocoa
 
-public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable {
+public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable, Sendable {
   public var id: String { return rawValue }
 
   case shift = "$"

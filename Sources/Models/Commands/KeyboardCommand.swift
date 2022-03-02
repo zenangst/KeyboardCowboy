@@ -2,7 +2,7 @@ import Foundation
 
 /// Keyboard commands only have output because the trigger
 /// will be the `Combination` found in the `Workflow`.
-public struct KeyboardCommand: Identifiable, Codable, Hashable {
+public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
   public let id: String
   public var name: String
   public let keyboardShortcut: KeyShortcut

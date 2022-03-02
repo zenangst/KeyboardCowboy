@@ -3,7 +3,7 @@ import Foundation
 
 /// This command is used to open folders, files, web
 /// or custom urls.
-public struct OpenCommand: Identifiable, Codable, Hashable {
+public struct OpenCommand: Identifiable, Codable, Hashable, Sendable {
   public let id: String
   /// If `application` is `nil`, then it should use the
   /// default application that matches the current url

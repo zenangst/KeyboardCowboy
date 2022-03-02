@@ -5,7 +5,7 @@ import Foundation
 /// `Group`-level or that the workflow matches the current
 /// keyboard invocation.
 public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
-  public enum Trigger: Hashable, Codable {
+  public enum Trigger: Hashable, Codable, Sendable {
     case application([ApplicationTrigger])
     case keyboardShortcuts([KeyShortcut])
 

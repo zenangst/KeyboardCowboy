@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TypeCommand: Identifiable, Codable, Hashable {
+public struct TypeCommand: Identifiable, Codable, Hashable, Sendable {
   public let id: String
   public var name: String
   public var input: String

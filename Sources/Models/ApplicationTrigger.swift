@@ -1,7 +1,7 @@
 import Apps
 import Foundation
 
-public struct ApplicationTrigger: Hashable, Identifiable, Codable {
+public struct ApplicationTrigger: Hashable, Identifiable, Codable, Sendable {
   public var id: String
   public var application: Application
   public var contexts: Set<Context>
@@ -14,7 +14,7 @@ public struct ApplicationTrigger: Hashable, Identifiable, Codable {
     self.contexts = Set(contexts)
   }
 
-  public enum Context: String, Hashable, Codable, CaseIterable, Identifiable {
+  public enum Context: String, Hashable, Codable, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }
 
     case closed, launched, frontMost

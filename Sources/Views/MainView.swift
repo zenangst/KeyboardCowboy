@@ -25,7 +25,6 @@ struct MainView: View {
         ForEach($store.selectedGroups) { group in
           WorkflowListView(
             applicationStore: applicationStore,
-            groupId: group.id,
             store: store,
             workflows: group.workflows,
             selection: $selection,

@@ -3,8 +3,8 @@ import Foundation
 
 /// An application command is a container that is used for
 /// launching or activing applications.
-public struct ApplicationCommand: Identifiable, Codable, Hashable {
-  public enum Modifier: String, Codable, Hashable, CaseIterable, Identifiable {
+public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
+  public enum Modifier: String, Codable, Hashable, CaseIterable, Identifiable, Sendable {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {
@@ -18,7 +18,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable {
     case onlyIfNotRunning
   }
 
-  public enum Action: String, Codable, Hashable, CaseIterable, Identifiable {
+  public enum Action: String, Codable, Hashable, CaseIterable, Identifiable, Sendable {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct BuiltInCommand: Identifiable, Codable, Hashable {
+public struct BuiltInCommand: Identifiable, Codable, Hashable, Sendable {
   public let id: String
   public var name: String {
     switch kind {
@@ -14,7 +14,7 @@ public struct BuiltInCommand: Identifiable, Codable, Hashable {
   }
   public let kind: Kind
 
-  public enum Kind: String, Codable, Hashable, CaseIterable, Identifiable {
+  public enum Kind: String, Codable, Hashable, CaseIterable, Identifiable, Sendable {
     public var id: String { return self.rawValue }
     case quickRun
     case repeatLastKeystroke

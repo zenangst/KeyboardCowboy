@@ -3,7 +3,7 @@ import Foundation
 /// Script command is used to run either Apple- or Shellscripts.
 /// Scripts can both point to a file on the file-system or have
 /// its underlying script bundled inside the command.
-public enum ScriptCommand: Identifiable, Codable, Hashable {
+public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
   case appleScript(id: String, isEnabled: Bool, name: String?, source: Source)
   case shell(id: String, isEnabled: Bool, name: String?, source: Source)
 
@@ -122,7 +122,7 @@ public enum ScriptCommand: Identifiable, Codable, Hashable {
     }
   }
 
-  public enum Source: Codable, Equatable, Hashable {
+  public enum Source: Codable, Equatable, Hashable, Sendable {
     case path(String)
     case inline(String)
 
