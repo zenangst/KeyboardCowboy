@@ -64,6 +64,10 @@ final class ResponderChain {
     }
   }
 
+  func makeFirstResponder<T: Identifiable>(_ identifiable: T) where T.ID == String {
+    makeFirstResponder(identifiable.id)
+  }
+
   func makeFirstResponder(_ id: String) {
     guard let responder = responders.first(where: { $0.id == id }) else { return }
     subscription = responder.$makeFirstResponder
@@ -128,34 +132,46 @@ final class Responder: ObservableObject {
   }
 }
 
+enum ResponderAction {
+  case enter
+}
+
 struct ResponderView<Content>: View where Content: View {
+  typealias ResponderHandler = (ResponderAction) -> Void
   @StateObject var responder: Responder
   let content: (Responder) -> Content
+  let action: ResponderHandler?
 
   init<T: Identifiable>(_ identifiable: T,
                         namespace: Namespace.ID? = nil,
+                        action: ResponderHandler? = nil,
                         content: @escaping (Responder) -> Content) where T.ID == String {
     _responder = .init(wrappedValue: .init(identifiable.id, namespace: namespace))
     self.content = content
+    self.action = action
   }
 
   init(_ id: String = UUID().uuidString,
        namespace: Namespace.ID? = nil,
+       action: ResponderHandler? = nil,
        content: @escaping (Responder) -> Content) {
     _responder = .init(wrappedValue: .init(id, namespace: namespace))
     self.content = content
+    self.action = action
   }
 
   var body: some View {
     ZStack {
-      ResponderRepresentable(responder: responder)
+      ResponderRepresentable(responder) { action in
+        self.action?(action)
+      }
       content(responder)
-        .onHover {
-          responder.isHovering = $0
-        }
-        .gesture(TapGesture().modifiers(.shift).onEnded({ value in
-          responder.makeFirstResponder?(true)
-        }))
+        .onHover { responder.isHovering = $0 }
+        .gesture(
+          TapGesture().modifiers(.shift).onEnded { _ in
+            responder.makeFirstResponder?(true)
+          }
+        )
         .onTapGesture {
           responder.makeFirstResponder?(false)
         }
@@ -181,9 +197,15 @@ struct ResponderBackgroundView: View {
 
 private struct ResponderRepresentable: NSViewRepresentable {
   @StateObject var responder: Responder
+  private var action: (ResponderAction) -> Void
+
+  init(_ responder: Responder, action: @escaping (ResponderAction) -> Void) {
+    _responder = .init(wrappedValue: responder)
+    self.action = action
+  }
 
   func makeNSView(context: Context) -> FocusNSView {
-    let view = FocusNSView(responder)
+    let view = FocusNSView(responder, action: action)
     responder.view = view
     ResponderChain.shared.add(responder)
     return view
@@ -201,9 +223,11 @@ private final class FocusNSView: NSControl {
   private let responder: Responder
   private var firstResponderSubscription: AnyCancellable?
   private var windowSubscription: AnyCancellable?
+  private var actionHandler: (ResponderAction) -> Void
 
-  fileprivate init(_ responder: Responder) {
+  fileprivate init(_ responder: Responder, action: @escaping (ResponderAction) -> Void) {
     self.responder = responder
+    self.actionHandler = action
     super.init(frame: .zero)
 
     windowSubscription = publisher(for: \.window)
@@ -230,6 +254,8 @@ private final class FocusNSView: NSControl {
       ResponderChain.shared.setNextResponder(responder)
     case kVK_UpArrow:
       ResponderChain.shared.setPreviousResponder(responder)
+    case kVK_Return:
+      actionHandler(.enter)
     default:
       break
     }

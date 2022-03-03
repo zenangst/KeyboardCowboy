@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Rule: Identifiable, Codable, Hashable {
+public struct Rule: Identifiable, Codable, Hashable, Sendable {
   public var id: String
   public var bundleIdentifiers: [String]
   public var days: [Day]
@@ -25,7 +25,7 @@ public struct Rule: Identifiable, Codable, Hashable {
     self.days = try container.decode([Day].self, forKey: .days)
   }
 
-  public enum Day: Int, Codable, Hashable {
+  public enum Day: Int, Codable, Hashable, Sendable {
     case monday = 0
     case tuesday = 1
     case wednesday = 2

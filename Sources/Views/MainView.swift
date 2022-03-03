@@ -8,7 +8,7 @@ struct MainView: View {
   var action: (Action) -> Void
   let applicationStore: ApplicationStore
   @FocusState var focus: Focus?
-  @ObservedObject var store: GroupStore
+  @StateObject var store: GroupStore
   @Binding var selection: Set<String>
   @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
 
@@ -23,8 +23,8 @@ struct MainView: View {
       Group {
         ForEach($store.selectedGroups) { group in
           WorkflowListView(applicationStore: applicationStore,
-            store: store, workflows: group.workflows,
-            selection: $selection, action: handle(_:))
+                           store: store, workflows: group.workflows,
+                           selection: $selection, action: handle(_:))
           .equatable()
           .navigationTitle(store.navigationTitle)
           .navigationSubtitle("Workflows")

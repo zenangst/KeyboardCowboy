@@ -22,6 +22,7 @@ struct WorkflowGroupListView: View {
                           group: Binding<WorkflowGroup>(get: { group }, set: { _ in }))
           .contextMenu { contextMenuView(group) }
           .id(group.id)
+          .padding(.leading, 8)
       }
       .listStyle(SidebarListStyle())
       .onCopyCommand(perform: {

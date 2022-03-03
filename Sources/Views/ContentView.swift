@@ -16,8 +16,8 @@ struct ContentView: View, Equatable {
 
   init(store: Saloon) {
     _store = .init(wrappedValue: store)
-    _selectedGroups = .init(get: { store.selectedGroups },
-                            set: { store.selectedGroups = $0 })
+    _selectedGroups = .init(get: { store.groupStore.selectedGroups },
+                            set: { store.groupStore.selectedGroups = $0 })
     _selectedWorkflows = .init(get: { store.selectedWorkflows },
                                set: { store.selectedWorkflows = $0 })
 
@@ -26,42 +26,33 @@ struct ContentView: View, Equatable {
 
   var body: some View {
     NavigationView {
-      SidebarView(appStore: store.applicationStore, focus: _focus,
+      SidebarView(appStore: store.applicationStore,
+                  configurationStore: store.configurationStore,
+                  focus: _focus,
                   groupStore: store.groupStore, selection: $groupIds)
-      .toolbar { SidebarToolbar(action: handleSidebar(_:)) }
-      .frame(minWidth: 200)
-      // Handle group id updates.
-      .onChange(of: groupIds) { groupIds in
-        store.selectedGroupIds = Array(groupIds)
-        store.selectedGroups = store.groupStore.groups.filter({ groupIds.contains($0.id) })
-        store.groupStore.selectedGroupIds = Array(groupIds)
-        if let firstGroup = store.selectedGroups.first,
-           let firstWorkflow = firstGroup.workflows.first {
-          workflowIds = [firstWorkflow.id]
-        } else {
-          workflowIds = []
-        }
+      .toolbar {
+        SidebarToolbar(configurationStore: store.configurationStore,
+                       focus: _focus,
+                       saloon: store,
+                       action: handleSidebar(_:))
       }
+      .frame(minWidth: 280, idealWidth: 310)
+      .onChange(of: groupIds, perform: { store.selectGroups($0) })
 
-      MainView(action: handleMainAction(_:), applicationStore: store.applicationStore,
+      MainView(action: handleMainAction(_:),
+               applicationStore: store.applicationStore,
                focus: _focus, store: store.groupStore, selection: $workflowIds)
       .toolbar { MainViewToolbar(action: handleToolbarAction(_:)) }
-      .frame(minWidth: 240)
-      // Handle selection updates on workflows
-      .onChange(of: workflowIds) { workflowIds in
-        store.selectedWorkflows = store.selectedGroups
-          .flatMap { $0.workflows }
-          .filter { workflowIds.contains($0.id) }
-      }
+      .frame(minWidth: 270)
+      .onChange(of: workflowIds, perform: { store.selectWorkflows($0) })
 
       DetailView(applicationStore: store.applicationStore,
                  focus: _focus, workflows: $store.selectedWorkflows)
       .equatable()
       .toolbar { DetailToolbar(action: handleDetailToolbarAction(_:)) }
       // Handle workflow updates
-      .onChange(of: selectedWorkflows,
-                perform: { workflow in
-        store.groupStore.receive(workflow)
+      .onChange(of: selectedWorkflows, perform: { workflows in
+        store.updateWorkflows(workflows)
       })
       .frame(minWidth: 360, minHeight: 400)
     }
@@ -76,9 +67,6 @@ struct ContentView: View, Equatable {
       let group = WorkflowGroup.empty()
       store.groupStore.add(group)
       groupIds = [group.id]
-    case .toggleSidebar:
-      NSApp.keyWindow?.firstResponder?.tryToPerform(
-        #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
     }
   }
 
@@ -98,6 +86,9 @@ struct ContentView: View, Equatable {
       store.groupStore.add(workflow)
       workflowIds = [workflow.id]
       focus = .detail(.info(workflow))
+    case .toggleSidebar:
+      NSApp.keyWindow?.firstResponder?.tryToPerform(
+        #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
     }
   }
 

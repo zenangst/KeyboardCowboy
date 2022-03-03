@@ -8,7 +8,7 @@ import Foundation
 ///          collection of workflows are eligible to be invoked.
 ///          All rules have to return `true` for workflows to be
 ///          eligable for execution.
-public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable {
+public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
   public private(set) var id: String
   public var symbol: String
   public var name: String

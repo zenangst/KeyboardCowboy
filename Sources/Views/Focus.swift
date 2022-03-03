@@ -1,7 +1,12 @@
 enum Focus: Hashable {
-  case sidebar
+  case sidebar(SidebarComponent)
   case main(MainComponent)
   case detail(DetailComponent)
+
+  enum SidebarComponent {
+    case list
+    case configuration
+  }
 
   enum MainComponent: Hashable {
     case groupComponent

@@ -6,15 +6,11 @@ final class GroupStore: ObservableObject, Sendable {
   @Published var selectedGroups = [WorkflowGroup]()
   @Published var navigationTitle: String = ""
 
-  @AppStorage("selectedGroupIds") var selectedGroupIds = [String]() {
-    didSet {
-     updateSelectedGroups()
-    }
-  }
+  @AppStorage("selectedGroupIds") var selectedGroupIds = [String]()
 
   init(_ groups: [WorkflowGroup] = []) {
     _groups = .init(initialValue: groups)
-    _selectedGroups = .init(initialValue: groups.filter({ selectedGroupIds.contains($0.id) }))
+    _selectedGroups = .init(initialValue: groups.filter { selectedGroupIds.contains($0.id) })
   }
 
   func add(_ group: WorkflowGroup) {
@@ -66,15 +62,12 @@ final class GroupStore: ObservableObject, Sendable {
       newGroups[index] = group
     }
     self.groups = newGroups
-    updateSelectedGroups()
   }
 
-  func receive(_ newWorkflows: [Workflow]) {
-    Task {
-      let newGroups = await updateGroups(with: newWorkflows)
-      groups = newGroups
-      updateSelectedGroups()
-    }
+  func receive(_ newWorkflows: [Workflow]) async -> [WorkflowGroup] {
+    let newGroups = await updateGroups(with: newWorkflows)
+    groups = newGroups
+    return newGroups
   }
 
   func remove(_ groups: [WorkflowGroup]) {
@@ -134,10 +127,5 @@ final class GroupStore: ObservableObject, Sendable {
       newGroups[groupIndex].workflows[workflowIndex] = newWorkflow
     }
     return newGroups
-  }
-
-  private func updateSelectedGroups() {
-    selectedGroups = groups.filter({ selectedGroupIds.contains($0.id) })
-    navigationTitle = selectedGroups.last?.name ?? ""
   }
 }

@@ -13,17 +13,20 @@ struct SidebarView: View {
   }
 
   @ObservedObject var appStore: ApplicationStore
+  @ObservedObject var configurationStore: ConfigurationStore
   @FocusState var focus: Focus?
   @ObservedObject var groupStore: GroupStore
   @State var sheet: Sheet?
   @Binding var selection: Set<String>
 
   var body: some View {
-    WorkflowGroupListView(
-      appStore: appStore, groupStore: groupStore,
-      selection: $selection, action: handleAction(_:))
-    .sheet(item: $sheet, content: handleSheet(_:))
-    .focused($focus, equals: .sidebar)
+    VStack {
+      WorkflowGroupListView(
+        appStore: appStore, groupStore: groupStore,
+        selection: $selection, action: handleAction(_:))
+      .sheet(item: $sheet, content: handleSheet(_:))
+      .focused($focus, equals: .sidebar(.list))
+    }
   }
 
   // MARK: Private methods
@@ -58,6 +61,7 @@ struct SidebarView_Previews: PreviewProvider {
   static var store = Saloon()
   static var previews: some View {
     SidebarView(appStore: ApplicationStore(),
+                configurationStore: ConfigurationStore(),
                 groupStore: store.groupStore,
                 selection: .constant([]))
   }
