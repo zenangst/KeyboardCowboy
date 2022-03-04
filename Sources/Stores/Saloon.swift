@@ -17,9 +17,9 @@ final class Saloon: ObservableObject {
   @Published var selectedWorkflows = [Workflow]()
   @Published var selectedWorkflowsCopy = [Workflow]()
 
-  @AppStorage("selectedGroupIds") var groupIds = Set<String>()
-  @AppStorage("selectedWorkflowIds") var workflowIds = [String]()
-  @AppStorage("selectedConfiguration") private(set) var configurationId: String = ""
+  @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
+  @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>() 
+  @AppStorage("selectedConfiguration") private var configurationId: String = ""
 
   init(_ preferences: AppPreferences = .designTime()) {
     self.groupStore = GroupStore()
@@ -61,9 +61,7 @@ final class Saloon: ObservableObject {
       groupIds = [group.id]
       groupStore.selectedGroups = [group]
     } else {
-      let groups = configuration.groups.filter({ groupIds.contains($0.id) })
-      groupIds = Set<String>(groups.compactMap { $0.id })
-      groupStore.selectedGroups = groups
+      selectGroupsIds(groupIds)
     }
 
     groupStore.groups = configuration.groups
@@ -73,14 +71,14 @@ final class Saloon: ObservableObject {
        let workflow = group.workflows.first {
       workflowIds = [workflow.id]
       selectedWorkflows = [workflow]
-    } else if let group = groupStore.groups.first {
-      let workflows = group.workflows.filter { workflowIds.contains($0.id) }
-      workflowIds = workflows.compactMap { $0.id }
-      selectedWorkflows = workflows
+    } else {
+      selectWorkflowIds(workflowIds)
     }
+
+    selectedWorkflowsCopy = selectedWorkflows
   }
 
-  func selectGroups(_ ids: Set<String>) {
+  func selectGroupsIds(_ ids: Set<String>) {
     groupIds = ids
     groupStore.selectedGroups = configurationStore.selectedConfiguration.groups
       .filter { ids.contains($0.id) }
@@ -91,8 +89,8 @@ final class Saloon: ObservableObject {
     }
   }
 
-  func selectWorkflows(_ ids: Set<String>) {
-    workflowIds = Array(ids)
+  func selectWorkflowIds(_ ids: Set<String>) {
+    workflowIds = ids
     selectedWorkflows = groupStore.selectedGroups
       .flatMap {
         $0.workflows.filter { ids.contains($0.id) }
@@ -110,9 +108,9 @@ final class Saloon: ObservableObject {
 
       configurationStore.update(newConfiguration)
 
-      selectGroups(groupIds)
+      selectGroupsIds(groupIds)
       let workflowIds = Set<String>(newWorkflows.compactMap({ $0.id }))
-      selectWorkflows(workflowIds)
+      selectWorkflowIds(workflowIds)
     }
   }
 

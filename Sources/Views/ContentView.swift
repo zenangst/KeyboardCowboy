@@ -39,14 +39,16 @@ struct ContentView: View, Equatable {
                        action: handleSidebar(_:))
       }
       .frame(minWidth: 280, idealWidth: 310)
-      .onChange(of: groupIds, perform: { store.selectGroups($0) })
+      .onChange(of: groupIds, perform: { store.selectGroupsIds($0) })
 
       MainView(action: handleMainAction(_:),
                applicationStore: store.applicationStore,
                focus: _focus, store: store.groupStore, selection: $workflowIds)
       .toolbar { MainViewToolbar(action: handleToolbarAction(_:)) }
       .frame(minWidth: 270)
-      .onChange(of: workflowIds, perform: { store.selectWorkflows($0) })
+      .onChange(of: workflowIds, perform: { workflowIds in
+        store.selectWorkflowIds(workflowIds)
+      })
 
       DetailView(applicationStore: store.applicationStore,
                  focus: _focus, workflows: $store.selectedWorkflows)
