@@ -7,8 +7,9 @@ struct WorkflowGroupView: View, Equatable {
 
   var body: some View {
     HStack {
-      icon
+      icon(24)
         .frame(width: 24, height: 24)
+        .cornerRadius(24, antialiased: true)
       Text(group.name)
       Spacer()
       Text("\(group.workflows.count)")
@@ -18,15 +19,15 @@ struct WorkflowGroupView: View, Equatable {
   }
 
   @ViewBuilder
-  var icon: some View {
+  func icon(_ size: CGFloat) -> some View {
     if let rule = group.rule,
        let bundleIdentifier = rule.bundleIdentifiers.first,
        let application = applicationStore.dictionary[bundleIdentifier] {
       IconView(path: application.path)
-        .frame(width: 30, height: 30)
-        .mask(Circle().frame(width: 24, height: 24))
+        .frame(width: size + 6, height: size + 6)
     } else {
-      WorkflowGroupIconView(group: $group, size: 24)
+      WorkflowGroupIconView(group: $group, size: size)
+        .frame(width: size, height: size)
     }
   }
 

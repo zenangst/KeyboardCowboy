@@ -29,7 +29,9 @@ struct ContentView: View, Equatable {
       SidebarView(appStore: store.applicationStore,
                   configurationStore: store.configurationStore,
                   focus: _focus,
-                  groupStore: store.groupStore, selection: $groupIds)
+                  groupStore: store.groupStore,
+                  saloon: store,
+                  selection: $groupIds)
       .toolbar {
         SidebarToolbar(configurationStore: store.configurationStore,
                        focus: _focus,
@@ -67,6 +69,9 @@ struct ContentView: View, Equatable {
       let group = WorkflowGroup.empty()
       store.groupStore.add(group)
       groupIds = [group.id]
+    case .toggleSidebar:
+      NSApp.keyWindow?.firstResponder?.tryToPerform(
+        #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
     }
   }
 
@@ -86,9 +91,6 @@ struct ContentView: View, Equatable {
       store.groupStore.add(workflow)
       workflowIds = [workflow.id]
       focus = .detail(.info(workflow))
-    case .toggleSidebar:
-      NSApp.keyWindow?.firstResponder?.tryToPerform(
-        #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)
     }
   }
 

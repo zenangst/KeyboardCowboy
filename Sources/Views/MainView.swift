@@ -26,7 +26,7 @@ struct MainView: View {
                            store: store, workflows: group.workflows,
                            selection: $selection, action: handle(_:))
           .equatable()
-          .navigationTitle(store.navigationTitle)
+          .navigationTitle(group.name.wrappedValue)
           .navigationSubtitle("Workflows")
         }
       }

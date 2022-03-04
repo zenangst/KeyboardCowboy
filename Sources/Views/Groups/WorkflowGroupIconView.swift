@@ -10,8 +10,6 @@ struct WorkflowGroupIconView: View {
     Rectangle()
       .fill(Color(hex: group.color))
       .overlay(overlay)
-      .clipped(antialiased: true)
-      .cornerRadius(size, antialiased: true)
       .frame(width: size, height: size, alignment: .center)
       .shadow(
         color: Color(.sRGBLinear, white: 0, opacity: 0.2),
@@ -30,7 +28,7 @@ struct WorkflowGroupIconView: View {
         .renderingMode(.template)
         .aspectRatio(contentMode: .fill)
         .foregroundColor(.white)
-        .frame(width: 15, height: 15, alignment: .center)
+        .frame(width: 12, height: 12, alignment: .center)
       Text("Edit")
         .font(.caption)
         .offset(x: 0, y: 15)

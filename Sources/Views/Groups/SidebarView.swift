@@ -16,11 +16,20 @@ struct SidebarView: View {
   @ObservedObject var configurationStore: ConfigurationStore
   @FocusState var focus: Focus?
   @ObservedObject var groupStore: GroupStore
+  @ObservedObject var saloon: Saloon
   @State var sheet: Sheet?
   @Binding var selection: Set<String>
 
   var body: some View {
-    VStack {
+    VStack(alignment: .leading) {
+      Label("Configuration", image: "")
+        .labelStyle(HeaderLabelStyle())
+        .padding([.leading, .trailing])
+      ConfigurationSidebarView(configurationStore,
+                               focus: _focus,
+                               saloon: saloon)
+      .padding([.leading, .trailing], 10)
+
       WorkflowGroupListView(
         appStore: appStore, groupStore: groupStore,
         selection: $selection, action: handleAction(_:))
@@ -63,6 +72,7 @@ struct SidebarView_Previews: PreviewProvider {
     SidebarView(appStore: ApplicationStore(),
                 configurationStore: ConfigurationStore(),
                 groupStore: store.groupStore,
+                saloon: store,
                 selection: .constant([]))
   }
 }

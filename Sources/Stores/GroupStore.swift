@@ -4,7 +4,6 @@ import SwiftUI
 final class GroupStore: ObservableObject, Sendable {
   @Published var groups = [WorkflowGroup]()
   @Published var selectedGroups = [WorkflowGroup]()
-  @Published var navigationTitle: String = ""
 
   @AppStorage("selectedGroupIds") var selectedGroupIds = [String]()
 
@@ -38,17 +37,12 @@ final class GroupStore: ObservableObject, Sendable {
   func receive(_ newGroups: [WorkflowGroup]) {
     let oldGroups = groups
     var modifiedGroups = groups
-    let lastSelectedGroup = selectedGroups.last
     for group in newGroups {
       guard let index = oldGroups.firstIndex(where: { $0.id == group.id }) else {
         continue
       }
 
       modifiedGroups[index] = group
-
-      if lastSelectedGroup?.id == group.id {
-        navigationTitle = group.name
-      }
     }
 
     groups = modifiedGroups

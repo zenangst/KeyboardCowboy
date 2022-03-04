@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ConfigurationToolbarView: View {
+struct ConfigurationSidebarView: View {
   @FocusState var focus: Focus?
   @ObservedObject var saloon: Saloon
   @ObservedObject var store: ConfigurationStore
@@ -17,11 +17,16 @@ struct ConfigurationToolbarView: View {
 
   var body: some View {
     Button(action: {
-      presentingPopover.toggle()
+      withAnimation(.interactiveSpring()) { presentingPopover.toggle() }
     }) {
-      Text(store.selectedConfiguration.name)
-        .frame(maxWidth: 130)
-      Image(systemName: presentingPopover ? "chevron.up" : "chevron.down")
+      HStack {
+        Text(store.selectedConfiguration.name)
+        Spacer()
+        Divider()
+        Image(systemName: "chevron.down")
+          .rotationEffect(presentingPopover ? .degrees(180) : .zero)
+      }
+      .fixedSize(horizontal: false, vertical: true)
     }
     .popover(isPresented: $presentingPopover, arrowEdge: .bottom) {
       ConfigurationPopoverView(focus: _focus, store: store) { action in
@@ -35,6 +40,9 @@ struct ConfigurationToolbarView: View {
         case .select(let configuration):
           store.select(configuration)
           saloon.use(configuration)
+          withAnimation {
+            presentingPopover.toggle()
+          }
         }
       }
       .frame(minWidth: 250, minHeight: 250)
@@ -44,12 +52,21 @@ struct ConfigurationToolbarView: View {
         switch action {
         case .ok(let configuration):
           store.update(configuration)
-          presentingSheet = false
+          withAnimation {
+            presentingSheet = false
+          }
         case .cancel:
           presentingSheet = false
         }
       }
       .frame(minWidth: 480)
-    }.keyboardShortcut(.init("T"), modifiers: .command)
+    }
+    .keyboardShortcut(.init("T"), modifiers: .command)
+    .padding(6)
+    .background(
+      RoundedRectangle(cornerRadius: 4)
+        .stroke(Color(.controlColor))
+    )
+    .buttonStyle(BorderlessButtonStyle())
   }
 }
