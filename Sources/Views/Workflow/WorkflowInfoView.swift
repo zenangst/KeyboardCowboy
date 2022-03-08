@@ -10,7 +10,7 @@ struct WorkflowInfoView: View, Equatable {
         .textFieldStyle(LargeTextFieldStyle())
         .focused($focus, equals: .detail(.info(workflow)))
       Spacer()
-      Toggle("Enabled", isOn: $workflow.isEnabled)
+      Toggle("", isOn: $workflow.isEnabled)
         .toggleStyle(SwitchToggleStyle())
         .font(.callout)
     }

@@ -1,7 +1,13 @@
 import SwiftUI
 
 struct KeyShortcutsListView: View, Equatable {
+  enum Action {
+    case add(KeyShortcut)
+    case remove([KeyShortcut])
+  }
   @State var keyboardShortcuts: [KeyShortcut]
+  @Namespace var namespace
+  var action: (Action) -> Void
 
   var body: some View {
     HStack {
@@ -11,24 +17,37 @@ struct KeyShortcutsListView: View, Equatable {
             .fixedSize()
         } else {
           ForEach(keyboardShortcuts) { keyboardShortcut in
-            key(keyboardShortcut)
-              .overlay(
-                RoundedRectangle(cornerRadius: 4)
-                  .stroke(
-                    Color(NSColor.systemGray.withSystemEffect(.disabled)),
-                    lineWidth: 1)
-              )
-              .id(keyboardShortcut.id)
+            ResponderView(keyboardShortcut, namespace: namespace) { responder in
+              key(keyboardShortcut)
+                .background {
+                  RoundedRectangle(cornerRadius: 4)
+                    .stroke(
+                      responder.isFirstReponder ? .accentColor : Color(NSColor.systemGray.withSystemEffect(.disabled)),
+                      lineWidth: 1)
+                  ResponderBackgroundView(responder: responder, cornerRadius: 4)
+                }
+                .id(keyboardShortcut.id)
+            }
+            .fixedSize()
+            .onDeleteCommand {
+              keyboardShortcuts.removeAll(where: { $0.id == keyboardShortcut.id })
+              action(.remove(keyboardShortcuts))
+            }
           }
         }
       }
       .frame(height: 36)
 
       Spacer()
-      Button(action: {},
-             label: { Image(systemName: "plus.square.fill") })
-        .buttonStyle(PlainButtonStyle())
-        .padding(.horizontal, 16)
+      Button(action: {
+        let shortcut = KeyShortcut.empty()
+        action(.add(shortcut))
+        keyboardShortcuts.append(shortcut)
+      },
+             label: { Image(systemName: "plus") })
+      .buttonStyle(KCButtonStyle())
+      .font(.callout)
+      .padding(.horizontal, 16)
     }
     .padding(4)
     .background(Color(.windowBackgroundColor))
@@ -83,6 +102,6 @@ struct KeyShortcutsListView_Previews: PreviewProvider {
 
         .init(key: "B"),
         .init(key: "A"),
-      ])
+      ], action: { _ in })
     }
 }

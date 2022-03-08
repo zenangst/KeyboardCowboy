@@ -3,6 +3,7 @@ import SwiftUI
 
 struct CommandView: View, Equatable {
   @Environment(\.colorScheme) var colorScheme
+  @Binding var workflow: Workflow
   @Binding var command: Command
   @ObservedObject var responder: Responder
 
@@ -31,7 +32,7 @@ struct CommandView: View, Equatable {
     .padding(4)
     .background(backgroundView)
     .cornerRadius(8)
-    .opacity(command.isEnabled ? 1.0 : 0.8)
+    .opacity(!workflow.isEnabled ? 0.9 : command.isEnabled ? 1.0 : 0.8)
   }
 
   static func ==(lhs: CommandView, rhs: CommandView) -> Bool {
@@ -91,7 +92,9 @@ struct CommandView: View, Equatable {
 
 struct CommandView_Previews: PreviewProvider {
   static var previews: some View {
-    CommandView(command: .constant(Command.application(.init(application: Application.finder()))),
-                responder: Responder())
+    CommandView(
+      workflow: .constant(Workflow.empty()),
+      command: .constant(Command.application(.init(application: Application.finder()))),
+      responder: Responder())
   }
 }

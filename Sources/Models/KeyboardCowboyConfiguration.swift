@@ -1,6 +1,6 @@
 import Foundation
 
-struct Configuration: Identifiable, Codable, Hashable, Sendable {
+struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
   let id: String
   var name: String
   var groups: [WorkflowGroup]
@@ -11,7 +11,7 @@ struct Configuration: Identifiable, Codable, Hashable, Sendable {
     self.groups = groups
   }
 
-  static func empty() -> Configuration {
-    Configuration(id: UUID().uuidString, name: "Untitled configuration", groups: [])
+  static func empty() -> KeyboardCowboyConfiguration {
+    KeyboardCowboyConfiguration(id: UUID().uuidString, name: "Untitled configuration", groups: [])
   }
 }

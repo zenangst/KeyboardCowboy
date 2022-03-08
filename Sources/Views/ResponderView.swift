@@ -72,7 +72,6 @@ final class ResponderChain {
     guard let responder = responders.first(where: { $0.id == id }) else { return }
     subscription = responder.$makeFirstResponder
       .compactMap { $0 }
-      .receive(on: RunLoop.main)
       .sink(receiveValue: { [weak self] completion in
         completion(false)
         self?.subscription = nil
@@ -81,21 +80,96 @@ final class ResponderChain {
   }
 
   func setPreviousResponder(_ currentResponder: Responder) {
-    if let index = responders.firstIndex(where: { $0.id == currentResponder.id }),
-       index >= 1 {
-      makeFirstResponder(responders[index - 1].id)
+    guard let view = currentResponder.view else { return }
+
+    let currentNamespaceResponders = responders
+      .sorted(by: { $0.view?.frameInWindow().origin.x ?? 0 < $1.view?.frameInWindow().origin.x ?? 0 })
+      .sorted(by: { $0.view?.frameInWindow().origin.y ?? 0 < $1.view?.frameInWindow().origin.y ?? 0 })
+      .filter({
+        $0.namespace == currentResponder.namespace &&
+        $0.view != nil
+      })
+    let responderFrame = view.frameInWindow()
+
+    if let next = currentNamespaceResponders
+      .last(where: { responder in
+        guard let nextView = responder.view else {
+          return false
+        }
+        let nextResponderFrame = nextView.frameInWindow()
+
+        return nextResponderFrame.origin.y < responderFrame.origin.y ||
+        nextResponderFrame.origin.x < responderFrame.origin.x
+      }) {
+      makeFirstResponder(next.id)
+    } else {
+      let otherNamespaces = responders
+        .compactMap({ $0.namespace })
+        .unique()
+
+      if let currentNamespace = currentResponder.namespace,
+         let index = otherNamespaces.firstIndex(of: currentNamespace),
+         index > 0 {
+        guard let responder = responders.last(where: { $0.namespace == otherNamespaces[index - 1] }) else {
+          return
+        }
+
+        makeFirstResponder(responder.id)
+      } else {
+
+      }
     }
   }
 
   func setNextResponder(_ currentResponder: Responder) {
-    if let index = responders.firstIndex(where: { $0.id == currentResponder.id }),
-       index < responders.count - 1 {
-      makeFirstResponder(responders[index + 1].id)
+    guard let view = currentResponder.view else { return }
+
+    let currentNamespaceResponders = responders
+      .filter({
+        $0.namespace == currentResponder.namespace &&
+        $0.view != nil
+      })
+    let responderFrame = view.frameInWindow()
+
+    if let next = currentNamespaceResponders
+      .first(where: { responder in
+        guard let nextView = responder.view else {
+          return false
+        }
+        let nextResponderFrame = nextView.frameInWindow()
+
+        return nextResponderFrame.origin.x > responderFrame.origin.x ||
+        nextResponderFrame.origin.y > responderFrame.origin.y 
+
+      }) {
+      makeFirstResponder(next.id)
+    } else {
+      let otherNamespaces = responders
+        .compactMap({ $0.namespace })
+        .unique()
+
+      if let currentNamespace = currentResponder.namespace,
+         let index = otherNamespaces.firstIndex(of: currentNamespace),
+         index < otherNamespaces.count - 1 {
+        guard let responder = responders.first(where: { $0.namespace == otherNamespaces[index + 1] }) else {
+          return
+        }
+
+        makeFirstResponder(responder.id)
+      }
     }
   }
 
   func clean() {
     responders.removeAll(where: { $0.view == nil })
+    sort()
+  }
+
+  func sort() {
+    responders
+      .sort(by: { $0.view?.frameInWindow().origin.x ?? 0 < $1.view?.frameInWindow().origin.x ?? 0 })
+    responders
+      .sort(by: { $0.view?.frameInWindow().origin.y ?? 0 < $1.view?.frameInWindow().origin.y ?? 0 })
   }
 
   func remove(_ responder: Responder) {
@@ -182,14 +256,16 @@ struct ResponderView<Content>: View where Content: View {
 struct ResponderBackgroundView: View {
   @StateObject var responder: Responder
 
+  var cornerRadius: CGFloat = 8
+
   @ViewBuilder
   var body: some View {
-    RoundedRectangle(cornerRadius: 8)
+    RoundedRectangle(cornerRadius: cornerRadius)
       .stroke(Color.accentColor.opacity(responder.isFirstReponder ?
                                         responder.isSelected ? 1.0 : 0.5 : 0.0))
       .opacity(responder.isFirstReponder ? 1.0 : 0.05)
 
-    RoundedRectangle(cornerRadius: 8)
+    RoundedRectangle(cornerRadius: cornerRadius)
       .fill(Color.accentColor.opacity((responder.isFirstReponder || responder.isSelected) ? 0.5 : 0.0))
       .opacity((responder.isFirstReponder || responder.isSelected) ? 1.0 : 0.05)
   }
@@ -250,9 +326,9 @@ private final class FocusNSView: NSControl {
       ResponderChain.shared.selectNamespace(namespace)
     case kVK_Escape:
       ResponderChain.shared.resetSelection()
-    case kVK_DownArrow:
+    case kVK_DownArrow, kVK_RightArrow:
       ResponderChain.shared.setNextResponder(responder)
-    case kVK_UpArrow:
+    case kVK_UpArrow, kVK_LeftArrow:
       ResponderChain.shared.setPreviousResponder(responder)
     case kVK_Return:
       actionHandler(.enter)
@@ -281,3 +357,15 @@ private final class FocusNSView: NSControl {
   }
 }
 
+fileprivate extension Sequence where Iterator.Element: Hashable {
+    func unique() -> [Iterator.Element] {
+        var seen: [Iterator.Element: Bool] = [:]
+        return self.filter { seen.updateValue(true, forKey: $0) == nil }
+    }
+}
+
+fileprivate extension NSView {
+  func frameInWindow() -> NSRect {
+    convert(bounds, to: window?.contentView)
+  }
+}

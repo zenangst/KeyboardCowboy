@@ -15,6 +15,7 @@ struct WorkflowGroupView: View, Equatable {
       Text("\(group.workflows.count)")
         .foregroundColor(.secondary)
         .font(.callout)
+        .padding(.trailing, 4)
     }
   }
 
@@ -35,6 +36,7 @@ struct WorkflowGroupView: View, Equatable {
     lhs.group.name == rhs.group.name &&
     lhs.group.color == rhs.group.color &&
     lhs.group.rule == rhs.group.rule &&
+    lhs.group.symbol == rhs.group.symbol &&
     lhs.group.workflows.count == rhs.group.workflows.count
   }
 }

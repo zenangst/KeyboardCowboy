@@ -4,15 +4,15 @@ import SwiftUI
 
 final class ConfigurationStore: ObservableObject {
   private var subscription: AnyCancellable?
-  @Published private(set) var configurations = [Configuration]()
-  @Published private(set) var selectedConfiguration: Configuration = .empty()
+  @Published private(set) var configurations = [KeyboardCowboyConfiguration]()
+  @Published private(set) var selectedConfiguration: KeyboardCowboyConfiguration = .empty()
   @AppStorage("selectedConfiguration") private(set) var selectedId: String = ""
 
   @discardableResult
-  func updateConfigurations(_ configurations: [Configuration]) -> Self {
+  func updateConfigurations(_ configurations: [KeyboardCowboyConfiguration]) -> Self {
     self.configurations = configurations
 
-    if selectedId.isEmpty, let configuration = configurations.first(where: { $0.id == selectedId }) {
+    if let configuration = configurations.first(where: { $0.id == selectedId }) {
       self.selectedConfiguration = configuration
       self.selectedId = configuration.id
     } else if let configuration = configurations.first  {
@@ -24,20 +24,20 @@ final class ConfigurationStore: ObservableObject {
     return self
   }
 
-  func select(_ configuration: Configuration) {
+  func select(_ configuration: KeyboardCowboyConfiguration) {
     selectedId = configuration.id
     selectedConfiguration = configuration
   }
 
-  func add(_ configuration: Configuration) {
+  func add(_ configuration: KeyboardCowboyConfiguration) {
     configurations.append(configuration)
   }
 
-  func remove(_ configuration: Configuration) {
+  func remove(_ configuration: KeyboardCowboyConfiguration) {
     configurations.removeAll(where: { $0.id == configuration.id })
   }
 
-  func update(_ configuration: Configuration) {
+  func update(_ configuration: KeyboardCowboyConfiguration) {
     guard let index = configurations.firstIndex(where: { $0.id == configuration.id }) else {
       return
     }

@@ -20,7 +20,7 @@ struct WorkflowCommandsListView: View, Equatable {
       LazyVStack {
         ForEach($workflow.commands, id: \.self, content: { command in
           ResponderView(command, namespace: namespace) { responder in
-            CommandView(command: command, responder: responder)
+            CommandView(workflow: $workflow, command: command, responder: responder)
               .equatable()
           }
           .onDeleteCommand {

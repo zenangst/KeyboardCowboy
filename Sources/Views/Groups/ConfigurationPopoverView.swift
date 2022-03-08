@@ -3,9 +3,9 @@ import SwiftUI
 
 struct ConfigurationPopoverView: View {
   enum Action {
-    case select(Configuration)
-    case edit(Configuration)
-    case remove(Configuration)
+    case select(KeyboardCowboyConfiguration)
+    case edit(KeyboardCowboyConfiguration)
+    case remove(KeyboardCowboyConfiguration)
     case newConfiguration
   }
   @FocusState var focus: Focus?
@@ -32,42 +32,35 @@ struct ConfigurationPopoverView: View {
                   }
                 }
                 Spacer()
-                Button(action: {
+
+                Button("Edit", action: {
                   action(.edit(configuration))
-                }, label: {
-                  Text("Edit")
-                    .font(.callout)
-                    .padding(4)
-                    .background(
-                      RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color(.textColor))
-                    )
                 })
-                .buttonStyle(PlainButtonStyle())
+                .font(.footnote)
+                .buttonStyle(KCButtonStyle())
               }
               .frame(height: 32)
               .padding(8)
               .background(backgroundView(responder))
               .padding(.top, 4)
-            }
-            .onTapGesture {
-              ResponderChain.shared.makeFirstResponder(configuration)
-              action(.select(configuration))
+              .onTapGesture {
+                ResponderChain.shared.makeFirstResponder(configuration)
+                if responder.isFirstReponder {
+                  action(.select(configuration))
+                }
+              }
             }
           }
         }.padding(8)
       }
       .focused($focus, equals: .sidebar(.configuration))
 
-      Button(action: {
-        action(.newConfiguration)
-      }) {
-        Text("New configuration")
-      }
-      .padding([.leading, .bottom, .trailing])
-      .onAppear {
-        focus = .sidebar(.configuration)
-      }
+      Button.init("New configuration", action: { action(.newConfiguration) })
+        .buttonStyle(KCButtonStyle())
+        .padding([.leading, .bottom, .trailing])
+        .onAppear {
+          focus = .sidebar(.configuration)
+        }
     }
   }
 
@@ -82,9 +75,9 @@ struct ConfigurationPopoverView: View {
 struct ConfigurationPopoverView_Previews: PreviewProvider {
   static let store = ConfigurationStore()
     .updateConfigurations([
-      Configuration(name: "Default", groups: []),
-      Configuration(name: "Work", groups: []),
-      Configuration(name: "Personal", groups: []),
+      KeyboardCowboyConfiguration(name: "Default", groups: []),
+      KeyboardCowboyConfiguration(name: "Work", groups: []),
+      KeyboardCowboyConfiguration(name: "Personal", groups: []),
     ])
 
   static var previews: some View {

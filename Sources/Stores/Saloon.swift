@@ -18,7 +18,7 @@ final class Saloon: ObservableObject {
   @Published var selectedWorkflowsCopy = [Workflow]()
 
   @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
-  @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>() 
+  @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
   @AppStorage("selectedConfiguration") private var configurationId: String = ""
 
   init(_ preferences: AppPreferences = .designTime()) {
@@ -29,7 +29,7 @@ final class Saloon: ObservableObject {
 
     Task {
       if preferences.hideAppOnLaunch { NSApp.hide(self) }
-      let configurations: [Configuration]
+      let configurations: [KeyboardCowboyConfiguration]
       configurations = try await load()
       configurationStore.updateConfigurations(configurations)
       use(configurationStore.selectedConfiguration)
@@ -38,8 +38,8 @@ final class Saloon: ObservableObject {
     }
   }
 
-  func load() async throws -> [Configuration] {
-    let configurations: [Configuration]
+  func load() async throws -> [KeyboardCowboyConfiguration] {
+    let configurations: [KeyboardCowboyConfiguration]
     do {
       configurations = try await storage.load()
     } catch {
@@ -48,13 +48,13 @@ final class Saloon: ObservableObject {
     return configurations
   }
 
-  func migrateIfNeeded() async throws -> [Configuration] {
+  func migrateIfNeeded() async throws -> [KeyboardCowboyConfiguration] {
     let groups: [WorkflowGroup] = try await storage.load()
-    let configuration = Configuration(name: "Default configuration", groups: groups)
+    let configuration = KeyboardCowboyConfiguration(name: "Default configuration", groups: groups)
     return [configuration]
   }
 
-  func use(_ configuration: Configuration) {
+  func use(_ configuration: KeyboardCowboyConfiguration) {
     configurationId = configuration.id
     // Select first group if the selection is empty
     if groupIds.isEmpty, let group = configuration.groups.first {
@@ -79,11 +79,14 @@ final class Saloon: ObservableObject {
   }
 
   func selectGroupsIds(_ ids: Set<String>) {
-    groupIds = ids
     groupStore.selectedGroups = configurationStore.selectedConfiguration.groups
       .filter { ids.contains($0.id) }
+    groupIds = Set<String>(groupStore.selectedGroups.compactMap({ $0.id }))
 
-    if let workflow = groupStore.selectedGroups.first?.workflows.first {
+    let allWorkflowIds = groupStore.selectedGroups.flatMap { $0.workflows.compactMap { $0.id } }
+    let workflowMatchesGroup = allWorkflowIds.filter { workflowIds.contains($0) }.count > 1
+
+    if workflowMatchesGroup, let workflow = groupStore.selectedGroups.first?.workflows.first {
       workflowIds = [workflow.id]
       selectedWorkflows = [workflow]
     }

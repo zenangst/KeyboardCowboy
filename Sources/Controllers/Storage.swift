@@ -27,7 +27,7 @@ final class Storage {
     self.fileManager = fileManager
   }
 
-  func subscribe(to publisher: Published<[Configuration]>.Publisher) {
+  func subscribe(to publisher: Published<[KeyboardCowboyConfiguration]>.Publisher) {
     subscription = publisher
     // Skip the first empty state and the first time it gets loaded from disk.
       .dropFirst(2)
@@ -38,12 +38,12 @@ final class Storage {
       }
   }
 
-  func load() async throws -> [Configuration] {
+  func load() async throws -> [KeyboardCowboyConfiguration] {
     guard let data = fileManager.contents(atPath: configuration.url.path),
           !data.isEmpty else {
       throw StorageError.unableToReadContents
     }
-    return try decoder.decode([Configuration].self, from: data)
+    return try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
   }
 
   func load() async throws -> [WorkflowGroup] {
@@ -55,7 +55,7 @@ final class Storage {
     return try decoder.decode([WorkflowGroup].self, from: data)
   }
 
-  func save(_ configurations: [Configuration]) throws {
+  func save(_ configurations: [KeyboardCowboyConfiguration]) throws {
     encoder.outputFormatting = .prettyPrinted
     do {
       let data = try encoder.encode(configurations)

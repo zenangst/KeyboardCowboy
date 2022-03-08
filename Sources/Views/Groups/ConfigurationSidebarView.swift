@@ -48,7 +48,7 @@ struct ConfigurationSidebarView: View {
       .frame(minWidth: 250, minHeight: 250)
     }
     .sheet(isPresented: $presentingSheet) {
-      ConfigurationView(store) { action in
+      EditConfigurationView(store) { action in
         switch action {
         case .ok(let configuration):
           store.update(configuration)
@@ -61,12 +61,20 @@ struct ConfigurationSidebarView: View {
       }
       .frame(minWidth: 480)
     }
+    .transform(KCButtonStyle.modifiers) // Use the modifiers to not break keyboard shortcuts
     .keyboardShortcut(.init("T"), modifiers: .command)
-    .padding(6)
-    .background(
-      RoundedRectangle(cornerRadius: 4)
-        .stroke(Color(.controlColor))
-    )
-    .buttonStyle(BorderlessButtonStyle())
+  }
+}
+
+struct ConfigurationSidebarView_Previews: PreviewProvider {
+  static var store = Saloon()
+  static var previews: some View {
+    VStack {
+      ConfigurationSidebarView(store.configurationStore,
+                               focus: FocusState<Focus?>(),
+                               saloon: store)
+    }
+    .padding()
+    .previewLayout(.fixed(width: 380, height: 100))
   }
 }

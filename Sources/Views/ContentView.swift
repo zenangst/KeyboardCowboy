@@ -38,7 +38,7 @@ struct ContentView: View, Equatable {
                        saloon: store,
                        action: handleSidebar(_:))
       }
-      .frame(minWidth: 280, idealWidth: 310)
+      .frame(minWidth: 220, idealWidth: 310)
       .onChange(of: groupIds, perform: { store.selectGroupsIds($0) })
 
       MainView(action: handleMainAction(_:),
@@ -58,7 +58,7 @@ struct ContentView: View, Equatable {
       .onChange(of: selectedWorkflows, perform: { workflows in
         store.updateWorkflows(workflows)
       })
-      .frame(minWidth: 360, minHeight: 400)
+      .frame(minWidth: 360, minHeight: 417)
     }
     .searchable(text: .constant(""))
   }
@@ -92,7 +92,9 @@ struct ContentView: View, Equatable {
       let workflow = Workflow.empty()
       store.groupStore.add(workflow)
       workflowIds = [workflow.id]
-      focus = .detail(.info(workflow))
+      DispatchQueue.main.async {
+        focus = .detail(.info(workflow))
+      }
     }
   }
 
