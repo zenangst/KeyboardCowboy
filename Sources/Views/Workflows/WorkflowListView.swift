@@ -15,10 +15,15 @@ struct WorkflowListView: View, Equatable {
 
   var body: some View {
     ScrollViewReader { proxy in
-      List($workflows, selection: $selection) { workflow in
-        WorkflowRowView(applicationStore: applicationStore, workflow: workflow)
-          .contextMenu { contextMenuView(workflow) }
-          .id(workflow.id)
+      List(selection: $selection) {
+        ForEach($workflows) { workflow in
+          WorkflowRowView(applicationStore: applicationStore, workflow: workflow)
+            .contextMenu { contextMenuView(workflow) }
+            .id(workflow.id)
+        }
+        .onMove { indexSet, offset in
+          workflows.move(fromOffsets: indexSet, toOffset: offset)
+        }
       }
       .onChange(of: selection, perform: {
         proxy.scrollTo($0.first)

@@ -84,7 +84,7 @@ final class Saloon: ObservableObject {
     groupIds = Set<String>(groupStore.selectedGroups.compactMap({ $0.id }))
 
     let allWorkflowIds = groupStore.selectedGroups.flatMap { $0.workflows.compactMap { $0.id } }
-    let workflowMatchesGroup = allWorkflowIds.filter { workflowIds.contains($0) }.count > 1
+    let workflowMatchesGroup = allWorkflowIds.filter { workflowIds.contains($0) }.isEmpty
 
     if workflowMatchesGroup, let workflow = groupStore.selectedGroups.first?.workflows.first {
       workflowIds = [workflow.id]

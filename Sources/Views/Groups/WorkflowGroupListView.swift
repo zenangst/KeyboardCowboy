@@ -17,12 +17,17 @@ struct WorkflowGroupListView: View {
       Label("Groups", image: "")
         .labelStyle(HeaderLabelStyle())
         .padding(.leading)
-      List(groupStore.groups, selection: $selection) { group in
+      List(selection: $selection) {
+        ForEach(groupStore.groups) { group in
         WorkflowGroupView(applicationStore: appStore,
                           group: Binding<WorkflowGroup>(get: { group }, set: { _ in }))
           .contextMenu { contextMenuView(group) }
           .id(group.id)
           .padding(.leading, 8)
+        }
+        .onMove { indexSet, offset in
+          groupStore.groups.move(fromOffsets: indexSet, toOffset: offset)
+        }
       }
       .listStyle(SidebarListStyle())
       .onCopyCommand(perform: {

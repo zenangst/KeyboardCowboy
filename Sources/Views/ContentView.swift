@@ -6,6 +6,8 @@ struct ContentView: View, Equatable {
   }
   @StateObject var store: Saloon
 
+  @State var sidebarViewSheet: SidebarView.Sheet?
+
   @Binding private var selectedGroups: [WorkflowGroup]
   @Binding private var selectedWorkflows: [Workflow]
 
@@ -31,6 +33,7 @@ struct ContentView: View, Equatable {
                   focus: _focus,
                   groupStore: store.groupStore,
                   saloon: store,
+                  sheet: $sidebarViewSheet,
                   selection: $groupIds)
       .toolbar {
         SidebarToolbar(configurationStore: store.configurationStore,
@@ -69,6 +72,7 @@ struct ContentView: View, Equatable {
     switch action {
     case .addGroup:
       let group = WorkflowGroup.empty()
+      sidebarViewSheet = .edit(group)
       store.groupStore.add(group)
       groupIds = [group.id]
     case .toggleSidebar:

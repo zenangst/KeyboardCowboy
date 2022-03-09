@@ -7,6 +7,7 @@ final class ResponderChain {
   private var responders = [Responder]()
   private var subscription: AnyCancellable?
   private var didBecomeActiveNotification: AnyCancellable?
+  private var didResizeNotification: AnyCancellable?
 
   static public var shared: ResponderChain = .init()
 
@@ -18,12 +19,20 @@ final class ResponderChain {
     guard !responderId.isEmpty else { return }
 
     let initialResponderId = responderId
-    didBecomeActiveNotification = NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)
+    didBecomeActiveNotification = NotificationCenter.default
+      .publisher(for: NSApplication.didBecomeActiveNotification)
       .sink { [weak self] value in
         guard let self = self else { return }
         self.makeFirstResponder(initialResponderId)
         self.didBecomeActiveNotification = nil
       }
+
+    didResizeNotification = NotificationCenter.default
+      .publisher(for: NSWindow.didResizeNotification)
+      .debounce(for: 0.375, scheduler: RunLoop.main)
+      .sink(receiveValue: { [weak self] _ in
+        self?.sort()
+      })
   }
 
   func resetSelection() {
@@ -70,6 +79,22 @@ final class ResponderChain {
 
   func makeFirstResponder(_ id: String) {
     guard let responder = responders.first(where: { $0.id == id }) else { return }
+
+    if let view = responder.view,
+      let scrollView = view.findSuperview(NSScrollView.self) {
+      var documentVisibleRect = scrollView.documentVisibleRect
+      documentVisibleRect.origin.y += scrollView.contentInsets.top * 2
+      documentVisibleRect.size.height -= scrollView.contentInsets.top * 2
+
+      let convertedFrame = view.convert(view.bounds, to: scrollView)
+
+      if !convertedFrame.intersects(documentVisibleRect) {
+        var newRect = scrollView.contentView.documentVisibleRect
+        newRect.origin.y = convertedFrame.origin.y
+        scrollView.contentView.scroll(newRect.origin)
+      }
+    }
+
     subscription = responder.$makeFirstResponder
       .compactMap { $0 }
       .sink(receiveValue: { [weak self] completion in
@@ -83,12 +108,14 @@ final class ResponderChain {
     guard let view = currentResponder.view else { return }
 
     let currentNamespaceResponders = responders
-      .sorted(by: { $0.view?.frameInWindow().origin.x ?? 0 < $1.view?.frameInWindow().origin.x ?? 0 })
-      .sorted(by: { $0.view?.frameInWindow().origin.y ?? 0 < $1.view?.frameInWindow().origin.y ?? 0 })
       .filter({
+        $0.id != currentResponder.id &&
         $0.namespace == currentResponder.namespace &&
         $0.view != nil
       })
+      .sorted(by: { $0.view?.frameInWindow().origin.x ?? 0 < $1.view?.frameInWindow().origin.x ?? 0 })
+      .sorted(by: { $0.view?.frameInWindow().origin.y ?? 0 < $1.view?.frameInWindow().origin.y ?? 0 })
+
     let responderFrame = view.frameInWindow()
 
     if let next = currentNamespaceResponders
@@ -162,14 +189,14 @@ final class ResponderChain {
 
   func clean() {
     responders.removeAll(where: { $0.view == nil })
-    sort()
   }
 
   func sort() {
     responders
-      .sort(by: { $0.view?.frameInWindow().origin.x ?? 0 < $1.view?.frameInWindow().origin.x ?? 0 })
-    responders
-      .sort(by: { $0.view?.frameInWindow().origin.y ?? 0 < $1.view?.frameInWindow().origin.y ?? 0 })
+      .sort(by: { lhs, rhs in
+        guard let leftView = lhs.view, let rightView = rhs.view else { return false }
+        return leftView.frameInWindow().origin.y < rightView.frameInWindow().origin.y
+      })
   }
 
   func remove(_ responder: Responder) {

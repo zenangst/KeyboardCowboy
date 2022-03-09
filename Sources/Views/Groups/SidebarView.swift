@@ -17,7 +17,7 @@ struct SidebarView: View {
   @FocusState var focus: Focus?
   @ObservedObject var groupStore: GroupStore
   @ObservedObject var saloon: Saloon
-  @State var sheet: Sheet?
+  @Binding var sheet: Sheet?
   @Binding var selection: Set<String>
 
   var body: some View {
@@ -73,6 +73,7 @@ struct SidebarView_Previews: PreviewProvider {
                 configurationStore: ConfigurationStore(),
                 groupStore: store.groupStore,
                 saloon: store,
+                sheet: .constant(.none),
                 selection: .constant([]))
   }
 }
