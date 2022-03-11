@@ -348,9 +348,17 @@ private final class FocusNSView: NSControl {
       guard shouldResignFirstResponder else { return }
       chain.resignFirstResponder(responder)
     case kVK_DownArrow, kVK_RightArrow:
+      let selectedResponders = chain.responders.filter({ $0.isFirstReponder || $0.isSelected })
       chain.setNextResponder(responder)
+      if event.modifierFlags.contains(.shift) {
+        chain.select(selectedResponders)
+      }
     case kVK_UpArrow, kVK_LeftArrow:
+      let selectedResponders = chain.responders.filter({ $0.isFirstReponder || $0.isSelected })
       chain.setPreviousResponder(responder)
+      if event.modifierFlags.contains(.shift) {
+        chain.select(selectedResponders)
+      }
     case kVK_Return:
       actionHandler(.enter)
     default:
