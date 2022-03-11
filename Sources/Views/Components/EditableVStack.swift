@@ -1,8 +1,6 @@
 import SwiftUI
 
-// <Data, ID, Content> where Data : RandomAccessCollection, ID : Hashable
-
-enum MoveState<Element: Identifiable> {
+private enum MoveState<Element: Identifiable> {
   case inactive
   case dragging(draggedElement: Element, translation: CGSize)
 
@@ -42,21 +40,22 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
                                                      Data.Element: Identifiable,
                                                      Data.Index: Hashable,
                                                      ID: Hashable {
-  enum DropIndex {
+  private enum DropIndex {
     case up(Int)
     case down(Int)
   }
-  @Binding var data: Data
-  var id: KeyPath<Data.Element, ID>
-  var responderChain: ResponderChain = .shared
-  var namespace: Namespace.ID?
-  var onDelete: ((_ indexSet: IndexSet) -> Void)? = nil
-  var onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
-  var content: (Binding<Data.Element>) -> Content
-  @GestureState var dragState = MoveState<Data.Element>.inactive
-  @State var draggedElement: Data.Element?
-  @State var height: CGFloat = 0
-  @State var dropIndex: DropIndex?
+  @Binding private(set) var data: Data
+  private(set) var id: KeyPath<Data.Element, ID>
+  private(set) var responderChain: ResponderChain = .shared
+  private(set) var namespace: Namespace.ID?
+  private(set) var onDelete: ((_ indexSet: IndexSet) -> Void)? = nil
+  private(set) var onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
+  private(set) var content: (Binding<Data.Element>) -> Content
+
+  @GestureState private var dragState = MoveState<Data.Element>.inactive
+  @State private var draggedElement: Data.Element?
+  @State private var height: CGFloat = 0
+  @State private var dropIndex: DropIndex?
 
   var body: some View {
     ForEach(Array($data.enumerated()), id: \.element.id) { offset, element in
