@@ -36,18 +36,19 @@ enum MoveState<Element: Identifiable> {
   }
 }
 
-struct MovableList<Data, ID, Content>: View where Content: View,
-                                                  Data: RandomAccessCollection,
-                                                  Data: MutableCollection,
-                                                  Data.Element: Identifiable,
-                                                  Data.Index: Hashable,
-                                                  ID: Hashable {
+struct EditableVStack<Data, ID, Content>: View where Content: View,
+                                                     Data: RandomAccessCollection,
+                                                     Data: MutableCollection,
+                                                     Data.Element: Identifiable,
+                                                     Data.Index: Hashable,
+                                                     ID: Hashable {
   enum DropIndex {
     case up(Int)
     case down(Int)
   }
   var data: Binding<Data>
   var id: KeyPath<Data.Element, ID>
+  var namespace: Namespace.ID?
   var onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
   var content: (Binding<Data.Element>) -> Content
   @GestureState var dragState = MoveState<Data.Element>.inactive

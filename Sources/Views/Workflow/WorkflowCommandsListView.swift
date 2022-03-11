@@ -18,8 +18,10 @@ struct WorkflowCommandsListView: View, Equatable {
         Spacer()
       }
       LazyVStack {
-        MovableList(data: $workflow.commands, id: \.self,
-                    onMove: { indexSet, offset in
+        EditableVStack(data: $workflow.commands,
+                       id: \.self,
+                       
+                       onMove: { indexSet, offset in
           workflow.commands.move(fromOffsets: indexSet, toOffset: offset)
         }) { command in
           ResponderView(command, namespace: namespace) { responder in

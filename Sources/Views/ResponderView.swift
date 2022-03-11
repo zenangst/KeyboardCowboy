@@ -243,9 +243,6 @@ struct ResponderView<Content>: View where Content: View {
       }
       content(responder)
         .onHover { responder.isHovering = $0 }
-        .onExitCommand(perform: {
-          Swift.print("hello world!")
-        })
         .gesture(
           TapGesture().modifiers(.shift).onEnded { _ in
             responder.makeFirstResponder?(true)
