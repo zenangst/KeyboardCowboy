@@ -11,12 +11,14 @@ struct MainViewToolbar: ToolbarContent {
     ToolbarItemGroup(placement: .automatic) {
       Button(action: { action(.add) },
              label: {
-        Image(systemName: "rectangle.stack.badge.plus")
-          .renderingMode(.template)
-          .foregroundColor(Color(.systemGray))
+        Label(title: {
+          Text("Add workflow")
+        }, icon: {
+          Image(systemName: "rectangle.stack.badge.plus")
+            .renderingMode(.template)
+            .foregroundColor(Color(.systemGray))
+        })
       })
-        .opacity(!groupIds.isEmpty ? 1.0 : 0.5)
-        .disabled(groupIds.isEmpty)
     }
   }
 }

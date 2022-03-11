@@ -41,7 +41,7 @@ struct ContentView: View, Equatable {
                        saloon: store,
                        action: handleSidebar(_:))
       }
-      .frame(minWidth: 220, idealWidth: 310)
+      .frame(minWidth: 200, idealWidth: 310)
       .onChange(of: groupIds, perform: { store.selectGroupsIds($0) })
 
       MainView(action: handleMainAction(_:),
@@ -61,7 +61,7 @@ struct ContentView: View, Equatable {
       .onChange(of: selectedWorkflows, perform: { workflows in
         store.updateWorkflows(workflows)
       })
-      .frame(minWidth: 360, minHeight: 417)
+      .frame(minWidth: 380, minHeight: 417)
     }
     .searchable(text: .constant(""))
   }

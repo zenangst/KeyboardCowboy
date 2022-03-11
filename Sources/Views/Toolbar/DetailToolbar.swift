@@ -11,9 +11,13 @@ struct DetailToolbar: ToolbarContent {
     ToolbarItemGroup(placement: .primaryAction) {
       Button(action: { action(.addCommand) },
              label: {
-        Image(systemName: "plus.square.dashed")
-          .renderingMode(.template)
-          .foregroundColor(Color(.systemGray))
+        Label(title: {
+          Text("Add command")
+        }, icon: {
+          Image(systemName: "plus.square.dashed")
+            .renderingMode(.template)
+            .foregroundColor(Color(.systemGray))
+        })
       })
     }
   }

@@ -21,12 +21,14 @@ struct ConfigurationSidebarView: View {
     }) {
       HStack {
         Text(store.selectedConfiguration.name)
+          .lineLimit(1)
         Spacer()
         Divider()
         Image(systemName: "chevron.down")
           .rotationEffect(presentingPopover ? .degrees(180) : .zero)
       }
       .fixedSize(horizontal: false, vertical: true)
+      .allowsTightening(true)
     }
     .popover(isPresented: $presentingPopover, arrowEdge: .bottom) {
       ConfigurationPopoverView(focus: _focus, store: store) { action in

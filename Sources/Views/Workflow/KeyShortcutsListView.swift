@@ -10,35 +10,37 @@ struct KeyShortcutsListView: View, Equatable {
   var action: (Action) -> Void
 
   var body: some View {
-    HStack {
-      HStack {
-        if keyboardShortcuts.isEmpty {
-         RegularKeyIcon(letter: "Record keyboard shortcut")
-            .fixedSize()
-        } else {
-          ForEach(keyboardShortcuts) { keyboardShortcut in
-            ResponderView(keyboardShortcut, namespace: namespace) { responder in
-              key(keyboardShortcut)
-                .background {
-                  RoundedRectangle(cornerRadius: 4)
-                    .stroke(
-                      responder.isFirstReponder ? .accentColor : Color(NSColor.systemGray.withSystemEffect(.disabled)),
-                      lineWidth: 1)
-                  ResponderBackgroundView(responder: responder, cornerRadius: 4)
-                }
-                .id(keyboardShortcut.id)
-            }
-            .fixedSize()
-            .onDeleteCommand {
-              keyboardShortcuts.removeAll(where: { $0.id == keyboardShortcut.id })
-              action(.remove(keyboardShortcuts))
+    HStack(spacing: 0) {
+      ScrollView(.horizontal, showsIndicators: true) {
+        HStack {
+          if keyboardShortcuts.isEmpty {
+            RegularKeyIcon(letter: "Record keyboard shortcut")
+              .fixedSize()
+          } else {
+            ForEach(keyboardShortcuts) { keyboardShortcut in
+              ResponderView(keyboardShortcut, namespace: namespace) { responder in
+                key(keyboardShortcut)
+                  .background {
+                    RoundedRectangle(cornerRadius: 4)
+                      .stroke(
+                        responder.isFirstReponder ? .accentColor : Color(NSColor.systemGray.withSystemEffect(.disabled)),
+                        lineWidth: 1)
+                    ResponderBackgroundView(responder: responder, cornerRadius: 4)
+                  }
+                  .id(keyboardShortcut.id)
+              }
+              .fixedSize()
+              .onDeleteCommand {
+                keyboardShortcuts.removeAll(where: { $0.id == keyboardShortcut.id })
+                action(.remove(keyboardShortcuts))
+              }
             }
           }
         }
       }
       .frame(height: 36)
 
-      Spacer()
+      Divider()
       Button(action: {
         let shortcut = KeyShortcut.empty()
         action(.add(shortcut))

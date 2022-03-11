@@ -18,15 +18,16 @@ struct WorkflowCommandsListView: View, Equatable {
         Spacer()
       }
       LazyVStack {
-        ForEach($workflow.commands, id: \.self, content: { command in
+        MovableList(data: $workflow.commands, id: \.self,
+                    onMove: { indexSet, offset in
+          workflow.commands.move(fromOffsets: indexSet, toOffset: offset)
+        }) { command in
           ResponderView(command, namespace: namespace) { responder in
-            CommandView(workflow: $workflow, command: command, responder: responder)
+            CommandView(workflow: $workflow,
+                        command: command, responder: responder)
               .equatable()
           }
-          .onDeleteCommand {
-            workflow.commands.removeAll(where: { $0.id == command.id })
-          }
-        })
+        }
       }
     }
   }

@@ -15,18 +15,25 @@ struct SidebarToolbar: ToolbarContent {
     ToolbarItemGroup(placement: .status) {
       Button(action: { action(.toggleSidebar) },
              label: {
-        Image(systemName: "sidebar.left")
-          .renderingMode(.template)
-          .foregroundColor(Color(.systemGray))
+        Label(title: {
+          Text("Toggle Sidebar")
+        }, icon: {
+          Image(systemName: "sidebar.left")
+            .renderingMode(.template)
+            .foregroundColor(Color(.systemGray))
+        })
       })
-      .help("Toggle Sidebar")
 
-      Button(action: { action(.addGroup) }, label: {
-        Image(systemName: "folder.badge.plus")
-          .renderingMode(.template)
-          .foregroundColor(Color(.systemGray))
+      Button(action: { action(.toggleSidebar) },
+             label: {
+        Label(title: {
+          Text("Add group")
+        }, icon: {
+          Image(systemName: "folder.badge.plus")
+            .renderingMode(.template)
+            .foregroundColor(Color(.systemGray))
+        })
       })
-      .help("Add new Group")
     }
   }
 }

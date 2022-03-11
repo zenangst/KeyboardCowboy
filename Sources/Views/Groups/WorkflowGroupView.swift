@@ -12,11 +12,7 @@ struct WorkflowGroupView: View, Equatable {
         .cornerRadius(24, antialiased: true)
       Text(group.name)
       Spacer()
-      Text("\(group.workflows.count)")
-        .foregroundColor(.secondary)
-        .font(.callout)
-        .padding(.trailing, 4)
-    }
+    }.badge(group.workflows.count)
   }
 
   @ViewBuilder

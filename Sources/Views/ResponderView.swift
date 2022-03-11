@@ -4,7 +4,7 @@ import Combine
 import SwiftUI
 
 final class ResponderChain {
-  private var responders = [Responder]()
+  private(set) var responders = [Responder]()
   private var subscription: AnyCancellable?
   private var didBecomeActiveNotification: AnyCancellable?
   private var didResizeNotification: AnyCancellable?
@@ -104,6 +104,11 @@ final class ResponderChain {
       })
   }
 
+  func resignFirstResponder(_ responder: Responder) {
+    responder.view?.window?.resignFirstResponder()
+    responder.isFirstReponder = false
+  }
+
   func setPreviousResponder(_ currentResponder: Responder) {
     guard let view = currentResponder.view else { return }
 
@@ -129,22 +134,6 @@ final class ResponderChain {
         nextResponderFrame.origin.x < responderFrame.origin.x
       }) {
       makeFirstResponder(next.id)
-    } else {
-      let otherNamespaces = responders
-        .compactMap({ $0.namespace })
-        .unique()
-
-      if let currentNamespace = currentResponder.namespace,
-         let index = otherNamespaces.firstIndex(of: currentNamespace),
-         index > 0 {
-        guard let responder = responders.last(where: { $0.namespace == otherNamespaces[index - 1] }) else {
-          return
-        }
-
-        makeFirstResponder(responder.id)
-      } else {
-
-      }
     }
   }
 
@@ -170,20 +159,6 @@ final class ResponderChain {
 
       }) {
       makeFirstResponder(next.id)
-    } else {
-      let otherNamespaces = responders
-        .compactMap({ $0.namespace })
-        .unique()
-
-      if let currentNamespace = currentResponder.namespace,
-         let index = otherNamespaces.firstIndex(of: currentNamespace),
-         index < otherNamespaces.count - 1 {
-        guard let responder = responders.first(where: { $0.namespace == otherNamespaces[index + 1] }) else {
-          return
-        }
-
-        makeFirstResponder(responder.id)
-      }
     }
   }
 
@@ -268,6 +243,9 @@ struct ResponderView<Content>: View where Content: View {
       }
       content(responder)
         .onHover { responder.isHovering = $0 }
+        .onExitCommand(perform: {
+          Swift.print("hello world!")
+        })
         .gesture(
           TapGesture().modifiers(.shift).onEnded { _ in
             responder.makeFirstResponder?(true)
@@ -323,12 +301,16 @@ private final class FocusNSView: NSControl {
   override var canBecomeKeyView: Bool { true }
   override var acceptsFirstResponder: Bool { true }
 
+  private let responderChain: ResponderChain
   private let responder: Responder
   private var firstResponderSubscription: AnyCancellable?
   private var windowSubscription: AnyCancellable?
   private var actionHandler: (ResponderAction) -> Void
 
-  fileprivate init(_ responder: Responder, action: @escaping (ResponderAction) -> Void) {
+  fileprivate init(_ responder: Responder,
+                   responderChain: ResponderChain = .shared,
+                   action: @escaping (ResponderAction) -> Void) {
+    self.responderChain = responderChain
     self.responder = responder
     self.actionHandler = action
     super.init(frame: .zero)
@@ -350,13 +332,16 @@ private final class FocusNSView: NSControl {
     case kVK_ANSI_A:
       guard let namespace = responder.namespace,
             event.modifierFlags.contains(.command) else { return }
-      ResponderChain.shared.selectNamespace(namespace)
+      responderChain.selectNamespace(namespace)
     case kVK_Escape:
-      ResponderChain.shared.resetSelection()
+      let shouldResignFirstResponder = responderChain.responders.filter({ $0.isSelected }).isEmpty
+      responderChain.resetSelection()
+      guard shouldResignFirstResponder else { return }
+      responderChain.resignFirstResponder(responder)
     case kVK_DownArrow, kVK_RightArrow:
-      ResponderChain.shared.setNextResponder(responder)
+      responderChain.setNextResponder(responder)
     case kVK_UpArrow, kVK_LeftArrow:
-      ResponderChain.shared.setPreviousResponder(responder)
+      responderChain.setPreviousResponder(responder)
     case kVK_Return:
       actionHandler(.enter)
     default:
@@ -371,15 +356,15 @@ private final class FocusNSView: NSControl {
         responder.isFirstReponder = firstResponder == self
       }
 
-    responder.makeFirstResponder = { [weak self] isSelected in
+    responder.makeFirstResponder = { [weak self, responderChain] isSelected in
       guard let self = self else { return }
       if isSelected {
-        ResponderChain.shared.extendSelection(self.responder)
+        responderChain.extendSelection(self.responder)
       } else {
-        ResponderChain.shared.resetSelection()
+        responderChain.resetSelection()
       }
       window.makeFirstResponder(self)
-      ResponderChain.shared.responderId = self.responder.id
+      responderChain.responderId = self.responder.id
     }
   }
 }
