@@ -3,7 +3,7 @@ import Carbon
 import Combine
 import SwiftUI
 
-final class ResponderChain {
+final class ResponderChain: ObservableObject {
   private(set) var responders = [Responder]()
   private var subscription: AnyCancellable?
   private var didBecomeActiveNotification: AnyCancellable?
@@ -37,6 +37,10 @@ final class ResponderChain {
 
   func resetSelection() {
     responders.forEach { $0.isSelected = false }
+  }
+
+  func select(_ responders: [Responder]) {
+    responders.forEach { $0.isSelected = true }
   }
 
   func extendSelection(_ responder: Responder) {
@@ -98,7 +102,7 @@ final class ResponderChain {
     subscription = responder.$makeFirstResponder
       .compactMap { $0 }
       .sink(receiveValue: { [weak self] completion in
-        completion(false)
+        completion(.none)
         self?.subscription = nil
         self?.responderId = id
       })
@@ -189,6 +193,9 @@ final class ResponderChain {
 }
 
 final class Responder: ObservableObject {
+  enum Modifier {
+    case shift, command
+  }
   weak var view: NSView?
 
   let id: String
@@ -197,7 +204,7 @@ final class Responder: ObservableObject {
   @Published var isFirstReponder: Bool
   @Published var isHovering: Bool
   @Published var isSelected: Bool
-  @Published var makeFirstResponder: ((Bool) -> Void)?
+  @Published var makeFirstResponder: ((Modifier?) -> Void)?
 
   init(_ id: String = UUID().uuidString, namespace: Namespace.ID? = nil) {
     self.id = id
@@ -245,11 +252,16 @@ struct ResponderView<Content>: View where Content: View {
         .onHover { responder.isHovering = $0 }
         .gesture(
           TapGesture().modifiers(.shift).onEnded { _ in
-            responder.makeFirstResponder?(true)
+            responder.makeFirstResponder?(.shift)
+          }
+        )
+        .gesture(
+          TapGesture().modifiers(.command).onEnded { _ in
+            responder.makeFirstResponder?(.command)
           }
         )
         .onTapGesture {
-          responder.makeFirstResponder?(false)
+          responder.makeFirstResponder?(.none)
         }
     }
   }
@@ -298,7 +310,7 @@ private final class FocusNSView: NSControl {
   override var canBecomeKeyView: Bool { true }
   override var acceptsFirstResponder: Bool { true }
 
-  private let responderChain: ResponderChain
+  private let chain: ResponderChain
   private let responder: Responder
   private var firstResponderSubscription: AnyCancellable?
   private var windowSubscription: AnyCancellable?
@@ -307,7 +319,7 @@ private final class FocusNSView: NSControl {
   fileprivate init(_ responder: Responder,
                    responderChain: ResponderChain = .shared,
                    action: @escaping (ResponderAction) -> Void) {
-    self.responderChain = responderChain
+    self.chain = responderChain
     self.responder = responder
     self.actionHandler = action
     super.init(frame: .zero)
@@ -329,16 +341,16 @@ private final class FocusNSView: NSControl {
     case kVK_ANSI_A:
       guard let namespace = responder.namespace,
             event.modifierFlags.contains(.command) else { return }
-      responderChain.selectNamespace(namespace)
+      chain.selectNamespace(namespace)
     case kVK_Escape:
-      let shouldResignFirstResponder = responderChain.responders.filter({ $0.isSelected }).isEmpty
-      responderChain.resetSelection()
+      let shouldResignFirstResponder = chain.responders.filter({ $0.isSelected }).isEmpty
+      chain.resetSelection()
       guard shouldResignFirstResponder else { return }
-      responderChain.resignFirstResponder(responder)
+      chain.resignFirstResponder(responder)
     case kVK_DownArrow, kVK_RightArrow:
-      responderChain.setNextResponder(responder)
+      chain.setNextResponder(responder)
     case kVK_UpArrow, kVK_LeftArrow:
-      responderChain.setPreviousResponder(responder)
+      chain.setPreviousResponder(responder)
     case kVK_Return:
       actionHandler(.enter)
     default:
@@ -353,15 +365,27 @@ private final class FocusNSView: NSControl {
         responder.isFirstReponder = firstResponder == self
       }
 
-    responder.makeFirstResponder = { [weak self, responderChain] isSelected in
+    responder.makeFirstResponder = { [weak self, chain, responder] modifier in
       guard let self = self else { return }
-      if isSelected {
-        responderChain.extendSelection(self.responder)
-      } else {
-        responderChain.resetSelection()
+      switch modifier {
+      case .shift:
+        chain.extendSelection(responder)
+      case .command:
+        guard let selectedNamespace = responder.namespace else { return }
+
+        let responders = chain.responders
+          .filter({ $0.namespace == selectedNamespace })
+
+        if !responders.filter({ $0.isFirstReponder }).isEmpty {
+          responder.isSelected.toggle()
+          return
+        }
+      case .none:
+        chain.resetSelection()
       }
+
       window.makeFirstResponder(self)
-      responderChain.responderId = self.responder.id
+      chain.responderId = responder.id
     }
   }
 }

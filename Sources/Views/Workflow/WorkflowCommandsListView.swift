@@ -18,18 +18,22 @@ struct WorkflowCommandsListView: View, Equatable {
         Spacer()
       }
       LazyVStack {
-        EditableVStack(data: $workflow.commands,
-                       id: \.self,
-                       
-                       onMove: { indexSet, offset in
-          workflow.commands.move(fromOffsets: indexSet, toOffset: offset)
-        }) { command in
-          ResponderView(command, namespace: namespace) { responder in
-            CommandView(workflow: $workflow,
-                        command: command, responder: responder)
+        EditableVStack(
+          data: $workflow.commands,
+          id: \.self,
+          namespace: namespace,
+          onDelete: { indexSet in
+            workflow.commands.remove(atOffsets: indexSet)
+          },
+          onMove: { indexSet, offset in
+            workflow.commands.move(fromOffsets: indexSet, toOffset: offset)
+          }) { command in
+            ResponderView(command, namespace: namespace) { responder in
+              CommandView(workflow: $workflow,
+                          command: command, responder: responder)
               .equatable()
+            }
           }
-        }
       }
     }
   }

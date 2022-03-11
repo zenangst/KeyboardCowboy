@@ -46,9 +46,11 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
     case up(Int)
     case down(Int)
   }
-  var data: Binding<Data>
+  @Binding var data: Data
   var id: KeyPath<Data.Element, ID>
+  var responderChain: ResponderChain = .shared
   var namespace: Namespace.ID?
+  var onDelete: ((_ indexSet: IndexSet) -> Void)? = nil
   var onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
   var content: (Binding<Data.Element>) -> Content
   @GestureState var dragState = MoveState<Data.Element>.inactive
@@ -57,7 +59,7 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   @State var dropIndex: DropIndex?
 
   var body: some View {
-    ForEach(Array(data.enumerated()), id: \.element.id) { offset, element in
+    ForEach(Array($data.enumerated()), id: \.element.id) { offset, element in
       VStack(spacing: 0) {
         ZStack {
           VStack {
@@ -125,6 +127,16 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
             )
         }
       }
+    }.onDeleteCommand {
+      let responders = responderChain.responders
+        .enumerated()
+        .filter { _, responder in
+          responder.namespace != .none &&
+          responder.namespace == namespace &&
+          (responder.isSelected || responder.isFirstReponder)
+        }
+      responders.forEach { responderChain.remove($0.element) }
+      onDelete?(IndexSet(responders.compactMap({ $0.offset })))
     }
   }
 
