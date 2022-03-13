@@ -4,7 +4,7 @@ import Combine
 import SwiftUI
 
 final class ResponderChain: ObservableObject {
-  private(set) var responders = [Responder]()
+  @Published private(set) var responders = [Responder]()
   private var subscription: AnyCancellable?
   private var didBecomeActiveNotification: AnyCancellable?
   private var didResizeNotification: AnyCancellable?

@@ -36,7 +36,7 @@ struct KeyShortcutsListView: View, Equatable {
               }
             }
           }
-        }
+        }.padding(4)
       }
       .frame(height: 36)
 

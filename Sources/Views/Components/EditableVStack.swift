@@ -41,12 +41,12 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
                                                      Data.Index: Hashable,
                                                      ID: Hashable {
   private enum DropIndex {
-    case up(Int)
-    case down(Int)
+    case up(Data.Element.ID)
+    case down(Data.Element.ID)
   }
   @Binding private(set) var data: Data
   private(set) var id: KeyPath<Data.Element, ID>
-  private(set) var responderChain: ResponderChain = .shared
+  @ObservedObject private(set) var responderChain: ResponderChain = .shared
   private(set) var namespace: Namespace.ID?
   private(set) var onDelete: ((_ indexSet: IndexSet) -> Void)? = nil
   private(set) var onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
@@ -58,23 +58,23 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   @State private var dropIndex: DropIndex?
 
   var body: some View {
-    ForEach(Array($data.enumerated()), id: \.element.id) { offset, element in
+    ForEach($data, id: id) { element in
       VStack(spacing: 0) {
         ZStack {
           VStack {
             switch dropIndex {
-            case .up(let index):
+            case .up(let identifier):
               RoundedRectangle(cornerRadius: 1)
                  .fill(Color.accentColor)
                  .frame(height: 2)
-                 .opacity(index == offset ? 1.0 : 0.0)
+                 .opacity(identifier == element.id ? 1.0 : 0.0)
                Spacer()
-            case .down(let index):
+            case .down(let identifier):
               Spacer()
               RoundedRectangle(cornerRadius: 1)
                  .fill(Color.accentColor)
                  .frame(height: 2)
-                 .opacity(index - 1 == offset ? 1.0 : 0.0)
+                 .opacity(identifier == element.id ? 1.0 : 0.0)
             case .none:
               Spacer()
             }
@@ -105,9 +105,10 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
 
                   let newIndex = calculateNewIndex(value, currentIndex: currentIndex)
                   if newIndex > currentIndex {
-                    dropIndex = .down(newIndex)
+                    let constrained = max(newIndex - 1, 0)
+                    dropIndex = .down(data[constrained as! Data.Index].id)
                   } else if newIndex < currentIndex {
-                    dropIndex = .up(newIndex)
+                    dropIndex = .up(data[newIndex as! Data.Index].id)
                   } else {
                     dropIndex = .none
                   }
@@ -128,14 +129,18 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
       }
     }.onDeleteCommand {
       let responders = responderChain.responders
-        .enumerated()
-        .filter { _, responder in
+        .filter { responder in
           responder.namespace != .none &&
-          responder.namespace == namespace &&
-          (responder.isSelected || responder.isFirstReponder)
+          responder.namespace == namespace
         }
-      responders.forEach { responderChain.remove($0.element) }
-      onDelete?(IndexSet(responders.compactMap({ $0.offset })))
+      var indexes = [Int]()
+      for (offset, responder) in responders.enumerated() {
+        if responder.isFirstReponder || responder.isSelected {
+          indexes.append(offset)
+          responderChain.remove(responder)
+        }
+      }
+      onDelete?(IndexSet(indexes))
     }
   }
 
