@@ -17,7 +17,7 @@ struct WorkflowCommandsListView: View, Equatable {
           .labelStyle(HeaderLabelStyle())
         Spacer()
       }
-      LazyVStack {
+      LazyVStack(spacing: 0) {
         EditableVStack(
           data: $workflow.commands,
           id: \.self,
@@ -28,13 +28,17 @@ struct WorkflowCommandsListView: View, Equatable {
           onMove: { indexSet, offset in
             workflow.commands.move(fromOffsets: indexSet, toOffset: offset)
           }) { command in
-            ResponderView(command, namespace: namespace) { responder in
-              CommandView(workflow: $workflow,
-                          command: command, responder: responder)
-              .equatable()
+            VStack(spacing: 0) {
+              ResponderView(command, namespace: namespace) { responder in
+                CommandView(workflow: $workflow,
+                            command: command, responder: responder)
+                .equatable()
+              }
             }
           }
       }
+      .cornerRadius(8)
+      .shadow(radius: 0.2)
     }
   }
 

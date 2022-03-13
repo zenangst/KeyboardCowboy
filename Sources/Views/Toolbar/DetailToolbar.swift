@@ -9,7 +9,11 @@ struct DetailToolbar: ToolbarContent {
 
   var body: some ToolbarContent {
     ToolbarItemGroup(placement: .primaryAction) {
-      Button(action: { action(.addCommand) },
+      Button(action: {
+        withAnimation(.interactiveSpring()) {
+          action(.addCommand)
+        }
+      },
              label: {
         Label(title: {
           Text("Add command")

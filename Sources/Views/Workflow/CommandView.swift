@@ -31,7 +31,6 @@ struct CommandView: View, Equatable {
     }
     .padding(4)
     .background(backgroundView)
-    .cornerRadius(8)
     .opacity(!workflow.isEnabled ? 0.9 : command.isEnabled ? 1.0 : 0.8)
   }
 
@@ -85,7 +84,7 @@ struct CommandView: View, Equatable {
         ),
         startPoint: .top,
         endPoint: .bottom)
-      ResponderBackgroundView(responder: responder)
+      ResponderBackgroundView(responder: responder, cornerRadius: 0)
     }
   }
 }

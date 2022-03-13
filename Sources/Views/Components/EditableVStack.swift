@@ -140,7 +140,9 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
           responderChain.remove(responder)
         }
       }
-      onDelete?(IndexSet(indexes))
+      withAnimation(.interactiveSpring()) {
+        onDelete?(IndexSet(indexes))
+      }
     }
   }
 
