@@ -54,7 +54,8 @@ struct ContentView: View, Equatable {
       })
 
       DetailView(applicationStore: store.applicationStore,
-                 focus: _focus, workflows: $store.selectedWorkflows)
+                 focus: _focus, workflows: $store.selectedWorkflows,
+                 action: handleDetailAction(_:))
       .equatable()
       .toolbar { DetailToolbar(action: handleDetailToolbarAction(_:)) }
       // Handle workflow updates
@@ -107,6 +108,29 @@ struct ContentView: View, Equatable {
     case .addCommand:
       guard !selectedWorkflows.isEmpty else { return }
       selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A"))))
+    }
+  }
+
+  private func handleDetailAction(_ action: DetailView.Action) -> Void {
+    switch action {
+    case .workflow(let detailAction):
+      switch detailAction {
+      case .workflow(let workflowAction):
+        switch workflowAction {
+        case .commandView(let commandViewAction):
+          switch commandViewAction {
+          case .commandAction(let commandAction):
+            switch commandAction {
+            case .edit:
+              break
+            case .run:
+              break
+            case .reveal:
+              break
+            }
+          }
+        }
+      }
     }
   }
 }

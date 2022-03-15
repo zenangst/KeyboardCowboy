@@ -2,10 +2,15 @@ import Apps
 import SwiftUI
 
 struct CommandView: View, Equatable {
+  enum Action {
+    case commandAction(CommandActionsView.Action)
+  }
   @Environment(\.colorScheme) var colorScheme
   @Binding var workflow: Workflow
   @Binding var command: Command
   @ObservedObject var responder: Responder
+
+  var action: (Action) -> Void
 
   var body: some View {
     HStack(alignment: .center) {
@@ -13,7 +18,13 @@ struct CommandView: View, Equatable {
         .frame(width: 36, height: 36)
       VStack(alignment: .leading, spacing: 0) {
         Text(command.name)
-        CommandActionsView()
+        CommandActionsView(
+          responder: responder,
+          command: $command,
+          action: { action in
+            self.action(.commandAction(action))
+          }
+        )
       }
       Spacer()
 
@@ -94,6 +105,7 @@ struct CommandView_Previews: PreviewProvider {
     CommandView(
       workflow: .constant(Workflow.empty()),
       command: .constant(Command.application(.init(application: Application.finder()))),
-      responder: Responder())
+      responder: Responder(),
+      action: { _ in })
   }
 }

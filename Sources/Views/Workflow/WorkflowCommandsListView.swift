@@ -2,6 +2,10 @@ import Apps
 import SwiftUI
 
 struct WorkflowCommandsListView: View, Equatable {
+  enum Action {
+    case commandView(CommandView.Action)
+  }
+
   enum Focusable: Hashable {
     case none
     case row(id: String)
@@ -9,6 +13,7 @@ struct WorkflowCommandsListView: View, Equatable {
 
   @Binding var workflow: Workflow
   @Namespace var namespace
+  var action: (Action) -> Void
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -31,7 +36,9 @@ struct WorkflowCommandsListView: View, Equatable {
             VStack(spacing: 0) {
               ResponderView(command, namespace: namespace) { responder in
                 CommandView(workflow: $workflow,
-                            command: command, responder: responder)
+                            command: command, responder: responder) { action in
+                  self.action(.commandView(action))
+                }
                 .equatable()
               }
             }
@@ -51,6 +58,6 @@ struct WorkflowCommandsView_Previews: PreviewProvider {
   static var previews: some View {
     WorkflowCommandsListView(workflow: .constant(Workflow.designTime(.application([
       ApplicationTrigger.init(application: Application.finder())
-    ]))))
+    ]))), action: { _ in })
   }
 }

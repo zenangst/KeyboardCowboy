@@ -200,11 +200,14 @@ final class Responder: ObservableObject {
 
   let id: String
   var namespace: Namespace.ID?
+  var isHighlighted: Bool { isFirstReponder || isSelected }
 
   @Published var isFirstReponder: Bool
   @Published var isHovering: Bool
   @Published var isSelected: Bool
   @Published var makeFirstResponder: ((Modifier?) -> Void)?
+
+
 
   init(_ id: String = UUID().uuidString, namespace: Namespace.ID? = nil) {
     self.id = id

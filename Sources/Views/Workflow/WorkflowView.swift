@@ -2,9 +2,35 @@ import Apps
 import SwiftUI
 
 struct WorkflowView: View, Equatable {
+  enum Action {
+    case workflow(WorkflowCommandsListView.Action)
+  }
+  enum Sheet: Identifiable {
+    var id: String {
+      switch self {
+      case .edit(let command):
+        return command.id
+      }
+    }
+    case edit(Command)
+  }
+
   let applicationStore: ApplicationStore
   @FocusState var focus: Focus?
+  @State var sheet: Sheet?
   @Binding var workflow: Workflow
+
+  var action: (Action) -> Void
+
+  init(applicationStore: ApplicationStore,
+       focus: FocusState<Focus?> = .init(),
+       workflow: Binding<Workflow>,
+       action: @escaping (Action) -> Void) {
+    _focus = focus
+    _workflow = workflow
+    self.applicationStore = applicationStore
+    self.action = action
+  }
 
   var body: some View {
     ScrollView {
@@ -26,11 +52,35 @@ struct WorkflowView: View, Equatable {
       .background(Color(.textBackgroundColor))
 
       VStack(alignment: .leading) {
-        WorkflowCommandsListView(workflow: $workflow)
+        WorkflowCommandsListView(workflow: $workflow, action: { action in
+          switch action {
+          case .commandView(let action):
+            switch action {
+            case .commandAction(let action):
+              switch action {
+              case .edit(let command):
+                sheet = .edit(command)
+              case .run, .reveal:
+                break
+              }
+            }
+          }
+          self.action(.workflow(action))
+        })
           .equatable()
           .padding(8)
       }.padding([.leading, .trailing])
     }
+    .sheet(item: $sheet, content: { sheetType in
+      switch sheetType {
+      case .edit(let command):
+        EditCommandView(applicationStore: applicationStore, openPanelController: OpenPanelController(), saveAction: { _ in
+          sheet = nil
+        }, cancelAction: {
+          sheet = nil
+        }, selection: command, command: command)
+      }
+    })
     .background(gradient)
   }
 
@@ -59,6 +109,6 @@ struct WorkflowView_Previews: PreviewProvider {
         .init(key: "A", modifiers: [.command]),
         .init(key: "B", modifiers: [.function]),
       ])
-    )))
+      )), action: { _ in })
   }
 }

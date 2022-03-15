@@ -206,4 +206,54 @@ public extension Command {
       return Command.type(.init(name: "", input: ""))
     }
   }
+
+  static func commands(id: String = UUID().uuidString) -> [Command] {
+    let result = [
+      applicationCommand(id: id),
+      appleScriptCommand(id: id),
+      shellScriptCommand(id: id),
+      keyboardCommand(id: id),
+      openCommand(id: id),
+      urlCommand(id: id, application: nil),
+      typeCommand(id: id),
+      Command.builtIn(.init(kind: .quickRun))
+    ]
+
+    return result
+  }
+
+  static func applicationCommand(id: String) -> Command {
+    Command.application(.init(id: id, application: Application.messages(name: "Application")))
+  }
+
+  static func appleScriptCommand(id: String) -> Command {
+    Command.script(ScriptCommand.empty(.appleScript, id: id))
+  }
+
+  static func shellScriptCommand(id: String) -> Command {
+    Command.script(ScriptCommand.empty(.shell, id: id))
+  }
+
+  static func keyboardCommand(id: String) -> Command {
+    Command.keyboard(.init(id: id, keyboardShortcut: KeyShortcut.empty()))
+  }
+
+  static func openCommand(id: String) -> Command {
+    Command.open(.init(id: id,
+                       application: Application(
+                        bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
+                        bundleName: "",
+                        path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
+                       path: "~/Developer/Xcode.project"))
+  }
+
+  static func urlCommand(id: String, application: Application?) -> Command {
+    Command.open(.init(id: id,
+                       application: application,
+                       path: "https://github.com"))
+  }
+
+  static func typeCommand(id: String) -> Command {
+    Command.type(.init(id: id, name: "Type input", input: ""))
+  }
 }

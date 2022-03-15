@@ -1,9 +1,13 @@
 import SwiftUI
 
 struct DetailView: View, Equatable {
+  enum Action {
+    case workflow(WorkflowView.Action)
+  }
   let applicationStore: ApplicationStore
   @FocusState var focus: Focus?
   @Binding var workflows: [Workflow]
+  var action: (Action) -> Void
 
   var body: some View {
     if workflows.count > 1 {
@@ -12,7 +16,9 @@ struct DetailView: View, Equatable {
       ForEach($workflows, content: { workflow in
         WorkflowView(applicationStore: applicationStore,
                      focus: _focus,
-                     workflow: workflow)
+                     workflow: workflow) { action in
+          self.action(.workflow(action))
+        }
       })
     }
   }
@@ -28,6 +34,6 @@ struct DetailView_Previews: PreviewProvider {
       applicationStore: ApplicationStore(),
       workflows: .constant([
       Workflow.designTime(nil)
-    ]))
+      ]), action: { _ in })
   }
 }

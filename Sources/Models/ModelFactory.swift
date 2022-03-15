@@ -9,8 +9,41 @@ public class ModelFactory {
                 path: "/System/Library/CoreServices/Finder.app")
   }
 
+  func commands(id: String = UUID().uuidString) -> [Command] {
+    let result: [Command] = [
+      Command.application(applicationCommand(id: id)),
+      Command.appleScriptCommand(id: id),
+      Command.shellScriptCommand(id: id),
+      Command.keyboardCommand(id: id),
+      Command.openCommand(id: id),
+      Command.urlCommand(id: id, application: nil),
+      Command.typeCommand(id: id),
+      Command.builtIn(.init(kind: .quickRun))
+    ]
+
+    return result
+  }
+
   func applicationCommand(id: String = UUID().uuidString) -> ApplicationCommand {
     .init(id: id, action: .open, application: Self.application(id: id))
+  }
+
+  func appleScriptCommand(id: String) -> Command {
+    Command.script(ScriptCommand.empty(.appleScript, id: id))
+  }
+
+  func shellScriptCommand(id: String) -> Command {
+    Command.script(ScriptCommand.empty(.shell, id: id))
+  }
+
+  func urlCommand(id: String, application: Application?) -> Command {
+    Command.open(.init(id: id,
+                       application: application,
+                       path: "https://github.com"))
+  }
+
+  func typeCommand(id: String) -> Command {
+    Command.type(.init(id: id, name: "Type input", input: ""))
   }
 
   func days() -> [Rule.Day] {
