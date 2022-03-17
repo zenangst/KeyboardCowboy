@@ -74,7 +74,10 @@ struct WorkflowView: View, Equatable {
     .sheet(item: $sheet, content: { sheetType in
       switch sheetType {
       case .edit(let command):
-        EditCommandView(applicationStore: applicationStore, openPanelController: OpenPanelController(), saveAction: { _ in
+        EditCommandView(applicationStore: applicationStore,
+                        openPanelController: OpenPanelController(),
+                        saveAction: { newCommand in
+          workflow.updateOrAddCommand(newCommand)
           sheet = nil
         }, cancelAction: {
           sheet = nil

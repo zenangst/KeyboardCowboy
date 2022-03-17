@@ -11,6 +11,10 @@ final class ApplicationStore: ObservableObject {
     reload()
   }
 
+  func application(for bundleIdentifier: String) -> Application? {
+    applications.first(where: { $0.bundleIdentifier == bundleIdentifier })
+  }
+
   func reload() {
     Task(priority: .userInitiated) {
       self.subscription = ApplicationController.asyncLoadApplications()

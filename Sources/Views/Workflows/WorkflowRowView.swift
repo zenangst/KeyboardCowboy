@@ -6,23 +6,20 @@ struct WorkflowRowView: View, Equatable {
 
   var body: some View {
     HStack {
-      VStack(alignment: .leading, spacing: 0) {
-        Text(workflow.name)
-        HStack {
-          Text("\(workflow.commands.count) command") + Text(workflow.commands.count > 1 ? "s" : "")
-          if let trigger = workflow.trigger {
-            Divider().frame(height: 10)
-            triggers(trigger)
-          }
-        }
-        .font(Font.caption)
-        .foregroundColor(Color(.secondaryLabelColor))
-      }
-      Spacer()
       icons(workflow.commands)
+        .frame(width: 32, height: 32)
+      Text(workflow.name)
+        .lineLimit(1)
+        .allowsTightening(true)
+      Spacer()
+      if let trigger = workflow.trigger {
+        triggers(trigger)
+          .font(.caption)
+      }
     }
     .padding(4)
     .opacity(workflow.isEnabled ? 1.0 : 0.6)
+    .if(workflow.commands.count > 1, transform: { $0.badge(workflow.commands.count) })
   }
 
   @ViewBuilder
@@ -48,22 +45,15 @@ struct WorkflowRowView: View, Equatable {
 
   @ViewBuilder
   func contextView(_ contexts: Set<ApplicationTrigger.Context>) -> some View {
-    HStack(spacing: 1) {
-      if contexts.contains(.closed) {
-        Circle().fill(Color(.systemRed))
-          .frame(width: 6)
-      }
-      if contexts.contains(.launched) {
-        Circle().fill(Color(.systemYellow))
-          .frame(width: 6)
-      }
-      if contexts.contains(.frontMost) {
-        Circle().fill(Color(.systemGreen))
-          .frame(width: 6)
-      }
+    VStack(spacing: 1) {
+      Circle().fill( contexts.contains(.closed) ?  Color(.systemRed) : Color.clear)
+        .frame(width: 3, height: 3)
+      Circle().fill( contexts.contains(.launched) ?  Color(.systemYellow) : Color.clear)
+        .frame(width: 3, height: 3)
+      Circle().fill( contexts.contains(.frontMost) ?  Color(.systemGreen) : Color.clear)
+        .frame(width: 3, height: 3)
     }
-    .frame(height: 10)
-    .padding(.horizontal, 1)
+    .padding(1)
     .overlay(
       RoundedRectangle(cornerRadius: 4)
         .stroke(Color(NSColor.systemGray.withSystemEffect(.disabled)), lineWidth: 1)
@@ -97,9 +87,8 @@ struct WorkflowRowView: View, Equatable {
           .frame(width: 32, height: 32)
       }
     case .keyboard(let command):
-      RegularKeyIcon(letter: command.keyboardShortcut.key)
+      RegularKeyIcon(letter: command.keyboardShortcut.key, width: 32, height: 32)
         .frame(width: 24, height: 24)
-        .offset(x: -4, y: 0)
     case .open(let command):
       if let application = command.application {
         IconView(path: application.path)

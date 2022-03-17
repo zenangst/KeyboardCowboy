@@ -10,20 +10,9 @@ struct ApplicationTriggerView: View {
         .frame(width: 32, height: 32, alignment: .center)
       Text(trigger.application.displayName)
       Spacer()
-      ForEach(ApplicationTrigger.Context.allCases) { context in
-        Toggle(context.displayName,
-               isOn: Binding<Bool>(
-                get: { trigger.contexts.contains(context) == true },
-                set: { _ in
-                  if trigger.contexts.contains(context) {
-                    trigger.contexts.remove(context)
-                  } else {
-                    trigger.contexts.insert(context)
-                  }
-                }
-               )).font(.caption)
-      }
-      
+      TogglesView(ApplicationTrigger.Context.allCases,
+                  enabled: $trigger.contexts, id: \.id)
+        .font(.caption)
     }
   }
 

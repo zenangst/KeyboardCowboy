@@ -10,15 +10,18 @@ struct ApplicationTriggerListView: View {
   let action: (Action) -> Void
   @StateObject var applicationStore: ApplicationStore
   @Binding var applicationTriggers: [ApplicationTrigger]
-  @State var selection: String = ""
+  @State var selectedApplication: Application?
   @Namespace var namespace
 
   var body: some View {
     VStack {
-      ApplicationPickerView(applicationStore.applications) { application in
-        self.action(.add(application))
+      HStack {
+        ApplicationPickerView(applicationStore, selection: $selectedApplication)
+        Button("Add") {
+          guard let selectedApplication = selectedApplication else { return }
+          action(.add(selectedApplication))
+        }.disabled(selectedApplication == nil)
       }
-      Spacer()
       LazyVStack {
         ForEach($applicationTriggers) { applicationTrigger in
           ResponderView(applicationTrigger, namespace: namespace) { responder in
@@ -36,6 +39,7 @@ struct ApplicationTriggerListView: View {
         }
       }
     }
+    .frame(alignment: .topLeading)
   }
 
   @ViewBuilder
@@ -68,7 +72,10 @@ struct ApplicationTriggerListView_Previews: PreviewProvider {
   static var previews: some View {
     ApplicationTriggerListView(
       action: { _ in },
-      applicationStore: ApplicationStore(),
-      applicationTriggers: .constant([]))
+      applicationStore: applicationStore,
+      applicationTriggers: .constant([
+        .init(application: Application.finder())
+      ])
+    )
   }
 }

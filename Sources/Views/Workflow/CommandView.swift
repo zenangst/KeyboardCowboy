@@ -29,18 +29,12 @@ struct CommandView: View, Equatable {
       Spacer()
 
       VStack {
-        Toggle("", isOn: Binding<Bool>(get: { command.isEnabled },
-                                       set: { command.isEnabled = $0 }))
+        Toggle("", isOn: $command.isEnabled)
           .toggleStyle(SwitchToggleStyle())
       }.font(Font.caption)
-
-      Text("≣")
-        .font(.title)
-        .foregroundColor(Color(.windowFrameTextColor))
-        .padding(.horizontal, 16)
-        .offset(x: 0, y: -2)
     }
-    .padding(4)
+    .padding([.top, .bottom], 4)
+    .padding([.leading, .trailing], 8)
     .background(backgroundView)
     .opacity(!workflow.isEnabled ? 0.9 : command.isEnabled ? 1.0 : 0.8)
   }

@@ -14,12 +14,12 @@ public struct ApplicationTrigger: Hashable, Identifiable, Codable, Sendable {
     self.contexts = Set(contexts)
   }
 
-  public enum Context: String, Hashable, Codable, CaseIterable, Identifiable, Sendable {
+  public enum Context: String, Toggleable, Hashable, Codable, CaseIterable, Sendable {
     public var id: String { rawValue }
 
     case closed, launched, frontMost
 
-    public var displayName: String {
+    public var displayValue: String {
       switch self {
       case .launched:
         return "Launched"

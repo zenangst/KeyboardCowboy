@@ -227,23 +227,28 @@ struct ResponderView<Content>: View where Content: View {
   @StateObject var responder: Responder
   let content: (Responder) -> Content
   let action: ResponderHandler?
+  let onDoubleClick: (() -> Void)?
 
   init<T: Identifiable>(_ identifiable: T,
                         namespace: Namespace.ID? = nil,
                         action: ResponderHandler? = nil,
+                        onDoubleClick: (() -> Void)? = nil,
                         content: @escaping (Responder) -> Content) where T.ID == String {
     _responder = .init(wrappedValue: .init(identifiable.id, namespace: namespace))
     self.content = content
     self.action = action
+    self.onDoubleClick = onDoubleClick
   }
 
   init(_ id: String = UUID().uuidString,
        namespace: Namespace.ID? = nil,
        action: ResponderHandler? = nil,
+       onDoubleClick: (() -> Void)? = nil,
        content: @escaping (Responder) -> Content) {
     _responder = .init(wrappedValue: .init(id, namespace: namespace))
     self.content = content
     self.action = action
+    self.onDoubleClick = onDoubleClick
   }
 
   var body: some View {
@@ -254,18 +259,22 @@ struct ResponderView<Content>: View where Content: View {
       content(responder)
         .onHover { responder.isHovering = $0 }
         .gesture(
-          TapGesture().modifiers(.shift).onEnded { _ in
+          TapGesture().modifiers(.shift).onEnded {
             responder.makeFirstResponder?(.shift)
           }
         )
         .gesture(
-          TapGesture().modifiers(.command).onEnded { _ in
+          TapGesture().modifiers(.command).onEnded {
             responder.makeFirstResponder?(.command)
           }
         )
-        .onTapGesture {
-          responder.makeFirstResponder?(.none)
-        }
+        .gesture(
+          TapGesture(count: 1).onEnded({
+            responder.makeFirstResponder?(.none)
+          }).simultaneously(with: TapGesture(count: 2).onEnded({
+            onDoubleClick?()
+          }))
+        )
     }
   }
 }

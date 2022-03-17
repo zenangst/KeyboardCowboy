@@ -115,7 +115,7 @@ private extension EditCommandView {
     case .application(let command):
       EditApplicationCommandView(
         command: command,
-        installedApplications: applicationStore.applications) { applicationCommand in
+        applicationStore: applicationStore) { applicationCommand in
         self.command = .application(applicationCommand)
       }
     case .script(let kind):

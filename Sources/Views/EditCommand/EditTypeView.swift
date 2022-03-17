@@ -16,7 +16,7 @@ struct EditTypeView: View {
       Divider()
       VStack {
         LazyVGrid(columns: [
-          GridItem(.fixed(50), alignment: .trailing),
+          GridItem(.fixed(50), alignment: .topTrailing),
           GridItem(.flexible())
         ], content: {
           Text("Name:")
@@ -28,14 +28,17 @@ struct EditTypeView: View {
           }))
 
           Text("Input:")
-          TextField(command.input, text: Binding(get: {
+          TextEditor(text: Binding(get: {
             command.input
           }, set: {
             command = TypeCommand(id: command.id, name: command.name,
                                   input: $0)
           }))
+          .frame(height: 320)
         })
-      }.padding()
+      }
+      .frame(alignment: .topLeading)
+      .padding()
     }
   }
 }

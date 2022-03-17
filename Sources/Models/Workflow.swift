@@ -119,6 +119,14 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       try container.encode(isEnabled, forKey: .isEnabled)
     }
   }
+
+  mutating func updateOrAddCommand(_ command: Command) {
+    if let index = commands.firstIndex(where: { $0.id == command.id }) {
+      commands[index] = command
+    } else {
+      commands.append(command)
+    }
+  }
 }
 
 extension Workflow {

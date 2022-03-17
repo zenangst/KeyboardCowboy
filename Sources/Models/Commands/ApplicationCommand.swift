@@ -4,7 +4,7 @@ import Foundation
 /// An application command is a container that is used for
 /// launching or activing applications.
 public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
-  public enum Modifier: String, Codable, Hashable, CaseIterable, Identifiable, Sendable {
+  public enum Modifier: String, Toggleable, Codable, Hashable, CaseIterable, Sendable {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {
@@ -18,7 +18,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
     case onlyIfNotRunning
   }
 
-  public enum Action: String, Codable, Hashable, CaseIterable, Identifiable, Sendable {
+  public enum Action: String, Codable, Hashable, Equatable, Toggleable, Sendable {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {
@@ -33,7 +33,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
   public var name: String
   public var application: Application
   public var action: Action
-  public var modifiers: [Modifier]
+  public var modifiers: Set<Modifier>
   public var isEnabled: Bool = true
 
   public init(id: String = UUID().uuidString, name: String = "",
@@ -43,7 +43,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
     self.id = id
     self.name = name
     self.application = application
-    self.modifiers = modifiers
+    self.modifiers = Set(modifiers)
     self.action = action
   }
 
@@ -63,7 +63,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
     self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
     self.action = try container.decodeIfPresent(Action.self, forKey: .action) ?? .open
     self.application = try container.decode(Application.self, forKey: .application)
-    self.modifiers = try container.decodeIfPresent([Modifier].self, forKey: .modifiers) ?? []
+    self.modifiers = try container.decodeIfPresent(Set<Modifier>.self, forKey: .modifiers) ?? []
     self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
   }
 }

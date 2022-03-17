@@ -22,7 +22,7 @@ struct WorkflowCommandsListView: View, Equatable {
           .labelStyle(HeaderLabelStyle())
         Spacer()
       }
-      LazyVStack(spacing: 0) {
+      LazyVStack(spacing: 4) {
         EditableVStack(
           data: $workflow.commands,
           id: \.self,
@@ -34,17 +34,21 @@ struct WorkflowCommandsListView: View, Equatable {
             workflow.commands.move(fromOffsets: indexSet, toOffset: offset)
           }) { command in
             VStack(spacing: 0) {
-              ResponderView(command, namespace: namespace) { responder in
-                CommandView(workflow: $workflow,
-                            command: command, responder: responder) { action in
-                  self.action(.commandView(action))
+              ResponderView(
+                command, namespace: namespace,
+                onDoubleClick: {
+                  self.action(.commandView(.commandAction(.edit(command.wrappedValue))))
+                }) { responder in
+                  CommandView(workflow: $workflow,
+                              command: command, responder: responder) { action in
+                    self.action(.commandView(action))
                 }
                 .equatable()
+                .cornerRadius(8)
               }
             }
           }
       }
-      .cornerRadius(8)
       .shadow(radius: 0.2)
     }
   }
