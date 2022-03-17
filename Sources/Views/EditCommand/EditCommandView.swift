@@ -29,14 +29,17 @@ struct EditCommandView: View {
   var body: some View {
     VStack(spacing: 0) {
       HStack(alignment: .top, spacing: 0) {
-        EditCommandListView(selection: $selection,
-                            command: $command,
-                            commands: commands)
+        EditCommandListView(
+          selection: $selection,
+          command: $command,
+          commands: commands)
         .frame(width: 250)
         VStack {
-         EditCommandDetailView(applicationStore: applicationStore, openPanelController: openPanelController,
-                               selection: $selection,
-                               command: $command)
+         EditCommandDetailView(
+          applicationStore: applicationStore,
+          openPanelController: openPanelController,
+          selection: $selection,
+          command: $command)
             .frame(width: 450)
           Spacer()
           Divider()

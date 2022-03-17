@@ -17,7 +17,7 @@ struct WorkflowView: View, Equatable {
 
   let applicationStore: ApplicationStore
   @FocusState var focus: Focus?
-  @State var sheet: Sheet?
+  @Binding var sheet: Sheet?
   @Binding var workflow: Workflow
 
   var action: (Action) -> Void
@@ -25,9 +25,11 @@ struct WorkflowView: View, Equatable {
   init(applicationStore: ApplicationStore,
        focus: FocusState<Focus?> = .init(),
        workflow: Binding<Workflow>,
+       sheet: Binding<Sheet?>,
        action: @escaping (Action) -> Void) {
     _focus = focus
     _workflow = workflow
+    _sheet = sheet
     self.applicationStore = applicationStore
     self.action = action
   }
@@ -112,6 +114,8 @@ struct WorkflowView_Previews: PreviewProvider {
         .init(key: "A", modifiers: [.command]),
         .init(key: "B", modifiers: [.function]),
       ])
-      )), action: { _ in })
+      )),
+      sheet: .constant(nil),
+      action: { _ in })
   }
 }

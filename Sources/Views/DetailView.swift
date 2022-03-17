@@ -7,6 +7,7 @@ struct DetailView: View, Equatable {
   let applicationStore: ApplicationStore
   @FocusState var focus: Focus?
   @Binding var workflows: [Workflow]
+  @Binding var sheet: WorkflowView.Sheet?
   var action: (Action) -> Void
 
   var body: some View {
@@ -16,7 +17,8 @@ struct DetailView: View, Equatable {
       ForEach($workflows, content: { workflow in
         WorkflowView(applicationStore: applicationStore,
                      focus: _focus,
-                     workflow: workflow) { action in
+                     workflow: workflow,
+                     sheet: $sheet) { action in
           self.action(.workflow(action))
         }
       })
@@ -32,8 +34,8 @@ struct DetailView_Previews: PreviewProvider {
   static var previews: some View {
     DetailView(
       applicationStore: ApplicationStore(),
-      workflows: .constant([
-      Workflow.designTime(nil)
-      ]), action: { _ in })
+      workflows: .constant([Workflow.designTime(nil)]),
+      sheet: .constant(nil),
+      action: { _ in })
   }
 }

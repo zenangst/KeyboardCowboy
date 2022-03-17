@@ -6,6 +6,7 @@ struct ContentView: View, Equatable {
   }
   @StateObject var store: Saloon
 
+  @State var detailViewSheet: WorkflowView.Sheet?
   @State var sidebarViewSheet: SidebarView.Sheet?
 
   @Binding private var selectedGroups: [WorkflowGroup]
@@ -54,7 +55,9 @@ struct ContentView: View, Equatable {
       })
 
       DetailView(applicationStore: store.applicationStore,
-                 focus: _focus, workflows: $store.selectedWorkflows,
+                 focus: _focus,
+                 workflows: $store.selectedWorkflows,
+                 sheet: $detailViewSheet,
                  action: handleDetailAction(_:))
       .equatable()
       .toolbar { DetailToolbar(action: handleDetailToolbarAction(_:)) }
@@ -107,7 +110,10 @@ struct ContentView: View, Equatable {
     switch action {
     case .addCommand:
       guard !selectedWorkflows.isEmpty else { return }
-      selectedWorkflows[0].commands.append(.keyboard(.init(keyboardShortcut: .init(key: "A"))))
+
+      let command: Command = .empty(.application)
+      selectedWorkflows[0].commands.append(command)
+      detailViewSheet = .edit(command)
     }
   }
 
