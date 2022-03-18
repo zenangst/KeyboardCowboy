@@ -73,12 +73,11 @@ struct WorkflowListView: View, Equatable {
 }
 
 struct WorkflowListView_Previews: PreviewProvider {
-  static let store = Saloon()
   static var previews: some View {
     WorkflowListView(
       applicationStore: ApplicationStore(),
-      store: store.groupStore,
-      workflows: .constant(store.groupStore.selectedGroups.flatMap({ $0.workflows })),
+      store: groupStore,
+      workflows: .constant(groupStore.selectedGroups.flatMap({ $0.workflows })),
       selection: .constant([]), action: { _ in })
       .previewLayout(.sizeThatFits)
   }

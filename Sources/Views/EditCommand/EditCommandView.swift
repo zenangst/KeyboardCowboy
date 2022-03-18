@@ -65,9 +65,8 @@ struct EditCommandView: View {
 }
 
 struct EditCommandView_Previews: PreviewProvider {
-  static let saloon = Saloon()
   static var previews: some View {
-    EditCommandView(applicationStore: saloon.applicationStore,
+    EditCommandView(applicationStore: contentStore.applicationStore,
                     openPanelController: OpenPanelController(),
                     saveAction: { _ in },
                     cancelAction: {},

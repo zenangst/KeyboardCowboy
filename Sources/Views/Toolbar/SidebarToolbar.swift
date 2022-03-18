@@ -7,8 +7,8 @@ struct SidebarToolbar: ToolbarContent {
   }
 
   let configurationStore: ConfigurationStore
+  let contentStore: ContentStore
   @FocusState var focus: Focus?
-  let saloon: Saloon
   var action: (Action) -> Void
 
   var body: some ToolbarContent {

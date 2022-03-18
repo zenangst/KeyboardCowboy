@@ -4,7 +4,7 @@ struct ContentView: View, Equatable {
   static func ==(lhs: ContentView, rhs: ContentView) -> Bool {
     return true
   }
-  @StateObject var store: Saloon
+  @StateObject var store: ContentStore
 
   @State var detailViewSheet: WorkflowView.Sheet?
   @State var sidebarViewSheet: SidebarView.Sheet?
@@ -15,16 +15,21 @@ struct ContentView: View, Equatable {
   @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
   @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
 
+  @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.undoManager) var undoManager
+
   @FocusState private var focus: Focus?
 
-  init(store: Saloon) {
+  init() {
+    let store = ContentStore()
     _store = .init(wrappedValue: store)
     _selectedGroups = .init(get: { store.groupStore.selectedGroups },
                             set: { store.groupStore.selectedGroups = $0 })
     _selectedWorkflows = .init(get: { store.selectedWorkflows },
                                set: { store.selectedWorkflows = $0 })
-
     focus = .main(.groupComponent)
+
+    store.undoManager = undoManager
   }
 
   var body: some View {
@@ -33,13 +38,12 @@ struct ContentView: View, Equatable {
                   configurationStore: store.configurationStore,
                   focus: _focus,
                   groupStore: store.groupStore,
-                  saloon: store,
+                  contentStore: store,
                   sheet: $sidebarViewSheet,
                   selection: $groupIds)
       .toolbar {
         SidebarToolbar(configurationStore: store.configurationStore,
-                       focus: _focus,
-                       saloon: store,
+                       contentStore: store, focus: _focus,
                        action: handleSidebar(_:))
       }
       .frame(minWidth: 200, idealWidth: 310)
@@ -68,6 +72,10 @@ struct ContentView: View, Equatable {
       .frame(minWidth: 380, minHeight: 417)
     }
     .searchable(text: .constant(""))
+    .onChange(of: scenePhase) { phase in
+      guard case .active = phase else { return }
+      store.applicationStore.reload()
+    }
   }
 
   // MARK: Private methods
@@ -142,9 +150,8 @@ struct ContentView: View, Equatable {
 }
 
 struct ContentView_Previews: PreviewProvider {
-  static var store = Saloon()
   static var previews: some View {
-    ContentView(store: store)
+    ContentView()
       .frame(width: 960, height: 480)
   }
 }

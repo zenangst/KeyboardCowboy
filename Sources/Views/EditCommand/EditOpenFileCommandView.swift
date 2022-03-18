@@ -100,11 +100,10 @@ struct EditOpenFileCommandView: View {
 }
 
 struct EditOpenFileCommandView_Previews: PreviewProvider {
-  static let saloon = Saloon()
   static var previews: some View {
     EditOpenFileCommandView(
       command: OpenCommand(path: ""),
       openPanelController: OpenPanelController(),
-      installedApplications: saloon.applicationStore.applications) { _ in}
+      installedApplications: contentStore.applicationStore.applications) { _ in}
   }
 }

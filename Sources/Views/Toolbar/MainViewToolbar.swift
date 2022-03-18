@@ -4,7 +4,6 @@ struct MainViewToolbar: ToolbarContent {
   enum Action {
     case add
   }
-  @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
   var action: (Action) -> Void
 
   var body: some ToolbarContent {

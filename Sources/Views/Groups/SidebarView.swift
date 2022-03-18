@@ -16,7 +16,7 @@ struct SidebarView: View {
   @ObservedObject var configurationStore: ConfigurationStore
   @FocusState var focus: Focus?
   @ObservedObject var groupStore: GroupStore
-  @ObservedObject var saloon: Saloon
+  @ObservedObject var contentStore: ContentStore
   @Binding var sheet: Sheet?
   @Binding var selection: Set<String>
 
@@ -26,8 +26,8 @@ struct SidebarView: View {
         .labelStyle(HeaderLabelStyle())
         .padding([.leading, .trailing])
       ConfigurationSidebarView(configurationStore,
-                               focus: _focus,
-                               saloon: saloon)
+                               contentStore: contentStore,
+                               focus: _focus)
       .padding([.leading, .trailing], 10)
 
       WorkflowGroupListView(
@@ -67,12 +67,11 @@ struct SidebarView: View {
 }
 
 struct SidebarView_Previews: PreviewProvider {
-  static var store = Saloon()
   static var previews: some View {
     SidebarView(appStore: ApplicationStore(),
                 configurationStore: ConfigurationStore(),
-                groupStore: store.groupStore,
-                saloon: store,
+                groupStore: groupStore,
+                contentStore: contentStore,
                 sheet: .constant(.none),
                 selection: .constant([]))
   }

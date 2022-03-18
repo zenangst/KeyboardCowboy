@@ -5,8 +5,10 @@ import SwiftUI
 let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
 
 @MainActor
-final class Saloon: ObservableObject {
+final class ContentStore: ObservableObject {
   @Published var preferences: AppPreferences
+
+  var undoManager: UndoManager?
 
   private let storage: Storage
   private var subscriptions = [AnyCancellable]()
@@ -21,11 +23,12 @@ final class Saloon: ObservableObject {
   @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
   @AppStorage("selectedConfiguration") private var configurationId: String = ""
 
-  init(_ preferences: AppPreferences = .designTime()) {
+  init(_ preferences: AppPreferences = .designTime(), undoManager: UndoManager? = nil) {
     self.groupStore = GroupStore()
     self.configurationStore = ConfigurationStore()
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
+    self.undoManager = undoManager
 
     Task {
       if preferences.hideAppOnLaunch { NSApp.hide(self) }

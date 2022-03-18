@@ -45,13 +45,12 @@ struct MainView: View {
 }
 
 struct MainView_Previews: PreviewProvider {
-  static var store = Saloon()
   static var previews: some View {
     VStack {
       MainView(
         action: { _ in },
         applicationStore: ApplicationStore(),
-        store: store.groupStore,
+        store: groupStore,
         selection: .constant([]))
     }
   }

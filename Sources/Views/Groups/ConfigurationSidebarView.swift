@@ -2,16 +2,16 @@ import SwiftUI
 
 struct ConfigurationSidebarView: View {
   @FocusState var focus: Focus?
-  @ObservedObject var saloon: Saloon
+  @ObservedObject var contentStore: ContentStore
   @ObservedObject var store: ConfigurationStore
   @State var presentingPopover: Bool = false
   @State var presentingSheet: Bool = false
 
   init(_ store: ConfigurationStore,
-       focus: FocusState<Focus?>,
-       saloon: Saloon) {
+       contentStore: ContentStore,
+       focus: FocusState<Focus?>) {
     _store = .init(initialValue: store)
-    _saloon = .init(initialValue: saloon)
+    _contentStore = .init(initialValue: contentStore)
     _focus = focus
   }
 
@@ -41,7 +41,7 @@ struct ConfigurationSidebarView: View {
           store.remove(configuration)
         case .select(let configuration):
           store.select(configuration)
-          saloon.use(configuration)
+          contentStore.use(configuration)
           withAnimation {
             presentingPopover.toggle()
           }
@@ -69,12 +69,11 @@ struct ConfigurationSidebarView: View {
 }
 
 struct ConfigurationSidebarView_Previews: PreviewProvider {
-  static var store = Saloon()
   static var previews: some View {
     VStack {
-      ConfigurationSidebarView(store.configurationStore,
-                               focus: FocusState<Focus?>(),
-                               saloon: store)
+      ConfigurationSidebarView(configurationStore,
+                               contentStore: contentStore,
+                               focus: FocusState<Focus?>())
     }
     .padding()
     .previewLayout(.fixed(width: 380, height: 100))

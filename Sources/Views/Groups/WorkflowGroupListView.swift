@@ -70,10 +70,9 @@ struct WorkflowGroupListView: View {
 }
 
 struct WorkflowGroupListView_Previews: PreviewProvider {
-  static let store = Saloon()
   static var previews: some View {
     WorkflowGroupListView(appStore: ApplicationStore(),
-                          groupStore: store.groupStore,
+                          groupStore: groupStore,
                           selection: .constant([]),
                           action: { _ in })
   }
