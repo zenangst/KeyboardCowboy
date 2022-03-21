@@ -23,12 +23,11 @@ final class ContentStore: ObservableObject {
   @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
   @AppStorage("selectedConfiguration") private var configurationId: String = ""
 
-  init(_ preferences: AppPreferences = .designTime(), undoManager: UndoManager? = nil) {
+  init(_ preferences: AppPreferences = .designTime()) {
     self.groupStore = GroupStore()
     self.configurationStore = ConfigurationStore()
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
-    self.undoManager = undoManager
 
     Task {
       if preferences.hideAppOnLaunch { NSApp.hide(self) }
@@ -108,12 +107,19 @@ final class ContentStore: ObservableObject {
     if selectedWorkflowsCopy == newWorkflows { return }
 
     Task(priority: .high) {
+      let oldConfiguration = configurationStore.selectedConfiguration
       let newGroups = await groupStore.receive(newWorkflows)
+
       var newConfiguration = configurationStore.selectedConfiguration
       newConfiguration.groups = newGroups
 
-      configurationStore.update(newConfiguration)
+      let diff = oldConfiguration.groups.difference(from: newConfiguration.groups)
+      undoManager?.setActionName("Undo change")
+      undoManager?.registerUndo(withTarget: self, handler: { contentStore in
+        contentStore.revertDiff(diff)
+      })
 
+      configurationStore.update(newConfiguration)
       selectGroupsIds(groupIds)
       let workflowIds = Set<String>(newWorkflows.compactMap({ $0.id }))
       selectWorkflowIds(workflowIds)
@@ -121,6 +127,14 @@ final class ContentStore: ObservableObject {
   }
 
   // MARK: Private methods
+
+  private func revertDiff(_ diff: CollectionDifference<WorkflowGroup>) {
+    var newConfiguration = configurationStore.selectedConfiguration
+    newConfiguration.groups = newConfiguration.groups.applying(diff) ?? []
+    configurationStore.update(newConfiguration)
+    selectGroupsIds(groupIds)
+    selectWorkflowIds(workflowIds)
+  }
 
   private func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
     publisher

@@ -16,7 +16,7 @@ struct ContentView: View, Equatable {
   @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
 
   @Environment(\.scenePhase) private var scenePhase
-  @Environment(\.undoManager) var undoManager
+  @Environment(\.undoManager) private var undoManager
 
   @FocusState private var focus: Focus?
 
@@ -28,8 +28,6 @@ struct ContentView: View, Equatable {
     _selectedWorkflows = .init(get: { store.selectedWorkflows },
                                set: { store.selectedWorkflows = $0 })
     focus = .main(.groupComponent)
-
-    store.undoManager = undoManager
   }
 
   var body: some View {
@@ -75,6 +73,7 @@ struct ContentView: View, Equatable {
     .onChange(of: scenePhase) { phase in
       guard case .active = phase else { return }
       store.applicationStore.reload()
+      store.undoManager = undoManager
     }
   }
 
