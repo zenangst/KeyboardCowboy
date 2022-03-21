@@ -108,16 +108,14 @@ final class ContentStore: ObservableObject {
 
     Task(priority: .high) {
       let oldConfiguration = configurationStore.selectedConfiguration
-      let newGroups = await groupStore.receive(newWorkflows)
+      undoManager?.registerUndo(withTarget: self, handler: { contentStore in
+        contentStore.applyConfiguration(oldConfiguration)
+      })
+      undoManager?.setActionName("Undo change")
 
+      let newGroups = await groupStore.receive(newWorkflows)
       var newConfiguration = configurationStore.selectedConfiguration
       newConfiguration.groups = newGroups
-
-      let diff = oldConfiguration.groups.difference(from: newConfiguration.groups)
-      undoManager?.setActionName("Undo change")
-      undoManager?.registerUndo(withTarget: self, handler: { contentStore in
-        contentStore.revertDiff(diff)
-      })
 
       configurationStore.update(newConfiguration)
       selectGroupsIds(groupIds)
@@ -128,9 +126,11 @@ final class ContentStore: ObservableObject {
 
   // MARK: Private methods
 
-  private func revertDiff(_ diff: CollectionDifference<WorkflowGroup>) {
-    var newConfiguration = configurationStore.selectedConfiguration
-    newConfiguration.groups = newConfiguration.groups.applying(diff) ?? []
+  private func applyConfiguration(_ newConfiguration: KeyboardCowboyConfiguration) {
+    let oldConfiguration = configurationStore.selectedConfiguration
+    undoManager?.registerUndo(withTarget: self, handler: { contentStore in
+      contentStore.applyConfiguration(oldConfiguration)
+    })
     configurationStore.update(newConfiguration)
     selectGroupsIds(groupIds)
     selectWorkflowIds(workflowIds)
