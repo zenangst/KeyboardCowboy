@@ -24,7 +24,7 @@ struct SidebarToolbar: ToolbarContent {
         })
       })
 
-      Button(action: { action(.toggleSidebar) },
+      Button(action: { action(.addGroup) },
              label: {
         Label(title: {
           Text("Add group")
