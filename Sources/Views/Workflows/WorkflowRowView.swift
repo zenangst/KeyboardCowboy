@@ -77,6 +77,7 @@ struct WorkflowRowView: View, Equatable {
     case .application(let command):
       IconView(path: command.application.path)
         .frame(width: 32, height: 32)
+        .id(command.application.id)
     case .script(let command):
       switch command {
       case .appleScript:
@@ -93,6 +94,7 @@ struct WorkflowRowView: View, Equatable {
       if let application = command.application {
         IconView(path: application.path)
           .frame(width: 32, height: 32)
+          .id(application.id)
       } else if command.isUrl {
         IconView(path: "/Applications/Safari.app")
           .frame(width: 32, height: 32)

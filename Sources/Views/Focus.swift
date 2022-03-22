@@ -3,7 +3,7 @@ enum Focus: Hashable {
   case main(MainComponent)
   case detail(DetailComponent)
 
-  enum SidebarComponent {
+  enum SidebarComponent: Hashable {
     case list
     case configuration
   }

@@ -41,7 +41,7 @@ struct WorkflowView: View, Equatable {
         .equatable()
         .padding([.leading, .trailing, .bottom], 8)
 
-        WorkflowShortcutsView(applicationStore: applicationStore, workflow: $workflow)
+        WorkflowShortcutsView(applicationStore, focus: _focus, workflow: $workflow)
           .equatable()
           .padding(8)
       }

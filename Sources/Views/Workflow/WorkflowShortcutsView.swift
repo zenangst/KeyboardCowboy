@@ -3,7 +3,16 @@ import SwiftUI
 
 struct WorkflowShortcutsView: View, Equatable {
   let applicationStore: ApplicationStore
+  @FocusState var focus: Focus?
   @Binding var workflow: Workflow
+
+  init(_ applicationStore: ApplicationStore,
+       focus: FocusState<Focus?>,
+       workflow: Binding<Workflow>) {
+    self.applicationStore = applicationStore
+    _focus = focus
+    _workflow = workflow
+  }
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -36,11 +45,9 @@ struct WorkflowShortcutsView: View, Equatable {
           Label("Keyboard Shortcuts:", image: "")
           removeButton
         }
-        KeyShortcutsListView(keyboardShortcuts: Binding<[KeyShortcut]>(get: {
-          keyboardShortcuts
-        }, set: {
-          workflow.trigger = .keyboardShortcuts($0)
-        })) { action in
+        KeyShortcutsListView(keyboardShortcuts: Binding<[KeyShortcut]>(
+          get: { keyboardShortcuts },
+          set: { workflow.trigger = .keyboardShortcuts($0) })) { action in
           switch action {
           case .add(let shortcut):
             if case .keyboardShortcuts(var shortcuts) = workflow.trigger {
@@ -48,6 +55,7 @@ struct WorkflowShortcutsView: View, Equatable {
               workflow.trigger = .keyboardShortcuts(shortcuts)
             }
           }
+          focus = .detail(.shortcuts(workflow))
         }
       case .none:
         HStack {
@@ -59,6 +67,7 @@ struct WorkflowShortcutsView: View, Equatable {
         }
       }
     }
+    .focused($focus, equals: .detail(.shortcuts(workflow)))
     .labelStyle(HeaderLabelStyle())
   }
 
@@ -83,7 +92,8 @@ struct WorkflowShortcutsView_Previews: PreviewProvider {
   )
   static var previews: some View {
     WorkflowShortcutsView(
-      applicationStore: ApplicationStore(),
+      ApplicationStore(),
+      focus: FocusState(),
       workflow: .constant(workflow))
   }
 }
