@@ -3,8 +3,7 @@ import Foundation
 
 public class ModelFactory {
   static func application(id: String = UUID().uuidString) -> Application {
-    Application(id: id,
-                bundleIdentifier: "com.apple.Finder",
+    Application(bundleIdentifier: "com.apple.Finder",
                 bundleName: "Finder",
                 path: "/System/Library/CoreServices/Finder.app")
   }
