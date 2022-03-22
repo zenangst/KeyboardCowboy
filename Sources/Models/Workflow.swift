@@ -5,7 +5,7 @@ import Foundation
 /// `Group`-level or that the workflow matches the current
 /// keyboard invocation.
 public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
-  public enum Trigger: Hashable, Codable, Sendable {
+  public enum Trigger: Hashable, Equatable, Codable, Sendable {
     case application([ApplicationTrigger])
     case keyboardShortcuts([KeyShortcut])
 
@@ -40,6 +40,17 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         try container.encode(trigger, forKey: .application)
       case .keyboardShortcuts(let keyboardShortcuts):
         try container.encode(keyboardShortcuts, forKey: .keyboardShortcuts)
+      }
+    }
+
+    public static func ==(lhs: Trigger, rhs: Trigger) -> Bool {
+      switch (lhs, rhs) {
+      case (.application(let lhsTriggers), .application(let rhsTriggers)):
+        return lhsTriggers == rhsTriggers
+      case (.keyboardShortcuts(let lhsShortcuts), .keyboardShortcuts(let rhsShortcuts)):
+        return lhsShortcuts == rhsShortcuts
+      default:
+        return false
       }
     }
   }

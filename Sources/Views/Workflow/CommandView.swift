@@ -89,7 +89,7 @@ struct CommandView: View, Equatable {
         ),
         startPoint: .top,
         endPoint: .bottom)
-      ResponderBackgroundView(responder: responder, cornerRadius: 0)
+      ResponderBackgroundView(responder: responder, cornerRadius: 8)
     }
   }
 }

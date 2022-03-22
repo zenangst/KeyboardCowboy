@@ -3,9 +3,8 @@ import SwiftUI
 struct KeyShortcutsListView: View, Equatable {
   enum Action {
     case add(KeyShortcut)
-    case remove([KeyShortcut])
   }
-  @State var keyboardShortcuts: [KeyShortcut]
+  @Binding var keyboardShortcuts: [KeyShortcut]
   @Namespace var namespace
   var action: (Action) -> Void
 
@@ -32,7 +31,6 @@ struct KeyShortcutsListView: View, Equatable {
               .fixedSize()
               .onDeleteCommand {
                 keyboardShortcuts.removeAll(where: { $0.id == keyboardShortcut.id })
-                action(.remove(keyboardShortcuts))
               }
             }
           }
@@ -89,7 +87,7 @@ struct KeyShortcutsListView: View, Equatable {
 
 struct KeyShortcutsListView_Previews: PreviewProvider {
     static var previews: some View {
-      KeyShortcutsListView(keyboardShortcuts: [
+      KeyShortcutsListView(keyboardShortcuts: .constant([
         .init(key: "↑"),
         .init(key: "↑"),
 
@@ -104,6 +102,6 @@ struct KeyShortcutsListView_Previews: PreviewProvider {
 
         .init(key: "B"),
         .init(key: "A"),
-      ], action: { _ in })
+      ]), action: { _ in })
     }
 }

@@ -36,15 +36,17 @@ struct WorkflowShortcutsView: View, Equatable {
           Label("Keyboard Shortcuts:", image: "")
           removeButton
         }
-        KeyShortcutsListView(keyboardShortcuts: keyboardShortcuts) { action in
+        KeyShortcutsListView(keyboardShortcuts: Binding<[KeyShortcut]>(get: {
+          keyboardShortcuts
+        }, set: {
+          workflow.trigger = .keyboardShortcuts($0)
+        })) { action in
           switch action {
           case .add(let shortcut):
             if case .keyboardShortcuts(var shortcuts) = workflow.trigger {
               shortcuts.append(shortcut)
               workflow.trigger = .keyboardShortcuts(shortcuts)
             }
-          case .remove(let keyboardShortcuts):
-            workflow.trigger = .keyboardShortcuts(keyboardShortcuts)
           }
         }
       case .none:

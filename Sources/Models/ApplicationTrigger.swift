@@ -1,7 +1,7 @@
 import Apps
 import Foundation
 
-public struct ApplicationTrigger: Hashable, Identifiable, Codable, Sendable {
+public struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
   public var id: String
   public var application: Application
   public var contexts: Set<Context>

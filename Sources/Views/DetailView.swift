@@ -21,6 +21,7 @@ struct DetailView: View, Equatable {
                      sheet: $sheet) { action in
           self.action(.workflow(action))
         }
+        .equatable()
       })
     }
   }
