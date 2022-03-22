@@ -37,18 +37,13 @@ struct WorkflowView: View, Equatable {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
-        WorkflowInfoView(
-          focus: _focus,
-          workflow: $workflow)
+        WorkflowInfoView(focus: _focus, workflow: $workflow)
         .equatable()
         .padding([.leading, .trailing, .bottom], 8)
 
-        WorkflowShortcutsView(
-          applicationStore: applicationStore,
-          workflow: $workflow
-        )
-        .equatable()
-        .padding(8)
+        WorkflowShortcutsView(applicationStore: applicationStore, workflow: $workflow)
+          .equatable()
+          .padding(8)
       }
       .padding()
       .background(Color(.textBackgroundColor))
