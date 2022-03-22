@@ -35,6 +35,8 @@ struct ApplicationTriggerListView: View {
             .background(Color(.windowBackgroundColor).opacity(0.5))
             .cornerRadius(8)
             .background(ResponderBackgroundView(responder: responder))
+          }.onDeleteCommand {
+            applicationTriggers.removeAll(where: { $0.id == applicationTrigger.id })
           }
         }
       }
