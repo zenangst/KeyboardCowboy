@@ -45,14 +45,14 @@ struct EditCommandView: View {
           Divider()
           HStack {
             Spacer()
-            Button(action: cancelAction, label: {
-              Text("Cancel").frame(minWidth: 60)
-            }).keyboardShortcut(.cancelAction)
+            Button(action: cancelAction,
+                   label: { Text("Cancel").frame(minWidth: 60) })
+            .keyboardShortcut(.cancelAction)
             Button(action: {
               saveAction(command)
-            }, label: {
-              Text("OK").frame(minWidth: 60)
-            }).keyboardShortcut(.defaultAction)
+            },
+                   label: { Text("OK").frame(minWidth: 60) })
+              .keyboardShortcut(.defaultAction)
           }
             .padding(8)
             .frame(alignment: .bottom)
