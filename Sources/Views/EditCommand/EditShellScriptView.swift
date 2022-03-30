@@ -69,7 +69,7 @@ struct EditShellScriptView: View {
       case .file:
        filePicker
       case .source:
-        TextEditor(text: Binding<String> {
+        ScriptEditorView(text: Binding<String> {
           command.source
         } set: { input in
           command = .shell(id: command.id, isEnabled: command.isEnabled,
