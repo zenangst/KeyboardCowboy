@@ -40,6 +40,7 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
                                                      Data.Element: Identifiable,
                                                      Data.Index: Hashable,
                                                      ID: Hashable {
+  @ObservedObject private var iO = Inject.observer
   private enum DropIndex {
     case up(Data.Element.ID)
     case down(Data.Element.ID)
@@ -127,7 +128,8 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
             )
         }
       }
-    }.onDeleteCommand {
+    }
+    .onDeleteCommand {
       let responders = responderChain.responders
         .filter { responder in
           responder.namespace != .none &&
@@ -144,6 +146,7 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
         onDelete?(IndexSet(indexes))
       }
     }
+    .enableInjection()
   }
 
   private func calculateNewIndex(_ value: GestureStateGesture<DragGesture, MoveState<Data.Element>>.Value,

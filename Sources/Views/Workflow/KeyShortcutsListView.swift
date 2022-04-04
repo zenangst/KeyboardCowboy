@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct KeyShortcutsListView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case add(KeyShortcut)
   }
@@ -53,6 +54,7 @@ struct KeyShortcutsListView: View, Equatable {
     .background(Color(.windowBackgroundColor))
     .cornerRadius(8)
     .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+    .enableInjection()
   }
 
   func key(_ keyboardShortcut: KeyShortcut) -> some View {

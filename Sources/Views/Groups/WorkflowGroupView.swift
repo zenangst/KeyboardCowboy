@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowGroupView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   @ObservedObject var applicationStore: ApplicationStore
   @Binding var group: WorkflowGroup
 
@@ -12,7 +13,9 @@ struct WorkflowGroupView: View, Equatable {
         .cornerRadius(24, antialiased: true)
       Text(group.name)
       Spacer()
-    }.badge(group.workflows.count)
+    }
+    .badge(group.workflows.count)
+    .enableInjection()
   }
 
   @ViewBuilder

@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowListView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case delete(Workflow)
   }
@@ -59,6 +60,7 @@ struct WorkflowListView: View, Equatable {
         store.remove(selectedWorkflows)
       })
     }
+    .enableInjection()
   }
 
   func contextMenuView(_ workflow: Binding<Workflow>) -> some View {

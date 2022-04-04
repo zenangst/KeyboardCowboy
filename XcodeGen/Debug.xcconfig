@@ -8,4 +8,5 @@ ENABLE_TESTABILITY = YES
 GCC_DYNAMIC_NO_PIC = NO
 MTL_ENABLE_DEBUG_INFO = YES
 SWIFT_OPTIMIZATION_LEVEL = -Onone
+OTHER_LDFLAGS = -Xlinker -interposable
 OTHER_SWIFT_FLAGS = $(inherited) -Xfrontend -debug-time-function-bodies -Xfrontend -warn-long-function-bodies=400 -Xfrontend -warn-long-expression-type-checking=400 -DDEBUG

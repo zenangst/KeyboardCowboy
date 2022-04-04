@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DetailView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case workflow(WorkflowView.Action)
   }
@@ -13,6 +14,7 @@ struct DetailView: View, Equatable {
   var body: some View {
     if workflows.count > 1 {
       Text("Multiple workflows selected")
+        .enableInjection()
     } else {
       ForEach($workflows, content: { workflow in
         WorkflowView(applicationStore: applicationStore,
@@ -23,6 +25,7 @@ struct DetailView: View, Equatable {
         }
         .equatable()
       })
+      .enableInjection()
     }
   }
 

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkflowInfoView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   @FocusState var focus: Focus?
   @Binding var workflow: Workflow
 
@@ -14,6 +15,7 @@ struct WorkflowInfoView: View, Equatable {
         .toggleStyle(SwitchToggleStyle())
         .font(.callout)
     }
+    .enableInjection()
   }
 
   static func == (lhs: WorkflowInfoView, rhs: WorkflowInfoView) -> Bool {

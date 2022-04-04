@@ -6,6 +6,7 @@ struct WorkflowGroupListView: View {
     case delete(WorkflowGroup)
   }
 
+  @ObservedObject private var iO = Inject.observer
   @ObservedObject var appStore: ApplicationStore
   @ObservedObject var groupStore: GroupStore
   @Binding var selection: Set<String>
@@ -56,6 +57,7 @@ struct WorkflowGroupListView: View {
         groupStore.remove(selectedGroups)
       })
     }
+    .enableInjection()
   }
 
   func contextMenuView(_ group: WorkflowGroup) -> some View {

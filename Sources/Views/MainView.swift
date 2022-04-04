@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MainView: View {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case add
     case delete(Workflow)
@@ -15,10 +16,13 @@ struct MainView: View {
   var body: some View {
     if groupIds.isEmpty {
       Text("No group selected")
+        .enableInjection()
     } else if store.groups.isEmpty {
       Text("No workflows in group")
+        .enableInjection()
     } else if groupIds.count > 1 {
       Text("Multiple groups selected")
+        .enableInjection()
     } else {
       Group {
         ForEach($store.selectedGroups) { group in
@@ -31,6 +35,7 @@ struct MainView: View {
         }
       }
       .focused($focus, equals: .main(.groupComponent))
+      .enableInjection()
     }
   }
 

@@ -41,6 +41,9 @@ targets:
   Keyboard-Cowboy:
     type: application
     platform: "macOS"
+    configs:
+      Debug: Debug
+      Release: Release
     dependencies:
       - target: BridgeKit
       - target: ModelKit

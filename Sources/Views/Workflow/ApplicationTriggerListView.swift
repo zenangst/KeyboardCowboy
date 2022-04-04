@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct ApplicationTriggerListView: View {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case add(Application)
     case remove(Application)
@@ -42,6 +43,7 @@ struct ApplicationTriggerListView: View {
       }
     }
     .frame(alignment: .topLeading)
+    .enableInjection()
   }
 
   @ViewBuilder

@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct CommandView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case commandAction(CommandActionsView.Action)
   }
@@ -15,19 +16,19 @@ struct CommandView: View, Equatable {
   var body: some View {
     HStack(alignment: .center) {
       icon
-        .frame(width: 36, height: 36)
+        .frame(width: 32, height: 32)
       VStack(alignment: .leading, spacing: 0) {
         Text(command.name)
         CommandActionsView(
-          responder: responder,
+          responder,
           command: $command,
+          features: CommandActionsView.Feature.allCases,
           action: { action in
             self.action(.commandAction(action))
           }
         )
       }
       Spacer()
-
       VStack {
         Toggle("", isOn: $command.isEnabled)
           .toggleStyle(SwitchToggleStyle())
@@ -37,6 +38,7 @@ struct CommandView: View, Equatable {
     .padding([.leading, .trailing], 8)
     .background(backgroundView)
     .opacity(!workflow.isEnabled ? 0.9 : command.isEnabled ? 1.0 : 0.8)
+    .enableInjection()
   }
 
   static func ==(lhs: CommandView, rhs: CommandView) -> Bool {

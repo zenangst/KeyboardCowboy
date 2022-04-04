@@ -223,6 +223,7 @@ enum ResponderAction {
 }
 
 struct ResponderView<Content>: View where Content: View {
+  @ObservedObject private var iO = Inject.observer
   typealias ResponderHandler = (ResponderAction) -> Void
   @StateObject var responder: Responder
   let content: (Responder) -> Content
@@ -275,7 +276,7 @@ struct ResponderView<Content>: View where Content: View {
             onDoubleClick?()
           }))
         )
-    }
+    }.enableInjection()
   }
 }
 

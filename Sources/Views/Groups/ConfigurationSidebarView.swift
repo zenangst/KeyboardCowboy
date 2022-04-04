@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ConfigurationSidebarView: View {
   @FocusState var focus: Focus?
+  @ObservedObject private var iO = Inject.observer
   @ObservedObject var contentStore: ContentStore
   @ObservedObject var store: ConfigurationStore
   @State var presentingPopover: Bool = false
@@ -65,6 +66,7 @@ struct ConfigurationSidebarView: View {
     }
     .transform(KCButtonStyle.modifiers) // Use the modifiers to not break keyboard shortcuts
     .keyboardShortcut(.init("T"), modifiers: .command)
+    .enableInjection()
   }
 }
 

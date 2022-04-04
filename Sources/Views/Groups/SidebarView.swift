@@ -12,6 +12,7 @@ struct SidebarView: View {
     }
   }
 
+  @ObservedObject private var iO = Inject.observer
   @ObservedObject var appStore: ApplicationStore
   @ObservedObject var configurationStore: ConfigurationStore
   @FocusState var focus: Focus?
@@ -36,6 +37,7 @@ struct SidebarView: View {
       .sheet(item: $sheet, content: handleSheet(_:))
       .focused($focus, equals: .sidebar(.list))
     }
+    .enableInjection()
   }
 
   // MARK: Private methods

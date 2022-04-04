@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowCommandsListView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case commandView(CommandView.Action)
   }
@@ -51,6 +52,7 @@ struct WorkflowCommandsListView: View, Equatable {
       }
       .shadow(radius: 0.2)
     }
+    .enableInjection()
   }
 
   static func == (lhs: WorkflowCommandsListView, rhs: WorkflowCommandsListView) -> Bool {

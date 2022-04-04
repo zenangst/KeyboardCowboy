@@ -1,9 +1,8 @@
 import SwiftUI
 
 struct ContentView: View, Equatable {
-  static func ==(lhs: ContentView, rhs: ContentView) -> Bool {
-    return true
-  }
+  @ObservedObject private var iO = Inject.observer
+
   @StateObject var store: ContentStore
 
   @State var detailViewSheet: WorkflowView.Sheet?
@@ -75,6 +74,11 @@ struct ContentView: View, Equatable {
       store.applicationStore.reload()
       store.undoManager = undoManager
     }
+    .enableInjection()
+  }
+
+  static func ==(lhs: ContentView, rhs: ContentView) -> Bool {
+    return true
   }
 
   // MARK: Private methods

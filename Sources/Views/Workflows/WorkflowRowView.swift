@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkflowRowView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   let applicationStore: ApplicationStore
   @Binding var workflow: Workflow
 
@@ -20,6 +21,7 @@ struct WorkflowRowView: View, Equatable {
     .padding(4)
     .opacity(workflow.isEnabled ? 1.0 : 0.6)
     .if(workflow.commands.count > 1, transform: { $0.badge(workflow.commands.count) })
+      .enableInjection()
   }
 
   @ViewBuilder

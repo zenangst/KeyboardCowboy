@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct ApplicationTriggerView: View {
+  @ObservedObject private var iO = Inject.observer
   @Binding var trigger: ApplicationTrigger
 
   var body: some View {
@@ -14,6 +15,7 @@ struct ApplicationTriggerView: View {
                   enabled: $trigger.contexts, id: \.id)
         .font(.caption)
     }
+    .enableInjection()
   }
 
   struct ApplicationTriggerItem_Previews: PreviewProvider {

@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowShortcutsView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   let applicationStore: ApplicationStore
   @FocusState var focus: Focus?
   @Binding var workflow: Workflow
@@ -69,6 +70,7 @@ struct WorkflowShortcutsView: View, Equatable {
     }
     .focused($focus, equals: .detail(.shortcuts(workflow)))
     .labelStyle(HeaderLabelStyle())
+    .enableInjection()
   }
 
   @ViewBuilder
