@@ -6,14 +6,27 @@ struct ApplicationTriggerView: View {
   @Binding var trigger: ApplicationTrigger
 
   var body: some View {
-    HStack {
+    HStack(spacing: 0) {
       IconView(path: trigger.application.path)
         .frame(width: 32, height: 32, alignment: .center)
-      Text(trigger.application.displayName)
-      Spacer()
-      TogglesView(ApplicationTrigger.Context.allCases,
-                  enabled: $trigger.contexts, id: \.id)
-        .font(.caption)
+        .padding(4)
+      Divider()
+        .padding(.trailing, 4)
+        .opacity(0.5)
+
+      VStack(spacing: 4) {
+        HStack {
+          Text(trigger.application.displayName)
+          Spacer()
+        }
+
+        HStack {
+          TogglesView(ApplicationTrigger.Context.allCases,
+                      enabled: $trigger.contexts, id: \.id)
+          .font(.caption)
+          Spacer()
+        }
+      }.padding(.leading, 4)
     }
     .enableInjection()
   }

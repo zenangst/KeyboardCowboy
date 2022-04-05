@@ -31,8 +31,8 @@ struct ApplicationTriggerListView: View {
               Button(action: { action(.remove(applicationTrigger.application.wrappedValue)) },
                      label: { Image(systemName: "xmark.circle") })
               .buttonStyle(PlainButtonStyle())
+              .padding([.trailing], 16)
             }
-            .padding(8)
             .background(Color(.windowBackgroundColor).opacity(0.5))
             .cornerRadius(8)
             .background(ResponderBackgroundView(responder: responder))

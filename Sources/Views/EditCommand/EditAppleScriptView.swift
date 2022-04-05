@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct EditAppleScriptView: View {
+  @ObservedObject private var iO = Inject.observer
   enum Kind: String, Identifiable, CaseIterable {
     var id: String { rawValue }
-    case file, source
+    case source, file
 
     var displayValue: String {
       switch self {
@@ -32,7 +33,7 @@ struct EditAppleScriptView: View {
     self.update = update
 
     switch command {
-    case .shell(_, _, _, let source):
+    case .appleScript(_, _, _, let source):
       switch source {
       case .path:
         _kind = .init(initialValue: .file)
@@ -41,7 +42,7 @@ struct EditAppleScriptView: View {
         _kind = .init(initialValue: .source)
         _source = .init(initialValue: string)
       }
-    case .appleScript:
+    case .shell:
       _kind = .init(initialValue: .file)
       _source = State(initialValue: command.source)
     }
@@ -68,7 +69,7 @@ struct EditAppleScriptView: View {
       case .file:
        filePicker
       case .source:
-        TextEditor(text: Binding<String> {
+        ScriptEditorView(text: Binding<String> {
           command.source
         } set: { input in
           command = .appleScript(id: command.id, isEnabled: command.isEnabled,
@@ -79,6 +80,7 @@ struct EditAppleScriptView: View {
         .padding()
       }
     }
+    .enableInjection()
   }
 
   var filePicker: some View {

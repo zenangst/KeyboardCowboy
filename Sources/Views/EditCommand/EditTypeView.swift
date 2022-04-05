@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct EditTypeView: View {
+  @ObservedObject private var iO = Inject.observer
   @Binding var command: TypeCommand
 
   init(command: Binding<TypeCommand>) {
@@ -40,6 +41,7 @@ struct EditTypeView: View {
       .frame(alignment: .topLeading)
       .padding()
     }
+    .enableInjection()
   }
 }
 

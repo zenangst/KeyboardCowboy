@@ -2,9 +2,10 @@ import Apps
 import SwiftUI
 
 struct EditCommandView: View {
-  let imageSize = CGSize(width: 32, height: 32)
+  @ObservedObject private var iO = Inject.observer
   @ObservedObject var applicationStore: ApplicationStore
   @ObservedObject var openPanelController: OpenPanelController
+  let imageSize = CGSize(width: 32, height: 32)
   let saveAction: (Command) -> Void
   let cancelAction: () -> Void
   @State var selection: Command?
@@ -58,9 +59,9 @@ struct EditCommandView: View {
             .frame(alignment: .bottom)
         }
       }.background(Color(.windowBackgroundColor))
-
     }
     .frame(height: 400)
+    .enableInjection()
   }
 }
 

@@ -7,6 +7,7 @@ public enum OpenPanelAction {
 }
 
 struct EditApplicationCommandView: View {
+  @ObservedObject private var iO = Inject.observer
   @State var command: ApplicationCommand {
     willSet { update(newValue) }
   }
@@ -62,6 +63,7 @@ struct EditApplicationCommandView: View {
         }.padding()
       }
     }
+    .enableInjection()
   }
 }
 

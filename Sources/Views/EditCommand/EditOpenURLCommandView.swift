@@ -2,6 +2,7 @@ import Apps
 import SwiftUI
 
 struct EditOpenURLCommandView: View {
+  @ObservedObject private var iO = Inject.observer
   @State private var applicationIdentifier: String = ""
   @State var url: String = ""
   @State var command: OpenCommand {
@@ -71,7 +72,8 @@ struct EditOpenURLCommandView: View {
             }
           }
         }
-      }.padding()
+      }
+      .padding()
     }
     .onAppear {
       if let application = installedApplications
@@ -83,6 +85,7 @@ struct EditOpenURLCommandView: View {
                         path: "")
       }
     }
+    .enableInjection()
   }
 }
 

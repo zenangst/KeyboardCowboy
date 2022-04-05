@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct EditBuiltInCommand: View {
+  @ObservedObject private var iO = Inject.observer
   @State private var selection: String = ""
   @State var command: BuiltInCommand {
     willSet { update(newValue) }
@@ -39,6 +40,7 @@ struct EditBuiltInCommand: View {
     }.onAppear {
       selection = command.kind.rawValue
     }
+    .enableInjection()
   }
 }
 

@@ -2,10 +2,9 @@ import Apps
 import SwiftUI
 
 struct EditOpenFileCommandView: View {
+  @ObservedObject private var iO = Inject.observer
   @State private var applicationIdentifier: String = ""
-  @State var command: OpenCommand {
-    willSet { update(newValue) }
-  }
+  @State var command: OpenCommand { willSet { update(newValue) } }
   @State var filePath: String
   private let openPanelController: OpenPanelController
   private var installedApplications: [Application]
@@ -85,8 +84,10 @@ struct EditOpenFileCommandView: View {
             }
           }
         }
-      }.padding()
-    }.onAppear {
+      }
+      .padding()
+    }
+    .onAppear {
       if let application = installedApplications
           .first(where: { command.application?.bundleIdentifier == $0.bundleIdentifier }) {
         applicationIdentifier = application.id
@@ -96,6 +97,7 @@ struct EditOpenFileCommandView: View {
                         path: "")
       }
     }
+    .enableInjection()
   }
 }
 
