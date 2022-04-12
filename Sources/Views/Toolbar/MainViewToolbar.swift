@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MainViewToolbar: ToolbarContent {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case add
   }
@@ -18,6 +19,7 @@ struct MainViewToolbar: ToolbarContent {
             .foregroundColor(Color(.systemGray))
         })
       })
+      .enableInjection()
     }
   }
 }

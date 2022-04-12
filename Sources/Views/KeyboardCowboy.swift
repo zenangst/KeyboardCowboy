@@ -3,7 +3,7 @@ import SwiftUI
 
 @main
 struct KeyboardCowboy: App {
-  init() { Inject.load }
+  init() { Inject.animation = .easeInOut(duration: 0.175) }
 
   var body: some Scene {
     WindowGroup {

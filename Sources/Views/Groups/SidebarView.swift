@@ -29,7 +29,7 @@ struct SidebarView: View {
       ConfigurationSidebarView(configurationStore,
                                contentStore: contentStore,
                                focus: _focus)
-      .padding([.leading, .trailing], 10)
+      .padding([.leading, .trailing, .bottom], 10)
 
       WorkflowGroupListView(
         appStore: appStore, groupStore: groupStore,

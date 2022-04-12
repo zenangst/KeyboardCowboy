@@ -13,20 +13,18 @@ struct ApplicationTriggerView: View {
       Divider()
         .padding(.trailing, 4)
         .opacity(0.5)
+        .offset(x: -1, y: 0)
 
-      VStack(spacing: 4) {
-        HStack {
-          Text(trigger.application.displayName)
-          Spacer()
-        }
-
+      VStack(alignment: .leading, spacing: 4) {
+        Text(trigger.application.displayName)
         HStack {
           TogglesView(ApplicationTrigger.Context.allCases,
                       enabled: $trigger.contexts, id: \.id)
           .font(.caption)
           Spacer()
         }
-      }.padding(.leading, 4)
+      }
+      .padding(.leading, 2)
     }
     .enableInjection()
   }

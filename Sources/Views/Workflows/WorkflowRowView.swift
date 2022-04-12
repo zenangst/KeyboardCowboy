@@ -18,7 +18,8 @@ struct WorkflowRowView: View, Equatable {
           .font(.caption)
       }
     }
-    .padding(4)
+    .frame(height: 24)
+    .padding([.top, .bottom, .trailing], 4)
     .opacity(workflow.isEnabled ? 1.0 : 0.6)
     .if(workflow.commands.count > 1, transform: { $0.badge(workflow.commands.count) })
       .enableInjection()
