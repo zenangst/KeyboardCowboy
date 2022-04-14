@@ -6,41 +6,13 @@ final class _ScriptEditorView: NSView {
   private lazy var autoCompletionViewController = NSHostingController(rootView: AutoCompletionView(store: autoCompletionStore))
   private(set) lazy var autoComplete = AutoCompletion(autoCompletionStore)
 
-  final class InsertionPoint: NSView {
-    override init(frame frameRect: NSRect) {
-      super.init(frame: frameRect)
-      loadView()
-    }
-
-    required init?(coder: NSCoder) {
-      fatalError("init(coder:) has not been implemented")
-    }
-
-    private func loadView() {
-      wantsLayer = true
-
-      let animation = CABasicAnimation(keyPath: "opacity")
-      animation.duration = 0.25
-      animation.fromValue = 0.5
-      animation.toValue = 1
-      animation.isAdditive = true
-      animation.isRemovedOnCompletion = false
-      animation.autoreverses = true
-      animation.repeatCount = Float.infinity
-
-      layer?.backgroundColor = NSColor.controlAccentColor.cgColor
-      layer?.cornerRadius = 2
-      layer?.add(animation, forKey: "pulse")
-      layer?.opacity = 0
-    }
-  }
-
   private(set) lazy var insertionView = InsertionPoint()
   private(set) lazy var layoutManager = NSLayoutManager()
   private(set) lazy var scrollView = NSScrollView()
   private(set) lazy var textStorage = NSTextStorage()
   private(set) lazy var textView = NSTextView(frame: .zero, textContainer: textContainer)
   private(set) lazy var textContainer = NSTextContainer(containerSize: scrollView.frame.size)
+  private(set) lazy var lineNumbersView = LineNumbersView(self.textView, scrollView: self.scrollView)
 
   var selectedRanges: [NSValue] = [] {
     didSet {
@@ -87,30 +59,17 @@ final class _ScriptEditorView: NSView {
     let fromRect = convert(rect, from: nil)
     let toRect = convert(rect, to: scrollView.documentView)
 
-    insertionView.frame.origin.x = fromRect.origin.x - 1
+    insertionView.frame.origin.x = fromRect.origin.x - 1 - lineNumbersView.frame.width
     insertionView.frame.origin.y = max(toRect.origin.y + (rect.height * 5), 0) - rect.height / 8 // Why five times?
     insertionView.frame.size = .init(width: 2, height: rect.height + 2)
 
-    let size = autoCompletionViewController.sizeThatFits(in: .init(width: 320, height: 64))
-    var autoCompleteFrame = insertionView.frame
-    autoCompleteFrame.origin.y += insertionView.frame.size.height
-    autoCompleteFrame.size = size
-    autoCompletionViewController.view.frame = autoCompleteFrame
-
-    Swift.print(autoCompleteFrame)
-
     scrollView.documentView?.addSubview(insertionView)
-
-    if !currentInput.isEmpty {
-      scrollView.documentView?.addSubview(autoCompletionViewController.view)
-
-      Swift.print( autoCompletionViewController.view.frame )
-    }
   }
 
   func updateTextStorage(_ text: String) {
     self.text = text
     textStorage.setAttributedString(SyntaxHighlighting.highlight(text))
+    lineNumbersView.needsDisplay = true
   }
 
   private func loadView() {
@@ -140,10 +99,14 @@ final class _ScriptEditorView: NSView {
 
     addSubview(scrollView)
     scrollView.documentView = textView
+    scrollView.verticalRulerView = lineNumbersView
+    scrollView.hasVerticalRuler = true
+    scrollView.rulersVisible = true
   }
 
   override func viewWillDraw() {
     super.viewWillDraw()
     updateTextStorage(text)
+    lineNumbersView.needsDisplay = true
   }
 }

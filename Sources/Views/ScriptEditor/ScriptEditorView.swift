@@ -24,8 +24,3 @@ struct ScriptEditorView: View {
 """))
   }
 }
-
-
-
-
-

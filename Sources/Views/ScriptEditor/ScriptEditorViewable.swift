@@ -69,7 +69,6 @@ struct ScriptEditorViewable: NSViewRepresentable {
       guard let textView = notification.object as? NSTextView else { return }
 
       view.text = textView.string
-      Swift.print(#function)
     }
 
     public func textDidChange(_ notification: Notification) {
@@ -78,14 +77,12 @@ struct ScriptEditorViewable: NSViewRepresentable {
 
       view.text = content
       selectedRanges = textView.selectedRanges
-      Swift.print(#function)
     }
 
     public func textDidEndEditing(_ notification: Notification) {
       guard let textView = notification.object as? NSTextView else { return }
 
       view.text = textView.string
-      Swift.print(#function)
     }
   }
 }
