@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MainViewToolbar: ToolbarContent {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   enum Action {
     case add
   }

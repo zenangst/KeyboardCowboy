@@ -223,7 +223,7 @@ enum ResponderAction {
 }
 
 struct ResponderView<Content>: View where Content: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   typealias ResponderHandler = (ResponderAction) -> Void
   @StateObject var responder: Responder
   let content: (Responder) -> Content

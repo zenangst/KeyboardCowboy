@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditTypeView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @Binding var command: TypeCommand
 
   init(command: Binding<TypeCommand>) {

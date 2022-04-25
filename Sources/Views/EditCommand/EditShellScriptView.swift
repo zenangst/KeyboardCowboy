@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditShellScriptView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   enum Kind: String, Identifiable, CaseIterable {
     var id: String { rawValue }
     case source

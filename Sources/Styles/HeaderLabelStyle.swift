@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HeaderLabelStyle: LabelStyle {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.title
       .font(.subheadline.bold())

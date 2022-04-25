@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditCommandDetailView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @ObservedObject var openPanelController: OpenPanelController
   @Binding var selection: Command?

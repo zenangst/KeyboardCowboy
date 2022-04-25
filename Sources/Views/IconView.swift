@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct IconView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   let path: String
   @StateObject var store = IconStore()
 

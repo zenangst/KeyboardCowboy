@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct CommandView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   enum Action {
     case commandAction(CommandActionsView.Action)
   }
@@ -54,7 +54,11 @@ struct CommandView: View, Equatable {
     case .builtIn:
       Spacer()
     case .keyboard(let command):
-      RegularKeyIcon(letter: command.keyboardShortcut.key)
+      RegularKeyIcon(letter: command.keyboardShortcut.key,
+                     width: 32,
+                     height: 32,
+                     alignment: .center,
+                     glow: false)
     case .open(let command):
       if let application = command.application {
         IconView(path: application.path)

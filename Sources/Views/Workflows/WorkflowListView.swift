@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowListView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   enum Action {
     case delete(Workflow)
   }

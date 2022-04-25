@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct ApplicationTriggerListView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   enum Action {
     case add(Application)
     case remove(Application)

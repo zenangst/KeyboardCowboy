@@ -3,7 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct WorkflowView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   enum Action {
     case workflow(WorkflowCommandsListView.Action)
   }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct EditKeyboardShortcutView: View {
   // swiftlint:disable weak_delegate
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @Binding var command: KeyboardCommand
   @State var selection: KeyShortcut?
 

@@ -9,7 +9,7 @@ struct CommandActionsView: View {
   enum Feature: CaseIterable {
     case edit, reveal, run
   }
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @ObservedObject var responder: Responder
   @Binding var command: Command
   var features: Set<Feature>

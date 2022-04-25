@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct KeyShortcutsListView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   enum Action {
     case add(KeyShortcut)
   }

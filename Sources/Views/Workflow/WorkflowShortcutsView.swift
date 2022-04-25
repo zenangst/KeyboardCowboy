@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowShortcutsView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   let applicationStore: ApplicationStore
   @FocusState var focus: Focus?
   @Binding var workflow: Workflow
@@ -49,18 +49,18 @@ struct WorkflowShortcutsView: View, Equatable {
         KeyShortcutsListView(keyboardShortcuts: Binding<[KeyShortcut]>(
           get: { keyboardShortcuts },
           set: { workflow.trigger = .keyboardShortcuts($0) })) { action in
-          switch action {
-          case .add(let shortcut):
-            if case .keyboardShortcuts(var shortcuts) = workflow.trigger {
-              shortcuts.append(shortcut)
-              workflow.trigger = .keyboardShortcuts(shortcuts)
+            switch action {
+            case .add(let shortcut):
+              if case .keyboardShortcuts(var shortcuts) = workflow.trigger {
+                shortcuts.append(shortcut)
+                workflow.trigger = .keyboardShortcuts(shortcuts)
+              }
             }
+            focus = .detail(.shortcuts(workflow))
           }
-          focus = .detail(.shortcuts(workflow))
-        }
       case .none:
         HStack {
-          Label("Trigger:", image: "")
+          Label("Add a trigger:", image: "")
         }
         HStack {
           Button("Application", action: { workflow.trigger = .application([]) })

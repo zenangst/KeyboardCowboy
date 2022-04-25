@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct ApplicationTriggerView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @Binding var trigger: ApplicationTrigger
 
   var body: some View {

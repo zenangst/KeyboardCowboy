@@ -2,7 +2,7 @@ import Combine
 import SwiftUI
 
 struct ScriptEditorView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @Binding var text: String
   let syntax: SyntaxHighlighting
 

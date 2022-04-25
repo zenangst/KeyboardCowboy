@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct WorkflowGroupView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @Binding var group: WorkflowGroup
 

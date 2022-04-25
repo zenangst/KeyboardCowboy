@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct EditOpenFileCommandView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @State private var applicationIdentifier: String = ""
   @State var command: OpenCommand { willSet { update(newValue) } }
   @State var filePath: String

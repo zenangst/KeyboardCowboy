@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct EditCommandView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @ObservedObject var openPanelController: OpenPanelController
   let imageSize = CGSize(width: 32, height: 32)

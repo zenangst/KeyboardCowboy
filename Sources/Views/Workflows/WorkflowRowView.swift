@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WorkflowRowView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   let applicationStore: ApplicationStore
   @Binding var workflow: Workflow
 

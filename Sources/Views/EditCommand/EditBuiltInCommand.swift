@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditBuiltInCommand: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @State private var selection: String = ""
   @State var command: BuiltInCommand {
     willSet { update(newValue) }

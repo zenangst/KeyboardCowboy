@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AutoCompletionView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @ObservedObject var store: AutoCompletionStore
 
   var body: some View {

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
 
   @StateObject var store: ContentStore
 

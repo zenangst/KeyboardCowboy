@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditCommandListView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @Binding var selection: Command?
   @Binding var command: Command
   private let imageSize = CGSize(width: 32, height: 32)

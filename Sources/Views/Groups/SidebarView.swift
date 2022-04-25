@@ -12,7 +12,7 @@ struct SidebarView: View {
     }
   }
 
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @ObservedObject var appStore: ApplicationStore
   @ObservedObject var configurationStore: ConfigurationStore
   @FocusState var focus: Focus?

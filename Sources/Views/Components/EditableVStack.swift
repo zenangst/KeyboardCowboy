@@ -40,7 +40,7 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
                                                      Data.Element: Identifiable,
                                                      Data.Index: Hashable,
                                                      ID: Hashable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   private enum DropIndex {
     case up(Data.Element.ID)
     case down(Data.Element.ID)

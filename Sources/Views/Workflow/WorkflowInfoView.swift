@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WorkflowInfoView: View, Equatable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @FocusState var focus: Focus?
   @Binding var workflow: Workflow
 

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ConfigurationSidebarView: View {
   @FocusState var focus: Focus?
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @ObservedObject var contentStore: ContentStore
   @ObservedObject var store: ConfigurationStore
   @State var presentingPopover: Bool = false

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MainView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   enum Action {
     case add
     case delete(Workflow)

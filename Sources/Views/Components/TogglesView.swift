@@ -10,7 +10,7 @@ struct TogglesView<Data, ID>: View where Data: RandomAccessCollection,
                                          Data.Element: Toggleable,
                                          Data.Element: Hashable,
                                          ID: Hashable {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @Binding private(set) var data: Data
   @Binding private(set) var enabled: Set<Data.Element>
   private(set) var id: KeyPath<Data.Element, ID>

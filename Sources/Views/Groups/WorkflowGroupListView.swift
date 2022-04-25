@@ -6,7 +6,7 @@ struct WorkflowGroupListView: View {
     case delete(WorkflowGroup)
   }
 
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @ObservedObject var appStore: ApplicationStore
   @ObservedObject var groupStore: GroupStore
   @Binding var selection: Set<String>

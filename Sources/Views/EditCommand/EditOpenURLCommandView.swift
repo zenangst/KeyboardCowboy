@@ -2,7 +2,7 @@ import Apps
 import SwiftUI
 
 struct EditOpenURLCommandView: View {
-  @ObservedObject private var iO = Inject.observer
+  @ObserveInjection var inject
   @State private var applicationIdentifier: String = ""
   @State var url: String = ""
   @State var command: OpenCommand {
