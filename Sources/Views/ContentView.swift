@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct ContentView: View, Equatable {
+  enum Action {
+    case run(Command)
+  }
   @ObserveInjection var inject
 
   @StateObject var store: ContentStore
@@ -17,14 +20,16 @@ struct ContentView: View, Equatable {
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.undoManager) private var undoManager
 
+  private var action: (Action) -> Void
   @FocusState private var focus: Focus?
 
-  init(_ store: ContentStore) {
+  init(_ store: ContentStore, action: @escaping (Action) -> Void) {
     _store = .init(wrappedValue: store)
     _selectedGroups = .init(get: { store.groupStore.selectedGroups },
                             set: { store.groupStore.selectedGroups = $0 })
     _selectedWorkflows = .init(get: { store.selectedWorkflows },
                                set: { store.selectedWorkflows = $0 })
+    self.action = action
     focus = .main(.groupComponent)
   }
 
@@ -139,8 +144,8 @@ struct ContentView: View, Equatable {
             switch commandAction {
             case .edit:
               break
-            case .run:
-              break
+            case .run(let command):
+              self.action(.run(command))
             case .reveal:
               break
             }
@@ -153,7 +158,7 @@ struct ContentView: View, Equatable {
 
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView(.init(.designTime()))
+    ContentView(.init(.designTime())) { _ in }
       .frame(width: 960, height: 480)
   }
 }

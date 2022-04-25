@@ -15,7 +15,12 @@ struct KeyboardCowboy: App {
 
   var body: some Scene {
     WindowGroup {
-      ContentView(contentStore)
+      ContentView(contentStore) { action in
+        switch action {
+        case .run(let command):
+          engine.commandEngine.serialRun([command])
+        }
+      }
         .equatable()
     }
   }

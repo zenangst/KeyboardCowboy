@@ -4,13 +4,15 @@ import Foundation
 
 @MainActor
 final class KeyboardCowboyEngine {
+  let commandEngine: CommandEngine
+
   private var subscriptions = Set<AnyCancellable>()
+
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let workflowEngine: WorkflowEngine
-  private let workspace: NSWorkspace
 
   init(_ contentStore: ContentStore, workspace: NSWorkspace = .shared) {
-    self.workspace = workspace
+    self.commandEngine = .init(workspace)
     self.workflowEngine = .init(
       applicationStore: contentStore.applicationStore,
       configStore: contentStore.configurationStore

@@ -28,19 +28,21 @@ struct CommandActionsView: View {
       if features.contains(.edit) {
         Text("Edit")
           .foregroundColor(responder.isHighlighted ? Color.white : Color.accentColor)
-          .onTapGesture {
-            action(.edit(command))
-          }
+          .onTapGesture { action(.edit(command)) }
         Text("|")
       }
 
       if features.contains(.reveal) {
-        Text("Reveal").foregroundColor(responder.isHighlighted ? Color.white : Color.accentColor)
+        Text("Reveal")
+          .foregroundColor(responder.isHighlighted ? Color.white : Color.accentColor)
+          .onTapGesture { action(.reveal(command)) }
         Text("|")
       }
 
       if features.contains(.run) {
-        Text("Run").foregroundColor(responder.isHighlighted ? Color.white : Color.accentColor)
+        Text("Run")
+          .foregroundColor(responder.isHighlighted ? Color.white : Color.accentColor)
+          .onTapGesture { action(.run(command)) }
       }
     }
     .font(Font.caption)
