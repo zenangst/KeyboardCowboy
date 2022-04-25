@@ -32,7 +32,8 @@ struct CommandView: View, Equatable {
       VStack {
         Toggle("", isOn: $command.isEnabled)
           .toggleStyle(SwitchToggleStyle())
-      }.font(Font.caption)
+      }
+      .font(Font.caption)
     }
     .padding([.top, .bottom], 4)
     .padding([.leading, .trailing], 8)

@@ -1,10 +1,11 @@
 import Cocoa
 import SwiftUI
 
-final class _ScriptEditorView: NSView {
-  private lazy var autoCompletionStore: AutoCompletionStore = .init([], selection: nil)
+final class _ScriptEditorView: NSView, NSTextLayoutManagerDelegate {
   private lazy var autoCompletionViewController = NSHostingController(rootView: AutoCompletionView(store: autoCompletionStore))
-  private(set) lazy var autoComplete = AutoCompletion(autoCompletionStore)
+
+  private let autoCompletionStore: AutoCompletionStore
+  private let autoComplete: AutoCompletion
 
   private(set) lazy var insertionView = InsertionPoint()
   private(set) lazy var layoutManager = NSLayoutManager()
@@ -13,6 +14,8 @@ final class _ScriptEditorView: NSView {
   private(set) lazy var textView = NSTextView(frame: .zero, textContainer: textContainer)
   private(set) lazy var textContainer = NSTextContainer(containerSize: scrollView.frame.size)
   private(set) lazy var lineNumbersView = LineNumbersView(self.textView, scrollView: self.scrollView)
+
+  private(set) var syntax: SyntaxHighlighting
 
   var selectedRanges: [NSValue] = [] {
     didSet {
@@ -31,8 +34,12 @@ final class _ScriptEditorView: NSView {
   }
   @Published private(set) public var text: String
 
-  init(_ text: String) {
+  init(_ text: String, syntax: SyntaxHighlighting) {
+    let autoCompletionStore = AutoCompletionStore([], selection: .none)
+    self.autoCompletionStore = autoCompletionStore
     self.text = text
+    self.syntax = syntax
+    self.autoComplete = AutoCompletion(autoCompletionStore, syntax: syntax)
     super.init(frame: .zero)
     updateTextStorage(text)
     loadView()
@@ -63,12 +70,12 @@ final class _ScriptEditorView: NSView {
     insertionView.frame.origin.y = max(toRect.origin.y + (rect.height * 5), 0) - rect.height / 8 // Why five times?
     insertionView.frame.size = .init(width: 2, height: rect.height + 2)
 
-    scrollView.documentView?.addSubview(insertionView)
+//    scrollView.documentView?.addSubview(insertionView)
   }
 
   func updateTextStorage(_ text: String) {
     self.text = text
-    textStorage.setAttributedString(SyntaxHighlighting.highlight(text))
+    textStorage.setAttributedString(syntax.highlight(text, font: textView.font!))
     lineNumbersView.needsDisplay = true
   }
 
@@ -80,6 +87,7 @@ final class _ScriptEditorView: NSView {
     scrollView.hasVerticalScroller = true
 
     textStorage.addLayoutManager(layoutManager)
+
     textContainer.widthTracksTextView = true
     textContainer.containerSize = NSSize(
       width: scrollView.contentSize.width,
@@ -93,9 +101,11 @@ final class _ScriptEditorView: NSView {
     textView.drawsBackground = true
     textView.isHorizontallyResizable = false
     textView.isVerticallyResizable = true
+    textView.font = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
     textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
     textView.minSize = NSSize(width: 0, height: scrollView.contentSize.height)
-    textView.insertionPointColor = .clear
+
+//    textView.insertionPointColor = .clear
 
     addSubview(scrollView)
     scrollView.documentView = textView

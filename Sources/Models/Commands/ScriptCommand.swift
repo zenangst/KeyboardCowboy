@@ -171,9 +171,9 @@ public extension ScriptCommand {
   static func empty(_ kind: ScriptCommand.CodingKeys, id: String = UUID().uuidString) -> ScriptCommand {
     switch kind {
     case .appleScript:
-      return ScriptCommand.appleScript(id: id, isEnabled: true, name: nil, source: .path(""))
+      return ScriptCommand.appleScript(id: id, isEnabled: true, name: nil, source: .inline(""))
     case .shell:
-      return ScriptCommand.shell(id: id, isEnabled: true, name: nil, source: .path(""))
+      return ScriptCommand.shell(id: id, isEnabled: true, name: nil, source: .inline(""))
     }
   }
 }

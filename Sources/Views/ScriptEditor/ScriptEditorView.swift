@@ -4,9 +4,10 @@ import SwiftUI
 struct ScriptEditorView: View {
   @ObservedObject private var iO = Inject.observer
   @Binding var text: String
+  let syntax: SyntaxHighlighting
 
   var body: some View {
-    ScriptEditorViewable(text: $text)
+    ScriptEditorViewable(text: $text, syntax: syntax)
       .enableInjection()
   }
 }
@@ -21,6 +22,6 @@ struct ScriptEditorView: View {
     ScriptEditorViewable(text: $text)
   }
 }
-"""))
+"""), syntax: SwiftSyntaxHighlighting())
   }
 }

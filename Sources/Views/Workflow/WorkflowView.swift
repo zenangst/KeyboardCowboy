@@ -1,7 +1,9 @@
 import Apps
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct WorkflowView: View, Equatable {
+  @ObservedObject private var iO = Inject.observer
   enum Action {
     case workflow(WorkflowCommandsListView.Action)
   }
@@ -19,6 +21,7 @@ struct WorkflowView: View, Equatable {
   @FocusState var focus: Focus?
   @Binding var sheet: Sheet?
   @Binding var workflow: Workflow
+  @State private var dragOver: Bool = false
 
   var action: (Action) -> Void
 
@@ -64,8 +67,25 @@ struct WorkflowView: View, Equatable {
           }
           self.action(.workflow(action))
         })
-          .equatable()
-          .padding(8)
+        .equatable()
+        .padding(8)
+        .overlay(
+          RoundedRectangle(cornerRadius: 12)
+            .stroke(Color.accentColor, lineWidth: 2)
+            .opacity(dragOver ? 1.0 : 0.0)
+        )
+        .onDrop(of: [UTType.fileURL.identifier], isTargeted: $dragOver, perform: { providers, location in
+          Task {
+            var urls = [URL]()
+            for provider in providers {
+              if let data = try? await provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier) as? Data,
+                 let url = URL(dataRepresentation: data, relativeTo: nil) {
+                urls.append(url)
+              }
+            }
+          }
+          return true
+        })
       }.padding([.leading, .trailing])
     }
     .sheet(item: $sheet, content: { sheetType in
@@ -82,6 +102,7 @@ struct WorkflowView: View, Equatable {
       }
     })
     .background(gradient)
+    .enableInjection()
   }
 
   var gradient: some View {

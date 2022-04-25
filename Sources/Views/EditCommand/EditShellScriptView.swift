@@ -76,7 +76,7 @@ struct EditShellScriptView: View {
         } set: { input in
           command = .shell(id: command.id, isEnabled: command.isEnabled,
                            name: command.name, source: .inline(input))
-        })
+        }, syntax: ShellScriptHighlighting())
         .font(Font.system(.body, design: .monospaced))
         .cornerRadius(8)
         .padding()

@@ -4,13 +4,15 @@ import SwiftUI
 struct ScriptEditorViewable: NSViewRepresentable {
   typealias NSViewType = _ScriptEditorView
   @Binding var text: String
+  let syntax: SyntaxHighlighting
 
-  init(text: Binding<String>) {
+  init(text: Binding<String>, syntax: SyntaxHighlighting) {
     _text = text
+    self.syntax = syntax
   }
 
   func makeNSView(context: Context) -> _ScriptEditorView {
-    let view = _ScriptEditorView(text)
+    let view = _ScriptEditorView(text, syntax: syntax)
     view.textView.delegate = context.coordinator
     view.autoresizesSubviews = true
     view.autoresizingMask = [.width]

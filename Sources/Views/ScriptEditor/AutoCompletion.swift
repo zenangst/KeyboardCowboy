@@ -4,12 +4,14 @@ import Cocoa
 final class AutoCompletion {
   var currentWord: String = ""
   let store: AutoCompletionStore
+  let syntax: SyntaxHighlighting
   weak var textView: NSTextView?
   private(set) var storage = [String]()
   private var subscriptions = [AnyCancellable]()
 
-  init(_ store: AutoCompletionStore) {
+  init(_ store: AutoCompletionStore, syntax: SyntaxHighlighting) {
     self.store = store
+    self.syntax = syntax
   }
 
   func subscribeToIndex(to publisher: Published<String>.Publisher) {
@@ -23,7 +25,7 @@ final class AutoCompletion {
     guard !currentWord.isEmpty else { return }
     let charSet = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters)
     let words = text.components(separatedBy: charSet)
-    var newStorage = SyntaxHighlighting.keywords
+    var newStorage = syntax.keywords(textView!.font!)
 
     for word in newStorage {
       if word.lowercased().starts(with: currentWord.lowercased()) {

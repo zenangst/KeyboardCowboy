@@ -74,7 +74,7 @@ struct EditAppleScriptView: View {
         } set: { input in
           command = .appleScript(id: command.id, isEnabled: command.isEnabled,
                                  name: command.name, source: .inline(input))
-        })
+        }, syntax: AppleScriptHighlighting())
         .font(Font.system(.body, design: .monospaced))
         .cornerRadius(8)
         .padding()
