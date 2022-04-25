@@ -3,11 +3,19 @@ import SwiftUI
 
 @main
 struct KeyboardCowboy: App {
-  init() { Inject.animation = .easeInOut(duration: 0.175) }
+  private let contentStore: ContentStore
+  private let engine: KeyboardCowboyEngine
+
+  init() {
+    let contentStore = ContentStore()
+    self.contentStore = contentStore
+    self.engine = KeyboardCowboyEngine(contentStore)
+    Inject.animation = .easeInOut(duration: 0.175)
+  }
 
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      ContentView(contentStore)
         .equatable()
     }
   }

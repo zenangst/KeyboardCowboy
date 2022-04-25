@@ -19,8 +19,7 @@ struct ContentView: View, Equatable {
 
   @FocusState private var focus: Focus?
 
-  init() {
-    let store = ContentStore()
+  init(_ store: ContentStore) {
     _store = .init(wrappedValue: store)
     _selectedGroups = .init(get: { store.groupStore.selectedGroups },
                             set: { store.groupStore.selectedGroups = $0 })
@@ -154,7 +153,7 @@ struct ContentView: View, Equatable {
 
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView()
+    ContentView(.init(.designTime()))
       .frame(width: 960, height: 480)
   }
 }

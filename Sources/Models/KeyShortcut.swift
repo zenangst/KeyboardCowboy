@@ -20,8 +20,8 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     case modifiers
   }
 
-  public var rawValue: String {
-    var input: String = (modifiers ?? []).compactMap({ $0.rawValue }).joined()
+  public var stringValue: String {
+    var input: String = (modifiers ?? []).compactMap({ $0.rawValue.lowercased() }).joined()
     input.append(key)
     return input
   }
