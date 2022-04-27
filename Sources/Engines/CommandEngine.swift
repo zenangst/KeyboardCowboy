@@ -4,15 +4,34 @@ import AppKit
 final class CommandEngine {
   struct Engines {
     let application: ApplicationCommandEngine
+    let open: OpenCommandEngine
   }
 
-  let engines: Engines
+  private let engines: Engines
+  private let workspace: WorkspaceProviding
 
   init(_ workspace: WorkspaceProviding) {
-    self.engines = .init(application: ApplicationCommandEngine(
-      windowListProvider: WindowListProvider(),
-      workspace: NSWorkspace.shared
-    ))
+    self.engines = .init(
+      application: ApplicationCommandEngine(
+        windowListStore: WindowListStore(),
+        workspace: workspace
+      ),
+      open: OpenCommandEngine(workspace)
+    )
+    self.workspace = workspace
+  }
+
+  func reveal(_ commands: [Command]) {
+    for command in commands {
+      switch command {
+      case .application(let applicationCommand):
+        workspace.reveal(applicationCommand.application.path)
+      case .open(let openCommand):
+        workspace.reveal(openCommand.path)
+      default:
+        break
+      }
+    }
   }
 
   func serialRun(_ commands: [Command]) {
@@ -43,8 +62,8 @@ final class CommandEngine {
       break
     case .keyboard:
       break
-    case .open:
-      break
+    case .open(let openCommand):
+      try await engines.open.run(openCommand)
     case .script:
       break
     case .type:

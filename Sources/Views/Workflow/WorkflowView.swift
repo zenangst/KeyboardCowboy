@@ -83,6 +83,11 @@ struct WorkflowView: View, Equatable {
                 urls.append(url)
               }
             }
+
+            let newCommands = DropCommandsController.generateCommands(
+              from: urls,
+              applications: applicationStore.applications)
+            workflow.commands.append(contentsOf: newCommands)
           }
           return true
         })

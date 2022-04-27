@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View, Equatable {
   enum Action {
+    case reveal(Command)
     case run(Command)
   }
   @ObserveInjection var inject
@@ -146,8 +147,8 @@ struct ContentView: View, Equatable {
               break
             case .run(let command):
               self.action(.run(command))
-            case .reveal:
-              break
+            case .reveal(let command):
+              self.action(.reveal(command))
             }
           }
         }

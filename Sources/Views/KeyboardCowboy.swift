@@ -18,10 +18,12 @@ struct KeyboardCowboy: App {
       ContentView(contentStore) { action in
         switch action {
         case .run(let command):
-          engine.commandEngine.serialRun([command])
+          engine.run([command], serial: true)
+        case .reveal(let command):
+          engine.reveal([command])
         }
       }
-        .equatable()
+      .equatable()
     }
   }
 }

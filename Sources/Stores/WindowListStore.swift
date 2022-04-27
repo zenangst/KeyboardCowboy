@@ -1,10 +1,10 @@
 import Foundation
 
-public protocol WindowListProviding {
+public protocol WindowListStoring {
   func windowOwners() -> [String]
 }
 
-final class WindowListProvider: WindowListProviding {
+final class WindowListStore: WindowListStoring {
   /// Get a list of owners based on the currently open windows.
   ///
   /// - Returns: A collection of window names, the window names are the bundle

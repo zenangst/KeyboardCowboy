@@ -5,21 +5,11 @@ public protocol WorkspaceProviding {
   var applications: [RunningApplication] { get }
   var frontApplication: RunningApplication? { get }
 
-  func launchApplication(withBundleIdentifier bundleIdentifier: String,
-                         options: NSWorkspace.LaunchOptions,
-                         additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?,
-                         launchIdentifier identifier: AutoreleasingUnsafeMutablePointer<NSNumber?>?) -> Bool
-
   func openApplication(at applicationURL: URL, configuration: NSWorkspace.OpenConfiguration) async throws -> NSRunningApplication
 
+  func open(_ urls: [URL], withApplicationAt applicationURL: URL, configuration: NSWorkspace.OpenConfiguration) async throws -> NSRunningApplication
 
-  func open(_ url: URL,
-            config: NSWorkspace.OpenConfiguration,
-            completionHandler: ((RunningApplication?, Error?) -> Void)?)
-
-  func open(_ urls: [URL], withApplicationAt applicationURL: URL,
-            config: NSWorkspace.OpenConfiguration,
-            completionHandler: ((RunningApplication?, Error?) -> Void)?)
+  func open(_ url: URL, configuration: NSWorkspace.OpenConfiguration) async throws -> NSRunningApplication
 
   func reveal(_ path: String)
 }
@@ -31,22 +21,6 @@ extension NSWorkspace: WorkspaceProviding {
 
   public var frontApplication: RunningApplication? {
     frontmostApplication
-  }
-
-  public func open(_ url: URL,
-                   config: NSWorkspace.OpenConfiguration,
-                   completionHandler: WorkspaceCompletion?) {
-    open(url, configuration: config) { (runningApplication, error) in
-      completionHandler?(runningApplication, error)
-    }
-  }
-
-  public func open(_ urls: [URL], withApplicationAt applicationUrl: URL,
-                   config: NSWorkspace.OpenConfiguration,
-                   completionHandler: WorkspaceCompletion?) {
-    open(urls, withApplicationAt: applicationUrl, configuration: config) { (runningApplication, error) in
-      completionHandler?(runningApplication, error)
-    }
   }
 
   public func reveal(_ path: String) {

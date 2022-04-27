@@ -8,13 +8,13 @@ final class ApplicationCommandEngine {
     let launch: LaunchApplicationPlugin
   }
 
-  private let windowListProvider: WindowListProviding
+  private let windowListStore: WindowListStoring
   private let workspace: WorkspaceProviding
   private let plugins: Plugins
 
-  init(windowListProvider: WindowListProviding,
+  init(windowListStore: WindowListStoring,
        workspace: WorkspaceProviding) {
-    self.windowListProvider = windowListProvider
+    self.windowListStore = windowListStore
     self.workspace = workspace
     self.plugins = Plugins(
       activate: ActivateApplicationPlugin(workspace: workspace),
@@ -54,7 +54,7 @@ final class ApplicationCommandEngine {
     if isFrontMostApplication {
       do {
         try await plugins.activate.execute(command)
-        if !windowListProvider.windowOwners().contains(command.application.bundleName) {
+        if !windowListStore.windowOwners().contains(command.application.bundleName) {
           try await plugins.launch.execute(command)
         }
       } catch {
@@ -63,7 +63,7 @@ final class ApplicationCommandEngine {
     } else {
       try await plugins.launch.execute(command)
 
-      if !windowListProvider.windowOwners().contains(command.application.bundleName) {
+      if !windowListStore.windowOwners().contains(command.application.bundleName) {
         try await plugins.activate.execute(command)
       }
     }
