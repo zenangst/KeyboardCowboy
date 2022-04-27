@@ -25,7 +25,7 @@ final class ScriptCommandEngine {
       switch source {
       case .path(let path):
         try plugins.shellScript.executeScript(at: path)
-      case .inline(let string):
+      case .inline:
         break
       }
     }
