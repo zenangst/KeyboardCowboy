@@ -28,7 +28,7 @@ final class OpenCommandEngine {
   }
 }
 
-private extension String {
+extension String {
   var sanitizedPath: String { _sanitizePath() }
 
   mutating func sanitizePath() {

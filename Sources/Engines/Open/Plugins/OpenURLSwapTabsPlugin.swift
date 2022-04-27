@@ -10,6 +10,7 @@ final class OpenURLSwapTabsPlugin {
   func execute(_ command: OpenCommand) throws {
     var dictionary: NSDictionary?
     let script = try createAppleScript(command.path)
+
     _ = script.executeAndReturnError(&dictionary).booleanValue
 
     if dictionary != nil {
