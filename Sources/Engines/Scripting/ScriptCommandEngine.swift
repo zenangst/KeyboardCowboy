@@ -23,8 +23,8 @@ final class ScriptCommandEngine {
       }
     case .shell(let id, let isEnabled, let name, let source):
       switch source {
-      case .path(let string):
-        break
+      case .path(let path):
+        try plugins.shellScript.executeScript(at: path)
       case .inline(let string):
         break
       }

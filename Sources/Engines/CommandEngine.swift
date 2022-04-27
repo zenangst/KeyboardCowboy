@@ -5,6 +5,7 @@ final class CommandEngine {
   struct Engines {
     let application: ApplicationCommandEngine
     let open: OpenCommandEngine
+    let script: ScriptCommandEngine
   }
 
   private let engines: Engines
@@ -16,7 +17,8 @@ final class CommandEngine {
         windowListStore: WindowListStore(),
         workspace: workspace
       ),
-      open: OpenCommandEngine(workspace)
+      open: OpenCommandEngine(workspace),
+      script: ScriptCommandEngine()
     )
     self.workspace = workspace
   }
@@ -28,6 +30,18 @@ final class CommandEngine {
         workspace.reveal(applicationCommand.application.path)
       case .open(let openCommand):
         workspace.reveal(openCommand.path)
+      case .script(let scriptCommand):
+        switch scriptCommand {
+        case .appleScript(_, _, _, let source),
+            .shell(_, _, _, let source):
+          switch source {
+          case .path(let path):
+            workspace.reveal(path)
+          case .inline:
+            // TODO: Open editing for this particular script.
+            break
+          }
+        }
       default:
         break
       }
@@ -64,8 +78,8 @@ final class CommandEngine {
       break
     case .open(let openCommand):
       try await engines.open.run(openCommand)
-    case .script:
-      break
+    case .script(let scriptCommand):
+      try await engines.script.run(scriptCommand)
     case .type:
       break
     }
