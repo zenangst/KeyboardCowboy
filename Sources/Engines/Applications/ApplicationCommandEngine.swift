@@ -58,7 +58,7 @@ final class ApplicationCommandEngine {
           try await plugins.launch.execute(command)
         }
       } catch {
-        try await plugins.bringToFront.execute(command)
+        try await plugins.bringToFront.execute()
       }
     } else {
       try await plugins.launch.execute(command)

@@ -17,13 +17,12 @@ final class OpenCommandEngine {
   }
 
   func run(_ command: OpenCommand) async throws {
-    let url = plugins.parser.parse(command.path.sanitizedPath)
     if plugins.finderFolder.validate(command) {
-      try plugins.finderFolder.execute(command, url: url)
+      try await plugins.finderFolder.execute(command)
     } else {
 //      try plugins.swapTab.execute(command)
 
-      try await plugins.open.execute(command, url: url) 
+      try await plugins.open.execute(command)
     }
   }
 }

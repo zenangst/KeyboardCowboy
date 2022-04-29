@@ -7,7 +7,8 @@ final class OpenFilePlugin {
     self.workspace = workspace
   }
 
-  func execute(_ command: OpenCommand, url: URL) async throws {
+  func execute(_ command: OpenCommand) async throws {
+    let url = OpenURLParser().parse(command.path)
     let configuration = NSWorkspace.OpenConfiguration()
 
     if let application = command.application {

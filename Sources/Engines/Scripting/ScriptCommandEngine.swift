@@ -6,11 +6,8 @@ final class ScriptCommandEngine {
     let shellScript = ShellScriptPlugin()
   }
 
-  private let plugins: Plugins
+  private let plugins = Plugins()
 
-  init() {
-    self.plugins = Plugins()
-  }
 
   func run(_ command: ScriptCommand) async throws {
     switch command {
