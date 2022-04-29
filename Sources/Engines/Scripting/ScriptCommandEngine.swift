@@ -21,7 +21,7 @@ final class ScriptCommandEngine {
       case .inline(let script):
         try plugins.appleScript.execute(script, withId: id)
       }
-    case .shell(let id, let isEnabled, let name, let source):
+    case .shell(_, _, _, let source):
       switch source {
       case .path(let path):
         try plugins.shellScript.executeScript(at: path)
