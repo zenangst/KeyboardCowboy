@@ -4,12 +4,18 @@ import Foundation
 import AppKit
 
 final class WorkflowEngine {
+  private let commandEngine: CommandEngine
+
   private var subscriptions: Set<AnyCancellable> = .init()
-  private let keyboardEngine = KeyboardStrokeEngine()
+  private var sequence: [KeyShortcut] = .init()
+  private var activeWorkflows: [Workflow] = .init()
+  private var sessionWorkflows: [Workflow] = .init()
 
   init(applicationStore: ApplicationStore,
+       commandEngine: CommandEngine,
        configStore: ConfigurationStore,
        workspace: NSWorkspace = .shared) {
+    self.commandEngine = commandEngine
     configStore.$selectedConfiguration
       .combineLatest(
         applicationStore.$applications,
@@ -23,7 +29,8 @@ final class WorkflowEngine {
         !apps.isEmpty
       }
       .sink { [weak self] configuration, apps, frontApp in
-        self?.reload(configuration, with: apps, frontApp: frontApp)
+        guard let self = self else { return }
+        self.reload(configuration, with: apps, frontApp: frontApp)
       }
       .store(in: &subscriptions)
   }
@@ -55,7 +62,58 @@ final class WorkflowEngine {
       .flatMap { $0.workflows }
       .filter { $0.isEnabled }
 
-    keyboardEngine.activate(workflows)
+    activate(workflows)
+  }
+
+  func activate(_ newWorkflows: [Workflow]) {
+    sequence = []
+    activeWorkflows = newWorkflows
+    sessionWorkflows = newWorkflows
+  }
+
+  func respond(to keystroke: KeyShortcut) {
+    sequence.append(keystroke)
+
+    var shortcutsToActivate = Set<KeyShortcut>()
+    var workflowsToActivate = Set<Workflow>()
+
+    let workflows = sessionWorkflows.filter { workflow in
+      guard case let .keyboardShortcuts(shortcuts) = workflow.trigger else { return false }
+
+      let lhs = sequence.sequenceValue
+      let rhs = shortcuts.sequenceValue
+
+      if rhs.isEmpty { return false }
+
+      if sequence.count < shortcuts.count {
+        return rhs.starts(with: lhs)
+      } else {
+        let perfectMatch = lhs == rhs
+        if perfectMatch {
+          workflowsToActivate.insert(workflow)
+        }
+        return perfectMatch
+      }
+    }
+
+    for workflow in workflows where workflow.isEnabled {
+      guard case let .keyboardShortcuts(shortcuts) = workflow.trigger,
+            shortcuts.count >= sequence.count
+            else { continue }
+
+      guard let validShortcut = shortcuts[sequence.count..<shortcuts.count].first
+      else { continue }
+      workflowsToActivate.insert(workflow)
+      shortcutsToActivate.insert(validShortcut)
+    }
+
+    if shortcutsToActivate.isEmpty {
+      workflowsToActivate.forEach { commandEngine.serialRun($0.commands) }
+      sequence = []
+      sessionWorkflows = activeWorkflows
+    } else {
+      sessionWorkflows = Array(workflowsToActivate)
+    }
   }
 }
 
@@ -67,5 +125,11 @@ private extension Collection where Iterator.Element: Hashable {
     let rhs = Set(rhs)
 
     return !lhs.isDisjoint(with: rhs)
+  }
+}
+
+private extension Collection where Element == KeyShortcut {
+  var sequenceValue: String {
+    compactMap { $0.stringValue }.joined()
   }
 }

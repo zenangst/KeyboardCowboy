@@ -21,7 +21,9 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
   }
 
   public var stringValue: String {
-    var input: String = (modifiers ?? []).compactMap({ $0.rawValue.lowercased() }).joined()
+    var input: String = (modifiers ?? [])
+      .sorted(by: { $0.rawValue > $1.rawValue })
+      .compactMap({ $0.rawValue.lowercased() }).joined()
     input.append(key)
     return input
   }

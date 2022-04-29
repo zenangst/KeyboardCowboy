@@ -12,9 +12,11 @@ final class KeyboardCowboyEngine {
   private let workflowEngine: WorkflowEngine
 
   init(_ contentStore: ContentStore, workspace: NSWorkspace = .shared) {
-    self.commandEngine = .init(workspace)
+    let commandEngine = CommandEngine(workspace)
+    self.commandEngine = commandEngine
     self.workflowEngine = .init(
       applicationStore: contentStore.applicationStore,
+      commandEngine: commandEngine,
       configStore: contentStore.configurationStore
     )
     subscribe(to: workspace)
