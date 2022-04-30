@@ -76,9 +76,15 @@ final class CommandEngine {
     switch command {
     case .application(let applicationCommand):
       try await engines.application.run(applicationCommand)
-    case .builtIn:
-      // TODO: Add support for built-in commands
-      break
+    case .builtIn(let builtInCommand):
+      switch builtInCommand.kind {
+      case .quickRun:
+        break
+      case .recordSequence:
+        break
+      case .repeatLastKeystroke:
+        break
+      }
     case .keyboard(let keyboardCommand):
       try engines.keyboard.run(keyboardCommand, type: .keyDown, with: eventSource)
     case .open(let openCommand):

@@ -7,6 +7,8 @@ import os
 final class KeyboardCowboyEngine {
   private var subscriptions = Set<AnyCancellable>()
 
+  private var menuController: MenubarController?
+
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let commandEngine: CommandEngine
   private let machPortEngine: MachPortEngine
@@ -18,12 +20,13 @@ final class KeyboardCowboyEngine {
     let keyCodeStore = KeyCodeStore(controller: InputSourceController())
     let commandEngine = CommandEngine(workspace, keyCodeStore: keyCodeStore)
     self.commandEngine = commandEngine
-    self.machPortEngine = MachPortEngine(store: keyCodeStore)
+    self.machPortEngine = MachPortEngine(store: keyCodeStore, mode: .intercept)
     self.workflowEngine = .init(
       applicationStore: contentStore.applicationStore,
       commandEngine: commandEngine,
       configStore: contentStore.configurationStore
     )
+
     subscribe(to: workspace)
 
     machPortEngine.subscribe(to: workflowEngine.$activeWorkflows)
@@ -43,6 +46,13 @@ final class KeyboardCowboyEngine {
         os_log(.error, "\(error.localizedDescription)")
       }
     }
+
+    NSApplication.shared.publisher(for: \.isRunning)
+      .sink { [weak self] isRunning in
+        guard isRunning else { return }
+        self?.menuController = MenubarController(contentStore.applicationStore)
+      }
+      .store(in: &subscriptions)
   }
 
   func run(_ commands: [Command], serial: Bool) {

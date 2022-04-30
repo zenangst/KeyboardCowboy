@@ -23,10 +23,10 @@ final class MachPortEngine {
   private let keyboardEngine: KeyboardEngine
   private let store: KeyCodeStore
 
-  internal init(store: KeyCodeStore) {
+  internal init(store: KeyCodeStore, mode: KeyboardCowboyMode) {
     self.store = store
     self.keyboardEngine = .init(store: store)
-    self.mode = .intercept
+    self.mode = mode
   }
 
   func subscribe(to publisher: Published<KeyboardCowboyMode?>.Publisher) {
