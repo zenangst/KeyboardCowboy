@@ -226,29 +226,35 @@ struct ResponderView<Content>: View where Content: View {
   @ObserveInjection var inject
   typealias ResponderHandler = (ResponderAction) -> Void
   @StateObject var responder: Responder
+  @ViewBuilder
   let content: (Responder) -> Content
   let action: ResponderHandler?
+  let onClick: (() -> Void)?
   let onDoubleClick: (() -> Void)?
 
   init<T: Identifiable>(_ identifiable: T,
                         namespace: Namespace.ID? = nil,
                         action: ResponderHandler? = nil,
+                        onClick: (() -> Void)? = nil,
                         onDoubleClick: (() -> Void)? = nil,
                         content: @escaping (Responder) -> Content) where T.ID == String {
     _responder = .init(wrappedValue: .init(identifiable.id, namespace: namespace))
     self.content = content
     self.action = action
+    self.onClick = onClick
     self.onDoubleClick = onDoubleClick
   }
 
   init(_ id: String = UUID().uuidString,
        namespace: Namespace.ID? = nil,
        action: ResponderHandler? = nil,
+       onClick: (() -> Void)? = nil,
        onDoubleClick: (() -> Void)? = nil,
        content: @escaping (Responder) -> Content) {
     _responder = .init(wrappedValue: .init(id, namespace: namespace))
     self.content = content
     self.action = action
+    self.onClick = onClick
     self.onDoubleClick = onDoubleClick
   }
 
@@ -272,6 +278,7 @@ struct ResponderView<Content>: View where Content: View {
         .gesture(
           TapGesture(count: 1).onEnded({
             responder.makeFirstResponder?(.none)
+            onClick?()
           }).simultaneously(with: TapGesture(count: 2).onEnded({
             onDoubleClick?()
           }))

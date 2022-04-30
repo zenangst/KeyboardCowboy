@@ -4,6 +4,7 @@ import AppKit
 final class CommandEngine {
   struct Engines {
     let application: ApplicationCommandEngine
+    let keyboard: KeyboardEngine
     let open: OpenCommandEngine
     let script: ScriptCommandEngine
   }
@@ -11,12 +12,15 @@ final class CommandEngine {
   private let engines: Engines
   private let workspace: WorkspaceProviding
 
-  init(_ workspace: WorkspaceProviding) {
+  var eventSource: CGEventSource?
+
+  init(_ workspace: WorkspaceProviding, keyCodeStore: KeyCodeStore) {
     self.engines = .init(
       application: ApplicationCommandEngine(
         windowListStore: WindowListStore(),
         workspace: workspace
       ),
+      keyboard: KeyboardEngine(store: keyCodeStore),
       open: OpenCommandEngine(workspace),
       script: ScriptCommandEngine()
     )
@@ -73,9 +77,10 @@ final class CommandEngine {
     case .application(let applicationCommand):
       try await engines.application.run(applicationCommand)
     case .builtIn:
+      // TODO: Add support for built-in commands
       break
-    case .keyboard:
-      break
+    case .keyboard(let keyboardCommand):
+      try engines.keyboard.run(keyboardCommand, type: .keyDown, with: eventSource)
     case .open(let openCommand):
       try await engines.open.run(openCommand)
     case .script(let scriptCommand):

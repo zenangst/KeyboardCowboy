@@ -61,6 +61,7 @@ struct ContentView: View, Equatable {
       })
 
       DetailView(applicationStore: store.applicationStore,
+                 recorderStore: store.recorderStore,
                  focus: _focus,
                  workflows: $store.selectedWorkflows,
                  sheet: $detailViewSheet,

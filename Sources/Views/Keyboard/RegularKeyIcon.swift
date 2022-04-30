@@ -43,29 +43,30 @@ public struct RegularKeyIcon: View, KeyView {
   private let animation = Animation
     .easeInOut(duration: 1.5)
     .repeatForever(autoreverses: true)
-  @State var glow: Bool
+  @Binding var glow: Bool
 
   public init(letters: [String],
               width: CGFloat = 32,
               height: CGFloat = 32,
               alignment: Alignment = .center,
-              glow: Bool = false) {
+              glow: Binding<Bool> = .constant(false)) {
     _letters =  .init(initialValue: letters.compactMap({ Letter(string: $0.uppercased()) }))
     self.width = width
     self.height = height
     self.alignment = alignment
-    self._glow = .init(initialValue: glow)
+    self._glow = glow
   }
 
   public init(letter: String ...,
               width: CGFloat = 32,
               height: CGFloat = 32,
-              alignment: Alignment = .center, glow: Bool = false) {
+              alignment: Alignment = .center,
+              glow: Binding<Bool> = .constant(false)) {
     _letters = .init(initialValue: letter.compactMap({ Letter(string: $0.uppercased()) }))
     self.width = width
     self.height = height
     self.alignment = alignment
-    self._glow = .init(initialValue: glow)
+    self._glow = glow
   }
 
   public var body: some View {
@@ -116,7 +117,7 @@ struct RegularKeyIcon_Previews: PreviewProvider {
       RegularKeyIcon(letter: "e", height: 80).frame(width: 80, height: 80)
       RegularKeyIcon(letter: "l", height: 80).frame(width: 80, height: 80)
       RegularKeyIcon(letter: "l", height: 80).frame(width: 80, height: 80)
-      RegularKeyIcon(letter: "o", height: 80, glow: true).frame(width: 80, height: 80)
+      RegularKeyIcon(letter: "o", height: 80, glow: .constant(true)).frame(width: 80, height: 80)
     }
     .padding(3)
   }

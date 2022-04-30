@@ -21,6 +21,51 @@ final class KeyCodeStore {
     self.createCache(inputSource)
   }
 
+  func keyCode(for string: String) -> Int? {
+    stringLookup[string]
+  }
+
+  func mapInputSource(_ inputSource: InputSource,
+                      keyCode: Int,
+                      modifiers: UInt32) throws -> MappingResult {
+    let layoutData = TISGetInputSourceProperty(inputSource.source, kTISPropertyUnicodeKeyLayoutData)
+    let dataRef = unsafeBitCast(layoutData, to: CFData.self)
+    let keyLayout = unsafeBitCast(CFDataGetBytePtr(dataRef), to: UnsafePointer<CoreServices.UCKeyboardLayout>.self)
+    let keyTranslateOptions = OptionBits(CoreServices.kUCKeyTranslateNoDeadKeysBit)
+    var deadKeyState: UInt32 = 0
+    let maxChars = 256
+    var chars = [UniChar](repeating: 0, count: maxChars)
+    var length = 0
+    let error = CoreServices.UCKeyTranslate(
+      keyLayout,
+      UInt16(keyCode),
+      UInt16(CoreServices.kUCKeyActionDisplay),
+      modifiers,
+      UInt32(LMGetKbdType()),
+      keyTranslateOptions,
+      &deadKeyState,
+      maxChars,
+      &length,
+      &chars)
+
+    if error != noErr {
+      throw KeyCodeStoreError.unableToMapKeyCode(keyCode)
+    }
+
+    let rawValue = NSString(characters: &chars, length: length) as String
+    let displayValue: String
+
+    if let specialKey = KeyCodes.specialKeys[keyCode] {
+      displayValue = specialKey
+    } else {
+      displayValue = rawValue.uppercased()
+    }
+
+    return (rawValue: rawValue, displayValue: displayValue)
+  }
+
+  // MARK: Private methods
+
   private func createCache(_ inputSource: InputSource) {
     let modifiersCombinations: [UInt32] = [
       0,
@@ -57,42 +102,4 @@ final class KeyCodeStore {
     self.keyCodeLookup = keyCodeLookup
   }
 
-    func mapInputSource(_ inputSource: InputSource,
-                        keyCode: Int,
-                        modifiers: UInt32) throws -> MappingResult {
-    let layoutData = TISGetInputSourceProperty(inputSource.source, kTISPropertyUnicodeKeyLayoutData)
-    let dataRef = unsafeBitCast(layoutData, to: CFData.self)
-    let keyLayout = unsafeBitCast(CFDataGetBytePtr(dataRef), to: UnsafePointer<CoreServices.UCKeyboardLayout>.self)
-    let keyTranslateOptions = OptionBits(CoreServices.kUCKeyTranslateNoDeadKeysBit)
-    var deadKeyState: UInt32 = 0
-    let maxChars = 256
-    var chars = [UniChar](repeating: 0, count: maxChars)
-    var length = 0
-    let error = CoreServices.UCKeyTranslate(
-      keyLayout,
-      UInt16(keyCode),
-      UInt16(CoreServices.kUCKeyActionDisplay),
-      modifiers,
-      UInt32(LMGetKbdType()),
-      keyTranslateOptions,
-      &deadKeyState,
-      maxChars,
-      &length,
-      &chars)
-
-    if error != noErr {
-      throw KeyCodeStoreError.unableToMapKeyCode(keyCode)
-    }
-
-    let rawValue = NSString(characters: &chars, length: length) as String
-    let displayValue: String
-
-    if let specialKey = KeyCodes.specialKeys[keyCode] {
-      displayValue = specialKey
-    } else {
-      displayValue = rawValue.uppercased()
-    }
-
-    return (rawValue: rawValue, displayValue: displayValue)
-  }
 }

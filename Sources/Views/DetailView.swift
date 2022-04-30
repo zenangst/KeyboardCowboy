@@ -6,6 +6,7 @@ struct DetailView: View, Equatable {
     case workflow(WorkflowView.Action)
   }
   let applicationStore: ApplicationStore
+  let recorderStore: KeyShortcutRecorderStore
   @FocusState var focus: Focus?
   @Binding var workflows: [Workflow]
   @Binding var sheet: WorkflowView.Sheet?
@@ -18,6 +19,7 @@ struct DetailView: View, Equatable {
     } else {
       ForEach($workflows, content: { workflow in
         WorkflowView(applicationStore: applicationStore,
+                     recorderStore: recorderStore,
                      focus: _focus,
                      workflow: workflow,
                      sheet: $sheet) { action in
@@ -38,6 +40,7 @@ struct DetailView_Previews: PreviewProvider {
   static var previews: some View {
     DetailView(
       applicationStore: ApplicationStore(),
+      recorderStore: KeyShortcutRecorderStore(),
       workflows: .constant([Workflow.designTime(nil)]),
       sheet: .constant(nil),
       action: { _ in })

@@ -1,5 +1,6 @@
 import Carbon
 import Cocoa
+import os
 
 enum MachPortError: Error {
   case failedToCreateMacPort
@@ -13,7 +14,7 @@ class MachPortEventPublisher {
 }
 
 final class MachPortController: MachPortEventPublisher {
-  private var eventSource: CGEventSource!
+  private(set) var eventSource: CGEventSource!
   private var machPort: CFMachPort!
   private var runLoopSource: CFRunLoopSource!
 
@@ -29,6 +30,7 @@ final class MachPortController: MachPortEventPublisher {
     self.eventSource = try CGEventSource.create(.privateState)
     self.machPort = machPort
     self.runLoopSource = try CFRunLoopSource.create(with: machPort)
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
   }
 
   private func callback(_ proxy: CGEventTapProxy, _ type: CGEventType,

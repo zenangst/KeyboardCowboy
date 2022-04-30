@@ -2,14 +2,19 @@ import Apps
 import Combine
 import Foundation
 import AppKit
+import os
 
 final class WorkflowEngine {
   private let commandEngine: CommandEngine
 
-  private var subscriptions: Set<AnyCancellable> = .init()
-  private var sequence: [KeyShortcut] = .init()
-  private var activeWorkflows: [Workflow] = .init()
+  @Published private(set) var activeWorkflows: [Workflow] = .init()
+  @Published private(set) var sequence: [KeyShortcut] = .init()
+
+  private var resetInterval: TimeInterval = 1.0
   private var sessionWorkflows: [Workflow] = .init()
+  private var subscriptions: Set<AnyCancellable> = .init()
+
+  private var timer: Timer?
 
   init(applicationStore: ApplicationStore,
        commandEngine: CommandEngine,
@@ -33,6 +38,14 @@ final class WorkflowEngine {
         self.reload(configuration, with: apps, frontApp: frontApp)
       }
       .store(in: &subscriptions)
+  }
+
+  func subscribe(to publisher: Published<KeyShortcut?>.Publisher) {
+    publisher
+      .compactMap { $0 }
+      .sink { [weak self] keyShortcut in
+      self?.respond(to: keyShortcut)
+    }.store(in: &subscriptions)
   }
 
   func reload(_ configuration: KeyboardCowboyConfiguration,
@@ -69,6 +82,11 @@ final class WorkflowEngine {
     sequence = []
     activeWorkflows = newWorkflows
     sessionWorkflows = newWorkflows
+  }
+
+  func reset() {
+    sequence = []
+    sessionWorkflows = activeWorkflows
   }
 
   func respond(to keystroke: KeyShortcut) {
@@ -114,6 +132,13 @@ final class WorkflowEngine {
     } else {
       sessionWorkflows = Array(workflowsToActivate)
     }
+
+    timer?.invalidate()
+    let timer = Timer(timeInterval: resetInterval, repeats: false) { [weak self] _ in
+      self?.reset()
+    }
+    RunLoop.main.add(timer, forMode: .common)
+    self.timer = timer
   }
 }
 

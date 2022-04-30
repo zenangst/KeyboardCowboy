@@ -56,6 +56,8 @@ final class ApplicationCommandEngine {
         try await plugins.activate.execute(command)
         if !windowListStore.windowOwners().contains(command.application.bundleName) {
           try await plugins.launch.execute(command)
+        } else {
+          try await plugins.bringToFront.execute()
         }
       } catch {
         try await plugins.bringToFront.execute()

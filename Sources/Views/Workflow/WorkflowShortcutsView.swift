@@ -4,13 +4,16 @@ import SwiftUI
 struct WorkflowShortcutsView: View, Equatable {
   @ObserveInjection var inject
   let applicationStore: ApplicationStore
+  let recorderStore: KeyShortcutRecorderStore
   @FocusState var focus: Focus?
   @Binding var workflow: Workflow
 
   init(_ applicationStore: ApplicationStore,
+       recorderStore: KeyShortcutRecorderStore,
        focus: FocusState<Focus?>,
        workflow: Binding<Workflow>) {
     self.applicationStore = applicationStore
+    self.recorderStore = recorderStore
     _focus = focus
     _workflow = workflow
   }
@@ -46,16 +49,10 @@ struct WorkflowShortcutsView: View, Equatable {
           Label("Keyboard Shortcuts:", image: "")
           removeButton
         }
-        KeyShortcutsListView(keyboardShortcuts: Binding<[KeyShortcut]>(
-          get: { keyboardShortcuts },
-          set: { workflow.trigger = .keyboardShortcuts($0) })) { action in
-            switch action {
-            case .add(let shortcut):
-              if case .keyboardShortcuts(var shortcuts) = workflow.trigger {
-                shortcuts.append(shortcut)
-                workflow.trigger = .keyboardShortcuts(shortcuts)
-              }
-            }
+        KeyShortcutsListView(
+          keyboardShortcuts: Binding<[KeyShortcut]>(get: { keyboardShortcuts },
+                                                    set: { workflow.trigger = .keyboardShortcuts($0) }),
+          recorderStore: recorderStore) { action in
             focus = .detail(.shortcuts(workflow))
           }
       case .none:
@@ -95,6 +92,7 @@ struct WorkflowShortcutsView_Previews: PreviewProvider {
   static var previews: some View {
     WorkflowShortcutsView(
       ApplicationStore(),
+      recorderStore: KeyShortcutRecorderStore(),
       focus: FocusState(),
       workflow: .constant(workflow))
   }

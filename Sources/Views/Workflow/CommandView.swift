@@ -58,7 +58,7 @@ struct CommandView: View, Equatable {
                      width: 32,
                      height: 32,
                      alignment: .center,
-                     glow: false)
+                     glow: .constant(false))
     case .open(let command):
       if let application = command.application {
         IconView(path: application.path)

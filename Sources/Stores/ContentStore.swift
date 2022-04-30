@@ -14,6 +14,7 @@ final class ContentStore: ObservableObject {
   private var subscriptions = [AnyCancellable]()
 
   private(set) var applicationStore = ApplicationStore()
+  private(set) var recorderStore = KeyShortcutRecorderStore()
   private(set) var configurationStore: ConfigurationStore
   private(set) var groupStore: GroupStore
   @Published var selectedWorkflows = [Workflow]()

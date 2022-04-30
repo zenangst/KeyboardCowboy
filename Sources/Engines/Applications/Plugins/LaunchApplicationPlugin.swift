@@ -13,7 +13,6 @@ final class LaunchApplicationPlugin {
     configuration.hides = command.modifiers.contains(.hidden)
 
     let url = URL(fileURLWithPath: command.application.path)
-
     _ = try await workspace.openApplication(at: url, configuration: configuration)
   }
 }

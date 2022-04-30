@@ -18,6 +18,7 @@ struct WorkflowView: View, Equatable {
   }
 
   let applicationStore: ApplicationStore
+  let recorderStore: KeyShortcutRecorderStore
   @FocusState var focus: Focus?
   @Binding var sheet: Sheet?
   @Binding var workflow: Workflow
@@ -26,6 +27,7 @@ struct WorkflowView: View, Equatable {
   var action: (Action) -> Void
 
   init(applicationStore: ApplicationStore,
+       recorderStore: KeyShortcutRecorderStore,
        focus: FocusState<Focus?> = .init(),
        workflow: Binding<Workflow>,
        sheet: Binding<Sheet?>,
@@ -34,6 +36,7 @@ struct WorkflowView: View, Equatable {
     _workflow = workflow
     _sheet = sheet
     self.applicationStore = applicationStore
+    self.recorderStore = recorderStore
     self.action = action
   }
 
@@ -44,7 +47,10 @@ struct WorkflowView: View, Equatable {
         .equatable()
         .padding([.leading, .trailing, .bottom], 8)
 
-        WorkflowShortcutsView(applicationStore, focus: _focus, workflow: $workflow)
+        WorkflowShortcutsView(applicationStore,
+                              recorderStore: recorderStore,
+                              focus: _focus,
+                              workflow: $workflow)
           .equatable()
           .padding(8)
       }
@@ -130,6 +136,7 @@ struct WorkflowView_Previews: PreviewProvider {
   static var previews: some View {
     WorkflowView(
       applicationStore: ApplicationStore(),
+      recorderStore: KeyShortcutRecorderStore(),
       workflow: .constant(Workflow.designTime(
       .keyboardShortcuts( [
         .init(key: "A", modifiers: [.command]),

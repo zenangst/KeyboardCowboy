@@ -38,7 +38,7 @@ struct EditKeyboardShortcutView: View {
       }
 
       RegularKeyIcon(letter: keyboardShortcut.key.isEmpty ? "Record keyboard shortcut" : keyboardShortcut.key,
-                     glow: selection == command.keyboardShortcut)
+                     glow: .constant(selection == command.keyboardShortcut))
       Spacer()
     }
     .frame(height: 32)
