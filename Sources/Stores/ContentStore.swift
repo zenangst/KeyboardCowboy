@@ -24,7 +24,7 @@ final class ContentStore: ObservableObject {
   @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
   @AppStorage("selectedConfiguration") private var configurationId: String = ""
 
-  init(_ preferences: AppPreferences = .designTime()) {
+  init(_ preferences: AppPreferences = .user()) {
     self.groupStore = GroupStore()
     self.configurationStore = ConfigurationStore()
     self.preferences = preferences

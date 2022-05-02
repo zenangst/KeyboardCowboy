@@ -87,14 +87,13 @@ final class KeyboardCowboyEngine {
   }
 
   private func reload(with application: NSRunningApplication) {
-//    let newPolicy: NSApplication.ActivationPolicy
-//    if application.bundleIdentifier == bundleIdentifier {
-//      // TODO: Disable key bindings
-//      newPolicy = .regular
-//    } else {
-//      newPolicy = .accessory
-//    }
+    let newPolicy: NSApplication.ActivationPolicy
+    if application.bundleIdentifier == bundleIdentifier {
+      newPolicy = .regular
+    } else {
+      newPolicy = .accessory
+    }
 
-//    NSApplication.shared.setActivationPolicy(newPolicy)
+    NSApplication.shared.setActivationPolicy(newPolicy)
   }
 }

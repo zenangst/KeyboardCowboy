@@ -92,6 +92,7 @@ final class CommandEngine {
     case .script(let scriptCommand):
       try await engines.script.run(scriptCommand)
     case .type:
+      // TODO: Implement typing commands.
       break
     }
   }

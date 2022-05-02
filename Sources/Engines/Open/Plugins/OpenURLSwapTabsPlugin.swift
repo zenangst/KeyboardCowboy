@@ -7,20 +7,10 @@ final class OpenURLSwapTabsPlugin {
     case failedToRun
   }
 
-  func execute(_ command: OpenCommand) throws {
-    var dictionary: NSDictionary?
-    let script = try createAppleScript(command.path)
-
-    _ = script.executeAndReturnError(&dictionary).booleanValue
-
-    if dictionary != nil {
-      throw OpenURLSwapToPluginError.failedToRun
-    }
-  }
-
-  private func createAppleScript(_ urlString: String) throws -> NSAppleScript {
+  func execute(_ command: OpenCommand) async throws {
+    let engine = ScriptCommandEngine()
     let source = """
-      set searchPattern to "\(urlString)"
+      set searchPattern to "\(command.path)"
       tell application "Safari"
         repeat with cWindow in windows
           repeat with cTab in tabs of cWindow
@@ -45,9 +35,7 @@ final class OpenURLSwapTabsPlugin {
         return false
       end tell
       """
-    guard let appleScript = NSAppleScript(source: source) else {
-      throw OpenURLSwapToPluginError.failedToCreate
-    }
-    return appleScript
+    try await engine.run(ScriptCommand.appleScript(id: "OpenURLSwapTabsPlugin",
+                                                   isEnabled: true, name: "Safari Swap Tabs", source: .inline(source)))
   }
 }
