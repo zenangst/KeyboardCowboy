@@ -32,7 +32,7 @@ final class OpenURLSwapTabsPlugin {
             end if
           end repeat
         end repeat
-        return false
+        error "Unable to find tab"
       end tell
       """
     try await engine.run(ScriptCommand.appleScript(id: "OpenURLSwapTabsPlugin",

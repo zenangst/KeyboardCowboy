@@ -20,10 +20,15 @@ final class OpenCommandEngine {
     if plugins.finderFolder.validate(command) {
       try await plugins.finderFolder.execute(command)
     } else if command.isUrl {
-      try await plugins.swapTab.execute(command)
+      // Try to find an open tab that matches the url path.
+      do {
+        try await plugins.swapTab.execute(command)
+      } catch {
+        try await plugins.open.execute(command)
+      }
+    } else {
+      try await plugins.open.execute(command)
     }
-
-    try await plugins.open.execute(command)
   }
 }
 
