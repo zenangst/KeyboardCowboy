@@ -12,6 +12,7 @@ final class KeyboardCowboyEngine {
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let commandEngine: CommandEngine
   private let machPortEngine: MachPortEngine
+  private let shortcutStore: ShortcutStore
   private let workflowEngine: WorkflowEngine
 
   private var machPortController: MachPortController?
@@ -26,6 +27,7 @@ final class KeyboardCowboyEngine {
       commandEngine: commandEngine,
       configStore: contentStore.configurationStore
     )
+    self.shortcutStore = ShortcutStore()
 
     subscribe(to: workspace)
 
@@ -35,6 +37,8 @@ final class KeyboardCowboyEngine {
     workflowEngine.subscribe(to: machPortEngine.$keystroke)
 
     contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
+
+    guard !isRunningPreview else { return }
 
     if !hasPrivileges() { } else {
       do {

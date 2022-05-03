@@ -1,6 +1,8 @@
 import SwiftUI
 @_exported import Inject
 
+let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
+
 @main
 struct KeyboardCowboy: App {
   private let contentStore: ContentStore

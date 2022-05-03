@@ -13,6 +13,7 @@ public class ModelFactory {
       Command.application(applicationCommand(id: id)),
       Command.appleScriptCommand(id: id),
       Command.shellScriptCommand(id: id),
+      Command.shortcutCommand(id: id),
       Command.keyboardCommand(id: id),
       Command.openCommand(id: id),
       Command.urlCommand(id: id, application: nil),

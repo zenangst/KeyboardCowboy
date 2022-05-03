@@ -36,7 +36,8 @@ struct EditBuiltInCommand: View {
               .id(command.id)
           }
         }
-      }.padding()
+      }
+      .padding()
     }.onAppear {
       selection = command.kind.rawValue
     }

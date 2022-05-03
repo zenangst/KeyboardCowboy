@@ -90,6 +90,9 @@ struct WorkflowRowView: View, Equatable {
         IconView(path: "/System/Applications/Utilities/Terminal.app")
           .frame(width: 32, height: 32)
       }
+    case .shortcut:
+      IconView(path: "/System/Applications/Shortcuts.app")
+        .frame(width: 32, height: 32)
     case .keyboard(let command):
       RegularKeyIcon(letter: command.keyboardShortcut.key, width: 32, height: 32)
         .frame(width: 24, height: 24)

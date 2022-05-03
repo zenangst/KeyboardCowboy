@@ -2,8 +2,6 @@ import Combine
 import Foundation
 import SwiftUI
 
-let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
-
 @MainActor
 final class ContentStore: ObservableObject {
   @Published var preferences: AppPreferences
@@ -14,9 +12,11 @@ final class ContentStore: ObservableObject {
   private var subscriptions = [AnyCancellable]()
 
   private(set) var applicationStore = ApplicationStore()
-  private(set) var recorderStore = KeyShortcutRecorderStore()
   private(set) var configurationStore: ConfigurationStore
   private(set) var groupStore: GroupStore
+  private(set) var recorderStore = KeyShortcutRecorderStore()
+  private(set) var shortcutStore: ShortcutStore
+  
   @Published var selectedWorkflows = [Workflow]()
   @Published var selectedWorkflowsCopy = [Workflow]()
 
@@ -25,6 +25,7 @@ final class ContentStore: ObservableObject {
   @AppStorage("selectedConfiguration") private var configurationId: String = ""
 
   init(_ preferences: AppPreferences = .user()) {
+    self.shortcutStore = ShortcutStore()
     self.groupStore = GroupStore()
     self.configurationStore = ConfigurationStore()
     self.preferences = preferences

@@ -9,6 +9,7 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
   case builtIn(BuiltInCommand)
   case keyboard(KeyboardCommand)
   case open(OpenCommand)
+  case shortcut(ShortcutCommand)
   case script(ScriptCommand)
   case type(TypeCommand)
 
@@ -17,6 +18,7 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     case builtIn = "builtInCommand"
     case keyboard = "keyboardCommand"
     case open = "openCommand"
+    case shortcut = "runShortcut"
     case script = "scriptCommand"
     case type = "typeCommand"
   }
@@ -48,6 +50,8 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
         } else {
           return "Open a file: \(command.path)"
         }
+      case .shortcut(let command):
+        return "Run '\(command.shortcutIdentifier)'"
       case .script(let command):
         return command.name
       case .type(let command):
@@ -73,6 +77,8 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
           self = .script(.shell(id: id, isEnabled: isEnabled,
                                 name: newValue, source: source))
         }
+      case .shortcut(var command):
+        command.name = newValue
       case .type(var command):
         command.name = newValue
       }
@@ -90,6 +96,8 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     case .open(let command):
       return command.id
     case .script(let command):
+      return command.id
+    case .shortcut(let command):
       return command.id
     case .type(let command):
       return command.id
@@ -109,6 +117,8 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
         return openCommand.isEnabled
       case .script(let scriptCommand):
         return scriptCommand.isEnabled
+      case .shortcut(let shortcutCommand):
+        return shortcutCommand.isEnabled
       case .type(let typeCommand):
         return typeCommand.isEnabled
       }
@@ -130,6 +140,9 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       case .script(var scriptCommand):
         scriptCommand.isEnabled = newValue
         self = .script(scriptCommand)
+      case .shortcut(var shortcutCommand):
+        shortcutCommand.isEnabled = newValue
+        self = .shortcut(shortcutCommand)
       case .type(var typeCommand):
         typeCommand.isEnabled = newValue
         self = .type(typeCommand)
@@ -156,6 +169,9 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     case .script:
       let command = try container.decode(ScriptCommand.self, forKey: .script)
       self = .script(command)
+    case .shortcut:
+      let command = try container.decode(ShortcutCommand.self, forKey: .shortcut)
+      self = .shortcut(command)
     case .type:
       let command = try container.decode(TypeCommand.self, forKey: .type)
       self = .type(command)
@@ -182,6 +198,8 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       try container.encode(command, forKey: .open)
     case .script(let command):
       try container.encode(command, forKey: .script)
+    case .shortcut(let command):
+      try container.encode(command, forKey: .shortcut)
     case .type(let command):
       try container.encode(command, forKey: .type)
     }
@@ -202,6 +220,9 @@ public extension Command {
     case .script:
       return Command.script(.appleScript(id: "", isEnabled: true,
                                          name: nil, source: .path("")))
+    case .shortcut:
+      return Command.shortcut(.init(id: UUID().uuidString, shortcutIdentifier: "",
+                                    name: "", isEnabled: true))
     case .type:
       return Command.type(.init(name: "", input: ""))
     }
@@ -232,6 +253,11 @@ public extension Command {
 
   static func shellScriptCommand(id: String) -> Command {
     Command.script(ScriptCommand.empty(.shell, id: id))
+  }
+
+  static func shortcutCommand(id: String) -> Command {
+    Command.shortcut(ShortcutCommand(id: id, shortcutIdentifier: "Run shortcut",
+                                     name: "Run shortcut", isEnabled: true))
   }
 
   static func keyboardCommand(id: String) -> Command {

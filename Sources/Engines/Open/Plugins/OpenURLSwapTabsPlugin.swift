@@ -35,7 +35,10 @@ final class OpenURLSwapTabsPlugin {
         error "Unable to find tab"
       end tell
       """
-    try await engine.run(ScriptCommand.appleScript(id: "OpenURLSwapTabsPlugin",
-                                                   isEnabled: true, name: "Safari Swap Tabs", source: .inline(source)))
+    let script = ScriptCommand.appleScript(
+      id: "OpenURLSwapTabsPlugin",
+      isEnabled: true, name: "Safari Swap Tabs",
+      source: .inline(source))
+    _ = try await engine.run(script)
   }
 }

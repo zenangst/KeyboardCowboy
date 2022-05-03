@@ -4,6 +4,7 @@ struct EditCommandDetailView: View {
   @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @ObservedObject var openPanelController: OpenPanelController
+  let shortcutStore: ShortcutStore
   @Binding var selection: Command?
   @Binding var command: Command
 
@@ -31,6 +32,10 @@ struct EditCommandDetailView: View {
               self.command = .script(scriptCommand)
             }
         }
+      case .shortcut(let command):
+        EditShortcutView(command: command, store: shortcutStore) { command in
+          self.command = .shortcut(command)
+        }
       case .open(let command):
         if command.isUrl {
           EditOpenURLCommandView(
@@ -46,7 +51,6 @@ struct EditCommandDetailView: View {
               self.command = .open(openCommand)
             }
         }
-        EmptyView()
       case .keyboard(let command):
         EditKeyboardShortcutView(command: Binding(
           get: { command },
@@ -85,6 +89,7 @@ struct EditCommandDetailView_Previews: PreviewProvider {
   static var previews: some View {
     EditCommandDetailView(applicationStore: applicationStore,
                           openPanelController: OpenPanelController(),
+                          shortcutStore: ShortcutStore(),
                           selection: .constant(command),
                           command: .constant(command))
   }

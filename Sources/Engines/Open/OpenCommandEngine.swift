@@ -9,25 +9,33 @@ final class OpenCommandEngine {
   }
 
   private let plugins: Plugins
+  private let workspace: WorkspaceProviding
 
   init(_ workspace: WorkspaceProviding) {
     self.plugins = .init(
       finderFolder: OpenFolderInFinder(workspace: workspace),
       open: OpenFilePlugin(workspace: workspace))
+    self.workspace = workspace
   }
 
   func run(_ command: OpenCommand) async throws {
-    if plugins.finderFolder.validate(command) {
-      try await plugins.finderFolder.execute(command)
-    } else if command.isUrl {
-      // Try to find an open tab that matches the url path.
-      do {
+    do {
+      if plugins.finderFolder.validate(command) {
+        try await plugins.finderFolder.execute(command)
+      } else if command.isUrl {
         try await plugins.swapTab.execute(command)
-      } catch {
+      } else {
         try await plugins.open.execute(command)
       }
-    } else {
-      try await plugins.open.execute(command)
+    } catch {
+      let url = URL(fileURLWithPath: command.path)
+      let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
+      // TODO: Check if this is what we want.
+      if command.application?.bundleName == "Finder", isDirectory == true {
+        try await plugins.finderFolder.execute(command)
+      } else {
+        try await plugins.open.execute(command)
+      }
     }
   }
 }

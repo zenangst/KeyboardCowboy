@@ -77,6 +77,8 @@ struct CommandView: View, Equatable {
       case .shell:
         IconView(path: "/System/Applications/Utilities/Terminal.app")
       }
+    case .shortcut:
+      IconView(path: "/System/Applications/Shortcuts.app")
     case .type:
       Spacer()
     }

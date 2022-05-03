@@ -40,6 +40,10 @@ struct EditCommandListView: View {
                              borderColor: .white)
               }).redacted(reason: .placeholder)
             }
+          case .shortcut:
+            FeatureIcon(color: Color(.systemPurple), size: imageSize, {
+              CommandSymbolIcon(background: .white.opacity(0.85), textColor: Color(.systemPurple))
+            }).redacted(reason: .placeholder)
           case .keyboard:
             FeatureIcon(color: .green, size: imageSize, {
               CommandSymbolIcon(background: .white.opacity(0.85), textColor: Color.green)

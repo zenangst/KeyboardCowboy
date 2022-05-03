@@ -7,6 +7,7 @@ final class CommandEngine {
     let keyboard: KeyboardEngine
     let open: OpenCommandEngine
     let script: ScriptCommandEngine
+    let shortcut: ShortcutCommandEngine
   }
 
   private let engines: Engines
@@ -15,6 +16,7 @@ final class CommandEngine {
   var eventSource: CGEventSource?
 
   init(_ workspace: WorkspaceProviding, keyCodeStore: KeyCodeStore) {
+    let script = ScriptCommandEngine()
     self.engines = .init(
       application: ApplicationCommandEngine(
         windowListStore: WindowListStore(),
@@ -22,7 +24,8 @@ final class CommandEngine {
       ),
       keyboard: KeyboardEngine(store: keyCodeStore),
       open: OpenCommandEngine(workspace),
-      script: ScriptCommandEngine()
+      script: script,
+      shortcut: ShortcutCommandEngine(script: script)
     )
     self.workspace = workspace
   }
@@ -46,7 +49,20 @@ final class CommandEngine {
             break
           }
         }
-      default:
+      case .shortcut(let shortcut):
+        Task {
+          let source = """
+          shortcuts view "\(shortcut.shortcutIdentifier)"
+          """
+          _ = try await engines.script.run(.shell(id: UUID().uuidString, isEnabled: true,
+                                                  name: "Reveal \(shortcut.shortcutIdentifier)",
+                                                  source: .inline(source)))
+        }
+      case .builtIn(_):
+        break
+      case .keyboard(_):
+        break
+      case .type(_):
         break
       }
     }
@@ -90,7 +106,9 @@ final class CommandEngine {
     case .open(let openCommand):
       try await engines.open.run(openCommand)
     case .script(let scriptCommand):
-      try await engines.script.run(scriptCommand)
+      _ = try await engines.script.run(scriptCommand)
+    case .shortcut(let shortcutCommand):
+      try await engines.shortcut.run(shortcutCommand)
     case .type:
       // TODO: Implement typing commands.
       break

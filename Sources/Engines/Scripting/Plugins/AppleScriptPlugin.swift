@@ -10,44 +10,45 @@ final class AppleScriptPlugin {
 
   private var cache = [String: NSAppleScript]()
 
-  func executeScript(at path: String, withId id: String) throws {
-    let filePath = path.sanitizedPath
-    let url = URL(fileURLWithPath: filePath)
-
+  func executeScript(at path: String, withId id: String) throws -> String? {
     if let cachedAppleScript = cache[id] {
-      cachedAppleScript.executeAndReturnError(nil)
-      return
+      return cachedAppleScript.executeAndReturnError(nil).stringValue
     }
 
+    let filePath = path.sanitizedPath
+    let url = URL(fileURLWithPath: filePath)
     var errorDictionary: NSDictionary?
 
     guard let appleScript = NSAppleScript(contentsOf: url, error: &errorDictionary) else {
       throw AppleScriptPluginError.failedToCreateScriptAtURL(url)
     }
 
-    try execute(appleScript)
+    let descriptor = try execute(appleScript)
 
     cache[id] = appleScript
+
+    return descriptor.stringValue
   }
 
-  func execute(_ source: String, withId id: String) throws {
+  func execute(_ source: String, withId id: String) throws -> String? {
     if let cachedAppleScript = cache[id] {
-      cachedAppleScript.executeAndReturnError(nil)
-      return
+      return cachedAppleScript.executeAndReturnError(nil).stringValue
     }
 
     guard let appleScript = NSAppleScript(source: source) else {
       throw AppleScriptPluginError.failedToCreateInlineScript
     }
 
-    try execute(appleScript)
+    let descriptor = try execute(appleScript)
 
     cache[id] = appleScript
+
+    return descriptor.stringValue
   }
 
   // MARK: Private methods
 
-  private func execute(_ appleScript: NSAppleScript) throws {
+  private func execute(_ appleScript: NSAppleScript) throws -> NSAppleEventDescriptor {
     var errorDictionary: NSDictionary?
 
     appleScript.compileAndReturnError(&errorDictionary)
@@ -56,11 +57,13 @@ final class AppleScriptPlugin {
       throw AppleScriptPluginError.compileFailed(createError(from: errorDictionary))
     }
 
-    appleScript.executeAndReturnError(&errorDictionary)
+    let descriptor = appleScript.executeAndReturnError(&errorDictionary)
 
     if let errorDictionary = errorDictionary {
       throw AppleScriptPluginError.executionFailed(createError(from: errorDictionary))
     }
+
+    return descriptor
   }
 
   private func createError(from dictionary: NSDictionary) -> Error {

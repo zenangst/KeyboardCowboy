@@ -47,6 +47,7 @@ struct SidebarView: View {
     case .edit(let group):
       sheet = .edit(group)
     case .delete(let group):
+      // TODO: Show a dialog about removing this.
       groupStore.remove(group)
     }
   }

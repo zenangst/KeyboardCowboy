@@ -19,6 +19,7 @@ struct WorkflowView: View, Equatable {
 
   let applicationStore: ApplicationStore
   let recorderStore: KeyShortcutRecorderStore
+  let shortcutStore: ShortcutStore
   @FocusState var focus: Focus?
   @Binding var sheet: Sheet?
   @Binding var workflow: Workflow
@@ -28,6 +29,7 @@ struct WorkflowView: View, Equatable {
 
   init(applicationStore: ApplicationStore,
        recorderStore: KeyShortcutRecorderStore,
+       shortcutStore: ShortcutStore,
        focus: FocusState<Focus?> = .init(),
        workflow: Binding<Workflow>,
        sheet: Binding<Sheet?>,
@@ -37,6 +39,7 @@ struct WorkflowView: View, Equatable {
     _sheet = sheet
     self.applicationStore = applicationStore
     self.recorderStore = recorderStore
+    self.shortcutStore = shortcutStore
     self.action = action
   }
 
@@ -104,6 +107,7 @@ struct WorkflowView: View, Equatable {
       case .edit(let command):
         EditCommandView(applicationStore: applicationStore,
                         openPanelController: OpenPanelController(),
+                        shortcutStore: shortcutStore,
                         saveAction: { newCommand in
           workflow.updateOrAddCommand(newCommand)
           sheet = nil
@@ -137,6 +141,7 @@ struct WorkflowView_Previews: PreviewProvider {
     WorkflowView(
       applicationStore: ApplicationStore(),
       recorderStore: KeyShortcutRecorderStore(),
+      shortcutStore: ShortcutStore(),
       workflow: .constant(Workflow.designTime(
       .keyboardShortcuts( [
         .init(key: "A", modifiers: [.command]),

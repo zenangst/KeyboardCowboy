@@ -3,7 +3,7 @@ import Cocoa
 final class OpenFolderInFinder {
   private let finderBundleIdentifier = "com.apple.finder"
   let workspace: WorkspaceProviding
-  let script = ScriptCommandEngine()
+  let engine = ScriptCommandEngine()
 
   init(workspace: WorkspaceProviding) {
     self.workspace = workspace
@@ -21,12 +21,11 @@ final class OpenFolderInFinder {
         set the target of the front Finder window to folder ("\(url.path)" as POSIX file)
       end tell
       """
-
-    try await script.run(
-      ScriptCommand.appleScript(
-        id: "OpenFolderInFinder.\(command.path)",
-        isEnabled: true,
-        name: "Open folder in Finder: \(command.path)",
-        source: .inline(source)))
+    let script = ScriptCommand.appleScript(
+      id: "OpenFolderInFinder.\(command.path)",
+      isEnabled: true,
+      name: "Open folder in Finder: \(command.path)",
+      source: .inline(source))
+    _ = try await engine.run(script)
   }
 }
