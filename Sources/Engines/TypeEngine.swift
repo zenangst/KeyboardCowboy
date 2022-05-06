@@ -10,7 +10,6 @@ final class TypeEngine {
     self.store = store
   }
 
-  // TODO: Fix issue with inserting characters that depend on option modifer
   func run(_ command: TypeCommand) async throws {
     let input = command.input
     let uppercaseLetters = CharacterSet.uppercaseLetters
