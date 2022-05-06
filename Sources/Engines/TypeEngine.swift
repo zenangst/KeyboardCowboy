@@ -1,3 +1,4 @@
+import Carbon
 import Foundation
 
 final class TypeEngine {
@@ -7,15 +8,33 @@ final class TypeEngine {
     self.keyboardEngine = keyboardEngine
   }
 
+  // TODO: Fix issue with inserting characters that depend on option modifer
   func run(_ command: TypeCommand) async throws {
-    let input = command.input.compactMap(String.init)
+    let input = command.input
+    let uppercaseLetters = CharacterSet.uppercaseLetters
+    let newLines = CharacterSet.newlines
+    let punctuationCharacters = CharacterSet.punctuationCharacters
+
     for character in input {
+      var string = String(character)
       var modifiers: [ModifierKey] = []
-      if character.uppercased() == character {
+
+      let charSet = CharacterSet(charactersIn: string)
+      if charSet.isSubset(of: uppercaseLetters) {
         modifiers.append(.shift)
       }
+
+      if charSet.isSubset(of: punctuationCharacters) {
+        modifiers.append(.shift)
+      }
+
+      if charSet.isSubset(of: newLines) {
+        string = KeyCodes.specialKeys[kVK_Return]!
+      }
+
       let command = KeyboardCommand(
-        keyboardShortcut: .init(key: character, modifiers: modifiers))
+        keyboardShortcut: .init(key: string, modifiers: modifiers))
+
       try keyboardEngine.run(command, type: .keyDown, with: nil)
     }
   }

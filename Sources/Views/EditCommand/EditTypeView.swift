@@ -11,7 +11,8 @@ struct EditTypeView: View {
   var body: some View {
     VStack(spacing: 0) {
       HStack {
-        Text("Type input").font(.title)
+        Text("Type input")
+          .font(.title)
         Spacer()
       }.padding()
       Divider()
@@ -29,13 +30,13 @@ struct EditTypeView: View {
           }))
 
           Text("Input:")
-          TextEditor(text: Binding(get: {
+          ScriptEditorView(text: Binding(get: {
             command.input
           }, set: {
             command = TypeCommand(id: command.id, name: command.name,
                                   input: $0)
-          }))
-          .frame(height: 320)
+          }), syntax: BaseSyntaxHighlighting())
+          .frame(height: 220)
         })
       }
       .frame(alignment: .topLeading)
@@ -47,6 +48,10 @@ struct EditTypeView: View {
 
 struct EditTypeView_Previews: PreviewProvider {
   static var previews: some View {
-    EditTypeView(command: .constant(TypeCommand.init(name: "", input: "")))
+    EditTypeView(command: .constant(
+      TypeCommand.init(
+        id: "",
+        name: "",
+        input: "")))
   }
 }
