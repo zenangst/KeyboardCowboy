@@ -8,6 +8,7 @@ final class CommandEngine {
     let open: OpenCommandEngine
     let script: ScriptCommandEngine
     let shortcut: ShortcutCommandEngine
+    let type: TypeEngine
   }
 
   private let engines: Engines
@@ -17,15 +18,17 @@ final class CommandEngine {
 
   init(_ workspace: WorkspaceProviding, keyCodeStore: KeyCodeStore) {
     let script = ScriptCommandEngine()
+    let keyboard = KeyboardEngine(store: keyCodeStore)
     self.engines = .init(
       application: ApplicationCommandEngine(
         windowListStore: WindowListStore(),
         workspace: workspace
       ),
-      keyboard: KeyboardEngine(store: keyCodeStore),
+      keyboard: keyboard,
       open: OpenCommandEngine(workspace),
       script: script,
-      shortcut: ShortcutCommandEngine(script: script)
+      shortcut: ShortcutCommandEngine(script: script),
+      type: TypeEngine(keyboardEngine: keyboard)
     )
     self.workspace = workspace
   }
@@ -109,9 +112,8 @@ final class CommandEngine {
       _ = try await engines.script.run(scriptCommand)
     case .shortcut(let shortcutCommand):
       try await engines.shortcut.run(shortcutCommand)
-    case .type:
-      // TODO: Implement typing commands.
-      break
+    case .type(let typeCommand):
+      try await engines.type.run(typeCommand)
     }
   }
 }
