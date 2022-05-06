@@ -24,6 +24,19 @@ final class KeyCodeStore {
         return KeyCodeModifier.shift.int | KeyCodeModifier.option.int
       }
     }
+
+    var modifierKeys: [ModifierKey] {
+      switch self {
+      case .clear:
+        return []
+      case .shift:
+        return [.shift]
+      case .option:
+        return [.option]
+      case .shiftOption:
+        return [.option, .shift]
+      }
+    }
   }
 
   typealias MappingResult = (rawValue: String, displayValue: String)
