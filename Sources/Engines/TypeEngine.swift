@@ -3,9 +3,11 @@ import Foundation
 
 final class TypeEngine {
   private let keyboardEngine: KeyboardEngine
+  private let store: KeyCodeStore
 
-  internal init(keyboardEngine: KeyboardEngine) {
+  internal init(keyboardEngine: KeyboardEngine, store: KeyCodeStore) {
     self.keyboardEngine = keyboardEngine
+    self.store = store
   }
 
   // TODO: Fix issue with inserting characters that depend on option modifer
@@ -13,28 +15,43 @@ final class TypeEngine {
     let input = command.input
     let uppercaseLetters = CharacterSet.uppercaseLetters
     let newLines = CharacterSet.newlines
-    let punctuationCharacters = CharacterSet.punctuationCharacters
 
     for character in input {
-      var string = String(character)
-      var modifiers: [ModifierKey] = []
-
+      let string = String(character)
       let charSet = CharacterSet(charactersIn: string)
-      if charSet.isSubset(of: uppercaseLetters) {
-        modifiers.append(.shift)
+      var modifiers: [ModifierKey] = .init()
+      var key: String = string
+
+      if let container = store.stringWithModifier(for: string),
+         let rawValue = store.string(for: container.keyCode) {
+        key = rawValue
+
+        switch container.modifier {
+        case .clear:
+          modifiers = []
+        case .option:
+          modifiers = [.option]
+        case .shift:
+          modifiers = [.shift]
+        case .shiftOption:
+          modifiers = [.shift, .option]
+        }
+
+        if charSet.isSubset(of: uppercaseLetters) {
+          modifiers = [.shift]
+          key = string
+        }
+      } else {
+        if charSet.isSubset(of: newLines) {
+          modifiers = []
+          key = KeyCodes.specialKeys[kVK_Return]!
+        } else if charSet.isSubset(of: uppercaseLetters) {
+          modifiers = [.shift]
+        }
       }
 
-      if charSet.isSubset(of: punctuationCharacters) {
-        modifiers.append(.shift)
-      }
-
-      if charSet.isSubset(of: newLines) {
-        string = KeyCodes.specialKeys[kVK_Return]!
-      }
-
-      let command = KeyboardCommand(
-        keyboardShortcut: .init(key: string, modifiers: modifiers))
-
+      let keyboardShortcut = KeyShortcut(key: key, modifiers: modifiers)
+      let command = KeyboardCommand(keyboardShortcut: keyboardShortcut)
       try keyboardEngine.run(command, type: .keyDown, with: nil)
     }
   }

@@ -28,7 +28,7 @@ final class CommandEngine {
       open: OpenEngine(workspace),
       script: script,
       shortcut: ShortcutsEngine(script: script),
-      type: TypeEngine(keyboardEngine: keyboard)
+      type: TypeEngine(keyboardEngine: keyboard, store: keyCodeStore)
     )
     self.workspace = workspace
   }

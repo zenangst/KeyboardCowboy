@@ -6,13 +6,33 @@ public enum KeyCodeStoreError: Error {
 }
 
 final class KeyCodeStore {
+  enum KeyCodeModifier: CaseIterable {
+    case clear
+    case shift
+    case option
+    case shiftOption
+
+    var int: UInt32 {
+      switch self {
+      case .clear:
+        return 0
+      case .shift:
+        return UInt32(shiftKey >> 8) & 0xFF
+      case .option:
+        return UInt32(optionKey >> 8) & 0xFF
+      case .shiftOption:
+        return KeyCodeModifier.shift.int | KeyCodeModifier.option.int
+      }
+    }
+  }
+
   typealias MappingResult = (rawValue: String, displayValue: String)
   private let inputSource: InputSource
   private let controller: InputSourceController
 
   private var keyCodeLookup = [Int: String]()
   private var stringLookup = [String: Int]()
-
+  private var storage = [String: (Int, KeyCodeModifier)]()
 
   internal init(source: InputSource? = nil,
                 controller: InputSourceController) {
@@ -21,8 +41,16 @@ final class KeyCodeStore {
     self.createCache(inputSource)
   }
 
+  func stringWithModifier(for string: String) -> (keyCode: Int, modifier: KeyCodeModifier)? {
+    storage[string]
+  }
+
   func keyCode(for string: String) -> Int? {
     stringLookup[string]
+  }
+
+  func string(for keyCode: Int) -> String? {
+    keyCodeLookup[keyCode]
   }
 
   func mapInputSource(_ inputSource: InputSource,
@@ -67,25 +95,22 @@ final class KeyCodeStore {
   // MARK: Private methods
 
   private func createCache(_ inputSource: InputSource) {
-    let modifiersCombinations: [UInt32] = [
-      0,
-      UInt32(shiftKey >> 8) & 0xFF,
-    ]
-
     var stringLookup = [String: Int]()
+    var stringLookupWithModifier = [String: (Int, KeyCodeModifier)]()
     var keyCodeLookup = [Int: String]()
 
     for keyCode in 0..<128 {
-      for modifiers in modifiersCombinations {
+      for modifier in KeyCodeModifier.allCases {
         guard let (rawValue, displayValue) = try? mapInputSource(
           inputSource,
           keyCode: keyCode,
-          modifiers: modifiers) else {
+          modifiers: modifier.int) else {
           continue
         }
 
         if stringLookup[rawValue] == nil {
           stringLookup[rawValue] = keyCode
+          stringLookupWithModifier[rawValue] = (keyCode, modifier)
         }
         if stringLookup[displayValue] == nil {
           stringLookup[displayValue] = keyCode
@@ -100,6 +125,6 @@ final class KeyCodeStore {
 
     self.stringLookup = stringLookup
     self.keyCodeLookup = keyCodeLookup
+    self.storage = stringLookupWithModifier
   }
-
 }
