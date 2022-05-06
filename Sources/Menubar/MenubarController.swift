@@ -57,7 +57,7 @@ final class MenubarController {
       return
     }
     Task {
-      try? await ApplicationCommandEngine(windowListStore: WindowListStore(),
+      try? await ApplicationEngine(windowListStore: WindowListStore(),
                                           workspace: NSWorkspace.shared)
       .run(.init(application: application))
     }

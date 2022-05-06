@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 final class ShortcutStore: ObservableObject {
-  let engine = ScriptCommandEngine()
+  let engine = ScriptEngine()
   @Published var shortcuts = [Shortcut]()
 
   init() {

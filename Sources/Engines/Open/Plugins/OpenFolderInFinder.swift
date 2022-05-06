@@ -3,7 +3,7 @@ import Cocoa
 final class OpenFolderInFinder {
   private let finderBundleIdentifier = "com.apple.finder"
   let workspace: WorkspaceProviding
-  let engine = ScriptCommandEngine()
+  let engine = ScriptEngine()
 
   init(workspace: WorkspaceProviding) {
     self.workspace = workspace

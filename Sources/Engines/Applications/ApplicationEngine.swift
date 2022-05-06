@@ -1,6 +1,6 @@
 import Cocoa
 
-final class ApplicationCommandEngine {
+final class ApplicationEngine {
   private struct Plugins {
     let activate: ActivateApplicationPlugin
     let bringToFront = BringToFrontApplicationPlugin()

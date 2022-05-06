@@ -1,6 +1,6 @@
 import Foundation
 
-final class ScriptCommandEngine {
+final class ScriptEngine {
   private struct Plugins {
     let appleScript = AppleScriptPlugin()
     let shellScript = ShellScriptPlugin()

@@ -7,8 +7,8 @@ final class TypeEngine {
     self.keyboardEngine = keyboardEngine
   }
 
-  func run(_ typeCommand: TypeCommand) async throws {
-    let input = typeCommand.input.compactMap(String.init)
+  func run(_ command: TypeCommand) async throws {
+    let input = command.input.compactMap(String.init)
     for character in input {
       var modifiers: [ModifierKey] = []
       if character.uppercased() == character {

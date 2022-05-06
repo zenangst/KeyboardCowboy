@@ -3,11 +3,11 @@ import AppKit
 
 final class CommandEngine {
   struct Engines {
-    let application: ApplicationCommandEngine
+    let application: ApplicationEngine
     let keyboard: KeyboardEngine
-    let open: OpenCommandEngine
-    let script: ScriptCommandEngine
-    let shortcut: ShortcutCommandEngine
+    let open: OpenEngine
+    let script: ScriptEngine
+    let shortcut: ShortcutsEngine
     let type: TypeEngine
   }
 
@@ -17,17 +17,17 @@ final class CommandEngine {
   var eventSource: CGEventSource?
 
   init(_ workspace: WorkspaceProviding, keyCodeStore: KeyCodeStore) {
-    let script = ScriptCommandEngine()
+    let script = ScriptEngine()
     let keyboard = KeyboardEngine(store: keyCodeStore)
     self.engines = .init(
-      application: ApplicationCommandEngine(
+      application: ApplicationEngine(
         windowListStore: WindowListStore(),
         workspace: workspace
       ),
       keyboard: keyboard,
-      open: OpenCommandEngine(workspace),
+      open: OpenEngine(workspace),
       script: script,
-      shortcut: ShortcutCommandEngine(script: script),
+      shortcut: ShortcutsEngine(script: script),
       type: TypeEngine(keyboardEngine: keyboard)
     )
     self.workspace = workspace

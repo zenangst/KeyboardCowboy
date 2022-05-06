@@ -1,6 +1,6 @@
 import Foundation
 
-final class OpenCommandEngine {
+final class OpenEngine {
   struct Plugins {
     let finderFolder: OpenFolderInFinder
     let parser = OpenURLParser()

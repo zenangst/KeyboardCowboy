@@ -4,7 +4,7 @@ import Cocoa
 /// This is only here because sending `.activateAllWindows` to `NSRunningApplication.activate()`
 /// currently does not work as expected.
 final class BringToFrontApplicationPlugin {
-  let script = ScriptCommandEngine()
+  let script = ScriptEngine()
 
   func execute() async throws {
     let source = """
