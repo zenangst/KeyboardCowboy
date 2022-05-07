@@ -40,8 +40,8 @@ struct WorkflowCommandsListView: View, Equatable {
                 onDoubleClick: {
                   self.action(.commandView(.commandAction(.edit(command.wrappedValue))))
                 }) { responder in
-                  CommandView(workflow: $workflow,
-                              command: command, responder: responder) { action in
+                  CommandView(command: command,
+                              responder: responder) { action in
                     self.action(.commandView(action))
                 }
                 .equatable()

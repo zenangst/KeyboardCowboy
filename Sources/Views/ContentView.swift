@@ -11,6 +11,7 @@ struct ContentView: View, Equatable {
 
   @State var detailViewSheet: WorkflowView.Sheet?
   @State var sidebarViewSheet: SidebarView.Sheet?
+  @State private var searchQuery: String
 
   @Binding private var selectedGroups: [WorkflowGroup]
   @Binding private var selectedWorkflows: [Workflow]
@@ -30,6 +31,7 @@ struct ContentView: View, Equatable {
                             set: { store.groupStore.selectedGroups = $0 })
     _selectedWorkflows = .init(get: { store.selectedWorkflows },
                                set: { store.selectedWorkflows = $0 })
+    _searchQuery = .init(initialValue: "")
     self.action = action
     focus = .main(.groupComponent)
   }
@@ -75,7 +77,7 @@ struct ContentView: View, Equatable {
       })
       .frame(minWidth: 380, minHeight: 417)
     }
-    .searchable(text: .constant(""))
+    .searchable(text: $searchQuery)
     .onChange(of: scenePhase) { phase in
       guard case .active = phase else { return }
       store.applicationStore.reload()

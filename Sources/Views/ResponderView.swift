@@ -207,8 +207,6 @@ final class Responder: ObservableObject {
   @Published var isSelected: Bool
   @Published var makeFirstResponder: ((Modifier?) -> Void)?
 
-
-
   init(_ id: String = UUID().uuidString, namespace: Namespace.ID? = nil) {
     self.id = id
     self.namespace = namespace

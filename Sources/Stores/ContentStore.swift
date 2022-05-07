@@ -32,6 +32,7 @@ final class ContentStore: ObservableObject {
     self.storage = Storage(preferences.storageConfiguration)
 
     Task {
+      shortcutStore.index()
       if preferences.hideAppOnLaunch { NSApp.hide(self) }
       let configurations: [KeyboardCowboyConfiguration]
       configurations = try await load()

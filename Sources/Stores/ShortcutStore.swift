@@ -5,9 +5,7 @@ final class ShortcutStore: ObservableObject {
   let engine = ScriptEngine()
   @Published var shortcuts = [Shortcut]()
 
-  init() {
-    index()
-  }
+  init() { }
 
   func index() {
     let source = """

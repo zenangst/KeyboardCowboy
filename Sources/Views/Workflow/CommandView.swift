@@ -7,7 +7,6 @@ struct CommandView: View, Equatable {
     case commandAction(CommandActionsView.Action)
   }
   @Environment(\.colorScheme) var colorScheme
-  @Binding var workflow: Workflow
   @Binding var command: Command
   @ObservedObject var responder: Responder
 
@@ -38,7 +37,8 @@ struct CommandView: View, Equatable {
     .padding([.top, .bottom], 4)
     .padding([.leading, .trailing], 8)
     .background(backgroundView)
-    .opacity(!workflow.isEnabled ? 0.9 : command.isEnabled ? 1.0 : 0.8)
+    .opacity(command.isEnabled ? 1.0 : 0.8)
+//    .opacity(!workflow.isEnabled ? 0.9 : command.isEnabled ? 1.0 : 0.8)
     .enableInjection()
   }
 
@@ -106,7 +106,6 @@ struct CommandView: View, Equatable {
 struct CommandView_Previews: PreviewProvider {
   static var previews: some View {
     CommandView(
-      workflow: .constant(Workflow.empty()),
       command: .constant(Command.application(.init(application: Application.finder()))),
       responder: Responder(),
       action: { _ in })
