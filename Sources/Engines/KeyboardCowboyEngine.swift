@@ -10,6 +10,7 @@ final class KeyboardCowboyEngine {
   private var menuController: MenubarController?
 
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
+  private let contentStore: ContentStore
   private let commandEngine: CommandEngine
   private let machPortEngine: MachPortEngine
   private let shortcutStore: ShortcutStore
@@ -20,6 +21,7 @@ final class KeyboardCowboyEngine {
   init(_ contentStore: ContentStore, workspace: NSWorkspace = .shared) {
     let keyCodeStore = KeyCodeStore(controller: InputSourceController())
     let commandEngine = CommandEngine(workspace, keyCodeStore: keyCodeStore)
+    self.contentStore = contentStore
     self.commandEngine = commandEngine
     self.machPortEngine = MachPortEngine(store: keyCodeStore, mode: .intercept)
     self.workflowEngine = .init(
@@ -40,7 +42,7 @@ final class KeyboardCowboyEngine {
 
     guard !isRunningPreview else { return }
 
-    if !hasPrivileges() { } else {
+    if contentStore.preferences.machportIsEnabled, !hasPrivileges() { } else {
       do {
         let machPortController = try MachPortController()
         commandEngine.eventSource = machPortController.eventSource
@@ -91,6 +93,7 @@ final class KeyboardCowboyEngine {
   }
 
   private func reload(with application: NSRunningApplication) {
+    guard contentStore.preferences.hideFromDock else { return }
     let newPolicy: NSApplication.ActivationPolicy
     if application.bundleIdentifier == bundleIdentifier {
       newPolicy = .regular

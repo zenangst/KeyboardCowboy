@@ -9,7 +9,7 @@ struct KeyboardCowboy: App {
   private let engine: KeyboardCowboyEngine
 
   init() {
-    let contentStore = ContentStore()
+    let contentStore = ContentStore(.user())
     self.contentStore = contentStore
     self.engine = KeyboardCowboyEngine(contentStore)
     Inject.animation = .easeInOut(duration: 0.175)

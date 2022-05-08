@@ -4,7 +4,7 @@ import SwiftUI
 
 @MainActor
 final class ContentStore: ObservableObject {
-  @Published var preferences: AppPreferences
+  @Published private(set) var preferences: AppPreferences
 
   var undoManager: UndoManager?
 
@@ -24,16 +24,17 @@ final class ContentStore: ObservableObject {
   @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
   @AppStorage("selectedConfiguration") private var configurationId: String = ""
 
-  init(_ preferences: AppPreferences = .user()) {
+  init(_ preferences: AppPreferences) {
     self.shortcutStore = ShortcutStore()
     self.groupStore = GroupStore()
     self.configurationStore = ConfigurationStore()
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
 
+    if preferences.hideAppOnLaunch { NSApplication.shared.hide(self) }
+
     Task {
       shortcutStore.index()
-      if preferences.hideAppOnLaunch { NSApp.hide(self) }
       let configurations: [KeyboardCowboyConfiguration]
       configurations = try await load()
       configurationStore.updateConfigurations(configurations)
