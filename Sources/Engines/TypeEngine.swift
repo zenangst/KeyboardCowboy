@@ -2,8 +2,16 @@ import Carbon
 import Foundation
 
 final class TypeEngine {
+  enum NaturalTyping: TimeInterval {
+    case disabled = 0
+    case slow = 0.0275
+    case medium = 0.0175
+    case fast = 0.01
+  }
+
   private let keyboardEngine: KeyboardEngine
   private let store: KeyCodeStore
+  private var naturalTyping: NaturalTyping = .disabled
 
   internal init(keyboardEngine: KeyboardEngine, store: KeyCodeStore) {
     self.keyboardEngine = keyboardEngine
@@ -16,6 +24,11 @@ final class TypeEngine {
     let newLines = CharacterSet.newlines
 
     for character in input {
+      if naturalTyping != .disabled {
+        let sleepTime = TimeInterval.random(in: 0...naturalTyping.rawValue)
+        Thread.sleep(forTimeInterval: sleepTime)
+      }
+
       let string = String(character)
       let charSet = CharacterSet(charactersIn: string)
       var modifiers: [ModifierKey] = .init()
