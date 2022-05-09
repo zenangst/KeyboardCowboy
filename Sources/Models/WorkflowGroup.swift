@@ -61,7 +61,7 @@ public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendabl
 extension WorkflowGroup {
   static public func empty(id: String = UUID().uuidString) -> WorkflowGroup {
     WorkflowGroup(id: id, name: "Untitled group", color: "#000",
-          workflows: [Workflow.empty(id: id)])
+                  workflows: [Workflow.empty(id: UUID().uuidString)])
   }
 
   static public func droppedApplication(id: String = UUID().uuidString,

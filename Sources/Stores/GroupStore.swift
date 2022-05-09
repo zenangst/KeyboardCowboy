@@ -1,7 +1,6 @@
 import SwiftUI
 
-@MainActor
-final class GroupStore: ObservableObject, Sendable {
+final class GroupStore: ObservableObject {
   @Published var groups = [WorkflowGroup]()
   @Published var selectedGroups = [WorkflowGroup]()
 

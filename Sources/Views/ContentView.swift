@@ -9,9 +9,10 @@ struct ContentView: View, Equatable {
 
   @StateObject var store: ContentStore
 
+  @State var config = DetailToolbarConfig()
   @State var detailViewSheet: WorkflowView.Sheet?
   @State var sidebarViewSheet: SidebarView.Sheet?
-  @State private var searchQuery: String
+  @State var searchQuery: String
 
   @Binding private var selectedGroups: [WorkflowGroup]
   @Binding private var selectedWorkflows: [Workflow]
@@ -25,15 +26,17 @@ struct ContentView: View, Equatable {
   private var action: (Action) -> Void
   @FocusState private var focus: Focus?
 
-  init(_ store: ContentStore, action: @escaping (Action) -> Void) {
+  init(_ store: ContentStore,
+       focus: FocusState<Focus?>,
+       action: @escaping (Action) -> Void) {
     _store = .init(wrappedValue: store)
     _selectedGroups = .init(get: { store.groupStore.selectedGroups },
                             set: { store.groupStore.selectedGroups = $0 })
     _selectedWorkflows = .init(get: { store.selectedWorkflows },
                                set: { store.selectedWorkflows = $0 })
     _searchQuery = .init(initialValue: "")
+    _focus = focus
     self.action = action
-    focus = .main(.groupComponent)
   }
 
   var body: some View {
@@ -70,7 +73,10 @@ struct ContentView: View, Equatable {
                  sheet: $detailViewSheet,
                  action: handleDetailAction(_:))
       .equatable()
-      .toolbar { DetailToolbar(action: handleDetailToolbarAction(_:)) }
+      .toolbar { DetailToolbar(applicationStore: store.applicationStore,
+                               config: $config,
+                               searchStore: store.searchStore,
+                               action: handleDetailToolbarAction(_:)) }
       // Handle workflow updates
       .onChange(of: selectedWorkflows, perform: { workflows in
         store.updateWorkflows(workflows)
@@ -162,8 +168,17 @@ struct ContentView: View, Equatable {
 }
 
 struct ContentView_Previews: PreviewProvider {
+  struct FocusWrapper: View {
+    @FocusState var focus: Focus?
+
+    var body: some View {
+      ContentView(.init(.designTime()), focus: _focus) { _ in }
+    }
+  }
+
+  static var focus: FocusState<Focus>?
   static var previews: some View {
-    ContentView(.init(.designTime())) { _ in }
+      FocusWrapper()
       .frame(width: 960, height: 480)
   }
 }

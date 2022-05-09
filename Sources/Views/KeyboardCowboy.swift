@@ -5,6 +5,7 @@ let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PR
 
 @main
 struct KeyboardCowboy: App {
+  @FocusState private var focus: Focus?
   private let contentStore: ContentStore
   private let engine: KeyboardCowboyEngine
 
@@ -12,12 +13,13 @@ struct KeyboardCowboy: App {
     let contentStore = ContentStore(.user())
     self.contentStore = contentStore
     self.engine = KeyboardCowboyEngine(contentStore)
+    self.focus = .main(.groupComponent)
     Inject.animation = .easeInOut(duration: 0.175)
   }
 
   var body: some Scene {
     WindowGroup {
-      ContentView(contentStore) { action in
+      ContentView(contentStore, focus: _focus) { action in
         switch action {
         case .run(let command):
           engine.run([command], serial: true)

@@ -15,6 +15,7 @@ final class ContentStore: ObservableObject {
   private(set) var configurationStore: ConfigurationStore
   private(set) var groupStore: GroupStore
   private(set) var recorderStore = KeyShortcutRecorderStore()
+  private(set) var searchStore: SearchStore
   private(set) var shortcutStore: ShortcutStore
   
   @Published var selectedWorkflows = [Workflow]()
@@ -25,11 +26,13 @@ final class ContentStore: ObservableObject {
   @AppStorage("selectedConfiguration") private var configurationId: String = ""
 
   init(_ preferences: AppPreferences) {
+    let groupStore = GroupStore()
     self.shortcutStore = ShortcutStore()
-    self.groupStore = GroupStore()
+    self.groupStore = groupStore
     self.configurationStore = ConfigurationStore()
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
+    self.searchStore = SearchStore(store: groupStore, results: [])
 
     if preferences.hideAppOnLaunch { NSApplication.shared.hide(self) }
 
