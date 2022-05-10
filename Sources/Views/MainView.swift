@@ -11,7 +11,7 @@ struct MainView: View {
   @FocusState var focus: Focus?
   @StateObject var store: GroupStore
   @Binding var selection: Set<String>
-  @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
+  @State private var groupIds: Set<String> = Set<String>(AppStorageStore().groupIds)
 
   var body: some View {
     if groupIds.isEmpty {

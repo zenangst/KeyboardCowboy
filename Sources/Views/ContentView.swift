@@ -13,12 +13,11 @@ struct ContentView: View, Equatable {
   @State var detailViewSheet: WorkflowView.Sheet?
   @State var sidebarViewSheet: SidebarView.Sheet?
   @State var searchQuery: String
+  @State private var groupIds: Set<String>
+  @State private var workflowIds: Set<String>
 
   @Binding private var selectedGroups: [WorkflowGroup]
   @Binding private var selectedWorkflows: [Workflow]
-
-  @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
-  @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
 
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.undoManager) private var undoManager
@@ -26,9 +25,14 @@ struct ContentView: View, Equatable {
   private var action: (Action) -> Void
   @FocusState private var focus: Focus?
 
+  static var appStorage = AppStorageStore()
+
   init(_ store: ContentStore,
        focus: FocusState<Focus?>,
        action: @escaping (Action) -> Void) {
+    _groupIds = .init(initialValue: Self.appStorage.groupIds)
+    _workflowIds = .init(initialValue: Self.appStorage.workflowIds)
+
     _store = .init(wrappedValue: store)
     _selectedGroups = .init(get: { store.groupStore.selectedGroups },
                             set: { store.groupStore.selectedGroups = $0 })
@@ -54,7 +58,10 @@ struct ContentView: View, Equatable {
                        action: handleSidebar(_:))
       }
       .frame(minWidth: 200, idealWidth: 310)
-      .onChange(of: groupIds, perform: { store.selectGroupsIds($0) })
+      .onChange(of: groupIds, perform: { groupIds in
+        store.selectGroupsIds(groupIds)
+        Self.appStorage.groupIds = store.groupIds
+      })
 
       MainView(action: handleMainAction(_:),
                applicationStore: store.applicationStore,
@@ -62,6 +69,7 @@ struct ContentView: View, Equatable {
       .toolbar { MainViewToolbar(action: handleToolbarAction(_:)) }
       .frame(minWidth: 270)
       .onChange(of: workflowIds, perform: { workflowIds in
+        Self.appStorage.workflowIds = workflowIds
         store.selectWorkflowIds(workflowIds)
       })
 

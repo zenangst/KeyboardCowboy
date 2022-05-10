@@ -1,12 +1,13 @@
 import SwiftUI
 
 final class GroupStore: ObservableObject {
+  private static var appStorage: AppStorageStore = .init()
   @Published var groups = [WorkflowGroup]()
   @Published var selectedGroups = [WorkflowGroup]()
-
-  @AppStorage("selectedGroupIds") var selectedGroupIds = [String]()
+  @Published var selectedGroupIds: [String]
 
   init(_ groups: [WorkflowGroup] = []) {
+    _selectedGroupIds = .init(initialValue: Array(Self.appStorage.groupIds))
     _groups = .init(initialValue: groups)
     _selectedGroups = .init(initialValue: groups.filter { selectedGroupIds.contains($0.id) })
   }
@@ -19,12 +20,10 @@ final class GroupStore: ObservableObject {
   }
 
   func add(_ workflow: Workflow) {
+    guard var group = selectedGroups.first,
+          let groupIndex = groups.firstIndex(of: group) else { return }
+
     var modifiedGroups = groups
-    guard let firstGroupId = selectedGroupIds.first,
-          let groupIndex = groups.firstIndex(where: { $0.id == firstGroupId }),
-          var group = groups.first(where: { $0.id == firstGroupId }) else {
-            return
-          }
 
     group.workflows.append(workflow)
     modifiedGroups[groupIndex] = group

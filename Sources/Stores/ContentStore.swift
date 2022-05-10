@@ -4,6 +4,7 @@ import SwiftUI
 
 @MainActor
 final class ContentStore: ObservableObject {
+  static var appStorage: AppStorageStore = .init()
   @Published private(set) var preferences: AppPreferences
 
   var undoManager: UndoManager?
@@ -21,11 +22,15 @@ final class ContentStore: ObservableObject {
   @Published var selectedWorkflows = [Workflow]()
   @Published var selectedWorkflowsCopy = [Workflow]()
 
-  @AppStorage("selectedGroupIds") private var groupIds = Set<String>()
-  @AppStorage("selectedWorkflowIds") private var workflowIds = Set<String>()
-  @AppStorage("selectedConfiguration") private var configurationId: String = ""
+  @Published private var configurationId: String
+  @Published private(set) var groupIds: Set<String>
+  @Published private(set) var workflowIds: Set<String>
 
   init(_ preferences: AppPreferences) {
+    _configurationId = .init(initialValue: Self.appStorage.configId)
+    _groupIds = .init(initialValue: Self.appStorage.groupIds)
+    _workflowIds = .init(initialValue: Self.appStorage.workflowIds)
+
     let groupStore = GroupStore()
     self.shortcutStore = ShortcutStore()
     self.groupStore = groupStore
@@ -88,6 +93,7 @@ final class ContentStore: ObservableObject {
   }
 
   func selectGroupsIds(_ ids: Set<String>) {
+    let oldGroupIds = groupIds
     groupStore.selectedGroups = configurationStore.selectedConfiguration.groups
       .filter { ids.contains($0.id) }
     groupIds = Set<String>(groupStore.selectedGroups.compactMap({ $0.id }))
@@ -95,10 +101,18 @@ final class ContentStore: ObservableObject {
     let allWorkflowIds = groupStore.selectedGroups.flatMap { $0.workflows.compactMap { $0.id } }
     let workflowMatchesGroup = allWorkflowIds.filter { workflowIds.contains($0) }.isEmpty
 
-    if workflowMatchesGroup, let workflow = groupStore.selectedGroups.first?.workflows.first {
+    if oldGroupIds != groupIds,
+              let firstWorkflow = groupStore.selectedGroups.first?.workflows.first {
+      workflowIds = [firstWorkflow.id]
+      selectedWorkflows = [firstWorkflow]
+      selectedWorkflowsCopy = selectedWorkflows
+    } else if workflowMatchesGroup, let workflow = groupStore.selectedGroups.first?.workflows.first {
       workflowIds = [workflow.id]
       selectedWorkflows = [workflow]
+      selectedWorkflowsCopy = selectedWorkflows
     }
+
+    Self.appStorage.workflowIds = workflowIds
   }
 
   func selectWorkflowIds(_ ids: Set<String>) {

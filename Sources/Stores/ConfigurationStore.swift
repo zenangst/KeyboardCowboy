@@ -3,14 +3,16 @@ import Foundation
 import SwiftUI
 
 final class ConfigurationStore: ObservableObject {
+  static var appStorage: AppStorageStore = .init()
   private var subscription: AnyCancellable?
   @Published private(set) var configurations = [KeyboardCowboyConfiguration]()
   @Published private(set) var selectedConfiguration: KeyboardCowboyConfiguration = .empty()
-  @AppStorage("selectedConfiguration") private(set) var selectedId: String = ""
+  @State private(set) var selectedId: String = ""
 
   @discardableResult
   func updateConfigurations(_ configurations: [KeyboardCowboyConfiguration]) -> Self {
     self.configurations = configurations
+    _selectedId = .init(initialValue: Self.appStorage.configId)
 
     if let configuration = configurations.first(where: { $0.id == selectedId }) {
       self.selectedConfiguration = configuration

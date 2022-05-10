@@ -5,6 +5,8 @@ import SwiftUI
 
 final class ResponderChain: ObservableObject {
   @Published private(set) var responders = [Responder]()
+  @Published var responderId: String = AppStorageStore().responderId
+
   private var subscription: AnyCancellable?
   private var didBecomeActiveNotification: AnyCancellable?
   private var didResizeNotification: AnyCancellable?
@@ -13,7 +15,6 @@ final class ResponderChain: ObservableObject {
 
   @Environment(\.scenePhase) private var scenePhase
 
-  @AppStorage("responderId") var responderId: String = ""
 
   private init() {
     guard !responderId.isEmpty else { return }
