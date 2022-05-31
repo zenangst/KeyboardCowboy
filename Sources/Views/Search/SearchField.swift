@@ -2,6 +2,20 @@ import Carbon
 import Cocoa
 import SwiftUI
 
+struct SearchField: NSViewRepresentable {
+  @Binding var query: String
+
+  func makeCoordinator() -> SearchFieldCoordinator {
+    SearchFieldCoordinator($query)
+  }
+
+  func makeNSView(context: Context) -> some NSSearchField {
+    context.coordinator.view
+  }
+
+  func updateNSView(_ nsView: NSViewType, context: Context) {}
+}
+
 final class SearchFieldCoordinator: NSObject, NSSearchFieldDelegate {
   @Binding var query: String
   let view: NSSearchField
@@ -21,6 +35,9 @@ final class SearchFieldCoordinator: NSObject, NSSearchFieldDelegate {
     if commandSelector == #selector(NSControl.moveUp(_:)) {
       return true
     } else if commandSelector == #selector(NSControl.moveDown(_:)) {
+      if let firstMatch = ResponderChain.shared.responders.first(where: { $0.id.starts(with: "search-") }) {
+        ResponderChain.shared.makeFirstResponder(firstMatch)
+      }
       return true
     }
     return false
@@ -31,19 +48,6 @@ final class SearchFieldCoordinator: NSObject, NSSearchFieldDelegate {
   }
 }
 
-struct SearchField: NSViewRepresentable {
-  @Binding var query: String
-
-  func makeCoordinator() -> SearchFieldCoordinator {
-    SearchFieldCoordinator($query)
-  }
-
-  func makeNSView(context: Context) -> some NSSearchField {
-    context.coordinator.view
-  }
-
-  func updateNSView(_ nsView: NSViewType, context: Context) {}
-}
 
 struct SearchField_Previews: PreviewProvider {
   static var previews: some View {

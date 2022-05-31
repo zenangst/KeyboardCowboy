@@ -80,7 +80,9 @@ struct CommandView: View, Equatable {
     case .shortcut:
       IconView(path: "/System/Applications/Shortcuts.app")
     case .type:
-      Spacer()
+      FeatureIcon(color: .pink, size: CGSize(width: 28, height: 28), {
+        TypingSymbol(foreground: Color.pink)
+      }).redacted(reason: .placeholder)
     }
   }
 

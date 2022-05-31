@@ -1,7 +1,7 @@
 import Foundation
 
-struct SearchResult: Identifiable {
-  enum Kind {
+struct SearchResult: Hashable, Identifiable {
+  enum Kind: Hashable {
     case workflow(Workflow)
     case command(Command)
   }

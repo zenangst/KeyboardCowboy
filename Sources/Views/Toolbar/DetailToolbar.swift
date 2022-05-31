@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct DetailToolbarConfig {
-  var showSearch: Bool = false
+  var showSearch: Bool = false {
+    didSet {
+      Swift.print(showSearch)
+    }
+  }
   var searchQuery: String = ""
 }
 
@@ -52,15 +56,13 @@ struct DetailToolbar: ToolbarContent {
           config.showSearch = !query.isEmpty
         }))
         .frame(minWidth: 100, idealWidth: 200, maxWidth: .infinity)
-        .popover(
-          isPresented: $config.showSearch,
-          attachmentAnchor: .point(.bottom),
-          arrowEdge: .bottom,
-          content: {
-            SearchView(applicationStore: applicationStore, searchStore: searchStore)
-              .frame(width: 250, height: 250)
-              .padding()
-          })
+//        .popover(
+//          isPresented: $config.showSearch,
+//          attachmentAnchor: .point(.bottom),
+//          arrowEdge: .bottom,
+//          content: {
+//            
+//          })
     }
   }
 }

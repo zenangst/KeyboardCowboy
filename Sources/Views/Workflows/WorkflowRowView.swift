@@ -112,7 +112,9 @@ struct WorkflowRowView: View, Equatable {
     case .builtIn:
       Spacer()
     case .type:
-      Spacer()
+      FeatureIcon(color: .pink, size: CGSize(width: 32, height: 32), {
+        TypingSymbol(foreground: Color.pink)
+      }).redacted(reason: .placeholder)
     }
   }
 

@@ -73,25 +73,33 @@ struct ContentView: View, Equatable {
         store.selectWorkflowIds(workflowIds)
       })
 
-      DetailView(applicationStore: store.applicationStore,
-                 recorderStore: store.recorderStore,
-                 shortcutStore: store.shortcutStore, 
-                 focus: _focus,
-                 workflows: $store.selectedWorkflows,
-                 sheet: $detailViewSheet,
-                 action: handleDetailAction(_:))
-      .equatable()
+      VStack {
+        if !store.searchStore.query.isEmpty {
+          SearchView(applicationStore: store.applicationStore,
+                     searchStore: store.searchStore)
+          //          .padding()
+        } else {
+
+          DetailView(applicationStore: store.applicationStore,
+                     recorderStore: store.recorderStore,
+                     shortcutStore: store.shortcutStore,
+                     focus: _focus,
+                     workflows: $store.selectedWorkflows,
+                     sheet: $detailViewSheet,
+                     action: handleDetailAction(_:))
+          .equatable()
+          // Handle workflow updates
+          .onChange(of: selectedWorkflows, perform: { workflows in
+            store.updateWorkflows(workflows)
+          })
+        }
+      }
       .toolbar { DetailToolbar(applicationStore: store.applicationStore,
                                config: $config,
                                searchStore: store.searchStore,
                                action: handleDetailToolbarAction(_:)) }
-      // Handle workflow updates
-      .onChange(of: selectedWorkflows, perform: { workflows in
-        store.updateWorkflows(workflows)
-      })
-      .frame(minWidth: 380, minHeight: 417)
+      .frame(minWidth: 380, idealWidth: .infinity, minHeight: 417)
     }
-    .searchable(text: $searchQuery)
     .onChange(of: scenePhase) { phase in
       guard case .active = phase else { return }
       store.applicationStore.reload()

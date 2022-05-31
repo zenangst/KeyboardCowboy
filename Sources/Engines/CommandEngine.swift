@@ -109,7 +109,9 @@ final class CommandEngine {
     case .open(let openCommand):
       try await engines.open.run(openCommand)
     case .script(let scriptCommand):
-      _ = try await engines.script.run(scriptCommand)
+      Task.detached {
+        _ = try await self.engines.script.run(scriptCommand)
+      }
     case .shortcut(let shortcutCommand):
       try await engines.shortcut.run(shortcutCommand)
     case .type(let typeCommand):

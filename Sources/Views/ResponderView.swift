@@ -15,7 +15,6 @@ final class ResponderChain: ObservableObject {
 
   @Environment(\.scenePhase) private var scenePhase
 
-
   private init() {
     guard !responderId.isEmpty else { return }
 
@@ -193,7 +192,7 @@ final class ResponderChain: ObservableObject {
   }
 }
 
-final class Responder: ObservableObject {
+final class Responder: Identifiable, ObservableObject {
   enum Modifier {
     case shift, command
   }
@@ -287,20 +286,25 @@ struct ResponderView<Content>: View where Content: View {
 }
 
 struct ResponderBackgroundView: View {
+  @ObserveInjection var inject
   @StateObject var responder: Responder
 
   var cornerRadius: CGFloat = 8
 
   @ViewBuilder
   var body: some View {
-    RoundedRectangle(cornerRadius: cornerRadius)
-      .stroke(Color.accentColor.opacity(responder.isFirstReponder ?
-                                        responder.isSelected ? 1.0 : 0.5 : 0.0))
-      .opacity(responder.isFirstReponder ? 1.0 : 0.05)
+    Group {
+      RoundedRectangle(cornerRadius: cornerRadius)
+        .stroke(Color.accentColor.opacity(responder.isFirstReponder ?
+                                          responder.isSelected ? 1.0 : 0.5 : 0.0))
+        .opacity(responder.isFirstReponder ? 1.0 : 0.05)
 
-    RoundedRectangle(cornerRadius: cornerRadius)
-      .fill(Color.accentColor.opacity((responder.isFirstReponder || responder.isSelected) ? 0.5 : 0.0))
-      .opacity((responder.isFirstReponder || responder.isSelected) ? 1.0 : 0.05)
+      RoundedRectangle(cornerRadius: cornerRadius)
+        .fill(Color.accentColor.opacity((responder.isFirstReponder || responder.isSelected) ? 0.5 : 0.0))
+        .opacity((responder.isFirstReponder || responder.isSelected) ? 1.0 : 0.05)
+    }
+    .drawingGroup(opaque: true, colorMode: .nonLinear)
+    .enableInjection()
   }
 }
 
