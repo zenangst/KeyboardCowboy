@@ -54,6 +54,8 @@ final class ContentStore: ObservableObject {
 
   func load() async throws -> [KeyboardCowboyConfiguration] {
     let configurations: [KeyboardCowboyConfiguration]
+    try await storage.createConfigurationIfNeeded()
+
     do {
       configurations = try await storage.load()
     } catch {

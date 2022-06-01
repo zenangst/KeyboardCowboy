@@ -14,6 +14,15 @@ struct AppPreferences {
       storageConfiguration: .init(path: "~/", filename: ".keyboard-cowboy.json"))
   }
 
+  static func empty() -> AppPreferences {
+    AppPreferences(
+      hideFromDock: false,
+      hideAppOnLaunch: false,
+      machportIsEnabled: false,
+      storageConfiguration: .init(path: "~/Developer/KC",
+                                  filename: "empty.json"))
+  }
+
   static func designTime() -> AppPreferences {
     AppPreferences(
       hideFromDock: false,
