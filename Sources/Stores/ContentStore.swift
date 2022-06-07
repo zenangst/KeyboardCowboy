@@ -167,6 +167,7 @@ final class ContentStore: ObservableObject {
   private func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
     publisher
       .dropFirst()
+      .receive(on: RunLoop.main)
       .removeDuplicates()
       .sink { [weak self, configurationStore] groups in
         var newConfiguration = configurationStore.selectedConfiguration

@@ -19,6 +19,7 @@ struct KeyShortcutsListView: View, Equatable {
           if keyboardShortcuts.isEmpty {
             RegularKeyIcon(letter: "Record keyboard shortcut")
               .fixedSize()
+              .onTapGesture(perform: addShortcut)
           } else {
             ForEach(keyboardShortcuts) { keyboardShortcut in
               responderView(keyboardShortcut)
@@ -51,11 +52,7 @@ struct KeyShortcutsListView: View, Equatable {
       .frame(height: 36)
 
       Divider()
-      Button(action: {
-        let shortcut = KeyShortcut.empty()
-        action(.add(shortcut))
-        keyboardShortcuts.append(shortcut)
-      },
+      Button(action: addShortcut,
              label: { Image(systemName: "plus") })
       .buttonStyle(KCButtonStyle())
       .font(.callout)
@@ -66,6 +63,12 @@ struct KeyShortcutsListView: View, Equatable {
     .cornerRadius(8)
     .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
     .enableInjection()
+  }
+
+  func addShortcut() {
+    let shortcut = KeyShortcut.empty()
+    keyboardShortcuts.append(shortcut)
+    action(.add(shortcut))
   }
 
   func responderView(_ keyboardShortcut: KeyShortcut) -> some View {

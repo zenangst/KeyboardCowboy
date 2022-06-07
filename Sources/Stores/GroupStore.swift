@@ -58,7 +58,9 @@ final class GroupStore: ObservableObject {
 
   func receive(_ newWorkflows: [Workflow]) async -> [WorkflowGroup] {
     let newGroups = await updateGroups(with: newWorkflows)
-    groups = newGroups
+    await MainActor.run {
+      groups = newGroups
+    }
     return newGroups
   }
 
