@@ -2,6 +2,7 @@ import Carbon.HIToolbox
 import Cocoa
 import Combine
 import Foundation
+import MachPort
 import os
 
 final class MachPortEngine {

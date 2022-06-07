@@ -1,6 +1,7 @@
 import Combine
 import Cocoa
 import Foundation
+import MachPort
 import os
 
 @MainActor
@@ -16,7 +17,7 @@ final class KeyboardCowboyEngine {
   private let shortcutStore: ShortcutStore
   private let workflowEngine: WorkflowEngine
 
-  private var machPortController: MachPortController?
+  private var machPortController: MachPortEventController?
 
   init(_ contentStore: ContentStore, workspace: NSWorkspace = .shared) {
     let keyCodeStore = KeyCodeStore(controller: InputSourceController())
@@ -44,7 +45,7 @@ final class KeyboardCowboyEngine {
 
     if contentStore.preferences.machportIsEnabled, !hasPrivileges() { } else {
       do {
-        let machPortController = try MachPortController()
+        let machPortController = try MachPortEventController(.privateState, mode: .commonModes)
         commandEngine.eventSource = machPortController.eventSource
         machPortEngine.subscribe(to: machPortController.$event)
         self.machPortController = machPortController
