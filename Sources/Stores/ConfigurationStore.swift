@@ -4,7 +4,6 @@ import SwiftUI
 
 final class ConfigurationStore: ObservableObject {
   static var appStorage: AppStorageStore = .init()
-  private var subscription: AnyCancellable?
   @Published private(set) var configurations = [KeyboardCowboyConfiguration]()
   @Published private(set) var selectedConfiguration: KeyboardCowboyConfiguration = .empty()
   @State private(set) var selectedId: String = ""
@@ -21,7 +20,10 @@ final class ConfigurationStore: ObservableObject {
       self.selectedConfiguration = configuration
       self.selectedId = configuration.id
     } else {
-      assertionFailure("We should never end up here.")
+      let configuration = KeyboardCowboyConfiguration.empty()
+      self.selectedConfiguration = configuration
+      self.selectedId = configuration.id
+      self.configurations = [configuration]
     }
     return self
   }

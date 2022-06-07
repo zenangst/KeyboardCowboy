@@ -1,4 +1,5 @@
 import Foundation
+import CoreGraphics
 
 final class KeyboardEngine {
   enum KeyboardEngineError: Error {

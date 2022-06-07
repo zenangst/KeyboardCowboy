@@ -1,6 +1,7 @@
 import Carbon
 import Cocoa
 import os
+import CoreGraphics
 
 enum MachPortError: Error {
   case failedToCreateMacPort

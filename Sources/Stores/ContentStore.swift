@@ -45,10 +45,15 @@ final class ContentStore: ObservableObject {
       shortcutStore.index()
       let configurations: [KeyboardCowboyConfiguration]
       configurations = try await load()
+      let shouldSave = configurations.isEmpty
       configurationStore.updateConfigurations(configurations)
       use(configurationStore.selectedConfiguration)
       storage.subscribe(to: configurationStore.$configurations)
       subscribe(to: groupStore.$groups)
+
+      if shouldSave {
+        try storage.save(configurationStore.configurations)
+      }
     }
   }
 
