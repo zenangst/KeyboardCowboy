@@ -64,7 +64,11 @@ final class ContentStore: ObservableObject {
     do {
       configurations = try await storage.load()
     } catch {
-      configurations = try await migrateIfNeeded()
+      do {
+        configurations = try await migrateIfNeeded()
+      } catch {
+        configurations = []
+      }
     }
     return configurations
   }
