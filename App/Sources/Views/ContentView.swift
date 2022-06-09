@@ -118,9 +118,7 @@ struct ContentView: View, Equatable {
     switch action {
     case .addGroup:
       let group = WorkflowGroup.empty()
-      sidebarViewSheet = .edit(group)
-      store.groupStore.add(group)
-      groupIds = [group.id]
+      sidebarViewSheet = .add(group)
     case .toggleSidebar:
       NSApp.keyWindow?.firstResponder?.tryToPerform(
         #selector(NSSplitViewController.toggleSidebar(_:)), with: nil)

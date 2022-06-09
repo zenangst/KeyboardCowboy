@@ -2,10 +2,13 @@ import SwiftUI
 
 struct SidebarView: View {
   enum Sheet: Identifiable {
+    case add(WorkflowGroup)
     case edit(WorkflowGroup)
 
     var id: String {
       switch self {
+      case .add:
+        return "add"
       case .edit:
         return "edit"
       }
@@ -55,12 +58,17 @@ struct SidebarView: View {
   @ViewBuilder
   private func handleSheet(_ sheet: SidebarView.Sheet) -> some View {
     switch sheet {
-    case .edit(let group):
+    case .add(let group ), .edit(let group):
       EditWorfklowGroupView(applicationStore: appStore, group: group) { action in
         self.sheet = nil
         switch action {
         case .ok(let group):
-          groupStore.receive([group])
+          switch sheet {
+          case .add:
+            groupStore.add(group)
+          case .edit:
+            groupStore.receive([group])
+          }
         case .cancel:
           break
         }

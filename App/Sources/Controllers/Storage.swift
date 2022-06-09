@@ -39,23 +39,6 @@ final class Storage {
       }
   }
 
-  func createConfigurationIfNeeded() async throws {
-    if !fileManager.fileExists(atPath: configuration.url.path) {
-      let keyboardCowboyConfiguration = KeyboardCowboyConfiguration(name: "Untitled configuration", groups: [
-        WorkflowGroup.empty()
-      ])
-      let data = try encoder.encode(keyboardCowboyConfiguration)
-
-      fileManager.createFile(atPath: configuration.url.path, contents: data)
-    } else if let data = fileManager.contents(atPath: configuration.url.path),
-              data.isEmpty {
-      let keyboardCowboyConfiguration = KeyboardCowboyConfiguration(name: "Untitled configuration", groups: [
-        WorkflowGroup.empty()
-      ])
-      try save([keyboardCowboyConfiguration])
-    }
-  }
-
   func load() async throws -> [KeyboardCowboyConfiguration] {
     guard fileManager.fileExists(atPath: configuration.url.path) else {
       throw StorageError.unableToFindFile

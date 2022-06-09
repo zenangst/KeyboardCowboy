@@ -20,7 +20,7 @@ final class ConfigurationStore: ObservableObject {
       self.selectedConfiguration = configuration
       self.selectedId = configuration.id
     } else {
-      let configuration = KeyboardCowboyConfiguration.empty()
+      let configuration = KeyboardCowboyConfiguration(name: "Default configuration", groups: [])
       self.selectedConfiguration = configuration
       self.selectedId = configuration.id
       self.configurations = [configuration]
