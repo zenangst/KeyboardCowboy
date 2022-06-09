@@ -6,6 +6,12 @@ struct AppPreferences {
   var machportIsEnabled = true
   var storageConfiguration: StorageConfiguration
 
+  private static func filename(for functionName: StaticString) -> String {
+    "\(functionName)"
+      .replacingOccurrences(of: "()", with: "")
+      .appending(".json")
+  }
+
   static func user() -> AppPreferences {
     AppPreferences(
       hideFromDock: true,
@@ -14,13 +20,32 @@ struct AppPreferences {
       storageConfiguration: .init(path: "~/", filename: ".keyboard-cowboy.json"))
   }
 
-  static func empty() -> AppPreferences {
+  static func emptyFile() -> AppPreferences {
     AppPreferences(
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: "~/Developer/KC",
-                                  filename: "empty.json"))
+      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+                                  filename: filename(for: #function)))
+  }
+
+  static func noConfiguration() -> AppPreferences {
+    AppPreferences(
+      hideFromDock: false,
+      hideAppOnLaunch: false,
+      machportIsEnabled: false,
+      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+                                  filename: filename(for: #function)))
+  }
+
+  static func noGroups() -> AppPreferences {
+    AppPreferences(
+      hideFromDock: false,
+      hideAppOnLaunch: false,
+      machportIsEnabled: false,
+      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+                                  filename: filename(for: #function)))
+
   }
 
   static func designTime() -> AppPreferences {
@@ -28,8 +53,8 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: "~/Developer/KC",
-                                  filename: "dummyData.json"))
+      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+                                  filename: filename(for: #function)))
   }
 
   static func performance() -> AppPreferences {
@@ -37,8 +62,8 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: "~/Developer/KC",
-                                  filename: "performance.json"))
+      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+                                  filename: filename(for: #function)))
 
   }
 }

@@ -109,5 +109,6 @@ let project = Project(
         FileElement(stringLiteral: ".env"),
         FileElement(stringLiteral: "Project.swift"),
         FileElement(stringLiteral: "Tuist/Dependencies.swift"),
+        FileElement(stringLiteral: "Fixtures"),
     ]
 )
