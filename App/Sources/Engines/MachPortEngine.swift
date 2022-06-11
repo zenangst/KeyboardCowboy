@@ -3,6 +3,8 @@ import Cocoa
 import Combine
 import Foundation
 import MachPort
+import InputSources
+import KeyCodes
 import os
 
 final class MachPortEngine {
@@ -22,9 +24,9 @@ final class MachPortEngine {
   private var mode: KeyboardCowboyMode
 
   private let keyboardEngine: KeyboardEngine
-  private let store: KeyCodeStore
+  private let store: KeyCodesStore
 
-  internal init(store: KeyCodeStore, mode: KeyboardCowboyMode) {
+  internal init(store: KeyCodesStore, mode: KeyboardCowboyMode) {
     self.store = store
     self.keyboardEngine = .init(store: store)
     self.mode = mode
@@ -77,20 +79,20 @@ final class MachPortEngine {
 
       let keyboardShortcut = shortcuts[counter]
 
-      guard let keyCode = store.keyCode(for: keyboardShortcut.key.uppercased()),
+      guard let keyCode = store.keyCode(for: keyboardShortcut.key, matchDisplayValue: true),
             machPortEvent.keyCode == keyCode else {
         continue
       }
 
-      let eventModifiers = ModifierKey.fromCGEvent(
-        machPortEvent.event,
-        specialKeys: Array(KeyCodes.specialKeys.keys))
+      let virtualModifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event,
+                                                            specialKeys: Array(store.specialKeys().keys))
 
       var modifiersMatch: Bool = true
       if let modifiers = keyboardShortcut.modifiers {
-        modifiersMatch = eventModifiers == modifiers
+        let shadowedModifiers = virtualModifiers.compactMap({ ModifierKey.init(rawValue: $0.rawValue) })
+        modifiersMatch = shadowedModifiers == modifiers
       } else {
-        modifiersMatch = eventModifiers.isEmpty
+        modifiersMatch = virtualModifiers.isEmpty
       }
 
       guard modifiersMatch else { continue }
@@ -138,28 +140,27 @@ final class MachPortEngine {
     self.recording = recording
   }
 
-  private func validate(_ event: MachPortEvent) -> KeyShortcutRecording {
-    let inputSource = InputSourceController().currentInputSource()
-    let keyCode = Int(event.keyCode)
-    guard let container = try? store.mapInputSource(inputSource, keyCode: keyCode, modifiers: 0) else {
-      return .systemShortcut(.empty())
+  private func validate(_ machPortEvent: MachPortEvent) -> KeyShortcutRecording {
+    let validationContext: KeyShortcutRecording
+    let keyCode = Int(machPortEvent.keyCode)
+
+    guard let displayValue = store.displayValue(for: keyCode) else {
+      validationContext = .cancel(.empty())
+      return validationContext
     }
 
-    let validationContext: KeyShortcutRecording
-    var keyboardShortcut: KeyShortcut
-    let modifiers = ModifierKey.fromCGEvent(event.event, specialKeys: Array(KeyCodes.specialKeys.keys))
+    let virtualModifiers = VirtualModifierKey
+      .fromCGEvent(machPortEvent.event,
+                   specialKeys: Array(store.specialKeys().keys))
+    let modifiers = virtualModifiers
+      .compactMap({ ModifierKey(rawValue: $0.rawValue) })
+    let keyboardShortcut = KeyShortcut(key: displayValue, modifiers: modifiers)
+    let systemShortcuts = store.systemKeys()
+      .first(where: { $0.keyCode == keyCode && $0.modifiers ==  virtualModifiers })
 
-    keyboardShortcut = KeyShortcut(
-      id: UUID().uuidString,
-      key: container.displayValue,
-      modifiers: modifiers)
-
-    let systemKeyboardShortcut = getSystemShortcuts()
-      .first(where: { $0.key == keyboardShortcut.key &&
-              $0.modifiers == keyboardShortcut.modifiers })
-    if let systemKeyboardShortcut = systemKeyboardShortcut {
-      validationContext = .systemShortcut(systemKeyboardShortcut)
-    } else if let restrictedKeyCode = RestrictedKeyCode(rawValue: Int(event.keyCode)) {
+    if systemShortcuts != nil {
+      validationContext = .systemShortcut(keyboardShortcut)
+    } else if let restrictedKeyCode = RestrictedKeyCode(rawValue: Int(machPortEvent.keyCode)) {
       switch restrictedKeyCode {
       case .backspace, .delete:
         validationContext = .delete(keyboardShortcut)
@@ -171,37 +172,6 @@ final class MachPortEngine {
     }
 
     return validationContext
-  }
-
-  private func getSystemShortcuts() -> [KeyShortcut] {
-    let inputSource = InputSourceController().currentInputSource()
-    var result = [KeyShortcut]()
-    var shortcutsUnmanaged: Unmanaged<CFArray>?
-    guard
-      CopySymbolicHotKeys(&shortcutsUnmanaged) == noErr,
-      let shortcuts = shortcutsUnmanaged?.takeRetainedValue() as? [[String: Any]]
-    else {
-      assertionFailure("Could not get system keyboard shortcuts")
-      return []
-    }
-
-    for shortcut in shortcuts {
-      guard
-        (shortcut[kHISymbolicHotKeyEnabled] as? Bool) == true,
-        let carbonKeyCode = shortcut[kHISymbolicHotKeyCode] as? Int,
-        let carbonModifiers = shortcut[kHISymbolicHotKeyModifiers] as? Int,
-        let container = try? store.mapInputSource(inputSource, keyCode: carbonKeyCode, modifiers: UInt32(carbonModifiers))
-      else {
-        continue
-      }
-
-      let nsEventFlags = NSEvent.ModifierFlags(carbon: carbonModifiers)
-      let modifiers = ModifierKey.fromNSEvent(nsEventFlags)
-      let keyboardShortcut = KeyShortcut(key: container.displayValue, modifiers: modifiers)
-      result.append(keyboardShortcut)
-    }
-
-    return result
   }
 }
 

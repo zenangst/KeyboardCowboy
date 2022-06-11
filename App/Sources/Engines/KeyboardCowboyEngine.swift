@@ -20,7 +20,7 @@ final class KeyboardCowboyEngine {
   private var machPortController: MachPortEventController?
 
   init(_ contentStore: ContentStore, workspace: NSWorkspace = .shared) {
-    let keyCodeStore = KeyCodeStore(controller: InputSourceController())
+    let keyCodeStore = KeyCodesStore()
     let commandEngine = CommandEngine(workspace, keyCodeStore: keyCodeStore)
     self.contentStore = contentStore
     self.commandEngine = commandEngine

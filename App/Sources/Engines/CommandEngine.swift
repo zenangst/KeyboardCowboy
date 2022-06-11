@@ -16,7 +16,7 @@ final class CommandEngine {
 
   var eventSource: CGEventSource?
 
-  init(_ workspace: WorkspaceProviding, keyCodeStore: KeyCodeStore) {
+  init(_ workspace: WorkspaceProviding, keyCodeStore: KeyCodesStore) {
     let script = ScriptEngine()
     let keyboard = KeyboardEngine(store: keyCodeStore)
     self.engines = .init(

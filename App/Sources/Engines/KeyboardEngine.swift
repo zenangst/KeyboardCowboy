@@ -8,16 +8,16 @@ final class KeyboardEngine {
     case failedToCreateEvent
   }
 
-  private let store: KeyCodeStore
+  private let store: KeyCodesStore
 
-  internal init(store: KeyCodeStore) {
+  internal init(store: KeyCodesStore) {
     self.store = store
   }
 
   func run(_ command: KeyboardCommand, type: CGEventType, with eventSource: CGEventSource?) throws {
     let string = command.keyboardShortcut.key.uppercased()
 
-    guard let key = store.keyCode(for: string) else {
+    guard let key = store.keyCode(for: string, matchDisplayValue: true) else {
       throw KeyboardEngineError.failedToResolveKey(string)
     }
 

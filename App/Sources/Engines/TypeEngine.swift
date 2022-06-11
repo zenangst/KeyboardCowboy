@@ -1,4 +1,5 @@
 import Carbon
+import KeyCodes
 import Foundation
 
 final class TypeEngine {
@@ -10,17 +11,16 @@ final class TypeEngine {
   }
 
   private let keyboardEngine: KeyboardEngine
-  private let store: KeyCodeStore
-  private var naturalTyping: NaturalTyping = .disabled
+  private let store: KeyCodesStore
+  private var naturalTyping: NaturalTyping = .fast
 
-  internal init(keyboardEngine: KeyboardEngine, store: KeyCodeStore) {
+  internal init(keyboardEngine: KeyboardEngine, store: KeyCodesStore) {
     self.keyboardEngine = keyboardEngine
     self.store = store
   }
 
   func run(_ command: TypeCommand) async throws {
     let input = command.input
-    let uppercaseLetters = CharacterSet.uppercaseLetters
     let newLines = CharacterSet.newlines
 
     for character in input {
@@ -28,32 +28,24 @@ final class TypeEngine {
         let sleepTime = TimeInterval.random(in: 0...naturalTyping.rawValue)
         Thread.sleep(forTimeInterval: sleepTime)
       }
-
       let string = String(character)
       let charSet = CharacterSet(charactersIn: string)
-      var modifiers: [ModifierKey] = .init()
-      var key: String = string
 
-      if let container = store.stringWithModifier(for: string),
-         let rawValue = store.string(for: container.keyCode) {
-        key = rawValue
-        modifiers = container.modifier.modifierKeys
+      guard let virtualKey = store.virtualKey(for: string) else { continue }
 
-        if charSet.isSubset(of: uppercaseLetters) {
-          modifiers = [.shift]
-          key = string
-        }
+      var modifiers = [ModifierKey]()
+      let key: String
+      if charSet.isSubset(of: newLines) {
+        modifiers = []
+        key = String(format: "%C", 0x21A9)
       } else {
-        if charSet.isSubset(of: newLines) {
-          modifiers = []
-          key = KeyCodes.specialKeys[kVK_Return]!
-        } else if charSet.isSubset(of: uppercaseLetters) {
-          modifiers = [.shift]
+        key = virtualKey.rawValue
+        modifiers = virtualKey.modifiers.compactMap {
+          ModifierKey(rawValue: $0.rawValue)
         }
       }
 
-      let keyboardShortcut = KeyShortcut(key: key, modifiers: modifiers)
-      let command = KeyboardCommand(keyboardShortcut: keyboardShortcut)
+      let command = KeyboardCommand(keyboardShortcut: KeyShortcut(key: key, modifiers: modifiers))
       try keyboardEngine.run(command, type: .keyDown, with: nil)
     }
   }

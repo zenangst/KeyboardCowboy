@@ -37,8 +37,10 @@ let project = Project(
             entitlements: "App/Entitlements/com.zenangst.Keyboard-Cowboy.entitlements",
             dependencies: [
                 .external(name: "Apps"),
-                .external(name: "LaunchArguments"),
                 .external(name: "Inject"),
+                .external(name: "InputSources"),
+                .external(name: "KeyCodes"),
+                .external(name: "LaunchArguments"),
                 .external(name: "MachPort")
             ],
             settings:
