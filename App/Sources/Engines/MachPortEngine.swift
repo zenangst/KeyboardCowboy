@@ -84,13 +84,17 @@ final class MachPortEngine {
     // If there aren't any matches at the top-level, there is no point in going forward from here on out
     // and the `intercept` method will throw an early return.
     if counter == 0 {
-      guard let key = store.displayValue(for: Int(machPortEvent.keyCode)) else { return }
+      guard let displayValue = store.displayValue(for: Int(machPortEvent.keyCode)),
+            let rawValue = store.string(for: Int(machPortEvent.keyCode)) else { return }
       let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event,
                                                      specialKeys: Array(store.specialKeys().keys))
         .compactMap({ ModifierKey(rawValue: $0.rawValue) })
-      let keyShortcut = KeyShortcut(key: key, modifiers: modifiers)
+      let keyShortcutDisplayValue = KeyShortcut(key: displayValue, modifiers: modifiers)
+      let keyShortcutRawValue = KeyShortcut(key: rawValue, modifiers: modifiers)
 
-      if !topLevelIndex.contains(keyShortcut.validationValue) {
+      if topLevelIndex.contains(keyShortcutDisplayValue.validationValue) {
+      } else if topLevelIndex.contains(keyShortcutRawValue.validationValue) {
+      } else {
         return
       }
     }
