@@ -20,6 +20,10 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     case modifiers
   }
 
+  public var validationValue: String {
+    return "\(modifersDisplayValue)\(key)"
+  }
+
   public var stringValue: String {
     var input: String = (modifiers ?? [])
       .sorted(by: { $0.rawValue > $1.rawValue })

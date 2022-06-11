@@ -18,6 +18,7 @@ final class MachPortEngine {
   @Published var keystroke: KeyShortcut?
   @Published var recording: KeyShortcutRecording?
 
+  private var topLevelIndex = Set<String>()
   private var activeKeyboardShortcuts = [KeyShortcut]()
   private var activeWorkflows = [Workflow]()
   private var subscriptions = Set<AnyCancellable>()
@@ -42,6 +43,14 @@ final class MachPortEngine {
 
   func subscribe(to publisher: Published<[Workflow]>.Publisher) {
     publisher.sink { [weak self] workflows in
+      let topLevelArray = workflows.compactMap { workflow in
+        if case .keyboardShortcuts(let shortcuts) = workflow.trigger,
+           let first = shortcuts.first {
+          return first.validationValue
+        }
+        return nil
+      }
+      self?.topLevelIndex = Set(topLevelArray)
       self?.activeWorkflows = workflows
     }.store(in: &subscriptions)
   }
@@ -70,6 +79,21 @@ final class MachPortEngine {
 
   private func intercept(_ machPortEvent: MachPortEvent) {
     let counter = activeKeyboardShortcuts.count
+
+    // Verify that the top-level shortcut matches before going forward with any processing of keyboard shortcuts.
+    // If there aren't any matches at the top-level, there is no point in going forward from here on out
+    // and the `intercept` method will throw an early return.
+    if counter == 0 {
+      guard let key = store.displayValue(for: Int(machPortEvent.keyCode)) else { return }
+      let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event,
+                                                     specialKeys: Array(store.specialKeys().keys))
+        .compactMap({ ModifierKey(rawValue: $0.rawValue) })
+      let keyShortcut = KeyShortcut(key: key, modifiers: modifiers)
+
+      if !topLevelIndex.contains(keyShortcut.validationValue) {
+        return
+      }
+    }
 
     for workflow in activeWorkflows {
       guard case let .keyboardShortcuts(shortcuts) = workflow.trigger,
