@@ -16,12 +16,8 @@ final class GroupStore: ObservableObject {
     var modifiedGroups = self.groups
     modifiedGroups.append(group)
     groups = modifiedGroups
-    Task {
-      await MainActor.run {
-        self.selectedGroupIds = [group.id]
-        self.selectedGroups = [group]
-      }
-    }
+    selectedGroupIds = [group.id]
+    selectedGroups = [group]
   }
 
   func add(_ workflow: Workflow) {
