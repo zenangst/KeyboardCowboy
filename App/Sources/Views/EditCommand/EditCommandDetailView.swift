@@ -52,8 +52,7 @@ struct EditCommandDetailView: View {
             }
         }
       case .keyboard(let command):
-        EditKeyboardShortcutView(command: Binding(
-          get: { command },
+        EditKeyboardShortcutView(command: Binding( get: { command },
           set: { keyboardCommand in
             let command: Command = .keyboard(keyboardCommand)
             self.command = command
