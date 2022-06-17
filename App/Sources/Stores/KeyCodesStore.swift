@@ -46,9 +46,9 @@ final class KeyCodesStore {
   internal init() {
     subscription = NotificationCenter.default.publisher(for: NSTextInputContext.keyboardSelectionDidChangeNotification)
       .sink(receiveValue: { [weak self] _ in
-        self?.mapKeys()
+        try? self?.mapKeys()
       })
-    mapKeys()
+    try? mapKeys()
   }
 
   func systemKeys() -> [VirtualKey] {
@@ -76,11 +76,11 @@ final class KeyCodesStore {
     virtualKeyContainer?.valueForKeyCode(keyCode, modifier: nil)?.displayValue
   }
 
-  private func mapKeys() {
+  private func mapKeys() throws {
+    let controller = InputSourceController()
+    let keyCodes = KeyCodes()
+    let input = try controller.currentInputSource()
     Task {
-      let controller = InputSourceController()
-      let keyCodes = KeyCodes()
-      let input = try controller.currentInputSource()
       virtualKeyContainer = try await keyCodes.mapKeyCodes(from: input.source)
       virtualSystems = try keyCodes.systemKeys(from: input.source)
     }
