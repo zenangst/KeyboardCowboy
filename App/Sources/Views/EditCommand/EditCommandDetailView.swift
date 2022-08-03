@@ -4,6 +4,7 @@ struct EditCommandDetailView: View {
   @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @ObservedObject var openPanelController: OpenPanelController
+  let recorderStore: KeyShortcutRecorderStore
   let shortcutStore: ShortcutStore
   @Binding var selection: Command?
   @Binding var command: Command
@@ -52,13 +53,16 @@ struct EditCommandDetailView: View {
             }
         }
       case .keyboard(let command):
-        EditKeyboardShortcutView(command: Binding( get: { command },
-          set: { keyboardCommand in
-            let command: Command = .keyboard(keyboardCommand)
-            self.command = command
-            self.selection = command
-          }
-        ))
+        EditKeyboardShortcutView(
+          command: Binding(
+            get: { command },
+            set: { keyboardCommand in
+              let command: Command = .keyboard(keyboardCommand)
+              self.command = command
+              self.selection = command
+            }
+          ),
+          recorderStore: recorderStore)
       case .type(let command):
         EditTypeView(command: Binding(
           get: { command },
@@ -88,6 +92,7 @@ struct EditCommandDetailView_Previews: PreviewProvider {
   static var previews: some View {
     EditCommandDetailView(applicationStore: applicationStore,
                           openPanelController: OpenPanelController(),
+                          recorderStore: KeyShortcutRecorderStore(),
                           shortcutStore: ShortcutStore(),
                           selection: .constant(command),
                           command: .constant(command))

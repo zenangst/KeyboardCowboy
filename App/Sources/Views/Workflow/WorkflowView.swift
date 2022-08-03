@@ -107,6 +107,7 @@ struct WorkflowView: View, Equatable {
       case .edit(let command):
         EditCommandView(applicationStore: applicationStore,
                         openPanelController: OpenPanelController(),
+                        recorderStore: recorderStore,
                         shortcutStore: shortcutStore,
                         saveAction: { newCommand in
           workflow.updateOrAddCommand(newCommand)

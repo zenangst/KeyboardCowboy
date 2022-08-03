@@ -20,6 +20,14 @@ struct AppPreferences {
       storageConfiguration: .init(path: "~/", filename: ".keyboard-cowboy.json"))
   }
 
+  static func development() -> AppPreferences {
+    AppPreferences(
+      hideFromDock: false,
+      hideAppOnLaunch: false,
+      machportIsEnabled: true,
+      storageConfiguration: .init(path: "~/", filename: ".keyboard-cowboy.json"))
+  }
+
   static func emptyFile() -> AppPreferences {
     AppPreferences(
       hideFromDock: false,

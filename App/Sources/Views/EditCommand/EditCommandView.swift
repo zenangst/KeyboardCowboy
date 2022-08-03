@@ -5,6 +5,7 @@ struct EditCommandView: View {
   @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @ObservedObject var openPanelController: OpenPanelController
+  let recorderStore: KeyShortcutRecorderStore
   let shortcutStore: ShortcutStore
   let imageSize = CGSize(width: 32, height: 32)
   let saveAction: (Command) -> Void
@@ -15,6 +16,7 @@ struct EditCommandView: View {
 
   init(applicationStore: ApplicationStore,
        openPanelController: OpenPanelController,
+       recorderStore: KeyShortcutRecorderStore,
        shortcutStore: ShortcutStore,
        saveAction: @escaping (Command) -> Void,
        cancelAction: @escaping () -> Void,
@@ -22,6 +24,7 @@ struct EditCommandView: View {
        command: Command) {
     self.applicationStore = applicationStore
     self.openPanelController = openPanelController
+    self.recorderStore = recorderStore
     self.shortcutStore = shortcutStore
     self.saveAction = saveAction
     self.cancelAction = cancelAction
@@ -42,6 +45,7 @@ struct EditCommandView: View {
          EditCommandDetailView(
           applicationStore: applicationStore,
           openPanelController: openPanelController,
+          recorderStore: recorderStore,
           shortcutStore: shortcutStore,
           selection: $selection,
           command: $command)
@@ -73,6 +77,7 @@ struct EditCommandView_Previews: PreviewProvider {
   static var previews: some View {
     EditCommandView(applicationStore: contentStore.applicationStore,
                     openPanelController: OpenPanelController(),
+                    recorderStore: KeyShortcutRecorderStore(),
                     shortcutStore: ShortcutStore(),
                     saveAction: { _ in },
                     cancelAction: {},

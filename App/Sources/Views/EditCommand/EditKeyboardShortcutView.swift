@@ -4,6 +4,7 @@ struct EditKeyboardShortcutView: View {
   // swiftlint:disable weak_delegate
   @ObserveInjection var inject
   @Binding var command: KeyboardCommand
+  @ObservedObject var recorderStore: KeyShortcutRecorderStore
   @State var selection: KeyShortcut?
 
   var body: some View {
@@ -14,12 +15,20 @@ struct EditKeyboardShortcutView: View {
       }.padding()
       Divider()
       Spacer().frame(height: 8)
+      // TODO: Fix bug where UI doesn't update properly after editing a shortcut.
       HStack(spacing: 8) {
         key(command.keyboardShortcut)
           .onTapGesture {
             selection = command.keyboardShortcut
+            recorderStore.mode = .record
           }
           .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
+      }
+      .onReceive(recorderStore.$recording) { recording in
+        if case .valid(let keyboardShortcut) = recording {
+          command = .init(keyboardShortcut: keyboardShortcut)
+          selection = command.keyboardShortcut
+        }
       }
       .padding(4)
     }
@@ -67,7 +76,8 @@ struct EditKeyboardShortcutView_Previews: PreviewProvider {
     VStack {
       ForEach(Self.examples) { command in
         EditKeyboardShortcutView(
-          command: .constant(command))
+          command: .constant(command),
+          recorderStore: KeyShortcutRecorderStore())
       }
     }
   }
