@@ -79,8 +79,8 @@ final class KeyCodesStore {
   private func mapKeys() throws {
     let controller = InputSourceController()
     let keyCodes = KeyCodes()
-    let input = try controller.currentInputSource()
     Task {
+      let input = try await controller.currentInputSource()
       virtualKeyContainer = try await keyCodes.mapKeyCodes(from: input.source)
       virtualSystems = try keyCodes.systemKeys(from: input.source)
     }
