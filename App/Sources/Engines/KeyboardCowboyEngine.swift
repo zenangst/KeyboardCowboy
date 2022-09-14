@@ -104,6 +104,6 @@ final class KeyboardCowboyEngine {
       newPolicy = .accessory
     }
 
-    NSApplication.shared.setActivationPolicy(newPolicy)
+    _ = NSApplication.shared.setActivationPolicy(newPolicy)
   }
 }
