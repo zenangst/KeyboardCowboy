@@ -131,7 +131,10 @@ final class WorkflowEngine {
     }
 
     if shortcutsToActivate.isEmpty {
-      workflowsToActivate.forEach { commandEngine.serialRun($0.commands) }
+      workflowsToActivate.forEach { workflow in
+        let commands = workflow.commands.filter(\.isEnabled)
+        commandEngine.serialRun(commands)
+      }
       sequence = []
       sessionWorkflows = activeWorkflows
     } else {
