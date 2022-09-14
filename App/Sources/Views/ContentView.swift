@@ -28,16 +28,15 @@ struct ContentView: View, Equatable {
   static var appStorage = AppStorageStore()
 
   init(_ store: ContentStore,
+       selectedGroups: Binding<[WorkflowGroup]>,
+       selectedWorkflows: Binding<[Workflow]>,
        focus: FocusState<Focus?>,
        action: @escaping (Action) -> Void) {
     _groupIds = .init(initialValue: Self.appStorage.groupIds)
     _workflowIds = .init(initialValue: Self.appStorage.workflowIds)
-
     _store = .init(wrappedValue: store)
-    _selectedGroups = .init(get: { store.groupStore.selectedGroups },
-                            set: { store.groupStore.selectedGroups = $0 })
-    _selectedWorkflows = .init(get: { store.selectedWorkflows },
-                               set: { store.selectedWorkflows = $0 })
+    _selectedGroups = selectedGroups
+    _selectedWorkflows = selectedWorkflows
     _searchQuery = .init(initialValue: "")
     _focus = focus
     self.action = action
@@ -88,10 +87,6 @@ struct ContentView: View, Equatable {
                      sheet: $detailViewSheet,
                      action: handleDetailAction(_:))
           .equatable()
-          // Handle workflow updates
-          .onChange(of: selectedWorkflows, perform: { workflows in
-            store.updateWorkflows(workflows)
-          })
         }
       }
       .toolbar { DetailToolbar(applicationStore: store.applicationStore,
@@ -186,7 +181,10 @@ struct ContentView_Previews: PreviewProvider {
     @FocusState var focus: Focus?
 
     var body: some View {
-      ContentView(.init(.designTime()), focus: _focus) { _ in }
+      ContentView(.init(.designTime()),
+                  selectedGroups: .constant([]),
+                  selectedWorkflows: .constant([]),
+                  focus: _focus) { _ in }
     }
   }
 

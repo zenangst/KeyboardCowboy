@@ -46,6 +46,9 @@ final class ConfigurationStore: ObservableObject {
       return
     }
     var newConfigurations = self.configurations
+
+    guard newConfigurations[index] != configuration else { return }
+
     newConfigurations[index] = configuration
     select(configuration)
     self.configurations = newConfigurations

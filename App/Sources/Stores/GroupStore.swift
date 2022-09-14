@@ -57,11 +57,9 @@ final class GroupStore: ObservableObject {
     self.groups = newGroups
   }
 
-  func receive(_ newWorkflows: [Workflow]) async -> [WorkflowGroup] {
-    let newGroups = await updateGroups(with: newWorkflows)
-    await MainActor.run {
-      groups = newGroups
-    }
+  func receive(_ newWorkflows: [Workflow]) -> [WorkflowGroup] {
+    let newGroups = updateGroups(with: newWorkflows)
+    groups = newGroups
     return newGroups
   }
 
@@ -97,7 +95,7 @@ final class GroupStore: ObservableObject {
 
   // MARK: Private methods
 
-  private func updateGroups(with newWorkflows: [Workflow]) async -> [WorkflowGroup] {
+  private func updateGroups(with newWorkflows: [Workflow]) -> [WorkflowGroup] {
     var newGroups = groups
     for newWorkflow in newWorkflows {
       guard let group = newGroups.first(where: { group in

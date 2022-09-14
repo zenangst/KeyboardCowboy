@@ -102,6 +102,7 @@ final class ContentStore: ObservableObject {
     selectedWorkflowsCopy = selectedWorkflows
   }
 
+  @MainActor
   func selectGroupsIds(_ ids: Set<String>) {
     let oldGroupIds = groupIds
     groupStore.selectedGroups = configurationStore.selectedConfiguration.groups
@@ -125,6 +126,7 @@ final class ContentStore: ObservableObject {
     Self.appStorage.workflowIds = workflowIds
   }
 
+  @MainActor
   func selectWorkflowIds(_ ids: Set<String>) {
     workflowIds = ids
     selectedWorkflows = groupStore.selectedGroups
@@ -135,24 +137,22 @@ final class ContentStore: ObservableObject {
   }
 
   func updateWorkflows(_ newWorkflows: [Workflow]) {
-    if selectedWorkflowsCopy == newWorkflows { return }
+    let copiedWorkflows = selectedWorkflowsCopy
+    if copiedWorkflows == newWorkflows { return }
+    let oldConfiguration = configurationStore.selectedConfiguration
+    undoManager?.registerUndo(withTarget: self, handler: { contentStore in
+      contentStore.applyConfiguration(oldConfiguration)
+    })
+    undoManager?.setActionName("Undo change")
 
-    Task(priority: .high) {
-      let oldConfiguration = configurationStore.selectedConfiguration
-      undoManager?.registerUndo(withTarget: self, handler: { contentStore in
-        contentStore.applyConfiguration(oldConfiguration)
-      })
-      undoManager?.setActionName("Undo change")
+    let newGroups = groupStore.receive(newWorkflows)
+    var newConfiguration = configurationStore.selectedConfiguration
+    newConfiguration.groups = newGroups
 
-      let newGroups = await groupStore.receive(newWorkflows)
-      var newConfiguration = configurationStore.selectedConfiguration
-      newConfiguration.groups = newGroups
-
-      configurationStore.update(newConfiguration)
-      selectGroupsIds(groupIds)
-      let workflowIds = Set<String>(newWorkflows.compactMap({ $0.id }))
-      selectWorkflowIds(workflowIds)
-    }
+    configurationStore.update(newConfiguration)
+    selectGroupsIds(groupIds)
+    let workflowIds = Set<String>(newWorkflows.compactMap({ $0.id }))
+    selectWorkflowIds(workflowIds)
   }
 
   // MARK: Private methods
@@ -170,7 +170,6 @@ final class ContentStore: ObservableObject {
   private func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
     publisher
       .dropFirst()
-      .receive(on: RunLoop.main)
       .removeDuplicates()
       .sink { [weak self, configurationStore] groups in
         var newConfiguration = configurationStore.selectedConfiguration
