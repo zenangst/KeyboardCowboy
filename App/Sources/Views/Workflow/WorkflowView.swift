@@ -145,8 +145,8 @@ struct WorkflowView_Previews: PreviewProvider {
       shortcutStore: ShortcutStore(),
       workflow: .constant(Workflow.designTime(
       .keyboardShortcuts( [
-        .init(key: "A", modifiers: [.command]),
-        .init(key: "B", modifiers: [.function]),
+        .init(key: "A", lhs: true, modifiers: [.command]),
+        .init(key: "B", lhs: true, modifiers: [.function]),
       ])
       )),
       sheet: .constant(nil),

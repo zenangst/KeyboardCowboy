@@ -67,9 +67,9 @@ struct EditKeyboardShortcutView_Previews: PreviewProvider {
 
   static let examples: [KeyboardCommand] = [
     KeyboardCommand.empty(),
-    KeyboardCommand.init(keyboardShortcut: .init(key: "A", modifiers: [.command])),
-    KeyboardCommand.init(keyboardShortcut: .init(key: "C", modifiers: [.control, .option, .command])),
-    KeyboardCommand.init(keyboardShortcut: .init(key: "W", modifiers: [])),
+    KeyboardCommand.init(keyboardShortcut: .init(key: "A", lhs: true, modifiers: [.command])),
+    KeyboardCommand.init(keyboardShortcut: .init(key: "C", lhs: true, modifiers: [.control, .option, .command])),
+    KeyboardCommand.init(keyboardShortcut: .init(key: "W", lhs: true, modifiers: [])),
   ]
 
   static var previews: some View {

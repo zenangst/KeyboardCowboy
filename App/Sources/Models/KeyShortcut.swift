@@ -7,6 +7,7 @@ import Foundation
 public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable {
   public let id: String
   public let key: String
+  public let lhs: Bool
   public let modifiers: [ModifierKey]?
 
   public var modifersDisplayValue: String {
@@ -18,6 +19,7 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     case id
     case key
     case modifiers
+    case lhs
   }
 
   public var validationValue: String {
@@ -34,9 +36,11 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
 
   public init(id: String = UUID().uuidString,
               key: String,
+              lhs: Bool,
               modifiers: [ModifierKey]? = nil) {
     self.id = id
     self.key = key
+    self.lhs = lhs
     self.modifiers = modifiers
   }
 
@@ -45,12 +49,13 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.key = try container.decode(String.self, forKey: .key)
+    self.lhs = try container.decodeIfPresent(Bool.self, forKey: .lhs) ?? true
     self.modifiers = try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)
   }
 }
 
 public extension KeyShortcut {
   static func empty(id: String = UUID().uuidString) -> KeyShortcut {
-    KeyShortcut(id: id, key: "")
+    KeyShortcut(id: id, key: "", lhs: true)
   }
 }

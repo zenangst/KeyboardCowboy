@@ -43,6 +43,7 @@ struct KeyShortcutsListView: View, Equatable {
           keyboardShortcuts.remove(at: index)
         case .valid(let recording):
           let newKeyshortcut = KeyShortcut(key: recording.key,
+                                           lhs: recording.lhs,
                                            modifiers: recording.modifiers)
           keyboardShortcuts[index] = newKeyshortcut
         default:
@@ -98,8 +99,14 @@ struct KeyShortcutsListView: View, Equatable {
       if let modifiers = keyboardShortcut.modifiers,
          !modifiers.isEmpty {
         ForEach(modifiers) { modifier in
-          ModifierKeyIcon(key: modifier)
+          ZStack {
+            ModifierKeyIcon(
+              key: modifier,
+              alignment: keyboardShortcut.lhs
+              ? .topTrailing
+              : .topLeading)
             .frame(minWidth: modifier == .shift || modifier == .command ? 48 : 32, maxWidth: 48)
+          }
         }
       }
 
@@ -124,25 +131,16 @@ struct KeyShortcutsListView: View, Equatable {
 }
 
 struct KeyShortcutsListView_Previews: PreviewProvider {
-    static var previews: some View {
-      KeyShortcutsListView(
-        keyboardShortcuts: .constant([
-          .init(key: "↑"),
-          .init(key: "↑"),
+  static var keyboardShortcuts: [KeyShortcut] = [
+    .init(key: "↑", lhs: true, modifiers: [.option]),
+    .init(key: "↑", lhs: false, modifiers: [.option]),
 
-            .init(key: "↓"),
-          .init(key: "↓"),
+  ]
 
-            .init(key: "←"),
-          .init(key: "→"),
-
-            .init(key: "←"),
-          .init(key: "→"),
-
-            .init(key: "B"),
-          .init(key: "A"),
-        ]),
-        recorderStore: KeyShortcutRecorderStore(),
-        action: { _ in })
-    }
+  static var previews: some View {
+    KeyShortcutsListView(
+      keyboardShortcuts: .constant(keyboardShortcuts),
+      recorderStore: KeyShortcutRecorderStore(),
+      action: { _ in })
+  }
 }

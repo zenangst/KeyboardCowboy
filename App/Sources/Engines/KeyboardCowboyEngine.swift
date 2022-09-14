@@ -37,7 +37,7 @@ final class KeyboardCowboyEngine {
     machPortEngine.subscribe(to: workflowEngine.$activeWorkflows)
     machPortEngine.subscribe(to: workflowEngine.$sequence)
     machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
-    workflowEngine.subscribe(to: machPortEngine.$keystroke)
+    workflowEngine.subscribe(to: machPortEngine.$event)
 
     contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
 

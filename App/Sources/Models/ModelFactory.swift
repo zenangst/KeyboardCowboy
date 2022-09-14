@@ -61,13 +61,15 @@ public class ModelFactory {
           workflows: workflows?(self) ?? [workflow(id: id)])
   }
 
-  func keyboardCommand(id: String = UUID().uuidString) -> KeyboardCommand {
-    .init(id: id, keyboardShortcut: keyboardShortcut(id: id))
+  func keyboardCommand(id: String = UUID().uuidString, lhs: Bool) -> KeyboardCommand {
+    .init(id: id, keyboardShortcut: keyboardShortcut(id: id, lhs: lhs))
   }
 
-  func keyboardShortcut(id: String = UUID().uuidString, key: String = "A",
+  func keyboardShortcut(id: String = UUID().uuidString,
+                        key: String = "A",
+                        lhs: Bool,
                         modifiers: [ModifierKey]? = nil) -> KeyShortcut {
-    .init(id: id, key: key, modifiers: modifiers)
+    .init(id: id, key: key, lhs: lhs, modifiers: modifiers)
   }
 
   func openCommand(id: String = UUID().uuidString,
@@ -90,8 +92,8 @@ public class ModelFactory {
     ]
   }
 
-  func keyboardShortcut(_ modifiers: [ModifierKey]) -> KeyShortcut {
-    .init(key: "A", modifiers: modifiers)
+  func keyboardShortcut(_ modifiers: [ModifierKey], lhs: Bool) -> KeyShortcut {
+    .init(key: "A", lhs: lhs, modifiers: modifiers)
   }
 
   func workflow(id: String = UUID().uuidString,
@@ -102,7 +104,7 @@ public class ModelFactory {
       id: id,
       name: name,
       trigger: .keyboardShortcuts(keyboardShortcuts?(self) ??
-                                  [keyboardShortcut(id: id, modifiers: [.control, .option])]),
+                                  [keyboardShortcut(id: id, lhs: true, modifiers: [.control, .option])]),
       commands: commands?(self) ?? [.application(applicationCommand(id: id))])
   }
 }

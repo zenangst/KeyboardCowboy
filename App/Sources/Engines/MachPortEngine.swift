@@ -8,6 +8,22 @@ import KeyCodes
 import os
 
 final class MachPortEngine {
+  struct Event {
+    enum Kind {
+      case flagsChanged
+      case keyUp
+      case keyDown
+    }
+
+    let keyboardShortcut: KeyShortcut
+    let kind: Kind
+
+    init(_ keyboardShortcut: KeyShortcut, kind: Kind) {
+      self.keyboardShortcut = keyboardShortcut
+      self.kind = kind
+    }
+  }
+
   enum RestrictedKeyCode: Int, CaseIterable {
     case backspace = 117
     case delete = 51
@@ -15,7 +31,7 @@ final class MachPortEngine {
     case escape = 53
   }
 
-  @Published var keystroke: KeyShortcut?
+  @Published var event: Event?
   @Published var recording: KeyShortcutRecording?
 
   private var topLevelIndex = Set<String>()
@@ -78,6 +94,18 @@ final class MachPortEngine {
   }
 
   private func intercept(_ machPortEvent: MachPortEvent) {
+    let kind: Event.Kind
+    switch machPortEvent.type {
+    case .flagsChanged:
+      kind = .flagsChanged
+    case .keyDown:
+      kind = .keyDown
+    case .keyUp:
+      kind = .keyUp
+    default:
+      return
+    }
+
     let counter = activeKeyboardShortcuts.count
 
     // Verify that the top-level shortcut matches before going forward with any processing of keyboard shortcuts.
@@ -89,8 +117,8 @@ final class MachPortEngine {
       let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event,
                                                      specialKeys: Array(store.specialKeys().keys))
         .compactMap({ ModifierKey(rawValue: $0.rawValue) })
-      let keyShortcutDisplayValue = KeyShortcut(key: displayValue, modifiers: modifiers)
-      let keyShortcutRawValue = KeyShortcut(key: rawValue, modifiers: modifiers)
+      let keyShortcutDisplayValue = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
+      let keyShortcutRawValue = KeyShortcut(key: rawValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
       if topLevelIndex.contains(keyShortcutDisplayValue.validationValue) {
       } else if topLevelIndex.contains(keyShortcutRawValue.validationValue) {
@@ -107,8 +135,12 @@ final class MachPortEngine {
 
       let keyboardShortcut = shortcuts[counter]
 
+
+
       guard let keyCode = store.keyCode(for: keyboardShortcut.key, matchDisplayValue: true),
-            machPortEvent.keyCode == keyCode else {
+            machPortEvent.keyCode == keyCode,
+            machPortEvent.lhs == keyboardShortcut.lhs
+      else {
         continue
       }
 
@@ -125,7 +157,7 @@ final class MachPortEngine {
 
       guard modifiersMatch else { continue }
 
-      // Intercept the mach port event by removing the result.
+      // Intercept the mach port event by removing the result.
       // The result in this case is the original `CGEvent` which we want
       // to discard in order to only run the configured actions based on
       // the workflows.
@@ -138,13 +170,12 @@ final class MachPortEngine {
                                   with: machPortEvent.eventSource)
         default:
           if machPortEvent.type == .keyDown {
-            self.keystroke = keyboardShortcut
+            self.event = .init(keyboardShortcut, kind: kind)
           }
         }
       } else {
-        self.keystroke = keyboardShortcut
+        self.event = .init(keyboardShortcut, kind: kind)
       }
-
       break
     }
   }
@@ -182,7 +213,7 @@ final class MachPortEngine {
                    specialKeys: Array(store.specialKeys().keys))
     let modifiers = virtualModifiers
       .compactMap({ ModifierKey(rawValue: $0.rawValue) })
-    let keyboardShortcut = KeyShortcut(key: displayValue, modifiers: modifiers)
+    let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
     let systemShortcuts = store.systemKeys()
       .first(where: { $0.keyCode == keyCode && $0.modifiers ==  virtualModifiers })
 

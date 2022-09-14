@@ -86,7 +86,7 @@ struct WorkflowShortcutsView: View, Equatable {
 struct WorkflowShortcutsView_Previews: PreviewProvider {
   static let workflow = Workflow.designTime(
     .keyboardShortcuts([
-      .init(key: "A", modifiers: [.command])
+      .init(key: "A", lhs: true, modifiers: [.command])
     ])
   )
   static var previews: some View {

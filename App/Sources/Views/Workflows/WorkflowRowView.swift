@@ -33,7 +33,7 @@ struct WorkflowRowView: View, Equatable {
         if shortcuts.count > 3 {
           ForEach(shortcuts[0..<3], content: KeyboardShortcutView.init)
           if shortcuts.count > 3 {
-            KeyboardShortcutView(shortcut: .init(key: "..."))
+            KeyboardShortcutView(shortcut: .init(key: "...", lhs: true))
           }
         } else {
           ForEach(shortcuts, content: KeyboardShortcutView.init)

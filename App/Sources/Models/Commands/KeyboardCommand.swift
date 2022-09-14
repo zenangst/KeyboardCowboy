@@ -35,6 +35,6 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
 
 public extension KeyboardCommand {
   static func empty() -> KeyboardCommand {
-    KeyboardCommand(keyboardShortcut: KeyShortcut(key: ""))
+    KeyboardCommand(keyboardShortcut: KeyShortcut(key: "", lhs: true))
   }
 }

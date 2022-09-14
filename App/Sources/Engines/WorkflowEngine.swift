@@ -40,11 +40,11 @@ final class WorkflowEngine {
       .store(in: &subscriptions)
   }
 
-  func subscribe(to publisher: Published<KeyShortcut?>.Publisher) {
+  func subscribe(to publisher: Published<MachPortEngine.Event?>.Publisher) {
     publisher
       .compactMap { $0 }
-      .sink { [weak self] keyShortcut in
-      self?.respond(to: keyShortcut)
+      .sink { [weak self] event in
+      self?.respond(to: event)
     }.store(in: &subscriptions)
   }
 
@@ -89,8 +89,13 @@ final class WorkflowEngine {
     sessionWorkflows = activeWorkflows
   }
 
-  func respond(to keystroke: KeyShortcut) {
-    sequence.append(keystroke)
+  func respond(to event: MachPortEngine.Event) {
+    if event.kind != .keyDown {
+      self.reset()
+      return
+    }
+
+    sequence.append(event.keyboardShortcut)
 
     var shortcutsToActivate = Set<KeyShortcut>()
     var workflowsToActivate = Set<Workflow>()
