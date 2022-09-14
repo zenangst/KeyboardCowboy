@@ -41,17 +41,24 @@ struct EditKeyboardShortcutView: View {
       if let modifiers = keyboardShortcut.modifiers,
          !modifiers.isEmpty {
         ForEach(modifiers) { modifier in
-          ModifierKeyIcon(key: modifier)
-            .frame(minWidth: modifier == .shift || modifier == .command ? 48 : 32, maxWidth: 48)
+          ModifierKeyIcon(
+            key: modifier,
+            alignment: keyboardShortcut.lhs
+            ? .topTrailing
+            : .topLeading)
+          .frame(minWidth: modifier == .shift || modifier == .command ? 48 : 32, maxWidth: 48)
         }
       }
 
-      RegularKeyIcon(letter: keyboardShortcut.key.isEmpty ? "Record keyboard shortcut" : keyboardShortcut.key,
-                     glow: .constant(selection == command.keyboardShortcut))
+      RegularKeyIcon(
+        letter: keyboardShortcut.key.isEmpty ? "Record keyboard shortcut" : keyboardShortcut.key,
+        glow: .constant(selection == command.keyboardShortcut))
+      .fixedSize()
+      .id(keyboardShortcut.key)
       Spacer()
     }
     .frame(height: 32)
-    .padding(.vertical, 4)
+    .padding(4)
     .overlay(
       RoundedRectangle(cornerRadius: 4)
         .stroke(

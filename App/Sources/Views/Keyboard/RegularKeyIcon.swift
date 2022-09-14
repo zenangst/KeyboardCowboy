@@ -62,11 +62,9 @@ public struct RegularKeyIcon: View, KeyView {
               height: CGFloat = 32,
               alignment: Alignment = .center,
               glow: Binding<Bool> = .constant(false)) {
-    _letters = .init(initialValue: letter.compactMap({ Letter(string: $0.uppercased()) }))
-    self.width = width
-    self.height = height
-    self.alignment = alignment
-    self._glow = glow
+    self.init(letters: letter,
+              width: width, height: height,
+              alignment: alignment, glow: glow)
   }
 
   public var body: some View {
