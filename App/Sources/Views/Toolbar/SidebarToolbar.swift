@@ -12,7 +12,7 @@ struct SidebarToolbar: ToolbarContent {
   var action: (Action) -> Void
 
   var body: some ToolbarContent {
-    ToolbarItemGroup(placement: .status) {
+    ToolbarItemGroup {
       Button(action: { action(.toggleSidebar) },
              label: {
         Label(title: {
