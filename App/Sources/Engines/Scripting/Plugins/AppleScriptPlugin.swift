@@ -1,4 +1,5 @@
-import Foundation
+import Combine
+import Cocoa
 
 final class AppleScriptPlugin {
   enum AppleScriptPluginError: Error {
@@ -8,7 +9,18 @@ final class AppleScriptPlugin {
     case executionFailed(Error)
   }
 
+  private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private var cache = [String: NSAppleScript]()
+  private var subscription: AnyCancellable?
+
+  init(workspace: NSWorkspace) {
+    subscription = workspace.publisher(for: \.frontmostApplication)
+      .compactMap { $0 }
+      .filter { $0.bundleIdentifier == self.bundleIdentifier }
+      .sink { [weak self] _ in
+        self?.cache = [:]
+      }
+  }
 
   func executeScript(at path: String, withId id: String) throws -> String? {
     if let cachedAppleScript = cache[id] {

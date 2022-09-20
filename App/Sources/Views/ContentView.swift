@@ -181,7 +181,7 @@ struct ContentView_Previews: PreviewProvider {
     @FocusState var focus: Focus?
 
     var body: some View {
-      ContentView(.init(.designTime()),
+      ContentView(.init(.designTime(), scriptEngine: .init(workspace: .shared), workspace: .shared),
                   selectedGroups: .constant([]),
                   selectedWorkflows: .constant([]),
                   focus: _focus) { _ in }

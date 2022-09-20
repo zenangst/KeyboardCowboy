@@ -1,10 +1,12 @@
-import Foundation
+import Cocoa
 
 final class ShortcutStore: ObservableObject {
-  let engine = ScriptEngine()
-  @Published var shortcuts = [Shortcut]()
+  @Published private(set) var shortcuts = [Shortcut]()
+  private let engine: ScriptEngine
 
-  init() { }
+  init(engine: ScriptEngine) {
+    self.engine = engine
+  }
 
   func index() {
     let source = """

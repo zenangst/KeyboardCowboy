@@ -19,9 +19,12 @@ final class KeyboardCowboyEngine {
 
   private var machPortController: MachPortEventController?
 
-  init(_ contentStore: ContentStore, workspace: NSWorkspace = .shared) {
+  init(_ contentStore: ContentStore, scriptEngine: ScriptEngine,
+       workspace: NSWorkspace = .shared) {
     let keyCodeStore = KeyCodesStore()
-    let commandEngine = CommandEngine(workspace, keyCodeStore: keyCodeStore)
+    let commandEngine = CommandEngine(workspace,
+                                      scriptEngine: scriptEngine,
+                                      keyCodeStore: keyCodeStore)
     self.contentStore = contentStore
     self.commandEngine = commandEngine
     self.machPortEngine = MachPortEngine(store: keyCodeStore, mode: .intercept)
@@ -30,7 +33,7 @@ final class KeyboardCowboyEngine {
       commandEngine: commandEngine,
       configStore: contentStore.configurationStore
     )
-    self.shortcutStore = ShortcutStore()
+    self.shortcutStore = ShortcutStore(engine: scriptEngine)
 
     subscribe(to: workspace)
 
@@ -59,7 +62,7 @@ final class KeyboardCowboyEngine {
     NSApplication.shared.publisher(for: \.isRunning)
       .sink { [weak self] isRunning in
         guard isRunning else { return }
-        self?.menuController = MenubarController(contentStore.applicationStore)
+        self?.menuController = MenubarController(contentStore.applicationStore, scriptEngine: scriptEngine)
       }
       .store(in: &subscriptions)
   }

@@ -55,6 +55,7 @@ struct EditShortcutView: View {
 
 struct EditShortcutView_Previews: PreviewProvider {
   static var previews: some View {
-    EditShortcutView(command: ShortcutCommand.empty(), store: ShortcutStore()) { _ in }
+    EditShortcutView(command: ShortcutCommand.empty(),
+                     store: ShortcutStore(engine: .init(workspace: .shared))) { _ in }
   }
 }

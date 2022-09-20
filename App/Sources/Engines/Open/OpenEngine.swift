@@ -5,16 +5,17 @@ final class OpenEngine {
     let finderFolder: OpenFolderInFinder
     let parser = OpenURLParser()
     let open: OpenFilePlugin
-    let swapTab = OpenURLSwapTabsPlugin()
+    let swapTab: OpenURLSwapTabsPlugin
   }
 
   private let plugins: Plugins
   private let workspace: WorkspaceProviding
 
-  init(_ workspace: WorkspaceProviding) {
+  init(_ scriptEngine: ScriptEngine, workspace: WorkspaceProviding) {
     self.plugins = .init(
-      finderFolder: OpenFolderInFinder(workspace: workspace),
-      open: OpenFilePlugin(workspace: workspace))
+      finderFolder: OpenFolderInFinder(engine: scriptEngine, workspace: workspace),
+      open: OpenFilePlugin(workspace: workspace),
+      swapTab: OpenURLSwapTabsPlugin(engine: scriptEngine))
     self.workspace = workspace
   }
 

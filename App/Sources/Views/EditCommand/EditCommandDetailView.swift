@@ -93,7 +93,7 @@ struct EditCommandDetailView_Previews: PreviewProvider {
     EditCommandDetailView(applicationStore: applicationStore,
                           openPanelController: OpenPanelController(),
                           recorderStore: KeyShortcutRecorderStore(),
-                          shortcutStore: ShortcutStore(),
+                          shortcutStore: ShortcutStore(engine: .init(workspace: .shared)),
                           selection: .constant(command),
                           command: .constant(command))
   }

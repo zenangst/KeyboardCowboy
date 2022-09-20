@@ -43,7 +43,7 @@ struct DetailView_Previews: PreviewProvider {
     DetailView(
       applicationStore: ApplicationStore(),
       recorderStore: KeyShortcutRecorderStore(),
-      shortcutStore: ShortcutStore(),
+      shortcutStore: ShortcutStore(engine: .init(workspace: .shared)),
       workflows: .constant([Workflow.designTime(nil)]),
       sheet: .constant(nil),
       action: { _ in })

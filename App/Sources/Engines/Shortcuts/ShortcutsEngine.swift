@@ -1,10 +1,10 @@
 import Foundation
 
 final class ShortcutsEngine {
-  let script: ScriptEngine
+  private let engine: ScriptEngine
 
-  internal init(script: ScriptEngine) {
-    self.script = script
+  internal init(engine: ScriptEngine) {
+    self.engine = engine
   }
 
   func run(_ command: ShortcutCommand) async throws {
@@ -15,6 +15,6 @@ final class ShortcutsEngine {
       id: "ShortcutCommand.\(command.shortcutIdentifier)",
       isEnabled: true, name: command.name,
       source: .inline(source))
-    _ = try await script.run(command)
+    _ = try await engine.run(command)
   }
 }

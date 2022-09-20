@@ -78,7 +78,7 @@ struct EditCommandView_Previews: PreviewProvider {
     EditCommandView(applicationStore: contentStore.applicationStore,
                     openPanelController: OpenPanelController(),
                     recorderStore: KeyShortcutRecorderStore(),
-                    shortcutStore: ShortcutStore(),
+                    shortcutStore: ShortcutStore(engine: ScriptEngine(workspace: .shared)),
                     saveAction: { _ in },
                     cancelAction: {},
                     selection: nil,

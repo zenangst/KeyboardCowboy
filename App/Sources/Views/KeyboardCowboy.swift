@@ -11,16 +11,20 @@ struct KeyboardCowboy: App {
   @FocusState private var focus: Focus?
   @ObservedObject private var contentStore: ContentStore
   @ObservedObject private var groupStore: GroupStore
+  private let scriptEngine: ScriptEngine
   private let engine: KeyboardCowboyEngine
 
   private var workflowSubscription: AnyCancellable?
 
   init() {
-    let contentStore = ContentStore(.user())
+    let scriptEngine = ScriptEngine(workspace: .shared)
+    let contentStore = ContentStore(.user(), scriptEngine: scriptEngine, workspace: .shared)
     _contentStore = .init(initialValue: contentStore)
     _groupStore = .init(initialValue: contentStore.groupStore)
-    self.engine = KeyboardCowboyEngine(contentStore)
+    self.engine = KeyboardCowboyEngine(contentStore, scriptEngine: scriptEngine, workspace: .shared)
+    self.scriptEngine = scriptEngine
     self.focus = .main(.groupComponent)
+
     Inject.animation = .easeInOut(duration: 0.175)
 
     workflowSubscription = contentStore.$selectedWorkflows

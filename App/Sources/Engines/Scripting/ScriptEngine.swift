@@ -1,13 +1,21 @@
-import Foundation
+import Cocoa
 
 final class ScriptEngine {
   private struct Plugins {
-    let appleScript = AppleScriptPlugin()
-    let shellScript = ShellScriptPlugin()
+    let appleScript: AppleScriptPlugin
+    let shellScript: ShellScriptPlugin
+
+    internal init(workspace: NSWorkspace) {
+      appleScript = AppleScriptPlugin(workspace: workspace)
+      shellScript = ShellScriptPlugin()
+    }
   }
 
-  private let plugins = Plugins()
+  private let plugins: Plugins
 
+  init(workspace: NSWorkspace) {
+    self.plugins = Plugins(workspace: workspace)
+  }
 
   func run(_ command: ScriptCommand) async throws -> String? {
     var result: String?

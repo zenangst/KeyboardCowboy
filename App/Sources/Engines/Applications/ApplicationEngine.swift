@@ -3,7 +3,7 @@ import Cocoa
 final class ApplicationEngine {
   private struct Plugins {
     let activate: ActivateApplicationPlugin
-    let bringToFront = BringToFrontApplicationPlugin()
+    let bringToFront: BringToFrontApplicationPlugin
     let close: CloseApplicationPlugin
     let launch: LaunchApplicationPlugin
   }
@@ -12,12 +12,14 @@ final class ApplicationEngine {
   private let workspace: WorkspaceProviding
   private let plugins: Plugins
 
-  init(windowListStore: WindowListStoring,
+  init(scriptEngine: ScriptEngine,
+       windowListStore: WindowListStoring,
        workspace: WorkspaceProviding) {
     self.windowListStore = windowListStore
     self.workspace = workspace
     self.plugins = Plugins(
       activate: ActivateApplicationPlugin(workspace: workspace),
+      bringToFront: BringToFrontApplicationPlugin(engine: scriptEngine),
       close: CloseApplicationPlugin(workspace: workspace),
       launch: LaunchApplicationPlugin(workspace: workspace)
     )

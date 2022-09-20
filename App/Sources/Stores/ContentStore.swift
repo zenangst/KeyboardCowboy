@@ -26,13 +26,13 @@ final class ContentStore: ObservableObject {
   @Published private(set) var groupIds: Set<String>
   @Published private(set) var workflowIds: Set<String>
 
-  init(_ preferences: AppPreferences) {
+  init(_ preferences: AppPreferences, scriptEngine: ScriptEngine, workspace: NSWorkspace) {
     _configurationId = .init(initialValue: Self.appStorage.configId)
     _groupIds = .init(initialValue: Self.appStorage.groupIds)
     _workflowIds = .init(initialValue: Self.appStorage.workflowIds)
 
     let groupStore = GroupStore()
-    self.shortcutStore = ShortcutStore()
+    self.shortcutStore = ShortcutStore(engine: scriptEngine)
     self.groupStore = groupStore
     self.configurationStore = ConfigurationStore()
     self.preferences = preferences

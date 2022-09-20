@@ -7,8 +7,13 @@ final class OpenURLSwapTabsPlugin {
     case failedToRun
   }
 
+  private let engine: ScriptEngine
+
+  init(engine: ScriptEngine) {
+    self.engine = engine
+  }
+
   func execute(_ command: OpenCommand) async throws {
-    let engine = ScriptEngine()
     let source = """
       set searchPattern to "\(command.path)"
       tell application "Safari"

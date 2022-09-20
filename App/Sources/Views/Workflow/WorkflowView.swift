@@ -142,7 +142,7 @@ struct WorkflowView_Previews: PreviewProvider {
     WorkflowView(
       applicationStore: ApplicationStore(),
       recorderStore: KeyShortcutRecorderStore(),
-      shortcutStore: ShortcutStore(),
+      shortcutStore: ShortcutStore(engine: ScriptEngine(workspace: .shared)),
       workflow: .constant(Workflow.designTime(
       .keyboardShortcuts( [
         .init(key: "A", lhs: true, modifiers: [.command]),

@@ -16,18 +16,20 @@ final class CommandEngine {
 
   var eventSource: CGEventSource?
 
-  init(_ workspace: WorkspaceProviding, keyCodeStore: KeyCodesStore) {
-    let script = ScriptEngine()
+  init(_ workspace: WorkspaceProviding,
+       scriptEngine: ScriptEngine,
+       keyCodeStore: KeyCodesStore) {
     let keyboard = KeyboardEngine(store: keyCodeStore)
     self.engines = .init(
       application: ApplicationEngine(
+        scriptEngine: scriptEngine,
         windowListStore: WindowListStore(),
         workspace: workspace
       ),
       keyboard: keyboard,
-      open: OpenEngine(workspace),
-      script: script,
-      shortcut: ShortcutsEngine(script: script),
+      open: OpenEngine(scriptEngine, workspace: workspace),
+      script: scriptEngine,
+      shortcut: ShortcutsEngine(engine: scriptEngine),
       type: TypeEngine(keyboardEngine: keyboard, store: keyCodeStore)
     )
     self.workspace = workspace
