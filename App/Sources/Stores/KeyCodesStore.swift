@@ -82,14 +82,12 @@ final class KeyCodesStore {
     let controller = InputSourceController()
     let keyCodes = KeyCodes()
     let input = try controller.currentInputSource()
-    Task {
-      let virtualKeyContainer = try await keyCodes.mapKeyCodes(from: input.source)
-      let virtualSystemKeys = try keyCodes.systemKeys(from: input.source)
-      await update(virtualKeyContainer, virtualSystemKeys: virtualSystemKeys)
-    }
+    let virtualKeyContainer = try keyCodes.mapKeyCodes(from: input.source)
+    let virtualSystemKeys = try keyCodes.systemKeys(from: input.source)
+
+    update(virtualKeyContainer, virtualSystemKeys: virtualSystemKeys)
   }
 
-  @MainActor
   private func update(_ virtualKeyContainer: VirtualKeyContainer, virtualSystemKeys: [VirtualKey]) {
     self.virtualKeyContainer = virtualKeyContainer
     self.virtualSystemKeys = virtualSystemKeys
