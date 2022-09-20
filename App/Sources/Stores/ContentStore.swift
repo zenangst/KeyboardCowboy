@@ -102,7 +102,6 @@ final class ContentStore: ObservableObject {
     selectedWorkflowsCopy = selectedWorkflows
   }
 
-  @MainActor
   func selectGroupsIds(_ ids: Set<String>) {
     let oldGroupIds = groupIds
     groupStore.selectedGroups = configurationStore.selectedConfiguration.groups
@@ -126,7 +125,6 @@ final class ContentStore: ObservableObject {
     Self.appStorage.workflowIds = workflowIds
   }
 
-  @MainActor
   func selectWorkflowIds(_ ids: Set<String>) {
     workflowIds = ids
     selectedWorkflows = groupStore.selectedGroups
