@@ -41,7 +41,7 @@ final class KeyCodesStore {
 
   private var subscription: AnyCancellable?
   private var virtualKeyContainer: VirtualKeyContainer?
-  private var virtualSystems = [VirtualKey]()
+  private var virtualSystemKeys = [VirtualKey]()
 
   internal init() {
     subscription = NotificationCenter.default.publisher(for: NSTextInputContext.keyboardSelectionDidChangeNotification)
@@ -52,7 +52,7 @@ final class KeyCodesStore {
   }
 
   func systemKeys() -> [VirtualKey] {
-    virtualSystems
+    virtualSystemKeys
   }
 
   func specialKeys() -> [Int: String] {
@@ -76,13 +76,22 @@ final class KeyCodesStore {
     virtualKeyContainer?.valueForKeyCode(keyCode, modifier: nil)?.displayValue
   }
 
+  // MARK: Private methods
+
   private func mapKeys() throws {
     let controller = InputSourceController()
     let keyCodes = KeyCodes()
+    let input = try controller.currentInputSource()
     Task {
-      let input = try await controller.currentInputSource()
-      virtualKeyContainer = try await keyCodes.mapKeyCodes(from: input.source)
-      virtualSystems = try keyCodes.systemKeys(from: input.source)
+      let virtualKeyContainer = try await keyCodes.mapKeyCodes(from: input.source)
+      let virtualSystemKeys = try keyCodes.systemKeys(from: input.source)
+      await update(virtualKeyContainer, virtualSystemKeys: virtualSystemKeys)
     }
+  }
+
+  @MainActor
+  private func update(_ virtualKeyContainer: VirtualKeyContainer, virtualSystemKeys: [VirtualKey]) {
+    self.virtualKeyContainer = virtualKeyContainer
+    self.virtualSystemKeys = virtualSystemKeys
   }
 }
