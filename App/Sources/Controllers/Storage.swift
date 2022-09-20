@@ -31,7 +31,7 @@ final class Storage {
   func subscribe(to publisher: Published<[KeyboardCowboyConfiguration]>.Publisher) {
     subscription = publisher
     // Skip the first empty state and the first time it gets loaded from disk.
-      .dropFirst(2)
+      .dropFirst(1)
       .debounce(for: 0.5, scheduler: DispatchQueue.global(qos: .utility))
       .removeDuplicates()
       .sink { [weak self] configurations in
