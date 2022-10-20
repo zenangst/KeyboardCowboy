@@ -8,7 +8,7 @@ import KeyCodes
 import os
 
 final class MachPortEngine {
-  struct Event {
+  struct Event: Equatable {
     enum Kind {
       case flagsChanged
       case keyUp
@@ -39,6 +39,7 @@ final class MachPortEngine {
   private var activeWorkflows = [Workflow]()
   private var subscriptions = Set<AnyCancellable>()
   private var mode: KeyboardCowboyMode
+  private var lastProcessedEvent: Event?
 
   private let keyboardEngine: KeyboardEngine
   private let store: KeyCodesStore
@@ -106,6 +107,11 @@ final class MachPortEngine {
       return
     }
 
+    // Clear the last processed event when the user relases the key.
+    if kind == .keyUp {
+      lastProcessedEvent = nil
+    }
+
     let counter = activeKeyboardShortcuts.count
 
     // Verify that the top-level shortcut matches before going forward with any processing of keyboard shortcuts.
@@ -134,8 +140,6 @@ final class MachPortEngine {
             else { continue }
 
       let keyboardShortcut = shortcuts[counter]
-
-
 
       guard let keyCode = store.keyCode(for: keyboardShortcut.key, matchDisplayValue: true),
             machPortEvent.keyCode == keyCode,
@@ -169,12 +173,16 @@ final class MachPortEngine {
           try? keyboardEngine.run(command, type: machPortEvent.type,
                                   with: machPortEvent.eventSource)
         default:
-          if machPortEvent.type == .keyDown {
-            self.event = .init(keyboardShortcut, kind: kind)
+          let newEvent = Event(keyboardShortcut, kind: kind)
+          if machPortEvent.type == .keyDown && newEvent != lastProcessedEvent {
+            lastProcessedEvent = newEvent
+            event = newEvent
           }
         }
       } else {
-        self.event = .init(keyboardShortcut, kind: kind)
+        let newEvent = Event(keyboardShortcut, kind: kind)
+        lastProcessedEvent = newEvent
+        event = newEvent
       }
       break
     }
