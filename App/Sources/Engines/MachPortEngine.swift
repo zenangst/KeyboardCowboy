@@ -39,7 +39,6 @@ final class MachPortEngine {
   private var activeWorkflows = [Workflow]()
   private var subscriptions = Set<AnyCancellable>()
   private var mode: KeyboardCowboyMode
-  private var lastProcessedEvent: Event?
 
   private let keyboardEngine: KeyboardEngine
   private let store: KeyCodesStore
@@ -107,11 +106,6 @@ final class MachPortEngine {
       return
     }
 
-    // Clear the last processed event when the user relases the key.
-    if kind == .keyUp {
-      lastProcessedEvent = nil
-    }
-
     let counter = activeKeyboardShortcuts.count
 
     // Verify that the top-level shortcut matches before going forward with any processing of keyboard shortcuts.
@@ -174,14 +168,12 @@ final class MachPortEngine {
                                   with: machPortEvent.eventSource)
         default:
           let newEvent = Event(keyboardShortcut, kind: kind)
-          if machPortEvent.type == .keyDown && newEvent != lastProcessedEvent {
-            lastProcessedEvent = newEvent
+          if machPortEvent.type == .keyDown {
             event = newEvent
           }
         }
       } else {
         let newEvent = Event(keyboardShortcut, kind: kind)
-        lastProcessedEvent = newEvent
         event = newEvent
       }
       break
@@ -225,9 +217,10 @@ final class MachPortEngine {
     let systemShortcuts = store.systemKeys()
       .first(where: { $0.keyCode == keyCode && $0.modifiers ==  virtualModifiers })
 
-    if systemShortcuts != nil {
-      validationContext = .systemShortcut(keyboardShortcut)
-    } else if let restrictedKeyCode = RestrictedKeyCode(rawValue: Int(machPortEvent.keyCode)) {
+//    if systemShortcuts != nil {
+//      validationContext = .systemShortcut(keyboardShortcut)
+//    } else
+    if let restrictedKeyCode = RestrictedKeyCode(rawValue: Int(machPortEvent.keyCode)) {
       switch restrictedKeyCode {
       case .backspace, .delete:
         validationContext = .delete(keyboardShortcut)
