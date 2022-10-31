@@ -41,7 +41,8 @@ let project = Project(
                 .external(name: "InputSources"),
                 .external(name: "KeyCodes"),
                 .external(name: "LaunchArguments"),
-                .external(name: "MachPort")
+                .external(name: "MachPort"),
+                .external(name: "Windows"),
             ],
             settings:
                 Settings.settings(
