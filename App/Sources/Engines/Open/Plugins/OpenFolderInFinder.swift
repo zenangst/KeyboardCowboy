@@ -27,6 +27,7 @@ final class OpenFolderInFinder {
       isEnabled: true,
       name: "Open folder in Finder: \(command.path)",
       source: .inline(source))
+    try Task.checkCancellation()
     _ = try await engine.run(script)
   }
 }

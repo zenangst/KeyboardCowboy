@@ -50,6 +50,8 @@ final class ApplicationEngine {
       return
     }
 
+    try Task.checkCancellation()
+
     let isFrontMostApplication = command.application
       .bundleIdentifier == workspace.frontApplication?.bundleIdentifier
 

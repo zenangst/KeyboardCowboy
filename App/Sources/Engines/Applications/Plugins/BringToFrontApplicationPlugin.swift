@@ -18,6 +18,8 @@ final class BringToFrontApplicationPlugin {
         end tell
         """
 
+    try Task.checkCancellation()
+
     _ = try await engine.run(
       ScriptCommand.appleScript(
         id: "BringToFrontApplicationPlugin",

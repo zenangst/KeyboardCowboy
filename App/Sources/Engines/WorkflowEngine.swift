@@ -137,6 +137,8 @@ final class WorkflowEngine {
       }
       sequence = []
       sessionWorkflows = activeWorkflows
+      timer?.invalidate()
+      reset()
     } else {
       sessionWorkflows = Array(workflowsToActivate)
     }

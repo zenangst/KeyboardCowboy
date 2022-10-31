@@ -27,6 +27,8 @@ final class ShellScriptPlugin {
     process.arguments = ["-i", "-l", command]
     process.currentDirectoryURL = url
 
+    try Task.checkCancellation()
+
     try process.run()
 
     let data = pipe.fileHandleForReading.readDataToEndOfFile()

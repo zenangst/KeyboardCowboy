@@ -40,6 +40,8 @@ final class ActivateApplicationPlugin {
       options.insert(.activateAllWindows)
     }
 
+    try Task.checkCancellation()
+
     if !runningApplication.activate(options: options) {
       throw ActivateApplicationPlugin.failedToActivate
     }

@@ -18,6 +18,8 @@ final class CloseApplicationPlugin {
       return
     }
 
+    try Task.checkCancellation()
+
     if !runningApplication.terminate() {
       throw CloseApplicationPluginError.unableToTermineApplication
     }

@@ -35,6 +35,8 @@ final class AppleScriptPlugin {
       throw AppleScriptPluginError.failedToCreateScriptAtURL(url)
     }
 
+    try Task.checkCancellation()
+
     let descriptor = try execute(appleScript)
 
     cache[id] = appleScript
@@ -44,12 +46,15 @@ final class AppleScriptPlugin {
 
   func execute(_ source: String, withId id: String) throws -> String? {
     if let cachedAppleScript = cache[id] {
+      try Task.checkCancellation()
       return cachedAppleScript.executeAndReturnError(nil).stringValue
     }
 
     guard let appleScript = NSAppleScript(source: source) else {
       throw AppleScriptPluginError.failedToCreateInlineScript
     }
+
+    try Task.checkCancellation()
 
     let descriptor = try execute(appleScript)
 

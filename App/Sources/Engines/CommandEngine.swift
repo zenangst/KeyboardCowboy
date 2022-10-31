@@ -13,6 +13,7 @@ final class CommandEngine {
 
   private let engines: Engines
   private let workspace: WorkspaceProviding
+  private var runningTask: Task<Void, Error>?
 
   var eventSource: CGEventSource?
 
@@ -74,12 +75,15 @@ final class CommandEngine {
   }
 
   func serialRun(_ commands: [Command]) {
-    Task {
+    runningTask?.cancel()
+    runningTask = Task.detached { [weak self] in
+      guard let self = self else { return }
       do {
         for command in commands {
-          try await run(command)
+          try Task.checkCancellation()
+          try await self.run(command)
         }
-      } catch { }
+      }
     }
   }
 
