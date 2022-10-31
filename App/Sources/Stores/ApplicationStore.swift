@@ -1,11 +1,9 @@
 import Apps
-import Combine
 import Foundation
 
 final class ApplicationStore: ObservableObject {
   @Published private(set) var applications = [Application]()
   @Published private(set) var dictionary = [String: Application]()
-  var subscription: AnyCancellable?
 
   init() {
     reload()
@@ -17,17 +15,16 @@ final class ApplicationStore: ObservableObject {
 
   func reload() {
     Task(priority: .userInitiated) {
-      self.subscription = ApplicationController.asyncLoadApplications()
-        .receive(on: DispatchQueue.main)
-        .sink { [weak self] applications in
-          self?.applications = applications
-          var applicationDictionary = [String: Application]()
-          for application in applications {
-            applicationDictionary[application.bundleIdentifier] = application
-          }
-          self?.dictionary = applicationDictionary
-          self?.subscription = nil
-        }
+      let newApplications = await ApplicationController.load()
+      var applicationDictionary = [String: Application]()
+      for application in newApplications {
+        applicationDictionary[application.bundleIdentifier] = application
+      }
+
+      await MainActor.run { [applicationDictionary] in
+        self.applications = newApplications
+        self.dictionary = applicationDictionary
+      }
     }
   }
 }
