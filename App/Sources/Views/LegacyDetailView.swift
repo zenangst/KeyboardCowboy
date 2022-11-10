@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct DetailView: View, Equatable {
+struct LegacyDetailView: View, Equatable {
   @ObserveInjection var inject
   enum Action {
     case workflow(WorkflowView.Action)
@@ -33,14 +33,14 @@ struct DetailView: View, Equatable {
     }
   }
 
-  static func == (lhs: DetailView, rhs: DetailView) -> Bool {
+  static func == (lhs: LegacyDetailView, rhs: LegacyDetailView) -> Bool {
     lhs.workflows == rhs.workflows
   }
 }
 
-struct DetailView_Previews: PreviewProvider {
+struct LegacyDetailView_Previews: PreviewProvider {
   static var previews: some View {
-    DetailView(
+    LegacyDetailView(
       applicationStore: ApplicationStore(),
       recorderStore: KeyShortcutRecorderStore(),
       shortcutStore: ShortcutStore(engine: .init(workspace: .shared)),

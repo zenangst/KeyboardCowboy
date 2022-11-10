@@ -4,7 +4,7 @@ import SwiftUI
 struct WorkflowCommandsListView: View, Equatable {
   @ObserveInjection var inject
   enum Action {
-    case commandView(CommandView.Action)
+    case commandView(LegacyCommandView.Action)
   }
 
   enum Focusable: Hashable {
@@ -24,7 +24,7 @@ struct WorkflowCommandsListView: View, Equatable {
         Spacer()
       }
       LazyVStack(spacing: 4) {
-        EditableVStack(
+        LegacyEditableVStack(
           data: $workflow.commands,
           id: \.self,
           namespace: namespace,
@@ -40,7 +40,7 @@ struct WorkflowCommandsListView: View, Equatable {
                 onDoubleClick: {
                   self.action(.commandView(.commandAction(.edit(command.wrappedValue))))
                 }) { responder in
-                  CommandView(command: command,
+                  LegacyCommandView(command: command,
                               responder: responder) { action in
                     self.action(.commandView(action))
                 }

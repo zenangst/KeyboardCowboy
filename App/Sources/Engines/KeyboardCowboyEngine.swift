@@ -46,7 +46,9 @@ final class KeyboardCowboyEngine {
 
     guard !isRunningPreview else { return }
 
-    if contentStore.preferences.machportIsEnabled, !hasPrivileges() { } else {
+    guard contentStore.preferences.machportIsEnabled else { return }
+
+    if !hasPrivileges() { } else {
       do {
         if !launchArguments.isEnabled(.runningUnitTests) {
           let machPortController = try MachPortEventController(.privateState, mode: .commonModes)

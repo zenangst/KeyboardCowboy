@@ -30,7 +30,7 @@ let project = Project(
             platform: .macOS,
             product: .app,
             bundleId: bundleId,
-            deploymentTarget: DeploymentTarget.macOS(targetVersion: "12.0"),
+            deploymentTarget: DeploymentTarget.macOS(targetVersion: "13.0"),
             infoPlist: .file(path: .relativeToRoot("App/Info.plist")),
             sources: sources("App"),
             resources: resources("App"),
@@ -67,7 +67,7 @@ let project = Project(
                platform: .macOS,
                product: .unitTests,
                bundleId: bundleId.appending(".unit-tests"),
-            deploymentTarget: DeploymentTarget.macOS(targetVersion: "12.0"),
+            deploymentTarget: DeploymentTarget.macOS(targetVersion: "13.0"),
             infoPlist: .file(path: .relativeToRoot("UnitTests/Info.plist")),
             sources: sources("UnitTests"),
             dependencies: [

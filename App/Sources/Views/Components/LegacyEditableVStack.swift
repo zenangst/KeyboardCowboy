@@ -1,6 +1,6 @@
 import SwiftUI
 
-private enum MoveState<Element: Identifiable> {
+enum MoveState<Element: Identifiable> {
   case inactive
   case dragging(draggedElement: Element, translation: CGSize)
 
@@ -23,7 +23,7 @@ private enum MoveState<Element: Identifiable> {
 
   func scaleFactor(for element: Element) -> Double { isDraggingElement(element) ? 1.025 : 1 }
 
-  func zIndex(for element: Element) -> Double { isDraggingElement(element) ? 1 : 0 }
+  func zIndex(for element: Element) -> Double { isDraggingElement(element) ? 2 : 0 }
 
   func offset(for element: Element) -> CGSize {
     if case .dragging(_, let translation) = self,
@@ -34,7 +34,7 @@ private enum MoveState<Element: Identifiable> {
   }
 }
 
-struct EditableVStack<Data, ID, Content>: View where Content: View,
+struct LegacyEditableVStack<Data, ID, Content>: View where Content: View,
                                                      Data: RandomAccessCollection,
                                                      Data: MutableCollection,
                                                      Data.Element: Identifiable,

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WorkflowInfoView: View, Equatable {
+struct LegacyWorkflowInfoView: View, Equatable {
   @ObserveInjection var inject
   @FocusState var focus: Focus?
   @Binding var workflow: Workflow
@@ -18,7 +18,7 @@ struct WorkflowInfoView: View, Equatable {
     .enableInjection()
   }
 
-  static func == (lhs: WorkflowInfoView, rhs: WorkflowInfoView) -> Bool {
+  static func == (lhs: LegacyWorkflowInfoView, rhs: LegacyWorkflowInfoView) -> Bool {
     lhs.workflow.name == rhs.workflow.name &&
     lhs.workflow.isEnabled == rhs.workflow.isEnabled
   }
@@ -26,6 +26,6 @@ struct WorkflowInfoView: View, Equatable {
 
 struct WorkflowInfoView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowInfoView(workflow: .constant(Workflow(name: "Test")))
+    LegacyWorkflowInfoView(workflow: .constant(Workflow(name: "Test")))
   }
 }

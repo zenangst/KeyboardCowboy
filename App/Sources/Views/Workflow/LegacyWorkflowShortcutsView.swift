@@ -1,7 +1,7 @@
 import Apps
 import SwiftUI
 
-struct WorkflowShortcutsView: View, Equatable {
+struct LegacyWorkflowShortcutsView: View, Equatable {
   @ObserveInjection var inject
   let applicationStore: ApplicationStore
   let recorderStore: KeyShortcutRecorderStore
@@ -78,19 +78,19 @@ struct WorkflowShortcutsView: View, Equatable {
     .buttonStyle(PlainButtonStyle())
   }
 
-  static func == (lhs: WorkflowShortcutsView, rhs: WorkflowShortcutsView) -> Bool {
+  static func == (lhs: LegacyWorkflowShortcutsView, rhs: LegacyWorkflowShortcutsView) -> Bool {
     lhs.workflow.trigger == rhs.workflow.trigger
   }
 }
 
-struct WorkflowShortcutsView_Previews: PreviewProvider {
+struct LegacyWorkflowShortcutsView_Previews: PreviewProvider {
   static let workflow = Workflow.designTime(
     .keyboardShortcuts([
       .init(key: "A", lhs: true, modifiers: [.command])
     ])
   )
   static var previews: some View {
-    WorkflowShortcutsView(
+    LegacyWorkflowShortcutsView(
       ApplicationStore(),
       recorderStore: KeyShortcutRecorderStore(),
       focus: FocusState(),

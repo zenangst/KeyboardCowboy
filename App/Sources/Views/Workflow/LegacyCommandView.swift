@@ -1,7 +1,7 @@
 import Apps
 import SwiftUI
 
-struct CommandView: View, Equatable {
+struct LegacyCommandView: View, Equatable {
   @ObserveInjection var inject
   enum Action {
     case commandAction(CommandActionsView.Action)
@@ -42,7 +42,7 @@ struct CommandView: View, Equatable {
     .enableInjection()
   }
 
-  static func ==(lhs: CommandView, rhs: CommandView) -> Bool {
+  static func ==(lhs: LegacyCommandView, rhs: LegacyCommandView) -> Bool {
     lhs.command == rhs.command
   }
 
@@ -107,7 +107,7 @@ struct CommandView: View, Equatable {
 
 struct CommandView_Previews: PreviewProvider {
   static var previews: some View {
-    CommandView(
+    LegacyCommandView(
       command: .constant(Command.application(.init(application: Application.finder()))),
       responder: Responder(),
       action: { _ in })

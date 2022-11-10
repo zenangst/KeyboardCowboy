@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SidebarView: View {
+struct LegacySidebarView: View {
   enum Sheet: Identifiable {
     case add(WorkflowGroup)
     case edit(WorkflowGroup)
@@ -56,7 +56,7 @@ struct SidebarView: View {
   }
 
   @ViewBuilder
-  private func handleSheet(_ sheet: SidebarView.Sheet) -> some View {
+  private func handleSheet(_ sheet: LegacySidebarView.Sheet) -> some View {
     switch sheet {
     case .add(let group ), .edit(let group):
       EditWorfklowGroupView(applicationStore: appStore, group: group) { action in
@@ -77,9 +77,9 @@ struct SidebarView: View {
   }
 }
 
-struct SidebarView_Previews: PreviewProvider {
+struct LegacySidebarView_Previews: PreviewProvider {
   static var previews: some View {
-    SidebarView(appStore: ApplicationStore(),
+    LegacySidebarView(appStore: ApplicationStore(),
                 configurationStore: ConfigurationStore(),
                 groupStore: groupStore,
                 contentStore: contentStore,

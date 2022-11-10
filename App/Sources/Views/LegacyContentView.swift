@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentView: View, Equatable {
+struct LegacyContentView: View, Equatable {
   enum Action {
     case reveal(Command)
     case run(Command)
@@ -11,7 +11,7 @@ struct ContentView: View, Equatable {
 
   @State var config = DetailToolbarConfig()
   @State var detailViewSheet: WorkflowView.Sheet?
-  @State var sidebarViewSheet: SidebarView.Sheet?
+  @State var sidebarViewSheet: LegacySidebarView.Sheet?
   @State var searchQuery: String
   @State private var groupIds: Set<String>
   @State private var workflowIds: Set<String>
@@ -44,7 +44,7 @@ struct ContentView: View, Equatable {
 
   var body: some View {
     NavigationView {
-      SidebarView(appStore: store.applicationStore,
+      LegacySidebarView(appStore: store.applicationStore,
                   configurationStore: store.configurationStore,
                   focus: _focus,
                   groupStore: store.groupStore,
@@ -79,7 +79,7 @@ struct ContentView: View, Equatable {
           //          .padding()
         } else {
 
-          DetailView(applicationStore: store.applicationStore,
+          LegacyDetailView(applicationStore: store.applicationStore,
                      recorderStore: store.recorderStore,
                      shortcutStore: store.shortcutStore,
                      focus: _focus,
@@ -103,7 +103,7 @@ struct ContentView: View, Equatable {
     .enableInjection()
   }
 
-  static func ==(lhs: ContentView, rhs: ContentView) -> Bool {
+  static func ==(lhs: LegacyContentView, rhs: LegacyContentView) -> Bool {
     return true
   }
 
@@ -152,7 +152,7 @@ struct ContentView: View, Equatable {
     }
   }
 
-  private func handleDetailAction(_ action: DetailView.Action) -> Void {
+  private func handleDetailAction(_ action: LegacyDetailView.Action) -> Void {
     switch action {
     case .workflow(let detailAction):
       switch detailAction {
@@ -176,12 +176,12 @@ struct ContentView: View, Equatable {
   }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct LegacyContentView_Previews: PreviewProvider {
   struct FocusWrapper: View {
     @FocusState var focus: Focus?
 
     var body: some View {
-      ContentView(.init(.designTime(), scriptEngine: .init(workspace: .shared), workspace: .shared),
+      LegacyContentView(.init(.designTime(), scriptEngine: .init(workspace: .shared), workspace: .shared),
                   selectedGroups: .constant([]),
                   selectedWorkflows: .constant([]),
                   focus: _focus) { _ in }
