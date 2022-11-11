@@ -23,7 +23,7 @@ enum MoveState<Element: Identifiable> {
 
   func scaleFactor(for element: Element) -> Double { isDraggingElement(element) ? 1.025 : 1 }
 
-  func zIndex(for element: Element) -> Double { isDraggingElement(element) ? 2 : 0 }
+  func zIndex(for element: Element) -> Double { isDraggingElement(element) ? 1 : 0 }
 
   func offset(for element: Element) -> CGSize {
     if case .dragging(_, let translation) = self,

@@ -39,7 +39,9 @@ final class ContentStore: ObservableObject {
     self.storage = Storage(preferences.storageConfiguration)
     self.searchStore = SearchStore(store: groupStore, results: [])
 
-    if preferences.hideAppOnLaunch { NSApplication.shared.hide(self) }
+    if KeyboardCowboy.env == .production {
+      if preferences.hideAppOnLaunch { NSApplication.shared.hide(self) }
+    }
 
     Task {
       shortcutStore.index()

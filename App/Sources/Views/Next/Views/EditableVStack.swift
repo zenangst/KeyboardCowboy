@@ -27,7 +27,7 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   private let cornerRadius: Double
 
   @GestureState private var dragState = MoveState<Data.Element>.inactive
-  @State private var height: CGFloat = 0
+  @State private var height: Double = 0
   @State private var draggedElement: Data.Element?
   @State private var dropIndex: DropIndex?
   @State private var selections = Set<Data.Element>()
@@ -46,57 +46,60 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
     ForEach($data, id: id) { element in
       let isDragging = draggedElement?.id == element.id
       ZStack {
-        GeometryReader { proxy in
-          draggableView(element, proxy: proxy)
-            .opacity(isDragging ? 0.7 : 0.0)
-        }
-
         ElementView(cornerRadius: cornerRadius,
-                    onKeyDown: { value, modifier in
-          switch value {
-          case kVK_Escape:
-            selections = []
-            focus = nil
-          case kVK_DownArrow, kVK_RightArrow:
-            break
-          case kVK_UpArrow, kVK_LeftArrow:
-            break
-          default:
-            break
-          }
-        }) {
-          content(element)
-        }
-        .overlay(overlayView(element))
-        .opacity(isDragging ? 0.0 : 1.0)
-        .simultaneousGesture(
-          DragGesture()
-            .updating($dragState) { value, state, transaction in
-              state = .dragging(draggedElement: element.wrappedValue,
-                                translation: value.translation)
-            }
-            .onChanged { value in
-              onDragChange(element: element, value: value)
-            }
-            .onEnded { value in
-              withAnimation(.interactiveSpring()) {
-                draggedElement = nil
-                dropIndex = nil
+                    onKeyDown: onKeyDown(_:modifiers:)) { content(element) }
+          .overlay(ZStack {
+            dropIndexView(element)
+            overlayView(element)
+          })
+          .opacity(isDragging ? 0.0 : 1.0)
+          .simultaneousGesture(
+            DragGesture()
+              .updating($dragState) { value, state, transaction in
+                state = .dragging(draggedElement: element.wrappedValue,
+                                  translation: value.translation)
               }
-            }
-        )
-        .gesture(TapGesture().modifiers(.command)
-          .onEnded({ _ in onTapWithCommandModifier(element.wrappedValue) })
-        )
-        .gesture(TapGesture().modifiers(.shift)
-          .onEnded({ _ in onTapWithShiftModifier(element.wrappedValue) })
-        )
-        .gesture(TapGesture().onEnded { _ in onTap(element.wrappedValue) })
-        .focused($focus, equals: .focused(element.wrappedValue))
+              .onChanged { value in
+                onDragChange(element: element, value: value)
+              }
+              .onEnded { value in
+                withAnimation(.interactiveSpring()) {
+                  draggedElement = nil
+                  dropIndex = nil
+                }
+              }
+          )
+          .gesture(TapGesture().modifiers(.command)
+            .onEnded({ _ in onTapWithCommandModifier(element.wrappedValue) })
+          )
+          .gesture(TapGesture().modifiers(.shift)
+            .onEnded({ _ in onTapWithShiftModifier(element.wrappedValue) })
+          )
+          .gesture(TapGesture().onEnded { _ in onTap(element.wrappedValue) })
+          .focused($focus, equals: .focused(element.wrappedValue))
+
+        DraggableView(element: element.wrappedValue,
+                      state: dragState, isDragging: Binding<Bool>(get: { isDragging }, set: { _ in }),
+                      height: $height,
+                      content: { content(element) })
       }
-      dropIndexView(element)
+      .zIndex(isDragging ? 2: 0)
     }
     .enableInjection()
+  }
+
+  private func onKeyDown(_ keyCode: Int, modifiers: NSEvent.ModifierFlags) {
+    switch keyCode {
+    case kVK_Escape:
+      selections = []
+      focus = nil
+    case kVK_DownArrow, kVK_RightArrow:
+      break
+    case kVK_UpArrow, kVK_LeftArrow:
+      break
+    default:
+      break
+    }
   }
 
   private func onTap(_ element: Data.Element) {
@@ -143,7 +146,6 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
           }
         }
       }
-
     }
 
     focus = .focused(element)
@@ -161,12 +163,14 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
     VStack {
       switch dropIndex {
       case .up(let identifier):
-        RoundedRectangle(cornerRadius: 1)
+        RoundedRectangle(cornerRadius: 2)
           .fill(Color.accentColor)
           .frame(height: 2)
           .opacity(identifier == element.id ? 1.0 : 0.0)
+        Spacer()
       case .down(let identifier):
-        RoundedRectangle(cornerRadius: 1)
+        Spacer()
+        RoundedRectangle(cornerRadius: 2)
           .fill(Color.accentColor)
           .frame(height: 2)
           .opacity(identifier == element.id ? 1.0 : 0.0)
@@ -194,18 +198,6 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
     } else {
       dropIndex = .none
     }
-  }
-
-  private func draggableView(_ element: Binding<Data.Element>,
-                     proxy: GeometryProxy) -> some View {
-    content(element)
-      .contentShape(.dragPreview, Circle(), eoFill: true)
-      .offset(withAnimation { dragState.offset(for: element.wrappedValue) })
-      .scaleEffect(withAnimation { dragState.scaleFactor(for: element.wrappedValue) })
-      .zIndex(withAnimation { dragState.zIndex(for: element.wrappedValue) } )
-      .onAppear {
-        height = proxy.size.height
-      }
   }
 
   private func calculateNewIndex(_ value: GestureStateGesture<DragGesture, MoveState<Data.Element>>.Value,
@@ -239,6 +231,44 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   }
 }
 
+struct DraggableView<Content, Element>: View where Content: View,
+                                                   Element: Identifiable,
+                                                   Element: Hashable{
+  @Binding var height: Double
+  @Binding var isDragging: Bool
+
+  private let element: Element
+  private let state: MoveState<Element>
+  private let content: () -> Content
+
+  init(element: Element,
+       state: MoveState<Element>,
+       isDragging: Binding<Bool>,
+       height: Binding<Double>,
+       content: @escaping () -> Content) {
+    _height = height
+    _isDragging = isDragging
+    self.content = content
+    self.state = state
+    self.element = element
+  }
+
+  var body: some View {
+    GeometryReader { proxy in
+      content()
+        .contentShape(.dragPreview, Circle(), eoFill: true)
+        .offset(withAnimation { state.offset(for: element) })
+        .scaleEffect(withAnimation { state.scaleFactor(for: element) })
+        .zIndex(withAnimation { state.zIndex(for: element) } )
+        .onAppear {
+          height = proxy.size.height
+        }
+    }
+    .opacity(isDragging ? 0.7 : 0.0)
+    .animation(.interactiveSpring(), value: isDragging)
+  }
+}
+
 struct ElementView<Content>: View where Content: View {
   @State var isFocused: Bool = false
 
@@ -258,7 +288,7 @@ struct ElementView<Content>: View where Content: View {
     FocusableView($isFocused, onKeyDown: onKeyDown, content: content)
       .background(
         RoundedRectangle(cornerRadius: cornerRadius)
-          .stroke(Color.accentColor, lineWidth: 3)
+          .stroke(Color.accentColor, lineWidth: 2)
           .opacity( isFocused  ? 0.3 : 0.0 )
       )
   }

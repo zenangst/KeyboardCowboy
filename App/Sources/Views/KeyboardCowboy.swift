@@ -26,7 +26,7 @@ struct KeyboardCowboy: App {
   @ObservedObject private var groupStore: GroupStore
   private let scriptEngine: ScriptEngine
   private let engine: KeyboardCowboyEngine
-  private let env: AppEnvironment = .production
+  static let env: AppEnvironment = .development
 
   private var workflowSubscription: AnyCancellable?
   private var open: Bool = true
@@ -61,7 +61,7 @@ struct KeyboardCowboy: App {
 
   var body: some Scene {
     WindowGroup {
-      switch env {
+      switch Self.env {
       case .development:
         ContainerView { action in
           switch action {

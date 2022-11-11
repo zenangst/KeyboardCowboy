@@ -101,6 +101,7 @@ final class KeyboardCowboyEngine {
   }
 
   private func reload(with application: NSRunningApplication) {
+    guard KeyboardCowboy.env == .production else { return }
     guard contentStore.preferences.hideFromDock else { return }
     let newPolicy: NSApplication.ActivationPolicy
     if application.bundleIdentifier == bundleIdentifier {
