@@ -28,9 +28,10 @@ final class DetailCoordinator {
         }
       case .applicationTrigger(let action):
         switch action {
-        case .remove(let trigger):
+        case .addApplicationTrigger(let application):
+          Swift.print("Add application trigger: \(application)")
+        case .removeApplicationTrigger(let trigger):
           Swift.print("Remove trigger: \(trigger)")
-          break
         }
       }
     }

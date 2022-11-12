@@ -75,6 +75,7 @@ struct KeyboardCowboy: App {
           }
         }
           .environmentObject(DesignTime.configurationPublisher)
+          .environmentObject(contentStore.applicationStore)
           .environmentObject(sidebarCoordinator.publisher)
           .environmentObject(contentCoordinator.publisher)
           .environmentObject(detailCoordinator.publisher)

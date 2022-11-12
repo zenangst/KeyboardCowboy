@@ -1,4 +1,5 @@
 import SwiftUI
+import Apps
 
 struct SingleDetailView: View {
   enum Action {
@@ -48,7 +49,7 @@ struct SingleDetailView: View {
       VStack(alignment: .leading, spacing: 0) {
         Label("Commands:", image: "")
           .padding([.leading, .trailing, .bottom], 8)
-        EditableVStack(data: $model.commands, id: \.id, cornerRadius: 8) { command in
+        EditableVStack($model.commands, id: \.id, cornerRadius: 8) { command in
           CommandView(command)
         }
         .padding(.bottom, 2)
@@ -75,13 +76,15 @@ struct SingleDetailView: View {
 
 struct WorkflowApplicationTriggerView: View {
   enum Action {
-    case remove(DetailViewModel.ApplicationTrigger)
+    case addApplicationTrigger(Application)
+    case removeApplicationTrigger(DetailViewModel.ApplicationTrigger)
   }
 
   @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
 
   @State private var triggers: [DetailViewModel.ApplicationTrigger]
+  @State private var selection: String = UUID().uuidString
   private let onAction: (Action) -> Void
 
   init(_ triggers: [DetailViewModel.ApplicationTrigger], onAction: @escaping (Action) -> Void) {
@@ -91,7 +94,21 @@ struct WorkflowApplicationTriggerView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      ForEach($triggers) { trigger in
+      HStack {
+        Picker("Application:", selection: $selection) {
+          ForEach(applicationStore.applications, id: \.id) {
+            Text($0.displayName)
+              .tag($0.id)
+          }
+        }
+
+        Button("Add", action: {
+          if let application = applicationStore.application(for: selection) {
+            onAction(.addApplicationTrigger(application))
+          }
+        })
+      }
+      EditableVStack($triggers, id: \.id, cornerRadius: 8) { trigger in 
         HStack {
           Image(nsImage: trigger.image.wrappedValue)
             .resizable()
@@ -115,7 +132,7 @@ struct WorkflowApplicationTriggerView: View {
             }
           }
           Spacer()
-          Button(action: { onAction(.remove(trigger.wrappedValue)) },
+          Button(action: { onAction(.removeApplicationTrigger(trigger.wrappedValue)) },
                  label: { Image(systemName: "xmark.circle") })
           .buttonStyle(PlainButtonStyle())
           .padding()

@@ -34,7 +34,7 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   @State private var dropIndex: DropIndex?
   @State private var selections = Set<Data.Element>()
 
-  init(data: Binding<Data>,
+  init(_ data: Binding<Data>,
        id: KeyPath<Data.Element, ID>,
        cornerRadius: Double,
        content: @escaping (Binding<Data.Element>) -> Content) {
