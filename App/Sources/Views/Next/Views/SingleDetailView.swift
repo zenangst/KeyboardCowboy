@@ -49,7 +49,7 @@ struct SingleDetailView: View {
       VStack(alignment: .leading, spacing: 0) {
         Label("Commands:", image: "")
           .padding([.leading, .trailing, .bottom], 8)
-        EditableVStack($model.commands, id: \.id, cornerRadius: 8) { command in
+        EditableStack($model.commands, spacing: 1) { command in
           CommandView(command)
         }
         .padding(.bottom, 2)
@@ -108,7 +108,7 @@ struct WorkflowApplicationTriggerView: View {
           }
         })
       }
-      EditableVStack($triggers, id: \.id, cornerRadius: 8) { trigger in 
+      EditableStack($triggers) { trigger in 
         HStack {
           Image(nsImage: trigger.image.wrappedValue)
             .resizable()

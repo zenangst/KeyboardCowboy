@@ -1,14 +1,13 @@
 import Carbon
 import SwiftUI
 
-struct EditableVStack<Data, ID, Content>: View where Content: View,
+struct EditableStack<Data, Content>: View where Content: View,
                                                      Data: RandomAccessCollection,
                                                      Data: MutableCollection,
                                                      Data.Element: Identifiable,
                                                      Data.Element: Hashable,
                                                      Data.Index: Hashable,
                                                      Data.Index == Int,
-                                                     ID: Hashable,
                                                      Data.Element.ID: CustomStringConvertible {
   enum Focus: Hashable {
     case focused(Data.Element)
@@ -24,9 +23,11 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   @Binding private(set) var data: Data
   @FocusState var focus: Focus?
 
-  private let id: KeyPath<Data.Element, ID>
+  private let id: KeyPath<Data.Element, Data.Element.ID>
   private let content: (Binding<Data.Element>) -> Content
   private let cornerRadius: Double
+  private let spacing: CGFloat?
+  private let axes: Axis.Set
 
   @GestureState private var dragState = MoveState<Data.Element>.inactive
   @State private var height: Double = 0
@@ -35,62 +36,68 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   @State private var selections = Set<Data.Element>()
 
   init(_ data: Binding<Data>,
-       id: KeyPath<Data.Element, ID>,
-       cornerRadius: Double,
+       axes: Axis.Set = .vertical,
+       spacing: CGFloat? = nil,
+       id: KeyPath<Data.Element, Data.Element.ID> = \.id,
+       cornerRadius: Double = 8,
        content: @escaping (Binding<Data.Element>) -> Content) {
     _data = data
     self.id = id
+    self.axes = axes
     self.content = content
     self.cornerRadius = cornerRadius
+    self.spacing = spacing
   }
 
   var body: some View {
-    ForEach($data, id: id) { element in
-      let isDragging = draggedElement?.id == element.id
-      ZStack {
-        ElementView(id: element.id,
-                    cornerRadius: cornerRadius,
-                    onKeyDown: onKeyDown(_:modifiers:)) { content(element) }
-          .overlay(ZStack {
-            dropIndexView(element)
-            overlayView(element)
-          })
-          .opacity(isDragging ? 0.0 : 1.0)
-          .simultaneousGesture(
-            DragGesture()
-              .updating($dragState) { value, state, transaction in
-                state = .dragging(draggedElement: element.wrappedValue,
-                                  translation: value.translation)
-              }
-              .onChanged { value in
-                onDragChange(element: element, value: value)
-              }
-              .onEnded { value in
-                withAnimation(.interactiveSpring()) {
-                  draggedElement = nil
-                  dropIndex = nil
-                }
-              }
-          )
-          .gesture(TapGesture().modifiers(.command)
-            .onEnded({ _ in onTapWithCommandModifier(element.wrappedValue) })
-          )
-          .gesture(TapGesture().modifiers(.shift)
-            .onEnded({ _ in
-              focus = .focused(element.wrappedValue)
-              onTapWithShiftModifier(element.wrappedValue)
+    AxesView(axes, spacing: spacing) {
+      ForEach($data, id: id) { element in
+        let isDragging = draggedElement?.id == element.id
+        ZStack {
+          ElementView(id: element.id,
+                      cornerRadius: cornerRadius,
+                      onKeyDown: onKeyDown(_:modifiers:)) { content(element) }
+            .overlay(ZStack {
+              dropIndexView(element)
+              overlayView(element)
             })
-          )
-          .gesture(TapGesture().onEnded { _ in onTap(element.wrappedValue) })
-          .focused($focus, equals: .focused(element.wrappedValue))
+            .opacity(isDragging ? 0.0 : 1.0)
+            .simultaneousGesture(
+              DragGesture()
+                .updating($dragState) { value, state, transaction in
+                  state = .dragging(draggedElement: element.wrappedValue,
+                                    translation: value.translation)
+                }
+                .onChanged { value in
+                  onDragChange(element: element, value: value)
+                }
+                .onEnded { value in
+                  withAnimation(.interactiveSpring()) {
+                    draggedElement = nil
+                    dropIndex = nil
+                  }
+                }
+            )
+            .gesture(TapGesture().modifiers(.command)
+              .onEnded({ _ in onTapWithCommandModifier(element.wrappedValue) })
+            )
+            .gesture(TapGesture().modifiers(.shift)
+              .onEnded({ _ in
+                focus = .focused(element.wrappedValue)
+                onTapWithShiftModifier(element.wrappedValue)
+              })
+            )
+            .gesture(TapGesture().onEnded { _ in onTap(element.wrappedValue) })
+            .focused($focus, equals: .focused(element.wrappedValue))
 
-        DraggableView(element: element.wrappedValue,
-                      state: dragState,
-                      isDragging: Binding<Bool>(get: { isDragging }, set: { _ in }),
-                      height: $height,
-                      content: { content(element) })
+          DraggableView(element: element.wrappedValue,
+                        state: dragState,
+                        isDragging: Binding<Bool>(get: { isDragging }, set: { _ in }),
+                        height: $height,
+                        content: { content(element) })
+        }
+        .zIndex(isDragging ? 2: 0)
       }
-      .zIndex(isDragging ? 2: 0)
     }
     .enableInjection()
   }
@@ -183,25 +190,63 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   }
 
   private func dropIndexView(_ element: Binding<Data.Element>) -> some View {
-    VStack {
-      switch dropIndex {
-      case .up(let identifier):
-        RoundedRectangle(cornerRadius: 2)
-          .fill(Color.accentColor)
-          .frame(height: 2)
-          .opacity(identifier == element.id ? 1.0 : 0.0)
-        Spacer()
-      case .down(let identifier):
-        Spacer()
-        RoundedRectangle(cornerRadius: 2)
-          .fill(Color.accentColor)
-          .frame(height: 2)
-          .opacity(identifier == element.id ? 1.0 : 0.0)
-      case .none:
-        Spacer()
-          .frame(height: 2)
+    AxesView(axes) {
+      switch axes {
+      case .horizontal:
+        switch dropIndex {
+        case .up(let identifier):
+          RoundedRectangle(cornerRadius: 2)
+            .fill(Color.accentColor)
+            .frame(width: 2)
+            .opacity(identifier == element.id ? 1.0 : 0.0)
+          Spacer()
+        case .down(let identifier):
+          Spacer()
+          RoundedRectangle(cornerRadius: 2)
+            .fill(Color.accentColor)
+            .frame(width: 2)
+            .opacity(identifier == element.id ? 1.0 : 0.0)
+        case .none:
+          Spacer()
+            .frame(width: 2)
+        }
+      case .vertical:
+        switch dropIndex {
+        case .up(let identifier):
+          RoundedRectangle(cornerRadius: 2)
+            .fill(Color.accentColor)
+            .frame(height: 2)
+            .opacity(identifier == element.id ? 1.0 : 0.0)
+          Spacer()
+        case .down(let identifier):
+          Spacer()
+          RoundedRectangle(cornerRadius: 2)
+            .fill(Color.accentColor)
+            .frame(height: 2)
+            .opacity(identifier == element.id ? 1.0 : 0.0)
+        case .none:
+          Spacer()
+            .frame(height: 2)
+        }
+      default:
+        switch dropIndex {
+        case .up(let identifier):
+          RoundedRectangle(cornerRadius: 2)
+            .fill(Color.accentColor)
+            .frame(height: 2)
+            .opacity(identifier == element.id ? 1.0 : 0.0)
+          Spacer()
+        case .down(let identifier):
+          Spacer()
+          RoundedRectangle(cornerRadius: 2)
+            .fill(Color.accentColor)
+            .frame(height: 2)
+            .opacity(identifier == element.id ? 1.0 : 0.0)
+        case .none:
+          Spacer()
+            .frame(height: 2)
+        }
       }
-
     }
     .zIndex(withAnimation { dragState.zIndex(for: element.wrappedValue) })
   }
@@ -251,6 +296,33 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
     }
 
     return newIndex
+  }
+}
+
+
+private struct AxesView<Content>: View where Content: View {
+  private let axes: Axis.Set
+  private let spacing: CGFloat?
+  @ViewBuilder
+  private let content: () -> Content
+
+  internal init(_ axes: Axis.Set,
+                spacing: CGFloat? = nil,
+                @ViewBuilder content: @escaping () -> Content) {
+    self.axes = axes
+    self.spacing = spacing
+    self.content = content
+  }
+
+  var body: some View {
+    switch axes {
+    case .vertical:
+      VStack(spacing: spacing, content: content)
+    case .horizontal:
+      HStack(spacing: spacing, content: content)
+    default:
+      VStack(spacing: spacing, content: content)
+    }
   }
 }
 
