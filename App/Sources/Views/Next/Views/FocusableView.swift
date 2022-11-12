@@ -5,13 +5,16 @@ struct FocusableView<Content>: View where Content: View {
   @ObserveInjection var inject
   @Binding var isFocused: Bool
 
+  private let id: CustomStringConvertible
   private var content: () -> Content
   private var onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
 
-  init(_ isFocused: Binding<Bool>,
+  init(id: CustomStringConvertible,
+       isFocused: Binding<Bool>,
        onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void,
        content: @escaping () -> Content) {
     _isFocused = isFocused
+    self.id = id
     self.content = content
     self.onKeyDown = onKeyDown
   }
@@ -21,6 +24,7 @@ struct FocusableView<Content>: View where Content: View {
       content()
         .background(
           FocusableProxy(
+            id: id,
             onFocusChange: { isFocused = $0 },
             onKeyDown: onKeyDown)
         )
@@ -31,34 +35,47 @@ struct FocusableView<Content>: View where Content: View {
 private struct FocusableProxy: NSViewRepresentable {
   typealias NSViewType = FocusableNSView
 
-  var onFocusChange: (Bool) -> Void
-  var onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
+  private let id: CustomStringConvertible
+  private let onFocusChange: (Bool) -> Void
+  private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
 
-  init(onFocusChange: @escaping (Bool) -> Void,
+  init(id: CustomStringConvertible,
+       onFocusChange: @escaping (Bool) -> Void,
        onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
+    self.id = id
     self.onFocusChange = onFocusChange
     self.onKeyDown = onKeyDown
   }
 
   func makeNSView(context: Context) -> FocusableNSView {
-    FocusableNSView(onFocusChange: onFocusChange,
-                    onKeyDown: onKeyDown)
+    FocusableNSView(id: id, onFocusChange: onFocusChange, onKeyDown: onKeyDown)
   }
 
   func updateNSView(_ nsView: FocusableNSView, context: Context) { }
 }
 
-private class FocusableNSView: NSView {
+class FocusableNSView: NSView {
+  static func becomeFirstResponderNotification(_ id: CustomStringConvertible) -> Notification.Name {
+    Notification.Name("FocusableNSView[\(id)].becomeFirstResponder")
+  }
+
   override var canBecomeKeyView: Bool { true }
   override var acceptsFirstResponder: Bool { true }
-  var onFocusChange: (Bool) -> Void
-  var onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
+  private let id: CustomStringConvertible
+  private let onFocusChange: (Bool) -> Void
+  private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
 
-  init(onFocusChange: @escaping (Bool) -> Void,
+  init(id: CustomStringConvertible,
+       onFocusChange: @escaping (Bool) -> Void,
        onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
+    self.id = id
     self.onFocusChange = onFocusChange
     self.onKeyDown = onKeyDown
     super.init(frame: .zero)
+
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(becomeFirstResponder),
+                                           name: Self.becomeFirstResponderNotification(id), object: nil)
   }
 
   required init?(coder: NSCoder) {

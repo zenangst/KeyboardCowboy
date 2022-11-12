@@ -25,17 +25,20 @@ final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Ha
   }
 
   @MainActor
-  func setSelections(_ newSelections: [ViewModel]) {
-    self.selections = Set(newSelections)
-  }
-
-  @MainActor
-  func publish(_ newModels: [ViewModel], withAnimation animation: Animation? = nil) {
+  func publish(_ newModels: [ViewModel],
+               selections newSelections: [ViewModel]? = nil,
+               withAnimation animation: Animation? = nil) {
     if let animation {
       withAnimation(animation) {
+        if let newSelections {
+          self.selections = Set(newSelections)
+        }
         self.models = newModels
       }
     } else {
+      if let newSelections {
+        self.selections = Set(newSelections)
+      }
       self.models = newModels
     }
   }

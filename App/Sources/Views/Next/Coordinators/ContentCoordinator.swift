@@ -12,20 +12,27 @@ final class ContentCoordinator {
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .onSelect(let groups):
-      Task { await render(groups) }
+      Task { await render(groups, setSelection: true) }
     }
   }
 
-  private func render(_ groups: [GroupViewModel]) async {
+  private func render(_ groups: [GroupViewModel], setSelection: Bool) async {
     let ids = groups.map { $0.id }
     let viewModels = store.groups
       .filter { ids.contains($0.id) }
       .flatMap { $0.workflows.asViewModels() }
 
-    await publisher.publish(viewModels)
+    let animation: Animation? = nil
 
-    if let first = viewModels.first {
-      await publisher.setSelections([first])
+    var newSelections: [ContentViewModel]? = nil
+    if setSelection, let first = viewModels.first {
+      newSelections = [first]
+    }
+
+    if publisher.models.isEmpty {
+      await publisher.publish(viewModels, selections: newSelections)
+    } else {
+      await publisher.publish(viewModels, selections: newSelections, withAnimation: animation)
     }
   }
 }
@@ -36,7 +43,8 @@ private extension Workflow {
       id: id,
       name: name,
       images: commands.images(),
-      binding: trigger?.binding)
+      binding: trigger?.binding,
+      badge: commands.count > 1 ? commands.count : 0)
   }
 }
 
@@ -72,6 +80,8 @@ private extension Array where Element == Command {
         let nsImage: NSImage
         if let application = command.application, command.isUrl {
           nsImage = NSWorkspace.shared.icon(forFile: application.path)
+        } else if command.isUrl {
+          nsImage = NSWorkspace.shared.icon(forFile: "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app")
         } else {
           nsImage = NSWorkspace.shared.icon(forFile: command.path)
         }

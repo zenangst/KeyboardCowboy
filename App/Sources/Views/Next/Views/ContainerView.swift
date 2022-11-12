@@ -4,6 +4,7 @@ struct ContainerView: View {
   enum Action {
     case sidebar(SidebarView.Action)
     case content(ContentView.Action)
+    case detail(DetailView.Action)
   }
   @Namespace var focusNamespace
   @ObserveInjection var inject
@@ -29,9 +30,11 @@ struct ContainerView: View {
           .frame(minWidth: 270)
       },
       detail: {
-        DetailView()
+        DetailView(onAction: { onAction(.detail($0)) })
+          .frame(minWidth: 270)
       })
     .focusScope(focusNamespace)
+    .frame(minWidth: 880, minHeight: 400)
     .enableInjection()
   }
 }

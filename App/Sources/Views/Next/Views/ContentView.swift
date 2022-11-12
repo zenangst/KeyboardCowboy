@@ -36,6 +36,7 @@ struct ContentView: View {
               .font(.caption)
           }
         }
+        .badge(workflow.badge)
         .tag(workflow)
       }
     }

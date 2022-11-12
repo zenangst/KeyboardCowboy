@@ -70,6 +70,8 @@ struct KeyboardCowboy: App {
             contentCoordinator.handle(sidebarAction)
           case .content(let contentAction):
             detailCoordinator.handle(contentAction)
+          case .detail(let detailAction):
+            detailCoordinator.handle(detailAction)
           }
         }
           .environmentObject(DesignTime.configurationPublisher)

@@ -7,7 +7,9 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
                                                      Data.Element: Identifiable,
                                                      Data.Element: Hashable,
                                                      Data.Index: Hashable,
-                                                     ID: Hashable {
+                                                     Data.Index == Int,
+                                                     ID: Hashable,
+                                                     Data.Element.ID: CustomStringConvertible {
   enum Focus: Hashable {
     case focused(Data.Element)
   }
@@ -17,7 +19,7 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
     case down(Data.Element.ID)
   }
 
-
+  @Environment(\.isFocused) var isFocused
   @ObserveInjection var inject
   @Binding private(set) var data: Data
   @FocusState var focus: Focus?
@@ -46,7 +48,8 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
     ForEach($data, id: id) { element in
       let isDragging = draggedElement?.id == element.id
       ZStack {
-        ElementView(cornerRadius: cornerRadius,
+        ElementView(id: element.id,
+                    cornerRadius: cornerRadius,
                     onKeyDown: onKeyDown(_:modifiers:)) { content(element) }
           .overlay(ZStack {
             dropIndexView(element)
@@ -73,13 +76,17 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
             .onEnded({ _ in onTapWithCommandModifier(element.wrappedValue) })
           )
           .gesture(TapGesture().modifiers(.shift)
-            .onEnded({ _ in onTapWithShiftModifier(element.wrappedValue) })
+            .onEnded({ _ in
+              focus = .focused(element.wrappedValue)
+              onTapWithShiftModifier(element.wrappedValue)
+            })
           )
           .gesture(TapGesture().onEnded { _ in onTap(element.wrappedValue) })
           .focused($focus, equals: .focused(element.wrappedValue))
 
         DraggableView(element: element.wrappedValue,
-                      state: dragState, isDragging: Binding<Bool>(get: { isDragging }, set: { _ in }),
+                      state: dragState,
+                      isDragging: Binding<Bool>(get: { isDragging }, set: { _ in }),
                       height: $height,
                       content: { content(element) })
       }
@@ -89,13 +96,29 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   }
 
   private func onKeyDown(_ keyCode: Int, modifiers: NSEvent.ModifierFlags) {
+    guard case .focused(let currentElement) = focus,
+          let index = data.firstIndex(of: currentElement) else { return }
     switch keyCode {
     case kVK_Escape:
       selections = []
       focus = nil
     case kVK_DownArrow, kVK_RightArrow:
-      break
+      let newIndex = index + 1
+      if newIndex < data.count {
+        let newElement = data[newIndex]
+        let notification = FocusableNSView.becomeFirstResponderNotification(newElement.id)
+        NotificationCenter.default.post(name: notification, object: nil)
+        focus = .focused(newElement)
+      }
     case kVK_UpArrow, kVK_LeftArrow:
+      let newIndex = index - 1
+      if newIndex >= 0 {
+        let newElement = data[newIndex]
+        let notification = FocusableNSView.becomeFirstResponderNotification(newElement.id)
+        NotificationCenter.default.post(name: notification, object: nil)
+        focus = .focused(newElement)
+      }
+    case kVK_Return:
       break
     default:
       break
@@ -154,7 +177,7 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
   private func overlayView(_ element: Binding<Data.Element>) -> some View {
     ZStack {
       Color.accentColor
-        .opacity(selections.contains(element.wrappedValue) ? 0.1 : 0.0)
+        .opacity(selections.contains(element.wrappedValue) ? 0.2 : 0.0)
         .cornerRadius(cornerRadius)
     }
   }
@@ -187,14 +210,14 @@ struct EditableVStack<Data, ID, Content>: View where Content: View,
                             value: GestureStateGesture<DragGesture, MoveState<Data.Element>>.Value) {
     draggedElement = element.wrappedValue
 
-    guard let currentIndex = data.firstIndex(where: { $0.id == element.id }) as? Int else { return }
+    guard let currentIndex = data.firstIndex(where: { $0.id == element.id }) else { return }
 
     let newIndex = calculateNewIndex(value, currentIndex: currentIndex)
     if newIndex > currentIndex {
       let constrained = max(newIndex - 1, 0)
-      dropIndex = .down(data[constrained as! Data.Index].id)
+      dropIndex = .down(data[constrained].id)
     } else if newIndex < currentIndex {
-      dropIndex = .up(data[newIndex as! Data.Index].id)
+      dropIndex = .up(data[newIndex].id)
     } else {
       dropIndex = .none
     }
@@ -272,20 +295,23 @@ struct DraggableView<Content, Element>: View where Content: View,
 struct ElementView<Content>: View where Content: View {
   @State var isFocused: Bool = false
 
+  private let id: CustomStringConvertible
   private let content: () -> Content
   private let cornerRadius: Double
   private var onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
 
-  init(cornerRadius: Double,
+  init(id: CustomStringConvertible,
+       cornerRadius: Double,
        onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void,
        content: @escaping () -> Content) {
+    self.id = id
     self.content = content
     self.onKeyDown = onKeyDown
     self.cornerRadius = cornerRadius
   }
 
   var body: some View {
-    FocusableView($isFocused, onKeyDown: onKeyDown, content: content)
+    FocusableView(id: id, isFocused: $isFocused, onKeyDown: onKeyDown, content: content)
       .background(
         RoundedRectangle(cornerRadius: cornerRadius)
           .stroke(Color.accentColor, lineWidth: 2)

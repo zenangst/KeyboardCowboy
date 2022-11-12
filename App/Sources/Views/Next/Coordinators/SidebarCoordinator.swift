@@ -29,11 +29,13 @@ final class SidebarCoordinator {
       let viewModels = groups.map { group in
         group.asViewModel(group.rule?.image(using: applicationStore))
       }
-      await publisher.publish(viewModels)
 
+      var newSelections: [GroupViewModel]? = nil
       if let first = viewModels.first {
-        await publisher.setSelections([first])
+        newSelections = [first]
       }
+
+      await publisher.publish(viewModels, selections: newSelections)
     }
   }
 }

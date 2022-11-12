@@ -15,6 +15,27 @@ final class DetailCoordinator {
     }
   }
 
+  func handle(_ action: DetailView.Action) {
+    switch action {
+    case .singleDetailView(let action):
+      switch action {
+      case .trigger(let action):
+        switch action {
+        case .addKeyboardShortcut:
+          Swift.print("Add keyboard shortcut")
+        case .addApplication:
+          Swift.print("Add application trigger")
+        }
+      case .applicationTrigger(let action):
+        switch action {
+        case .remove(let trigger):
+          Swift.print("Remove trigger: \(trigger)")
+          break
+        }
+      }
+    }
+  }
+
   private func render(_ content: [ContentViewModel]) async {
     let ids = content.map(\.id)
     let workflows = store.groups
@@ -25,10 +46,10 @@ final class DetailCoordinator {
     for workflow in workflows {
       let commands = workflow.commands
         .map { command in
-          DetailViewModel.CommandViewModel(
+          return DetailViewModel.CommandViewModel(
             id: command.id,
             name: command.name,
-            image: nil,
+            image: command.nsImage,
             isEnabled: command.isEnabled
           )
         }
@@ -55,16 +76,65 @@ final class DetailCoordinator {
   }
 }
 
+private extension Command {
+  var nsImage: NSImage? {
+    switch self {
+    case .application(let command):
+      return NSWorkspace.shared.icon(forFile: command.application.path)
+    case .builtIn:
+      return nil
+    case .keyboard:
+      return nil
+    case .open(let command):
+      let nsImage: NSImage
+      if let application = command.application, command.isUrl {
+        nsImage = NSWorkspace.shared.icon(forFile: application.path)
+      } else if command.isUrl {
+        nsImage = NSWorkspace.shared.icon(forFile: "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app")
+      } else {
+        nsImage = NSWorkspace.shared.icon(forFile: command.path)
+      }
+      return nsImage
+    case .script:
+      return nil
+    case .shortcut:
+      return nil
+    case .type:
+      return nil
+    }
+  }
+}
+
 extension Workflow.Trigger {
   func asViewModel() -> DetailViewModel.Trigger {
     switch self {
-    case .application:
-      return .applications("foo")
+    case .application(let triggers):
+      return .applications(
+        triggers.map { trigger in
+          DetailViewModel.ApplicationTrigger(id: trigger.id,
+                                             name: trigger.application.displayName,
+                                             image: NSWorkspace.shared.icon(forFile: trigger.application.path),
+                                             contexts: trigger.contexts.map {
+            switch $0 {
+            case .closed:
+              return .closed
+            case .frontMost:
+              return .frontMost
+            case .launched:
+              return .launched
+            }
+          })
+        }
+      )
     case .keyboardShortcuts(let shortcuts):
-      let value = shortcuts.map {
-        $0.modifersDisplayValue
+      let values = shortcuts.map {
+        let modifier: ModifierKey
+        return DetailViewModel.KeyboardShortcut(id: $0.id, displayValue: $0.key, modifier: .shift)
       }
-      return .keyboardShortcuts(value)
+      return .keyboardShortcuts(values)
     }
   }
+}
+
+extension DetailViewModel.ApplicationTrigger {
 }
