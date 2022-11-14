@@ -24,10 +24,10 @@ struct SingleDetailView: View {
 
         Group {
           switch model.trigger {
-          case .keyboardShortcuts:
+          case .keyboardShortcuts(let shortcuts):
             Label("Keyboard Shortcuts:", image: "")
               .padding([.leading, .trailing], 8)
-            WorkflowShortcutsView()
+            WorkflowShortcutsView(shortcuts)
           case .applications(let triggers):
             Label("Application trigger:", image: "")
               .padding([.leading, .trailing], 8)
@@ -108,12 +108,11 @@ struct WorkflowApplicationTriggerView: View {
           }
         })
       }
-      EditableStack($triggers) { trigger in 
+      EditableStack($triggers, lazy: true, spacing: 2) { trigger in
         HStack {
           Image(nsImage: trigger.image.wrappedValue)
             .resizable()
             .frame(width: 36, height: 36)
-            .padding(2)
           VStack(alignment: .leading, spacing: 4) {
             Text(trigger.name.wrappedValue)
             HStack {
@@ -139,6 +138,7 @@ struct WorkflowApplicationTriggerView: View {
         }
         .padding(4)
       }
+      .padding(2)
       .background(Color(.windowBackgroundColor).opacity(0.5))
       .cornerRadius(8)
     }
@@ -194,17 +194,24 @@ struct WorkflowInfoView: View {
 
 struct WorkflowShortcutsView: View {
   @ObserveInjection var inject
+  @State private var keyboardShortcuts: [DetailViewModel.KeyboardShortcut]
+
+  init(_ keyboardShortcuts: [DetailViewModel.KeyboardShortcut]) {
+    _keyboardShortcuts = .init(initialValue: keyboardShortcuts)
+  }
 
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
         ScrollView(.horizontal, showsIndicators: false) {
-          HStack {
-            ModifierKeyIcon(key: .function)
-              .frame(width: 32)
-            RegularKeyIcon(letter: "Space")
+          EditableStack($keyboardShortcuts, axes: .horizontal, lazy: true) { keyboardShortcut in
+            HStack {
+              ModifierKeyIcon(key: .function)
+                .frame(width: 32)
+              RegularKeyIcon(letter: keyboardShortcut.displayValue.wrappedValue)
+            }
+            .padding(6)
           }
-          .padding([.leading, .top, .bottom], 6)
         }
         Spacer()
         Divider()

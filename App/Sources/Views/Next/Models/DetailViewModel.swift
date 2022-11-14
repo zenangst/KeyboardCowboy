@@ -53,9 +53,9 @@ struct DetailViewModel: Hashable, Identifiable {
     }
   }
 
-  struct KeyboardShortcut: Hashable {
+  struct KeyboardShortcut: Hashable, Identifiable {
     let id: String
-    let displayValue: String
+    var displayValue: String
     let modifier: ModifierKey
   }
 

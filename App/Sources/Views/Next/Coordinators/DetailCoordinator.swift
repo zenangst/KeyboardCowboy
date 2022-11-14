@@ -129,8 +129,7 @@ extension Workflow.Trigger {
       )
     case .keyboardShortcuts(let shortcuts):
       let values = shortcuts.map {
-        let modifier: ModifierKey
-        return DetailViewModel.KeyboardShortcut(id: $0.id, displayValue: $0.key, modifier: .shift)
+        DetailViewModel.KeyboardShortcut(id: $0.id, displayValue: $0.key, modifier: .shift)
       }
       return .keyboardShortcuts(values)
     }

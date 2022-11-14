@@ -28,15 +28,17 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let cornerRadius: Double
   private let spacing: CGFloat?
   private let axes: Axis.Set
+  private let lazy: Bool
 
   @GestureState private var dragState = MoveState<Data.Element>.inactive
-  @State private var height: Double = 0
+  @State private var size: Double = 0
   @State private var draggedElement: Data.Element?
   @State private var dropIndex: DropIndex?
   @State private var selections = Set<Data.Element>()
 
   init(_ data: Binding<Data>,
        axes: Axis.Set = .vertical,
+       lazy: Bool = false,
        spacing: CGFloat? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        cornerRadius: Double = 8,
@@ -46,11 +48,12 @@ struct EditableStack<Data, Content>: View where Content: View,
     self.axes = axes
     self.content = content
     self.cornerRadius = cornerRadius
+    self.lazy = lazy
     self.spacing = spacing
   }
 
   var body: some View {
-    AxesView(axes, spacing: spacing) {
+    AxesView(axes, lazy: lazy, spacing: spacing) {
       ForEach($data, id: id) { element in
         let isDragging = draggedElement?.id == element.id
         ZStack {
@@ -91,14 +94,18 @@ struct EditableStack<Data, Content>: View where Content: View,
             .focused($focus, equals: .focused(element.wrappedValue))
 
           DraggableView(element: element.wrappedValue,
+                        axes: axes,
                         state: dragState,
                         isDragging: Binding<Bool>(get: { isDragging }, set: { _ in }),
-                        height: $height,
+                        size: $size,
                         content: { content(element) })
         }
         .zIndex(isDragging ? 2: 0)
       }
     }
+    .onChange(of: isFocused, perform: { newValue in
+      Swift.print("isFocused: \(newValue):\(#line)")
+    })
     .enableInjection()
   }
 
@@ -190,7 +197,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   }
 
   private func dropIndexView(_ element: Binding<Data.Element>) -> some View {
-    AxesView(axes) {
+    internalAxesView {
       switch axes {
       case .horizontal:
         switch dropIndex {
@@ -251,6 +258,24 @@ struct EditableStack<Data, Content>: View where Content: View,
     .zIndex(withAnimation { dragState.zIndex(for: element.wrappedValue) })
   }
 
+  @ViewBuilder
+  private func internalAxesView<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    switch axes {
+    case .horizontal:
+      HStack {
+        content()
+      }
+    case .vertical:
+      VStack {
+        content()
+      }
+    default:
+      VStack {
+        content()
+      }
+    }
+  }
+
   private func onDragChange(element: Binding<Data.Element>,
                             value: GestureStateGesture<DragGesture, MoveState<Data.Element>>.Value) {
     draggedElement = element.wrappedValue
@@ -270,11 +295,21 @@ struct EditableStack<Data, Content>: View where Content: View,
 
   private func calculateNewIndex(_ value: GestureStateGesture<DragGesture, MoveState<Data.Element>>.Value,
                                  currentIndex: Int) -> Int {
-    guard value.translation.height != 0, height > 0 else {
+    let valueToUse: Double
+    switch axes {
+    case .horizontal:
+      valueToUse = value.translation.width
+    case .vertical:
+      valueToUse = value.translation.height
+    default:
+      valueToUse = value.translation.height
+    }
+
+    guard valueToUse != 0, size > 0 else {
       return currentIndex
     }
 
-    let divided = (value.translation.height + (height / 2)) / height
+    let divided = (valueToUse + (size / 2)) / size
     let flooredValue = floor(divided)
     let roundedValue = round(divided)
     let ceiledValue = ceil(divided)
@@ -301,25 +336,37 @@ struct EditableStack<Data, Content>: View where Content: View,
 
 
 private struct AxesView<Content>: View where Content: View {
+  @Environment(\.isFocused) var isFocused
   private let axes: Axis.Set
+  private let lazy: Bool
   private let spacing: CGFloat?
   @ViewBuilder
   private let content: () -> Content
 
   internal init(_ axes: Axis.Set,
+                lazy: Bool,
                 spacing: CGFloat? = nil,
                 @ViewBuilder content: @escaping () -> Content) {
     self.axes = axes
     self.spacing = spacing
     self.content = content
+    self.lazy = lazy
   }
 
   var body: some View {
     switch axes {
     case .vertical:
-      VStack(spacing: spacing, content: content)
+      if lazy {
+        LazyVStack(spacing: spacing, content: content)
+      } else {
+        VStack(spacing: spacing, content: content)
+      }
     case .horizontal:
-      HStack(spacing: spacing, content: content)
+      if lazy {
+        LazyHStack(spacing: spacing, content: content)
+      } else {
+        HStack(spacing: spacing, content: content)
+      }
     default:
       VStack(spacing: spacing, content: content)
     }
@@ -329,20 +376,23 @@ private struct AxesView<Content>: View where Content: View {
 struct DraggableView<Content, Element>: View where Content: View,
                                                    Element: Identifiable,
                                                    Element: Hashable{
-  @Binding var height: Double
+  @Binding var size: Double
   @Binding var isDragging: Bool
 
+  private let axes: Axis.Set
   private let element: Element
   private let state: MoveState<Element>
   private let content: () -> Content
 
   init(element: Element,
+       axes: Axis.Set,
        state: MoveState<Element>,
        isDragging: Binding<Bool>,
-       height: Binding<Double>,
+       size: Binding<Double>,
        content: @escaping () -> Content) {
-    _height = height
+    _size = size
     _isDragging = isDragging
+    self.axes = axes
     self.content = content
     self.state = state
     self.element = element
@@ -356,7 +406,14 @@ struct DraggableView<Content, Element>: View where Content: View,
         .scaleEffect(withAnimation { state.scaleFactor(for: element) })
         .zIndex(withAnimation { state.zIndex(for: element) } )
         .onAppear {
-          height = proxy.size.height
+          switch axes {
+          case .horizontal:
+            size = proxy.size.width
+          case .vertical:
+            size = proxy.size.height
+          default:
+            size = proxy.size.height
+          }
         }
     }
     .opacity(isDragging ? 0.7 : 0.0)
@@ -387,7 +444,8 @@ struct ElementView<Content>: View where Content: View {
       .background(
         RoundedRectangle(cornerRadius: cornerRadius)
           .stroke(Color.accentColor, lineWidth: 2)
-          .opacity( isFocused  ? 0.3 : 0.0 )
+          .opacity(isFocused  ? 0.3 : 0.0 )
       )
+
   }
 }
