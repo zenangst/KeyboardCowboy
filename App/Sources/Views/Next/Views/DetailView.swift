@@ -22,7 +22,8 @@ struct DetailView: View {
       case .multiple:
         Text("Multiple commands selected")
       }
-    }.id(publisher.model.id)
+    }
+    .id(publisher.model.id)
   }
 }
 

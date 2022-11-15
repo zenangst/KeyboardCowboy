@@ -10,6 +10,8 @@ final class DetailCoordinator {
 
   func handle(_ action: ContentView.Action) {
     switch action {
+    case .addWorkflow:
+      break
     case .onSelect(let content):
       Task { await render(content) }
     }
@@ -19,6 +21,8 @@ final class DetailCoordinator {
     switch action {
     case .singleDetailView(let action):
       switch action {
+      case .addCommand:
+        break
       case .trigger(let action):
         switch action {
         case .addKeyboardShortcut:

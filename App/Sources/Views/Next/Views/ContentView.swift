@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
   enum Action {
     case onSelect([ContentViewModel])
+    case addWorkflow
   }
   @ObserveInjection var inject
   @EnvironmentObject private var publisher: ContentPublisher

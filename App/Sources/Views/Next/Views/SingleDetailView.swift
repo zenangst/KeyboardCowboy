@@ -3,12 +3,19 @@ import Apps
 
 struct SingleDetailView: View {
   enum Action {
+    case addCommand
     case applicationTrigger(WorkflowApplicationTriggerView.Action)
     case trigger(WorkflowTriggerView.Action)
   }
 
+  enum Sheet: Int, Identifiable {
+    var id: Int { self.rawValue }
+    case newCommand
+  }
+
   @ObserveInjection var inject
-  @State var model: DetailViewModel
+  @State private var model: DetailViewModel
+  @State private var sheet: Sheet?
   private let onAction: (Action) -> Void
 
   init(_ model: DetailViewModel, onAction: @escaping (Action) -> Void) {
@@ -59,6 +66,31 @@ struct SingleDetailView: View {
     .background(gradient)
     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
     .labelStyle(HeaderLabelStyle())
+    .toolbar {
+      ToolbarItemGroup(placement: .primaryAction) {
+        HStack {
+          Button(
+            action: {
+              sheet = .newCommand
+            },
+            label: {
+              Label(title: {
+                Text("Add command")
+              }, icon: {
+                Image(systemName: "plus.square.dashed")
+                  .renderingMode(.template)
+                  .foregroundColor(Color(.systemGray))
+              })
+            })
+        }
+      }
+    }
+    .sheet(item: $sheet, content: { kind in
+      switch kind {
+      case .newCommand:
+        NewCommandSheetView()
+      }
+    })
     .enableInjection()
   }
 
