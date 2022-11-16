@@ -29,7 +29,7 @@ struct KeyboardCowboy: App {
   private let scriptEngine: ScriptEngine
   private let engine: KeyboardCowboyEngine
   static let env: AppEnvironment = .development
-  static private(set) var app: NSApplication = .shared
+
   private var workflowSubscription: AnyCancellable?
   private var open: Bool = true
 
@@ -107,10 +107,6 @@ struct KeyboardCowboy: App {
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
       guard KeyboardCowboy.env == .production else { return }
-      KeyboardCowboy.app.windows
-        .filter { $0.identifier?.rawValue.contains("MainWindow") == true }
-        .forEach { window in
-          window.close()
-        }
+      KeyboardCowboy.mainWindow?.close()
     }
 }

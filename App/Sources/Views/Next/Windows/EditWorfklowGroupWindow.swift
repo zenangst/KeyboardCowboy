@@ -38,7 +38,8 @@ struct EditWorkflowGroupWindow: Scene {
               groupStore.updateGroups([group])
             }
           }
-          KeyboardCowboy.app.keyWindow?.close()
+          KeyboardCowboy.keyWindow?.close()
+          KeyboardCowboy.mainWindow?.makeKey()
         }
       }
       .frame(minWidth: 520, minHeight: 280, idealHeight: 280)

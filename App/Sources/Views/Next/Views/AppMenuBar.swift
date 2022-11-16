@@ -44,7 +44,7 @@ struct AppMenuBar: Scene {
       switch newValue {
       case .active:
         guard KeyboardCowboy.env == .production else { return }
-        KeyboardCowboy.app.activate(ignoringOtherApps: true)
+        KeyboardCowboy.activate()
       case .inactive, .background:
         break
       default:
