@@ -40,11 +40,12 @@ struct KeyboardCowboy: App {
   private let scriptEngine: ScriptEngine
   private let engine: KeyboardCowboyEngine
   static let env: AppEnvironment = .development
-
+  static private(set) var app: NSApplication = .shared
   private var workflowSubscription: AnyCancellable?
   private var open: Bool = true
 
   @Environment(\.openWindow) private var openWindow
+  @Environment(\.scenePhase) private var scenePhase
 
   init() {
     let scriptEngine = ScriptEngine(workspace: .shared)
@@ -108,7 +109,6 @@ struct KeyboardCowboy: App {
       }
     }
 
-
     MenuBarExtra(content: {
       Button("Open Keyboard Cowboy", action: {
         openWindow(id: "MainWindow")
@@ -126,13 +126,22 @@ struct KeyboardCowboy: App {
         .resizable()
         .renderingMode(.template)
     }
+    .onChange(of: scenePhase) { newValue in
+      switch newValue {
+      case .inactive, .background:
+        break
+      case .active:
+        guard KeyboardCowboy.env == .production else { return }
+        KeyboardCowboy.app.activate(ignoringOtherApps: true)
+      }
+    }
   }
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
       guard KeyboardCowboy.env == .production else { return }
-      NSApplication.shared.windows
+      KeyboardCowboy.app.windows
         .filter { $0.identifier?.rawValue.contains("MainWindow") == true }
         .forEach { window in
           window.close()
