@@ -1,5 +1,20 @@
 import SwiftUI
 
+final class SidebarResolver {
+  let store: GroupStore
+
+  init(_ store: GroupStore) {
+    self.store = store
+  }
+
+  func resolve(_ viewModel: GroupViewModel) -> WorkflowGroup {
+    if let workflowGroup = store.group(withId: viewModel.id) {
+      return workflowGroup
+    }
+    fatalError()
+  }
+}
+
 struct SidebarView: View {
   enum Action {
     case onSelect([GroupViewModel])
@@ -7,12 +22,17 @@ struct SidebarView: View {
   @ObserveInjection var inject
 
   @EnvironmentObject var configurationPublisher: ConfigurationPublisher
+  @EnvironmentObject var groupStore: GroupStore
   @EnvironmentObject var groupsPublisher: GroupsPublisher
 
+  @Environment(\.openWindow) var openWindow
+
+  private let resolver: SidebarResolver
   private let onAction: (Action) -> Void
 
-  init(onAction: @escaping (Action) -> Void) {
+  init(resolver: SidebarResolver, onAction: @escaping (Action) -> Void) {
     self.onAction = onAction
+    self.resolver = resolver
   }
 
   var body: some View {
@@ -52,6 +72,11 @@ struct SidebarView: View {
           }
           .badge(group.count)
           .tag(group)
+          .contextMenu(menuItems: {
+            Button("Edit", action: {
+              openWindow(value: EditWorkflowGroupWindow.Context.edit(resolver.resolve(group)))
+            })
+          })
         }
       }
       .onChange(of: groupsPublisher.selections) { newValue in
@@ -65,7 +90,7 @@ struct SidebarView: View {
 
 struct SidebarView_Previews: PreviewProvider {
   static var previews: some View {
-    SidebarView { _ in }
+    SidebarView(resolver: DesignTime.sidebarResolver) { _ in }
       .designTime()
   }
 }

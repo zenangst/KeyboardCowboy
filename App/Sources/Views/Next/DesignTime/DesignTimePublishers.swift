@@ -2,6 +2,8 @@ import Foundation
 
 enum DesignTime {
 
+  static var sidebarResolver = SidebarResolver(GroupStore())
+
   static var configurationPublisher = ConfigurationPublisher {
     [
       ConfigurationViewModel(),

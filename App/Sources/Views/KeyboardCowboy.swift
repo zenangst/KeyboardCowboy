@@ -79,6 +79,7 @@ struct KeyboardCowboy: App {
         }
           .environmentObject(DesignTime.configurationPublisher)
           .environmentObject(contentStore.applicationStore)
+          .environmentObject(contentStore.groupStore)
           .environmentObject(sidebarCoordinator.publisher)
           .environmentObject(contentCoordinator.publisher)
           .environmentObject(detailCoordinator.publisher)
@@ -98,6 +99,7 @@ struct KeyboardCowboy: App {
       }
     }
 
+    EditWorkflowGroupWindow(contentStore)
     AppMenuBar()
   }
 }

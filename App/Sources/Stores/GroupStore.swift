@@ -12,6 +12,10 @@ final class GroupStore: ObservableObject {
     _selectedGroups = .init(initialValue: groups.filter { selectedGroupIds.contains($0.id) })
   }
 
+  func group(withId id: String) -> WorkflowGroup? {
+    groups.first { $0.id == id }
+  }
+
   func add(_ group: WorkflowGroup) {
     var modifiedGroups = self.groups
     modifiedGroups.append(group)

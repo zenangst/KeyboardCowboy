@@ -5,7 +5,10 @@ final class SidebarCoordinator {
   private var subscription: AnyCancellable?
   private let applicationStore: ApplicationStore
   private let store: GroupStore
+
   let publisher = GroupsPublisher()
+
+  @Environment(\.openWindow) private var openWindow
 
   init(_ store: GroupStore, applicationStore: ApplicationStore) {
     self.applicationStore = applicationStore
@@ -30,9 +33,12 @@ final class SidebarCoordinator {
         group.asViewModel(group.rule?.image(using: applicationStore))
       }
 
-      var newSelections: [GroupViewModel]? = nil
-      if let first = viewModels.first {
+      let selectedIds = publisher.selections.map { $0.id }
+      var newSelections: [GroupViewModel]
+      if selectedIds.isEmpty, let first = viewModels.first {
         newSelections = [first]
+      } else {
+        newSelections = viewModels.filter { selectedIds.contains($0.id) }
       }
 
       await publisher.publish(viewModels, selections: newSelections)

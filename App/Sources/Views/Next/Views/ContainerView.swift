@@ -7,9 +7,11 @@ struct ContainerView: View {
     case detail(DetailView.Action)
   }
   @ObserveInjection var inject
+  @EnvironmentObject var groupStore: GroupStore
   @EnvironmentObject var groupsPublisher: GroupsPublisher
   @ObservedObject var navigationPublisher = NavigationPublisher()
 
+  @Environment(\.openWindow) private var openWindow
   private let onAction: (Action) -> Void
 
   init(onAction: @escaping (Action) -> Void) {
@@ -20,7 +22,25 @@ struct ContainerView: View {
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
-        SidebarView(onAction: { onAction(.sidebar($0)) })
+        SidebarView(resolver: .init(groupStore), onAction: { onAction(.sidebar($0)) })
+          .toolbar {
+            ToolbarItemGroup {
+              Spacer()
+              Button(action: {
+                let group = WorkflowGroup.empty()
+                openWindow(value: EditWorkflowGroupWindow.Context.add(group))
+              },
+                     label: {
+                Label(title: {
+                  Text("Add group")
+                }, icon: {
+                  Image(systemName: "folder.badge.plus")
+                    .renderingMode(.template)
+                    .foregroundColor(Color(.systemGray))
+                })
+              })
+            }
+          }
           .frame(minWidth: 200, idealWidth: 310)
       },
       content: {
@@ -48,6 +68,7 @@ struct ContainerView: View {
         DetailView(onAction: { onAction(.detail($0)) })
           .frame(minWidth: 270)
       })
+    .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 880, minHeight: 400)
     .enableInjection()
   }
