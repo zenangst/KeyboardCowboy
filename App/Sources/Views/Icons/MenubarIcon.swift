@@ -31,7 +31,8 @@ struct MenubarIcon: View {
                           weight: .light, design: .rounded))
         .offset(x: offset.x,
                 y: offset.y)
-      }.padding(2)
+      }
+      .padding(2)
     }
     .frame(width: size.width, height: size.height, alignment: .center)
   }

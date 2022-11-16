@@ -17,17 +17,6 @@ enum AppEnvironment: String, Hashable, Identifiable {
 struct KeyboardCowboy: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-  enum ApplicationState {
-    case active, inactive
-
-    var iconName: String {
-      switch self {
-      case .active: return "Menubar_active"
-      case .inactive: return "Menubar_inactive"
-      }
-    }
-  }
-
   /// New
   private let sidebarCoordinator: SidebarCoordinator
   private let contentCoordinator: ContentCoordinator
@@ -109,32 +98,7 @@ struct KeyboardCowboy: App {
       }
     }
 
-    MenuBarExtra(content: {
-      Button("Open Keyboard Cowboy", action: {
-        openWindow(id: "MainWindow")
-      })
-      Divider()
-      Button("Check for updates...", action: {})
-      Button("Provide feedback...", action: {
-        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
-      })
-      Divider()
-      Button("Quit") { NSApplication.shared.terminate(nil) }
-        .keyboardShortcut("q", modifiers: [.command])
-    }) {
-      Image(ApplicationState.inactive.iconName)
-        .resizable()
-        .renderingMode(.template)
-    }
-    .onChange(of: scenePhase) { newValue in
-      switch newValue {
-      case .inactive, .background:
-        break
-      case .active:
-        guard KeyboardCowboy.env == .production else { return }
-        KeyboardCowboy.app.activate(ignoringOtherApps: true)
-      }
-    }
+    AppMenuBar()
   }
 }
 
