@@ -88,7 +88,12 @@ struct SingleDetailView: View {
     .sheet(item: $sheet, content: { kind in
       switch kind {
       case .newCommand:
-        NewCommandSheetView()
+        NewCommandSheetView { action in
+          switch action {
+          case .close:
+            sheet = nil
+          }
+        }
       }
     })
     .enableInjection()

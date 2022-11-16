@@ -1,25 +1,35 @@
 import SwiftUI
 
 struct NewCommandSheetView: View {
+  enum Action {
+    case close
+  }
   @ObserveInjection var inject
 
+  private let onAction: (Action) -> Void
   private let imageSize: CGSize = .init(width: 32, height: 32)
+
+  init(onAction: @escaping (Action) -> Void) {
+    self.onAction = onAction
+  }
 
   var body: some View {
     VStack(spacing: 0) {
       HStack {
-        Button(action: {  },
+        Button(action: { onAction(.close) },
                label: { Image(systemName: "xmark") })
         .buttonStyle(.borderless)
         .frame(minWidth: 24, minHeight: 24)
         HStack {
           Spacer()
           Text("Add new command")
-            .font(.title)
+            .font(.title2)
+            .foregroundColor(Color(nsColor: .headerTextColor))
           Spacer()
         }
       }
-      .padding()
+      .padding(8)
+      
 
       Divider()
 
@@ -60,13 +70,6 @@ struct NewCommandSheetView: View {
             ModifierKeyIcon(key: .function)
               .aspectRatio(1, contentMode: .fill)
               .frame(width: 27)
-//            if let contents = FileManager.default.contents(atPath: "/System/Library/PrivateFrameworks/CoreBluetoothUI.framework/Versions/A/Resources/Keyboard.icns"),
-//               let image = NSImage(data: contents) {
-//              Image(nsImage: image)
-//                .resizable()
-//                .aspectRatio(1, contentMode: .fill)
-//                .frame(width: 34)
-//            }
           }
 
           featureIcon("Open file or folder", color: Color(.systemBlue), action: {}) {
@@ -111,8 +114,10 @@ struct NewCommandSheetView: View {
         }
         .padding()
       }
+      .padding(8)
+      .background(Color(nsColor: .gridColor))
     }
-    .frame(width: 500)
+    .frame(width: 600)
     .enableInjection()
   }
 
@@ -120,12 +125,14 @@ struct NewCommandSheetView: View {
                                   action: @escaping () -> Void,
                                   @ViewBuilder content: @escaping () -> Content) -> some View {
     Button(action: action) {
-      VStack {
+      HStack {
         FeatureIcon(color: color, size: imageSize) {
           content()
         }
+        .shadow(radius: 4)
         Text(text)
           .fixedSize(horizontal: true, vertical: false)
+        Spacer()
       }
     }
     .buttonStyle(.plain)
@@ -135,6 +142,6 @@ struct NewCommandSheetView: View {
 
 struct NewCommandSheetView_Previews: PreviewProvider {
   static var previews: some View {
-    NewCommandSheetView()
+    NewCommandSheetView { _ in }
   }
 }
