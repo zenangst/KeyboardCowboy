@@ -15,6 +15,19 @@ enum AppEnvironment: String, Hashable, Identifiable {
 
 @main
 struct KeyboardCowboy: App {
+  @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+  enum ApplicationState {
+    case active, inactive
+
+    var iconName: String {
+      switch self {
+      case .active: return "Menubar_active"
+      case .inactive: return "Menubar_inactive"
+      }
+    }
+  }
+
   /// New
   private let sidebarCoordinator: SidebarCoordinator
   private let contentCoordinator: ContentCoordinator
@@ -31,7 +44,7 @@ struct KeyboardCowboy: App {
   private var workflowSubscription: AnyCancellable?
   private var open: Bool = true
 
-//  @Environment(\.openWindow) private var openWindow
+  @Environment(\.openWindow) private var openWindow
 
   init() {
     let scriptEngine = ScriptEngine(workspace: .shared)
@@ -60,7 +73,7 @@ struct KeyboardCowboy: App {
   }
 
   var body: some Scene {
-    WindowGroup {
+    WindowGroup(id: "MainWindow") {
       switch Self.env {
       case .development:
         ContainerView { action in
@@ -94,5 +107,34 @@ struct KeyboardCowboy: App {
           }
       }
     }
+
+
+    MenuBarExtra(content: {
+      Button("Open Keyboard Cowboy", action: {
+        openWindow(id: "MainWindow")
+      })
+      Divider()
+      Button("Check for updates...", action: {})
+      Button("Provide feedback...", action: {
+        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
+      })
+      Divider()
+      Button("Quit") { NSApplication.shared.terminate(nil) }
+        .keyboardShortcut("q", modifiers: [.command])
+    }) {
+      Image(ApplicationState.inactive.iconName)
+        .resizable()
+        .renderingMode(.template)
+    }
   }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
+      NSApplication.shared.windows
+        .filter { $0.identifier?.rawValue.contains("MainWindow") == true }
+        .forEach { window in
+          window.close()
+        }
+    }
 }

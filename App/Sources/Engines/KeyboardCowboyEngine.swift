@@ -8,7 +8,6 @@ import os
 final class KeyboardCowboyEngine {
   private var subscriptions = Set<AnyCancellable>()
 
-  private var menuController: MenubarController?
 
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let contentStore: ContentStore
@@ -61,12 +60,6 @@ final class KeyboardCowboyEngine {
       }
     }
 
-    NSApplication.shared.publisher(for: \.isRunning)
-      .sink { [weak self] isRunning in
-        guard isRunning else { return }
-        self?.menuController = MenubarController(contentStore.applicationStore, scriptEngine: scriptEngine)
-      }
-      .store(in: &subscriptions)
   }
 
   func run(_ commands: [Command], serial: Bool) {
