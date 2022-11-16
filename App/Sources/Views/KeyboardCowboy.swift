@@ -131,6 +131,7 @@ struct KeyboardCowboy: App {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+      guard KeyboardCowboy.env == .production else { return }
       NSApplication.shared.windows
         .filter { $0.identifier?.rawValue.contains("MainWindow") == true }
         .forEach { window in
