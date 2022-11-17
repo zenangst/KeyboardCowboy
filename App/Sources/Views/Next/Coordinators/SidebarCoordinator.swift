@@ -8,8 +8,6 @@ final class SidebarCoordinator {
 
   let publisher = GroupsPublisher()
 
-  @Environment(\.openWindow) private var openWindow
-
   init(_ store: GroupStore, applicationStore: ApplicationStore) {
     self.applicationStore = applicationStore
     self.store = store
@@ -20,13 +18,8 @@ final class SidebarCoordinator {
       }
   }
 
-  func handle(_ action: SidebarView.Action) {
-    switch action {
-    case .onSelect:
-      break
-    }
-  }
-
+  func handle(_ action: SidebarView.Action) { }
+  
   private func render(_ groups: [WorkflowGroup]) {
     Task {
       let viewModels = groups.map { group in

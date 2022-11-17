@@ -1,7 +1,10 @@
 import SwiftUI
 
 struct AppMenuBar: Scene {
-  @Environment(\.openWindow) private var openWindow
+  enum Action {
+    case openMainWindow
+  }
+
   @Environment(\.scenePhase) private var scenePhase
 
   private var applicationName: String {
@@ -24,11 +27,15 @@ struct AppMenuBar: Scene {
     }
   }
 
+  private let onAction: (Action) -> Void
+
+  init(onAction: @escaping (Action) -> Void) {
+    self.onAction = onAction
+  }
+
   var body: some Scene {
     MenuBarExtra(content: {
-      Button("Open \(applicationName)", action: {
-        openWindow(id: "MainWindow")
-      })
+      Button("Open \(applicationName)") { onAction(.openMainWindow) }
       Divider()
       Button("Check for updates...", action: {})
       Button("Provide feedback...", action: {

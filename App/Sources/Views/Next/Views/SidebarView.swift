@@ -1,22 +1,8 @@
 import SwiftUI
 
-final class SidebarResolver {
-  let store: GroupStore
-
-  init(_ store: GroupStore) {
-    self.store = store
-  }
-
-  func resolve(_ viewModel: GroupViewModel) -> WorkflowGroup {
-    if let workflowGroup = store.group(withId: viewModel.id) {
-      return workflowGroup
-    }
-    fatalError()
-  }
-}
-
 struct SidebarView: View {
   enum Action {
+    case openScene(AppScene)
     case onSelect([GroupViewModel])
   }
   @ObserveInjection var inject
@@ -25,14 +11,10 @@ struct SidebarView: View {
   @EnvironmentObject var groupStore: GroupStore
   @EnvironmentObject var groupsPublisher: GroupsPublisher
 
-  @Environment(\.openWindow) var openWindow
-
-  private let resolver: SidebarResolver
   private let onAction: (Action) -> Void
 
-  init(resolver: SidebarResolver, onAction: @escaping (Action) -> Void) {
+  init(onAction: @escaping (Action) -> Void) {
     self.onAction = onAction
-    self.resolver = resolver
   }
 
   var body: some View {
@@ -69,14 +51,15 @@ struct SidebarView: View {
               .frame(width: 24)
             Text(group.name)
             Spacer()
+            Button(action: { onAction(.openScene(.editGroup(group.id))) },
+                   label: { Image(systemName: "ellipsis.circle") })
+            .buttonStyle(.plain)
+            .opacity(groupsPublisher.selections.contains(group) ? 1 : 0)
           }
-          .badge(group.count)
-          .tag(group)
           .contextMenu(menuItems: {
-            Button("Edit", action: {
-              openWindow(value: EditWorkflowGroupWindow.Context.edit(resolver.resolve(group)))
-            })
+            Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
           })
+          .tag(group)
         }
       }
       .onChange(of: groupsPublisher.selections) { newValue in
@@ -90,7 +73,7 @@ struct SidebarView: View {
 
 struct SidebarView_Previews: PreviewProvider {
   static var previews: some View {
-    SidebarView(resolver: DesignTime.sidebarResolver) { _ in }
+    SidebarView { _ in }
       .designTime()
   }
 }

@@ -11,6 +11,8 @@ final class ContentCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
+    case .openScene:
+      break
     case .onSelect(let groups):
       Task { await render(groups, setSelection: true) }
     }

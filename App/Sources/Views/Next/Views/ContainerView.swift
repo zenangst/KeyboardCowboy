@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContainerView: View {
   enum Action {
+    case openScene(AppScene)
     case sidebar(SidebarView.Action)
     case content(ContentView.Action)
     case detail(DetailView.Action)
@@ -22,14 +23,11 @@ struct ContainerView: View {
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
-        SidebarView(resolver: .init(groupStore), onAction: { onAction(.sidebar($0)) })
+        SidebarView { onAction(.sidebar($0)) }
           .toolbar {
             ToolbarItemGroup {
               Spacer()
-              Button(action: {
-                let group = WorkflowGroup.empty()
-                openWindow(value: EditWorkflowGroupWindow.Context.add(group))
-              },
+              Button(action: { onAction(.openScene(.addGroup)) },
                      label: {
                 Label(title: {
                   Text("Add group")
@@ -59,7 +57,8 @@ struct ContainerView: View {
                     .foregroundColor(Color(.systemGray))
                 })
               })
-            }          }
+            }
+          }
           .navigationTitle(groupsPublisher.selections.first?.name ?? "")
           .navigationSubtitle("Workflows")
           .frame(minWidth: 270)

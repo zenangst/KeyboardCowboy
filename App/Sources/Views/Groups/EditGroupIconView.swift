@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct EditGroupIconView: View {
+  @ObserveInjection var inject
   @Binding var group: WorkflowGroup
   var body: some View {
     HStack(alignment: .top, spacing: 16) {
@@ -17,6 +18,7 @@ struct EditGroupIconView: View {
       }
     }
     .padding()
+    .enableInjection()
   }
 }
 

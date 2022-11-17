@@ -13,6 +13,12 @@ enum AppEnvironment: String, Hashable, Identifiable {
   case production
 }
 
+enum AppScene {
+  case mainWindow
+  case addGroup
+  case editGroup(GroupViewModel.ID)
+}
+
 @main
 struct KeyboardCowboy: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -38,7 +44,7 @@ struct KeyboardCowboy: App {
 
   init() {
     let scriptEngine = ScriptEngine(workspace: .shared)
-    let contentStore = ContentStore(.user(), scriptEngine: scriptEngine, workspace: .shared)
+    let contentStore = ContentStore(.designTime(), scriptEngine: scriptEngine, workspace: .shared)
 
     sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
                                             applicationStore: contentStore.applicationStore)
@@ -53,6 +59,8 @@ struct KeyboardCowboy: App {
 
     Inject.animation = .easeInOut(duration: 0.175)
 
+    guard KeyboardCowboy.env == .production else { return }
+
     workflowSubscription = contentStore.$selectedWorkflows
       .dropFirst(2)
       .removeDuplicates()
@@ -63,14 +71,28 @@ struct KeyboardCowboy: App {
   }
 
   var body: some Scene {
-    WindowGroup(id: "MainWindow") {
-      switch Self.env {
+    AppMenuBar { action in
+      switch action {
+      case .openMainWindow:
+        handleScene(.mainWindow)
+      }
+    }
+
+    WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
+      switch KeyboardCowboy.env {
       case .development:
         ContainerView { action in
           switch action {
+          case .openScene(let scene):
+            handleScene(scene)
           case .sidebar(let sidebarAction):
-            sidebarCoordinator.handle(sidebarAction)
-            contentCoordinator.handle(sidebarAction)
+            switch sidebarAction {
+            case .openScene(let scene):
+              handleScene(scene)
+            default:
+              sidebarCoordinator.handle(sidebarAction)
+              contentCoordinator.handle(sidebarAction)
+            }
           case .content(let contentAction):
             detailCoordinator.handle(contentAction)
           case .detail(let detailAction):
@@ -100,13 +122,31 @@ struct KeyboardCowboy: App {
     }
 
     EditWorkflowGroupWindow(contentStore)
-    AppMenuBar()
+  }
+
+  private func handleScene(_ scene: AppScene) {
+    switch scene {
+    case .mainWindow:
+      openWindow(id: KeyboardCowboy.mainWindowIdentifier)
+    case .addGroup:
+      openWindow(value: EditWorkflowGroupWindow.Context.add(WorkflowGroup.empty()))
+    case .editGroup(let groupId):
+      if let workflowGroup = groupStore.group(withId: groupId) {
+        openWindow(value: EditWorkflowGroupWindow.Context.edit(workflowGroup))
+      } else {
+        assertionFailure("Unable to find workflow group")
+      }
+    }
   }
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-      guard KeyboardCowboy.env == .production else { return }
-      KeyboardCowboy.mainWindow?.close()
+      switch KeyboardCowboy.env {
+      case .development:
+        KeyboardCowboy.activate()
+      case .production:
+        KeyboardCowboy.mainWindow?.close()
+      }
     }
 }

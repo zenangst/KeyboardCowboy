@@ -6,6 +6,7 @@ struct EditWorfklowGroupView: View {
     case cancel
   }
 
+  @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @State var editIcon: WorkflowGroup?
   @State var group: WorkflowGroup
@@ -26,22 +27,23 @@ struct EditWorfklowGroupView: View {
           .textFieldStyle(LargeTextFieldStyle())
           .onSubmit { action(.ok(group)) }
       }.padding()
-
       Divider()
-
-      RuleListView(applicationStore: applicationStore,
-                   group: $group)
+      ScrollView {
+        RuleListView(applicationStore: applicationStore,
+                     group: $group)
         .padding()
         .background(Color(.windowBackgroundColor.withAlphaComponent(0.5)))
-
-      VStack(alignment: .leading, spacing: 16) {
-        VStack(alignment: .leading) {
-          Text("Workflows in this group are only activated when the following applications are the frontmost app.")
-          Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .font(.caption)
-      }.padding()
+        .focusSection()
+        
+        VStack(alignment: .leading, spacing: 16) {
+          VStack(alignment: .leading) {
+            Text("Workflows in this group are only activated when the following applications are the frontmost app.")
+            Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")
+          }
+          .fixedSize(horizontal: false, vertical: true)
+          .font(.caption)
+        }.padding()
+      }
 
       Divider()
 
@@ -60,7 +62,9 @@ struct EditWorfklowGroupView: View {
       }
       .padding([.leading, .trailing])
       .padding([.top, .bottom], 8)
-    }.frame(minWidth: 520)
+    }
+    .frame(minWidth: 520)
+    .enableInjection()
   }
 }
 

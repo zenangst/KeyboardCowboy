@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SymbolPalette: View {
+  @ObserveInjection var inject
   private let symbols: [String] = [
     "folder",
     "archivebox",
@@ -44,6 +45,7 @@ struct SymbolPalette: View {
         }
       }
     }
+    .enableInjection()
   }
 }
 

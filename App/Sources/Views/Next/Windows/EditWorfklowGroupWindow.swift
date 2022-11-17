@@ -25,25 +25,28 @@ struct EditWorkflowGroupWindow: Scene {
 
   var body: some Scene {
     WindowGroup(for: Context.self) { $context in
-      ScrollView {
-        EditWorfklowGroupView(applicationStore: applicationStore, group: resolve(context)) { action in
-          switch action {
-          case .cancel:
-            break
-          case .ok(let group):
-            switch context! {
-            case .add:
-              groupStore.add(group)
-            case .edit:
-              groupStore.updateGroups([group])
-            }
+      EditWorfklowGroupView(applicationStore: applicationStore, group: resolve(context)) { action in
+        switch action {
+        case .cancel:
+          break
+        case .ok(let group):
+          switch context! {
+          case .add:
+            groupStore.add(group)
+          case .edit:
+            groupStore.updateGroups([group])
           }
-          KeyboardCowboy.keyWindow?.close()
-          KeyboardCowboy.mainWindow?.makeKey()
         }
+        KeyboardCowboy.keyWindow?.close()
+        KeyboardCowboy.mainWindow?.makeKey()
       }
-      .frame(minWidth: 520, minHeight: 280, idealHeight: 280)
+      .frame(minWidth: 520, idealWidth: 520, maxWidth: 520,
+             minHeight: 280, idealHeight: 280)
     }
+    .windowResizability(.contentSize)
+    .defaultPosition(.topTrailing)
+    .defaultSize(.init(width: 520, height: 280))
+    .windowStyle(.hiddenTitleBar)
   }
 
   private func resolve(_ context: Context?) -> WorkflowGroup {
