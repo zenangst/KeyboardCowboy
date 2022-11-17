@@ -11,14 +11,10 @@ final class ContentCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .openScene:
-      break
     case .onSelect(let groups):
       Task { await render(groups, setSelection: true) }
-    case .removeGroups(let ids):
-      store.removeGroups(with: ids)
-    case .onMove(let source, let destination):
-      store.move(source: source, destination: destination)
+    default:
+      break
     }
   }
 

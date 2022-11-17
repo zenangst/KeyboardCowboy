@@ -18,7 +18,16 @@ final class SidebarCoordinator {
       }
   }
 
-  func handle(_ action: SidebarView.Action) { }
+  func handle(_ action: SidebarView.Action) {
+    switch action {
+    case .selectConfiguration, .openScene, .onSelect:
+      break
+    case .removeGroups(let ids):
+      store.removeGroups(with: ids)
+    case .onMove(let source, let destination):
+      store.move(source: source, destination: destination)
+    }
+  }
   
   private func render(_ groups: [WorkflowGroup]) {
     Task {

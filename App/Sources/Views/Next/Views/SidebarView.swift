@@ -3,6 +3,7 @@ import SwiftUI
 struct SidebarView: View {
   enum Action {
     case openScene(AppScene)
+    case selectConfiguration(ConfigurationViewModel.ID)
     case onSelect([GroupViewModel])
     case onMove(source: IndexSet, destination: Int)
     case removeGroups([GroupViewModel.ID])
@@ -23,7 +24,12 @@ struct SidebarView: View {
     VStack(alignment: .leading) {
       VStack(alignment: .leading) {
         Label("Configuration", image: "")
-        SidebarConfigurationView()
+        SidebarConfigurationView { action in
+          switch action {
+          case .selectConfiguration(let id):
+            onAction(.selectConfiguration(id))
+          }
+        }
           .padding([.leading, .trailing], -4)
         Label("Groups", image: "")
       }
