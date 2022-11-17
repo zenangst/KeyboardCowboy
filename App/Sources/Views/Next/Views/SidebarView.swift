@@ -4,6 +4,7 @@ struct SidebarView: View {
   enum Action {
     case openScene(AppScene)
     case onSelect([GroupViewModel])
+    case onMove(source: IndexSet, destination: Int)
     case removeGroups([GroupViewModel.ID])
   }
   @ObserveInjection var inject
@@ -52,19 +53,20 @@ struct SidebarView: View {
               .frame(width: 24)
             Text(group.name)
             Spacer()
-            Button(action: {
-              guard let first = groupsPublisher.selections.first else { return }
-              onAction(.openScene(.editGroup(first.id))) },
-                   label: { Image(systemName: "ellipsis.circle") })
-            .buttonStyle(.plain)
+
+            Menu(content: { contextualMenu(for: group) }) {
+              Image(systemName: "ellipsis.circle")
+            }
             .opacity(groupsPublisher.selections.contains(group) ? 1 : 0)
+            .buttonStyle(.plain)
           }
           .contextMenu(menuItems: {
-            Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
-            Divider()
-            Button("Delete", action: { onAction(.removeGroups([group.id])) })
+            contextualMenu(for: group)
           })
           .tag(group)
+        }
+        .onMove { source, destination in
+          onAction(.onMove(source: source, destination: destination))
         }
       }
       .onDeleteCommand(perform: {
@@ -76,6 +78,13 @@ struct SidebarView: View {
     }
     .labelStyle(HeaderLabelStyle())
     .enableInjection()
+  }
+
+  @ViewBuilder
+  private func contextualMenu(for group: GroupViewModel) -> some View {
+    Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
+    Divider()
+    Button("Delete", action: { onAction(.removeGroups([group.id])) })
   }
 }
 

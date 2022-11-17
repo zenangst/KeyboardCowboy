@@ -51,6 +51,10 @@ final class GroupStore: ObservableObject {
     groups = modifiedGroups
   }
 
+  func move(source: IndexSet, destination: Int) {
+    groups.move(fromOffsets: source, toOffset: destination)
+  }
+
   func updateGroups(_ groups: [WorkflowGroup]) {
     let oldGroups = self.groups
     var newGroups = self.groups

@@ -17,6 +17,8 @@ final class ContentCoordinator {
       Task { await render(groups, setSelection: true) }
     case .removeGroups(let ids):
       store.removeGroups(with: ids)
+    case .onMove(let source, let destination):
+      store.move(source: source, destination: destination)
     }
   }
 
