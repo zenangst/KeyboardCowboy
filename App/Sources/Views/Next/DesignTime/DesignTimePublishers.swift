@@ -3,8 +3,8 @@ import Foundation
 enum DesignTime {
   static var configurationPublisher = ConfigurationPublisher {
     [
-      ConfigurationViewModel(),
-      ConfigurationViewModel(),
+      ConfigurationViewModel(id: UUID().uuidString, name: UUID().uuidString),
+      ConfigurationViewModel(id: UUID().uuidString, name: UUID().uuidString),
     ]
   }
 

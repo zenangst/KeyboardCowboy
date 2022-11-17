@@ -10,7 +10,6 @@ struct SidebarView: View {
   }
   @ObserveInjection var inject
 
-  @EnvironmentObject var configurationPublisher: ConfigurationPublisher
   @EnvironmentObject var groupStore: GroupStore
   @EnvironmentObject var groupsPublisher: GroupsPublisher
 

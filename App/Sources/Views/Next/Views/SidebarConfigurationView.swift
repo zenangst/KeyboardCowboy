@@ -22,7 +22,7 @@ struct SidebarConfigurationView: View {
         }
       } label: {
         HStack {
-          Text("Selected configuration")
+          Text( publisher.selections.first?.name ?? "Missing value" )
             .lineLimit(1)
           Spacer()
           Image(systemName: "chevron.down")

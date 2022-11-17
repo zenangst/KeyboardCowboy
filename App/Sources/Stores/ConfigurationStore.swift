@@ -28,6 +28,13 @@ final class ConfigurationStore: ObservableObject {
     return self
   }
 
+  func selectConfiguration(withId id: String) {
+    if let newConfiguration = configurations.first(where: { $0.id == id }) {
+      selectedId = id
+      selectedConfiguration = newConfiguration
+    }
+  }
+
   func select(_ configuration: KeyboardCowboyConfiguration) {
     selectedId = configuration.id
     selectedConfiguration = configuration

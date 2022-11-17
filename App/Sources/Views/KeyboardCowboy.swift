@@ -25,6 +25,7 @@ struct KeyboardCowboy: App {
 
   /// New
   private let sidebarCoordinator: SidebarCoordinator
+  private let configurationCoordinator: ConfigurationCoordinator
   private let contentCoordinator: ContentCoordinator
   private let detailCoordinator: DetailCoordinator
 
@@ -48,6 +49,7 @@ struct KeyboardCowboy: App {
 
     sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
                                             applicationStore: contentStore.applicationStore)
+    configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
     contentCoordinator = ContentCoordinator(contentStore.groupStore)
     detailCoordinator = DetailCoordinator(contentStore.groupStore)
 
@@ -99,12 +101,14 @@ struct KeyboardCowboy: App {
             detailCoordinator.handle(detailAction)
           }
         }
-          .environmentObject(DesignTime.configurationPublisher)
-          .environmentObject(contentStore.applicationStore)
-          .environmentObject(contentStore.groupStore)
-          .environmentObject(sidebarCoordinator.publisher)
-          .environmentObject(contentCoordinator.publisher)
-          .environmentObject(detailCoordinator.publisher)
+        .environmentObject(contentStore.configurationStore)
+        .environmentObject(contentStore.applicationStore)
+        .environmentObject(contentStore.groupStore)
+
+        .environmentObject(configurationCoordinator.publisher)
+        .environmentObject(sidebarCoordinator.publisher)
+        .environmentObject(contentCoordinator.publisher)
+        .environmentObject(detailCoordinator.publisher)
       case .production:
         LegacyContentView(
           contentStore,
