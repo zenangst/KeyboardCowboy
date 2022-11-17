@@ -4,6 +4,7 @@ struct SidebarView: View {
   enum Action {
     case openScene(AppScene)
     case onSelect([GroupViewModel])
+    case removeGroup(GroupViewModel.ID)
   }
   @ObserveInjection var inject
 
@@ -51,13 +52,17 @@ struct SidebarView: View {
               .frame(width: 24)
             Text(group.name)
             Spacer()
-            Button(action: { onAction(.openScene(.editGroup(group.id))) },
+            Button(action: {
+              guard let first = groupsPublisher.selections.first else { return }
+              onAction(.openScene(.editGroup(first.id))) },
                    label: { Image(systemName: "ellipsis.circle") })
             .buttonStyle(.plain)
             .opacity(groupsPublisher.selections.contains(group) ? 1 : 0)
           }
           .contextMenu(menuItems: {
             Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
+            Divider()
+            Button("Delete", action: { onAction(.removeGroup(group.id)) })
           })
           .tag(group)
         }

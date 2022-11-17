@@ -43,10 +43,6 @@ struct EditWorkflowGroupWindow: Scene {
       .frame(minWidth: 520, idealWidth: 520, maxWidth: 520,
              minHeight: 280, idealHeight: 280)
     }
-    .windowResizability(.contentSize)
-    .defaultPosition(.topTrailing)
-    .defaultSize(.init(width: 520, height: 280))
-    .windowStyle(.hiddenTitleBar)
   }
 
   private func resolve(_ context: Context?) -> WorkflowGroup {

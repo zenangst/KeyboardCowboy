@@ -15,6 +15,8 @@ final class ContentCoordinator {
       break
     case .onSelect(let groups):
       Task { await render(groups, setSelection: true) }
+    case .removeGroup(let id):
+      store.removeGroup(with: id)
     }
   }
 
