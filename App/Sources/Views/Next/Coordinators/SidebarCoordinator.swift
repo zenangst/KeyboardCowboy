@@ -20,11 +20,11 @@ final class SidebarCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .selectConfiguration, .openScene, .onSelect:
+    case .selectConfiguration, .openScene, .selectGroups:
       break
     case .removeGroups(let ids):
       store.removeGroups(with: ids)
-    case .onMove(let source, let destination):
+    case .moveGroups(let source, let destination):
       store.move(source: source, destination: destination)
     }
   }

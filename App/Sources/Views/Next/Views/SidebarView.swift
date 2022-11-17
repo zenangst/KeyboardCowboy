@@ -4,8 +4,8 @@ struct SidebarView: View {
   enum Action {
     case openScene(AppScene)
     case selectConfiguration(ConfigurationViewModel.ID)
-    case onSelect([GroupViewModel])
-    case onMove(source: IndexSet, destination: Int)
+    case selectGroups([GroupViewModel])
+    case moveGroups(source: IndexSet, destination: Int)
     case removeGroups([GroupViewModel.ID])
   }
   @ObserveInjection var inject
@@ -72,14 +72,14 @@ struct SidebarView: View {
           .tag(group)
         }
         .onMove { source, destination in
-          onAction(.onMove(source: source, destination: destination))
+          onAction(.moveGroups(source: source, destination: destination))
         }
       }
       .onDeleteCommand(perform: {
         onAction(.removeGroups(groupsPublisher.selections.map { $0.id }))
       })
       .onChange(of: groupsPublisher.selections) { newValue in
-        onAction(.onSelect(Array(newValue)))
+        onAction(.selectGroups(Array(newValue)))
       }
     }
     .labelStyle(HeaderLabelStyle())

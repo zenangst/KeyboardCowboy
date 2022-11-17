@@ -11,7 +11,7 @@ final class ContentCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .onSelect(let groups):
+    case .selectGroups(let groups):
       Task { await render(groups, setSelection: true) }
     default:
       break
