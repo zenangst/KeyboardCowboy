@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
   enum Action {
-    case onSelect([ContentViewModel])
+    case selectWorkflow([ContentViewModel])
     case addWorkflow
   }
   @ObserveInjection var inject
@@ -42,7 +42,7 @@ struct ContentView: View {
       }
     }
     .onChange(of: publisher.selections, perform: { newValue in
-      onAction(.onSelect(Array(newValue)))
+      onAction(.selectWorkflow(Array(newValue)))
     })
     .listStyle(InsetListStyle())
     .enableInjection()

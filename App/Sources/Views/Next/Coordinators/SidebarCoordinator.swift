@@ -28,6 +28,22 @@ final class SidebarCoordinator {
       store.move(source: source, destination: destination)
     }
   }
+
+  @MainActor
+  func handle(_ action: ContentView.Action) {
+    switch action {
+    case .addWorkflow:
+      guard publisher.selections.count == 1,
+            let id = publisher.selections.first?.id,
+            var group = store.group(withId: id) else { return }
+
+      let workflow = Workflow.empty()
+      group.workflows.append(workflow)
+      store.updateGroups([group])
+    default:
+      break
+    }
+  }
   
   private func render(_ groups: [WorkflowGroup]) {
     Task {

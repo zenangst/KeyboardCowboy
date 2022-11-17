@@ -96,6 +96,7 @@ struct KeyboardCowboy: App {
               contentCoordinator.handle(sidebarAction)
             }
           case .content(let contentAction):
+            sidebarCoordinator.handle(contentAction)
             detailCoordinator.handle(contentAction)
           case .detail(let detailAction):
             detailCoordinator.handle(detailAction)

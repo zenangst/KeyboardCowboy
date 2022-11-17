@@ -24,11 +24,32 @@ final class ContentCoordinator {
       .filter { ids.contains($0.id) }
       .flatMap { $0.workflows.asViewModels() }
 
-    let animation: Animation? = nil
+    var animation: Animation? = nil
+    var newSelections = [ContentViewModel]()
 
-    var newSelections: [ContentViewModel]? = nil
-    if setSelection, let first = viewModels.first {
-      newSelections = [first]
+    if setSelection {
+      let old = publisher.models
+      let new = viewModels
+      let diffs = new.difference(from: old).inferringMoves()
+
+      if !old.isEmpty, new.count > 1 {
+        for diff in diffs {
+          if case .insert(_, let element, let associated) = diff,
+             associated == nil {
+              newSelections.append(element)
+              animation = .default
+          }
+          if newSelections.count > 1 {
+            newSelections = []
+            animation = nil
+            break
+          }
+        }
+      }
+
+      if newSelections.isEmpty, let first = viewModels.first {
+        newSelections = [first]
+      }
     }
 
     if publisher.models.isEmpty {

@@ -3,7 +3,7 @@ import Apps
 
 struct SingleDetailView: View {
   enum Action {
-    case addCommand
+    case addCommand(workflowId: Workflow.ID)
     case applicationTrigger(WorkflowApplicationTriggerView.Action)
     case trigger(WorkflowTriggerView.Action)
   }

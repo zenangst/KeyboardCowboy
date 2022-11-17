@@ -12,7 +12,7 @@ final class DetailCoordinator {
     switch action {
     case .addWorkflow:
       break
-    case .onSelect(let content):
+    case .selectWorkflow(let content):
       Task { await render(content) }
     }
   }
