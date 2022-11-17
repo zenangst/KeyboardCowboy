@@ -15,30 +15,41 @@ struct SidebarConfigurationView: View {
 
   var body: some View {
     HStack {
-      Menu {
-        ForEach(publisher.models) { configuration in
-          Button(action: { onAction(.selectConfiguration(configuration.id)) },
-                 label: { Text(configuration.name) })
+      HStack {
+        Menu {
+          ForEach(publisher.models) { configuration in
+            Button(action: { onAction(.selectConfiguration(configuration.id)) },
+                   label: { Text(configuration.name) })
+          }
+        } label: {
+          HStack {
+            Text( publisher.selections.first?.name ?? "Missing value" )
+              .lineLimit(1)
+            Spacer()
+            Image(systemName: "chevron.down")
+          }
+          .fixedSize(horizontal: false, vertical: true)
+          .allowsTightening(true)
         }
-      } label: {
-        HStack {
-          Text( publisher.selections.first?.name ?? "Missing value" )
-            .lineLimit(1)
-          Spacer()
-          Image(systemName: "chevron.down")
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .allowsTightening(true)
+
+        Spacer()
       }
-      Spacer()
+      .padding(6)
+      .background(
+        ZStack {
+          RoundedRectangle(cornerRadius: 4)
+            .stroke(Color(.disabledControlTextColor))
+        }
+      )
+
+      Button(action: {}, label: {
+        Image(systemName: "plus.circle")
+          .resizable()
+          .aspectRatio(1, contentMode: .fit)
+          .frame(height: 16)
+      })
+      .padding(.trailing, 4)
     }
-    .padding(6)
-    .background(
-      ZStack {
-        RoundedRectangle(cornerRadius: 4)
-          .stroke(Color(.disabledControlTextColor))
-      }
-    )
     .buttonStyle(.plain)
     .enableInjection()
   }

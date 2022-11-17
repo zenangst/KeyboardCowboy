@@ -61,6 +61,10 @@ struct SidebarView: View {
 
             Menu(content: { contextualMenu(for: group) }) {
               Image(systemName: "ellipsis.circle")
+                .resizable()
+                .aspectRatio(1, contentMode: .fit)
+                .frame(height: 16)
+
             }
             .opacity(groupsPublisher.selections.contains(group) ? 1 : 0)
             .buttonStyle(.plain)
