@@ -22,11 +22,15 @@ final class SidebarCoordinator {
   
   private func render(_ groups: [WorkflowGroup]) {
     Task {
+      var newIds = [String]()
       let viewModels = groups.map { group in
-        group.asViewModel(group.rule?.image(using: applicationStore))
+        newIds.append(group.id)
+        return group.asViewModel(group.rule?.image(using: applicationStore))
       }
 
-      let selectedIds = publisher.selections.map { $0.id }
+      let selectedIds = publisher
+        .selections.map { $0.id }
+        .filter({ newIds.contains($0) })
       var newSelections: [GroupViewModel]
       if selectedIds.isEmpty, let first = viewModels.first {
         newSelections = [first]
