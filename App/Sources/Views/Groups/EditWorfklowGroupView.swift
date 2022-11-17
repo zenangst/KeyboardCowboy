@@ -49,21 +49,23 @@ struct EditWorfklowGroupView: View {
 
       HStack {
         Spacer()
+        Group {
+          Button(role: .cancel) {
+            action(.cancel)
+          } label: {
+            Text("Cancel")
+              .frame(minWidth: 40)
+          }
 
-        Button("Cancel", role: .cancel, action: {
-          action(.cancel)
-        })
-        .keyboardShortcut(.cancelAction)
-
-        Button("OK", action: {
-          action(.ok(group))
-        })
-        .keyboardShortcut(.defaultAction)
+          Button(action: { action(.ok(group)) }) {
+            Text("OK")
+              .frame(minWidth: 40)
+          }
+        }
       }
-      .padding([.leading, .trailing])
-      .padding([.top, .bottom], 8)
+      .padding()
     }
-    .frame(minWidth: 520)
+    .frame(minWidth: 520, minHeight: 400)
     .enableInjection()
   }
 }

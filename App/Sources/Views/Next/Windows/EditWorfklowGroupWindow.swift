@@ -40,9 +40,8 @@ struct EditWorkflowGroupWindow: Scene {
         KeyboardCowboy.keyWindow?.close()
         KeyboardCowboy.mainWindow?.makeKey()
       }
-      .frame(minWidth: 520, idealWidth: 520, maxWidth: 520,
-             minHeight: 280, idealHeight: 280)
     }
+    .windowResizability(.contentMinSize)
   }
 
   private func resolve(_ context: Context?) -> WorkflowGroup {
