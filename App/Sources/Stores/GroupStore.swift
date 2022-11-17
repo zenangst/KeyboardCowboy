@@ -73,9 +73,9 @@ final class GroupStore: ObservableObject {
     }
   }
 
-  func removeGroup(with id: WorkflowGroup.ID) {
-    groups.removeAll(where: { $0.id == id })
-    selectedGroupIds.removeAll(where: { $0 == id })
+  func removeGroups(with ids: [WorkflowGroup.ID]) {
+    groups.removeAll(where: { ids.contains($0.id) })
+    selectedGroupIds.removeAll(where: { ids.contains($0) })
   }
 
   func remove(_ group: WorkflowGroup) {

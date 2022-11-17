@@ -4,7 +4,7 @@ struct SidebarView: View {
   enum Action {
     case openScene(AppScene)
     case onSelect([GroupViewModel])
-    case removeGroup(GroupViewModel.ID)
+    case removeGroups([GroupViewModel.ID])
   }
   @ObserveInjection var inject
 
@@ -62,11 +62,14 @@ struct SidebarView: View {
           .contextMenu(menuItems: {
             Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
             Divider()
-            Button("Delete", action: { onAction(.removeGroup(group.id)) })
+            Button("Delete", action: { onAction(.removeGroups([group.id])) })
           })
           .tag(group)
         }
       }
+      .onDeleteCommand(perform: {
+        onAction(.removeGroups(groupsPublisher.selections.map { $0.id }))
+      })
       .onChange(of: groupsPublisher.selections) { newValue in
         onAction(.onSelect(Array(newValue)))
       }
