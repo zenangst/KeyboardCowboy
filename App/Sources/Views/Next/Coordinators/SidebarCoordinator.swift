@@ -68,7 +68,13 @@ final class SidebarCoordinator {
   }
 }
 
-private extension WorkflowGroup {
+extension Array where Element == WorkflowGroup {
+  func asViewModels(store: ApplicationStore) -> [GroupViewModel] {
+    self.map { $0.asViewModel($0.rule?.image(using: store)) }
+  }
+}
+
+extension WorkflowGroup {
   func asViewModel(_ image: NSImage?) -> GroupViewModel {
     GroupViewModel(
       id: id,

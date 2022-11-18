@@ -3,12 +3,15 @@ import SwiftUI
 
 final class ContentCoordinator {
   private let store: GroupStore
+  let applicationStore: ApplicationStore
   let publisher: ContentPublisher = ContentPublisher()
 
-  init(_ store: GroupStore) {
+  init(_ store: GroupStore, applicationStore: ApplicationStore) {
+    self.applicationStore = applicationStore
     self.store = store
   }
 
+  @MainActor
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .selectGroups(let groups):
@@ -18,6 +21,37 @@ final class ContentCoordinator {
     }
   }
 
+  @MainActor
+  func handle(_ action: DetailView.Action) {
+    switch action {
+    case .singleDetailView(let action):
+      switch action {
+      case .updateName(_, let workflowId):
+        Task {
+          guard let groups = store.groups
+            .first(where: { $0.workflows
+              .map { $0.id }
+              .contains(workflowId)
+            })
+          else {
+            return
+          }
+
+          let viewModels = groups.workflows.asViewModels()
+          var selections = [ContentViewModel]()
+          if let matchedSelection = viewModels.first(where: { $0.id == workflowId }) {
+            selections = [matchedSelection]
+          }
+
+          publisher.publish(viewModels, selections: selections)
+        }
+      default:
+        break
+      }
+    }
+  }
+
+  @MainActor
   private func render(_ groups: [GroupViewModel], setSelection: Bool) async {
     let ids = groups.map { $0.id }
     let viewModels = store.groups

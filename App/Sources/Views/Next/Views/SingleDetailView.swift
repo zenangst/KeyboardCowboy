@@ -3,6 +3,7 @@ import Apps
 
 struct SingleDetailView: View {
   enum Action {
+    case updateName(name: String, workflowId: Workflow.ID)
     case addCommand(workflowId: Workflow.ID)
     case applicationTrigger(WorkflowApplicationTriggerView.Action)
     case trigger(WorkflowTriggerView.Action)
@@ -28,6 +29,9 @@ struct SingleDetailView: View {
       VStack(alignment: .leading) {
         WorkflowInfoView($model)
           .padding([.leading, .trailing, .bottom], 8)
+          .onChange(of: model) { model in
+            onAction(.updateName(name: model.name, workflowId: model.id))
+          }
 
         Group {
           switch model.trigger {
@@ -187,6 +191,7 @@ struct WorkflowTriggerView: View {
   enum Action {
     case addApplication
     case addKeyboardShortcut
+    case removeKeyboardShortcut
   }
 
   @ObserveInjection var inject

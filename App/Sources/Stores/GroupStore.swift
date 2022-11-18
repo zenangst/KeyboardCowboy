@@ -93,6 +93,12 @@ final class GroupStore: ObservableObject {
     }
   }
 
+  func workflow(withId id: Workflow.ID) -> Workflow? {
+    groups
+      .flatMap(\.workflows)
+      .first(where: { $0.id == id })
+  }
+
   func remove(_ workflow: Workflow) {
     guard let groupIndex = groups.firstIndex(where: {
       let ids = $0.workflows.compactMap({ $0.id })

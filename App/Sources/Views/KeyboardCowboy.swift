@@ -50,8 +50,10 @@ struct KeyboardCowboy: App {
     sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
                                             applicationStore: contentStore.applicationStore)
     configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
-    contentCoordinator = ContentCoordinator(contentStore.groupStore)
-    detailCoordinator = DetailCoordinator(contentStore.groupStore)
+    contentCoordinator = ContentCoordinator(contentStore.groupStore,
+                                            applicationStore: contentStore.applicationStore)
+    detailCoordinator = DetailCoordinator(contentStore: contentStore,
+                                          groupStore: contentStore.groupStore)
 
     _contentStore = .init(initialValue: contentStore)
     _groupStore = .init(initialValue: contentStore.groupStore)
@@ -100,6 +102,7 @@ struct KeyboardCowboy: App {
             detailCoordinator.handle(contentAction)
           case .detail(let detailAction):
             detailCoordinator.handle(detailAction)
+            contentCoordinator.handle(detailAction)
           }
         }
         .environmentObject(contentStore.configurationStore)

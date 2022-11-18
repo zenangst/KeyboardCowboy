@@ -1,11 +1,13 @@
 import SwiftUI
 
 final class DetailCoordinator {
-  let store: GroupStore
+  let contentStore: ContentStore
+  let groupStore: GroupStore
   let publisher: DetailPublisher = .init(.empty)
 
-  init(_ store: GroupStore) {
-    self.store = store
+  init(contentStore: ContentStore, groupStore: GroupStore) {
+    self.contentStore = contentStore
+    self.groupStore = groupStore
   }
 
   func handle(_ action: ContentView.Action) {
@@ -17,16 +19,23 @@ final class DetailCoordinator {
     }
   }
 
+  @MainActor
   func handle(_ action: DetailView.Action) {
     switch action {
     case .singleDetailView(let action):
       switch action {
+      case .updateName(let name, let workflowId):
+        guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+        workflow.name = name
+        contentStore.updateWorkflows([workflow])
       case .addCommand:
         break
       case .trigger(let action):
         switch action {
         case .addKeyboardShortcut:
           Swift.print("Add keyboard shortcut")
+        case .removeKeyboardShortcut:
+          Swift.print("Remove keyboard shortcut")
         case .addApplication:
           Swift.print("Add application trigger")
         }
@@ -43,7 +52,7 @@ final class DetailCoordinator {
 
   private func render(_ content: [ContentViewModel]) async {
     let ids = content.map(\.id)
-    let workflows = store.groups
+    let workflows = groupStore.groups
       .flatMap(\.workflows)
       .filter { ids.contains($0.id) }
 

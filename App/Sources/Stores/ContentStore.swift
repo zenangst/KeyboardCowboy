@@ -132,6 +132,10 @@ final class ContentStore: ObservableObject {
     selectedWorkflowsCopy = selectedWorkflows
   }
 
+  func workflow(withId id: Workflow.ID) -> Workflow? {
+    groupStore.workflow(withId: id)
+  }
+
   func updateWorkflows(_ newWorkflows: [Workflow]) {
     let copiedWorkflows = selectedWorkflowsCopy
     if copiedWorkflows == newWorkflows { return }
