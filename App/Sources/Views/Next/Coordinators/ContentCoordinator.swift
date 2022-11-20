@@ -87,9 +87,9 @@ final class ContentCoordinator {
     }
 
     if publisher.models.isEmpty {
-      await publisher.publish(viewModels, selections: newSelections)
+      publisher.publish(viewModels, selections: newSelections)
     } else {
-      await publisher.publish(viewModels, selections: newSelections, withAnimation: animation)
+      publisher.publish(viewModels, selections: newSelections, withAnimation: animation)
     }
   }
 }
