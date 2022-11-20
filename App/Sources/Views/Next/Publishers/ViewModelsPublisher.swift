@@ -25,7 +25,7 @@ final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Ha
   }
 
   @MainActor
-  func publish(_ newModels: [ViewModel],
+  func publish(_ newModels: [ViewModel]? = nil,
                selections newSelections: [ViewModel]? = nil,
                withAnimation animation: Animation? = nil) {
     if let animation {
@@ -33,13 +33,17 @@ final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Ha
         if let newSelections {
           self.selections = Set(newSelections)
         }
-        self.models = newModels
+        if let newModels {
+          self.models = newModels
+        }
       }
     } else {
       if let newSelections {
         self.selections = Set(newSelections)
       }
-      self.models = newModels
+      if let newModels {
+        self.models = newModels
+      }
     }
   }
 }

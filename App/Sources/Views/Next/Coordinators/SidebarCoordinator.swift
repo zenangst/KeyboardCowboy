@@ -7,9 +7,13 @@ final class SidebarCoordinator {
   private let store: GroupStore
 
   let publisher = GroupsPublisher()
+  let contentPublisher: ContentPublisher
 
-  init(_ store: GroupStore, applicationStore: ApplicationStore) {
+  init(_ store: GroupStore,
+       contentPublisher: ContentPublisher,
+       applicationStore: ApplicationStore) {
     self.applicationStore = applicationStore
+    self.contentPublisher = contentPublisher
     self.store = store
 
     subscription = store.$groups
@@ -31,15 +35,22 @@ final class SidebarCoordinator {
 
   @MainActor
   func handle(_ action: ContentView.Action) {
+    guard publisher.selections.count == 1,
+          let id = publisher.selections.first?.id,
+          var group = store.group(withId: id) else { return }
+
     switch action {
     case .addWorkflow:
-      guard publisher.selections.count == 1,
-            let id = publisher.selections.first?.id,
-            var group = store.group(withId: id) else { return }
-
       let workflow = Workflow.empty()
       group.workflows.append(workflow)
       store.updateGroups([group])
+    case .removeWorflows(let ids):
+      group.workflows.removeAll(where: { ids.contains($0.id) })
+      store.updateGroups([group])
+    case .moveWorkflows(let source, let destination):
+      group.workflows.move(fromOffsets: source, toOffset: destination)
+      store.updateGroups([group])
+      contentPublisher.publish(group.workflows.map { $0.asViewModel() })
     default:
       break
     }

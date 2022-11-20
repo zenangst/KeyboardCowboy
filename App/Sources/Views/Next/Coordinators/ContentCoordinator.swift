@@ -94,7 +94,7 @@ final class ContentCoordinator {
   }
 }
 
-private extension Workflow {
+extension Workflow {
   func asViewModel() -> ContentViewModel {
     ContentViewModel(
       id: id,

@@ -3,6 +3,8 @@ import SwiftUI
 struct ContentView: View {
   enum Action {
     case selectWorkflow([ContentViewModel])
+    case removeWorflows([ContentViewModel.ID])
+    case moveWorkflows(source: IndexSet, destination: Int)
     case addWorkflow
   }
   @ObserveInjection var inject
@@ -38,14 +40,28 @@ struct ContentView: View {
           }
         }
         .badge(workflow.badge)
+        .contextMenu(menuItems: {
+          contextualMenu()
+        })
         .tag(workflow)
+        .id(workflow.id)
+      }
+      .onMove { source, destination in
+        onAction(.moveWorkflows(source: source, destination: destination))
       }
     }
+    .listStyle(InsetListStyle())
     .onChange(of: publisher.selections, perform: { newValue in
       onAction(.selectWorkflow(Array(newValue)))
     })
-    .listStyle(InsetListStyle())
     .enableInjection()
+  }
+
+  @ViewBuilder
+  private func contextualMenu() -> some View {
+    Button("Delete", action: {
+      onAction(.removeWorflows(publisher.selections.map { $0.id }))
+    })
   }
 }
 

@@ -46,14 +46,16 @@ struct KeyboardCowboy: App {
   init() {
     let scriptEngine = ScriptEngine(workspace: .shared)
     let contentStore = ContentStore(.designTime(), scriptEngine: scriptEngine, workspace: .shared)
+    let contentCoordinator = ContentCoordinator(contentStore.groupStore,
+                              applicationStore: contentStore.applicationStore)
 
-    sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
-                                            applicationStore: contentStore.applicationStore)
-    configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
-    contentCoordinator = ContentCoordinator(contentStore.groupStore,
-                                            applicationStore: contentStore.applicationStore)
-    detailCoordinator = DetailCoordinator(contentStore: contentStore,
-                                          groupStore: contentStore.groupStore)
+    self.sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
+                                                 contentPublisher: contentCoordinator.publisher,
+                                                 applicationStore: contentStore.applicationStore)
+    self.contentCoordinator = contentCoordinator
+    self.configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
+    self.detailCoordinator = DetailCoordinator(contentStore: contentStore,
+                                               groupStore: contentStore.groupStore)
 
     _contentStore = .init(initialValue: contentStore)
     _groupStore = .init(initialValue: contentStore.groupStore)

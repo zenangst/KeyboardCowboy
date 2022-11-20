@@ -12,10 +12,10 @@ final class DetailCoordinator {
 
   func handle(_ action: ContentView.Action) {
     switch action {
-    case .addWorkflow:
-      break
     case .selectWorkflow(let content):
       Task { await render(content) }
+    default:
+      break
     }
   }
 
