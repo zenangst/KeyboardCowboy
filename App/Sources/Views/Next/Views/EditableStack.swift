@@ -113,9 +113,6 @@ struct EditableStack<Data, Content>: View where Content: View,
         .zIndex(isDragging ? 2: 0)
       }
     }
-    .onChange(of: isFocused, perform: { newValue in
-      Swift.print("isFocused: \(newValue):\(#line)")
-    })
     .enableInjection()
   }
 
@@ -456,6 +453,5 @@ struct ElementView<Content>: View where Content: View {
           .stroke(Color.accentColor, lineWidth: 2)
           .opacity(isFocused  ? 0.3 : 0.0 )
       )
-
   }
 }
