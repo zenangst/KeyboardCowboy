@@ -62,7 +62,46 @@ struct DetailViewModel: Hashable, Identifiable {
   struct CommandViewModel: Hashable, Identifiable {
     let id: String
     var name: String
+    var kind: Kind
     let image: NSImage?
     var isEnabled: Bool
+
+    enum Kind: Hashable, Identifiable {
+      var id: String {
+        switch self {
+        case .application:
+          return "application"
+        case .plain:
+          return "plain"
+        case .open:
+          return "open"
+        case .script(let kind):
+          switch kind {
+          case .inline:
+            return "inline"
+          case .path:
+            return "path"
+          }
+        }
+
+      }
+      case application
+      case open(appName: String?)
+      case script(ScriptKind)
+      case plain
+    }
+
+    enum ScriptKind: Hashable, Identifiable {
+      var id: String {
+        switch self {
+        case .inline(let id, _),
+             .path(let id, _):
+          return id
+        }
+      }
+
+      case inline(id: String, type: String)
+      case path(id: String, fileExtension: String)
+    }
   }
 }

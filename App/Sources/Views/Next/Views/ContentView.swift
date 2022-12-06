@@ -25,6 +25,20 @@ struct ContentView: View {
               .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
             ContentImagesView(images: workflow.images)
           }
+          .overlay(alignment: .topTrailing, content: {
+            ZStack {
+              Circle()
+                .fill(Color(nsColor: .controlAccentColor))
+              Text("\(workflow.badge)")
+                .bold()
+                .font(.caption2)
+            }
+            .frame(width: 12)
+            .offset(x: -2, y: 2)
+            .aspectRatio(contentMode: .fit)
+            .shadow(color: .black.opacity(0.75), radius: 2)
+            .opacity(workflow.badgeOpacity)
+          })
           .frame(width: 32, height: 32)
           .cornerRadius(8, antialiased: false)
           .clipped()
@@ -37,9 +51,9 @@ struct ContentView: View {
           if let binding = workflow.binding {
             KeyboardShortcutView(shortcut: .init(key: binding, lhs: true))
               .font(.caption)
+              .layoutPriority(-1)
           }
         }
-        .badge(workflow.badge)
         .contextMenu(menuItems: {
           contextualMenu()
         })

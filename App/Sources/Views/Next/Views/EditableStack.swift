@@ -2,13 +2,13 @@ import Carbon
 import SwiftUI
 
 struct EditableStack<Data, Content>: View where Content: View,
-                                                     Data: RandomAccessCollection,
-                                                     Data: MutableCollection,
-                                                     Data.Element: Identifiable,
-                                                     Data.Element: Hashable,
-                                                     Data.Index: Hashable,
-                                                     Data.Index == Int,
-                                                     Data.Element.ID: CustomStringConvertible {
+                                                Data: RandomAccessCollection,
+                                                Data: MutableCollection,
+                                                Data.Element: Identifiable,
+                                                Data.Element: Hashable,
+                                                Data.Index: Hashable,
+                                                Data.Index == Int,
+                                                Data.Element.ID: CustomStringConvertible {
   enum Focus: Hashable {
     case focused(Data.Element)
   }
@@ -29,6 +29,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let spacing: CGFloat?
   private let axes: Axis.Set
   private let lazy: Bool
+  private let onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
 
   @GestureState private var dragState = MoveState<Data.Element>.inactive
   @State private var size: Double = 0
@@ -42,6 +43,7 @@ struct EditableStack<Data, Content>: View where Content: View,
        spacing: CGFloat? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        cornerRadius: Double = 8,
+       onMove: @escaping (_ indexSet: IndexSet, _ toIndex: Int) -> Void,
        content: @escaping (Binding<Data.Element>) -> Content) {
     _data = data
     self.id = id
@@ -50,6 +52,7 @@ struct EditableStack<Data, Content>: View where Content: View,
     self.cornerRadius = cornerRadius
     self.lazy = lazy
     self.spacing = spacing
+    self.onMove = onMove
   }
 
   var body: some View {
@@ -75,10 +78,17 @@ struct EditableStack<Data, Content>: View where Content: View,
                   onDragChange(element: element, value: value)
                 }
                 .onEnded { value in
+                  guard let currentIndex = data.firstIndex(where: { $0.id == element.id }) else { return }
+
+                  let newIndex = max(min(calculateNewIndex(value, currentIndex: currentIndex), data.count), 0)
+                  let indexSet = IndexSet(integer: currentIndex)
+
                   withAnimation(.interactiveSpring()) {
+                    data.move(fromOffsets: indexSet, toOffset: newIndex)
                     draggedElement = nil
                     dropIndex = nil
                   }
+                  onMove(indexSet, newIndex)
                 }
             )
             .gesture(TapGesture().modifiers(.command)
@@ -90,7 +100,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                 onTapWithShiftModifier(element.wrappedValue)
               })
             )
-            .gesture(TapGesture().onEnded { _ in onTap(element.wrappedValue) })
+//            .gesture(TapGesture().onEnded { _ in onTap(element.wrappedValue) })
             .focused($focus, equals: .focused(element.wrappedValue))
 
           DraggableView(element: element.wrappedValue,

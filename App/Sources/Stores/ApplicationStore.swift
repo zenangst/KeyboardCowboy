@@ -1,5 +1,5 @@
 import Apps
-import Foundation
+import Cocoa
 
 final class ApplicationStore: ObservableObject {
   @Published private(set) var applications = [Application]()
@@ -7,6 +7,17 @@ final class ApplicationStore: ObservableObject {
 
   init() {
     reload()
+  }
+
+  func applicationsToOpen(_ path: String) -> [Application] {
+    guard let url = URL(string: path) else { return [] }
+    return NSWorkspace.shared.urlsForApplications(toOpen: url)
+      .compactMap { application(at: $0) }
+  }
+
+  func application(at url: URL) -> Application? {
+    // TODO: This search pattern could be improved.
+    applications.first(where:  { $0.path.contains((url.path() as NSString).deletingPathExtension) })
   }
 
   func application(for bundleIdentifier: String) -> Application? {

@@ -4,11 +4,14 @@ struct KeyboardShortcutView: View {
   let shortcut: KeyShortcut
 
   var body: some View {
-    HStack(spacing: 0) {
+    Group {
       Text("\(shortcut.modifersDisplayValue)")
-        .foregroundColor(.secondary)
+        .foregroundColor(.secondary) +
       Text("\(shortcut.key)")
     }
+    .lineLimit(1)
+    .allowsTightening(true)
+    .truncationMode(.tail)
     .padding(1)
     .padding(.horizontal, 4)
     .overlay(

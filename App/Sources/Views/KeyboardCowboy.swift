@@ -54,7 +54,8 @@ struct KeyboardCowboy: App {
                                                  applicationStore: contentStore.applicationStore)
     self.contentCoordinator = contentCoordinator
     self.configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
-    self.detailCoordinator = DetailCoordinator(contentStore: contentStore,
+    self.detailCoordinator = DetailCoordinator(applicationStore: contentStore.applicationStore,
+                                               contentStore: contentStore,
                                                groupStore: contentStore.groupStore)
 
     _contentStore = .init(initialValue: contentStore)
@@ -158,6 +159,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
       switch KeyboardCowboy.env {
       case .development:
+        guard !isRunningPreview else { return }
         KeyboardCowboy.activate()
       case .production:
         KeyboardCowboy.mainWindow?.close()

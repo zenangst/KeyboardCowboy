@@ -101,7 +101,8 @@ extension Workflow {
       name: name,
       images: commands.images(),
       binding: trigger?.binding,
-      badge: commands.count > 1 ? commands.count : 0)
+      badge: commands.count > 1 ? commands.count : 0,
+      badgeOpacity: commands.count > 1 ? 1.0 : 0.0)
   }
 }
 
@@ -149,8 +150,14 @@ private extension Array where Element == Command {
             offset: convertedOffset,
             nsImage: nsImage)
         )
-      case .script:
-        continue
+      case .script(let kind):
+        let nsImage = NSWorkspace.shared.icon(forFile: kind.path)
+        images.append(
+          ContentViewModel.Image(
+            id: kind.id,
+            offset: convertedOffset,
+            nsImage: nsImage)
+        )
       case .shortcut:
         continue
       case .type:

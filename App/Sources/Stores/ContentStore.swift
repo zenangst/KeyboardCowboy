@@ -39,6 +39,8 @@ final class ContentStore: ObservableObject {
     self.storage = Storage(preferences.storageConfiguration)
     self.searchStore = SearchStore(store: groupStore, results: [])
 
+    guard !isRunningPreview else { return }
+
     Task {
       shortcutStore.index()
       let configurations: [KeyboardCowboyConfiguration]
@@ -150,6 +152,9 @@ final class ContentStore: ObservableObject {
     newConfiguration.groups = newGroups
 
     configurationStore.update(newConfiguration)
+
+    guard KeyboardCowboy.env == .production else { return }
+
     selectGroupsIds(groupIds)
     let workflowIds = Set<String>(newWorkflows.compactMap({ $0.id }))
     selectWorkflowIds(workflowIds)

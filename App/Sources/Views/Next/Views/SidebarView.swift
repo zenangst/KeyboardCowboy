@@ -68,6 +68,7 @@ struct SidebarView: View {
             }
             .opacity(groupsPublisher.selections.contains(group) ? 1 : 0)
             .buttonStyle(.plain)
+            .layoutPriority(-1)
           }
           .contextMenu(menuItems: {
             contextualMenu(for: group)

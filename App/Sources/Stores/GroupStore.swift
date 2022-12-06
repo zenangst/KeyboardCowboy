@@ -115,6 +115,7 @@ final class GroupStore: ObservableObject {
   // MARK: Private methods
 
   private func updateGroups(with newWorkflows: [Workflow]) -> [WorkflowGroup] {
+    // Fix bug when trying to reorder group.
     var newGroups = groups
     for newWorkflow in newWorkflows {
       guard let group = newGroups.first(where: { group in

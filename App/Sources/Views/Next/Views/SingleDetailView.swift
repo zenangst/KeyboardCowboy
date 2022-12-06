@@ -7,6 +7,7 @@ struct SingleDetailView: View {
     case addCommand(workflowId: Workflow.ID)
     case applicationTrigger(WorkflowApplicationTriggerView.Action)
     case trigger(WorkflowTriggerView.Action)
+    case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
   }
 
   enum Sheet: Int, Identifiable {
@@ -60,7 +61,9 @@ struct SingleDetailView: View {
       VStack(alignment: .leading, spacing: 0) {
         Label("Commands:", image: "")
           .padding([.leading, .trailing, .bottom], 8)
-        EditableStack($model.commands, spacing: 1) { command in
+        EditableStack($model.commands, spacing: 1, onMove: { indexSet, toOffset in
+          onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
+        }) { command in
           CommandView(command)
         }
         .padding(.bottom, 2)
@@ -149,7 +152,7 @@ struct WorkflowApplicationTriggerView: View {
           }
         })
       }
-      EditableStack($triggers, lazy: true, spacing: 2) { trigger in
+      EditableStack($triggers, lazy: true, spacing: 2, onMove: { _, _ in }) { trigger in
         HStack {
           Image(nsImage: trigger.image.wrappedValue)
             .resizable()
@@ -180,7 +183,6 @@ struct WorkflowApplicationTriggerView: View {
         .padding(4)
       }
       .padding(2)
-      .background(Color(.windowBackgroundColor).opacity(0.5))
       .cornerRadius(8)
     }
     .enableInjection()
@@ -246,13 +248,18 @@ struct WorkflowShortcutsView: View {
     VStack(alignment: .leading) {
       HStack {
         ScrollView(.horizontal, showsIndicators: false) {
-          EditableStack($keyboardShortcuts, axes: .horizontal, lazy: true) { keyboardShortcut in
-            HStack {
+          EditableStack($keyboardShortcuts, axes: .horizontal, lazy: true, onMove: { _, _ in }) { keyboardShortcut in
+            HStack(spacing: 2) {
               ModifierKeyIcon(key: .function)
                 .frame(width: 32)
               RegularKeyIcon(letter: keyboardShortcut.displayValue.wrappedValue)
             }
-            .padding(6)
+            .padding(4)
+            .background(
+              RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(Color(.disabledControlTextColor))
+                .opacity(0.5)
+            )
           }
         }
         Spacer()
@@ -281,6 +288,48 @@ struct CommandView: View {
   }
 
   var body: some View {
+    Group {
+      switch command.kind {
+      case .plain:
+        UnknownView(command: $command)
+      case .open:
+        OpenCommandView(command: $command)
+      case .application:
+        ApplicationCommandView(command: $command)
+      case .script:
+        ScriptCommandView(command: $command)
+      }
+    }
+    .grayscale(command.isEnabled ? 0 : 1)
+    .opacity(command.isEnabled ? 1 : 0.5)
+    .background(gradient)
+    .cornerRadius(8)
+    .padding(.bottom, 6)
+    .enableInjection()
+  }
+
+  var gradient: some View {
+    ZStack {
+      LinearGradient(
+        gradient: Gradient(
+          stops: [
+            .init(color: Color(.textBackgroundColor).opacity(0.45), location: 0.5),
+            .init(color: Color(.gridColor).opacity(0.85), location: 1.0),
+          ]),
+        startPoint: .top,
+        endPoint: .bottom)
+
+      RoundedRectangle(cornerRadius: 8)
+        .stroke(Color(nsColor: .shadowColor).opacity(0.5), lineWidth: 0.5)
+        .offset(y: -1)
+    }
+  }
+}
+
+struct UnknownView: View {
+  @Binding var command: DetailViewModel.CommandViewModel
+
+  var body: some View {
     HStack {
       HStack {
         ZStack {
@@ -304,7 +353,6 @@ struct CommandView: View {
     .padding(8)
     .background(.background)
     .cornerRadius(8)
-    .enableInjection()
   }
 }
 

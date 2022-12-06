@@ -1,13 +1,15 @@
 import SwiftUI
 
 final class DetailCoordinator {
+  let applicationStore: ApplicationStore
   let contentStore: ContentStore
   let groupStore: GroupStore
   let publisher: DetailPublisher = .init(.empty)
 
-  init(contentStore: ContentStore, groupStore: GroupStore) {
-    self.contentStore = contentStore
-    self.groupStore = groupStore
+  init(applicationStore: ApplicationStore, contentStore: ContentStore, groupStore: GroupStore) {
+      self.applicationStore = applicationStore
+      self.contentStore = contentStore
+      self.groupStore = groupStore
   }
 
   func handle(_ action: ContentView.Action) {
@@ -24,6 +26,10 @@ final class DetailCoordinator {
     switch action {
     case .singleDetailView(let action):
       switch action {
+      case .moveCommand(let workflowId, let fromOffsets, let toOffset):
+        guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+        workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
+        contentStore.updateWorkflows([workflow])
       case .updateName(let name, let workflowId):
         guard var workflow = groupStore.workflow(withId: workflowId) else { return }
         workflow.name = name
@@ -60,9 +66,69 @@ final class DetailCoordinator {
     for workflow in workflows {
       let commands = workflow.commands
         .map { command in
+          let kind: DetailViewModel.CommandViewModel.Kind
+          let name: String
+          switch command {
+          case .application(let applicationCommand):
+            kind = .application
+            name = applicationCommand.application.displayName
+          case .builtIn(_):
+            kind = .plain
+            name = command.name
+          case .keyboard(_):
+            kind = .plain
+            name = command.name
+          case .open(let openCommand):
+            let appName: String?
+            if let app = openCommand.application {
+              appName = app.displayName
+            } else if let url = URL(string: openCommand.path),
+                      let appUrl = NSWorkspace.shared.urlForApplication(toOpen: url),
+                      let app = applicationStore.application(at: appUrl) {
+              appName = app.displayName
+            } else {
+              appName = nil
+            }
+
+            kind = .open(appName: appName)
+
+            if openCommand.isUrl {
+              name = openCommand.path
+            } else {
+              name = openCommand.path
+            }
+          case .shortcut(_):
+            kind = .plain
+            name = command.name
+          case .script(let script):
+            switch script {
+            case .appleScript(_ , _, _, let source),
+                 .shell(_ , _, _, let source):
+              switch source {
+              case .path(let source):
+                let fileExtension = (source as NSString).pathExtension
+                kind = .script(.path(id: script.id, fileExtension: fileExtension.uppercased()))
+              case .inline(_):
+                let type: String
+                switch script {
+                case .shell:
+                  type = "sh"
+                case .appleScript:
+                  type = "scpt"
+                }
+                kind = .script(.inline(id: script.id, type: type))
+              }
+            }
+            name = command.name
+          case .type(_):
+            kind = .plain
+            name = command.name
+          }
+
           return DetailViewModel.CommandViewModel(
             id: command.id,
-            name: command.name,
+            name: name,
+            kind: kind,
             image: command.nsImage,
             isEnabled: command.isEnabled
           )
@@ -109,8 +175,8 @@ private extension Command {
         nsImage = NSWorkspace.shared.icon(forFile: command.path)
       }
       return nsImage
-    case .script:
-      return nil
+    case .script(let kind):
+      return NSWorkspace.shared.icon(forFile: kind.path)
     case .shortcut:
       return nil
     case .type:

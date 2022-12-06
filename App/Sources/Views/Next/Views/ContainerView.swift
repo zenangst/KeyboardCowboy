@@ -39,7 +39,6 @@ struct ContainerView: View {
               })
             }
           }
-          .frame(minWidth: 200, idealWidth: 310)
       },
       content: {
         ContentView(onAction: { onAction(.content($0)) })
@@ -61,14 +60,12 @@ struct ContainerView: View {
           }
           .navigationTitle(groupsPublisher.selections.first?.name ?? "")
           .navigationSubtitle("Workflows")
-          .frame(minWidth: 270)
       },
       detail: {
         DetailView(onAction: { onAction(.detail($0)) })
-          .frame(minWidth: 270)
       })
     .navigationSplitViewStyle(.balanced)
-    .frame(minWidth: 880, minHeight: 400)
+    .frame(minWidth: 850, minHeight: 400)
     .enableInjection()
   }
 }
@@ -77,5 +74,6 @@ struct ContainerView_Previews: PreviewProvider {
   static var previews: some View {
     ContainerView { _ in }
       .designTime()
+      .frame(height: 800)
   }
 }
