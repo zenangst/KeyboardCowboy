@@ -10,13 +10,14 @@ struct WorkflowShortcutsView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      HStack {
+      HStack(spacing: 8) {
         ScrollView(.horizontal, showsIndicators: false) {
           EditableStack($keyboardShortcuts, axes: .horizontal, lazy: true, onMove: { _, _ in }) { keyboardShortcut in
-            HStack(spacing: 2) {
+            HStack(spacing: 6) {
               ModifierKeyIcon(key: .function)
-                .frame(width: 32)
-              RegularKeyIcon(letter: keyboardShortcut.displayValue.wrappedValue)
+                .frame(width: 32, height: 32)
+              RegularKeyIcon(letter: keyboardShortcut.displayValue.wrappedValue,
+                             width: 32, height: 32)
             }
             .padding(4)
             .background(

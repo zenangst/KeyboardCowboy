@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 struct ContentView: View {
@@ -9,6 +10,8 @@ struct ContentView: View {
   }
   @ObserveInjection var inject
   @EnvironmentObject private var publisher: ContentPublisher
+
+  @State var selected = Set<ContentViewModel>()
 
   private let onAction: (Action) -> Void
 
@@ -41,18 +44,13 @@ struct ContentView: View {
           })
           .frame(width: 32, height: 32)
           .cornerRadius(8, antialiased: false)
-          .clipped()
 
           Text(workflow.name)
             .lineLimit(1)
             .allowsTightening(true)
           Spacer()
 
-          if let binding = workflow.binding {
-            KeyboardShortcutView(shortcut: .init(key: binding, lhs: true))
-              .font(.caption)
-              .layoutPriority(-1)
-          }
+          shortcutView(workflow)
         }
         .contextMenu(menuItems: {
           contextualMenu()
@@ -64,11 +62,20 @@ struct ContentView: View {
         onAction(.moveWorkflows(source: source, destination: destination))
       }
     }
-    .listStyle(InsetListStyle())
     .onChange(of: publisher.selections, perform: { newValue in
+      selected = newValue
       onAction(.selectWorkflow(Array(newValue)))
     })
     .enableInjection()
+  }
+
+  @ViewBuilder
+  private func shortcutView(_ workflow: ContentViewModel) -> some View {
+    if let binding = workflow.binding {
+      KeyboardShortcutView(shortcut: .init(key: binding, lhs: true))
+        .font(.caption)
+        .layoutPriority(-1)
+    }
   }
 
   @ViewBuilder

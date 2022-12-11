@@ -15,6 +15,7 @@ struct WorkflowInfoView: View {
       Spacer()
       Toggle("", isOn: $workflow.isEnabled)
         .toggleStyle(SwitchToggleStyle())
+        .tint(Color.green)
         .font(.callout)
     }
     .enableInjection()

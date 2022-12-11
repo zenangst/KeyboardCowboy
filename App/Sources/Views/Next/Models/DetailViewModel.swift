@@ -23,6 +23,13 @@ struct DetailViewModel: Hashable, Identifiable {
   var isEnabled: Bool
   var trigger: Trigger?
   var commands: [CommandViewModel]
+  var flow: Flow = .concurrent
+
+  enum Flow: String, CaseIterable, Hashable, Identifiable {
+    var id: String { rawValue }
+    case concurrent = "Concurrent"
+    case serial = "Serial"
+  }
 
   enum Trigger: Hashable {
     case applications([DetailViewModel.ApplicationTrigger])
@@ -82,11 +89,14 @@ struct DetailViewModel: Hashable, Identifiable {
           case .path:
             return "path"
           }
+        case .rebinding:
+          return "rebinding"
         }
 
       }
       case application
       case open(appName: String?)
+      case rebinding(key: String, modifier: ModifierKey)
       case script(ScriptKind)
       case plain
     }

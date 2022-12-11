@@ -43,7 +43,7 @@ struct ContainerView: View {
       content: {
         ContentView(onAction: { onAction(.content($0)) })
           .toolbar {
-            ToolbarItemGroup(placement: .automatic) {
+            ToolbarItemGroup(placement: .navigation) {
               Button(action: {
                 onAction(.content(.addWorkflow))
               },
@@ -63,6 +63,9 @@ struct ContainerView: View {
       },
       detail: {
         DetailView(onAction: { onAction(.detail($0)) })
+          .navigationTitle(groupsPublisher.selections.first?.name ?? "")
+          .navigationSubtitle("Workflows")
+
       })
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)

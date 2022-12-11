@@ -28,13 +28,16 @@ struct WorkflowApplicationTriggerView: View {
               .tag($0.id)
           }
         }
-
+        Spacer()
         Button("Add", action: {
           if let application = applicationStore.application(for: selection) {
             onAction(.addApplicationTrigger(application))
           }
         })
+        .buttonStyle(KCButtonStyle())
       }
+      .padding(.horizontal, 4)
+
       EditableStack($triggers, lazy: true, spacing: 2, onMove: { _, _ in }) { trigger in
         HStack {
           Image(nsImage: trigger.image.wrappedValue)
@@ -59,15 +62,22 @@ struct WorkflowApplicationTriggerView: View {
           }
           Spacer()
           Button(action: { onAction(.removeApplicationTrigger(trigger.wrappedValue)) },
-                 label: { Image(systemName: "xmark.circle") })
-          .buttonStyle(PlainButtonStyle())
+                 label: { Image(systemName: "xmark") })
+          .buttonStyle(KCButtonStyle())
           .padding()
         }
-        .padding(4)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color(.windowBackgroundColor).opacity(0.75))
+        .cornerRadius(8)
+        .shadow(radius: 2)
       }
-      .padding(2)
       .cornerRadius(8)
     }
+    .padding(.vertical, 16)
+    .padding(.horizontal, 16)
+    .background(Color(.windowBackgroundColor).opacity(0.25))
+    .cornerRadius(8)
     .enableInjection()
   }
 }

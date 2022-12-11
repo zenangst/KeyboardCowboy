@@ -12,97 +12,84 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
   var body: some View {
     HStack(alignment: .center) {
-      VStack(alignment: .center, spacing: 10) {
-        ZStack {
-          icon()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 42)
-        }
-
-        Toggle("", isOn: $isEnabled)
-          .tint(.green)
-          .toggleStyle(.switch)
-          .offset(x: -4)
-      }
-      .padding([.top, .leading, .bottom], 10)
-
-      VStack(alignment: .leading, spacing: 12) {
-        content()
-          .frame(minHeight: 30)
-          .padding(.bottom, 8)
-        subContent()
-          .buttonStyle(KCButtonStyle())
-      }
-      .padding(4)
-
-
-      HStack {
-        HStack(spacing: 0) {
-          Rectangle()
-            .fill(Color(nsColor: .gray))
-            .frame(width: 1)
-            .opacity(0.15)
-          Rectangle()
-            .fill(Color(nsColor: .black))
-            .frame(width: 1)
-            .opacity(0.5)
-        }
-
-        VStack(spacing: 4) {
-          Button(action: onAction,
-                 label: {
-            Image(systemName: "xmark")
-              .resizable()
+      VStack(alignment: .leading, spacing: 4) {
+        HStack {
+          ZStack {
+            icon()
               .aspectRatio(contentMode: .fit)
-              .frame(width: 8)
-          })
-          .buttonStyle(.plain)
-          .frame(width: 32, height: 32)
-
-          VStack(spacing: 0) {
-            Rectangle()
-              .fill(Color(nsColor: .gray))
-              .frame(height: 1)
-              .opacity(0.15)
-            Rectangle()
-              .fill(Color(nsColor: .black))
-              .frame(height: 1)
-              .opacity(0.5)
+              .frame(minWidth: 32, minHeight: 32)
           }
-          .frame(width: 32)
 
-
-          Button(action: {},
-                 label: {
-            Image(systemName: "play.fill")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 8)
-              .offset(x: 0.5)
-              .padding(6)
-              .compositingGroup()
-          })
-          .buttonStyle(.plain)
-          .frame(width: 32, height: 32)
+          content()
+            .frame(minHeight: 30)
         }
-        .padding(.trailing, 8)
+        .padding([.trailing, .top, .leading], 8)
+
+        HStack(spacing: 0) {
+          Toggle("", isOn: $isEnabled)
+            .tint(.green)
+            .toggleStyle(.switch)
+            .scaleEffect(0.65)
+            .offset(x: -2)
+
+          subContent()
+            .buttonStyle(KCButtonStyle())
+            .padding(.leading, 2)
+        }
+        .padding([.trailing, .bottom], 8)
       }
-      .background(gradient)
+      Spacer()
+      actionButtons
     }
     .enableInjection()
   }
 
-  var gradient: some View {
-    ZStack {
-      LinearGradient(
-        gradient: Gradient(
-          stops: [
-            .init(color: Color(.windowBackgroundColor).opacity(0.35), location: 0.25),
-            .init(color: Color(.textBackgroundColor), location: 1.0),
-          ]),
-        startPoint: .top,
-        endPoint: .bottom)
-      .shadow(radius: 2)
+  var actionButtons: some View {
+    HStack(spacing: 0) {
+      HStack(spacing: 0) {
+        Rectangle()
+          .fill(Color(nsColor: .gray))
+          .frame(width: 1)
+          .opacity(0.15)
+        Rectangle()
+          .fill(Color(nsColor: .black))
+          .frame(width: 1)
+          .opacity(0.5)
+      }
+
+      VStack(spacing: 0) {
+        Spacer()
+        Button(action: onAction,
+               label: {
+          Image(systemName: "xmark")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+        })
+        .frame(width: 10, height: 10)
+        Spacer()
+        VStack(spacing: 0) {
+          Rectangle()
+            .fill(Color(nsColor: .gray))
+            .frame(height: 1)
+            .opacity(0.15)
+          Rectangle()
+            .fill(Color(nsColor: .black))
+            .frame(height: 1)
+            .opacity(0.5)
+        }
+        Spacer()
+        Button(action: {},
+               label: {
+          Image(systemName: "play")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+        })
+        .frame(width: 10, height: 10)
+        Spacer()
+      }
+      .buttonStyle(.plain)
+      .frame(width: 32)
+      .offset(x: -1, y: 1)
     }
   }
 }

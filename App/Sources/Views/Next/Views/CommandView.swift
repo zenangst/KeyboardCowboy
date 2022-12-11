@@ -19,12 +19,18 @@ struct CommandView: View {
         ApplicationCommandView(command: $command)
       case .script:
         ScriptCommandView(command: $command)
+      case .rebinding:
+        RebindingCommandView(command: $command)
       }
     }
-    .grayscale(command.isEnabled ? 0 : 1)
+    .grayscale(command.isEnabled ? 0 : 0.5)
     .opacity(command.isEnabled ? 1 : 0.5)
-    .background(gradient)
+    .background(Color(nsColor: NSColor.textBackgroundColor))
     .cornerRadius(8)
+    .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
+            radius: command.isEnabled ? 4 : 2,
+            y: command.isEnabled ? 2 : 0)
+    .animation(.easeIn(duration: 0.2), value: command.isEnabled)
     .enableInjection()
   }
 
@@ -33,8 +39,8 @@ struct CommandView: View {
       LinearGradient(
         gradient: Gradient(
           stops: [
-            .init(color: Color(.textBackgroundColor).opacity(0.45), location: 0.5),
-            .init(color: Color(.gridColor).opacity(0.85), location: 1.0),
+            .init(color: Color(.textBackgroundColor).opacity(0.45), location: 0.75),
+            .init(color: Color(.gridColor).opacity(0.55), location: 1.0),
           ]),
         startPoint: .top,
         endPoint: .bottom)

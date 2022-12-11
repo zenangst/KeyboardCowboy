@@ -14,7 +14,6 @@ struct ScriptCommandView: View {
         Image(nsImage: image)
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(width: 32)
       }
 
       VStack {
@@ -41,7 +40,7 @@ struct ScriptCommandView: View {
       HStack(spacing: 8) {
         Text(command.name)
           .allowsTightening(true)
-          .font(.title3)
+          .font(.body)
           .bold()
           .lineLimit(1)
           .minimumScaleFactor(0.8)
@@ -71,8 +70,8 @@ struct ScriptCommandView: View {
 struct ScriptCommandView_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
-      ScriptCommandView(command: .constant(DesignTime.detail.commands[2]))
-      ScriptCommandView(command: .constant(DesignTime.detail.commands[3]))
+      ScriptCommandView(command: .constant(DesignTime.scriptCommandInline))
+      ScriptCommandView(command: .constant(DesignTime.scriptCommandWithPath))
     }
   }
 }

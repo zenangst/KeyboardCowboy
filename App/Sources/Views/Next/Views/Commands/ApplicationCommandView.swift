@@ -21,6 +21,7 @@ struct ApplicationCommandView: View {
           }, label: {
             HStack(spacing: 4) {
               Text("Open")
+                .font(.caption)
                 .fixedSize(horizontal: false, vertical: true)
                 .truncationMode(.middle)
                 .allowsTightening(true)
@@ -36,7 +37,7 @@ struct ApplicationCommandView: View {
               .opacity(0.5)
           )
           Text(command.name)
-            .font(.title3)
+            .font(.body)
             .bold()
           Spacer()
         }
@@ -44,12 +45,13 @@ struct ApplicationCommandView: View {
         HStack {
           Toggle("In background", isOn: .constant(false))
           Toggle("Hide when opening", isOn: .constant(false))
-          Toggle("Open if not running", isOn: .constant(false))
+          Toggle("If not running", isOn: .constant(false))
         }
         .lineLimit(1)
         .allowsTightening(true)
         .truncationMode(.tail)
         .font(.caption)
+
       }, onAction: {
 
       })
@@ -59,7 +61,7 @@ struct ApplicationCommandView: View {
 
 struct ApplicationCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    ApplicationCommandView(command: .constant(DesignTime.detail.commands.first!))
+    ApplicationCommandView(command: .constant(DesignTime.applicationCommand))
       .designTime()
   }
 }

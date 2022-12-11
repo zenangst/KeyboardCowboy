@@ -60,8 +60,50 @@ enum DesignTime {
     .single(detail)
   }
 
-  static var detail: DetailViewModel {
+  static var applicationCommand: DetailViewModel.CommandViewModel {
+    .init(id: UUID().uuidString,
+          name: "News",
+          kind: .application,
+          image: NSWorkspace.shared.icon(forFile: "/System/Applications/News.app"),
+          isEnabled: true)
+  }
 
+  static var openCommand: DetailViewModel.CommandViewModel {
+    let homeDirectory = ("~/" as NSString).expandingTildeInPath
+    return .init(id: UUID().uuidString,
+                 name: "Home Folder",
+                 kind: .open(appName: nil),
+                 image: NSWorkspace.shared.icon(forFile: homeDirectory),
+                 isEnabled: true)
+  }
+
+  static var scriptCommandWithPath: DetailViewModel.CommandViewModel {
+    let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
+    return .init(id: UUID().uuidString,
+                 name: scriptFile,
+                 kind: .script(.path(id: UUID().uuidString, fileExtension: "scpt")),
+                 image: NSWorkspace.shared.icon(forFile: scriptFile),
+                 isEnabled: true)
+  }
+
+  static var scriptCommandInline: DetailViewModel.CommandViewModel {
+    let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
+    return .init(id: UUID().uuidString,
+          name: "Left align the Dock",
+          kind: .script(.inline(id: UUID().uuidString, type: "script")),
+          image: NSWorkspace.shared.icon(forFile: scriptFile),
+          isEnabled: true)
+  }
+
+  static var rebindingCommand: DetailViewModel.CommandViewModel {
+    .init(id: UUID().uuidString,
+          name: "Rebind esc to enter",
+          kind: .rebinding(key: "F", modifier: .function),
+          image: nil,
+          isEnabled: true)
+  }
+
+  static var detail: DetailViewModel {
     let homeDirectory = ("~/" as NSString).expandingTildeInPath
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
     //("~/Library/Mobile Documents/com~apple~CloudDocs/Keyboard Cowboy/Shortcuts.scpt" as NSString).expandingTildeInPath
@@ -70,32 +112,13 @@ enum DesignTime {
       id: UUID().uuidString,
       name: "Open News",
       isEnabled: true,
-      trigger: .keyboardShortcuts([.init(id: UUID().uuidString,
-                                         displayValue: "f", modifier: .shift)]),
+      trigger: .keyboardShortcuts([.init(id: UUID().uuidString, displayValue: "f", modifier: .shift)]),
       commands: [
-        .init(id: UUID().uuidString,
-              name: "News",
-              kind: .application,
-              image: NSWorkspace.shared.icon(forFile: "/System/Applications/News.app"),
-              isEnabled: true),
-
-        .init(id: UUID().uuidString,
-              name: "Home Folder",
-              kind: .open(appName: nil),
-              image: NSWorkspace.shared.icon(forFile: homeDirectory),
-              isEnabled: true),
-
-        .init(id: UUID().uuidString,
-              name: scriptFile,
-              kind: .script(.path(id: UUID().uuidString, fileExtension: "scpt")),
-              image: NSWorkspace.shared.icon(forFile: scriptFile),
-              isEnabled: true),
-
-          .init(id: UUID().uuidString,
-                name: "Left align the Dock",
-                kind: .script(.inline(id: UUID().uuidString, type: "script")),
-                image: NSWorkspace.shared.icon(forFile: scriptFile),
-                isEnabled: true),
+        Self.applicationCommand,
+        Self.openCommand,
+        Self.scriptCommandWithPath,
+        Self.scriptCommandInline,
+        Self.rebindingCommand
       ])
   }
 }
