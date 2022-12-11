@@ -75,8 +75,9 @@ final class DetailCoordinator {
           case .builtIn(_):
             kind = .plain
             name = command.name
-          case .keyboard(_):
-            kind = .plain
+          case .keyboard(let keyboardCommand):
+            kind = .keyboard(key: keyboardCommand.keyboardShortcut.key,
+                             modifiers: keyboardCommand.keyboardShortcut.modifiers ?? [])
             name = command.name
           case .open(let openCommand):
             let appName: String?

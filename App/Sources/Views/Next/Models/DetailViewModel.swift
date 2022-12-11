@@ -89,14 +89,14 @@ struct DetailViewModel: Hashable, Identifiable {
           case .path:
             return "path"
           }
-        case .rebinding:
+        case .keyboard:
           return "rebinding"
         }
 
       }
       case application
       case open(appName: String?)
-      case rebinding(key: String, modifier: ModifierKey)
+      case keyboard(key: String, modifiers: [ModifierKey])
       case script(ScriptKind)
       case plain
     }

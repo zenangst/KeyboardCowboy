@@ -19,7 +19,7 @@ struct CommandView: View {
         ApplicationCommandView(command: $command)
       case .script:
         ScriptCommandView(command: $command)
-      case .rebinding:
+      case .keyboard:
         RebindingCommandView(command: $command)
       }
     }
