@@ -17,7 +17,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
           ZStack {
             icon()
               .aspectRatio(contentMode: .fit)
-              .frame(minWidth: 32, minHeight: 32)
+              .frame(maxWidth: 32, maxHeight: 32)
           }
 
           content()
