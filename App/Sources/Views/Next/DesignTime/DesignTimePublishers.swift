@@ -31,7 +31,7 @@ enum DesignTime {
       ContentViewModel.Image(id: UUID().uuidString, offset: 0, nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/News.app"))
     ], binding: "ƒSpace", badge: 0, badgeOpacity: 0),
     ContentViewModel(id: UUID().uuidString, name: "Open Podcast", images: [
-      ContentViewModel.Image(id: UUID().uuidString, offset: 0, nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Podcast.app"))
+      ContentViewModel.Image(id: UUID().uuidString, offset: 0, nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Podcasts.app"))
     ], binding: "ƒU", badge: 0, badgeOpacity: 0),
     ContentViewModel(id: UUID().uuidString, name: "Open Music", images: [
       ContentViewModel.Image(id: UUID().uuidString, offset: 0, nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Music.app"))
