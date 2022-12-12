@@ -63,5 +63,6 @@ struct ApplicationCommandView_Previews: PreviewProvider {
   static var previews: some View {
     ApplicationCommandView(command: .constant(DesignTime.applicationCommand))
       .designTime()
+      .frame(maxHeight: 80)
   }
 }
