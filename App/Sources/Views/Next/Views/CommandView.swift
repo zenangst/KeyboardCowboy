@@ -20,7 +20,7 @@ struct CommandView: View {
       case .script:
         ScriptCommandView(command: $command)
       case .keyboard:
-        RebindingCommandView(command: $command)
+        KeyboardCommandView(command: $command)
       }
     }
     .grayscale(command.isEnabled ? 0 : 0.5)

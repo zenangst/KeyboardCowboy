@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct RebindingCommandView: View {
+struct KeyboardCommandView: View {
   @ObserveInjection var inject
   @Binding var command: DetailViewModel.CommandViewModel
 
@@ -57,7 +57,7 @@ struct RebindingCommandView: View {
 
 struct RebindingCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    RebindingCommandView(command: .constant(DesignTime.rebindingCommand))
+    KeyboardCommandView(command: .constant(DesignTime.rebindingCommand))
       .frame(maxHeight: 80)
   }
 }
