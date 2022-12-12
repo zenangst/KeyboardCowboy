@@ -118,22 +118,24 @@ private extension Workflow.Trigger {
 }
 
 private extension Array where Element == Command {
-  func images() -> [ContentViewModel.Image] {
-    var images = [ContentViewModel.Image]()
+  func images() -> [ContentViewModel.ImageModel] {
+    var images = [ContentViewModel.ImageModel]()
     for (offset, element) in self.enumerated() {
       let convertedOffset = Double(offset)
       switch element {
       case .application(let command):
         images.append(
-          ContentViewModel.Image(
+          ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            nsImage: NSWorkspace.shared.icon(forFile: command.application.path))
+            kind: .nsImage(NSWorkspace.shared.icon(forFile: command.application.path)))
         )
       case .builtIn:
         continue
-      case .keyboard:
-        continue
+      case .keyboard(let keyCommand):
+        images.append(.init(id: keyCommand.id, offset: convertedOffset,
+                            kind: .command(.keyboard(key: keyCommand.keyboardShortcut.key,
+                                                     modifiers: keyCommand.keyboardShortcut.modifiers ?? []))))
       case .open(let command):
         let nsImage: NSImage
         if let application = command.application, command.isUrl {
@@ -145,18 +147,18 @@ private extension Array where Element == Command {
         }
 
         images.append(
-          ContentViewModel.Image(
+          ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            nsImage: nsImage)
+            kind: .nsImage(nsImage))
         )
       case .script(let kind):
         let nsImage = NSWorkspace.shared.icon(forFile: kind.path)
         images.append(
-          ContentViewModel.Image(
+          ContentViewModel.ImageModel(
             id: kind.id,
             offset: convertedOffset,
-            nsImage: nsImage)
+            kind: .nsImage(nsImage))
         )
       case .shortcut:
         continue

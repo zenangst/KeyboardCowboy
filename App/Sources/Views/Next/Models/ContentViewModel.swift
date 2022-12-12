@@ -3,14 +3,19 @@ import SwiftUI
 struct ContentViewModel: Identifiable, Hashable {
   let id: String
   let name: String
-  let images: [Image]
+  let images: [ImageModel]
   let binding: String?
   let badge: Int
   let badgeOpacity: Double
 
-  struct Image: Identifiable, Hashable {
+  struct ImageModel: Identifiable, Hashable {
     let id: String
     let offset: Double
-    let nsImage: NSImage
+    let kind: Kind
+
+    enum Kind: Hashable {
+      case command(DetailViewModel.CommandViewModel.Kind)
+      case nsImage(NSImage)
+    }
   }
 }

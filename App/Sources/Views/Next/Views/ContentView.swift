@@ -87,16 +87,47 @@ struct ContentView: View {
 }
 
 struct ContentImagesView: View {
-  let images: [ContentViewModel.Image]
+  let images: [ContentViewModel.ImageModel]
 
   var body: some View {
     ForEach(images) { image in
-      Image(nsImage: image.nsImage)
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .rotationEffect(.degrees(-(3.75 * image.offset)))
-        .offset(.init(width: -(image.offset * 1.25),
-                      height: image.offset * 1.25))
+      switch image.kind {
+      case .nsImage(let nsImage):
+        Image(nsImage: nsImage)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .rotationEffect(.degrees(-(3.75 * image.offset)))
+          .offset(.init(width: -(image.offset * 1.25),
+                        height: image.offset * 1.25))
+      case .command(let kind):
+        switch kind {
+        case .keyboard(let key, let modifiers):
+          ZStack {
+            RegularKeyIcon(letter: key)
+              .scaleEffect(0.8)
+
+            ForEach(modifiers) { modifier in
+              HStack {
+                ModifierKeyIcon(key: modifier)
+                  .scaleEffect(0.4, anchor: .bottomLeading)
+                  .opacity(0.8)
+              }
+              .padding(4)
+            }
+          }
+          .rotationEffect(.degrees(-(3.75 * image.offset)))
+          .offset(.init(width: -(image.offset * 1.25),
+                        height: image.offset * 1.25))
+        case .application:
+         EmptyView()
+        case .open:
+          EmptyView()
+        case .script(_):
+          EmptyView()
+        case .plain:
+          EmptyView()
+        }
+      }
     }
   }
 }
