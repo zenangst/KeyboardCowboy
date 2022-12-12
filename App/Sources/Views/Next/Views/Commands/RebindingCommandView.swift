@@ -31,5 +31,6 @@ struct RebindingCommandView: View {
 struct RebindingCommandView_Previews: PreviewProvider {
   static var previews: some View {
     RebindingCommandView(command: .constant(DesignTime.rebindingCommand))
+      .frame(maxHeight: 80)
   }
 }
