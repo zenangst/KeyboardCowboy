@@ -9,33 +9,10 @@ struct ScriptCommandView: View {
       Rectangle()
         .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
         .cornerRadius(8, antialiased: false)
-
-      if let image = command.image {
-        Image(nsImage: image)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-      }
-
-      VStack {
-        Spacer()
-        Group {
-          if case .script(let kind) = command.kind,
-             case .path(_, let fileExtension) = kind {
-            Text(fileExtension)
-
-          } else {
-            Text("Inline")
-          }
-        }
-        .font(.system(size: 8, weight: .semibold, design: .monospaced))
-        .padding(2)
-        .foregroundColor(.black)
-        .background {
-          RoundedRectangle(cornerRadius: 4)
-            .fill(Color(nsColor: .systemYellow))
-        }
-      }
-      .offset(x: 2.5, y: -2.5)
+      Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Utilities/Script Editor.app"))
+        .resizable()
+        .aspectRatio(1, contentMode: .fill)
+        .frame(width: 32)
     }, content: {
       HStack(spacing: 8) {
         Text(command.name)

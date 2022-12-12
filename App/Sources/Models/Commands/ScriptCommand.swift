@@ -62,6 +62,14 @@ public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
     }
   }
 
+  public var sourceType: Source {
+    switch self {
+    case .appleScript(_, _, _, let source),
+         .shell(_, _, _, let source):
+      return source
+    }
+  }
+
   public var source: String {
     switch self {
     case .appleScript(_, _, _, let source),

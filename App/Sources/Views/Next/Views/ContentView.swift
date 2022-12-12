@@ -87,48 +87,82 @@ struct ContentView: View {
 }
 
 struct ContentImagesView: View {
+  @ObserveInjection var inject
   let images: [ContentViewModel.ImageModel]
 
   var body: some View {
     ForEach(images) { image in
-      switch image.kind {
-      case .nsImage(let nsImage):
-        Image(nsImage: nsImage)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .rotationEffect(.degrees(-(3.75 * image.offset)))
-          .offset(.init(width: -(image.offset * 1.25),
-                        height: image.offset * 1.25))
-      case .command(let kind):
-        switch kind {
-        case .keyboard(let key, let modifiers):
-          ZStack {
-            RegularKeyIcon(letter: key)
-              .scaleEffect(0.8)
+      ContentImageView(image: image)
+    }
+    .enableInjection()
+  }
+}
 
-            ForEach(modifiers) { modifier in
-              HStack {
-                ModifierKeyIcon(key: modifier)
-                  .scaleEffect(0.4, anchor: .bottomLeading)
-                  .opacity(0.8)
-              }
-              .padding(4)
+struct ContentImageView: View {
+  let image: ContentViewModel.ImageModel
+
+  var body: some View {
+    switch image.kind {
+    case .nsImage(let nsImage):
+      Image(nsImage: nsImage)
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .rotationEffect(.degrees(-(3.75 * image.offset)))
+        .offset(.init(width: -(image.offset * 1.25),
+                      height: image.offset * 1.25))
+    case .command(let kind):
+      switch kind {
+      case .keyboard(let key, let modifiers):
+        ZStack {
+          RegularKeyIcon(letter: key)
+            .scaleEffect(0.8)
+
+          ForEach(modifiers) { modifier in
+            HStack {
+              ModifierKeyIcon(key: modifier)
+                .scaleEffect(0.4, anchor: .bottomLeading)
+                .opacity(0.8)
             }
+            .padding(4)
           }
-          .rotationEffect(.degrees(-(3.75 * image.offset)))
-          .offset(.init(width: -(image.offset * 1.25),
-                        height: image.offset * 1.25))
-        case .application:
-         EmptyView()
-        case .open:
-          EmptyView()
-        case .script(_):
-          EmptyView()
-        case .plain:
-          EmptyView()
         }
+        .rotationEffect(.degrees(-(3.75 * image.offset)))
+        .offset(.init(width: -(image.offset * 1.25),
+                      height: image.offset * 1.25))
+      case .application:
+       EmptyView()
+      case .open:
+        EmptyView()
+      case .script(let scriptKind):
+        switch scriptKind {
+        case .inline:
+          ZStack {
+            Rectangle()
+              .fill(LinearGradient(stops: [
+                .init(color: Color(nsColor: NSColor(.accentColor)).opacity(0.2), location: 0.0),
+                .init(color: .black, location: 0.2),
+                .init(color: .black, location: 1.0),
+              ], startPoint: .top, endPoint: .bottom))
+              .cornerRadius(8)
+              .scaleEffect(0.9)
+            RoundedRectangle(cornerRadius: 8)
+              .stroke(.black)
+              .scaleEffect(0.9)
+
+            Text(">_")
+              .font(Font.system(.caption, design: .monospaced))
+          }
+        case .path:
+          Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Utilities/Script Editor.app"))
+            .resizable()
+            .aspectRatio(1, contentMode: .fill)
+            .frame(width: 32)
+        }
+      case .plain:
+        EmptyView()
       }
     }
+
   }
 }
 

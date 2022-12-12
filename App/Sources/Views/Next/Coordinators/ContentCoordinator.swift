@@ -152,14 +152,18 @@ private extension Array where Element == Command {
             offset: convertedOffset,
             kind: .nsImage(nsImage))
         )
-      case .script(let kind):
-        let nsImage = NSWorkspace.shared.icon(forFile: kind.path)
-        images.append(
-          ContentViewModel.ImageModel(
-            id: kind.id,
-            offset: convertedOffset,
-            kind: .nsImage(nsImage))
-        )
+      case .script(let script):
+        switch script.sourceType {
+        case .inline:
+          images.append(.init(id: script.id,
+                              offset: convertedOffset,
+                              kind: .command(.script(.inline(id: script.id, type: "")))))
+
+        case .path:
+          images.append(.init(id: script.id,
+                              offset: convertedOffset,
+                              kind: .command(.script(.path(id: script.id, fileExtension: "")))))
+        }
       case .shortcut:
         continue
       case .type:
