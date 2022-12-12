@@ -80,5 +80,6 @@ struct OpenCommandView: View {
 struct OpenCommandView_Previews: PreviewProvider {
     static var previews: some View {
       OpenCommandView(command: .constant(DesignTime.openCommand))
+        .frame(maxHeight: 80)
     }
 }
