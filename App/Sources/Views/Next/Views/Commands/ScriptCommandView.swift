@@ -71,7 +71,10 @@ struct ScriptCommandView_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
       ScriptCommandView(command: .constant(DesignTime.scriptCommandInline))
+        .frame(maxHeight: 80)
+      Divider()
       ScriptCommandView(command: .constant(DesignTime.scriptCommandWithPath))
+        .frame(maxHeight: 80)
     }
   }
 }
