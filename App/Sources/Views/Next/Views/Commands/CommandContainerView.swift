@@ -23,7 +23,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
           content()
             .frame(minHeight: 30)
         }
-        .padding([.trailing, .top, .leading], 8)
+        .padding([.top, .leading], 8)
 
         HStack(spacing: 0) {
           Toggle("", isOn: $isEnabled)
@@ -36,7 +36,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .buttonStyle(KCButtonStyle())
             .padding(.leading, 2)
         }
-        .padding([.trailing, .bottom], 8)
+        .padding([.bottom], 8)
       }
       Spacer()
       actionButtons
