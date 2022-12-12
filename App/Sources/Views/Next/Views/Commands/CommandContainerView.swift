@@ -103,5 +103,6 @@ struct CommandContainerView_Previews: PreviewProvider {
         Text("Bar")
       },
       subContent: { Text("Baz") }) {}
+      .frame(maxHeight: 80)
   }
 }
