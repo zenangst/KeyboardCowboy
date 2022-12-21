@@ -91,6 +91,10 @@ struct DetailViewModel: Hashable, Identifiable {
           }
         case .keyboard:
           return "rebinding"
+        case .shortcut:
+          return "shortcut"
+        case .type:
+          return "type"
         }
 
       }
@@ -99,6 +103,8 @@ struct DetailViewModel: Hashable, Identifiable {
       case keyboard(key: String, modifiers: [ModifierKey])
       case script(ScriptKind)
       case plain
+      case shortcut
+      case type
     }
 
     enum ScriptKind: Hashable, Identifiable {

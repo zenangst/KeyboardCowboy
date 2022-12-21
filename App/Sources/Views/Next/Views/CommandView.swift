@@ -21,6 +21,10 @@ struct CommandView: View {
         ScriptCommandView(command: $command)
       case .keyboard:
         KeyboardCommandView(command: $command)
+      case .shortcut:
+        ShortcutCommandView(command: $command)
+      case .type:
+        TypeCommandView(command: $command)
       }
     }
     .grayscale(command.isEnabled ? 0 : 0.5)

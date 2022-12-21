@@ -40,7 +40,7 @@ struct KeyboardCommandView: View {
             .background(Color(nsColor: .gridColor))
             .cornerRadius(4)
             .scaleEffect(0.85, anchor: .trailing)
-            .frame(height: 40, alignment: .trailing)
+            .frame(height: 32, alignment: .trailing)
           }
         }, subContent: {
 

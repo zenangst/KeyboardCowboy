@@ -154,6 +154,15 @@ enum DesignTime {
           isEnabled: true)
   }
 
+  static var shortcutCommand: DetailViewModel.CommandViewModel {
+    .init(id: UUID().uuidString, name: "Run shortcut", kind: .shortcut, image: nil, isEnabled: true)
+  }
+
+  static var typeCommand: DetailViewModel.CommandViewModel {
+    .init(id: UUID().uuidString, name: "Type command", kind: .type, image: nil, isEnabled: true)
+  }
+
+
   static var detail: DetailViewModel {
     let homeDirectory = ("~/" as NSString).expandingTildeInPath
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")

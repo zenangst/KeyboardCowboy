@@ -164,8 +164,8 @@ private extension Array where Element == Command {
                               offset: convertedOffset,
                               kind: .command(.script(.path(id: script.id, fileExtension: "")))))
         }
-      case .shortcut:
-        continue
+      case .shortcut(let shortcut):
+        images.append(.init(id: shortcut.id, offset: convertedOffset, kind: .command(.shortcut)))
       case .type:
         continue
       }

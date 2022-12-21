@@ -158,6 +158,13 @@ struct ContentImageView: View {
             .aspectRatio(1, contentMode: .fill)
             .frame(width: 32)
         }
+      case .shortcut:
+        Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Shortcuts.app"))
+          .resizable()
+          .aspectRatio(1, contentMode: .fill)
+          .frame(width: 32)
+      case .type:
+        EmptyView()
       case .plain:
         EmptyView()
       }

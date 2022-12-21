@@ -99,7 +99,7 @@ final class DetailCoordinator {
               name = openCommand.path
             }
           case .shortcut(_):
-            kind = .plain
+            kind = .shortcut
             name = command.name
           case .script(let script):
             switch script {
@@ -122,7 +122,7 @@ final class DetailCoordinator {
             }
             name = command.name
           case .type(_):
-            kind = .plain
+            kind = .type
             name = command.name
           }
 
