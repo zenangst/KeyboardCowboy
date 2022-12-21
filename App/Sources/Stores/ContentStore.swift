@@ -10,6 +10,7 @@ final class ContentStore: ObservableObject {
   var undoManager: UndoManager?
 
   private let storage: Storage
+  private let indexer: Indexer
   private var subscriptions = [AnyCancellable]()
 
   private(set) var applicationStore = ApplicationStore()
@@ -26,7 +27,10 @@ final class ContentStore: ObservableObject {
   @Published private(set) var groupIds: Set<String>
   @Published private(set) var workflowIds: Set<String>
 
-  init(_ preferences: AppPreferences, scriptEngine: ScriptEngine, workspace: NSWorkspace) {
+  init(_ preferences: AppPreferences,
+       indexer: Indexer,
+       scriptEngine: ScriptEngine,
+       workspace: NSWorkspace) {
     _configurationId = .init(initialValue: Self.appStorage.configId)
     _groupIds = .init(initialValue: Self.appStorage.groupIds)
     _workflowIds = .init(initialValue: Self.appStorage.workflowIds)
@@ -35,6 +39,7 @@ final class ContentStore: ObservableObject {
     self.shortcutStore = ShortcutStore(engine: scriptEngine)
     self.groupStore = groupStore
     self.configurationStore = ConfigurationStore()
+    self.indexer = indexer
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
     self.searchStore = SearchStore(store: groupStore, results: [])
@@ -79,6 +84,7 @@ final class ContentStore: ObservableObject {
   }
 
   func use(_ configuration: KeyboardCowboyConfiguration) {
+    indexer.run(configuration.groups)
     configurationId = configuration.id
     // Select first group if the selection is empty
     if groupIds.isEmpty, let group = configuration.groups.first {

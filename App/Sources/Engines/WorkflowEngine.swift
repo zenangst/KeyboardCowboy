@@ -6,6 +6,7 @@ import os
 
 final class WorkflowEngine {
   private let commandEngine: CommandEngine
+  private let indexer: Indexer
 
   @Published private(set) var activeWorkflows: [Workflow] = .init()
   @Published private(set) var sequence: [KeyShortcut] = .init()
@@ -19,8 +20,10 @@ final class WorkflowEngine {
   init(applicationStore: ApplicationStore,
        commandEngine: CommandEngine,
        configStore: ConfigurationStore,
+       indexer: Indexer,
        workspace: NSWorkspace = .shared) {
     self.commandEngine = commandEngine
+    self.indexer = indexer
     configStore.$selectedConfiguration
       .combineLatest(
         applicationStore.$applications,
@@ -93,6 +96,16 @@ final class WorkflowEngine {
     if event.kind != .keyDown {
       self.reset()
       return
+    }
+
+    guard let indexType = indexer.validate(event) else { return }
+
+    switch indexType {
+    case .single(let workflow):
+      commandEngine.serialRun(workflow.commands.filter(\.isEnabled))
+      return
+    case .sequence:
+      break
     }
 
     sequence.append(event.keyboardShortcut)

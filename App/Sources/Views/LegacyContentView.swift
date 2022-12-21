@@ -181,7 +181,9 @@ struct LegacyContentView_Previews: PreviewProvider {
     @FocusState var focus: Focus?
 
     var body: some View {
-      LegacyContentView(.init(.designTime(), scriptEngine: .init(workspace: .shared), workspace: .shared),
+      LegacyContentView(.init(.designTime(), indexer: .init(),
+                              scriptEngine: .init(workspace: .shared),
+                              workspace: .shared),
                   selectedGroups: .constant([]),
                   selectedWorkflows: .constant([]),
                   focus: _focus) { _ in }

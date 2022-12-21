@@ -3,7 +3,8 @@ import SwiftUI
 extension PreviewProvider {
   static var applicationStore: ApplicationStore { contentStore.applicationStore }
   static var configurationStore: ConfigurationStore { contentStore.configurationStore }
-  static var contentStore: ContentStore { ContentStore(.designTime(), scriptEngine: .init(workspace: .shared),
+  static var contentStore: ContentStore { ContentStore(.designTime(), indexer: Indexer(),
+                                                       scriptEngine: .init(workspace: .shared),
                                                        workspace: .shared) }
   static var groupStore: GroupStore { contentStore.groupStore }
 
