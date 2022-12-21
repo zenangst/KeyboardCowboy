@@ -166,8 +166,8 @@ private extension Array where Element == Command {
         }
       case .shortcut(let shortcut):
         images.append(.init(id: shortcut.id, offset: convertedOffset, kind: .command(.shortcut)))
-      case .type:
-        continue
+      case .type(let type):
+        images.append(.init(id: type.id, offset: convertedOffset, kind: .command(.type)))
       }
     }
 

@@ -17,7 +17,8 @@ struct TypeCommandView: View {
         Rectangle()
           .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
           .cornerRadius(8, antialiased: false)
-        RegularKeyIcon(letter: "(...)")
+        RegularKeyIcon(letter: "(...)", width: 24, height: 24)
+          .frame(width: 16, height: 16)
       }, content: {
         ZStack(alignment: .leading) {
           TextEditor(text: $source)

@@ -164,7 +164,8 @@ struct ContentImageView: View {
           .aspectRatio(1, contentMode: .fill)
           .frame(width: 32)
       case .type:
-        EmptyView()
+        RegularKeyIcon(letter: "(...)", width: 25, height: 25)
+          .frame(width: 24, height: 24)
       case .plain:
         EmptyView()
       }
