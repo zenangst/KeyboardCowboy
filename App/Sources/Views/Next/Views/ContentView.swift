@@ -12,6 +12,7 @@ struct ContentView: View {
   @EnvironmentObject private var publisher: ContentPublisher
 
   @State var selected = Set<ContentViewModel>()
+  @State var overlayOpacity: CGFloat = 0
 
   private let onAction: (Action) -> Void
 
@@ -55,6 +56,12 @@ struct ContentView: View {
         .contextMenu(menuItems: {
           contextualMenu()
         })
+        .onFrameChange(perform: { rect in
+          if workflow == publisher.models.first {
+            let value = min(max(1.0 - rect.origin.y / 52.0, 0.0), 0.9)
+            overlayOpacity = value
+          }
+        })
         .tag(workflow)
         .id(workflow.id)
       }
@@ -66,6 +73,41 @@ struct ContentView: View {
       selected = newValue
       onAction(.selectWorkflow(Array(newValue)))
     })
+    .overlay(alignment: .top, content: {
+      VStack(spacing: 0) {
+        Rectangle()
+          .fill(Color(.gridColor))
+          .frame(height: 36)
+        Rectangle()
+          .fill(Color(nsColor: .gray))
+          .frame(height: 1)
+          .opacity(0.25)
+        Rectangle()
+          .fill(Color(nsColor: .black))
+          .frame(height: 1)
+          .opacity(0.5)
+      }
+        .opacity(overlayOpacity)
+        .allowsHitTesting(false)
+        .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
+        .edgesIgnoringSafeArea(.top)
+    })
+    .toolbar {
+      ToolbarItemGroup(placement: .navigation) {
+        Button(action: {
+          //            onAction(.content(.addWorkflow))
+        },
+               label: {
+          Label(title: {
+            Text("Add workflow")
+          }, icon: {
+            Image(systemName: "rectangle.stack.badge.plus")
+              .renderingMode(.template)
+              .foregroundColor(Color(.systemGray))
+          })
+        })
+      }
+    }
     .enableInjection()
   }
 
@@ -174,10 +216,41 @@ struct ContentImageView: View {
   }
 }
 
+struct GeometryPreferenceKeyView<Key: PreferenceKey>: ViewModifier {
+    typealias Transform = (GeometryProxy) -> Key.Value
+    private let space: CoordinateSpace
+    private let transform: Transform
+
+    init(space: CoordinateSpace, transform: @escaping Transform) {
+        self.space = space
+        self.transform = transform
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .background(GeometryReader { Color.clear.preference(key: Key.self, value: transform($0)) })
+    }
+}
+
+struct FramePreferenceKey: PreferenceKey {
+    typealias Value = CGRect
+    static var defaultValue = CGRect.zero
+
+    static func reduce(value: inout Value, nextValue: () -> Value) { }
+}
+
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
     ContentView { _ in }
       .designTime()
       .frame(height: 900)
+  }
+}
+
+extension View {
+  func onFrameChange(space: CoordinateSpace = .global, perform: @escaping (CGRect) -> Void) -> some View {
+      self
+          .modifier(GeometryPreferenceKeyView<FramePreferenceKey>(space: space, transform: { $0.frame(in: space) }))
+          .onPreferenceChange(FramePreferenceKey.self, perform: perform)
   }
 }

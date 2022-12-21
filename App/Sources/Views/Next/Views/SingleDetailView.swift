@@ -102,9 +102,14 @@ struct SingleDetailView: View {
           }, label: {
             Text("Run \(model.flow.rawValue)")
           }, primaryAction: {
-
           })
           .fixedSize()
+          Button(action: {}) {
+            HStack(spacing: 4) {
+              Image(systemName: "plus.circle")
+              Text("Command")
+            }
+          }
         }
         .padding([.leading, .bottom, .trailing], 8)
         EditableStack($model.commands, spacing: 10, onMove: { indexSet, toOffset in
@@ -126,25 +131,6 @@ struct SingleDetailView: View {
     }
     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
     .labelStyle(HeaderLabelStyle())
-    .toolbar {
-      ToolbarItemGroup {
-        HStack {
-          Button(
-            action: {
-              sheet = .newCommand
-            },
-            label: {
-              Label(title: {
-                Text("Add command")
-              }, icon: {
-                Image(systemName: "plus.square.dashed")
-                  .renderingMode(.template)
-                  .foregroundColor(Color(.systemGray))
-              })
-            })
-        }
-      }
-    }
     .sheet(item: $sheet, content: { kind in
       switch kind {
       case .newCommand:

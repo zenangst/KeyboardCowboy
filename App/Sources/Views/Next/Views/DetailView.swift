@@ -17,20 +17,10 @@ struct DetailView: View {
       switch publisher.model {
       case .empty:
         Text("Empty")
-          .toolbar(content: {
-            ToolbarItem {
-              Text("Empty")
-            }
-          })
       case .single(let model):
         SingleDetailView(model, onAction: { onAction(.singleDetailView($0)) })
       case .multiple:
         Text("Multiple commands selected")
-          .toolbar(content: {
-            ToolbarItem {
-              Text("Multiple commands selected")
-            }
-          })
       }
     }
     .id(publisher.model.id)

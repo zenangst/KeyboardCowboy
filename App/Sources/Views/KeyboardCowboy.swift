@@ -130,12 +130,14 @@ struct KeyboardCowboy: App {
           }
       }
     }
+    .windowStyle(.hiddenTitleBar)
+
 
     EditWorkflowGroupWindow(contentStore)
       .windowResizability(.contentSize)
+      .windowStyle(.hiddenTitleBar)
       .defaultPosition(.topTrailing)
       .defaultSize(.init(width: 520, height: 280))
-      .windowStyle(.hiddenTitleBar)
   }
 
   private func handleScene(_ scene: AppScene) {

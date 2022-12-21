@@ -1,10 +1,10 @@
 import SwiftUI
 
-struct HeaderLabelStyle: LabelStyle {
+struct SidebarLabelStyle: LabelStyle {
   @ObserveInjection var inject
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.title
-      .font(.system(.body, design: .rounded,weight: .semibold))
+      .font(.subheadline.bold())
       .allowsTightening(true)
       .lineLimit(1)
       .foregroundColor(Color.secondary)

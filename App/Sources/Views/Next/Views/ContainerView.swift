@@ -42,30 +42,10 @@ struct ContainerView: View {
       },
       content: {
         ContentView(onAction: { onAction(.content($0)) })
-          .toolbar {
-            ToolbarItemGroup(placement: .navigation) {
-              Button(action: {
-                onAction(.content(.addWorkflow))
-              },
-                     label: {
-                Label(title: {
-                  Text("Add workflow")
-                }, icon: {
-                  Image(systemName: "rectangle.stack.badge.plus")
-                    .renderingMode(.template)
-                    .foregroundColor(Color(.systemGray))
-                })
-              })
-            }
-          }
-          .navigationTitle(groupsPublisher.selections.first?.name ?? "")
-          .navigationSubtitle("Workflows")
       },
       detail: {
         DetailView(onAction: { onAction(.detail($0)) })
-          .navigationTitle(groupsPublisher.selections.first?.name ?? "")
-          .navigationSubtitle("Workflows")
-
+          .edgesIgnoringSafeArea(.top)
       })
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)

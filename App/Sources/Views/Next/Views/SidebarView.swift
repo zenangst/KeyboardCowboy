@@ -86,7 +86,7 @@ struct SidebarView: View {
         onAction(.selectGroups(Array(newValue)))
       }
     }
-    .labelStyle(HeaderLabelStyle())
+    .labelStyle(SidebarLabelStyle())
     .enableInjection()
   }
 
