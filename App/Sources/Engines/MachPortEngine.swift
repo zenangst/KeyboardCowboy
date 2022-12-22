@@ -103,6 +103,7 @@ final class MachPortEngine {
       if let result = indexer.lookup(keyboardShortcut, previousKey: previousKey) {
         switch result {
         case .partialMatch(let key):
+          machPortEvent.result = nil
           previousKey = key
         case .exact(let workflow):
           machPortEvent.result = nil
