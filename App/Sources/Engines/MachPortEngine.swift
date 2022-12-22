@@ -33,7 +33,8 @@ final class MachPortEngine {
 
   @Published var recording: KeyShortcutRecording?
 
-  private var previousKey: String = ""
+  private static let previousKeyDefault = "."
+  private var previousKey: String = "."
 
   private var subscriptions = Set<AnyCancellable>()
   private var mode: KeyboardCowboyMode
@@ -106,10 +107,10 @@ final class MachPortEngine {
         case .exact(let workflow):
           machPortEvent.result = nil
           commandEngine.serialRun(workflow.commands)
-          previousKey = "."
+          previousKey = Self.previousKeyDefault
         }
       } else {
-        previousKey = "."
+        previousKey = Self.previousKeyDefault
       }
     }
   }
