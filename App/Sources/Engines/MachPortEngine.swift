@@ -98,20 +98,30 @@ final class MachPortEngine {
         .compactMap({ ModifierKey(rawValue: $0.rawValue) })
       let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
-      guard kind == .keyDown else { return }
-
       if let result = indexer.lookup(keyboardShortcut, previousKey: previousKey) {
         switch result {
         case .partialMatch(let key):
           machPortEvent.result = nil
-          previousKey = key
+          if kind == .keyDown {
+            previousKey = key
+          }
         case .exact(let workflow):
           machPortEvent.result = nil
-          commandEngine.serialRun(workflow.commands.filter(\.isEnabled))
-          previousKey = Self.previousKeyDefault
+          switch workflow.commands.last {
+          case .keyboard(let command):
+            try? keyboardEngine.run(command, type: machPortEvent.type,
+                                    with: machPortEvent.eventSource)
+          default:
+            if kind == .keyDown {
+              commandEngine.serialRun(workflow.commands.filter(\.isEnabled))
+              previousKey = Self.previousKeyDefault
+            }
+          }
         }
       } else {
-        previousKey = Self.previousKeyDefault
+        if kind == .keyDown {
+          previousKey = Self.previousKeyDefault
+        }
       }
     }
   }
