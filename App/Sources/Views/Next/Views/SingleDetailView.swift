@@ -104,14 +104,18 @@ struct SingleDetailView: View {
           }, primaryAction: {
           })
           .fixedSize()
+          Divider()
+            .padding(.horizontal, 4)
           Button(action: {}) {
             HStack(spacing: 4) {
-              Image(systemName: "plus.circle")
-              Text("Command")
+              Image(systemName: "plus")
             }
           }
+          .padding(4)
+          .buttonStyle(KCButtonStyle())
         }
-        .padding([.leading, .bottom, .trailing], 8)
+        .padding([.leading, .bottom], 8)
+        .padding(.trailing, 16)
         EditableStack($model.commands, spacing: 10, onMove: { indexSet, toOffset in
           onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
         }) { command in

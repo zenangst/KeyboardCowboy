@@ -33,7 +33,8 @@ struct WorkflowShortcutsView: View {
                label: { Image(systemName: "plus") })
         .buttonStyle(KCButtonStyle())
         .font(.callout)
-        .padding(.horizontal, 16)
+        .padding(.leading, 8)
+        .padding(.trailing, 16)
       }
       .padding(4)
       .background(Color(.windowBackgroundColor))

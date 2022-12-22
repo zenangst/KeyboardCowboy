@@ -14,7 +14,6 @@ final class KeyboardCowboyEngine {
   private let commandEngine: CommandEngine
   private let machPortEngine: MachPortEngine
   private let shortcutStore: ShortcutStore
-  private let workflowEngine: WorkflowEngine
 
   private var machPortController: MachPortEventController?
 
@@ -27,21 +26,13 @@ final class KeyboardCowboyEngine {
                                       keyCodeStore: keyCodeStore)
     self.contentStore = contentStore
     self.commandEngine = commandEngine
-    self.machPortEngine = MachPortEngine(store: keyCodeStore, mode: .intercept)
-    self.workflowEngine = .init(
-      applicationStore: contentStore.applicationStore,
-      commandEngine: commandEngine,
-      configStore: contentStore.configurationStore,
-      indexer: indexer
-    )
+    self.machPortEngine = MachPortEngine(store: keyCodeStore, commandEngine: commandEngine,
+                                         indexer: indexer, mode: .intercept)
     self.shortcutStore = ShortcutStore(engine: scriptEngine)
 
     subscribe(to: workspace)
 
-    machPortEngine.subscribe(to: workflowEngine.$activeWorkflows)
-    machPortEngine.subscribe(to: workflowEngine.$sequence)
     machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
-    workflowEngine.subscribe(to: machPortEngine.$event)
 
     contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
 

@@ -18,7 +18,7 @@ struct KCButtonStyle: ButtonStyle {
       .foregroundColor(
         Color(.labelColor)
       )
-      .font(.system(.caption2, design: .rounded, weight: .semibold))
+      .font(.system(.body, design: .rounded, weight: .semibold))
       .opacity(configuration.isPressed ? 0.6 : isHovered ? 1.0 : 0.8)
       .offset(y: configuration.isPressed ? 0.25 : 0.0)
 //      .background(gradient.cornerRadius(8))

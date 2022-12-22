@@ -84,7 +84,7 @@ final class ContentStore: ObservableObject {
   }
 
   func use(_ configuration: KeyboardCowboyConfiguration) {
-    indexer.run(configuration.groups)
+    indexer.createCache(configuration.groups)
     configurationId = configuration.id
     // Select first group if the selection is empty
     if groupIds.isEmpty, let group = configuration.groups.first {

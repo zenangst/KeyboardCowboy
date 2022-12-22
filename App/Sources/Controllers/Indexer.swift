@@ -1,70 +1,66 @@
 import Foundation
 import Cocoa
 
-enum IndexType {
-  case single(Workflow)
-  case sequence([Workflow])
+enum IndexResult {
+  case partialMatch(String)
+  case exact(Workflow)
 }
 
 final class Indexer {
-  var cache = [String: IndexType]()
+  var cache = [String: IndexResult]()
 
-  func validate(_ event: MachPortEngine.Event) -> IndexType? {
-    if let bundleIdentifier = NSWorkspace.shared.frontApplication?.bundleIdentifier,
-       let match = cache[event.keyboardShortcut.dictionaryKey(bundleIdentifier)] {
-      return match
+  func lookup(_ keyboardShortcut: KeyShortcut, previousKey: String = ".") -> IndexResult? {
+    if let bundleIdentifier = NSWorkspace.shared.frontApplication?.bundleIdentifier {
+      let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: previousKey)
+      if let result = cache[scopedKey] {
+        return result
+      }
     }
-
-    if let match = cache[event.keyboardShortcut.dictionaryKey("*")] {
-      return match
-    }
-
-    return nil 
+    let globalKey = createKey(keyboardShortcut, bundleIdentifier: "*", previousKey: previousKey)
+    let result = cache[globalKey]
+    return result
   }
 
-  func run(_ groups: [WorkflowGroup]) {
-    var newCache = [String: IndexType]()
-
+  func createCache(_ groups: [WorkflowGroup]) {
+    var newCache = [String: IndexResult]()
     for group in groups {
       var bundleIdentifiers: [String] = ["*"]
       if let rule = group.rule {
         bundleIdentifiers = rule.bundleIdentifiers
       }
+      for bundleIdentifier in bundleIdentifiers {
+        for workflow in group.workflows where workflow.isEnabled {
+          guard case .keyboardShortcuts(let keyboardShortcuts) = workflow.trigger else { continue }
 
-      for workflow in group.workflows where workflow.isEnabled {
-        guard case .keyboardShortcuts(let keyboardShortcuts) = workflow.trigger else {
-          continue
-        }
+          let count = keyboardShortcuts.count - 1
+          var previousKey: String = "."
+          for (offset, keyboardShortcut) in keyboardShortcuts.enumerated() {
+            let key = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: previousKey)
+            previousKey += "\(keyboardShortcut.dictionaryKey)+"
 
-        let singleKey = keyboardShortcuts.count == 1
-        for keyboardShortcut in keyboardShortcuts {
-          for bundleId in bundleIdentifiers {
-            let dictKey = keyboardShortcut.dictionaryKey(bundleId)
-
-            if singleKey {
-              newCache[dictKey] = .single(workflow)
-            } else if let currentEntry = newCache[bundleId] {
-              switch currentEntry {
-              case .single(let entry):
-                newCache[dictKey] = .sequence([entry, workflow])
-              case .sequence(var workflows):
-                workflows.append(workflow)
-                newCache[dictKey] = .sequence(workflows)
-              }
+            if offset == count {
+              newCache[key] = .exact(workflow)
             } else {
-              newCache[dictKey] = .sequence([workflow])
+              newCache[key] = .partialMatch(previousKey)
             }
           }
         }
       }
     }
-
     cache = newCache
+  }
+
+  private func createKey(_ keyboardShortcut: KeyShortcut, bundleIdentifier: String, previousKey: String) -> String {
+    "\(bundleIdentifier)\(previousKey)\(keyboardShortcut.dictionaryKey)"
   }
 }
 
 private extension KeyShortcut {
-  func dictionaryKey(_ bundleIdentifier: String) -> String {
-      return "\(bundleIdentifier).\(key)-\(modifersDisplayValue)-\(lhs)"
+  var dictionaryKey: String {
+    if modifersDisplayValue.isEmpty {
+      return "[\(key):\(lhs)]"
+    } else {
+      return "[\(modifersDisplayValue)+\(key):\(lhs)]"
+    }
   }
 }
