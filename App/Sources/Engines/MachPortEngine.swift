@@ -107,7 +107,7 @@ final class MachPortEngine {
           previousKey = key
         case .exact(let workflow):
           machPortEvent.result = nil
-          commandEngine.serialRun(workflow.commands)
+          commandEngine.serialRun(workflow.commands.filter(\.isEnabled))
           previousKey = Self.previousKeyDefault
         }
       } else {
