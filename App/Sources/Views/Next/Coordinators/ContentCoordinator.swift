@@ -102,7 +102,8 @@ extension Workflow {
       images: commands.images(),
       binding: trigger?.binding,
       badge: commands.count > 1 ? commands.count : 0,
-      badgeOpacity: commands.count > 1 ? 1.0 : 0.0)
+      badgeOpacity: commands.count > 1 ? 1.0 : 0.0,
+      isEnabled: isEnabled)
   }
 }
 

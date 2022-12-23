@@ -7,6 +7,7 @@ struct ContentViewModel: Identifiable, Hashable {
   let binding: String?
   let badge: Int
   let badgeOpacity: Double
+  let isEnabled: Bool
 
   struct ImageModel: Identifiable, Hashable {
     let id: String

@@ -62,6 +62,8 @@ struct ContentView: View {
             overlayOpacity = value
           }
         })
+        .grayscale(workflow.isEnabled ? 0 : 0.5)
+        .opacity(workflow.isEnabled ? 1 : 0.5)
         .tag(workflow)
         .id(workflow.id)
       }
