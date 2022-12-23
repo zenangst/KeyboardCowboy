@@ -1,13 +1,20 @@
 import SwiftUI
 
 struct TypeCommandView: View {
+  enum Action {
+    case save
+    case commandAction(CommandContainerAction)
+  }
   @ObserveInjection var inject
   @Binding var command: DetailViewModel.CommandViewModel
   @State var source: String
+  private let onAction: (Action) -> Void
 
-  init(command: Binding<DetailViewModel.CommandViewModel>) {
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       onAction: @escaping (Action) -> Void) {
     _command = command
     _source = .init(initialValue: "")
+    self.onAction = onAction
   }
 
   var body: some View {
@@ -32,15 +39,13 @@ struct TypeCommandView: View {
         }
       }, subContent: {
         EmptyView()
-      }, onAction: {
-
-      })
+      }, onAction: { onAction(.commandAction($0)) })
     .enableInjection()
   }
 }
 
 struct TypeCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    TypeCommandView(command: .constant(DesignTime.typeCommand))
+    TypeCommandView(.constant(DesignTime.typeCommand), onAction: { _ in })
   }
 }

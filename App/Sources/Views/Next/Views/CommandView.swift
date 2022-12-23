@@ -1,11 +1,21 @@
 import SwiftUI
 
 struct CommandView: View {
+  enum Action {
+    case application(ApplicationCommandView.Action)
+    case keyboard(KeyboardCommandView.Action)
+    case open(OpenCommandView.Action)
+    case script(ScriptCommandView.Action)
+    case shortcut(ShortcutCommandView.Action)
+    case type(TypeCommandView.Action)
+  }
   @ObserveInjection var inject
-  @Binding var command: DetailViewModel.CommandViewModel
+  @Binding private var command: DetailViewModel.CommandViewModel
+  private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>) {
+  init(_ command: Binding<DetailViewModel.CommandViewModel>, onAction: @escaping (Action) -> Void) {
     _command = command
+    self.onAction = onAction
   }
 
   var body: some View {
@@ -14,17 +24,17 @@ struct CommandView: View {
       case .plain:
         UnknownView(command: $command)
       case .open:
-        OpenCommandView(command: $command)
+        OpenCommandView($command, onAction: { onAction(.open($0)) })
       case .application:
-        ApplicationCommandView(command: $command)
+        ApplicationCommandView($command, onAction: { onAction(.application($0)) })
       case .script:
-        ScriptCommandView(command: $command)
+        ScriptCommandView($command, onAction: { onAction(.script($0)) })
       case .keyboard:
-        KeyboardCommandView(command: $command)
+        KeyboardCommandView($command, onAction: { onAction(.keyboard($0)) })
       case .shortcut:
-        ShortcutCommandView(command: $command)
+        ShortcutCommandView($command, onAction: { onAction(.shortcut($0)) })
       case .type:
-        TypeCommandView(command: $command)
+        TypeCommandView($command, onAction: { onAction(.type($0)) })
       }
     }
     .grayscale(command.isEnabled ? 0 : 0.5)

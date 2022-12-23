@@ -1,8 +1,20 @@
 import SwiftUI
 
 struct ScriptCommandView: View {
+  enum Action {
+    case open
+    case reveal
+    case edit
+    case commandAction(CommandContainerAction)
+  }
   @ObserveInjection var inject
-  @Binding var command: DetailViewModel.CommandViewModel
+  @Binding private var command: DetailViewModel.CommandViewModel
+  private let onAction: (Action) -> Void
+
+  init(_ command: Binding<DetailViewModel.CommandViewModel>, onAction: @escaping (Action) -> Void) {
+    _command = command
+    self.onAction = onAction
+  }
 
   var body: some View {
     CommandContainerView(isEnabled: $command.isEnabled, icon: {
@@ -29,17 +41,15 @@ struct ScriptCommandView: View {
         if case .script(let kind) = command.kind {
           switch kind {
           case .inline:
-            Button("Edit", action: { })
+            Button("Edit", action: { onAction(.edit) })
           case .path:
-            Button("Open", action: { })
-            Button("Reveal", action: { })
+            Button("Open", action: { onAction(.open) })
+            Button("Reveal", action: { onAction(.reveal) })
           }
         }
       }
       .font(.caption)
-    }, onAction: {
-
-    })
+    }, onAction: { onAction(.commandAction($0)) })
     .enableInjection()
   }
 }
@@ -47,10 +57,10 @@ struct ScriptCommandView: View {
 struct ScriptCommandView_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
-      ScriptCommandView(command: .constant(DesignTime.scriptCommandInline))
+      ScriptCommandView(.constant(DesignTime.scriptCommandInline), onAction: { _ in })
         .frame(maxHeight: 80)
       Divider()
-      ScriptCommandView(command: .constant(DesignTime.scriptCommandWithPath))
+      ScriptCommandView(.constant(DesignTime.scriptCommandWithPath), onAction: { _ in })
         .frame(maxHeight: 80)
     }
   }

@@ -3,11 +3,12 @@ import Apps
 
 struct SingleDetailView: View {
   enum Action {
-    case updateName(name: String, workflowId: Workflow.ID)
     case addCommand(workflowId: Workflow.ID)
     case applicationTrigger(WorkflowApplicationTriggerView.Action)
-    case trigger(WorkflowTriggerView.Action)
+    case commandView(CommandView.Action)
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
+    case trigger(WorkflowTriggerView.Action)
+    case updateName(name: String, workflowId: Workflow.ID)
   }
 
   enum Sheet: Int, Identifiable {
@@ -119,7 +120,7 @@ struct SingleDetailView: View {
         EditableStack($model.commands, spacing: 10, onMove: { indexSet, toOffset in
           onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
         }) { command in
-          CommandView(command)
+          CommandView(command) { onAction(.commandView($0)) }
         }
         .background(
           GeometryReader { proxy in

@@ -1,5 +1,10 @@
 import SwiftUI
 
+enum CommandContainerAction {
+  case run
+  case delete
+}
+
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
@@ -8,7 +13,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   @ViewBuilder var icon: () -> IconContent
   @ViewBuilder var content: () -> Content
   @ViewBuilder var subContent: () -> SubContent
-  var onAction: () -> Void
+  var onAction: (CommandContainerAction) -> Void
 
   var body: some View {
     HStack(alignment: .center) {
@@ -59,7 +64,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
       VStack(spacing: 0) {
         Spacer()
-        Button(action: onAction,
+        Button(action: { onAction(.delete) },
                label: {
           Image(systemName: "xmark")
             .resizable()
@@ -78,7 +83,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .opacity(0.5)
         }
         Spacer()
-        Button(action: {},
+        Button(action: { onAction(.run) },
                label: {
           Image(systemName: "play")
             .resizable()
@@ -102,7 +107,7 @@ struct CommandContainerView_Previews: PreviewProvider {
       content: {
         Text("Bar")
       },
-      subContent: { Text("Baz") }) {}
+      subContent: { Text("Baz") }) { _ in }
       .frame(maxHeight: 80)
   }
 }

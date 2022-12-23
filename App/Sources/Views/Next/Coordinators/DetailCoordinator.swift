@@ -26,6 +26,8 @@ final class DetailCoordinator {
     switch action {
     case .singleDetailView(let action):
       switch action {
+      case .commandView(let action):
+        handleCommandAction(action)
       case .moveCommand(let workflowId, let fromOffsets, let toOffset):
         guard var workflow = groupStore.workflow(withId: workflowId) else { return }
         workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
@@ -53,6 +55,66 @@ final class DetailCoordinator {
           Swift.print("Remove trigger: \(trigger)")
         }
       }
+    }
+  }
+
+  func handleCommandAction(_ commandAction: CommandView.Action) {
+    switch commandAction {
+    case .application(let action):
+      switch action {
+      case .changeConfiguration:
+        break
+      case .commandAction(let action):
+        handleCommandContainerAction(action)
+      }
+    case .keyboard(let action):
+      switch action {
+      case .commandAction(let action):
+        handleCommandContainerAction(action)
+      }
+    case .open(let action):
+      switch action {
+      case .openWith:
+        break
+      case .commandAction(let action):
+        handleCommandContainerAction(action)
+      case .reveal:
+        break
+      }
+    case .script(let action):
+      switch action {
+      case .open:
+        break
+      case .reveal:
+        break
+      case .edit:
+        break
+      case .commandAction(let action):
+        handleCommandContainerAction(action)
+      }
+    case .shortcut(let action):
+      switch action {
+      case .openShortcuts:
+        break
+      case .commandAction(let action):
+        handleCommandContainerAction(action)
+      }
+    case .type(let action):
+      switch action {
+      case .save:
+        break
+      case .commandAction(let action):
+        handleCommandContainerAction(action)
+      }
+    }
+  }
+
+  private func handleCommandContainerAction(_ action: CommandContainerAction) {
+    switch action {
+    case .run:
+      break
+    case .delete:
+      break
     }
   }
 

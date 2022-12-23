@@ -1,14 +1,22 @@
+import Apps
 import SwiftUI
 
 struct OpenCommandView: View {
+  enum Action {
+    case openWith(Application)
+    case commandAction(CommandContainerAction)
+    case reveal
+  }
   @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
   @Binding var command: DetailViewModel.CommandViewModel
-
   @State private var isHovered = false
+  private let onAction: (Action) -> Void
 
-  init(command: Binding<DetailViewModel.CommandViewModel>) {
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       onAction: @escaping (Action) -> Void) {
     _command = command
+    self.onAction = onAction
   }
 
   var body: some View {
@@ -41,7 +49,9 @@ struct OpenCommandView: View {
            let appName {
           Menu(content: {
             ForEach(applicationStore.applicationsToOpen(command.name)) { app in
-              Button(app.displayName, action: {})
+              Button(app.displayName, action: {
+                onAction(.openWith(app))
+              })
             }
           }, label: {
             HStack(spacing: 4) {
@@ -61,25 +71,22 @@ struct OpenCommandView: View {
               .stroke(Color(.disabledControlTextColor))
               .opacity(0.5)
           )
-
         }
       }
     }, subContent: {
       HStack {
-        Button("Reveal", action: { })
+        Button("Reveal", action: { onAction(.reveal) })
       }
       .padding(.bottom, 4)
       .font(.caption)
-    }, onAction: {
-
-    })
+    }, onAction: { onAction(.commandAction($0)) })
     .enableInjection()
   }
 }
 
 struct OpenCommandView_Previews: PreviewProvider {
     static var previews: some View {
-      OpenCommandView(command: .constant(DesignTime.openCommand))
+      OpenCommandView(.constant(DesignTime.openCommand), onAction: { _ in })
         .frame(maxHeight: 80)
     }
 }

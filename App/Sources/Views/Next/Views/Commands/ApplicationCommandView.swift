@@ -1,8 +1,33 @@
 import SwiftUI
 
 struct ApplicationCommandView: View {
+  enum Action {
+    case changeConfiguration(ApplicationModifier)
+    case commandAction(CommandContainerAction)
+  }
+
+  enum ApplicationModifier: String, Identifiable {
+    var id: String { rawValue }
+    case open = "Open"
+    case close = "Close"
+  }
+
+  enum ApplicationConfiguration: String, Identifiable {
+    var id: String { rawValue }
+    case inBackground = "In background"
+    case hideWhenOpening = "Hide when opening"
+    case ifNotRunning = "If not running"
+  }
+
   @ObserveInjection var inject
-  @Binding var command: DetailViewModel.CommandViewModel
+  @Binding private var command: DetailViewModel.CommandViewModel
+  private let onAction: (Action) -> Void
+
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       onAction: @escaping (Action) -> Void) {
+    _command = command
+    self.onAction = onAction
+  }
 
   var body: some View {
     CommandContainerView(
@@ -16,8 +41,8 @@ struct ApplicationCommandView: View {
       content: {
         HStack(spacing: 8) {
           Menu(content: {
-            Button("Open", action: {})
-            Button("Close", action: {})
+            Button("Open", action: { onAction(.changeConfiguration(.open)) })
+            Button("Close", action: { onAction(.changeConfiguration(.close)) })
           }, label: {
             HStack(spacing: 4) {
               Text("Open")
@@ -52,16 +77,14 @@ struct ApplicationCommandView: View {
         .truncationMode(.tail)
         .font(.caption)
 
-      }, onAction: {
-
-      })
+      }, onAction: { onAction(.commandAction($0)) })
     .enableInjection()
   }
 }
 
 struct ApplicationCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    ApplicationCommandView(command: .constant(DesignTime.applicationCommand))
+    ApplicationCommandView(.constant(DesignTime.applicationCommand), onAction: { _ in })
       .designTime()
       .frame(maxHeight: 80)
   }

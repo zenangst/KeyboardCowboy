@@ -1,8 +1,20 @@
 import SwiftUI
 
 struct ShortcutCommandView: View {
+  enum Action {
+    case openShortcuts
+    case commandAction(CommandContainerAction)
+  }
+
   @ObserveInjection var inject
   @Binding var command: DetailViewModel.CommandViewModel
+  private let onAction: (Action) -> Void
+
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       onAction: @escaping (Action) -> Void) {
+    _command = command
+    self.onAction = onAction
+  }
   
   var body: some View {
     CommandContainerView(isEnabled: $command.isEnabled, icon: {
@@ -13,14 +25,14 @@ struct ShortcutCommandView: View {
     }, content: {
       Text(command.name)
     }, subContent: {
-      Button("Open Shortcuts", action: {})
-    }, onAction: { })
-      .enableInjection()
+      Button("Open Shortcuts", action: { onAction(.openShortcuts) })
+    }, onAction: { onAction(.commandAction($0)) })
+    .enableInjection()
   }
 }
 
 struct ShortcutCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    ShortcutCommandView(command: .constant(DesignTime.shortcutCommand))
+    ShortcutCommandView(.constant(DesignTime.shortcutCommand), onAction: { _ in})
   }
 }
