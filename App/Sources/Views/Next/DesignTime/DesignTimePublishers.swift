@@ -164,11 +164,7 @@ enum DesignTime {
 
 
   static var detail: DetailViewModel {
-    let homeDirectory = ("~/" as NSString).expandingTildeInPath
-    let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
-    //("~/Library/Mobile Documents/com~apple~CloudDocs/Keyboard Cowboy/Shortcuts.scpt" as NSString).expandingTildeInPath
-
-    return DetailViewModel(
+    DetailViewModel(
       id: UUID().uuidString,
       name: "Open News",
       isEnabled: true,
