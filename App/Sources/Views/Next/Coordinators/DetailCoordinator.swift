@@ -7,9 +7,9 @@ final class DetailCoordinator {
   let publisher: DetailPublisher = .init(.empty)
 
   init(applicationStore: ApplicationStore, contentStore: ContentStore, groupStore: GroupStore) {
-      self.applicationStore = applicationStore
-      self.contentStore = contentStore
-      self.groupStore = groupStore
+    self.applicationStore = applicationStore
+    self.contentStore = contentStore
+    self.groupStore = groupStore
   }
 
   func handle(_ action: ContentView.Action) {
@@ -28,7 +28,7 @@ final class DetailCoordinator {
       case .singleDetailView(let action):
         switch action {
         case .commandView(let action):
-          handleCommandAction(action)
+          await handleCommandAction(action)
         case .moveCommand(let workflowId, let fromOffsets, let toOffset):
           guard var workflow = groupStore.workflow(withId: workflowId) else { return }
           workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
@@ -60,7 +60,7 @@ final class DetailCoordinator {
     }
   }
 
-  func handleCommandAction(_ commandAction: CommandView.Action) {
+  func handleCommandAction(_ commandAction: CommandView.Action) async {
     guard var workflow = groupStore.workflow(withId: commandAction.workflowId) else {
       fatalError("Unable to find workflow.")
     }
@@ -83,30 +83,39 @@ final class DetailCoordinator {
         case .close:
           applicationCommand.action = .close
         }
+        command = .application(applicationCommand)
+        workflow.updateOrAddCommand(command)
+        let updatedWorkflow = workflow
+        await MainActor.run {
+          _ = groupStore.receive([updatedWorkflow])
+        }
+
       case .changeApplicationModifier(let modifier, let newValue):
         if newValue {
           applicationCommand.modifiers.insert(modifier)
         } else {
           applicationCommand.modifiers.remove(modifier)
         }
+        command = .application(applicationCommand)
+        workflow.updateOrAddCommand(command)
+        let updatedWorkflow = workflow
+        await MainActor.run {
+          _ = groupStore.receive([updatedWorkflow])
+        }
       case .commandAction(let action):
-        handleCommandContainerAction(action)
+        await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
-
-      command = .application(applicationCommand)
-      workflow.updateOrAddCommand(command)
-      _ = groupStore.receive([workflow])
     case .keyboard(let action, _, _):
       switch action {
       case .commandAction(let action):
-        handleCommandContainerAction(action)
+        await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
     case .open(let action, _, _):
       switch action {
       case .openWith:
         break
       case .commandAction(let action):
-        handleCommandContainerAction(action)
+        await handleCommandContainerAction(action, command: command, workflow: workflow)
       case .reveal:
         break
       }
@@ -119,31 +128,39 @@ final class DetailCoordinator {
       case .edit:
         break
       case .commandAction(let action):
-        handleCommandContainerAction(action)
+        await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
     case .shortcut(let action, _, _):
       switch action {
       case .openShortcuts:
         break
       case .commandAction(let action):
-        handleCommandContainerAction(action)
+        await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
     case .type(let action, _, _):
       switch action {
       case .save:
         break
       case .commandAction(let action):
-        handleCommandContainerAction(action)
+        await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
     }
+
   }
 
-  private func handleCommandContainerAction(_ action: CommandContainerAction) {
+  private func handleCommandContainerAction(_ action: CommandContainerAction,
+                                            command: Command,
+                                            workflow: Workflow) async {
     switch action {
     case .run:
       break
     case .delete:
-      break
+      var workflow = workflow
+      workflow.commands.removeAll(where: { $0.id == command.id })
+      let updatedWorkflow = workflow
+      await MainActor.run {
+        _ = groupStore.receive([updatedWorkflow])
+      }
     }
   }
 

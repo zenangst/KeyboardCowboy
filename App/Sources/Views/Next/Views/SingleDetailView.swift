@@ -120,7 +120,12 @@ struct SingleDetailView: View {
         EditableStack($model.commands, spacing: 10, onMove: { indexSet, toOffset in
           onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
         }) { command in
-          CommandView(command, workflowId: model.id) { onAction(.commandView($0)) }
+          CommandView(command, workflowId: model.id) { action in
+            if action.isDeleteAction, let index = model.commands.firstIndex(of: command.wrappedValue) {
+              model.commands.remove(at: index)
+            }
+            onAction(.commandView(action))
+          }
         }
         .background(
           GeometryReader { proxy in
@@ -190,5 +195,64 @@ struct SingleDetailView_Previews: PreviewProvider {
   static var previews: some View {
     SingleDetailView(DesignTime.detail) { _ in }
       .frame(height: 900)
+  }
+}
+
+private extension CommandView.Action {
+  var isDeleteAction: Bool {
+    switch self {
+    case .application(let action, _, _):
+      switch action {
+      case .commandAction(let commandContainerAction):
+        return commandContainerAction.isDeleteAction
+      default:
+        return false
+      }
+    case .keyboard(let action, _, _):
+      switch action {
+      case .commandAction(let commandContainerAction):
+        return commandContainerAction.isDeleteAction
+      }
+    case .open(let action, _, _):
+      switch action {
+      case .commandAction(let commandContainerAction):
+        return commandContainerAction.isDeleteAction
+      default:
+        return false
+      }
+    case .script(let action, _, _):
+      switch action {
+      case .commandAction(let commandContainerAction):
+        return commandContainerAction.isDeleteAction
+      default:
+        return false
+      }
+    case .shortcut(let action, _, _):
+      switch action {
+      case .commandAction(let commandContainerAction):
+        return commandContainerAction.isDeleteAction
+      default:
+        return false
+      }
+
+    case .type(let action, _, _):
+      switch action {
+      case .commandAction(let commandContainerAction):
+        return commandContainerAction.isDeleteAction
+      default:
+        return false
+      }
+    }
+  }
+}
+
+extension CommandContainerAction {
+  var isDeleteAction: Bool {
+    switch self {
+    case .run:
+      return false
+    case .delete:
+      return true
+    }
   }
 }
