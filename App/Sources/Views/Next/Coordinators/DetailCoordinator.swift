@@ -118,6 +118,10 @@ final class DetailCoordinator {
       }
     case .script(let action, _, _):
       switch action {
+      case .updateName(let newName):
+        command.name = newName
+        workflow.updateOrAddCommand(command)
+        await groupStore.receive([workflow])
       case .open:
         break
       case .reveal:

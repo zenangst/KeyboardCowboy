@@ -2,17 +2,20 @@ import SwiftUI
 
 struct ScriptCommandView: View {
   enum Action {
+    case updateName(newName: String)
     case open
     case reveal
     case edit
     case commandAction(CommandContainerAction)
   }
   @ObserveInjection var inject
+  @State private var name: String
   @Binding private var command: DetailViewModel.CommandViewModel
   private let onAction: (Action) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>, onAction: @escaping (Action) -> Void) {
     _command = command
+    _name = .init(initialValue: command.name.wrappedValue)
     self.onAction = onAction
   }
 
@@ -27,13 +30,11 @@ struct ScriptCommandView: View {
         .frame(width: 32)
     }, content: {
       HStack(spacing: 8) {
-        Text(command.name)
-          .allowsTightening(true)
-          .font(.body)
-          .bold()
-          .lineLimit(1)
-          .minimumScaleFactor(0.8)
-          .truncationMode(.head)
+        TextField("", text: $name)
+          .textFieldStyle(KCTextFieldStyle())
+          .onChange(of: name, perform: {
+            onAction(.updateName(newName: $0))
+          })
         Spacer()
       }
     }, subContent: {

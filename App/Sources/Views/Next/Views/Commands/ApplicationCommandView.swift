@@ -11,7 +11,6 @@ struct ApplicationCommandView: View {
   @ObserveInjection var inject
   @Binding private var command: DetailViewModel.CommandViewModel
 
-  @State private var isEditingName: Bool = false
   @State private var name: String
   @State private var inBackground: Bool
   @State private var hideWhenRunning: Bool
@@ -72,7 +71,7 @@ struct ApplicationCommandView: View {
               .opacity(0.5)
           )
           VStack(alignment: .leading) {
-            TextField("Text:", text: $name)
+            TextField("", text: $name)
               .textFieldStyle(KCTextFieldStyle())
               .onChange(of: name, perform: {
                 onAction(.updateName(newName: $0))
