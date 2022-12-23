@@ -95,6 +95,8 @@ extension CommandView.Action {
         case .delete:
           return commandContainerAction.isDeleteAction
         }
+      default:
+        return false
       }
     case .open(let action, _, _):
       switch action {

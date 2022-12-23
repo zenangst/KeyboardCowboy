@@ -70,13 +70,11 @@ struct ApplicationCommandView: View {
               .stroke(Color(.disabledControlTextColor))
               .opacity(0.5)
           )
-          VStack(alignment: .leading) {
-            TextField("", text: $name)
-              .textFieldStyle(KCTextFieldStyle())
-              .onChange(of: name, perform: {
-                onAction(.updateName(newName: $0))
-              })
-          }
+          TextField("", text: $name)
+            .textFieldStyle(KCTextFieldStyle())
+            .onChange(of: name, perform: {
+              onAction(.updateName(newName: $0))
+            })
           Spacer()
         }
       }, subContent: {

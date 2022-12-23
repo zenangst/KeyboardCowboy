@@ -104,11 +104,19 @@ final class DetailCoordinator {
       }
     case .keyboard(let action, _, _):
       switch action {
+      case .updateName(let newName):
+        command.name = newName
+        workflow.updateOrAddCommand(command)
+        await groupStore.receive([workflow])
       case .commandAction(let action):
         await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
     case .open(let action, _, _):
       switch action {
+      case .updateName(let newName):
+        command.name = newName
+        workflow.updateOrAddCommand(command)
+        await groupStore.receive([workflow])
       case .openWith:
         break
       case .commandAction(let action):
@@ -133,6 +141,10 @@ final class DetailCoordinator {
       }
     case .shortcut(let action, _, _):
       switch action {
+      case .updateName(let newName):
+        command.name = newName
+        workflow.updateOrAddCommand(command)
+        await groupStore.receive([workflow])
       case .openShortcuts:
         break
       case .commandAction(let action):
@@ -140,6 +152,10 @@ final class DetailCoordinator {
       }
     case .type(let action, _, _):
       switch action {
+      case .updateName(let newName):
+        command.name = newName
+        workflow.updateOrAddCommand(command)
+        await groupStore.receive([workflow])
       case .save:
         break
       case .commandAction(let action):

@@ -3,6 +3,7 @@ import SwiftUI
 
 struct OpenCommandView: View {
   enum Action {
+    case updateName(newName: String)
     case openWith(Application)
     case commandAction(CommandContainerAction)
     case reveal
@@ -10,12 +11,14 @@ struct OpenCommandView: View {
   @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
   @Binding var command: DetailViewModel.CommandViewModel
+  @State private var name: String
   @State private var isHovered = false
   private let onAction: (Action) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
        onAction: @escaping (Action) -> Void) {
     _command = command
+    _name = .init(initialValue: command.wrappedValue.name)
     self.onAction = onAction
   }
 
@@ -28,21 +31,11 @@ struct OpenCommandView: View {
     }, content: {
 
       HStack(spacing: 2) {
-        TextField("", text: $command.name)
-          .font(.system(.body, design: .rounded, weight: .semibold))
-          .truncationMode(.head)
-          .textFieldStyle(.plain)
-          .minimumScaleFactor(0.5)
-          .lineLimit(1)
-          .padding(6)
-          .background(
-            RoundedRectangle(cornerRadius: 4)
-              .stroke(isHovered ? Color(nsColor: .controlAccentColor) : .clear, lineWidth: 1)
-              .animation(.default, value: isHovered)
-          )
-          .onHover { hovering in
-            self.isHovered = hovering
-          }
+        TextField("", text: $name)
+          .textFieldStyle(KCTextFieldStyle())
+          .onChange(of: name, perform: {
+            onAction(.updateName(newName: $0))
+          })
         Spacer()
 
         if case .open(let appName) = command.kind,

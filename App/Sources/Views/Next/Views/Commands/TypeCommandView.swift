@@ -2,17 +2,20 @@ import SwiftUI
 
 struct TypeCommandView: View {
   enum Action {
+    case updateName(newName: String)
     case save
     case commandAction(CommandContainerAction)
   }
   @ObserveInjection var inject
   @Binding var command: DetailViewModel.CommandViewModel
-  @State var source: String
+  @State private var source: String
+  @State private var name: String
   private let onAction: (Action) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
        onAction: @escaping (Action) -> Void) {
     _command = command
+    _name = .init(initialValue: command.wrappedValue.name)
     _source = .init(initialValue: "")
     self.onAction = onAction
   }

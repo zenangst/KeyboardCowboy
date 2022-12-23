@@ -2,15 +2,18 @@ import SwiftUI
 
 struct KeyboardCommandView: View {
   enum Action {
+    case updateName(newName: String)
     case commandAction(CommandContainerAction)
   }
 
   @ObserveInjection var inject
   @Binding private var command: DetailViewModel.CommandViewModel
+  @State private var name: String
   private let onAction: (Action) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>, onAction: @escaping (Action) -> Void) {
     _command = command
+    _name = .init(initialValue: command.wrappedValue.name)
     self.onAction = onAction
   }
 
@@ -32,11 +35,11 @@ struct KeyboardCommandView: View {
             }
           }, content: {
             HStack {
-              Text(command.name)
-                .font(.body)
-                .bold()
-                .truncationMode(.head)
-                .lineLimit(1)
+              TextField("", text: $name)
+                .textFieldStyle(KCTextFieldStyle())
+                .onChange(of: name, perform: {
+                  onAction(.updateName(newName: $0))
+                })
               Spacer()
               HStack {
                 ForEach(modifiers) { modifier in
