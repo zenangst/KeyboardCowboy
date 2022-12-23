@@ -18,6 +18,7 @@ enum DetailViewState: Hashable, Identifiable {
 }
 
 struct DetailViewModel: Hashable, Identifiable {
+  // Workflow.Id
   let id: String
   var name: String
   var isEnabled: Bool
@@ -98,7 +99,7 @@ struct DetailViewModel: Hashable, Identifiable {
         }
 
       }
-      case application
+      case application(action: String, inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
       case open(appName: String?)
       case keyboard(key: String, modifiers: [ModifierKey])
       case script(ScriptKind)

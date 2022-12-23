@@ -2,19 +2,23 @@ import SwiftUI
 
 struct CommandView: View {
   enum Action {
-    case application(ApplicationCommandView.Action)
-    case keyboard(KeyboardCommandView.Action)
-    case open(OpenCommandView.Action)
-    case script(ScriptCommandView.Action)
-    case shortcut(ShortcutCommandView.Action)
-    case type(TypeCommandView.Action)
+    case application(action: ApplicationCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case keyboard(action: KeyboardCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case open(action: OpenCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case script(action: ScriptCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
   }
   @ObserveInjection var inject
+  let workflowId: String
   @Binding private var command: DetailViewModel.CommandViewModel
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>, onAction: @escaping (Action) -> Void) {
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       workflowId: String,
+       onAction: @escaping (Action) -> Void) {
     _command = command
+    self.workflowId = workflowId
     self.onAction = onAction
   }
 
@@ -24,17 +28,33 @@ struct CommandView: View {
       case .plain:
         UnknownView(command: $command)
       case .open:
-        OpenCommandView($command, onAction: { onAction(.open($0)) })
-      case .application:
-        ApplicationCommandView($command, onAction: { onAction(.application($0)) })
+        OpenCommandView(
+          $command,
+          onAction: { onAction(.open(action: $0, workflowId: workflowId, commandId: command.id)) })
+      case .application(let action, let inBackground, let hideWhenRunning, let ifNotRunning):
+        ApplicationCommandView(
+          $command,
+          actionName: action,
+          inBackground: inBackground,
+          hideWhenRunning: hideWhenRunning,
+          ifNotRunning: ifNotRunning,
+          onAction: { onAction(.application(action: $0, workflowId: workflowId, commandId: command.id)) })
       case .script:
-        ScriptCommandView($command, onAction: { onAction(.script($0)) })
+        ScriptCommandView(
+          $command,
+          onAction: { onAction(.script(action: $0, workflowId: workflowId, commandId: command.id)) })
       case .keyboard:
-        KeyboardCommandView($command, onAction: { onAction(.keyboard($0)) })
+        KeyboardCommandView(
+          $command,
+          onAction: { onAction(.keyboard(action: $0, workflowId: workflowId, commandId: command.id)) })
       case .shortcut:
-        ShortcutCommandView($command, onAction: { onAction(.shortcut($0)) })
+        ShortcutCommandView(
+          $command,
+          onAction: { onAction(.shortcut(action: $0, workflowId: workflowId, commandId: command.id)) })
       case .type:
-        TypeCommandView($command, onAction: { onAction(.type($0)) })
+        TypeCommandView(
+          $command,
+          onAction: { onAction(.type(action: $0, workflowId: workflowId, commandId: command.id)) })
       }
     }
     .grayscale(command.isEnabled ? 0 : 0.5)

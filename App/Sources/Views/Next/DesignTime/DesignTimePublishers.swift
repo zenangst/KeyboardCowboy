@@ -114,7 +114,7 @@ enum DesignTime {
   static var applicationCommand: DetailViewModel.CommandViewModel {
     .init(id: UUID().uuidString,
           name: "News",
-          kind: .application,
+          kind: .application(action: "Open", inBackground: true, hideWhenRunning: false, ifNotRunning: false),
           image: NSWorkspace.shared.icon(forFile: "/System/Applications/News.app"),
           isEnabled: true)
   }

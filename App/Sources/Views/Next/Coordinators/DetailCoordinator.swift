@@ -23,56 +23,85 @@ final class DetailCoordinator {
 
   @MainActor
   func handle(_ action: DetailView.Action) {
-    switch action {
-    case .singleDetailView(let action):
+    Task {
       switch action {
-      case .commandView(let action):
-        handleCommandAction(action)
-      case .moveCommand(let workflowId, let fromOffsets, let toOffset):
-        guard var workflow = groupStore.workflow(withId: workflowId) else { return }
-        workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
-        contentStore.updateWorkflows([workflow])
-      case .updateName(let name, let workflowId):
-        guard var workflow = groupStore.workflow(withId: workflowId) else { return }
-        workflow.name = name
-        contentStore.updateWorkflows([workflow])
-      case .addCommand:
-        break
-      case .trigger(let action):
+      case .singleDetailView(let action):
         switch action {
-        case .addKeyboardShortcut:
-          Swift.print("Add keyboard shortcut")
-        case .removeKeyboardShortcut:
-          Swift.print("Remove keyboard shortcut")
-        case .addApplication:
-          Swift.print("Add application trigger")
-        }
-      case .applicationTrigger(let action):
-        switch action {
-        case .addApplicationTrigger(let application):
-          Swift.print("Add application trigger: \(application)")
-        case .removeApplicationTrigger(let trigger):
-          Swift.print("Remove trigger: \(trigger)")
+        case .commandView(let action):
+          handleCommandAction(action)
+        case .moveCommand(let workflowId, let fromOffsets, let toOffset):
+          guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+          workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
+          contentStore.updateWorkflows([workflow])
+        case .updateName(let name, let workflowId):
+          guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+          workflow.name = name
+          contentStore.updateWorkflows([workflow])
+        case .addCommand:
+          break
+        case .trigger(let action):
+          switch action {
+          case .addKeyboardShortcut:
+            Swift.print("Add keyboard shortcut")
+          case .removeKeyboardShortcut:
+            Swift.print("Remove keyboard shortcut")
+          case .addApplication:
+            Swift.print("Add application trigger")
+          }
+        case .applicationTrigger(let action):
+          switch action {
+          case .addApplicationTrigger(let application):
+            Swift.print("Add application trigger: \(application)")
+          case .removeApplicationTrigger(let trigger):
+            Swift.print("Remove trigger: \(trigger)")
+          }
         }
       }
     }
   }
 
   func handleCommandAction(_ commandAction: CommandView.Action) {
+    guard var workflow = groupStore.workflow(withId: commandAction.workflowId) else {
+      fatalError("Unable to find workflow.")
+    }
+
+    guard var command: Command = workflow.commands.first(where: { $0.id == commandAction.commandId }) else {
+      fatalError("Unable to find command.")
+    }
+
     switch commandAction {
-    case .application(let action):
+    case .application(let action, _, _):
+      guard case .application(var applicationCommand) = command else {
+        fatalError("Wrong command type")
+      }
+
       switch action {
-      case .changeConfiguration:
-        break
+      case .changeApplicationAction(let action):
+        switch action {
+        case .open:
+          applicationCommand.action = .open
+        case .close:
+          applicationCommand.action = .close
+        }
+      case .changeApplicationModifier(let modifier, let newValue):
+        if newValue {
+          applicationCommand.modifiers.insert(modifier)
+        } else {
+          applicationCommand.modifiers.remove(modifier)
+        }
       case .commandAction(let action):
         handleCommandContainerAction(action)
       }
-    case .keyboard(let action):
+
+      command = .application(applicationCommand)
+      workflow.updateOrAddCommand(command)
+      _ = groupStore.receive([workflow])
+    case .keyboard(let action, _, _):
       switch action {
       case .commandAction(let action):
         handleCommandContainerAction(action)
       }
-    case .open(let action):
+    case .open(let action, _, _):
       switch action {
       case .openWith:
         break
@@ -81,7 +110,7 @@ final class DetailCoordinator {
       case .reveal:
         break
       }
-    case .script(let action):
+    case .script(let action, _, _):
       switch action {
       case .open:
         break
@@ -92,14 +121,14 @@ final class DetailCoordinator {
       case .commandAction(let action):
         handleCommandContainerAction(action)
       }
-    case .shortcut(let action):
+    case .shortcut(let action, _, _):
       switch action {
       case .openShortcuts:
         break
       case .commandAction(let action):
         handleCommandContainerAction(action)
       }
-    case .type(let action):
+    case .type(let action, _, _):
       switch action {
       case .save:
         break
@@ -132,7 +161,14 @@ final class DetailCoordinator {
           let name: String
           switch command {
           case .application(let applicationCommand):
-            kind = .application
+            let inBackground = applicationCommand.modifiers.contains(.background)
+            let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
+            let onlyIfRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
+
+            kind = .application(action: applicationCommand.action.displayValue,
+                                inBackground: inBackground,
+                                hideWhenRunning: hideWhenRunning,
+                                ifNotRunning: onlyIfRunning)
             name = applicationCommand.application.displayName
           case .builtIn(_):
             kind = .plain
@@ -278,5 +314,29 @@ extension Workflow.Trigger {
   }
 }
 
-extension DetailViewModel.ApplicationTrigger {
+extension CommandView.Action {
+  var workflowId: DetailViewModel.ID {
+    switch self {
+    case .application(_, let workflowId, _),
+        .keyboard(_, let workflowId, _),
+        .open(_, let workflowId, _),
+        .script(_, let workflowId, _),
+        .shortcut(_, let workflowId, _),
+        .type(_, let workflowId, _):
+      return workflowId
+    }
+  }
+
+  var commandId: DetailViewModel.CommandViewModel.ID {
+    switch self {
+    case .application(_, _, let commandId),
+        .keyboard(_, _, let commandId),
+        .open(_, _, let commandId),
+        .script(_, _, let commandId),
+        .shortcut(_, _, let commandId),
+        .type(_, _, let commandId):
+      return commandId
+    }
+  }
+
 }

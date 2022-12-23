@@ -120,7 +120,7 @@ struct SingleDetailView: View {
         EditableStack($model.commands, spacing: 10, onMove: { indexSet, toOffset in
           onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
         }) { command in
-          CommandView(command) { onAction(.commandView($0)) }
+          CommandView(command, workflowId: model.id) { onAction(.commandView($0)) }
         }
         .background(
           GeometryReader { proxy in

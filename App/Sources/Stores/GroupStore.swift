@@ -66,7 +66,7 @@ final class GroupStore: ObservableObject {
   }
 
   func receive(_ newWorkflows: [Workflow]) -> [WorkflowGroup] {
-    let newGroups = updateGroups(with: newWorkflows)
+    let newGroups = updateOrAddWorkflows(with: newWorkflows)
     groups = newGroups
     return newGroups
   }
@@ -114,7 +114,7 @@ final class GroupStore: ObservableObject {
 
   // MARK: Private methods
 
-  private func updateGroups(with newWorkflows: [Workflow]) -> [WorkflowGroup] {
+  private func updateOrAddWorkflows(with newWorkflows: [Workflow]) -> [WorkflowGroup] {
     // Fix bug when trying to reorder group.
     var newGroups = groups
     for newWorkflow in newWorkflows {
