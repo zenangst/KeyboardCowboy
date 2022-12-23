@@ -22,21 +22,25 @@ struct WorkflowApplicationTriggerView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Picker("Application:", selection: $selection) {
+        Picker("", selection: $selection) {
           ForEach(applicationStore.applications, id: \.id) {
             Text($0.displayName)
               .tag($0.id)
           }
         }
         Spacer()
-        Button("Add", action: {
+        Button(action: {
           if let application = applicationStore.application(for: selection) {
             onAction(.addApplicationTrigger(application))
           }
-        })
+        },
+               label: { Image(systemName: "plus") })
         .buttonStyle(KCButtonStyle())
+        .padding(.leading, 10)
+        .padding(.trailing, 16)
       }
       .padding(.horizontal, 4)
+      .padding(.vertical)
 
       EditableStack($triggers, lazy: true, spacing: 2, onMove: { _, _ in }) { trigger in
         HStack {
@@ -60,23 +64,24 @@ struct WorkflowApplicationTriggerView: View {
               }
             }
           }
+          .padding(.horizontal, 8)
+          .padding(.vertical, 8)
           Spacer()
+          Divider()
+            .opacity(0.5)
           Button(action: { onAction(.removeApplicationTrigger(trigger.wrappedValue)) },
                  label: { Image(systemName: "xmark") })
           .buttonStyle(KCButtonStyle())
-          .padding()
+          .padding(.leading, 8)
+          .padding(.trailing, 12)
         }
         .padding(.horizontal, 8)
-        .padding(.vertical, 4)
         .background(Color(.windowBackgroundColor).opacity(0.75))
         .cornerRadius(8)
         .shadow(radius: 2)
       }
       .cornerRadius(8)
     }
-    .padding(.vertical, 16)
-    .padding(.horizontal, 16)
-    .background(Color(.windowBackgroundColor).opacity(0.25))
     .cornerRadius(8)
     .enableInjection()
   }

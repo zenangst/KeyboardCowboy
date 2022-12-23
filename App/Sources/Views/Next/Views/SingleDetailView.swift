@@ -39,8 +39,14 @@ struct SingleDetailView: View {
         Group {
           switch model.trigger {
           case .keyboardShortcuts(let shortcuts):
-            Label("Keyboard Shortcuts sequence:", image: "")
-              .padding([.leading, .trailing], 8)
+            HStack {
+              Button(action: {  },
+                     label: { Image(systemName: "xmark") })
+              .buttonStyle(KCButtonStyle())
+              Label("Keyboard Shortcuts sequence:", image: "")
+                .padding(.trailing, 12)
+            }
+            .padding([.leading, .trailing], 8)
             WorkflowShortcutsView(shortcuts)
             HStack {
               Spacer()
@@ -51,15 +57,20 @@ struct SingleDetailView: View {
               Spacer()
             }
           case .applications(let triggers):
-            Label("Application trigger:", image: "")
-              .padding([.leading, .trailing], 8)
+            HStack {
+              Button(action: {  },
+                     label: { Image(systemName: "xmark") })
+              .buttonStyle(KCButtonStyle())
+              Label("Application trigger:", image: "")
+            }
+            .padding([.leading, .trailing], 8)
             WorkflowApplicationTriggerView(triggers) { action in
               onAction(.applicationTrigger(action))
             }
             .padding(.bottom, 16)
           case .none:
             Label("Add a trigger:", image: "")
-              .padding([.leading, .trailing, .bottom], 8)
+              .padding([.leading, .trailing], 8)
             WorkflowTriggerView(onAction: { action in
               onAction(.trigger(action))
             })
