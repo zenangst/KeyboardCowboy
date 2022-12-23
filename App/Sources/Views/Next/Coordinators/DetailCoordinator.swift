@@ -76,6 +76,10 @@ final class DetailCoordinator {
       }
 
       switch action {
+      case .updateName(let newName):
+        command.name = newName
+        workflow.updateOrAddCommand(command)
+        await groupStore.receive([workflow])
       case .changeApplicationAction(let action):
         switch action {
         case .open:
@@ -85,11 +89,7 @@ final class DetailCoordinator {
         }
         command = .application(applicationCommand)
         workflow.updateOrAddCommand(command)
-        let updatedWorkflow = workflow
-        await MainActor.run {
-          _ = groupStore.receive([updatedWorkflow])
-        }
-
+        await groupStore.receive([workflow])
       case .changeApplicationModifier(let modifier, let newValue):
         if newValue {
           applicationCommand.modifiers.insert(modifier)
@@ -98,10 +98,7 @@ final class DetailCoordinator {
         }
         command = .application(applicationCommand)
         workflow.updateOrAddCommand(command)
-        let updatedWorkflow = workflow
-        await MainActor.run {
-          _ = groupStore.receive([updatedWorkflow])
-        }
+        await groupStore.receive([workflow])
       case .commandAction(let action):
         await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
@@ -145,7 +142,6 @@ final class DetailCoordinator {
         await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
     }
-
   }
 
   private func handleCommandContainerAction(_ action: CommandContainerAction,
@@ -157,10 +153,7 @@ final class DetailCoordinator {
     case .delete:
       var workflow = workflow
       workflow.commands.removeAll(where: { $0.id == command.id })
-      let updatedWorkflow = workflow
-      await MainActor.run {
-        _ = groupStore.receive([updatedWorkflow])
-      }
+      await groupStore.receive([workflow])
     }
   }
 
@@ -181,12 +174,14 @@ final class DetailCoordinator {
             let inBackground = applicationCommand.modifiers.contains(.background)
             let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
             let onlyIfRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
-
             kind = .application(action: applicationCommand.action.displayValue,
                                 inBackground: inBackground,
                                 hideWhenRunning: hideWhenRunning,
                                 ifNotRunning: onlyIfRunning)
-            name = applicationCommand.application.displayName
+
+            name = applicationCommand.name.isEmpty
+            ? applicationCommand.application.displayName
+            : command.name
           case .builtIn(_):
             kind = .plain
             name = command.name

@@ -62,12 +62,15 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       switch self {
       case .application(var command):
         command.name = newValue
+        self = .application(command)
       case .builtIn:
         break
       case .keyboard(var command):
         command.name = newValue
+        self = .keyboard(command)
       case .open(var command):
         command.name = newValue
+        self = .open(command)
       case .script(let command):
         switch command {
         case .appleScript(let id, let isEnabled, _, let source):
@@ -79,8 +82,10 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
         }
       case .shortcut(var command):
         command.name = newValue
+        self = .shortcut(command)
       case .type(var command):
         command.name = newValue
+        self = .type(command)
       }
     }
   }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ApplicationCommandView: View {
   enum Action {
+    case updateName(newName: String)
     case changeApplicationModifier(modifier: ApplicationCommand.Modifier, newValue: Bool)
     case changeApplicationAction(ApplicationCommand.Action)
     case commandAction(CommandContainerAction)
@@ -10,6 +11,8 @@ struct ApplicationCommandView: View {
   @ObserveInjection var inject
   @Binding private var command: DetailViewModel.CommandViewModel
 
+  @State private var isEditingName: Bool = false
+  @State private var name: String
   @State private var inBackground: Bool
   @State private var hideWhenRunning: Bool
   @State private var ifNotRunning: Bool
@@ -24,6 +27,7 @@ struct ApplicationCommandView: View {
        ifNotRunning: Bool,
        onAction: @escaping (Action) -> Void) {
     _command = command
+    _name = .init(initialValue: command.name.wrappedValue)
     _actionName = .init(initialValue: actionName)
     _inBackground = .init(initialValue: inBackground)
     _hideWhenRunning = .init(initialValue: hideWhenRunning)
@@ -67,9 +71,13 @@ struct ApplicationCommandView: View {
               .stroke(Color(.disabledControlTextColor))
               .opacity(0.5)
           )
-          Text(command.name)
-            .font(.body)
-            .bold()
+          VStack(alignment: .leading) {
+            TextField("Text:", text: $name)
+              .textFieldStyle(KCTextFieldStyle())
+              .onChange(of: name, perform: {
+                onAction(.updateName(newName: $0))
+              })
+          }
           Spacer()
         }
       }, subContent: {

@@ -65,6 +65,7 @@ final class GroupStore: ObservableObject {
     self.groups = newGroups
   }
 
+  @MainActor @discardableResult
   func receive(_ newWorkflows: [Workflow]) -> [WorkflowGroup] {
     let newGroups = updateOrAddWorkflows(with: newWorkflows)
     groups = newGroups
