@@ -3,6 +3,7 @@ import SwiftUI
 struct AppMenuBar: Scene {
   enum Action {
     case openMainWindow
+    case reveal
   }
 
   @Environment(\.scenePhase) private var scenePhase
@@ -36,6 +37,7 @@ struct AppMenuBar: Scene {
   var body: some Scene {
     MenuBarExtra(content: {
       Button("Open \(applicationName)") { onAction(.openMainWindow) }
+      Button("Reveal") { onAction(.reveal) }
       Divider()
       Button("Check for updates...", action: {})
       Button("Provide feedback...", action: {

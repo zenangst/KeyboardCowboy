@@ -87,6 +87,8 @@ struct KeyboardCowboy: App {
       switch action {
       case .openMainWindow:
         handleScene(.mainWindow)
+      case .reveal:
+        NSWorkspace.shared.selectFile(Bundle.main.bundlePath, inFileViewerRootedAtPath: "")
       }
     }
 
