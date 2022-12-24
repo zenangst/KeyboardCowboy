@@ -3,8 +3,8 @@ import SwiftUI
 struct ScriptCommandView: View {
   enum Action {
     case updateName(newName: String)
-    case open
-    case reveal
+    case open(path: String)
+    case reveal(path: String)
     case edit
     case commandAction(CommandContainerAction)
   }
@@ -43,9 +43,9 @@ struct ScriptCommandView: View {
           switch kind {
           case .inline:
             Button("Edit", action: { onAction(.edit) })
-          case .path:
-            Button("Open", action: { onAction(.open) })
-            Button("Reveal", action: { onAction(.reveal) })
+          case .path(_, let source, _):
+            Button("Open", action: { onAction(.open(path: source)) })
+            Button("Reveal", action: { onAction(.reveal(path: source)) })
           }
         }
       }

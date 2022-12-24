@@ -52,6 +52,8 @@ struct KeyboardCowboy: App {
                                     workspace: .shared)
     let contentCoordinator = ContentCoordinator(contentStore.groupStore,
                               applicationStore: contentStore.applicationStore)
+    let engine = KeyboardCowboyEngine(contentStore, indexer: indexer,
+                                      scriptEngine: scriptEngine, workspace: .shared)
 
     self.sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
                                                  contentPublisher: contentCoordinator.publisher,
@@ -60,12 +62,12 @@ struct KeyboardCowboy: App {
     self.configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
     self.detailCoordinator = DetailCoordinator(applicationStore: contentStore.applicationStore,
                                                contentStore: contentStore,
+                                               keyboardCowboyEngine: engine,
                                                groupStore: contentStore.groupStore)
 
     _contentStore = .init(initialValue: contentStore)
     _groupStore = .init(initialValue: contentStore.groupStore)
-    self.engine = KeyboardCowboyEngine(contentStore, indexer: indexer,
-                                       scriptEngine: scriptEngine, workspace: .shared)
+    self.engine = engine
     self.scriptEngine = scriptEngine
     self.focus = .main(.groupComponent)
 

@@ -8,7 +8,6 @@ import os
 final class KeyboardCowboyEngine {
   private var subscriptions = Set<AnyCancellable>()
 
-
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let contentStore: ContentStore
   private let commandEngine: CommandEngine

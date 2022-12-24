@@ -112,13 +112,13 @@ struct DetailViewModel: Hashable, Identifiable {
       var id: String {
         switch self {
         case .inline(let id, _),
-             .path(let id, _):
+             .path(let id, _, _):
           return id
         }
       }
 
       case inline(id: String, type: String)
-      case path(id: String, fileExtension: String)
+      case path(id: String, source: String, fileExtension: String)
     }
   }
 }

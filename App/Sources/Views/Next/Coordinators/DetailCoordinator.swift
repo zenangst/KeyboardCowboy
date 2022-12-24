@@ -3,11 +3,16 @@ import SwiftUI
 final class DetailCoordinator {
   let applicationStore: ApplicationStore
   let contentStore: ContentStore
+  let keyboardCowboyEngine: KeyboardCowboyEngine
   let groupStore: GroupStore
   let publisher: DetailPublisher = .init(.empty)
 
-  init(applicationStore: ApplicationStore, contentStore: ContentStore, groupStore: GroupStore) {
+  init(applicationStore: ApplicationStore,
+       contentStore: ContentStore,
+       keyboardCowboyEngine: KeyboardCowboyEngine,
+       groupStore: GroupStore) {
     self.applicationStore = applicationStore
+    self.keyboardCowboyEngine = keyboardCowboyEngine
     self.contentStore = contentStore
     self.groupStore = groupStore
   }
@@ -130,10 +135,15 @@ final class DetailCoordinator {
         command.name = newName
         workflow.updateOrAddCommand(command)
         await groupStore.receive([workflow])
-      case .open:
-        break
-      case .reveal:
-        break
+      case .open(let source):
+        Task {
+          let path = (source as NSString).expandingTildeInPath
+          await keyboardCowboyEngine.run([
+            .open(.init(path: path))
+          ], serial: true)
+        }
+      case .reveal(let path):
+        NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
       case .edit:
         break
       case .commandAction(let action):
@@ -238,7 +248,9 @@ final class DetailCoordinator {
               switch source {
               case .path(let source):
                 let fileExtension = (source as NSString).pathExtension
-                kind = .script(.path(id: script.id, fileExtension: fileExtension.uppercased()))
+                kind = .script(.path(id: script.id,
+                                     source: source,
+                                     fileExtension: fileExtension.uppercased()))
               case .inline(_):
                 let type: String
                 switch script {

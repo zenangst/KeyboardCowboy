@@ -132,7 +132,7 @@ enum DesignTime {
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
     return .init(id: UUID().uuidString,
                  name: scriptFile,
-                 kind: .script(.path(id: UUID().uuidString, fileExtension: "scpt")),
+                 kind: .script(.path(id: UUID().uuidString, source: "", fileExtension: "scpt")),
                  image: NSWorkspace.shared.icon(forFile: scriptFile),
                  isEnabled: true)
   }
