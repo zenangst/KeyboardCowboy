@@ -126,8 +126,8 @@ final class DetailCoordinator {
         break
       case .commandAction(let action):
         await handleCommandContainerAction(action, command: command, workflow: workflow)
-      case .reveal:
-        break
+      case .reveal(let path):
+        NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
       }
     case .script(let action, _, _):
       switch action {
@@ -231,7 +231,7 @@ final class DetailCoordinator {
               appName = nil
             }
 
-            kind = .open(appName: appName)
+            kind = .open(path: openCommand.path, appName: appName)
 
             if openCommand.isUrl {
               name = openCommand.path

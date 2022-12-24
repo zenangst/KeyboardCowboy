@@ -123,7 +123,7 @@ enum DesignTime {
     let homeDirectory = ("~/" as NSString).expandingTildeInPath
     return .init(id: UUID().uuidString,
                  name: "Home Folder",
-                 kind: .open(appName: nil),
+                 kind: .open(path: "", appName: nil),
                  image: NSWorkspace.shared.icon(forFile: homeDirectory),
                  isEnabled: true)
   }

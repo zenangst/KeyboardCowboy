@@ -100,7 +100,7 @@ struct DetailViewModel: Hashable, Identifiable {
 
       }
       case application(action: String, inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
-      case open(appName: String?)
+      case open(path: String, appName: String?)
       case keyboard(key: String, modifiers: [ModifierKey])
       case script(ScriptKind)
       case plain

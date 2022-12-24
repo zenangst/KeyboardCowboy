@@ -6,7 +6,7 @@ struct OpenCommandView: View {
     case updateName(newName: String)
     case openWith(Application)
     case commandAction(CommandContainerAction)
-    case reveal
+    case reveal(path: String)
   }
   @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
@@ -38,7 +38,7 @@ struct OpenCommandView: View {
           })
         Spacer()
 
-        if case .open(let appName) = command.kind,
+        if case .open(_, let appName) = command.kind,
            let appName {
           Menu(content: {
             ForEach(applicationStore.applicationsToOpen(command.name)) { app in
@@ -68,7 +68,12 @@ struct OpenCommandView: View {
       }
     }, subContent: {
       HStack {
-        Button("Reveal", action: { onAction(.reveal) })
+        switch command.kind {
+        case .open(let path, _):
+          Button("Reveal", action: { onAction(.reveal(path: path)) })
+        default:
+          EmptyView()
+        }
       }
       .padding(.bottom, 4)
       .font(.caption)
