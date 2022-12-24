@@ -159,7 +159,7 @@ enum DesignTime {
   }
 
   static var typeCommand: DetailViewModel.CommandViewModel {
-    .init(id: UUID().uuidString, name: "Type command", kind: .type, image: nil, isEnabled: true)
+    .init(id: UUID().uuidString, name: "Type command", kind: .type(input: "input"), image: nil, isEnabled: true)
   }
 
 

@@ -105,7 +105,7 @@ struct DetailViewModel: Hashable, Identifiable {
       case script(ScriptKind)
       case plain
       case shortcut
-      case type
+      case type(input: String)
     }
 
     enum ScriptKind: Hashable, Identifiable {

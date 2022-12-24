@@ -166,8 +166,16 @@ final class DetailCoordinator {
         command.name = newName
         workflow.updateOrAddCommand(command)
         await groupStore.receive([workflow])
-      case .save:
-        break
+      case .updateSource(let newInput):
+        switch command {
+        case .type(var typeCommand):
+          typeCommand.input = newInput
+          command = .type(typeCommand)
+        default:
+          fatalError("Wrong command type")
+        }
+        workflow.updateOrAddCommand(command)
+        await groupStore.receive([workflow])
       case .commandAction(let action):
         await handleCommandContainerAction(action, command: command, workflow: workflow)
       }
@@ -263,8 +271,8 @@ final class DetailCoordinator {
               }
             }
             name = command.name
-          case .type(_):
-            kind = .type
+          case .type(let type):
+            kind = .type(input: type.input)
             name = command.name
           }
 

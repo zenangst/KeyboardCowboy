@@ -3,7 +3,7 @@ import SwiftUI
 struct TypeCommandView: View {
   enum Action {
     case updateName(newName: String)
-    case save
+    case updateSource(newInput: String)
     case commandAction(CommandContainerAction)
   }
   @ObserveInjection var inject
@@ -16,7 +16,14 @@ struct TypeCommandView: View {
        onAction: @escaping (Action) -> Void) {
     _command = command
     _name = .init(initialValue: command.wrappedValue.name)
-    _source = .init(initialValue: "")
+
+    switch command.kind.wrappedValue {
+    case .type(let input):
+      _source = .init(initialValue: input)
+    default:
+      _source = .init(initialValue: "")
+    }
+
     self.onAction = onAction
   }
 
@@ -39,6 +46,9 @@ struct TypeCommandView: View {
             .opacity(source.isEmpty ? 0.5 : 0)
             .allowsHitTesting(false)
             .padding(.leading, 4)
+            .onChange(of: source) { newInput in
+              onAction(.updateSource(newInput: newInput))
+            }
         }
       }, subContent: {
         EmptyView()
