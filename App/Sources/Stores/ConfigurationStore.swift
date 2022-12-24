@@ -57,7 +57,9 @@ final class ConfigurationStore: ObservableObject {
     guard newConfigurations[index] != configuration else { return }
 
     newConfigurations[index] = configuration
-    select(configuration)
+    if KeyboardCowboy.env == .production {
+      select(configuration)
+    }
     self.configurations = newConfigurations
   }
 }

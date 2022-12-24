@@ -81,15 +81,19 @@ final class ContentCoordinator {
         }
       }
 
-      if newSelections.isEmpty, let first = viewModels.first {
+      if !publisher.selections.intersection(viewModels).isEmpty {
+        newSelections = Array(publisher.selections)
+      } else if newSelections.isEmpty, let first = viewModels.first {
         newSelections = [first]
       }
     }
 
-    if publisher.models.isEmpty {
-      publisher.publish(viewModels, selections: newSelections)
+    if let animation {
+      withAnimation(animation) {
+        publisher.publish(viewModels, selections: newSelections)
+      }
     } else {
-      publisher.publish(viewModels, selections: newSelections, withAnimation: animation)
+      publisher.publish(viewModels, selections: newSelections)
     }
   }
 }

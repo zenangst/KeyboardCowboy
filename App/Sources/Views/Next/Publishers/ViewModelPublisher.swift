@@ -12,13 +12,7 @@ final class ViewModelPublisher<ViewModel>: ObservableObject where ViewModel: Has
   }
 
   @MainActor
-  func publish(_ newModel: ViewModel, withAnimation animation: Animation? = nil) {
-    if let animation {
-      withAnimation(animation) {
-        self.model = newModel
-      }
-    } else {
-      self.model = newModel
-    }
+  func publish(_ newModel: ViewModel) {
+    self.model = newModel
   }
 }

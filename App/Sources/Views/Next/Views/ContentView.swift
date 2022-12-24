@@ -75,25 +75,7 @@ struct ContentView: View {
       selected = newValue
       onAction(.selectWorkflow(Array(newValue)))
     })
-    .overlay(alignment: .top, content: {
-      VStack(spacing: 0) {
-        Rectangle()
-          .fill(Color(.gridColor))
-          .frame(height: 36)
-        Rectangle()
-          .fill(Color(nsColor: .gray))
-          .frame(height: 1)
-          .opacity(0.25)
-        Rectangle()
-          .fill(Color(nsColor: .black))
-          .frame(height: 1)
-          .opacity(0.5)
-      }
-        .opacity(overlayOpacity)
-        .allowsHitTesting(false)
-        .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
-        .edgesIgnoringSafeArea(.top)
-    })
+    .overlay(alignment: .top, content: { overlayView() })
     .toolbar {
       ToolbarItemGroup(placement: .navigation) {
         Button(action: {
@@ -111,6 +93,26 @@ struct ContentView: View {
       }
     }
     .enableInjection()
+  }
+
+  private func overlayView() -> some View {
+    VStack(spacing: 0) {
+      Rectangle()
+        .fill(Color(.gridColor))
+        .frame(height: 36)
+      Rectangle()
+        .fill(Color(nsColor: .gray))
+        .frame(height: 1)
+        .opacity(0.25)
+      Rectangle()
+        .fill(Color(nsColor: .black))
+        .frame(height: 1)
+        .opacity(0.5)
+    }
+      .opacity(overlayOpacity)
+      .allowsHitTesting(false)
+      .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
+      .edgesIgnoringSafeArea(.top)
   }
 
   @ViewBuilder
