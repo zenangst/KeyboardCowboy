@@ -53,6 +53,7 @@ struct CommandView: View {
           $command,
           onAction: { action in
             let newAction: Action = .script(action: action, workflowId: workflowId, commandId: command.id)
+            if newAction.isAction(.run) { handleRun() }
             onAction(newAction)
           })
       case .keyboard:
@@ -60,6 +61,7 @@ struct CommandView: View {
           $command,
           onAction: { action in
             let newAction: Action = .keyboard(action: action, workflowId: workflowId, commandId: command.id)
+            if newAction.isAction(.run) { handleRun() }
             onAction(newAction)
           })
       case .shortcut:
@@ -67,6 +69,7 @@ struct CommandView: View {
           $command,
           onAction: { action in
             let newAction: Action = .shortcut(action: action, workflowId: workflowId, commandId: command.id)
+            if newAction.isAction(.run) { handleRun() }
             onAction(newAction)
           })
       case .type:
@@ -74,6 +77,7 @@ struct CommandView: View {
           $command,
           onAction: { action in
             let newAction: Action = .type(action: action, workflowId: workflowId, commandId: command.id)
+            if newAction.isAction(.run) { handleRun() }
             onAction(newAction)
           })
       }
