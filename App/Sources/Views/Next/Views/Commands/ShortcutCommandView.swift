@@ -27,7 +27,7 @@ struct ShortcutCommandView: View {
       Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Shortcuts.app"))
     }, content: {
       TextField("", text: $name)
-        .textFieldStyle(KCTextFieldStyle())
+        .textFieldStyle(AppTextFieldStyle())
         .onChange(of: name, perform: {
           onAction(.updateName(newName: $0))
         })

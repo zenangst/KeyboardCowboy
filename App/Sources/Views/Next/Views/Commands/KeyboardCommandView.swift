@@ -36,7 +36,7 @@ struct KeyboardCommandView: View {
           }, content: {
             HStack {
               TextField("", text: $name)
-                .textFieldStyle(KCTextFieldStyle())
+                .textFieldStyle(AppTextFieldStyle())
                 .onChange(of: name, perform: {
                   onAction(.updateName(newName: $0))
                 })

@@ -64,7 +64,7 @@ struct ConfigurationSidebarView: View {
       }
       .frame(minWidth: 480)
     }
-    .transform(KCButtonStyle.modifiers) // Use the modifiers to not break keyboard shortcuts
+    .transform(AppButtonStyle.modifiers) // Use the modifiers to not break keyboard shortcuts
     .keyboardShortcut(.init("T"), modifiers: .command)
     .enableInjection()
   }

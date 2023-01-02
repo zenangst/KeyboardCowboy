@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct KCTextFieldStyle: TextFieldStyle {
+struct AppTextFieldStyle: TextFieldStyle {
   @FocusState var isFocused: Bool
   @State var isHovered: Bool = false
 

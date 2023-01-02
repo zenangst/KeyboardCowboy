@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct KCButtonStyle: ButtonStyle {
+struct AppButtonStyle: ButtonStyle {
   @ObserveInjection var inject
   @State private var isHovered = false
   @Environment(\.colorScheme) var colorScheme

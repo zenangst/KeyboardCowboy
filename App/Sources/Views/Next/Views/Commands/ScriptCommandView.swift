@@ -31,7 +31,7 @@ struct ScriptCommandView: View {
     }, content: {
       HStack(spacing: 8) {
         TextField("", text: $name)
-          .textFieldStyle(KCTextFieldStyle())
+          .textFieldStyle(AppTextFieldStyle())
           .onChange(of: name, perform: {
             onAction(.updateName(newName: $0))
           })

@@ -24,7 +24,7 @@ struct WorkflowTriggerListView: View {
           HStack {
             Button(action: {  },
                    label: { Image(systemName: "xmark") })
-            .buttonStyle(KCButtonStyle())
+            .buttonStyle(AppButtonStyle())
             Label("Keyboard Shortcuts sequence:", image: "")
               .padding(.trailing, 12)
           }
@@ -42,7 +42,7 @@ struct WorkflowTriggerListView: View {
           HStack {
             Button(action: {  },
                    label: { Image(systemName: "xmark") })
-            .buttonStyle(KCButtonStyle())
+            .buttonStyle(AppButtonStyle())
             Label("Application trigger:", image: "")
           }
           .padding([.leading, .trailing], 8)

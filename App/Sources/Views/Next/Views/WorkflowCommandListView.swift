@@ -31,7 +31,7 @@ struct WorkflowCommandListView: View {
           }
         }
         .padding(4)
-        .buttonStyle(KCButtonStyle())
+        .buttonStyle(AppButtonStyle())
       }
       .padding([.leading, .bottom], 8)
       .padding(.trailing, 16)

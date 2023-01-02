@@ -37,7 +37,7 @@ struct ConfigurationPopoverView: View {
                   action(.edit(configuration))
                 })
                 .font(.footnote)
-                .buttonStyle(KCButtonStyle())
+                .buttonStyle(AppButtonStyle())
               }
               .frame(height: 32)
               .padding(8)
@@ -56,7 +56,7 @@ struct ConfigurationPopoverView: View {
       .focused($focus, equals: .sidebar(.configuration))
 
       Button.init("New configuration", action: { action(.newConfiguration) })
-        .buttonStyle(KCButtonStyle())
+        .buttonStyle(AppButtonStyle())
         .padding([.leading, .bottom, .trailing])
         .onAppear {
           focus = .sidebar(.configuration)

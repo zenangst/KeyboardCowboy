@@ -38,7 +38,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .offset(x: -2)
 
           subContent()
-            .buttonStyle(KCButtonStyle())
+            .buttonStyle(AppButtonStyle())
             .padding(.leading, 2)
         }
         .padding([.bottom], 8)

@@ -90,7 +90,7 @@ struct ApplicationCommandView: View {
               .opacity(0.5)
           )
           TextField("", text: $name)
-            .textFieldStyle(KCTextFieldStyle())
+            .textFieldStyle(AppTextFieldStyle())
             .onChange(of: name, perform: {
               onAction(.updateName(newName: $0))
             })
