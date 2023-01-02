@@ -71,7 +71,7 @@ struct DetailViewModel: Hashable, Identifiable {
     let id: String
     var name: String
     var kind: Kind
-    let image: NSImage?
+    var image: NSImage?
     var isEnabled: Bool
 
     enum Kind: Hashable, Identifiable {

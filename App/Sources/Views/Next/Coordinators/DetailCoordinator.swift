@@ -81,6 +81,11 @@ final class DetailCoordinator {
       }
 
       switch action {
+      case .changeApplication(let application):
+        applicationCommand.application = application
+        command = .application(applicationCommand)
+        workflow.updateOrAddCommand(command)
+        await groupStore.receive([workflow])
       case .updateName(let newName):
         command.name = newName
         workflow.updateOrAddCommand(command)

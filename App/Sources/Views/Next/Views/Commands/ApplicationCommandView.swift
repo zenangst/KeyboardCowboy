@@ -1,7 +1,9 @@
+import Apps
 import SwiftUI
 
 struct ApplicationCommandView: View {
   enum Action {
+    case changeApplication(Application)
     case updateName(newName: String)
     case changeApplicationModifier(modifier: ApplicationCommand.Modifier, newValue: Bool)
     case changeApplicationAction(ApplicationCommand.Action)
@@ -10,6 +12,8 @@ struct ApplicationCommandView: View {
 
   @ObserveInjection var inject
   @Binding private var command: DetailViewModel.CommandViewModel
+
+  @EnvironmentObject var applicationStore: ApplicationStore
 
   @State private var name: String
   @State private var inBackground: Bool
@@ -39,8 +43,23 @@ struct ApplicationCommandView: View {
       isEnabled: $command.isEnabled,
       icon: {
         if let image = command.image {
-          Image(nsImage: image)
-            .resizable()
+          Menu(content: {
+            ForEach(applicationStore.applications) { app in
+              Button(action: {
+                onAction(.changeApplication(app))
+                command.image = NSWorkspace.shared.icon(forFile: app.path)
+              }, label: {
+                Text(app.displayName)
+              })
+            }
+          }, label: {
+            HStack {
+              Image(nsImage: image)
+                .resizable()
+            }
+          })
+          .menuStyle(.borderlessButton)
+          .menuIndicator(.hidden)
         }
       },
       content: {
