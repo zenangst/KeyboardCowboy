@@ -75,114 +75,123 @@ final class DetailCoordinator {
     }
 
     switch commandAction {
-    case .application(let action, _, _):
-      guard case .application(var applicationCommand) = command else {
-        fatalError("Wrong command type")
-      }
-
-      switch action {
-      case .changeApplication(let application):
-        applicationCommand.application = application
-        command = .application(applicationCommand)
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .updateName(let newName):
-        command.name = newName
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .changeApplicationAction(let action):
-        switch action {
-        case .open:
-          applicationCommand.action = .open
-        case .close:
-          applicationCommand.action = .close
-        }
-        command = .application(applicationCommand)
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .changeApplicationModifier(let modifier, let newValue):
-        if newValue {
-          applicationCommand.modifiers.insert(modifier)
-        } else {
-          applicationCommand.modifiers.remove(modifier)
-        }
-        command = .application(applicationCommand)
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .commandAction(let action):
-        await handleCommandContainerAction(action, command: command, workflow: workflow)
-      }
-    case .keyboard(let action, _, _):
-      switch action {
-      case .updateName(let newName):
-        command.name = newName
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .commandAction(let action):
-        await handleCommandContainerAction(action, command: command, workflow: workflow)
-      }
-    case .open(let action, _, _):
-      switch action {
-      case .updateName(let newName):
-        command.name = newName
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .openWith:
-        break
-      case .commandAction(let action):
-        await handleCommandContainerAction(action, command: command, workflow: workflow)
-      case .reveal(let path):
-        NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
-      }
-    case .script(let action, _, _):
-      switch action {
-      case .updateName(let newName):
-        command.name = newName
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .open(let source):
-        Task {
-          let path = (source as NSString).expandingTildeInPath
-          await keyboardCowboyEngine.run([
-            .open(.init(path: path))
-          ], serial: true)
-        }
-      case .reveal(let path):
-        NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
-      case .edit:
-        break
-      case .commandAction(let action):
-        await handleCommandContainerAction(action, command: command, workflow: workflow)
-      }
-    case .shortcut(let action, _, _):
-      switch action {
-      case .updateName(let newName):
-        command.name = newName
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .openShortcuts:
-        break
-      case .commandAction(let action):
-        await handleCommandContainerAction(action, command: command, workflow: workflow)
-      }
-    case .type(let action, _, _):
-      switch action {
-      case .updateName(let newName):
-        command.name = newName
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .updateSource(let newInput):
-        switch command {
-        case .type(var typeCommand):
-          typeCommand.input = newInput
-          command = .type(typeCommand)
-        default:
+    case .run(_, _):
+      break
+    case .remove(_, let commandId):
+      var workflow = workflow
+      workflow.commands.removeAll(where: { $0.id == commandId })
+      await groupStore.receive([workflow])
+    case .modify(let kind):
+      switch kind {
+      case .application(let action, _, _):
+        guard case .application(var applicationCommand) = command else {
           fatalError("Wrong command type")
         }
-        workflow.updateOrAddCommand(command)
-        await groupStore.receive([workflow])
-      case .commandAction(let action):
-        await handleCommandContainerAction(action, command: command, workflow: workflow)
+
+        switch action {
+        case .changeApplication(let application):
+          applicationCommand.application = application
+          command = .application(applicationCommand)
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .updateName(let newName):
+          command.name = newName
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .changeApplicationAction(let action):
+          switch action {
+          case .open:
+            applicationCommand.action = .open
+          case .close:
+            applicationCommand.action = .close
+          }
+          command = .application(applicationCommand)
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .changeApplicationModifier(let modifier, let newValue):
+          if newValue {
+            applicationCommand.modifiers.insert(modifier)
+          } else {
+            applicationCommand.modifiers.remove(modifier)
+          }
+          command = .application(applicationCommand)
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .commandAction(let action):
+          await handleCommandContainerAction(action, command: command, workflow: workflow)
+        }
+      case .keyboard(let action, _, _):
+        switch action {
+        case .updateName(let newName):
+          command.name = newName
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .commandAction(let action):
+          await handleCommandContainerAction(action, command: command, workflow: workflow)
+        }
+      case .open(let action, _, _):
+        switch action {
+        case .updateName(let newName):
+          command.name = newName
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .openWith:
+          break
+        case .commandAction(let action):
+          await handleCommandContainerAction(action, command: command, workflow: workflow)
+        case .reveal(let path):
+          NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
+        }
+      case .script(let action, _, _):
+        switch action {
+        case .updateName(let newName):
+          command.name = newName
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .open(let source):
+          Task {
+            let path = (source as NSString).expandingTildeInPath
+            await keyboardCowboyEngine.run([
+              .open(.init(path: path))
+            ], serial: true)
+          }
+        case .reveal(let path):
+          NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
+        case .edit:
+          break
+        case .commandAction(let action):
+          await handleCommandContainerAction(action, command: command, workflow: workflow)
+        }
+      case .shortcut(let action, _, _):
+        switch action {
+        case .updateName(let newName):
+          command.name = newName
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .openShortcuts:
+          break
+        case .commandAction(let action):
+          await handleCommandContainerAction(action, command: command, workflow: workflow)
+        }
+      case .type(let action, _, _):
+        switch action {
+        case .updateName(let newName):
+          command.name = newName
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .updateSource(let newInput):
+          switch command {
+          case .type(var typeCommand):
+            typeCommand.input = newInput
+            command = .type(typeCommand)
+          default:
+            fatalError("Wrong command type")
+          }
+          workflow.updateOrAddCommand(command)
+          await groupStore.receive([workflow])
+        case .commandAction(let action):
+          await handleCommandContainerAction(action, command: command, workflow: workflow)
+        }
       }
     }
   }
@@ -371,7 +380,7 @@ extension Workflow.Trigger {
   }
 }
 
-extension CommandView.Action {
+extension CommandView.Kind {
   var workflowId: DetailViewModel.ID {
     switch self {
     case .application(_, let workflowId, _),
@@ -392,6 +401,28 @@ extension CommandView.Action {
         .script(_, _, let commandId),
         .shortcut(_, _, let commandId),
         .type(_, _, let commandId):
+      return commandId
+    }
+  }
+}
+
+extension CommandView.Action {
+  var workflowId: DetailViewModel.ID {
+    switch self {
+    case .modify(let kind):
+      return kind.workflowId
+    case .run(let workflowId, _),
+        .remove(let workflowId, _):
+      return workflowId
+    }
+  }
+
+  var commandId: DetailViewModel.CommandViewModel.ID {
+    switch self {
+    case .modify(let kind):
+      return kind.commandId
+    case .run(_, let commandId),
+        .remove(_, let commandId):
       return commandId
     }
   }

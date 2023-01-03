@@ -55,7 +55,7 @@ struct KeyShortcutsListView: View, Equatable {
       Divider()
       Button(action: addShortcut,
              label: { Image(systemName: "plus") })
-      .buttonStyle(AppButtonStyle())
+      .buttonStyle(.appStyle)
       .font(.callout)
       .padding(.horizontal, 16)
     }

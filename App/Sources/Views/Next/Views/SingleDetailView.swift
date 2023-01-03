@@ -28,7 +28,31 @@ struct SingleDetailView: View {
 
   var body: some View {
     ScrollView {
-      WorkflowTriggerListView(model, onAction: onAction)
+      VStack(alignment: .leading) {
+        WorkflowInfoView($model)
+          .padding(.horizontal, 8)
+          .padding(.vertical, 16)
+          .onChange(of: model) { model in
+            onAction(.updateName(name: model.name, workflowId: model.id))
+          }
+        WorkflowTriggerListView(model, onAction: onAction)
+      }
+      .padding()
+      .background(alignment: .bottom, content: {
+        GeometryReader { proxy in
+          Rectangle()
+            .fill(Color(.textBackgroundColor))
+          Path { path in
+            path.move(to: CGPoint(x: proxy.size.width / 2, y: proxy.size.height))
+            path.addLine(to: CGPoint(x: proxy.size.width / 2 - 16, y: proxy.size.height))
+            path.addLine(to: CGPoint(x: proxy.size.width / 2, y: proxy.size.height + 8))
+            path.addLine(to: CGPoint(x: proxy.size.width / 2 + 16, y: proxy.size.height))
+          }
+          .fill(Color(.textBackgroundColor))
+        }
+        .compositingGroup()
+      })
+      .shadow(radius: 4)
       WorkflowCommandListView(model, onAction: onAction)
     }
     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))

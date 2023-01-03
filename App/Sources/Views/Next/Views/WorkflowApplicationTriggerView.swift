@@ -35,7 +35,7 @@ struct WorkflowApplicationTriggerView: View {
           }
         },
                label: { Image(systemName: "plus") })
-        .buttonStyle(AppButtonStyle())
+        .buttonStyle(.appStyle)
         .padding(.leading, 10)
         .padding(.trailing, 16)
       }
@@ -71,7 +71,7 @@ struct WorkflowApplicationTriggerView: View {
             .opacity(0.5)
           Button(action: { onAction(.removeApplicationTrigger(trigger.wrappedValue)) },
                  label: { Image(systemName: "xmark") })
-          .buttonStyle(AppButtonStyle())
+          .buttonStyle(.appStyle)
           .padding(.leading, 8)
           .padding(.trailing, 12)
         }

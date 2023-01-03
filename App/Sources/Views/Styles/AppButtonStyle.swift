@@ -1,5 +1,15 @@
 import SwiftUI
 
+enum AppButtonStyleEnum {
+  case appStyle
+}
+
+extension View {
+  func buttonStyle(_ style: AppButtonStyleEnum) -> some View {
+    self.buttonStyle(AppButtonStyle())
+  }
+}
+
 struct AppButtonStyle: ButtonStyle {
   @ObserveInjection var inject
   @State private var isHovered = false
@@ -21,7 +31,6 @@ struct AppButtonStyle: ButtonStyle {
       .font(.system(.body, design: .rounded, weight: .semibold))
       .opacity(configuration.isPressed ? 0.6 : isHovered ? 1.0 : 0.8)
       .offset(y: configuration.isPressed ? 0.25 : 0.0)
-//      .background(gradient.cornerRadius(8))
       .shadow(radius: configuration.isPressed ? 0 : isHovered ? 1 : 2)
       .onHover(perform: { value in
         self.isHovered = value

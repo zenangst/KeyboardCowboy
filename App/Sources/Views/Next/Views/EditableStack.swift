@@ -10,7 +10,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                                                 Data.Index == Int,
                                                 Data.Element.ID: CustomStringConvertible {
   enum Focus: Hashable {
-    case focused(Data.Element)
+    case focused(Data.Element.ID)
   }
 
   private enum DropIndex {
@@ -18,10 +18,10 @@ struct EditableStack<Data, Content>: View where Content: View,
     case down(Data.Element.ID)
   }
 
-  @Environment(\.isFocused) var isFocused
   @ObserveInjection var inject
   @Binding private(set) var data: Data
   @FocusState var focus: Focus?
+  @Namespace var namespace
 
   private let id: KeyPath<Data.Element, Data.Element.ID>
   private let content: (Binding<Data.Element>) -> Content
@@ -35,7 +35,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   @State private var size: Double = 0
   @State private var draggedElement: Data.Element?
   @State private var dropIndex: DropIndex?
-  @State private var selections = Set<Data.Element>()
+  @State private var selections = Set<Data.Element.ID>()
 
   init(_ data: Binding<Data>,
        axes: Axis.Set = .vertical,
@@ -59,19 +59,24 @@ struct EditableStack<Data, Content>: View where Content: View,
     AxesView(axes, lazy: lazy, spacing: spacing) {
       ForEach($data, id: id) { element in
         let isDragging = draggedElement?.id == element.id
+        let isFocused = focus == .focused(element.wrappedValue.id)
+        let isSelected = selections.contains(element.wrappedValue.id)
         ZStack {
-          ElementView(id: element.id,
-                      cornerRadius: cornerRadius,
-                      onKeyDown: onKeyDown(_:modifiers:)) { content(element) }
+          content(element)
+            .background(
+              RoundedRectangle(cornerRadius: cornerRadius)
+                .stroke(Color.accentColor, lineWidth: 2)
+                .opacity(isFocused || isSelected ? 0.3 : 0.0)
+            )
             .overlay(ZStack {
-              dropIndexView(element)
-              overlayView(element)
+              dropIndexView(element.id)
+              overlayView(element.id)
             })
             .opacity(isDragging ? 0.0 : 1.0)
             .simultaneousGesture(
               DragGesture()
                 .updating($dragState) { value, state, transaction in
-                  state = .dragging(draggedElement: element.wrappedValue,
+                  state = .dragging(draggedElementID: element.id,
                                     translation: value.translation)
                 }
                 .onChanged { value in
@@ -96,12 +101,11 @@ struct EditableStack<Data, Content>: View where Content: View,
             )
             .gesture(TapGesture().modifiers(.shift)
               .onEnded({ _ in
-                focus = .focused(element.wrappedValue)
                 onTapWithShiftModifier(element.wrappedValue)
               })
             )
 //            .gesture(TapGesture().onEnded { _ in onTap(element.wrappedValue) })
-            .focused($focus, equals: .focused(element.wrappedValue))
+            .focused($focus, equals: .focused(element.wrappedValue.id))
 
           DraggableView(element: element.wrappedValue,
                         axes: axes,
@@ -109,6 +113,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                         isDragging: Binding<Bool>(get: { isDragging }, set: { _ in }),
                         size: $size,
                         content: { content(element) })
+          .focusable(false)
         }
         .zIndex(isDragging ? 2: 0)
       }
@@ -116,60 +121,30 @@ struct EditableStack<Data, Content>: View where Content: View,
     .enableInjection()
   }
 
-  private func onKeyDown(_ keyCode: Int, modifiers: NSEvent.ModifierFlags) {
-    guard case .focused(let currentElement) = focus,
-          let index = data.firstIndex(of: currentElement) else { return }
-    switch keyCode {
-    case kVK_Escape:
-      selections = []
-      focus = nil
-    case kVK_DownArrow, kVK_RightArrow:
-      let newIndex = index + 1
-      if newIndex < data.count {
-        let newElement = data[newIndex]
-        let notification = FocusableNSView.becomeFirstResponderNotification(newElement.id)
-        NotificationCenter.default.post(name: notification, object: nil)
-        focus = .focused(newElement)
-      }
-    case kVK_UpArrow, kVK_LeftArrow:
-      let newIndex = index - 1
-      if newIndex >= 0 {
-        let newElement = data[newIndex]
-        let notification = FocusableNSView.becomeFirstResponderNotification(newElement.id)
-        NotificationCenter.default.post(name: notification, object: nil)
-        focus = .focused(newElement)
-      }
-    case kVK_Return:
-      break
-    default:
-      break
-    }
-  }
-
   private func onTap(_ element: Data.Element) {
-    focus = .focused(element)
-    selections = Set<Data.Element>(arrayLiteral: element)
+    focus = .focused(element.id)
+    selections = Set<Data.Element.ID>(arrayLiteral: element.id)
   }
 
   private func onTapWithCommandModifier(_ element: Data.Element) {
-    if selections.contains(element) {
-      selections.remove(element)
+    if selections.contains(element.id) {
+      selections.remove(element.id)
     } else {
-      selections.insert(element)
+      selections.insert(element.id)
     }
-    focus = .focused(element)
+    focus = .focused(element.id)
   }
 
   private func onTapWithShiftModifier(_ element: Data.Element) {
-    if selections.contains(element) {
-      selections.remove(element)
+    if selections.contains(element.id) {
+      selections.remove(element.id)
     } else {
-      selections.insert(element)
+      selections.insert(element.id)
     }
 
     if case .focused(let currentElement) = focus {
-      let alreadySelected = selections.contains(element)
-      guard var startIndex = data.firstIndex(of: currentElement),
+      let alreadySelected = selections.contains(element.id)
+      guard var startIndex = data.firstIndex(where: { $0.id == currentElement }),
             var endIndex = data.firstIndex(of: element) else {
               return
             }
@@ -181,29 +156,29 @@ struct EditableStack<Data, Content>: View where Content: View,
 
       data[startIndex...endIndex].forEach { element in
         if !alreadySelected {
-          if selections.contains(element) {
-            selections.remove(element)
+          if selections.contains(element.id) {
+            selections.remove(element.id)
           }
         } else {
-          if !selections.contains(element) {
-            selections.insert(element)
+          if !selections.contains(element.id) {
+            selections.insert(element.id)
           }
         }
       }
     }
 
-    focus = .focused(element)
+    focus = nil
   }
 
-  private func overlayView(_ element: Binding<Data.Element>) -> some View {
+  private func overlayView(_ elementID: Data.Element.ID) -> some View {
     ZStack {
       Color.accentColor
-        .opacity(selections.contains(element.wrappedValue) ? 0.2 : 0.0)
+        .opacity(selections.contains(elementID) ? 0.2 : 0.0)
         .cornerRadius(cornerRadius)
     }
   }
 
-  private func dropIndexView(_ element: Binding<Data.Element>) -> some View {
+  private func dropIndexView(_ elementID: Data.Element.ID) -> some View {
     internalAxesView {
       switch axes {
       case .horizontal:
@@ -212,14 +187,14 @@ struct EditableStack<Data, Content>: View where Content: View,
           RoundedRectangle(cornerRadius: 2)
             .fill(Color.accentColor)
             .frame(width: 2)
-            .opacity(identifier == element.id ? 1.0 : 0.0)
+            .opacity(identifier == elementID ? 1.0 : 0.0)
           Spacer()
         case .down(let identifier):
           Spacer()
           RoundedRectangle(cornerRadius: 2)
             .fill(Color.accentColor)
             .frame(width: 2)
-            .opacity(identifier == element.id ? 1.0 : 0.0)
+            .opacity(identifier == elementID ? 1.0 : 0.0)
         case .none:
           Spacer()
             .frame(width: 2)
@@ -230,14 +205,14 @@ struct EditableStack<Data, Content>: View where Content: View,
           RoundedRectangle(cornerRadius: 2)
             .fill(Color.accentColor)
             .frame(height: 2)
-            .opacity(identifier == element.id ? 1.0 : 0.0)
+            .opacity(identifier == elementID ? 1.0 : 0.0)
           Spacer()
         case .down(let identifier):
           Spacer()
           RoundedRectangle(cornerRadius: 2)
             .fill(Color.accentColor)
             .frame(height: 2)
-            .opacity(identifier == element.id ? 1.0 : 0.0)
+            .opacity(identifier == elementID ? 1.0 : 0.0)
         case .none:
           Spacer()
             .frame(height: 2)
@@ -248,21 +223,21 @@ struct EditableStack<Data, Content>: View where Content: View,
           RoundedRectangle(cornerRadius: 2)
             .fill(Color.accentColor)
             .frame(height: 2)
-            .opacity(identifier == element.id ? 1.0 : 0.0)
+            .opacity(identifier == elementID ? 1.0 : 0.0)
           Spacer()
         case .down(let identifier):
           Spacer()
           RoundedRectangle(cornerRadius: 2)
             .fill(Color.accentColor)
             .frame(height: 2)
-            .opacity(identifier == element.id ? 1.0 : 0.0)
+            .opacity(identifier == elementID ? 1.0 : 0.0)
         case .none:
           Spacer()
             .frame(height: 2)
         }
       }
     }
-    .zIndex(withAnimation { dragState.zIndex(for: element.wrappedValue) })
+    .zIndex(withAnimation { dragState.zIndex(for: elementID) })
   }
 
   @ViewBuilder
@@ -343,7 +318,6 @@ struct EditableStack<Data, Content>: View where Content: View,
 
 
 private struct AxesView<Content>: View where Content: View {
-  @Environment(\.isFocused) var isFocused
   private let axes: Axis.Set
   private let lazy: Bool
   private let spacing: CGFloat?
@@ -409,9 +383,9 @@ struct DraggableView<Content, Element>: View where Content: View,
     GeometryReader { proxy in
       content()
         .contentShape(.dragPreview, Circle(), eoFill: true)
-        .offset(withAnimation { state.offset(for: element) })
-        .scaleEffect(withAnimation { state.scaleFactor(for: element) })
-        .zIndex(withAnimation { state.zIndex(for: element) } )
+        .offset(withAnimation { state.offset(for: element.id) })
+        .scaleEffect(withAnimation { state.scaleFactor(for: element.id) })
+        .zIndex(withAnimation { state.zIndex(for: element.id) } )
         .onAppear {
           switch axes {
           case .horizontal:
@@ -425,33 +399,5 @@ struct DraggableView<Content, Element>: View where Content: View,
     }
     .opacity(isDragging ? 0.7 : 0.0)
     .animation(.interactiveSpring(), value: isDragging)
-  }
-}
-
-struct ElementView<Content>: View where Content: View {
-  @State var isFocused: Bool = false
-
-  private let id: CustomStringConvertible
-  private let content: () -> Content
-  private let cornerRadius: Double
-  private var onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
-
-  init(id: CustomStringConvertible,
-       cornerRadius: Double,
-       onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void,
-       content: @escaping () -> Content) {
-    self.id = id
-    self.content = content
-    self.onKeyDown = onKeyDown
-    self.cornerRadius = cornerRadius
-  }
-
-  var body: some View {
-    FocusableView(id: id, isFocused: $isFocused, onKeyDown: onKeyDown, content: content)
-      .background(
-        RoundedRectangle(cornerRadius: cornerRadius)
-          .stroke(Color.accentColor, lineWidth: 2)
-          .opacity(isFocused  ? 0.3 : 0.0 )
-      )
   }
 }

@@ -14,36 +14,49 @@ struct WorkflowCommandListView: View {
       HStack {
         Label("Commands:", image: "")
         Spacer()
-        Menu(content: {
-          ForEach(DetailViewModel.Flow.allCases) {
-            Button($0.rawValue, action: {})
-          }
-        }, label: {
-          Text("Run \(model.flow.rawValue)")
-        }, primaryAction: {
-        })
-        .fixedSize()
-        Divider()
-          .padding(.horizontal, 4)
+        Group {
+          Menu(content: {
+            ForEach(DetailViewModel.Flow.allCases) {
+              Button($0.rawValue, action: {})
+            }
+          }, label: {
+            Text("Run \(model.flow.rawValue)")
+          }, primaryAction: {
+          })
+          .fixedSize()
+          Divider()
+            .padding(.horizontal, 4)
+        }
+        .opacity(model.commands.isEmpty ? 0 : 1)
         Button(action: {}) {
           HStack(spacing: 4) {
             Image(systemName: "plus")
           }
         }
         .padding(4)
-        .buttonStyle(AppButtonStyle())
+        .buttonStyle(.appStyle)
       }
       .padding([.leading, .bottom], 8)
       .padding(.trailing, 16)
+
       EditableStack($model.commands, spacing: 10, onMove: { indexSet, toOffset in
         onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
       }) { command in
         CommandView(command, workflowId: model.id) { action in
-          if action.isAction(.delete), let index = model.commands.firstIndex(of: command.wrappedValue) {
-            model.commands.remove(at: index)
-          }
-          if action.isAction(.run) { }
           onAction(.commandView(action))
+          switch action {
+          case .remove(_, let commandId):
+            model.commands.removeAll(where: { $0.id == commandId })
+          default:
+            break
+          }
+        }
+        .contextMenu {
+          Button("Run", action: {})
+          Button("Remove", action: {
+            onAction(.commandView(.remove(workflowId: model.id, commandId: command.id)))
+            model.commands.removeAll(where: { $0.id == command.id })
+          })
         }
       }
       .background(
@@ -55,6 +68,7 @@ struct WorkflowCommandListView: View {
             .opacity(model.flow == .concurrent ? 0 : 1)
         }
       )
+
     }
     .padding()
   }
@@ -64,109 +78,5 @@ struct WorkflowCommandListView_Previews: PreviewProvider {
   static var previews: some View {
     WorkflowCommandListView(DesignTime.detail) { _ in }
       .frame(height: 900)
-  }
-}
-
-enum CommandViewActionKind {
-  case run, delete
-}
-
-extension CommandView.Action {
-  func isAction(_ kind: CommandViewActionKind) -> Bool {
-    switch self {
-    case .application(let action, _, _):
-      switch action {
-      case .commandAction(let commandContainerAction):
-        switch kind {
-        case .run:
-          return commandContainerAction.isRunAction
-        case .delete:
-          return commandContainerAction.isDeleteAction
-        }
-      default:
-        return false
-      }
-    case .keyboard(let action, _, _):
-      switch action {
-      case .commandAction(let commandContainerAction):
-        switch kind {
-        case .run:
-          return commandContainerAction.isRunAction
-        case .delete:
-          return commandContainerAction.isDeleteAction
-        }
-      default:
-        return false
-      }
-    case .open(let action, _, _):
-      switch action {
-      case .commandAction(let commandContainerAction):
-        switch kind {
-        case .run:
-          return commandContainerAction.isRunAction
-        case .delete:
-          return commandContainerAction.isDeleteAction
-        }
-      default:
-        return false
-      }
-    case .script(let action, _, _):
-      switch action {
-      case .commandAction(let commandContainerAction):
-        switch kind {
-        case .run:
-          return commandContainerAction.isRunAction
-        case .delete:
-          return commandContainerAction.isDeleteAction
-        }
-      default:
-        return false
-      }
-    case .shortcut(let action, _, _):
-      switch action {
-      case .commandAction(let commandContainerAction):
-        switch kind {
-        case .run:
-          return commandContainerAction.isRunAction
-        case .delete:
-          return commandContainerAction.isDeleteAction
-        }
-      default:
-        return false
-      }
-
-    case .type(let action, _, _):
-      switch action {
-      case .commandAction(let commandContainerAction):
-        switch kind {
-        case .run:
-          return commandContainerAction.isRunAction
-        case .delete:
-          return commandContainerAction.isDeleteAction
-        }
-      default:
-        return false
-      }
-    }
-  }
-}
-
-extension CommandContainerAction {
-  var isRunAction: Bool {
-    switch self {
-    case .run:
-      return true
-    case .delete:
-      return false
-    }
-  }
-
-  var isDeleteAction: Bool {
-    switch self {
-    case .run:
-      return false
-    case .delete:
-      return true
-    }
   }
 }

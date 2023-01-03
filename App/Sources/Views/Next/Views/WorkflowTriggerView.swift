@@ -43,7 +43,7 @@ struct WorkflowTriggerView: View {
       .background(Color(nsColor: .gridColor))
       .cornerRadius(8)
     }
-    .buttonStyle(AppButtonStyle())
+    .buttonStyle(.appStyle)
     .enableInjection()
   }
 }

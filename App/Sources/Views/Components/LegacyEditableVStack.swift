@@ -1,38 +1,6 @@
 import SwiftUI
 
-enum MoveState<Element: Identifiable> {
-  case inactive
-  case dragging(draggedElement: Element, translation: CGSize)
 
-  var element: Element? {
-    switch self {
-    case .inactive:
-      return nil
-    case .dragging(let element, _):
-      return element
-    }
-  }
-
-  private func isDraggingElement(_ element: Element) -> Bool {
-    if case .dragging(let draggedElement, _) = self,
-       draggedElement.id == element.id {
-      return true
-    }
-    return false
-  }
-
-  func scaleFactor(for element: Element) -> Double { isDraggingElement(element) ? 1.025 : 1 }
-
-  func zIndex(for element: Element) -> Double { isDraggingElement(element) ? 1 : 0 }
-
-  func offset(for element: Element) -> CGSize {
-    if case .dragging(_, let translation) = self,
-       isDraggingElement(element) {
-      return translation
-    }
-    return .zero
-  }
-}
 
 struct LegacyEditableVStack<Data, ID, Content>: View where Content: View,
                                                      Data: RandomAccessCollection,
@@ -85,9 +53,9 @@ struct LegacyEditableVStack<Data, ID, Content>: View where Content: View,
             if draggedElement?.id == element.id {
               content(element)
                 .contentShape(.dragPreview, Circle(), eoFill: true)
-                .offset(withAnimation { dragState.offset(for: element.wrappedValue) })
-                .scaleEffect(withAnimation { dragState.scaleFactor(for: element.wrappedValue) })
-                .zIndex(withAnimation { dragState.zIndex(for: element.wrappedValue) })
+                .offset(withAnimation { dragState.offset(for: element.id) })
+                .scaleEffect(withAnimation { dragState.scaleFactor(for: element.id) })
+                .zIndex(withAnimation { dragState.zIndex(for: element.id) })
                 .onAppear {
                   height = proxy.size.height
                 }
@@ -98,7 +66,7 @@ struct LegacyEditableVStack<Data, ID, Content>: View where Content: View,
             .gesture(
               DragGesture()
                 .updating($dragState) { value, state, transaction in
-                  state = .dragging(draggedElement: element.wrappedValue,
+                  state = .dragging(draggedElementID: element.id,
                                     translation: value.translation)
                 }.onChanged({ value in
                   draggedElement = element.wrappedValue

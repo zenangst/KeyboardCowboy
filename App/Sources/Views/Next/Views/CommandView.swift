@@ -2,6 +2,12 @@ import SwiftUI
 
 struct CommandView: View {
   enum Action {
+    case modify(Kind)
+    case run(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case remove(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+  }
+
+  enum Kind {
     case application(action: ApplicationCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
     case keyboard(action: KeyboardCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
     case open(action: OpenCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
@@ -9,6 +15,7 @@ struct CommandView: View {
     case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
     case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
   }
+
   @ObserveInjection var inject
   let workflowId: String
   @Binding private var command: DetailViewModel.CommandViewModel
@@ -33,8 +40,17 @@ struct CommandView: View {
         OpenCommandView(
           $command,
           onAction: { action in
-            let newAction: Action = .open(action: action, workflowId: workflowId, commandId: command.id)
-            onAction(newAction)
+            switch action {
+            case .commandAction(let action):
+              switch action {
+              case .run:
+                onAction(.run(workflowId: workflowId, commandId: command.id))
+              case .delete:
+                onAction(.remove(workflowId: workflowId, commandId: command.id))
+              }
+            default:
+              onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
+            }
           })
       case .application(let action, let inBackground, let hideWhenRunning, let ifNotRunning):
         ApplicationCommandView(
@@ -44,41 +60,81 @@ struct CommandView: View {
           hideWhenRunning: hideWhenRunning,
           ifNotRunning: ifNotRunning,
           onAction: { action in
-            let newAction: Action = .application(action: action, workflowId: workflowId, commandId: command.id)
-            if newAction.isAction(.run) { handleRun() }
-            onAction(newAction)
+            switch action {
+            case .commandAction(let action):
+              switch action {
+              case .run:
+                onAction(.run(workflowId: workflowId, commandId: command.id))
+              case .delete:
+                onAction(.remove(workflowId: workflowId, commandId: command.id))
+              }
+            default:
+              onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
+            }
           })
       case .script:
         ScriptCommandView(
           $command,
           onAction: { action in
-            let newAction: Action = .script(action: action, workflowId: workflowId, commandId: command.id)
-            if newAction.isAction(.run) { handleRun() }
-            onAction(newAction)
+            switch action {
+            case .commandAction(let action):
+              switch action {
+              case .run:
+                onAction(.run(workflowId: workflowId, commandId: command.id))
+              case .delete:
+                onAction(.remove(workflowId: workflowId, commandId: command.id))
+              }
+            default:
+              onAction(.modify(.script(action: action, workflowId: workflowId, commandId: command.id)))
+            }
           })
       case .keyboard:
         KeyboardCommandView(
           $command,
           onAction: { action in
-            let newAction: Action = .keyboard(action: action, workflowId: workflowId, commandId: command.id)
-            if newAction.isAction(.run) { handleRun() }
-            onAction(newAction)
+            switch action {
+            case .commandAction(let action):
+              switch action {
+              case .run:
+                onAction(.run(workflowId: workflowId, commandId: command.id))
+              case .delete:
+                onAction(.remove(workflowId: workflowId, commandId: command.id))
+              }
+            default:
+              onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
+            }
           })
       case .shortcut:
         ShortcutCommandView(
           $command,
           onAction: { action in
-            let newAction: Action = .shortcut(action: action, workflowId: workflowId, commandId: command.id)
-            if newAction.isAction(.run) { handleRun() }
-            onAction(newAction)
+            switch action {
+            case .commandAction(let action):
+              switch action {
+              case .run:
+                onAction(.run(workflowId: workflowId, commandId: command.id))
+              case .delete:
+                onAction(.remove(workflowId: workflowId, commandId: command.id))
+              }
+            default:
+              onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
+            }
           })
       case .type:
         TypeCommandView(
           $command,
           onAction: { action in
-            let newAction: Action = .type(action: action, workflowId: workflowId, commandId: command.id)
-            if newAction.isAction(.run) { handleRun() }
-            onAction(newAction)
+            switch action {
+            case .commandAction(let action):
+              switch action {
+              case .run:
+                onAction(.run(workflowId: workflowId, commandId: command.id))
+              case .delete:
+                onAction(.remove(workflowId: workflowId, commandId: command.id))
+              }
+            default:
+              onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
+            }
           })
       }
     }
@@ -110,23 +166,6 @@ struct CommandView: View {
             y: command.isEnabled ? 2 : 0)
     .animation(.easeIn(duration: 0.2), value: command.isEnabled)
     .enableInjection()
-  }
-
-  var gradient: some View {
-    ZStack {
-      LinearGradient(
-        gradient: Gradient(
-          stops: [
-            .init(color: Color(.textBackgroundColor).opacity(0.45), location: 0.75),
-            .init(color: Color(.gridColor).opacity(0.55), location: 1.0),
-          ]),
-        startPoint: .top,
-        endPoint: .bottom)
-
-      RoundedRectangle(cornerRadius: 8)
-        .stroke(Color(nsColor: .shadowColor).opacity(0.5), lineWidth: 0.5)
-        .offset(y: -1)
-    }
   }
 
   private func handleRun() {

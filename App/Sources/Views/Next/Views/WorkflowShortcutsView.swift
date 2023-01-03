@@ -31,7 +31,7 @@ struct WorkflowShortcutsView: View {
         Divider()
         Button(action: {},
                label: { Image(systemName: "plus") })
-        .buttonStyle(AppButtonStyle())
+        .buttonStyle(.appStyle)
         .font(.callout)
         .padding(.leading, 8)
         .padding(.trailing, 16)
