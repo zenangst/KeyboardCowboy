@@ -4,11 +4,11 @@ import Apps
 struct SingleDetailView: View {
   enum Action {
     case addCommand(workflowId: Workflow.ID)
-    case applicationTrigger(WorkflowApplicationTriggerView.Action)
-    case commandView(CommandView.Action)
+    case applicationTrigger(workflowId: Workflow.ID, action: WorkflowApplicationTriggerView.Action)
+    case commandView(workflowId: Workflow.ID, action: CommandView.Action)
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
-    case trigger(WorkflowTriggerView.Action)
-    case updateName(name: String, workflowId: Workflow.ID)
+    case trigger(workflowId: Workflow.ID, action: WorkflowTriggerView.Action)
+    case updateName(workflowId: Workflow.ID, name: String)
   }
 
   enum Sheet: Int, Identifiable {
@@ -33,7 +33,7 @@ struct SingleDetailView: View {
           .padding(.horizontal, 8)
           .padding(.vertical, 16)
           .onChange(of: model) { model in
-            onAction(.updateName(name: model.name, workflowId: model.id))
+            onAction(.updateName(workflowId: model.id, name: model.name))
           }
         WorkflowTriggerListView(model, onAction: onAction)
       }

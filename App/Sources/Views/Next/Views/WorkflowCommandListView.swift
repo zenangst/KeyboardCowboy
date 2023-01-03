@@ -43,7 +43,7 @@ struct WorkflowCommandListView: View {
         onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
       }) { command in
         CommandView(command, workflowId: model.id) { action in
-          onAction(.commandView(action))
+          onAction(.commandView(workflowId: model.id, action: action))
           switch action {
           case .remove(_, let commandId):
             model.commands.removeAll(where: { $0.id == commandId })
@@ -54,7 +54,7 @@ struct WorkflowCommandListView: View {
         .contextMenu {
           Button("Run", action: {})
           Button("Remove", action: {
-            onAction(.commandView(.remove(workflowId: model.id, commandId: command.id)))
+            onAction(.commandView(workflowId: model.id, action: .remove(workflowId: model.id, commandId: command.id)))
             model.commands.removeAll(where: { $0.id == command.id })
           })
         }

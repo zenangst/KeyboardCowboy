@@ -18,6 +18,7 @@ struct WorkflowInfoView: View {
         .tint(Color.green)
         .font(.callout)
     }
+    .frame(minHeight: 32)
     .enableInjection()
   }
 }

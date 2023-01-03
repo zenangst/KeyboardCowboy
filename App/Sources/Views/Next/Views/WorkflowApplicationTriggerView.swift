@@ -3,7 +3,8 @@ import SwiftUI
 
 struct WorkflowApplicationTriggerView: View {
   enum Action {
-    case addApplicationTrigger(Application)
+    case addApplicationTrigger(application: Application, uuid: UUID)
+    case updateApplicationTriggerContext(DetailViewModel.ApplicationTrigger)
     case removeApplicationTrigger(DetailViewModel.ApplicationTrigger)
   }
 
@@ -22,25 +23,22 @@ struct WorkflowApplicationTriggerView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Picker("", selection: $selection) {
-          ForEach(applicationStore.applications, id: \.id) {
-            Text($0.displayName)
-              .tag($0.id)
+        Menu("Add application") {
+          ForEach(applicationStore.applications) { application in
+            Button(action: {
+              let uuid = UUID()
+              onAction(.addApplicationTrigger(application: application, uuid: uuid))
+              triggers.append(.init(id: uuid.uuidString, name: application.displayName,
+                                    image: NSWorkspace.shared.icon(forFile: application.path),
+                                    contexts: []))
+            }, label: {
+              Text(application.displayName)
+            })
           }
         }
-        Spacer()
-        Button(action: {
-          if let application = applicationStore.application(for: selection) {
-            onAction(.addApplicationTrigger(application))
-          }
-        },
-               label: { Image(systemName: "plus") })
-        .buttonStyle(.appStyle)
-        .padding(.leading, 10)
-        .padding(.trailing, 16)
+        .menuStyle(.automatic)
       }
       .padding(.horizontal, 4)
-      .padding(.vertical)
 
       EditableStack($triggers, lazy: true, spacing: 2, onMove: { _, _ in }) { trigger in
         HStack {
@@ -59,6 +57,8 @@ struct WorkflowApplicationTriggerView: View {
                   } else {
                     trigger.contexts.wrappedValue.removeAll(where: { $0 == context })
                   }
+
+                  onAction(.updateApplicationTriggerContext(trigger.wrappedValue))
                 }))
                 .font(.caption)
               }
@@ -69,7 +69,13 @@ struct WorkflowApplicationTriggerView: View {
           Spacer()
           Divider()
             .opacity(0.5)
-          Button(action: { onAction(.removeApplicationTrigger(trigger.wrappedValue)) },
+          Button(action: {
+            onAction(.removeApplicationTrigger(trigger.wrappedValue))
+            if let index = triggers.firstIndex(of: trigger.wrappedValue) {
+              triggers.remove(at: index)
+            }
+
+          },
                  label: { Image(systemName: "xmark") })
           .buttonStyle(.appStyle)
           .padding(.leading, 8)

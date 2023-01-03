@@ -39,14 +39,14 @@ struct WorkflowTriggerListView: View {
         }
         .padding([.leading, .trailing], 8)
         WorkflowApplicationTriggerView(triggers) { action in
-          onAction(.applicationTrigger(action))
+          onAction(.applicationTrigger(workflowId: model.id, action: action))
         }
         .padding(.bottom, 16)
       case .none:
         Label("Add a trigger:", image: "")
           .padding([.leading, .trailing], 8)
         WorkflowTriggerView(onAction: { action in
-          onAction(.trigger(action))
+          onAction(.trigger(workflowId: model.id, action: action))
         })
 
         HStack {

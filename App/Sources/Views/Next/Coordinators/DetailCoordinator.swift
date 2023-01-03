@@ -31,20 +31,20 @@ final class DetailCoordinator {
     Task {
       switch action {
       case .singleDetailView(let action):
+        guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
+
         switch action {
-        case .commandView(let action):
+        case .commandView(_, let action):
           await handleCommandAction(action)
-        case .moveCommand(let workflowId, let fromOffsets, let toOffset):
-          guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+        case .moveCommand(_, let fromOffsets, let toOffset):
           workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
           contentStore.updateWorkflows([workflow])
-        case .updateName(let name, let workflowId):
-          guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+        case .updateName(_, let name):
           workflow.name = name
           contentStore.updateWorkflows([workflow])
         case .addCommand:
           break
-        case .trigger(let action):
+        case .trigger(_, let action):
           switch action {
           case .addKeyboardShortcut:
             Swift.print("Add keyboard shortcut")
@@ -53,12 +53,51 @@ final class DetailCoordinator {
           case .addApplication:
             Swift.print("Add application trigger")
           }
-        case .applicationTrigger(let action):
+        case .applicationTrigger(_, let action):
           switch action {
-          case .addApplicationTrigger(let application):
-            Swift.print("Add application trigger: \(application)")
+          case .addApplicationTrigger(let application, let uuid):
+            var applicationTriggers = [ApplicationTrigger]()
+            if case .application(let previousTriggers) = workflow.trigger {
+              applicationTriggers = previousTriggers
+            }
+            applicationTriggers.append(.init(id: uuid.uuidString, application: application))
+            workflow.trigger = .application(applicationTriggers)
+            groupStore.receive([workflow])
           case .removeApplicationTrigger(let trigger):
-            Swift.print("Remove trigger: \(trigger)")
+            var applicationTriggers = [ApplicationTrigger]()
+            if case .application(let previousTriggers) = workflow.trigger {
+              applicationTriggers = previousTriggers
+            }
+            applicationTriggers.removeAll(where: { $0.id == trigger.id })
+            workflow.trigger = .application(applicationTriggers)
+            groupStore.receive([workflow])
+          case .updateApplicationTriggerContext(let viewModelTrigger):
+            if case .application(var previousTriggers) = workflow.trigger,
+               let index = previousTriggers.firstIndex(where: { $0.id == viewModelTrigger.id }) {
+              var newTrigger = previousTriggers[index]
+
+              if viewModelTrigger.contexts.contains(.closed) {
+                newTrigger.contexts.insert(.closed)
+              } else {
+                newTrigger.contexts.remove(.closed)
+              }
+
+              if viewModelTrigger.contexts.contains(.frontMost) {
+                newTrigger.contexts.insert(.frontMost)
+              } else {
+                newTrigger.contexts.remove(.frontMost)
+              }
+
+              if viewModelTrigger.contexts.contains(.launched) {
+                newTrigger.contexts.insert(.launched)
+              } else {
+                newTrigger.contexts.remove(.launched)
+              }
+
+              previousTriggers[index] = newTrigger
+              workflow.trigger = .application(previousTriggers)
+              groupStore.receive([workflow])
+            }
           }
         }
       }
@@ -427,4 +466,23 @@ extension CommandView.Action {
     }
   }
 
+}
+
+extension SingleDetailView.Action {
+  var workflowId: String {
+    switch self {
+    case .addCommand(let workflowId):
+      return workflowId
+    case .applicationTrigger(let workflowId, _):
+      return workflowId
+    case .commandView(let workflowId, _):
+      return workflowId
+    case .moveCommand(let workflowId, _, _):
+      return workflowId
+    case .trigger(let workflowId, _):
+      return workflowId
+    case .updateName(let workflowId, _):
+      return workflowId
+    }
+  }
 }

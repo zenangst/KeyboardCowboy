@@ -18,12 +18,12 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   var body: some View {
     HStack(alignment: .center) {
       VStack(alignment: .leading, spacing: 4) {
-        HStack {
+        HStack(alignment: .top) {
           ZStack {
             icon()
-              .aspectRatio(contentMode: .fit)
               .frame(maxWidth: 32, maxHeight: 32)
           }
+          .offset(x: 2)
 
           content()
             .frame(minHeight: 30)

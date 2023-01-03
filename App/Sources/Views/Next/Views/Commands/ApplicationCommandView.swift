@@ -1,6 +1,20 @@
 import Apps
 import SwiftUI
 
+struct IconMenuStyle: MenuStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    Menu(configuration)
+      .menuStyle(.borderlessButton)
+      .mask(
+        GeometryReader { proxy in
+          RoundedRectangle(cornerRadius: 8)
+            .frame(width: proxy.size.width - 2, height: proxy.size.height - 2)
+            .offset(x: -1)
+        }
+      )
+  }
+}
+
 struct ApplicationCommandView: View {
   enum Action {
     case changeApplication(Application)
@@ -53,12 +67,10 @@ struct ApplicationCommandView: View {
               })
             }
           }, label: {
-            HStack {
-              Image(nsImage: image)
-                .resizable()
-            }
+            Image(nsImage: image)
+              .resizable()
           })
-          .menuStyle(.borderlessButton)
+          .menuStyle(IconMenuStyle())
           .menuIndicator(.hidden)
         }
       },
