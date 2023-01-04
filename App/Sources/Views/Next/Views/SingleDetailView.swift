@@ -8,6 +8,7 @@ struct SingleDetailView: View {
     case commandView(workflowId: Workflow.ID, action: CommandView.Action)
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
     case trigger(workflowId: Workflow.ID, action: WorkflowTriggerView.Action)
+    case setIsEnabled(workflowId: Workflow.ID, isEnabled: Bool)
     case updateName(workflowId: Workflow.ID, name: String)
   }
 
@@ -29,12 +30,16 @@ struct SingleDetailView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
-        WorkflowInfoView($model)
-          .padding(.horizontal, 8)
-          .padding(.vertical, 16)
-          .onChange(of: model) { model in
-            onAction(.updateName(workflowId: model.id, name: model.name))
+        WorkflowInfoView($model, onAction: { action in
+          switch action {
+          case .updateName(let name):
+            onAction(.updateName(workflowId: model.id, name: name))
+          case .setIsEnabled(let isEnabled):
+            onAction(.setIsEnabled(workflowId: model.id, isEnabled: isEnabled))
           }
+        })
+        .padding(.horizontal, 8)
+        .padding(.vertical, 16)
         WorkflowTriggerListView(model, onAction: onAction)
       }
       .padding()

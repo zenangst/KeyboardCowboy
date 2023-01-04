@@ -38,10 +38,10 @@ final class DetailCoordinator {
           await handleCommandAction(action)
         case .moveCommand(_, let fromOffsets, let toOffset):
           workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
-          contentStore.updateWorkflows([workflow])
         case .updateName(_, let name):
           workflow.name = name
-          contentStore.updateWorkflows([workflow])
+        case .setIsEnabled(_, let isEnabled):
+          workflow.isEnabled = isEnabled
         case .addCommand:
           break
         case .trigger(_, let action):
@@ -62,7 +62,6 @@ final class DetailCoordinator {
             }
             applicationTriggers.append(.init(id: uuid.uuidString, application: application))
             workflow.trigger = .application(applicationTriggers)
-            groupStore.receive([workflow])
           case .removeApplicationTrigger(let trigger):
             var applicationTriggers = [ApplicationTrigger]()
             if case .application(let previousTriggers) = workflow.trigger {
@@ -70,7 +69,6 @@ final class DetailCoordinator {
             }
             applicationTriggers.removeAll(where: { $0.id == trigger.id })
             workflow.trigger = .application(applicationTriggers)
-            groupStore.receive([workflow])
           case .updateApplicationTriggerContext(let viewModelTrigger):
             if case .application(var previousTriggers) = workflow.trigger,
                let index = previousTriggers.firstIndex(where: { $0.id == viewModelTrigger.id }) {
@@ -96,10 +94,11 @@ final class DetailCoordinator {
 
               previousTriggers[index] = newTrigger
               workflow.trigger = .application(previousTriggers)
-              groupStore.receive([workflow])
             }
           }
         }
+
+        groupStore.receive([workflow])
       }
     }
   }
@@ -256,94 +255,94 @@ final class DetailCoordinator {
 
     var viewModels: [DetailViewModel] = []
     for workflow in workflows {
-      let commands = workflow.commands
-        .map { command in
-          let kind: DetailViewModel.CommandViewModel.Kind
-          let name: String
-          switch command {
-          case .application(let applicationCommand):
-            let inBackground = applicationCommand.modifiers.contains(.background)
-            let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
-            let onlyIfRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
-            kind = .application(action: applicationCommand.action.displayValue,
-                                inBackground: inBackground,
-                                hideWhenRunning: hideWhenRunning,
-                                ifNotRunning: onlyIfRunning)
+      var workflowCommands = [DetailViewModel.CommandViewModel]()
+      for command in workflow.commands {
+        let kind: DetailViewModel.CommandViewModel.Kind
+        let name: String
+        switch command {
+        case .application(let applicationCommand):
+          let inBackground = applicationCommand.modifiers.contains(.background)
+          let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
+          let onlyIfRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
+          kind = .application(action: applicationCommand.action.displayValue,
+                              inBackground: inBackground,
+                              hideWhenRunning: hideWhenRunning,
+                              ifNotRunning: onlyIfRunning)
 
-            name = applicationCommand.name.isEmpty
-            ? applicationCommand.application.displayName
-            : command.name
-          case .builtIn(_):
-            kind = .plain
-            name = command.name
-          case .keyboard(let keyboardCommand):
-            kind = .keyboard(key: keyboardCommand.keyboardShortcut.key,
-                             modifiers: keyboardCommand.keyboardShortcut.modifiers ?? [])
-            name = command.name
-          case .open(let openCommand):
-            let appName: String?
-            if let app = openCommand.application {
-              appName = app.displayName
-            } else if let url = URL(string: openCommand.path),
-                      let appUrl = NSWorkspace.shared.urlForApplication(toOpen: url),
-                      let app = applicationStore.application(at: appUrl) {
-              appName = app.displayName
-            } else {
-              appName = nil
-            }
-
-            kind = .open(path: openCommand.path, appName: appName)
-
-            if openCommand.isUrl {
-              name = openCommand.path
-            } else {
-              name = openCommand.path
-            }
-          case .shortcut(_):
-            kind = .shortcut
-            name = command.name
-          case .script(let script):
-            switch script {
-            case .appleScript(_ , _, _, let source),
-                 .shell(_ , _, _, let source):
-              switch source {
-              case .path(let source):
-                let fileExtension = (source as NSString).pathExtension
-                kind = .script(.path(id: script.id,
-                                     source: source,
-                                     fileExtension: fileExtension.uppercased()))
-              case .inline(_):
-                let type: String
-                switch script {
-                case .shell:
-                  type = "sh"
-                case .appleScript:
-                  type = "scpt"
-                }
-                kind = .script(.inline(id: script.id, type: type))
-              }
-            }
-            name = command.name
-          case .type(let type):
-            kind = .type(input: type.input)
-            name = command.name
+          name = applicationCommand.name.isEmpty
+          ? applicationCommand.application.displayName
+          : command.name
+        case .builtIn(_):
+          kind = .plain
+          name = command.name
+        case .keyboard(let keyboardCommand):
+          kind = .keyboard(key: keyboardCommand.keyboardShortcut.key,
+                           modifiers: keyboardCommand.keyboardShortcut.modifiers ?? [])
+          name = command.name
+        case .open(let openCommand):
+          let appName: String?
+          if let app = openCommand.application {
+            appName = app.displayName
+          } else if let url = URL(string: openCommand.path),
+                    let appUrl = NSWorkspace.shared.urlForApplication(toOpen: url),
+                    let app = applicationStore.application(at: appUrl) {
+            appName = app.displayName
+          } else {
+            appName = nil
           }
 
-          return DetailViewModel.CommandViewModel(
-            id: command.id,
-            name: name,
-            kind: kind,
-            image: command.nsImage,
-            isEnabled: command.isEnabled
-          )
+          kind = .open(path: openCommand.path, appName: appName)
+
+          if openCommand.isUrl {
+            name = openCommand.path
+          } else {
+            name = openCommand.path
+          }
+        case .shortcut(_):
+          kind = .shortcut
+          name = command.name
+        case .script(let script):
+          switch script {
+          case .appleScript(_ , _, _, let source),
+              .shell(_ , _, _, let source):
+            switch source {
+            case .path(let source):
+              let fileExtension = (source as NSString).pathExtension
+              kind = .script(.path(id: script.id,
+                                   source: source,
+                                   fileExtension: fileExtension.uppercased()))
+            case .inline(_):
+              let type: String
+              switch script {
+              case .shell:
+                type = "sh"
+              case .appleScript:
+                type = "scpt"
+              }
+              kind = .script(.inline(id: script.id, type: type))
+            }
+          }
+          name = command.name
+        case .type(let type):
+          kind = .type(input: type.input)
+          name = command.name
         }
+
+        workflowCommands.append(DetailViewModel.CommandViewModel(
+          id: command.id,
+          name: name,
+          kind: kind,
+          image: command.nsImage,
+          isEnabled: command.isEnabled
+        ))
+      }
 
       let viewModel = DetailViewModel(
         id: workflow.id,
         name: workflow.name,
         isEnabled: workflow.isEnabled,
         trigger: workflow.trigger?.asViewModel(),
-        commands: commands)
+        commands: workflowCommands)
       viewModels.append(viewModel)
     }
 
@@ -355,7 +354,6 @@ final class DetailCoordinator {
     } else {
       state = .empty
     }
-
     await publisher.publish(state)
   }
 }
@@ -471,6 +469,8 @@ extension CommandView.Action {
 extension SingleDetailView.Action {
   var workflowId: String {
     switch self {
+    case .setIsEnabled(let workflowId, _):
+      return workflowId
     case .addCommand(let workflowId):
       return workflowId
     case .applicationTrigger(let workflowId, _):
