@@ -63,6 +63,8 @@ final class ContentCoordinator {
       .flatMap(\.workflows)
     let viewModels = try await workflows.asViewModels()
 
+    try Task.checkCancellation()
+
     var animation: Animation? = nil
     var newSelections = [ContentViewModel]()
 
@@ -195,6 +197,7 @@ private extension Array where Element == Command {
 private extension Array where Element == Workflow {
   func asViewModels() async throws -> [ContentViewModel] {
     var viewModels = [ContentViewModel]()
+    viewModels.reserveCapacity(self.count)
     for model in self {
       try Task.checkCancellation()
       viewModels.append(model.asViewModel())

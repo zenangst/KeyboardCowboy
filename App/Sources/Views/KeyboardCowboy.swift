@@ -113,8 +113,10 @@ struct KeyboardCowboy: App {
             sidebarCoordinator.handle(contentAction)
             detailCoordinator.handle(contentAction)
           case .detail(let detailAction):
-            detailCoordinator.handle(detailAction)
-            contentCoordinator.handle(detailAction)
+            Task {
+              await detailCoordinator.handle(detailAction)
+              try await contentCoordinator.handle(detailAction)
+            }
           }
         }
         .environmentObject(contentStore.configurationStore)

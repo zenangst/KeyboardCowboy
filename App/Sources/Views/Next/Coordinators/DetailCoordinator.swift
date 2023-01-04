@@ -26,16 +26,14 @@ final class DetailCoordinator {
     }
   }
 
-  @MainActor
-  func handle(_ action: DetailView.Action) {
-    Task {
+  func handle(_ action: DetailView.Action) async {
       switch action {
       case .singleDetailView(let action):
         guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
 
         switch action {
         case .commandView(_, let action):
-          await handleCommandAction(action)
+          await handleCommandAction(action, workflow: &workflow)
         case .moveCommand(_, let fromOffsets, let toOffset):
           workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
         case .updateName(_, let name):
@@ -98,16 +96,11 @@ final class DetailCoordinator {
           }
         }
 
-        groupStore.receive([workflow])
-      }
+        await groupStore.receive([workflow])
     }
   }
 
-  func handleCommandAction(_ commandAction: CommandView.Action) async {
-    guard var workflow = groupStore.workflow(withId: commandAction.workflowId) else {
-      fatalError("Unable to find workflow.")
-    }
-
+  func handleCommandAction(_ commandAction: CommandView.Action, workflow: inout Workflow) async {
     guard var command: Command = workflow.commands.first(where: { $0.id == commandAction.commandId }) else {
       fatalError("Unable to find command.")
     }
@@ -118,7 +111,6 @@ final class DetailCoordinator {
     case .remove(_, let commandId):
       var workflow = workflow
       workflow.commands.removeAll(where: { $0.id == commandId })
-      await groupStore.receive([workflow])
     case .modify(let kind):
       switch kind {
       case .application(let action, _, _):
@@ -131,11 +123,9 @@ final class DetailCoordinator {
           applicationCommand.application = application
           command = .application(applicationCommand)
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .changeApplicationAction(let action):
           switch action {
           case .open:
@@ -145,7 +135,6 @@ final class DetailCoordinator {
           }
           command = .application(applicationCommand)
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .changeApplicationModifier(let modifier, let newValue):
           if newValue {
             applicationCommand.modifiers.insert(modifier)
@@ -154,29 +143,26 @@ final class DetailCoordinator {
           }
           command = .application(applicationCommand)
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: workflow)
+          await handleCommandContainerAction(action, command: command, workflow: &workflow)
         }
       case .keyboard(let action, _, _):
         switch action {
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: workflow)
+          await handleCommandContainerAction(action, command: command, workflow: &workflow)
         }
       case .open(let action, _, _):
         switch action {
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .openWith:
           break
         case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: workflow)
+          await handleCommandContainerAction(action, command: command, workflow: &workflow)
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
         }
@@ -185,7 +171,6 @@ final class DetailCoordinator {
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .open(let source):
           Task {
             let path = (source as NSString).expandingTildeInPath
@@ -198,25 +183,23 @@ final class DetailCoordinator {
         case .edit:
           break
         case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: workflow)
+          await handleCommandContainerAction(action, command: command, workflow: &workflow)
         }
       case .shortcut(let action, _, _):
         switch action {
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .openShortcuts:
           break
         case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: workflow)
+          await handleCommandContainerAction(action, command: command, workflow: &workflow)
         }
       case .type(let action, _, _):
         switch action {
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .updateSource(let newInput):
           switch command {
           case .type(var typeCommand):
@@ -226,9 +209,8 @@ final class DetailCoordinator {
             fatalError("Wrong command type")
           }
           workflow.updateOrAddCommand(command)
-          await groupStore.receive([workflow])
         case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: workflow)
+          await handleCommandContainerAction(action, command: command, workflow: &workflow)
         }
       }
     }
@@ -236,14 +218,12 @@ final class DetailCoordinator {
 
   private func handleCommandContainerAction(_ action: CommandContainerAction,
                                             command: Command,
-                                            workflow: Workflow) async {
+                                            workflow: inout Workflow) async {
     switch action {
     case .run:
       break
     case .delete:
-      var workflow = workflow
       workflow.commands.removeAll(where: { $0.id == command.id })
-      await groupStore.receive([workflow])
     }
   }
 
