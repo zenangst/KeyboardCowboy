@@ -6,6 +6,8 @@ final class ContentCoordinator {
   let applicationStore: ApplicationStore
   let publisher: ContentPublisher = ContentPublisher()
 
+  private var updateTask: Task<(), Error>?
+
   init(_ store: GroupStore, applicationStore: ApplicationStore) {
     self.applicationStore = applicationStore
     self.store = store
@@ -15,7 +17,9 @@ final class ContentCoordinator {
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .selectGroups(let groups):
-      Task { await render(groups, setSelection: true) }
+      Task {
+        try await render(groups, setSelection: true)
+      }
     default:
       break
     }
@@ -25,38 +29,39 @@ final class ContentCoordinator {
   func handle(_ action: DetailView.Action) {
     switch action {
     case .singleDetailView(let action):
-      switch action {
-      case .updateName(_, let workflowId):
-        Task {
+      let workflowId = action.workflowId
+      updateTask?.cancel()
+      updateTask = Task {
+        do {
           guard let groups = store.groups
             .first(where: { $0.workflows
-              .map { $0.id }
-              .contains(workflowId)
+                .map { $0.id }
+                .contains(workflowId)
             })
           else {
             return
           }
 
-          let viewModels = groups.workflows.asViewModels()
+          let viewModels = try await groups.workflows.asViewModels()
           var selections = [ContentViewModel]()
           if let matchedSelection = viewModels.first(where: { $0.id == workflowId }) {
             selections = [matchedSelection]
           }
 
+          try Task.checkCancellation()
+
           publisher.publish(viewModels, selections: selections)
         }
-      default:
-        break
       }
     }
   }
 
-  @MainActor
-  private func render(_ groups: [GroupViewModel], setSelection: Bool) async {
+  private func render(_ groups: [GroupViewModel], setSelection: Bool) async throws {
     let ids = groups.map { $0.id }
-    let viewModels = store.groups
+    let workflows = store.groups
       .filter { ids.contains($0.id) }
-      .flatMap { $0.workflows.asViewModels() }
+      .flatMap(\.workflows)
+    let viewModels = try await workflows.asViewModels()
 
     var animation: Animation? = nil
     var newSelections = [ContentViewModel]()
@@ -88,12 +93,17 @@ final class ContentCoordinator {
       }
     }
 
+    try Task.checkCancellation()
+
     if let animation {
-      withAnimation(animation) {
-        publisher.publish(viewModels, selections: newSelections)
+      let mainActorSelections = newSelections
+      await MainActor.run {
+        withAnimation(animation) {
+          publisher.publish(viewModels, selections: mainActorSelections)
+        }
       }
     } else {
-      publisher.publish(viewModels, selections: newSelections)
+      await publisher.publish(viewModels, selections: newSelections)
     }
   }
 }
@@ -183,8 +193,13 @@ private extension Array where Element == Command {
 }
 
 private extension Array where Element == Workflow {
-  func asViewModels() -> [ContentViewModel] {
-    self.map { $0.asViewModel() }
+  func asViewModels() async throws -> [ContentViewModel] {
+    var viewModels = [ContentViewModel]()
+    for model in self {
+      try Task.checkCancellation()
+      viewModels.append(model.asViewModel())
+    }
+    return viewModels
   }
 }
 
