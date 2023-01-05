@@ -16,6 +16,7 @@ struct CommandView: View {
     case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
   }
 
+  @Environment(\.controlActiveState) var controlActiveState
   @ObserveInjection var inject
   let workflowId: String
   @Binding private var command: DetailViewModel.CommandViewModel
@@ -157,7 +158,7 @@ struct CommandView: View {
       }
       .frame(height: 5)
     })
-    .grayscale(command.isEnabled ? 0 : 0.5)
+    .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
     .opacity(command.isEnabled ? 1 : 0.5)
     .background(Color(nsColor: NSColor.textBackgroundColor))
     .cornerRadius(8)
