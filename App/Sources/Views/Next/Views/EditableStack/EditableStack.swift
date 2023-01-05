@@ -60,25 +60,25 @@ struct EditableStack<Data, Content>: View where Content: View,
         let elementCount = data.count
         let indexOfDraggedElement = data.firstIndex(where: { $0.id == draggingElementId }) ?? -1
         ForEach($data, id: id) { element in
-          let isProxyItem = element.id != draggingElementId
-          && selections.contains(element.id)
-          && dragProxy != .zero
-
-          let isDraggedItem = element.id == draggingElementId
+          let isProxyItem = element.id != draggingElementId &&
+                            selections.contains(element.id) &&
+                            dragProxy != .zero
+          let elementId = element.id
+          let isDraggedItem = elementId == draggingElementId
           let currentIndex = data.firstIndex(where: { $0.id == element.id }) ?? 0
           let delta = abs(indexOfDraggedElement - currentIndex)
 
           InteractiveView(
             animation: mainAnimation,
-            id: element.id,
+            id: elementId,
             currentIndex: currentIndex,
             zIndex: Binding<Double>(get: {
-              draggingElementId == element.id ? Double(elementCount) : isProxyItem ? Double(elementCount - delta) : 0.0
+              draggingElementId == elementId ? Double(elementCount) : isProxyItem ? Double(elementCount - delta) : 0.0
             }, set: { _ in }),
             content: content(element),
             overlay: {
               Color.accentColor
-                .opacity(selections.contains(element.id) ? 0.2 : 0.0)
+                .opacity(selections.contains(elementId) ? 0.2 : 0.0)
                 .cornerRadius(cornerRadius)
                 .allowsHitTesting(false)
             },
@@ -86,25 +86,25 @@ struct EditableStack<Data, Content>: View where Content: View,
               switch modifier {
               case .empty:
                 selections = []
-                focus = .focused(element.id)
+                focus = .focused(elementId)
               case .command:
-                focus = .focused(element.id)
-                onTapWithCommandModifier(element.id)
+                focus = .focused(elementId)
+                onTapWithCommandModifier(elementId)
               case .shift:
-                focus = .focused(element.id)
-                onTapWithShiftModifier(element.id)
+                focus = .focused(elementId)
+                onTapWithShiftModifier(elementId)
               }
             },
             onKeyDown: onKeyDown,
             onDragChanged: { value, size in
-              draggingElementId = element.id
+              draggingElementId = elementId
               dragProxy = value.translation
 
               guard elementCount != selections.count else { return }
 
               newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
 
-              if !selections.contains(element.id) {
+              if !selections.contains(elementId) {
                 selections.removeAll()
               }
             },
@@ -144,7 +144,7 @@ struct EditableStack<Data, Content>: View where Content: View,
               .opacity(indexOfDraggedElement != currentIndex &&
                        (newIndex == currentIndex || newIndex == currentIndex + 1
                         && currentIndex == elementCount - 1) &&
-                       !selections.contains(element.id)
+                       !selections.contains(elementId)
                        ? 0.75 : 0)
               .allowsHitTesting(false)
           })

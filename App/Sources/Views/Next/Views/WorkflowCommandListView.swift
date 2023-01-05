@@ -40,17 +40,17 @@ struct WorkflowCommandListView: View {
       .padding(.trailing, 16)
 
       EditableStack(
-        $model.commands, spacing: 10,
+        $model.commands,
+        lazy: true,
+        spacing: 10,
         onMove: { indexSet, toOffset in
-          onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
           model.commands.move(fromOffsets: indexSet, toOffset: toOffset)
+          onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
         },
         onDelete: { indexSet in
           let ids = indexSet.map { model.commands[$0].id }
+          model.commands.remove(atOffsets: indexSet)
           onAction(.removeCommands(workflowId: $model.id, commandIds: ids))
-          withAnimation(.linear(duration: 0.125)) {
-            model.commands.remove(atOffsets: indexSet)
-          }
         }) { command in
           CommandView(command, workflowId: model.id) { action in
             onAction(.commandView(workflowId: model.id, action: action))
