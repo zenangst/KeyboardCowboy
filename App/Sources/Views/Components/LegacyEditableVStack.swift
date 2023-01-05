@@ -1,7 +1,5 @@
 import SwiftUI
 
-
-
 struct LegacyEditableVStack<Data, ID, Content>: View where Content: View,
                                                      Data: RandomAccessCollection,
                                                      Data: MutableCollection,

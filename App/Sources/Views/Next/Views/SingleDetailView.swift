@@ -4,6 +4,7 @@ import Apps
 struct SingleDetailView: View {
   enum Action {
     case addCommand(workflowId: Workflow.ID)
+    case removeCommands(workflowId: Workflow.ID, commandIds: [Command.ID])
     case applicationTrigger(workflowId: Workflow.ID, action: WorkflowApplicationTriggerView.Action)
     case commandView(workflowId: Workflow.ID, action: CommandView.Action)
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
@@ -59,6 +60,7 @@ struct SingleDetailView: View {
       })
       .shadow(radius: 4)
       WorkflowCommandListView(model, onAction: onAction)
+        .focusable()
     }
     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
     .labelStyle(HeaderLabelStyle())

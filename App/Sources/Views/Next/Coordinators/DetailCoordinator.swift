@@ -42,6 +42,8 @@ final class DetailCoordinator {
           workflow.isEnabled = isEnabled
         case .addCommand:
           break
+        case .removeCommands(_, let commandIds):
+          workflow.commands.removeAll(where: { commandIds.contains($0.id) })
         case .trigger(_, let action):
           switch action {
           case .addKeyboardShortcut:
@@ -452,6 +454,8 @@ extension SingleDetailView.Action {
     case .setIsEnabled(let workflowId, _):
       return workflowId
     case .addCommand(let workflowId):
+      return workflowId
+    case .removeCommands(let workflowId, _):
       return workflowId
     case .applicationTrigger(let workflowId, _):
       return workflowId

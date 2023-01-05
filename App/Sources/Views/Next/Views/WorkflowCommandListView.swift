@@ -39,28 +39,38 @@ struct WorkflowCommandListView: View {
       .padding([.leading, .bottom], 8)
       .padding(.trailing, 16)
 
-      EditableStack($model.commands, spacing: 10, onMove: { indexSet, toOffset in
-        onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
-      }) { command in
-        CommandView(command, workflowId: model.id) { action in
-          onAction(.commandView(workflowId: model.id, action: action))
-          switch action {
-          case .remove(_, let commandId):
-            model.commands.removeAll(where: { $0.id == commandId })
-          default:
-            break
+      EditableStack(
+        $model.commands, spacing: 10,
+        onMove: { indexSet, toOffset in
+          onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
+          model.commands.move(fromOffsets: indexSet, toOffset: toOffset)
+        },
+        onDelete: { indexSet in
+          let ids = indexSet.map { model.commands[$0].id }
+          onAction(.removeCommands(workflowId: $model.id, commandIds: ids))
+          withAnimation(.linear(duration: 0.125)) {
+            model.commands.remove(atOffsets: indexSet)
+          }
+        }) { command in
+          CommandView(command, workflowId: model.id) { action in
+            onAction(.commandView(workflowId: model.id, action: action))
+            switch action {
+            case .remove(_, let commandId):
+              model.commands.removeAll(where: { $0.id == commandId })
+            default:
+              break
+            }
+          }
+          .contextMenu {
+            Button("Run", action: {})
+            Button("Remove", action: {
+              onAction(.commandView(workflowId: model.id, action: .remove(workflowId: model.id, commandId: command.id)))
+              model.commands.removeAll(where: { $0.id == command.id })
+            })
           }
         }
-        .contextMenu {
-          Button("Run", action: {})
-          Button("Remove", action: {
-            onAction(.commandView(workflowId: model.id, action: .remove(workflowId: model.id, commandId: command.id)))
-            model.commands.removeAll(where: { $0.id == command.id })
-          })
-        }
-      }
-      .background(
-        GeometryReader { proxy in
+        .background(
+          GeometryReader { proxy in
           Rectangle()
             .fill(Color.gray)
             .frame(width: 3.0)
@@ -68,7 +78,6 @@ struct WorkflowCommandListView: View {
             .opacity(model.flow == .concurrent ? 0 : 1)
         }
       )
-
     }
     .padding()
   }
