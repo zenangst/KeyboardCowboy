@@ -24,12 +24,15 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let spacing: CGFloat?
   private let axes: Axis.Set
   private let lazy: Bool
+  private let onSelection: (Set<Data.Element.ID>) -> Void
   private let onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
   private let onDelete: (_ indexSet: IndexSet) -> Void
 
   @State private var dragProxy: CGSize = .zero
   @State private var animating: Double = .random(in: 0...100)
-  @State private var selections = Set<Data.Element.ID>()
+  @State private var selections = Set<Data.Element.ID>() {
+    didSet { onSelection(selections) }
+  }
   @State private var draggingElementId: Data.Element.ID?
   @State private var newIndex: Int = -1
 
@@ -39,6 +42,7 @@ struct EditableStack<Data, Content>: View where Content: View,
        spacing: CGFloat? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        cornerRadius: Double = 8,
+       onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
        onMove: @escaping (_ indexSet: IndexSet, _ toIndex: Int) -> Void,
        onDelete: @escaping (_ indexSet: IndexSet) -> Void = { _ in },
        content: @escaping (Binding<Data.Element>) -> Content) {
@@ -51,6 +55,7 @@ struct EditableStack<Data, Content>: View where Content: View,
     self.spacing = spacing
     self.onMove = onMove
     self.onDelete = onDelete
+    self.onSelection = onSelection
   }
 
   var body: some View {

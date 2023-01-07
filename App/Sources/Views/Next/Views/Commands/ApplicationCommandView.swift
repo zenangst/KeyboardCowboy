@@ -7,9 +7,13 @@ struct IconMenuStyle: MenuStyle {
       .menuStyle(.borderlessButton)
       .mask(
         GeometryReader { proxy in
-          RoundedRectangle(cornerRadius: 8)
-            .frame(width: proxy.size.width - 2, height: proxy.size.height - 2)
-            .offset(x: -1)
+          if proxy.size.width > 2 && proxy.size.height > 2 {
+            RoundedRectangle(cornerRadius: 8)
+              .frame(width: proxy.size.width - 2, height: proxy.size.height - 2)
+              .offset(x: -1)
+          } else {
+            EmptyView()
+          }
         }
       )
   }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkflowTriggerListView: View {
+  @ObserveInjection var inject
   @State private var model: DetailViewModel
   private let onAction: (SingleDetailView.Action) -> Void
 
@@ -59,6 +60,7 @@ struct WorkflowTriggerListView: View {
         }
       }
     }
+    .enableInjection()
   }
 }
 

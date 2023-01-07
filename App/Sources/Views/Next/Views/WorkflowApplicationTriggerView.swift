@@ -86,9 +86,7 @@ struct WorkflowApplicationTriggerView: View {
         .cornerRadius(8)
         .shadow(radius: 2)
       }
-      .cornerRadius(8)
     }
-    .cornerRadius(8)
     .enableInjection()
   }
 }

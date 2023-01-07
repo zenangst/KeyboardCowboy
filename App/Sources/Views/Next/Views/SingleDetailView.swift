@@ -4,7 +4,7 @@ import Apps
 struct SingleDetailView: View {
   enum Action {
     case addCommand(workflowId: Workflow.ID)
-    case removeCommands(workflowId: Workflow.ID, commandIds: [Command.ID])
+    case removeCommands(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
     case applicationTrigger(workflowId: Workflow.ID, action: WorkflowApplicationTriggerView.Action)
     case commandView(workflowId: Workflow.ID, action: CommandView.Action)
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)

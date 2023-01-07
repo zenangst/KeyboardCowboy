@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WorkflowCommandListView: View {
   @State private var model: DetailViewModel
+  @State private var selections = Set<String>()
   private let onAction: (SingleDetailView.Action) -> Void
 
   init(_ model: DetailViewModel, onAction: @escaping (SingleDetailView.Action) -> Void) {
@@ -43,12 +44,14 @@ struct WorkflowCommandListView: View {
         $model.commands,
         lazy: true,
         spacing: 10,
+        onSelection: { self.selections = $0 },
         onMove: { indexSet, toOffset in
           model.commands.move(fromOffsets: indexSet, toOffset: toOffset)
           onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
         },
         onDelete: { indexSet in
-          let ids = indexSet.map { model.commands[$0].id }
+          var ids = Set<Command.ID>()
+          indexSet.forEach { ids.insert(model.commands[$0].id) }
           model.commands.remove(atOffsets: indexSet)
           onAction(.removeCommands(workflowId: $model.id, commandIds: ids))
         }) { command in
@@ -64,8 +67,19 @@ struct WorkflowCommandListView: View {
           .contextMenu {
             Button("Run", action: {})
             Button("Remove", action: {
-              onAction(.commandView(workflowId: model.id, action: .remove(workflowId: model.id, commandId: command.id)))
-              model.commands.removeAll(where: { $0.id == command.id })
+              if !selections.isEmpty {
+                var indexSet = IndexSet()
+                selections.forEach { id in
+                  if let index = model.commands.firstIndex(where: { $0.id == id }) {
+                    indexSet.insert(index)
+                  }
+                }
+                model.commands.remove(atOffsets: indexSet)
+                onAction(.removeCommands(workflowId: $model.id, commandIds: selections))
+              } else {
+                onAction(.commandView(workflowId: model.id, action: .remove(workflowId: model.id, commandId: command.id)))
+                model.commands.removeAll(where: { $0.id == command.id })
+              }
             })
           }
         }
