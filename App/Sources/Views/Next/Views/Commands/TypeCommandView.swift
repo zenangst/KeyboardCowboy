@@ -37,19 +37,10 @@ struct TypeCommandView: View {
         RegularKeyIcon(letter: "(...)", width: 24, height: 24)
           .frame(width: 16, height: 16)
       }, content: {
-        ZStack(alignment: .leading) {
-          TextEditor(text: $source)
-            .font(.body)
-            .padding(.top, 8)
-            .scrollIndicators(.hidden)
-          Text("Enter text...")
-            .opacity(source.isEmpty ? 0.5 : 0)
-            .allowsHitTesting(false)
-            .padding(.leading, 4)
-            .onChange(of: source) { newInput in
-              onAction(.updateSource(newInput: newInput))
-            }
-        }
+        TypeCommandTextEditor(text: $source)
+          .onChange(of: source) { newInput in
+            onAction(.updateSource(newInput: newInput))
+          }
       }, subContent: {
         EmptyView()
       }, onAction: { onAction(.commandAction($0)) })
@@ -60,5 +51,48 @@ struct TypeCommandView: View {
 struct TypeCommandView_Previews: PreviewProvider {
   static var previews: some View {
     TypeCommandView(.constant(DesignTime.typeCommand), onAction: { _ in })
+  }
+}
+
+struct TypeCommandTextEditor: View {
+  @ObserveInjection var inject
+  @FocusState var isFocused: Bool
+  @State var isHovered: Bool = false
+  @Binding var text: String
+
+  init(text: Binding<String>) {
+    _text = text
+  }
+
+  var body: some View {
+    ZStack(alignment: .leading) {
+      TextEditor(text: $text)
+        .scrollContentBackground(.hidden)
+        .font(.body)
+        .padding(.top, 4)
+        .scrollIndicators(.hidden)
+      Text("Enter text...")
+        .animation(nil, value: text.isEmpty)
+        .opacity(text.isEmpty ? 0.5 : 0)
+        .animation(.default, value: text.isEmpty)
+        .allowsHitTesting(false)
+        .padding(.leading, 4)
+    }
+    .padding(4)
+    .background(
+      ZStack {
+      RoundedRectangle(cornerRadius: 4)
+        .fill(Color(isFocused ? .controlAccentColor.withAlphaComponent(0.5) : .windowFrameTextColor))
+        .opacity(isFocused ? 0.15 : isHovered ? 0.015 : 0)
+
+      RoundedRectangle(cornerRadius: 4)
+        .stroke(Color(isFocused ? .controlAccentColor.withAlphaComponent(0.5) : .windowFrameTextColor), lineWidth: 1)
+        .opacity(isFocused ? 0.75 : isHovered ? 0.15 : 0)
+      }
+    )
+    .onHover(perform: { newValue in  withAnimation { isHovered = newValue } })
+    .focusable()
+    .focused($isFocused)
+    .enableInjection()
   }
 }
