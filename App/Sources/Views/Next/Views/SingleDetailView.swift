@@ -20,19 +20,19 @@ struct SingleDetailView: View {
   }
 
   @ObserveInjection var inject
-  @State private var model: DetailViewModel
+  @Binding private var model: DetailViewModel
   @State private var sheet: Sheet?
   private let onAction: (Action) -> Void
 
-  init(_ model: DetailViewModel, onAction: @escaping (Action) -> Void) {
-    _model = .init(initialValue: model)
+  init(_ model: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
+    _model = model
     self.onAction = onAction
   }
 
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
-        WorkflowInfoView($model, onAction: { action in
+        WorkflowInfoView(model, onAction: { action in
           switch action {
           case .updateName(let name):
             onAction(.updateName(workflowId: model.id, name: name))
@@ -42,7 +42,7 @@ struct SingleDetailView: View {
         })
         .padding(.horizontal, 8)
         .padding(.vertical, 16)
-        WorkflowTriggerListView(model, onAction: onAction)
+        WorkflowTriggerListView($model, onAction: onAction)
       }
       .padding()
       .background(alignment: .bottom, content: {
@@ -82,7 +82,7 @@ struct SingleDetailView: View {
 
 struct SingleDetailView_Previews: PreviewProvider {
   static var previews: some View {
-    SingleDetailView(DesignTime.detail) { _ in }
+    SingleDetailView(.constant(DesignTime.detail)) { _ in }
       .frame(height: 900)
   }
 }

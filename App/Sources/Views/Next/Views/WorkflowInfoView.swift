@@ -7,11 +7,11 @@ struct WorkflowInfoView: View {
   }
 
   @ObserveInjection var inject
-  @Binding var workflow: DetailViewModel
+  @State var workflow: DetailViewModel
   private var onAction: (Action) -> Void
 
-  init(_ workflow: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
-    _workflow = workflow
+  init(_ workflow: DetailViewModel, onAction: @escaping (Action) -> Void) {
+    _workflow = .init(initialValue: workflow)
     self.onAction = onAction
   }
 

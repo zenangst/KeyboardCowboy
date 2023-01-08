@@ -20,7 +20,7 @@ final class DetailCoordinator {
   func handle(_ action: ContentView.Action) {
     switch action {
     case .selectWorkflow(let content):
-      Task { await render(content) }
+      Task { await render(content.map(\.id)) }
     default:
       break
     }
@@ -47,11 +47,11 @@ final class DetailCoordinator {
         case .trigger(_, let action):
           switch action {
           case .addKeyboardShortcut:
-            Swift.print("Add keyboard shortcut")
+            workflow.trigger = .keyboardShortcuts([])
           case .removeKeyboardShortcut:
             Swift.print("Remove keyboard shortcut")
           case .addApplication:
-            Swift.print("Add application trigger")
+            workflow.trigger = .application([])
           }
         case .removeTrigger(_):
           workflow.trigger = nil
@@ -99,7 +99,9 @@ final class DetailCoordinator {
             }
           }
         }
+
         await groupStore.receive([workflow])
+        await render([workflow.id])
     }
   }
 
@@ -230,8 +232,7 @@ final class DetailCoordinator {
     }
   }
 
-  private func render(_ content: [ContentViewModel]) async {
-    let ids = content.map(\.id)
+  private func render(_ ids: [Workflow.ID]) async {
     let workflows = groupStore.groups
       .flatMap(\.workflows)
       .filter { ids.contains($0.id) }

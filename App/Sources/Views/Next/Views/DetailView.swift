@@ -17,8 +17,11 @@ struct DetailView: View {
       switch publisher.model {
       case .empty:
         Text("Empty")
-      case .single(let model):
-        SingleDetailView(model, onAction: { onAction(.singleDetailView($0)) })
+      case .single(var model):
+        SingleDetailView(
+          Binding<DetailViewModel>(get: { model },
+                                   set: { model = $0 }),
+          onAction: { onAction(.singleDetailView($0)) })
       case .multiple:
         Text("Multiple commands selected")
       }

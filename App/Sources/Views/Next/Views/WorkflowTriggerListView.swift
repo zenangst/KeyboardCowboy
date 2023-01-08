@@ -2,11 +2,11 @@ import SwiftUI
 
 struct WorkflowTriggerListView: View {
   @ObserveInjection var inject
-  @State private var model: DetailViewModel
+  @Binding private var model: DetailViewModel
   private let onAction: (SingleDetailView.Action) -> Void
 
-  init(_ model: DetailViewModel, onAction: @escaping (SingleDetailView.Action) -> Void) {
-    _model = .init(initialValue: model)
+  init(_ model: Binding<DetailViewModel>, onAction: @escaping (SingleDetailView.Action) -> Void) {
+    _model = model
     self.onAction = onAction
   }
 
@@ -16,7 +16,6 @@ struct WorkflowTriggerListView: View {
       case .keyboardShortcuts(let shortcuts):
         HStack {
           Button(action: {
-            model.trigger = nil
             onAction(.removeTrigger(workflowId: model.id))
           },
                  label: { Image(systemName: "xmark") })
@@ -37,7 +36,6 @@ struct WorkflowTriggerListView: View {
       case .applications(let triggers):
         HStack {
           Button(action: {
-            model.trigger = nil
             onAction(.removeTrigger(workflowId: model.id))
           },
                  label: { Image(systemName: "xmark") })
@@ -72,7 +70,7 @@ struct WorkflowTriggerListView: View {
 
 struct WorkflowTriggerListView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowTriggerListView(DesignTime.detail) { _ in }
+    WorkflowTriggerListView(.constant(DesignTime.detail)) { _ in }
       .frame(height: 900)
   }
 }
