@@ -9,6 +9,7 @@ struct SingleDetailView: View {
     case commandView(workflowId: Workflow.ID, action: CommandView.Action)
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
     case trigger(workflowId: Workflow.ID, action: WorkflowTriggerView.Action)
+    case removeTrigger(workflowId: Workflow.ID)
     case setIsEnabled(workflowId: Workflow.ID, isEnabled: Bool)
     case updateName(workflowId: Workflow.ID, name: String)
   }

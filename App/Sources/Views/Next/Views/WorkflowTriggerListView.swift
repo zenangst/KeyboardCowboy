@@ -15,7 +15,10 @@ struct WorkflowTriggerListView: View {
       switch model.trigger {
       case .keyboardShortcuts(let shortcuts):
         HStack {
-          Button(action: {  },
+          Button(action: {
+            model.trigger = nil
+            onAction(.removeTrigger(workflowId: model.id))
+          },
                  label: { Image(systemName: "xmark") })
           .buttonStyle(.appStyle)
           Label("Keyboard Shortcuts sequence:", image: "")
@@ -33,7 +36,10 @@ struct WorkflowTriggerListView: View {
         }
       case .applications(let triggers):
         HStack {
-          Button(action: {  },
+          Button(action: {
+            model.trigger = nil
+            onAction(.removeTrigger(workflowId: model.id))
+          },
                  label: { Image(systemName: "xmark") })
           .buttonStyle(.appStyle)
           Label("Application trigger:", image: "")

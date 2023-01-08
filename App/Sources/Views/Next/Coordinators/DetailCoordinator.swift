@@ -53,6 +53,8 @@ final class DetailCoordinator {
           case .addApplication:
             Swift.print("Add application trigger")
           }
+        case .removeTrigger(_):
+          workflow.trigger = nil
         case .applicationTrigger(_, let action):
           switch action {
           case .addApplicationTrigger(let application, let uuid):
@@ -97,7 +99,6 @@ final class DetailCoordinator {
             }
           }
         }
-
         await groupStore.receive([workflow])
     }
   }
@@ -451,6 +452,8 @@ extension CommandView.Action {
 extension SingleDetailView.Action {
   var workflowId: String {
     switch self {
+    case .removeTrigger(let workflowId):
+      return workflowId
     case .setIsEnabled(let workflowId, _):
       return workflowId
     case .addCommand(let workflowId):
