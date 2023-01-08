@@ -60,7 +60,7 @@ struct SingleDetailView: View {
         .compositingGroup()
       })
       .shadow(radius: 4)
-      WorkflowCommandListView(model, onAction: onAction)
+      WorkflowCommandListView($model, onAction: onAction)
         .focusable()
     }
     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))

@@ -1,12 +1,12 @@
 import SwiftUI
 
 struct WorkflowCommandListView: View {
-  @State private var model: DetailViewModel
+  @Binding private var model: DetailViewModel
   @State private var selections = Set<String>()
   private let onAction: (SingleDetailView.Action) -> Void
 
-  init(_ model: DetailViewModel, onAction: @escaping (SingleDetailView.Action) -> Void) {
-    _model = .init(initialValue: model)
+  init(_ model: Binding<DetailViewModel>, onAction: @escaping (SingleDetailView.Action) -> Void) {
+    _model = model
     self.onAction = onAction
   }
 
@@ -46,23 +46,15 @@ struct WorkflowCommandListView: View {
         spacing: 10,
         onSelection: { self.selections = $0 },
         onMove: { indexSet, toOffset in
-          model.commands.move(fromOffsets: indexSet, toOffset: toOffset)
           onAction(.moveCommand(workflowId: $model.id, indexSet: indexSet, toOffset: toOffset))
         },
         onDelete: { indexSet in
           var ids = Set<Command.ID>()
           indexSet.forEach { ids.insert(model.commands[$0].id) }
-          model.commands.remove(atOffsets: indexSet)
           onAction(.removeCommands(workflowId: $model.id, commandIds: ids))
         }) { command in
           CommandView(command, workflowId: model.id) { action in
             onAction(.commandView(workflowId: model.id, action: action))
-            switch action {
-            case .remove(_, let commandId):
-              model.commands.removeAll(where: { $0.id == commandId })
-            default:
-              break
-            }
           }
           .contextMenu {
             Button("Run", action: {})
@@ -74,11 +66,9 @@ struct WorkflowCommandListView: View {
                     indexSet.insert(index)
                   }
                 }
-                model.commands.remove(atOffsets: indexSet)
                 onAction(.removeCommands(workflowId: $model.id, commandIds: selections))
               } else {
                 onAction(.commandView(workflowId: model.id, action: .remove(workflowId: model.id, commandId: command.id)))
-                model.commands.removeAll(where: { $0.id == command.id })
               }
             })
           }
@@ -99,7 +89,7 @@ struct WorkflowCommandListView: View {
 
 struct WorkflowCommandListView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowCommandListView(DesignTime.detail) { _ in }
+    WorkflowCommandListView(.constant(DesignTime.detail)) { _ in }
       .frame(height: 900)
   }
 }

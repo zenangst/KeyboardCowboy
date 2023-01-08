@@ -101,7 +101,7 @@ final class DetailCoordinator {
         }
 
         await groupStore.receive([workflow])
-        await render([workflow.id])
+        await render([workflow.id], animation: .default)
     }
   }
 
@@ -114,7 +114,6 @@ final class DetailCoordinator {
     case .run(_, _):
       break
     case .remove(_, let commandId):
-      var workflow = workflow
       workflow.commands.removeAll(where: { $0.id == commandId })
     case .modify(let kind):
       switch kind {
@@ -232,7 +231,7 @@ final class DetailCoordinator {
     }
   }
 
-  private func render(_ ids: [Workflow.ID]) async {
+  private func render(_ ids: [Workflow.ID], animation: Animation? = nil) async {
     let workflows = groupStore.groups
       .flatMap(\.workflows)
       .filter { ids.contains($0.id) }
@@ -338,7 +337,16 @@ final class DetailCoordinator {
     } else {
       state = .empty
     }
-    await publisher.publish(state)
+
+    if let animation {
+      await MainActor.run {
+        withAnimation(animation) {
+          publisher.publish(state)
+        }
+      }
+    } else {
+      await publisher.publish(state)
+    }
   }
 }
 

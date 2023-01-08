@@ -61,21 +61,24 @@ struct ApplicationCommandView: View {
       isEnabled: $command.isEnabled,
       icon: {
         if let image = command.image {
-          Menu(content: {
-            ForEach(applicationStore.applications) { app in
-              Button(action: {
-                onAction(.changeApplication(app))
-                command.image = NSWorkspace.shared.icon(forFile: app.path)
-              }, label: {
-                Text(app.displayName)
-              })
-            }
-          }, label: {
+          ZStack {
+            Menu(content: {
+              ForEach(applicationStore.applications) { app in
+                Button(action: {
+                  onAction(.changeApplication(app))
+                  command.image = NSWorkspace.shared.icon(forFile: app.path)
+                }, label: {
+                  Text(app.displayName)
+                })
+              }
+            }, label: { })
+            .menuStyle(IconMenuStyle())
+            .menuIndicator(.hidden)
+
             Image(nsImage: image)
               .resizable()
-          })
-          .menuStyle(IconMenuStyle())
-          .menuIndicator(.hidden)
+              .allowsHitTesting(false)
+          }
         }
       },
       content: {
