@@ -61,6 +61,7 @@ struct ApplicationCommandView: View {
       isEnabled: $command.isEnabled,
       icon: {
         if let image = command.image {
+          // TODO: Fix flickering bug when dragging an application command.
           ZStack {
             Menu(content: {
               ForEach(applicationStore.applications) { app in

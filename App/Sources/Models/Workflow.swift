@@ -59,8 +59,6 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   public var commands: [Command]
   public var trigger: Trigger?
   public var isEnabled: Bool = true
-  @available(*, deprecated, message: "Use .trigger instead.")
-  public var keyboardShortcuts: [KeyShortcut] = []
   public var name: String
 
   public var isRebinding: Bool {

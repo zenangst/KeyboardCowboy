@@ -115,7 +115,7 @@ private func contextualMenu(for group: GroupViewModel,
                             onAction: @escaping (SidebarView.Action) -> Void) -> some View {
   Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
   Divider()
-  Button("Delete", action: { onAction(.removeGroups([group.id])) })
+  Button("Remove", action: { onAction(.removeGroups([group.id])) })
 }
 
 struct SidebarView_Previews: PreviewProvider {

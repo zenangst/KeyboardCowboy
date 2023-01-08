@@ -41,7 +41,7 @@ struct WorkflowApplicationTriggerView: View {
       .padding(.horizontal, 4)
 
       EditableStack($triggers, lazy: true, spacing: 2, onMove: { _, _ in }) { trigger in
-        HStack {
+        HStack(spacing: 0) {
           Image(nsImage: trigger.image.wrappedValue)
             .resizable()
             .frame(width: 36, height: 36)
@@ -68,20 +68,19 @@ struct WorkflowApplicationTriggerView: View {
           .padding(.vertical, 8)
           Spacer()
           Divider()
-            .opacity(0.5)
-          Button(action: {
-            onAction(.removeApplicationTrigger(trigger.wrappedValue))
-            if let index = triggers.firstIndex(of: trigger.wrappedValue) {
-              triggers.remove(at: index)
-            }
-
-          },
-                 label: { Image(systemName: "xmark") })
+            .opacity(0.25)
+          Button(
+            action: {
+              onAction(.removeApplicationTrigger(trigger.wrappedValue))
+              if let index = triggers.firstIndex(of: trigger.wrappedValue) {
+                triggers.remove(at: index)
+              }
+            },
+            label: { Image(systemName: "xmark") })
           .buttonStyle(.appStyle)
-          .padding(.leading, 8)
-          .padding(.trailing, 12)
+          .padding(.horizontal, 8)
         }
-        .padding(.horizontal, 8)
+        .padding(.leading, 8)
         .background(Color(.windowBackgroundColor).opacity(0.75))
         .cornerRadius(8)
         .shadow(radius: 2)

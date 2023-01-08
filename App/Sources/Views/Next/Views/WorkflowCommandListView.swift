@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkflowCommandListView: View {
+  @ObserveInjection var inject
   @Binding private var model: DetailViewModel
   @State private var selections = Set<String>()
   private let onAction: (SingleDetailView.Action) -> Void
@@ -25,8 +26,6 @@ struct WorkflowCommandListView: View {
           }, primaryAction: {
           })
           .fixedSize()
-          Divider()
-            .padding(.horizontal, 4)
         }
         .opacity(model.commands.isEmpty ? 0 : 1)
         Button(action: {}) {
@@ -38,7 +37,7 @@ struct WorkflowCommandListView: View {
         .buttonStyle(.appStyle)
       }
       .padding([.leading, .bottom], 8)
-      .padding(.trailing, 16)
+      .padding(.trailing, 2)
 
       EditableStack(
         $model.commands,
@@ -58,6 +57,7 @@ struct WorkflowCommandListView: View {
           }
           .contextMenu {
             Button("Run", action: {})
+            Divider()
             Button("Remove", action: {
               if !selections.isEmpty {
                 var indexSet = IndexSet()
@@ -84,6 +84,7 @@ struct WorkflowCommandListView: View {
       )
     }
     .padding()
+    .enableInjection()
   }
 }
 

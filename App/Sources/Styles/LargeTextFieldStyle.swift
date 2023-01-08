@@ -7,7 +7,8 @@ struct LargeTextFieldStyle: TextFieldStyle {
   func _body(configuration: TextField<Self._Label>) -> some View {
     configuration
       .textFieldStyle(.plain)
-      .padding(2.5)
+      .padding(.vertical, 2.5)
+      .padding(.horizontal, 5)
       .foregroundColor(.primary)
       .font(.largeTitle)
       .background(

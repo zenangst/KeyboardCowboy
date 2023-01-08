@@ -16,7 +16,7 @@ struct WorkflowInfoView: View {
   }
 
   var body: some View {
-    HStack {
+    HStack(spacing: 0) {
       TextField("Workflow name", text: $workflow.name)
         .textFieldStyle(LargeTextFieldStyle())
         .onChange(of: workflow.name) { newValue in

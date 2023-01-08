@@ -40,8 +40,8 @@ struct SingleDetailView: View {
             onAction(.setIsEnabled(workflowId: model.id, isEnabled: isEnabled))
           }
         })
-        .padding(.horizontal, 8)
-        .padding(.vertical, 16)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 12)
         WorkflowTriggerListView($model, onAction: onAction)
       }
       .padding()
