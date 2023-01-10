@@ -61,25 +61,7 @@ struct ApplicationCommandView: View {
       isEnabled: $command.isEnabled,
       icon: {
         if let image = command.image {
-          // TODO: Fix flickering bug when dragging an application command.
-          ZStack {
-            Menu(content: {
-              ForEach(applicationStore.applications) { app in
-                Button(action: {
-                  onAction(.changeApplication(app))
-                  command.image = NSWorkspace.shared.icon(forFile: app.path)
-                }, label: {
-                  Text(app.displayName)
-                })
-              }
-            }, label: { })
-            .menuStyle(IconMenuStyle())
-            .menuIndicator(.hidden)
-
-            Image(nsImage: image)
-              .resizable()
-              .allowsHitTesting(false)
-          }
+          ApplicationCommandImageView($command, image: image, onAction: onAction)
         }
       },
       content: {
@@ -138,6 +120,46 @@ struct ApplicationCommandView: View {
 
       },
       onAction: { onAction(.commandAction($0)) })
+    .enableInjection()
+  }
+}
+
+struct ApplicationCommandImageView: View {
+  @ObserveInjection var inject
+  @EnvironmentObject var applicationStore: ApplicationStore
+  @State var isHovered: Bool = false
+  @Binding private var command: DetailViewModel.CommandViewModel
+  private let image: NSImage
+  private let onAction: (ApplicationCommandView.Action) -> Void
+
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       image: NSImage,
+       onAction: @escaping (ApplicationCommandView.Action) -> Void) {
+    _command = command
+    self.image = image
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    // TODO: Fix flickering bug when dragging an application command.
+    ZStack {
+      Menu(content: {
+        ForEach(applicationStore.applications) { app in
+          Button(action: {
+            onAction(.changeApplication(app))
+            command.image = NSWorkspace.shared.icon(forFile: app.path)
+          }, label: {
+            Text(app.displayName)
+          })
+        }
+      }, label: { })
+      .menuStyle(IconMenuStyle())
+      .menuIndicator(.hidden)
+
+      Image(nsImage: image)
+        .resizable()
+        .allowsHitTesting(false)
+    }
     .enableInjection()
   }
 }

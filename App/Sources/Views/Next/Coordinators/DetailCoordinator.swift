@@ -26,6 +26,21 @@ final class DetailCoordinator {
     }
   }
 
+  func process(_ payload: NewCommandPayload, workflowId: Workflow.ID) {
+    Task {
+      guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+      switch payload {
+      case .url(let targetUrl, let application):
+        let urlString = targetUrl.absoluteString
+        let command = Command.open(.init(name: "Open \(urlString)", application: application, path: urlString))
+        workflow.commands.append(command)
+      }
+
+      await groupStore.receive([workflow])
+      await render([workflow.id], animation: .easeInOut(duration: 0.2))
+    }
+  }
+
   func handle(_ action: DetailView.Action) async {
       switch action {
       case .singleDetailView(let action):
@@ -40,8 +55,6 @@ final class DetailCoordinator {
           workflow.name = name
         case .setIsEnabled(_, let isEnabled):
           workflow.isEnabled = isEnabled
-        case .addCommand:
-          break
         case .removeCommands(_, let commandIds):
           workflow.commands.removeAll(where: { commandIds.contains($0.id) })
         case .trigger(_, let action):
@@ -101,7 +114,7 @@ final class DetailCoordinator {
         }
 
         await groupStore.receive([workflow])
-        await render([workflow.id], animation: .default)
+        await render([workflow.id], animation: .easeInOut(duration: 0.2))
     }
   }
 
@@ -464,8 +477,6 @@ extension SingleDetailView.Action {
     case .removeTrigger(let workflowId):
       return workflowId
     case .setIsEnabled(let workflowId, _):
-      return workflowId
-    case .addCommand(let workflowId):
       return workflowId
     case .removeCommands(let workflowId, _):
       return workflowId

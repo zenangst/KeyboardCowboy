@@ -15,7 +15,7 @@ struct FeatureIcon<Content: View>: View {
 
   var body: some View {
     ZStack {
-      RoundedRectangle(cornerRadius: 8)
+      RoundedRectangle(cornerRadius: 4)
         .fill(color)
       content()
         .frame(width: size.width / 1.5, height: size.height / 1.5)

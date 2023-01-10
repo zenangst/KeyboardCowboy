@@ -5,9 +5,13 @@ struct WorkflowCommandListView: View {
   @Binding private var model: DetailViewModel
   @State private var selections = Set<String>()
   private let onAction: (SingleDetailView.Action) -> Void
+  private let onNewCommand: () -> Void
 
-  init(_ model: Binding<DetailViewModel>, onAction: @escaping (SingleDetailView.Action) -> Void) {
+  init(_ model: Binding<DetailViewModel>,
+       onNewCommand: @escaping () -> Void,
+       onAction: @escaping (SingleDetailView.Action) -> Void) {
     _model = model
+    self.onNewCommand = onNewCommand
     self.onAction = onAction
   }
 
@@ -28,7 +32,7 @@ struct WorkflowCommandListView: View {
           .fixedSize()
         }
         .opacity(model.commands.isEmpty ? 0 : 1)
-        Button(action: {}) {
+        Button(action: onNewCommand) {
           HStack(spacing: 4) {
             Image(systemName: "plus")
           }
@@ -90,7 +94,7 @@ struct WorkflowCommandListView: View {
 
 struct WorkflowCommandListView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowCommandListView(.constant(DesignTime.detail)) { _ in }
+    WorkflowCommandListView(.constant(DesignTime.detail), onNewCommand: {}) { _ in }
       .frame(height: 900)
   }
 }
