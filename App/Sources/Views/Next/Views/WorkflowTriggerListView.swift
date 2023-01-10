@@ -39,7 +39,7 @@ struct WorkflowTriggerListView: View {
             onAction(.removeTrigger(workflowId: model.id))
           },
                  label: { Image(systemName: "xmark") })
-          .buttonStyle(.appStyle)
+          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
           Label("Application trigger:", image: "")
         }
         .padding([.leading, .trailing], 8)

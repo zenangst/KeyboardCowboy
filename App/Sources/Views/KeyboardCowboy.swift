@@ -97,35 +97,30 @@ struct KeyboardCowboy: App {
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
       switch KeyboardCowboy.env {
       case .development:
-        ContainerView { action in
-          switch action {
-          case .openScene(let scene):
-            handleScene(scene)
-          case .sidebar(let sidebarAction):
-            switch sidebarAction {
+        applyEnvironmentObjects(
+          ContainerView { action in
+            switch action {
             case .openScene(let scene):
               handleScene(scene)
-            default:
-              sidebarCoordinator.handle(sidebarAction)
-              contentCoordinator.handle(sidebarAction)
-            }
-          case .content(let contentAction):
-            sidebarCoordinator.handle(contentAction)
-            detailCoordinator.handle(contentAction)
-          case .detail(let detailAction):
-            Task {
-              await detailCoordinator.handle(detailAction)
-              try await contentCoordinator.handle(detailAction)
+            case .sidebar(let sidebarAction):
+              switch sidebarAction {
+              case .openScene(let scene):
+                handleScene(scene)
+              default:
+                sidebarCoordinator.handle(sidebarAction)
+                contentCoordinator.handle(sidebarAction)
+              }
+            case .content(let contentAction):
+              sidebarCoordinator.handle(contentAction)
+              detailCoordinator.handle(contentAction)
+            case .detail(let detailAction):
+              Task {
+                await detailCoordinator.handle(detailAction)
+                contentCoordinator.handle(detailAction)
+              }
             }
           }
-        }
-        .environmentObject(contentStore.configurationStore)
-        .environmentObject(contentStore.applicationStore)
-        .environmentObject(contentStore.groupStore)
-        .environmentObject(configurationCoordinator.publisher)
-        .environmentObject(sidebarCoordinator.publisher)
-        .environmentObject(contentCoordinator.publisher)
-        .environmentObject(detailCoordinator.publisher)
+)
       case .production:
         LegacyContentView(
           contentStore,
@@ -143,6 +138,9 @@ struct KeyboardCowboy: App {
     }
     .windowStyle(.hiddenTitleBar)
 
+    NewCommandWindow(contentStore: contentStore) { workflowId, payload in
+      detailCoordinator.process(payload, workflowId: workflowId)
+    }
 
     EditWorkflowGroupWindow(contentStore)
       .windowResizability(.contentSize)
@@ -177,4 +175,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         KeyboardCowboy.mainWindow?.close()
       }
     }
+}
+
+private extension KeyboardCowboy {
+  func applyEnvironmentObjects<Content: View>(_ content: @autoclosure () -> Content) -> some View {
+    content()
+      .environmentObject(contentStore.configurationStore)
+      .environmentObject(contentStore.applicationStore)
+      .environmentObject(contentStore.groupStore)
+      .environmentObject(configurationCoordinator.publisher)
+      .environmentObject(sidebarCoordinator.publisher)
+      .environmentObject(contentCoordinator.publisher)
+      .environmentObject(detailCoordinator.publisher)
+      .environmentObject(OpenPanelController())
+  }
 }

@@ -35,6 +35,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   }
   @State private var draggingElementId: Data.Element.ID?
   @State private var newIndex: Int = -1
+  @State private var mouseDown: Bool = false
 
   init(_ data: Binding<Data>,
        axes: Axis.Set = .vertical,
@@ -112,6 +113,7 @@ struct EditableStack<Data, Content>: View where Content: View,
               if !selections.contains(elementId) {
                 selections.removeAll()
               }
+              mouseDown = true
             },
             onDragEnded: { value, size in
               let newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
@@ -126,6 +128,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                 indexSet = IndexSet(integer: currentIndex)
               }
               withAnimation {
+                mouseDown = false
                 onMove(indexSet, newIndex)
                 self.newIndex = -1
                 self.dragProxy = .zero
@@ -133,13 +136,13 @@ struct EditableStack<Data, Content>: View where Content: View,
               }
             }
           )
-          //        .scaleEffect(isProxyItem ? 0.95 * CGFloat(1/delta) : 1)
+//                  .scaleEffect(isProxyItem ? 0.95 * CGFloat(1/delta) : 1)
           .offset(x: isProxyItem ? dragProxy.width : 0,
                   y: isProxyItem ?
                   (currentIndex > indexOfDraggedElement)
                   ? (dragProxy.height - (75 * CGFloat(delta)))
                   : (dragProxy.height + (75 * CGFloat(delta))) : 0)
-          .animation(proxyAnimation, value: dragProxy)
+          .animation(proxyAnimation, value: mouseDown)
           .opacity(isProxyItem ? 0.8 : isDraggedItem ? 0.9 : 1)
           .overlay(alignment: currentIndex >= newIndex ? .top : .bottom, content: {
             RoundedRectangle(cornerRadius: cornerRadius)

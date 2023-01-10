@@ -9,7 +9,8 @@ struct InteractiveView<Content, Overlay>: View where Content : View, Overlay: Vi
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
   @GestureState private var dragOffsetState: CGSize = .zero
-  @State var size: CGSize = .zero
+  @State private var size: CGSize = .zero
+  @State private var mouseDown: Bool = false
   @Binding var zIndex: Double
   private let animation: Animation
   private let id: CustomStringConvertible
@@ -60,8 +61,8 @@ struct InteractiveView<Content, Overlay>: View where Content : View, Overlay: Vi
       .zIndex(zIndex)
       .allowsHitTesting(dragOffsetState == .zero)
       .offset(dragOffsetState)
-      .animation(Animation.linear(duration: 0.1), value: dragOffsetState)
-      .simultaneousGesture(
+      .animation(Animation.linear(duration: 0.1), value: mouseDown)
+      .highPriorityGesture(
         DragGesture()
           .updating($dragOffsetState) { (value, state, transaction) in
             state = value.translation
@@ -69,9 +70,11 @@ struct InteractiveView<Content, Overlay>: View where Content : View, Overlay: Vi
           .onChanged({
             isFocused = false
             onDragChanged($0, size)
+            mouseDown = true
           })
           .onEnded {
             onDragEnded($0, size)
+            mouseDown = false
           }
       )
       .gesture(TapGesture().modifiers(.command)

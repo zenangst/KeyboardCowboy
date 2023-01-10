@@ -77,7 +77,7 @@ struct WorkflowApplicationTriggerView: View {
               }
             },
             label: { Image(systemName: "xmark") })
-          .buttonStyle(.appStyle)
+          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
           .padding(.horizontal, 8)
         }
         .padding(.leading, 8)

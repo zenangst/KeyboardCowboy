@@ -2,11 +2,24 @@ import SwiftUI
 
 enum AppButtonStyleEnum {
   case appStyle
+  case saveStyle
+  case destructiveStyle
+  case gradientStyle(config: GradientButtonStyle.GradientConfiguration)
 }
 
 extension View {
+  @ViewBuilder
   func buttonStyle(_ style: AppButtonStyleEnum) -> some View {
-    self.buttonStyle(AppButtonStyle())
+    switch style {
+    case .appStyle:
+      self.buttonStyle(AppButtonStyle())
+    case .saveStyle:
+      self.buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen)))
+    case .destructiveStyle:
+      self.buttonStyle(GradientButtonStyle(.init(nsColor: .systemRed)))
+    case .gradientStyle(let config):
+      self.buttonStyle(GradientButtonStyle(config))
+    }
   }
 }
 

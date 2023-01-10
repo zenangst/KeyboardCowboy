@@ -38,7 +38,7 @@ struct WorkflowCommandListView: View {
           }
         }
         .padding(4)
-        .buttonStyle(.appStyle)
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
       }
       .padding([.leading, .bottom], 8)
       .padding(.trailing, 2)

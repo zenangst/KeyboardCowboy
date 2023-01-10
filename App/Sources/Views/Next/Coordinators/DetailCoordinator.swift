@@ -29,12 +29,16 @@ final class DetailCoordinator {
   func process(_ payload: NewCommandPayload, workflowId: Workflow.ID) {
     Task {
       guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+      let command: Command
       switch payload {
+      case .open(let path, let application):
+        let resolvedPath = (path as NSString).expandingTildeInPath
+        command = Command.open(.init(name: "Open \(path)", application: application, path: resolvedPath))
       case .url(let targetUrl, let application):
         let urlString = targetUrl.absoluteString
-        let command = Command.open(.init(name: "Open \(urlString)", application: application, path: urlString))
-        workflow.commands.append(command)
+        command = Command.open(.init(name: "Open \(urlString)", application: application, path: urlString))
       }
+      workflow.commands.append(command)
 
       await groupStore.receive([workflow])
       await render([workflow.id], animation: .easeInOut(duration: 0.2))

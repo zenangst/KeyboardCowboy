@@ -70,7 +70,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .resizable()
             .aspectRatio(contentMode: .fit)
         })
-        .frame(width: 10, height: 10)
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
+        .frame(width: 16, height: 16)
         Spacer()
         VStack(spacing: 0) {
           Rectangle()
@@ -89,7 +90,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .resizable()
             .aspectRatio(contentMode: .fit)
         })
-        .frame(width: 10, height: 10)
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+        .frame(width: 16, height: 16)
         Spacer()
       }
       .buttonStyle(.plain)
