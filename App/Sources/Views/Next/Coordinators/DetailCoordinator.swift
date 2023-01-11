@@ -1,3 +1,4 @@
+import Apps
 import SwiftUI
 
 final class DetailCoordinator {
@@ -31,6 +32,26 @@ final class DetailCoordinator {
       guard var workflow = groupStore.workflow(withId: workflowId) else { return }
       let command: Command
       switch payload {
+      case .placeholder:
+        return
+      case .application(let application, let action,
+                        let inBackground, let hideWhenRunning, let ifNotRunning):
+        var modifiers = [ApplicationCommand.Modifier]()
+        if inBackground { modifiers.append(.background) }
+        if hideWhenRunning { modifiers.append(.hidden) }
+        if ifNotRunning { modifiers.append(.onlyIfNotRunning) }
+
+        let commandAction: ApplicationCommand.Action
+        switch action {
+        case .close:
+          commandAction = .close
+        case .open:
+          commandAction = .open
+        }
+
+        command = Command.application(.init(action: commandAction,
+                                            application: application,
+                                            modifiers: modifiers))
       case .open(let path, let application):
         let resolvedPath = (path as NSString).expandingTildeInPath
         command = Command.open(.init(name: "Open \(path)", application: application, path: resolvedPath))
