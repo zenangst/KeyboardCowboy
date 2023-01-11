@@ -25,8 +25,19 @@ struct OpenCommandView: View {
   var body: some View {
     CommandContainerView(isEnabled: $command.isEnabled, icon: {
       if let image = command.image {
-        Image(nsImage: image)
-          .resizable()
+        ZStack(alignment: .bottomTrailing) {
+          Image(nsImage: image)
+            .resizable()
+
+          if case .open(_, let appPath, _) = command.kind,
+             let appPath {
+            Image(nsImage: NSWorkspace.shared.icon(forFile: appPath))
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 16)
+              .shadow(radius: 3)
+          }
+        }
       }
     }, content: {
 
@@ -38,7 +49,7 @@ struct OpenCommandView: View {
           })
         Spacer()
 
-        if case .open(_, let appName) = command.kind,
+        if case .open(_, _, let appName) = command.kind,
            let appName {
           Menu(content: {
             ForEach(applicationStore.applicationsToOpen(command.name)) { app in
@@ -69,7 +80,7 @@ struct OpenCommandView: View {
     }, subContent: {
       HStack {
         switch command.kind {
-        case .open(let path, _):
+        case .open(let path, _, _):
           Button("Reveal", action: { onAction(.reveal(path: path)) })
         default:
           EmptyView()

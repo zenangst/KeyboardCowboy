@@ -12,11 +12,13 @@ struct NewCommandOpenView: View {
   @FocusState var focus: Focus?
 
   @Binding var payload: NewCommandPayload
+  @Binding var validation: NewCommandView.Validation
   @State var application: Application?
   @State var path: String = "~/"
 
-  init(_ payload: Binding<NewCommandPayload>) {
+  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandView.Validation>) {
     _payload = payload
+    _validation = validation
   }
 
   var body: some View {
@@ -78,6 +80,7 @@ struct NewCommandOpenView: View {
       }
     }
     .onAppear {
+      validation = .valid
       updatePayload()
       focus = .path
     }

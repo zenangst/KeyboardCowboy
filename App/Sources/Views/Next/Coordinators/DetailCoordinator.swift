@@ -302,17 +302,21 @@ final class DetailCoordinator {
           name = command.name
         case .open(let openCommand):
           let appName: String?
+          let appPath: String?
           if let app = openCommand.application {
             appName = app.displayName
+            appPath = app.path
           } else if let url = URL(string: openCommand.path),
                     let appUrl = NSWorkspace.shared.urlForApplication(toOpen: url),
                     let app = applicationStore.application(at: appUrl) {
             appName = app.displayName
+            appPath = app.path
           } else {
             appName = nil
+            appPath = nil
           }
 
-          kind = .open(path: openCommand.path, appName: appName)
+          kind = .open(path: openCommand.path, applicationPath: appPath, appName: appName)
 
           if openCommand.isUrl {
             name = openCommand.path

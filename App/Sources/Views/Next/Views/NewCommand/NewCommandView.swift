@@ -125,7 +125,7 @@ struct NewCommandView: View {
           NewCommandURLView($payload, validation: $validation,
                             onSubmitAddress: { onSave(payload) })
         case .open:
-          NewCommandOpenView($payload)
+          NewCommandOpenView($payload, validation: $validation)
         }
       }
       .padding()
