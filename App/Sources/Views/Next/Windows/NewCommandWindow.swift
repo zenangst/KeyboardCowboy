@@ -8,6 +8,8 @@ enum NewCommandPayload {
                    inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
   case url(targetUrl: URL, application: Application?)
   case open(path: String, application: Application?)
+  case shortcut(name: String)
+  case type(text: String)
 }
 
 struct NewCommandWindow: Scene {
@@ -42,6 +44,7 @@ struct NewCommandWindow: Scene {
             onSave(workflowId, payload)
             closeWindow()
           })
+        .environmentObject(contentStore.shortcutStore)
         .environmentObject(contentStore.applicationStore)
         .environmentObject(OpenPanelController())
         .ignoresSafeArea(edges: .all)

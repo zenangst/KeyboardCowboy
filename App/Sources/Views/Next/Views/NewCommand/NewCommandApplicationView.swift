@@ -99,7 +99,7 @@ struct NewCommandApplicationView: View {
   @discardableResult
   private func updateAndValidatePayload() -> NewCommandView.Validation {
     guard let application else {
-      return .invalid
+      return .invalid(reason: "Pick an application")
     }
     payload = .application(application: application, action: action,
                            inBackground: inBackground,

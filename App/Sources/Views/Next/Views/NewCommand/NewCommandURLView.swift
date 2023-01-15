@@ -50,7 +50,7 @@ struct NewCommandURLView: View {
               validation = .valid
               onSubmitAddress()
             } else {
-              validation = .invalid
+              withAnimation { validation = .invalid(reason: "Invalid address") }
             }
           }
           .focused($focus, equals: .address)
@@ -60,18 +60,16 @@ struct NewCommandURLView: View {
         validation = updateAndValidatePayload()
       })
       .onChange(of: validation, perform: { newValue in
-        if newValue == .needsValidation {
-          validation = updateAndValidatePayload()
-        }
+        guard newValue == .needsValidation else { return }
+        validation = updateAndValidatePayload()
       })
       .padding(.horizontal, 2)
-      .background {
+      .background(
         RoundedRectangle(cornerRadius: 4)
-          .stroke(Color(validation == .invalid ? .systemRed.withAlphaComponent(0.5) : .windowBackgroundColor), lineWidth: 2)
-          .shadow(
-            color: Color(.systemRed).opacity(validation == .invalid ? 1 : 0),
-            radius: 2)
-      }
+          .stroke(Color( validation.isInvalid ? .systemRed : .windowBackgroundColor), lineWidth: 2)
+      )
+      .overlay(NewCommandValidationView($validation))
+      .zIndex(2)
 
       HStack(spacing: 32) {
         Text("With application: ")
@@ -92,6 +90,7 @@ struct NewCommandURLView: View {
           }
         })
       }
+      .zIndex(1)
     }
     .textFieldStyle(LargeTextFieldStyle())
     .onAppear {
@@ -106,7 +105,7 @@ struct NewCommandURLView: View {
   private func updateAndValidatePayload() -> NewCommandView.Validation {
     guard !address.isEmpty,
           let url = URL(string: "\(stringProtocol)://\(address)") else {
-      return .invalid
+      return .invalid(reason: "Not a valid URL")
     }
     payload = .url(targetUrl: url, application: application)
     return .valid

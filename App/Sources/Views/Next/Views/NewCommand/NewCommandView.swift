@@ -2,12 +2,43 @@ import Carbon
 import SwiftUI
 
 struct NewCommandView: View {
-  enum Validation {
+  enum Validation: Identifiable, Equatable {
+    var id: String { rawValue }
     case unknown
     case needsValidation
-    case invalid
+    case invalid(reason: String?)
     case valid
+
+    var rawValue: String {
+      switch self {
+      case .valid:
+        return "valid"
+      case .needsValidation:
+        return "needsValidation"
+      case .unknown:
+        return "unknown"
+      case .invalid:
+        return "invalid"
+      }
+    }
+
+    var isInvalid: Bool {
+      if case .invalid = self {
+        return true
+      } else {
+        return false
+      }
+    }
+
+    var isValid: Bool {
+      if case .valid = self {
+        return true
+      } else {
+        return false
+      }
+    }
   }
+  
   enum Kind: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
     var rawKey: String {
@@ -18,6 +49,12 @@ struct NewCommandView: View {
         return "2"
       case .open:
         return "3"
+      case .keyboardShortcut:
+        return "4"
+      case .shortcut:
+        return "5"
+      case .type:
+        return "6"
       }
     }
     var key: KeyEquivalent {
@@ -27,6 +64,9 @@ struct NewCommandView: View {
     case application = "Application"
     case url = "URL"
     case open = "Open"
+    case keyboardShortcut = "Keyboard Shortcut"
+    case shortcut = "Shortcut"
+    case type = "Type"
   }
 
   @ObserveInjection var inject
@@ -34,7 +74,7 @@ struct NewCommandView: View {
 
   @Environment(\.controlActiveState) var controlActiveState
   @State private var payload: NewCommandPayload = .placeholder
-  @State private var selection: Kind = .application
+  @State private var selection: Kind = .shortcut
   @State private var validation: Validation = .needsValidation
   private let onDismiss: () -> Void
   private let onSave: (NewCommandPayload) -> Void
@@ -60,6 +100,13 @@ struct NewCommandView: View {
         ForEach(Kind.allCases) { kind in
           NewCommandButtonView(content: {
             HStack {
+              NewCommandImageView(kind: kind)
+              Text(kind.rawValue)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .font(.body)
+                .layoutPriority(1)
+              Spacer()
               Text("\(ModifierKey.command.keyValue)\(kind.rawKey)")
                 .font(.system(.caption, design: .monospaced))
                 .multilineTextAlignment(.center)
@@ -71,16 +118,8 @@ struct NewCommandView: View {
                     .fill(Color(.windowBackgroundColor))
                     .shadow(radius: 4)
                 )
-              NewCommandImageView(kind: kind)
-              Text(kind.rawValue)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .font(.body)
-                .layoutPriority(1)
-              Spacer()
             }
-            .padding(.leading, 4)
-            .padding(.trailing, 16)
+            .padding(.horizontal, 4)
             .padding(.vertical, 4)
             .background(
               LinearGradient(stops: [
@@ -106,7 +145,9 @@ struct NewCommandView: View {
           .padding(.horizontal, 8)
         }
       }
+      .frame(minWidth: 210)
     }
+    .background(Color(.windowBackgroundColor).opacity(0.6))
   }
 
   private func detail() -> some View {
@@ -126,11 +167,19 @@ struct NewCommandView: View {
                             onSubmitAddress: { onSave(payload) })
         case .open:
           NewCommandOpenView($payload, validation: $validation)
+        case .keyboardShortcut:
+          NewCommandKeyboardShortcutView($payload, validation: $validation)
+        case .shortcut:
+          NewCommandShortcutView($payload, validation: $validation)
+        case .type:
+          NewCommandTypeView($payload, validation: $validation)
         }
       }
       .padding()
-      .background(Color(nsColor: NSColor.textBackgroundColor))
-      .cornerRadius(8)
+      .background(
+        RoundedRectangle(cornerRadius: 8)
+          .fill(Color(nsColor: NSColor.textBackgroundColor))
+      )
       .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
               radius: 2,
               y: 2)
@@ -144,7 +193,9 @@ struct NewCommandView: View {
           .keyboardShortcut(.cancelAction)
         Button(action: {
           guard validation == .valid else {
-            validation = .needsValidation
+            withAnimation {
+              validation = .needsValidation
+            }
             return
           }
           onSave(payload)

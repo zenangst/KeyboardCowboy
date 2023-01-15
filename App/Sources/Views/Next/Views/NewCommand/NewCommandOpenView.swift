@@ -13,8 +13,8 @@ struct NewCommandOpenView: View {
 
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandView.Validation
-  @State var application: Application?
-  @State var path: String = "~/"
+  @State private var application: Application?
+  @State private var path: String = "~/"
 
   init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandView.Validation>) {
     _payload = payload

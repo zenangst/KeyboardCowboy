@@ -34,6 +34,11 @@ final class DetailCoordinator {
       switch payload {
       case .placeholder:
         return
+      case .type(let text):
+        command = .type(.init(name: text, input: text))
+      case .shortcut(let name):
+        command = .shortcut(.init(id: UUID().uuidString, shortcutIdentifier: name,
+                                  name: name, isEnabled: true))
       case .application(let application, let action,
                         let inBackground, let hideWhenRunning, let ifNotRunning):
         var modifiers = [ApplicationCommand.Modifier]()

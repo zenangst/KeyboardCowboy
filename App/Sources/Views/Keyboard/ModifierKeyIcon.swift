@@ -51,7 +51,7 @@ struct ModifierKeyIcon: View, KeyView {
           .frame(height: proxy.size.height, alignment: .bottom)
           .offset(y: -proxy.size.width * 0.065)
       }
-      .fixedSize(horizontal: true, vertical: true)
+//      .fixedSize(horizontal: true, vertical: true)
       .foregroundColor(
         Color(.textColor)
           .opacity(0.66)

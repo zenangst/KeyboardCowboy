@@ -1,6 +1,7 @@
 import Cocoa
 
 final class ShortcutStore: ObservableObject {
+  @MainActor
   @Published private(set) var shortcuts = [Shortcut]()
   private let engine: ScriptEngine
 
@@ -27,7 +28,11 @@ final class ShortcutStore: ObservableObject {
           shortcuts.append(Shortcut(name: line))
         }
       }
-      self.shortcuts = shortcuts.sorted(by: { $0.name < $1.name })
+      let newShortcuts = shortcuts.sorted(by: { $0.name < $1.name })
+
+      await MainActor.run {
+        self.shortcuts = newShortcuts
+      }
     }
   }
 }

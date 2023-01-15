@@ -9,27 +9,36 @@ struct NewCommandImageView: View {
       switch kind {
       case .open:
         ZStack {
-          Image(nsImage: NSWorkspace.shared.icon(forFile: "~/"))
-            .resizable()
-            .aspectRatio(1, contentMode: .fill)
+          image(for: "~/")
             .rotationEffect(.degrees(5))
             .offset(.init(width: 4, height: -2))
-          Image(nsImage: NSWorkspace.shared.icon(forFile: "~/".sanitizedPath))
+          image(for: "~/".sanitizedPath)
+        }
+      case .url:
+        image(for: "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app")
+      case .application:
+        image(for: "/Applications")
+      case .keyboardShortcut:
+        ModifierKeyIcon(key: .function)
+      case .shortcut:
+        image(for: "/System/Applications/Shortcuts.app")
+      case .type:
+        if let contents = FileManager.default.contents(atPath: "/System/Library/PrivateFrameworks/AOSUI.framework/Versions/A/Resources/pref_notes.icns"),
+           let image = NSImage(data: contents) {
+          Image(nsImage: image)
             .resizable()
             .aspectRatio(1, contentMode: .fill)
         }
-      case .url:
-        Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"))
-          .resizable()
-          .aspectRatio(1, contentMode: .fit)
-      case .application:
-        Image(nsImage: NSWorkspace.shared.icon(forFile: "/Applications"))
-          .resizable()
-          .aspectRatio(1, contentMode: .fit)
       }
     }
     .frame(width: 24, height: 24)
     .enableInjection()
+  }
+
+  private func image(for path: String) -> some View {
+    Image(nsImage: NSWorkspace.shared.icon(forFile: path))
+      .resizable()
+      .aspectRatio(1, contentMode: .fill)
   }
 }
 
