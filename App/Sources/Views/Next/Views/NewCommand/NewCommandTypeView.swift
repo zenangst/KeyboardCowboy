@@ -3,13 +3,13 @@ import SwiftUI
 struct NewCommandTypeView: View {
   @ObserveInjection var inject
   @Binding var payload: NewCommandPayload
-  @Binding var validation: NewCommandView.Validation
+  @Binding var validation: NewCommandValidation
 
   @State private var text: String = ""
   private let onSubmit: () -> Void
 
   init(_ payload: Binding<NewCommandPayload>,
-       validation: Binding<NewCommandView.Validation>,
+       validation: Binding<NewCommandValidation>,
        onSubmit: @escaping () -> Void) {
     _payload = payload
     _validation = validation
@@ -28,7 +28,7 @@ struct NewCommandTypeView: View {
   }
 
   @discardableResult
-  private func updateAndValidatePayload() -> NewCommandView.Validation {
+  private func updateAndValidatePayload() -> NewCommandValidation {
     guard !text.isEmpty else { return .invalid(reason: "Pick a shortcut.") }
 
     payload = .type(text: text)

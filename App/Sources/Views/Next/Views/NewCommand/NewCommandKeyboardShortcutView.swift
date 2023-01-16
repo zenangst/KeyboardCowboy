@@ -3,9 +3,9 @@ import SwiftUI
 struct NewCommandKeyboardShortcutView: View {
   @ObserveInjection var inject
   @Binding var payload: NewCommandPayload
-  @Binding var validation: NewCommandView.Validation
+  @Binding var validation: NewCommandValidation
 
-  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandView.Validation>) {
+  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
     _validation = validation
   }

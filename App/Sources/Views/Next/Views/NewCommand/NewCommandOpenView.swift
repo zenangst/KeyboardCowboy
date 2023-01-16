@@ -12,11 +12,11 @@ struct NewCommandOpenView: View {
   @FocusState var focus: Focus?
 
   @Binding var payload: NewCommandPayload
-  @Binding var validation: NewCommandView.Validation
+  @Binding var validation: NewCommandValidation
   @State private var application: Application?
   @State private var path: String = "~/"
 
-  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandView.Validation>) {
+  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
     _validation = validation
   }

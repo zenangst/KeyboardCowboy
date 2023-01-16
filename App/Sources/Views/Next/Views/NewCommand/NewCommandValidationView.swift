@@ -2,9 +2,9 @@ import SwiftUI
 
 struct NewCommandValidationView: View {
   @ObserveInjection var inject
-  @Binding var validation: NewCommandView.Validation
+  @Binding var validation: NewCommandValidation
 
-  init(_ validation: Binding<NewCommandView.Validation>) {
+  init(_ validation: Binding<NewCommandValidation>) {
     _validation = validation
   }
 
@@ -72,7 +72,7 @@ struct NewCommandValidationView: View {
 }
 
 struct NewCommandValidationView_Previews: PreviewProvider {
-  static var cases: [NewCommandView.Validation] = [
+  static var cases: [NewCommandValidation] = [
     .invalid(reason: "Reason"),
     .invalid(reason: nil),
   ]

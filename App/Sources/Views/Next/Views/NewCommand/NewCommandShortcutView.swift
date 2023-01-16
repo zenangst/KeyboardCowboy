@@ -3,13 +3,13 @@ import SwiftUI
 struct NewCommandShortcutView: View {
   @ObserveInjection var inject
   @Binding var payload: NewCommandPayload
-  @Binding var validation: NewCommandView.Validation
+  @Binding var validation: NewCommandValidation
 
   @State private var shortcut: Shortcut? = nil
 
   @EnvironmentObject var shortcutStore: ShortcutStore
 
-  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandView.Validation>) {
+  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
     _validation = validation
   }
@@ -47,7 +47,7 @@ struct NewCommandShortcutView: View {
   }
 
   @discardableResult
-  private func updateAndValidatePayload() -> NewCommandView.Validation {
+  private func updateAndValidatePayload() -> NewCommandValidation {
     guard let shortcut else { return .invalid(reason: "Pick a shortcut.") }
 
     payload = .shortcut(name: shortcut.name)

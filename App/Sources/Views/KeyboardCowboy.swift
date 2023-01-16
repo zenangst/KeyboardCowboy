@@ -46,7 +46,7 @@ struct KeyboardCowboy: App {
   init() {
     let scriptEngine = ScriptEngine(workspace: .shared)
     let indexer = Indexer()
-    let contentStore = ContentStore(.user(),
+    let contentStore = ContentStore(.designTime(),
                                     indexer: indexer,
                                     scriptEngine: scriptEngine,
                                     workspace: .shared)

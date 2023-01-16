@@ -2,42 +2,6 @@ import Carbon
 import SwiftUI
 
 struct NewCommandView: View {
-  enum Validation: Identifiable, Equatable {
-    var id: String { rawValue }
-    case unknown
-    case needsValidation
-    case invalid(reason: String?)
-    case valid
-
-    var rawValue: String {
-      switch self {
-      case .valid:
-        return "valid"
-      case .needsValidation:
-        return "needsValidation"
-      case .unknown:
-        return "unknown"
-      case .invalid:
-        return "invalid"
-      }
-    }
-
-    var isInvalid: Bool {
-      if case .invalid = self {
-        return true
-      } else {
-        return false
-      }
-    }
-
-    var isValid: Bool {
-      if case .valid = self {
-        return true
-      } else {
-        return false
-      }
-    }
-  }
   
   enum Kind: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
@@ -75,7 +39,7 @@ struct NewCommandView: View {
   @Environment(\.controlActiveState) var controlActiveState
   @State private var payload: NewCommandPayload = .placeholder
   @State private var selection: Kind = .type
-  @State private var validation: Validation = .needsValidation
+  @State private var validation: NewCommandValidation = .needsValidation
   private let onDismiss: () -> Void
   private let onSave: (NewCommandPayload) -> Void
   @FocusState var focused: Kind?

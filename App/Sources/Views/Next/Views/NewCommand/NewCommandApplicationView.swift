@@ -15,9 +15,9 @@ struct NewCommandApplicationView: View {
   @State private var ifNotRunning: Bool = false
 
   @Binding var payload: NewCommandPayload
-  @Binding private var validation: NewCommandView.Validation
+  @Binding private var validation: NewCommandValidation
 
-  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandView.Validation>) {
+  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
     _validation = validation
   }
@@ -97,7 +97,7 @@ struct NewCommandApplicationView: View {
   }
 
   @discardableResult
-  private func updateAndValidatePayload() -> NewCommandView.Validation {
+  private func updateAndValidatePayload() -> NewCommandValidation {
     guard let application else {
       return .invalid(reason: "Pick an application")
     }

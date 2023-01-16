@@ -16,12 +16,12 @@ struct NewCommandURLView: View {
   @State private var stringProtocol: String = "https"
   @State private var address: String = ""
   @State private var application: Application?
-  @Binding private var validation: NewCommandView.Validation
+  @Binding private var validation: NewCommandValidation
 
   private let onSubmitAddress: () -> Void
 
   init(_ payload: Binding<NewCommandPayload>,
-       validation: Binding<NewCommandView.Validation>,
+       validation: Binding<NewCommandValidation>,
        onSubmitAddress: @escaping () -> Void) {
     _payload = payload
     _validation = validation
@@ -102,7 +102,7 @@ struct NewCommandURLView: View {
   }
 
   @discardableResult
-  private func updateAndValidatePayload() -> NewCommandView.Validation {
+  private func updateAndValidatePayload() -> NewCommandValidation {
     guard !address.isEmpty,
           let url = URL(string: "\(stringProtocol)://\(address)") else {
       return .invalid(reason: "Not a valid URL")
