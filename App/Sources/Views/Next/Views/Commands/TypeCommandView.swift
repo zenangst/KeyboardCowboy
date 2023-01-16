@@ -60,12 +60,15 @@ struct TypeCommandTextEditor: View {
   @State var isHovered: Bool = false
   @Binding var text: String
 
-  init(text: Binding<String>) {
+  private var onCommandReturnKey: (() -> Void)?
+
+  init(text: Binding<String>, onCommandReturnKey: (() -> Void)? = nil) {
     _text = text
+    self.onCommandReturnKey = onCommandReturnKey
   }
 
   var body: some View {
-    ZStack(alignment: .leading) {
+    ZStack(alignment: .topLeading) {
       TextEditor(text: $text)
         .scrollContentBackground(.hidden)
         .font(.body)
@@ -74,9 +77,12 @@ struct TypeCommandTextEditor: View {
       Text("Enter text...")
         .animation(nil, value: text.isEmpty)
         .opacity(text.isEmpty ? 0.5 : 0)
-        .animation(.default, value: text.isEmpty)
+        .animation(.easeInOut(duration: 0.2), value: text.isEmpty)
         .allowsHitTesting(false)
-        .padding(.leading, 4)
+        .padding([.leading, .top], 4)
+      Button("", action: { onCommandReturnKey?() })
+        .opacity(0.0)
+        .keyboardShortcut(.return, modifiers: [.command])
     }
     .padding(4)
     .background(
@@ -90,7 +96,7 @@ struct TypeCommandTextEditor: View {
         .opacity(isFocused ? 0.75 : isHovered ? 0.15 : 0)
       }
     )
-    .onHover(perform: { newValue in  withAnimation { isHovered = newValue } })
+    .onHover(perform: { newValue in  withAnimation(.easeInOut(duration: 0.2)) { isHovered = newValue } })
     .focusable()
     .focused($isFocused)
     .enableInjection()

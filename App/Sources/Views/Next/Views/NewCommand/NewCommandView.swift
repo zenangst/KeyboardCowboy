@@ -74,7 +74,7 @@ struct NewCommandView: View {
 
   @Environment(\.controlActiveState) var controlActiveState
   @State private var payload: NewCommandPayload = .placeholder
-  @State private var selection: Kind = .shortcut
+  @State private var selection: Kind = .type
   @State private var validation: Validation = .needsValidation
   private let onDismiss: () -> Void
   private let onSave: (NewCommandPayload) -> Void
@@ -172,7 +172,9 @@ struct NewCommandView: View {
         case .shortcut:
           NewCommandShortcutView($payload, validation: $validation)
         case .type:
-          NewCommandTypeView($payload, validation: $validation)
+          NewCommandTypeView($payload, validation: $validation) {
+            onSubmit()
+          }
         }
       }
       .padding()
@@ -191,20 +193,22 @@ struct NewCommandView: View {
         Button(action: onDismiss, label: { Text("Cancel") })
           .buttonStyle(.gradientStyle(config: .init(nsColor: .red, grayscaleEffect: true)))
           .keyboardShortcut(.cancelAction)
-        Button(action: {
-          guard validation == .valid else {
-            withAnimation {
-              validation = .needsValidation
-            }
-            return
-          }
-          onSave(payload)
-        }, label: { Text("Save") })
+        Button(action: onSubmit, label: { Text("Save") })
           .buttonStyle(.saveStyle)
           .keyboardShortcut(.defaultAction)
       }
       .buttonStyle(.appStyle)
       .padding()
     }
+  }
+
+  private func onSubmit() {
+    guard validation == .valid else {
+      withAnimation {
+        validation = .needsValidation
+      }
+      return
+    }
+    onSave(payload)
   }
 }

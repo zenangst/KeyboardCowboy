@@ -6,18 +6,21 @@ struct NewCommandTypeView: View {
   @Binding var validation: NewCommandView.Validation
 
   @State private var text: String = ""
+  private let onSubmit: () -> Void
 
-  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandView.Validation>) {
+  init(_ payload: Binding<NewCommandPayload>,
+       validation: Binding<NewCommandView.Validation>,
+       onSubmit: @escaping () -> Void) {
     _payload = payload
     _validation = validation
+    self.onSubmit = onSubmit
   }
 
   var body: some View {
     VStack(alignment: .leading) {
       Label(title: { Text("Type text:") }, icon: { EmptyView() })
         .labelStyle(HeaderLabelStyle())
-
-      TextEditor(text: $text)
+      TypeCommandTextEditor(text: $text, onCommandReturnKey: onSubmit)
     }
     .onChange(of: text) { newValue in
       validation = updateAndValidatePayload()
