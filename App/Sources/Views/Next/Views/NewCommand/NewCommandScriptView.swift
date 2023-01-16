@@ -1,23 +1,47 @@
 import SwiftUI
 
 struct NewCommandScriptView: View {
-  enum Kind {
-    case file(path: String, extension: ScriptExtension)
-    case source(contents: String, extension: ScriptExtension)
+  enum Kind: String, CaseIterable, Hashable, Identifiable {
+    var id: String { rawValue }
+    case file = "File"
+    case source = "Source"
   }
 
-  enum ScriptExtension: String {
-    case shellScript = "sh"
+  enum ScriptExtension: String, CaseIterable, Hashable, Identifiable {
+    var id: String { rawValue }
+
+    // TODO: Add support for `.swift`
     case appleScript = "scpt"
+    case shellScript = "sh"
+
+    var displayName: String {
+      switch self {
+      case .shellScript:
+        return "Shellscript"
+      case .appleScript:
+        return "AppleScript"
+      }
+    }
+
+    var syntax: SyntaxHighlighting {
+      switch self {
+      case .appleScript:
+        return AppleScriptHighlighting()
+      case .shellScript:
+        return ShellScriptHighlighting()
+      }
+    }
   }
 
+  @ObserveInjection var inject
   @EnvironmentObject var openPanel: OpenPanelController
-  @State private var kind: Kind = .file(path: "~/", extension: .shellScript)
+  @State private var kind: Kind = .file
+  @State private var scriptExtension: ScriptExtension = .appleScript
   @Binding private var payload: NewCommandPayload
-  @Binding private var validation: NewCommandView.Validation
+  @Binding private var validation: NewCommandValidation
 
   init(_ payload: Binding<NewCommandPayload>,
-       validation: Binding<NewCommandView.Validation>) {
+       validation: Binding<NewCommandValidation>) {
     _payload = payload
     _validation = validation
   }
@@ -27,15 +51,55 @@ struct NewCommandScriptView: View {
       Label(title: { Text("Open file or folder:") }, icon: { EmptyView() })
         .labelStyle(HeaderLabelStyle())
 
-      switch kind {
-      case .file(_, let fileExtension):
-        NewCommandFileSelectorView(fileExtension.rawValue) { path in
+      HStack {
+        Menu(content: {
+          ForEach(ScriptExtension.allCases) { scriptExtension in
+            Button(action: { self.scriptExtension = scriptExtension }, label: {
+              Text(scriptExtension.displayName)
+            })
+          }
+        }, label: {
+          Text(scriptExtension.displayName)
+        })
+        .padding(4)
+        .background(
+          RoundedRectangle(cornerRadius: 4)
+            .stroke(Color(.windowBackgroundColor), lineWidth: 1)
+            .frame(height: 40)
+        )
 
-        }
-      case .source(_, let fileExtension):
-        NewCommandScriptSourceView()
+        Menu(content: {
+          ForEach(Kind.allCases) { kind in
+            Button(action: { self.kind = kind }, label: {
+              Text(kind.rawValue)
+            })
+          }
+        }, label: {
+          switch kind {
+          case .file:
+            Text("File")
+          case .source:
+            Text("Inline")
+          }
+        })
+        .padding(4)
+        .background(
+          RoundedRectangle(cornerRadius: 4)
+            .stroke(Color(.windowBackgroundColor), lineWidth: 1)
+            .frame(height: 40)
+        )
+      }
+      .padding(.vertical)
+
+      switch kind {
+      case .file:
+        NewCommandFileSelectorView($scriptExtension) { path in }
+      case .source:
+        NewCommandScriptSourceView($scriptExtension) { newString in }
       }
     }
+    .menuStyle(.borderlessButton)
+    .enableInjection()
   }
 }
 
@@ -43,12 +107,12 @@ struct NewCommandFileSelectorView: View {
   @EnvironmentObject var openPanel: OpenPanelController
   @State var path: String = "~/"
 
-  private let fileType: String
+  @Binding private var scriptExtension: NewCommandScriptView.ScriptExtension
   private var onPathChange: (String) -> Void
 
-  init(_ fileType: String, onPathChange: @escaping (String) -> Void) {
+  init(_ scriptExtension: Binding<NewCommandScriptView.ScriptExtension>, onPathChange: @escaping (String) -> Void) {
     self.onPathChange = onPathChange
-    self.fileType = fileType
+    _scriptExtension = scriptExtension
   }
 
   var body: some View {
@@ -59,7 +123,7 @@ struct NewCommandFileSelectorView: View {
           onPathChange(newPath)
         }
       Button("Browse", action: {
-        openPanel.perform(.selectFile(type: fileType, handler: { newPath in
+        openPanel.perform(.selectFile(type: scriptExtension.rawValue, handler: { newPath in
           self.path = newPath
           onPathChange(newPath)
         }))
@@ -70,8 +134,19 @@ struct NewCommandFileSelectorView: View {
 }
 
 struct NewCommandScriptSourceView: View {
+  @State var text: String = ""
+  @Binding private var kind: NewCommandScriptView.ScriptExtension
+  private let onChange: (String) -> Void
+
+  init(_ kind: Binding<NewCommandScriptView.ScriptExtension>, onChange: @escaping (String) -> Void) {
+    _kind = kind
+    self.onChange = onChange
+  }
+
   var body: some View {
-    Text("Source!")
+    let _ = Swift.print(kind.syntax)
+    ScriptEditorView(text: $text, syntax: Binding(get: { kind.syntax }, set: { _ in }))
+      .onChange(of: text, perform: onChange)
   }
 }
 

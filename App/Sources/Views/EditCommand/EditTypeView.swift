@@ -35,7 +35,7 @@ struct EditTypeView: View {
           }, set: {
             command = TypeCommand(id: command.id, name: command.name,
                                   input: $0)
-          }), syntax: BaseSyntaxHighlighting())
+          }), syntax: .constant(BaseSyntaxHighlighting()))
           .frame(height: 220)
         })
       }

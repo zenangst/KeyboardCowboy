@@ -17,8 +17,10 @@ struct NewCommandView: View {
         return "4"
       case .shortcut:
         return "5"
-      case .type:
+      case .script:
         return "6"
+      case .type:
+        return "7"
       }
     }
     var key: KeyEquivalent {
@@ -30,6 +32,7 @@ struct NewCommandView: View {
     case open = "Open"
     case keyboardShortcut = "Keyboard Shortcut"
     case shortcut = "Shortcut"
+    case script = "Script"
     case type = "Type"
   }
 
@@ -38,7 +41,7 @@ struct NewCommandView: View {
 
   @Environment(\.controlActiveState) var controlActiveState
   @State private var payload: NewCommandPayload = .placeholder
-  @State private var selection: Kind = .type
+  @State private var selection: Kind = .script
   @State private var validation: NewCommandValidation = .needsValidation
   private let onDismiss: () -> Void
   private let onSave: (NewCommandPayload) -> Void
@@ -135,6 +138,8 @@ struct NewCommandView: View {
           NewCommandKeyboardShortcutView($payload, validation: $validation)
         case .shortcut:
           NewCommandShortcutView($payload, validation: $validation)
+        case .script:
+          NewCommandScriptView($payload, validation: $validation)
         case .type:
           NewCommandTypeView($payload, validation: $validation) {
             onSubmit()

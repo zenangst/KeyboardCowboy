@@ -22,6 +22,8 @@ struct NewCommandImageView: View {
         ModifierKeyIcon(key: .function)
       case .shortcut:
         image(for: "/System/Applications/Shortcuts.app")
+      case .script:
+        image(for: "/System/Applications/Utilities/Terminal.app")
       case .type:
         if let contents = FileManager.default.contents(atPath: "/System/Library/PrivateFrameworks/AOSUI.framework/Versions/A/Resources/pref_notes.icns"),
            let image = NSImage(data: contents) {

@@ -15,7 +15,7 @@ final class _ScriptEditorView: NSView, NSTextLayoutManagerDelegate {
   private(set) lazy var textContainer = NSTextContainer(containerSize: scrollView.frame.size)
   private(set) lazy var lineNumbersView = LineNumbersView(self.textView, scrollView: self.scrollView)
 
-  private(set) var syntax: SyntaxHighlighting
+  var syntax: SyntaxHighlighting
 
   var selectedRanges: [NSValue] = [] {
     didSet {

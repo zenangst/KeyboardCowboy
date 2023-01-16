@@ -4,11 +4,11 @@ import SwiftUI
 struct ScriptEditorViewable: NSViewRepresentable {
   typealias NSViewType = _ScriptEditorView
   @Binding var text: String
-  let syntax: SyntaxHighlighting
+  @Binding var syntax: SyntaxHighlighting
 
-  init(text: Binding<String>, syntax: SyntaxHighlighting) {
+  init(text: Binding<String>, syntax: Binding<SyntaxHighlighting>) {
     _text = text
-    self.syntax = syntax
+    _syntax = syntax
   }
 
   func makeNSView(context: Context) -> _ScriptEditorView {
@@ -21,6 +21,7 @@ struct ScriptEditorViewable: NSViewRepresentable {
   }
 
   func updateNSView(_ view: _ScriptEditorView, context: Context) {
+    view.syntax = syntax
     view.updateTextStorage(text)
     view.selectedRanges = context.coordinator.selectedRanges
   }
