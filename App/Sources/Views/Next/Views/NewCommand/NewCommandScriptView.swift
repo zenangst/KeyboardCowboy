@@ -37,6 +37,7 @@ struct NewCommandScriptView: View {
   @EnvironmentObject var openPanel: OpenPanelController
   @State private var kind: Kind = .file
   @State private var scriptExtension: ScriptExtension = .appleScript
+  @State private var value: String = ""
   @Binding private var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
 
@@ -93,13 +94,47 @@ struct NewCommandScriptView: View {
 
       switch kind {
       case .file:
-        NewCommandFileSelectorView($scriptExtension) { path in }
+        NewCommandFileSelectorView($scriptExtension) { path in
+          value = path
+          validation = updateAndValidatePayload()
+        }
+        .overlay(NewCommandValidationView($validation))
       case .source:
-        NewCommandScriptSourceView($scriptExtension) { newString in }
+        VStack {
+          NewCommandScriptSourceView($scriptExtension) { newString in
+            value = newString
+            validation = updateAndValidatePayload()
+          }
+          .overlay(NewCommandValidationView($validation))
+        }
       }
+    }
+    .onChange(of: validation, perform: { newValue in
+      guard newValue == .needsValidation else { return }
+      validation = updateAndValidatePayload()
+    })
+    .onAppear {
+      validation = .unknown
+      updateAndValidatePayload()
     }
     .menuStyle(.borderlessButton)
     .enableInjection()
+  }
+
+  @discardableResult
+  private func updateAndValidatePayload() -> NewCommandValidation {
+    switch kind {
+    case .file:
+      if value.hasSuffix(scriptExtension.rawValue) {
+        payload = .script(value: value, kind: kind, scriptExtension: scriptExtension)
+        return .valid
+      } else {
+        return .invalid(reason: "Wrong file extension.")
+      }
+    case .source:
+      payload = .script(value: value, kind: kind, scriptExtension: scriptExtension)
+      return .valid
+    }
   }
 }
 
@@ -144,7 +179,6 @@ struct NewCommandScriptSourceView: View {
   }
 
   var body: some View {
-    let _ = Swift.print(kind.syntax)
     ScriptEditorView(text: $text, syntax: Binding(get: { kind.syntax }, set: { _ in }))
       .onChange(of: text, perform: onChange)
   }

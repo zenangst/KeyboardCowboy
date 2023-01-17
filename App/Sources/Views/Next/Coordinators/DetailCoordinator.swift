@@ -34,6 +34,29 @@ final class DetailCoordinator {
       switch payload {
       case .placeholder:
         return
+      case .script(let value, let kind, let scriptExtension):
+        let source: ScriptCommand.Source
+        let name: String
+        switch kind {
+        case .file:
+          source = .path(value)
+          name = "Run '\((value as NSString).lastPathComponent.replacingOccurrences(of: "." + scriptExtension.rawValue, with: ""))'"
+        case .source:
+          source = .inline(value)
+          switch scriptExtension {
+          case .appleScript:
+            name = "Run AppleScript"
+          case .shellScript:
+            name = "Run ShellScript"
+          }
+        }
+
+        switch scriptExtension {
+        case .appleScript:
+          command = .script(.appleScript(id: UUID().uuidString, isEnabled: true, name: name, source: source))
+        case .shellScript:
+          command = .script(.shell(id: UUID().uuidString, isEnabled: true, name: name, source: source))
+        }
       case .type(let text):
         command = .type(.init(name: text, input: text))
       case .shortcut(let name):

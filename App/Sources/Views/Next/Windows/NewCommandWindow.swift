@@ -4,6 +4,7 @@ import SwiftUI
 
 enum NewCommandPayload {
   case placeholder
+  case script(value: String, kind: NewCommandScriptView.Kind, scriptExtension: NewCommandScriptView.ScriptExtension)
   case application(application: Application, action: NewCommandApplicationView.ApplicationAction,
                    inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
   case url(targetUrl: URL, application: Application?)
