@@ -14,6 +14,6 @@ final class WindowListStore: WindowListStoring {
   func windowOwners() -> [String] {
     let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
     let info: [WindowModel] = (try? WindowsInfo.getWindows(options)) ?? []
-    return info.compactMap({ $0.ownerName })
+    return info.map(\.ownerName)
   }
 }

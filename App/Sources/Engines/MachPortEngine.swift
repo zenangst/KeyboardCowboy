@@ -33,8 +33,13 @@ final class MachPortEngine {
 
   @Published var recording: KeyShortcutRecording?
 
+  var machPort: MachPortEventController? {
+    didSet { keyboardEngine.machPort = machPort }
+  }
+
   private static let previousKeyDefault = "."
   private var previousKey: String = "."
+  private var lastEvent: MachPortEvent?
 
   private var subscriptions = Set<AnyCancellable>()
   private var mode: KeyboardCowboyMode
@@ -45,7 +50,9 @@ final class MachPortEngine {
   private let indexer: Indexer
   private let store: KeyCodesStore
 
-  internal init(store: KeyCodesStore, commandEngine: CommandEngine, indexer: Indexer, mode: KeyboardCowboyMode) {
+  internal init(store: KeyCodesStore,
+                commandEngine: CommandEngine,
+                indexer: Indexer, mode: KeyboardCowboyMode) {
     self.commandEngine = commandEngine
     self.store = store
     self.indexer = indexer
@@ -93,35 +100,46 @@ final class MachPortEngine {
       return
     }
 
-    if let displayValue = store.displayValue(for: Int(machPortEvent.keyCode)) {
-      let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
-        .compactMap({ ModifierKey(rawValue: $0.rawValue) })
-      let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
+    guard let displayValue = store.displayValue(for: Int(machPortEvent.keyCode)) else {
+      return
+    }
+    let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
+      .compactMap({ ModifierKey(rawValue: $0.rawValue) })
+    let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
-      if let result = indexer.lookup(keyboardShortcut, previousKey: previousKey) {
-        switch result {
-        case .partialMatch(let key):
-          machPortEvent.result = nil
-          if kind == .keyDown {
-            previousKey = key
-          }
-        case .exact(let workflow):
-          machPortEvent.result = nil
-          switch workflow.commands.last {
-          case .keyboard(let command):
-            try? keyboardEngine.run(command, type: machPortEvent.type,
-                                    with: machPortEvent.eventSource)
-          default:
-            if kind == .keyDown {
-              commandEngine.serialRun(workflow.commands.filter(\.isEnabled))
-              previousKey = Self.previousKeyDefault
-            }
-          }
-        }
+    // Found a match
+    let result = indexer.lookup(keyboardShortcut, previousKey: previousKey)
+
+    switch result {
+    case .partialMatch(let key):
+      machPortEvent.result = nil
+      if kind == .keyDown {
+        previousKey = key
       } else {
+        lastEvent = nil
+      }
+    case .exact(let workflow):
+      machPortEvent.result = nil
+      switch workflow.commands.last {
+      case .keyboard(let command):
+        try? keyboardEngine.run(command, type: machPortEvent.type,
+                                with: machPortEvent.eventSource)
+      default:
         if kind == .keyDown {
+          // Avoid running commands on key down.
+          if let lastEvent, lastEvent.isSame(as: machPortEvent) { return }
+
+          commandEngine.serialRun(workflow.commands.filter(\.isEnabled))
           previousKey = Self.previousKeyDefault
+          lastEvent = machPortEvent
+        } else {
+          lastEvent = nil
         }
+      }
+    case .none:
+      if kind == .keyDown {
+        // No match, reset the lookup key
+        previousKey = Self.previousKeyDefault
       }
     }
   }
@@ -186,4 +204,11 @@ public enum KeyShortcutRecording {
   case systemShortcut(KeyShortcut)
   case delete(KeyShortcut)
   case cancel(KeyShortcut)
+}
+
+private extension MachPortEvent {
+  func isSame(as otherEvent: MachPortEvent) -> Bool {
+    keyCode == otherEvent.keyCode &&
+    type == otherEvent.type
+  }
 }

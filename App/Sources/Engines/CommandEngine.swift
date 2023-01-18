@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import MachPort
 
 final class CommandEngine {
   struct Engines {
@@ -9,6 +10,12 @@ final class CommandEngine {
     let script: ScriptEngine
     let shortcut: ShortcutsEngine
     let type: TypeEngine
+  }
+
+  var machPort: MachPortEventController? {
+    didSet {
+      engines.keyboard.machPort = machPort
+    }
   }
 
   private let engines: Engines

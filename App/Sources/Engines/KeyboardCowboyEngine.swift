@@ -17,8 +17,7 @@ final class KeyboardCowboyEngine {
   private var machPortController: MachPortEventController?
 
   init(_ contentStore: ContentStore, indexer: Indexer,
-       scriptEngine: ScriptEngine,
-       workspace: NSWorkspace = .shared) {
+       scriptEngine: ScriptEngine, workspace: NSWorkspace = .shared) {
     let keyCodeStore = KeyCodesStore()
     let commandEngine = CommandEngine(workspace,
                                       scriptEngine: scriptEngine,
@@ -42,9 +41,14 @@ final class KeyboardCowboyEngine {
     if !hasPrivileges() { } else {
       do {
         if !launchArguments.isEnabled(.runningUnitTests) {
-          let machPortController = try MachPortEventController(.privateState, mode: .commonModes)
+          let machPortController = try MachPortEventController(
+            .privateState,
+            signature: "com.zenangst.Keyboard-Cowboy",
+            mode: .commonModes)
           commandEngine.eventSource = machPortController.eventSource
           machPortEngine.subscribe(to: machPortController.$event)
+          machPortEngine.machPort = machPortController
+          commandEngine.machPort = machPortController
           self.machPortController = machPortController
         }
       } catch let error {
