@@ -1,91 +1,57 @@
+import Combine
 import Foundation
 import SwiftUI
 
 struct ScriptEditorViewable: NSViewRepresentable {
   typealias NSViewType = _ScriptEditorView
+  let font: NSFont
+  let maxHeight: CGFloat?
   @Binding var text: String
-  @Binding var syntax: SyntaxHighlighting
+  @Binding var syntax: any SyntaxHighlighting
 
-  init(text: Binding<String>, syntax: Binding<SyntaxHighlighting>) {
+  init(text: Binding<String>, font: NSFont,
+       maxHeight: CGFloat?, syntax: Binding<any SyntaxHighlighting>) {
     _text = text
     _syntax = syntax
+    self.font = font
+    self.maxHeight = maxHeight
   }
 
   func makeNSView(context: Context) -> _ScriptEditorView {
-    let view = _ScriptEditorView(text, syntax: syntax)
-    view.textView.delegate = context.coordinator
-    view.autoresizesSubviews = true
-    view.autoresizingMask = [.width]
-    context.coordinator.scriptView = view
+    let view = _ScriptEditorView(text, font: font, maxHeight: maxHeight, syntax: syntax)
+    context.coordinator.subscribe(to: view.$text)
+    context.coordinator.view = view
     return view
   }
 
   func updateNSView(_ view: _ScriptEditorView, context: Context) {
-    view.syntax = syntax
-    view.updateTextStorage(text)
-    view.selectedRanges = context.coordinator.selectedRanges
+    if view.syntax.id != syntax.id {
+      view.syntax = syntax
+    }
   }
 
   func makeCoordinator() -> Coordinator {
-    Coordinator(self)
+    Coordinator { view, newText in
+      text = newText
+    }
   }
 
-  final class Coordinator: NSObject, NSTextViewDelegate {
-    var view: ScriptEditorViewable
-    var selectedRanges: [NSValue] = []
-    weak var scriptView: _ScriptEditorView?
+  final class Coordinator: NSObject {
+    private var subscription: AnyCancellable?
+    private let onTextChange: (_ScriptEditorView, String) -> Void
+    weak var view: _ScriptEditorView?
 
-    init(_ view: ScriptEditorViewable) {
-      self.view = view
+    init(onTextChange: @escaping (_ScriptEditorView, String) -> Void) {
+      self.onTextChange = onTextChange
     }
 
-    func textViewDidChangeSelection(_ notification: Notification) {
-      guard notification.object is NSTextView else { return }
-      guard let scriptView = scriptView else { return }
-
-      scriptView.updateCursorPosition()
-    }
-
-    public func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?
-    ) -> Bool {
-      guard let scriptView = scriptView else {
-        return true
+    func subscribe(to publisher: Published<String>.Publisher) {
+      subscription = publisher
+        .dropFirst()
+        .sink { [weak self] text in
+          guard let self, let view = self.view else { return }
+          self.onTextChange(view, text)
       }
-
-      guard let replacementString = replacementString else {
-        scriptView.currentInput = ""
-        return true
-      }
-
-      let illegalChars = [" ", "\n"]
-      if replacementString.count == 1 &&
-         !illegalChars.contains(replacementString) {
-        scriptView.currentInput += replacementString
-      } else {
-        scriptView.currentInput = ""
-      }
-
-      return true
-    }
-
-    public func textDidBeginEditing(_ notification: Notification) {
-      guard let textView = notification.object as? NSTextView else { return }
-
-      view.text = textView.string
-    }
-
-    public func textDidChange(_ notification: Notification) {
-      guard let textView = notification.object as? NSTextView else { return }
-      let content = String(textView.textStorage?.string ?? "")
-
-      view.text = content
-      selectedRanges = textView.selectedRanges
-    }
-
-    public func textDidEndEditing(_ notification: Notification) {
-      guard let textView = notification.object as? NSTextView else { return }
-
-      view.text = textView.string
     }
   }
 }

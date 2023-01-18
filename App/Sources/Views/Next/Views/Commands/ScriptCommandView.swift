@@ -10,6 +10,7 @@ struct ScriptCommandView: View {
   }
   @ObserveInjection var inject
   @State private var name: String
+  @State private var text: String
   @Binding private var command: DetailViewModel.CommandViewModel
   private let onAction: (Action) -> Void
 
@@ -17,6 +18,20 @@ struct ScriptCommandView: View {
     _command = command
     _name = .init(initialValue: command.name.wrappedValue)
     self.onAction = onAction
+
+    switch command.kind.wrappedValue {
+    case .script(let kind):
+      switch kind {
+      case .inline(_, let source, _):
+        _text = .init(initialValue: source)
+      case .path(_, let source, _):
+        _text = .init(initialValue: source)
+      }
+      break
+    default:
+      _text = .init(initialValue: "")
+    }
+
   }
 
   var body: some View {
@@ -29,20 +44,23 @@ struct ScriptCommandView: View {
         .aspectRatio(1, contentMode: .fill)
         .frame(width: 32)
     }, content: {
-      HStack(spacing: 8) {
-        TextField("", text: $name)
-          .textFieldStyle(AppTextFieldStyle())
-          .onChange(of: name, perform: {
-            onAction(.updateName(newName: $0))
-          })
-        Spacer()
+      VStack {
+        HStack(spacing: 8) {
+          TextField("", text: $name)
+            .textFieldStyle(AppTextFieldStyle())
+            .onChange(of: name, perform: {
+              onAction(.updateName(newName: $0))
+            })
+          Spacer()
+        }
+        ScriptEditorView(text: $text, syntax: .constant(AppleScriptHighlighting()))
       }
     }, subContent: {
       HStack {
         if case .script(let kind) = command.kind {
           switch kind {
           case .inline:
-            Button("Edit", action: { onAction(.edit) })
+            EmptyView()
           case .path(_, let source, _):
             Button("Open", action: { onAction(.open(path: source)) })
             Button("Reveal", action: { onAction(.reveal(path: source)) })

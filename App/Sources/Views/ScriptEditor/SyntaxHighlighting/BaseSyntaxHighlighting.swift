@@ -1,6 +1,8 @@
 import Cocoa
 
 struct BaseSyntaxHighlighting: SyntaxHighlighting {
+  let id: String = "BaseSyntaxHighlighting"
+
   func highlights(_ font: NSFont) -> [Highlight] {
     [
       // Plain text

@@ -19,8 +19,7 @@ struct DetailView: View {
         Text("Empty")
       case .single(var model):
         SingleDetailView(
-          Binding<DetailViewModel>(get: { model },
-                                   set: { model = $0 }),
+          Binding<DetailViewModel>(get: { model }, set: { model = $0 }),
           onAction: { onAction(.singleDetailView($0)) })
       case .multiple:
         Text("Multiple commands selected")

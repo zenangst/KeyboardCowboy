@@ -2,7 +2,6 @@ import Carbon
 import SwiftUI
 
 struct NewCommandView: View {
-  
   enum Kind: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
     var rawKey: String {
@@ -37,28 +36,52 @@ struct NewCommandView: View {
   }
 
   @ObserveInjection var inject
-  let workflowId: Workflow.ID
+  private let workflowId: Workflow.ID
+  private let commandId: Command.ID?
 
   @Environment(\.controlActiveState) var controlActiveState
-  @State private var payload: NewCommandPayload = .placeholder
-  @State private var selection: Kind = .script
+  @State private var payload: NewCommandPayload
+  @State private var selection: Kind
   @State private var validation: NewCommandValidation = .needsValidation
+  @State private var title: String
   private let onDismiss: () -> Void
-  private let onSave: (NewCommandPayload) -> Void
+  private let onSave: (NewCommandPayload, String) -> Void
   @FocusState var focused: Kind?
 
   init(workflowId: Workflow.ID,
+       commandId: Command.ID?,
+       title: String,
+       selection: Kind,
+       payload: NewCommandPayload,
        onDismiss: @escaping () -> Void,
-       onSave: @escaping (NewCommandPayload) -> Void) {
+       onSave: @escaping (NewCommandPayload, String) -> Void) {
+    _selection = .init(initialValue: selection)
+    _payload = .init(initialValue: payload)
+    _title = .init(initialValue: title)
     self.workflowId = workflowId
+    self.commandId = commandId
     self.onSave = onSave
     self.onDismiss = onDismiss
   }
 
   var body: some View {
-    NavigationSplitView(sidebar: sidebar, detail: detail)
-      .frame(minWidth: 650, maxWidth: 850, minHeight: 400, maxHeight: 500)
-      .enableInjection()
+    Group {
+      if commandId == nil {
+        NavigationSplitView(
+          sidebar: sidebar,
+          detail: { detail(title: $title) })
+      } else {
+        detail(title: $title)
+          .toolbar(content: {
+            ToolbarItem(id: UUID().uuidString) {
+              Spacer()
+            }
+          })
+          .padding(.top, 36)
+      }
+    }
+    .frame(minWidth: 650, maxWidth: 850, minHeight: 400, maxHeight: 500)
+    .enableInjection()
   }
 
   private func sidebar() -> some View {
@@ -117,21 +140,29 @@ struct NewCommandView: View {
     .background(Color(.windowBackgroundColor).opacity(0.6))
   }
 
-  private func detail() -> some View {
+  private func detail(title: Binding<String>) -> some View {
     VStack(spacing: 0) {
-      Text("New command")
+      TextField("", text: title)
         .font(.system(.body, design: .rounded,weight: .semibold))
         .allowsTightening(true)
         .opacity(controlActiveState == .key ? 1 : 0.6)
         .padding(.top, -28)
+        .padding(.horizontal)
+        .textFieldStyle(AppTextFieldStyle())
+        .multilineTextAlignment(.center)
+        .fixedSize(horizontal: true, vertical: false)
 
       Group {
         switch selection {
         case .application:
-          NewCommandApplicationView($payload, validation: $validation)
+          if case .application(let application, let action, let inBackground, let hideWhenRunning, let ifNotRunning) = payload {
+            NewCommandApplicationView($payload, application: application, action: action,
+                                      inBackground: inBackground, hideWhenRunning: hideWhenRunning,
+                                      ifNotRunning: ifNotRunning, validation: $validation)
+          }
         case .url:
           NewCommandURLView($payload, validation: $validation,
-                            onSubmitAddress: { onSave(payload) })
+                            onSubmitAddress: { onSave(payload, title.wrappedValue) })
         case .open:
           NewCommandOpenView($payload, validation: $validation)
         case .keyboardShortcut:
@@ -139,7 +170,16 @@ struct NewCommandView: View {
         case .shortcut:
           NewCommandShortcutView($payload, validation: $validation)
         case .script:
-          NewCommandScriptView($payload, validation: $validation)
+          if case .script(let value, let kind, let scriptExtension) = payload {
+            NewCommandScriptView($payload,
+                                 kind: kind,
+                                 value: value,
+                                 scriptExtension: scriptExtension,
+                                 validation: $validation)
+          } else {
+            let _ = Swift.print(payload)
+            EmptyView()
+          }
         case .type:
           NewCommandTypeView($payload, validation: $validation) {
             onSubmit()
@@ -177,6 +217,6 @@ struct NewCommandView: View {
       }
       return
     }
-    onSave(payload)
+    onSave(payload, title)
   }
 }

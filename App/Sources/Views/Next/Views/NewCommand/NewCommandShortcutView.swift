@@ -41,7 +41,7 @@ struct NewCommandShortcutView: View {
     })
     .onAppear {
       validation = .unknown
-      payload = NewCommandPayload.placeholder
+      payload = NewCommandPayload.script(value: "", kind: .source, scriptExtension: .appleScript)
     }
     .enableInjection()
   }

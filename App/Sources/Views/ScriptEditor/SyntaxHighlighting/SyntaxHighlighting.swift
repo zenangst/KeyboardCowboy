@@ -1,6 +1,7 @@
 import Cocoa
 
-protocol SyntaxHighlighting {
+protocol SyntaxHighlighting: Identifiable {
+  var id: String { get }
   func highlights(_ font: NSFont) -> [Highlight]
   func keywords(_ font: NSFont) -> [String]
 }

@@ -27,40 +27,36 @@ final class DetailCoordinator {
     }
   }
 
-  func process(_ payload: NewCommandPayload, workflowId: Workflow.ID) {
+  func addOrUpdateCommand(_ payload: NewCommandPayload,
+                          workflowId: Workflow.ID,
+                          title: String,
+                          commandId: Command.ID?) {
     Task {
       guard var workflow = groupStore.workflow(withId: workflowId) else { return }
       let command: Command
+      let resolvedCommandId: String = commandId ?? UUID().uuidString
       switch payload {
       case .placeholder:
         return
       case .script(let value, let kind, let scriptExtension):
         let source: ScriptCommand.Source
-        let name: String
         switch kind {
         case .file:
           source = .path(value)
-          name = "Run '\((value as NSString).lastPathComponent.replacingOccurrences(of: "." + scriptExtension.rawValue, with: ""))'"
         case .source:
           source = .inline(value)
-          switch scriptExtension {
-          case .appleScript:
-            name = "Run AppleScript"
-          case .shellScript:
-            name = "Run ShellScript"
-          }
         }
 
         switch scriptExtension {
         case .appleScript:
-          command = .script(.appleScript(id: UUID().uuidString, isEnabled: true, name: name, source: source))
+          command = .script(.appleScript(id: resolvedCommandId, isEnabled: true, name: title, source: source))
         case .shellScript:
-          command = .script(.shell(id: UUID().uuidString, isEnabled: true, name: name, source: source))
+          command = .script(.shell(id: resolvedCommandId, isEnabled: true, name: title, source: source))
         }
       case .type(let text):
-        command = .type(.init(name: text, input: text))
+        command = .type(.init(id: resolvedCommandId, name: text, input: text))
       case .shortcut(let name):
-        command = .shortcut(.init(id: UUID().uuidString, shortcutIdentifier: name,
+        command = .shortcut(.init(id: resolvedCommandId, shortcutIdentifier: name,
                                   name: name, isEnabled: true))
       case .application(let application, let action,
                         let inBackground, let hideWhenRunning, let ifNotRunning):
@@ -77,18 +73,20 @@ final class DetailCoordinator {
           commandAction = .open
         }
 
-        command = Command.application(.init(action: commandAction,
+        command = Command.application(.init(id: resolvedCommandId,
+                                            name: title,
+                                            action: commandAction,
                                             application: application,
                                             modifiers: modifiers))
       case .open(let path, let application):
         let resolvedPath = (path as NSString).expandingTildeInPath
-        command = Command.open(.init(name: "Open \(path)", application: application, path: resolvedPath))
+        command = Command.open(.init(id: resolvedCommandId, name: "Open \(path)", application: application, path: resolvedPath))
       case .url(let targetUrl, let application):
         let urlString = targetUrl.absoluteString
-        command = Command.open(.init(name: "Open \(urlString)", application: application, path: urlString))
+        command = Command.open(.init(id: resolvedCommandId, name: "Open \(urlString)", application: application, path: urlString))
       }
-      workflow.commands.append(command)
 
+      workflow.updateOrAddCommand(command)
       await groupStore.receive([workflow])
       await render([workflow.id], animation: .easeInOut(duration: 0.2))
     }
@@ -364,7 +362,7 @@ final class DetailCoordinator {
               kind = .script(.path(id: script.id,
                                    source: source,
                                    fileExtension: fileExtension.uppercased()))
-            case .inline(_):
+            case .inline(let source):
               let type: String
               switch script {
               case .shell:
@@ -372,7 +370,7 @@ final class DetailCoordinator {
               case .appleScript:
                 type = "scpt"
               }
-              kind = .script(.inline(id: script.id, type: type))
+              kind = .script(.inline(id: script.id, source: source, type: type))
             }
           }
           name = command.name

@@ -1,6 +1,8 @@
 import Cocoa
 
-final class AppleScriptHighlighting: SyntaxHighlighting {
+struct AppleScriptHighlighting: SyntaxHighlighting {
+  let id: String = "AppleScriptHighlighting"
+
   func highlights(_ font: NSFont) -> [Highlight] {
     [
       .init(#""[^"]+[^\n]"#,

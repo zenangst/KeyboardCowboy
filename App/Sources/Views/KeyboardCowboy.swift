@@ -138,8 +138,9 @@ struct KeyboardCowboy: App {
     }
     .windowStyle(.hiddenTitleBar)
 
-    NewCommandWindow(contentStore: contentStore) { workflowId, payload in
-      detailCoordinator.process(payload, workflowId: workflowId)
+    NewCommandWindow(contentStore: contentStore) { workflowId, commandId, title, payload in
+      detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
+                                           title: title, commandId: commandId)
     }
 
     EditWorkflowGroupWindow(contentStore)

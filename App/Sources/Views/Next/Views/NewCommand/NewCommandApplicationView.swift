@@ -8,18 +8,29 @@ struct NewCommandApplicationView: View {
   }
 
   @EnvironmentObject var applicationStore: ApplicationStore
-  @State private var action: ApplicationAction = .open
+  @State private var action: ApplicationAction
   @State private var application: Application?
-  @State private var inBackground: Bool = false
-  @State private var hideWhenRunning: Bool = false
-  @State private var ifNotRunning: Bool = false
+  @State private var inBackground: Bool
+  @State private var hideWhenRunning: Bool
+  @State private var ifNotRunning: Bool
 
   @Binding var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
 
-  init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
+  init(_ payload: Binding<NewCommandPayload>,
+       application: Application?,
+       action: ApplicationAction,
+       inBackground: Bool,
+       hideWhenRunning: Bool,
+       ifNotRunning: Bool,
+       validation: Binding<NewCommandValidation>) {
+    _application = .init(initialValue: application)
+    _action = .init(initialValue: action)
     _payload = payload
     _validation = validation
+    _inBackground = .init(initialValue: inBackground)
+    _hideWhenRunning = .init(initialValue: hideWhenRunning)
+    _ifNotRunning = .init(initialValue: ifNotRunning)
   }
 
   @ObserveInjection var inject
@@ -89,6 +100,10 @@ struct NewCommandApplicationView: View {
       .onChange(of: inBackground, perform: { _ in updateAndValidatePayload() })
       .onChange(of: hideWhenRunning, perform: { _ in updateAndValidatePayload() })
       .onChange(of: ifNotRunning, perform: { _ in updateAndValidatePayload() })
+      .onChange(of: validation) { newValue in
+        guard newValue == .needsValidation else { return }
+        validation = updateAndValidatePayload()
+      }
     }
     .onAppear {
       validation = .unknown

@@ -111,13 +111,13 @@ struct DetailViewModel: Hashable, Identifiable {
     enum ScriptKind: Hashable, Identifiable {
       var id: String {
         switch self {
-        case .inline(let id, _),
+        case .inline(let id, _, _),
              .path(let id, _, _):
           return id
         }
       }
 
-      case inline(id: String, type: String)
+      case inline(id: String, source: String, type: String)
       case path(id: String, source: String, fileExtension: String)
     }
   }

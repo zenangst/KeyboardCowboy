@@ -1,6 +1,8 @@
 import Cocoa
 
-final class ShellScriptHighlighting: SyntaxHighlighting {
+struct ShellScriptHighlighting: SyntaxHighlighting {
+  let id: String = "ShellScriptHighlighting"
+
   func highlights(_ font: NSFont) -> [Highlight] {
     [
       // Paths

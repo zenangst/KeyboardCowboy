@@ -23,7 +23,7 @@ struct NewCommandScriptView: View {
       }
     }
 
-    var syntax: SyntaxHighlighting {
+    var syntax: any SyntaxHighlighting {
       switch self {
       case .appleScript:
         return AppleScriptHighlighting()
@@ -35,14 +35,20 @@ struct NewCommandScriptView: View {
 
   @ObserveInjection var inject
   @EnvironmentObject var openPanel: OpenPanelController
-  @State private var kind: Kind = .file
-  @State private var scriptExtension: ScriptExtension = .appleScript
+  @State private var kind: Kind
+  @State private var scriptExtension: ScriptExtension
   @State private var value: String = ""
   @Binding private var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
 
   init(_ payload: Binding<NewCommandPayload>,
+       kind: Kind,
+       value: String,
+       scriptExtension: ScriptExtension,
        validation: Binding<NewCommandValidation>) {
+    _kind = .init(initialValue: kind)
+    _scriptExtension = .init(initialValue: scriptExtension)
+    _value = .init(initialValue: value)
     _payload = payload
     _validation = validation
   }
@@ -94,14 +100,14 @@ struct NewCommandScriptView: View {
 
       switch kind {
       case .file:
-        NewCommandFileSelectorView($scriptExtension) { path in
+        NewCommandFileSelectorView($scriptExtension, path: value) { path in
           value = path
           validation = updateAndValidatePayload()
         }
         .overlay(NewCommandValidationView($validation))
       case .source:
         VStack {
-          NewCommandScriptSourceView($scriptExtension) { newString in
+          NewCommandScriptSourceView($scriptExtension, text: value) { newString in
             value = newString
             validation = updateAndValidatePayload()
           }
@@ -114,8 +120,7 @@ struct NewCommandScriptView: View {
       validation = updateAndValidatePayload()
     })
     .onAppear {
-      validation = .unknown
-      updateAndValidatePayload()
+      validation = updateAndValidatePayload()
     }
     .menuStyle(.borderlessButton)
     .enableInjection()
@@ -145,7 +150,10 @@ struct NewCommandFileSelectorView: View {
   @Binding private var scriptExtension: NewCommandScriptView.ScriptExtension
   private var onPathChange: (String) -> Void
 
-  init(_ scriptExtension: Binding<NewCommandScriptView.ScriptExtension>, onPathChange: @escaping (String) -> Void) {
+  init(_ scriptExtension: Binding<NewCommandScriptView.ScriptExtension>,
+       path: String,
+       onPathChange: @escaping (String) -> Void) {
+    _path = .init(initialValue: path)
     self.onPathChange = onPathChange
     _scriptExtension = scriptExtension
   }
@@ -173,7 +181,10 @@ struct NewCommandScriptSourceView: View {
   @Binding private var kind: NewCommandScriptView.ScriptExtension
   private let onChange: (String) -> Void
 
-  init(_ kind: Binding<NewCommandScriptView.ScriptExtension>, onChange: @escaping (String) -> Void) {
+  init(_ kind: Binding<NewCommandScriptView.ScriptExtension>,
+       text: String,
+       onChange: @escaping (String) -> Void) {
+    _text = .init(initialValue: text)
     _kind = kind
     self.onChange = onChange
   }

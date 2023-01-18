@@ -35,7 +35,8 @@ struct EditTypeView: View {
           }, set: {
             command = TypeCommand(id: command.id, name: command.name,
                                   input: $0)
-          }), syntax: .constant(BaseSyntaxHighlighting()))
+          }), font: NSFont.monospacedSystemFont(ofSize: 12, weight: .regular),
+                           syntax: .constant(BaseSyntaxHighlighting()))
           .frame(height: 220)
         })
       }

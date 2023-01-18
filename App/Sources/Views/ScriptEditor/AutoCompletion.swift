@@ -4,12 +4,12 @@ import Cocoa
 final class AutoCompletion {
   var currentWord: String = ""
   let store: AutoCompletionStore
-  let syntax: SyntaxHighlighting
+  let syntax: any SyntaxHighlighting
   weak var textView: NSTextView?
   private(set) var storage = [String]()
   private var subscriptions = [AnyCancellable]()
 
-  init(_ store: AutoCompletionStore, syntax: SyntaxHighlighting) {
+  init(_ store: AutoCompletionStore, syntax: any SyntaxHighlighting) {
     self.store = store
     self.syntax = syntax
   }

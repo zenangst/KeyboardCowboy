@@ -171,16 +171,16 @@ private extension Array where Element == Command {
         )
       case .script(let script):
         switch script.sourceType {
-        case .inline:
+        case .inline(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
-                              kind: .command(.script(.inline(id: script.id, type: "")))))
+                              kind: .command(.script(.inline(id: script.id, source: source, type: "")))))
 
-        case .path:
+        case .path(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
                               kind: .command(.script(.path(id: script.id,
-                                                           source: "source",
+                                                           source: source,
                                                            fileExtension: "")))))
         }
       case .shortcut(let shortcut):

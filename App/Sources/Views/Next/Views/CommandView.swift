@@ -17,6 +17,7 @@ struct CommandView: View {
   }
 
   @Environment(\.controlActiveState) var controlActiveState
+
   @ObserveInjection var inject
   let workflowId: String
   @Binding private var command: DetailViewModel.CommandViewModel
@@ -78,6 +79,8 @@ struct CommandView: View {
           $command,
           onAction: { action in
             switch action {
+            case .edit:
+              return
             case .commandAction(let action):
               switch action {
               case .run:
