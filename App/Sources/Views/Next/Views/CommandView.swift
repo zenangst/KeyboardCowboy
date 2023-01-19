@@ -34,115 +34,9 @@ struct CommandView: View {
     self.onAction = onAction
   }
 
+  @ViewBuilder
   var body: some View {
-    Group {
-      switch command.kind {
-      case .plain:
-        UnknownView(command: $command)
-      case .open:
-        OpenCommandView(
-          $command,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              }
-            default:
-              onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .application(let action, let inBackground, let hideWhenRunning, let ifNotRunning):
-        ApplicationCommandView(
-          $command,
-          actionName: action,
-          inBackground: inBackground,
-          hideWhenRunning: hideWhenRunning,
-          ifNotRunning: ifNotRunning,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              }
-            default:
-              onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .script:
-        ScriptCommandView(
-          $command,
-          onAction: { action in
-            switch action {
-            case .edit:
-              return
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              }
-            default:
-              onAction(.modify(.script(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .keyboard:
-        KeyboardCommandView(
-          $command,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              }
-            default:
-              onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .shortcut:
-        ShortcutCommandView(
-          $command,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              }
-            default:
-              onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .type:
-        TypeCommandView(
-          $command,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              }
-            default:
-              onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      }
-    }
+    view(for: command.kind)
     .onChange(of: command.isEnabled, perform: { newValue in
       onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
     })
@@ -174,6 +68,116 @@ struct CommandView: View {
             y: command.isEnabled ? 2 : 0)
     .animation(.easeIn(duration: 0.2), value: command.isEnabled)
     .enableInjection()
+  }
+
+  @ViewBuilder
+  private func view(for kind: DetailViewModel.CommandViewModel.Kind) -> some View {
+    switch command.kind {
+    case .plain:
+      UnknownView(command: $command)
+    case .open:
+      OpenCommandView(
+        $command,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            }
+          default:
+            onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .application(let action, let inBackground, let hideWhenRunning, let ifNotRunning):
+      ApplicationCommandView(
+        $command,
+        actionName: action,
+        inBackground: inBackground,
+        hideWhenRunning: hideWhenRunning,
+        ifNotRunning: ifNotRunning,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            }
+          default:
+            onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .script:
+      ScriptCommandView(
+        $command,
+        onAction: { action in
+          switch action {
+          case .edit:
+            return
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            }
+          default:
+            onAction(.modify(.script(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .keyboard:
+      KeyboardCommandView(
+        $command,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            }
+          default:
+            onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .shortcut:
+      ShortcutCommandView(
+        $command,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            }
+          default:
+            onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .type:
+      TypeCommandView(
+        $command,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            }
+          default:
+            onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    }
   }
 
   private func handleRun() {
