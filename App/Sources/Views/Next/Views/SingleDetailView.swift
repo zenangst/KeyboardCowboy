@@ -21,30 +21,30 @@ struct SingleDetailView: View {
   @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @Environment(\.openWindow) var openWindow
-  @Binding private var model: DetailViewModel
+  @Binding private var workflow: DetailViewModel
   @State private var sheet: Sheet?
   @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
-  init(_ model: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
-    _model = model
+  init(_ workflow: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
+    _workflow = workflow
     self.onAction = onAction
   }
 
   var body: some View {
     ScrollView {
       VStack(alignment: .leading) {
-        WorkflowInfoView(model, onAction: { action in
+        WorkflowInfoView(workflow, onAction: { action in
           switch action {
           case .updateName(let name):
-            onAction(.updateName(workflowId: model.id, name: name))
+            onAction(.updateName(workflowId: workflow.id, name: name))
           case .setIsEnabled(let isEnabled):
-            onAction(.setIsEnabled(workflowId: model.id, isEnabled: isEnabled))
+            onAction(.setIsEnabled(workflowId: workflow.id, isEnabled: isEnabled))
           }
         })
         .padding(.horizontal, 4)
         .padding(.vertical, 12)
-        WorkflowTriggerListView($model, onAction: onAction)
+        WorkflowTriggerListView($workflow, onAction: onAction)
       }
       .onFrameChange(perform: { rect in
         withAnimation {
@@ -68,8 +68,8 @@ struct SingleDetailView: View {
       })
       .shadow(radius: 4)
       WorkflowCommandListView(
-        $model, onNewCommand: {
-          openWindow(value: NewCommandWindow.Context.newCommand(workflowId: model.id))
+        $workflow, onNewCommand: {
+          openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflow.id))
         },
         onAction: { action in
         onAction(action)
@@ -98,7 +98,7 @@ struct SingleDetailView: View {
 
       HStack(spacing: 0) {
         Spacer()
-        Text(model.name)
+        Text(workflow.name)
         Spacer()
       }
       .padding(4)
