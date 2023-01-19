@@ -17,24 +17,23 @@ struct AxesView<Content>: View where Content: View {
     self.lazy = lazy
   }
 
+  @ViewBuilder
   var body: some View {
-    Group {
-      switch axes {
-      case .vertical:
-        if lazy {
-          LazyVStack(spacing: spacing, content: content)
-        } else {
-          VStack(spacing: spacing, content: content)
-        }
-      case .horizontal:
-        if lazy {
-          LazyHStack(spacing: spacing, content: content)
-        } else {
-          HStack(spacing: spacing, content: content)
-        }
-      default:
+    switch axes {
+    case .vertical:
+      if lazy {
+        LazyVStack(spacing: spacing, content: content)
+      } else {
         VStack(spacing: spacing, content: content)
       }
+    case .horizontal:
+      if lazy {
+        LazyHStack(spacing: spacing, content: content)
+      } else {
+        HStack(spacing: spacing, content: content)
+      }
+    default:
+      VStack(spacing: spacing, content: content)
     }
   }
 }
