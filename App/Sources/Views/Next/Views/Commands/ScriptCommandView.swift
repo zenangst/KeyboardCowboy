@@ -3,12 +3,14 @@ import SwiftUI
 struct ScriptCommandView: View {
   enum Action {
     case updateName(newName: String)
+    case updateSource(kind: DetailViewModel.CommandViewModel.ScriptKind)
     case open(path: String)
     case reveal(path: String)
     case edit
     case commandAction(CommandContainerAction)
   }
   @ObserveInjection var inject
+  @EnvironmentObject var openPanel: OpenPanelController
   @State private var name: String
   @State private var text: String
   @Binding private var command: DetailViewModel.CommandViewModel
@@ -31,11 +33,10 @@ struct ScriptCommandView: View {
     default:
       _text = .init(initialValue: "")
     }
-
   }
 
   var body: some View {
-    CommandContainerView(isEnabled: $command.isEnabled, icon: {
+    CommandContainerView($command, icon: {
       Rectangle()
         .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
         .cornerRadius(8, antialiased: false)
@@ -53,7 +54,32 @@ struct ScriptCommandView: View {
             })
           Spacer()
         }
-        ScriptEditorView(text: $text, syntax: .constant(AppleScriptHighlighting()))
+
+        if case .script(let kind) = command.kind {
+          switch kind {
+          case .inline(let id, _, let scriptExtension):
+            ScriptEditorView(text: $text, syntax: .constant(AppleScriptHighlighting()))
+              .onChange(of: text) { newSource in
+                onAction(.updateSource(kind: .inline(id: id, source: newSource, scriptExtension: scriptExtension)))
+              }
+          case .path(let id, _, let scriptExtension):
+            HStack {
+              TextField("Path", text: $text)
+                .textFieldStyle(FileSystemTextFieldStyle())
+                .onChange(of: text) { newPath in
+                  self.text = newPath
+                  onAction(.updateSource(kind: .path(id: id, source: newPath, scriptExtension: scriptExtension)))
+                }
+              Button("Browse", action: {
+                openPanel.perform(.selectFile(type: scriptExtension.rawValue, handler: { newPath in
+                  self.text = newPath
+                  onAction(.updateSource(kind: .path(id: id, source: newPath, scriptExtension: scriptExtension)))
+                }))
+              })
+              .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+            }
+          }
+        }
       }
     }, subContent: {
       HStack {

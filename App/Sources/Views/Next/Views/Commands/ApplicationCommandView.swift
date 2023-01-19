@@ -58,7 +58,7 @@ struct ApplicationCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      isEnabled: $command.isEnabled,
+      $command,
       icon: {
         if let image = command.image {
           ApplicationCommandImageView($command, image: image, onAction: onAction)

@@ -117,8 +117,8 @@ struct DetailViewModel: Hashable, Identifiable {
         }
       }
 
-      case inline(id: String, source: String, type: String)
-      case path(id: String, source: String, fileExtension: String)
+      case inline(id: String, source: String, scriptExtension: ScriptCommand.Kind)
+      case path(id: String, source: String, scriptExtension: ScriptCommand.Kind)
     }
   }
 }

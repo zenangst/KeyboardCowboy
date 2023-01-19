@@ -9,11 +9,23 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
                                                                           Content: View,
                                                                           SubContent: View {
   @ObserveInjection var inject
-  @Binding var isEnabled: Bool
-  @ViewBuilder var icon: () -> IconContent
-  @ViewBuilder var content: () -> Content
-  @ViewBuilder var subContent: () -> SubContent
+  @Binding var command: DetailViewModel.CommandViewModel
+  var icon: () -> IconContent
+  var content: () -> Content
+  var subContent: () -> SubContent
   var onAction: (CommandContainerAction) -> Void
+
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       @ViewBuilder icon: @escaping () -> IconContent,
+       @ViewBuilder content: @escaping () -> Content,
+       @ViewBuilder subContent: @escaping () -> SubContent,
+       onAction: @escaping (CommandContainerAction) -> Void) {
+    _command = command
+    self.icon = icon
+    self.content = content
+    self.subContent = subContent
+    self.onAction = onAction
+  }
 
   var body: some View {
     HStack(alignment: .center) {
@@ -31,11 +43,14 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .padding([.top, .leading], 8)
 
         HStack(spacing: 0) {
-          Toggle("", isOn: $isEnabled)
-            .tint(.green)
+          Toggle("", isOn: $command.isEnabled)
             .toggleStyle(.switch)
+            .tint(.green)
             .scaleEffect(0.65)
             .offset(x: -2)
+            .onChange(of: command.isEnabled, perform: {
+              Swift.print("🌈 command.isEnabled: \($0)")
+            })
 
           subContent()
             .buttonStyle(.appStyle)
@@ -101,15 +116,15 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   }
 }
 
-struct CommandContainerView_Previews: PreviewProvider {
-  static var previews: some View {
-    CommandContainerView(
-      isEnabled: .constant(true),
-      icon: { Text("Foo") },
-      content: {
-        Text("Bar")
-      },
-      subContent: { Text("Baz") }) { _ in }
-      .frame(maxHeight: 80)
-  }
-}
+//struct CommandContainerView_Previews: PreviewProvider {
+//  static var previews: some View {
+//    CommandContainerView(
+//      isEnabled: .constant(true),
+//      icon: { Text("Foo") },
+//      content: {
+//        Text("Bar")
+//      },
+//      subContent: { Text("Baz") }) { _ in }
+//      .frame(maxHeight: 80)
+//  }
+//}

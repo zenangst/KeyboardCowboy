@@ -29,7 +29,7 @@ struct TypeCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      isEnabled: $command.isEnabled,
+      $command,
       icon: {
         Rectangle()
           .fill(Color(nsColor: .controlAccentColor).opacity(0.375))

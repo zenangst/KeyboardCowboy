@@ -174,14 +174,15 @@ private extension Array where Element == Command {
         case .inline(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
-                              kind: .command(.script(.inline(id: script.id, source: source, type: "")))))
+                              kind: .command(.script(.inline(id: script.id,
+                                                             source: source, scriptExtension: .appleScript)))))
 
         case .path(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
                               kind: .command(.script(.path(id: script.id,
                                                            source: source,
-                                                           fileExtension: "")))))
+                                                           scriptExtension: .appleScript)))))
         }
       case .shortcut(let shortcut):
         images.append(.init(id: shortcut.id, offset: convertedOffset, kind: .command(.shortcut)))

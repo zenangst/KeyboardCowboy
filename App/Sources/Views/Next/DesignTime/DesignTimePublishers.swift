@@ -132,7 +132,7 @@ enum DesignTime {
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
     return .init(id: UUID().uuidString,
                  name: scriptFile,
-                 kind: .script(.path(id: UUID().uuidString, source: "", fileExtension: "scpt")),
+                 kind: .script(.path(id: UUID().uuidString, source: "", scriptExtension: .appleScript)),
                  image: NSWorkspace.shared.icon(forFile: scriptFile),
                  isEnabled: true)
   }
@@ -141,7 +141,7 @@ enum DesignTime {
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
     return .init(id: UUID().uuidString,
           name: "Left align the Dock",
-                 kind: .script(.inline(id: UUID().uuidString, source: "hello world", type: "script")),
+                 kind: .script(.inline(id: UUID().uuidString, source: "hello world", scriptExtension: .shellScript)),
           image: NSWorkspace.shared.icon(forFile: scriptFile),
           isEnabled: true)
   }

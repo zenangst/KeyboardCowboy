@@ -175,6 +175,9 @@ final class DetailCoordinator {
     }
 
     switch commandAction {
+    case .toggleEnabled(_, _, let newValue):
+      command.isEnabled = newValue
+      workflow.updateOrAddCommand(command)
     case .run(_, _):
       break
     case .remove(_, let commandId):
@@ -236,6 +239,26 @@ final class DetailCoordinator {
         }
       case .script(let action, _, _):
         switch action {
+        case .updateSource(let newKind):
+          let scriptCommand: ScriptCommand
+          switch newKind {
+          case .path(let id, let source, let kind):
+            switch kind {
+            case .shellScript:
+              scriptCommand = .shell(id: id, isEnabled: command.isEnabled, name: command.name, source: .path(source))
+            case .appleScript:
+              scriptCommand = .appleScript(id: id, isEnabled: command.isEnabled, name: command.name, source: .path(source))
+            }
+          case .inline(let id, let source, let kind):
+            switch kind {
+            case .shellScript:
+              scriptCommand = .shell(id: id, isEnabled: command.isEnabled, name: command.name, source: .inline(source))
+            case .appleScript:
+              scriptCommand = .appleScript(id: id, isEnabled: command.isEnabled, name: command.name, source: .inline(source))
+            }
+          }
+          command = .script(scriptCommand)
+          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
@@ -358,19 +381,11 @@ final class DetailCoordinator {
               .shell(_ , _, _, let source):
             switch source {
             case .path(let source):
-              let fileExtension = (source as NSString).pathExtension
               kind = .script(.path(id: script.id,
                                    source: source,
-                                   fileExtension: fileExtension.uppercased()))
+                                   scriptExtension: script.kind))
             case .inline(let source):
-              let type: String
-              switch script {
-              case .shell:
-                type = "sh"
-              case .appleScript:
-                type = "scpt"
-              }
-              kind = .script(.inline(id: script.id, source: source, type: type))
+              kind = .script(.inline(id: script.id, source: source, scriptExtension: script.kind))
             }
           }
           name = command.name
@@ -506,6 +521,8 @@ extension CommandView.Kind {
 extension CommandView.Action {
   var workflowId: DetailViewModel.ID {
     switch self {
+    case .toggleEnabled(let workflowId, _, _):
+      return workflowId
     case .modify(let kind):
       return kind.workflowId
     case .run(let workflowId, _),
@@ -516,6 +533,8 @@ extension CommandView.Action {
 
   var commandId: DetailViewModel.CommandViewModel.ID {
     switch self {
+    case .toggleEnabled(_, let commandId, _):
+      return commandId
     case .modify(let kind):
       return kind.commandId
     case .run(_, let commandId),

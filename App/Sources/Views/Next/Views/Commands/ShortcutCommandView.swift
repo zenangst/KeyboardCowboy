@@ -20,7 +20,7 @@ struct ShortcutCommandView: View {
   }
   
   var body: some View {
-    CommandContainerView(isEnabled: $command.isEnabled, icon: {
+    CommandContainerView($command, icon: {
       Rectangle()
         .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
         .cornerRadius(8, antialiased: false)

@@ -71,7 +71,7 @@ struct KeyboardCowboy: App {
     self.scriptEngine = scriptEngine
     self.focus = .main(.groupComponent)
 
-    Inject.animation = .easeInOut(duration: 0.175)
+    Inject.animation = .easeInOut(duration: 0.275)
 
     guard KeyboardCowboy.env == .production else { return }
 

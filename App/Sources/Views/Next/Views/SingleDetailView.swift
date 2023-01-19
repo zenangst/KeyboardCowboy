@@ -23,6 +23,7 @@ struct SingleDetailView: View {
   @Environment(\.openWindow) var openWindow
   @Binding private var model: DetailViewModel
   @State private var sheet: Sheet?
+  @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
   init(_ model: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
@@ -45,6 +46,11 @@ struct SingleDetailView: View {
         .padding(.vertical, 12)
         WorkflowTriggerListView($model, onAction: onAction)
       }
+      .onFrameChange(perform: { rect in
+        withAnimation {
+          overlayOpacity = rect.origin.y < -20 ? 1.0 : 0.0
+        }
+      })
       .padding()
       .background(alignment: .bottom, content: {
         GeometryReader { proxy in
@@ -68,12 +74,40 @@ struct SingleDetailView: View {
         onAction: { action in
         onAction(action)
       })
-        .focusable()
     }
-    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+    .overlay(alignment: .top, content: { overlayView() })
     .labelStyle(HeaderLabelStyle())
     .enableInjection()
   }
+
+  private func overlayView() -> some View {
+    ZStack {
+      VStack(spacing: 0) {
+        Rectangle()
+          .fill(Color(.gridColor))
+          .frame(height: 36)
+        Rectangle()
+          .fill(Color(nsColor: .gray))
+          .frame(height: 1)
+          .opacity(0.25)
+        Rectangle()
+          .fill(Color(nsColor: .black))
+          .frame(height: 1)
+          .opacity(0.5)
+      }
+
+      HStack(spacing: 0) {
+        Spacer()
+        Text(model.name)
+        Spacer()
+      }
+      .padding(4)
+    }
+    .opacity(overlayOpacity)
+    .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
+    .edgesIgnoringSafeArea(.top)
+  }
+
 }
 
 struct SingleDetailView_Previews: PreviewProvider {

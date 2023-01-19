@@ -21,7 +21,7 @@ struct KeyboardCommandView: View {
     Group {
       if case .keyboard(let key, let modifiers) = command.kind {
         CommandContainerView(
-          isEnabled: $command.isEnabled, icon: {
+          $command, icon: {
             ZStack {
               Rectangle()
                 .fill(Color(nsColor: .systemGreen))

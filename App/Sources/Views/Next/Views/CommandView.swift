@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CommandView: View {
   enum Action {
+    case toggleEnabled(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID, newValue: Bool)
     case modify(Kind)
     case run(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
     case remove(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
@@ -34,7 +35,7 @@ struct CommandView: View {
   }
 
   var body: some View {
-    ZStack {
+    Group {
       switch command.kind {
       case .plain:
         UnknownView(command: $command)
@@ -142,6 +143,9 @@ struct CommandView: View {
           })
       }
     }
+    .onChange(of: command.isEnabled, perform: { newValue in
+      onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
+    })
     .overlay(alignment: .bottom, content: {
       GeometryReader { proxy in
         RoundedRectangle(cornerRadius: 3)

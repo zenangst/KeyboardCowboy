@@ -4,6 +4,11 @@ import Foundation
 /// Scripts can both point to a file on the file-system or have
 /// its underlying script bundled inside the command.
 public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
+  public enum Kind: String {
+    case appleScript = "scpt"
+    case shellScript = "sh"
+  }
+
   case appleScript(id: String, isEnabled: Bool, name: String?, source: Source)
   case shell(id: String, isEnabled: Bool, name: String?, source: Source)
 
@@ -23,6 +28,15 @@ public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
     case .appleScript(let id, _, _, _),
          .shell(let id, _, _, _):
       return id
+    }
+  }
+
+  public var kind: Kind {
+    switch self {
+    case .shell:
+      return .shellScript
+    case .appleScript:
+      return .appleScript
     }
   }
 

@@ -23,7 +23,7 @@ struct OpenCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(isEnabled: $command.isEnabled, icon: {
+    CommandContainerView($command, icon: {
       if let image = command.image {
         ZStack(alignment: .bottomTrailing) {
           Image(nsImage: image)
