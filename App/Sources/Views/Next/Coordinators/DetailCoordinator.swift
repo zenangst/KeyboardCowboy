@@ -6,7 +6,8 @@ final class DetailCoordinator {
   let contentStore: ContentStore
   let keyboardCowboyEngine: KeyboardCowboyEngine
   let groupStore: GroupStore
-  let publisher: DetailPublisher = .init(.empty)
+  let statePublisher: DetailStatePublisher = .init(.empty)
+  let detailPublisher: DetailPublisher = .init(DesignTime.detail)
 
   init(applicationStore: ApplicationStore,
        contentStore: ContentStore,
@@ -416,7 +417,17 @@ final class DetailCoordinator {
     if viewModels.count > 1 {
       state = .multiple(viewModels)
     } else if let viewModel = viewModels.first {
-      state = .single(viewModel)
+      state = .single
+
+      if let animation {
+        await MainActor.run {
+          withAnimation(animation) {
+            detailPublisher.publish(viewModel)
+          }
+        }
+      } else {
+        await detailPublisher.publish(viewModel)
+      }
     } else {
       state = .empty
     }
@@ -424,11 +435,11 @@ final class DetailCoordinator {
     if let animation {
       await MainActor.run {
         withAnimation(animation) {
-          publisher.publish(state)
+          statePublisher.publish(state)
         }
       }
     } else {
-      await publisher.publish(state)
+      await statePublisher.publish(state)
     }
   }
 }

@@ -4,7 +4,8 @@ struct DetailView: View {
   enum Action {
     case singleDetailView(SingleDetailView.Action)
   }
-  @EnvironmentObject var publisher: DetailPublisher
+  @EnvironmentObject var statePublisher: DetailStatePublisher
+  @EnvironmentObject var detailPublisher: DetailPublisher
   @State var isFocused: Bool = false
   private var onAction: (DetailView.Action) -> Void
 
@@ -12,20 +13,18 @@ struct DetailView: View {
     self.onAction = onAction
   }
 
+  @ViewBuilder
   var body: some View {
-    Group {
-      switch publisher.model {
-      case .empty:
-        Text("Empty")
-      case .single(var model):
-        SingleDetailView(
-          Binding<DetailViewModel>(get: { model }, set: { model = $0 }),
-          onAction: { onAction(.singleDetailView($0)) })
-      case .multiple:
-        Text("Multiple commands selected")
-      }
+    switch statePublisher.model {
+    case .empty:
+      Text("Empty")
+    case .single:
+      SingleDetailView($detailPublisher.model, onAction: {
+        onAction(.singleDetailView($0))
+      })
+    case .multiple:
+      Text("Multiple commands selected")
     }
-    .id(publisher.model.id)
   }
 }
 

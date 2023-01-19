@@ -107,9 +107,9 @@ enum DesignTime {
     ], binding: "ƒK", badge: 0, badgeOpacity: 0, isEnabled: true),
    ]
   }
-  static var detailPublisher = DetailPublisher {
-    .single(detail)
-  }
+  
+  static var detailStatePublisher = DetailStatePublisher { .single }
+  static var detailPublisher = DetailPublisher { DesignTime.detail }
 
   static var applicationCommand: DetailViewModel.CommandViewModel {
     .init(id: UUID().uuidString,

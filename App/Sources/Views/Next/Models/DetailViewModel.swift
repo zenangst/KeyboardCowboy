@@ -4,15 +4,15 @@ enum DetailViewState: Hashable, Identifiable {
   var id: String {
     switch self {
     case .empty:
-      return UUID().uuidString
-    case .single(let viewModel):
-      return viewModel.id
+      return "0"
+    case .single:
+      return "1"
     case .multiple(let viewModels):
       return viewModels.map { $0.id }.joined()
     }
   }
 
-  case single(DetailViewModel)
+  case single
   case multiple([DetailViewModel])
   case empty
 }

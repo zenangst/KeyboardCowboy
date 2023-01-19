@@ -187,7 +187,8 @@ private extension KeyboardCowboy {
       .environmentObject(configurationCoordinator.publisher)
       .environmentObject(sidebarCoordinator.publisher)
       .environmentObject(contentCoordinator.publisher)
-      .environmentObject(detailCoordinator.publisher)
+      .environmentObject(detailCoordinator.statePublisher)
+      .environmentObject(detailCoordinator.detailPublisher)
       .environmentObject(OpenPanelController())
   }
 }

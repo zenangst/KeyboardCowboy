@@ -1,5 +1,6 @@
 typealias ConfigurationPublisher = ViewModelsPublisher<ConfigurationViewModel>
 typealias GroupsPublisher = ViewModelsPublisher<GroupViewModel>
 typealias ContentPublisher = ViewModelsPublisher<ContentViewModel>
-typealias DetailPublisher = ViewModelPublisher<DetailViewState>
+typealias DetailStatePublisher = ViewModelPublisher<DetailViewState>
+typealias DetailPublisher = ViewModelPublisher<DetailViewModel>
 
