@@ -85,10 +85,6 @@ struct NewCommandApplicationView: View {
           }
         })
         .padding(4)
-        .background(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.windowBackgroundColor), lineWidth: 1)
-        )
       }
       .menuStyle(.borderlessButton)
 
@@ -105,6 +101,7 @@ struct NewCommandApplicationView: View {
         validation = updateAndValidatePayload()
       }
     }
+    .overlay(NewCommandValidationView($validation).padding(-8))
     .onAppear {
       validation = .unknown
     }

@@ -5,7 +5,7 @@ import SwiftUI
 enum NewCommandPayload {
   case placeholder
   case script(value: String, kind: NewCommandScriptView.Kind, scriptExtension: NewCommandScriptView.ScriptExtension)
-  case application(application: Application, action: NewCommandApplicationView.ApplicationAction,
+  case application(application: Application?, action: NewCommandApplicationView.ApplicationAction,
                    inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
   case url(targetUrl: URL, application: Application?)
   case open(path: String, application: Application?)
@@ -33,6 +33,10 @@ struct NewCommandWindow: Scene {
                        _ title: String,
                        _ payload: NewCommandPayload) -> Void
   private let contentStore: ContentStore
+  private let defaultSelection: NewCommandView.Kind = .application
+  private let defaultPayload: NewCommandPayload = .application(
+    application: nil, action: .open,
+    inBackground: false, hideWhenRunning: false, ifNotRunning: false)
 
   init(contentStore: ContentStore, onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void) {
     self.contentStore = contentStore
@@ -50,18 +54,12 @@ struct NewCommandWindow: Scene {
                       payload: payload(for: command),
                       commandId: commandId)
         } else {
-          contentView(workflowId,
-                      title: "Untitled command",
-                      selection: .script,
-                      payload: .script(value: "", kind: .source, scriptExtension: .appleScript),
-                      commandId: nil)
+          contentView(workflowId, title: "Untitled command", selection: defaultSelection,
+                      payload: defaultPayload, commandId: nil)
         }
       case .newCommand(let workflowId):
-        contentView(workflowId,
-                    title: "Untitled command",
-                    selection: .script,
-                    payload: .script(value: "", kind: .source, scriptExtension: .appleScript),
-                    commandId: nil)
+        contentView(workflowId, title: "Untitled command", selection: defaultSelection,
+                    payload: defaultPayload, commandId: nil)
       case .none:
         EmptyView()
       }

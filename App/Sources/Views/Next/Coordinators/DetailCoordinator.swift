@@ -61,6 +61,11 @@ final class DetailCoordinator {
                                   name: name, isEnabled: true))
       case .application(let application, let action,
                         let inBackground, let hideWhenRunning, let ifNotRunning):
+        assert(application != nil)
+        guard let application else {
+          return
+        }
+
         var modifiers = [ApplicationCommand.Modifier]()
         if inBackground { modifiers.append(.background) }
         if hideWhenRunning { modifiers.append(.hidden) }
