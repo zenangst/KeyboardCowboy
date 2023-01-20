@@ -99,9 +99,18 @@ struct SingleDetailView: View {
       HStack(spacing: 0) {
         Spacer()
         Text(workflow.name)
+          .font(.callout)
         Spacer()
+        Toggle("", isOn: $workflow.isEnabled)
+          .toggleStyle(SwitchToggleStyle())
+          .tint(Color.green)
+          .font(.callout)
+          .onChange(of: workflow.isEnabled) { newValue in
+            onAction(.setIsEnabled(workflowId: workflow.id, isEnabled: newValue))
+          }
       }
-      .padding(4)
+      .padding(.vertical, 4)
+      .padding(.horizontal, 8)
     }
     .opacity(overlayOpacity)
     .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)

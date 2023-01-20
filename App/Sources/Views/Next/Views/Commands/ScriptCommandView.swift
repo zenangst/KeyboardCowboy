@@ -20,16 +20,9 @@ struct ScriptCommandView: View {
     _command = command
     _name = .init(initialValue: command.name.wrappedValue)
     self.onAction = onAction
-
     switch command.kind.wrappedValue {
     case .script(let kind):
-      switch kind {
-      case .inline(_, let source, _):
-        _text = .init(initialValue: source)
-      case .path(_, let source, _):
-        _text = .init(initialValue: source)
-      }
-      break
+      _text = .init(initialValue: kind.source)
     default:
       _text = .init(initialValue: "")
     }

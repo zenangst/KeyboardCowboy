@@ -106,14 +106,61 @@ struct DetailViewModel: Hashable, Identifiable {
       case plain
       case shortcut
       case type(input: String)
+
+      var scriptSource: String {
+        get {
+          if case .script(let kind) = self {
+            return kind.source
+          }
+          return ""
+        }
+        set {
+          if case .script(let kind) = self {
+            switch kind {
+            case .inline(let id, _, let scriptExtension):
+              self = .script(.inline(id: id, source: newValue, scriptExtension: scriptExtension))
+            case .path(let id, _, let scriptExtension):
+              self = .script(.path(id: id, source: newValue, scriptExtension: scriptExtension))
+            }
+          }
+        }
+      }
     }
 
     enum ScriptKind: Hashable, Identifiable {
       var id: String {
-        switch self {
-        case .inline(let id, _, _),
-             .path(let id, _, _):
-          return id
+        get {
+          switch self {
+          case .inline(let id, _, _),
+               .path(let id, _, _):
+            return id
+          }
+        }
+        set {
+          switch self {
+          case .inline(_, let source, let scriptExtension):
+            self = .inline(id: newValue, source: source, scriptExtension: scriptExtension)
+          case .path(_, let source, let scriptExtension):
+            self = .path(id: newValue, source: source, scriptExtension: scriptExtension)
+          }
+        }
+      }
+
+      var source: String {
+        get {
+          switch self {
+          case .inline(_, let source,  _),
+               .path(_, let source,  _):
+            return source
+          }
+        }
+        set {
+          switch self {
+          case .inline(let id, _, let scriptExtension):
+            self = .inline(id: id, source: newValue, scriptExtension: scriptExtension)
+          case .path(let id, _, let scriptExtension):
+            self = .path(id: id, source: newValue, scriptExtension: scriptExtension)
+          }
         }
       }
 

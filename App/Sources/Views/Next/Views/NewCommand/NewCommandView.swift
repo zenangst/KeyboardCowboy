@@ -159,6 +159,10 @@ struct NewCommandView: View {
             NewCommandApplicationView($payload, application: application, action: action,
                                       inBackground: inBackground, hideWhenRunning: hideWhenRunning,
                                       ifNotRunning: ifNotRunning, validation: $validation)
+          } else {
+            NewCommandApplicationView($payload, application: nil, action: .open,
+                                      inBackground: false, hideWhenRunning: false,
+                                      ifNotRunning: false, validation: $validation)
           }
         case .url:
           NewCommandURLView($payload, validation: $validation,
