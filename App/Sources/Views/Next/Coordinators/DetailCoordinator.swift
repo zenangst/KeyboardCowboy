@@ -553,7 +553,6 @@ extension CommandView.Action {
       return commandId
     }
   }
-
 }
 
 extension SingleDetailView.Action {

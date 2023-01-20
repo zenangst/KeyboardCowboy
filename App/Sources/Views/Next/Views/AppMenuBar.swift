@@ -65,6 +65,10 @@ struct AppMenuBar: Scene {
 
 private struct _MenubarIcon: View {
   var body: some View {
-    MenubarIcon(color: .white, size: .init(width: 22, height: 22))
+    if KeyboardCowboy.env == .production {
+      Text("⌘")
+    } else {
+      Image(systemName: "hammer.circle")
+    }
   }
 }
