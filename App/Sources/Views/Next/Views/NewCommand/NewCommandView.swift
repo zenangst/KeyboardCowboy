@@ -80,7 +80,7 @@ struct NewCommandView: View {
           .padding(.top, 36)
       }
     }
-    .frame(minWidth: 650, minHeight: 400)
+    .frame(minWidth: 710, minHeight: 400)
     .enableInjection()
   }
 

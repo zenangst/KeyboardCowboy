@@ -41,7 +41,8 @@ struct NewCommandWindow: Scene {
   private let defaultSelection: NewCommandView.Kind = .keyboardShortcut
   private let defaultPayload: NewCommandPayload = .keyboardShortcut
 
-  init(contentStore: ContentStore, onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void) {
+  init(contentStore: ContentStore,
+       onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void) {
     self.contentStore = contentStore
     self.onSave = onSave
   }
@@ -90,6 +91,7 @@ struct NewCommandWindow: Scene {
         onSave(workflowId, commandId, title, payload)
         closeWindow()
       })
+    .environmentObject(contentStore.recorderStore)
     .environmentObject(contentStore.shortcutStore)
     .environmentObject(contentStore.applicationStore)
     .environmentObject(OpenPanelController())

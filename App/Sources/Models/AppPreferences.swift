@@ -60,7 +60,7 @@ struct AppPreferences {
     AppPreferences(
       hideFromDock: false,
       hideAppOnLaunch: false,
-      machportIsEnabled: false,
+      machportIsEnabled: true,
       storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
                                   filename: filename(for: #function)))
   }

@@ -3,8 +3,10 @@ import SwiftUI
 struct NewCommandKeyboardShortcutView: View {
   enum CurrentState: Hashable {
     case recording
-    case content
+    case content(KeyShortcutRecording)
   }
+
+  @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
 
   @ObserveInjection var inject
   @Binding var payload: NewCommandPayload
@@ -27,11 +29,30 @@ struct NewCommandKeyboardShortcutView: View {
       }
 
       switch state {
-      case .content:
+      case .content(let model):
+        switch model {
+        case .valid(let keyShortcut),
+            .systemShortcut(let keyShortcut),
+            .delete(let keyShortcut),
+            .cancel(let keyShortcut):
           HStack {
-            ModifierKeyIcon(key: .function)
-              .frame(width: 36, height: 36)
-            RegularKeyIcon(letter: "C",
+            if let modifiers = keyShortcut.modifiers {
+              ForEach(modifiers) { modifier in
+                switch modifier {
+                case .function:
+                  ModifierKeyIcon(key: modifier)
+                    .frame(width: 36, height: 36)
+                case .command, .shift:
+                  ModifierKeyIcon(key: modifier)
+                    .frame(width: 48, height: 36)
+                default:
+                  ModifierKeyIcon(key: modifier)
+                    .frame(width: 36, height: 36)
+
+                }
+              }
+            }
+            RegularKeyIcon(letter: keyShortcut.key,
                            width: 36, height: 36)
             .fixedSize(horizontal: true, vertical: true)
             Spacer()
@@ -39,6 +60,7 @@ struct NewCommandKeyboardShortcutView: View {
             Button(action: {
               withAnimation {
                 state = .recording
+                recorderStore.mode = .record
                 isGlowing = true
               }
             }, label: {
@@ -54,10 +76,10 @@ struct NewCommandKeyboardShortcutView: View {
             })
             .buttonStyle(.destructiveStyle)
           }
+        }
       case .recording:
         Button(action: {
           withAnimation {
-            state = .content
             isGlowing = false
           }
         }) {
@@ -67,6 +89,7 @@ struct NewCommandKeyboardShortcutView: View {
       case .none:
         Button(action: {
           state = .recording
+          recorderStore.mode = .record
           isGlowing = true
         }) {
           RegularKeyIcon(letter: "Record a keyboard shortcut",
@@ -74,6 +97,10 @@ struct NewCommandKeyboardShortcutView: View {
         }
       }
     }
+    .onChange(of: recorderStore.recording, perform: { newValue in
+      guard let newValue else { return }
+      state = .content(newValue)
+    })
     .buttonStyle(.plain)
     .enableInjection()
   }

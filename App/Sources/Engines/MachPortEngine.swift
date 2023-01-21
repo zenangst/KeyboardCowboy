@@ -38,9 +38,9 @@ final class MachPortEngine {
   }
 
   private static let previousKeyDefault = "."
+
   private var previousKey: String = "."
   private var lastEvent: MachPortEvent?
-
   private var subscriptions = Set<AnyCancellable>()
   private var mode: KeyboardCowboyMode
   private var specialKeys: [Int] = [Int]()
@@ -144,10 +144,10 @@ final class MachPortEngine {
     }
   }
 
-  private func record(_ event: MachPortEvent) {
-    event.result = nil
+  private func record(_ machPortEvent: MachPortEvent) {
+    machPortEvent.result = nil
 
-    let recording = validate(event)
+    let recording = validate(machPortEvent)
 
     switch recording {
     case .valid:
@@ -199,7 +199,7 @@ final class MachPortEngine {
   }
 }
 
-public enum KeyShortcutRecording {
+public enum KeyShortcutRecording: Hashable {
   case valid(KeyShortcut)
   case systemShortcut(KeyShortcut)
   case delete(KeyShortcut)
