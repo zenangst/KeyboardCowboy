@@ -80,7 +80,7 @@ struct NewCommandView: View {
           .padding(.top, 36)
       }
     }
-    .frame(minWidth: 650, maxWidth: 850, minHeight: 400, maxHeight: 500)
+    .frame(minWidth: 650, minHeight: 400)
     .enableInjection()
   }
 
@@ -201,6 +201,7 @@ struct NewCommandView: View {
       .padding(.horizontal)
 
       Spacer()
+
       HStack {
         Spacer()
         Button(action: onDismiss, label: { Text("Cancel") })
@@ -209,7 +210,12 @@ struct NewCommandView: View {
           .buttonStyle(.saveStyle)
           .keyboardShortcut(.defaultAction)
       }
+      .padding(8)
       .buttonStyle(.appStyle)
+      .background(
+        RoundedRectangle(cornerRadius: 8)
+          .fill(Color(nsColor: NSColor.textBackgroundColor))
+      )
       .padding()
     }
   }

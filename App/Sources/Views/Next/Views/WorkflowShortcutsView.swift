@@ -15,9 +15,9 @@ struct WorkflowShortcutsView: View {
           EditableStack($keyboardShortcuts, axes: .horizontal, lazy: true, onMove: { _, _ in }) { keyboardShortcut in
             HStack(spacing: 6) {
               ModifierKeyIcon(key: .function)
-                .frame(width: 32, height: 32)
+                .frame(width: 36, height: 36)
               RegularKeyIcon(letter: keyboardShortcut.displayValue.wrappedValue,
-                             width: 32, height: 32)
+                             width: 36, height: 36)
             }
             .padding(4)
             .background(

@@ -130,8 +130,8 @@ struct NewCommandScriptView: View {
   private func updateAndValidatePayload() -> NewCommandValidation {
     switch kind {
     case .file:
+      payload = .script(value: value, kind: kind, scriptExtension: scriptExtension)
       if value.hasSuffix(scriptExtension.rawValue) {
-        payload = .script(value: value, kind: kind, scriptExtension: scriptExtension)
         return .valid
       } else {
         return .invalid(reason: "Wrong file extension.")

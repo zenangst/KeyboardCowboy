@@ -39,6 +39,8 @@ final class DetailCoordinator {
       switch payload {
       case .placeholder:
         return
+      case .keyboardShortcut:
+        return
       case .script(let value, let kind, let scriptExtension):
         let source: ScriptCommand.Source
         switch kind {

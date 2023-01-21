@@ -35,13 +35,14 @@ extension KeyView {
 }
 
 public struct RegularKeyIcon: View, KeyView {
+  @ObserveInjection var inject
   @Environment(\.colorScheme) var colorScheme
   @State var letters: [Letter]
   var width: CGFloat
   var height: CGFloat
   var alignment: Alignment
   private let animation = Animation
-    .easeInOut(duration: 1.5)
+    .easeInOut(duration: 1.25)
     .repeatForever(autoreverses: true)
   @Binding var glow: Bool
 
@@ -71,13 +72,23 @@ public struct RegularKeyIcon: View, KeyView {
     letter(height: height)
       .fixedSize(horizontal: true, vertical: true)
       .frame(minWidth: width, maxWidth: .infinity, alignment: alignment)
-      .background(keyBackgroundView(height)
-                    .foregroundColor(Color(.textColor).opacity(0.66)))
+      .background(
+        keyBackgroundView(height)
+                    .foregroundColor(Color(.textColor).opacity(0.66))
+                    .background(
+                      RoundedRectangle(cornerRadius: height * 0.1)
+                        .stroke(glow
+                                ? Color(.systemRed) .opacity(0.5)
+                                : Color.clear, lineWidth: 2)
+                        .padding(-2)
+                    )
+      )
       .onAppear {
         if glow {
           withAnimation(animation, { glow.toggle() })
         }
       }
+      .enableInjection()
   }
 
   func letter(height: CGFloat) -> some View {
@@ -90,7 +101,7 @@ public struct RegularKeyIcon: View, KeyView {
           .overlay(
             Rectangle()
               .foregroundColor(glow
-                                ? Color.accentColor .opacity(0.5)
+                                ? Color(.systemRed) .opacity(0.5)
                                 : Color(.textColor).opacity(0.66))
               .mask(
                 Text(letter.string)
