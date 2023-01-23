@@ -124,6 +124,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                            elementCount: elementCount)
     })
     .focused($focus, equals: .focused(element.wrappedValue.id))
+    .id(element.id)
   }
 
   private func onClick(elementId: Data.Element.ID,
