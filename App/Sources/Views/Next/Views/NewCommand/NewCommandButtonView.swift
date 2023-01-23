@@ -23,7 +23,7 @@ struct NewCommandButtonView<Content>: View where Content: View {
     }
     .background {
       ZStack {
-        FocusableProxy(id: UUID().uuidString, onKeyDown: onKeyDown)
+        FocusableProxy(onKeyDown: onKeyDown)
       }
     }
     .buttonStyle(.plain)

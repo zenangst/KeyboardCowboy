@@ -19,7 +19,7 @@ struct KeyboardCommandView: View {
 
   var body: some View {
     Group {
-      if case .keyboard(let key, let modifiers) = command.kind {
+      if case .keyboard = command.kind {
         CommandContainerView(
           $command, icon: {
             ZStack {
@@ -41,23 +41,45 @@ struct KeyboardCommandView: View {
                   onAction(.updateName(newName: $0))
                 })
               Spacer()
-              HStack {
-                ForEach(modifiers) { modifier in
-                  ModifierKeyIcon(key: modifier)
-                    .frame(minWidth: modifier == .command ? 48 : 32, minHeight: 32)
-                    .fixedSize()
-                }
-                RegularKeyIcon(letter: key)
-                  .fixedSize()
-              }
-              .padding(4)
-              .background(Color(nsColor: .gridColor))
-              .cornerRadius(4)
-              .scaleEffect(0.85, anchor: .trailing)
-              .frame(height: 32, alignment: .trailing)
             }
           },
-          subContent: { },
+          subContent: {
+            HStack {
+              Text("Sequence:")
+                .font(.footnote)
+              ScrollView(.horizontal) {
+                if case .keyboard(var keys) = command.kind {
+                  EditableStack(.constant(keys),
+                                axes: .horizontal, lazy: false, onMove: { from, to in
+                    withAnimation {
+                      keys.move(fromOffsets: from, toOffset: to)
+                    }
+                  }, onDelete: { _ in
+
+                  }) { key in
+                    HStack {
+                      ForEach(key.wrappedValue.modifiers) { modifier in
+                        ModifierKeyIcon(key: modifier)
+                          .frame(minWidth: modifier == .command ? 24 : 16, minHeight: 16)
+                      }
+                      RegularKeyIcon(letter: key.wrappedValue.displayValue, width: 24, height: 24)
+                        .fixedSize(horizontal: true, vertical: true)
+                    }
+                  }
+                  .padding(4)
+                }
+              }
+              Spacer()
+              Button(action: {},
+                     label: { Image(systemName: "plus").frame(width: 10, height: 10) })
+                .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+                .padding(.trailing, 4)
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .background(Color(nsColor: .windowBackgroundColor).opacity(0.25))
+            .cornerRadius(4)
+          },
           onAction: { onAction(.commandAction($0)) })
       } else {
         Text("Wrong kind")

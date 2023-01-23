@@ -14,10 +14,12 @@ struct WorkflowShortcutsView: View {
         ScrollView(.horizontal, showsIndicators: false) {
           EditableStack($keyboardShortcuts, axes: .horizontal, lazy: true, onMove: { _, _ in }) { keyboardShortcut in
             HStack(spacing: 6) {
-              ModifierKeyIcon(key: .function)
-                .frame(width: 36, height: 36)
-              RegularKeyIcon(letter: keyboardShortcut.displayValue.wrappedValue,
-                             width: 36, height: 36)
+              ForEach(keyboardShortcut.wrappedValue.modifiers) { modifier in
+                  ModifierKeyIcon(key: modifier)
+                  .frame(minWidth: modifier == .command || modifier == .shift ? 44 : 32, minHeight: 32)
+              }
+              RegularKeyIcon(letter: keyboardShortcut.wrappedValue.displayValue, width: 32, height: 32)
+                .fixedSize(horizontal: true, vertical: true)
             }
             .padding(4)
             .background(
@@ -29,16 +31,24 @@ struct WorkflowShortcutsView: View {
         }
         Spacer()
         Divider()
-        Button(action: {},
-               label: { Image(systemName: "plus") })
-        .buttonStyle(.appStyle)
+        Button(action: {
+          withAnimation {
+            keyboardShortcuts.append(DetailViewModel.KeyboardShortcut.init(id: UUID().uuidString,
+                                                                           displayValue: "H",
+                                                                           modifiers: [.command]))
+          }
+        },
+               label: { Image(systemName: "plus").frame(width: 10, height: 10) })
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
         .font(.callout)
         .padding(.leading, 8)
         .padding(.trailing, 16)
       }
       .padding(4)
-      .background(Color(.windowBackgroundColor))
-      .cornerRadius(8)
+      .background(
+        RoundedRectangle(cornerRadius: 8)
+          .fill(Color(.windowBackgroundColor))
+      )
       .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
     }
     .enableInjection()

@@ -40,9 +40,13 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       case .builtIn(let command):
         return command.name
       case .keyboard(let command):
-        var keyboardShortcut = command.keyboardShortcut.modifiers?.compactMap({ $0.pretty }).joined() ?? ""
-        keyboardShortcut += command.keyboardShortcut.key
-        return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcut)" : command.name
+        var keyboardShortcutString: String = ""
+        command.keyboardShortcuts.forEach { keyboardShortcut in
+          keyboardShortcutString += keyboardShortcut.modifiers.map(\.pretty).joined()
+          keyboardShortcutString += keyboardShortcut.key
+        }
+
+        return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcutString)" : command.name
       case .open(let command):
         if !command.name.isEmpty { return command.name }
         if command.isUrl {

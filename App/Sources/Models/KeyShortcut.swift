@@ -8,10 +8,10 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
   public let id: String
   public let key: String
   public let lhs: Bool
-  public let modifiers: [ModifierKey]?
+  public let modifiers: [ModifierKey]
 
   public var modifersDisplayValue: String {
-    let modifiers = self.modifiers?.compactMap({ $0.pretty }) ?? []
+    let modifiers = self.modifiers.map(\.pretty)
     return modifiers.joined()
   }
 
@@ -27,7 +27,7 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
   }
 
   public var stringValue: String {
-    var input: String = (modifiers ?? [])
+    var input: String = modifiers
       .sorted(by: { $0.rawValue > $1.rawValue })
       .compactMap({ $0.rawValue.lowercased() }).joined()
     input.append(key)
@@ -37,7 +37,7 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
   public init(id: String = UUID().uuidString,
               key: String,
               lhs: Bool,
-              modifiers: [ModifierKey]? = nil) {
+              modifiers: [ModifierKey] = []) {
     self.id = id
     self.key = key
     self.lhs = lhs
@@ -50,7 +50,7 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.key = try container.decode(String.self, forKey: .key)
     self.lhs = try container.decodeIfPresent(Bool.self, forKey: .lhs) ?? true
-    self.modifiers = try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)
+    self.modifiers = (try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)) ?? []
   }
 }
 

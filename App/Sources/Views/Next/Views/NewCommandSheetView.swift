@@ -216,7 +216,7 @@ struct NewCommandSheetButton<Content>: View where Content: View {
 //    .buttonStyle(.appStyle)
     .background(
       ZStack {
-        FocusableProxy(id: UUID().uuidString, onKeyDown: { keyCode, modifiers in
+        FocusableProxy(onKeyDown: { keyCode, modifiers in
           if keyCode == kVK_Return {
             isPresented = true
 //            action()

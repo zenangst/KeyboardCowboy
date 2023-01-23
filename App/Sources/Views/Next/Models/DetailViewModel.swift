@@ -64,7 +64,7 @@ struct DetailViewModel: Hashable, Identifiable {
   struct KeyboardShortcut: Hashable, Identifiable {
     let id: String
     var displayValue: String
-    let modifier: ModifierKey
+    let modifiers: [ModifierKey]
   }
 
   struct CommandViewModel: Hashable, Identifiable {
@@ -101,7 +101,7 @@ struct DetailViewModel: Hashable, Identifiable {
       }
       case application(action: String, inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
       case open(path: String, applicationPath: String?, appName: String?)
-      case keyboard(key: String, modifiers: [ModifierKey])
+      case keyboard(keys: [KeyboardShortcut])
       case script(ScriptKind)
       case plain
       case shortcut

@@ -23,17 +23,16 @@ final class KeyboardEngine {
       throw KeyboardEngineError.failedToResolveMachPortController
     }
 
-    let string = command.keyboardShortcut.key.uppercased()
+    for keyboardShortcut in command.keyboardShortcuts {
+      let string = keyboardShortcut.key.uppercased()
 
-    guard let key = store.keyCode(for: string, matchDisplayValue: true) else {
-      throw KeyboardEngineError.failedToResolveKey(string)
+      guard let key = store.keyCode(for: string, matchDisplayValue: true) else {
+        throw KeyboardEngineError.failedToResolveKey(string)
+      }
+
+      var flags = CGEventFlags()
+      keyboardShortcut.modifiers.forEach { flags.insert($0.cgModifierFlags) }
+      try machPort.post(key, type: type, flags: flags)
     }
-
-    var flags = CGEventFlags()
-    if let modifiers = command.keyboardShortcut.modifiers {
-      modifiers.forEach { flags.insert($0.cgModifierFlags) }
-    }
-
-    try machPort.post(key, type: type, flags: flags)
   }
 }

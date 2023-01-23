@@ -149,7 +149,7 @@ enum DesignTime {
   static var rebindingCommand: DetailViewModel.CommandViewModel {
     .init(id: UUID().uuidString,
           name: "Rebind esc to enter",
-          kind: .keyboard(key: "F", modifiers: [.function, .command]),
+          kind: .keyboard(keys: [.init(id: UUID().uuidString, displayValue: "F", modifiers: [.function, .command])]),
           image: nil,
           isEnabled: true)
   }
@@ -168,7 +168,7 @@ enum DesignTime {
       id: UUID().uuidString,
       name: "Open News",
       isEnabled: true,
-      trigger: .keyboardShortcuts([.init(id: UUID().uuidString, displayValue: "f", modifier: .shift)]),
+      trigger: .keyboardShortcuts([.init(id: UUID().uuidString, displayValue: "f", modifiers: [.shift])]),
       commands: [
         Self.applicationCommand,
         Self.openCommand,

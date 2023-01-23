@@ -150,9 +150,12 @@ private extension Array where Element == Command {
       case .builtIn:
         continue
       case .keyboard(let keyCommand):
-        images.append(.init(id: keyCommand.id, offset: convertedOffset,
-                            kind: .command(.keyboard(key: keyCommand.keyboardShortcut.key,
-                                                     modifiers: keyCommand.keyboardShortcut.modifiers ?? []))))
+        if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
+          // TODO: Fix this
+//          images.append(.init(id: keyCommand.id, offset: convertedOffset,
+//                              kind: .command(.keyboard(key: keyboardShortcut.key,
+//                                                       modifiers: keyboardShortcut.modifiers ?? []))))
+        }
       case .open(let command):
         let nsImage: NSImage
         if let application = command.application, command.isUrl {

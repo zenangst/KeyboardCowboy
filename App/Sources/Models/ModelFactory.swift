@@ -68,7 +68,7 @@ public class ModelFactory {
   func keyboardShortcut(id: String = UUID().uuidString,
                         key: String = "A",
                         lhs: Bool,
-                        modifiers: [ModifierKey]? = nil) -> KeyShortcut {
+                        modifiers: [ModifierKey] = []) -> KeyShortcut {
     .init(id: id, key: key, lhs: lhs, modifiers: modifiers)
   }
 

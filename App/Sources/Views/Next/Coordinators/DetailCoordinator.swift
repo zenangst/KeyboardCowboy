@@ -354,8 +354,12 @@ final class DetailCoordinator {
           kind = .plain
           name = command.name
         case .keyboard(let keyboardCommand):
-          kind = .keyboard(key: keyboardCommand.keyboardShortcut.key,
-                           modifiers: keyboardCommand.keyboardShortcut.modifiers ?? [])
+          var payload = [DetailViewModel.KeyboardShortcut]()
+          for keyboardShortcut in keyboardCommand.keyboardShortcuts {
+            payload.append(.init(id: keyboardShortcut.stringValue, displayValue: keyboardShortcut.stringValue,
+                                 modifiers: keyboardShortcut.modifiers))
+          }
+          kind =  .keyboard(keys: payload)
           name = command.name
         case .open(let openCommand):
           let appName: String?
@@ -503,7 +507,8 @@ extension Workflow.Trigger {
       )
     case .keyboardShortcuts(let shortcuts):
       let values = shortcuts.map {
-        DetailViewModel.KeyboardShortcut(id: $0.id, displayValue: $0.key, modifier: .shift)
+        DetailViewModel.KeyboardShortcut(id: $0.id, displayValue: $0.key,
+                                         modifiers: $0.modifiers.map { $0 })
       }
       return .keyboardShortcuts(values)
     }

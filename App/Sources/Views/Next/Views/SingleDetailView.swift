@@ -45,6 +45,7 @@ struct SingleDetailView: View {
         .padding(.horizontal, 4)
         .padding(.vertical, 12)
         WorkflowTriggerListView($workflow, onAction: onAction)
+          .id(workflow.id)
       }
       .onFrameChange(perform: { rect in
         withAnimation {

@@ -158,18 +158,20 @@ struct ContentImageView: View {
                       height: image.offset * 1.25))
     case .command(let kind):
       switch kind {
-      case .keyboard(let key, let modifiers):
+      case .keyboard(let keys):
         ZStack {
-          RegularKeyIcon(letter: key)
-            .scaleEffect(0.8)
+          ForEach(keys) { key in
+            RegularKeyIcon(letter: key.displayValue)
+              .scaleEffect(0.8)
 
-          ForEach(modifiers) { modifier in
-            HStack {
-              ModifierKeyIcon(key: modifier)
-                .scaleEffect(0.4, anchor: .bottomLeading)
-                .opacity(0.8)
+            ForEach(key.modifiers) { modifier in
+              HStack {
+                ModifierKeyIcon(key: modifier)
+                  .scaleEffect(0.4, anchor: .bottomLeading)
+                  .opacity(0.8)
+              }
+              .padding(4)
             }
-            .padding(4)
           }
         }
         .rotationEffect(.degrees(-(3.75 * image.offset)))
