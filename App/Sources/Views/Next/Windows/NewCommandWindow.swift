@@ -10,7 +10,7 @@ enum NewCommandPayload {
   case url(targetUrl: URL, application: Application?)
   case open(path: String, application: Application?)
   case shortcut(name: String)
-  case keyboardShortcut
+  case keyboardShortcut([KeyShortcut])
   case type(text: String)
 }
 
@@ -39,7 +39,7 @@ struct NewCommandWindow: Scene {
 //    application: nil, action: .open,
 //    inBackground: false, hideWhenRunning: false, ifNotRunning: false)
   private let defaultSelection: NewCommandView.Kind = .keyboardShortcut
-  private let defaultPayload: NewCommandPayload = .keyboardShortcut
+  private let defaultPayload: NewCommandPayload = .keyboardShortcut([])
 
   init(contentStore: ContentStore,
        onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void) {

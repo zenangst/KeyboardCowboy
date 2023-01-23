@@ -70,7 +70,6 @@ public struct RegularKeyIcon: View, KeyView {
 
   public var body: some View {
     letter(height: height)
-      .fixedSize(horizontal: true, vertical: true)
       .frame(minWidth: width, maxWidth: .infinity, alignment: alignment)
       .background(
         keyBackgroundView(height)
@@ -97,7 +96,7 @@ public struct RegularKeyIcon: View, KeyView {
         Text(letter.string)
           .font(Font.system(size: height * 0.3, weight: .regular, design: .rounded))
           .foregroundColor(.clear)
-          .padding([.leading, .trailing])
+          .padding([.leading, .trailing], height * 0.3)
           .overlay(
             Rectangle()
               .foregroundColor(glow

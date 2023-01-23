@@ -30,9 +30,10 @@ struct NewCommandValidationView: View {
                   }, label: {
                     Image(systemName: "xmark")
                       .resizable()
-                      .aspectRatio(contentMode: .fit)
-                      .frame(width: 8)
+                      .frame(width: 8, height: 8)
+                      .aspectRatio(1, contentMode: .fit)
                   })
+                  .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed)))
                 }
                 .background(
                   GeometryReader { proxy in

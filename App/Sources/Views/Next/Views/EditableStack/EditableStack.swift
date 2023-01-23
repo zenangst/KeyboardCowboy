@@ -28,8 +28,8 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let lazy: Bool
   private let elementCount: Int
   private let onSelection: (Set<Data.Element.ID>) -> Void
-  private let onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
-  private let onDelete: (_ indexSet: IndexSet) -> Void
+  private let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
+  private let onDelete: ((_ indexSet: IndexSet) -> Void)?
 
   @State private var dragProxy: CGSize = .zero
   @State private var animating: Double = .random(in: 0...100)
@@ -48,8 +48,8 @@ struct EditableStack<Data, Content>: View where Content: View,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        cornerRadius: Double = 8,
        onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
-       onMove: @escaping (_ indexSet: IndexSet, _ toIndex: Int) -> Void,
-       onDelete: @escaping (_ indexSet: IndexSet) -> Void = { _ in },
+       onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)? = nil,
+       onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
        content: @escaping (Binding<Data.Element>) -> Content) {
     _data = data
     self.id = id
@@ -81,6 +81,7 @@ struct EditableStack<Data, Content>: View where Content: View,
         content(element, index)
       }
       .onDeleteCommand {
+        guard let onDelete else { return }
         if !selections.isEmpty {
           let indexes = selections.compactMap { selection in
             data.firstIndex(where: { $0.id == selection } )
@@ -147,6 +148,8 @@ struct EditableStack<Data, Content>: View where Content: View,
                              index currentIndex: Int,
                              value: GestureStateGesture<DragGesture, CGSize>.Value,
                              size: CGSize) {
+    guard onMove != nil else { return }
+
     if draggingElementId != elementId {
       draggingElementId = elementId
       draggingElementIndex = currentIndex
@@ -177,6 +180,8 @@ struct EditableStack<Data, Content>: View where Content: View,
                            index currentIndex: Int,
                            value: GestureStateGesture<DragGesture, CGSize>.Value,
                            size: CGSize) {
+    guard let onMove else { return }
+
     let newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
     let indexSet: IndexSet
 

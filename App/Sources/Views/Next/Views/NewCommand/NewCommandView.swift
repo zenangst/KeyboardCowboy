@@ -210,12 +210,7 @@ struct NewCommandView: View {
           .buttonStyle(.saveStyle)
           .keyboardShortcut(.defaultAction)
       }
-      .padding(8)
       .buttonStyle(.appStyle)
-      .background(
-        RoundedRectangle(cornerRadius: 8)
-          .fill(Color(nsColor: NSColor.textBackgroundColor))
-      )
       .padding()
     }
   }

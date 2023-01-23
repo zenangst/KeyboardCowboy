@@ -3,7 +3,6 @@ import SwiftUI
 struct NewCommandKeyboardShortcutView: View {
   enum CurrentState: Hashable {
     case recording
-    case content(KeyShortcutRecording)
   }
 
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
@@ -12,6 +11,7 @@ struct NewCommandKeyboardShortcutView: View {
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
+  @State var keyboardShortcuts = [KeyShortcut]()
   @State var isGlowing: Bool = false
   @State var state: CurrentState? = nil
 
@@ -28,81 +28,79 @@ struct NewCommandKeyboardShortcutView: View {
         Spacer()
       }
 
-      switch state {
-      case .content(let model):
-        switch model {
-        case .valid(let keyShortcut),
-            .systemShortcut(let keyShortcut),
-            .delete(let keyShortcut),
-            .cancel(let keyShortcut):
-          HStack {
-            if let modifiers = keyShortcut.modifiers {
-              ForEach(modifiers) { modifier in
-                switch modifier {
-                case .function:
-                  ModifierKeyIcon(key: modifier)
-                    .frame(width: 36, height: 36)
-                case .command, .shift:
-                  ModifierKeyIcon(key: modifier)
-                    .frame(width: 48, height: 36)
-                default:
-                  ModifierKeyIcon(key: modifier)
-                    .frame(width: 36, height: 36)
-
+      HStack {
+        EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
+          .overlay(
+            ZStack {
+              if keyboardShortcuts.isEmpty {
+                HStack {
+                  Spacer()
+                  Text("Press the plus (+) button to record a keyboard shortcut")
+                    .font(.footnote)
+                  Spacer()
                 }
               }
             }
-            RegularKeyIcon(letter: keyShortcut.key,
-                           width: 36, height: 36)
-            .fixedSize(horizontal: true, vertical: true)
-            Spacer()
-
-            Button(action: {
-              withAnimation {
-                state = .recording
-                recorderStore.mode = .record
-                isGlowing = true
-              }
-            }, label: {
-              Text("Re-record")
-            })
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemCyan)))
-
-
-            Button(action: {
-              state = .none
-            }, label: {
-              Text("Remove")
-            })
-            .buttonStyle(.destructiveStyle)
-          }
-        }
-      case .recording:
-        Button(action: {
-          withAnimation {
-            isGlowing = false
-          }
-        }) {
-          RegularKeyIcon(letter: "Recording ...",
-                         height: 36, glow: $isGlowing)
-        }
-      case .none:
+          )
+        Spacer()
         Button(action: {
           state = .recording
           recorderStore.mode = .record
           isGlowing = true
-        }) {
-          RegularKeyIcon(letter: "Record a keyboard shortcut",
-                         height: 36)
-        }
+        },
+               label: { Image(systemName: "plus").frame(width: 10, height: 10) })
+          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+          .padding(.trailing, 4)
+      }
+      .overlay(NewCommandValidationView($validation).padding(-8))
+      .frame(minHeight: 48)
+      .padding(.horizontal, 6)
+      .background(
+        RoundedRectangle(cornerRadius: 4)
+          .fill(Color(nsColor: .windowBackgroundColor).opacity(0.25))
+      )
+
+      switch state {
+      case .recording:
+        RegularKeyIcon(letter: "Recording ...",
+                       height: 36, glow: $isGlowing)
+      case .none:
+        EmptyView()
       }
     }
     .onChange(of: recorderStore.recording, perform: { newValue in
       guard let newValue else { return }
-      state = .content(newValue)
+      switch newValue {
+      case .valid(let newKeyboardShortcut):
+        withAnimation(.spring()) {
+          keyboardShortcuts.append(newKeyboardShortcut)
+          state = nil
+        }
+      default:
+        break
+      }
     })
-    .buttonStyle(.plain)
+    .onChange(of: validation, perform: { newValue in
+      guard newValue == .needsValidation else { return }
+      validation = updateAndValidatePayload()
+    })
+    .onAppear {
+      validation = .unknown
+      payload = .keyboardShortcut([])
+    }
     .enableInjection()
+  }
+
+  @discardableResult
+  private func updateAndValidatePayload() -> NewCommandValidation {
+    if keyboardShortcuts.isEmpty {
+      payload = .keyboardShortcut([])
+      return .invalid(reason: "You need to add at least one keyboard shortcut")
+    }
+
+    payload = .keyboardShortcut(keyboardShortcuts)
+
+    return .valid
   }
 }
 
