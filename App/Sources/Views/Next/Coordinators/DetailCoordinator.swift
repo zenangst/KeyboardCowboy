@@ -106,6 +106,8 @@ final class DetailCoordinator {
         guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
 
         switch action {
+        case .updateKeyboardShortcuts(_, let keyboardShortcuts):
+          workflow.trigger = .keyboardShortcuts(keyboardShortcuts)
         case .commandView(_, let action):
           await handleCommandAction(action, workflow: &workflow)
         case .moveCommand(_, let fromOffsets, let toOffset):
@@ -504,11 +506,7 @@ extension Workflow.Trigger {
         }
       )
     case .keyboardShortcuts(let shortcuts):
-      let values = shortcuts.map {
-        DetailViewModel.KeyboardShortcut(id: $0.id, displayValue: $0.key,
-                                         modifiers: $0.modifiers.map { $0 })
-      }
-      return .keyboardShortcuts(values)
+      return .keyboardShortcuts(shortcuts)
     }
   }
 }
@@ -568,6 +566,8 @@ extension CommandView.Action {
 extension SingleDetailView.Action {
   var workflowId: String {
     switch self {
+    case .updateKeyboardShortcuts(let workflowId, _):
+      return workflowId
     case .removeTrigger(let workflowId):
       return workflowId
     case .setIsEnabled(let workflowId, _):

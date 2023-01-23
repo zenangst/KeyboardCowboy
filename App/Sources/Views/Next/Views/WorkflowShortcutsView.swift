@@ -2,55 +2,25 @@ import SwiftUI
 
 struct WorkflowShortcutsView: View {
   @ObserveInjection var inject
-  @State private var keyboardShortcuts: [DetailViewModel.KeyboardShortcut]
+  @State private var keyboardShortcuts: [KeyShortcut]
+  private let onUpdate: ([KeyShortcut]) -> Void
 
-  init(_ keyboardShortcuts: [DetailViewModel.KeyboardShortcut]) {
+  init(_ keyboardShortcuts: [KeyShortcut], onUpdate: @escaping ([KeyShortcut]) -> Void) {
     _keyboardShortcuts = .init(initialValue: keyboardShortcuts)
+    self.onUpdate = onUpdate
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
-      HStack(spacing: 8) {
-        ScrollView(.horizontal, showsIndicators: false) {
-          EditableStack($keyboardShortcuts, axes: .horizontal, lazy: true, onMove: { _, _ in }) { keyboardShortcut in
-            HStack(spacing: 6) {
-              ForEach(keyboardShortcut.wrappedValue.modifiers) { modifier in
-                  ModifierKeyIcon(key: modifier)
-                  .frame(minWidth: modifier == .command || modifier == .shift ? 44 : 32, minHeight: 32)
-              }
-              RegularKeyIcon(letter: keyboardShortcut.wrappedValue.displayValue, width: 32, height: 32)
-                .fixedSize(horizontal: true, vertical: true)
-            }
-            .padding(4)
-            .background(
-              RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(Color(.disabledControlTextColor))
-                .opacity(0.5)
-            )
-          }
-        }
-        Spacer()
-        Divider()
-        Button(action: {
-          withAnimation {
-            keyboardShortcuts.append(DetailViewModel.KeyboardShortcut.init(id: UUID().uuidString,
-                                                                           displayValue: "H",
-                                                                           modifiers: [.command]))
-          }
-        },
-               label: { Image(systemName: "plus").frame(width: 10, height: 10) })
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-        .font(.callout)
-        .padding(.leading, 8)
-        .padding(.trailing, 16)
-      }
-      .padding(4)
+    EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
+      .frame(minHeight: 48)
+      .padding(.horizontal, 6)
       .background(
-        RoundedRectangle(cornerRadius: 8)
-          .fill(Color(.windowBackgroundColor))
+        RoundedRectangle(cornerRadius: 4)
+          .fill(Color(nsColor: .windowBackgroundColor).opacity(0.25))
       )
-      .shadow(color: Color(.shadowColor).opacity(0.15), radius: 3, x: 0, y: 1)
-    }
+      .onChange(of: keyboardShortcuts, perform: { newValue in
+        onUpdate(newValue)
+      })
     .enableInjection()
   }
 }

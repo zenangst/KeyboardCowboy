@@ -3,6 +3,7 @@ import Apps
 
 struct SingleDetailView: View {
   enum Action {
+    case updateKeyboardShortcuts(workflowId: Workflow.ID, keyboardShortcuts: [KeyShortcut])
     case removeCommands(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
     case applicationTrigger(workflowId: Workflow.ID, action: WorkflowApplicationTriggerView.Action)
     case commandView(workflowId: Workflow.ID, action: CommandView.Action)

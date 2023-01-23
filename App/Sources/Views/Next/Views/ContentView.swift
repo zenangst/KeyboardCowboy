@@ -79,7 +79,7 @@ struct ContentView: View {
     .toolbar {
       ToolbarItemGroup(placement: .navigation) {
         Button(action: {
-          //            onAction(.content(.addWorkflow))
+          onAction(.addWorkflow)
         },
                label: {
           Label(title: {

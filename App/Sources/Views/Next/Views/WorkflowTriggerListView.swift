@@ -24,14 +24,8 @@ struct WorkflowTriggerListView: View {
             .padding(.trailing, 12)
         }
         .padding([.leading, .trailing], 8)
-        WorkflowShortcutsView(shortcuts)
-        HStack {
-          Spacer()
-          Text("These keys need to be pressed in sequence in order to run the workflow.")
-            .multilineTextAlignment(.center)
-            .frame(alignment: .center)
-            .font(.caption)
-          Spacer()
+        WorkflowShortcutsView(shortcuts) { keyboardShortcuts in
+          onAction(.updateKeyboardShortcuts(workflowId: model.id, keyboardShortcuts: keyboardShortcuts))
         }
       case .applications(let triggers):
         HStack {

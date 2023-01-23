@@ -168,7 +168,7 @@ enum DesignTime {
       id: UUID().uuidString,
       name: "Open News",
       isEnabled: true,
-      trigger: .keyboardShortcuts([.init(id: UUID().uuidString, displayValue: "f", modifiers: [.shift])]),
+      trigger: .keyboardShortcuts([.init(key: "f", lhs: true, modifiers: [.function])]),
       commands: [
         Self.applicationCommand,
         Self.openCommand,

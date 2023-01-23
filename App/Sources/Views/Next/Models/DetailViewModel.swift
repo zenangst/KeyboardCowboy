@@ -34,7 +34,7 @@ struct DetailViewModel: Hashable, Identifiable {
 
   enum Trigger: Hashable {
     case applications([DetailViewModel.ApplicationTrigger])
-    case keyboardShortcuts([KeyboardShortcut])
+    case keyboardShortcuts([KeyShortcut])
   }
 
   struct ApplicationTrigger: Hashable, Identifiable {
@@ -59,12 +59,6 @@ struct DetailViewModel: Hashable, Identifiable {
         }
       }
     }
-  }
-
-  struct KeyboardShortcut: Hashable, Identifiable {
-    let id: String
-    var displayValue: String
-    let modifiers: [ModifierKey]
   }
 
   struct CommandViewModel: Hashable, Identifiable {
