@@ -19,20 +19,13 @@ final class ContentStore: ObservableObject {
   private(set) var recorderStore = KeyShortcutRecorderStore()
   private(set) var shortcutStore: ShortcutStore
   
-  @Published var selectedWorkflows = [Workflow]()
-  @Published var selectedWorkflowsCopy = [Workflow]()
-
   @Published private var configurationId: String
-  @Published private(set) var groupIds: Set<String>
-  @Published private(set) var workflowIds: Set<String>
 
   init(_ preferences: AppPreferences,
        indexer: Indexer,
        scriptEngine: ScriptEngine,
        workspace: NSWorkspace) {
     _configurationId = .init(initialValue: Self.appStorage.configId)
-    _groupIds = .init(initialValue: Self.appStorage.groupIds)
-    _workflowIds = .init(initialValue: Self.appStorage.workflowIds)
 
     let groupStore = GroupStore()
     self.shortcutStore = ShortcutStore(engine: scriptEngine)
@@ -84,84 +77,11 @@ final class ContentStore: ObservableObject {
   func use(_ configuration: KeyboardCowboyConfiguration) {
     indexer.createCache(configuration.groups)
     configurationId = configuration.id
-    // Select first group if the selection is empty
-    if groupIds.isEmpty, let group = configuration.groups.first {
-      groupIds = [group.id]
-      groupStore.selectedGroups = [group]
-    } else {
-      selectGroupsIds(groupIds)
-    }
-
     groupStore.groups = configuration.groups
-
-    if workflowIds.isEmpty,
-       let group = groupStore.groups.first,
-       let workflow = group.workflows.first {
-      workflowIds = [workflow.id]
-      selectedWorkflows = [workflow]
-    } else {
-      selectWorkflowIds(workflowIds)
-    }
-
-    selectedWorkflowsCopy = selectedWorkflows
-  }
-
-  func selectGroupsIds(_ ids: Set<String>) {
-    let oldGroupIds = groupIds
-    groupStore.selectedGroups = configurationStore.selectedConfiguration.groups
-      .filter { ids.contains($0.id) }
-    groupIds = Set<String>(groupStore.selectedGroups.compactMap({ $0.id }))
-
-    let allWorkflowIds = groupStore.selectedGroups.flatMap { $0.workflows.compactMap { $0.id } }
-    let workflowMatchesGroup = allWorkflowIds.filter { workflowIds.contains($0) }.isEmpty
-
-    if oldGroupIds != groupIds,
-              let firstWorkflow = groupStore.selectedGroups.first?.workflows.first {
-      workflowIds = [firstWorkflow.id]
-      selectedWorkflows = [firstWorkflow]
-      selectedWorkflowsCopy = selectedWorkflows
-    } else if workflowMatchesGroup, let workflow = groupStore.selectedGroups.first?.workflows.first {
-      workflowIds = [workflow.id]
-      selectedWorkflows = [workflow]
-      selectedWorkflowsCopy = selectedWorkflows
-    }
-
-    Self.appStorage.workflowIds = workflowIds
-  }
-
-  func selectWorkflowIds(_ ids: Set<String>) {
-    workflowIds = ids
-    selectedWorkflows = groupStore.selectedGroups
-      .flatMap {
-        $0.workflows.filter { ids.contains($0.id) }
-      }
-    selectedWorkflowsCopy = selectedWorkflows
   }
 
   func workflow(withId id: Workflow.ID) -> Workflow? {
     groupStore.workflow(withId: id)
-  }
-
-  func updateWorkflows(_ newWorkflows: [Workflow]) {
-    let copiedWorkflows = selectedWorkflowsCopy
-    if copiedWorkflows == newWorkflows { return }
-    let oldConfiguration = configurationStore.selectedConfiguration
-    undoManager?.registerUndo(withTarget: self, handler: { contentStore in
-      contentStore.applyConfiguration(oldConfiguration)
-    })
-    undoManager?.setActionName("Undo change")
-
-    let newGroups = groupStore.receive(newWorkflows)
-    var newConfiguration = configurationStore.selectedConfiguration
-    newConfiguration.groups = newGroups
-
-    configurationStore.update(newConfiguration)
-
-    guard KeyboardCowboy.env == .production else { return }
-
-    selectGroupsIds(groupIds)
-    let workflowIds = Set<String>(newWorkflows.compactMap({ $0.id }))
-    selectWorkflowIds(workflowIds)
   }
 
   // MARK: Private methods
@@ -172,8 +92,6 @@ final class ContentStore: ObservableObject {
       contentStore.applyConfiguration(oldConfiguration)
     })
     configurationStore.update(newConfiguration)
-    selectGroupsIds(groupIds)
-    selectWorkflowIds(workflowIds)
   }
 
   private func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {

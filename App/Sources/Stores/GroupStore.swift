@@ -3,13 +3,9 @@ import SwiftUI
 final class GroupStore: ObservableObject {
   private static var appStorage: AppStorageStore = .init()
   @Published var groups = [WorkflowGroup]()
-  @Published var selectedGroups = [WorkflowGroup]()
-  @Published var selectedGroupIds: [String]
 
   init(_ groups: [WorkflowGroup] = []) {
-    _selectedGroupIds = .init(initialValue: Array(Self.appStorage.groupIds))
     _groups = .init(initialValue: groups)
-    _selectedGroups = .init(initialValue: groups.filter { selectedGroupIds.contains($0.id) })
   }
 
   func group(withId id: String) -> WorkflowGroup? {
@@ -19,35 +15,6 @@ final class GroupStore: ObservableObject {
   func add(_ group: WorkflowGroup) {
     var modifiedGroups = self.groups
     modifiedGroups.append(group)
-    groups = modifiedGroups
-    selectedGroupIds = [group.id]
-    selectedGroups = [group]
-  }
-
-  func add(_ workflow: Workflow) {
-    guard var group = selectedGroups.first,
-          let groupIndex = groups.firstIndex(of: group) else { return }
-
-    var modifiedGroups = groups
-
-    group.workflows.append(workflow)
-    modifiedGroups[groupIndex] = group
-
-    groups = modifiedGroups
-    selectedGroupIds = [group.id]
-  }
-
-  func receive(_ newGroups: [WorkflowGroup]) {
-    let oldGroups = groups
-    var modifiedGroups = groups
-    for group in newGroups {
-      guard let index = oldGroups.firstIndex(where: { $0.id == group.id }) else {
-        continue
-      }
-
-      modifiedGroups[index] = group
-    }
-
     groups = modifiedGroups
   }
 
@@ -80,18 +47,10 @@ final class GroupStore: ObservableObject {
 
   func removeGroups(with ids: [WorkflowGroup.ID]) {
     groups.removeAll(where: { ids.contains($0.id) })
-    selectedGroupIds.removeAll(where: { ids.contains($0) })
   }
 
   func remove(_ group: WorkflowGroup) {
     groups.removeAll(where: { $0.id == group.id })
-    selectedGroupIds.removeAll(where: { $0 == group.id })
-  }
-
-  func remove(_ workflows: [Workflow]) {
-    for workflow in workflows {
-      remove(workflow)
-    }
   }
 
   func workflow(withId id: Workflow.ID) -> Workflow? {

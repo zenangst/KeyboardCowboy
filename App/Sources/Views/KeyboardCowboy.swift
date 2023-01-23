@@ -69,16 +69,6 @@ struct KeyboardCowboy: App {
     self.scriptEngine = scriptEngine
 
     Inject.animation = .easeInOut(duration: 0.275)
-
-    guard KeyboardCowboy.env == .production else { return }
-
-    workflowSubscription = contentStore.$selectedWorkflows
-      .dropFirst(2)
-      .removeDuplicates()
-      .filter({ $0 != contentStore.selectedWorkflowsCopy })
-      .sink(receiveValue: { workflows in
-        contentStore.updateWorkflows(workflows)
-      })
   }
 
   var body: some Scene {
