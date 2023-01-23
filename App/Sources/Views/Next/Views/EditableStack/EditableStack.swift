@@ -289,9 +289,9 @@ struct EditableStack<Data, Content>: View where Content: View,
       return .zero
     }
     let isProxyItem = draggingElementId != nil &&
-      elementID != draggingElementId &&
-      selections.contains(elementID) &&
-      dragProxy != .zero
+    elementID != draggingElementId &&
+    selections.contains(elementID) &&
+    dragProxy != .zero
     let delta = abs(draggingElementIndex - currentIndex)
     return CGSize(width: isProxyItem ? dragProxy.width : 0,
                   height: isProxyItem ?
