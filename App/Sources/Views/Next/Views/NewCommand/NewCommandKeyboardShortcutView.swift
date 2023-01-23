@@ -28,57 +28,29 @@ struct NewCommandKeyboardShortcutView: View {
         Spacer()
       }
 
-      HStack {
-        EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
-          .overlay(
-            ZStack {
-              if keyboardShortcuts.isEmpty {
-                HStack {
-                  Spacer()
-                  Text("Press the plus (+) button to record a keyboard shortcut")
-                    .font(.footnote)
-                  Spacer()
-                }
+      EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
+        .overlay(
+          ZStack {
+            if keyboardShortcuts.isEmpty {
+              HStack {
+                Spacer()
+                Text("Press the plus (+) button to record a keyboard shortcut")
+                  .font(.footnote)
+                Spacer()
               }
             }
-          )
-        Spacer()
-        Button(action: {
-          state = .recording
-          recorderStore.mode = .record
-          isGlowing = true
-        },
-               label: { Image(systemName: "plus").frame(width: 10, height: 10) })
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-          .padding(.trailing, 4)
-      }
-      .overlay(NewCommandValidationView($validation).padding(-8))
-      .frame(minHeight: 48)
-      .padding(.horizontal, 6)
-      .background(
-        RoundedRectangle(cornerRadius: 4)
-          .fill(Color(nsColor: .windowBackgroundColor).opacity(0.25))
-      )
-
-      switch state {
-      case .recording:
-        RegularKeyIcon(letter: "Recording ...",
-                       height: 36, glow: $isGlowing)
-      case .none:
-        EmptyView()
-      }
+          }
+        )
+        .overlay(NewCommandValidationView($validation).padding(-8))
+        .frame(minHeight: 48)
+        .padding(.horizontal, 6)
+        .background(
+          RoundedRectangle(cornerRadius: 4)
+            .fill(Color(nsColor: .windowBackgroundColor).opacity(0.25))
+        )
     }
-    .onChange(of: recorderStore.recording, perform: { newValue in
-      guard let newValue else { return }
-      switch newValue {
-      case .valid(let newKeyboardShortcut):
-        withAnimation(.spring()) {
-          keyboardShortcuts.append(newKeyboardShortcut)
-          state = nil
-        }
-      default:
-        break
-      }
+    .onChange(of: keyboardShortcuts, perform: { newValue in
+      validation = updateAndValidatePayload()
     })
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }

@@ -39,8 +39,8 @@ final class DetailCoordinator {
       switch payload {
       case .placeholder:
         return
-      case .keyboardShortcut:
-        return
+      case .keyboardShortcut(let keyShortcuts):
+        command = .keyboard(.init(keyboardShortcuts: keyShortcuts))
       case .script(let value, let kind, let scriptExtension):
         let source: ScriptCommand.Source
         switch kind {
@@ -227,6 +227,9 @@ final class DetailCoordinator {
         }
       case .keyboard(let action, _, _):
         switch action {
+        case .updateKeyboardShortcuts(let keyboardShortcuts):
+          command = .keyboard(.init(id: command.id, keyboardShortcuts: keyboardShortcuts))
+          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
@@ -354,12 +357,7 @@ final class DetailCoordinator {
           kind = .plain
           name = command.name
         case .keyboard(let keyboardCommand):
-          var payload = [DetailViewModel.KeyboardShortcut]()
-          for keyboardShortcut in keyboardCommand.keyboardShortcuts {
-            payload.append(.init(id: keyboardShortcut.stringValue, displayValue: keyboardShortcut.stringValue,
-                                 modifiers: keyboardShortcut.modifiers))
-          }
-          kind =  .keyboard(keys: payload)
+          kind =  .keyboard(keys: keyboardCommand.keyboardShortcuts)
           name = command.name
         case .open(let openCommand):
           let appName: String?

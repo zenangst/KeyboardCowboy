@@ -3,18 +3,26 @@ import SwiftUI
 struct KeyboardCommandView: View {
   enum Action {
     case updateName(newName: String)
+    case updateKeyboardShortcuts([KeyShortcut])
     case commandAction(CommandContainerAction)
   }
 
   @ObserveInjection var inject
   @Binding private var command: DetailViewModel.CommandViewModel
   @State private var name: String
+  @State private var keyboardShortcuts: [KeyShortcut]
   private let onAction: (Action) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>, onAction: @escaping (Action) -> Void) {
     _command = command
     _name = .init(initialValue: command.wrappedValue.name)
     self.onAction = onAction
+
+    if case .keyboard(let keyboardShortcuts) = command.wrappedValue.kind {
+      _keyboardShortcuts = .init(initialValue: keyboardShortcuts)
+    } else {
+      _keyboardShortcuts = .init(initialValue: [])
+    }
   }
 
   var body: some View {
@@ -44,41 +52,14 @@ struct KeyboardCommandView: View {
             }
           },
           subContent: {
-            HStack {
-              Text("Sequence:")
-                .font(.footnote)
-              ScrollView(.horizontal) {
-                if case .keyboard(var keys) = command.kind {
-                  EditableStack(.constant(keys),
-                                axes: .horizontal, lazy: false, onMove: { from, to in
-                    withAnimation {
-                      keys.move(fromOffsets: from, toOffset: to)
-                    }
-                  }, onDelete: { _ in
-
-                  }) { key in
-                    HStack {
-                      ForEach(key.wrappedValue.modifiers) { modifier in
-                        ModifierKeyIcon(key: modifier)
-                          .frame(minWidth: modifier == .command ? 24 : 16, minHeight: 16)
-                      }
-                      RegularKeyIcon(letter: key.wrappedValue.displayValue, width: 24, height: 24)
-                        .fixedSize(horizontal: true, vertical: true)
-                    }
-                  }
-                  .padding(4)
-                }
+            EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
+              .onChange(of: keyboardShortcuts) { newValue in
+                onAction(.updateKeyboardShortcuts(newValue))
               }
-              Spacer()
-              Button(action: {},
-                     label: { Image(systemName: "plus").frame(width: 10, height: 10) })
-                .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-                .padding(.trailing, 4)
-            }
-            .padding(.horizontal, 6)
-            .padding(.vertical, 4)
-            .background(Color(nsColor: .windowBackgroundColor).opacity(0.25))
-            .cornerRadius(4)
+              .padding(.horizontal, 6)
+              .padding(.vertical, 4)
+              .background(Color(nsColor: .windowBackgroundColor).opacity(0.25))
+              .cornerRadius(4)
           },
           onAction: { onAction(.commandAction($0)) })
       } else {

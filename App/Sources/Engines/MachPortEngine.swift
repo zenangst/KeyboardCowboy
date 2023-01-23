@@ -88,6 +88,8 @@ final class MachPortEngine {
   }
 
   private func intercept(_ machPortEvent: MachPortEvent) {
+    guard KeyboardCowboy.env == .production else { return }
+
     let kind: Event.Kind
     switch machPortEvent.type {
     case .flagsChanged:

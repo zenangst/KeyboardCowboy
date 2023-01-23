@@ -161,7 +161,7 @@ struct ContentImageView: View {
       case .keyboard(let keys):
         ZStack {
           ForEach(keys) { key in
-            RegularKeyIcon(letter: key.displayValue)
+            RegularKeyIcon(letter: key.key)
               .scaleEffect(0.8)
 
             ForEach(key.modifiers) { modifier in

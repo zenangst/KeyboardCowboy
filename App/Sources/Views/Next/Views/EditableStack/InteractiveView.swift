@@ -47,6 +47,7 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
 
   var body: some View {
     content()
+      .animation(nil, value: dragOffsetState)
       .background(
         ZStack {
           FocusableProxy(onKeyDown: {
