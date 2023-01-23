@@ -151,10 +151,8 @@ private extension Array where Element == Command {
         continue
       case .keyboard(let keyCommand):
         if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
-          // TODO: Fix this
-//          images.append(.init(id: keyCommand.id, offset: convertedOffset,
-//                              kind: .command(.keyboard(key: keyboardShortcut.key,
-//                                                       modifiers: keyboardShortcut.modifiers ?? []))))
+          images.append(.init(id: keyboardShortcut.id, offset: convertedOffset,
+                              kind: .command(.keyboard(keys: keyCommand.keyboardShortcuts))))
         }
       case .open(let command):
         let nsImage: NSImage
