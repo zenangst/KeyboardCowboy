@@ -20,13 +20,13 @@ struct EditableStack<Data, Content>: View where Content: View,
 
   private let mainAnimation = Animation.default.speed(2.5)
   private let proxyAnimation = Animation.default.speed(1.5)
-
   private let id: KeyPath<Data.Element, Data.Element.ID>
   private let content: (Binding<Data.Element>) -> Content
   private let cornerRadius: Double
   private let spacing: CGFloat?
   private let axes: Axis.Set
   private let lazy: Bool
+  private let elementCount: Int
   private let onSelection: (Set<Data.Element.ID>) -> Void
   private let onMove: (_ indexSet: IndexSet, _ toIndex: Int) -> Void
   private let onDelete: (_ indexSet: IndexSet) -> Void
@@ -37,6 +37,7 @@ struct EditableStack<Data, Content>: View where Content: View,
     didSet { onSelection(selections) }
   }
   @State private var draggingElementId: Data.Element.ID?
+  @State private var draggingElementIndex: Int?
   @State private var newIndex: Int = -1
   @State private var mouseDown: Bool = false
 
@@ -57,6 +58,7 @@ struct EditableStack<Data, Content>: View where Content: View,
     self.cornerRadius = cornerRadius
     self.lazy = lazy
     self.spacing = spacing
+    self.elementCount = data.count
     self.onMove = onMove
     self.onDelete = onDelete
     self.onSelection = onSelection
@@ -94,14 +96,12 @@ struct EditableStack<Data, Content>: View where Content: View,
 
   @ViewBuilder
   private func interactiveView<Content: View>(_ element: Binding<Data.Element>,
-                                              index: Int,
+                                              index currentIndex: Int,
                                               content: @escaping (Binding<Data.Element>) -> Content) -> some View {
-    let elementCount = data.count
-    let currentIndex = index
-
     InteractiveView(
       animation: mainAnimation,
       id: element.id,
+      index: currentIndex,
       content: { content(element) },
       overlay: {
         Color.accentColor
@@ -126,7 +126,9 @@ struct EditableStack<Data, Content>: View where Content: View,
     .focused($focus, equals: .focused(element.wrappedValue.id))
   }
 
-  private func onClick(elementId: Data.Element.ID, modifier: InteractiveViewModifier) {
+  private func onClick(elementId: Data.Element.ID,
+                       index: Int,
+                       modifier: InteractiveViewModifier) {
     switch modifier {
     case .empty:
       selections = []
@@ -141,29 +143,39 @@ struct EditableStack<Data, Content>: View where Content: View,
   }
 
   private func onDragChanged(elementId: Data.Element.ID,
+                             index currentIndex: Int,
                              value: GestureStateGesture<DragGesture, CGSize>.Value,
                              size: CGSize) {
-    draggingElementId = elementId
+    if draggingElementId != elementId {
+      draggingElementId = elementId
+      draggingElementIndex = currentIndex
+    }
+
     dragProxy = value.translation
 
     let elementCount = data.count
 
     guard elementCount != selections.count else { return }
 
-    let currentIndex = data.firstIndex(where: { $0.id == elementId }) ?? 0
-    newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
+    let newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
+
+    if self.newIndex != newIndex {
+      self.newIndex = newIndex
+    }
 
     if !selections.contains(elementId) {
       selections.removeAll()
     }
-    mouseDown = true
+
+    if mouseDown == false {
+      mouseDown = true
+    }
   }
 
   private func onDragEnded(elementId: Data.Element.ID,
-                            value: GestureStateGesture<DragGesture, CGSize>.Value,
-                            size: CGSize) {
-    let elementCount = data.count
-    let currentIndex = data.firstIndex(where: { $0.id == elementId }) ?? 0
+                           index currentIndex: Int,
+                           value: GestureStateGesture<DragGesture, CGSize>.Value,
+                           size: CGSize) {
     let newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
     let indexSet: IndexSet
 
@@ -181,14 +193,15 @@ struct EditableStack<Data, Content>: View where Content: View,
       self.newIndex = -1
       self.dragProxy = .zero
       self.draggingElementId = nil
+      self.draggingElementIndex = nil
     }
   }
 
   private func onKeyDown(elementId: Data.Element.ID,
                          keyCode: Int,
                          modifiers: NSEvent.ModifierFlags) {
-    guard case .focused(let currentId) = focus,
-          let index = data.firstIndex(where: { $0.id == currentId }) else { return }
+    guard case .focused = focus,
+          let index = draggingElementIndex else { return }
     switch keyCode {
     case kVK_Escape:
       selections = []
@@ -254,36 +267,34 @@ struct EditableStack<Data, Content>: View where Content: View,
                                     currentIndex: Int,
                                     newIndex: Int,
                                     elementCount: Int) -> some View {
-    if draggingElementId == nil {
-      EmptyView()
-    } else {
-      let indexOfDraggedElement = data.firstIndex(where: { $0.id == draggingElementId }) ?? -1
+    if let draggingElementIndex {
       RoundedRectangle(cornerRadius: cornerRadius)
         .fill(Color.accentColor)
         .frame(maxWidth: axes == .horizontal ? 2.0 : nil,
                maxHeight: axes == .vertical ? 2.0 : nil)
-        .opacity(indexOfDraggedElement != currentIndex &&
+        .opacity(draggingElementIndex != currentIndex &&
                  (newIndex == currentIndex || newIndex == currentIndex + 1
                   && currentIndex == elementCount - 1) &&
                  !selections.contains(elementId)
                  ? 0.75 : 0.0)
         .allowsHitTesting(false)
+    } else {
+      EmptyView()
     }
   }
 
   private func calculateOffset(elementID: Data.Element.ID, currentIndex: Int) -> CGSize {
-    if draggingElementId == nil {
+    guard let draggingElementIndex, draggingElementId != nil else {
       return .zero
     }
     let isProxyItem = draggingElementId != nil &&
       elementID != draggingElementId &&
       selections.contains(elementID) &&
       dragProxy != .zero
-    let indexOfDraggedElement = data.firstIndex(where: { $0.id == draggingElementId }) ?? -1
-    let delta = abs(indexOfDraggedElement - currentIndex)
+    let delta = abs(draggingElementIndex - currentIndex)
     return CGSize(width: isProxyItem ? dragProxy.width : 0,
                   height: isProxyItem ?
-                  (currentIndex > indexOfDraggedElement)
+                  (currentIndex > draggingElementIndex)
                   ? (dragProxy.height - (75.0 * CGFloat(delta)))
                   : (dragProxy.height + (75.0 * CGFloat(delta))) : 0.0)
   }

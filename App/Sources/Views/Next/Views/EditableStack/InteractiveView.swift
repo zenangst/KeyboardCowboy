@@ -4,7 +4,9 @@ enum InteractiveViewModifier {
   case command, shift, empty
 }
 
-struct InteractiveView<ElementID, Content, Overlay>: View where Content : View, Overlay: View {
+struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
+                                                                Overlay: View,
+                                                                ElementID: Hashable {
   @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
@@ -14,26 +16,27 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View, 
   @State var zIndex: Double = 0
   private let animation: Animation
   private let id: ElementID
+  private let index: Int
   @ViewBuilder
   private let content: () -> Content
   private let overlay: () -> Overlay
-  private let onDragChanged: (ElementID, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
-  private let onDragEnded: (ElementID, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
-  private let onClick: (ElementID, InteractiveViewModifier) -> Void
+  private let onDragChanged: (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
+  private let onDragEnded: (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
+  private let onClick: (ElementID, Int, InteractiveViewModifier) -> Void
   private let onKeyDown: (ElementID, Int, NSEvent.ModifierFlags) -> Void
 
   init(animation: Animation,
        id: ElementID,
-//       zIndex: Binding<Double>,
+       index: Int,
        @ViewBuilder content: @escaping () -> Content,
        overlay: @escaping () -> Overlay,
-       onClick: @escaping (ElementID, InteractiveViewModifier) -> Void,
+       onClick: @escaping (ElementID, Int, InteractiveViewModifier) -> Void,
        onKeyDown: @escaping (ElementID, Int, NSEvent.ModifierFlags) -> Void,
-       onDragChanged: @escaping (ElementID, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void,
-       onDragEnded: @escaping (ElementID, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void) {
+       onDragChanged: @escaping (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void,
+       onDragEnded: @escaping (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void) {
     self.animation = animation
     self.id = id
-//    _zIndex = zIndex
+    self.index = index
     self.content = content
     self.overlay = overlay
     self.onClick = onClick
@@ -62,37 +65,37 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View, 
       .allowsHitTesting(dragOffsetState == .zero)
       .offset(dragOffsetState)
       .animation(Animation.linear(duration: 0.1), value: mouseDown)
-      .highPriorityGesture(
+      .gesture(
         DragGesture()
           .updating($dragOffsetState) { (value, state, transaction) in
             state = value.translation
           }
           .onChanged({
             isFocused = false
-            onDragChanged(id, $0, size)
+            onDragChanged(id, index, $0, size)
             zIndex = 1
             mouseDown = true
           })
           .onEnded {
             zIndex = 0
-            onDragEnded(id, $0, size)
+            onDragEnded(id, index, $0, size)
             mouseDown = false
           }
       )
       .gesture(TapGesture().modifiers(.command)
         .onEnded({ _ in
-          onClick(id, .command)
+          onClick(id, index, .command)
         })
       )
       .gesture(TapGesture().modifiers(.shift)
         .onEnded({ _ in
-          onClick(id, .shift)
+          onClick(id, index, .shift)
         })
       )
       .gesture(TapGesture()
         .onEnded({ _ in
           isFocused = true
-          onClick(id, .empty)
+          onClick(id, index, .empty)
         })
       )
       .focusable()
