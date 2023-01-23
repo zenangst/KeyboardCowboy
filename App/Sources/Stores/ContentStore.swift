@@ -17,7 +17,6 @@ final class ContentStore: ObservableObject {
   private(set) var configurationStore: ConfigurationStore
   private(set) var groupStore: GroupStore
   private(set) var recorderStore = KeyShortcutRecorderStore()
-  private(set) var searchStore: SearchStore
   private(set) var shortcutStore: ShortcutStore
   
   @Published var selectedWorkflows = [Workflow]()
@@ -42,7 +41,6 @@ final class ContentStore: ObservableObject {
     self.indexer = indexer
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
-    self.searchStore = SearchStore(store: groupStore, results: [])
 
     guard !isRunningPreview else { return }
 

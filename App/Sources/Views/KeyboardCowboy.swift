@@ -29,10 +29,8 @@ struct KeyboardCowboy: App {
   private let contentCoordinator: ContentCoordinator
   private let detailCoordinator: DetailCoordinator
 
-  /// Old
-  @FocusState private var focus: Focus?
-  @ObservedObject private var contentStore: ContentStore
-  @ObservedObject private var groupStore: GroupStore
+  private let contentStore: ContentStore
+  private let groupStore: GroupStore
   private let scriptEngine: ScriptEngine
   private let engine: KeyboardCowboyEngine
   static let env: AppEnvironment = .development
@@ -65,11 +63,10 @@ struct KeyboardCowboy: App {
                                                keyboardCowboyEngine: engine,
                                                groupStore: contentStore.groupStore)
 
-    _contentStore = .init(initialValue: contentStore)
-    _groupStore = .init(initialValue: contentStore.groupStore)
+    self.contentStore = contentStore
+    self.groupStore = contentStore.groupStore
     self.engine = engine
     self.scriptEngine = scriptEngine
-    self.focus = .main(.groupComponent)
 
     Inject.animation = .easeInOut(duration: 0.275)
 
@@ -95,46 +92,30 @@ struct KeyboardCowboy: App {
     }
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
-      switch KeyboardCowboy.env {
-      case .development:
-        applyEnvironmentObjects(
-          ContainerView { action in
-            switch action {
+      applyEnvironmentObjects(
+        ContainerView { action in
+          switch action {
+          case .openScene(let scene):
+            handleScene(scene)
+          case .sidebar(let sidebarAction):
+            switch sidebarAction {
             case .openScene(let scene):
               handleScene(scene)
-            case .sidebar(let sidebarAction):
-              switch sidebarAction {
-              case .openScene(let scene):
-                handleScene(scene)
-              default:
-                sidebarCoordinator.handle(sidebarAction)
-                contentCoordinator.handle(sidebarAction)
-              }
-            case .content(let contentAction):
-              sidebarCoordinator.handle(contentAction)
-              detailCoordinator.handle(contentAction)
-            case .detail(let detailAction):
-              Task {
-                await detailCoordinator.handle(detailAction)
-                contentCoordinator.handle(detailAction)
-              }
+            default:
+              sidebarCoordinator.handle(sidebarAction)
+              contentCoordinator.handle(sidebarAction)
+            }
+          case .content(let contentAction):
+            sidebarCoordinator.handle(contentAction)
+            detailCoordinator.handle(contentAction)
+          case .detail(let detailAction):
+            Task {
+              await detailCoordinator.handle(detailAction)
+              contentCoordinator.handle(detailAction)
             }
           }
-)
-      case .production:
-        LegacyContentView(
-          contentStore,
-          selectedGroups: $groupStore.selectedGroups,
-          selectedWorkflows: $contentStore.selectedWorkflows,
-          focus: _focus) { action in
-            switch action {
-            case .run(let command):
-              engine.run([command], serial: true)
-            case .reveal(let command):
-              engine.reveal([command])
-            }
-          }
-      }
+        }
+      )
     }
     .windowStyle(.hiddenTitleBar)
 

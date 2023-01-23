@@ -26,7 +26,8 @@ final class TypeEngine {
     for character in input {
       if naturalTyping != .disabled {
         let sleepTime = TimeInterval.random(in: 0...naturalTyping.rawValue)
-        Thread.sleep(forTimeInterval: sleepTime)
+        let duration = UInt64(sleepTime * 1_000_000_000)
+        try await Task.sleep(nanoseconds: duration)
       }
       let string = String(character)
       let charSet = CharacterSet(charactersIn: string)

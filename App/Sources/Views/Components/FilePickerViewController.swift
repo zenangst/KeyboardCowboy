@@ -1,6 +1,11 @@
 import Combine
 import Cocoa
 
+public enum OpenPanelAction {
+  case selectFile(type: String?, handler: (String) -> Void)
+  case selectFolder(handler: (String) -> Void)
+}
+
 final class OpenPanelController: NSObject, ObservableObject, NSOpenSavePanelDelegate {
   @Published var state: String = ""
   var fileExtension: String?
