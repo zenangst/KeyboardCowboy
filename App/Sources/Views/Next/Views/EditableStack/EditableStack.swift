@@ -18,6 +18,9 @@ struct EditableStack<Data, Content>: View where Content: View,
   @FocusState var focus: Focus?
   @Environment(\.resetFocus) var resetFocus
 
+  private let mainAnimation = Animation.default.speed(2.5)
+  private let proxyAnimation = Animation.default.speed(1.5)
+
   private let id: KeyPath<Data.Element, Data.Element.ID>
   private let content: (Binding<Data.Element>) -> Content
   private let cornerRadius: Double
@@ -60,120 +63,129 @@ struct EditableStack<Data, Content>: View where Content: View,
   }
 
   var body: some View {
-      let mainAnimation = Animation.default.speed(2.5)
-      let proxyAnimation = mainAnimation.speed(1.5)
-      AxesView(axes, lazy: lazy, spacing: spacing) {
-        let elementCount = data.count
-        let indexOfDraggedElement = data.firstIndex(where: { $0.id == draggingElementId }) ?? -1
-        ForEach($data, id: id) { element in
-          let isProxyItem = element.id != draggingElementId &&
-                            selections.contains(element.id) &&
-                            dragProxy != .zero
-          let elementId = element.id
-          let isDraggedItem = elementId == draggingElementId
-          let currentIndex = data.firstIndex(where: { $0.id == element.id }) ?? 0
-          let delta = abs(indexOfDraggedElement - currentIndex)
-
-          InteractiveView(
-            animation: mainAnimation,
-            id: elementId,
-            currentIndex: currentIndex,
-            zIndex: Binding<Double>(get: {
-              draggingElementId == elementId ? Double(elementCount) : isProxyItem ? Double(elementCount - delta) : 0.0
-            }, set: { _ in }),
-            content: content(element),
-            overlay: {
-              Color.accentColor
-                .opacity(selections.contains(elementId) ? 0.2 : 0.0)
-                .cornerRadius(cornerRadius)
-                .allowsHitTesting(false)
-            },
-            onClick: { modifier in
-              switch modifier {
-              case .empty:
-                selections = []
-                focus = .focused(elementId)
-              case .command:
-                focus = .focused(elementId)
-                onTapWithCommandModifier(elementId)
-              case .shift:
-                focus = .focused(elementId)
-                onTapWithShiftModifier(elementId)
-              }
-            },
-            onKeyDown: onKeyDown,
-            onDragChanged: { value, size in
-              draggingElementId = elementId
-              dragProxy = value.translation
-
-              guard elementCount != selections.count else { return }
-
-              newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
-
-              if !selections.contains(elementId) {
-                selections.removeAll()
-              }
-              mouseDown = true
-            },
-            onDragEnded: { value, size in
-              let newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
-              let indexSet: IndexSet
-
-              if !selections.isEmpty {
-                let indexes = selections.compactMap { selection in
-                  data.firstIndex(where: { $0.id == selection } )
-                }
-                indexSet = IndexSet(indexes)
-              } else {
-                indexSet = IndexSet(integer: currentIndex)
-              }
-              withAnimation {
-                mouseDown = false
-                onMove(indexSet, newIndex)
-                self.newIndex = -1
-                self.dragProxy = .zero
-                self.draggingElementId = nil
-              }
-            }
-          )
-//                  .scaleEffect(isProxyItem ? 0.95 * CGFloat(1/delta) : 1)
-          .offset(x: isProxyItem ? dragProxy.width : 0,
-                  y: isProxyItem ?
-                  (currentIndex > indexOfDraggedElement)
-                  ? (dragProxy.height - (75 * CGFloat(delta)))
-                  : (dragProxy.height + (75 * CGFloat(delta))) : 0)
-          .animation(proxyAnimation, value: mouseDown)
-          .opacity(isProxyItem ? 0.8 : isDraggedItem ? 0.9 : 1)
-          .overlay(alignment: currentIndex >= newIndex ? .top : .bottom, content: {
-            RoundedRectangle(cornerRadius: cornerRadius)
-              .fill(Color.accentColor)
-              .frame(maxWidth: axes == .horizontal ? 2 : nil,
-                     maxHeight: axes == .vertical ? 2 : nil)
-              .opacity(indexOfDraggedElement != currentIndex &&
-                       (newIndex == currentIndex || newIndex == currentIndex + 1
-                        && currentIndex == elementCount - 1) &&
-                       !selections.contains(elementId)
-                       ? 0.75 : 0)
-              .allowsHitTesting(false)
-          })
-          .focused($focus, equals: .focused(element.wrappedValue.id))
-        }
-        .onDeleteCommand {
-          if !selections.isEmpty {
-            let indexes = selections.compactMap { selection in
-              data.firstIndex(where: { $0.id == selection } )
-            }
-            onDelete(IndexSet(indexes))
-          } else if case .focused(let id) = focus,
-                    let index = data.firstIndex(where: { $0.id == id }) {
-            onDelete(IndexSet(integer: index))
-          }
-        }
+    axesView { element, index in
+      interactiveView(element, index: index) { element in
+        content(element)
       }
-      .enableInjection()
+    }
+    .enableInjection()
   }
 
-  private func onKeyDown(_ keyCode: Int,
+  @ViewBuilder
+  private func axesView<Content: View>(content: @escaping (Binding<Data.Element>, Int) -> Content) -> some View {
+    AxesView(axes, lazy: lazy, spacing: spacing) {
+      ForEach($data, id: id) { element in
+        let index = data.firstIndex(of: element.wrappedValue) ?? 0
+        content(element, index)
+      }
+      .onDeleteCommand {
+        if !selections.isEmpty {
+          let indexes = selections.compactMap { selection in
+            data.firstIndex(where: { $0.id == selection } )
+          }
+          onDelete(IndexSet(indexes))
+        } else if case .focused(let id) = focus,
+                  let index = data.firstIndex(where: { $0.id == id }) {
+          onDelete(IndexSet(integer: index))
+        }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private func interactiveView<Content: View>(_ element: Binding<Data.Element>,
+                                              index: Int,
+                                              content: @escaping (Binding<Data.Element>) -> Content) -> some View {
+    let elementCount = data.count
+    let currentIndex = index
+
+    InteractiveView(
+      animation: mainAnimation,
+      id: element.id,
+      content: { content(element) },
+      overlay: {
+        Color.accentColor
+          .opacity(selections.contains(element.id) ? 0.2 : 0.0)
+          .cornerRadius(cornerRadius)
+          .allowsHitTesting(false)
+      },
+      onClick: onClick,
+      onKeyDown: onKeyDown,
+      onDragChanged: onDragChanged,
+      onDragEnded: onDragEnded
+    )
+    .offset(calculateOffset(elementID: element.id,
+                            currentIndex: currentIndex))
+    .animation(proxyAnimation, value: mouseDown)
+    .overlay(alignment: currentIndex >= newIndex ? .top : .bottom, content: {
+      dropIndicatorOverlay(elementId: element.id,
+                           currentIndex: currentIndex,
+                           newIndex: newIndex,
+                           elementCount: elementCount)
+    })
+    .focused($focus, equals: .focused(element.wrappedValue.id))
+  }
+
+  private func onClick(elementId: Data.Element.ID, modifier: InteractiveViewModifier) {
+    switch modifier {
+    case .empty:
+      selections = []
+      focus = .focused(elementId)
+    case .command:
+      focus = .focused(elementId)
+      onTapWithCommandModifier(elementId)
+    case .shift:
+      focus = .focused(elementId)
+      onTapWithShiftModifier(elementId)
+    }
+  }
+
+  private func onDragChanged(elementId: Data.Element.ID,
+                             value: GestureStateGesture<DragGesture, CGSize>.Value,
+                             size: CGSize) {
+    draggingElementId = elementId
+    dragProxy = value.translation
+
+    let elementCount = data.count
+
+    guard elementCount != selections.count else { return }
+
+    let currentIndex = data.firstIndex(where: { $0.id == elementId }) ?? 0
+    newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
+
+    if !selections.contains(elementId) {
+      selections.removeAll()
+    }
+    mouseDown = true
+  }
+
+  private func onDragEnded(elementId: Data.Element.ID,
+                            value: GestureStateGesture<DragGesture, CGSize>.Value,
+                            size: CGSize) {
+    let elementCount = data.count
+    let currentIndex = data.firstIndex(where: { $0.id == elementId }) ?? 0
+    let newIndex = max(min(calculateNewIndex(value, size: size, currentIndex: currentIndex), elementCount), 0)
+    let indexSet: IndexSet
+
+    if !selections.isEmpty {
+      let indexes = selections.compactMap { selection in
+        data.firstIndex(where: { $0.id == selection } )
+      }
+      indexSet = IndexSet(indexes)
+    } else {
+      indexSet = IndexSet(integer: currentIndex)
+    }
+    withAnimation {
+      mouseDown = false
+      onMove(indexSet, newIndex)
+      self.newIndex = -1
+      self.dragProxy = .zero
+      self.draggingElementId = nil
+    }
+  }
+
+  private func onKeyDown(elementId: Data.Element.ID,
+                         keyCode: Int,
                          modifiers: NSEvent.ModifierFlags) {
     guard case .focused(let currentId) = focus,
           let index = data.firstIndex(where: { $0.id == currentId }) else { return }
@@ -215,8 +227,8 @@ struct EditableStack<Data, Content>: View where Content: View,
       let alreadySelected = selections.contains(elementId)
       guard var startIndex = data.firstIndex(where: { $0.id == currentElement }),
             var endIndex = data.firstIndex(where: { $0.id == elementId }) else {
-              return
-            }
+        return
+      }
       if endIndex < startIndex {
         let copy = startIndex
         startIndex = endIndex
@@ -235,6 +247,45 @@ struct EditableStack<Data, Content>: View where Content: View,
         }
       }
     }
+  }
+
+  @ViewBuilder
+  private func dropIndicatorOverlay(elementId: Data.Element.ID,
+                                    currentIndex: Int,
+                                    newIndex: Int,
+                                    elementCount: Int) -> some View {
+    if draggingElementId == nil {
+      EmptyView()
+    } else {
+      let indexOfDraggedElement = data.firstIndex(where: { $0.id == draggingElementId }) ?? -1
+      RoundedRectangle(cornerRadius: cornerRadius)
+        .fill(Color.accentColor)
+        .frame(maxWidth: axes == .horizontal ? 2.0 : nil,
+               maxHeight: axes == .vertical ? 2.0 : nil)
+        .opacity(indexOfDraggedElement != currentIndex &&
+                 (newIndex == currentIndex || newIndex == currentIndex + 1
+                  && currentIndex == elementCount - 1) &&
+                 !selections.contains(elementId)
+                 ? 0.75 : 0.0)
+        .allowsHitTesting(false)
+    }
+  }
+
+  private func calculateOffset(elementID: Data.Element.ID, currentIndex: Int) -> CGSize {
+    if draggingElementId == nil {
+      return .zero
+    }
+    let isProxyItem = draggingElementId != nil &&
+      elementID != draggingElementId &&
+      selections.contains(elementID) &&
+      dragProxy != .zero
+    let indexOfDraggedElement = data.firstIndex(where: { $0.id == draggingElementId }) ?? -1
+    let delta = abs(indexOfDraggedElement - currentIndex)
+    return CGSize(width: isProxyItem ? dragProxy.width : 0,
+                  height: isProxyItem ?
+                  (currentIndex > indexOfDraggedElement)
+                  ? (dragProxy.height - (75.0 * CGFloat(delta)))
+                  : (dragProxy.height + (75.0 * CGFloat(delta))) : 0.0)
   }
 
   private func calculateNewIndex(_ value: GestureStateGesture<DragGesture, CGSize>.Value,

@@ -4,38 +4,36 @@ enum InteractiveViewModifier {
   case command, shift, empty
 }
 
-struct InteractiveView<Content, Overlay>: View where Content : View, Overlay: View {
+struct InteractiveView<ElementID, Content, Overlay>: View where Content : View, Overlay: View {
   @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
   @GestureState private var dragOffsetState: CGSize = .zero
   @State private var size: CGSize = .zero
   @State private var mouseDown: Bool = false
-  @Binding var zIndex: Double
+  @State var zIndex: Double = 0
   private let animation: Animation
-  private let id: CustomStringConvertible
-  private let currentIndex: Int
+  private let id: ElementID
+  @ViewBuilder
   private let content: () -> Content
   private let overlay: () -> Overlay
-  private let onDragChanged: (GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
-  private let onDragEnded: (GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
-  private let onClick: (InteractiveViewModifier) -> Void
-  private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
+  private let onDragChanged: (ElementID, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
+  private let onDragEnded: (ElementID, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
+  private let onClick: (ElementID, InteractiveViewModifier) -> Void
+  private let onKeyDown: (ElementID, Int, NSEvent.ModifierFlags) -> Void
 
   init(animation: Animation,
-       id: CustomStringConvertible,
-       currentIndex: Int,
-       zIndex: Binding<Double>,
-       content: @autoclosure @escaping () -> Content,
+       id: ElementID,
+//       zIndex: Binding<Double>,
+       @ViewBuilder content: @escaping () -> Content,
        overlay: @escaping () -> Overlay,
-       onClick: @escaping (InteractiveViewModifier) -> Void,
-       onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void,
-       onDragChanged: @escaping (GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void,
-       onDragEnded: @escaping (GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void) {
+       onClick: @escaping (ElementID, InteractiveViewModifier) -> Void,
+       onKeyDown: @escaping (ElementID, Int, NSEvent.ModifierFlags) -> Void,
+       onDragChanged: @escaping (ElementID, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void,
+       onDragEnded: @escaping (ElementID, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void) {
     self.animation = animation
-    self.currentIndex = currentIndex
     self.id = id
-    _zIndex = zIndex
+//    _zIndex = zIndex
     self.content = content
     self.overlay = overlay
     self.onClick = onClick
@@ -48,7 +46,9 @@ struct InteractiveView<Content, Overlay>: View where Content : View, Overlay: Vi
     content()
       .background(
         ZStack {
-          FocusableProxy(id: id, onKeyDown: onKeyDown)
+          FocusableProxy(onKeyDown: {
+            onKeyDown(id, $0, $1)
+          })
           GeometryReader { proxy in
             Color.clear
               .onAppear { size = proxy.size }
@@ -69,28 +69,30 @@ struct InteractiveView<Content, Overlay>: View where Content : View, Overlay: Vi
           }
           .onChanged({
             isFocused = false
-            onDragChanged($0, size)
+            onDragChanged(id, $0, size)
+            zIndex = 1
             mouseDown = true
           })
           .onEnded {
-            onDragEnded($0, size)
+            zIndex = 0
+            onDragEnded(id, $0, size)
             mouseDown = false
           }
       )
       .gesture(TapGesture().modifiers(.command)
         .onEnded({ _ in
-          onClick(.command)
+          onClick(id, .command)
         })
       )
       .gesture(TapGesture().modifiers(.shift)
         .onEnded({ _ in
-          onClick(.shift)
+          onClick(id, .shift)
         })
       )
       .gesture(TapGesture()
         .onEnded({ _ in
           isFocused = true
-          onClick(.empty)
+          onClick(id, .empty)
         })
       )
       .focusable()
