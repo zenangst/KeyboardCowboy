@@ -151,9 +151,9 @@ struct EditableStack<Data, Content>: View where Content: View,
       draggingElementIndex = currentIndex
     }
 
-    dragProxy = value.translation
-
-    let elementCount = data.count
+    if !selections.isEmpty {
+      dragProxy = value.translation
+    }
 
     guard elementCount != selections.count else { return }
 
