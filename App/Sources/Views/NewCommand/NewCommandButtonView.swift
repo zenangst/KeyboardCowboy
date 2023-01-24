@@ -2,7 +2,6 @@ import SwiftUI
 
 struct NewCommandButtonView<Content>: View where Content: View {
   @FocusState private var isFocused: Bool
-  @ObserveInjection var inject
 
   private let content: () -> Content
   private let action: () -> Void
@@ -29,6 +28,5 @@ struct NewCommandButtonView<Content>: View where Content: View {
     .buttonStyle(.plain)
     .focusable()
     .focused($isFocused)
-    .enableInjection()
   }
 }

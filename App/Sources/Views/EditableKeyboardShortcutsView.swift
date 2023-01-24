@@ -4,7 +4,6 @@ struct EditableKeyboardShortcutsView: View {
   enum CurrentState: Hashable {
     case recording
   }
-  @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
   @Binding var keyboardShortcuts: [KeyShortcut]
@@ -50,7 +49,6 @@ struct EditableKeyboardShortcutsView: View {
         break
       }
     })
-    .enableInjection()
   }
 
   private func content(_ proxy: ScrollViewProxy) -> some View {

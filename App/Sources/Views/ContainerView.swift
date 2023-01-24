@@ -7,7 +7,6 @@ struct ContainerView: View {
     case content(ContentView.Action)
     case detail(DetailView.Action)
   }
-  @ObserveInjection var inject
   @EnvironmentObject var groupStore: GroupStore
   @EnvironmentObject var groupsPublisher: GroupsPublisher
   @ObservedObject var navigationPublisher = NavigationPublisher()
@@ -49,7 +48,6 @@ struct ContainerView: View {
       })
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)
-    .enableInjection()
   }
 }
 

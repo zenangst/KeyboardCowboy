@@ -2,7 +2,6 @@ import Combine
 import SwiftUI
 
 struct ScriptEditorView: View {
-  @ObserveInjection var inject
   @FocusState var isFocused: Bool
 
   @State private var isHovered: Bool = false
@@ -33,7 +32,6 @@ struct ScriptEditorView: View {
     .onHover(perform: { newValue in  withAnimation { isHovered = newValue } })
     .focusable()
     .focused($isFocused)
-    .enableInjection()
   }
 }
 

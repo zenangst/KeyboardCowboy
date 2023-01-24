@@ -35,7 +35,6 @@ struct NewCommandView: View {
     case type = "Type"
   }
 
-  @ObserveInjection var inject
   private let workflowId: Workflow.ID
   private let commandId: Command.ID?
 
@@ -81,7 +80,6 @@ struct NewCommandView: View {
       }
     }
     .frame(minWidth: 710, minHeight: 400)
-    .enableInjection()
   }
 
   private func sidebar() -> some View {

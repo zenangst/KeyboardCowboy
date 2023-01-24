@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct NewCommandShortcutView: View {
-  @ObserveInjection var inject
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
@@ -43,7 +42,6 @@ struct NewCommandShortcutView: View {
       validation = .unknown
       payload = NewCommandPayload.script(value: "", kind: .source, scriptExtension: .appleScript)
     }
-    .enableInjection()
   }
 
   @discardableResult

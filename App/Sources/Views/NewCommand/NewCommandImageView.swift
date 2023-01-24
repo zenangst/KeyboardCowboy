@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct NewCommandImageView: View {
-  @ObserveInjection var inject
   let kind: NewCommandView.Kind
 
   var body: some View {
@@ -34,7 +33,6 @@ struct NewCommandImageView: View {
       }
     }
     .frame(width: 24, height: 24)
-    .enableInjection()
   }
 
   private func image(for path: String) -> some View {

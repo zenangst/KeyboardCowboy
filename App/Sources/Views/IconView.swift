@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct IconView: View {
-  @ObserveInjection var inject
   let path: String
   @StateObject var store = IconStore()
 
@@ -13,7 +12,6 @@ struct IconView: View {
     .frame(minWidth: 12, minHeight: 12)
     .onAppear { store.load(path) }
     .onDisappear { store.cancel() }
-    .enableInjection()
   }
 }
 

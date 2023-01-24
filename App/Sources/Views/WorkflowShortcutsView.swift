@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct WorkflowShortcutsView: View {
-  @ObserveInjection var inject
   @State private var keyboardShortcuts: [KeyShortcut]
   private let onUpdate: ([KeyShortcut]) -> Void
 
@@ -21,6 +20,5 @@ struct WorkflowShortcutsView: View {
       .onChange(of: keyboardShortcuts, perform: { newValue in
         onUpdate(newValue)
       })
-    .enableInjection()
   }
 }

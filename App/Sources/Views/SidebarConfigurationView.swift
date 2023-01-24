@@ -4,7 +4,6 @@ struct SidebarConfigurationView: View {
   enum Action {
     case selectConfiguration(ConfigurationViewModel.ID)
   }
-  @ObserveInjection var inject
   @EnvironmentObject private var publisher: ConfigurationPublisher
 
   private let onAction: (Action) -> Void
@@ -51,7 +50,6 @@ struct SidebarConfigurationView: View {
       .padding(.trailing, 4)
     }
     .buttonStyle(.plain)
-    .enableInjection()
   }
 }
 

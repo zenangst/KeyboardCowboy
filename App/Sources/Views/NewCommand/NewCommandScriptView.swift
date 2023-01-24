@@ -33,7 +33,6 @@ struct NewCommandScriptView: View {
     }
   }
 
-  @ObserveInjection var inject
   @EnvironmentObject var openPanel: OpenPanelController
   @State private var kind: Kind
   @State private var scriptExtension: ScriptExtension
@@ -123,7 +122,6 @@ struct NewCommandScriptView: View {
       validation = updateAndValidatePayload()
     }
     .menuStyle(.borderlessButton)
-    .enableInjection()
   }
 
   @discardableResult

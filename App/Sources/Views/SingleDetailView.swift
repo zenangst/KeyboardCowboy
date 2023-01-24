@@ -19,7 +19,6 @@ struct SingleDetailView: View {
     case newCommand
   }
 
-  @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @Environment(\.openWindow) var openWindow
   @Binding private var workflow: DetailViewModel
@@ -84,7 +83,6 @@ struct SingleDetailView: View {
       .overlay(alignment: .top, content: { overlayView() })
       .labelStyle(HeaderLabelStyle())
     }
-    .enableInjection()
   }
 
   private func overlayView() -> some View {

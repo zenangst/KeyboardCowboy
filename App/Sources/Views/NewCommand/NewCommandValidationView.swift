@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct NewCommandValidationView: View {
-  @ObserveInjection var inject
   @Binding var validation: NewCommandValidation
 
   init(_ validation: Binding<NewCommandValidation>) {
@@ -68,7 +67,6 @@ struct NewCommandValidationView: View {
       }
     }
     .id(validation.rawValue)
-    .enableInjection()
   }
 }
 

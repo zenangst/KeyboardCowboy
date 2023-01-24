@@ -2,7 +2,6 @@ import Apps
 import SwiftUI
 
 struct ApplicationPickerView: View {
-  @ObserveInjection var inject
   @ObservedObject var store: ApplicationStore
   @Binding var selection: Application?
   private var title: String
@@ -21,7 +20,7 @@ struct ApplicationPickerView: View {
         Text(application.displayName)
           .tag(application as Application?)
       }
-    }.enableInjection()
+    }
   }
 }
 

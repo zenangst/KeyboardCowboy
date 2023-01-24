@@ -19,7 +19,6 @@ struct CommandView: View {
 
   @Environment(\.controlActiveState) var controlActiveState
 
-  @ObserveInjection var inject
   let workflowId: String
   @Binding private var command: DetailViewModel.CommandViewModel
   @State private var progressValue: CGFloat = 0.0
@@ -69,8 +68,7 @@ struct CommandView: View {
               y: command.isEnabled ? 2 : 0)
       .animation(.easeIn(duration: 0.2), value: command.isEnabled)
       .id(command.id)
-      .enableInjection()
-  }
+    }
 
   @ViewBuilder
   private func view(for kind: DetailViewModel.CommandViewModel.Kind) -> some View {

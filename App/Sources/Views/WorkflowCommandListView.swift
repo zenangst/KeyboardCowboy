@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct WorkflowCommandListView: View {
-  @ObserveInjection var inject
   @Binding private var workflow: DetailViewModel
   @State private var selections = Set<String>()
   private let scrollViewProxy: ScrollViewProxy?
@@ -92,7 +91,6 @@ struct WorkflowCommandListView: View {
       )
     }
     .padding()
-    .enableInjection()
   }
 }
 

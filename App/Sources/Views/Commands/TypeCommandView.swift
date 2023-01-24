@@ -6,7 +6,6 @@ struct TypeCommandView: View {
     case updateSource(newInput: String)
     case commandAction(CommandContainerAction)
   }
-  @ObserveInjection var inject
   @Binding var command: DetailViewModel.CommandViewModel
   @State private var source: String
   @State private var name: String
@@ -44,7 +43,6 @@ struct TypeCommandView: View {
       }, subContent: {
         EmptyView()
       }, onAction: { onAction(.commandAction($0)) })
-    .enableInjection()
   }
 }
 
@@ -55,7 +53,6 @@ struct TypeCommandView_Previews: PreviewProvider {
 }
 
 struct TypeCommandTextEditor: View {
-  @ObserveInjection var inject
   @FocusState var isFocused: Bool
   @State var isHovered: Bool = false
   @Binding var text: String
@@ -99,6 +96,5 @@ struct TypeCommandTextEditor: View {
     .onHover(perform: { newValue in  withAnimation(.easeInOut(duration: 0.2)) { isHovered = newValue } })
     .focusable()
     .focused($isFocused)
-    .enableInjection()
   }
 }

@@ -13,7 +13,6 @@ struct GradientButtonStyle: ButtonStyle {
     }
   }
 
-  @ObserveInjection var inject
   @State private var isHovered = false
   @Environment(\.colorScheme) var colorScheme
 
@@ -57,6 +56,5 @@ struct GradientButtonStyle: ButtonStyle {
       .onHover(perform: { value in
         self.isHovered = value
       })
-      .enableInjection()
-  }
+    }
 }

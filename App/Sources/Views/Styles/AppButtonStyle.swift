@@ -24,7 +24,6 @@ extension View {
 }
 
 struct AppButtonStyle: ButtonStyle {
-  @ObserveInjection var inject
   @State private var isHovered = false
   @Environment(\.colorScheme) var colorScheme
 
@@ -49,8 +48,7 @@ struct AppButtonStyle: ButtonStyle {
         self.isHovered = value
       })
       .animation(.linear(duration: 0.1), value: isHovered)
-      .enableInjection()
-  }
+    }
 
   private var gradient: some View {
     LinearGradient(

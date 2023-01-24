@@ -8,7 +8,6 @@ struct ContentView: View {
     case moveWorkflows(source: IndexSet, destination: Int)
     case addWorkflow
   }
-  @ObserveInjection var inject
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher
 
@@ -94,7 +93,6 @@ struct ContentView: View {
         })
       }
     }
-    .enableInjection()
   }
 
   private func overlayView() -> some View {
@@ -135,14 +133,12 @@ struct ContentView: View {
 }
 
 struct ContentImagesView: View {
-  @ObserveInjection var inject
   let images: [ContentViewModel.ImageModel]
 
   var body: some View {
     ForEach(images) { image in
       ContentImageView(image: image)
     }
-    .enableInjection()
   }
 }
 

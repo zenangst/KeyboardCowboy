@@ -9,7 +9,6 @@ struct NewCommandURLView: View {
   }
 
   @EnvironmentObject var applicationStore: ApplicationStore
-  @ObserveInjection var inject
   @FocusState var focus: Focus?
 
   @Binding var payload: NewCommandPayload
@@ -98,7 +97,6 @@ struct NewCommandURLView: View {
       updateAndValidatePayload()
       focus = .address
     }
-    .enableInjection()
   }
 
   @discardableResult

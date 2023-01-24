@@ -6,7 +6,6 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
-  @ObserveInjection var inject
   @State var workflow: DetailViewModel
   private var onAction: (Action) -> Void
 
@@ -32,6 +31,5 @@ struct WorkflowInfoView: View {
         }
     }
     .frame(minHeight: 32)
-    .enableInjection()
   }
 }

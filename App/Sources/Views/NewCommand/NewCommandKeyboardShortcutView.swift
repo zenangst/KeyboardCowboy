@@ -7,7 +7,6 @@ struct NewCommandKeyboardShortcutView: View {
 
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
 
-  @ObserveInjection var inject
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
@@ -60,7 +59,6 @@ struct NewCommandKeyboardShortcutView: View {
       validation = .unknown
       payload = .keyboardShortcut([])
     }
-    .enableInjection()
   }
 
   @discardableResult

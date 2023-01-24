@@ -13,7 +13,6 @@ struct EditableStack<Data, Content>: View where Content: View,
     case focused(Data.Element.ID)
   }
 
-  @ObserveInjection var inject
   @Binding var data: Data
   @FocusState var focus: Focus?
   @Environment(\.resetFocus) var resetFocus
@@ -82,7 +81,6 @@ struct EditableStack<Data, Content>: View where Content: View,
         content(element)
       }
     }
-    .enableInjection()
   }
 
   @ViewBuilder

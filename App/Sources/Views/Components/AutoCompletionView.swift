@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct AutoCompletionView: View {
-  @ObserveInjection var inject
   @ObservedObject var store: AutoCompletionStore
 
   var body: some View {
@@ -28,7 +27,6 @@ struct AutoCompletionView: View {
         .stroke(Color(nsColor: .controlColor))
     )
     .cornerRadius(4)
-    .enableInjection()
   }
 }
 

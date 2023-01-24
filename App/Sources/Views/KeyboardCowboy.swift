@@ -1,7 +1,6 @@
 import Combine
 import SwiftUI
 import LaunchArguments
-@_exported import Inject
 
 let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
@@ -66,8 +65,6 @@ struct KeyboardCowboy: App {
     self.groupStore = contentStore.groupStore
     self.engine = engine
     self.scriptEngine = scriptEngine
-
-    Inject.animation = .easeInOut(duration: 0.275)
   }
 
   var body: some Scene {

@@ -43,7 +43,6 @@ extension KeyView {
 }
 
 public struct RegularKeyIcon: View, KeyView {
-  @ObserveInjection var inject
   @Environment(\.colorScheme) var colorScheme
   @State private var isPressed: Bool = false
   private var letters: [Letter]
@@ -98,8 +97,7 @@ public struct RegularKeyIcon: View, KeyView {
           withAnimation(animation, { glow.toggle() })
         }
       }
-      .enableInjection()
-  }
+    }
 
   func letter(height: CGFloat) -> some View {
     VStack {

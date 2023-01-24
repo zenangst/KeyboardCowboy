@@ -8,7 +8,6 @@ enum CommandContainerAction {
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
-  @ObserveInjection var inject
   @Binding var command: DetailViewModel.CommandViewModel
   var icon: () -> IconContent
   var content: () -> Content
@@ -61,7 +60,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
       Spacer()
       actionButtons
     }
-    .enableInjection()
   }
 
   var actionButtons: some View {

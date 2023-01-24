@@ -7,7 +7,6 @@ struct ShortcutCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @ObserveInjection var inject
   @State private var name: String
   @Binding var command: DetailViewModel.CommandViewModel
   private let onAction: (Action) -> Void
@@ -34,7 +33,6 @@ struct ShortcutCommandView: View {
     }, subContent: {
       Button("Open Shortcuts", action: { onAction(.openShortcuts) })
     }, onAction: { onAction(.commandAction($0)) })
-    .enableInjection()
   }
 }
 

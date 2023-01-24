@@ -7,7 +7,6 @@ struct KeyboardCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @ObserveInjection var inject
   @Binding private var command: DetailViewModel.CommandViewModel
   @State private var name: String
   @State private var keyboardShortcuts: [KeyShortcut]
@@ -59,7 +58,6 @@ struct KeyboardCommandView: View {
           .cornerRadius(4)
       },
       onAction: { onAction(.commandAction($0)) })
-    .enableInjection()
   }
 }
 

@@ -7,7 +7,6 @@ struct NewCommandOpenView: View {
   }
   @EnvironmentObject var applicationStore: ApplicationStore
   @EnvironmentObject var openPanel: OpenPanelController
-  @ObserveInjection var inject
 
   @FocusState var focus: Focus?
 
@@ -87,7 +86,6 @@ struct NewCommandOpenView: View {
     .onChange(of: self.path, perform: { newValue in
       updatePayload()
     })
-    .enableInjection()
   }
 
   private func updatePayload() {

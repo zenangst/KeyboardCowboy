@@ -33,7 +33,6 @@ struct NewCommandApplicationView: View {
     _ifNotRunning = .init(initialValue: ifNotRunning)
   }
 
-  @ObserveInjection var inject
   var body: some View {
     VStack(alignment: .leading) {
       Label(title: { Text("Open or Close Application:") }, icon: { EmptyView() })
@@ -110,7 +109,6 @@ struct NewCommandApplicationView: View {
     .onAppear {
       validation = .unknown
     }
-    .enableInjection()
   }
 
   @discardableResult

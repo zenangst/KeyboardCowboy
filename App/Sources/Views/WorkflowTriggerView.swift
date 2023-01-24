@@ -7,7 +7,6 @@ struct WorkflowTriggerView: View {
     case removeKeyboardShortcut
   }
 
-  @ObserveInjection var inject
   private let onAction: (Action) -> Void
 
   init(onAction: @escaping (Action) -> Void) {
@@ -44,6 +43,5 @@ struct WorkflowTriggerView: View {
       .cornerRadius(8)
     }
     .buttonStyle(.appStyle)
-    .enableInjection()
   }
 }

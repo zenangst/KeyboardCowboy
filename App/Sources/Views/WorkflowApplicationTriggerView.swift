@@ -7,7 +7,6 @@ struct WorkflowApplicationTriggerView: View {
     case updateApplicationTriggerContext(DetailViewModel.ApplicationTrigger)
   }
 
-  @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
 
   @State private var triggers: [DetailViewModel.ApplicationTrigger]
@@ -89,6 +88,5 @@ struct WorkflowApplicationTriggerView: View {
         .shadow(radius: 2)
       }
     }
-    .enableInjection()
   }
 }

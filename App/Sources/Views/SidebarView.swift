@@ -8,7 +8,6 @@ struct SidebarView: View {
     case moveGroups(source: IndexSet, destination: Int)
     case removeGroups([GroupViewModel.ID])
   }
-  @ObserveInjection var inject
 
   @EnvironmentObject private var groupIds: GroupIdsPublisher
   @EnvironmentObject private var groupStore: GroupStore
@@ -56,7 +55,6 @@ struct SidebarView: View {
       }
     }
     .labelStyle(SidebarLabelStyle())
-    .enableInjection()
   }
 }
 

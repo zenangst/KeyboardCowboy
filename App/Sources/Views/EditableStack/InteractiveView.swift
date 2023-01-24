@@ -7,7 +7,6 @@ enum InteractiveViewModifier {
 struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
                                                                 Overlay: View,
                                                                 ElementID: Hashable {
-  @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
   @GestureState private var dragOffsetState: CGSize = .zero
@@ -104,7 +103,6 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
       )
       .focusable()
       .focused($isFocused)
-      .enableInjection()
-  }
+    }
 }
 

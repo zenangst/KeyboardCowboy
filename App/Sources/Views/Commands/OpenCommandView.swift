@@ -8,7 +8,6 @@ struct OpenCommandView: View {
     case commandAction(CommandContainerAction)
     case reveal(path: String)
   }
-  @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
   @Binding var command: DetailViewModel.CommandViewModel
   @State private var name: String
@@ -89,7 +88,6 @@ struct OpenCommandView: View {
       .padding(.bottom, 4)
       .font(.caption)
     }, onAction: { onAction(.commandAction($0)) })
-    .enableInjection()
   }
 }
 

@@ -9,7 +9,6 @@ struct ScriptCommandView: View {
     case edit
     case commandAction(CommandContainerAction)
   }
-  @ObserveInjection var inject
   @EnvironmentObject var openPanel: OpenPanelController
   @State private var name: String
   @State private var text: String
@@ -88,7 +87,6 @@ struct ScriptCommandView: View {
       }
       .font(.caption)
     }, onAction: { onAction(.commandAction($0)) })
-    .enableInjection()
   }
 }
 

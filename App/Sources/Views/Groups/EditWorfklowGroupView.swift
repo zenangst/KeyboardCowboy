@@ -6,7 +6,6 @@ struct EditWorfklowGroupView: View {
     case cancel
   }
 
-  @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @State var editIcon: WorkflowGroup?
   @State var group: WorkflowGroup
@@ -66,7 +65,6 @@ struct EditWorfklowGroupView: View {
       .padding()
     }
     .frame(minWidth: 520, minHeight: 400)
-    .enableInjection()
   }
 }
 

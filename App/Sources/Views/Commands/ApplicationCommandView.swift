@@ -28,7 +28,6 @@ struct ApplicationCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @ObserveInjection var inject
   @Binding private var command: DetailViewModel.CommandViewModel
 
   @EnvironmentObject var applicationStore: ApplicationStore
@@ -122,12 +121,10 @@ struct ApplicationCommandView: View {
 
       },
       onAction: { onAction(.commandAction($0)) })
-    .enableInjection()
   }
 }
 
 struct ApplicationCommandImageView: View {
-  @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
   @State var isHovered: Bool = false
   @Binding private var command: DetailViewModel.CommandViewModel
@@ -162,7 +159,6 @@ struct ApplicationCommandImageView: View {
         .resizable()
         .allowsHitTesting(false)
     }
-    .enableInjection()
   }
 }
 

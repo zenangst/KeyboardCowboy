@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct NewCommandTypeView: View {
-  @ObserveInjection var inject
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
