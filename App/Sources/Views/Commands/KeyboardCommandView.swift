@@ -26,45 +26,39 @@ struct KeyboardCommandView: View {
   }
 
   var body: some View {
-    Group {
-      if case .keyboard = command.kind {
-        CommandContainerView(
-          $command, icon: {
-            ZStack {
-              Rectangle()
-                .fill(Color(nsColor: .systemGreen))
-                .opacity(0.2)
-                .cornerRadius(8)
-              ZStack {
-                RegularKeyIcon(letter: "")
-                Image(systemName: "flowchart")
-              }
-              .scaleEffect(0.8)
-            }
-          }, content: {
-            HStack {
-              TextField("", text: $name)
-                .textFieldStyle(AppTextFieldStyle())
-                .onChange(of: name, perform: {
-                  onAction(.updateName(newName: $0))
-                })
-              Spacer()
-            }
-          },
-          subContent: {
-            EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
-              .onChange(of: keyboardShortcuts) { newValue in
-                onAction(.updateKeyboardShortcuts(newValue))
-              }
-              .padding(.horizontal, 2)
-              .background(Color(nsColor: .windowBackgroundColor).opacity(0.25))
-              .cornerRadius(4)
-          },
-          onAction: { onAction(.commandAction($0)) })
-      } else {
-        Text("Wrong kind")
-      }
-    }
+    CommandContainerView(
+      $command, icon: {
+        ZStack {
+          Rectangle()
+            .fill(Color(nsColor: .systemGreen))
+            .opacity(0.2)
+            .cornerRadius(8)
+          ZStack {
+            RegularKeyIcon(letter: "")
+            Image(systemName: "flowchart")
+          }
+          .scaleEffect(0.8)
+        }
+      }, content: {
+        HStack {
+          TextField("", text: $name)
+            .textFieldStyle(AppTextFieldStyle())
+            .onChange(of: name, perform: {
+              onAction(.updateName(newName: $0))
+            })
+          Spacer()
+        }
+      },
+      subContent: {
+        EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
+          .onChange(of: keyboardShortcuts) { newValue in
+            onAction(.updateKeyboardShortcuts(newValue))
+          }
+          .padding(.horizontal, 2)
+          .background(Color(nsColor: .windowBackgroundColor).opacity(0.25))
+          .cornerRadius(4)
+      },
+      onAction: { onAction(.commandAction($0)) })
     .enableInjection()
   }
 }
