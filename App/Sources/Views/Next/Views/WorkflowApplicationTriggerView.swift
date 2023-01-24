@@ -3,9 +3,8 @@ import SwiftUI
 
 struct WorkflowApplicationTriggerView: View {
   enum Action {
-    case addApplicationTrigger(application: Application, uuid: UUID)
+    case updateApplicationTriggers([DetailViewModel.ApplicationTrigger])
     case updateApplicationTriggerContext(DetailViewModel.ApplicationTrigger)
-    case removeApplicationTrigger(DetailViewModel.ApplicationTrigger)
   }
 
   @ObserveInjection var inject
@@ -27,10 +26,11 @@ struct WorkflowApplicationTriggerView: View {
           ForEach(applicationStore.applications) { application in
             Button(action: {
               let uuid = UUID()
-              onAction(.addApplicationTrigger(application: application, uuid: uuid))
               triggers.append(.init(id: uuid.uuidString, name: application.displayName,
                                     image: NSWorkspace.shared.icon(forFile: application.path),
+                                    application: application,
                                     contexts: []))
+              onAction(.updateApplicationTriggers(triggers))
             }, label: {
               Text(application.displayName)
             })
@@ -40,7 +40,10 @@ struct WorkflowApplicationTriggerView: View {
       }
       .padding(.horizontal, 4)
 
-      EditableStack($triggers, lazy: true, spacing: 2, onMove: { _, _ in }) { trigger in
+      EditableStack($triggers, lazy: true, spacing: 2, onMove: { from, to in
+        triggers.move(fromOffsets: from, toOffset: to)
+        onAction(.updateApplicationTriggers(triggers))
+      }, onDelete: { triggers.remove(atOffsets: $0) }) { trigger in
         HStack(spacing: 0) {
           Image(nsImage: trigger.image.wrappedValue)
             .resizable()
@@ -71,10 +74,10 @@ struct WorkflowApplicationTriggerView: View {
             .opacity(0.25)
           Button(
             action: {
-              onAction(.removeApplicationTrigger(trigger.wrappedValue))
               if let index = triggers.firstIndex(of: trigger.wrappedValue) {
                 triggers.remove(at: index)
               }
+              onAction(.updateApplicationTriggers(triggers))
             },
             label: { Image(systemName: "xmark") })
           .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))

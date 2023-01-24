@@ -1,4 +1,5 @@
 import SwiftUI
+import Apps
 
 enum DetailViewState: Hashable, Identifiable {
   var id: String {
@@ -41,6 +42,7 @@ struct DetailViewModel: Hashable, Identifiable {
     public var id: String
     public var name: String
     public var image: NSImage
+    public var application: Application
     public var contexts: [Context]
 
     public enum Context: String, Hashable, Codable, CaseIterable, Identifiable {

@@ -131,19 +131,32 @@ final class DetailCoordinator {
           workflow.trigger = nil
         case .applicationTrigger(_, let action):
           switch action {
-          case .addApplicationTrigger(let application, let uuid):
-            var applicationTriggers = [ApplicationTrigger]()
-            if case .application(let previousTriggers) = workflow.trigger {
-              applicationTriggers = previousTriggers
-            }
-            applicationTriggers.append(.init(id: uuid.uuidString, application: application))
-            workflow.trigger = .application(applicationTriggers)
-          case .removeApplicationTrigger(let trigger):
-            var applicationTriggers = [ApplicationTrigger]()
-            if case .application(let previousTriggers) = workflow.trigger {
-              applicationTriggers = previousTriggers
-            }
-            applicationTriggers.removeAll(where: { $0.id == trigger.id })
+          case .updateApplicationTriggers(let triggers):
+            let applicationTriggers = triggers
+              .map { viewModelTrigger in
+                var contexts = Set<ApplicationTrigger.Context>()
+                if viewModelTrigger.contexts.contains(.closed) {
+                  contexts.insert(.closed)
+                } else {
+                  contexts.remove(.closed)
+                }
+
+                if viewModelTrigger.contexts.contains(.frontMost) {
+                  contexts.insert(.frontMost)
+                } else {
+                  contexts.remove(.frontMost)
+                }
+
+                if viewModelTrigger.contexts.contains(.launched) {
+                  contexts.insert(.launched)
+                } else {
+                  contexts.remove(.launched)
+                }
+
+                return ApplicationTrigger(id: viewModelTrigger.id,
+                                   application: viewModelTrigger.application,
+                                   contexts: Array(contexts))
+              }
             workflow.trigger = .application(applicationTriggers)
           case .updateApplicationTriggerContext(let viewModelTrigger):
             if case .application(var previousTriggers) = workflow.trigger,
@@ -493,6 +506,7 @@ extension Workflow.Trigger {
           DetailViewModel.ApplicationTrigger(id: trigger.id,
                                              name: trigger.application.displayName,
                                              image: NSWorkspace.shared.icon(forFile: trigger.application.path),
+                                             application: trigger.application,
                                              contexts: trigger.contexts.map {
             switch $0 {
             case .closed:
