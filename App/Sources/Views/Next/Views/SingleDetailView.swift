@@ -104,13 +104,6 @@ struct SingleDetailView: View {
         Text(workflow.name)
           .font(.callout)
         Spacer()
-        Toggle("", isOn: $workflow.isEnabled)
-          .toggleStyle(SwitchToggleStyle())
-          .tint(Color.green)
-          .font(.callout)
-          .onChange(of: workflow.isEnabled) { newValue in
-            onAction(.setIsEnabled(workflowId: workflow.id, isEnabled: newValue))
-          }
       }
       .padding(.vertical, 4)
       .padding(.horizontal, 8)
