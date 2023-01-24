@@ -107,33 +107,33 @@ final class DetailModelMapper {
       id: command.id,
       name: name,
       kind: kind,
-      image: command.nsImage,
+      iconPath: command.iconPath,
       isEnabled: command.isEnabled
     )
   }
 }
 
 private extension Command {
-  var nsImage: NSImage? {
+  var iconPath: String? {
     switch self {
     case .application(let command):
-      return NSWorkspace.shared.icon(forFile: command.application.path)
+      return command.application.path
     case .builtIn:
       return nil
     case .keyboard:
       return nil
     case .open(let command):
-      let nsImage: NSImage
+      let path: String
       if let application = command.application, command.isUrl {
-        nsImage = NSWorkspace.shared.icon(forFile: application.path)
+        path = application.path
       } else if command.isUrl {
-        nsImage = NSWorkspace.shared.icon(forFile: "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app")
+        path = "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
       } else {
-        nsImage = NSWorkspace.shared.icon(forFile: command.path)
+        path = command.path
       }
-      return nsImage
+      return path
     case .script(let kind):
-      return NSWorkspace.shared.icon(forFile: kind.path)
+      return kind.path
     case .shortcut:
       return nil
     case .type:

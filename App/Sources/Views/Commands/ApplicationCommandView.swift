@@ -60,8 +60,10 @@ struct ApplicationCommandView: View {
     CommandContainerView(
       $command,
       icon: {
-        if let image = command.image {
-          ApplicationCommandImageView($command, image: image, onAction: onAction)
+        if let iconPath = command.iconPath {
+          ApplicationCommandImageView($command,
+                                      image: NSWorkspace.shared.icon(forFile: iconPath),
+                                      onAction: onAction)
         }
       },
       content: {
@@ -147,7 +149,7 @@ struct ApplicationCommandImageView: View {
         ForEach(applicationStore.applications) { app in
           Button(action: {
             onAction(.changeApplication(app))
-            command.image = NSWorkspace.shared.icon(forFile: app.path)
+            command.iconPath = app.path
           }, label: {
             Text(app.displayName)
           })
