@@ -13,6 +13,7 @@ struct EditableKeyboardShortcutsView: View {
   @State var replacing: KeyShortcut.ID?
   @State var selectedColor: Color = .accentColor
 
+  private let placeholderId = "keyboard_shortcut_placeholder_id"
   private let animation: Animation = .easeOut(duration: 0.2)
 
   var body: some View {
@@ -52,7 +53,7 @@ struct EditableKeyboardShortcutsView: View {
             .contextMenu {
               Text(keyboardShortcut.wrappedValue.validationValue)
               Divider()
-              Button("Rerecord") {
+              Button("Re-record") {
                 replacing = keyboardShortcut.id
                 record()
               }
@@ -79,6 +80,9 @@ struct EditableKeyboardShortcutsView: View {
       Button(action: {
         state = .recording
         recorderStore.mode = .record
+        let keyShortcut = KeyShortcut(id: placeholderId, key: "Recording ...", lhs: true)
+        replacing = keyShortcut.id
+        keyboardShortcuts.append(keyShortcut)
         withAnimation(animation) {
           isGlowing = true
           selectedColor = Color(.systemRed)
@@ -119,7 +123,6 @@ struct EditableKeyboardShortcutsView: View {
       guard state == .recording, let newValue else { return }
       switch newValue {
       case .valid(let newKeyboardShortcut):
-        Swift.print(newKeyboardShortcut)
         withAnimation(animation) {
           if let replacing, let index = keyboardShortcuts.firstIndex(where: { $0.id == replacing }) {
             keyboardShortcuts[index] = newKeyboardShortcut
@@ -152,5 +155,8 @@ struct EditableKeyboardShortcutsView: View {
     isGlowing = false
     selectedColor = Color.accentColor
     recorderStore.mode = .intercept
+    withAnimation(animation) {
+      keyboardShortcuts.removeAll(where: { $0.id == placeholderId })
+    }
   }
 }
