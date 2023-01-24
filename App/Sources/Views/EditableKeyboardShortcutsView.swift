@@ -37,7 +37,12 @@ struct EditableKeyboardShortcutsView: View {
           content: { keyboardShortcut in
             HStack(spacing: 6) {
               ForEach(keyboardShortcut.wrappedValue.modifiers) { modifier in
-                ModifierKeyIcon(key: modifier)
+                ModifierKeyIcon(
+                  key: modifier,
+                  alignment: keyboardShortcut.wrappedValue.lhs
+                  ? modifier == .shift ? .bottomLeading : .topTrailing
+                  : modifier == .shift ? .bottomTrailing : .topLeading
+                )
                   .frame(minWidth: modifier == .command || modifier == .shift ? 44 : 32, minHeight: 32)
                   .fixedSize(horizontal: true, vertical: true)
               }
@@ -114,6 +119,7 @@ struct EditableKeyboardShortcutsView: View {
       guard state == .recording, let newValue else { return }
       switch newValue {
       case .valid(let newKeyboardShortcut):
+        Swift.print(newKeyboardShortcut)
         withAnimation(animation) {
           if let replacing, let index = keyboardShortcuts.firstIndex(where: { $0.id == replacing }) {
             keyboardShortcuts[index] = newKeyboardShortcut
