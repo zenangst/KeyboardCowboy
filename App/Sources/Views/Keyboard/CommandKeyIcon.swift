@@ -6,7 +6,7 @@ struct CommandKeyIcon: View, KeyView {
     GeometryReader { proxy in
       ZStack {
         GeometryReader { proxy in
-          keyBackgroundView(proxy.size.height)
+          keyBackgroundView(proxy.size.height, isPressed: false)
 
           Group {
             Text("⌘")

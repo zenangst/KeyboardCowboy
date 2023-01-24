@@ -56,8 +56,7 @@ struct KeyboardCommandView: View {
               .onChange(of: keyboardShortcuts) { newValue in
                 onAction(.updateKeyboardShortcuts(newValue))
               }
-              .padding(.horizontal, 6)
-              .padding(.vertical, 4)
+              .padding(.horizontal, 2)
               .background(Color(nsColor: .windowBackgroundColor).opacity(0.25))
               .cornerRadius(4)
           },

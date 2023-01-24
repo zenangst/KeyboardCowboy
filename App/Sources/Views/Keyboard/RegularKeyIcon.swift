@@ -6,7 +6,7 @@ protocol KeyView {
 
 extension KeyView {
   @ViewBuilder
-  func keyBackgroundView(_ height: CGFloat) -> some View {
+  func keyBackgroundView(_ height: CGFloat, isPressed: Bool) -> some View {
     ZStack {
       Rectangle()
         .fill(Color.black.opacity( colorScheme == .light ? 0.3 : 0.9 ))
@@ -14,6 +14,8 @@ extension KeyView {
         .offset(x: 0, y: 1)
         .blur(radius: 2)
         .scaleEffect(CGSize(width: 0.99, height: 1.0))
+        .opacity(isPressed ? 0 : 1)
+        .animation(.linear(duration: 0.1), value: isPressed)
 
       Rectangle()
         .fill(Color.black.opacity( colorScheme == .light ? 0.33 : 0.9 ))
@@ -26,10 +28,16 @@ extension KeyView {
         .fill(Color(.windowFrameTextColor))
         .cornerRadius(height * 0.1)
         .opacity(0.25)
+        .offset(y: isPressed ? 1 : 0)
+        .scaleEffect(isPressed ? 0.95 : 1)
+        .animation(.linear(duration: 0.1), value: isPressed)
       Rectangle()
         .fill(Color(.windowBackgroundColor))
         .cornerRadius(height * 0.1)
         .padding(0.1)
+        .offset(y: isPressed ? 1 : 0)
+        .scaleEffect(isPressed ? 0.95 : 1)
+        .animation(.linear(duration: 0.1), value: isPressed)
     }
   }
 }
@@ -38,6 +46,7 @@ public struct RegularKeyIcon: View, KeyView {
   @ObserveInjection var inject
   @Environment(\.colorScheme) var colorScheme
   @State var letters: [Letter]
+  @State var isPressed: Bool = false
   var width: CGFloat
   var height: CGFloat
   var alignment: Alignment
@@ -72,7 +81,7 @@ public struct RegularKeyIcon: View, KeyView {
     letter(height: height)
       .frame(minWidth: width, maxWidth: .infinity, alignment: alignment)
       .background(
-        keyBackgroundView(height)
+        keyBackgroundView(height, isPressed: isPressed)
                     .foregroundColor(Color(.textColor).opacity(0.66))
                     .background(
                       RoundedRectangle(cornerRadius: height * 0.1)
@@ -82,6 +91,8 @@ public struct RegularKeyIcon: View, KeyView {
                         .padding(-2)
                     )
       )
+      .rotation3DEffect(.degrees(isPressed ? 0.5 : 0), axis: (x: 1.0, y: 0, z: 0))
+      .animation(.linear(duration: 0.1), value: isPressed)
       .onAppear {
         if glow {
           withAnimation(animation, { glow.toggle() })
@@ -114,6 +125,8 @@ public struct RegularKeyIcon: View, KeyView {
           )
       }
     }
+    .rotation3DEffect(.degrees(isPressed ? 20 : 0), axis: (x: 1.0, y: 0, z: 0))
+    .animation(.linear(duration: 0.1), value: isPressed)
     .frame(height: height)
   }
 }

@@ -19,7 +19,7 @@ struct ModifierKeyIcon: View, KeyView {
   var body: some View {
     GeometryReader { proxy in
       ZStack {
-        keyBackgroundView(proxy.size.height)
+        keyBackgroundView(proxy.size.height, isPressed: false)
 
         Group {
         Text(key.keyValue)
