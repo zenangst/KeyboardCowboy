@@ -11,6 +11,7 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
   @GestureState private var dragOffsetState: CGSize = .zero
+  @Binding var selectedColor: Color
   @State private var size: CGSize = .zero
   @State private var mouseDown: Bool = false
   @State var zIndex: Double = 0
@@ -28,12 +29,14 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
   init(animation: Animation,
        id: ElementID,
        index: Int,
+       selectedColor: Binding<Color>,
        @ViewBuilder content: @escaping () -> Content,
        overlay: @escaping () -> Overlay,
        onClick: @escaping (ElementID, Int, InteractiveViewModifier) -> Void,
        onKeyDown: @escaping (ElementID, Int, NSEvent.ModifierFlags) -> Void,
        onDragChanged: @escaping (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void,
        onDragEnded: @escaping (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void) {
+    _selectedColor = selectedColor
     self.animation = animation
     self.id = id
     self.index = index
@@ -60,7 +63,7 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
         }
       )
       .overlay(content: overlay)
-      .shadow(color: isFocused ? .accentColor.opacity(controlActiveState == .key ? 0.8 : 0.4) : Color(.sRGBLinear, white: 0, opacity: 0.33),
+      .shadow(color: isFocused ? selectedColor.opacity(controlActiveState == .key ? 0.8 : 0.4) : Color(.sRGBLinear, white: 0, opacity: 0.33),
               radius: isFocused ? 1.0 : dragOffsetState != .zero ? 4.0 : 0.0)
       .zIndex(zIndex)
       .allowsHitTesting(dragOffsetState == .zero)

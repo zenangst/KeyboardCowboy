@@ -5,10 +5,15 @@ struct EditableKeyboardShortcutsView: View {
     case recording
   }
   @ObserveInjection var inject
+  @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
   @Binding var keyboardShortcuts: [KeyShortcut]
   @State var state: CurrentState? = nil
   @State var isGlowing: Bool = false
+  @State var replacing: KeyShortcut.ID?
+  @State var selectedColor: Color = .accentColor
+
+  private let animation: Animation = .easeOut(duration: 0.2)
 
   var body: some View {
     HStack {
@@ -16,9 +21,16 @@ struct EditableKeyboardShortcutsView: View {
         EditableStack(
           $keyboardShortcuts,
           axes: .horizontal,
+          selectedColor: $selectedColor,
+          onClick: { id, index in
+            if replacing == id {
+              record()
+            }
+            replacing = id
+          },
           onMove: { keyboardShortcuts.move(fromOffsets: $0, toOffset: $1) },
           onDelete: { offsets in
-            withAnimation(.easeOut(duration: 0.2)) {
+            withAnimation(animation) {
               keyboardShortcuts.remove(atOffsets: offsets)
             }
           },
@@ -35,9 +47,13 @@ struct EditableKeyboardShortcutsView: View {
             .contextMenu {
               Text(keyboardShortcut.wrappedValue.validationValue)
               Divider()
+              Button("Rerecord") {
+                replacing = keyboardShortcut.id
+                record()
+              }
               Button(action: {
                 if let index = keyboardShortcuts.firstIndex(where: { $0.id == keyboardShortcut.id }) {
-                  _ = withAnimation(.easeOut(duration: 0.2)) {
+                  _ = withAnimation(animation) {
                     keyboardShortcuts.remove(at: index)
                   }
                 }
@@ -58,8 +74,9 @@ struct EditableKeyboardShortcutsView: View {
       Button(action: {
         state = .recording
         recorderStore.mode = .record
-        withAnimation {
+        withAnimation(animation) {
           isGlowing = true
+          selectedColor = Color(.systemRed)
         }
       },
              label: { Image(systemName: "plus").frame(width: 10, height: 10) })
@@ -81,27 +98,53 @@ struct EditableKeyboardShortcutsView: View {
           RoundedRectangle(cornerRadius: 4)
             .stroke(isGlowing
                     ? Color(.systemRed) .opacity(0.5)
-                    : Color.clear, lineWidth: 2)
-            .padding(-2)
+                    : Color.clear, lineWidth: 1)
             .animation(Animation
               .easeInOut(duration: 1.25)
               .repeatForever(autoreverses: true), value: isGlowing)
         }
       }
     )
+    .onChange(of: controlActiveState, perform: { value in
+      if value != .key {
+        reset()
+      }
+    })
     .onChange(of: recorderStore.recording, perform: { newValue in
       guard state == .recording, let newValue else { return }
       switch newValue {
       case .valid(let newKeyboardShortcut):
-        withAnimation(.spring()) {
-          keyboardShortcuts.append(newKeyboardShortcut)
-          state = nil
-          isGlowing = false
+        withAnimation(animation) {
+          if let replacing, let index = keyboardShortcuts.firstIndex(where: { $0.id == replacing }) {
+            keyboardShortcuts[index] = newKeyboardShortcut
+          } else {
+            keyboardShortcuts.append(newKeyboardShortcut)
+          }
+          reset()
         }
+      case .cancel:
+        reset()
       default:
         break
       }
     })
     .enableInjection()
+  }
+
+  private func record() {
+    isGlowing = true
+    withAnimation {
+      state = .recording
+      recorderStore.mode = .record
+      selectedColor = Color(.systemRed)
+    }
+  }
+
+  private func reset() {
+    replacing = nil
+    state = nil
+    isGlowing = false
+    selectedColor = Color.accentColor
+    recorderStore.mode = .intercept
   }
 }

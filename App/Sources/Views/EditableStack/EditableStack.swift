@@ -27,9 +27,12 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let axes: Axis.Set
   private let lazy: Bool
   private let elementCount: Int
+  private let onClick: (Data.Element.ID, Int) -> Void
   private let onSelection: (Set<Data.Element.ID>) -> Void
   private let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
   private let onDelete: ((_ indexSet: IndexSet) -> Void)?
+
+  @Binding var selectedColor: Color
 
   @State private var dragProxy: CGSize = .zero
   @State private var animating: Double = .random(in: 0...100)
@@ -45,13 +48,16 @@ struct EditableStack<Data, Content>: View where Content: View,
        axes: Axis.Set = .vertical,
        lazy: Bool = false,
        spacing: CGFloat? = nil,
+       selectedColor: Binding<Color> = .constant(Color.accentColor),
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        cornerRadius: Double = 8,
+       onClick: @escaping (Data.Element.ID, Int) -> Void = { _ , _ in },
        onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)? = nil,
        onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
        content: @escaping (Binding<Data.Element>) -> Content) {
     _data = data
+    _selectedColor = selectedColor
     self.id = id
     self.axes = axes
     self.content = content
@@ -59,6 +65,7 @@ struct EditableStack<Data, Content>: View where Content: View,
     self.lazy = lazy
     self.spacing = spacing
     self.elementCount = data.count
+    self.onClick = onClick
     self.onMove = onMove
     self.onDelete = onDelete
     self.onSelection = onSelection
@@ -103,14 +110,15 @@ struct EditableStack<Data, Content>: View where Content: View,
       animation: mainAnimation,
       id: element.id,
       index: currentIndex,
+      selectedColor: $selectedColor,
       content: { content(element) },
       overlay: {
-        Color.accentColor
+        selectedColor
           .opacity(selections.contains(element.id) ? 0.2 : 0.0)
           .cornerRadius(cornerRadius)
           .allowsHitTesting(false)
       },
-      onClick: onClick,
+      onClick: handleClick,
       onKeyDown: onKeyDown,
       onDragChanged: onDragChanged,
       onDragEnded: onDragEnded
@@ -128,9 +136,9 @@ struct EditableStack<Data, Content>: View where Content: View,
     .id(element.id)
   }
 
-  private func onClick(elementId: Data.Element.ID,
-                       index: Int,
-                       modifier: InteractiveViewModifier) {
+  private func handleClick(elementId: Data.Element.ID,
+                           index: Int,
+                           modifier: InteractiveViewModifier) {
     switch modifier {
     case .empty:
       selections = []
@@ -142,6 +150,8 @@ struct EditableStack<Data, Content>: View where Content: View,
       focus = .focused(elementId)
       onTapWithShiftModifier(elementId)
     }
+
+    self.onClick(elementId, index)
   }
 
   private func onDragChanged(elementId: Data.Element.ID,
@@ -275,7 +285,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                                     elementCount: Int) -> some View {
     if let draggingElementIndex {
       RoundedRectangle(cornerRadius: cornerRadius)
-        .fill(Color.accentColor)
+        .fill(selectedColor)
         .frame(maxWidth: axes == .horizontal ? 2.0 : nil,
                maxHeight: axes == .vertical ? 2.0 : nil)
         .opacity(draggingElementIndex != currentIndex &&
