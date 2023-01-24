@@ -45,11 +45,11 @@ extension KeyView {
 public struct RegularKeyIcon: View, KeyView {
   @ObserveInjection var inject
   @Environment(\.colorScheme) var colorScheme
-  @State var letters: [Letter]
-  @State var isPressed: Bool = false
-  var width: CGFloat
-  var height: CGFloat
-  var alignment: Alignment
+  @State private var isPressed: Bool = false
+  private var letters: [Letter]
+  private var width: CGFloat
+  private var height: CGFloat
+  private var alignment: Alignment
   private let animation = Animation
     .easeInOut(duration: 1.25)
     .repeatForever(autoreverses: true)
@@ -60,7 +60,7 @@ public struct RegularKeyIcon: View, KeyView {
               height: CGFloat = 32,
               alignment: Alignment = .center,
               glow: Binding<Bool> = .constant(false)) {
-    _letters =  .init(initialValue: letters.compactMap({ Letter(string: $0.uppercased()) }))
+    self.letters =  letters.map({ Letter(string: $0.uppercased()) })
     self.width = width
     self.height = height
     self.alignment = alignment
