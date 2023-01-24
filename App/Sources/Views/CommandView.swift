@@ -34,40 +34,42 @@ struct CommandView: View {
     self.onAction = onAction
   }
 
-  @ViewBuilder
   var body: some View {
     view(for: command.kind)
-    .onChange(of: command.isEnabled, perform: { newValue in
-      onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
-    })
-    .overlay(alignment: .bottom, content: {
-      GeometryReader { proxy in
-        RoundedRectangle(cornerRadius: 3)
-          .fill(
-            LinearGradient(
-              gradient: Gradient(
-                stops: [
-                  .init(color: Color(.controlAccentColor).opacity(0.5), location: 0.5),
-                  .init(color: Color(.controlAccentColor), location: 0.9),
-                  .init(color: Color(.controlAccentColor).opacity(0.5), location: 1.0),
-                ]),
-              startPoint: .leading,
-              endPoint: .trailing)
-          )
-          .frame(width: progressValue == 0 ? 0 : proxy.size.width / progressValue)
-          .opacity(progressAlpha == 0 ? 0 : min(proxy.size.width * progressValue / proxy.size.width, 0.4))
-      }
-      .frame(height: 5)
-    })
-    .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
-    .opacity(command.isEnabled ? 1 : 0.5)
-    .background(Color(nsColor: NSColor.textBackgroundColor))
-    .cornerRadius(8)
-    .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
-            radius: command.isEnabled ? 4 : 2,
-            y: command.isEnabled ? 2 : 0)
-    .animation(.easeIn(duration: 0.2), value: command.isEnabled)
-    .enableInjection()
+      .onChange(of: command.isEnabled, perform: { newValue in
+        onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
+      })
+      .overlay(alignment: .bottom, content: {
+        GeometryReader { proxy in
+          RoundedRectangle(cornerRadius: 3)
+            .fill(
+              LinearGradient(
+                gradient: Gradient(
+                  stops: [
+                    .init(color: Color(.controlAccentColor).opacity(0.5), location: 0.5),
+                    .init(color: Color(.controlAccentColor), location: 0.9),
+                    .init(color: Color(.controlAccentColor).opacity(0.5), location: 1.0),
+                  ]),
+                startPoint: .leading,
+                endPoint: .trailing)
+            )
+            .frame(width: progressValue == 0 ? 0 : proxy.size.width / progressValue)
+            .opacity(progressAlpha == 0 ? 0 : min(proxy.size.width * progressValue / proxy.size.width, 0.4))
+        }
+        .frame(height: 5)
+      })
+      .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
+      .opacity(command.isEnabled ? 1 : 0.5)
+      .background(
+        Color(nsColor: NSColor.textBackgroundColor)
+      )
+      .cornerRadius(8)
+      .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
+              radius: command.isEnabled ? 4 : 2,
+              y: command.isEnabled ? 2 : 0)
+      .animation(.easeIn(duration: 0.2), value: command.isEnabled)
+      .id(command.id)
+      .enableInjection()
   }
 
   @ViewBuilder
