@@ -8,12 +8,6 @@ final class DetailModelMapper {
   }
 
   func map(_ workflows: [Workflow]) -> [DetailViewModel] {
-    let start = CACurrentMediaTime()
-    defer {
-      let end = CACurrentMediaTime()
-      Swift.print("⏱️ time: \(end - start)")
-    }
-
     var viewModels = [DetailViewModel]()
     viewModels.reserveCapacity(workflows.count)
     for workflow in workflows {
@@ -64,9 +58,11 @@ final class DetailModelMapper {
       if let app = openCommand.application {
         appName = app.displayName
         appPath = app.path
-      } else if let url = URL(string: openCommand.path),
+      } else if openCommand.isUrl,
+                let url = URL(string: openCommand.path),
                 let appUrl = NSWorkspace.shared.urlForApplication(toOpen: url),
-                let app = applicationStore.application(at: appUrl) {
+                let app = applicationStore.application(at: appUrl)
+      {
         appName = app.displayName
         appPath = app.path
       } else {

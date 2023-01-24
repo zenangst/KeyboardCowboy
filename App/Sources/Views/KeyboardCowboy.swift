@@ -35,7 +35,6 @@ struct KeyboardCowboy: App {
   private let engine: KeyboardCowboyEngine
   static let env: AppEnvironment = .development
 
-  private var workflowSubscription: AnyCancellable?
   private var open: Bool = true
 
   @Environment(\.openWindow) private var openWindow

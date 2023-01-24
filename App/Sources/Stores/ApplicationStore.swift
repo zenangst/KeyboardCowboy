@@ -2,6 +2,7 @@ import Apps
 import Cocoa
 
 final class ApplicationStore: ObservableObject {
+  private(set) var applicationsByPath = [String: Application]()
   @Published private(set) var applications = [Application]()
   @Published private(set) var dictionary = [String: Application]()
 
@@ -16,8 +17,9 @@ final class ApplicationStore: ObservableObject {
   }
 
   func application(at url: URL) -> Application? {
-    // TODO: This search pattern could be improved.
-    applications.first(where:  { $0.path.contains((url.path() as NSString).deletingPathExtension) })
+    let path = String(url.path(percentEncoded: false).dropLast())
+    let application  = applicationsByPath[path]
+    return application
   }
 
   func application(for bundleIdentifier: String) -> Application? {
@@ -28,13 +30,16 @@ final class ApplicationStore: ObservableObject {
     Task(priority: .userInitiated) {
       let newApplications = await ApplicationController.load()
       var applicationDictionary = [String: Application]()
+      var applicationsByPath = [String: Application]()
       for application in newApplications {
         applicationDictionary[application.bundleIdentifier] = application
+        applicationsByPath[application.path] = application
       }
 
-      await MainActor.run { [applicationDictionary] in
+      await MainActor.run { [applicationDictionary, applicationsByPath] in
         self.applications = newApplications
         self.dictionary = applicationDictionary
+        self.applicationsByPath = applicationsByPath
       }
     }
   }
