@@ -27,6 +27,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let axes: Axis.Set
   private let lazy: Bool
   private let elementCount: Int
+  private let scrollProxy: ScrollViewProxy?
   private let onClick: (Data.Element.ID, Int) -> Void
   private let onSelection: (Set<Data.Element.ID>) -> Void
   private let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
@@ -37,7 +38,9 @@ struct EditableStack<Data, Content>: View where Content: View,
   @State private var dragProxy: CGSize = .zero
   @State private var animating: Double = .random(in: 0...100)
   @State private var selections = Set<Data.Element.ID>() {
-    didSet { onSelection(selections) }
+    didSet {
+      onSelection(selections)
+    }
   }
   @State private var draggingElementId: Data.Element.ID?
   @State private var draggingElementIndex: Int?
@@ -47,6 +50,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   init(_ data: Binding<Data>,
        axes: Axis.Set = .vertical,
        lazy: Bool = false,
+       scrollProxy: ScrollViewProxy? = nil,
        spacing: CGFloat? = nil,
        selectedColor: Binding<Color> = .constant(Color.accentColor),
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
@@ -64,6 +68,7 @@ struct EditableStack<Data, Content>: View where Content: View,
     self.cornerRadius = cornerRadius
     self.lazy = lazy
     self.spacing = spacing
+    self.scrollProxy = scrollProxy
     self.elementCount = data.count
     self.onClick = onClick
     self.onMove = onMove
@@ -227,7 +232,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                          keyCode: Int,
                          modifiers: NSEvent.ModifierFlags) {
     guard case .focused = focus,
-          let index = data.lastIndex(where: { $0.id == elementId }) else { return }
+          let index = data.firstIndex(where: { $0.id == elementId }) else { return }
     switch keyCode {
     case kVK_ANSI_A:
       if modifiers.contains(.command) {
@@ -238,11 +243,19 @@ struct EditableStack<Data, Content>: View where Content: View,
       focus = nil
     case kVK_DownArrow, kVK_RightArrow:
       let newIndex = index + 1
-      if newIndex < data.count { focus = .focused(data[newIndex].id) }
+      if newIndex < data.count {
+        let elementId = data[newIndex].id
+        focus = .focused(elementId)
+        scrollProxy?.scrollTo(elementId)
+      }
       selections = []
     case kVK_UpArrow, kVK_LeftArrow:
       let newIndex = index - 1
-      if newIndex >= 0 { focus = .focused(data[newIndex].id) }
+      if newIndex >= 0 {
+        let elementId = data[newIndex].id
+        focus = .focused(elementId)
+        scrollProxy?.scrollTo(elementId)
+      }
       selections = []
     case kVK_Return:
       break

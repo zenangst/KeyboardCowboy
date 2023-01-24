@@ -20,7 +20,7 @@ struct EditableKeyboardShortcutsView: View {
     ScrollViewReader { proxy in
       HStack {
         ScrollView(.horizontal) {
-          content()
+          content(proxy)
         }
         Spacer()
         addButton(proxy)
@@ -53,10 +53,11 @@ struct EditableKeyboardShortcutsView: View {
     .enableInjection()
   }
 
-  private func content() -> some View {
+  private func content(_ proxy: ScrollViewProxy) -> some View {
     EditableStack(
       $keyboardShortcuts,
       axes: .horizontal,
+      scrollProxy: proxy,
       selectedColor: $selectedColor,
       onClick: { id, index in
         if replacing == id {

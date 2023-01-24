@@ -33,53 +33,57 @@ struct SingleDetailView: View {
   }
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading) {
-        WorkflowInfoView(workflow, onAction: { action in
-          switch action {
-          case .updateName(let name):
-            onAction(.updateName(workflowId: workflow.id, name: name))
-          case .setIsEnabled(let isEnabled):
-            onAction(.setIsEnabled(workflowId: workflow.id, isEnabled: isEnabled))
+    ScrollViewReader { proxy in
+      ScrollView {
+        VStack(alignment: .leading) {
+          WorkflowInfoView(workflow, onAction: { action in
+            switch action {
+            case .updateName(let name):
+              onAction(.updateName(workflowId: workflow.id, name: name))
+            case .setIsEnabled(let isEnabled):
+              onAction(.setIsEnabled(workflowId: workflow.id, isEnabled: isEnabled))
+            }
+          })
+          .padding(.horizontal, 4)
+          .padding(.vertical, 12)
+          .id(workflow.id)
+          WorkflowTriggerListView($workflow, onAction: onAction)
+            .id(workflow.id)
+        }
+        .onFrameChange(perform: { rect in
+          withAnimation {
+            overlayOpacity = rect.origin.y < -20 ? 1.0 : 0.0
           }
         })
-        .padding(.horizontal, 4)
-        .padding(.vertical, 12)
-        .id(workflow.id)
-        WorkflowTriggerListView($workflow, onAction: onAction)
-          .id(workflow.id)
-      }
-      .onFrameChange(perform: { rect in
-        withAnimation {
-          overlayOpacity = rect.origin.y < -20 ? 1.0 : 0.0
-        }
-      })
-      .padding()
-      .background(alignment: .bottom, content: {
-        GeometryReader { proxy in
-          Rectangle()
+        .padding()
+        .background(alignment: .bottom, content: {
+          GeometryReader { proxy in
+            Rectangle()
+              .fill(Color(.textBackgroundColor))
+            Path { path in
+              path.move(to: CGPoint(x: proxy.size.width / 2, y: proxy.size.height))
+              path.addLine(to: CGPoint(x: proxy.size.width / 2 - 16, y: proxy.size.height))
+              path.addLine(to: CGPoint(x: proxy.size.width / 2, y: proxy.size.height + 8))
+              path.addLine(to: CGPoint(x: proxy.size.width / 2 + 16, y: proxy.size.height))
+            }
             .fill(Color(.textBackgroundColor))
-          Path { path in
-            path.move(to: CGPoint(x: proxy.size.width / 2, y: proxy.size.height))
-            path.addLine(to: CGPoint(x: proxy.size.width / 2 - 16, y: proxy.size.height))
-            path.addLine(to: CGPoint(x: proxy.size.width / 2, y: proxy.size.height + 8))
-            path.addLine(to: CGPoint(x: proxy.size.width / 2 + 16, y: proxy.size.height))
           }
-          .fill(Color(.textBackgroundColor))
-        }
-        .compositingGroup()
-      })
-      .shadow(radius: 4)
-      WorkflowCommandListView(
-        $workflow, onNewCommand: {
-          openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflow.id))
-        },
-        onAction: { action in
-        onAction(action)
-      })
+          .compositingGroup()
+        })
+        .shadow(radius: 4)
+        WorkflowCommandListView(
+          $workflow,
+          scrollViewProxy: proxy,
+          onNewCommand: {
+            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflow.id))
+          },
+          onAction: { action in
+            onAction(action)
+          })
+      }
+      .overlay(alignment: .top, content: { overlayView() })
+      .labelStyle(HeaderLabelStyle())
     }
-    .overlay(alignment: .top, content: { overlayView() })
-    .labelStyle(HeaderLabelStyle())
     .enableInjection()
   }
 

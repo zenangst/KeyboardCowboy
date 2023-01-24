@@ -4,13 +4,16 @@ struct WorkflowCommandListView: View {
   @ObserveInjection var inject
   @Binding private var workflow: DetailViewModel
   @State private var selections = Set<String>()
+  private let scrollViewProxy: ScrollViewProxy?
   private let onAction: (SingleDetailView.Action) -> Void
   private let onNewCommand: () -> Void
 
   init(_ model: Binding<DetailViewModel>,
+       scrollViewProxy: ScrollViewProxy? = nil,
        onNewCommand: @escaping () -> Void,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     _workflow = model
+    self.scrollViewProxy = scrollViewProxy
     self.onNewCommand = onNewCommand
     self.onAction = onAction
   }
@@ -46,6 +49,7 @@ struct WorkflowCommandListView: View {
       EditableStack(
         $workflow.commands,
         lazy: true,
+        scrollProxy: scrollViewProxy,
         spacing: 10,
         onSelection: { self.selections = $0 },
         onMove: { indexSet, toOffset in
