@@ -35,22 +35,25 @@ struct GradientButtonStyle: ButtonStyle {
                 .init(color: Color(config.nsColor.blended(withFraction: 0.5, of: .black)!), location: 1.0),
               ], startPoint: .top, endPoint: .bottom)
             )
+            .opacity(isHovered ? 1.0 : 0.3)
           RoundedRectangle(cornerRadius: 4)
             .stroke(Color(config.nsColor))
             .opacity(isHovered ? 0.4 : 0.1)
         }
       )
       .grayscale(config.grayscaleEffect ? isHovered ? 0 : 1 : 0)
-      .animation(.easeOut(duration: 0.2), value: isHovered)
       .foregroundColor(
         Color(.labelColor)
       )
-      .shadow(color: Color.black.opacity(isHovered ? 0.7 : 0.35),
+      .shadow(color: Color.black.opacity(isHovered ? 0.7 : 0),
               radius: configuration.isPressed ? 0 : isHovered ? 1 : 2,
               y: configuration.isPressed ? 0 : isHovered ? 1 : 2)
       .font(.system(.body, design: .rounded, weight: .semibold))
       .opacity(configuration.isPressed ? 0.6 : isHovered ? 1.0 : 0.8)
       .offset(y: configuration.isPressed ? 0.25 : 0.0)
+      .rotation3DEffect(.degrees(configuration.isPressed ? 0.5 : 0), axis: (x: 1.0, y: 0, z: 0))
+      .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
+      .animation(.easeOut(duration: 0.2), value: isHovered)
       .onHover(perform: { value in
         self.isHovered = value
       })
