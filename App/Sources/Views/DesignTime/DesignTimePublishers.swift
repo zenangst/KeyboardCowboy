@@ -13,16 +13,16 @@ enum DesignTime {
 
   static var groupsPublisher = GroupsPublisher {
     [
-      GroupViewModel(id: UUID().uuidString, name: "fn-key", image: nil, color: "", symbol: "", count: 24),
-      GroupViewModel(id: UUID().uuidString, name: "Finder", image: nil, color: "", symbol: "", count: 10),
-      GroupViewModel(id: UUID().uuidString, name: "Safari", image: nil, color: "", symbol: "", count: 5),
-      GroupViewModel(id: UUID().uuidString, name: "Xcode", image: nil, color: "", symbol: "", count: 2),
-      GroupViewModel(id: UUID().uuidString, name: "Apple News", image: nil, color: "", symbol: "", count: 0),
-      GroupViewModel(id: UUID().uuidString, name: "Messages", image: nil, color: "", symbol: "", count: 1),
-      GroupViewModel(id: UUID().uuidString, name: "Global", image: nil, color: "", symbol: "", count: 50),
-      GroupViewModel(id: UUID().uuidString, name: "Web pages", image: nil, color: "", symbol: "", count: 14),
-      GroupViewModel(id: UUID().uuidString, name: "Development", image: nil, color: "", symbol: "", count: 6),
-      GroupViewModel(id: UUID().uuidString, name: "Folders", image: nil, color: "", symbol: "", count: 8),
+      GroupViewModel(id: UUID().uuidString, name: "fn-key", iconPath: nil, color: "", symbol: "", count: 24),
+      GroupViewModel(id: UUID().uuidString, name: "Finder", iconPath: nil, color: "", symbol: "", count: 10),
+      GroupViewModel(id: UUID().uuidString, name: "Safari", iconPath: nil, color: "", symbol: "", count: 5),
+      GroupViewModel(id: UUID().uuidString, name: "Xcode", iconPath: nil, color: "", symbol: "", count: 2),
+      GroupViewModel(id: UUID().uuidString, name: "Apple News", iconPath: nil, color: "", symbol: "", count: 0),
+      GroupViewModel(id: UUID().uuidString, name: "Messages", iconPath: nil, color: "", symbol: "", count: 1),
+      GroupViewModel(id: UUID().uuidString, name: "Global", iconPath: nil, color: "", symbol: "", count: 50),
+      GroupViewModel(id: UUID().uuidString, name: "Web pages", iconPath: nil, color: "", symbol: "", count: 14),
+      GroupViewModel(id: UUID().uuidString, name: "Development", iconPath: nil, color: "", symbol: "", count: 6),
+      GroupViewModel(id: UUID().uuidString, name: "Folders", iconPath: nil, color: "", symbol: "", count: 8),
     ]
   }
   static var contentPublisher = ContentPublisher {

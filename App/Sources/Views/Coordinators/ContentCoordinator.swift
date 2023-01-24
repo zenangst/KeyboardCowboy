@@ -1,10 +1,16 @@
 import Combine
 import SwiftUI
 
+struct WorkflowIds: Identifiable, Hashable {
+  var id: Workflow.ID { ids.rawValue }
+  let ids: [Workflow.ID]
+}
+
 final class ContentCoordinator {
   private let store: GroupStore
   let applicationStore: ApplicationStore
   let publisher: ContentPublisher = ContentPublisher()
+  let workflowIdsPublisher: ContentIdsPublisher = ContentIdsPublisher(WorkflowIds(ids: []))
 
   private var updateTask: Task<(), Error>?
 
@@ -17,9 +23,7 @@ final class ContentCoordinator {
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .selectGroups(let groups):
-      Task {
-        try await render(groups, setSelection: true)
-      }
+      render(groups, setSelection: true)
     default:
       break
     }
@@ -30,41 +34,40 @@ final class ContentCoordinator {
     switch action {
     case .singleDetailView(let action):
       let workflowId = action.workflowId
-      updateTask?.cancel()
-      updateTask = Task {
-        do {
-          guard let groups = store.groups
-            .first(where: { $0.workflows
-                .map { $0.id }
-                .contains(workflowId)
-            })
-          else {
-            return
-          }
-
-          let viewModels = try await groups.workflows.asViewModels()
-          var selections = [ContentViewModel]()
-          if let matchedSelection = viewModels.first(where: { $0.id == workflowId }) {
-            selections = [matchedSelection]
-          }
-
-          try Task.checkCancellation()
-
-          publisher.publish(viewModels, selections: selections)
-        }
+      guard let groups = store.groups
+        .first(where: { $0.workflows
+            .map { $0.id }
+            .contains(workflowId)
+        })
+      else {
+        return
       }
+
+      let viewModels = groups.workflows.asViewModels()
+      var selections = [ContentViewModel]()
+      if let matchedSelection = viewModels.first(where: { $0.id == workflowId }) {
+        selections = [matchedSelection]
+      }
+
+      publisher.publish(viewModels, selections: selections)
     }
   }
 
-  private func render(_ groups: [GroupViewModel], setSelection: Bool) async throws {
+  @MainActor
+  private func render(_ groups: [GroupViewModel], setSelection: Bool) {
     let ids = groups.map { $0.id }
+    var workflowIds = [Workflow.ID]()
     let workflows = store.groups
-      .filter { ids.contains($0.id) }
+      .filter {
+        if ids.contains($0.id) {
+          workflowIds.append($0.id)
+          return true
+        }
+       return false
+      }
       .flatMap(\.workflows)
-    let viewModels = try await workflows.asViewModels()
 
-    try Task.checkCancellation()
-
+    let viewModels = workflows.asViewModels()
     var animation: Animation? = nil
     var newSelections = [ContentViewModel]()
 
@@ -95,17 +98,15 @@ final class ContentCoordinator {
       }
     }
 
-    try Task.checkCancellation()
-
     if let animation {
       let mainActorSelections = newSelections
-      await MainActor.run {
         withAnimation(animation) {
+          workflowIdsPublisher.publish(.init(ids: workflowIds))
           publisher.publish(viewModels, selections: mainActorSelections)
         }
-      }
     } else {
-      await publisher.publish(viewModels, selections: newSelections)
+      workflowIdsPublisher.publish(.init(ids: workflowIds))
+      publisher.publish(viewModels, selections: newSelections)
     }
   }
 }
@@ -197,11 +198,10 @@ private extension Array where Element == Command {
 }
 
 private extension Array where Element == Workflow {
-  func asViewModels() async throws -> [ContentViewModel] {
+  func asViewModels() -> [ContentViewModel] {
     var viewModels = [ContentViewModel]()
     viewModels.reserveCapacity(self.count)
     for model in self {
-      try Task.checkCancellation()
       viewModels.append(model.asViewModel())
     }
     return viewModels

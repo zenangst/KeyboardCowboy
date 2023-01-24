@@ -2,6 +2,9 @@ import Apps
 import SwiftUI
 
 final class DetailCoordinator {
+  @MainActor
+  private var groupIds: [WorkflowGroup.ID] = []
+
   let applicationStore: ApplicationStore
   let contentStore: ContentStore
   let keyboardCowboyEngine: KeyboardCowboyEngine
@@ -21,10 +24,12 @@ final class DetailCoordinator {
     self.mapper = DetailModelMapper(applicationStore)
   }
 
+  @MainActor
   func handle(_ action: ContentView.Action) {
     switch action {
-    case .selectWorkflow(let content):
-      Task { await render(content.map(\.id)) }
+    case .selectWorkflow(let content, let groupIds):
+      self.groupIds = groupIds
+      render(content.map(\.id), groupIds: groupIds)
     default:
       break
     }
@@ -98,7 +103,7 @@ final class DetailCoordinator {
 
       workflow.updateOrAddCommand(command)
       await groupStore.receive([workflow])
-      await render([workflow.id], animation: .easeInOut(duration: 0.2))
+      await render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
     }
   }
 
@@ -190,7 +195,7 @@ final class DetailCoordinator {
         }
 
         await groupStore.receive([workflow])
-        await render([workflow.id], animation: .easeInOut(duration: 0.2))
+        await render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
     }
   }
 
@@ -346,8 +351,10 @@ final class DetailCoordinator {
     }
   }
 
-  private func render(_ ids: [Workflow.ID], animation: Animation? = nil) async {
+  @MainActor
+  private func render(_ ids: [Workflow.ID], groupIds: [WorkflowGroup.ID], animation: Animation? = nil) {
     let workflows = groupStore.groups
+      .filter({ groupIds.contains($0.id) })
       .flatMap(\.workflows)
       .filter { ids.contains($0.id) }
 
@@ -360,26 +367,22 @@ final class DetailCoordinator {
       state = .single
 
       if let animation {
-        await MainActor.run {
-          withAnimation(animation) {
-            detailPublisher.publish(viewModel)
-          }
+        withAnimation(animation) {
+          detailPublisher.publish(viewModel)
         }
       } else {
-        await detailPublisher.publish(viewModel)
+        detailPublisher.publish(viewModel)
       }
     } else {
       state = .empty
     }
 
     if let animation {
-      await MainActor.run {
-        withAnimation(animation) {
-          statePublisher.publish(state)
-        }
+      withAnimation(animation) {
+        statePublisher.publish(state)
       }
     } else {
-      await statePublisher.publish(state)
+      statePublisher.publish(state)
     }
   }
 }

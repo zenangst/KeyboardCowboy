@@ -1,6 +1,12 @@
 import Combine
 import SwiftUI
 
+struct WorkflowGroupIds: Identifiable, Hashable {
+  var id: WorkflowGroup.ID { ids.rawValue }
+  let ids: [WorkflowGroup.ID]
+}
+
+
 final class SidebarCoordinator {
   private var subscription: AnyCancellable?
   private let applicationStore: ApplicationStore
@@ -8,6 +14,7 @@ final class SidebarCoordinator {
 
   let publisher = GroupsPublisher()
   let contentPublisher: ContentPublisher
+  let groupIds: GroupIdsPublisher = GroupIdsPublisher(WorkflowGroupIds(ids: []))
 
   init(_ store: GroupStore,
        contentPublisher: ContentPublisher,
@@ -17,8 +24,9 @@ final class SidebarCoordinator {
     self.store = store
 
     subscription = store.$groups
+      .dropFirst()
       .sink { [weak self] groups in
-        self?.render(groups)
+        self?.update(groups)
       }
   }
 
@@ -55,42 +63,49 @@ final class SidebarCoordinator {
       break
     }
   }
-  
-  private func render(_ groups: [WorkflowGroup]) {
+
+  private func update(_ groups: [WorkflowGroup]) {
     Task {
-      var newIds = [String]()
-      let viewModels = groups.map { group in
-        newIds.append(group.id)
-        return group.asViewModel(group.rule?.image(using: applicationStore))
-      }
-
-      let selectedIds = publisher
-        .selections.map { $0.id }
-        .filter({ newIds.contains($0) })
-      var newSelections: [GroupViewModel]
-      if selectedIds.isEmpty, let first = viewModels.first {
-        newSelections = [first]
-      } else {
-        newSelections = viewModels.filter { selectedIds.contains($0.id) }
-      }
-
-      await publisher.publish(viewModels, selections: newSelections)
+      await render(groups)
     }
+  }
+
+  @MainActor
+  private func render(_ groups: [WorkflowGroup]) {
+    var newIds = [String]()
+    newIds.reserveCapacity(groups.count)
+    let viewModels = groups.map { group in
+      newIds.append(group.id)
+      return group.asViewModel(group.rule?.iconPath(using: applicationStore))
+    }
+
+    let selectedIds = publisher
+      .selections.map { $0.id }
+      .filter({ newIds.contains($0) })
+    var newSelections = [GroupViewModel]()
+    if selectedIds.isEmpty, let first = viewModels.first {
+      newSelections = [first]
+    }
+    else {
+      newSelections = viewModels.filter { selectedIds.contains($0.id) }
+    }
+
+    publisher.publish(viewModels, selections: newSelections)
   }
 }
 
 extension Array where Element == WorkflowGroup {
   func asViewModels(store: ApplicationStore) -> [GroupViewModel] {
-    self.map { $0.asViewModel($0.rule?.image(using: store)) }
+    self.map { $0.asViewModel($0.rule?.iconPath(using: store)) }
   }
 }
 
 extension WorkflowGroup {
-  func asViewModel(_ image: NSImage?) -> GroupViewModel {
+  func asViewModel(_ iconPath: String?) -> GroupViewModel {
     GroupViewModel(
       id: id,
       name: name,
-      image: image,
+      iconPath: iconPath,
       color: color,
       symbol: symbol,
       count: workflows.count)
@@ -98,11 +113,10 @@ extension WorkflowGroup {
 }
 
 private extension Rule {
-  func image(using applicationStore: ApplicationStore) -> NSImage? {
-    if let app = bundleIdentifiers
-      .compactMap({ applicationStore.application(for: $0) })
-      .first {
-      return NSWorkspace.shared.icon(forFile: app.path)
+  func iconPath(using applicationStore: ApplicationStore) -> String? {
+    if let bundleIdentifier = bundleIdentifiers.first,
+       let app = applicationStore.application(for: bundleIdentifier) {
+      return app.path
     }
     return nil
   }

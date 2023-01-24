@@ -10,8 +10,9 @@ struct SidebarView: View {
   }
   @ObserveInjection var inject
 
-  @EnvironmentObject var groupStore: GroupStore
-  @EnvironmentObject var groupsPublisher: GroupsPublisher
+  @EnvironmentObject private var groupIds: GroupIdsPublisher
+  @EnvironmentObject private var groupStore: GroupStore
+  @EnvironmentObject private var groupsPublisher: GroupsPublisher
 
   private let onAction: (Action) -> Void
 
@@ -50,6 +51,7 @@ struct SidebarView: View {
         onAction(.removeGroups(groupsPublisher.selections.map { $0.id }))
       })
       .onChange(of: groupsPublisher.selections) { newValue in
+        groupIds.publish(.init(ids: newValue.map(\.id)))
         onAction(.selectGroups(Array(newValue)))
       }
     }
@@ -77,8 +79,8 @@ struct SidebarItemView: View {
           .opacity(controlActiveState == .key ? 1 : 0.8))
         .overlay(
           ZStack {
-            if let image = group.image {
-              Image(nsImage: image)
+            if let iconPath = group.iconPath {
+              Image(nsImage: NSWorkspace.shared.icon(forFile: iconPath))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 20)

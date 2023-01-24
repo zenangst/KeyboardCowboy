@@ -23,7 +23,7 @@ final class ApplicationStore: ObservableObject {
   }
 
   func application(for bundleIdentifier: String) -> Application? {
-    applications.first(where: { $0.bundleIdentifier == bundleIdentifier })
+    dictionary[bundleIdentifier]
   }
 
   func reload() {
