@@ -227,8 +227,12 @@ struct EditableStack<Data, Content>: View where Content: View,
                          keyCode: Int,
                          modifiers: NSEvent.ModifierFlags) {
     guard case .focused = focus,
-          let index = draggingElementIndex else { return }
+          let index = data.lastIndex(where: { $0.id == elementId }) else { return }
     switch keyCode {
+    case kVK_ANSI_A:
+      if modifiers.contains(.command) {
+        selections = Set(data.map(\.id))
+      }
     case kVK_Escape:
       selections = []
       focus = nil
