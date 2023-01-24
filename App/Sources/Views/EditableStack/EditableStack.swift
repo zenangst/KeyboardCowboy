@@ -126,7 +126,8 @@ struct EditableStack<Data, Content>: View where Content: View,
     .offset(calculateOffset(elementID: element.id,
                             currentIndex: currentIndex))
     .animation(proxyAnimation, value: mouseDown)
-    .overlay(alignment: currentIndex >= newIndex ? .top : .bottom, content: {
+    .overlay(alignment: overlayAlignment(currentIndex: currentIndex, newIndex: newIndex),
+             content: {
       dropIndicatorOverlay(elementId: element.id,
                            currentIndex: currentIndex,
                            newIndex: newIndex,
@@ -134,6 +135,15 @@ struct EditableStack<Data, Content>: View where Content: View,
     })
     .focused($focus, equals: .focused(element.wrappedValue.id))
     .id(element.id)
+  }
+
+  private func overlayAlignment(currentIndex: Int, newIndex: Int) -> Alignment {
+    switch axes {
+    case .horizontal:
+      return currentIndex >= newIndex ? .leading : .trailing
+    default:
+      return currentIndex >= newIndex ? .top : .bottom
+    }
   }
 
   private func handleClick(elementId: Data.Element.ID,
