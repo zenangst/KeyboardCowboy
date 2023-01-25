@@ -24,36 +24,7 @@ struct ContentView: View {
   var body: some View {
     List(selection: $publisher.selections) {
       ForEach(publisher.models) { workflow in
-        HStack {
-          ZStack {
-            Rectangle()
-              .fill(Color.accentColor.opacity(0.375))
-            ContentImagesView(images: workflow.images)
-          }
-          .overlay(alignment: .topTrailing, content: {
-            ZStack {
-              Circle()
-                .fill(Color.accentColor)
-              Text("\(workflow.badge)")
-                .bold()
-                .font(.caption2)
-            }
-            .frame(width: 12)
-            .offset(x: -2, y: 2)
-            .aspectRatio(contentMode: .fit)
-            .shadow(color: .black.opacity(0.75), radius: 2)
-            .opacity(workflow.badgeOpacity)
-          })
-          .frame(width: 32, height: 32)
-          .cornerRadius(8, antialiased: false)
-
-          Text(workflow.name)
-            .lineLimit(1)
-            .allowsTightening(true)
-          Spacer()
-
-          shortcutView(workflow)
-        }
+        ContentItemView(workflow: workflow)
         .contextMenu(menuItems: {
           contextualMenu()
         })
@@ -117,19 +88,51 @@ struct ContentView: View {
   }
 
   @ViewBuilder
-  private func shortcutView(_ workflow: ContentViewModel) -> some View {
-    if let binding = workflow.binding {
-      KeyboardShortcutView(shortcut: .init(key: binding, lhs: true))
-        .font(.caption)
-        .layoutPriority(-1)
-    }
-  }
-
-  @ViewBuilder
   private func contextualMenu() -> some View {
     Button("Delete", action: {
       onAction(.removeWorflows(publisher.selections.map { $0.id }))
     })
+  }
+}
+
+struct ContentItemView: View {
+  let workflow: ContentViewModel
+
+  var body: some View {
+    HStack {
+      ZStack {
+        Rectangle()
+          .fill(Color.accentColor.opacity(0.375))
+        ContentImagesView(images: workflow.images)
+      }
+      .overlay(alignment: .topTrailing, content: {
+        ZStack {
+          Circle()
+            .fill(Color.accentColor)
+          Text("\(workflow.badge)")
+            .bold()
+            .font(.caption2)
+        }
+        .frame(width: 12)
+        .offset(x: -2, y: 2)
+        .aspectRatio(contentMode: .fit)
+        .shadow(color: .black.opacity(0.75), radius: 2)
+        .opacity(workflow.badgeOpacity)
+      })
+      .frame(width: 32, height: 32)
+      .cornerRadius(8, antialiased: false)
+
+      Text(workflow.name)
+        .lineLimit(1)
+        .allowsTightening(true)
+      Spacer()
+
+      if let binding = workflow.binding {
+        KeyboardShortcutView(shortcut: .init(key: binding, lhs: true))
+          .font(.caption)
+          .layoutPriority(-1)
+      }
+    }
   }
 }
 
