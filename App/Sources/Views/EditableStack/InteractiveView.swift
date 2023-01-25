@@ -24,7 +24,7 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
   private let onDragChanged: (Element, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
   private let onDragEnded: (Element, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
   private let onClick: (Element, Int, InteractiveViewModifier) -> Void
-  private let onKeyDown: (Element, Int, NSEvent.ModifierFlags) -> Void
+  private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
 
   init(_ element: Binding<Element>,
        animation: Animation,
@@ -33,7 +33,7 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
        @ViewBuilder content: @escaping (Binding<Element>, Int) -> Content,
        overlay: @escaping (Element, Int) -> Overlay,
        onClick: @escaping (Element, Int, InteractiveViewModifier) -> Void,
-       onKeyDown: @escaping (Element, Int, NSEvent.ModifierFlags) -> Void,
+       onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void,
        onDragChanged: @escaping (Element, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void,
        onDragEnded: @escaping (Element, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void) {
     _element = element
@@ -54,7 +54,7 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
       .background(
         ZStack {
           FocusableProxy(onKeyDown: {
-            onKeyDown(element, $0, $1)
+            onKeyDown($0, $1)
           })
           GeometryReader { proxy in
             Color.clear

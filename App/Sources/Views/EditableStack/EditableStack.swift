@@ -124,7 +124,9 @@ struct EditableStack<Data, Content>: View where Content: View,
           .allowsHitTesting(false)
       },
       onClick: handleClick,
-      onKeyDown: onKeyDown,
+      onKeyDown: {
+        onKeyDown(index: currentIndex, keyCode: $0, modifiers: $1)
+      },
       onDragChanged: onDragChanged,
       onDragEnded: onDragEnded
     )
@@ -228,11 +230,10 @@ struct EditableStack<Data, Content>: View where Content: View,
     }
   }
 
-  private func onKeyDown(element: Data.Element,
+  private func onKeyDown(index: Int,
                          keyCode: Int,
                          modifiers: NSEvent.ModifierFlags) {
-    guard case .focused = focus,
-          let index = data.firstIndex(where: { $0.id == element.id }) else { return }
+    guard case .focused = focus else { return }
     switch keyCode {
     case kVK_ANSI_A:
       if modifiers.contains(.command) {
