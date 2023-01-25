@@ -40,6 +40,7 @@ struct SingleDetailView: View {
           .padding(.vertical, 12)
           .id(workflow.id)
           WorkflowTriggerListView($workflow, onAction: onAction)
+            .id(workflow.id)
         }
         .padding()
         .background(alignment: .bottom, content: {
