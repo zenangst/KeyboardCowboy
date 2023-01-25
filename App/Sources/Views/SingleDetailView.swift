@@ -14,16 +14,9 @@ struct SingleDetailView: View {
     case updateName(workflowId: Workflow.ID, name: String)
   }
 
-  enum Sheet: Int, Identifiable {
-    var id: Int { self.rawValue }
-    case newCommand
-  }
-
   @Environment(\.controlActiveState) var controlActiveState
   @Environment(\.openWindow) var openWindow
   @Binding private var workflow: DetailViewModel
-  @State private var sheet: Sheet?
-  @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
   init(_ workflow: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
@@ -45,15 +38,8 @@ struct SingleDetailView: View {
           })
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
-          .id(workflow.id)
           WorkflowTriggerListView($workflow, onAction: onAction)
-            .id(workflow.id)
         }
-        .onFrameChange(perform: { rect in
-          let newValue = rect.origin.y < -20 ? 1.0 : 0.0
-          guard newValue != overlayOpacity else { return }
-          overlayOpacity = newValue
-        })
         .padding()
         .background(alignment: .bottom, content: {
           GeometryReader { proxy in
@@ -80,42 +66,9 @@ struct SingleDetailView: View {
             onAction(action)
           })
       }
-      .overlay(alignment: .top, content: { overlayView() })
       .labelStyle(HeaderLabelStyle())
     }
   }
-
-  private func overlayView() -> some View {
-    ZStack {
-      VStack(spacing: 0) {
-        Rectangle()
-          .fill(Color(.gridColor))
-          .frame(height: 36)
-        Rectangle()
-          .fill(Color(.gray))
-          .frame(height: 1)
-          .opacity(0.25)
-        Rectangle()
-          .fill(Color(.black))
-          .frame(height: 1)
-          .opacity(0.5)
-      }
-
-      HStack(spacing: 0) {
-        Spacer()
-        Text(workflow.name)
-          .font(.callout)
-        Spacer()
-      }
-      .padding(.vertical, 4)
-      .padding(.horizontal, 8)
-    }
-    .opacity(overlayOpacity)
-    .animation(.default, value: overlayOpacity)
-    .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
-    .edgesIgnoringSafeArea(.top)
-  }
-
 }
 
 struct SingleDetailView_Previews: PreviewProvider {
