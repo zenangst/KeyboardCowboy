@@ -8,20 +8,24 @@ struct ScriptEditorView: View {
 
   @Binding private var text: String
   @Binding private var syntax: any SyntaxHighlighting
+
+  private let maxHeight: CGFloat?
   private let font: NSFont
 
   init(text: Binding<String>,
+       maxHeight: CGFloat? = 200,
        font: NSFont = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular),
        syntax: Binding<any SyntaxHighlighting>) {
     _text = text
-    self.font = font
     _syntax = syntax
+    self.font = font
+    self.maxHeight = maxHeight
   }
 
   var body: some View {
     ScriptEditorViewable(
       text: $text, font: font,
-      maxHeight: nil,
+      maxHeight: maxHeight,
       syntax: $syntax)
     .padding(4)
     .background(

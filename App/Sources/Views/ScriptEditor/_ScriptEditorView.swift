@@ -114,14 +114,20 @@ final class _ScriptEditorView: NSView, NSTextStorageDelegate, NSTextViewDelegate
     addSubview(scrollView)
 
     NotificationCenter.default.publisher(for: NSView.boundsDidChangeNotification)
-      .sink { [weak self] _ in
-        self?.lineNumbersView.needsDisplay = true
+      .sink { [weak self] notification in
+        guard let self else { return }
+        guard let clipView = notification.object as? NSClipView,
+              clipView == self.scrollView.contentView else { return }
+        self.lineNumbersView.needsDisplay = true
       }
       .store(in: &subscriptions)
 
     NotificationCenter.default.publisher(for: NSScrollView.didLiveScrollNotification)
-      .sink { [weak self] _ in
-        self?.invalidateViews()
+      .sink { [weak self] notification in
+        guard let self else { return }
+        guard let clipView = notification.object as? NSClipView,
+              clipView == self.scrollView.contentView else { return }
+        self.invalidateViews()
       }
       .store(in: &subscriptions)
   }
@@ -180,8 +186,6 @@ final class _ScriptEditorView: NSView, NSTextStorageDelegate, NSTextViewDelegate
     if textStorage.string != text {
       text = textStorage.string
       invalidateIntrinsicContentSize()
-      animator().needsLayout = true
-      animator().needsDisplay = true
       lineNumbersView.animator().needsDisplay = true
     }
   }
