@@ -80,15 +80,6 @@ struct WorkflowCommandListView: View {
             })
           }
         }
-        .background(
-          GeometryReader { proxy in
-          Rectangle()
-            .fill(Color.gray)
-            .frame(width: 3.0)
-            .offset(x: (proxy.size.width / 2.0) - 3.0)
-            .opacity(workflow.flow == .concurrent ? 0 : 1)
-        }
-      )
     }
     .padding()
   }
