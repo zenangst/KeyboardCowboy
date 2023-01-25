@@ -50,9 +50,9 @@ struct SingleDetailView: View {
             .id(workflow.id)
         }
         .onFrameChange(perform: { rect in
-          withAnimation {
-            overlayOpacity = rect.origin.y < -20 ? 1.0 : 0.0
-          }
+          let newValue = rect.origin.y < -20 ? 1.0 : 0.0
+          guard newValue != overlayOpacity else { return }
+          overlayOpacity = newValue
         })
         .padding()
         .background(alignment: .bottom, content: {
@@ -111,6 +111,7 @@ struct SingleDetailView: View {
       .padding(.horizontal, 8)
     }
     .opacity(overlayOpacity)
+    .animation(.default, value: overlayOpacity)
     .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
     .edgesIgnoringSafeArea(.top)
   }
