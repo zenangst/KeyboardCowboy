@@ -110,26 +110,22 @@ struct EditableKeyboardShortcutsView: View {
     .padding(4)
   }
 
+  @ViewBuilder
   private func overlay() -> some View {
-    ZStack {
-      if keyboardShortcuts.isEmpty {
-        HStack {
-          Spacer()
-          Text("Press the plus (+) button to record a keyboard shortcut")
-            .font(.footnote)
-          Spacer()
-        }
-        .padding(4)
-      }
-      if state == .recording {
-        RoundedRectangle(cornerRadius: 4)
-          .stroke(isGlowing
-                  ? Color(.systemRed) .opacity(0.5)
-                  : Color.clear, lineWidth: 1)
-          .animation(Animation
-            .easeInOut(duration: 1.25)
-            .repeatForever(autoreverses: true), value: isGlowing)
-      }
+    if state == .recording {
+      RoundedRectangle(cornerRadius: 4)
+        .stroke(isGlowing
+                ? Color(.systemRed) .opacity(0.5)
+                : Color.clear, lineWidth: 1)
+        .animation(Animation
+          .easeInOut(duration: 1.25)
+          .repeatForever(autoreverses: true), value: isGlowing)
+    } else if keyboardShortcuts.isEmpty {
+      Text("Press the plus (+) button to record a keyboard shortcut")
+        .allowsTightening(true)
+        .font(.footnote)
+        .padding([.leading, .vertical], 4)
+        .padding(.trailing, 32)
     }
   }
 

@@ -38,6 +38,7 @@ struct SingleDetailView: View {
           })
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
+          .id(workflow.id)
           WorkflowTriggerListView($workflow, onAction: onAction)
         }
         .padding()
@@ -68,7 +69,6 @@ struct SingleDetailView: View {
           })
       }
       .labelStyle(HeaderLabelStyle())
-      .id(workflow.id)
     }
   }
 }

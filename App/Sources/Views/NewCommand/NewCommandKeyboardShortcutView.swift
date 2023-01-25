@@ -28,18 +28,6 @@ struct NewCommandKeyboardShortcutView: View {
       }
 
       EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
-        .overlay(
-          ZStack {
-            if keyboardShortcuts.isEmpty {
-              HStack {
-                Spacer()
-                Text("Press the plus (+) button to record a keyboard shortcut")
-                  .font(.footnote)
-                Spacer()
-              }
-            }
-          }
-        )
         .overlay(NewCommandValidationView($validation).padding(-8))
         .frame(minHeight: 48)
         .padding(.horizontal, 6)
