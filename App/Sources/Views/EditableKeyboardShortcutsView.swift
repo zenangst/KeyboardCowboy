@@ -170,7 +170,9 @@ struct EditableKeyboardShortcutsView: View {
     state = nil
     isGlowing = false
     selectedColor = Color.accentColor
-    recorderStore.mode = .intercept
+    if recorderStore.mode != .intercept {
+      recorderStore.mode = .intercept
+    }
     withAnimation(animation) {
       keyboardShortcuts.removeAll(where: { $0.id == placeholderId })
     }
