@@ -4,40 +4,41 @@ enum InteractiveViewModifier {
   case command, shift, empty
 }
 
-struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
-                                                                Overlay: View,
-                                                                ElementID: Hashable {
+struct InteractiveView<Element, Content, Overlay>: View where Content : View,
+                                                              Overlay: View,
+                                                              Element: Hashable,
+                                                              Element: Identifiable {
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
   @GestureState private var dragOffsetState: CGSize = .zero
-  @Binding var selectedColor: Color
+  @Binding private var element: Element
+  @Binding private var selectedColor: Color
   @State private var size: CGSize = .zero
   @State private var mouseDown: Bool = false
-  @State var zIndex: Double = 0
+  @State private var zIndex: Double = 0
   private let animation: Animation
-  private let id: ElementID
   private let index: Int
   @ViewBuilder
-  private let content: () -> Content
-  private let overlay: () -> Overlay
-  private let onDragChanged: (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
-  private let onDragEnded: (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
-  private let onClick: (ElementID, Int, InteractiveViewModifier) -> Void
-  private let onKeyDown: (ElementID, Int, NSEvent.ModifierFlags) -> Void
+  private let content: (Binding<Element>, Int) -> Content
+  private let overlay: (Element, Int) -> Overlay
+  private let onDragChanged: (Element, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
+  private let onDragEnded: (Element, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void
+  private let onClick: (Element, Int, InteractiveViewModifier) -> Void
+  private let onKeyDown: (Element, Int, NSEvent.ModifierFlags) -> Void
 
-  init(animation: Animation,
-       id: ElementID,
+  init(_ element: Binding<Element>,
+       animation: Animation,
        index: Int,
        selectedColor: Binding<Color>,
-       @ViewBuilder content: @escaping () -> Content,
-       overlay: @escaping () -> Overlay,
-       onClick: @escaping (ElementID, Int, InteractiveViewModifier) -> Void,
-       onKeyDown: @escaping (ElementID, Int, NSEvent.ModifierFlags) -> Void,
-       onDragChanged: @escaping (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void,
-       onDragEnded: @escaping (ElementID, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void) {
+       @ViewBuilder content: @escaping (Binding<Element>, Int) -> Content,
+       overlay: @escaping (Element, Int) -> Overlay,
+       onClick: @escaping (Element, Int, InteractiveViewModifier) -> Void,
+       onKeyDown: @escaping (Element, Int, NSEvent.ModifierFlags) -> Void,
+       onDragChanged: @escaping (Element, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void,
+       onDragEnded: @escaping (Element, Int, GestureStateGesture<DragGesture, CGSize>.Value, CGSize) -> Void) {
+    _element = element
     _selectedColor = selectedColor
     self.animation = animation
-    self.id = id
     self.index = index
     self.content = content
     self.overlay = overlay
@@ -48,12 +49,12 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
   }
 
   var body: some View {
-    content()
+    content($element, index)
       .animation(nil, value: dragOffsetState)
       .background(
         ZStack {
           FocusableProxy(onKeyDown: {
-            onKeyDown(id, $0, $1)
+            onKeyDown(element, $0, $1)
           })
           GeometryReader { proxy in
             Color.clear
@@ -61,7 +62,7 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
           }
         }
       )
-      .overlay(content: overlay)
+      .overlay(content: { overlay(element, index) })
       .shadow(color: isFocused ? selectedColor.opacity(controlActiveState == .key ? 0.8 : 0.4) : Color(.sRGBLinear, white: 0, opacity: 0.33),
               radius: isFocused ? 1.0 : dragOffsetState != .zero ? 4.0 : 0.0)
       .zIndex(zIndex)
@@ -75,30 +76,30 @@ struct InteractiveView<ElementID, Content, Overlay>: View where Content : View,
           }
           .onChanged({
             isFocused = false
-            onDragChanged(id, index, $0, size)
+            onDragChanged(element, index, $0, size)
             zIndex = 1
             mouseDown = true
           })
           .onEnded {
             zIndex = 0
-            onDragEnded(id, index, $0, size)
+            onDragEnded(element, index, $0, size)
             mouseDown = false
           }
       )
       .gesture(TapGesture().modifiers(.command)
         .onEnded({ _ in
-          onClick(id, index, .command)
+          onClick(element, index, .command)
         })
       )
       .gesture(TapGesture().modifiers(.shift)
         .onEnded({ _ in
-          onClick(id, index, .shift)
+          onClick(element, index, .shift)
         })
       )
       .gesture(TapGesture()
         .onEnded({ _ in
           isFocused = true
-          onClick(id, index, .empty)
+          onClick(element, index, .empty)
         })
       )
       .focusable()

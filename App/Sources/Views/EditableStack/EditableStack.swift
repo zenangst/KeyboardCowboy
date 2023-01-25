@@ -110,12 +110,14 @@ struct EditableStack<Data, Content>: View where Content: View,
                                               index currentIndex: Int,
                                               content: @escaping (Binding<Data.Element>) -> Content) -> some View {
     InteractiveView(
+      element,
       animation: mainAnimation,
-      id: element.id,
       index: currentIndex,
       selectedColor: $selectedColor,
-      content: { content(element) },
-      overlay: {
+      content: { element, _ in
+        content(element)
+      },
+      overlay: { element, _ in
         selectedColor
           .opacity(selections.contains(element.id) ? 0.2 : 0.0)
           .cornerRadius(cornerRadius)
@@ -149,32 +151,32 @@ struct EditableStack<Data, Content>: View where Content: View,
     }
   }
 
-  private func handleClick(elementId: Data.Element.ID,
+  private func handleClick(element: Data.Element,
                            index: Int,
                            modifier: InteractiveViewModifier) {
     switch modifier {
     case .empty:
       selections = []
-      focus = .focused(elementId)
+      focus = .focused(element.id)
     case .command:
-      focus = .focused(elementId)
-      onTapWithCommandModifier(elementId)
+      focus = .focused(element.id)
+      onTapWithCommandModifier(element.id)
     case .shift:
-      focus = .focused(elementId)
-      onTapWithShiftModifier(elementId)
+      focus = .focused(element.id)
+      onTapWithShiftModifier(element.id)
     }
 
-    self.onClick(elementId, index)
+    self.onClick(element.id, index)
   }
 
-  private func onDragChanged(elementId: Data.Element.ID,
+  private func onDragChanged(element: Data.Element,
                              index currentIndex: Int,
                              value: GestureStateGesture<DragGesture, CGSize>.Value,
                              size: CGSize) {
     guard onMove != nil else { return }
 
-    if draggingElementId != elementId {
-      draggingElementId = elementId
+    if draggingElementId != element.id {
+      draggingElementId = element.id
       draggingElementIndex = currentIndex
     }
 
@@ -190,7 +192,7 @@ struct EditableStack<Data, Content>: View where Content: View,
       self.newIndex = newIndex
     }
 
-    if !selections.contains(elementId) {
+    if !selections.contains(element.id) {
       selections.removeAll()
     }
 
@@ -199,7 +201,7 @@ struct EditableStack<Data, Content>: View where Content: View,
     }
   }
 
-  private func onDragEnded(elementId: Data.Element.ID,
+  private func onDragEnded(element: Data.Element,
                            index currentIndex: Int,
                            value: GestureStateGesture<DragGesture, CGSize>.Value,
                            size: CGSize) {
@@ -226,11 +228,11 @@ struct EditableStack<Data, Content>: View where Content: View,
     }
   }
 
-  private func onKeyDown(elementId: Data.Element.ID,
+  private func onKeyDown(element: Data.Element,
                          keyCode: Int,
                          modifiers: NSEvent.ModifierFlags) {
     guard case .focused = focus,
-          let index = data.firstIndex(where: { $0.id == elementId }) else { return }
+          let index = data.firstIndex(where: { $0.id == element.id }) else { return }
     switch keyCode {
     case kVK_ANSI_A:
       if modifiers.contains(.command) {
