@@ -63,7 +63,11 @@ struct EditableKeyboardShortcutsView: View {
         }
         replacing = id
       },
-      onMove: { keyboardShortcuts.move(fromOffsets: $0, toOffset: $1) },
+      onMove: { from, to in
+        withAnimation(.spring(response: 0.55, dampingFraction: 0.6)) {
+          keyboardShortcuts.move(fromOffsets: from, toOffset: to)
+        }
+      },
       onDelete: { offsets in
         withAnimation(animation) {
           keyboardShortcuts.remove(atOffsets: offsets)

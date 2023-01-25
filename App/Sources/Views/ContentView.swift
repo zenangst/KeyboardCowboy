@@ -11,6 +11,7 @@ struct ContentView: View {
 
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher
+  @EnvironmentObject private var selectionPublisher: ContentSelectionIdsPublisher
 
   @State var selected = Set<ContentViewModel>()
   @State var overlayOpacity: CGFloat = 0
@@ -45,8 +46,8 @@ struct ContentView: View {
     }
     .onChange(of: publisher.selections, perform: { newValue in
       selected = newValue
-      onAction(.selectWorkflow(models: Array(newValue),
-                               inGroups: groupIds.model.ids))
+      selectionPublisher.publish(.init(groupIds: groupIds.model.ids,
+                                       workflowIds: newValue.map(\.id)))
     })
     .overlay(alignment: .top, content: { overlayView() })
     .toolbar {

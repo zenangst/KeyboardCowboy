@@ -1,7 +1,9 @@
 import Apps
+import Combine
 import SwiftUI
 
 final class DetailCoordinator {
+  private var subscription: AnyCancellable?
   @MainActor
   private var groupIds: [WorkflowGroup.ID] = []
 
@@ -25,13 +27,13 @@ final class DetailCoordinator {
   }
 
   @MainActor
-  func handle(_ action: ContentView.Action) {
-    switch action {
-    case .selectWorkflow(let content, let groupIds):
-      self.groupIds = groupIds
-      render(content.map(\.id), groupIds: groupIds)
-    default:
-      break
+  func subscribe(to publisher: Published<ContentSelectionIds>.Publisher) {
+    subscription = publisher
+      .dropFirst()
+      .debounce(for: .milliseconds(80), scheduler: DispatchQueue.main)
+      .sink { [weak self] ids in
+        self?.groupIds = ids.groupIds
+        self?.render(ids.workflowIds, groupIds: ids.groupIds)
     }
   }
 

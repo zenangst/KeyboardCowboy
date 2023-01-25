@@ -65,6 +65,8 @@ struct KeyboardCowboy: App {
     self.groupStore = contentStore.groupStore
     self.engine = engine
     self.scriptEngine = scriptEngine
+
+    detailCoordinator.subscribe(to: contentCoordinator.selectionPublisher.$model)
   }
 
   var body: some Scene {
@@ -93,7 +95,6 @@ struct KeyboardCowboy: App {
             }
           case .content(let contentAction):
             sidebarCoordinator.handle(contentAction)
-            detailCoordinator.handle(contentAction)
           case .detail(let detailAction):
             Task {
               await detailCoordinator.handle(detailAction)
@@ -155,7 +156,7 @@ private extension KeyboardCowboy {
       .environmentObject(sidebarCoordinator.publisher)
       .environmentObject(sidebarCoordinator.groupIds)
       .environmentObject(contentCoordinator.publisher)
-      .environmentObject(contentCoordinator.workflowIdsPublisher)
+      .environmentObject(contentCoordinator.selectionPublisher)
       .environmentObject(detailCoordinator.statePublisher)
       .environmentObject(detailCoordinator.detailPublisher)
       .environmentObject(contentStore.recorderStore)

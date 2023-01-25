@@ -1,16 +1,18 @@
 import Combine
 import SwiftUI
 
-struct WorkflowIds: Identifiable, Hashable {
-  var id: Workflow.ID { ids.rawValue }
-  let ids: [Workflow.ID]
+struct ContentSelectionIds: Identifiable, Hashable {
+  var id: Int { groupIds.hashValue + workflowIds.hashValue }
+
+  let groupIds: [GroupViewModel.ID]
+  let workflowIds: [ContentViewModel.ID]
 }
 
 final class ContentCoordinator {
   private let store: GroupStore
   let applicationStore: ApplicationStore
   let publisher: ContentPublisher = ContentPublisher()
-  let workflowIdsPublisher: ContentIdsPublisher = ContentIdsPublisher(WorkflowIds(ids: []))
+  let selectionPublisher: ContentSelectionIdsPublisher = ContentSelectionIdsPublisher(.init(groupIds: [], workflowIds: []))
 
   private var updateTask: Task<(), Error>?
 
@@ -55,11 +57,11 @@ final class ContentCoordinator {
 
   @MainActor
   private func render(_ groups: [GroupViewModel], setSelection: Bool) {
-    let ids = groups.map { $0.id }
+    let groupIds = groups.map { $0.id }
     var workflowIds = [Workflow.ID]()
     let workflows = store.groups
       .filter {
-        if ids.contains($0.id) {
+        if groupIds.contains($0.id) {
           workflowIds.append($0.id)
           return true
         }
@@ -101,13 +103,14 @@ final class ContentCoordinator {
     if let animation {
       let mainActorSelections = newSelections
         withAnimation(animation) {
-          workflowIdsPublisher.publish(.init(ids: workflowIds))
           publisher.publish(viewModels, selections: mainActorSelections)
         }
     } else {
-      workflowIdsPublisher.publish(.init(ids: workflowIds))
       publisher.publish(viewModels, selections: newSelections)
     }
+
+    selectionPublisher.publish(ContentSelectionIds(groupIds: groupIds,
+                                                   workflowIds: newSelections.map(\.id)) )
   }
 }
 
