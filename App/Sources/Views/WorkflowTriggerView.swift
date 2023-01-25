@@ -39,7 +39,7 @@ struct WorkflowTriggerView: View {
         Spacer()
       }
       .padding(16)
-      .background(Color(nsColor: .gridColor))
+      .background(Color(.gridColor))
       .cornerRadius(8)
     }
     .buttonStyle(.appStyle)

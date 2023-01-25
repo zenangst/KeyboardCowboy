@@ -24,7 +24,7 @@ struct AutoCompletionView: View {
     .padding(4)
     .overlay(
       RoundedRectangle(cornerRadius: 4)
-        .stroke(Color(nsColor: .controlColor))
+        .stroke(Color(.controlColor))
     )
     .cornerRadius(4)
   }

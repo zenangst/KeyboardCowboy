@@ -59,10 +59,12 @@ struct ApplicationCommandView: View {
     CommandContainerView(
       $command,
       icon: {
-        if let iconPath = command.iconPath {
-          ApplicationCommandImageView($command,
-                                      image: NSWorkspace.shared.icon(forFile: iconPath),
-                                      onAction: onAction)
+        ZStack {
+          if let iconPath = command.iconPath {
+            ApplicationCommandImageView($command,
+                                        image: NSWorkspace.shared.icon(forFile: iconPath),
+                                        onAction: onAction)
+          }
         }
       },
       content: {

@@ -15,9 +15,9 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   var onAction: (CommandContainerAction) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
-       @ViewBuilder icon: @escaping () -> IconContent,
-       @ViewBuilder content: @escaping () -> Content,
-       @ViewBuilder subContent: @escaping () -> SubContent,
+       icon: @escaping () -> IconContent,
+       content: @escaping () -> Content,
+       subContent: @escaping () -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
     _command = command
     self.icon = icon
@@ -47,9 +47,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .tint(.green)
             .scaleEffect(0.65)
             .offset(x: -2)
-            .onChange(of: command.isEnabled, perform: {
-              Swift.print("🌈 command.isEnabled: \($0)")
-            })
 
           subContent()
             .buttonStyle(.appStyle)
@@ -66,11 +63,11 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
     HStack(spacing: 0) {
       HStack(spacing: 0) {
         Rectangle()
-          .fill(Color(nsColor: .gray))
+          .fill(Color.gray)
           .frame(width: 1)
           .opacity(0.15)
         Rectangle()
-          .fill(Color(nsColor: .black))
+          .fill(Color.black)
           .frame(width: 1)
           .opacity(0.5)
       }
@@ -88,11 +85,11 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         Spacer()
         VStack(spacing: 0) {
           Rectangle()
-            .fill(Color(nsColor: .gray))
+            .fill(Color.gray)
             .frame(height: 1)
             .opacity(0.15)
           Rectangle()
-            .fill(Color(nsColor: .black))
+            .fill(Color.black)
             .frame(height: 1)
             .opacity(0.5)
         }

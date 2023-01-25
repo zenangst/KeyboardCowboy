@@ -92,11 +92,11 @@ struct SingleDetailView: View {
           .fill(Color(.gridColor))
           .frame(height: 36)
         Rectangle()
-          .fill(Color(nsColor: .gray))
+          .fill(Color(.gray))
           .frame(height: 1)
           .opacity(0.25)
         Rectangle()
-          .fill(Color(nsColor: .black))
+          .fill(Color(.black))
           .frame(height: 1)
           .opacity(0.5)
       }

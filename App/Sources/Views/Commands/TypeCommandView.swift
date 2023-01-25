@@ -30,11 +30,13 @@ struct TypeCommandView: View {
     CommandContainerView(
       $command,
       icon: {
-        Rectangle()
-          .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
-          .cornerRadius(8, antialiased: false)
-        RegularKeyIcon(letter: "(...)", width: 24, height: 24)
-          .frame(width: 16, height: 16)
+        ZStack {
+          Rectangle()
+            .fill(Color(.controlAccentColor).opacity(0.375))
+            .cornerRadius(8, antialiased: false)
+          RegularKeyIcon(letter: "(...)", width: 24, height: 24)
+            .frame(width: 16, height: 16)
+        }
       }, content: {
         TypeCommandTextEditor(text: $source)
           .onChange(of: source) { newInput in

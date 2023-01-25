@@ -8,7 +8,7 @@ struct UnknownView: View {
       HStack {
         ZStack {
           Rectangle()
-            .fill(Color(nsColor: .controlAccentColor).opacity(0.1))
+            .fill(Color(.controlAccentColor).opacity(0.1))
           if let iconPath = command.iconPath {
             Image(nsImage: NSWorkspace.shared.icon(forFile: iconPath))
               .resizable()

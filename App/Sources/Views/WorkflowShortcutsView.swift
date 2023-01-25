@@ -15,7 +15,7 @@ struct WorkflowShortcutsView: View {
       .padding(.horizontal, 6)
       .background(
         RoundedRectangle(cornerRadius: 4)
-          .fill(Color(nsColor: .windowBackgroundColor).opacity(0.25))
+          .fill(Color(.windowBackgroundColor).opacity(0.25))
       )
       .onChange(of: keyboardShortcuts, perform: { newValue in
         onUpdate(newValue)

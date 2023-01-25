@@ -8,7 +8,6 @@ struct SidebarView: View {
     case moveGroups(source: IndexSet, destination: Int)
     case removeGroups([GroupViewModel.ID])
   }
-
   @EnvironmentObject private var groupIds: GroupIdsPublisher
   @EnvironmentObject private var groupStore: GroupStore
   @EnvironmentObject private var groupsPublisher: GroupsPublisher

@@ -29,7 +29,7 @@ struct KeyboardCommandView: View {
       $command, icon: {
         ZStack {
           Rectangle()
-            .fill(Color(nsColor: .systemGreen))
+            .fill(Color(.systemGreen))
             .opacity(0.2)
             .cornerRadius(8)
           ZStack {
@@ -54,7 +54,7 @@ struct KeyboardCommandView: View {
             onAction(.updateKeyboardShortcuts(newValue))
           }
           .padding(.horizontal, 2)
-          .background(Color(nsColor: .windowBackgroundColor).opacity(0.25))
+          .background(Color(.windowBackgroundColor).opacity(0.25))
           .cornerRadius(4)
       },
       onAction: { onAction(.commandAction($0)) })

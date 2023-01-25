@@ -7,7 +7,7 @@ extension Color {
       : string
     guard hex.count == 3 || hex.count == 6
     else {
-      self.init(NSColor.white)
+      self = Color(.white)
       return
     }
     if hex.count == 3 {
@@ -18,7 +18,7 @@ extension Color {
     }
 
     guard let intCode = Int(hex, radix: 16) else {
-      self.init(NSColor.white)
+      self = Color.white
       return
     }
 
@@ -26,7 +26,7 @@ extension Color {
     let green = Double((intCode >> 8) & 0xFF)
     let blue = Double((intCode) & 0xFF)
 
-    self.init(
+    self = Color(
       red: red / 255.0,
       green: green / 255.0,
       blue: blue / 255.0,

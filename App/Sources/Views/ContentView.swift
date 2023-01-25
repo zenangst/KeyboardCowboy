@@ -8,6 +8,7 @@ struct ContentView: View {
     case moveWorkflows(source: IndexSet, destination: Int)
     case addWorkflow
   }
+
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher
 
@@ -26,13 +27,13 @@ struct ContentView: View {
         HStack {
           ZStack {
             Rectangle()
-              .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
+              .fill(Color.accentColor.opacity(0.375))
             ContentImagesView(images: workflow.images)
           }
           .overlay(alignment: .topTrailing, content: {
             ZStack {
               Circle()
-                .fill(Color(nsColor: .controlAccentColor))
+                .fill(Color.accentColor)
               Text("\(workflow.badge)")
                 .bold()
                 .font(.caption2)
@@ -101,11 +102,11 @@ struct ContentView: View {
         .fill(Color(.gridColor))
         .frame(height: 36)
       Rectangle()
-        .fill(Color(nsColor: .gray))
+        .fill(Color.gray)
         .frame(height: 1)
         .opacity(0.25)
       Rectangle()
-        .fill(Color(nsColor: .black))
+        .fill(Color.black)
         .frame(height: 1)
         .opacity(0.5)
     }
@@ -185,7 +186,7 @@ struct ContentImageView: View {
           ZStack {
             Rectangle()
               .fill(LinearGradient(stops: [
-                .init(color: Color(nsColor: NSColor(.accentColor)).opacity(0.2), location: 0.0),
+                .init(color: Color.accentColor.opacity(0.2), location: 0.0),
                 .init(color: .black, location: 0.2),
                 .init(color: .black, location: 1.0),
               ], startPoint: .top, endPoint: .bottom))

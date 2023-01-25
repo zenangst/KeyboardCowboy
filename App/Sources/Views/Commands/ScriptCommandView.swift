@@ -29,13 +29,15 @@ struct ScriptCommandView: View {
 
   var body: some View {
     CommandContainerView($command, icon: {
-      Rectangle()
-        .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
-        .cornerRadius(8, antialiased: false)
-      Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Utilities/Script Editor.app"))
-        .resizable()
-        .aspectRatio(1, contentMode: .fill)
-        .frame(width: 32)
+      ZStack {
+        Rectangle()
+          .fill(Color(.controlAccentColor).opacity(0.375))
+          .cornerRadius(8, antialiased: false)
+        Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Utilities/Script Editor.app"))
+          .resizable()
+          .aspectRatio(1, contentMode: .fill)
+          .frame(width: 32)
+      }
     }, content: {
       VStack {
         HStack(spacing: 8) {

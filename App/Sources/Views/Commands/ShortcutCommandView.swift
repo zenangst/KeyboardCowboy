@@ -20,10 +20,12 @@ struct ShortcutCommandView: View {
   
   var body: some View {
     CommandContainerView($command, icon: {
-      Rectangle()
-        .fill(Color(nsColor: .controlAccentColor).opacity(0.375))
-        .cornerRadius(8, antialiased: false)
-      Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Shortcuts.app"))
+      ZStack {
+        Rectangle()
+          .fill(Color(.controlAccentColor).opacity(0.375))
+          .cornerRadius(8, antialiased: false)
+        Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Shortcuts.app"))
+      }
     }, content: {
       TextField("", text: $name)
         .textFieldStyle(AppTextFieldStyle())

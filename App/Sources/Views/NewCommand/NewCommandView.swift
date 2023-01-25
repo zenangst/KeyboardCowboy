@@ -191,7 +191,7 @@ struct NewCommandView: View {
       .padding()
       .background(
         RoundedRectangle(cornerRadius: 8)
-          .fill(Color(nsColor: NSColor.textBackgroundColor))
+          .fill(Color(.textBackgroundColor))
       )
       .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
               radius: 2,

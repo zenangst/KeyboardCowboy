@@ -60,7 +60,7 @@ struct CommandView: View {
       .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
       .opacity(command.isEnabled ? 1 : 0.5)
       .background(
-        Color(nsColor: NSColor.textBackgroundColor)
+        Color(.textBackgroundColor)
       )
       .cornerRadius(8)
       .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
