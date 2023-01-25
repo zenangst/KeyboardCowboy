@@ -56,6 +56,7 @@ struct SingleDetailView: View {
           .compositingGroup()
         })
         .shadow(radius: 4)
+
         WorkflowCommandListView(
           $workflow,
           scrollViewProxy: proxy,
@@ -67,6 +68,7 @@ struct SingleDetailView: View {
           })
       }
       .labelStyle(HeaderLabelStyle())
+      .id(workflow.id)
     }
   }
 }
