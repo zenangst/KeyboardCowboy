@@ -14,6 +14,7 @@ final class KeyboardCowboyEngine {
   private let machPortEngine: MachPortEngine
   private let shortcutStore: ShortcutStore
 
+  private let applicationTriggerController: ApplicationTriggerController
   private var machPortController: MachPortEventController?
 
   init(_ contentStore: ContentStore, indexer: Indexer,
@@ -27,6 +28,7 @@ final class KeyboardCowboyEngine {
     self.machPortEngine = MachPortEngine(store: keyCodeStore, commandEngine: commandEngine,
                                          indexer: indexer, mode: .intercept)
     self.shortcutStore = ShortcutStore(engine: scriptEngine)
+    self.applicationTriggerController = ApplicationTriggerController(commandEngine)
 
     subscribe(to: workspace)
 
@@ -87,6 +89,11 @@ final class KeyboardCowboyEngine {
         self?.reload(with: application)
       }
       .store(in: &subscriptions)
+
+    guard KeyboardCowboy.env == .production else { return }
+
+    applicationTriggerController.subscribe(to: workspace)
+    applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
   }
 
   private func reload(with application: NSRunningApplication) {
