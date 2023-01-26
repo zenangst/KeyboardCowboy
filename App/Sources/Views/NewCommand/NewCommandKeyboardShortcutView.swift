@@ -45,7 +45,6 @@ struct NewCommandKeyboardShortcutView: View {
     })
     .onAppear {
       validation = .unknown
-      payload = .keyboardShortcut([])
     }
   }
 

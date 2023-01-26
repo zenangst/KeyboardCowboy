@@ -40,7 +40,6 @@ struct NewCommandShortcutView: View {
     })
     .onAppear {
       validation = .unknown
-      payload = NewCommandPayload.script(value: "", kind: .source, scriptExtension: .appleScript)
     }
   }
 

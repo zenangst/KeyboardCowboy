@@ -179,8 +179,9 @@ struct NewCommandView: View {
                                  scriptExtension: scriptExtension,
                                  validation: $validation)
           } else {
-            let _ = Swift.print(payload)
-            EmptyView()
+            NewCommandScriptView($payload, kind: .file, value: "",
+                                 scriptExtension: .shellScript,
+                                 validation: $validation)
           }
         case .type:
           NewCommandTypeView($payload, validation: $validation) {
