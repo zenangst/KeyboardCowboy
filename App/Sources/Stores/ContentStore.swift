@@ -10,7 +10,7 @@ final class ContentStore: ObservableObject {
   var undoManager: UndoManager?
 
   private let storage: Storage
-  private let indexer: Indexer
+  private let indexer: KeyboardShortcutsCache
   private var subscriptions = [AnyCancellable]()
 
   private(set) var applicationStore = ApplicationStore()
@@ -22,7 +22,7 @@ final class ContentStore: ObservableObject {
   @Published private var configurationId: String
 
   init(_ preferences: AppPreferences,
-       indexer: Indexer,
+       indexer: KeyboardShortcutsCache,
        scriptEngine: ScriptEngine,
        workspace: NSWorkspace) {
     _configurationId = .init(initialValue: Self.appStorage.configId)

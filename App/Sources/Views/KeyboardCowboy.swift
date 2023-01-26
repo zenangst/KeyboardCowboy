@@ -41,14 +41,14 @@ struct KeyboardCowboy: App {
 
   init() {
     let scriptEngine = ScriptEngine(workspace: .shared)
-    let indexer = Indexer()
+    let keyboardShortcutsCache = KeyboardShortcutsCache()
     let contentStore = ContentStore(.designTime(),
-                                    indexer: indexer,
+                                    indexer: keyboardShortcutsCache,
                                     scriptEngine: scriptEngine,
                                     workspace: .shared)
     let contentCoordinator = ContentCoordinator(contentStore.groupStore,
                               applicationStore: contentStore.applicationStore)
-    let engine = KeyboardCowboyEngine(contentStore, indexer: indexer,
+    let engine = KeyboardCowboyEngine(contentStore, keyboardShortcutsCache: keyboardShortcutsCache,
                                       scriptEngine: scriptEngine, workspace: .shared)
 
     self.sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,

@@ -47,15 +47,16 @@ final class MachPortEngine {
 
   private let commandEngine: CommandEngine
   private let keyboardEngine: KeyboardEngine
-  private let indexer: Indexer
+  private let keyboardShortcutsCache: KeyboardShortcutsCache
   private let store: KeyCodesStore
 
   internal init(store: KeyCodesStore,
                 commandEngine: CommandEngine,
-                indexer: Indexer, mode: KeyboardCowboyMode) {
+                keyboardShortcutsCache: KeyboardShortcutsCache,
+                mode: KeyboardCowboyMode) {
     self.commandEngine = commandEngine
     self.store = store
-    self.indexer = indexer
+    self.keyboardShortcutsCache = keyboardShortcutsCache
     self.keyboardEngine = .init(store: store)
     self.mode = mode
     self.specialKeys = Array(store.specialKeys().keys)
@@ -110,7 +111,7 @@ final class MachPortEngine {
     let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
     // Found a match
-    let result = indexer.lookup(keyboardShortcut, previousKey: previousKey)
+    let result = keyboardShortcutsCache.lookup(keyboardShortcut, previousKey: previousKey)
 
     switch result {
     case .partialMatch(let key):

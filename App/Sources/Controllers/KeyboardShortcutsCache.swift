@@ -1,15 +1,15 @@
 import Foundation
 import Cocoa
 
-enum IndexResult {
+enum KeyboardShortcutResult {
   case partialMatch(String)
   case exact(Workflow)
 }
 
-final class Indexer {
-  var cache = [String: IndexResult]()
+final class KeyboardShortcutsCache {
+  var cache = [String: KeyboardShortcutResult]()
 
-  func lookup(_ keyboardShortcut: KeyShortcut, previousKey: String = ".") -> IndexResult? {
+  func lookup(_ keyboardShortcut: KeyShortcut, previousKey: String = ".") -> KeyboardShortcutResult? {
     if let bundleIdentifier = NSWorkspace.shared.frontApplication?.bundleIdentifier {
       let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: previousKey)
       if let result = cache[scopedKey] {
@@ -22,7 +22,7 @@ final class Indexer {
   }
 
   func createCache(_ groups: [WorkflowGroup]) {
-    var newCache = [String: IndexResult]()
+    var newCache = [String: KeyboardShortcutResult]()
     for group in groups {
       var bundleIdentifiers: [String] = ["*"]
       if let rule = group.rule {

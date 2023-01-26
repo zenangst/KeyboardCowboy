@@ -17,7 +17,7 @@ final class KeyboardCowboyEngine {
   private let applicationTriggerController: ApplicationTriggerController
   private var machPortController: MachPortEventController?
 
-  init(_ contentStore: ContentStore, indexer: Indexer,
+  init(_ contentStore: ContentStore, keyboardShortcutsCache: KeyboardShortcutsCache,
        scriptEngine: ScriptEngine, workspace: NSWorkspace = .shared) {
     let keyCodeStore = KeyCodesStore()
     let commandEngine = CommandEngine(workspace,
@@ -26,7 +26,7 @@ final class KeyboardCowboyEngine {
     self.contentStore = contentStore
     self.commandEngine = commandEngine
     self.machPortEngine = MachPortEngine(store: keyCodeStore, commandEngine: commandEngine,
-                                         indexer: indexer, mode: .intercept)
+                                         keyboardShortcutsCache: keyboardShortcutsCache, mode: .intercept)
     self.shortcutStore = ShortcutStore(engine: scriptEngine)
     self.applicationTriggerController = ApplicationTriggerController(commandEngine)
 
