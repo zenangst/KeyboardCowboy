@@ -341,6 +341,8 @@ final class DetailCoordinator {
     }
   }
 
+  // MARK: Private methods
+
   private func handleCommandContainerAction(_ action: CommandContainerAction,
                                             command: Command,
                                             workflow: inout Workflow) async {
@@ -352,7 +354,6 @@ final class DetailCoordinator {
     }
   }
 
-  @MainActor
   private func render(_ ids: [Workflow.ID], groupIds: [WorkflowGroup.ID], animation: Animation? = nil) {
     let workflows = groupStore.groups
       .filter({ groupIds.contains($0.id) })

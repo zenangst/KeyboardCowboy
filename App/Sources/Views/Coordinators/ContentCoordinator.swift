@@ -18,7 +18,8 @@ final class ContentCoordinator {
   let selectionPublisher: ContentSelectionIdsPublisher
   let publisher: ContentPublisher = ContentPublisher()
 
-  init(_ store: GroupStore, applicationStore: ApplicationStore, selectionPublisher: ContentSelectionIdsPublisher) {
+  init(_ store: GroupStore, applicationStore: ApplicationStore,
+       selectionPublisher: ContentSelectionIdsPublisher) {
     self.applicationStore = applicationStore
     self.store = store
     self.selectionPublisher = selectionPublisher
@@ -94,8 +95,13 @@ final class ContentCoordinator {
         }
       }
 
-      if publisher.models.isEmpty && !Self.appStorage.workflowIds.isDisjoint(with: workflowIds) {
-        newSelections = viewModels.filter { Self.appStorage.workflowIds.contains($0.id) }
+      if publisher.models.isEmpty {
+        let matches = viewModels.filter({ Self.appStorage.workflowIds.contains($0.id)})
+        if !matches.isEmpty {
+          newSelections = matches
+        } else if let first = viewModels.first {
+          newSelections = [first]
+        }
       } else if !publisher.selections.intersection(viewModels).isEmpty {
         newSelections = Array(publisher.selections)
       } else if newSelections.isEmpty, let first = viewModels.first {
@@ -104,9 +110,8 @@ final class ContentCoordinator {
     }
 
     if let animation {
-      let mainActorSelections = newSelections
         withAnimation(animation) {
-          publisher.publish(viewModels, selections: mainActorSelections)
+          publisher.publish(viewModels, selections: newSelections)
         }
     } else {
       publisher.publish(viewModels, selections: newSelections)
