@@ -2,9 +2,9 @@ import Apps
 import Combine
 import SwiftUI
 
+@MainActor
 final class DetailCoordinator {
   private var subscription: AnyCancellable?
-  @MainActor
   private var groupIds: [WorkflowGroup.ID] = []
 
   let applicationStore: ApplicationStore
@@ -26,7 +26,6 @@ final class DetailCoordinator {
     self.mapper = DetailModelMapper(applicationStore)
   }
 
-  @MainActor
   func subscribe(to publisher: Published<ContentSelectionIds>.Publisher) {
     subscription = publisher
       .dropFirst()
@@ -104,8 +103,8 @@ final class DetailCoordinator {
       }
 
       workflow.updateOrAddCommand(command)
-      await groupStore.receive([workflow])
-      await render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
+      groupStore.receive([workflow])
+      render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
     }
   }
 
@@ -196,8 +195,8 @@ final class DetailCoordinator {
           }
         }
 
-        await groupStore.receive([workflow])
-        await render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
+        groupStore.receive([workflow])
+        render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
     }
   }
 
@@ -300,7 +299,7 @@ final class DetailCoordinator {
         case .open(let source):
           Task {
             let path = (source as NSString).expandingTildeInPath
-            await keyboardCowboyEngine.run([
+            keyboardCowboyEngine.run([
               .open(.init(path: path))
             ], serial: true)
           }
