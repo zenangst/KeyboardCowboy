@@ -61,7 +61,27 @@ final class SidebarCoordinator {
     case .moveWorkflows(let source, let destination):
       group.workflows.move(fromOffsets: source, toOffset: destination)
       store.updateGroups([group])
-      contentPublisher.publish(group.workflows.map { $0.asViewModel() })
+
+      let viewModels = group.workflows.map { $0.asViewModel() }
+      let selections: [ContentViewModel]?
+
+      if !publisher.selections.isEmpty {
+        var newSelections = [ContentViewModel]()
+        for model in contentPublisher.selections {
+          guard let newModel = viewModels.first(where: { $0.id == model.id }) else {
+            return
+          }
+
+          newSelections.append(newModel)
+        }
+        selections = newSelections
+      } else if !viewModels.isEmpty && destination - 1 < viewModels.count  {
+        let first = viewModels[max(destination - 1, 0)]
+        selections = [first]
+      } else {
+        selections = []
+      }
+      contentPublisher.publish(viewModels, selections: selections)
     default:
       break
     }
