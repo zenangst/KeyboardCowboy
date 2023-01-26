@@ -6,8 +6,9 @@ struct WorkflowGroupIds: Identifiable, Hashable {
   let ids: [WorkflowGroup.ID]
 }
 
-
+@MainActor
 final class SidebarCoordinator {
+  static private var appStorage: AppStorageStore = .init()
   private var subscription: AnyCancellable?
   private let applicationStore: ApplicationStore
   private let store: GroupStore
@@ -26,17 +27,18 @@ final class SidebarCoordinator {
     subscription = store.$groups
       .dropFirst()
       .sink { [weak self] groups in
-        self?.update(groups)
+        self?.render(groups)
       }
   }
 
-  @MainActor
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .selectConfiguration, .openScene:
       break
     case .selectGroups(let groups):
-      groupIds.publish(.init(ids: groups.map(\.id)))
+      let ids = groups.map(\.id)
+      Self.appStorage.groupIds = Set(ids)
+      groupIds.publish(.init(ids: ids))
     case .removeGroups(let ids):
       store.removeGroups(with: ids)
     case .moveGroups(let source, let destination):
@@ -44,7 +46,6 @@ final class SidebarCoordinator {
     }
   }
 
-  @MainActor
   func handle(_ action: ContentView.Action) {
     guard publisher.selections.count == 1,
           let id = publisher.selections.first?.id,
@@ -87,18 +88,13 @@ final class SidebarCoordinator {
     }
   }
 
-  private func update(_ groups: [WorkflowGroup]) {
-    Task {
-      await render(groups)
-    }
-  }
+  // MARK: Private methods
 
-  @MainActor
   private func render(_ groups: [WorkflowGroup]) {
-    var newIds = [String]()
+    var newIds = Set<String>()
     newIds.reserveCapacity(groups.count)
     let viewModels = groups.map { group in
-      newIds.append(group.id)
+      newIds.insert(group.id)
       return group.asViewModel(group.rule?.iconPath(using: applicationStore))
     }
 
@@ -106,8 +102,12 @@ final class SidebarCoordinator {
       .selections.map { $0.id }
       .filter({ newIds.contains($0) })
     var newSelections = [GroupViewModel]()
-    if selectedIds.isEmpty, let first = viewModels.first {
-      newSelections = [first]
+    if selectedIds.isEmpty {
+      if publisher.models.isEmpty && !Self.appStorage.groupIds.isDisjoint(with: newIds) {
+        newSelections = viewModels.filter { Self.appStorage.groupIds.contains($0.id) }
+      } else if let first = viewModels.first {
+        newSelections = [first]
+      }
     }
     else {
       newSelections = viewModels.filter { selectedIds.contains($0.id) }
