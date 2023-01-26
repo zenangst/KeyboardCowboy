@@ -32,7 +32,13 @@ struct KeyboardCowboy: App {
   private let groupStore: GroupStore
   private let scriptEngine: ScriptEngine
   private let engine: KeyboardCowboyEngine
+  #if DEBUG
+  static let config: AppPreferences = .designTime()
   static let env: AppEnvironment = .development
+  #else
+  static let config: AppPreferences = .user()
+  static let env: AppEnvironment = .production
+  #endif
 
   private var open: Bool = true
 
@@ -42,10 +48,8 @@ struct KeyboardCowboy: App {
   init() {
     let scriptEngine = ScriptEngine(workspace: .shared)
     let keyboardShortcutsCache = KeyboardShortcutsCache()
-    let contentStore = ContentStore(.designTime(),
-                                    indexer: keyboardShortcutsCache,
-                                    scriptEngine: scriptEngine,
-                                    workspace: .shared)
+    let contentStore = ContentStore(Self.config, indexer: keyboardShortcutsCache,
+                                    scriptEngine: scriptEngine, workspace: .shared)
     let contentCoordinator = ContentCoordinator(contentStore.groupStore,
                               applicationStore: contentStore.applicationStore)
     let engine = KeyboardCowboyEngine(contentStore, keyboardShortcutsCache: keyboardShortcutsCache,
