@@ -8,21 +8,22 @@ struct ContentSelectionIds: Identifiable, Hashable {
   let workflowIds: [ContentViewModel.ID]
 }
 
+@MainActor
 final class ContentCoordinator {
+  static private var appStorage: AppStorageStore = .init()
   private var subscription: AnyCancellable?
   private let store: GroupStore
-  let applicationStore: ApplicationStore
+  private let applicationStore: ApplicationStore
+
+  let selectionPublisher: ContentSelectionIdsPublisher
   let publisher: ContentPublisher = ContentPublisher()
-  let selectionPublisher: ContentSelectionIdsPublisher = ContentSelectionIdsPublisher(.init(groupIds: [], workflowIds: []))
 
-  private var updateTask: Task<(), Error>?
-
-  init(_ store: GroupStore, applicationStore: ApplicationStore) {
+  init(_ store: GroupStore, applicationStore: ApplicationStore, selectionPublisher: ContentSelectionIdsPublisher) {
     self.applicationStore = applicationStore
     self.store = store
+    self.selectionPublisher = selectionPublisher
   }
 
-  @MainActor
   func subscribe(to publisher: Published<WorkflowGroupIds>.Publisher) {
     subscription = publisher
       .dropFirst()
@@ -32,7 +33,6 @@ final class ContentCoordinator {
       }
   }
 
-  @MainActor
   func handle(_ action: DetailView.Action) {
     switch action {
     case .singleDetailView(let action):
@@ -56,7 +56,8 @@ final class ContentCoordinator {
     }
   }
 
-  @MainActor
+  // MARK: Private methods
+
   private func render(_ groupIds: [GroupViewModel.ID], setSelection: Bool) {
     var workflowIds = [Workflow.ID]()
     let workflows = store.groups
@@ -93,7 +94,9 @@ final class ContentCoordinator {
         }
       }
 
-      if !publisher.selections.intersection(viewModels).isEmpty {
+      if publisher.models.isEmpty && !Self.appStorage.workflowIds.isDisjoint(with: workflowIds) {
+        newSelections = viewModels.filter { Self.appStorage.workflowIds.contains($0.id) }
+      } else if !publisher.selections.intersection(viewModels).isEmpty {
         newSelections = Array(publisher.selections)
       } else if newSelections.isEmpty, let first = viewModels.first {
         newSelections = [first]

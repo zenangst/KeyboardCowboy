@@ -10,28 +10,28 @@ final class ContentStore: ObservableObject {
   var undoManager: UndoManager?
 
   private let storage: Storage
-  private let indexer: KeyboardShortcutsCache
+  private let keyboardShortcutsCache: KeyboardShortcutsCache
+
   private var subscriptions = [AnyCancellable]()
 
-  private(set) var applicationStore = ApplicationStore()
   private(set) var configurationStore: ConfigurationStore
   private(set) var groupStore: GroupStore
   private(set) var recorderStore = KeyShortcutRecorderStore()
   private(set) var shortcutStore: ShortcutStore
-  
-  @Published private var configurationId: String
 
-  init(_ preferences: AppPreferences,
-       indexer: KeyboardShortcutsCache,
-       scriptEngine: ScriptEngine,
-       workspace: NSWorkspace) {
+  @Published private var configurationId: String
+  let applicationStore: ApplicationStore
+
+  init(_ preferences: AppPreferences, applicationStore: ApplicationStore,
+       keyboardShortcutsCache: KeyboardShortcutsCache, scriptEngine: ScriptEngine, workspace: NSWorkspace) {
     _configurationId = .init(initialValue: Self.appStorage.configId)
 
     let groupStore = GroupStore()
+    self.applicationStore = applicationStore
     self.shortcutStore = ShortcutStore(engine: scriptEngine)
     self.groupStore = groupStore
     self.configurationStore = ConfigurationStore()
-    self.indexer = indexer
+    self.keyboardShortcutsCache = keyboardShortcutsCache
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
 
@@ -75,7 +75,7 @@ final class ContentStore: ObservableObject {
   }
 
   func use(_ configuration: KeyboardCowboyConfiguration) {
-    indexer.createCache(configuration.groups)
+    keyboardShortcutsCache.createCache(configuration.groups)
     configurationId = configuration.id
     groupStore.groups = configuration.groups
   }

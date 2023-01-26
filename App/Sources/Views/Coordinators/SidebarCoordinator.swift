@@ -10,21 +10,31 @@ struct WorkflowGroupIds: Identifiable, Hashable {
 final class SidebarCoordinator {
   static private var appStorage: AppStorageStore = .init()
   private var subscription: AnyCancellable?
+
   private let applicationStore: ApplicationStore
   private let store: GroupStore
+  private let contentPublisher: ContentPublisher
 
   let publisher = GroupsPublisher()
-  let contentPublisher: ContentPublisher
-  let groupIds: GroupIdsPublisher = GroupIdsPublisher(WorkflowGroupIds(ids: []))
+  let groupIdsPublisher: GroupIdsPublisher
+  let workflowIdsPublisher: ContentSelectionIdsPublisher
 
   init(_ store: GroupStore,
        contentPublisher: ContentPublisher,
-       applicationStore: ApplicationStore) {
+       applicationStore: ApplicationStore,
+       groupIdsPublisher: GroupIdsPublisher,
+       workflowIdsPublisher: ContentSelectionIdsPublisher) {
     self.applicationStore = applicationStore
     self.contentPublisher = contentPublisher
+    self.workflowIdsPublisher = workflowIdsPublisher
+    self.groupIdsPublisher = groupIdsPublisher
     self.store = store
 
-    subscription = store.$groups
+    self.subscribe(to: store.$groups)
+  }
+
+  func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
+    subscription = publisher
       .dropFirst()
       .sink { [weak self] groups in
         self?.render(groups)
@@ -38,7 +48,7 @@ final class SidebarCoordinator {
     case .selectGroups(let groups):
       let ids = groups.map(\.id)
       Self.appStorage.groupIds = Set(ids)
-      groupIds.publish(.init(ids: ids))
+      groupIdsPublisher.publish(.init(ids: ids))
     case .removeGroups(let ids):
       store.removeGroups(with: ids)
     case .moveGroups(let source, let destination):
@@ -83,8 +93,11 @@ final class SidebarCoordinator {
         selections = []
       }
       contentPublisher.publish(viewModels, selections: selections)
-    default:
-      break
+    case .selectWorkflow(let workflows, let groupIds):
+      let workflowIds = workflows.map(\.id)
+      workflowIdsPublisher.publish(.init(groupIds: groupIds,
+                                         workflowIds: workflowIds))
+      Self.appStorage.workflowIds = Set(workflowIds)
     }
   }
 

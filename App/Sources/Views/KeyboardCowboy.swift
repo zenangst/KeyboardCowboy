@@ -48,19 +48,28 @@ struct KeyboardCowboy: App {
   init() {
     let scriptEngine = ScriptEngine(workspace: .shared)
     let keyboardShortcutsCache = KeyboardShortcutsCache()
-    let contentStore = ContentStore(Self.config, indexer: keyboardShortcutsCache,
+    let applicationStore = ApplicationStore()
+    let contentStore = ContentStore(Self.config,
+                                    applicationStore: applicationStore,
+                                    keyboardShortcutsCache: keyboardShortcutsCache,
                                     scriptEngine: scriptEngine, workspace: .shared)
-    let contentCoordinator = ContentCoordinator(contentStore.groupStore,
-                              applicationStore: contentStore.applicationStore)
+    let groupIdsPublisher = GroupIdsPublisher(.init(ids: []))
+    let workflowIdsPublisher = ContentSelectionIdsPublisher(.init(groupIds: [], workflowIds: []))
+    let contentCoordinator = ContentCoordinator(
+      contentStore.groupStore,
+      applicationStore: applicationStore,
+      selectionPublisher: workflowIdsPublisher)
     let engine = KeyboardCowboyEngine(contentStore, keyboardShortcutsCache: keyboardShortcutsCache,
                                       scriptEngine: scriptEngine, workspace: .shared)
 
     self.sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
                                                  contentPublisher: contentCoordinator.publisher,
-                                                 applicationStore: contentStore.applicationStore)
+                                                 applicationStore: applicationStore,
+                                                 groupIdsPublisher: groupIdsPublisher,
+                                                 workflowIdsPublisher: workflowIdsPublisher)
     self.contentCoordinator = contentCoordinator
     self.configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
-    self.detailCoordinator = DetailCoordinator(applicationStore: contentStore.applicationStore,
+    self.detailCoordinator = DetailCoordinator(applicationStore: applicationStore,
                                                contentStore: contentStore,
                                                keyboardCowboyEngine: engine,
                                                groupStore: contentStore.groupStore)
@@ -70,8 +79,8 @@ struct KeyboardCowboy: App {
     self.engine = engine
     self.scriptEngine = scriptEngine
 
-    contentCoordinator.subscribe(to: sidebarCoordinator.groupIds.$model)
-    detailCoordinator.subscribe(to: contentCoordinator.selectionPublisher.$model)
+    contentCoordinator.subscribe(to: groupIdsPublisher.$model)
+    detailCoordinator.subscribe(to: workflowIdsPublisher.$model)
   }
 
   var body: some Scene {
@@ -158,7 +167,8 @@ private extension KeyboardCowboy {
       .environmentObject(contentStore.groupStore)
       .environmentObject(configurationCoordinator.publisher)
       .environmentObject(sidebarCoordinator.publisher)
-      .environmentObject(sidebarCoordinator.groupIds)
+      .environmentObject(sidebarCoordinator.workflowIdsPublisher)
+      .environmentObject(sidebarCoordinator.groupIdsPublisher)
       .environmentObject(contentCoordinator.publisher)
       .environmentObject(contentCoordinator.selectionPublisher)
       .environmentObject(detailCoordinator.statePublisher)
