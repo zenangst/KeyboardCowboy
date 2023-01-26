@@ -66,6 +66,7 @@ struct KeyboardCowboy: App {
     self.engine = engine
     self.scriptEngine = scriptEngine
 
+    contentCoordinator.subscribe(to: sidebarCoordinator.groupIds.$model)
     detailCoordinator.subscribe(to: contentCoordinator.selectionPublisher.$model)
   }
 
@@ -91,7 +92,6 @@ struct KeyboardCowboy: App {
               handleScene(scene)
             default:
               sidebarCoordinator.handle(sidebarAction)
-              contentCoordinator.handle(sidebarAction)
             }
           case .content(let contentAction):
             sidebarCoordinator.handle(contentAction)

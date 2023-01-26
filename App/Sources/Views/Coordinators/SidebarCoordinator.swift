@@ -30,10 +30,13 @@ final class SidebarCoordinator {
       }
   }
 
+  @MainActor
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .selectConfiguration, .openScene, .selectGroups:
+    case .selectConfiguration, .openScene:
       break
+    case .selectGroups(let groups):
+      groupIds.publish(.init(ids: groups.map(\.id)))
     case .removeGroups(let ids):
       store.removeGroups(with: ids)
     case .moveGroups(let source, let destination):

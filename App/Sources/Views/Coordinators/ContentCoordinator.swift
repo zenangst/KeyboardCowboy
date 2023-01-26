@@ -9,6 +9,7 @@ struct ContentSelectionIds: Identifiable, Hashable {
 }
 
 final class ContentCoordinator {
+  private var subscription: AnyCancellable?
   private let store: GroupStore
   let applicationStore: ApplicationStore
   let publisher: ContentPublisher = ContentPublisher()
@@ -22,13 +23,13 @@ final class ContentCoordinator {
   }
 
   @MainActor
-  func handle(_ action: SidebarView.Action) {
-    switch action {
-    case .selectGroups(let groups):
-      render(groups, setSelection: true)
-    default:
-      break
-    }
+  func subscribe(to publisher: Published<WorkflowGroupIds>.Publisher) {
+    subscription = publisher
+      .dropFirst()
+      .debounce(for: .milliseconds(80), scheduler: DispatchQueue.main)
+      .sink { [weak self] group in
+        self?.render(group.ids, setSelection: true)
+      }
   }
 
   @MainActor
@@ -56,8 +57,7 @@ final class ContentCoordinator {
   }
 
   @MainActor
-  private func render(_ groups: [GroupViewModel], setSelection: Bool) {
-    let groupIds = groups.map { $0.id }
+  private func render(_ groupIds: [GroupViewModel.ID], setSelection: Bool) {
     var workflowIds = [Workflow.ID]()
     let workflows = store.groups
       .filter {
