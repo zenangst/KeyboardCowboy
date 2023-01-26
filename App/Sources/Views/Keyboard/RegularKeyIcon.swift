@@ -121,6 +121,7 @@ public struct RegularKeyIcon: View, KeyView {
                   radius: 1,
                   y: glow ? 0 : 2
           )
+          .allowsHitTesting(false)
       }
     }
     .rotation3DEffect(.degrees(isPressed ? 20 : 0), axis: (x: 1.0, y: 0, z: 0))
