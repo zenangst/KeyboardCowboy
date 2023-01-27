@@ -22,47 +22,52 @@ struct ContentView: View {
   }
 
   var body: some View {
-    List(selection: $publisher.selections) {
-      ForEach(publisher.models) { workflow in
-        ContentItemView(workflow: workflow)
-        .contextMenu(menuItems: {
-          contextualMenu()
-        })
-        .onFrameChange(perform: { rect in
-          if workflow == publisher.models.first {
-            let value = min(max(1.0 - rect.origin.y / 52.0, 0.0), 0.9)
-            overlayOpacity = value
-          }
-        })
-        .grayscale(workflow.isEnabled ? 0 : 0.5)
-        .opacity(workflow.isEnabled ? 1 : 0.5)
-        .tag(workflow)
-        .id(workflow.id)
+    ScrollViewReader { proxy in
+      List(selection: $publisher.selections) {
+        ForEach(publisher.models) { workflow in
+          ContentItemView(workflow: workflow)
+            .contextMenu(menuItems: {
+              contextualMenu()
+            })
+            .onFrameChange(perform: { rect in
+              if workflow == publisher.models.first {
+                let value = min(max(1.0 - rect.origin.y / 52.0, 0.0), 0.9)
+                overlayOpacity = value
+              }
+            })
+            .grayscale(workflow.isEnabled ? 0 : 0.5)
+            .opacity(workflow.isEnabled ? 1 : 0.5)
+            .tag(workflow)
+            .id(workflow.id)
+        }
+        .onMove { source, destination in
+          onAction(.moveWorkflows(source: source, destination: destination))
+        }
       }
-      .onMove { source, destination in
-        onAction(.moveWorkflows(source: source, destination: destination))
-      }
-    }
-    .onChange(of: publisher.selections, perform: { newValue in
-      let ids = newValue.map(\.id)
-      selected = newValue
-      onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.model.ids))
-    })
-    .overlay(alignment: .top, content: { overlayView() })
-    .toolbar {
-      ToolbarItemGroup(placement: .navigation) {
-        Button(action: {
-          onAction(.addWorkflow)
-        },
-               label: {
-          Label(title: {
-            Text("Add workflow")
-          }, icon: {
-            Image(systemName: "rectangle.stack.badge.plus")
-              .renderingMode(.template)
-              .foregroundColor(Color(.systemGray))
+      .onChange(of: publisher.selections, perform: { newValue in
+        selected = newValue
+        onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.model.ids))
+
+        if let first = newValue.first {
+          proxy.scrollTo(first.id, anchor: .center)
+        }
+      })
+      .overlay(alignment: .top, content: { overlayView() })
+      .toolbar {
+        ToolbarItemGroup(placement: .navigation) {
+          Button(action: {
+            onAction(.addWorkflow)
+          },
+                 label: {
+            Label(title: {
+              Text("Add workflow")
+            }, icon: {
+              Image(systemName: "rectangle.stack.badge.plus")
+                .renderingMode(.template)
+                .foregroundColor(Color(.systemGray))
+            })
           })
-        })
+        }
       }
     }
   }

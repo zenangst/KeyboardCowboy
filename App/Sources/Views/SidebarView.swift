@@ -19,38 +19,44 @@ struct SidebarView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
+    ScrollViewReader { proxy in
       VStack(alignment: .leading) {
-        Label("Configuration", image: "")
-        SidebarConfigurationView { action in
-          switch action {
-          case .selectConfiguration(let id):
-            onAction(.selectConfiguration(id))
+        VStack(alignment: .leading) {
+          Label("Configuration", image: "")
+          SidebarConfigurationView { action in
+            switch action {
+            case .selectConfiguration(let id):
+              onAction(.selectConfiguration(id))
+            }
+          }
+          .padding([.leading, .trailing], -4)
+          Label("Groups", image: "")
+        }
+        .padding([.leading, .trailing])
+
+        List(selection: $groupsPublisher.selections) {
+          ForEach(groupsPublisher.models) { group in
+            SidebarItemView(group, onAction: onAction)
+              .contextMenu(menuItems: {
+                contextualMenu(for: group, onAction: onAction)
+              })
+              .tag(group)
+          }
+          .onMove { source, destination in
+            onAction(.moveGroups(source: source, destination: destination))
           }
         }
-          .padding([.leading, .trailing], -4)
-        Label("Groups", image: "")
-      }
-      .padding([.leading, .trailing])
-      
-      List(selection: $groupsPublisher.selections) {
-        ForEach(groupsPublisher.models) { group in
-          SidebarItemView(group, onAction: onAction)
-            .contextMenu(menuItems: {
-              contextualMenu(for: group, onAction: onAction)
-            })
-            .tag(group)
+        .onDeleteCommand(perform: {
+          onAction(.removeGroups(groupsPublisher.selections.map { $0.id }))
+        })
+        .onChange(of: groupsPublisher.selections) { newValue in
+          groupIds.publish(.init(ids: newValue.map(\.id)))
+          onAction(.selectGroups(Array(newValue)))
+
+          if let first = newValue.first {
+            proxy.scrollTo(first.id, anchor: .center)
+          }
         }
-        .onMove { source, destination in
-          onAction(.moveGroups(source: source, destination: destination))
-        }
-      }
-      .onDeleteCommand(perform: {
-        onAction(.removeGroups(groupsPublisher.selections.map { $0.id }))
-      })
-      .onChange(of: groupsPublisher.selections) { newValue in
-        groupIds.publish(.init(ids: newValue.map(\.id)))
-        onAction(.selectGroups(Array(newValue)))
       }
     }
     .labelStyle(SidebarLabelStyle())
