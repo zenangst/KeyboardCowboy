@@ -43,6 +43,7 @@ struct NewCommandView: View {
   @State private var selection: Kind
   @State private var validation: NewCommandValidation = .needsValidation
   @State private var title: String
+  @State private var hasEdited: Bool = false
   private let onDismiss: () -> Void
   private let onSave: (NewCommandPayload, String) -> Void
   @FocusState var focused: Kind?
@@ -140,7 +141,9 @@ struct NewCommandView: View {
 
   private func detail(title: Binding<String>) -> some View {
     VStack(spacing: 0) {
-      TextField("", text: title)
+      TextField("", text: title, onEditingChanged: { value in
+        hasEdited = true
+      })
         .font(.system(.body, design: .rounded,weight: .semibold))
         .allowsTightening(true)
         .opacity(controlActiveState == .key ? 1 : 0.6)
@@ -149,55 +152,21 @@ struct NewCommandView: View {
         .textFieldStyle(AppTextFieldStyle())
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: true, vertical: false)
+        .onChange(of: payload, perform: { newValue in
+          guard !hasEdited else { return }
+          title.wrappedValue = newValue.title
+        })
 
-      Group {
-        switch selection {
-        case .application:
-          if case .application(let application, let action, let inBackground, let hideWhenRunning, let ifNotRunning) = payload {
-            NewCommandApplicationView($payload, application: application, action: action,
-                                      inBackground: inBackground, hideWhenRunning: hideWhenRunning,
-                                      ifNotRunning: ifNotRunning, validation: $validation)
-          } else {
-            NewCommandApplicationView($payload, application: nil, action: .open,
-                                      inBackground: false, hideWhenRunning: false,
-                                      ifNotRunning: false, validation: $validation)
-          }
-        case .url:
-          NewCommandURLView($payload, validation: $validation,
-                            onSubmitAddress: { onSave(payload, title.wrappedValue) })
-        case .open:
-          NewCommandOpenView($payload, validation: $validation)
-        case .keyboardShortcut:
-          NewCommandKeyboardShortcutView($payload, validation: $validation)
-        case .shortcut:
-          NewCommandShortcutView($payload, validation: $validation)
-        case .script:
-          if case .script(let value, let kind, let scriptExtension) = payload {
-            NewCommandScriptView($payload,
-                                 kind: kind,
-                                 value: value,
-                                 scriptExtension: scriptExtension,
-                                 validation: $validation)
-          } else {
-            NewCommandScriptView($payload, kind: .file, value: "",
-                                 scriptExtension: .shellScript,
-                                 validation: $validation)
-          }
-        case .type:
-          NewCommandTypeView($payload, validation: $validation) {
-            onSubmit()
-          }
-        }
-      }
-      .padding()
-      .background(
-        RoundedRectangle(cornerRadius: 8)
-          .fill(Color(.textBackgroundColor))
-      )
-      .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
-              radius: 2,
-              y: 2)
-      .padding(.horizontal)
+      selectedView(selection)
+        .padding()
+        .background(
+          RoundedRectangle(cornerRadius: 8)
+            .fill(Color(.textBackgroundColor))
+        )
+        .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
+                radius: 2,
+                y: 2)
+        .padding(.horizontal)
 
       Spacer()
 
@@ -211,6 +180,47 @@ struct NewCommandView: View {
       }
       .buttonStyle(.appStyle)
       .padding()
+    }
+  }
+
+  @ViewBuilder
+  private func selectedView(_ selection: Kind) -> some View {
+    switch selection {
+    case .application:
+      if case .application(let application, let action, let inBackground, let hideWhenRunning, let ifNotRunning) = payload {
+        NewCommandApplicationView($payload, application: application, action: action,
+                                  inBackground: inBackground, hideWhenRunning: hideWhenRunning,
+                                  ifNotRunning: ifNotRunning, validation: $validation)
+      } else {
+        NewCommandApplicationView($payload, application: nil, action: .open,
+                                  inBackground: false, hideWhenRunning: false,
+                                  ifNotRunning: false, validation: $validation)
+      }
+    case .url:
+      NewCommandURLView($payload, validation: $validation,
+                        onSubmitAddress: { onSave(payload, $title.wrappedValue) })
+    case .open:
+      NewCommandOpenView($payload, validation: $validation)
+    case .keyboardShortcut:
+      NewCommandKeyboardShortcutView($payload, validation: $validation)
+    case .shortcut:
+      NewCommandShortcutView($payload, validation: $validation)
+    case .script:
+      if case .script(let value, let kind, let scriptExtension) = payload {
+        NewCommandScriptView($payload,
+                             kind: kind,
+                             value: value,
+                             scriptExtension: scriptExtension,
+                             validation: $validation)
+      } else {
+        NewCommandScriptView($payload, kind: .file, value: "",
+                             scriptExtension: .shellScript,
+                             validation: $validation)
+      }
+    case .type:
+      NewCommandTypeView($payload, validation: $validation) {
+        onSubmit()
+      }
     }
   }
 

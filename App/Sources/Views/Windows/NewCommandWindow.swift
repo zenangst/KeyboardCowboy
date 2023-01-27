@@ -2,17 +2,7 @@ import Apps
 import Carbon
 import SwiftUI
 
-enum NewCommandPayload {
-  case placeholder
-  case script(value: String, kind: NewCommandScriptView.Kind, scriptExtension: NewCommandScriptView.ScriptExtension)
-  case application(application: Application?, action: NewCommandApplicationView.ApplicationAction,
-                   inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
-  case url(targetUrl: URL, application: Application?)
-  case open(path: String, application: Application?)
-  case shortcut(name: String)
-  case keyboardShortcut([KeyShortcut])
-  case type(text: String)
-}
+
 
 struct NewCommandWindow: Scene {
   enum Context: Identifiable, Hashable, Codable {
