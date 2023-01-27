@@ -52,6 +52,9 @@ struct WorkflowCommandListView: View {
         spacing: 10,
         onSelection: { self.selections = $0 },
         onMove: { indexSet, toOffset in
+          withAnimation {
+            workflow.commands.move(fromOffsets: indexSet, toOffset: toOffset)
+          }
           onAction(.moveCommand(workflowId: $workflow.id, indexSet: indexSet, toOffset: toOffset))
         },
         onDelete: { indexSet in

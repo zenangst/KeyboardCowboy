@@ -196,7 +196,7 @@ final class DetailCoordinator {
         }
 
         groupStore.receive([workflow])
-        render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
+        render([workflow.id], groupIds: groupIds)
     }
   }
 

@@ -101,13 +101,15 @@ struct EditableStack<Data, Content>: View where Content: View,
 
             dragInfo = .init(indexes: from, dragIndex: index)
 
-            return NSItemProvider(object: "foo" as NSString)
+            return .init(object: "Hello world" as NSString)
           }, preview: {
             dragPreview(element)
           })
           .onDrop(of: [UTType.text],
                   delegate: EditableRelocateDelegate(dropIndex: index, dragInfo: $dragInfo,
                                                      move: $move, onMove: onMove))
+          .focused($focus, equals: .focused(element.wrappedValue.id))
+          .id(element.id)
       }
       .onDeleteCommand {
         guard let onDelete else { return }
@@ -147,8 +149,6 @@ struct EditableStack<Data, Content>: View where Content: View,
                                              currentIndex: currentIndex,
                                              elementCount: elementCount)
     })
-    .focused($focus, equals: .focused(element.wrappedValue.id))
-    .id(element.id)
   }
 
   @ViewBuilder
@@ -161,7 +161,6 @@ struct EditableStack<Data, Content>: View where Content: View,
         .frame(maxWidth: axes == .horizontal ? 2.0 : nil,
                maxHeight: axes == .vertical ? 2.0 : nil)
         .opacity(
-          dragInfo.dragIndex != currentIndex &&
           (move.to == currentIndex || move.to == currentIndex + 1
            && currentIndex == elementCount - 1) &&
           !selections.contains(elementId)
