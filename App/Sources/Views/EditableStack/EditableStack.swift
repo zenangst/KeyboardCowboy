@@ -3,6 +3,11 @@ import SwiftUI
 import Inject
 import UniformTypeIdentifiers
 
+struct EditableDragInfo: Equatable {
+  let indexes: [Int]
+  let dragIndex: Int?
+}
+
 struct EditableStack<Data, Content>: View where Content: View,
                                                 Data: RandomAccessCollection,
                                                 Data: MutableCollection,
@@ -22,9 +27,8 @@ struct EditableStack<Data, Content>: View where Content: View,
   @Binding var selectedColor: Color
 
   @State private var selections = Set<Data.Element.ID>() { didSet { onSelection(selections) } }
-  @State private var draggingIndex: Int?
-  @State private var dragging: [Int]?
-  @State private var move: EditableStackMoveInstruction?
+  @State private var dragInfo: EditableDragInfo = .init(indexes: [], dragIndex: nil)
+  @State private var move: EditableMoveInstruction?
 
   private let id: KeyPath<Data.Element, Data.Element.ID>
   private let content: (Binding<Data.Element>) -> Content
@@ -38,7 +42,6 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let onSelection: (Set<Data.Element.ID>) -> Void
   private let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
   private let onDelete: ((_ indexSet: IndexSet) -> Void)?
-
 
   init(_ data: Binding<Data>,
        axes: Axis.Set = .vertical,
@@ -83,7 +86,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                                        content: @escaping (Binding<Data.Element>, Int) -> Content) -> some View {
     AxesView(axes, lazy: lazy, spacing: spacing) {
       ForEach(data, id: id) { element in
-        let index = data.wrappedValue.firstIndex(of: element.wrappedValue) ?? 0
+        let index = data.wrappedValue.firstIndex(of: element.wrappedValue) ?? -1
         content(element, index)
           .onDrag({
             let from: [Int]
@@ -96,27 +99,15 @@ struct EditableStack<Data, Content>: View where Content: View,
               from = [index]
             }
 
-            dragging = from
-            draggingIndex = index
-
-//            dragging = selections
-//            dragging = element.wrappedValue
-//            dragging.insert(element.id)
-
-//            let selections = Array(selections).map(String.init).joined(separator: ";")
-//            let id = "\(element.id)+\(selections)"
+            dragInfo = .init(indexes: from, dragIndex: index)
 
             return NSItemProvider(object: "foo" as NSString)
           }, preview: {
             dragPreview(element)
           })
-          .onDrop(
-            of: [UTType.text],
-            delegate: EditableStackRelocateDelegate(dropIndex: index,
-                                                    draggingIndex: $draggingIndex,
-                                                    dragging: $dragging,
-                                                    move: $move,
-                                                    onMove: onMove))
+          .onDrop(of: [UTType.text],
+                  delegate: EditableRelocateDelegate(dropIndex: index, dragInfo: $dragInfo,
+                                                     move: $move, onMove: onMove))
       }
       .onDeleteCommand {
         guard let onDelete else { return }
@@ -164,13 +155,13 @@ struct EditableStack<Data, Content>: View where Content: View,
   private func dropIndicatorOverlay(elementId: Data.Element.ID,
                                     currentIndex: Int,
                                     elementCount: Int) -> some View {
-    if let draggingIndex, let move {
+    if let move {
       RoundedRectangle(cornerRadius: cornerRadius)
         .fill(selectedColor)
         .frame(maxWidth: axes == .horizontal ? 2.0 : nil,
                maxHeight: axes == .vertical ? 2.0 : nil)
         .opacity(
-          draggingIndex != currentIndex &&
+          dragInfo.dragIndex != currentIndex &&
           (move.to == currentIndex || move.to == currentIndex + 1
            && currentIndex == elementCount - 1) &&
           !selections.contains(elementId)
@@ -304,55 +295,63 @@ struct EditableStack<Data, Content>: View where Content: View,
   }
 }
 
-private struct EditableStackMoveInstruction {
+private struct EditableMoveInstruction {
   let from: IndexSet
   let to: Int
 }
 
-private struct EditableStackRelocateDelegate: DropDelegate {
+private struct EditableRelocateDelegate: DropDelegate {
   let dropIndex: Int
   let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
-  @Binding var dragging: [Int]?
-  @Binding var draggingIndex: Int?
-  @Binding var move: EditableStackMoveInstruction?
+  @Binding var dragInfo: EditableDragInfo
+  @Binding var move: EditableMoveInstruction?
 
   init(dropIndex: Int,
-       draggingIndex: Binding<Int?>,
-       dragging: Binding<[Int]?>,
-       move: Binding<EditableStackMoveInstruction?>,
+       dragInfo: Binding<EditableDragInfo>,
+       move: Binding<EditableMoveInstruction?>,
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?) {
-    _dragging = dragging
-    _draggingIndex = draggingIndex
+    _dragInfo = dragInfo
     _move = move
     self.dropIndex = dropIndex
     self.onMove = onMove
   }
 
-  func dropEntered(info: DropInfo) {
-    guard onMove != nil,
-          let dragging,
-          let draggingIndex,
-          !dragging.isEmpty else { return }
+  // MARK: Private methods
 
-    if draggingIndex != dropIndex {
-      let from = dragging
-      move = .init(from: IndexSet(from), to: dropIndex > draggingIndex ? dropIndex + 1 : dropIndex)
+  private func reset() {
+    dragInfo = .init(indexes: [], dragIndex: nil)
+    move = nil
+  }
+
+  // MARK: DropDelegate
+
+  func dropEntered(info: DropInfo) {
+    guard onMove != nil, !dragInfo.indexes.isEmpty,
+          let dragIndex = dragInfo.dragIndex,
+          dragInfo.dragIndex != dropIndex else {
+      return
     }
+
+    let from = dragInfo.indexes
+    move = .init(from: IndexSet(from), to: dropIndex > dragIndex ? dropIndex + 1 : dropIndex)
   }
 
   func dropUpdated(info: DropInfo) -> DropProposal? {
     return DropProposal(operation: .move)
   }
 
-  func performDrop(info: DropInfo) -> Bool {
-    guard let onMove, let move else { return false }
+  func dropExited(info: DropInfo) {
+    move = nil
+  }
 
-    self.dragging = nil
-    self.draggingIndex = nil
-    self.move = nil
+  func performDrop(info: DropInfo) -> Bool {
+    defer { reset() }
+
+    guard let onMove, let move else {
+      return false
+    }
 
     onMove(move.from, move.to)
-
     return true
   }
 }
