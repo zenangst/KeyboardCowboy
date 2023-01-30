@@ -111,236 +111,13 @@ final class DetailCoordinator {
     }
   }
 
-  func handle(_ action: DetailView.Action) async {
-      switch action {
-      case .singleDetailView(let action):
-        guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
-
-        switch action {
-        case .updateKeyboardShortcuts(_, let keyboardShortcuts):
-          workflow.trigger = .keyboardShortcuts(keyboardShortcuts)
-        case .commandView(_, let action):
-          await handleCommandAction(action, workflow: &workflow)
-        case .moveCommand(_, let fromOffsets, let toOffset):
-          workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
-        case .updateName(_, let name):
-          workflow.name = name
-        case .setIsEnabled(_, let isEnabled):
-          workflow.isEnabled = isEnabled
-        case .removeCommands(_, let commandIds):
-          workflow.commands.removeAll(where: { commandIds.contains($0.id) })
-        case .trigger(_, let action):
-          switch action {
-          case .addKeyboardShortcut:
-            workflow.trigger = .keyboardShortcuts([])
-          case .removeKeyboardShortcut:
-            Swift.print("Remove keyboard shortcut")
-          case .addApplication:
-            workflow.trigger = .application([])
-          }
-        case .removeTrigger(_):
-          workflow.trigger = nil
-        case .applicationTrigger(_, let action):
-          switch action {
-          case .updateApplicationTriggers(let triggers):
-            let applicationTriggers = triggers
-              .map { viewModelTrigger in
-                var contexts = Set<ApplicationTrigger.Context>()
-                if viewModelTrigger.contexts.contains(.closed) {
-                  contexts.insert(.closed)
-                } else {
-                  contexts.remove(.closed)
-                }
-
-                if viewModelTrigger.contexts.contains(.frontMost) {
-                  contexts.insert(.frontMost)
-                } else {
-                  contexts.remove(.frontMost)
-                }
-
-                if viewModelTrigger.contexts.contains(.launched) {
-                  contexts.insert(.launched)
-                } else {
-                  contexts.remove(.launched)
-                }
-
-                return ApplicationTrigger(id: viewModelTrigger.id,
-                                   application: viewModelTrigger.application,
-                                   contexts: Array(contexts))
-              }
-            workflow.trigger = .application(applicationTriggers)
-          case .updateApplicationTriggerContext(let viewModelTrigger):
-            if case .application(var previousTriggers) = workflow.trigger,
-               let index = previousTriggers.firstIndex(where: { $0.id == viewModelTrigger.id }) {
-              var newTrigger = previousTriggers[index]
-
-              if viewModelTrigger.contexts.contains(.closed) {
-                newTrigger.contexts.insert(.closed)
-              } else {
-                newTrigger.contexts.remove(.closed)
-              }
-
-              if viewModelTrigger.contexts.contains(.frontMost) {
-                newTrigger.contexts.insert(.frontMost)
-              } else {
-                newTrigger.contexts.remove(.frontMost)
-              }
-
-              if viewModelTrigger.contexts.contains(.launched) {
-                newTrigger.contexts.insert(.launched)
-              } else {
-                newTrigger.contexts.remove(.launched)
-              }
-
-              previousTriggers[index] = newTrigger
-              workflow.trigger = .application(previousTriggers)
-            }
-          }
-        }
-
-        groupStore.receive([workflow])
-        render([workflow.id], groupIds: groupIds)
-    }
-  }
-
-  func handleCommandAction(_ commandAction: CommandView.Action, workflow: inout Workflow) async {
-    guard var command: Command = workflow.commands.first(where: { $0.id == commandAction.commandId }) else {
-      fatalError("Unable to find command.")
-    }
-
-    switch commandAction {
-    case .toggleEnabled(_, _, let newValue):
-      command.isEnabled = newValue
-      workflow.updateOrAddCommand(command)
-    case .run(_, _):
-      break
-    case .remove(_, let commandId):
-      workflow.commands.removeAll(where: { $0.id == commandId })
-    case .modify(let kind):
-      switch kind {
-      case .application(let action, _, _):
-        guard case .application(var applicationCommand) = command else {
-          fatalError("Wrong command type")
-        }
-
-        switch action {
-        case .changeApplication(let application):
-          applicationCommand.application = application
-          command = .application(applicationCommand)
-          workflow.updateOrAddCommand(command)
-        case .updateName(let newName):
-          command.name = newName
-          workflow.updateOrAddCommand(command)
-        case .changeApplicationAction(let action):
-          switch action {
-          case .open:
-            applicationCommand.action = .open
-          case .close:
-            applicationCommand.action = .close
-          }
-          command = .application(applicationCommand)
-          workflow.updateOrAddCommand(command)
-        case .changeApplicationModifier(let modifier, let newValue):
-          if newValue {
-            applicationCommand.modifiers.insert(modifier)
-          } else {
-            applicationCommand.modifiers.remove(modifier)
-          }
-          command = .application(applicationCommand)
-          workflow.updateOrAddCommand(command)
-        case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: &workflow)
-        }
-      case .keyboard(let action, _, _):
-        switch action {
-        case .updateKeyboardShortcuts(let keyboardShortcuts):
-          command = .keyboard(.init(id: command.id, keyboardShortcuts: keyboardShortcuts))
-          workflow.updateOrAddCommand(command)
-        case .updateName(let newName):
-          command.name = newName
-          workflow.updateOrAddCommand(command)
-        case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: &workflow)
-        }
-      case .open(let action, _, _):
-        switch action {
-        case .updateName(let newName):
-          command.name = newName
-          workflow.updateOrAddCommand(command)
-        case .openWith:
-          break
-        case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: &workflow)
-        case .reveal(let path):
-          NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
-        }
-      case .script(let action, _, _):
-        switch action {
-        case .updateSource(let newKind):
-          let scriptCommand: ScriptCommand
-          switch newKind {
-          case .path(let id, let source, let kind):
-            switch kind {
-            case .shellScript:
-              scriptCommand = .shell(id: id, isEnabled: command.isEnabled, name: command.name, source: .path(source))
-            case .appleScript:
-              scriptCommand = .appleScript(id: id, isEnabled: command.isEnabled, name: command.name, source: .path(source))
-            }
-          case .inline(let id, let source, let kind):
-            switch kind {
-            case .shellScript:
-              scriptCommand = .shell(id: id, isEnabled: command.isEnabled, name: command.name, source: .inline(source))
-            case .appleScript:
-              scriptCommand = .appleScript(id: id, isEnabled: command.isEnabled, name: command.name, source: .inline(source))
-            }
-          }
-          command = .script(scriptCommand)
-          workflow.updateOrAddCommand(command)
-        case .updateName(let newName):
-          command.name = newName
-          workflow.updateOrAddCommand(command)
-        case .open(let source):
-          Task {
-            let path = (source as NSString).expandingTildeInPath
-            keyboardCowboyEngine.run([
-              .open(.init(path: path))
-            ], serial: true)
-          }
-        case .reveal(let path):
-          NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
-        case .edit:
-          break
-        case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: &workflow)
-        }
-      case .shortcut(let action, _, _):
-        switch action {
-        case .updateName(let newName):
-          command.name = newName
-          workflow.updateOrAddCommand(command)
-        case .openShortcuts:
-          break
-        case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: &workflow)
-        }
-      case .type(let action, _, _):
-        switch action {
-        case .updateName(let newName):
-          command.name = newName
-          workflow.updateOrAddCommand(command)
-        case .updateSource(let newInput):
-          switch command {
-          case .type(var typeCommand):
-            typeCommand.input = newInput
-            command = .type(typeCommand)
-          default:
-            fatalError("Wrong command type")
-          }
-          workflow.updateOrAddCommand(command)
-        case .commandAction(let action):
-          await handleCommandContainerAction(action, command: command, workflow: &workflow)
-        }
-      }
+  func handle(_ detailAction: DetailView.Action) async {
+    switch detailAction {
+    case .singleDetailView(let action):
+      guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
+      await DetailViewActionReducer.reduce(detailAction,
+                                           keyboardCowboyEngine: keyboardCowboyEngine,
+                                           workflow: &workflow)
     }
   }
 
@@ -352,17 +129,6 @@ final class DetailCoordinator {
       render(Array(Self.appStorage.workflowIds),
              groupIds: Array(Self.appStorage.groupIds),
              animation: .default)
-    }
-  }
-
-  private func handleCommandContainerAction(_ action: CommandContainerAction,
-                                            command: Command,
-                                            workflow: inout Workflow) async {
-    switch action {
-    case .run:
-      break
-    case .delete:
-      workflow.commands.removeAll(where: { $0.id == command.id })
     }
   }
 
@@ -431,6 +197,16 @@ extension Workflow.Trigger {
       return .keyboardShortcuts(shortcuts)
     }
   }
+}
+
+extension DetailView.Action {
+  var workflowId: String? {
+    switch self {
+    case .singleDetailView(let action):
+      return action.workflowId
+    }
+  }
+  
 }
 
 extension CommandView.Kind {
