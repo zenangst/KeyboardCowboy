@@ -156,8 +156,8 @@ struct ContentImageView: View {
 
   var body: some View {
     switch image.kind {
-    case .nsImage(let nsImage):
-      Image(nsImage: nsImage)
+    case .nsImage(let path):
+      Image(nsImage: NSWorkspace.shared.icon(forFile: path))
         .resizable()
         .aspectRatio(contentMode: .fit)
         .rotationEffect(.degrees(-(3.75 * image.offset)))

@@ -1,6 +1,5 @@
 import Carbon
 import SwiftUI
-import Inject
 import UniformTypeIdentifiers
 
 struct EditableDragInfo: Equatable {
@@ -78,7 +77,6 @@ struct EditableStack<Data, Content>: View where Content: View,
         content(element)
       }
     }
-    .enableInjection()
   }
 
   @ViewBuilder

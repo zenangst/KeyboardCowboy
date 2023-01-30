@@ -68,4 +68,3 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
       .enableInjection()
     }
 }
-

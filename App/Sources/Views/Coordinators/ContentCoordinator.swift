@@ -49,7 +49,7 @@ final class ContentCoordinator {
         return
       }
 
-      let viewModels = groups.workflows.asViewModels()
+      let viewModels = groups.workflows.asViewModels(nil)
       var selections = [ContentViewModel]()
       if let matchedSelection = viewModels.first(where: { $0.id == workflowId }) {
         selections = [matchedSelection]
@@ -69,41 +69,22 @@ final class ContentCoordinator {
   }
 
   private func render(_ groupIds: [GroupViewModel.ID], setSelection: Bool) {
-    var workflowIds = [Workflow.ID]()
-    let workflows = store.groups
-      .filter {
-        if groupIds.contains($0.id) {
-          workflowIds.append($0.id)
-          return true
-        }
-       return false
-      }
-      .flatMap(\.workflows)
+    Benchmark.start("ContentCoordinator.render")
+    defer {
+      Benchmark.finish("ContentCoordinator.render")
+    }
 
-    let viewModels = workflows.asViewModels()
-    var animation: Animation? = nil
+    var viewModels = [ContentViewModel]()
+    for offset in store.groups.indices {
+      let group = store.groups[offset]
+      if groupIds.contains(group.id) {
+        viewModels.append(contentsOf: group.workflows.asViewModels(group.name))
+      }
+    }
+
     var newSelections = [ContentViewModel]()
 
     if setSelection {
-      let old = publisher.models
-      let new = viewModels
-      let diffs = new.difference(from: old).inferringMoves()
-
-      if !old.isEmpty, new.count > 1 {
-        for diff in diffs {
-          if case .insert(_, let element, let associated) = diff,
-             associated == nil {
-              newSelections.append(element)
-              animation = .default
-          }
-          if newSelections.count > 1 {
-            newSelections = []
-            animation = nil
-            break
-          }
-        }
-      }
-
       if publisher.models.isEmpty {
         let matches = viewModels.filter({ Self.appStorage.workflowIds.contains($0.id)})
         if !matches.isEmpty {
@@ -118,28 +99,23 @@ final class ContentCoordinator {
       }
     }
 
-    if let animation {
-        withAnimation(animation) {
-          publisher.publish(viewModels, selections: newSelections)
-        }
-    } else {
-      publisher.publish(viewModels, selections: newSelections)
-    }
-
+    publisher.publish(viewModels, selections: newSelections)
     selectionPublisher.publish(ContentSelectionIds(groupIds: groupIds,
                                                    workflowIds: newSelections.map(\.id)) )
   }
 }
 
 extension Workflow {
-  func asViewModel() -> ContentViewModel {
-    ContentViewModel(
+  func asViewModel(_ groupName: String?) -> ContentViewModel {
+    let commandCount = commands.count
+    return ContentViewModel(
       id: id,
+      groupName: groupName,
       name: name,
       images: commands.images(),
       binding: trigger?.binding,
-      badge: commands.count > 1 ? commands.count : 0,
-      badgeOpacity: commands.count > 1 ? 1.0 : 0.0,
+      badge: commandCount > 1 ? commandCount : 0,
+      badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
       isEnabled: isEnabled)
   }
 }
@@ -166,7 +142,7 @@ private extension Array where Element == Command {
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .nsImage(NSWorkspace.shared.icon(forFile: command.application.path)))
+            kind: .nsImage(path: command.application.path))
         )
       case .builtIn:
         continue
@@ -176,20 +152,20 @@ private extension Array where Element == Command {
                               kind: .command(.keyboard(keys: keyCommand.keyboardShortcuts))))
         }
       case .open(let command):
-        let nsImage: NSImage
+        let path: String
         if let application = command.application, command.isUrl {
-          nsImage = NSWorkspace.shared.icon(forFile: application.path)
+          path = application.path
         } else if command.isUrl {
-          nsImage = NSWorkspace.shared.icon(forFile: "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app")
+          path = "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
         } else {
-          nsImage = NSWorkspace.shared.icon(forFile: command.path)
+          path = command.path
         }
 
         images.append(
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .nsImage(nsImage))
+            kind: .nsImage(path: path))
         )
       case .script(let script):
         switch script.sourceType {
@@ -218,11 +194,11 @@ private extension Array where Element == Command {
 }
 
 private extension Array where Element == Workflow {
-  func asViewModels() -> [ContentViewModel] {
+  func asViewModels(_ groupName: String?) -> [ContentViewModel] {
     var viewModels = [ContentViewModel]()
     viewModels.reserveCapacity(self.count)
-    for model in self {
-      viewModels.append(model.asViewModel())
+    for (offset, model) in self.enumerated() {
+      viewModels.append(model.asViewModel(offset == 0 ? groupName : nil))
     }
     return viewModels
   }

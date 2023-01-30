@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct FocusableProxy: NSViewRepresentable {
-  typealias NSViewType = FocusableNSView
-
   private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
 
   init(onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {

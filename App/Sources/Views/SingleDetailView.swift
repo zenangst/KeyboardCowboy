@@ -1,5 +1,6 @@
 import SwiftUI
 import Apps
+import Inject
 
 struct SingleDetailView: View {
   enum Action {
@@ -14,6 +15,7 @@ struct SingleDetailView: View {
     case updateName(workflowId: Workflow.ID, name: String)
   }
 
+  @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @Environment(\.openWindow) var openWindow
   @Binding private var workflow: DetailViewModel
@@ -71,6 +73,7 @@ struct SingleDetailView: View {
       }
       .labelStyle(HeaderLabelStyle())
     }
+    .enableInjection()
   }
 }
 

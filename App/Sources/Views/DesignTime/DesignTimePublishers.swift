@@ -28,82 +28,82 @@ enum DesignTime {
   static var contentPublisher = ContentPublisher {
     [
       ContentViewModel(id: UUID().uuidString, name: "Open News", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/News.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/News.app"))
       ], binding: "ƒSpace", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Podcast", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Podcasts.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Podcasts.app"))
       ], binding: "ƒU", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Music", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Music.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Music.app"))
       ], binding: "ƒY", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Home", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Home.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Home.app"))
       ], binding: "ƒH", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Twitterific", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/Applications/Twitterrific.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/Applications/Twitterrific.app"))
       ], binding: "ƒT", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open System Settings", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/System Settings.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/System Settings.app"))
       ], binding: "ƒ.", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Contacts", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Contacts.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Contacts.app"))
       ], binding: "ƒA", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Terminal", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Utilities/Terminal.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Utilities/Terminal.app"))
       ], binding: "ƒ§", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Discord", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/Applications/Discord.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/Applications/Discord.app"))
       ], binding: "ƒD", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Preview", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Preview.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Preview.app"))
       ], binding: "ƒP", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Teams", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/Applications/Microsoft Teams.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/Applications/Microsoft Teams.app"))
       ], binding: "ƒG", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Slack", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/Applications/Slack.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/Applications/Slack.app"))
       ], binding: "ƒV", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Find My", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/FindMy.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/FindMy.app"))
       ], binding: "ƒB", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Messages", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Messages.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Messages.app"))
       ], binding: "ƒD", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Mail", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Mail.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Mail.app"))
       ], binding: "ƒM", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Calendar", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Calendar.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Calendar.app"))
       ], binding: "ƒC", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Reminders", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Reminders.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Reminders.app"))
       ], binding: "ƒR", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Notes", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Notes.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Notes.app"))
       ], binding: "ƒN", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Finder", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Library/CoreServices/Finder.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Library/CoreServices/Finder.app"))
       ], binding: "ƒF", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Photos", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Photos.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Photos.app"))
       ], binding: "ƒI", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Stocks", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Stocks.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Stocks.app"))
       ], binding: "ƒS", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Keyboard Cowboy", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/Applications/Keyboard Cowboy.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/Applications/Keyboard Cowboy.app"))
       ], binding: "⌥ƒ0", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Numbers", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Numbers.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Numbers.app"))
       ], binding: "⌥ƒN", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Pages", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Pages.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Pages.app"))
       ], binding: "⌥ƒP", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Keynote", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Keynote.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Keynote.app"))
       ], binding: "⌥ƒK", badge: 0, badgeOpacity: 0, isEnabled: true),
       ContentViewModel(id: UUID().uuidString, name: "Open Quick Run", images: [
-        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(NSWorkspace.shared.icon(forFile: "/System/Applications/Stocks.app")))
+        ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .nsImage(path: "/System/Applications/Stocks.app"))
       ], binding: "ƒK", badge: 0, badgeOpacity: 0, isEnabled: true),
     ]
   }
