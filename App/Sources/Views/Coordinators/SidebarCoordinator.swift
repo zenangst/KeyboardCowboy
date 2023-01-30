@@ -30,7 +30,8 @@ final class SidebarCoordinator {
     self.groupIdsPublisher = groupIdsPublisher
     self.store = store
 
-    self.subscribe(to: store.$groups)
+    subscribe(to: store.$groups)
+    enableInjection(self, selector: #selector(injected(_:)))
   }
 
   func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
@@ -103,7 +104,18 @@ final class SidebarCoordinator {
 
   // MARK: Private methods
 
+  @objc private func injected(_ notification: Notification) {
+    guard didInject(self, notification: notification) else { return }
+    withAnimation(.easeInOut(duration: 0.2)) {
+      render(store.groups)
+    }
+  }
+
   private func render(_ groups: [WorkflowGroup]) {
+    Benchmark.start("SidebarCoordinator.render")
+    defer {
+      Benchmark.finish("SidebarCoordinator.render")
+    }
     var newIds = Set<String>()
     newIds.reserveCapacity(groups.count)
     let viewModels = groups.map { group in

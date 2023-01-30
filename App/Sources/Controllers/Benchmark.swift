@@ -13,12 +13,13 @@ final class Benchmark {
     storage[identifier] = CACurrentMediaTime()
   }
 
-  static func finish(_ identifier: String) {
-    guard isEnabled else { return }
-    guard let startTime = storage[identifier] else {
-      return
+  @discardableResult
+  static func finish(_ identifier: String) -> String {
+    guard isEnabled, let startTime = storage[identifier] else {
+      return "Unknown identifier: \(identifier)"
     }
-    debugPrint("⏱ Benchmark(\(identifier)) = \(CACurrentMediaTime() - startTime) ")
+    Swift.print("⏱️ Benchmark(\(identifier)) = \(CACurrentMediaTime() - startTime) ")
     storage[identifier] = nil
+    return "⏱ Benchmark(\(identifier)) = \(CACurrentMediaTime() - startTime) "
   }
 }

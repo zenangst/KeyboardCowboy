@@ -23,6 +23,8 @@ final class ContentCoordinator {
     self.applicationStore = applicationStore
     self.store = store
     self.selectionPublisher = selectionPublisher
+
+    enableInjection(self, selector: #selector(injected(_:)))
   }
 
   func subscribe(to publisher: Published<WorkflowGroupIds>.Publisher) {
@@ -58,6 +60,13 @@ final class ContentCoordinator {
   }
 
   // MARK: Private methods
+
+  @objc private func injected(_ notification: Notification) {
+    guard didInject(self, notification: notification) else { return }
+    withAnimation(.easeInOut(duration: 0.2)) {
+      render(Array(Self.appStorage.groupIds), setSelection: true)
+    }
+  }
 
   private func render(_ groupIds: [GroupViewModel.ID], setSelection: Bool) {
     var workflowIds = [Workflow.ID]()

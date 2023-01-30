@@ -1,6 +1,7 @@
 import Combine
 import SwiftUI
 import LaunchArguments
+import Inject
 
 let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
 let launchArguments = LaunchArgumentsController<LaunchArgument>()
@@ -78,6 +79,11 @@ struct KeyboardCowboy: App {
     self.groupStore = contentStore.groupStore
     self.engine = engine
     self.scriptEngine = scriptEngine
+
+    if KeyboardCowboy.env == .development {
+      _ = Inject.load
+      Benchmark.isEnabled = true
+    }
 
     contentCoordinator.subscribe(to: groupIdsPublisher.$model)
     detailCoordinator.subscribe(to: workflowIdsPublisher.$model)

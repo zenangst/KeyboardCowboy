@@ -4,6 +4,7 @@ import SwiftUI
 
 @MainActor
 final class DetailCoordinator {
+  static private var appStorage: AppStorageStore = .init()
   private var subscription: AnyCancellable?
   private var groupIds: [WorkflowGroup.ID] = []
 
@@ -24,6 +25,8 @@ final class DetailCoordinator {
     self.contentStore = contentStore
     self.groupStore = groupStore
     self.mapper = DetailModelMapper(applicationStore)
+
+    enableInjection(self, selector: #selector(injected(_:)))
   }
 
   func subscribe(to publisher: Published<ContentSelectionIds>.Publisher) {
@@ -343,6 +346,15 @@ final class DetailCoordinator {
 
   // MARK: Private methods
 
+  @objc private func injected(_ notification: Notification) {
+    guard didInject(self, notification: notification) else { return }
+    withAnimation(.easeInOut(duration: 0.2)) {
+      render(Array(Self.appStorage.workflowIds),
+             groupIds: Array(Self.appStorage.groupIds),
+             animation: .default)
+    }
+  }
+
   private func handleCommandContainerAction(_ action: CommandContainerAction,
                                             command: Command,
                                             workflow: inout Workflow) async {
@@ -355,8 +367,12 @@ final class DetailCoordinator {
   }
 
   private func render(_ ids: [Workflow.ID], groupIds: [WorkflowGroup.ID], animation: Animation? = nil) {
+    Benchmark.start("DetailCoordinator.render")
+    defer {
+      Benchmark.finish("DetailCoordinator.render")
+    }
     let workflows = groupStore.groups
-      .filter({ groupIds.contains($0.id) })
+      .filter { groupIds.contains($0.id) }
       .flatMap(\.workflows)
       .filter { ids.contains($0.id) }
 
