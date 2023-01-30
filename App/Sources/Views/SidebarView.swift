@@ -1,6 +1,20 @@
 import SwiftUI
 
 struct SidebarView: View {
+  enum Confirm {
+    case single(id: GroupViewModel.ID)
+    case multiple(ids: [GroupViewModel.ID])
+
+    func contains(_ id: GroupViewModel.ID) -> Bool {
+      switch self {
+      case .single(let groupId):
+        return groupId == id
+      case .multiple(let ids):
+        return ids.contains(id) && ids.first == id
+      }
+    }
+  }
+
   enum Action {
     case openScene(AppScene)
     case selectConfiguration(ConfigurationViewModel.ID)
@@ -11,6 +25,8 @@ struct SidebarView: View {
   @EnvironmentObject private var groupIds: GroupIdsPublisher
   @EnvironmentObject private var groupStore: GroupStore
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
+
+  @State private var confirmDelete: Confirm?
 
   private let onAction: (Action) -> Void
 
@@ -40,6 +56,27 @@ struct SidebarView: View {
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
               })
+              .overlay(content: {
+                HStack {
+                  Button(action: { confirmDelete = nil },
+                         label: { Image(systemName: "x.circle") })
+                    .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
+                    .keyboardShortcut(.escape)
+                  Text("Are you sure?")
+                    .font(.footnote)
+                  Spacer()
+                  Button(action: {
+                    confirmDelete = nil
+                    onAction(.removeGroups(groupsPublisher.selections.map { $0.id }))
+                  }, label: { Image(systemName: "trash") })
+                    .buttonStyle(.destructiveStyle)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(4)
+                .background(Color(.windowBackgroundColor))
+                .cornerRadius(8)
+                .opacity(confirmDelete?.contains(group.id) == true ? 1 : 0)
+              })
               .tag(group)
           }
           .onMove { source, destination in
@@ -47,9 +84,14 @@ struct SidebarView: View {
           }
         }
         .onDeleteCommand(perform: {
-          onAction(.removeGroups(groupsPublisher.selections.map { $0.id }))
+          if groupsPublisher.models.count > 1 {
+            confirmDelete = .multiple(ids: groupsPublisher.selections.map(\.id))
+          } else if let first = groupsPublisher.models.first {
+            confirmDelete = .single(id: first.id)
+          }
         })
         .onChange(of: groupsPublisher.selections) { newValue in
+          confirmDelete = nil
           groupIds.publish(.init(ids: newValue.map(\.id)))
           onAction(.selectGroups(Array(newValue)))
 
@@ -113,6 +155,7 @@ struct SidebarItemView: View {
       .layoutPriority(-1)
     }
   }
+
 }
 
 @ViewBuilder
@@ -120,7 +163,9 @@ private func contextualMenu(for group: GroupViewModel,
                             onAction: @escaping (SidebarView.Action) -> Void) -> some View {
   Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
   Divider()
-  Button("Remove", action: { onAction(.removeGroups([group.id])) })
+  Button("Remove", action: {
+    onAction(.removeGroups([group.id]))
+  })
 }
 
 struct SidebarView_Previews: PreviewProvider {

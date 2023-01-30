@@ -74,7 +74,10 @@ final class SidebarCoordinator {
       group.workflows.move(fromOffsets: source, toOffset: destination)
       store.updateGroups([group])
 
-      let viewModels = group.workflows.map { $0.asViewModel() }
+      let viewModels = group.workflows.enumerated().map {
+        let groupName: String? = $0 == 1 ? group.name : nil
+        return $1.asViewModel(groupName)
+      }
       let selections: [ContentViewModel]?
 
       if !publisher.selections.isEmpty {
