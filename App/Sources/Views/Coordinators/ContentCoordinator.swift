@@ -48,8 +48,8 @@ final class ContentCoordinator {
                                           group: &group)
 
     switch action {
-    case .selectWorkflow:
-      break
+    case .selectWorkflow(let workflowIds, _):
+      Self.appStorage.workflowIds = Set(workflowIds)
     default:
       store.updateGroups([group])
       render([group.id], setSelection: true)
@@ -58,10 +58,8 @@ final class ContentCoordinator {
 
   func handle(_ action: DetailView.Action) {
     switch action {
-    case .singleDetailView(let action):
+    case .singleDetailView:
       render(selectionPublisher.model.groupIds, setSelection: false)
-      selectionPublisher.publish(.init(groupIds: selectionPublisher.model.groupIds,
-                                       workflowIds: [action.workflowId]))
     }
   }
 

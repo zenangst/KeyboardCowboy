@@ -13,9 +13,6 @@ final class ContentViewActionReducer {
     case .moveWorkflows(let source, let destination):
       group.workflows.move(fromOffsets: source, toOffset: destination)
     case .selectWorkflow(let workflows, let groupIds):
-      if workflows.isEmpty {
-        
-      }
       await selectionPublisher.publish(ContentSelectionIds(groupIds: groupIds, workflowIds: workflows))
     }
   }

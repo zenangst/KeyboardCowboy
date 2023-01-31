@@ -32,6 +32,7 @@ final class DetailCoordinator {
   func subscribe(to publisher: Published<ContentSelectionIds>.Publisher) {
     subscription = publisher
       .dropFirst()
+      .removeDuplicates()
       .debounce(for: .milliseconds(80), scheduler: DispatchQueue.main)
       .sink { [weak self] ids in
         self?.groupIds = ids.groupIds

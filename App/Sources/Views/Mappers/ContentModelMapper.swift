@@ -1,10 +1,6 @@
 import Foundation
 
 final class ContentModelMapper {
-  func map(_ workflows: [Workflow]) -> [ContentViewModel] {
-    workflows.map { $0.asViewModel(nil) }
-  }
-
   func map(_ workflow: Workflow) -> ContentViewModel {
     workflow.asViewModel(nil)
   }
@@ -33,12 +29,19 @@ private extension Array where Element == KeyShortcut {
 private extension Workflow {
   func asViewModel(_ groupName: String?) -> ContentViewModel {
     let commandCount = commands.count
+    let binding: String?
+    if let trigger, let triggerBinding = trigger.binding {
+      binding = triggerBinding
+    } else {
+      binding = nil
+    }
+
     return ContentViewModel(
       id: id,
       groupName: groupName,
       name: name,
       images: commands.images(),
-      binding: trigger?.binding,
+      binding: binding,
       badge: commandCount > 1 ? commandCount : 0,
       badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
       isEnabled: isEnabled)
@@ -117,5 +120,3 @@ private extension Array where Element == Command {
     return images
   }
 }
-
-

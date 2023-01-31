@@ -10,7 +10,10 @@ struct ContentViewModel: Identifiable, Hashable {
   let badgeOpacity: Double
   let isEnabled: Bool
 
-  internal init(id: String, groupName: String? = nil, name: String, images: [ContentViewModel.ImageModel], binding: String? = nil, badge: Int, badgeOpacity: Double, isEnabled: Bool) {
+  internal init(id: String, groupName: String? = nil, name: String,
+                images: [ContentViewModel.ImageModel],
+                binding: String? = nil, badge: Int,
+                badgeOpacity: Double, isEnabled: Bool) {
     self.id = id
     self.groupName = groupName
     self.name = name

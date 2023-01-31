@@ -67,55 +67,25 @@ final class SidebarCoordinator {
     defer {
       Benchmark.finish("SidebarCoordinator.render")
     }
-    var newIds = Set<String>()
-    newIds.reserveCapacity(groups.count)
-    let viewModels = groups.map { group in
-      newIds.insert(group.id)
-      return group.asViewModel(group.rule?.iconPath(using: applicationStore))
-    }
-
-    let selectedIds = publisher.selections
-      .filter({ newIds.contains($0) })
+    var viewModels = [GroupViewModel]()
+    viewModels.reserveCapacity(groups.count)
     var newSelections = [GroupViewModel.ID]()
-    if selectedIds.isEmpty {
-      if publisher.models.isEmpty && !Self.appStorage.groupIds.isDisjoint(with: newIds) {
-        newSelections = viewModels.filter({ Self.appStorage.groupIds.contains($0.id) }).map(\.id)
-      } else if let first = viewModels.first {
-        newSelections = [first.id]
+    let publisherIsEmpty = publisher.models.isEmpty && publisher.selections.isEmpty
+
+    for (offset, group) in groups.enumerated() {
+      let viewModel = SidebarMapper.map(group, applicationStore: applicationStore)
+
+      viewModels.append(viewModel)
+
+      if publisherIsEmpty {
+        if Self.appStorage.groupIds.contains(group.id) {
+          newSelections.append(group.id)
+        } else if offset == 0 {
+          newSelections.append(group.id)
+        }
       }
-    }
-    else {
-      newSelections = viewModels.filter { selectedIds.contains($0.id) }.map(\.id)
     }
 
     publisher.publish(viewModels, selections: newSelections)
-  }
-}
-
-extension Array where Element == WorkflowGroup {
-  func asViewModels(store: ApplicationStore) -> [GroupViewModel] {
-    self.map { $0.asViewModel($0.rule?.iconPath(using: store)) }
-  }
-}
-
-extension WorkflowGroup {
-  func asViewModel(_ iconPath: String?) -> GroupViewModel {
-    GroupViewModel(
-      id: id,
-      name: name,
-      iconPath: iconPath,
-      color: color,
-      symbol: symbol,
-      count: workflows.count)
-  }
-}
-
-private extension Rule {
-  func iconPath(using applicationStore: ApplicationStore) -> String? {
-    if let bundleIdentifier = bundleIdentifiers.first,
-       let app = applicationStore.application(for: bundleIdentifier) {
-      return app.path
-    }
-    return nil
   }
 }
