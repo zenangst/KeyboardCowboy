@@ -118,7 +118,10 @@ final class CommandEngine {
         break
       }
     case .keyboard(let keyboardCommand):
-      try engines.keyboard.run(keyboardCommand, type: .keyDown, with: eventSource)
+      try engines.keyboard.run(keyboardCommand,
+                               type: .keyDown,
+                               originalEvent: nil,
+                               with: eventSource)
     case .open(let openCommand):
       try await engines.open.run(openCommand)
     case .script(let scriptCommand):

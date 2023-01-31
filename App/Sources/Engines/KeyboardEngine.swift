@@ -18,7 +18,10 @@ final class KeyboardEngine {
     self.store = store
   }
 
-  func run(_ command: KeyboardCommand, type: CGEventType, with eventSource: CGEventSource?) throws {
+  func run(_ command: KeyboardCommand,
+           type: CGEventType,
+           originalEvent: CGEvent?,
+           with eventSource: CGEventSource?) throws {
     guard let machPort else {
       throw KeyboardEngineError.failedToResolveMachPortController
     }
@@ -32,7 +35,12 @@ final class KeyboardEngine {
 
       var flags = CGEventFlags()
       keyboardShortcut.modifiers.forEach { flags.insert($0.cgModifierFlags) }
-      try machPort.post(key, type: type, flags: flags)
+      try machPort.post(key, type: type, flags: flags) { newEvent in
+        if let originalEvent {
+          let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
+          newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: originalKeyboardEventAutorepeat)
+        }
+      }
     }
   }
 }

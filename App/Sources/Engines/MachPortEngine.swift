@@ -125,7 +125,9 @@ final class MachPortEngine {
       machPortEvent.result = nil
       switch workflow.commands.last {
       case .keyboard(let command):
-        try? keyboardEngine.run(command, type: machPortEvent.type,
+        try? keyboardEngine.run(command,
+                                type: machPortEvent.type,
+                                originalEvent: machPortEvent.event,
                                 with: machPortEvent.eventSource)
       default:
         if kind == .keyDown {

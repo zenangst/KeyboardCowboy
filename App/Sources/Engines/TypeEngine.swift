@@ -47,7 +47,7 @@ final class TypeEngine {
       }
 
       let command = KeyboardCommand(keyboardShortcut: KeyShortcut(key: key, lhs: true, modifiers: modifiers))
-      try keyboardEngine.run(command, type: .keyDown, with: nil)
+      try keyboardEngine.run(command, type: .keyDown, originalEvent: nil, with: nil)
     }
   }
 }
