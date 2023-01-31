@@ -62,22 +62,17 @@ final class SidebarCoordinator {
           let id = publisher.selections.first?.id,
           var group = store.group(withId: id) else { return }
 
-    switch action {
-    case .addWorkflow:
-      let workflow = Workflow.empty()
-      group.workflows.append(workflow)
-      store.updateGroups([group])
-    case .removeWorflows(let ids):
-      group.workflows.removeAll(where: { ids.contains($0.id) })
-      store.updateGroups([group])
-    case .moveWorkflows(let source, let destination):
-      group.workflows.move(fromOffsets: source, toOffset: destination)
-      store.updateGroups([group])
+    SidebarContentViewReducer.reduce(action, group: &group)
 
-      let viewModels = group.workflows.enumerated().map {
-        let groupName: String? = $0 == 1 ? group.name : nil
-        return $1.asViewModel(groupName)
+    switch action {
+    case .moveWorkflows(_, let destination):
+      var viewModels = [ContentViewModel]()
+      viewModels.reserveCapacity(group.workflows.count)
+      for workflow in group.workflows {
+        let viewModel = workflow.asViewModel(nil)
+        viewModels.append(viewModel)
       }
+
       let selections: [ContentViewModel]?
 
       if !publisher.selections.isEmpty {
@@ -102,6 +97,8 @@ final class SidebarCoordinator {
       workflowIdsPublisher.publish(.init(groupIds: groupIds,
                                          workflowIds: workflowIds))
       Self.appStorage.workflowIds = Set(workflowIds)
+    default:
+      store.updateGroups([group])
     }
   }
 
