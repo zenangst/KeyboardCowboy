@@ -1,6 +1,7 @@
 import SwiftUI
 
-final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Hashable, ViewModel: Identifiable {
+final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Hashable,
+                                                                   ViewModel: Identifiable {
   @Published var models: [ViewModel] = [ViewModel]()
   @Published var selections = Set<ViewModel>()
 

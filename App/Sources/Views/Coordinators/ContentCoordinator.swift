@@ -75,26 +75,41 @@ final class ContentCoordinator {
     }
 
     var viewModels = [ContentViewModel]()
+    var newSelections = [ContentViewModel]()
+    var selectedWorkflowIds = Self.appStorage.workflowIds
+    var firstViewModel: ContentViewModel?
+
     for offset in store.groups.indices {
       let group = store.groups[offset]
       if groupIds.contains(group.id) {
-        viewModels.append(contentsOf: group.workflows.asViewModels(group.name))
+        for wOffset in group.workflows.indices {
+          let workflow = group.workflows[wOffset]
+          let viewModel = workflow.asViewModel(nil)
+
+          if wOffset == 0 {
+            firstViewModel = viewModel
+          }
+
+          viewModels.append(viewModel)
+
+          if setSelection &&
+              !selectedWorkflowIds.isEmpty &&
+              selectedWorkflowIds.contains(viewModel.id) {
+            selectedWorkflowIds.remove(viewModel.id)
+            newSelections.append(viewModel)
+          }
+        }
       }
     }
 
-    var newSelections = [ContentViewModel]()
-
     if setSelection {
       if publisher.models.isEmpty {
-        let matches = viewModels.filter({ Self.appStorage.workflowIds.contains($0.id)})
-        if !matches.isEmpty {
-          newSelections = matches
-        } else if let first = viewModels.first {
+        if newSelections.isEmpty, let first = viewModels.first {
           newSelections = [first]
         }
       } else if !publisher.selections.intersection(viewModels).isEmpty {
         newSelections = Array(publisher.selections)
-      } else if newSelections.isEmpty, let first = viewModels.first {
+      } else if newSelections.isEmpty, let first = firstViewModel {
         newSelections = [first]
       }
     }
@@ -142,7 +157,7 @@ private extension Array where Element == Command {
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .nsImage(path: command.application.path))
+            kind: .icon(path: command.application.path))
         )
       case .builtIn:
         continue
@@ -165,7 +180,7 @@ private extension Array where Element == Command {
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .nsImage(path: path))
+            kind: .icon(path: path))
         )
       case .script(let script):
         switch script.sourceType {

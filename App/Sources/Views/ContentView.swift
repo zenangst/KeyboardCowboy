@@ -156,7 +156,7 @@ struct ContentImageView: View {
 
   var body: some View {
     switch image.kind {
-    case .nsImage(let path):
+    case .icon(let path):
       Image(nsImage: NSWorkspace.shared.icon(forFile: path))
         .resizable()
         .aspectRatio(contentMode: .fit)

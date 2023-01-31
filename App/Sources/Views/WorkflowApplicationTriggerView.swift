@@ -26,9 +26,7 @@ struct WorkflowApplicationTriggerView: View {
             Button(action: {
               let uuid = UUID()
               triggers.append(.init(id: uuid.uuidString, name: application.displayName,
-                                    image: NSWorkspace.shared.icon(forFile: application.path),
-                                    application: application,
-                                    contexts: []))
+                                    application: application, contexts: []))
               onAction(.updateApplicationTriggers(triggers))
             }, label: {
               Text(application.displayName)
@@ -44,7 +42,7 @@ struct WorkflowApplicationTriggerView: View {
         onAction(.updateApplicationTriggers(triggers))
       }, onDelete: { triggers.remove(atOffsets: $0) }) { trigger in
         HStack(spacing: 0) {
-          Image(nsImage: trigger.image.wrappedValue)
+          Image(nsImage: NSWorkspace.shared.icon(forFile: trigger.wrappedValue.application.path))
             .resizable()
             .frame(width: 36, height: 36)
           VStack(alignment: .leading, spacing: 4) {

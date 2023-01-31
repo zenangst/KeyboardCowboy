@@ -179,7 +179,6 @@ extension Workflow.Trigger {
         triggers.map { trigger in
           DetailViewModel.ApplicationTrigger(id: trigger.id,
                                              name: trigger.application.displayName,
-                                             image: NSWorkspace.shared.icon(forFile: trigger.application.path),
                                              application: trigger.application,
                                              contexts: trigger.contexts.map {
             switch $0 {
@@ -206,7 +205,6 @@ extension DetailView.Action {
       return action.workflowId
     }
   }
-  
 }
 
 extension CommandView.Kind {

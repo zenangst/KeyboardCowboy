@@ -1,7 +1,8 @@
 import SwiftUI
 
 @MainActor
-final class ViewModelPublisher<ViewModel>: ObservableObject where ViewModel: Hashable, ViewModel: Identifiable {
+final class ViewModelPublisher<ViewModel>: ObservableObject where ViewModel: Hashable,
+                                                                  ViewModel: Identifiable {
   @Published var model: ViewModel
 
   nonisolated init(_ model: ViewModel) {

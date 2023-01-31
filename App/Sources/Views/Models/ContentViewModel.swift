@@ -28,7 +28,7 @@ struct ContentViewModel: Identifiable, Hashable {
 
     enum Kind: Hashable {
       case command(DetailViewModel.CommandViewModel.Kind)
-      case nsImage(path: String)
+      case icon(path: String)
     }
   }
 }

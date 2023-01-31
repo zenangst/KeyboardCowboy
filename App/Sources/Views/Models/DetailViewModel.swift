@@ -41,7 +41,6 @@ struct DetailViewModel: Hashable, Identifiable {
   struct ApplicationTrigger: Hashable, Identifiable {
     public var id: String
     public var name: String
-    public var image: NSImage
     public var application: Application
     public var contexts: [Context]
 
