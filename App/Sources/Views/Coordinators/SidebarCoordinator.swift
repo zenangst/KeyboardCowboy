@@ -69,7 +69,7 @@ final class SidebarCoordinator {
     }
     var viewModels = [GroupViewModel]()
     viewModels.reserveCapacity(groups.count)
-    var newSelections = [GroupViewModel.ID]()
+    var newSelections: [GroupViewModel.ID]?
     let publisherIsEmpty = publisher.models.isEmpty && publisher.selections.isEmpty
 
     for (offset, group) in groups.enumerated() {
@@ -78,10 +78,14 @@ final class SidebarCoordinator {
       viewModels.append(viewModel)
 
       if publisherIsEmpty {
+        if newSelections?.isEmpty == true {
+          newSelections = []
+        }
+
         if Self.appStorage.groupIds.contains(group.id) {
-          newSelections.append(group.id)
+          newSelections?.append(group.id)
         } else if offset == 0 {
-          newSelections.append(group.id)
+          newSelections?.append(group.id)
         }
       }
     }
