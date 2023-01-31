@@ -64,7 +64,6 @@ struct KeyboardCowboy: App {
                                       scriptEngine: scriptEngine, workspace: .shared)
 
     self.sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
-                                                 contentPublisher: contentCoordinator.publisher,
                                                  applicationStore: applicationStore,
                                                  groupIdsPublisher: groupIdsPublisher,
                                                  workflowIdsPublisher: workflowIdsPublisher)
@@ -113,7 +112,9 @@ struct KeyboardCowboy: App {
               sidebarCoordinator.handle(sidebarAction)
             }
           case .content(let contentAction):
-            sidebarCoordinator.handle(contentAction)
+            Task {
+              await contentCoordinator.handle(contentAction)
+            }
           case .detail(let detailAction):
             Task {
               await detailCoordinator.handle(detailAction)

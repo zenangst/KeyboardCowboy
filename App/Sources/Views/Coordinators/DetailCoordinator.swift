@@ -118,6 +118,7 @@ final class DetailCoordinator {
       await DetailViewActionReducer.reduce(detailAction,
                                            keyboardCowboyEngine: keyboardCowboyEngine,
                                            workflow: &workflow)
+      groupStore.receive([workflow])
     }
   }
 

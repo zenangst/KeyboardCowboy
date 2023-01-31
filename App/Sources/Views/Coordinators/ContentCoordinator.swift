@@ -13,6 +13,7 @@ final class ContentCoordinator {
   static private var appStorage: AppStorageStore = .init()
   private var subscription: AnyCancellable?
   private let store: GroupStore
+  private let mapper: ContentModelMapper
   private let applicationStore: ApplicationStore
 
   let selectionPublisher: ContentSelectionIdsPublisher
@@ -23,6 +24,7 @@ final class ContentCoordinator {
     self.applicationStore = applicationStore
     self.store = store
     self.selectionPublisher = selectionPublisher
+    self.mapper = ContentModelMapper()
 
     enableInjection(self, selector: #selector(injected(_:)))
   }
@@ -36,26 +38,30 @@ final class ContentCoordinator {
       }
   }
 
+  func handle(_ action: ContentView.Action) async {
+    guard selectionPublisher.model.groupIds.count == 1,
+          let id = selectionPublisher.model.groupIds.first,
+          var group = store.group(withId: id) else { return }
+
+    await ContentViewActionReducer.reduce(action,
+                                          selectionPublisher: selectionPublisher,
+                                          group: &group)
+
+    switch action {
+    case .selectWorkflow:
+      break
+    default:
+      store.updateGroups([group])
+      render([group.id], setSelection: true)
+    }
+  }
+
   func handle(_ action: DetailView.Action) {
     switch action {
     case .singleDetailView(let action):
-      let workflowId = action.workflowId
-      guard let groups = store.groups
-        .first(where: { $0.workflows
-            .map { $0.id }
-            .contains(workflowId)
-        })
-      else {
-        return
-      }
-
-      let viewModels = groups.workflows.asViewModels(nil)
-      var selections = [ContentViewModel]()
-      if let matchedSelection = viewModels.first(where: { $0.id == workflowId }) {
-        selections = [matchedSelection]
-      }
-
-      publisher.publish(viewModels, selections: selections)
+      render(selectionPublisher.model.groupIds, setSelection: false)
+      selectionPublisher.publish(.init(groupIds: selectionPublisher.model.groupIds,
+                                       workflowIds: [action.workflowId]))
     }
   }
 
@@ -75,7 +81,7 @@ final class ContentCoordinator {
     }
 
     var viewModels = [ContentViewModel]()
-    var newSelections = [ContentViewModel]()
+    var newSelections = [ContentViewModel.ID]()
     var selectedWorkflowIds = Self.appStorage.workflowIds
     var firstViewModel: ContentViewModel?
 
@@ -84,7 +90,7 @@ final class ContentCoordinator {
       if groupIds.contains(group.id) {
         for wOffset in group.workflows.indices {
           let workflow = group.workflows[wOffset]
-          let viewModel = workflow.asViewModel(nil)
+          let viewModel = mapper.map(workflow)
 
           if wOffset == 0 {
             firstViewModel = viewModel
@@ -96,7 +102,7 @@ final class ContentCoordinator {
               !selectedWorkflowIds.isEmpty &&
               selectedWorkflowIds.contains(viewModel.id) {
             selectedWorkflowIds.remove(viewModel.id)
-            newSelections.append(viewModel)
+            newSelections.append(viewModel.id)
           }
         }
       }
@@ -105,125 +111,17 @@ final class ContentCoordinator {
     if setSelection {
       if publisher.models.isEmpty {
         if newSelections.isEmpty, let first = viewModels.first {
-          newSelections = [first]
+          newSelections = [first.id]
         }
-      } else if !publisher.selections.intersection(viewModels).isEmpty {
+      } else if !publisher.selections.intersection(viewModels.map(\.id)).isEmpty {
         newSelections = Array(publisher.selections)
       } else if newSelections.isEmpty, let first = firstViewModel {
-        newSelections = [first]
+        newSelections = [first.id]
       }
+      selectionPublisher.publish(ContentSelectionIds(groupIds: groupIds,
+                                                     workflowIds: newSelections) )
     }
 
-    publisher.publish(viewModels, selections: newSelections)
-    selectionPublisher.publish(ContentSelectionIds(groupIds: groupIds,
-                                                   workflowIds: newSelections.map(\.id)) )
-  }
-}
-
-extension Workflow {
-  func asViewModel(_ groupName: String?) -> ContentViewModel {
-    let commandCount = commands.count
-    return ContentViewModel(
-      id: id,
-      groupName: groupName,
-      name: name,
-      images: commands.images(),
-      binding: trigger?.binding,
-      badge: commandCount > 1 ? commandCount : 0,
-      badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
-      isEnabled: isEnabled)
-  }
-}
-
-private extension Workflow.Trigger {
-  var binding: String? {
-    switch self {
-    case .keyboardShortcuts(let shortcuts):
-      return shortcuts.binding
-    case .application:
-      return nil
-    }
-  }
-}
-
-private extension Array where Element == Command {
-  func images() -> [ContentViewModel.ImageModel] {
-    var images = [ContentViewModel.ImageModel]()
-    for (offset, element) in self.enumerated() {
-      let convertedOffset = Double(offset)
-      switch element {
-      case .application(let command):
-        images.append(
-          ContentViewModel.ImageModel(
-            id: command.id,
-            offset: convertedOffset,
-            kind: .icon(path: command.application.path))
-        )
-      case .builtIn:
-        continue
-      case .keyboard(let keyCommand):
-        if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
-          images.append(.init(id: keyboardShortcut.id, offset: convertedOffset,
-                              kind: .command(.keyboard(keys: keyCommand.keyboardShortcuts))))
-        }
-      case .open(let command):
-        let path: String
-        if let application = command.application, command.isUrl {
-          path = application.path
-        } else if command.isUrl {
-          path = "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
-        } else {
-          path = command.path
-        }
-
-        images.append(
-          ContentViewModel.ImageModel(
-            id: command.id,
-            offset: convertedOffset,
-            kind: .icon(path: path))
-        )
-      case .script(let script):
-        switch script.sourceType {
-        case .inline(let source):
-          images.append(.init(id: script.id,
-                              offset: convertedOffset,
-                              kind: .command(.script(.inline(id: script.id,
-                                                             source: source, scriptExtension: .appleScript)))))
-
-        case .path(let source):
-          images.append(.init(id: script.id,
-                              offset: convertedOffset,
-                              kind: .command(.script(.path(id: script.id,
-                                                           source: source,
-                                                           scriptExtension: .appleScript)))))
-        }
-      case .shortcut(let shortcut):
-        images.append(.init(id: shortcut.id, offset: convertedOffset, kind: .command(.shortcut)))
-      case .type(let type):
-        images.append(.init(id: type.id, offset: convertedOffset, kind: .command(.type(input: type.input))))
-      }
-    }
-
-    return images
-  }
-}
-
-private extension Array where Element == Workflow {
-  func asViewModels(_ groupName: String?) -> [ContentViewModel] {
-    var viewModels = [ContentViewModel]()
-    viewModels.reserveCapacity(self.count)
-    for (offset, model) in self.enumerated() {
-      viewModels.append(model.asViewModel(offset == 0 ? groupName : nil))
-    }
-    return viewModels
-  }
-}
-
-private extension Array where Element == KeyShortcut {
-  var binding: String? {
-    if count == 1, let firstMatch = first {
-      return "\(firstMatch.modifersDisplayValue)\(firstMatch.key)"
-    }
-    return nil
+    publisher.publish(viewModels, selections: setSelection ? newSelections : nil)
   }
 }

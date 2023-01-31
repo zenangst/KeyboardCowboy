@@ -18,7 +18,7 @@ struct SidebarView: View {
   enum Action {
     case openScene(AppScene)
     case selectConfiguration(ConfigurationViewModel.ID)
-    case selectGroups([GroupViewModel])
+    case selectGroups([GroupViewModel.ID])
     case moveGroups(source: IndexSet, destination: Int)
     case removeGroups([GroupViewModel.ID])
   }
@@ -67,7 +67,7 @@ struct SidebarView: View {
                   Spacer()
                   Button(action: {
                     confirmDelete = nil
-                    onAction(.removeGroups(groupsPublisher.selections.map { $0.id }))
+                    onAction(.removeGroups(Array(groupsPublisher.selections)))
                   }, label: { Image(systemName: "trash") })
                     .buttonStyle(.destructiveStyle)
                 }
@@ -85,18 +85,18 @@ struct SidebarView: View {
         }
         .onDeleteCommand(perform: {
           if groupsPublisher.models.count > 1 {
-            confirmDelete = .multiple(ids: groupsPublisher.selections.map(\.id))
+            confirmDelete = .multiple(ids: Array(groupsPublisher.selections))
           } else if let first = groupsPublisher.models.first {
             confirmDelete = .single(id: first.id)
           }
         })
         .onChange(of: groupsPublisher.selections) { newValue in
           confirmDelete = nil
-          groupIds.publish(.init(ids: newValue.map(\.id)))
+          groupIds.publish(.init(ids: Array(newValue)))
           onAction(.selectGroups(Array(newValue)))
 
           if let first = newValue.first {
-            proxy.scrollTo(first.id, anchor: .center)
+            proxy.scrollTo(first, anchor: .center)
           }
         }
       }
@@ -150,7 +150,7 @@ struct SidebarItemView: View {
           .frame(height: 16)
 
       }
-      .opacity(groupsPublisher.selections.contains(group) ? 1 : 0)
+      .opacity(groupsPublisher.selections.contains(group.id) ? 1 : 0)
       .buttonStyle(.plain)
       .layoutPriority(-1)
     }

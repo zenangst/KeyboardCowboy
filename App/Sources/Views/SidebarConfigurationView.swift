@@ -22,7 +22,8 @@ struct SidebarConfigurationView: View {
           }
         } label: {
           HStack {
-            Text( publisher.selections.first?.name ?? "Missing value" )
+            // TODO: Fix this!
+            Text( publisher.models.first?.name ?? "Missing value" )
               .lineLimit(1)
             Spacer()
             Image(systemName: "chevron.down")

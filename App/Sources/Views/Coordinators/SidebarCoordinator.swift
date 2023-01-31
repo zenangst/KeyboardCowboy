@@ -13,19 +13,16 @@ final class SidebarCoordinator {
 
   private let applicationStore: ApplicationStore
   private let store: GroupStore
-  private let contentPublisher: ContentPublisher
 
   let publisher = GroupsPublisher()
   let groupIdsPublisher: GroupIdsPublisher
   let workflowIdsPublisher: ContentSelectionIdsPublisher
 
   init(_ store: GroupStore,
-       contentPublisher: ContentPublisher,
        applicationStore: ApplicationStore,
        groupIdsPublisher: GroupIdsPublisher,
        workflowIdsPublisher: ContentSelectionIdsPublisher) {
     self.applicationStore = applicationStore
-    self.contentPublisher = contentPublisher
     self.workflowIdsPublisher = workflowIdsPublisher
     self.groupIdsPublisher = groupIdsPublisher
     self.store = store
@@ -47,58 +44,12 @@ final class SidebarCoordinator {
     case .selectConfiguration, .openScene:
       break
     case .selectGroups(let groups):
-      let ids = groups.map(\.id)
-      Self.appStorage.groupIds = Set(ids)
-      groupIdsPublisher.publish(.init(ids: ids))
+      Self.appStorage.groupIds = Set(groups)
+      groupIdsPublisher.publish(.init(ids: groups))
     case .removeGroups(let ids):
       store.removeGroups(with: ids)
     case .moveGroups(let source, let destination):
       store.move(source: source, destination: destination)
-    }
-  }
-
-  func handle(_ action: ContentView.Action) {
-    guard publisher.selections.count == 1,
-          let id = publisher.selections.first?.id,
-          var group = store.group(withId: id) else { return }
-
-    SidebarContentViewReducer.reduce(action, group: &group)
-
-    switch action {
-    case .moveWorkflows(_, let destination):
-      var viewModels = [ContentViewModel]()
-      viewModels.reserveCapacity(group.workflows.count)
-      for workflow in group.workflows {
-        let viewModel = workflow.asViewModel(nil)
-        viewModels.append(viewModel)
-      }
-
-      let selections: [ContentViewModel]?
-
-      if !publisher.selections.isEmpty {
-        var newSelections = [ContentViewModel]()
-        for model in contentPublisher.selections {
-          guard let newModel = viewModels.first(where: { $0.id == model.id }) else {
-            return
-          }
-
-          newSelections.append(newModel)
-        }
-        selections = newSelections
-      } else if !viewModels.isEmpty && destination - 1 < viewModels.count  {
-        let first = viewModels[max(destination - 1, 0)]
-        selections = [first]
-      } else {
-        selections = []
-      }
-      contentPublisher.publish(viewModels, selections: selections)
-    case .selectWorkflow(let workflows, let groupIds):
-      let workflowIds = workflows.map(\.id)
-      workflowIdsPublisher.publish(.init(groupIds: groupIds,
-                                         workflowIds: workflowIds))
-      Self.appStorage.workflowIds = Set(workflowIds)
-    default:
-      store.updateGroups([group])
     }
   }
 
@@ -123,19 +74,18 @@ final class SidebarCoordinator {
       return group.asViewModel(group.rule?.iconPath(using: applicationStore))
     }
 
-    let selectedIds = publisher
-      .selections.map { $0.id }
+    let selectedIds = publisher.selections
       .filter({ newIds.contains($0) })
-    var newSelections = [GroupViewModel]()
+    var newSelections = [GroupViewModel.ID]()
     if selectedIds.isEmpty {
       if publisher.models.isEmpty && !Self.appStorage.groupIds.isDisjoint(with: newIds) {
-        newSelections = viewModels.filter { Self.appStorage.groupIds.contains($0.id) }
+        newSelections = viewModels.filter({ Self.appStorage.groupIds.contains($0.id) }).map(\.id)
       } else if let first = viewModels.first {
-        newSelections = [first]
+        newSelections = [first.id]
       }
     }
     else {
-      newSelections = viewModels.filter { selectedIds.contains($0.id) }
+      newSelections = viewModels.filter { selectedIds.contains($0.id) }.map(\.id)
     }
 
     publisher.publish(viewModels, selections: newSelections)

@@ -38,7 +38,7 @@ final class ConfigurationCoordinator {
           return viewModel
         }
 
-      await publisher.publish(configurations, selections: selections)
+      await publisher.publish(configurations, selections: selections.map(\.id))
     }
   }
 }

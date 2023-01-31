@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ContentView: View {
   enum Action {
-    case selectWorkflow(models: [ContentViewModel], inGroups: [WorkflowGroup.ID])
+    case selectWorkflow(models: [ContentViewModel.ID], inGroups: [WorkflowGroup.ID])
     case removeWorflows([ContentViewModel.ID])
     case moveWorkflows(source: IndexSet, destination: Int)
     case addWorkflow
@@ -12,7 +12,7 @@ struct ContentView: View {
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher
 
-  @State var selected = Set<ContentViewModel>()
+  @State var selected = Set<ContentViewModel.ID>()
   @State var overlayOpacity: CGFloat = 0
 
   private let onAction: (Action) -> Void
@@ -37,7 +37,7 @@ struct ContentView: View {
             })
             .grayscale(workflow.isEnabled ? 0 : 0.5)
             .opacity(workflow.isEnabled ? 1 : 0.5)
-            .tag(workflow)
+            .tag(workflow.id)
             .id(workflow.id)
         }
         .onMove { source, destination in
@@ -49,7 +49,7 @@ struct ContentView: View {
         onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.model.ids))
 
         if let first = newValue.first {
-          proxy.scrollTo(first.id, anchor: .center)
+          proxy.scrollTo(first, anchor: .center)
         }
       })
       .overlay(alignment: .top, content: { overlayView() })
@@ -95,7 +95,7 @@ struct ContentView: View {
   @ViewBuilder
   private func contextualMenu() -> some View {
     Button("Delete", action: {
-      onAction(.removeWorflows(publisher.selections.map { $0.id }))
+      onAction(.removeWorflows(publisher.selections.map { $0 }))
     })
   }
 }
