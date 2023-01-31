@@ -78,7 +78,7 @@ final class SidebarCoordinator {
       viewModels.append(viewModel)
 
       if publisherIsEmpty {
-        if newSelections?.isEmpty == true {
+        if newSelections?.isEmpty == true || Self.appStorage.groupIds.contains(group.id) {
           newSelections = []
         }
 
