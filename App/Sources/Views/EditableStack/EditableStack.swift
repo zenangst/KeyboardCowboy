@@ -1,6 +1,7 @@
 import Carbon
 import SwiftUI
 import UniformTypeIdentifiers
+import Inject
 
 struct EditableDragInfo: Equatable {
   let indexes: [Int]
@@ -15,6 +16,7 @@ struct EditableStack<Data, Content>: View where Content: View,
                                                 Data.Index: Hashable,
                                                 Data.Index == Int,
                                                 Data.Element.ID: CustomStringConvertible {
+  @ObserveInjection var inject
   enum Focus: Hashable {
     case focused(Data.Element.ID)
   }
@@ -77,6 +79,7 @@ struct EditableStack<Data, Content>: View where Content: View,
         content(element)
       }
     }
+    .enableInjection()
   }
 
   @ViewBuilder
@@ -334,7 +337,7 @@ private struct EditableRelocateDelegate: DropDelegate {
   }
 
   func dropUpdated(info: DropInfo) -> DropProposal? {
-    return DropProposal(operation: .move)
+    DropProposal(operation: .move)
   }
 
   func dropExited(info: DropInfo) {

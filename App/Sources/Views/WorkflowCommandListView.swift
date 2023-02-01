@@ -1,6 +1,8 @@
 import SwiftUI
+import Inject
 
 struct WorkflowCommandListView: View {
+  @ObserveInjection var inject
   @Binding private var workflow: DetailViewModel
   @State private var selections = Set<String>()
   private let scrollViewProxy: ScrollViewProxy?
@@ -52,7 +54,7 @@ struct WorkflowCommandListView: View {
         spacing: 10,
         onSelection: { self.selections = $0 },
         onMove: { indexSet, toOffset in
-          withAnimation {
+          withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
             workflow.commands.move(fromOffsets: indexSet, toOffset: toOffset)
           }
           onAction(.moveCommand(workflowId: $workflow.id, indexSet: indexSet, toOffset: toOffset))
@@ -85,6 +87,7 @@ struct WorkflowCommandListView: View {
         }
     }
     .padding()
+    .enableInjection()
   }
 }
 

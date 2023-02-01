@@ -33,7 +33,6 @@ final class DetailCoordinator {
     subscription = publisher
       .dropFirst()
       .removeDuplicates()
-      .debounce(for: .milliseconds(80), scheduler: DispatchQueue.main)
       .sink { [weak self] ids in
         self?.groupIds = ids.groupIds
         self?.render(ids.workflowIds, groupIds: ids.groupIds)

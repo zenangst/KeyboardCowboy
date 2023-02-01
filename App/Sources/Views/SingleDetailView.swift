@@ -44,22 +44,24 @@ struct SingleDetailView: View {
           WorkflowTriggerListView($workflow, onAction: onAction)
             .id(workflow.id)
         }
-        .padding()
+        .padding([.top, .leading, .trailing])
+        .padding(.bottom, 16)
         .background(alignment: .bottom, content: {
-          GeometryReader { proxy in
-            Rectangle()
-              .fill(Color(.textBackgroundColor))
-            Path { path in
-              path.move(to: CGPoint(x: proxy.size.width / 2, y: proxy.size.height))
-              path.addLine(to: CGPoint(x: proxy.size.width / 2 - 16, y: proxy.size.height))
-              path.addLine(to: CGPoint(x: proxy.size.width / 2, y: proxy.size.height + 8))
-              path.addLine(to: CGPoint(x: proxy.size.width / 2 + 16, y: proxy.size.height))
-            }
-            .fill(Color(.textBackgroundColor))
+          Canvas(rendersAsynchronously: true) { context, size in
+            context.fill(
+              Path(CGRect(origin: .zero, size: CGSize(width: size.width,
+                                                      height: size.height - 12))),
+              with: .color(Color(.textBackgroundColor)))
+
+            context.fill(Path { path in
+              path.move(to: CGPoint(x: size.width / 2, y: size.height - 12))
+              path.addLine(to: CGPoint(x: size.width / 2 - 24, y: size.height - 12))
+              path.addLine(to: CGPoint(x: size.width / 2, y: size.height - 2))
+              path.addLine(to: CGPoint(x: size.width / 2 + 24, y: size.height - 12))
+              path.addLine(to: CGPoint(x: size.width / 2, y: size.height - 12))
+            }, with: .color(Color(.textBackgroundColor)))
           }
-          .compositingGroup()
         })
-        .shadow(radius: 4)
 
         WorkflowCommandListView(
           $workflow,

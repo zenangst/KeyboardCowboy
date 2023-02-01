@@ -1,9 +1,11 @@
 import SwiftUI
+import Inject
 
 struct SidebarConfigurationView: View {
   enum Action {
     case selectConfiguration(ConfigurationViewModel.ID)
   }
+  @ObserveInjection var inject
   @EnvironmentObject private var publisher: ConfigurationPublisher
 
   private let onAction: (Action) -> Void
@@ -30,11 +32,14 @@ struct SidebarConfigurationView: View {
           }
           .fixedSize(horizontal: false, vertical: true)
           .allowsTightening(true)
+          .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
 
         Spacer()
       }
-      .padding(6)
+      .padding(.horizontal, 6)
+      .padding(.vertical, 4)
       .background(
         ZStack {
           RoundedRectangle(cornerRadius: 4)
@@ -43,14 +48,11 @@ struct SidebarConfigurationView: View {
       )
 
       Button(action: {}, label: {
-        Image(systemName: "plus.circle")
-          .resizable()
-          .aspectRatio(1, contentMode: .fit)
-          .frame(height: 16)
+        Image(systemName: "plus")
       })
-      .padding(.trailing, 4)
+      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
     }
-    .buttonStyle(.plain)
+    .enableInjection()
   }
 }
 
