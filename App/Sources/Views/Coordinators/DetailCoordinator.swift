@@ -31,6 +31,7 @@ final class DetailCoordinator {
 
   func subscribe(to publisher: Published<ContentSelectionIds>.Publisher) {
     subscription = publisher
+      .debounce(for: .milliseconds(40), scheduler: RunLoop.main)
       .dropFirst()
       .removeDuplicates()
       .sink { [weak self] ids in
@@ -39,76 +40,72 @@ final class DetailCoordinator {
     }
   }
 
-  func addOrUpdateCommand(_ payload: NewCommandPayload,
-                          workflowId: Workflow.ID,
-                          title: String,
-                          commandId: Command.ID?) {
-    Task {
-      guard var workflow = groupStore.workflow(withId: workflowId) else { return }
-      let command: Command
-      let resolvedCommandId: String = commandId ?? UUID().uuidString
-      switch payload {
-      case .placeholder:
-        return
-      case .keyboardShortcut(let keyShortcuts):
-        command = .keyboard(.init(keyboardShortcuts: keyShortcuts))
-      case .script(let value, let kind, let scriptExtension):
-        let source: ScriptCommand.Source
-        switch kind {
-        case .file:
-          source = .path(value)
-        case .source:
-          source = .inline(value)
-        }
-
-        switch scriptExtension {
-        case .appleScript:
-          command = .script(.appleScript(id: resolvedCommandId, isEnabled: true, name: title, source: source))
-        case .shellScript:
-          command = .script(.shell(id: resolvedCommandId, isEnabled: true, name: title, source: source))
-        }
-      case .type(let text):
-        command = .type(.init(id: resolvedCommandId, name: text, input: text))
-      case .shortcut(let name):
-        command = .shortcut(.init(id: resolvedCommandId, shortcutIdentifier: name,
-                                  name: name, isEnabled: true))
-      case .application(let application, let action,
-                        let inBackground, let hideWhenRunning, let ifNotRunning):
-        assert(application != nil)
-        guard let application else {
-          return
-        }
-
-        var modifiers = [ApplicationCommand.Modifier]()
-        if inBackground { modifiers.append(.background) }
-        if hideWhenRunning { modifiers.append(.hidden) }
-        if ifNotRunning { modifiers.append(.onlyIfNotRunning) }
-
-        let commandAction: ApplicationCommand.Action
-        switch action {
-        case .close:
-          commandAction = .close
-        case .open:
-          commandAction = .open
-        }
-
-        command = Command.application(.init(id: resolvedCommandId,
-                                            name: title,
-                                            action: commandAction,
-                                            application: application,
-                                            modifiers: modifiers))
-      case .open(let path, let application):
-        let resolvedPath = (path as NSString).expandingTildeInPath
-        command = Command.open(.init(id: resolvedCommandId, name: "Open \(path)", application: application, path: resolvedPath))
-      case .url(let targetUrl, let application):
-        let urlString = targetUrl.absoluteString
-        command = Command.open(.init(id: resolvedCommandId, name: "Open \(urlString)", application: application, path: urlString))
+  func addOrUpdateCommand(_ payload: NewCommandPayload, workflowId: Workflow.ID,
+                          title: String, commandId: Command.ID?) async {
+    guard var workflow = groupStore.workflow(withId: workflowId) else { return }
+    let command: Command
+    let resolvedCommandId: String = commandId ?? UUID().uuidString
+    switch payload {
+    case .placeholder:
+      return
+    case .keyboardShortcut(let keyShortcuts):
+      command = .keyboard(.init(keyboardShortcuts: keyShortcuts))
+    case .script(let value, let kind, let scriptExtension):
+      let source: ScriptCommand.Source
+      switch kind {
+      case .file:
+        source = .path(value)
+      case .source:
+        source = .inline(value)
       }
 
-      workflow.updateOrAddCommand(command)
-      groupStore.receive([workflow])
-      render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
+      switch scriptExtension {
+      case .appleScript:
+        command = .script(.appleScript(id: resolvedCommandId, isEnabled: true, name: title, source: source))
+      case .shellScript:
+        command = .script(.shell(id: resolvedCommandId, isEnabled: true, name: title, source: source))
+      }
+    case .type(let text):
+      command = .type(.init(id: resolvedCommandId, name: text, input: text))
+    case .shortcut(let name):
+      command = .shortcut(.init(id: resolvedCommandId, shortcutIdentifier: name,
+                                name: name, isEnabled: true))
+    case .application(let application, let action,
+                      let inBackground, let hideWhenRunning, let ifNotRunning):
+      assert(application != nil)
+      guard let application else {
+        return
+      }
+
+      var modifiers = [ApplicationCommand.Modifier]()
+      if inBackground { modifiers.append(.background) }
+      if hideWhenRunning { modifiers.append(.hidden) }
+      if ifNotRunning { modifiers.append(.onlyIfNotRunning) }
+
+      let commandAction: ApplicationCommand.Action
+      switch action {
+      case .close:
+        commandAction = .close
+      case .open:
+        commandAction = .open
+      }
+
+      command = Command.application(.init(id: resolvedCommandId,
+                                          name: title,
+                                          action: commandAction,
+                                          application: application,
+                                          modifiers: modifiers))
+    case .open(let path, let application):
+      let resolvedPath = (path as NSString).expandingTildeInPath
+      command = Command.open(.init(id: resolvedCommandId, name: "Open \(path)", application: application, path: resolvedPath))
+    case .url(let targetUrl, let application):
+      let urlString = targetUrl.absoluteString
+      command = Command.open(.init(id: resolvedCommandId, name: "Open \(urlString)", application: application, path: urlString))
     }
+
+    workflow.updateOrAddCommand(command)
+    groupStore.receive([workflow])
+    render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
   }
 
   func handle(_ detailAction: DetailView.Action) async {
@@ -119,6 +116,7 @@ final class DetailCoordinator {
                                            keyboardCowboyEngine: keyboardCowboyEngine,
                                            workflow: &workflow)
       groupStore.receive([workflow])
+      render([workflow.id], groupIds: groupIds)
     }
   }
 

@@ -30,7 +30,7 @@ struct SingleDetailView: View {
     ScrollViewReader { proxy in
       ScrollView {
         VStack(alignment: .leading) {
-          WorkflowInfoView(workflow, onAction: { action in
+          WorkflowInfoView($workflow, onAction: { action in
             switch action {
             case .updateName(let name):
               onAction(.updateName(workflowId: workflow.id, name: name))

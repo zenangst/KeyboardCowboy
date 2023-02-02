@@ -6,11 +6,11 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
-  @State var workflow: DetailViewModel
+  @Binding var workflow: DetailViewModel
   private var onAction: (Action) -> Void
 
-  init(_ workflow: DetailViewModel, onAction: @escaping (Action) -> Void) {
-    _workflow = .init(initialValue: workflow)
+  init(_ workflow: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
+    _workflow = workflow
     self.onAction = onAction
   }
 

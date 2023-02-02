@@ -28,7 +28,7 @@ final class DetailViewActionReducer {
         case .addKeyboardShortcut:
           workflow.trigger = .keyboardShortcuts([])
         case .removeKeyboardShortcut:
-          Swift.print("Remove keyboard shortcut")
+          workflow.trigger = nil
         case .addApplication:
           workflow.trigger = .application([])
         }

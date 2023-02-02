@@ -118,7 +118,7 @@ struct KeyboardCowboy: App {
           case .detail(let detailAction):
             Task {
               await detailCoordinator.handle(detailAction)
-              contentCoordinator.handle(detailAction)
+              await contentCoordinator.handle(detailAction)
             }
           }
         }
@@ -127,8 +127,12 @@ struct KeyboardCowboy: App {
     .windowStyle(.hiddenTitleBar)
 
     NewCommandWindow(contentStore: contentStore) { workflowId, commandId, title, payload in
-      detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
-                                           title: title, commandId: commandId)
+      let groupIds = contentCoordinator.selectionPublisher.model.groupIds
+      Task {
+        await detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
+                                                   title: title, commandId: commandId)
+        await contentCoordinator.handle(.selectWorkflow(models: [workflowId], inGroups: groupIds))
+      }
     }
 
     EditWorkflowGroupWindow(contentStore)

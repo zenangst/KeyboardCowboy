@@ -34,7 +34,9 @@ struct EditWorkflowGroupWindow: Scene {
           case .add:
             groupStore.add(group)
           case .edit:
-            groupStore.updateGroups([group])
+            Task {
+              await groupStore.updateGroups([group])
+            }
           }
         }
         KeyboardCowboy.keyWindow?.close()

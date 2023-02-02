@@ -22,7 +22,7 @@ final class GroupStore: ObservableObject {
     groups.move(fromOffsets: source, toOffset: destination)
   }
 
-  func updateGroups(_ groups: [WorkflowGroup]) {
+  func updateGroups(_ groups: [WorkflowGroup]) async {
     let oldGroups = self.groups
     var newGroups = self.groups
     for group in groups {

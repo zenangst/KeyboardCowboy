@@ -31,8 +31,9 @@ final class ContentCoordinator {
 
   func subscribe(to publisher: Published<WorkflowGroupIds>.Publisher) {
     subscription = publisher
+      .debounce(for: .milliseconds(40), scheduler: RunLoop.main)
       .dropFirst()
-      .debounce(for: .milliseconds(80), scheduler: DispatchQueue.main)
+      .removeDuplicates()
       .sink { [weak self] group in
         self?.render(group.ids, setSelection: true)
       }
@@ -43,24 +44,25 @@ final class ContentCoordinator {
           let id = selectionPublisher.model.groupIds.first,
           var group = store.group(withId: id) else { return }
 
-    await ContentViewActionReducer.reduce(action,
-                                          selectionPublisher: selectionPublisher,
-                                          group: &group)
+    await ContentViewActionReducer.reduce(
+      action, selectionPublisher: selectionPublisher,
+      group: &group)
 
     switch action {
-      case .addWorkflow(let id):
-        store.updateGroups([group])
-        render([group.id], setSelection: true)
-        publisher.publish(selections: [id])
+    case .addWorkflow(let id):
+      await store.updateGroups([group])
+      render([group.id], setSelection: true)
+      publisher.publish(selections: [id])
     case .selectWorkflow(let workflowIds, _):
       Self.appStorage.workflowIds = Set(workflowIds)
+      render([group.id], setSelection: true)
     default:
-      store.updateGroups([group])
+      await store.updateGroups([group])
       render([group.id], setSelection: true)
     }
   }
 
-  func handle(_ action: DetailView.Action) {
+  func handle(_ action: DetailView.Action) async {
     switch action {
     case .singleDetailView:
       render(selectionPublisher.model.groupIds, setSelection: false)
