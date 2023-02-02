@@ -1,6 +1,7 @@
 import Combine
 import SwiftUI
 
+@MainActor
 final class ConfigurationCoordinator {
   private var subscription: AnyCancellable?
   let store: ConfigurationStore
@@ -10,17 +11,21 @@ final class ConfigurationCoordinator {
     self.store = store
     self.publisher = ConfigurationPublisher()
 
-    subscription = store.$selectedConfiguration.sink(receiveValue: { [weak self] selectedConfiguration in
-      self?.render(selectedConfiguration: selectedConfiguration)
-    })
+    Task {
+      subscription = store.$selectedConfiguration.sink(receiveValue: { [weak self] selectedConfiguration in
+        self?.render(selectedConfiguration: selectedConfiguration)
+      })
+    }
   }
 
   func handle(_ action: SidebarView.Action) {
-    switch action {
-    case .selectConfiguration(let id):
-      store.selectConfiguration(withId: id)
-    default:
-      break
+    Task {
+      switch action {
+      case .selectConfiguration(let id):
+        store.selectConfiguration(withId: id)
+      default:
+        break
+      }
     }
   }
 
@@ -38,7 +43,7 @@ final class ConfigurationCoordinator {
           return viewModel
         }
 
-      await publisher.publish(configurations, selections: selections.map(\.id))
+      publisher.publish(configurations, selections: selections.map(\.id))
     }
   }
 }

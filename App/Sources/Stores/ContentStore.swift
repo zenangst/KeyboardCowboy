@@ -23,7 +23,8 @@ final class ContentStore: ObservableObject {
   let applicationStore: ApplicationStore
 
   init(_ preferences: AppPreferences, applicationStore: ApplicationStore,
-       keyboardShortcutsCache: KeyboardShortcutsCache, scriptEngine: ScriptEngine, workspace: NSWorkspace) {
+       keyboardShortcutsCache: KeyboardShortcutsCache, scriptEngine: ScriptEngine,
+       workspace: NSWorkspace) {
     _configurationId = .init(initialValue: Self.appStorage.configId)
 
     let groupStore = GroupStore()
@@ -86,10 +87,11 @@ final class ContentStore: ObservableObject {
 
   // MARK: Private methods
 
-  private func applyConfiguration(_ newConfiguration: KeyboardCowboyConfiguration) {
+  @MainActor
+  private func applyConfiguration(_ newConfiguration: KeyboardCowboyConfiguration) async {
     let oldConfiguration = configurationStore.selectedConfiguration
     undoManager?.registerUndo(withTarget: self, handler: { contentStore in
-      contentStore.applyConfiguration(oldConfiguration)
+      Task { await contentStore.applyConfiguration(oldConfiguration) }
     })
     configurationStore.update(newConfiguration)
   }
@@ -98,17 +100,22 @@ final class ContentStore: ObservableObject {
     publisher
       .dropFirst()
       .removeDuplicates()
-      .sink { [weak self, configurationStore] groups in
-        var newConfiguration = configurationStore.selectedConfiguration
+      .sink { [weak self] groups in
+        self?.updateConfiguration(groups)
 
-        if newConfiguration.groups != groups {
-          newConfiguration.groups = groups
-          configurationStore.update(newConfiguration)
-        }
-
-        configurationStore.select(newConfiguration)
-        self?.use(newConfiguration)
     }.store(in: &subscriptions)
+  }
+
+  private func updateConfiguration(_ groups: [WorkflowGroup]) {
+    var newConfiguration = configurationStore.selectedConfiguration
+
+    if newConfiguration.groups != groups {
+      newConfiguration.groups = groups
+      configurationStore.update(newConfiguration)
+    }
+
+    configurationStore.select(newConfiguration)
+    use(newConfiguration)
   }
 
   private func generatePerformanceData() {

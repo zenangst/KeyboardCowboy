@@ -26,9 +26,6 @@ struct ContentView: View {
       List(selection: $publisher.selections) {
         ForEach(publisher.models) { workflow in
           ContentItemView(workflow: workflow)
-            .contextMenu(menuItems: {
-              contextualMenu()
-            })
             .onFrameChange(perform: { rect in
               if workflow == publisher.models.first {
                 let value = min(max(1.0 - rect.origin.y / 52.0, 0.0), 0.9)
@@ -37,6 +34,9 @@ struct ContentView: View {
             })
             .grayscale(workflow.isEnabled ? 0 : 0.5)
             .opacity(workflow.isEnabled ? 1 : 0.5)
+            .contextMenu(menuItems: {
+              contextualMenu()
+            })
             .tag(workflow.id)
             .id(workflow.id)
         }
@@ -91,7 +91,6 @@ struct ContentView: View {
       .edgesIgnoringSafeArea(.top)
   }
 
-  @ViewBuilder
   private func contextualMenu() -> some View {
     Button("Delete", action: {
       onAction(.removeWorflows(publisher.selections.map { $0 }))
