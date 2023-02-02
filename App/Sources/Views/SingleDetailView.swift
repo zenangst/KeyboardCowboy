@@ -45,7 +45,7 @@ struct SingleDetailView: View {
             .id(workflow.id)
         }
         .padding([.top, .leading, .trailing])
-        .padding(.bottom, 16)
+        .padding(.bottom, 32)
         .background(alignment: .bottom, content: {
           Canvas(rendersAsynchronously: true) { context, size in
             context.fill(
