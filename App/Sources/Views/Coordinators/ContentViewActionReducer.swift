@@ -5,8 +5,8 @@ final class ContentViewActionReducer {
                      selectionPublisher: ContentSelectionIdsPublisher,
                      group: inout WorkflowGroup) async {
     switch action {
-    case .addWorkflow:
-      let workflow = Workflow.empty()
+    case .addWorkflow(let workflowId):
+      let workflow = Workflow.empty(id: workflowId)
       group.workflows.append(workflow)
     case .removeWorflows(let ids):
       group.workflows.removeAll(where: { ids.contains($0.id) })

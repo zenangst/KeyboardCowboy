@@ -2,11 +2,11 @@ import Foundation
 import SwiftUI
 
 struct ContentView: View {
-  enum Action {
+  enum Action: Hashable {
     case selectWorkflow(models: [ContentViewModel.ID], inGroups: [WorkflowGroup.ID])
     case removeWorflows([ContentViewModel.ID])
     case moveWorkflows(source: IndexSet, destination: Int)
-    case addWorkflow
+    case addWorkflow(workflowId: Workflow.ID)
   }
 
   @EnvironmentObject private var publisher: ContentPublisher
@@ -47,7 +47,6 @@ struct ContentView: View {
       .onChange(of: publisher.selections, perform: { newValue in
         selected = newValue
         onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.model.ids))
-
         if let first = newValue.first {
           proxy.scrollTo(first, anchor: .center)
         }
@@ -56,7 +55,7 @@ struct ContentView: View {
       .toolbar {
         ToolbarItemGroup(placement: .navigation) {
           Button(action: {
-            onAction(.addWorkflow)
+            onAction(.addWorkflow(workflowId: UUID().uuidString))
           },
                  label: {
             Label(title: {

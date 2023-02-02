@@ -48,6 +48,10 @@ final class ContentCoordinator {
                                           group: &group)
 
     switch action {
+      case .addWorkflow(let id):
+        store.updateGroups([group])
+        render([group.id], setSelection: true)
+        publisher.publish(selections: [id])
     case .selectWorkflow(let workflowIds, _):
       Self.appStorage.workflowIds = Set(workflowIds)
     default:
