@@ -21,6 +21,7 @@ enum AppScene {
 
 @main
 struct KeyboardCowboy: App {
+  @FocusState var containerFocus: ContainerView.Focus?
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   /// New
@@ -100,7 +101,7 @@ struct KeyboardCowboy: App {
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
       applyEnvironmentObjects(
-        ContainerView { action in
+        ContainerView(focus: $containerFocus) { action in
           switch action {
           case .openScene(let scene):
             handleScene(scene)
@@ -114,6 +115,9 @@ struct KeyboardCowboy: App {
           case .content(let contentAction):
             Task {
               await contentCoordinator.handle(contentAction)
+              if case .addWorkflow = contentAction {
+                containerFocus = .content
+              }
             }
           case .detail(let detailAction):
             Task {

@@ -223,7 +223,6 @@ struct ContentImageView: View {
         EmptyView()
       }
     }
-
   }
 }
 

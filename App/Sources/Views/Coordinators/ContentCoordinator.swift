@@ -35,7 +35,7 @@ final class ContentCoordinator {
       .dropFirst()
       .removeDuplicates()
       .sink { [weak self] group in
-        self?.render(group.ids, setSelection: true)
+        self?.render(group.ids, calculateSelections: true)
       }
   }
 
@@ -51,21 +51,21 @@ final class ContentCoordinator {
     switch action {
     case .addWorkflow(let id):
       await store.updateGroups([group])
-      render([group.id], setSelection: true)
+      render([group.id], selectionOverrides: [id])
       publisher.publish(selections: [id])
     case .selectWorkflow(let workflowIds, _):
       Self.appStorage.workflowIds = Set(workflowIds)
-      render([group.id], setSelection: true)
+      render([group.id], calculateSelections: true)
     default:
       await store.updateGroups([group])
-      render([group.id], setSelection: true)
+      render([group.id], calculateSelections: true)
     }
   }
 
   func handle(_ action: DetailView.Action) async {
     switch action {
     case .singleDetailView:
-      render(selectionPublisher.model.groupIds, setSelection: false)
+      render(selectionPublisher.model.groupIds, calculateSelections: false)
     }
   }
 
@@ -74,11 +74,13 @@ final class ContentCoordinator {
   @objc private func injected(_ notification: Notification) {
     guard didInject(self, notification: notification) else { return }
     withAnimation(.easeInOut(duration: 0.2)) {
-      render(Array(Self.appStorage.groupIds), setSelection: true)
+      render(Array(Self.appStorage.groupIds), calculateSelections: true)
     }
   }
 
-  private func render(_ groupIds: [GroupViewModel.ID], setSelection: Bool) {
+  private func render(_ groupIds: [GroupViewModel.ID],
+                      calculateSelections: Bool = false,
+                      selectionOverrides: [Workflow.ID]? = nil) {
     Benchmark.start("ContentCoordinator.render")
     defer {
       Benchmark.finish("ContentCoordinator.render")
@@ -102,7 +104,7 @@ final class ContentCoordinator {
 
           viewModels.append(viewModel)
 
-          if setSelection &&
+          if calculateSelections &&
               !selectedWorkflowIds.isEmpty &&
               selectedWorkflowIds.contains(viewModel.id) {
             selectedWorkflowIds.remove(viewModel.id)
@@ -112,7 +114,7 @@ final class ContentCoordinator {
       }
     }
 
-    if setSelection {
+    if calculateSelections {
       if publisher.models.isEmpty {
         if newSelections.isEmpty, let first = viewModels.first {
           newSelections = [first.id]
@@ -126,6 +128,11 @@ final class ContentCoordinator {
                                                      workflowIds: newSelections) )
     }
 
-    publisher.publish(viewModels, selections: setSelection ? newSelections : nil)
+    if let selectionOverrides {
+      publisher.publish(viewModels, selections: selectionOverrides)
+    } else {
+      publisher.publish(viewModels, selections: calculateSelections ? newSelections : nil)
+    }
+
   }
 }

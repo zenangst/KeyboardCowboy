@@ -14,6 +14,6 @@ final class ViewModelPublisher<ViewModel>: ObservableObject where ViewModel: Has
   }
 
   func publish(_ newModel: ViewModel) {
-    self.model = newModel
+    self.model <- newModel
   }
 }

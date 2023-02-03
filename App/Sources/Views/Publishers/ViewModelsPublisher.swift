@@ -28,10 +28,10 @@ final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Ha
   @MainActor
   func publish(_ newModels: [ViewModel]? = nil, selections newSelections: [ViewModel.ID]? = nil) {
     if let newSelections {
-      self.selections = Set(newSelections)
+      self.selections <- Set(newSelections)
     }
     if let newModels {
-      self.models = newModels
+      self.models <- newModels
     }
   }
 }
