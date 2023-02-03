@@ -44,6 +44,10 @@ struct ContentView: View {
           onAction(.moveWorkflows(source: source, destination: destination))
         }
       }
+      .onDeleteCommand(perform: {
+        guard !publisher.selections.isEmpty else { return }
+        onAction(.removeWorflows(Array(publisher.selections)))
+      })
       .onChange(of: publisher.selections, perform: { newValue in
         selected = newValue
         onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.model.ids))
