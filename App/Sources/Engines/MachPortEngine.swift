@@ -52,12 +52,13 @@ final class MachPortEngine {
 
   internal init(store: KeyCodesStore,
                 commandEngine: CommandEngine,
+                keyboardEngine: KeyboardEngine,
                 keyboardShortcutsCache: KeyboardShortcutsCache,
                 mode: KeyboardCowboyMode) {
     self.commandEngine = commandEngine
     self.store = store
     self.keyboardShortcutsCache = keyboardShortcutsCache
-    self.keyboardEngine = .init(store: store)
+    self.keyboardEngine = keyboardEngine
     self.mode = mode
     self.specialKeys = Array(store.specialKeys().keys)
   }

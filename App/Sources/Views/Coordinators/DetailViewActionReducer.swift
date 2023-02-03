@@ -4,14 +4,14 @@ import Foundation
 final class DetailViewActionReducer {
   static func reduce(_ action: DetailView.Action,
                      keyboardCowboyEngine: KeyboardCowboyEngine,
-                     workflow: inout Workflow) async {
+                     workflow: inout Workflow) {
     switch action {
     case .singleDetailView(let action):
       switch action {
       case .updateKeyboardShortcuts(_, let keyboardShortcuts):
         workflow.trigger = .keyboardShortcuts(keyboardShortcuts)
       case .commandView(_, let action):
-        await DetailCommandActionReducer.reduce(
+        DetailCommandActionReducer.reduce(
           action,
           keyboardCowboyEngine: keyboardCowboyEngine,
           workflow: &workflow)

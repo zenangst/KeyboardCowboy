@@ -4,7 +4,7 @@ import Cocoa
 final class DetailCommandActionReducer {
   static func reduce(_ action: CommandView.Action,
                      keyboardCowboyEngine: KeyboardCowboyEngine,
-                     workflow: inout  Workflow) async {
+                     workflow: inout  Workflow) {
     guard var command: Command = workflow.commands.first(where: { $0.id == action.commandId }) else {
       fatalError("Unable to find command.")
     }
@@ -50,7 +50,7 @@ final class DetailCommandActionReducer {
           command = .application(applicationCommand)
           workflow.updateOrAddCommand(command)
         case .commandAction(let action):
-          await DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
         }
       case .keyboard(let action, _, _):
         switch action {
@@ -61,7 +61,7 @@ final class DetailCommandActionReducer {
           command.name = newName
           workflow.updateOrAddCommand(command)
         case .commandAction(let action):
-          await DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
         }
       case .open(let action, _, _):
         switch action {
@@ -71,7 +71,7 @@ final class DetailCommandActionReducer {
         case .openWith:
           break
         case .commandAction(let action):
-          await DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
         }
@@ -101,16 +101,18 @@ final class DetailCommandActionReducer {
           command.name = newName
           workflow.updateOrAddCommand(command)
         case .open(let source):
-          let path = (source as NSString).expandingTildeInPath
-          await keyboardCowboyEngine.run([
-            .open(.init(path: path))
-          ], serial: true)
+          Task {
+            let path = (source as NSString).expandingTildeInPath
+            await keyboardCowboyEngine.run([
+              .open(.init(path: path))
+            ], serial: true)
+          }
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
         case .edit:
           break
         case .commandAction(let action):
-          await DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
         }
       case .shortcut(let action, _, _):
         switch action {
@@ -120,7 +122,7 @@ final class DetailCommandActionReducer {
         case .openShortcuts:
           break
         case .commandAction(let action):
-          await DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
         }
       case .type(let action, _, _):
         switch action {
@@ -137,7 +139,7 @@ final class DetailCommandActionReducer {
           }
           workflow.updateOrAddCommand(command)
         case .commandAction(let action):
-          await DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
         }
       }
     }

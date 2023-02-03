@@ -22,14 +22,17 @@ final class ContentStore: ObservableObject {
   @Published private var configurationId: String
   let applicationStore: ApplicationStore
 
-  init(_ preferences: AppPreferences, applicationStore: ApplicationStore,
-       keyboardShortcutsCache: KeyboardShortcutsCache, scriptEngine: ScriptEngine,
+  init(_ preferences: AppPreferences,
+       applicationStore: ApplicationStore,
+       keyboardShortcutsCache: KeyboardShortcutsCache,
+       shortcutStore: ShortcutStore,
+       scriptEngine: ScriptEngine,
        workspace: NSWorkspace) {
     _configurationId = .init(initialValue: Self.appStorage.configId)
 
     let groupStore = GroupStore()
     self.applicationStore = applicationStore
-    self.shortcutStore = ShortcutStore(engine: scriptEngine)
+    self.shortcutStore = shortcutStore
     self.groupStore = groupStore
     self.configurationStore = ConfigurationStore()
     self.keyboardShortcutsCache = keyboardShortcutsCache

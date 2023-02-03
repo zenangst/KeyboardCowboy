@@ -51,9 +51,11 @@ struct KeyboardCowboy: App {
     let scriptEngine = ScriptEngine(workspace: .shared)
     let keyboardShortcutsCache = KeyboardShortcutsCache()
     let applicationStore = ApplicationStore()
+    let shortcutStore = ShortcutStore(engine: scriptEngine)
     let contentStore = ContentStore(Self.config,
                                     applicationStore: applicationStore,
                                     keyboardShortcutsCache: keyboardShortcutsCache,
+                                    shortcutStore: shortcutStore,
                                     scriptEngine: scriptEngine, workspace: .shared)
     let groupIdsPublisher = GroupIdsPublisher(.init(ids: []))
     let workflowIdsPublisher = ContentSelectionIdsPublisher(.init(groupIds: [], workflowIds: []))
@@ -61,8 +63,14 @@ struct KeyboardCowboy: App {
       contentStore.groupStore,
       applicationStore: applicationStore,
       selectionPublisher: workflowIdsPublisher)
-    let engine = KeyboardCowboyEngine(contentStore, keyboardShortcutsCache: keyboardShortcutsCache,
-                                      scriptEngine: scriptEngine, workspace: .shared)
+    let keyCodeStore = KeyCodesStore()
+    let keyboardEngine = KeyboardEngine(store: keyCodeStore)
+    let engine = KeyboardCowboyEngine(contentStore,
+                                      keyboardEngine: keyboardEngine,
+                                      keyboardShortcutsCache: keyboardShortcutsCache,
+                                      scriptEngine: scriptEngine,
+                                      shortcutStore: shortcutStore,
+                                      workspace: .shared)
 
     self.sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
                                                  applicationStore: applicationStore,
@@ -122,7 +130,7 @@ struct KeyboardCowboy: App {
           case .detail(let detailAction):
             Task {
               await detailCoordinator.handle(detailAction)
-              await contentCoordinator.handle(detailAction)
+              contentCoordinator.handle(detailAction)
             }
           }
         }

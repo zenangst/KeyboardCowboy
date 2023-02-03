@@ -1,7 +1,7 @@
 import Foundation
 
 final class DetailCommandContainerActionReducer {
-  static func reduce(_ action: CommandContainerAction, command: Command, workflow: inout Workflow) async {
+  static func reduce(_ action: CommandContainerAction, command: Command, workflow: inout Workflow) {
     switch action {
     case .run:
       break

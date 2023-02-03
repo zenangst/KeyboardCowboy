@@ -11,12 +11,10 @@ final class TypeEngine {
   }
 
   private let keyboardEngine: KeyboardEngine
-  private let store: KeyCodesStore
   private var naturalTyping: NaturalTyping = .fast
 
-  internal init(keyboardEngine: KeyboardEngine, store: KeyCodesStore) {
+  internal init(keyboardEngine: KeyboardEngine) {
     self.keyboardEngine = keyboardEngine
-    self.store = store
   }
 
   func run(_ command: TypeCommand) async throws {
@@ -32,7 +30,7 @@ final class TypeEngine {
       let string = String(character)
       let charSet = CharacterSet(charactersIn: string)
 
-      guard let virtualKey = store.virtualKey(for: string) else { continue }
+      guard let virtualKey = keyboardEngine.virtualKey(for: string) else { continue }
 
       var modifiers = [ModifierKey]()
       let key: String

@@ -1,6 +1,7 @@
 import Foundation
 import MachPort
 import CoreGraphics
+import KeyCodes
 
 final class KeyboardEngine {
   enum KeyboardEngineError: Error {
@@ -11,11 +12,14 @@ final class KeyboardEngine {
   }
 
   var machPort: MachPortEventController?
-
-  private let store: KeyCodesStore
+  let store: KeyCodesStore
 
   internal init(store: KeyCodesStore) {
     self.store = store
+  }
+
+  func virtualKey(for string: String) -> VirtualKey? {
+    store.virtualKey(for: string)
   }
 
   func run(_ command: KeyboardCommand,

@@ -17,17 +17,22 @@ final class KeyboardCowboyEngine {
   private let applicationTriggerController: ApplicationTriggerController
   private var machPortController: MachPortEventController?
 
-  init(_ contentStore: ContentStore, keyboardShortcutsCache: KeyboardShortcutsCache,
-       scriptEngine: ScriptEngine, workspace: NSWorkspace = .shared) {
-    let keyCodeStore = KeyCodesStore()
-    let commandEngine = CommandEngine(workspace,
-                                      scriptEngine: scriptEngine,
-                                      keyCodeStore: keyCodeStore)
+  init(_ contentStore: ContentStore,
+       keyboardEngine: KeyboardEngine,
+       keyboardShortcutsCache: KeyboardShortcutsCache,
+       scriptEngine: ScriptEngine,
+       shortcutStore: ShortcutStore,
+       workspace: NSWorkspace = .shared) {
+    
+    let commandEngine = CommandEngine(workspace, scriptEngine: scriptEngine, keyboardEngine: keyboardEngine)
     self.contentStore = contentStore
     self.commandEngine = commandEngine
-    self.machPortEngine = MachPortEngine(store: keyCodeStore, commandEngine: commandEngine,
-                                         keyboardShortcutsCache: keyboardShortcutsCache, mode: .intercept)
-    self.shortcutStore = ShortcutStore(engine: scriptEngine)
+    self.machPortEngine = MachPortEngine(store: keyboardEngine.store,
+                                         commandEngine: commandEngine,
+                                         keyboardEngine: keyboardEngine,
+                                         keyboardShortcutsCache: keyboardShortcutsCache,
+                                         mode: .intercept)
+    self.shortcutStore = shortcutStore
     self.applicationTriggerController = ApplicationTriggerController(commandEngine)
 
     subscribe(to: workspace)
