@@ -19,6 +19,7 @@ struct SingleDetailView: View {
   @Environment(\.controlActiveState) var controlActiveState
   @Environment(\.openWindow) var openWindow
   @Binding private var workflow: DetailViewModel
+  @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
   init(_ workflow: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
@@ -28,7 +29,6 @@ struct SingleDetailView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
-      ScrollView {
         VStack(alignment: .leading) {
           WorkflowInfoView($workflow, onAction: { action in
             switch action {
@@ -61,21 +61,78 @@ struct SingleDetailView: View {
               path.addLine(to: CGPoint(x: size.width / 2, y: size.height - 12))
             }, with: .color(Color(.textBackgroundColor)))
           }
+          .shadow(radius: 2, y: 2)
         })
 
+      HStack {
+        Label("Commands", image: "")
+        Spacer()
+        Group {
+          Menu(content: {
+            ForEach(DetailViewModel.Flow.allCases) {
+              Button($0.rawValue, action: {})
+            }
+          }, label: {
+            Text("Run \(workflow.flow.rawValue)")
+          }, primaryAction: {
+          })
+          .fixedSize()
+        }
+        .opacity(workflow.commands.isEmpty ? 0 : 1)
+        Button(action: {
+          openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflow.id))
+        }) {
+          HStack(spacing: 4) {
+            Image(systemName: "plus")
+          }
+        }
+        .padding(.horizontal, 4)
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+      }
+      .padding(.horizontal)
+      .padding(.top, -6)
+
+      ScrollView {
         WorkflowCommandListView(
           $workflow,
           scrollViewProxy: proxy,
-          onNewCommand: {
-            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflow.id))
-          },
           onAction: { action in
             onAction(action)
           })
+        .onFrameChange(space: .named("WorkflowCommandListView"), perform: { rect in
+          if rect.origin.y < 0 {
+            overlayOpacity <- 1
+          } else {
+            overlayOpacity <- 0
+          }
+        })
       }
-      .labelStyle(HeaderLabelStyle())
+      .overlay(alignment: .top, content: { overlayView() })
+      .coordinateSpace(name: "WorkflowCommandListView")
+      .zIndex(2)
     }
+    .labelStyle(HeaderLabelStyle())
     .enableInjection()
+  }
+
+  private func overlayView() -> some View {
+    VStack(spacing: 0) {
+      LinearGradient(stops: [
+        Gradient.Stop.init(color: .clear, location: 0),
+        Gradient.Stop.init(color: .black.opacity(0.5), location: 0.1),
+        Gradient.Stop.init(color: .black, location: 0.5),
+        Gradient.Stop.init(color: .black.opacity(0.5), location: 0.9),
+        Gradient.Stop.init(color: .clear, location: 1),
+      ],
+                     startPoint: .leading,
+                     endPoint: .trailing)
+      .frame(height: 1)
+    }
+      .opacity(overlayOpacity)
+      .allowsHitTesting(false)
+      .shadow(color: Color(.black).opacity(0.75), radius: 2, x: 0, y: 2)
+      .animation(.default, value: overlayOpacity)
+      .edgesIgnoringSafeArea(.top)
   }
 }
 

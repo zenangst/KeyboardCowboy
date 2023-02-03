@@ -54,9 +54,8 @@ struct EditableKeyboardShortcutsView: View {
   private func content(_ proxy: ScrollViewProxy) -> some View {
     EditableStack(
       $keyboardShortcuts,
-      axes: .horizontal,
+      configuration: .init(axes: .horizontal, selectedColor: $selectedColor),
       scrollProxy: proxy,
-      selectedColor: $selectedColor,
       onClick: { id, index in
         if replacing == id {
           record()
@@ -73,7 +72,7 @@ struct EditableKeyboardShortcutsView: View {
           keyboardShortcuts.remove(atOffsets: offsets)
         }
       },
-      content: { keyboardShortcut in
+      content: { keyboardShortcut, _ in
         HStack(spacing: 6) {
           ForEach(keyboardShortcut.wrappedValue.modifiers) { modifier in
             ModifierKeyIcon(

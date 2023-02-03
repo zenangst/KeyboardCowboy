@@ -8,6 +8,26 @@ struct EditableDragInfo: Equatable {
   let dragIndex: Int?
 }
 
+struct EditableStackConfiguration {
+  let axes: Axis.Set
+  let cornerRadius: Double
+  let lazy: Bool
+  let selectedColor: Binding<Color>
+  let spacing: CGFloat?
+
+  internal init(axes: Axis.Set = .vertical,
+                cornerRadius: Double = 8,
+                lazy: Bool = false,
+                selectedColor: Binding<Color> = .constant(Color(.controlAccentColor)),
+                spacing: CGFloat? = nil) {
+    self.axes = axes
+    self.cornerRadius = cornerRadius
+    self.lazy = lazy
+    self.selectedColor = selectedColor
+    self.spacing = spacing
+  }
+}
+
 struct EditableStack<Data, Content>: View where Content: View,
                                                 Data: RandomAccessCollection,
                                                 Data: MutableCollection,
@@ -32,11 +52,9 @@ struct EditableStack<Data, Content>: View where Content: View,
   @State private var move: EditableMoveInstruction?
 
   private let id: KeyPath<Data.Element, Data.Element.ID>
-  private let content: (Binding<Data.Element>) -> Content
-  private let cornerRadius: Double
-  private let spacing: CGFloat?
-  private let axes: Axis.Set
-  private let lazy: Bool
+  @ViewBuilder
+  private let content: (Binding<Data.Element>, Int) -> Content
+  private let configuration: EditableStackConfiguration
   private let elementCount: Int
   private let scrollProxy: ScrollViewProxy?
   private let onClick: (Data.Element.ID, Int) -> Void
@@ -45,26 +63,19 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let onDelete: ((_ indexSet: IndexSet) -> Void)?
 
   init(_ data: Binding<Data>,
-       axes: Axis.Set = .vertical,
-       lazy: Bool = false,
+       configuration: EditableStackConfiguration,
        scrollProxy: ScrollViewProxy? = nil,
-       spacing: CGFloat? = nil,
-       selectedColor: Binding<Color> = .constant(Color.accentColor),
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
-       cornerRadius: Double = 8,
        onClick: @escaping (Data.Element.ID, Int) -> Void = { _ , _ in },
        onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)? = nil,
        onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
-       content: @escaping (Binding<Data.Element>) -> Content) {
+       @ViewBuilder content: @escaping (Binding<Data.Element>, Int) -> Content) {
     _data = data
-    _selectedColor = selectedColor
+    _selectedColor = configuration.selectedColor
     self.id = id
-    self.axes = axes
+    self.configuration = configuration
     self.content = content
-    self.cornerRadius = cornerRadius
-    self.lazy = lazy
-    self.spacing = spacing
     self.scrollProxy = scrollProxy
     self.elementCount = data.count
     self.onClick = onClick
@@ -76,7 +87,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   var body: some View {
     axesView($data) { element, index in
       interactiveView(element, index: index) { element in
-        content(element)
+        content(element, index)
       }
     }
     .enableInjection()
@@ -85,45 +96,49 @@ struct EditableStack<Data, Content>: View where Content: View,
   @ViewBuilder
   private func axesView<Content: View>(_ data: Binding<Data>,
                                        content: @escaping (Binding<Data.Element>, Int) -> Content) -> some View {
-    AxesView(axes, lazy: lazy, spacing: spacing) {
-      ForEach(data, id: id) { element in
-        let index = data.wrappedValue.firstIndex(of: element.wrappedValue) ?? -1
-        content(element, index)
-          .onDrag({
-            let from: [Int]
-            if !selections.contains(element.id) {
-              selections = []
-              from = [index]
-            } else if !selections.isEmpty {
-              from = data.indices.filter({ selections.contains(data[$0].id) })
-            } else {
-              from = [index]
-            }
+    AxesView(configuration.axes,
+             lazy: configuration.lazy,
+             spacing: configuration.spacing) {
+      Section(content: {
+        ForEach(data, id: id) { element in
+          let offset = data.wrappedValue.firstIndex(of: element.wrappedValue) ?? -1
+          content(element, offset)
+            .onDrag({
+              let from: [Int]
+              if !selections.contains(element.id) {
+                selections = []
+                from = [offset]
+              } else if !selections.isEmpty {
+                from = data.indices.filter({ selections.contains(data[$0].id) })
+              } else {
+                from = [offset]
+              }
 
-            dragInfo = .init(indexes: from, dragIndex: index)
+              dragInfo = .init(indexes: from, dragIndex: offset)
 
-            return .init(object: "Hello world" as NSString)
-          }, preview: {
-            dragPreview(element)
-          })
-          .onDrop(of: [UTType.text],
-                  delegate: EditableRelocateDelegate(dropIndex: index, dragInfo: $dragInfo,
-                                                     move: $move, onMove: onMove))
-          .focused($focus, equals: .focused(element.wrappedValue.id))
-          .id(element.id)
-      }
-      .onDeleteCommand {
-        guard let onDelete else { return }
-        if !selections.isEmpty {
-          let indexes = selections.compactMap { selection in
-            data.firstIndex(where: { $0.id == selection } )
-          }
-          onDelete(IndexSet(indexes))
-        } else if case .focused(let id) = focus,
-                  let index = data.firstIndex(where: { $0.id == id }) {
-          onDelete(IndexSet(integer: index))
+              return .init(object: "Hello world" as NSString)
+            }, preview: {
+              dragPreview(element, offset: offset)
+            })
+            .onDrop(of: [UTType.text],
+                    delegate: EditableRelocateDelegate(dropIndex: offset, dragInfo: $dragInfo,
+                                                       move: $move, onMove: onMove))
+            .focused($focus, equals: .focused(element.wrappedValue.id))
+            .id(element.id)
         }
-      }
+        .onDeleteCommand {
+          guard let onDelete else { return }
+          if !selections.isEmpty {
+            let indexes = selections.compactMap { selection in
+              data.firstIndex(where: { $0.id == selection } )
+            }
+            onDelete(IndexSet(indexes))
+          } else if case .focused(let id) = focus,
+                    let index = data.firstIndex(where: { $0.id == id }) {
+            onDelete(IndexSet(integer: index))
+          }
+        }
+      })
     }
   }
 
@@ -137,7 +152,7 @@ struct EditableStack<Data, Content>: View where Content: View,
       selectedColor: $selectedColor,
       content: { element, _ in content(element) },
       overlay: { element, _ in
-        RoundedRectangle(cornerRadius: cornerRadius)
+        RoundedRectangle(cornerRadius: configuration.cornerRadius)
           .fill(selectedColor)
           .opacity(selections.contains(element.id) ? 0.2 : 0.0)
           .allowsHitTesting(false)
@@ -157,10 +172,10 @@ struct EditableStack<Data, Content>: View where Content: View,
                                     currentIndex: Int,
                                     elementCount: Int) -> some View {
     if let move {
-      RoundedRectangle(cornerRadius: cornerRadius)
+      RoundedRectangle(cornerRadius: configuration.cornerRadius)
         .fill(selectedColor)
-        .frame(maxWidth: axes == .horizontal ? 2.0 : nil,
-               maxHeight: axes == .vertical ? 2.0 : nil)
+        .frame(maxWidth: configuration.axes == .horizontal ? 2.0 : nil,
+               maxHeight: configuration.axes == .vertical ? 2.0 : nil)
         .opacity(
           (move.to == currentIndex || move.to == currentIndex + 1
            && currentIndex == elementCount - 1) &&
@@ -175,7 +190,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   private func overlayAlignment(currentIndex: Int) -> Alignment {
     guard let move else { return .top }
     let newIndex = move.to
-    switch axes {
+    switch configuration.axes {
     case .horizontal:
       return currentIndex >= newIndex ? .leading : .trailing
     default:
@@ -184,11 +199,11 @@ struct EditableStack<Data, Content>: View where Content: View,
   }
 
   @ViewBuilder
-  private func dragPreview(_ element: Binding<Data.Element>) -> some View {
+  private func dragPreview(_ element: Binding<Data.Element>, offset: Int) -> some View {
     if selections.isEmpty {
-      content(element)
+      content(element, offset)
     } else {
-      content(element)
+      content(element, offset)
         .overlay(alignment: .bottomTrailing, content: {
           Text("\(selections.count)")
             .font(.callout)

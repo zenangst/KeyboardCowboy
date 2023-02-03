@@ -37,10 +37,12 @@ struct WorkflowApplicationTriggerView: View {
       }
       .padding(.horizontal, 4)
 
-      EditableStack($triggers, lazy: true, spacing: 2, onMove: { from, to in
+      EditableStack($triggers,
+                    configuration: .init(lazy: true, spacing: 2),
+                    onMove: { from, to in
         triggers.move(fromOffsets: from, toOffset: to)
         onAction(.updateApplicationTriggers(triggers))
-      }, onDelete: { triggers.remove(atOffsets: $0) }) { trigger in
+      }, onDelete: { triggers.remove(atOffsets: $0) }) { trigger, _ in
         HStack(spacing: 0) {
           Image(nsImage: NSWorkspace.shared.icon(forFile: trigger.wrappedValue.application.path))
             .resizable()

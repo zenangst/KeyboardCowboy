@@ -8,7 +8,8 @@ struct AxesView<Content>: View where Content: View {
   @ViewBuilder
   private let content: () -> Content
 
-  internal init(_ axes: Axis.Set, lazy: Bool,
+  internal init(_ axes: Axis.Set,
+                lazy: Bool,
                 spacing: CGFloat? = nil,
                 @ViewBuilder content: @escaping () -> Content) {
     self.axes = axes
