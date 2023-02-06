@@ -24,7 +24,6 @@ struct KeyboardCowboy: App {
   @FocusState var containerFocus: ContainerView.Focus?
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-  /// New
   private let sidebarCoordinator: SidebarCoordinator
   private let configurationCoordinator: ConfigurationCoordinator
   private let contentCoordinator: ContentCoordinator
@@ -34,13 +33,13 @@ struct KeyboardCowboy: App {
   private let groupStore: GroupStore
   private let scriptEngine: ScriptEngine
   private let engine: KeyboardCowboyEngine
-  #if DEBUG
+#if DEBUG
   static let config: AppPreferences = .designTime()
   static let env: AppEnvironment = .development
-  #else
+#else
   static let config: AppPreferences = .user()
   static let env: AppEnvironment = .production
-  #endif
+#endif
 
   private var open: Bool = true
 
@@ -158,6 +157,7 @@ struct KeyboardCowboy: App {
     switch scene {
     case .mainWindow:
       openWindow(id: KeyboardCowboy.mainWindowIdentifier)
+      KeyboardCowboy.activate()
     case .addGroup:
       openWindow(value: EditWorkflowGroupWindow.Context.add(WorkflowGroup.empty()))
     case .editGroup(let groupId):
@@ -171,15 +171,15 @@ struct KeyboardCowboy: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-      switch KeyboardCowboy.env {
-      case .development:
-        guard !isRunningPreview else { return }
-        KeyboardCowboy.activate()
-      case .production:
-        KeyboardCowboy.mainWindow?.close()
-      }
+  func applicationDidFinishLaunching(_ aNotification: Notification) {
+    switch KeyboardCowboy.env {
+    case .development:
+      guard !isRunningPreview else { return }
+      KeyboardCowboy.activate()
+    case .production:
+      KeyboardCowboy.mainWindow?.close()
     }
+  }
 }
 
 private extension KeyboardCowboy {
