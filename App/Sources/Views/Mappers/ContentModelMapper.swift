@@ -81,10 +81,8 @@ private extension Array where Element == Command {
         }
       case .open(let command):
         let path: String
-        if let application = command.application, command.isUrl {
-          path = application.path
-        } else if command.isUrl {
-          path = "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
+        if command.isUrl {
+          path = "/System/Library/SyncServices/Schemas/Bookmarks.syncschema/Contents/Resources/com.apple.Bookmarks.icns"
         } else {
           path = command.path
         }
@@ -96,19 +94,27 @@ private extension Array where Element == Command {
             kind: .icon(path: path))
         )
       case .script(let script):
+        let scriptExtension: ScriptCommand.Kind
+        switch script {
+        case .appleScript:
+          scriptExtension = .appleScript
+        case .shell:
+          scriptExtension = .shellScript
+        }
+
         switch script.sourceType {
         case .inline(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
                               kind: .command(.script(.inline(id: script.id,
-                                                             source: source, scriptExtension: .appleScript)))))
-
+                                                             source: source,
+                                                             scriptExtension: scriptExtension)))))
         case .path(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
                               kind: .command(.script(.path(id: script.id,
                                                            source: source,
-                                                           scriptExtension: .appleScript)))))
+                                                           scriptExtension: scriptExtension)))))
         }
       case .shortcut(let shortcut):
         images.append(.init(id: shortcut.id, offset: convertedOffset, kind: .command(.shortcut)))

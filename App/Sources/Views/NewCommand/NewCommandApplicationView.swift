@@ -52,7 +52,7 @@ struct NewCommandApplicationView: View {
         .padding(4)
         .background(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.windowBackgroundColor), lineWidth: 1)
+            .stroke(Color(.windowBackgroundColor), lineWidth: 2)
             .frame(height: 40)
         )
         .frame(maxWidth: 80)
@@ -86,7 +86,7 @@ struct NewCommandApplicationView: View {
         .padding(4)
         .background(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.windowBackgroundColor), lineWidth: 1)
+            .stroke(Color(.windowBackgroundColor), lineWidth: 2)
             .frame(height: 40)
         )
       }

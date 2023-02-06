@@ -68,8 +68,17 @@ final class DetailCommandActionReducer {
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
-        case .openWith:
-          break
+        case .openWith(let application):
+          if case .open(let oldCommand) = command {
+            let newCommand = OpenCommand(
+              id: oldCommand.id,
+              name: oldCommand.name,
+              application: application,
+              path: oldCommand.path
+            )
+            command = .open(newCommand)
+            workflow.updateOrAddCommand(command)
+          }
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
         case .reveal(let path):

@@ -120,10 +120,8 @@ private extension Command {
       return nil
     case .open(let command):
       let path: String
-      if let application = command.application, command.isUrl {
-        path = application.path
-      } else if command.isUrl {
-        path = "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
+      if command.isUrl {
+        path = "/System/Library/SyncServices/Schemas/Bookmarks.syncschema/Contents/Resources/com.apple.Bookmarks.icns"
       } else {
         path = command.path
       }

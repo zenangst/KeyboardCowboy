@@ -73,7 +73,7 @@ struct NewCommandScriptView: View {
         .padding(4)
         .background(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.windowBackgroundColor), lineWidth: 1)
+            .stroke(Color(.windowBackgroundColor), lineWidth: 2)
             .frame(height: 40)
         )
 
@@ -94,7 +94,7 @@ struct NewCommandScriptView: View {
         .padding(4)
         .background(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.windowBackgroundColor), lineWidth: 1)
+            .stroke(Color(.windowBackgroundColor), lineWidth: 2)
             .frame(height: 40)
         )
       }
@@ -174,6 +174,11 @@ struct NewCommandFileSelectorView: View {
         }))
       })
       .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+    }
+    .padding()
+    .background {
+      RoundedRectangle(cornerRadius: 4)
+        .stroke(Color(.windowBackgroundColor), lineWidth: 2)
     }
   }
 }

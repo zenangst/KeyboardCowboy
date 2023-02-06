@@ -25,8 +25,14 @@ struct OpenCommandView: View {
     CommandContainerView($command, icon: {
       ZStack(alignment: .bottomTrailing) {
         if let iconPath = command.iconPath {
-          Image(nsImage: NSWorkspace.shared.icon(forFile: iconPath))
-            .resizable()
+          if iconPath.hasSuffix("icns") {
+            Image(nsImage: NSImage(byReferencing: URL(filePath: iconPath)))
+              .resizable()
+          } else {
+            Image(nsImage: NSWorkspace.shared.icon(forFile: iconPath))
+              .resizable()
+          }
+
 
           if case .open(_, let appPath, _) = command.kind,
              let appPath {
