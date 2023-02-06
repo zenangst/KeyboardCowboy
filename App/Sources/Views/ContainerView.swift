@@ -33,21 +33,6 @@ struct ContainerView: View {
       sidebar: {
         SidebarView { onAction(.sidebar($0)) }
           .focused(focus, equals: .sidebar)
-          .toolbar {
-            ToolbarItemGroup {
-              Spacer()
-              Button(action: { onAction(.openScene(.addGroup)) },
-                     label: {
-                Label(title: {
-                  Text("Add group")
-                }, icon: {
-                  Image(systemName: "folder.badge.plus")
-                    .renderingMode(.template)
-                    .foregroundColor(Color(.systemGray))
-                })
-              })
-            }
-          }
       },
       content: {
         ContentView(onAction: { action in

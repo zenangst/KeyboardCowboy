@@ -1,4 +1,5 @@
 import SwiftUI
+import Inject
 
 struct SidebarView: View {
   enum Confirm {
@@ -22,6 +23,9 @@ struct SidebarView: View {
     case moveGroups(source: IndexSet, destination: Int)
     case removeGroups([GroupViewModel.ID])
   }
+
+  @ObserveInjection var inject
+
   @EnvironmentObject private var groupIds: GroupIdsPublisher
   @EnvironmentObject private var groupStore: GroupStore
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
@@ -36,7 +40,7 @@ struct SidebarView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
-      VStack(alignment: .leading) {
+      VStack(alignment: .leading, spacing: 0) {
         VStack(alignment: .leading) {
           Label("Configuration", image: "")
           SidebarConfigurationView { action in
@@ -45,10 +49,15 @@ struct SidebarView: View {
               onAction(.selectConfiguration(id))
             }
           }
-          .padding([.leading, .trailing], -4)
-          Label("Groups", image: "")
         }
-        .padding([.leading, .trailing])
+        .padding(.horizontal, 12)
+        .padding(.top)
+
+
+        Label("Groups", image: "")
+          .padding(.horizontal, 12)
+          .padding(.top)
+          .padding(.bottom, 4)
 
         List(selection: $groupsPublisher.selections) {
           ForEach(groupsPublisher.models) { group in
@@ -60,8 +69,8 @@ struct SidebarView: View {
                 HStack {
                   Button(action: { confirmDelete = nil },
                          label: { Image(systemName: "x.circle") })
-                    .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
-                    .keyboardShortcut(.escape)
+                  .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
+                  .keyboardShortcut(.escape)
                   Text("Are you sure?")
                     .font(.footnote)
                   Spacer()
@@ -69,7 +78,7 @@ struct SidebarView: View {
                     confirmDelete = nil
                     onAction(.removeGroups(Array(groupsPublisher.selections)))
                   }, label: { Image(systemName: "trash") })
-                    .buttonStyle(.destructiveStyle)
+                  .buttonStyle(.destructiveStyle)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(4)
@@ -99,9 +108,33 @@ struct SidebarView: View {
             proxy.scrollTo(first, anchor: .center)
           }
         }
+
+        AddButtonView {
+          onAction(.openScene(.addGroup))
+        }
+        .padding(8)
+        .overlay(alignment: .top, content: { overlayView() })
       }
     }
     .labelStyle(SidebarLabelStyle())
+    .enableInjection()
+  }
+
+  private func overlayView() -> some View {
+    VStack(spacing: 0) {
+      LinearGradient(stops: [
+        Gradient.Stop.init(color: .clear, location: 0),
+        Gradient.Stop.init(color: .black.opacity(0.25), location: 0.25),
+        Gradient.Stop.init(color: .black.opacity(0.75), location: 0.5),
+        Gradient.Stop.init(color: .black.opacity(0.25), location: 0.75),
+        Gradient.Stop.init(color: .clear, location: 1),
+      ],
+                     startPoint: .leading,
+                     endPoint: .trailing)
+      .frame(height: 1)
+    }
+      .allowsHitTesting(false)
+      .shadow(color: Color(.black).opacity(0.25), radius: 2, x: 0, y: -2)
   }
 
   @ViewBuilder
@@ -119,5 +152,47 @@ struct SidebarView_Previews: PreviewProvider {
   static var previews: some View {
     SidebarView { _ in }
       .designTime()
+  }
+}
+
+struct AddButtonView: View {
+  @State private var isHovered = false
+
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 2) {
+        Image(systemName: "plus.circle")
+          .padding(2)
+          .background(
+            ZStack {
+              RoundedRectangle(cornerRadius: 16)
+                .fill(
+                  LinearGradient(stops: [
+                    .init(color: Color(.systemGreen), location: 0.0),
+                    .init(color: Color(.systemGreen.blended(withFraction: 0.5, of: .black)!), location: 1.0),
+                  ], startPoint: .top, endPoint: .bottom)
+                )
+                .opacity(isHovered ? 1.0 : 0.3)
+              RoundedRectangle(cornerRadius: 16)
+                .stroke(Color(.systemGreen))
+                .opacity(isHovered ? 0.4 : 0.1)
+            }
+          )
+          .grayscale(isHovered ? 0 : 1)
+          .foregroundColor(
+            Color(.labelColor)
+          )
+            .animation(.easeOut(duration: 0.2), value: isHovered)
+        Text("Add Group")
+          .font(.caption)
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .buttonStyle(.plain)
+    .onHover(perform: { value in
+      self.isHovered = value
+    })
   }
 }

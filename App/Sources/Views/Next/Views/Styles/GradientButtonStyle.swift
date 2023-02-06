@@ -2,12 +2,14 @@ import SwiftUI
 
 struct GradientButtonStyle: ButtonStyle {
   struct GradientConfiguration {
+    let cornerRadius: CGFloat
     let nsColor: NSColor
     let padding: Double
     let grayscaleEffect: Bool
 
-    internal init(nsColor: NSColor, padding: Double = 4, grayscaleEffect: Bool = false) {
+    internal init(nsColor: NSColor, cornerRadius: CGFloat = 4, padding: Double = 4, grayscaleEffect: Bool = false) {
       self.nsColor = nsColor
+      self.cornerRadius = cornerRadius
       self.padding = padding
       self.grayscaleEffect = grayscaleEffect
     }
@@ -27,7 +29,7 @@ struct GradientButtonStyle: ButtonStyle {
       .padding(config.padding)
       .background(
         ZStack {
-          RoundedRectangle(cornerRadius: 4)
+          RoundedRectangle(cornerRadius: config.cornerRadius)
             .fill(
               LinearGradient(stops: [
                 .init(color: Color(config.nsColor), location: 0.0),
@@ -35,7 +37,7 @@ struct GradientButtonStyle: ButtonStyle {
               ], startPoint: .top, endPoint: .bottom)
             )
             .opacity(isHovered ? 1.0 : 0.3)
-          RoundedRectangle(cornerRadius: 4)
+          RoundedRectangle(cornerRadius: config.cornerRadius)
             .stroke(Color(config.nsColor))
             .opacity(isHovered ? 0.4 : 0.1)
         }

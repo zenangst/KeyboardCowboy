@@ -18,14 +18,14 @@ final class GroupStore: ObservableObject {
   func add(_ group: WorkflowGroup) {
     var newGroups = groups
     newGroups.append(group)
-    updateGroups(newGroups)
+    commitGroups(newGroups)
   }
 
   @MainActor
   func move(source: IndexSet, destination: Int) {
     var newGroups = groups
     newGroups.move(fromOffsets: source, toOffset: destination)
-    updateGroups(newGroups)
+    commitGroups(newGroups)
   }
 
   @MainActor
