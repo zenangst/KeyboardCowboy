@@ -1,93 +1,86 @@
 import SwiftUI
 
-@MainActor
 final class GroupStore: ObservableObject {
   private static var appStorage: AppStorageStore = .init()
+  @MainActor
   @Published var groups = [WorkflowGroup]()
 
   init(_ groups: [WorkflowGroup] = []) {
     _groups = .init(initialValue: groups)
   }
 
+  @MainActor
   func group(withId id: String) -> WorkflowGroup? {
     groups.first { $0.id == id }
   }
 
+  @MainActor
   func add(_ group: WorkflowGroup) {
-    var modifiedGroups = self.groups
-    modifiedGroups.append(group)
-    groups = modifiedGroups
+    var newGroups = groups
+    newGroups.append(group)
+    updateGroups(newGroups)
   }
 
+  @MainActor
   func move(source: IndexSet, destination: Int) {
-    groups.move(fromOffsets: source, toOffset: destination)
+    var newGroups = groups
+    newGroups.move(fromOffsets: source, toOffset: destination)
+    updateGroups(newGroups)
   }
 
-  func updateGroups(_ groups: [WorkflowGroup]) async {
+  @MainActor
+  func updateGroups(_ groups: [WorkflowGroup]) {
     let oldGroups = self.groups
-    var newGroups = self.groups
+    var newGroups = oldGroups
     for group in groups {
       guard let index = oldGroups.firstIndex(where: { $0.id == group.id }) else { return }
       newGroups[index] = group
     }
-    self.groups = newGroups
+    commitGroups(newGroups)
   }
 
-  @MainActor @discardableResult
-  func receive(_ newWorkflows: [Workflow]) -> [WorkflowGroup] {
-    let newGroups = updateOrAddWorkflows(with: newWorkflows)
-    groups = newGroups
-    return newGroups
-  }
-
-  func remove(_ groups: [WorkflowGroup]) {
-    for group in groups {
-      remove(group)
-    }
-  }
-
+  @MainActor
   func removeGroups(with ids: [WorkflowGroup.ID]) {
-    groups.removeAll(where: { ids.contains($0.id) })
+    var newGroups = groups
+    newGroups.removeAll(where: { ids.contains($0.id) })
+    updateGroups(newGroups)
   }
 
-  func remove(_ group: WorkflowGroup) {
-    groups.removeAll(where: { $0.id == group.id })
-  }
-
+  @MainActor
   func workflow(withId id: Workflow.ID) -> Workflow? {
     groups
       .flatMap(\.workflows)
       .first(where: { $0.id == id })
   }
 
+  @MainActor
   func command(withId id: Command.ID, workflowId: Workflow.ID) -> Command? {
     workflow(withId: workflowId)?
       .commands
       .first(where: { $0.id == id })
   }
 
-  func remove(_ workflow: Workflow) {
-    guard let groupIndex = groups.firstIndex(where: {
-      let ids = $0.workflows.compactMap({ $0.id })
-      return ids.contains(workflow.id)
-    }) else {
-      return
-    }
-
-    var modifiedGroups = groups
-    modifiedGroups[groupIndex].workflows.removeAll(where: { $0.id == workflow.id })
-    groups = modifiedGroups
+  @discardableResult
+  func commit(_ newWorkflows: [Workflow]) async -> [WorkflowGroup] {
+    let newGroups = await updateOrAddWorkflows(with: newWorkflows)
+    await commitGroups(newGroups)
+    return newGroups
   }
 
   // MARK: Private methods
 
-  private func updateOrAddWorkflows(with newWorkflows: [Workflow]) -> [WorkflowGroup] {
+  @MainActor
+  private func commitGroups(_ newGroups: [WorkflowGroup]) {
+    groups = newGroups
+  }
+
+  private func updateOrAddWorkflows(with newWorkflows: [Workflow]) async -> [WorkflowGroup] {
     // Fix bug when trying to reorder group.
-    var newGroups = groups
+    let oldGroups = await groups
+    var newGroups = oldGroups
     for newWorkflow in newWorkflows {
       guard let group = newGroups.first(where: { group in
-        let workflowIds = group.workflows.compactMap({ $0.id })
-        return workflowIds.contains(newWorkflow.id)
+        group.workflows.map(\.id).contains(newWorkflow.id)
       })
       else { continue }
 
@@ -99,7 +92,7 @@ final class GroupStore: ObservableObject {
         continue
       }
 
-      let oldWorkflow = groups[groupIndex].workflows[workflowIndex]
+      let oldWorkflow = oldGroups[groupIndex].workflows[workflowIndex]
       if oldWorkflow == newWorkflow {
         continue
       }

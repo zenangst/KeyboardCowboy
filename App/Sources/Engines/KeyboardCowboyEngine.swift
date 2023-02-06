@@ -89,6 +89,7 @@ final class KeyboardCowboyEngine {
 
   private func subscribe(to workspace: NSWorkspace) {
     workspace.publisher(for: \.frontmostApplication)
+      .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
       .compactMap { $0 }
       .sink { [weak self] application in
         self?.reload(with: application)
