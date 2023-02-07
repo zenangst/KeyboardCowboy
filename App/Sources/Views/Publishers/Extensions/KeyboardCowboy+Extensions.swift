@@ -12,7 +12,12 @@ extension KeyboardCowboy {
   }
 
   static func activate() {
+    Self.app.setActivationPolicy(.regular)
     Self.app.activate(ignoringOtherApps: true)
+  }
+
+  static func deactivate() {
+    Self.app.setActivationPolicy(.accessory)
   }
 
   // MARK: Private variables
