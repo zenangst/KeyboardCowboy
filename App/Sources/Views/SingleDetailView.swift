@@ -13,6 +13,7 @@ struct SingleDetailView: View {
     case removeTrigger(workflowId: Workflow.ID)
     case setIsEnabled(workflowId: Workflow.ID, isEnabled: Bool)
     case updateName(workflowId: Workflow.ID, name: String)
+    case dropUrls(workflowId: Workflow.ID, urls: [URL])
   }
 
   @ObserveInjection var inject

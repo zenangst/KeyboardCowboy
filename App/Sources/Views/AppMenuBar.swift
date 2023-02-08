@@ -48,6 +48,11 @@ struct AppMenuBar: Scene {
         .keyboardShortcut("q", modifiers: [.command])
     }) {
       _MenubarIcon()
+        .onAppear {
+          if KeyboardCowboy.env == .development {
+            onAction(.openMainWindow)
+          }
+        }
     }
     .onChange(of: scenePhase) { newValue in
       switch newValue {

@@ -4,10 +4,14 @@ import Foundation
 final class DetailViewActionReducer {
   static func reduce(_ action: DetailView.Action,
                      keyboardCowboyEngine: KeyboardCowboyEngine,
+                     applicationStore: ApplicationStore,
                      workflow: inout Workflow) {
     switch action {
     case .singleDetailView(let action):
       switch action {
+      case .dropUrls(_, let urls):
+        let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
+        workflow.commands.append(contentsOf: commands)
       case .updateKeyboardShortcuts(_, let keyboardShortcuts):
         workflow.trigger = .keyboardShortcuts(keyboardShortcuts)
       case .commandView(_, let action):

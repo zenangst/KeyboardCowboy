@@ -118,6 +118,7 @@ final class DetailCoordinator {
         try Task.checkCancellation()
         DetailViewActionReducer.reduce(detailAction,
                                        keyboardCowboyEngine: keyboardCowboyEngine,
+                                       applicationStore: applicationStore,
                                        workflow: &workflow)
         try Task.checkCancellation()
         await groupStore.commit([workflow])
@@ -270,6 +271,8 @@ extension CommandView.Action {
 extension SingleDetailView.Action {
   var workflowId: String {
     switch self {
+    case .dropUrls(let workflowId, _):
+      return workflowId
     case .updateKeyboardShortcuts(let workflowId, _):
       return workflowId
     case .removeTrigger(let workflowId):

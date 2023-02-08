@@ -28,14 +28,15 @@ struct EditableStackConfiguration {
   }
 }
 
-struct EditableStack<Data, Content>: View where Content: View,
-                                                Data: RandomAccessCollection,
-                                                Data: MutableCollection,
-                                                Data.Element: Identifiable,
-                                                Data.Element: Hashable,
-                                                Data.Index: Hashable,
-                                                Data.Index == Int,
-                                                Data.Element.ID: CustomStringConvertible {
+struct EditableStack<Data, Content, NoContent>: View where Content: View,
+                                                           NoContent: View,
+                                                           Data: RandomAccessCollection,
+                                                           Data: MutableCollection,
+                                                           Data.Element: Identifiable,
+                                                           Data.Element: Hashable,
+                                                           Data.Index: Hashable,
+                                                           Data.Index == Int,
+                                                           Data.Element.ID: CustomStringConvertible {
   @ObserveInjection var inject
   enum Focus: Hashable {
     case focused(Data.Element.ID)
@@ -54,6 +55,8 @@ struct EditableStack<Data, Content>: View where Content: View,
   private let id: KeyPath<Data.Element, Data.Element.ID>
   @ViewBuilder
   private let content: (Binding<Data.Element>, Int) -> Content
+  @ViewBuilder
+  private let emptyView: (() -> NoContent)?
   private let configuration: EditableStackConfiguration
   private let dropDelegates: [any EditableDropDelegate]
   private let elementCount: Int
@@ -72,28 +75,62 @@ struct EditableStack<Data, Content>: View where Content: View,
        onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)? = nil,
        onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
-       @ViewBuilder content: @escaping (Binding<Data.Element>, Int) -> Content) {
+       @ViewBuilder content: @escaping (Binding<Data.Element>, Int) -> Content) where NoContent == Never {
     _data = data
     _selectedColor = configuration.selectedColor
-    self.id = id
     self.configuration = configuration
     self.content = content
     self.dropDelegates = dropDelegates
-    self.scrollProxy = scrollProxy
     self.elementCount = data.count
+    self.emptyView = nil
+    self.id = id
     self.onClick = onClick
-    self.onMove = onMove
     self.onDelete = onDelete
+    self.onMove = onMove
     self.onSelection = onSelection
+    self.scrollProxy = scrollProxy
+  }
+
+  init(_ data: Binding<Data>,
+       configuration: EditableStackConfiguration,
+       dropDelegates: [any EditableDropDelegate] = [],
+       @ViewBuilder emptyView: @escaping () -> NoContent,
+       scrollProxy: ScrollViewProxy? = nil,
+       id: KeyPath<Data.Element, Data.Element.ID> = \.id,
+       onClick: @escaping (Data.Element.ID, Int) -> Void = { _ , _ in },
+       onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
+       onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)? = nil,
+       onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
+       @ViewBuilder content: @escaping (Binding<Data.Element>, Int) -> Content) {
+    _data = data
+    _selectedColor = configuration.selectedColor
+    self.configuration = configuration
+    self.content = content
+    self.dropDelegates = dropDelegates
+    self.elementCount = data.count
+    self.emptyView = emptyView
+    self.id = id
+    self.onClick = onClick
+    self.onDelete = onDelete
+    self.onMove = onMove
+    self.onSelection = onSelection
+    self.scrollProxy = scrollProxy
   }
 
   var body: some View {
-    axesView($data) { element, index in
-      interactiveView(element, index: index) { element in
-        content(element, index)
+    if let emptyView, data.isEmpty {
+        emptyView()
+          .onDrop(of: dropDelegates.flatMap { type(of: $0).uttypes },
+                  delegate: EditableDropDelegateManager(dropDelegates))
+        .enableInjection()
+    } else {
+      axesView($data) { element, index in
+        interactiveView(element, index: index) { element in
+          content(element, index)
+        }
       }
+      .enableInjection()
     }
-    .enableInjection()
   }
 
   @ViewBuilder
@@ -102,48 +139,46 @@ struct EditableStack<Data, Content>: View where Content: View,
     AxesView(configuration.axes,
              lazy: configuration.lazy,
              spacing: configuration.spacing) {
-      Section(content: {
-        ForEach(data, id: id) { element in
-          let offset = data.wrappedValue.firstIndex(of: element.wrappedValue) ?? -1
-          content(element, offset)
-            .onDrag({
-              let from: [Int]
-              if !selections.contains(element.id) {
-                selections = []
-                from = [offset]
-              } else if !selections.isEmpty {
-                from = data.indices.filter({ selections.contains(data[$0].id) })
-              } else {
-                from = [offset]
-              }
-
-              dragInfo = .init(indexes: from, dragIndex: offset)
-
-              return .init(object: "Hello world" as NSString)
-            }, preview: {
-              dragPreview(element, offset: offset)
-            })
-            .onDrop(of: [EditableInternalDropDelegate.uttype] + dropDelegates.map { type(of: $0).uttype },
-                    delegate: EditableDropDelegateManager([
-                      EditableInternalDropDelegate(dropIndex: offset, dragInfo: $dragInfo,
-                                                             move: $move, onMove: onMove)
-                    ] + dropDelegates))
-            .focused($focus, equals: .focused(element.wrappedValue.id))
-            .id(element.id)
-        }
-        .onDeleteCommand {
-          guard let onDelete else { return }
-          if !selections.isEmpty {
-            let indexes = selections.compactMap { selection in
-              data.firstIndex(where: { $0.id == selection } )
+      ForEach(data, id: id) { element in
+        let offset = data.wrappedValue.firstIndex(of: element.wrappedValue) ?? -1
+        content(element, offset)
+          .onDrag({
+            let from: [Int]
+            if !selections.contains(element.id) {
+              selections = []
+              from = [offset]
+            } else if !selections.isEmpty {
+              from = data.indices.filter({ selections.contains(data[$0].id) })
+            } else {
+              from = [offset]
             }
-            onDelete(IndexSet(indexes))
-          } else if case .focused(let id) = focus,
-                    let index = data.firstIndex(where: { $0.id == id }) {
-            onDelete(IndexSet(integer: index))
+
+            dragInfo = .init(indexes: from, dragIndex: offset)
+
+            return .init(object: "Hello world" as NSString)
+          }, preview: {
+            dragPreview(element, offset: offset)
+          })
+          .onDrop(of: EditableInternalDropDelegate.uttypes + dropDelegates.flatMap { type(of: $0).uttypes },
+                  delegate: EditableDropDelegateManager([
+                    EditableInternalDropDelegate(dropIndex: offset, dragInfo: $dragInfo,
+                                                 move: $move, onMove: onMove)
+                  ] + dropDelegates))
+          .focused($focus, equals: .focused(element.wrappedValue.id))
+          .id(element.id)
+      }
+      .onDeleteCommand {
+        guard let onDelete else { return }
+        if !selections.isEmpty {
+          let indexes = selections.compactMap { selection in
+            data.firstIndex(where: { $0.id == selection } )
           }
+          onDelete(IndexSet(indexes))
+        } else if case .focused(let id) = focus,
+                  let index = data.firstIndex(where: { $0.id == id }) {
+          onDelete(IndexSet(integer: index))
         }
-      })
+      }
     }
   }
 
@@ -344,13 +379,13 @@ private struct EditableDropDelegateManager: DropDelegate {
 
   private func delegate(for info: DropInfo) -> EditableDropDelegate? {
     delegates.first(where: {
-      info.hasItemsConforming(to: [type(of: $0).uttype])
+      info.hasItemsConforming(to: type(of: $0).uttypes)
     })
   }
 }
 
 protocol EditableDropDelegate: DropDelegate {
-  static var uttype: UTType { get }
+  static var uttypes: [UTType] { get }
 }
 
 private struct EditableMoveInstruction {
@@ -359,7 +394,7 @@ private struct EditableMoveInstruction {
 }
 
 private struct EditableInternalDropDelegate: EditableDropDelegate {
-  static var uttype: UTType = .text
+  static var uttypes: [UTType] = [.text]
 
   let dropIndex: Int
   let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
