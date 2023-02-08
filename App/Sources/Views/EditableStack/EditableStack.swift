@@ -55,6 +55,7 @@ struct EditableStack<Data, Content>: View where Content: View,
   @ViewBuilder
   private let content: (Binding<Data.Element>, Int) -> Content
   private let configuration: EditableStackConfiguration
+  private let dropDelegates: [any EditableDropDelegate]
   private let elementCount: Int
   private let scrollProxy: ScrollViewProxy?
   private let onClick: (Data.Element.ID, Int) -> Void
@@ -64,6 +65,7 @@ struct EditableStack<Data, Content>: View where Content: View,
 
   init(_ data: Binding<Data>,
        configuration: EditableStackConfiguration,
+       dropDelegates: [any EditableDropDelegate] = [],
        scrollProxy: ScrollViewProxy? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        onClick: @escaping (Data.Element.ID, Int) -> Void = { _ , _ in },
@@ -76,6 +78,7 @@ struct EditableStack<Data, Content>: View where Content: View,
     self.id = id
     self.configuration = configuration
     self.content = content
+    self.dropDelegates = dropDelegates
     self.scrollProxy = scrollProxy
     self.elementCount = data.count
     self.onClick = onClick
@@ -120,9 +123,11 @@ struct EditableStack<Data, Content>: View where Content: View,
             }, preview: {
               dragPreview(element, offset: offset)
             })
-            .onDrop(of: [UTType.text],
-                    delegate: EditableRelocateDelegate(dropIndex: offset, dragInfo: $dragInfo,
-                                                       move: $move, onMove: onMove))
+            .onDrop(of: [EditableInternalDropDelegate.uttype] + dropDelegates.map { type(of: $0).uttype },
+                    delegate: EditableDropDelegateManager([
+                      EditableInternalDropDelegate(dropIndex: offset, dragInfo: $dragInfo,
+                                                             move: $move, onMove: onMove)
+                    ] + dropDelegates))
             .focused($focus, equals: .focused(element.wrappedValue.id))
             .id(element.id)
         }
@@ -310,12 +315,52 @@ struct EditableStack<Data, Content>: View where Content: View,
   }
 }
 
+private struct EditableDropDelegateManager: DropDelegate {
+  let delegates: [EditableDropDelegate]
+
+  init(_ delegates: [EditableDropDelegate]) {
+    self.delegates = delegates
+  }
+
+  func dropEntered(info: DropInfo) {
+    delegate(for: info)?.dropEntered(info: info)
+  }
+
+  func dropUpdated(info: DropInfo) -> DropProposal? {
+    delegate(for: info)?.dropUpdated(info: info)
+  }
+
+  func dropExited(info: DropInfo) {
+    delegate(for: info)?.dropExited(info: info)
+  }
+
+  func performDrop(info: DropInfo) -> Bool {
+    delegate(for: info)?.performDrop(info: info) ?? false
+  }
+
+  func validateDrop(info: DropInfo) -> Bool {
+    delegate(for: info)?.validateDrop(info: info)  ?? false
+  }
+
+  private func delegate(for info: DropInfo) -> EditableDropDelegate? {
+    delegates.first(where: {
+      info.hasItemsConforming(to: [type(of: $0).uttype])
+    })
+  }
+}
+
+protocol EditableDropDelegate: DropDelegate {
+  static var uttype: UTType { get }
+}
+
 private struct EditableMoveInstruction {
   let from: IndexSet
   let to: Int
 }
 
-private struct EditableRelocateDelegate: DropDelegate {
+private struct EditableInternalDropDelegate: EditableDropDelegate {
+  static var uttype: UTType = .text
+
   let dropIndex: Int
   let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
   @Binding var dragInfo: EditableDragInfo
