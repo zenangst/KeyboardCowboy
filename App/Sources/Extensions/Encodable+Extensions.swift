@@ -1,6 +1,12 @@
 import Foundation
 
 extension Encodable {
+  func data() throws -> Data {
+    let encoder = JSONEncoder()
+    let data = try encoder.encode(self)
+    return data
+  }
+
   func asString() throws -> String  {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted

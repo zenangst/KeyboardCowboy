@@ -38,7 +38,7 @@ struct DetailViewModel: Hashable, Identifiable {
     case keyboardShortcuts([KeyShortcut])
   }
 
-  struct ApplicationTrigger: Hashable, Identifiable {
+  struct ApplicationTrigger: Codable, Hashable, Identifiable {
     public var id: String
     public var name: String
     public var application: Application
@@ -62,38 +62,14 @@ struct DetailViewModel: Hashable, Identifiable {
     }
   }
 
-  struct CommandViewModel: Hashable, Identifiable {
+  struct CommandViewModel: Codable, Hashable, Identifiable {
     let id: String
     var name: String
     var kind: Kind
     var iconPath: String?
     var isEnabled: Bool
 
-    enum Kind: Hashable, Identifiable {
-      var id: String {
-        switch self {
-        case .application:
-          return "application"
-        case .plain:
-          return "plain"
-        case .open:
-          return "open"
-        case .script(let kind):
-          switch kind {
-          case .inline:
-            return "inline"
-          case .path:
-            return "path"
-          }
-        case .keyboard:
-          return "rebinding"
-        case .shortcut:
-          return "shortcut"
-        case .type:
-          return "type"
-        }
-
-      }
+    enum Kind: Codable, Hashable, Identifiable {
       case application(action: String, inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
       case open(path: String, applicationPath: String?, appName: String?)
       case keyboard(keys: [KeyShortcut])
@@ -101,66 +77,94 @@ struct DetailViewModel: Hashable, Identifiable {
       case plain
       case shortcut
       case type(input: String)
+    }
 
-      var scriptSource: String {
-        get {
-          if case .script(let kind) = self {
-            return kind.source
-          }
-          return ""
-        }
-        set {
-          if case .script(let kind) = self {
-            switch kind {
-            case .inline(let id, _, let scriptExtension):
-              self = .script(.inline(id: id, source: newValue, scriptExtension: scriptExtension))
-            case .path(let id, _, let scriptExtension):
-              self = .script(.path(id: id, source: newValue, scriptExtension: scriptExtension))
-            }
-          }
+    enum ScriptKind: Codable, Hashable, Identifiable {
+      case inline(id: String, source: String, scriptExtension: ScriptCommand.Kind)
+      case path(id: String, source: String, scriptExtension: ScriptCommand.Kind)
+    }
+  }
+}
+
+extension DetailViewModel.CommandViewModel.Kind {
+  var id: String {
+    switch self {
+    case .application:
+      return "application"
+    case .plain:
+      return "plain"
+    case .open:
+      return "open"
+    case .script(let kind):
+      switch kind {
+      case .inline:
+        return "inline"
+      case .path:
+        return "path"
+      }
+    case .keyboard:
+      return "rebinding"
+    case .shortcut:
+      return "shortcut"
+    case .type:
+      return "type"
+    }
+  }
+
+  var scriptSource: String {
+    get {
+      if case .script(let kind) = self {
+        return kind.source
+      }
+      return ""
+    }
+    set {
+      if case .script(let kind) = self {
+        switch kind {
+        case .inline(let id, _, let scriptExtension):
+          self = .script(.inline(id: id, source: newValue, scriptExtension: scriptExtension))
+        case .path(let id, _, let scriptExtension):
+          self = .script(.path(id: id, source: newValue, scriptExtension: scriptExtension))
         }
       }
     }
+  }
+}
 
-    enum ScriptKind: Hashable, Identifiable {
-      var id: String {
-        get {
-          switch self {
-          case .inline(let id, _, _),
-               .path(let id, _, _):
-            return id
-          }
-        }
-        set {
-          switch self {
-          case .inline(_, let source, let scriptExtension):
-            self = .inline(id: newValue, source: source, scriptExtension: scriptExtension)
-          case .path(_, let source, let scriptExtension):
-            self = .path(id: newValue, source: source, scriptExtension: scriptExtension)
-          }
-        }
+extension DetailViewModel.CommandViewModel.ScriptKind {
+  var id: String {
+    get {
+      switch self {
+      case .inline(let id, _, _),
+           .path(let id, _, _):
+        return id
       }
-
-      var source: String {
-        get {
-          switch self {
-          case .inline(_, let source,  _),
-               .path(_, let source,  _):
-            return source
-          }
-        }
-        set {
-          switch self {
-          case .inline(let id, _, let scriptExtension):
-            self = .inline(id: id, source: newValue, scriptExtension: scriptExtension)
-          case .path(let id, _, let scriptExtension):
-            self = .path(id: id, source: newValue, scriptExtension: scriptExtension)
-          }
-        }
+    }
+    set {
+      switch self {
+      case .inline(_, let source, let scriptExtension):
+        self = .inline(id: newValue, source: source, scriptExtension: scriptExtension)
+      case .path(_, let source, let scriptExtension):
+        self = .path(id: newValue, source: source, scriptExtension: scriptExtension)
       }
+    }
+  }
 
-      case inline(id: String, source: String, scriptExtension: ScriptCommand.Kind)
-      case path(id: String, source: String, scriptExtension: ScriptCommand.Kind)
+  var source: String {
+    get {
+      switch self {
+      case .inline(_, let source,  _),
+           .path(_, let source,  _):
+        return source
+      }
+    }
+    set {
+      switch self {
+      case .inline(let id, _, let scriptExtension):
+        self = .inline(id: id, source: newValue, scriptExtension: scriptExtension)
+      case .path(let id, _, let scriptExtension):
+        self = .path(id: id, source: newValue, scriptExtension: scriptExtension)
+      }
     }
   }
 }

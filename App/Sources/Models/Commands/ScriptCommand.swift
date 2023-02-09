@@ -4,7 +4,7 @@ import Foundation
 /// Scripts can both point to a file on the file-system or have
 /// its underlying script bundled inside the command.
 public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
-  public enum Kind: String {
+  public enum Kind: String, Codable {
     case appleScript = "scpt"
     case shellScript = "sh"
   }
