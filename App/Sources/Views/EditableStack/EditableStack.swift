@@ -14,17 +14,20 @@ struct EditableStackConfiguration {
   let lazy: Bool
   let selectedColor: Binding<Color>
   let spacing: CGFloat?
+  let uttype: UTType
 
   internal init(axes: Axis.Set = .vertical,
                 cornerRadius: Double = 8,
                 lazy: Bool = false,
                 selectedColor: Binding<Color> = .constant(Color(.controlAccentColor)),
+                uttype: UTType = .text,
                 spacing: CGFloat? = nil) {
     self.axes = axes
     self.cornerRadius = cornerRadius
     self.lazy = lazy
     self.selectedColor = selectedColor
     self.spacing = spacing
+    self.uttype = uttype
   }
 }
 
@@ -120,7 +123,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   var body: some View {
     if let emptyView, data.isEmpty {
         emptyView()
-          .onDrop(of: dropDelegates.flatMap { type(of: $0).uttypes },
+          .onDrop(of: dropDelegates.flatMap { $0.uttypes },
                   delegate: EditableDropDelegateManager(dropDelegates))
         .enableInjection()
     } else {
@@ -155,15 +158,29 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
             dragInfo = .init(indexes: from, dragIndex: offset)
 
-            return .init(object: "Hello world" as NSString)
+            let elements: [any Encodable] = data.wrappedValue.enumerated()
+              .compactMap { offset, element  in
+                if let codable = element as? Codable,
+                   from.contains(offset) { return codable }
+                return nil
+              }
+
+            let object: NSString
+            if let elementsOutput = try? elements.asString() {
+              object = elementsOutput as NSString
+            } else {
+              object = "missing data"
+            }
+            return .init(object: object)
           }, preview: {
             dragPreview(element, offset: offset)
           })
-          .onDrop(of: EditableInternalDropDelegate.uttypes + dropDelegates.flatMap { type(of: $0).uttypes },
-                  delegate: EditableDropDelegateManager([
+          .onDrop(of: dropDelegates.flatMap(\.uttypes) + [configuration.uttype],
+                  delegate: EditableDropDelegateManager(dropDelegates + [
                     EditableInternalDropDelegate(dropIndex: offset, dragInfo: $dragInfo,
-                                                 move: $move, onMove: onMove)
-                  ] + dropDelegates))
+                                                 move: $move, uttype: configuration.uttype,
+                                                 onMove: onMove)
+                  ]))
           .focused($focus, equals: .focused(element.wrappedValue.id))
           .id(element.id)
       }
@@ -358,34 +375,50 @@ private struct EditableDropDelegateManager: DropDelegate {
   }
 
   func dropEntered(info: DropInfo) {
-    delegate(for: info)?.dropEntered(info: info)
+    delegates(for: info)
+      .forEach { $0.dropEntered(info: info) }
   }
 
   func dropUpdated(info: DropInfo) -> DropProposal? {
-    delegate(for: info)?.dropUpdated(info: info)
+    var result: DropProposal? = nil
+    for delegate in delegates(for: info) {
+      if let proposal = delegate.dropUpdated(info: info) {
+        result = proposal
+        break
+      }
+    }
+    return result
   }
 
   func dropExited(info: DropInfo) {
-    delegate(for: info)?.dropExited(info: info)
+    delegates(for: info)
+      .forEach { $0.dropExited(info: info) }
   }
 
   func performDrop(info: DropInfo) -> Bool {
-    delegate(for: info)?.performDrop(info: info) ?? false
+    var result: Bool = false
+    for delegate in delegates {
+      if delegate.performDrop(info: info) {
+        result = true
+      }
+    }
+    return result
   }
 
   func validateDrop(info: DropInfo) -> Bool {
-    delegate(for: info)?.validateDrop(info: info)  ?? false
+    delegates(for: info)
+      .allSatisfy {
+        $0.validateDrop(info: info)
+      }
   }
 
-  private func delegate(for info: DropInfo) -> EditableDropDelegate? {
-    delegates.first(where: {
-      info.hasItemsConforming(to: type(of: $0).uttypes)
-    })
+  private func delegates(for info: DropInfo) -> [EditableDropDelegate] {
+    delegates.filter { info.hasItemsConforming(to: $0.uttypes) }
   }
 }
 
 protocol EditableDropDelegate: DropDelegate {
-  static var uttypes: [UTType] { get }
+  var uttypes: [UTType] { get }
 }
 
 private struct EditableMoveInstruction {
@@ -394,8 +427,7 @@ private struct EditableMoveInstruction {
 }
 
 private struct EditableInternalDropDelegate: EditableDropDelegate {
-  static var uttypes: [UTType] = [.text]
-
+  let uttypes: [UTType]
   let dropIndex: Int
   let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
   @Binding var dragInfo: EditableDragInfo
@@ -404,7 +436,9 @@ private struct EditableInternalDropDelegate: EditableDropDelegate {
   init(dropIndex: Int,
        dragInfo: Binding<EditableDragInfo>,
        move: Binding<EditableMoveInstruction?>,
+       uttype: UTType,
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?) {
+    self.uttypes = [uttype]
     _dragInfo = dragInfo
     _move = move
     self.dropIndex = dropIndex

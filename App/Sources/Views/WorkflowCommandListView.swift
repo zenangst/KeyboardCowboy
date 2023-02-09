@@ -21,12 +21,12 @@ struct WorkflowCommandListView: View {
   }
 
   var body: some View {
-    EditableStack(
+   EditableStack(
       $workflow.commands,
       configuration: .init(lazy: true, spacing: 10),
       dropDelegates: [
         WorkflowCommandDropUrlDelegate(isVisible: $dropOverlayIsVisible,
-                                    urls: $dropUrls) {
+                                       urls: $dropUrls) {
           onAction(.dropUrls(workflowId: workflow.id, urls: $0))
         }
       ],
@@ -103,7 +103,7 @@ struct WorkflowCommandListView: View {
 }
 
 struct WorkflowCommandDropUrlDelegate: EditableDropDelegate {
-  static var uttypes: [UTType] = [.fileURL]
+  var uttypes: [UTType] = [.fileURL]
 
   private let onDrop: ([URL]) -> Void
   @State var isValid: Bool = false
@@ -136,7 +136,7 @@ struct WorkflowCommandDropUrlDelegate: EditableDropDelegate {
     let itemProviders = info.itemProviders(for: [UTType.fileURL])
     isValid = !itemProviders.isEmpty
 
-    for itemProvider in info.itemProviders(for: Self.uttypes) {
+    for itemProvider in info.itemProviders(for: uttypes) {
       if itemProvider.canLoadObject(ofClass: URL.self) {
         _ = itemProvider.loadObject(ofClass: URL.self) { url, error in
           guard let url else { return }
