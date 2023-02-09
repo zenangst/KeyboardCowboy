@@ -24,10 +24,20 @@ public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
   }
 
   public var id: String {
-    switch self {
-    case .appleScript(let id, _, _, _),
-         .shell(let id, _, _, _):
-      return id
+    get {
+      switch self {
+      case .appleScript(let id, _, _, _),
+          .shell(let id, _, _, _):
+        return id
+      }
+    }
+    set {
+      switch self {
+      case .appleScript(_, let isEnabled, let name, let source):
+        self = .appleScript(id: newValue, isEnabled: isEnabled, name: name, source: source)
+      case .shell(_, let isEnabled, let name, let source):
+        self = .shell(id: newValue, isEnabled: isEnabled, name: name, source: source)
+      }
     }
   }
 

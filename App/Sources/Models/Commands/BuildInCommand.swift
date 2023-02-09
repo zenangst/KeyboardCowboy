@@ -1,7 +1,7 @@
 import Foundation
 
 public struct BuiltInCommand: Identifiable, Codable, Hashable, Sendable {
-  public let id: String
+  public var id: String
   public var name: String {
     switch kind {
     case .quickRun:

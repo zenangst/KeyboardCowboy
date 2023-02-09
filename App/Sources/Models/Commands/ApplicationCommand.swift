@@ -29,7 +29,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
     case open, close
   }
 
-  public let id: String
+  public var id: String
   public var name: String
   public var application: Application
   public var action: Action

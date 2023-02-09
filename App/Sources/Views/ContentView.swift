@@ -7,13 +7,16 @@ struct ContentView: View {
     case removeWorflows([ContentViewModel.ID])
     case moveWorkflows(source: IndexSet, destination: Int)
     case addWorkflow(workflowId: Workflow.ID)
+    case addCommands(workflowId: Workflow.ID, commandIds: [DetailViewModel.CommandViewModel.ID])
   }
 
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher
 
+  @State private var dropOverlayIsVisible: Bool = false
   @State var selected = Set<ContentViewModel.ID>()
   @State var overlayOpacity: CGFloat = 0
+  @State var dropCommands = Set<DetailViewModel.CommandViewModel>()
 
   private let onAction: (Action) -> Void
 
@@ -37,6 +40,12 @@ struct ContentView: View {
             .contextMenu(menuItems: {
               contextualMenu()
             })
+            .onDrop(of: GenericDroplet<DetailViewModel.CommandViewModel>.writableTypeIdentifiersForItemProvider,
+                    delegate: AppDropDelegate(isVisible: $dropOverlayIsVisible,
+                                              dropElements: $dropCommands,
+                                              onDrop: { models in
+              onAction(.addCommands(workflowId: workflow.id, commandIds: models.map(\.id)))
+            }))
             .tag(workflow.id)
             .id(workflow.id)
         }

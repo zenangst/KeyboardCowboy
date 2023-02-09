@@ -14,20 +14,20 @@ struct EditableStackConfiguration {
   let lazy: Bool
   let selectedColor: Binding<Color>
   let spacing: CGFloat?
-  let uttype: UTType
+  let uttypes: [String]
 
   internal init(axes: Axis.Set = .vertical,
                 cornerRadius: Double = 8,
                 lazy: Bool = false,
                 selectedColor: Binding<Color> = .constant(Color(.controlAccentColor)),
-                uttype: UTType = .text,
+                uttypes: [String] = [UTType.text.identifier],
                 spacing: CGFloat? = nil) {
     self.axes = axes
     self.cornerRadius = cornerRadius
     self.lazy = lazy
     self.selectedColor = selectedColor
     self.spacing = spacing
-    self.uttype = uttype
+    self.uttypes = uttypes
   }
 }
 
@@ -64,6 +64,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   private let dropDelegates: [any EditableDropDelegate]
   private let elementCount: Int
   private let scrollProxy: ScrollViewProxy?
+  private let itemProvider: (([Data.Element]) -> NSItemProvider)?
   private let onClick: (Data.Element.ID, Int) -> Void
   private let onSelection: (Set<Data.Element.ID>) -> Void
   private let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
@@ -74,6 +75,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        dropDelegates: [any EditableDropDelegate] = [],
        scrollProxy: ScrollViewProxy? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
+       itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
        onClick: @escaping (Data.Element.ID, Int) -> Void = { _ , _ in },
        onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)? = nil,
@@ -86,6 +88,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.dropDelegates = dropDelegates
     self.elementCount = data.count
     self.emptyView = nil
+    self.itemProvider = itemProvider
     self.id = id
     self.onClick = onClick
     self.onDelete = onDelete
@@ -100,6 +103,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        @ViewBuilder emptyView: @escaping () -> NoContent,
        scrollProxy: ScrollViewProxy? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
+       itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
        onClick: @escaping (Data.Element.ID, Int) -> Void = { _ , _ in },
        onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)? = nil,
@@ -112,6 +116,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.dropDelegates = dropDelegates
     self.elementCount = data.count
     self.emptyView = emptyView
+    self.itemProvider = itemProvider
     self.id = id
     self.onClick = onClick
     self.onDelete = onDelete
@@ -158,27 +163,25 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
             dragInfo = .init(indexes: from, dragIndex: offset)
 
-            let elements: [any Encodable] = data.wrappedValue.enumerated()
-              .compactMap { offset, element  in
-                if let codable = element as? Codable,
-                   from.contains(offset) { return codable }
-                return nil
-              }
-
-            let object: NSString
-            if let elementsOutput = try? elements.asString() {
-              object = elementsOutput as NSString
-            } else {
-              object = "missing data"
+            if let itemProvider {
+              let elements = data.wrappedValue.enumerated()
+                .compactMap({
+                  if from.contains($0.offset) {
+                    return $0.element
+                  }
+                  return nil
+                })
+              return itemProvider(elements)
             }
-            return .init(object: object)
+
+            return .init(object: "" as NSString)
           }, preview: {
             dragPreview(element, offset: offset)
           })
-          .onDrop(of: dropDelegates.flatMap(\.uttypes) + [configuration.uttype],
+          .onDrop(of: dropDelegates.flatMap(\.uttypes) + configuration.uttypes,
                   delegate: EditableDropDelegateManager(dropDelegates + [
                     EditableInternalDropDelegate(dropIndex: offset, dragInfo: $dragInfo,
-                                                 move: $move, uttype: configuration.uttype,
+                                                 move: $move, uttypes: configuration.uttypes,
                                                  onMove: onMove)
                   ]))
           .focused($focus, equals: .focused(element.wrappedValue.id))
@@ -418,7 +421,7 @@ private struct EditableDropDelegateManager: DropDelegate {
 }
 
 protocol EditableDropDelegate: DropDelegate {
-  var uttypes: [UTType] { get }
+  var uttypes: [String] { get }
 }
 
 private struct EditableMoveInstruction {
@@ -427,7 +430,7 @@ private struct EditableMoveInstruction {
 }
 
 private struct EditableInternalDropDelegate: EditableDropDelegate {
-  let uttypes: [UTType]
+  let uttypes: [String]
   let dropIndex: Int
   let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
   @Binding var dragInfo: EditableDragInfo
@@ -436,11 +439,11 @@ private struct EditableInternalDropDelegate: EditableDropDelegate {
   init(dropIndex: Int,
        dragInfo: Binding<EditableDragInfo>,
        move: Binding<EditableMoveInstruction?>,
-       uttype: UTType,
+       uttypes: [String],
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?) {
-    self.uttypes = [uttype]
     _dragInfo = dragInfo
     _move = move
+    self.uttypes = uttypes
     self.dropIndex = dropIndex
     self.onMove = onMove
   }

@@ -1,7 +1,7 @@
 import Foundation
 
 public struct TypeCommand: Identifiable, Codable, Hashable, Sendable {
-  public let id: String
+  public var id: String
   public var name: String
   public var input: String
   public var isEnabled: Bool = true

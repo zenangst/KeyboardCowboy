@@ -3,7 +3,7 @@ import Foundation
 /// Keyboard commands only have output because the trigger
 /// will be the `Combination` found in the `Workflow`.
 public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
-  public let id: String
+  public var id: String
   public var name: String
   public let keyboardShortcuts: [KeyShortcut]
   @available(macOS, deprecated, message: "Use `.keyboardShortcuts`")

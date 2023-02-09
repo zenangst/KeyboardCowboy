@@ -1,7 +1,7 @@
 import Foundation
 
 public struct ShortcutCommand: Identifiable, Codable, Hashable, Sendable {
-  public let id: String
+  public var id: String
   public let shortcutIdentifier: String
 
   public var name: String
