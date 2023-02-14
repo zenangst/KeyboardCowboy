@@ -7,7 +7,6 @@ final class DetailCoordinator {
   static private var appStorage: AppStorageStore = .init()
   private var subscription: AnyCancellable?
   private var groupIds: [WorkflowGroup.ID] = []
-  private var task: Task<Void, Error>?
 
   let applicationStore: ApplicationStore
   let contentStore: ContentStore
@@ -109,24 +108,15 @@ final class DetailCoordinator {
     render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
   }
 
-  func handle(_ detailAction: DetailView.Action) -> Task<Void, Error>? {
+  func handle(_ detailAction: DetailView.Action) async {
     switch detailAction {
     case .singleDetailView(let action):
-      task?.cancel()
-      task = Task {
-        guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
-        try Task.checkCancellation()
-        DetailViewActionReducer.reduce(detailAction,
-                                       keyboardCowboyEngine: keyboardCowboyEngine,
-                                       applicationStore: applicationStore,
-                                       workflow: &workflow)
-        try Task.checkCancellation()
-        await groupStore.commit([workflow])
-        try Task.checkCancellation()
-        render([workflow.id], groupIds: groupIds)
-        try Task.checkCancellation()
-      }
-      return task
+      guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
+      DetailViewActionReducer.reduce(detailAction,
+                                     keyboardCowboyEngine: keyboardCowboyEngine,
+                                     applicationStore: applicationStore,
+                                     workflow: &workflow)
+      await groupStore.commit([workflow])
     }
   }
 

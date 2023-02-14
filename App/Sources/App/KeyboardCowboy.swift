@@ -128,7 +128,7 @@ struct KeyboardCowboy: App {
             }
           case .detail(let detailAction):
             Task {
-              _ = try await detailCoordinator.handle(detailAction)?.value
+              _ = await detailCoordinator.handle(detailAction)
               contentCoordinator.handle(detailAction)
             }
           }
