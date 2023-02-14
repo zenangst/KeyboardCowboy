@@ -112,11 +112,15 @@ final class DetailCoordinator {
     switch detailAction {
     case .singleDetailView(let action):
       guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
-      DetailViewActionReducer.reduce(detailAction,
-                                     keyboardCowboyEngine: keyboardCowboyEngine,
-                                     applicationStore: applicationStore,
-                                     workflow: &workflow)
+      let shouldCallRender = DetailViewActionReducer.reduce(detailAction,
+                                                            keyboardCowboyEngine: keyboardCowboyEngine,
+                                                            applicationStore: applicationStore,
+                                                            workflow: &workflow)
       await groupStore.commit([workflow])
+
+      if shouldCallRender {
+        render([workflow.id], groupIds: groupIds)
+      }
     }
   }
 
