@@ -40,7 +40,9 @@ struct WorkflowApplicationTriggerView: View {
       EditableStack($triggers,
                     configuration: .init(lazy: true, spacing: 2),
                     onMove: { from, to in
-        triggers.move(fromOffsets: from, toOffset: to)
+        withAnimation {
+          triggers.move(fromOffsets: from, toOffset: to)
+        }
         onAction(.updateApplicationTriggers(triggers))
       }, onDelete: { triggers.remove(atOffsets: $0) }) { trigger, _ in
         HStack(spacing: 0) {
