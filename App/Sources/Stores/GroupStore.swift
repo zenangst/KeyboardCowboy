@@ -43,7 +43,7 @@ final class GroupStore: ObservableObject {
   func removeGroups(with ids: [WorkflowGroup.ID]) {
     var newGroups = groups
     newGroups.removeAll(where: { ids.contains($0.id) })
-    updateGroups(newGroups)
+    commitGroups(newGroups)
   }
 
   @MainActor
