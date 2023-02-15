@@ -1,6 +1,5 @@
 import SwiftUI
 import Apps
-import Inject
 
 struct SingleDetailView: View {
   enum Action {
@@ -16,7 +15,6 @@ struct SingleDetailView: View {
     case dropUrls(workflowId: Workflow.ID, urls: [URL])
   }
 
-  @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @Environment(\.openWindow) var openWindow
   @Binding private var workflow: DetailViewModel
@@ -113,7 +111,6 @@ struct SingleDetailView: View {
       .zIndex(2)
     }
     .labelStyle(HeaderLabelStyle())
-    .enableInjection()
   }
 
   private func overlayView() -> some View {

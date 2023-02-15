@@ -5,7 +5,6 @@ struct SidebarConfigurationView: View {
   enum Action {
     case selectConfiguration(ConfigurationViewModel.ID)
   }
-  @ObserveInjection var inject
   @EnvironmentObject private var publisher: ConfigurationPublisher
 
   private let onAction: (Action) -> Void
@@ -52,7 +51,6 @@ struct SidebarConfigurationView: View {
       })
       .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
     }
-    .enableInjection()
   }
 }
 

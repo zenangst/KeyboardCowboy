@@ -1,5 +1,4 @@
 import SwiftUI
-import Inject
 
 struct WorkflowInfoView: View {
   enum Action {
@@ -7,7 +6,6 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
-  @ObserveInjection var inject
   @Binding var workflow: DetailViewModel
   private var onAction: (Action) -> Void
 
@@ -33,6 +31,5 @@ struct WorkflowInfoView: View {
           onAction(.setIsEnabled(isEnabled: newValue))
         }
     }
-    .enableInjection()
   }
 }

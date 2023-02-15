@@ -1,5 +1,4 @@
 import SwiftUI
-import Inject
 
 enum InteractiveViewModifier {
   case command, shift, empty
@@ -62,6 +61,5 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
       )
       .focusable()
       .focused($isFocused)
-      .enableInjection()
     }
 }

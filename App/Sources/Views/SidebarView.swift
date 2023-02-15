@@ -1,5 +1,4 @@
 import SwiftUI
-import Inject
 
 struct SidebarView: View {
   enum Confirm {
@@ -23,8 +22,6 @@ struct SidebarView: View {
     case moveGroups(source: IndexSet, destination: Int)
     case removeGroups([GroupViewModel.ID])
   }
-
-  @ObserveInjection var inject
 
   @EnvironmentObject private var groupIds: GroupIdsPublisher
   @EnvironmentObject private var groupStore: GroupStore
@@ -117,7 +114,6 @@ struct SidebarView: View {
       }
     }
     .labelStyle(SidebarLabelStyle())
-    .enableInjection()
   }
 
   private func overlayView() -> some View {

@@ -1,10 +1,8 @@
 import SwiftUI
-import Inject
 import UniformTypeIdentifiers
 
 struct WorkflowCommandListView: View {
   @EnvironmentObject var applicationStore: ApplicationStore
-  @ObserveInjection var inject
   @Binding private var workflow: DetailViewModel
   @State private var selections = Set<String>()
   @State private var dropOverlayIsVisible: Bool = false
@@ -84,7 +82,6 @@ struct WorkflowCommandListView: View {
           .opacity(dropOverlayIsVisible ? 1 : 0)
           .animation(.linear, value: dropOverlayIsVisible)
       }
-      .enableInjection()
   }
 
   @ViewBuilder

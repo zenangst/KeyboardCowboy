@@ -1,9 +1,6 @@
-import Inject
 import SwiftUI
 
 struct NewCommandScriptView: View {
-  @ObserveInjection var inject
-
   enum Kind: String, CaseIterable, Hashable, Identifiable {
     var id: String { rawValue }
     case file = "File"
@@ -125,7 +122,6 @@ struct NewCommandScriptView: View {
       validation = .unknown
     }
     .menuStyle(.borderlessButton)
-    .enableInjection()
   }
 
   @discardableResult
