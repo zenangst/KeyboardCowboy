@@ -128,9 +128,9 @@ struct KeyboardCowboy: App {
             }
           case .detail(let detailAction):
             detailCoordinator.handle(detailAction)
-              contentCoordinator.handle(detailAction)
-            }
+            contentCoordinator.handle(detailAction)
           }
+        }
       )
     }
     .windowStyle(.hiddenTitleBar)

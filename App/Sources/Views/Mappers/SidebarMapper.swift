@@ -3,22 +3,22 @@ import Foundation
 
 final class SidebarMapper {
   static func map(_ group: WorkflowGroup, applicationStore: ApplicationStore) -> GroupViewModel {
-    let iconPath: String?
+    let icon: IconViewModel?
     if let rule = group.rule {
-      iconPath = rule.iconPath(using: applicationStore)
+      icon = rule.icon(using: applicationStore)
     } else {
-      iconPath = nil
+      icon = nil
     }
-    return group.asViewModel(iconPath)
+    return group.asViewModel(icon)
   }
 }
 
 extension WorkflowGroup {
-  func asViewModel(_ iconPath: String?) -> GroupViewModel {
+  func asViewModel(_ icon: IconViewModel?) -> GroupViewModel {
     GroupViewModel(
       id: id,
       name: name,
-      iconPath: iconPath,
+      icon: icon,
       color: color,
       symbol: symbol,
       count: workflows.count)
@@ -26,10 +26,10 @@ extension WorkflowGroup {
 }
 
 private extension Rule {
-  func iconPath(using applicationStore: ApplicationStore) -> String? {
+  func icon(using applicationStore: ApplicationStore) -> IconViewModel? {
     if let bundleIdentifier: String = bundleIdentifiers.first,
        let app: Application = applicationStore.application(for: bundleIdentifier) {
-      return app.path
+      return .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
     }
     return nil
   }

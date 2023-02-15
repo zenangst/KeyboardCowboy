@@ -15,9 +15,9 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   var onAction: (CommandContainerAction) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
-       icon: @escaping () -> IconContent,
-       content: @escaping () -> Content,
-       subContent: @escaping () -> SubContent,
+       @ViewBuilder icon: @escaping () -> IconContent,
+       @ViewBuilder content: @escaping () -> Content,
+       @ViewBuilder subContent: @escaping () -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
     _command = command
     self.icon = icon

@@ -46,9 +46,7 @@ struct WorkflowApplicationTriggerView: View {
         onAction(.updateApplicationTriggers(triggers))
       }, onDelete: { triggers.remove(atOffsets: $0) }) { trigger, _ in
         HStack(spacing: 0) {
-          Image(nsImage: NSWorkspace.shared.icon(forFile: trigger.wrappedValue.application.path))
-            .resizable()
-            .frame(width: 36, height: 36)
+          IconView(icon: trigger.wrappedValue.icon, size: .init(width: 36, height: 36))
           VStack(alignment: .leading, spacing: 4) {
             Text(trigger.name.wrappedValue)
             HStack {

@@ -18,6 +18,16 @@ enum DetailViewState: Hashable, Identifiable {
   case empty
 }
 
+struct IconViewModel: Codable, Hashable {
+  let bundleIdentifier: String
+  let path: String
+
+  internal init(bundleIdentifier: String, path: String) {
+    self.bundleIdentifier = bundleIdentifier
+    self.path = path
+  }
+}
+
 struct DetailViewModel: Hashable, Identifiable {
   // Workflow.Id
   let id: String
@@ -44,6 +54,10 @@ struct DetailViewModel: Hashable, Identifiable {
     public var application: Application
     public var contexts: [Context]
 
+    public var icon: IconViewModel {
+      IconViewModel(bundleIdentifier: application.bundleIdentifier, path: application.path)
+    }
+
     public enum Context: String, Hashable, Codable, CaseIterable, Identifiable {
       public var id: String { rawValue }
 
@@ -66,7 +80,7 @@ struct DetailViewModel: Hashable, Identifiable {
     let id: String
     var name: String
     var kind: Kind
-    var iconPath: String?
+    var icon: IconViewModel?
     var isEnabled: Bool
 
     enum Kind: Codable, Hashable, Identifiable {

@@ -70,7 +70,8 @@ private extension Array where Element == Command {
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .icon(path: command.application.path))
+            kind: .icon(.init(bundleIdentifier: command.application.bundleIdentifier,
+                              path: command.application.path)))
         )
       case .builtIn:
         continue
@@ -91,7 +92,7 @@ private extension Array where Element == Command {
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .icon(path: path))
+            kind: .icon(.init(bundleIdentifier: path, path: path)))
         )
       case .script(let script):
         let scriptExtension: ScriptCommand.Kind

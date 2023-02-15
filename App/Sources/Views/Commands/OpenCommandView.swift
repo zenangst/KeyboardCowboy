@@ -24,22 +24,14 @@ struct OpenCommandView: View {
   var body: some View {
     CommandContainerView($command, icon: {
       ZStack(alignment: .bottomTrailing) {
-        if let iconPath = command.iconPath {
-          if iconPath.hasSuffix("icns") {
-            Image(nsImage: NSImage(byReferencing: URL(filePath: iconPath)))
-              .resizable()
-          } else {
-            Image(nsImage: NSWorkspace.shared.icon(forFile: iconPath))
-              .resizable()
+        if let icon = command.icon {
+          if icon.path.hasSuffix("icns") {
+            IconView(icon: icon, size: .init(width: 32, height: 32))
           }
-
 
           if case .open(_, let appPath, _) = command.kind,
              let appPath {
-            Image(nsImage: NSWorkspace.shared.icon(forFile: appPath))
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 16)
+            IconView(icon: .init(bundleIdentifier: appPath, path: appPath), size: .init(width: 16, height: 16))
               .shadow(radius: 3)
           }
         }

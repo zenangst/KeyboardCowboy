@@ -39,7 +39,7 @@ struct RuleListView: View {
           Divider()
           HStack {
             if let application = applicationStore.dictionary[bundleIdentifier] {
-              IconView(path: application.path)
+              LegacyIconView(path: application.path)
                 .frame(width: 24, height: 24)
               Text(application.displayName)
             } else {

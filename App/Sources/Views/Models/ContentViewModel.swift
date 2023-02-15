@@ -31,7 +31,7 @@ struct ContentViewModel: Identifiable, Hashable {
 
     enum Kind: Hashable {
       case command(DetailViewModel.CommandViewModel.Kind)
-      case icon(path: String)
+      case icon(IconViewModel)
     }
   }
 }

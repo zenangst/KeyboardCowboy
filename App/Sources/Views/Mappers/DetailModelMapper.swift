@@ -103,17 +103,18 @@ final class DetailModelMapper {
       id: command.id,
       name: name,
       kind: kind,
-      iconPath: command.iconPath,
+      icon: command.icon,
       isEnabled: command.isEnabled
     )
   }
 }
 
 private extension Command {
-  var iconPath: String? {
+  var icon: IconViewModel? {
     switch self {
     case .application(let command):
-      return command.application.path
+      return .init(bundleIdentifier: command.application.bundleIdentifier,
+                   path: command.application.path)
     case .builtIn:
       return nil
     case .keyboard:
@@ -125,9 +126,9 @@ private extension Command {
       } else {
         path = command.path
       }
-      return path
+      return .init(bundleIdentifier: path, path: path)
     case .script(let kind):
-      return kind.path
+      return .init(bundleIdentifier: kind.path, path: kind.path)
     case .shortcut:
       return nil
     case .type:

@@ -59,12 +59,8 @@ struct ApplicationCommandView: View {
     CommandContainerView(
       $command,
       icon: {
-        ZStack {
-          if let iconPath = command.iconPath {
-            ApplicationCommandImageView($command,
-                                        image: NSWorkspace.shared.icon(forFile: iconPath),
-                                        onAction: onAction)
-          }
+        if let icon = command.icon {
+          ApplicationCommandImageView($command, icon: icon, onAction: onAction)
         }
       },
       content: {
@@ -120,7 +116,6 @@ struct ApplicationCommandView: View {
         .allowsTightening(true)
         .truncationMode(.tail)
         .font(.caption)
-
       },
       onAction: { onAction(.commandAction($0)) })
   }
@@ -130,14 +125,14 @@ struct ApplicationCommandImageView: View {
   @EnvironmentObject var applicationStore: ApplicationStore
   @State var isHovered: Bool = false
   @Binding private var command: DetailViewModel.CommandViewModel
-  private let image: NSImage
+  private let icon: IconViewModel
   private let onAction: (ApplicationCommandView.Action) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
-       image: NSImage,
+       icon: IconViewModel,
        onAction: @escaping (ApplicationCommandView.Action) -> Void) {
     _command = command
-    self.image = image
+    self.icon = icon
     self.onAction = onAction
   }
 
@@ -148,7 +143,7 @@ struct ApplicationCommandImageView: View {
         ForEach(applicationStore.applications) { app in
           Button(action: {
             onAction(.changeApplication(app))
-            command.iconPath = app.path
+            command.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
           }, label: {
             Text(app.displayName)
           })
@@ -157,9 +152,7 @@ struct ApplicationCommandImageView: View {
       .menuStyle(IconMenuStyle())
       .menuIndicator(.hidden)
 
-      Image(nsImage: image)
-        .resizable()
-        .allowsHitTesting(false)
+      IconView(icon: icon, size: .init(width: 32, height: 32))
     }
   }
 }

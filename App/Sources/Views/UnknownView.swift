@@ -9,10 +9,8 @@ struct UnknownView: View {
         ZStack {
           Rectangle()
             .fill(Color(.controlAccentColor).opacity(0.1))
-          if let iconPath = command.iconPath {
-            Image(nsImage: NSWorkspace.shared.icon(forFile: iconPath))
-              .resizable()
-              .aspectRatio(contentMode: .fit)
+          if let icon = command.icon {
+            IconView(icon: icon, size: CGSize(width: 32, height: 32))
           }
         }
         .frame(width: 32, height: 32)

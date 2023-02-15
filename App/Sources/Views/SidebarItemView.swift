@@ -19,11 +19,8 @@ struct SidebarItemView: View {
           .opacity(controlActiveState == .key ? 1 : 0.8))
         .overlay(
           ZStack {
-            if let iconPath = group.iconPath {
-              Image(nsImage: NSWorkspace.shared.icon(forFile: iconPath))
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 20)
+            if let icon = group.icon {
+              IconView(icon: icon, size: .init(width: 20, height: 20))
                 .shadow(radius: 2)
             } else if let symbol = group.symbol {
               Image(systemName: symbol)

@@ -13,7 +13,7 @@ final class DetailCoordinator {
   let keyboardCowboyEngine: KeyboardCowboyEngine
   let groupStore: GroupStore
   let statePublisher: DetailStatePublisher = .init(.empty)
-  let detailPublisher: DetailPublisher = .init(DesignTime.detail)
+  let detailPublisher: DetailPublisher = .init(DesignTime.emptyDetail)
   let mapper: DetailModelMapper
 
   init(applicationStore: ApplicationStore,

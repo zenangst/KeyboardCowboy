@@ -167,17 +167,10 @@ struct ContentImageView: View {
 
   var body: some View {
     switch image.kind {
-    case .icon(let path):
+    case .icon(let icon):
       Group {
-        if path.hasSuffix("icns") {
-          Image(nsImage: NSImage(byReferencing: URL(filePath: path)))
-            .resizable()
-        } else {
-          Image(nsImage: NSWorkspace.shared.icon(forFile: path))
-            .resizable()
-        }
+        IconView(icon: icon, size: .init(width: 32, height: 32))
       }
-        .aspectRatio(contentMode: .fit)
         .rotationEffect(.degrees(-(3.75 * image.offset)))
         .offset(.init(width: -(image.offset * 1.25),
                       height: image.offset * 1.25))
