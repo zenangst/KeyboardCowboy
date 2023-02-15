@@ -108,7 +108,7 @@ final class DetailCoordinator {
     render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
   }
 
-  func handle(_ detailAction: DetailView.Action) async {
+  func handle(_ detailAction: DetailView.Action) {
     switch detailAction {
     case .singleDetailView(let action):
       guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
@@ -116,7 +116,7 @@ final class DetailCoordinator {
                                                             keyboardCowboyEngine: keyboardCowboyEngine,
                                                             applicationStore: applicationStore,
                                                             workflow: &workflow)
-      await groupStore.commit([workflow])
+      groupStore.commit([workflow])
 
       if shouldCallRender {
         render([workflow.id], groupIds: groupIds)

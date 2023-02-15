@@ -127,12 +127,10 @@ struct KeyboardCowboy: App {
               }
             }
           case .detail(let detailAction):
-            Task {
-              _ = await detailCoordinator.handle(detailAction)
+            detailCoordinator.handle(detailAction)
               contentCoordinator.handle(detailAction)
             }
           }
-        }
       )
     }
     .windowStyle(.hiddenTitleBar)

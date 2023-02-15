@@ -67,6 +67,14 @@ final class GroupStore: ObservableObject {
     return newGroups
   }
 
+  @discardableResult
+  @MainActor
+  func commit(_ newWorkflows: [Workflow]) -> [WorkflowGroup] {
+    let newGroups = updateOrAddWorkflows(newWorkflows, oldGroups: groups)
+    commitGroups(newGroups)
+    return newGroups
+  }
+
   // MARK: Private methods
 
   @MainActor
@@ -74,9 +82,7 @@ final class GroupStore: ObservableObject {
     groups = newGroups
   }
 
-  private func updateOrAddWorkflows(with newWorkflows: [Workflow]) async -> [WorkflowGroup] {
-    // Fix bug when trying to reorder group.
-    let oldGroups = await groups
+  private func updateOrAddWorkflows(_ newWorkflows: [Workflow], oldGroups: [WorkflowGroup]) -> [WorkflowGroup] {
     var newGroups = oldGroups
     for newWorkflow in newWorkflows {
       guard let group = newGroups.first(where: { group in
@@ -100,5 +106,10 @@ final class GroupStore: ObservableObject {
       newGroups[groupIndex].workflows[workflowIndex] = newWorkflow
     }
     return newGroups
+
+  }
+
+  private func updateOrAddWorkflows(with newWorkflows: [Workflow]) async -> [WorkflowGroup] {
+    updateOrAddWorkflows(newWorkflows, oldGroups: await groups)
   }
 }
