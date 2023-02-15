@@ -80,6 +80,7 @@ struct CommandResolverView: View {
     self.onAction = onAction
   }
 
+  @ViewBuilder
   var body: some View {
     switch command.kind {
     case .plain:

@@ -14,9 +14,6 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
   @GestureState private var dragOffsetState: CGSize = .zero
   @Binding private var element: Element
   @Binding private var selectedColor: Color
-  @State private var size: CGSize = .zero
-  @State private var mouseDown: Bool = false
-  @State private var zIndex: Double = 0
   private let index: Int
   @ViewBuilder
   private let content: (Binding<Element>, Int) -> Content
@@ -27,7 +24,7 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
   init(_ element: Binding<Element>, index: Int,
        selectedColor: Binding<Color>,
        @ViewBuilder content: @escaping (Binding<Element>, Int) -> Content,
-       overlay: @escaping (Element, Int) -> Overlay,
+       @ViewBuilder overlay: @escaping (Element, Int) -> Overlay,
        onClick: @escaping (Element, Int, InteractiveViewModifier) -> Void,
        onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
     _element = element
