@@ -44,7 +44,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   }
 
   @FocusState var focus: Focus?
-  @Environment(\.resetFocus) var resetFocus
 
   @Binding var data: Data
   @Binding var selectedColor: Color
@@ -53,7 +52,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   @State private var dragInfo: EditableDragInfo = .init(indexes: [], dragIndex: nil)
   @State private var move: EditableMoveInstruction?
 
-  private let id: KeyPath<Data.Element, Data.Element.ID>
   @ViewBuilder
   private let content: (Binding<Data.Element>, Int) -> Content
   @ViewBuilder
@@ -72,7 +70,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        configuration: EditableStackConfiguration,
        dropDelegates: [any EditableDropDelegate] = [],
        scrollProxy: ScrollViewProxy? = nil,
-       id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
        onClick: @escaping (Data.Element.ID, Int) -> Void = { _ , _ in },
        onSelection: @escaping ((Set<Data.Element.ID>) -> Void) = { _ in },
@@ -87,7 +84,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.elementCount = data.count
     self.emptyView = nil
     self.itemProvider = itemProvider
-    self.id = id
     self.onClick = onClick
     self.onDelete = onDelete
     self.onMove = onMove
@@ -115,7 +111,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.elementCount = data.count
     self.emptyView = emptyView
     self.itemProvider = itemProvider
-    self.id = id
     self.onClick = onClick
     self.onDelete = onDelete
     self.onMove = onMove
@@ -143,8 +138,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     AxesView(configuration.axes,
              lazy: configuration.lazy,
              spacing: configuration.spacing) {
-      ForEach(data, id: id) { element in
-        let offset = data.wrappedValue.firstIndex(of: element.wrappedValue) ?? -1
+      ForEach(Array(zip(data.indices, data)), id: \.1.id) { offset, element in
         content(element, offset)
           .onDrag({
             let from: [Int]
@@ -180,7 +174,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                                  move: $move, uttypes: configuration.uttypes,
                                                  onMove: onMove)
                   ]))
-          .focused($focus, equals: .focused(element.wrappedValue.id))
+          .focused($focus, equals: .focused(element.id))
           .id(element.id)
       }
       .onDeleteCommand {

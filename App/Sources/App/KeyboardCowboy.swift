@@ -152,6 +152,7 @@ struct KeyboardCowboy: App {
   }
 
   private func handleScene(_ scene: AppScene) {
+    guard !isRunningPreview else { return }
     switch scene {
     case .mainWindow:
       openWindow(id: KeyboardCowboy.mainWindowIdentifier)

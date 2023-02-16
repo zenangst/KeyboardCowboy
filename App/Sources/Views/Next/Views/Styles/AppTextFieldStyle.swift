@@ -7,7 +7,7 @@ struct AppTextFieldStyle: TextFieldStyle {
   func _body(configuration: TextField<_Label>) -> some View {
     configuration
       .textFieldStyle(.plain)
-      .padding(2.5)
+      .modifier(AppTextFieldViewModifier())
       .background(
         RoundedRectangle(cornerRadius: 4)
           .stroke(Color(isFocused ? .controlAccentColor.withAlphaComponent(0.5) : .windowFrameTextColor), lineWidth: 1)
@@ -16,9 +16,16 @@ struct AppTextFieldStyle: TextFieldStyle {
       .shadow(color: isFocused ? .accentColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
               radius: isFocused ? 1.0 : 0.0)
       .onHover(perform: { newValue in  withAnimation { isHovered = newValue } })
-      .font(.body)
-      .bold()
       .focusable()
       .focused($isFocused)
-    }
+  }
+}
+
+struct AppTextFieldViewModifier: ViewModifier {
+  func body(content: Content) -> some View {
+    content
+      .padding(2.5)
+      .font(.body)
+      .bold()
+  }
 }
