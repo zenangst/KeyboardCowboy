@@ -30,10 +30,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
     HStack(alignment: .center) {
       VStack(alignment: .leading, spacing: 4) {
         HStack(alignment: .top) {
-          ZStack {
-            icon()
-              .frame(maxWidth: 32, maxHeight: 32)
-          }
+          icon()
+            .frame(maxWidth: 32, maxHeight: 32)
           .offset(x: 2)
 
           content()
