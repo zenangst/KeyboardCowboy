@@ -10,7 +10,6 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
                                                               Element: Identifiable {
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
-  @GestureState private var dragOffsetState: CGSize = .zero
   @Binding private var element: Element
   @Binding private var selectedColor: Color
   private let index: Int
@@ -39,10 +38,6 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
     content($element, index)
       .background(FocusableProxy(onKeyDown: { onKeyDown($0, $1) }))
       .overlay(content: { overlay(element, index) })
-      .shadow(color: isFocused ?
-              selectedColor.opacity(controlActiveState == .key ? 0.8 : 0.4)
-              : Color(.sRGBLinear, white: 0, opacity: 0.33),
-              radius: isFocused ? 1.0 : dragOffsetState != .zero ? 4.0 : 0.0)
       .gesture(TapGesture().modifiers(.command)
         .onEnded({ _ in
           onClick(element, index, .command)
