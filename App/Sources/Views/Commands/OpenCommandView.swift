@@ -25,9 +25,7 @@ struct OpenCommandView: View {
     CommandContainerView($command, icon: {
       ZStack(alignment: .bottomTrailing) {
         if let icon = command.icon {
-          if icon.path.hasSuffix("icns") {
-            IconView(icon: icon, size: .init(width: 32, height: 32))
-          }
+          IconView(icon: icon, size: .init(width: 32, height: 32))
 
           if case .open(_, let appPath, _) = command.kind,
              let appPath {

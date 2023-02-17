@@ -22,8 +22,8 @@ struct SidebarItemView: View {
             if let icon = group.icon {
               IconView(icon: icon, size: .init(width: 20, height: 20))
                 .shadow(radius: 2)
-            } else if let symbol = group.symbol {
-              Image(systemName: symbol)
+            } else {
+              Image(systemName: group.symbol)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 16)
