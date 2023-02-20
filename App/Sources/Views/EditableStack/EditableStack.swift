@@ -166,7 +166,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
             return .init(object: "" as NSString)
           }, preview: {
-            dragPreview(element, offset: offset)
+            EditableDragPreview(content: { content(element, offset) }, selections: selections.count)
           })
           .onDrop(of: dropDelegates.flatMap(\.uttypes) + configuration.uttypes,
                   delegate: EditableDropDelegateManager(dropDelegates + [
@@ -245,23 +245,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
       return currentIndex >= newIndex ? .leading : .trailing
     default:
       return currentIndex >= newIndex ? .top : .bottom
-    }
-  }
-
-  @ViewBuilder
-  private func dragPreview(_ element: Binding<Data.Element>, offset: Int) -> some View {
-    if selections.isEmpty {
-      content(element, offset)
-    } else {
-      content(element, offset)
-        .overlay(alignment: .bottomTrailing, content: {
-          Text("\(selections.count)")
-            .font(.callout)
-            .padding(4)
-            .background(Circle().fill(.red))
-            .offset(x: 4, y: 4)
-        })
-        .padding()
     }
   }
 
@@ -357,6 +340,28 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
         }
       }
     }
+  }
+}
+
+private struct EditableDragPreview<Content>: View where Content: View {
+  let content: () -> Content
+  let selections: Int
+
+  @ViewBuilder
+  var body: some View {
+      if selections > 1 {
+        content()
+          .overlay(alignment: .bottomTrailing, content: {
+            Text("\(selections)")
+              .font(.callout)
+              .padding(4)
+              .background(Circle().fill(.red))
+              .offset(x: 4, y: 4)
+          })
+          .padding()
+      } else {
+        content()
+      }
   }
 }
 
