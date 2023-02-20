@@ -61,7 +61,7 @@ struct ContentView: View {
         selected = newValue
         onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.model.ids))
         if let first = newValue.first {
-          proxy.scrollTo(first, anchor: .center)
+          proxy.scrollTo(first)
         }
       })
       .overlay(alignment: .top, content: { overlayView() })

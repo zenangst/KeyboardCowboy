@@ -102,7 +102,7 @@ struct SidebarView: View {
           onAction(.selectGroups(Array(newValue)))
 
           if let first = newValue.first {
-            proxy.scrollTo(first, anchor: .center)
+            proxy.scrollTo(first)
           }
         }
 
