@@ -54,7 +54,7 @@ struct EditableKeyboardShortcutsView: View {
   private func content(_ proxy: ScrollViewProxy) -> some View {
     EditableStack(
       $keyboardShortcuts,
-      configuration: .init(axes: .horizontal, selectedColor: $selectedColor),
+      configuration: .init(axes: .horizontal, selectedColor: selectedColor),
       scrollProxy: proxy,
       onClick: { id, index in
         if replacing == id {

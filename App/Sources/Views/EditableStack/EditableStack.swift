@@ -7,18 +7,32 @@ struct EditableDragInfo: Equatable {
   let dragIndex: Int?
 }
 
-struct EditableStackConfiguration {
-  let axes: Axis.Set
+enum EditableAxis: Equatable {
+  case horizontal
+  case vertical
+
+  var axisValue: Axis.Set {
+    switch self {
+    case .horizontal:
+      return .horizontal
+    case .vertical:
+      return .vertical
+    }
+  }
+}
+
+struct EditableStackConfiguration: Equatable {
+  let axes: EditableAxis
   let cornerRadius: Double
   let lazy: Bool
-  let selectedColor: Binding<Color>
+  let selectedColor: Color
   let spacing: CGFloat?
   let uttypes: [String]
 
-  internal init(axes: Axis.Set = .vertical,
+  internal init(axes: EditableAxis = .vertical,
                 cornerRadius: Double = 8,
                 lazy: Bool = false,
-                selectedColor: Binding<Color> = .constant(Color(.controlAccentColor)),
+                selectedColor: Color = Color(.controlAccentColor),
                 uttypes: [String] = [UTType.text.identifier],
                 spacing: CGFloat? = nil) {
     self.axes = axes
@@ -34,6 +48,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                                            NoContent: View,
                                                            Data: RandomAccessCollection,
                                                            Data: MutableCollection,
+                                                           Data.Element: Equatable,
                                                            Data.Element: Identifiable,
                                                            Data.Element: Hashable,
                                                            Data.Index: Hashable,
@@ -46,7 +61,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   @FocusState var focus: Focus?
 
   @Binding var data: Data
-  @Binding var selectedColor: Color
 
   @State private var selections = Set<Data.Element.ID>() { didSet { onSelection(selections) } }
   @State private var dragInfo: EditableDragInfo = .init(indexes: [], dragIndex: nil)
@@ -77,7 +91,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
        @ViewBuilder content: @escaping (Binding<Data.Element>, Int) -> Content) where NoContent == Never {
     _data = data
-    _selectedColor = configuration.selectedColor
     self.configuration = configuration
     self.content = content
     self.dropDelegates = dropDelegates
@@ -104,7 +117,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
        @ViewBuilder content: @escaping (Binding<Data.Element>, Int) -> Content) {
     _data = data
-    _selectedColor = configuration.selectedColor
     self.configuration = configuration
     self.content = content
     self.dropDelegates = dropDelegates
@@ -199,11 +211,11 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     InteractiveView(
       element,
       index: currentIndex,
-      selectedColor: $selectedColor,
+      selectedColor: configuration.selectedColor,
       content: { element, _ in content(element) },
       overlay: { element, _ in
         RoundedRectangle(cornerRadius: configuration.cornerRadius)
-          .fill(selectedColor)
+          .fill(configuration.selectedColor)
           .opacity(selections.contains(element.id) ? 0.2 : 0.0)
           .allowsHitTesting(false)
       },
@@ -223,7 +235,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                     elementCount: Int) -> some View {
     if let move {
       RoundedRectangle(cornerRadius: configuration.cornerRadius)
-        .fill(selectedColor)
+        .fill(configuration.selectedColor)
         .frame(maxWidth: configuration.axes == .horizontal ? 2.0 : nil,
                maxHeight: configuration.axes == .vertical ? 2.0 : nil)
         .opacity(
@@ -419,7 +431,7 @@ protocol EditableDropDelegate: DropDelegate {
   var uttypes: [String] { get }
 }
 
-private struct EditableMoveInstruction {
+private struct EditableMoveInstruction: Equatable {
   let from: IndexSet
   let to: Int
 }

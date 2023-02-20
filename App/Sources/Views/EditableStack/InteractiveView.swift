@@ -11,22 +11,22 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
   @Binding private var element: Element
-  @Binding private var selectedColor: Color
   private let index: Int
   @ViewBuilder
   private let content: (Binding<Element>, Int) -> Content
   private let overlay: (Element, Int) -> Overlay
   private let onClick: (Element, Int, InteractiveViewModifier) -> Void
   private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
+  private let selectedColor: Color
 
   init(_ element: Binding<Element>, index: Int,
-       selectedColor: Binding<Color>,
+       selectedColor: Color,
        @ViewBuilder content: @escaping (Binding<Element>, Int) -> Content,
        @ViewBuilder overlay: @escaping (Element, Int) -> Overlay,
        onClick: @escaping (Element, Int, InteractiveViewModifier) -> Void,
        onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
     _element = element
-    _selectedColor = selectedColor
+    self.selectedColor = selectedColor
     self.index = index
     self.content = content
     self.overlay = overlay
