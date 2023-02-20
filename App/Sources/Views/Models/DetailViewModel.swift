@@ -1,7 +1,7 @@
 import SwiftUI
 import Apps
 
-enum DetailViewState: Hashable, Identifiable {
+enum DetailViewState: Hashable, Identifiable, Equatable {
   var id: String {
     switch self {
     case .empty:
@@ -18,7 +18,7 @@ enum DetailViewState: Hashable, Identifiable {
   case empty
 }
 
-struct IconViewModel: Codable, Hashable {
+struct IconViewModel: Codable, Hashable, Equatable {
   let bundleIdentifier: String
   let path: String
 
@@ -28,7 +28,7 @@ struct IconViewModel: Codable, Hashable {
   }
 }
 
-struct DetailViewModel: Hashable, Identifiable {
+struct DetailViewModel: Hashable, Identifiable, Equatable {
   // Workflow.Id
   let id: String
   var name: String
@@ -37,18 +37,18 @@ struct DetailViewModel: Hashable, Identifiable {
   var commands: [CommandViewModel]
   var flow: Flow = .concurrent
 
-  enum Flow: String, CaseIterable, Hashable, Identifiable {
+  enum Flow: String, CaseIterable, Hashable, Identifiable, Equatable {
     var id: String { rawValue }
     case concurrent = "Concurrent"
     case serial = "Serial"
   }
 
-  enum Trigger: Hashable {
+  enum Trigger: Hashable, Equatable {
     case applications([DetailViewModel.ApplicationTrigger])
     case keyboardShortcuts([KeyShortcut])
   }
 
-  struct ApplicationTrigger: Codable, Hashable, Identifiable {
+  struct ApplicationTrigger: Codable, Hashable, Identifiable, Equatable {
     public var id: String
     public var name: String
     public var application: Application
