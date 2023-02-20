@@ -19,7 +19,7 @@ struct DetailView: View {
     case .empty:
       Text("Empty")
     case .single:
-      SingleDetailView($detailPublisher.model, onAction: {
+      SingleDetailView(detailPublisher, onAction: {
         onAction(.singleDetailView($0))
       })
     case .multiple:

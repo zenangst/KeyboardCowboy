@@ -15,33 +15,32 @@ struct SingleDetailView: View {
     case dropUrls(workflowId: Workflow.ID, urls: [URL])
   }
 
-  @Environment(\.controlActiveState) var controlActiveState
   @Environment(\.openWindow) var openWindow
-  @Binding private var workflow: DetailViewModel
+  @ObservedObject private var detailPublisher: DetailPublisher
   @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
-  init(_ workflow: Binding<DetailViewModel>, onAction: @escaping (Action) -> Void) {
-    _workflow = workflow
+  init(_ detailPublisher: DetailPublisher, onAction: @escaping (Action) -> Void) {
+    self.detailPublisher = detailPublisher
     self.onAction = onAction
   }
 
   var body: some View {
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
-          WorkflowInfoView($workflow, onAction: { action in
+          WorkflowInfoView(detailPublisher, onAction: { action in
             switch action {
             case .updateName(let name):
-              onAction(.updateName(workflowId: workflow.id, name: name))
+              onAction(.updateName(workflowId: detailPublisher.model.id, name: name))
             case .setIsEnabled(let isEnabled):
-              onAction(.setIsEnabled(workflowId: workflow.id, isEnabled: isEnabled))
+              onAction(.setIsEnabled(workflowId: detailPublisher.model.id, isEnabled: isEnabled))
             }
           })
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
-          .id(workflow.id)
-          WorkflowTriggerListView($workflow, onAction: onAction)
-            .id(workflow.id)
+          .id(detailPublisher.model.id)
+          WorkflowTriggerListView($detailPublisher.model, onAction: onAction)
+            .id(detailPublisher.model.id)
         }
         .padding([.top, .leading, .trailing])
         .padding(.bottom, 32)
@@ -72,14 +71,14 @@ struct SingleDetailView: View {
               Button($0.rawValue, action: {})
             }
           }, label: {
-            Text("Run \(workflow.flow.rawValue)")
+            Text("Run \(detailPublisher.model.flow.rawValue)")
           }, primaryAction: {
           })
           .fixedSize()
         }
-        .opacity(workflow.commands.isEmpty ? 0 : 1)
+        .opacity(detailPublisher.model.commands.isEmpty ? 0 : 1)
         Button(action: {
-          openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflow.id))
+          openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.model.id))
         }) {
           HStack(spacing: 4) {
             Image(systemName: "plus")
@@ -93,7 +92,7 @@ struct SingleDetailView: View {
 
       ScrollView {
         WorkflowCommandListView(
-          $workflow,
+          detailPublisher,
           scrollViewProxy: proxy,
           onAction: { action in
             onAction(action)
@@ -136,7 +135,7 @@ struct SingleDetailView: View {
 
 struct SingleDetailView_Previews: PreviewProvider {
   static var previews: some View {
-    SingleDetailView(.constant(DesignTime.detail)) { _ in }
+    SingleDetailView(.init(DesignTime.detail)) { _ in }
       .frame(height: 900)
   }
 }

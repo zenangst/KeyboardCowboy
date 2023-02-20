@@ -209,10 +209,10 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                               index currentIndex: Int,
                                               content: @escaping (Binding<Data.Element>) -> Content) -> some View {
     InteractiveView(
-      element,
+      element.wrappedValue,
       index: currentIndex,
       selectedColor: configuration.selectedColor,
-      content: { element, _ in content(element) },
+      content: { content(element) },
       overlay: { element, _ in
         RoundedRectangle(cornerRadius: configuration.cornerRadius)
           .fill(configuration.selectedColor)

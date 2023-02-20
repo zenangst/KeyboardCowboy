@@ -10,22 +10,23 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
                                                               Element: Identifiable {
   @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
-  @Binding private var element: Element
   private let index: Int
   @ViewBuilder
-  private let content: (Binding<Element>, Int) -> Content
+  private let content: () -> Content
+  private let element: Element
   private let overlay: (Element, Int) -> Overlay
   private let onClick: (Element, Int, InteractiveViewModifier) -> Void
   private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
   private let selectedColor: Color
 
-  init(_ element: Binding<Element>, index: Int,
+  init(_ element: Element,
+       index: Int,
        selectedColor: Color,
-       @ViewBuilder content: @escaping (Binding<Element>, Int) -> Content,
+       @ViewBuilder content: @escaping () -> Content,
        @ViewBuilder overlay: @escaping (Element, Int) -> Overlay,
        onClick: @escaping (Element, Int, InteractiveViewModifier) -> Void,
        onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
-    _element = element
+    self.element = element
     self.selectedColor = selectedColor
     self.index = index
     self.content = content
@@ -35,7 +36,8 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
   }
 
   var body: some View {
-    content($element, index)
+    content()
+      .id(element.id)
       .background(FocusableProxy(onKeyDown: { onKeyDown($0, $1) }))
       .shadow(color: isFocused ? selectedColor.opacity(controlActiveState == .key ? 0.8 : 0.4) : Color(.sRGBLinear, white: 0, opacity: 0.33),
               radius: isFocused ? 1.0 : 0.0)
@@ -56,7 +58,6 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
           onClick(element, index, .empty)
         })
       )
-      .focusable()
       .focused($isFocused)
     }
 }
