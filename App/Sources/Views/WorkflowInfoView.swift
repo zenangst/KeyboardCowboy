@@ -7,27 +7,31 @@ struct WorkflowInfoView: View {
   }
 
   @ObservedObject private var detailPublisher: DetailPublisher
+  @State var workflowName: String
+  @State var isEnabled: Bool
   private var onAction: (Action) -> Void
 
   init(_ detailPublisher: DetailPublisher, onAction: @escaping (Action) -> Void) {
+    _workflowName = .init(initialValue: detailPublisher.model.name)
+    _isEnabled = .init(initialValue: detailPublisher.model.isEnabled)
     self.detailPublisher = detailPublisher
     self.onAction = onAction
   }
 
   var body: some View {
     HStack(spacing: 0) {
-      TextField("Workflow name", text: $detailPublisher.model.name)
+      TextField("Workflow name", text: $workflowName)
         .textFieldStyle(LargeTextFieldStyle())
         .frame(minHeight: 32)
-        .onChange(of: detailPublisher.model.name) { newValue in
+        .onChange(of: workflowName) { newValue in
           onAction(.updateName(name: newValue))
         }
       Spacer()
-      Toggle("", isOn: $detailPublisher.model.isEnabled)
+      Toggle("", isOn: $isEnabled)
         .toggleStyle(SwitchToggleStyle())
         .tint(Color.green)
         .font(.callout)
-        .onChange(of: detailPublisher.model.isEnabled) { newValue in
+        .onChange(of: isEnabled) { newValue in
           onAction(.setIsEnabled(isEnabled: newValue))
         }
     }
