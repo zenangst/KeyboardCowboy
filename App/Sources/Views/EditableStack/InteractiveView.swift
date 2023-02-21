@@ -7,8 +7,12 @@ enum InteractiveViewModifier {
 struct InteractiveView<Element, Content, Overlay>: View where Content : View,
                                                               Overlay: View,
                                                               Element: Hashable,
-                                                              Element: Identifiable {
-  @FocusState var isFocused: Bool
+                                                              Element: Identifiable,
+                                                              Element.ID : CustomStringConvertible {
+  @FocusState var focus: EditableStackFocus<Element>?
+  var isFocused: Bool {
+    focus == .focused(element.id)
+  }
   private let index: Int
   @ViewBuilder
   private let content: () -> Content
@@ -53,10 +57,10 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
       )
       .gesture(TapGesture()
         .onEnded({ _ in
-          isFocused = true
+          focus = .focused(element.id)
           onClick(element, index, .empty)
         })
       )
-      .focused($isFocused)
+      .focused($focus, equals: .focused(element.id))
     }
 }

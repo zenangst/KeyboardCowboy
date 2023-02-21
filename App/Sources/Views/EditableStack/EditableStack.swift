@@ -44,6 +44,12 @@ struct EditableStackConfiguration: Equatable {
   }
 }
 
+enum EditableStackFocus<Item>: Hashable where Item: Hashable,
+                                              Item: Equatable,
+                                              Item: Identifiable {
+  case focused(Item.ID)
+}
+
 struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                                            NoContent: View,
                                                            Data: RandomAccessCollection,
@@ -54,11 +60,8 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                                            Data.Index: Hashable,
                                                            Data.Index == Int,
                                                            Data.Element.ID: CustomStringConvertible {
-  enum Focus: Hashable {
-    case focused(Data.Element.ID)
-  }
 
-  @FocusState var focus: Focus?
+  @FocusState var focus: EditableStackFocus<Data.Element>?
 
   @Binding var data: Data
 
