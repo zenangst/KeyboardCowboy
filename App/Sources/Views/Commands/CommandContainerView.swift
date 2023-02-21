@@ -3,23 +3,26 @@ import SwiftUI
 enum CommandContainerAction {
   case run
   case delete
+  case toggleIsEnabled(Bool)
 }
 
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
-  @Binding var command: DetailViewModel.CommandViewModel
-  var icon: () -> IconContent
-  var content: () -> Content
-  var subContent: () -> SubContent
-  var onAction: (CommandContainerAction) -> Void
+  @State var isEnabled: Bool
+  private let command: DetailViewModel.CommandViewModel
+  private let icon: () -> IconContent
+  private let content: () -> Content
+  private let subContent: () -> SubContent
+  private let onAction: (CommandContainerAction) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
        @ViewBuilder icon: @escaping () -> IconContent,
        @ViewBuilder content: @escaping () -> Content,
        @ViewBuilder subContent: @escaping () -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
-    _command = command
+    _isEnabled = .init(initialValue: command.wrappedValue.isEnabled)
+    self.command = command.wrappedValue
     self.icon = icon
     self.content = content
     self.subContent = subContent
@@ -40,7 +43,10 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .padding([.top, .leading], 8)
 
         HStack(spacing: 0) {
-          Toggle("", isOn: $command.isEnabled)
+          Toggle("", isOn: $isEnabled)
+            .onChange(of: isEnabled, perform: {
+              onAction(.toggleIsEnabled($0))
+            })
             .toggleStyle(.switch)
             .tint(.green)
             .scaleEffect(0.65)

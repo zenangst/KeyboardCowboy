@@ -39,7 +39,7 @@ struct SingleDetailView: View {
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
           .id(detailPublisher.model.id)
-          WorkflowTriggerListView($detailPublisher.model, onAction: onAction)
+          WorkflowTriggerListView(detailPublisher.model, onAction: onAction)
             .id(detailPublisher.model.id)
         }
         .padding([.top, .leading, .trailing])

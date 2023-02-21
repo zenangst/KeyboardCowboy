@@ -55,7 +55,7 @@ struct WorkflowCommandListView: View {
         indexSet.forEach { ids.insert(detailPublisher.model.commands[$0].id) }
         onAction(.removeCommands(workflowId: $detailPublisher.model.id, commandIds: ids))
       }) { command, index in
-        CommandView(command, workflowId: detailPublisher.model.id) { action in
+        CommandView(command.wrappedValue, workflowId: detailPublisher.model.id) { action in
           onAction(.commandView(workflowId: detailPublisher.model.id, action: action))
         }
         .contextMenu(menuItems: { contextMenu(command) })

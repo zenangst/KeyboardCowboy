@@ -20,21 +20,21 @@ struct CommandView: View {
   @Environment(\.controlActiveState) var controlActiveState
 
   let workflowId: String
-  @Binding private var command: DetailViewModel.CommandViewModel
+  private var command: DetailViewModel.CommandViewModel
   @State private var progressValue: CGFloat = 0.0
   @State private var progressAlpha: CGFloat = 0.0
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ command: DetailViewModel.CommandViewModel,
        workflowId: String,
        onAction: @escaping (Action) -> Void) {
-    _command = command
+    self.command = command
     self.workflowId = workflowId
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandResolverView($command, workflowId: workflowId, onAction: onAction)
+    CommandResolverView(command, workflowId: workflowId, onAction: onAction)
       .animation(.none, value: command.isEnabled)
       .onChange(of: command.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
@@ -68,14 +68,14 @@ struct CommandView: View {
 }
 
 struct CommandResolverView: View {
-  @Binding var command: DetailViewModel.CommandViewModel
+  @State var command: DetailViewModel.CommandViewModel
   private let workflowId: DetailViewModel.ID
   private let onAction: (CommandView.Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ command: DetailViewModel.CommandViewModel,
        workflowId: String,
        onAction: @escaping (CommandView.Action) -> Void) {
-    _command = command
+    _command = .init(initialValue: command)
     self.workflowId = workflowId
     self.onAction = onAction
   }
@@ -96,6 +96,8 @@ struct CommandResolverView: View {
               onAction(.run(workflowId: workflowId, commandId: command.id))
             case .delete:
               onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
             }
           default:
             onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
@@ -116,6 +118,8 @@ struct CommandResolverView: View {
               onAction(.run(workflowId: workflowId, commandId: command.id))
             case .delete:
               onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
             }
           default:
             onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
@@ -134,6 +138,8 @@ struct CommandResolverView: View {
               onAction(.run(workflowId: workflowId, commandId: command.id))
             case .delete:
               onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
             }
           default:
             onAction(.modify(.script(action: action, workflowId: workflowId, commandId: command.id)))
@@ -150,6 +156,8 @@ struct CommandResolverView: View {
               onAction(.run(workflowId: workflowId, commandId: command.id))
             case .delete:
               onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
             }
           default:
             onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
@@ -166,6 +174,8 @@ struct CommandResolverView: View {
               onAction(.run(workflowId: workflowId, commandId: command.id))
             case .delete:
               onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
             }
           default:
             onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
@@ -182,6 +192,8 @@ struct CommandResolverView: View {
               onAction(.run(workflowId: workflowId, commandId: command.id))
             case .delete:
               onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
             }
           default:
             onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))

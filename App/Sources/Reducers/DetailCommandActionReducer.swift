@@ -50,7 +50,8 @@ final class DetailCommandActionReducer {
           command = .application(applicationCommand)
           workflow.updateOrAddCommand(command)
         case .commandAction(let action):
-          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
         }
       case .keyboard(let action, _, _):
         switch action {
@@ -61,7 +62,8 @@ final class DetailCommandActionReducer {
           command.name = newName
           workflow.updateOrAddCommand(command)
         case .commandAction(let action):
-          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
         }
       case .open(let action, _, _):
         switch action {
@@ -80,7 +82,8 @@ final class DetailCommandActionReducer {
             workflow.updateOrAddCommand(command)
           }
         case .commandAction(let action):
-          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
         }
@@ -121,7 +124,8 @@ final class DetailCommandActionReducer {
         case .edit:
           break
         case .commandAction(let action):
-          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
         }
       case .shortcut(let action, _, _):
         switch action {
@@ -131,7 +135,8 @@ final class DetailCommandActionReducer {
         case .openShortcuts:
           break
         case .commandAction(let action):
-          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
         }
       case .type(let action, _, _):
         switch action {
@@ -148,7 +153,8 @@ final class DetailCommandActionReducer {
           }
           workflow.updateOrAddCommand(command)
         case .commandAction(let action):
-          DetailCommandContainerActionReducer.reduce(action, command: command, workflow: &workflow)
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
         }
       }
     }

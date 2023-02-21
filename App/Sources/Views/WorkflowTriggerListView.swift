@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct WorkflowTriggerListView: View {
-  @Binding private var model: DetailViewModel
+  private let model: DetailViewModel
   private let onAction: (SingleDetailView.Action) -> Void
 
-  init(_ model: Binding<DetailViewModel>, onAction: @escaping (SingleDetailView.Action) -> Void) {
-    _model = model
+  init(_ model: DetailViewModel, onAction: @escaping (SingleDetailView.Action) -> Void) {
+    self.model = model
     self.onAction = onAction
   }
 
@@ -60,7 +60,7 @@ struct WorkflowTriggerListView: View {
 
 struct WorkflowTriggerListView_Previews: PreviewProvider {
   static var previews: some View {
-    WorkflowTriggerListView(.constant(DesignTime.detail)) { _ in }
+    WorkflowTriggerListView(DesignTime.detail) { _ in }
       .frame(height: 900)
   }
 }
