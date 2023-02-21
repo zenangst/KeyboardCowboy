@@ -21,8 +21,6 @@ struct CommandView: View {
 
   let workflowId: String
   private var command: DetailViewModel.CommandViewModel
-  @State private var progressValue: CGFloat = 0.0
-  @State private var progressAlpha: CGFloat = 0.0
   private let onAction: (Action) -> Void
 
   init(_ command: DetailViewModel.CommandViewModel,
@@ -47,35 +45,18 @@ struct CommandView: View {
               radius: command.isEnabled ? 4 : 2,
               y: command.isEnabled ? 2 : 0)
       .animation(.easeIn(duration: 0.2), value: command.isEnabled)
-      .id(command.id)
-  }
-
-  private func handleRun() {
-    let duration = CGFloat(0.5)
-    withAnimation(.easeInOut(duration: duration)) {
-      progressAlpha = 1.0
-      progressValue = 1.0
-      Task {
-        try await Task.sleep(seconds: duration / 1.25)
-        withAnimation {
-          progressAlpha = 0.0
-        }
-        try await Task.sleep(seconds: duration / 1.25)
-        progressValue = 0.0
-      }
-    }
   }
 }
 
 struct CommandResolverView: View {
-  @State var command: DetailViewModel.CommandViewModel
+  private let command: DetailViewModel.CommandViewModel
   private let workflowId: DetailViewModel.ID
   private let onAction: (CommandView.Action) -> Void
 
   init(_ command: DetailViewModel.CommandViewModel,
        workflowId: String,
        onAction: @escaping (CommandView.Action) -> Void) {
-    _command = .init(initialValue: command)
+    self.command = command
     self.workflowId = workflowId
     self.onAction = onAction
   }
@@ -84,7 +65,7 @@ struct CommandResolverView: View {
   var body: some View {
     switch command.kind {
     case .plain:
-      UnknownView(command: $command)
+      UnknownView(command: .constant(command))
     case .open:
       OpenCommandView(
         command,

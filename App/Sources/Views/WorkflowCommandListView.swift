@@ -19,16 +19,16 @@ struct WorkflowCommandListView: View {
   }
 
   var body: some View {
-   EditableStack(
-    $detailPublisher.model.commands,
+    EditableStack(
+      $detailPublisher.model.commands,
       configuration: .init(lazy: true,
                            uttypes: GenericDroplet<DetailViewModel.CommandViewModel>.writableTypeIdentifiersForItemProvider,
                            spacing: 10),
       dropDelegates: [
         WorkflowCommandDropUrlDelegate(isVisible: $dropOverlayIsVisible,
                                        urls: $dropUrls) {
-          onAction(.dropUrls(workflowId: detailPublisher.model.id, urls: $0))
-        }
+                                         onAction(.dropUrls(workflowId: detailPublisher.model.id, urls: $0))
+                                       }
       ],
       emptyView: {
         VStack {
@@ -79,8 +79,8 @@ struct WorkflowCommandListView: View {
             .fill(Color(.systemGreen).opacity(0.1))
             .padding(8)
         }
-          .opacity(dropOverlayIsVisible ? 1 : 0)
-          .animation(.linear, value: dropOverlayIsVisible)
+        .opacity(dropOverlayIsVisible ? 1 : 0)
+        .animation(.linear, value: dropOverlayIsVisible)
       }
   }
 

@@ -155,6 +155,8 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
              spacing: configuration.spacing) {
       ForEach(Array(zip(data.indices, data)), id: \.1.id) { offset, element in
         content(element, offset)
+          .shadow(color: focus == .focused(element.id) ? configuration.selectedColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
+                  radius: focus == .focused(element.id) ? 1.0 : 0.0)
           .onDrag({
             let from: [Int]
             if !selections.contains(element.id) {
@@ -190,7 +192,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                                  onMove: onMove)
                   ]))
           .focused($focus, equals: .focused(element.id))
-          .id(element.id)
       }
       .onDeleteCommand {
         guard let onDelete else { return }
@@ -214,22 +215,22 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     InteractiveView(
       element.wrappedValue,
       index: currentIndex,
-      selectedColor: configuration.selectedColor,
       content: { content(element) },
-      overlay: { element, _ in
-        RoundedRectangle(cornerRadius: configuration.cornerRadius)
-          .fill(configuration.selectedColor)
-          .opacity(selections.contains(element.id) ? 0.2 : 0.0)
-          .allowsHitTesting(false)
-      },
       onClick: handleClick,
       onKeyDown: { onKeyDown(index: currentIndex, keyCode: $0, modifiers: $1) }
     )
+    .overlay {
+      RoundedRectangle(cornerRadius: configuration.cornerRadius)
+        .fill(configuration.selectedColor)
+        .opacity(selections.contains(element.id) ? 0.2 : 0.0)
+        .allowsHitTesting(false)
+    }
     .overlay(alignment: overlayAlignment(currentIndex: currentIndex),
              content: { dropIndicatorOverlay(elementId: element.id,
                                              currentIndex: currentIndex,
                                              elementCount: elementCount)
     })
+    .id(element.id)
   }
 
   @ViewBuilder
@@ -266,15 +267,13 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   private func handleClick(element: Data.Element,
                            index: Int,
                            modifier: InteractiveViewModifier) {
+    focus = .focused(element.id)
     switch modifier {
     case .empty:
       selections = []
-      focus = .focused(element.id)
     case .command:
-      focus = .focused(element.id)
       onTapWithCommandModifier(element.id)
     case .shift:
-      focus = .focused(element.id)
       onTapWithShiftModifier(element.id)
     }
 
@@ -487,12 +486,10 @@ private struct EditableInternalDropDelegate: EditableDropDelegate {
   }
 
   func performDrop(info: DropInfo) -> Bool {
-    defer { reset() }
-
     guard let onMove, let move else {
       return false
     }
-
+    defer { reset() }
     onMove(move.from, move.to)
     return true
   }
