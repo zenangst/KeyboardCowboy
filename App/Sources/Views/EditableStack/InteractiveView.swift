@@ -8,7 +8,6 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
                                                               Overlay: View,
                                                               Element: Hashable,
                                                               Element: Identifiable {
-  @Environment(\.controlActiveState) var controlActiveState
   @FocusState var isFocused: Bool
   private let index: Int
   @ViewBuilder
@@ -39,7 +38,7 @@ struct InteractiveView<Element, Content, Overlay>: View where Content : View,
     content()
       .id(element.id)
       .background(FocusableProxy(onKeyDown: { onKeyDown($0, $1) }))
-      .shadow(color: isFocused ? selectedColor.opacity(controlActiveState == .key ? 0.8 : 0.4) : Color(.sRGBLinear, white: 0, opacity: 0.33),
+      .shadow(color: isFocused ? selectedColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
               radius: isFocused ? 1.0 : 0.0)
       .overlay(content: { overlay(element, index) })
       .gesture(TapGesture().modifiers(.command)
