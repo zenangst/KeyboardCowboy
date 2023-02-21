@@ -12,14 +12,14 @@ struct ScriptCommandView: View {
   @EnvironmentObject var openPanel: OpenPanelController
   @State private var name: String
   @State private var text: String
-  @Binding private var command: DetailViewModel.CommandViewModel
+  @State private var command: DetailViewModel.CommandViewModel
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>, onAction: @escaping (Action) -> Void) {
-    _command = command
-    _name = .init(initialValue: command.name.wrappedValue)
+  init(_ command: DetailViewModel.CommandViewModel, onAction: @escaping (Action) -> Void) {
+    _command = .init(initialValue: command)
+    _name = .init(initialValue: command.name)
     self.onAction = onAction
-    switch command.kind.wrappedValue {
+    switch command.kind {
     case .script(let kind):
       _text = .init(initialValue: kind.source)
     default:
@@ -28,7 +28,7 @@ struct ScriptCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($command, icon: {
+    CommandContainerView(command, icon: {
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
@@ -95,10 +95,10 @@ struct ScriptCommandView: View {
 struct ScriptCommandView_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
-      ScriptCommandView(.constant(DesignTime.scriptCommandInline), onAction: { _ in })
+      ScriptCommandView(DesignTime.scriptCommandInline, onAction: { _ in })
         .frame(maxHeight: 80)
       Divider()
-      ScriptCommandView(.constant(DesignTime.scriptCommandWithPath), onAction: { _ in })
+      ScriptCommandView(DesignTime.scriptCommandWithPath, onAction: { _ in })
         .frame(maxHeight: 80)
     }
   }

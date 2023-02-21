@@ -9,20 +9,20 @@ struct OpenCommandView: View {
     case reveal(path: String)
   }
   @EnvironmentObject var applicationStore: ApplicationStore
-  @Binding var command: DetailViewModel.CommandViewModel
+  @State var command: DetailViewModel.CommandViewModel
   @State private var name: String
   @State private var isHovered = false
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ command: DetailViewModel.CommandViewModel,
        onAction: @escaping (Action) -> Void) {
-    _command = command
-    _name = .init(initialValue: command.wrappedValue.name)
+    _command = .init(initialValue: command)
+    _name = .init(initialValue: command.name)
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($command, icon: {
+    CommandContainerView(command, icon: {
       ZStack(alignment: .bottomTrailing) {
         if let icon = command.icon {
           IconView(icon: icon, size: .init(width: 32, height: 32))
@@ -89,7 +89,7 @@ struct OpenCommandView: View {
 
 struct OpenCommandView_Previews: PreviewProvider {
     static var previews: some View {
-      OpenCommandView(.constant(DesignTime.openCommand), onAction: { _ in })
+      OpenCommandView(DesignTime.openCommand, onAction: { _ in })
         .frame(maxHeight: 80)
     }
 }

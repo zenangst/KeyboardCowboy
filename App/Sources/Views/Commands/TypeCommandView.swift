@@ -6,17 +6,16 @@ struct TypeCommandView: View {
     case updateSource(newInput: String)
     case commandAction(CommandContainerAction)
   }
-  @Binding var command: DetailViewModel.CommandViewModel
+  @State var command: DetailViewModel.CommandViewModel
   @State private var source: String
   @State private var name: String
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
-       onAction: @escaping (Action) -> Void) {
-    _command = command
-    _name = .init(initialValue: command.wrappedValue.name)
+  init(_ command: DetailViewModel.CommandViewModel, onAction: @escaping (Action) -> Void) {
+    _command = .init(initialValue: command)
+    _name = .init(initialValue: command.name)
 
-    switch command.kind.wrappedValue {
+    switch command.kind {
     case .type(let input):
       _source = .init(initialValue: input)
     default:
@@ -28,7 +27,7 @@ struct TypeCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      $command,
+      command,
       icon: {
         ZStack {
           Rectangle()
@@ -50,7 +49,7 @@ struct TypeCommandView: View {
 
 struct TypeCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    TypeCommandView(.constant(DesignTime.typeCommand), onAction: { _ in })
+    TypeCommandView(DesignTime.typeCommand, onAction: { _ in })
   }
 }
 

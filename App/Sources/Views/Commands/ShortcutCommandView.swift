@@ -8,18 +8,18 @@ struct ShortcutCommandView: View {
   }
 
   @State private var name: String
-  @Binding var command: DetailViewModel.CommandViewModel
+  @State var command: DetailViewModel.CommandViewModel
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ command: DetailViewModel.CommandViewModel,
        onAction: @escaping (Action) -> Void) {
-    _command = command
-    _name = .init(initialValue: command.wrappedValue.name)
+    _command = .init(initialValue: command)
+    _name = .init(initialValue: command.name)
     self.onAction = onAction
   }
   
   var body: some View {
-    CommandContainerView($command, icon: {
+    CommandContainerView(command, icon: {
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
@@ -40,6 +40,6 @@ struct ShortcutCommandView: View {
 
 struct ShortcutCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    ShortcutCommandView(.constant(DesignTime.shortcutCommand), onAction: { _ in})
+    ShortcutCommandView(DesignTime.shortcutCommand, onAction: { _ in})
   }
 }

@@ -87,7 +87,7 @@ struct CommandResolverView: View {
       UnknownView(command: $command)
     case .open:
       OpenCommandView(
-        $command,
+        command,
         onAction: { action in
           switch action {
           case .commandAction(let action):
@@ -105,7 +105,7 @@ struct CommandResolverView: View {
         })
     case .application(let action, let inBackground, let hideWhenRunning, let ifNotRunning):
       ApplicationCommandView(
-        $command,
+        command,
         actionName: action,
         inBackground: inBackground,
         hideWhenRunning: hideWhenRunning,
@@ -127,7 +127,7 @@ struct CommandResolverView: View {
         })
     case .script:
       ScriptCommandView(
-        $command,
+        command,
         onAction: { action in
           switch action {
           case .edit:
@@ -147,7 +147,7 @@ struct CommandResolverView: View {
         })
     case .keyboard:
       KeyboardCommandView(
-        $command,
+        command,
         onAction: { action in
           switch action {
           case .commandAction(let action):
@@ -165,7 +165,7 @@ struct CommandResolverView: View {
         })
     case .shortcut:
       ShortcutCommandView(
-        $command,
+        command,
         onAction: { action in
           switch action {
           case .commandAction(let action):
@@ -183,7 +183,7 @@ struct CommandResolverView: View {
         })
     case .type:
       TypeCommandView(
-        $command,
+        command,
         onAction: { action in
           switch action {
           case .commandAction(let action):

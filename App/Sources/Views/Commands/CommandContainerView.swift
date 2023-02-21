@@ -16,13 +16,13 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   private let subContent: () -> SubContent
   private let onAction: (CommandContainerAction) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ command: DetailViewModel.CommandViewModel,
        @ViewBuilder icon: @escaping () -> IconContent,
        @ViewBuilder content: @escaping () -> Content,
        @ViewBuilder subContent: @escaping () -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
-    _isEnabled = .init(initialValue: command.wrappedValue.isEnabled)
-    self.command = command.wrappedValue
+    _isEnabled = .init(initialValue: command.isEnabled)
+    self.command = command
     self.icon = icon
     self.content = content
     self.subContent = subContent

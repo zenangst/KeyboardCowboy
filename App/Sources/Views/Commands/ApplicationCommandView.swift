@@ -28,7 +28,7 @@ struct ApplicationCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @Binding private var command: DetailViewModel.CommandViewModel
+  @State private var command: DetailViewModel.CommandViewModel
 
   @EnvironmentObject var applicationStore: ApplicationStore
 
@@ -40,14 +40,14 @@ struct ApplicationCommandView: View {
 
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ command: DetailViewModel.CommandViewModel,
        actionName: String,
        inBackground: Bool,
        hideWhenRunning: Bool,
        ifNotRunning: Bool,
        onAction: @escaping (Action) -> Void) {
-    _command = command
-    _name = .init(initialValue: command.name.wrappedValue)
+    _command = .init(initialValue: command)
+    _name = .init(initialValue: command.name)
     _actionName = .init(initialValue: actionName)
     _inBackground = .init(initialValue: inBackground)
     _hideWhenRunning = .init(initialValue: hideWhenRunning)
@@ -57,7 +57,7 @@ struct ApplicationCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      $command,
+      command,
       icon: {
         if let icon = command.icon {
           ApplicationCommandImageView($command, icon: icon, onAction: onAction)
@@ -159,7 +159,7 @@ struct ApplicationCommandImageView: View {
 
 struct ApplicationCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    ApplicationCommandView(.constant(DesignTime.applicationCommand),
+    ApplicationCommandView(DesignTime.applicationCommand,
                            actionName: "Open",
                            inBackground: false,
                            hideWhenRunning: false,

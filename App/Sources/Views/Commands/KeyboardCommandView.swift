@@ -7,17 +7,17 @@ struct KeyboardCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @Binding private var command: DetailViewModel.CommandViewModel
+  @State private var command: DetailViewModel.CommandViewModel
   @State private var name: String
   @State private var keyboardShortcuts: [KeyShortcut]
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>, onAction: @escaping (Action) -> Void) {
-    _command = command
-    _name = .init(initialValue: command.wrappedValue.name)
+  init(_ command: DetailViewModel.CommandViewModel, onAction: @escaping (Action) -> Void) {
+    _command = .init(initialValue: command)
+    _name = .init(initialValue: command.name)
     self.onAction = onAction
 
-    if case .keyboard(let keyboardShortcuts) = command.wrappedValue.kind {
+    if case .keyboard(let keyboardShortcuts) = command.kind {
       _keyboardShortcuts = .init(initialValue: keyboardShortcuts)
     } else {
       _keyboardShortcuts = .init(initialValue: [])
@@ -26,7 +26,7 @@ struct KeyboardCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      $command, icon: {
+      command, icon: {
         ZStack {
           Rectangle()
             .fill(Color(.systemGreen))
@@ -63,7 +63,7 @@ struct KeyboardCommandView: View {
 
 struct RebindingCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    KeyboardCommandView(.constant(DesignTime.rebindingCommand), onAction: { _ in })
+    KeyboardCommandView(DesignTime.rebindingCommand, onAction: { _ in })
       .frame(maxHeight: 80)
   }
 }
