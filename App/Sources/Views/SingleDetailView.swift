@@ -16,7 +16,7 @@ struct SingleDetailView: View {
   }
 
   @Environment(\.openWindow) var openWindow
-  @ObservedObject private var detailPublisher: DetailPublisher
+  private var detailPublisher: DetailPublisher
   @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 

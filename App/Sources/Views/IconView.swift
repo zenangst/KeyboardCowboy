@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 final class IconPublisher: ObservableObject {
   @Published var image: NSImage?
 
@@ -8,11 +9,11 @@ final class IconPublisher: ObservableObject {
       image = cachedImage
     } else {
       Task {
-        let image = await IconCache.shared.icon(
+        let cachedImage = await IconCache.shared.icon(
           at: path,
           bundleIdentifier: bundleIdentifier,
           size: size)
-        await MainActor.run { self.image = image }
+        image = cachedImage
       }
     }
   }

@@ -50,6 +50,30 @@ enum EditableStackFocus<Item>: Hashable where Item: Hashable,
   case focused(Item.ID)
 }
 
+private class EditableSelectionManager<Element>: ObservableObject where Element: Identifiable,
+                                                                        Element: Hashable {
+  var selections = Set<Element.ID>() {
+    willSet { if selections != newValue { objectWillChange.send() } }
+  }
+}
+
+class EditableFocusManager<Element>: ObservableObject where Element: Identifiable,
+                                                            Element: Hashable {
+  var focus: EditableStackFocus<Element>? {
+    willSet {
+      objectWillChange.send()
+    }
+  }
+}
+
+private class EditableDragManager<Element>: ObservableObject where Element: Identifiable,
+                                                                   Element: Hashable {
+  var dragInfo: EditableDragInfo = .init(indexes: [], dragIndex: nil)
+  var move: EditableMoveInstruction? {
+    willSet { objectWillChange.send() }
+  }
+}
+
 struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                                            NoContent: View,
                                                            Data: RandomAccessCollection,
@@ -61,13 +85,12 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                                            Data.Index == Int,
                                                            Data.Element.ID: CustomStringConvertible {
 
-  @FocusState var focus: EditableStackFocus<Data.Element>?
-
+  var focus: FocusState<EditableStackFocus<Data.Element>?>?
   @Binding var data: Data
 
-  @State private var selections = Set<Data.Element.ID>() { didSet { onSelection(selections) } }
-  @State private var dragInfo: EditableDragInfo = .init(indexes: [], dragIndex: nil)
-  @State private var move: EditableMoveInstruction?
+  fileprivate var focusManager: EditableFocusManager<Data.Element> = .init()
+  fileprivate var selectionManager: EditableSelectionManager<Data.Element> = .init()
+  fileprivate var dragManager: EditableDragManager<Data.Element> = .init()
 
   @ViewBuilder
   private let content: (Binding<Data.Element>, Int) -> Content
@@ -85,6 +108,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
   init(_ data: Binding<Data>,
        configuration: EditableStackConfiguration,
+       focus: FocusState<EditableStackFocus<Data.Element>?>? = nil,
        dropDelegates: [any EditableDropDelegate] = [],
        scrollProxy: ScrollViewProxy? = nil,
        itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
@@ -99,6 +123,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.dropDelegates = dropDelegates
     self.elementCount = data.count
     self.emptyView = nil
+    self.focus = focus
     self.itemProvider = itemProvider
     self.onClick = onClick
     self.onDelete = onDelete
@@ -111,6 +136,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        configuration: EditableStackConfiguration,
        dropDelegates: [any EditableDropDelegate] = [],
        @ViewBuilder emptyView: @escaping () -> NoContent,
+       focus: FocusState<EditableStackFocus<Data.Element>?>? = nil,
        scrollProxy: ScrollViewProxy? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
@@ -125,6 +151,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.dropDelegates = dropDelegates
     self.elementCount = data.count
     self.emptyView = emptyView
+    self.focus = focus
     self.itemProvider = itemProvider
     self.onClick = onClick
     self.onDelete = onDelete
@@ -148,27 +175,24 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   }
 
   @ViewBuilder
-  private func axesView<Content: View>(_ data: Binding<Data>,
-                                       content: @escaping (Binding<Data.Element>, Int) -> Content) -> some View {
+  private func axesView<Content: View>(_ data: Binding<Data>, content: @escaping (Binding<Data.Element>, Int) -> Content) -> some View {
     AxesView(configuration.axes,
              lazy: configuration.lazy,
              spacing: configuration.spacing) {
       ForEach(Array(zip(data.indices, data)), id: \.1.id) { offset, element in
         content(element, offset)
-          .shadow(color: focus == .focused(element.id) ? configuration.selectedColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
-                  radius: focus == .focused(element.id) ? 1.0 : 0.0)
           .onDrag({
             let from: [Int]
-            if !selections.contains(element.id) {
-              selections = []
+            if !selectionManager.selections.contains(element.id) {
+              selectionManager.selections = []
               from = [offset]
-            } else if !selections.isEmpty {
-              from = data.indices.filter({ selections.contains(data[$0].id) })
+            } else if !selectionManager.selections.isEmpty {
+              from = data.indices.filter({ selectionManager.selections.contains(data[$0].id) })
             } else {
               from = [offset]
             }
 
-            dragInfo = .init(indexes: from, dragIndex: offset)
+            dragManager.dragInfo = .init(indexes: from, dragIndex: offset)
 
             if let itemProvider {
               let elements = data.wrappedValue.enumerated()
@@ -183,24 +207,24 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
             return .init(object: "" as NSString)
           }, preview: {
-            EditableDragPreview(content: { content(element, offset) }, selections: selections.count)
+            EditableDragPreview(content: { content(element, offset) }, selections: selectionManager.selections.count)
           })
           .onDrop(of: dropDelegates.flatMap(\.uttypes) + configuration.uttypes,
                   delegate: EditableDropDelegateManager(dropDelegates + [
-                    EditableInternalDropDelegate(dropIndex: offset, dragInfo: $dragInfo,
-                                                 move: $move, uttypes: configuration.uttypes,
+                    EditableInternalDropDelegate(dropIndex: offset, manager: dragManager,
+                                                 uttypes: configuration.uttypes,
                                                  onMove: onMove)
                   ]))
-          .focused($focus, equals: .focused(element.id))
+          .id(element.id)
       }
       .onDeleteCommand {
         guard let onDelete else { return }
-        if !selections.isEmpty {
-          let indexes = selections.compactMap { selection in
+        if !selectionManager.selections.isEmpty {
+          let indexes = selectionManager.selections.compactMap { selection in
             data.firstIndex(where: { $0.id == selection } )
           }
           onDelete(IndexSet(indexes))
-        } else if case .focused(let id) = focus,
+        } else if case .focused(let id) = focusManager.focus,
                   let index = data.firstIndex(where: { $0.id == id }) {
           onDelete(IndexSet(integer: index))
         }
@@ -212,49 +236,25 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   private func interactiveView<Content: View>(_ element: Binding<Data.Element>,
                                               index currentIndex: Int,
                                               content: @escaping (Binding<Data.Element>) -> Content) -> some View {
-    InteractiveView(
-      element.wrappedValue,
-      index: currentIndex,
-      content: { content(element) },
-      onClick: handleClick,
-      onKeyDown: { onKeyDown(index: currentIndex, keyCode: $0, modifiers: $1) }
-    )
-    .overlay {
-      RoundedRectangle(cornerRadius: configuration.cornerRadius)
-        .fill(configuration.selectedColor)
-        .opacity(selections.contains(element.id) ? 0.2 : 0.0)
-        .allowsHitTesting(false)
-    }
+    EditableClickView(element.wrappedValue, index: currentIndex, content: { content(element) }, onClick: handleClick)
+    .overlay(EditableFocusShadow(manager: focusManager, element: element.wrappedValue,
+                                 configuration: configuration, onKeyDown: { onKeyDown(index: currentIndex, keyCode: $0, modifiers: $1) }))
+    .overlay(EditableSelectionOverlayView(manager: selectionManager, element: element.wrappedValue, configuration: configuration))
     .overlay(alignment: overlayAlignment(currentIndex: currentIndex),
-             content: { dropIndicatorOverlay(elementId: element.id,
-                                             currentIndex: currentIndex,
-                                             elementCount: elementCount)
+             content: {
+      EditableDropIndicatorOverlayView(
+        dragManager: dragManager,
+        selectionManager: selectionManager,
+        configuration: configuration,
+        currentIndex: currentIndex,
+        element: element.wrappedValue,
+        elementCount: elementCount)
     })
     .id(element.id)
   }
 
-  @ViewBuilder
-  private func dropIndicatorOverlay(elementId: Data.Element.ID,
-                                    currentIndex: Int,
-                                    elementCount: Int) -> some View {
-    if let move {
-      RoundedRectangle(cornerRadius: configuration.cornerRadius)
-        .fill(configuration.selectedColor)
-        .frame(maxWidth: configuration.axes == .horizontal ? 2.0 : nil,
-               maxHeight: configuration.axes == .vertical ? 2.0 : nil)
-        .opacity(
-          (move.to == currentIndex || move.to == currentIndex + 1
-           && currentIndex == elementCount - 1) &&
-          !selections.contains(elementId)
-          ? 0.75 : 0.0)
-        .allowsHitTesting(false)
-    } else {
-      EmptyView()
-    }
-  }
-
   private func overlayAlignment(currentIndex: Int) -> Alignment {
-    guard let move else { return .top }
+    guard let move = dragManager.move else { return .top }
     let newIndex = move.to
     switch configuration.axes {
     case .horizontal:
@@ -266,11 +266,11 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
   private func handleClick(element: Data.Element,
                            index: Int,
-                           modifier: InteractiveViewModifier) {
-    focus = .focused(element.id)
+                           modifier: EditableClickModifier) {
+    focusManager.focus = .focused(element.id)
     switch modifier {
     case .empty:
-      selections = []
+      selectionManager.selections = []
     case .command:
       onTapWithCommandModifier(element.id)
     case .shift:
@@ -283,31 +283,30 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   private func onKeyDown(index: Int,
                          keyCode: Int,
                          modifiers: NSEvent.ModifierFlags) {
-    guard case .focused = focus else { return }
     switch keyCode {
     case kVK_ANSI_A:
       if modifiers.contains(.command) {
-        selections = Set(data.map(\.id))
+        selectionManager.selections = Set(data.map(\.id))
       }
     case kVK_Escape:
-      selections = []
-      focus = nil
+      selectionManager.selections = []
+      focusManager.focus = nil
     case kVK_DownArrow, kVK_RightArrow:
       let newIndex = index + 1
       if newIndex < data.count {
         let elementId = data[newIndex].id
-        focus = .focused(elementId)
+        focusManager.focus = .focused(elementId)
         scrollProxy?.scrollTo(elementId)
       }
-      selections = []
+      selectionManager.selections = []
     case kVK_UpArrow, kVK_LeftArrow:
       let newIndex = index - 1
       if newIndex >= 0 {
         let elementId = data[newIndex].id
-        focus = .focused(elementId)
-          scrollProxy?.scrollTo(elementId)
+        focusManager.focus = .focused(elementId)
+        scrollProxy?.scrollTo(elementId)
       }
-      selections = []
+      selectionManager.selections = []
     case kVK_Return:
       break
     default:
@@ -316,22 +315,22 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   }
 
   private func onTapWithCommandModifier(_ elementId: Data.Element.ID) {
-    if selections.contains(elementId) {
-      selections.remove(elementId)
+    if selectionManager.selections.contains(elementId) {
+      selectionManager.selections.remove(elementId)
     } else {
-      selections.insert(elementId)
+      selectionManager.selections.insert(elementId)
     }
   }
 
   private func onTapWithShiftModifier(_ elementId: Data.Element.ID) {
-    if selections.contains(elementId) {
-      selections.remove(elementId)
+    if selectionManager.selections.contains(elementId) {
+      selectionManager.selections.remove(elementId)
     } else {
-      selections.insert(elementId)
+      selectionManager.selections.insert(elementId)
     }
 
-    if case .focused(let currentElement) = focus {
-      let alreadySelected = selections.contains(elementId)
+    if case .focused(let currentElement) = focusManager.focus {
+      let alreadySelected = selectionManager.selections.contains(elementId)
       guard var startIndex = data.firstIndex(where: { $0.id == currentElement }),
             var endIndex = data.firstIndex(where: { $0.id == elementId }) else {
         return
@@ -344,15 +343,83 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
       data[startIndex...endIndex].forEach { element in
         if !alreadySelected {
-          if selections.contains(element.id) {
-            selections.remove(element.id)
+          if selectionManager.selections.contains(element.id) {
+            selectionManager.selections.remove(element.id)
           }
         } else {
-          if !selections.contains(element.id) {
-            selections.insert(element.id)
+          if !selectionManager.selections.contains(element.id) {
+            selectionManager.selections.insert(element.id)
           }
         }
       }
+    }
+  }
+}
+
+private struct EditableFocusShadow<Element>: View where Element: Hashable,
+                                                        Element: Identifiable,
+                                                        Element.ID: CustomStringConvertible {
+  @ObservedObject var manager: EditableFocusManager<Element>
+  @FocusState var isFocused: Bool
+  let element: Element
+  let configuration: EditableStackConfiguration
+  let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
+
+  var body: some View {
+    FocusableProxy(element: element, onKeyDown: onKeyDown)
+      .overlay(
+        RoundedRectangle(cornerRadius: configuration.cornerRadius)
+          .strokeBorder(isFocused ? configuration.selectedColor.opacity(0.1) : Color.clear,
+                        lineWidth: 1)
+          .shadow(color: isFocused ? configuration.selectedColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
+                  radius: isFocused ? 1.0 : 0.0)
+      )
+      .onChange(of: manager.focus, perform: { newValue in
+        if case .focused(let newId) = newValue, newId == element.id {
+          isFocused = true
+        }
+      })
+      .focused($isFocused)
+  }
+}
+
+private struct EditableSelectionOverlayView<Element>: View where Element: Hashable,
+                                                                 Element: Identifiable {
+  @ObservedObject var manager: EditableSelectionManager<Element>
+  let element: Element
+  let configuration: EditableStackConfiguration
+
+  var body: some View {
+    configuration.selectedColor
+      .cornerRadius(configuration.cornerRadius)
+      .opacity(manager.selections.contains(element.id) ? 0.2 : 0.0)
+      .allowsHitTesting(false)
+  }
+}
+
+private struct EditableDropIndicatorOverlayView<Element>: View where Element: Hashable,
+                                                                     Element: Identifiable {
+  @ObservedObject var dragManager: EditableDragManager<Element>
+  let selectionManager: EditableSelectionManager<Element>
+  let configuration: EditableStackConfiguration
+  let currentIndex: Int
+  let element: Element
+  let elementCount: Int
+
+  var body: some View {
+    if let move = dragManager.move {
+      RoundedRectangle(cornerRadius: configuration.cornerRadius)
+        .fill(configuration.selectedColor)
+        .frame(maxWidth: configuration.axes == .horizontal ? 2.0 : nil,
+               maxHeight: configuration.axes == .vertical ? 2.0 : nil)
+        .opacity(
+          (move.to == currentIndex || move.to == currentIndex + 1
+           && currentIndex == elementCount - 1) &&
+          !selectionManager.selections.contains(element.id)
+          ? 0.75 : 0.0)
+        .allowsHitTesting(false)
+    } else {
+      EmptyView()
     }
   }
 }
@@ -438,20 +505,18 @@ private struct EditableMoveInstruction: Equatable {
   let to: Int
 }
 
-private struct EditableInternalDropDelegate: EditableDropDelegate {
+private struct EditableInternalDropDelegate<Element>: EditableDropDelegate where Element: Identifiable,
+                                                                                 Element: Hashable {
   let uttypes: [String]
   let dropIndex: Int
   let onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?
-  @Binding var dragInfo: EditableDragInfo
-  @Binding var move: EditableMoveInstruction?
+  let manager: EditableDragManager<Element>
 
   init(dropIndex: Int,
-       dragInfo: Binding<EditableDragInfo>,
-       move: Binding<EditableMoveInstruction?>,
+       manager: EditableDragManager<Element>,
        uttypes: [String],
        onMove: ((_ indexSet: IndexSet, _ toIndex: Int) -> Void)?) {
-    _dragInfo = dragInfo
-    _move = move
+    self.manager = manager
     self.uttypes = uttypes
     self.dropIndex = dropIndex
     self.onMove = onMove
@@ -460,21 +525,21 @@ private struct EditableInternalDropDelegate: EditableDropDelegate {
   // MARK: Private methods
 
   private func reset() {
-    dragInfo = .init(indexes: [], dragIndex: nil)
-    move = nil
+    manager.dragInfo = .init(indexes: [], dragIndex: nil)
+    manager.move = nil
   }
 
   // MARK: DropDelegate
 
   func dropEntered(info: DropInfo) {
-    guard onMove != nil, !dragInfo.indexes.isEmpty,
-          let dragIndex = dragInfo.dragIndex,
-          dragInfo.dragIndex != dropIndex else {
+    guard onMove != nil, !manager.dragInfo.indexes.isEmpty,
+          let dragIndex = manager.dragInfo.dragIndex,
+          manager.dragInfo.dragIndex != dropIndex else {
       return
     }
 
-    let from = dragInfo.indexes
-    move = .init(from: IndexSet(from), to: dropIndex > dragIndex ? dropIndex + 1 : dropIndex)
+    let from = manager.dragInfo.indexes
+    manager.move <- .init(from: IndexSet(from), to: dropIndex > dragIndex ? dropIndex + 1 : dropIndex)
   }
 
   func dropUpdated(info: DropInfo) -> DropProposal? {
@@ -482,15 +547,60 @@ private struct EditableInternalDropDelegate: EditableDropDelegate {
   }
 
   func dropExited(info: DropInfo) {
-    move = nil
+    manager.move <- nil
   }
 
   func performDrop(info: DropInfo) -> Bool {
-    guard let onMove, let move else {
+    guard let onMove, let move = manager.move else {
       return false
     }
     defer { reset() }
     onMove(move.from, move.to)
     return true
   }
+}
+
+enum EditableClickModifier {
+  case command, shift, empty
+}
+
+struct EditableClickView<Element, Content>: View where Content : View,
+                                                     Element: Hashable,
+                                                     Element: Identifiable,
+                                                     Element.ID: Hashable,
+                                                     Element.ID: CustomStringConvertible {
+  private let index: Int
+  @ViewBuilder
+  private let content: () -> Content
+  private let element: Element
+  private let onClick: (Element, Int, EditableClickModifier) -> Void
+
+  init(_ element: Element, index: Int,
+       @ViewBuilder content: @escaping () -> Content,
+       onClick: @escaping (Element, Int, EditableClickModifier) -> Void) {
+    self.element = element
+    self.index = index
+    self.content = content
+    self.onClick = onClick
+  }
+
+  var body: some View {
+    content()
+      .gesture(TapGesture().modifiers(.command)
+        .onEnded({ _ in
+          onClick(element, index, .command)
+        })
+      )
+      .gesture(TapGesture().modifiers(.shift)
+        .onEnded({ _ in
+          onClick(element, index, .shift)
+        })
+      )
+      .gesture(TapGesture()
+        .onEnded({ _ in
+          onClick(element, index, .empty)
+        })
+      )
+      .id(element.id)
+    }
 }
