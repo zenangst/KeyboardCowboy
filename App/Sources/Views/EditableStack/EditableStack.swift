@@ -385,6 +385,7 @@ private struct EditableFocusView<Identifier>: View where Identifier: Hashable,
           .shadow(color: isFocused ? configuration.selectedColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
                   radius: isFocused ? 1.0 : 0.0)
           .allowsHitTesting(false)
+          .padding(-1)
       )
       .onChange(of: manager.focus) { newValue in
         if newValue == .focused(id) {
