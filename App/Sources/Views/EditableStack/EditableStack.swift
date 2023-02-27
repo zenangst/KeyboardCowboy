@@ -237,7 +237,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                               index currentIndex: Int,
                                               content: @escaping (Binding<Data.Element>) -> Content) -> some View {
     EditableClickView(element.wrappedValue, index: currentIndex, content: { content(element) }, onClick: handleClick)
-      .overlay(EditableFocusView(manager: focusManager, element: element.wrappedValue,
+      .overlay(EditableFocusView(manager: focusManager, id: element.id,
                                  configuration: configuration, onKeyDown: { onKeyDown(index: currentIndex, keyCode: $0, modifiers: $1) }))
     .overlay(EditableSelectionOverlayView(manager: selectionManager, element: element.wrappedValue, configuration: configuration))
     .overlay(alignment: overlayAlignment(currentIndex: currentIndex),
@@ -358,17 +358,24 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   }
 }
 
-private struct EditableFocusView<Element>: View where Element: Hashable,
-                                                      Element: Identifiable,
-                                                      Element.ID: CustomStringConvertible {
-  @ObservedObject var manager: EditableFocusManager<Element.ID>
+private struct EditableFocusView<Identifier>: View where Identifier: Hashable,
+                                                         Identifier: CustomStringConvertible {
+
+  @ObservedObject var manager: EditableFocusManager<Identifier>
   @FocusState var isFocused: Bool
-  @State var element: Element
+  let id: Identifier
   let configuration: EditableStackConfiguration
   let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
 
+  internal init(manager: EditableFocusManager<Identifier>, id: Identifier, configuration: EditableStackConfiguration, onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
+    self.manager = manager
+    self.id = id
+    self.configuration = configuration
+    self.onKeyDown = onKeyDown
+  }
+
   var body: some View {
-    FocusableProxy(id: element.id,
+    FocusableProxy(id: id,
                    isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
                    onKeyDown: onKeyDown)
       .overlay(
@@ -379,20 +386,19 @@ private struct EditableFocusView<Element>: View where Element: Hashable,
                   radius: isFocused ? 1.0 : 0.0)
           .allowsHitTesting(false)
       )
-      .onChange(of: manager.focus, perform: { newValue in
-        if newValue == .focused(element.id) {
-          isFocused = true
-        }
-      })
-      .onAppear {
-        if manager.focus == .focused(element.id) {
-          isFocused = true
+      .onChange(of: manager.focus) { newValue in
+        if newValue == .focused(id) {
+          isFocused <- true
         }
       }
-      .focusable()
+      .onAppear {
+        if manager.focus == .focused(id) {
+          isFocused <- true
+        }
+      }
       .allowsHitTesting(false)
       .focused($isFocused)
-      .id(element.id)
+      .id(id)
   }
 }
 
