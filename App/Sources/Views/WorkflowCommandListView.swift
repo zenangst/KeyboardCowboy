@@ -7,6 +7,7 @@ struct WorkflowCommandListView: View {
   @State private var selections = Set<String>()
   @State private var dropOverlayIsVisible: Bool = false
   @State private var dropUrls = Set<URL>()
+  private var focusManager = EditableFocusManager<DetailViewModel.CommandViewModel.ID>()
   private let scrollViewProxy: ScrollViewProxy?
   private let onAction: (SingleDetailView.Action) -> Void
 
@@ -39,6 +40,7 @@ struct WorkflowCommandListView: View {
         .padding()
         .frame(maxWidth: .infinity)
       },
+      focusManager: focusManager,
       scrollProxy: scrollViewProxy,
       itemProvider: {
         NSItemProvider(object: GenericDroplet($0))

@@ -1,44 +1,66 @@
 import SwiftUI
 import Combine
 
-struct FocusableProxy<Element>: NSViewRepresentable where Element: Identifiable,
-                                                          Element: Hashable,
-                                                          Element.ID: CustomStringConvertible {
+struct FocusableProxy<Identifier>: NSViewRepresentable where Identifier: Equatable,
+                                                          Identifier: Hashable,
+                                                          Identifier: CustomStringConvertible {
+  static func post(_ id: Identifier) {
+    NotificationCenter.default.post(Notification(name: FocusableNSView<Identifier>.becomeFirstResponderNotification, userInfo: ["id": id]))
+  }
+
+  @Binding var isFocused: Bool
   private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
-  private let element: Element?
+  private let id: Identifier?
 
-  init(element: Element,
+  init(id: Identifier,
+       isFocused: Binding<Bool>,
        onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
-    self.element = element
+    self.id = id
+    _isFocused = isFocused
     self.onKeyDown = onKeyDown
   }
 
-  init(onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) where Element == Never {
-    self.element = nil
+  init(onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) where Identifier == Never {
+    _isFocused = .constant(false)
+    self.id = nil
     self.onKeyDown = onKeyDown
   }
 
-  func makeNSView(context: Context) -> FocusableNSView<Element> { FocusableNSView(element, onKeyDown: onKeyDown) }
-  func updateNSView(_ nsView: FocusableNSView<Element>, context: Context) { }
+  func makeNSView(context: Context) -> FocusableNSView<Identifier> {
+    FocusableNSView(id, isFocused: $isFocused, onKeyDown: onKeyDown)
+  }
+
+  func updateNSView(_ nsView: FocusableNSView<Identifier>, context: Context) { }
 }
 
 extension Never.ID: CustomStringConvertible {
   public var description: String { "Never" }
 }
 
-class FocusableNSView<Element>: NSView where Element: Identifiable,
-                                             Element: Hashable,
-                                             Element.ID: CustomStringConvertible {
-  override var canBecomeKeyView: Bool { true }
-  override var acceptsFirstResponder: Bool { true }
-  fileprivate var element: Element?
+class FocusableNSView<Identifier>: NSView where Identifier: Equatable,
+                                                Identifier: Hashable,
+                                                Identifier: CustomStringConvertible {
+  static var becomeFirstResponderNotification: Notification.Name {
+    Notification.Name("FocusableNSView.becomeFirstResponder")
+  }
+
+  @Binding var isFocused: Bool
+  override var canBecomeKeyView: Bool { window != nil }
+  override var acceptsFirstResponder: Bool { window != nil }
+  fileprivate var id: Identifier?
   private let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
   private var subscription: AnyCancellable?
 
-  init(_ element: Element?, onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
-    self.element = element
+  init(_ id: Identifier?,
+       isFocused: Binding<Bool>,
+       onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
+    _isFocused = isFocused
+    self.id = id
     self.onKeyDown = onKeyDown
     super.init(frame: .zero)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(respondToNotification),
+                                           name: Self.becomeFirstResponderNotification, object: nil)
   }
 
   required init?(coder: NSCoder) {
@@ -52,5 +74,16 @@ class FocusableNSView<Element>: NSView where Element: Identifiable,
 
   override func hitTest(_ point: NSPoint) -> NSView? {
     nil
+  }
+
+  // MARK: Private methods
+
+  @objc private func respondToNotification(_ notification: Notification) {
+    guard let dictionary = (notification.userInfo as? [String: AnyHashable]) else { return }
+    guard let id = dictionary["id"] as? Identifier else { return }
+
+    if self.id == id {
+      isFocused <- true
+    }
   }
 }

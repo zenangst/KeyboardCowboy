@@ -44,10 +44,9 @@ struct EditableStackConfiguration: Equatable {
   }
 }
 
-enum EditableStackFocus<Item>: Hashable where Item: Hashable,
-                                              Item: Equatable,
-                                              Item: Identifiable {
-  case focused(Item.ID)
+enum EditableStackFocus<Identifier>: Hashable where Identifier: Hashable,
+                                                    Identifier: Equatable {
+  case focused(Identifier)
 }
 
 private class EditableSelectionManager<Element>: ObservableObject where Element: Identifiable,
@@ -57,9 +56,10 @@ private class EditableSelectionManager<Element>: ObservableObject where Element:
   }
 }
 
-class EditableFocusManager<Element>: ObservableObject where Element: Identifiable,
+class EditableFocusManager<Element>: ObservableObject where Element: Equatable,
                                                             Element: Hashable {
-  var focus: EditableStackFocus<Element>? {
+  var focus: EditableStackFocus<Element>?
+  {
     willSet {
       objectWillChange.send()
     }
@@ -85,10 +85,10 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                                                            Data.Index == Int,
                                                            Data.Element.ID: CustomStringConvertible {
 
-  var focus: FocusState<EditableStackFocus<Data.Element>?>?
+  var focus: FocusState<EditableStackFocus<Data.Element.ID>?>?
   @Binding var data: Data
 
-  fileprivate var focusManager: EditableFocusManager<Data.Element> = .init()
+  fileprivate var focusManager: EditableFocusManager<Data.Element.ID>
   fileprivate var selectionManager: EditableSelectionManager<Data.Element> = .init()
   fileprivate var dragManager: EditableDragManager<Data.Element> = .init()
 
@@ -108,7 +108,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
   init(_ data: Binding<Data>,
        configuration: EditableStackConfiguration,
-       focus: FocusState<EditableStackFocus<Data.Element>?>? = nil,
+       focusManager: EditableFocusManager<Data.Element.ID> = .init(),
        dropDelegates: [any EditableDropDelegate] = [],
        scrollProxy: ScrollViewProxy? = nil,
        itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
@@ -123,7 +123,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.dropDelegates = dropDelegates
     self.elementCount = data.count
     self.emptyView = nil
-    self.focus = focus
+    self.focusManager = focusManager
     self.itemProvider = itemProvider
     self.onClick = onClick
     self.onDelete = onDelete
@@ -136,7 +136,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        configuration: EditableStackConfiguration,
        dropDelegates: [any EditableDropDelegate] = [],
        @ViewBuilder emptyView: @escaping () -> NoContent,
-       focus: FocusState<EditableStackFocus<Data.Element>?>? = nil,
+       focusManager: EditableFocusManager<Data.Element.ID> = .init(),
        scrollProxy: ScrollViewProxy? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
@@ -151,7 +151,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.dropDelegates = dropDelegates
     self.elementCount = data.count
     self.emptyView = emptyView
-    self.focus = focus
+    self.focusManager = focusManager
     self.itemProvider = itemProvider
     self.onClick = onClick
     self.onDelete = onDelete
@@ -167,7 +167,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                   delegate: EditableDropDelegateManager(dropDelegates))
     } else {
       axesView($data) { element, index in
-        interactiveView(element, index: index) { element in
+        clickableView(element, index: index) { element in
           content(element, index)
         }
       }
@@ -233,11 +233,11 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   }
 
   @ViewBuilder
-  private func interactiveView<Content: View>(_ element: Binding<Data.Element>,
+  private func clickableView<Content: View>(_ element: Binding<Data.Element>,
                                               index currentIndex: Int,
                                               content: @escaping (Binding<Data.Element>) -> Content) -> some View {
     EditableClickView(element.wrappedValue, index: currentIndex, content: { content(element) }, onClick: handleClick)
-    .overlay(EditableFocusShadow(manager: focusManager, element: element.wrappedValue,
+      .overlay(EditableFocusView(manager: focusManager, element: element.wrappedValue,
                                  configuration: configuration, onKeyDown: { onKeyDown(index: currentIndex, keyCode: $0, modifiers: $1) }))
     .overlay(EditableSelectionOverlayView(manager: selectionManager, element: element.wrappedValue, configuration: configuration))
     .overlay(alignment: overlayAlignment(currentIndex: currentIndex),
@@ -292,21 +292,23 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
       selectionManager.selections = []
       focusManager.focus = nil
     case kVK_DownArrow, kVK_RightArrow:
+      selectionManager.selections = []
       let newIndex = index + 1
-      if newIndex < data.count {
+      if newIndex >= 0 && newIndex < data.count {
         let elementId = data[newIndex].id
         focusManager.focus = .focused(elementId)
         scrollProxy?.scrollTo(elementId)
+        FocusableProxy<Data.Element.ID>.post(elementId)
       }
-      selectionManager.selections = []
     case kVK_UpArrow, kVK_LeftArrow:
+      selectionManager.selections = []
       let newIndex = index - 1
-      if newIndex >= 0 {
+      if newIndex >= 0 && newIndex < data.count {
         let elementId = data[newIndex].id
         focusManager.focus = .focused(elementId)
         scrollProxy?.scrollTo(elementId)
+        FocusableProxy<Data.Element.ID>.post(elementId)
       }
-      selectionManager.selections = []
     case kVK_Return:
       break
     default:
@@ -356,30 +358,41 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   }
 }
 
-private struct EditableFocusShadow<Element>: View where Element: Hashable,
-                                                        Element: Identifiable,
-                                                        Element.ID: CustomStringConvertible {
-  @ObservedObject var manager: EditableFocusManager<Element>
+private struct EditableFocusView<Element>: View where Element: Hashable,
+                                                      Element: Identifiable,
+                                                      Element.ID: CustomStringConvertible {
+  @ObservedObject var manager: EditableFocusManager<Element.ID>
   @FocusState var isFocused: Bool
-  let element: Element
+  @State var element: Element
   let configuration: EditableStackConfiguration
   let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
 
   var body: some View {
-    FocusableProxy(element: element, onKeyDown: onKeyDown)
+    FocusableProxy(id: element.id,
+                   isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
+                   onKeyDown: onKeyDown)
       .overlay(
         RoundedRectangle(cornerRadius: configuration.cornerRadius)
           .strokeBorder(isFocused ? configuration.selectedColor.opacity(0.1) : Color.clear,
                         lineWidth: 1)
           .shadow(color: isFocused ? configuration.selectedColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
                   radius: isFocused ? 1.0 : 0.0)
+          .allowsHitTesting(false)
       )
       .onChange(of: manager.focus, perform: { newValue in
-        if case .focused(let newId) = newValue, newId == element.id {
+        if newValue == .focused(element.id) {
           isFocused = true
         }
       })
+      .onAppear {
+        if manager.focus == .focused(element.id) {
+          isFocused = true
+        }
+      }
+      .focusable()
+      .allowsHitTesting(false)
       .focused($isFocused)
+      .id(element.id)
   }
 }
 
@@ -601,6 +614,5 @@ struct EditableClickView<Element, Content>: View where Content : View,
           onClick(element, index, .empty)
         })
       )
-      .id(element.id)
     }
 }
