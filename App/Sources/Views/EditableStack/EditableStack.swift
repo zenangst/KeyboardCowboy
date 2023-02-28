@@ -63,6 +63,7 @@ class EditableFocusManager<Element>: ObservableObject where Element: Equatable,
   var focus: EditableStackFocus<Element>?
   {
     willSet {
+      guard focus != newValue else { return }
       objectWillChange.send()
     }
   }
