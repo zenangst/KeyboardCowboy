@@ -175,9 +175,23 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                   delegate: EditableDropDelegateManager(dropDelegates))
     } else {
       axesView($data) { element, index in
-        clickableView(element, index: index) { element in
-          content(element, index)
-        }
+        EditableClickView(element.wrappedValue, index: index, content: { content(element, index) }, onClick: handleClick)
+          .overlay(EditableFocusView(manager: focusManager, element: element,
+                                     configuration: configuration,
+                                     onKeyDown: { element, keyCode, modifiers in
+            onKeyDown(index: index, elementId: element.id, keyCode: keyCode, modifiers: modifiers) }))
+          .overlay(EditableSelectionOverlayView(manager: selectionManager, element: element.wrappedValue, configuration: configuration))
+          .overlay(alignment: overlayAlignment(currentIndex: index),
+                   content: {
+            EditableDropIndicatorOverlayView(
+              dragManager: dragManager,
+              selectionManager: selectionManager,
+              configuration: configuration,
+              index: index,
+              element: element.wrappedValue,
+              elementCount: elementCount)
+          })
+          .id(element.id)
       }
     }
   }
@@ -243,27 +257,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     }
   }
 
-  @ViewBuilder
-  private func clickableView<Content: View>(_ element: Binding<Data.Element>,
-                                              index currentIndex: Int,
-                                              content: @escaping (Binding<Data.Element>) -> Content) -> some View {
-    EditableClickView(element.wrappedValue, index: currentIndex, content: { content(element) }, onClick: handleClick)
-      .overlay(EditableFocusView(manager: focusManager, id: element.id,
-                                 configuration: configuration, onKeyDown: { onKeyDown(index: currentIndex, keyCode: $0, modifiers: $1) }))
-    .overlay(EditableSelectionOverlayView(manager: selectionManager, element: element.wrappedValue, configuration: configuration))
-    .overlay(alignment: overlayAlignment(currentIndex: currentIndex),
-             content: {
-      EditableDropIndicatorOverlayView(
-        dragManager: dragManager,
-        selectionManager: selectionManager,
-        configuration: configuration,
-        currentIndex: currentIndex,
-        element: element.wrappedValue,
-        elementCount: elementCount)
-    })
-    .id(element.id)
-  }
-
   private func overlayAlignment(currentIndex: Int) -> Alignment {
     guard let move = dragManager.move else { return .top }
     let newIndex = move.to
@@ -293,8 +286,10 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   }
 
   private func onKeyDown(index: Int,
+                         elementId: Data.Element.ID,
                          keyCode: Int,
                          modifiers: NSEvent.ModifierFlags) {
+    let currentIndex = index
     switch keyCode {
     case kVK_ANSI_A:
       if modifiers.contains(.command) {
@@ -304,7 +299,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
       selectionManager.selections = []
     case kVK_DownArrow, kVK_RightArrow:
       selectionManager.selections = []
-      let newIndex = index + 1
+      let newIndex = currentIndex + 1
       if newIndex >= 0 && newIndex < data.count {
         let elementId = data[newIndex].id
         scrollProxy?.scrollTo(elementId)
@@ -312,7 +307,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
       }
     case kVK_UpArrow, kVK_LeftArrow:
       selectionManager.selections = []
-      let newIndex = index - 1
+      let newIndex = currentIndex - 1
       if newIndex >= 0 && newIndex < data.count {
         let elementId = data[newIndex].id
         scrollProxy?.scrollTo(elementId)
@@ -367,26 +362,29 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   }
 }
 
-private struct EditableFocusView<Identifier>: View where Identifier: Hashable,
-                                                         Identifier: CustomStringConvertible {
+private struct EditableFocusView<Element>: View where Element: Hashable,
+                                                      Element: Equatable,
+                                                      Element: Identifiable,
+                                                      Element.ID: CustomStringConvertible {
 
-  @ObservedObject var manager: EditableFocusManager<Identifier>
+  @ObservedObject var manager: EditableFocusManager<Element.ID>
   @FocusState var isFocused: Bool
-  let id: Identifier
+  @Binding var element: Element
   let configuration: EditableStackConfiguration
-  let onKeyDown: (Int, NSEvent.ModifierFlags) -> Void
+  let onKeyDown: (Binding<Element>, Int, NSEvent.ModifierFlags) -> Void
 
-  internal init(manager: EditableFocusManager<Identifier>, id: Identifier, configuration: EditableStackConfiguration, onKeyDown: @escaping (Int, NSEvent.ModifierFlags) -> Void) {
+  internal init(manager: EditableFocusManager<Element.ID>, element: Binding<Element>,
+                configuration: EditableStackConfiguration,
+                onKeyDown: @escaping (Binding<Element>, Int, NSEvent.ModifierFlags) -> Void) {
     self.manager = manager
-    self.id = id
+    _element = element
     self.configuration = configuration
     self.onKeyDown = onKeyDown
   }
 
   var body: some View {
-    FocusableProxy(id: id,
-                   isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
-                   onKeyDown: onKeyDown)
+    FocusableProxy(id: element.id, isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
+                   onKeyDown: { onKeyDown($element, $0, $1) })
       .overlay(
         RoundedRectangle(cornerRadius: configuration.cornerRadius)
           .strokeBorder(isFocused ? configuration.selectedColor.opacity(0.1) : Color.clear,
@@ -397,18 +395,17 @@ private struct EditableFocusView<Identifier>: View where Identifier: Hashable,
           .padding(-1)
       )
       .onChange(of: manager.focus) { newValue in
-        if newValue == .focused(id) {
+        if newValue == .focused(element.id) {
           isFocused <- true
         }
       }
       .onAppear {
-        if manager.focus == .focused(id) {
+        if manager.focus == .focused(element.id) {
           isFocused <- true
         }
       }
       .allowsHitTesting(false)
       .focused($isFocused)
-      .id(id)
   }
 }
 
@@ -431,7 +428,7 @@ private struct EditableDropIndicatorOverlayView<Element>: View where Element: Ha
   @ObservedObject var dragManager: EditableDragManager<Element>
   let selectionManager: EditableSelectionManager<Element>
   let configuration: EditableStackConfiguration
-  let currentIndex: Int
+  let index: Int
   let element: Element
   let elementCount: Int
 
@@ -442,8 +439,8 @@ private struct EditableDropIndicatorOverlayView<Element>: View where Element: Ha
         .frame(maxWidth: configuration.axes == .horizontal ? 2.0 : nil,
                maxHeight: configuration.axes == .vertical ? 2.0 : nil)
         .opacity(
-          (move.to == currentIndex || move.to == currentIndex + 1
-           && currentIndex == elementCount - 1) &&
+          (move.to == index || move.to == index + 1
+           && index == elementCount - 1) &&
           !selectionManager.selections.contains(element.id)
           ? 0.75 : 0.0)
         .allowsHitTesting(false)
