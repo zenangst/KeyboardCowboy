@@ -2,10 +2,14 @@ import SwiftUI
 import Combine
 
 struct FocusableProxy<Identifier>: NSViewRepresentable where Identifier: Equatable,
-                                                          Identifier: Hashable,
-                                                          Identifier: CustomStringConvertible {
-  static func post(_ id: Identifier) {
-    NotificationCenter.default.post(Notification(name: FocusableNSView<Identifier>.becomeFirstResponderNotification, userInfo: ["id": id]))
+                                                             Identifier: Hashable,
+                                                             Identifier: CustomStringConvertible {
+  static func post(_ id: Identifier?) {
+    if let id {
+      NotificationCenter.default.post(Notification(name: FocusableNSView<Identifier>.becomeFirstResponderNotification, userInfo: ["id": id]))
+    } else {
+      NotificationCenter.default.post(Notification(name: FocusableNSView<Identifier>.becomeFirstResponderNotification, userInfo: ["id": "-1"]))
+    }
   }
 
   @Binding var isFocused: Bool
@@ -40,6 +44,7 @@ extension Never.ID: CustomStringConvertible {
 class FocusableNSView<Identifier>: NSView where Identifier: Equatable,
                                                 Identifier: Hashable,
                                                 Identifier: CustomStringConvertible {
+  // Re-add the id into the notification so that only one view responds.
   static var becomeFirstResponderNotification: Notification.Name {
     Notification.Name("FocusableNSView.becomeFirstResponder")
   }
@@ -84,6 +89,7 @@ class FocusableNSView<Identifier>: NSView where Identifier: Equatable,
 
     if self.id == id {
       isFocused <- true
+      window?.makeFirstResponder(self)
     }
   }
 }

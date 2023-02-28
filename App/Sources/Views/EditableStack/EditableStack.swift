@@ -50,6 +50,7 @@ enum EditableStackFocus<Identifier>: Hashable where Identifier: Hashable,
 }
 
 private class EditableSelectionManager<Element>: ObservableObject where Element: Identifiable,
+                                                                        Element: Equatable,
                                                                         Element: Hashable {
   var selections = Set<Element.ID>() {
     willSet { if selections != newValue { objectWillChange.send() } }
@@ -57,12 +58,18 @@ private class EditableSelectionManager<Element>: ObservableObject where Element:
 }
 
 class EditableFocusManager<Element>: ObservableObject where Element: Equatable,
-                                                            Element: Hashable {
+                                                            Element: Hashable,
+                                                            Element: CustomStringConvertible {
   var focus: EditableStackFocus<Element>?
   {
     willSet {
       objectWillChange.send()
     }
+  }
+
+  func publishUpdate(_ elementId: Element) {
+    focus = .focused(elementId)
+    FocusableProxy<Element>.post(elementId)
   }
 }
 
@@ -207,7 +214,10 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
 
             return .init(object: "" as NSString)
           }, preview: {
-            EditableDragPreview(content: { content(element, offset) }, selections: selectionManager.selections.count)
+            EditableDragPreview(
+              config: configuration,
+              content: { content(element, offset) },
+              selections: selectionManager.selections.count)
           })
           .onDrop(of: dropDelegates.flatMap(\.uttypes) + configuration.uttypes,
                   delegate: EditableDropDelegateManager(dropDelegates + [
@@ -268,6 +278,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
                            index: Int,
                            modifier: EditableClickModifier) {
     focusManager.focus = .focused(element.id)
+    focusManager.publishUpdate(element.id)
     switch modifier {
     case .empty:
       selectionManager.selections = []
@@ -290,24 +301,21 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
       }
     case kVK_Escape:
       selectionManager.selections = []
-      focusManager.focus = nil
     case kVK_DownArrow, kVK_RightArrow:
       selectionManager.selections = []
       let newIndex = index + 1
       if newIndex >= 0 && newIndex < data.count {
         let elementId = data[newIndex].id
-        focusManager.focus = .focused(elementId)
         scrollProxy?.scrollTo(elementId)
-        FocusableProxy<Data.Element.ID>.post(elementId)
+        focusManager.publishUpdate(elementId)
       }
     case kVK_UpArrow, kVK_LeftArrow:
       selectionManager.selections = []
       let newIndex = index - 1
       if newIndex >= 0 && newIndex < data.count {
         let elementId = data[newIndex].id
-        focusManager.focus = .focused(elementId)
         scrollProxy?.scrollTo(elementId)
-        FocusableProxy<Data.Element.ID>.post(elementId)
+        focusManager.publishUpdate(elementId)
       }
     case kVK_Return:
       break
@@ -445,6 +453,7 @@ private struct EditableDropIndicatorOverlayView<Element>: View where Element: Ha
 }
 
 private struct EditableDragPreview<Content>: View where Content: View {
+  let config: EditableStackConfiguration
   let content: () -> Content
   let selections: Int
 
@@ -456,7 +465,7 @@ private struct EditableDragPreview<Content>: View where Content: View {
             Text("\(selections)")
               .font(.callout)
               .padding(4)
-              .background(Circle().fill(.red))
+              .background(Color.red.cornerRadius(config.cornerRadius))
               .offset(x: 4, y: 4)
           })
           .padding()
