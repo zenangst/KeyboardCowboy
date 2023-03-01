@@ -29,6 +29,8 @@ struct AppMenuBar: Scene {
   }
 
   private let onAction: (Action) -> Void
+  private let pub = NotificationCenter.default
+    .publisher(for: NSNotification.Name("OpenMainWindow"))
 
   init(onAction: @escaping (Action) -> Void) {
     self.onAction = onAction
@@ -53,6 +55,9 @@ struct AppMenuBar: Scene {
             onAction(.openMainWindow)
           }
         }
+        .onReceive(pub, perform: { output in
+          onAction(.openMainWindow)
+        })
     }
     .onChange(of: scenePhase) { newValue in
       switch newValue {

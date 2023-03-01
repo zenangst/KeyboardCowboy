@@ -3,6 +3,8 @@ import Cocoa
 extension KeyboardCowboy {
   static let mainWindowIdentifier = "MainWindow"
 
+  static var bundleIdentifier: String { Bundle.main.bundleIdentifier! }
+
   static var keyWindow: NSWindow? {
     KeyboardCowboy.app.keyWindow
   }

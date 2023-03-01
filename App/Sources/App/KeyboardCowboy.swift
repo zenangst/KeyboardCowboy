@@ -155,7 +155,11 @@ struct KeyboardCowboy: App {
     guard !isRunningPreview else { return }
     switch scene {
     case .mainWindow:
-      openWindow(id: KeyboardCowboy.mainWindowIdentifier)
+      if let mainWindow = KeyboardCowboy.mainWindow {
+        mainWindow.makeKeyAndOrderFront(nil)
+      } else {
+        openWindow(id: KeyboardCowboy.mainWindowIdentifier)
+      }
       KeyboardCowboy.activate()
     case .addGroup:
       openWindow(value: EditWorkflowGroupWindow.Context.add(WorkflowGroup.empty()))

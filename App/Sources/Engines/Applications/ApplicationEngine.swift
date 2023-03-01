@@ -42,7 +42,12 @@ final class ApplicationEngine {
   }
 
   private func openApplication(command: ApplicationCommand) async throws {
-    // TODO: Handle opening Keyboard Cowboy
+    if await KeyboardCowboy.bundleIdentifier == command.application.bundleIdentifier {
+      await MainActor.run {
+        NotificationCenter.default.post(Notification(name: Notification.Name("OpenMainWindow")))
+      }
+      return
+    }
 
     if command.modifiers.contains(.background) ||
         command.application.metadata.isElectron {
