@@ -101,13 +101,18 @@ final class ContentStore: ObservableObject {
   }
 
   private func generatePerformanceData() {
+    for kind in Command.CodingKeys.allCases {
+      var group = WorkflowGroup(name: "Group:\(kind.rawValue)")
       for x in 0..<100 {
-        var group = WorkflowGroup(name: "Group \(x + 1)")
-        for y in 0..<300 {
-          let workflow = Workflow(name: "Workflow \(y + 1)")
-          group.workflows.append(workflow)
+        var workflow = Workflow(name: "Workflow:\(kind.rawValue):\(x + 1)")
+        for y in 0..<100 {
+          var command = Command.empty(kind)
+          command.name = "Command:\(kind.rawValue):\(y+1)"
+          workflow.commands.append(command)
         }
-        groupStore.add(group)
+        group.workflows.append(workflow)
       }
+      groupStore.add(group)
+    }
   }
 }

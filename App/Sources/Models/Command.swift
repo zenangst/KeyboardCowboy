@@ -13,7 +13,7 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
   case script(ScriptCommand)
   case type(TypeCommand)
 
-  public enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey, CaseIterable {
     case application = "applicationCommand"
     case builtIn = "builtInCommand"
     case keyboard = "keyboardCommand"
