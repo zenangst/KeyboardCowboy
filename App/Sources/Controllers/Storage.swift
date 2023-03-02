@@ -48,7 +48,16 @@ final class Storage {
           !data.isEmpty else {
       throw StorageError.unableToReadContents
     }
-    return try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
+
+    do {
+       return try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
+    } catch {
+      do {
+        return try await migrateIfNeeded()
+      } catch {
+        return []
+      }
+    }
   }
 
   func load() async throws -> [WorkflowGroup] {
@@ -58,6 +67,12 @@ final class Storage {
     }
 
     return try decoder.decode([WorkflowGroup].self, from: data)
+  }
+
+  func migrateIfNeeded() async throws -> [KeyboardCowboyConfiguration] {
+    let groups: [WorkflowGroup] = try await load()
+    let configuration = KeyboardCowboyConfiguration(name: "Default configuration", groups: groups)
+    return [configuration]
   }
 
   func save(_ configurations: [KeyboardCowboyConfiguration]) throws {

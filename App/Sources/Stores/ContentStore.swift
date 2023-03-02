@@ -44,7 +44,7 @@ final class ContentStore: ObservableObject {
     Task {
       shortcutStore.index()
       let configurations: [KeyboardCowboyConfiguration]
-      configurations = try await load()
+      configurations = try await storage.load()
       let shouldSave = configurations.isEmpty
       configurationStore.updateConfigurations(configurations)
       use(configurationStore.selectedConfiguration)
@@ -55,27 +55,6 @@ final class ContentStore: ObservableObject {
         try storage.save(configurationStore.configurations)
       }
     }
-  }
-
-  func load() async throws -> [KeyboardCowboyConfiguration] {
-    let configurations: [KeyboardCowboyConfiguration]
-
-    do {
-      configurations = try await storage.load()
-    } catch {
-      do {
-        configurations = try await migrateIfNeeded()
-      } catch {
-        configurations = []
-      }
-    }
-    return configurations
-  }
-
-  func migrateIfNeeded() async throws -> [KeyboardCowboyConfiguration] {
-    let groups: [WorkflowGroup] = try await storage.load()
-    let configuration = KeyboardCowboyConfiguration(name: "Default configuration", groups: groups)
-    return [configuration]
   }
 
   func use(_ configuration: KeyboardCowboyConfiguration) {
