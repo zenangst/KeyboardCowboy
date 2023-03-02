@@ -254,7 +254,7 @@ public extension Command {
     case .open:
       return Command.open(.init(path: ""))
     case .script:
-      return Command.script(.appleScript(id: "", isEnabled: true,
+      return Command.script(.appleScript(id: UUID().uuidString, isEnabled: true,
                                          name: nil, source: .path("")))
     case .shortcut:
       return Command.shortcut(.init(id: UUID().uuidString, shortcutIdentifier: "",

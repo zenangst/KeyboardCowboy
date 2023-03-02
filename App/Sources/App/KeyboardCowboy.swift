@@ -87,10 +87,9 @@ struct KeyboardCowboy: App {
     self.engine = engine
     self.scriptEngine = scriptEngine
 
-    if KeyboardCowboy.env == .development {
-      _ = Inject.load
-      Benchmark.isEnabled = true
-    }
+    Benchmark.isEnabled = launchArguments.isEnabled(.benchmark)
+
+    if launchArguments.isEnabled(.injection) { _ = Inject.load }
 
     contentCoordinator.subscribe(to: groupIdsPublisher.$model)
     detailCoordinator.subscribe(to: workflowIdsPublisher.$model)

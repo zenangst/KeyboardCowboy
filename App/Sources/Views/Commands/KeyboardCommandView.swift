@@ -58,6 +58,7 @@ struct KeyboardCommandView: View {
           .cornerRadius(4)
       },
       onAction: { onAction(.commandAction($0)) })
+    .debugEdit()
   }
 }
 

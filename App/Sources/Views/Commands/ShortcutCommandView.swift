@@ -35,6 +35,7 @@ struct ShortcutCommandView: View {
     }, subContent: {
       Button("Open Shortcuts", action: { onAction(.openShortcuts) })
     }, onAction: { onAction(.commandAction($0)) })
+    .debugEdit()
   }
 }
 

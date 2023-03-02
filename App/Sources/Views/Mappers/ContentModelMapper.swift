@@ -40,7 +40,7 @@ private extension Workflow {
       id: id,
       groupName: groupName,
       name: name,
-      images: commands.images(),
+      images: commands.images(limit: 3),
       binding: binding,
       badge: commandCount > 1 ? commandCount : 0,
       badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
@@ -60,9 +60,10 @@ private extension Workflow.Trigger {
 }
 
 private extension Array where Element == Command {
-  func images() -> [ContentViewModel.ImageModel] {
+  func images(limit: Int) -> [ContentViewModel.ImageModel] {
     var images = [ContentViewModel.ImageModel]()
     for (offset, element) in self.enumerated() {
+      if offset == limit { break }
       let convertedOffset = Double(offset)
       switch element {
       case .application(let command):

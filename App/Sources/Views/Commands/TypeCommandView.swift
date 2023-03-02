@@ -44,6 +44,7 @@ struct TypeCommandView: View {
       }, subContent: {
         EmptyView()
       }, onAction: { onAction(.commandAction($0)) })
+    .debugEdit()
   }
 }
 

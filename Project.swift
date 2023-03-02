@@ -102,9 +102,15 @@ let project = Project(
             ),
             runAction: .runAction(
                 executable: "Keyboard-Cowboy",
-                arguments: Arguments.init(environment: [
+                arguments: Arguments(
+                  environment: [
                     "SOURCE_ROOT": "$(SRCROOT)"
-                ]))
+                  ],
+                  launchArguments: [
+                    LaunchArgument(name: "-benchmark", isEnabled: false),
+                    LaunchArgument(name: "-debugEditing", isEnabled: false),
+                    LaunchArgument(name: "-injection", isEnabled: false),
+                  ]))
         )
     ],
     additionalFiles: [

@@ -84,6 +84,7 @@ struct OpenCommandView: View {
       .padding(.bottom, 4)
       .font(.caption)
     }, onAction: { onAction(.commandAction($0)) })
+    .debugEdit()
   }
 }
 

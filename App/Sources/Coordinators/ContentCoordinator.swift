@@ -133,6 +133,5 @@ final class ContentCoordinator {
     } else {
       publisher.publish(viewModels, selections: calculateSelections ? newSelections : nil)
     }
-
   }
 }
