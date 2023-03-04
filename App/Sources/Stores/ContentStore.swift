@@ -42,6 +42,7 @@ final class ContentStore: ObservableObject {
     guard !isRunningPreview else { return }
 
     Task {
+      Benchmark.start("ContentStore.init")
       shortcutStore.index()
       let configurations: [KeyboardCowboyConfiguration]
       configurations = try await storage.load()
@@ -54,6 +55,7 @@ final class ContentStore: ObservableObject {
       if shouldSave {
         try storage.save(configurationStore.configurations)
       }
+      Benchmark.finish("ContentStore.init")
     }
   }
 

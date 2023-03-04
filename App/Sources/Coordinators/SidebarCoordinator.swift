@@ -64,9 +64,8 @@ final class SidebarCoordinator {
 
   private func render(_ groups: [WorkflowGroup]) {
     Benchmark.start("SidebarCoordinator.render")
-    defer {
-      Benchmark.finish("SidebarCoordinator.render")
-    }
+    defer { Benchmark.finish("SidebarCoordinator.render") }
+
     var viewModels = [GroupViewModel]()
     viewModels.reserveCapacity(groups.count)
     var newSelections: [GroupViewModel.ID]?

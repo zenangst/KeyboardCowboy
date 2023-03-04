@@ -31,8 +31,8 @@ final class ContentCoordinator {
 
   func subscribe(to publisher: Published<WorkflowGroupIds>.Publisher) {
     subscription = publisher
-      .debounce(for: .milliseconds(40), scheduler: RunLoop.main)
       .dropFirst()
+      .debounce(for: .milliseconds(40), scheduler: RunLoop.main)
       .removeDuplicates()
       .sink { [weak self] group in
         self?.render(group.ids, calculateSelections: true)
@@ -55,7 +55,6 @@ final class ContentCoordinator {
       publisher.publish(selections: [id])
     case .selectWorkflow(let workflowIds, _):
       Self.appStorage.workflowIds <- Set(workflowIds)
-      render([group.id], calculateSelections: true)
     default:
       store.updateGroups([group])
       render([group.id], calculateSelections: true)
@@ -82,9 +81,7 @@ final class ContentCoordinator {
                       calculateSelections: Bool = false,
                       selectionOverrides: [Workflow.ID]? = nil) {
     Benchmark.start("ContentCoordinator.render")
-    defer {
-      Benchmark.finish("ContentCoordinator.render")
-    }
+    defer { Benchmark.finish("ContentCoordinator.render") }
 
     var viewModels = [ContentViewModel]()
     var newSelections = [ContentViewModel.ID]()
