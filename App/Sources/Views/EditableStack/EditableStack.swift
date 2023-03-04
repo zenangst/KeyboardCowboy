@@ -271,8 +271,6 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   private func handleClick(element: Data.Element,
                            index: Int,
                            modifier: EditableClickModifier) {
-    focusManager.focus = .focused(element.id)
-    focusManager.publishUpdate(element.id)
     switch modifier {
     case .empty:
       selectionManager.selections = []
@@ -281,6 +279,9 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     case .shift:
       onTapWithShiftModifier(element.id)
     }
+
+    focusManager.focus = .focused(element.id)
+    focusManager.publishUpdate(element.id)
 
     self.onClick(element.id, index)
   }
@@ -341,6 +342,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
             var endIndex = data.firstIndex(where: { $0.id == elementId }) else {
         return
       }
+      
       if endIndex < startIndex {
         let copy = startIndex
         startIndex = endIndex

@@ -40,6 +40,9 @@ final class Storage {
   }
 
   func load() async throws -> [KeyboardCowboyConfiguration] {
+    Benchmark.start("Storage.load")
+    defer { Benchmark.finish("Storage.load") }
+
     guard fileManager.fileExists(atPath: configuration.url.path) else {
       throw StorageError.unableToFindFile
     }
