@@ -107,6 +107,11 @@ final class ApplicationTriggerController {
 
   private func runCommands(in workflow: Workflow) {
     let commands = workflow.commands.filter(\.isEnabled)
-    commandEngine.concurrentRun(commands)
+    switch workflow.execution {
+    case .concurrent:
+      commandEngine.concurrentRun(commands)
+    case .serial:
+      commandEngine.serialRun(commands)
+    }
   }
 }
