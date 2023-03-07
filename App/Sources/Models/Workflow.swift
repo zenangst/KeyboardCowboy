@@ -55,21 +55,25 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     }
   }
 
+  enum Execution: String, Hashable, Codable {
+    case concurrent
+    case serial
+  }
+
   private(set) var id: String
   var commands: [Command]
   var trigger: Trigger?
   var isEnabled: Bool = true
   var name: String
+  var execution: Execution = .concurrent
 
   var isRebinding: Bool {
     if commands.count == 1, case .keyboard = commands.first { return true }
     return false
   }
 
-  init(id: String = UUID().uuidString, name: String,
-              trigger: Trigger? = nil,
-              commands: [Command] = [],
-              isEnabled: Bool = true) {
+  init(id: String = UUID().uuidString, name: String, trigger: Trigger? = nil,
+       commands: [Command] = [], isEnabled: Bool = true) {
     self.id = id
     self.commands = commands
     self.trigger = trigger
@@ -92,6 +96,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     case metadata
     case name
     case isEnabled = "enabled"
+    case execution
   }
 
   init(from decoder: Decoder) throws {
@@ -100,6 +105,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.name = try container.decode(String.self, forKey: .name)
     self.commands = try container.decodeIfPresent([Command].self, forKey: .commands) ?? []
+    self.execution = try container.decodeIfPresent(Execution.self, forKey: .execution) ?? .concurrent
 
     // Migrate keyboard shortcuts to trigger property
     if let keyboardShortcuts = try? container.decodeIfPresent([KeyShortcut].self, forKey: .keyboardShortcuts) {
@@ -115,6 +121,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(id, forKey: .id)
     try container.encode(name, forKey: .name)
+    try container.encode(execution, forKey: .execution)
     if !commands.isEmpty {
       try container.encode(commands, forKey: .commands)
     }
