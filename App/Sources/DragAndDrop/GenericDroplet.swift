@@ -1,6 +1,10 @@
 import Foundation
 import UniformTypeIdentifiers
 
+enum GenericDropletError: Error {
+  case unableToDecode
+}
+
 final class GenericDroplet<Element>: NSObject, Codable, NSItemProviderReading, NSItemProviderWriting where Element: Codable {
   static var readableTypeIdentifiersForItemProvider: [String] { [UTType.data.identifier] }
   static var writableTypeIdentifiersForItemProvider: [String] { [UTType.data.identifier] }
@@ -33,7 +37,7 @@ final class GenericDroplet<Element>: NSObject, Codable, NSItemProviderReading, N
     do {
       return try decoder.decode(self, from: data)
     } catch {
-      fatalError("Err")
+      throw GenericDropletError.unableToDecode
     }
   }
 }
