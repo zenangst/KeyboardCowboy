@@ -62,14 +62,14 @@ final class KeyboardCowboyEngine {
         os_log(.error, "\(error.localizedDescription)")
       }
     }
-
   }
 
-  func run(_ commands: [Command], serial: Bool) {
-    if serial {
-      commandEngine.serialRun(commands)
-    } else {
+  func run(_ commands: [Command], execution: Workflow.Execution) {
+    switch execution {
+    case .concurrent:
       commandEngine.concurrentRun(commands)
+    case .serial:
+      commandEngine.serialRun(commands)
     }
   }
 

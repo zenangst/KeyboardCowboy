@@ -113,11 +113,10 @@ final class DetailCommandActionReducer {
           command.name = newName
           workflow.updateOrAddCommand(command)
         case .open(let source):
+          let execution = workflow.execution
           Task {
             let path = (source as NSString).expandingTildeInPath
-            await keyboardCowboyEngine.run([
-              .open(.init(path: path))
-            ], serial: true)
+            await keyboardCowboyEngine.run([.open(.init(path: path))], execution: execution)
           }
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")

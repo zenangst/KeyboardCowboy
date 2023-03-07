@@ -163,7 +163,7 @@ enum DesignTime {
   }
 
   static var emptyDetail: DetailViewModel {
-    DetailViewModel(id: UUID().uuidString, name: "", isEnabled: false, commands: [])
+    DetailViewModel(id: UUID().uuidString, name: "", isEnabled: false, commands: [], execution: .concurrent)
   }
 
   static var detail: DetailViewModel {
@@ -178,6 +178,6 @@ enum DesignTime {
         Self.scriptCommandWithPath,
         Self.scriptCommandInline,
         Self.rebindingCommand
-      ])
+      ], execution: .serial)
   }
 }

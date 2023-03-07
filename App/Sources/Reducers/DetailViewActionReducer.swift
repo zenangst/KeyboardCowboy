@@ -3,6 +3,7 @@ import Foundation
 
 final class DetailViewActionReducer {
   static func reduce(_ action: DetailView.Action,
+                     commandEngine: CommandEngine,
                      keyboardCowboyEngine: KeyboardCowboyEngine,
                      applicationStore: ApplicationStore,
                      workflow: inout Workflow) -> Bool {
@@ -97,6 +98,22 @@ final class DetailViewActionReducer {
             workflow.trigger = .application(previousTriggers)
           }
         }
+      case .updateExecution(_, let execution):
+        switch execution {
+        case .concurrent:
+          workflow.execution = .concurrent
+        case .serial:
+          workflow.execution = .serial
+        }
+      case .runWorkflow:
+        let commands = workflow.commands.filter(\.isEnabled)
+        switch workflow.execution {
+        case .concurrent:
+          commandEngine.concurrentRun(commands)
+        case .serial:
+          commandEngine.serialRun(commands)
+        }
+        return false
       }
     }
     return result

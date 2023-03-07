@@ -35,9 +35,9 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
   var isEnabled: Bool
   var trigger: Trigger?
   var commands: [CommandViewModel]
-  var flow: Flow = .concurrent
+  var execution: Execution
 
-  enum Flow: String, CaseIterable, Hashable, Identifiable, Equatable {
+  enum Execution: String, CaseIterable, Hashable, Identifiable, Equatable {
     var id: String { rawValue }
     case concurrent = "Concurrent"
     case serial = "Serial"

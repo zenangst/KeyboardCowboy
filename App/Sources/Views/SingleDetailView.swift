@@ -13,6 +13,8 @@ struct SingleDetailView: View {
     case setIsEnabled(workflowId: Workflow.ID, isEnabled: Bool)
     case updateName(workflowId: Workflow.ID, name: String)
     case dropUrls(workflowId: Workflow.ID, urls: [URL])
+    case updateExecution(workflowId: Workflow.ID, execution: DetailViewModel.Execution)
+    case runWorkflow(workflowId: Workflow.ID)
   }
 
   @Environment(\.openWindow) var openWindow
@@ -67,12 +69,17 @@ struct SingleDetailView: View {
         Spacer()
         Group {
           Menu(content: {
-            ForEach(DetailViewModel.Flow.allCases) {
-              Button($0.rawValue, action: {})
+            ForEach(DetailViewModel.Execution.allCases) { execution in
+              Button(execution.rawValue, action: {
+                onAction(.updateExecution(workflowId: detailPublisher.model.id,
+                                          execution: execution))
+              })
             }
           }, label: {
-            Text("Run \(detailPublisher.model.flow.rawValue)")
+            Image(systemName: "play.fill")
+            Text("Run \(detailPublisher.model.execution.rawValue)")
           }, primaryAction: {
+            onAction(.runWorkflow(workflowId: detailPublisher.model.id))
           })
           .fixedSize()
         }

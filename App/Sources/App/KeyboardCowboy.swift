@@ -78,6 +78,9 @@ struct KeyboardCowboy: App {
     self.contentCoordinator = contentCoordinator
     self.configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
     self.detailCoordinator = DetailCoordinator(applicationStore: applicationStore,
+                                               commandEngine: CommandEngine(NSWorkspace.shared,
+                                                                            scriptEngine: scriptEngine,
+                                                                            keyboardEngine: keyboardEngine),
                                                contentStore: contentStore,
                                                keyboardCowboyEngine: engine,
                                                groupStore: contentStore.groupStore)

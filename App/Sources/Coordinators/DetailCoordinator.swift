@@ -9,6 +9,7 @@ final class DetailCoordinator {
   private var groupIds: [WorkflowGroup.ID] = []
 
   let applicationStore: ApplicationStore
+  let commandEngine: CommandEngine
   let contentStore: ContentStore
   let keyboardCowboyEngine: KeyboardCowboyEngine
   let groupStore: GroupStore
@@ -17,11 +18,13 @@ final class DetailCoordinator {
   let mapper: DetailModelMapper
 
   init(applicationStore: ApplicationStore,
+       commandEngine: CommandEngine,
        contentStore: ContentStore,
        keyboardCowboyEngine: KeyboardCowboyEngine,
        groupStore: GroupStore) {
     self.applicationStore = applicationStore
     self.keyboardCowboyEngine = keyboardCowboyEngine
+    self.commandEngine = commandEngine
     self.contentStore = contentStore
     self.groupStore = groupStore
     self.mapper = DetailModelMapper(applicationStore)
@@ -113,6 +116,7 @@ final class DetailCoordinator {
     case .singleDetailView(let action):
       guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
       let shouldCallRender = DetailViewActionReducer.reduce(detailAction,
+                                                            commandEngine: commandEngine,
                                                             keyboardCowboyEngine: keyboardCowboyEngine,
                                                             applicationStore: applicationStore,
                                                             workflow: &workflow)
@@ -284,6 +288,10 @@ extension SingleDetailView.Action {
     case .trigger(let workflowId, _):
       return workflowId
     case .updateName(let workflowId, _):
+      return workflowId
+    case .updateExecution(let workflowId, _):
+      return workflowId
+    case .runWorkflow(let workflowId):
       return workflowId
     }
   }
