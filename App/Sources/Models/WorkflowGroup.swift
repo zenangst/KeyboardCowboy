@@ -8,15 +8,15 @@ import Foundation
 ///          collection of workflows are eligible to be invoked.
 ///          All rules have to return `true` for workflows to be
 ///          eligable for execution.
-public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
-  public private(set) var id: String
-  public var symbol: String
-  public var name: String
-  public var color: String
-  public var rule: Rule?
-  public var workflows: [Workflow]
+struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
+  private(set) var id: String
+  var symbol: String
+  var name: String
+  var color: String
+  var rule: Rule?
+  var workflows: [Workflow]
 
-  public init(id: String = UUID().uuidString,
+  init(id: String = UUID().uuidString,
               symbol: String = "folder",
               name: String,
               color: String = "#000",
@@ -30,7 +30,7 @@ public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendabl
     self.workflows = workflows
   }
 
-  public func copy() -> Self {
+  func copy() -> Self {
     var clone = self
     clone.id = UUID().uuidString
     clone.name += " copy"
@@ -46,7 +46,7 @@ public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendabl
     case workflows
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
@@ -59,12 +59,12 @@ public struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendabl
 }
 
 extension WorkflowGroup {
-  static public func empty(id: String = UUID().uuidString) -> WorkflowGroup {
+  static func empty(id: String = UUID().uuidString) -> WorkflowGroup {
     WorkflowGroup(id: id, name: "Untitled group", color: "#000",
                   workflows: [Workflow.empty(id: UUID().uuidString)])
   }
 
-  static public func droppedApplication(id: String = UUID().uuidString,
+  static func droppedApplication(id: String = UUID().uuidString,
                                         _ application: Application) -> WorkflowGroup {
     WorkflowGroup(id: id,
           name: application.displayName,
@@ -75,7 +75,7 @@ extension WorkflowGroup {
           ])
   }
 
-  static public func designTime() -> WorkflowGroup {
+  static func designTime() -> WorkflowGroup {
     let application = Application.finder()
     return WorkflowGroup(id: UUID().uuidString,
                          name: application.displayName,

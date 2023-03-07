@@ -4,17 +4,17 @@ import Foundation
 /// be invoked when certain criteras are met, either
 /// `Group`-level or that the workflow matches the current
 /// keyboard invocation.
-public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
-  public enum Trigger: Hashable, Equatable, Codable, Sendable {
+struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
+  enum Trigger: Hashable, Equatable, Codable, Sendable {
     case application([ApplicationTrigger])
     case keyboardShortcuts([KeyShortcut])
 
-    public enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
       case application
       case keyboardShortcuts
     }
 
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       switch container.allKeys.first {
       case .application:
@@ -33,7 +33,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       }
     }
 
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       switch self {
       case .application(let trigger):
@@ -43,7 +43,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       }
     }
 
-    public static func ==(lhs: Trigger, rhs: Trigger) -> Bool {
+    static func ==(lhs: Trigger, rhs: Trigger) -> Bool {
       switch (lhs, rhs) {
       case (.application(let lhsTriggers), .application(let rhsTriggers)):
         return lhsTriggers == rhsTriggers
@@ -55,18 +55,18 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     }
   }
 
-  public private(set) var id: String
-  public var commands: [Command]
-  public var trigger: Trigger?
-  public var isEnabled: Bool = true
-  public var name: String
+  private(set) var id: String
+  var commands: [Command]
+  var trigger: Trigger?
+  var isEnabled: Bool = true
+  var name: String
 
-  public var isRebinding: Bool {
+  var isRebinding: Bool {
     if commands.count == 1, case .keyboard = commands.first { return true }
     return false
   }
 
-  public init(id: String = UUID().uuidString, name: String,
+  init(id: String = UUID().uuidString, name: String,
               trigger: Trigger? = nil,
               commands: [Command] = [],
               isEnabled: Bool = true) {
@@ -77,7 +77,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.isEnabled = isEnabled
   }
 
-  public func copy() -> Self {
+  func copy() -> Self {
     var clone = self
     clone.id = UUID().uuidString
     clone.name += " copy"
@@ -94,7 +94,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     case isEnabled = "enabled"
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
@@ -111,7 +111,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
   }
 
-  public func encode(to encoder: Encoder) throws {
+  func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(id, forKey: .id)
     try container.encode(name, forKey: .name)
@@ -139,7 +139,7 @@ public struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
 }
 
 extension Workflow {
-  static public func empty(id: String = UUID().uuidString) -> Workflow {
+  static func empty(id: String = UUID().uuidString) -> Workflow {
     Workflow(
       id: id,
       name: "Untitled workflow",
@@ -148,7 +148,7 @@ extension Workflow {
     )
   }
 
-  static public func designTime(_ trigger: Trigger?) -> Workflow {
+  static func designTime(_ trigger: Trigger?) -> Workflow {
     Workflow(id: UUID().uuidString,
              name: "Workflow name",
              trigger: trigger,
