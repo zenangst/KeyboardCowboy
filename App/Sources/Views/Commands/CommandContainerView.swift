@@ -87,17 +87,18 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
         .frame(width: 16, height: 16)
         Spacer()
+
         VStack(spacing: 0) {
-          Rectangle()
-            .fill(Color.gray)
+          Color.gray
             .frame(height: 1)
             .opacity(0.15)
-          Rectangle()
-            .fill(Color.black)
+          Color.black
             .frame(height: 1)
             .opacity(0.5)
         }
+
         Spacer()
+
         Button(action: { onAction(.run) },
                label: {
           Image(systemName: "play")
