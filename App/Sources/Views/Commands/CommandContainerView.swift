@@ -59,25 +59,26 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .padding([.bottom], 8)
       }
       Spacer()
-      actionButtons
+      CommandContainerActionView(onAction: onAction)
     }
   }
+}
 
-  var actionButtons: some View {
+struct CommandContainerActionView: View {
+  let onAction: (CommandContainerAction) -> Void
+
+  var body: some View {
     HStack(spacing: 0) {
       HStack(spacing: 0) {
-        Rectangle()
-          .fill(Color.gray)
+        Color.gray
           .frame(width: 1)
           .opacity(0.15)
-        Rectangle()
-          .fill(Color.black)
+        Color.black
           .frame(width: 1)
           .opacity(0.5)
       }
 
       VStack(spacing: 0) {
-        Spacer()
         Button(action: { onAction(.delete) },
                label: {
           Image(systemName: "xmark")
@@ -86,7 +87,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
         .frame(width: 16, height: 16)
-        Spacer()
+        .padding(.vertical, 10)
 
         VStack(spacing: 0) {
           Color.gray
@@ -97,8 +98,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .opacity(0.5)
         }
 
-        Spacer()
-
         Button(action: { onAction(.run) },
                label: {
           Image(systemName: "play")
@@ -107,7 +106,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
         .frame(width: 16, height: 16)
-        Spacer()
+        .padding(.vertical, 10)
       }
       .buttonStyle(.plain)
       .frame(width: 32)
