@@ -179,7 +179,11 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
           .overlay(EditableFocusView(manager: focusManager, element: element,
                                      configuration: configuration,
                                      onKeyDown: { element, keyCode, modifiers in
-            onKeyDown(index: index, elementId: element.id, keyCode: keyCode, modifiers: modifiers) }))
+            if onDelete != nil && keyCode == kVK_Delete {
+              return
+            }
+            onKeyDown(index: index, elementId: element.id, keyCode: keyCode, modifiers: modifiers)
+          }))
           .overlay(EditableSelectionOverlayView(manager: selectionManager, element: element.wrappedValue, configuration: configuration))
           .overlay(alignment: overlayAlignment(currentIndex: index),
                    content: {
