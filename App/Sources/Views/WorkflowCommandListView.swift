@@ -64,25 +64,24 @@ struct WorkflowCommandListView: View {
       }
       .padding()
       .overlay {
-        ZStack {
-          LinearGradient(stops: [
-            .init(color: Color(.systemGreen).opacity(0.75), location: 0.0),
-            .init(color: Color(.systemGreen).opacity(0.25), location: 1.0),
-          ], startPoint: .bottomTrailing, endPoint: .topLeading)
-          .mask(
-            RoundedRectangle(cornerRadius: 4)
-              .stroke(style: StrokeStyle(lineWidth: 2, dash: [8]))
-              .foregroundColor(Color(.systemGreen))
-              .padding(8)
-          )
-          .shadow(color: .black, radius: 1)
-
+        LinearGradient(stops: [
+          .init(color: Color(.systemGreen).opacity(0.75), location: 0.0),
+          .init(color: Color(.systemGreen).opacity(0.25), location: 1.0),
+        ], startPoint: .bottomTrailing, endPoint: .topLeading)
+        .mask(
           RoundedRectangle(cornerRadius: 4)
-            .fill(Color(.systemGreen).opacity(0.1))
+            .stroke(style: StrokeStyle(lineWidth: 2, dash: [8]))
+            .foregroundColor(Color(.systemGreen))
             .padding(8)
-        }
+        )
+        .shadow(color: .black, radius: 1)
         .opacity(dropOverlayIsVisible ? 1 : 0)
-        .animation(.linear, value: dropOverlayIsVisible)
+
+        Color(.systemGreen).opacity(0.1)
+          .cornerRadius(4)
+          .padding(8)
+          .opacity(dropOverlayIsVisible ? 1 : 0)
+          .animation(.linear, value: dropOverlayIsVisible)
       }
   }
 

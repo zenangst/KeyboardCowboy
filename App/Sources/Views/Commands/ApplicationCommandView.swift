@@ -95,7 +95,6 @@ struct ApplicationCommandView: View {
             .onChange(of: name, perform: {
               onAction(.updateName(newName: $0))
             })
-          Spacer()
         }
       }, subContent: {
         HStack {

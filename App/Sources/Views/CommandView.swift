@@ -33,14 +33,13 @@ struct CommandView: View {
 
   var body: some View {
     CommandResolverView(command, workflowId: workflowId, onAction: onAction)
-      .animation(.none, value: command.isEnabled)
       .onChange(of: command.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
       })
+      .background(Color(.textBackgroundColor).cornerRadius(8))
+      .animation(.none, value: command.isEnabled)
       .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
       .opacity(command.isEnabled ? 1 : 0.5)
-      .background(Color(.textBackgroundColor))
-      .cornerRadius(8)
       .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
               radius: command.isEnabled ? 4 : 2,
               y: command.isEnabled ? 2 : 0)
