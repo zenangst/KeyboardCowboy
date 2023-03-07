@@ -124,24 +124,31 @@ final class MachPortEngine {
       }
     case .exact(let workflow):
       machPortEvent.result = nil
-      switch workflow.commands.last {
-      case .keyboard(let command):
+
+      if workflow.commands.count == 1,
+         case .keyboard(let command) = workflow.commands.first {
         try? keyboardEngine.run(command,
                                 type: machPortEvent.type,
                                 originalEvent: machPortEvent.event,
                                 with: machPortEvent.eventSource)
-      default:
-        if kind == .keyDown {
+      } else if kind == .keyDown {
           // Avoid running commands on key down.
           if let lastEvent, lastEvent.isSame(as: machPortEvent) { return }
 
-          commandEngine.serialRun(workflow.commands.filter(\.isEnabled))
+          let commands = workflow.commands.filter(\.isEnabled)
+
+          switch workflow.execution {
+          case .concurrent:
+            commandEngine.concurrentRun(commands)
+          case .serial:
+            commandEngine.serialRun(commands)
+          }
+
           previousKey = Self.previousKeyDefault
           lastEvent = machPortEvent
         } else {
           lastEvent = nil
         }
-      }
     case .none:
       if kind == .keyDown {
         // No match, reset the lookup key
@@ -194,8 +201,10 @@ final class MachPortEngine {
       switch restrictedKeyCode {
       case .backspace, .delete:
         validationContext = .delete(keyboardShortcut)
-      case .escape, .enter:
+      case .escape:
         validationContext = .cancel(keyboardShortcut)
+      case .enter:
+        validationContext = .valid(keyboardShortcut)
       }
     } else {
       validationContext = .valid(keyboardShortcut)
