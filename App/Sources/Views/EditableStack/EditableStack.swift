@@ -397,6 +397,10 @@ private struct EditableFocusView<Element>: View where Element: Hashable,
           .padding(-1)
       )
       .onChange(of: manager.focus) { newValue in
+        guard newValue != nil else {
+          isFocused = false
+          return
+        }
         if newValue == .focused(element.id) {
           isFocused <- true
         }
