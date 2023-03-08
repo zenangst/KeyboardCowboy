@@ -60,7 +60,7 @@ final class CommandEngine {
           }
         }
       case .shortcut(let shortcut):
-        Task {
+        Task(priority: .userInitiated) {
           let source = """
           shortcuts view "\(shortcut.shortcutIdentifier)"
           """
@@ -80,7 +80,7 @@ final class CommandEngine {
 
   func serialRun(_ commands: [Command]) {
     runningTask?.cancel()
-    runningTask = Task.detached { [weak self] in
+    runningTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self = self else { return }
       do {
         for command in commands {
@@ -93,7 +93,7 @@ final class CommandEngine {
 
   func concurrentRun(_ commands: [Command]) {
     for command in commands {
-      Task {
+      Task(priority: .userInitiated) {
         do {
           try await run(command)
         } catch { }
@@ -122,7 +122,7 @@ final class CommandEngine {
     case .open(let openCommand):
       try await engines.open.run(openCommand)
     case .script(let scriptCommand):
-      Task.detached {
+      Task.detached(priority: .userInitiated) {
         _ = try await self.engines.script.run(scriptCommand)
       }
     case .shortcut(let shortcutCommand):
