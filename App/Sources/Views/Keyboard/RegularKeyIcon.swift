@@ -116,6 +116,7 @@ public struct RegularKeyIcon: View, KeyView {
                   .font(Font.system(size: height * 0.3, weight: .regular, design: .rounded))
               )
           )
+          .compositingGroup()
           .shadow(color:
                     Color(.controlAccentColor).opacity(glow ? 1.0 : 0.0),
                   radius: 1,
