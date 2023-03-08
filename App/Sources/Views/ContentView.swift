@@ -116,39 +116,37 @@ struct ContentItemView: View {
 
   var body: some View {
     HStack {
-      ZStack {
-        Rectangle()
-          .fill(Color.accentColor.opacity(0.375))
-        ContentImagesView(images: workflow.images)
-      }
-      .overlay(alignment: .topTrailing, content: {
-        ZStack {
-          Circle()
-            .fill(Color.accentColor)
+      ContentImagesView(images: workflow.images)
+        .background(Color.accentColor.opacity(0.375).cornerRadius(8, antialiased: false))
+        .overlay(alignment: .topTrailing, content: {
           Text("\(workflow.badge)")
+            .aspectRatio(1, contentMode: .fill)
+            .padding(1)
             .lineLimit(1)
             .minimumScaleFactor(0.5)
             .allowsTightening(true)
             .bold()
             .font(.caption2)
-        }
-        .frame(width: 12)
-        .offset(x: -2, y: 2)
-        .aspectRatio(contentMode: .fit)
-        .padding(2)
-        .shadow(color: .black.opacity(0.75), radius: 2)
-        .opacity(workflow.badgeOpacity)
-      })
-      .frame(width: 32, height: 32)
-      .cornerRadius(8, antialiased: false)
+            .background(
+              Color.accentColor
+                .cornerRadius(32)
+            )
+            .frame(maxWidth: 12)
+            .offset(x: 4, y: 0)
+            .padding(2)
+            .compositingGroup()
+            .shadow(color: .black.opacity(0.75), radius: 2)
+            .opacity(workflow.badgeOpacity)
+        })
+        .frame(width: 32, height: 32)
 
       Text(workflow.name)
         .lineLimit(1)
         .allowsTightening(true)
-      Spacer()
 
       if let binding = workflow.binding {
-        KeyboardShortcutView(shortcut: .init(key: binding, lhs: true))
+        Spacer()
+        KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
           .font(.caption)
           .layoutPriority(-1)
       }
@@ -160,8 +158,10 @@ struct ContentImagesView: View {
   let images: [ContentViewModel.ImageModel]
 
   var body: some View {
-    ForEach(images) { image in
-      ContentImageView(image: image)
+    ZStack {
+      ForEach(images) { image in
+        ContentImageView(image: image)
+      }
     }
   }
 }
