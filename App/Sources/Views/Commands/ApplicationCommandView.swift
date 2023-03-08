@@ -5,17 +5,6 @@ struct IconMenuStyle: MenuStyle {
   func makeBody(configuration: Configuration) -> some View {
     Menu(configuration)
       .menuStyle(.borderlessButton)
-      .mask(
-        GeometryReader { proxy in
-          if proxy.size.width > 2 && proxy.size.height > 2 {
-            RoundedRectangle(cornerRadius: 8)
-              .frame(width: proxy.size.width - 2, height: proxy.size.height - 2)
-              .offset(x: -1)
-          } else {
-            EmptyView()
-          }
-        }
-      )
   }
 }
 
@@ -61,6 +50,7 @@ struct ApplicationCommandView: View {
       icon: {
         if let icon = command.icon {
           ApplicationCommandImageView($command, icon: icon, onAction: onAction)
+            .id(command.icon?.bundleIdentifier)
         }
       },
       content: {
@@ -137,23 +127,28 @@ struct ApplicationCommandImageView: View {
   }
 
   var body: some View {
-    // TODO: Fix flickering bug when dragging an application command.
-    ZStack {
-      Menu(content: {
-        ForEach(applicationStore.applications) { app in
-          Button(action: {
-            onAction(.changeApplication(app))
-            command.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
-          }, label: {
-            Text(app.displayName)
-          })
-        }
-      }, label: { })
-      .menuStyle(IconMenuStyle())
-      .menuIndicator(.hidden)
-
-      IconView(icon: icon, size: .init(width: 32, height: 32))
-    }
+    Menu(content: {
+      ForEach(applicationStore.applications) { app in
+        Button(action: {
+          onAction(.changeApplication(app))
+          command.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
+        }, label: {
+          Text(app.displayName)
+        })
+      }
+    }, label: { })
+    .menuStyle(IconMenuStyle())
+    .background(
+      Color.accentColor.opacity(0.375)
+        .frame(width: 32, height: 32)
+        .cornerRadius(8, antialiased: false)
+    )
+    .overlay(
+      IconView(icon: icon, size: .init(width: 24, height: 24))
+        .allowsHitTesting(false)
+    )
+    .menuIndicator(.hidden)
+    .enableInjection()
   }
 }
 
