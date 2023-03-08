@@ -6,10 +6,6 @@ final class ApplicationStore: ObservableObject {
   @Published private(set) var applications = [Application]()
   @Published private(set) var dictionary = [String: Application]()
 
-  init() {
-    reload()
-  }
-
   func applicationsToOpen(_ path: String) -> [Application] {
     guard let url = URL(string: path) else { return [] }
     return NSWorkspace.shared.urlsForApplications(toOpen: url)
@@ -26,21 +22,21 @@ final class ApplicationStore: ObservableObject {
     dictionary[bundleIdentifier]
   }
 
-  func reload() {
-    Task(priority: .userInitiated) {
-      let newApplications = await ApplicationController.load()
-      var applicationDictionary = [String: Application]()
-      var applicationsByPath = [String: Application]()
-      for application in newApplications {
-        applicationDictionary[application.bundleIdentifier] = application
-        applicationsByPath[application.path] = application
-      }
+  func reload() async {
+    Benchmark.start("ApplicationController.load")
+    let newApplications = await ApplicationController.load()
+    Benchmark.finish("ApplicationController.load")
+    var applicationDictionary = [String: Application]()
+    var applicationsByPath = [String: Application]()
+    for application in newApplications {
+      applicationDictionary[application.bundleIdentifier] = application
+      applicationsByPath[application.path] = application
+    }
 
-      await MainActor.run { [applicationDictionary, applicationsByPath] in
-        self.applications = newApplications
-        self.dictionary = applicationDictionary
-        self.applicationsByPath = applicationsByPath
-      }
+    await MainActor.run { [applicationDictionary, applicationsByPath] in
+      self.applications = newApplications
+      self.dictionary = applicationDictionary
+      self.applicationsByPath = applicationsByPath
     }
   }
 }
