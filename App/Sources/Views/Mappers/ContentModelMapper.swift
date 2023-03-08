@@ -62,7 +62,7 @@ private extension Workflow.Trigger {
 private extension Array where Element == Command {
   func images(limit: Int) -> [ContentViewModel.ImageModel] {
     var images = [ContentViewModel.ImageModel]()
-    for (offset, element) in self.enumerated() {
+    for (offset, element) in self.enumerated() where element.isEnabled {
       if offset == limit { break }
       let convertedOffset = Double(offset)
       switch element {
