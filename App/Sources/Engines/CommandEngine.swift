@@ -86,6 +86,7 @@ final class CommandEngine {
         for command in commands {
           try Task.checkCancellation()
           try await self.run(command)
+          try await Task.sleep(for: .milliseconds(50))
         }
       }
     }
@@ -119,6 +120,11 @@ final class CommandEngine {
                                type: .keyDown,
                                originalEvent: nil,
                                with: eventSource)
+      try engines.keyboard.run(keyboardCommand,
+                               type: .keyUp,
+                               originalEvent: nil,
+                               with: eventSource)
+      try await Task.sleep(for: .milliseconds(1))
     case .open(let openCommand):
       try await engines.open.run(openCommand)
     case .script(let scriptCommand):

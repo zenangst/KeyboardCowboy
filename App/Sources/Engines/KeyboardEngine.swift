@@ -31,12 +31,7 @@ final class KeyboardEngine {
     }
 
     for keyboardShortcut in command.keyboardShortcuts {
-      let string = keyboardShortcut.key.uppercased()
-
-      guard let key = store.keyCode(for: string, matchDisplayValue: true) else {
-        throw KeyboardEngineError.failedToResolveKey(string)
-      }
-
+      let key = try resolveKey(for: keyboardShortcut.key)
       var flags = CGEventFlags()
       keyboardShortcut.modifiers.forEach { flags.insert($0.cgModifierFlags) }
       try machPort.post(key, type: type, flags: flags) { newEvent in
@@ -46,5 +41,18 @@ final class KeyboardEngine {
         }
       }
     }
+  }
+
+  private func resolveKey(for string: String) throws -> Int {
+    let uppercased = string.uppercased()
+
+    if let uppercasedResult = store.keyCode(for: uppercased, matchDisplayValue: true) {
+      return uppercasedResult
+    }
+    if let stringResult = store.keyCode(for: string, matchDisplayValue: true) {
+      return stringResult
+    }
+
+    throw KeyboardEngineError.failedToResolveKey(string)
   }
 }

@@ -126,11 +126,36 @@ final class MachPortEngine {
       machPortEvent.result = nil
 
       if workflow.commands.count == 1,
-         case .keyboard(let command) = workflow.commands.first {
+         case .keyboard(let command) = workflow.commands.first(where: \.isEnabled) {
         try? keyboardEngine.run(command,
                                 type: machPortEvent.type,
                                 originalEvent: machPortEvent.event,
                                 with: machPortEvent.eventSource)
+      } else if workflow.commands.allSatisfy({
+        if case .keyboard = $0 { return true } else { return false }
+      }) {
+        let keyboardCommands = workflow.commands
+          .filter(\.isEnabled)
+          .compactMap {
+            if case .keyboard(let command) = $0 {
+              return command
+            } else {
+              return nil
+            }
+          }
+        Task {
+          for command in keyboardCommands {
+            try? keyboardEngine.run(command,
+                                    type: .keyDown,
+                                    originalEvent: machPortEvent.event,
+                                    with: machPortEvent.eventSource)
+            try await Task.sleep(for: .milliseconds(75))
+            try? keyboardEngine.run(command,
+                                    type: .keyUp,
+                                    originalEvent: machPortEvent.event,
+                                    with: machPortEvent.eventSource)
+          }
+        }
       } else if kind == .keyDown {
           // Avoid running commands on key down.
           if let lastEvent, lastEvent.isSame(as: machPortEvent) { return }
