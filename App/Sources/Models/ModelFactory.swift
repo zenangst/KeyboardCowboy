@@ -18,14 +18,14 @@ public class ModelFactory {
       Command.openCommand(id: id),
       Command.urlCommand(id: id, application: nil),
       Command.typeCommand(id: id),
-      Command.builtIn(.init(kind: .quickRun))
+      Command.builtIn(.init(kind: .quickRun, notification: false))
     ]
 
     return result
   }
 
   func applicationCommand(id: String = UUID().uuidString) -> ApplicationCommand {
-    .init(id: id, action: .open, application: Self.application(id: id))
+    .init(id: id, action: .open, application: Self.application(id: id), notification: false)
   }
 
   func appleScriptCommand(id: String) -> Command {
@@ -39,11 +39,12 @@ public class ModelFactory {
   func urlCommand(id: String, application: Application?) -> Command {
     Command.open(.init(id: id,
                        application: application,
-                       path: "https://github.com"))
+                       path: "https://github.com",
+                       notification: false))
   }
 
   func typeCommand(id: String) -> Command {
-    Command.type(.init(id: id, name: "Type input", input: ""))
+    Command.type(.init(id: id, name: "Type input", input: "", notification: false))
   }
 
   func days() -> [Rule.Day] {
@@ -62,7 +63,7 @@ public class ModelFactory {
   }
 
   func keyboardCommand(id: String = UUID().uuidString, lhs: Bool) -> KeyboardCommand {
-    .init(id: id, keyboardShortcut: keyboardShortcut(id: id, lhs: lhs))
+    .init(id: id, keyboardShortcut: keyboardShortcut(id: id, lhs: lhs), notification: false)
   }
 
   func keyboardShortcut(id: String = UUID().uuidString,
@@ -74,7 +75,7 @@ public class ModelFactory {
 
   func openCommand(id: String = UUID().uuidString,
                    application: Application? = ModelFactory.application()) -> OpenCommand {
-    .init(id: id, application: application, path: "~/Desktop/new_real_final_draft_Copy_42.psd")
+    .init(id: id, application: application, path: "~/Desktop/new_real_final_draft_Copy_42.psd", notification: false)
   }
 
   func rule(id: String = UUID().uuidString) -> Rule {

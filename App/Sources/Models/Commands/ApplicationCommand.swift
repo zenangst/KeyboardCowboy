@@ -35,16 +35,19 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
   public var action: Action
   public var modifiers: Set<Modifier>
   public var isEnabled: Bool = true
+  public var notification: Bool
 
   public init(id: String = UUID().uuidString, name: String = "",
               action: Action = .open,
               application: Application,
-              modifiers: [Modifier] = []) {
+              modifiers: [Modifier] = [],
+              notification: Bool) {
     self.id = id
     self.name = name
     self.application = application
     self.modifiers = Set(modifiers)
     self.action = action
+    self.notification = notification
   }
 
   enum CodingKeys: String, CodingKey {
@@ -54,6 +57,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
     case application
     case modifiers
     case isEnabled = "enabled"
+    case notification
   }
 
   public init(from decoder: Decoder) throws {
@@ -65,11 +69,14 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
     self.application = try container.decode(Application.self, forKey: .application)
     self.modifiers = try container.decodeIfPresent(Set<Modifier>.self, forKey: .modifiers) ?? []
     self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+    self.notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
   }
 }
 
 public extension ApplicationCommand {
   static func empty() -> ApplicationCommand {
-    ApplicationCommand(action: .open, application: Application(bundleIdentifier: "", bundleName: "", path: ""))
+    ApplicationCommand(action: .open,
+                       application: Application(bundleIdentifier: "", bundleName: "", path: ""),
+                       notification: false)
   }
 }

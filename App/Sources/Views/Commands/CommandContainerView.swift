@@ -50,7 +50,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .toggleStyle(.switch)
             .tint(.green)
             .scaleEffect(0.65)
-            .offset(x: -2)
 
           subContent()
             .buttonStyle(.appStyle)
@@ -78,7 +77,7 @@ struct CommandContainerActionView: View {
           .opacity(0.5)
       }
 
-      VStack(spacing: 0) {
+      VStack(alignment: .center, spacing: 0) {
         Button(action: { onAction(.delete) },
                label: {
           Image(systemName: "xmark")
@@ -86,7 +85,8 @@ struct CommandContainerActionView: View {
             .aspectRatio(contentMode: .fit)
         })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
-        .frame(width: 16, height: 16)
+        .frame(width: 16)
+        .frame(maxHeight: .infinity)
         .padding(.vertical, 10)
 
         VStack(spacing: 0) {
@@ -105,7 +105,8 @@ struct CommandContainerActionView: View {
             .aspectRatio(contentMode: .fit)
         })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-        .frame(width: 16, height: 16)
+        .frame(width: 16)
+        .frame(maxHeight: .infinity)
         .padding(.vertical, 10)
       }
       .buttonStyle(.plain)

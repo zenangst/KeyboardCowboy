@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ShortcutCommandView: View {
   enum Action {
+    case toggleNotify(newValue: Bool)
     case updateName(newName: String)
     case openShortcuts
     case commandAction(CommandContainerAction)
@@ -9,12 +10,14 @@ struct ShortcutCommandView: View {
 
   @State private var name: String
   @State var command: DetailViewModel.CommandViewModel
+  @State var notify: Bool = false
   private let onAction: (Action) -> Void
 
   init(_ command: DetailViewModel.CommandViewModel,
        onAction: @escaping (Action) -> Void) {
     _command = .init(initialValue: command)
     _name = .init(initialValue: command.name)
+    _notify = .init(initialValue: command.notify)
     self.onAction = onAction
   }
   
@@ -33,7 +36,21 @@ struct ShortcutCommandView: View {
           onAction(.updateName(newName: $0))
         })
     }, subContent: {
-      Button("Open Shortcuts", action: { onAction(.openShortcuts) })
+      HStack {
+        Toggle("Notify", isOn: $notify)
+          .onChange(of: notify) { newValue in
+            onAction(.toggleNotify(newValue: newValue))
+          }
+          .lineLimit(1)
+          .allowsTightening(true)
+          .truncationMode(.tail)
+          .font(.caption)
+
+        Text("|")
+
+        Button("Open Shortcuts", action: { onAction(.openShortcuts) })
+          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemPurple)))
+      }
     }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()
   }
@@ -42,5 +59,6 @@ struct ShortcutCommandView: View {
 struct ShortcutCommandView_Previews: PreviewProvider {
   static var previews: some View {
     ShortcutCommandView(DesignTime.shortcutCommand, onAction: { _ in})
+      .frame(maxHeight: 80)
   }
 }

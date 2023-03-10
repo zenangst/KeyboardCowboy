@@ -11,21 +11,26 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
     keyboardShortcuts.first!
   }
   public var isEnabled: Bool = true
+  public var notification: Bool
 
   public init(id: String = UUID().uuidString,
               name: String = "",
-              keyboardShortcut: KeyShortcut) {
+              keyboardShortcut: KeyShortcut,
+              notification: Bool) {
     self.id = id
     self.name = name
     self.keyboardShortcuts = [keyboardShortcut]
+    self.notification = notification
   }
 
   public init(id: String = UUID().uuidString,
               name: String = "",
-              keyboardShortcuts: [KeyShortcut]) {
+              keyboardShortcuts: [KeyShortcut],
+              notification: Bool) {
     self.id = id
     self.name = name
     self.keyboardShortcuts = keyboardShortcuts
+    self.notification = notification
   }
 
   enum MigrationKeys: String, CodingKey {
@@ -37,6 +42,7 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
     case name
     case keyboardShortcuts
     case isEnabled = "enabled"
+    case notification
   }
 
   public init(from decoder: Decoder) throws {
@@ -53,11 +59,12 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
     }
 
     self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+    self.notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
   }
 }
 
 public extension KeyboardCommand {
   static func empty() -> KeyboardCommand {
-    KeyboardCommand(keyboardShortcut: KeyShortcut(key: "", lhs: true))
+    KeyboardCommand(keyboardShortcut: KeyShortcut(key: "", lhs: true), notification: false)
   }
 }

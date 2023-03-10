@@ -12,6 +12,7 @@ struct ApplicationCommandView: View {
   enum Action {
     case changeApplication(Application)
     case updateName(newName: String)
+    case toggleNotify(newValue: Bool)
     case changeApplicationModifier(modifier: ApplicationCommand.Modifier, newValue: Bool)
     case changeApplicationAction(ApplicationCommand.Action)
     case commandAction(CommandContainerAction)
@@ -22,6 +23,7 @@ struct ApplicationCommandView: View {
   @EnvironmentObject var applicationStore: ApplicationStore
 
   @State private var name: String
+  @State private var notify: Bool
   @State private var inBackground: Bool
   @State private var hideWhenRunning: Bool
   @State private var ifNotRunning: Bool
@@ -31,6 +33,7 @@ struct ApplicationCommandView: View {
 
   init(_ command: DetailViewModel.CommandViewModel,
        actionName: String,
+       notify: Bool,
        inBackground: Bool,
        hideWhenRunning: Bool,
        ifNotRunning: Bool,
@@ -38,6 +41,7 @@ struct ApplicationCommandView: View {
     _command = .init(initialValue: command)
     _name = .init(initialValue: command.name)
     _actionName = .init(initialValue: actionName)
+    _notify = .init(initialValue: notify)
     _inBackground = .init(initialValue: inBackground)
     _hideWhenRunning = .init(initialValue: hideWhenRunning)
     _ifNotRunning = .init(initialValue: ifNotRunning)
@@ -88,6 +92,10 @@ struct ApplicationCommandView: View {
         }
       }, subContent: {
         HStack {
+          Toggle("Notify", isOn: $notify)
+            .onChange(of: notify) { newValue in
+              onAction(.toggleNotify(newValue: newValue))
+            }
           Toggle("In background", isOn: $inBackground)
             .onChange(of: inBackground) { newValue in
               onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
@@ -156,6 +164,7 @@ struct ApplicationCommandView_Previews: PreviewProvider {
   static var previews: some View {
     ApplicationCommandView(DesignTime.applicationCommand,
                            actionName: "Open",
+                           notify: false,
                            inBackground: false,
                            hideWhenRunning: false,
                            ifNotRunning: false,

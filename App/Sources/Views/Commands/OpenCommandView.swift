@@ -3,6 +3,7 @@ import SwiftUI
 
 struct OpenCommandView: View {
   enum Action {
+    case toggleNotify(newValue: Bool)
     case updateName(newName: String)
     case openWith(Application)
     case commandAction(CommandContainerAction)
@@ -12,12 +13,14 @@ struct OpenCommandView: View {
   @State var command: DetailViewModel.CommandViewModel
   @State private var name: String
   @State private var isHovered = false
+  @State private var notify = false
   private let onAction: (Action) -> Void
 
   init(_ command: DetailViewModel.CommandViewModel,
        onAction: @escaping (Action) -> Void) {
     _command = .init(initialValue: command)
     _name = .init(initialValue: command.name)
+    _notify = .init(initialValue: command.notify)
     self.onAction = onAction
   }
 
@@ -74,14 +77,27 @@ struct OpenCommandView: View {
       }
     }, subContent: {
       HStack {
+        Toggle("Notify", isOn: $notify)
+          .onChange(of: notify) { newValue in
+            onAction(.toggleNotify(newValue: newValue))
+          }
+          .lineLimit(1)
+          .allowsTightening(true)
+          .truncationMode(.tail)
+          .font(.caption)
+
+        Text("|")
+
         switch command.kind {
         case .open(let path, _, _):
           Button("Reveal", action: { onAction(.reveal(path: path)) })
+            .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue)))
         default:
           EmptyView()
         }
       }
       .padding(.bottom, 4)
+      .frame(maxWidth: .infinity, alignment: .leading)
       .font(.caption)
     }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()

@@ -33,16 +33,19 @@ public struct BuiltInCommand: Identifiable, Codable, Hashable, Sendable {
   }
 
   public var isEnabled: Bool = true
+  public var notification: Bool
 
   enum CodingKeys: String, CodingKey {
     case id, kind
     case isEnabled = "enabled"
+    case notification
   }
 
   public init(id: String = UUID().uuidString,
-              kind: Kind) {
+              kind: Kind, notification: Bool) {
     self.id = id
     self.kind = kind
+    self.notification = notification
   }
 
   public init(from decoder: Decoder) throws {
@@ -51,5 +54,6 @@ public struct BuiltInCommand: Identifiable, Codable, Hashable, Sendable {
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.kind = try container.decode(Kind.self, forKey: .kind)
     self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+    self.notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
   }
 }

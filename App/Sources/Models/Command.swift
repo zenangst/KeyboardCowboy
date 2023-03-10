@@ -186,6 +186,55 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     }
   }
 
+  public var notification: Bool {
+    get {
+      switch self {
+      case .application(let applicationCommand):
+        return applicationCommand.notification
+      case .builtIn(let builtInCommand):
+        return builtInCommand.notification
+      case .keyboard(let keyboardCommand):
+        return keyboardCommand.notification
+      case .open(let openCommand):
+        return openCommand.notification
+      case .script(let scriptCommand):
+        // TODO: Add support for `.notification` on script commands.
+        return false
+//        return scriptCommand.notification
+      case .shortcut(let shortcutCommand):
+        return shortcutCommand.notification
+      case .type(let typeCommand):
+        return typeCommand.notification
+      }
+    }
+    set {
+      switch self {
+      case .application(var applicationCommand):
+        applicationCommand.notification = newValue
+        self = .application(applicationCommand)
+      case .builtIn(var builtInCommand):
+        builtInCommand.notification = newValue
+        self = .builtIn(builtInCommand)
+      case .keyboard(var keyboardCommand):
+        keyboardCommand.notification = newValue
+        self = .keyboard(keyboardCommand)
+      case .open(var openCommand):
+        openCommand.notification = newValue
+        self = .open(openCommand)
+      case .script(var scriptCommand):
+        // TODO: Add support for notification on script command
+//        scriptCommand.notification = newValue
+        self = .script(scriptCommand)
+      case .shortcut(var shortcutCommand):
+        shortcutCommand.notification = newValue
+        self = .shortcut(shortcutCommand)
+      case .type(var typeCommand):
+        typeCommand.notification = newValue
+        self = .type(typeCommand)
+      }
+    }
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -248,19 +297,19 @@ public extension Command {
     case .application:
       return Command.application(ApplicationCommand.empty())
     case .builtIn:
-      return Command.builtIn(.init(kind: .quickRun))
+      return Command.builtIn(.init(kind: .quickRun, notification: false))
     case .keyboard:
       return Command.keyboard(KeyboardCommand.empty())
     case .open:
-      return Command.open(.init(path: ""))
+      return Command.open(.init(path: "", notification: false))
     case .script:
       return Command.script(.appleScript(id: UUID().uuidString, isEnabled: true,
                                          name: nil, source: .path("")))
     case .shortcut:
       return Command.shortcut(.init(id: UUID().uuidString, shortcutIdentifier: "",
-                                    name: "", isEnabled: true))
+                                    name: "", isEnabled: true, notification: false))
     case .type:
-      return Command.type(.init(name: "", input: ""))
+      return Command.type(.init(name: "", input: "", notification: false))
     }
   }
 
@@ -273,14 +322,14 @@ public extension Command {
       openCommand(id: id),
       urlCommand(id: id, application: nil),
       typeCommand(id: id),
-      Command.builtIn(.init(kind: .quickRun))
+      Command.builtIn(.init(kind: .quickRun, notification: false))
     ]
 
     return result
   }
 
   static func applicationCommand(id: String) -> Command {
-    Command.application(.init(id: id, application: Application.messages(name: "Application")))
+    Command.application(.init(id: id, application: Application.messages(name: "Application"), notification: false))
   }
 
   static func appleScriptCommand(id: String) -> Command {
@@ -293,11 +342,11 @@ public extension Command {
 
   static func shortcutCommand(id: String) -> Command {
     Command.shortcut(ShortcutCommand(id: id, shortcutIdentifier: "Run shortcut",
-                                     name: "Run shortcut", isEnabled: true))
+                                     name: "Run shortcut", isEnabled: true, notification: false))
   }
 
   static func keyboardCommand(id: String) -> Command {
-    Command.keyboard(.init(id: id, keyboardShortcut: KeyShortcut.empty()))
+    Command.keyboard(.init(id: id, keyboardShortcut: KeyShortcut.empty(), notification: false))
   }
 
   static func openCommand(id: String) -> Command {
@@ -306,16 +355,18 @@ public extension Command {
                         bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
                         bundleName: "",
                         path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
-                       path: "~/Developer/Xcode.project"))
+                       path: "~/Developer/Xcode.project",
+                       notification: false))
   }
 
   static func urlCommand(id: String, application: Application?) -> Command {
     Command.open(.init(id: id,
                        application: application,
-                       path: "https://github.com"))
+                       path: "https://github.com",
+                       notification: false))
   }
 
   static func typeCommand(id: String) -> Command {
-    Command.type(.init(id: id, name: "Type input", input: ""))
+    Command.type(.init(id: id, name: "Type input", input: "", notification: false))
   }
 }

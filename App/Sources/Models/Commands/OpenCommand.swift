@@ -14,6 +14,7 @@ public struct OpenCommand: Identifiable, Codable, Hashable, Sendable {
   public let path: String
   public var name: String
   public var isEnabled: Bool = true
+  public var notification: Bool
 
   public var isUrl: Bool {
     if let url = URL(string: path) {
@@ -29,11 +30,13 @@ public struct OpenCommand: Identifiable, Codable, Hashable, Sendable {
 
   public init(id: String = UUID().uuidString,
               name: String = "",
-              application: Application? = nil, path: String) {
+              application: Application? = nil, path: String,
+              notification: Bool) {
     self.id = id
     self.name = name
     self.application = application
     self.path = path
+    self.notification = notification
   }
 
   enum CodingKeys: String, CodingKey {
@@ -42,6 +45,7 @@ public struct OpenCommand: Identifiable, Codable, Hashable, Sendable {
     case name
     case path
     case isEnabled = "enabled"
+    case notification
   }
 
   public init(from decoder: Decoder) throws {
@@ -52,11 +56,12 @@ public struct OpenCommand: Identifiable, Codable, Hashable, Sendable {
     self.application = try container.decodeIfPresent(Application.self, forKey: .application)
     self.path = try container.decode(String.self, forKey: .path)
     self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+    self.notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
   }
 }
 
 public extension OpenCommand {
   static func empty() -> OpenCommand {
-    OpenCommand(path: "/Applications")
+    OpenCommand(path: "/Applications", notification: false)
   }
 }

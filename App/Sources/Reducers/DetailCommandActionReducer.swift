@@ -25,6 +25,9 @@ final class DetailCommandActionReducer {
         }
 
         switch action {
+        case .toggleNotify(let newValue):
+          command.notification = newValue
+          workflow.updateOrAddCommand(command)
         case .changeApplication(let application):
           applicationCommand.application = application
           command = .application(applicationCommand)
@@ -55,8 +58,11 @@ final class DetailCommandActionReducer {
         }
       case .keyboard(let action, _, _):
         switch action {
+        case .toggleNotify(let newValue):
+          command.notification = newValue
+          workflow.updateOrAddCommand(command)
         case .updateKeyboardShortcuts(let keyboardShortcuts):
-          command = .keyboard(.init(id: command.id, keyboardShortcuts: keyboardShortcuts))
+          command = .keyboard(.init(id: command.id, keyboardShortcuts: keyboardShortcuts, notification: command.notification))
           workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
@@ -67,6 +73,9 @@ final class DetailCommandActionReducer {
         }
       case .open(let action, _, _):
         switch action {
+        case .toggleNotify(let newValue):
+          command.notification = newValue
+          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
@@ -76,7 +85,8 @@ final class DetailCommandActionReducer {
               id: oldCommand.id,
               name: oldCommand.name,
               application: application,
-              path: oldCommand.path
+              path: oldCommand.path,
+              notification: command.notification
             )
             command = .open(newCommand)
             workflow.updateOrAddCommand(command)
@@ -116,7 +126,7 @@ final class DetailCommandActionReducer {
           let execution = workflow.execution
           Task {
             let path = (source as NSString).expandingTildeInPath
-            await keyboardCowboyEngine.run([.open(.init(path: path))], execution: execution)
+            await keyboardCowboyEngine.run([.open(.init(path: path, notification: false))], execution: execution)
           }
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
@@ -128,6 +138,9 @@ final class DetailCommandActionReducer {
         }
       case .shortcut(let action, _, _):
         switch action {
+        case .toggleNotify(let newValue):
+          command.notification = newValue
+          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
@@ -139,6 +152,9 @@ final class DetailCommandActionReducer {
         }
       case .type(let action, _, _):
         switch action {
+        case .toggleNotify(let newValue):
+          command.notification = newValue
+          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)

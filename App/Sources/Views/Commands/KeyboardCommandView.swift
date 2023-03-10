@@ -2,21 +2,25 @@ import SwiftUI
 
 struct KeyboardCommandView: View {
   enum Action {
+    case toggleNotify(newValue: Bool)
     case updateName(newName: String)
     case updateKeyboardShortcuts([KeyShortcut])
     case commandAction(CommandContainerAction)
   }
 
   @State private var command: DetailViewModel.CommandViewModel
+  @State private var notify: Bool
   @State private var name: String
   @State private var keyboardShortcuts: [KeyShortcut]
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel, onAction: @escaping (Action) -> Void) {
+  init(_ command: DetailViewModel.CommandViewModel,
+       notify: Bool,
+       onAction: @escaping (Action) -> Void) {
     _command = .init(initialValue: command)
     _name = .init(initialValue: command.name)
     self.onAction = onAction
-
+    self.notify = .init(notify)
     if case .keyboard(let keyboardShortcuts) = command.kind {
       _keyboardShortcuts = .init(initialValue: keyboardShortcuts)
     } else {
@@ -39,23 +43,33 @@ struct KeyboardCommandView: View {
           .scaleEffect(0.8)
         }
       }, content: {
-        HStack {
-          TextField("", text: $name)
-            .textFieldStyle(AppTextFieldStyle())
-            .onChange(of: name, perform: {
-              onAction(.updateName(newName: $0))
-            })
-          Spacer()
+        VStack {
+          HStack(spacing: 0) {
+            TextField("", text: $name)
+              .textFieldStyle(AppTextFieldStyle())
+              .onChange(of: name, perform: {
+                onAction(.updateName(newName: $0))
+              })
+              .frame(maxWidth: .infinity)
+          }
+          EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
+            .onChange(of: keyboardShortcuts) { newValue in
+              onAction(.updateKeyboardShortcuts(newValue))
+            }
+            .padding(.horizontal, 2)
+            .background(Color(.windowBackgroundColor).opacity(0.25))
+            .cornerRadius(4)
         }
       },
       subContent: {
-        EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
-          .onChange(of: keyboardShortcuts) { newValue in
-            onAction(.updateKeyboardShortcuts(newValue))
+        Toggle("Notify", isOn: $notify)
+          .onChange(of: notify) { newValue in
+            onAction(.toggleNotify(newValue: newValue))
           }
-          .padding(.horizontal, 2)
-          .background(Color(.windowBackgroundColor).opacity(0.25))
-          .cornerRadius(4)
+          .lineLimit(1)
+          .allowsTightening(true)
+          .truncationMode(.tail)
+          .font(.caption)
       },
       onAction: { onAction(.commandAction($0)) })
     .debugEdit()
@@ -63,8 +77,10 @@ struct KeyboardCommandView: View {
 }
 
 struct RebindingCommandView_Previews: PreviewProvider {
+  static let recorderStore = KeyShortcutRecorderStore()
   static var previews: some View {
-    KeyboardCommandView(DesignTime.rebindingCommand, onAction: { _ in })
-      .frame(maxHeight: 80)
+    KeyboardCommandView(DesignTime.rebindingCommand, notify: false, onAction: { _ in })
+      .environmentObject(recorderStore)
+      .frame(maxHeight: 120)
   }
 }

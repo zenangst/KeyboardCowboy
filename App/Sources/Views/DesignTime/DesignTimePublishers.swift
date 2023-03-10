@@ -114,9 +114,13 @@ enum DesignTime {
   static var applicationCommand: DetailViewModel.CommandViewModel {
     .init(id: UUID().uuidString,
           name: "News",
-          kind: .application(action: "Open", inBackground: true, hideWhenRunning: false, ifNotRunning: false),
+          kind: .application(action: "Open",
+                             inBackground: true,
+                             hideWhenRunning: false,
+                             ifNotRunning: false),
           icon: .init(bundleIdentifier: "com.apple.news", path: "/System/Applications/News.app"),
-          isEnabled: true)
+          isEnabled: true,
+          notify: false)
   }
 
   static var openCommand: DetailViewModel.CommandViewModel {
@@ -125,7 +129,8 @@ enum DesignTime {
                  name: "Home Folder",
                  kind: .open(path: "", applicationPath: nil, appName: nil),
                  icon: .init(bundleIdentifier: homeDirectory, path: homeDirectory),
-                 isEnabled: true)
+                 isEnabled: true,
+                 notify: true)
   }
 
   static var scriptCommandWithPath: DetailViewModel.CommandViewModel {
@@ -134,7 +139,8 @@ enum DesignTime {
                  name: scriptFile,
                  kind: .script(.path(id: UUID().uuidString, source: "", scriptExtension: .appleScript)),
                  icon: .init(bundleIdentifier: scriptFile, path: scriptFile),
-                 isEnabled: true)
+                 isEnabled: true,
+                 notify: true)
   }
 
   static var scriptCommandInline: DetailViewModel.CommandViewModel {
@@ -143,7 +149,8 @@ enum DesignTime {
                  name: "Left align the Dock",
                  kind: .script(.inline(id: UUID().uuidString, source: "hello world", scriptExtension: .shellScript)),
                  icon: .init(bundleIdentifier: scriptFile, path: scriptFile),
-                 isEnabled: true)
+                 isEnabled: true,
+                 notify: false)
   }
 
   static var rebindingCommand: DetailViewModel.CommandViewModel {
@@ -151,15 +158,16 @@ enum DesignTime {
           name: "Rebind esc to enter",
           kind: .keyboard(keys: [.init(id: UUID().uuidString, key: "F", lhs: false, modifiers: [.function, .command])]),
           icon: nil,
-          isEnabled: true)
+          isEnabled: true,
+          notify: false)
   }
 
   static var shortcutCommand: DetailViewModel.CommandViewModel {
-    .init(id: UUID().uuidString, name: "Run shortcut", kind: .shortcut, icon: nil, isEnabled: true)
+    .init(id: UUID().uuidString, name: "Run shortcut", kind: .shortcut, icon: nil, isEnabled: true, notify: true)
   }
 
   static var typeCommand: DetailViewModel.CommandViewModel {
-    .init(id: UUID().uuidString, name: "Type command", kind: .type(input: "input"), icon: nil, isEnabled: true)
+    .init(id: UUID().uuidString, name: "Type command", kind: .type(input: "input"), icon: nil, isEnabled: true, notify: true)
   }
 
   static var emptyDetail: DetailViewModel {

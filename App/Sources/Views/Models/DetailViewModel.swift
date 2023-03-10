@@ -82,6 +82,7 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     var kind: Kind
     var icon: IconViewModel?
     var isEnabled: Bool
+    var notify: Bool
 
     enum Kind: Codable, Hashable, Identifiable {
       case application(action: String, inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)

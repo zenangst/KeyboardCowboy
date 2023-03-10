@@ -58,7 +58,8 @@ final class Storage {
       do {
         return try await migrateIfNeeded()
       } catch {
-        return []
+        // TODO: Do something proper here.
+        fatalError("Unable to load contents")
       }
     }
   }

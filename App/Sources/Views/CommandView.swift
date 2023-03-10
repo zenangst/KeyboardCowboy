@@ -87,6 +87,7 @@ struct CommandResolverView: View {
       ApplicationCommandView(
         command,
         actionName: action,
+        notify: command.notify,
         inBackground: inBackground,
         hideWhenRunning: hideWhenRunning,
         ifNotRunning: ifNotRunning,
@@ -128,6 +129,7 @@ struct CommandResolverView: View {
     case .keyboard:
       KeyboardCommandView(
         command,
+        notify: command.notify,
         onAction: { action in
           switch action {
           case .commandAction(let action):

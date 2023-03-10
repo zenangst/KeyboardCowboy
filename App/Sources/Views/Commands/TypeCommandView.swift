@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TypeCommandView: View {
   enum Action {
+    case toggleNotify(newValue: Bool)
     case updateName(newName: String)
     case updateSource(newInput: String)
     case commandAction(CommandContainerAction)
@@ -9,11 +10,13 @@ struct TypeCommandView: View {
   @State var command: DetailViewModel.CommandViewModel
   @State private var source: String
   @State private var name: String
+  @State private var notify: Bool
   private let onAction: (Action) -> Void
 
   init(_ command: DetailViewModel.CommandViewModel, onAction: @escaping (Action) -> Void) {
     _command = .init(initialValue: command)
     _name = .init(initialValue: command.name)
+    _notify = .init(initialValue: command.notify)
 
     switch command.kind {
     case .type(let input):
@@ -42,7 +45,14 @@ struct TypeCommandView: View {
             onAction(.updateSource(newInput: newInput))
           }
       }, subContent: {
-        EmptyView()
+        Toggle("Notify", isOn: $notify)
+          .onChange(of: notify) { newValue in
+            onAction(.toggleNotify(newValue: newValue))
+          }
+          .lineLimit(1)
+          .allowsTightening(true)
+          .truncationMode(.tail)
+          .font(.caption)
       }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()
   }
@@ -51,6 +61,7 @@ struct TypeCommandView: View {
 struct TypeCommandView_Previews: PreviewProvider {
   static var previews: some View {
     TypeCommandView(DesignTime.typeCommand, onAction: { _ in })
+      .frame(idealHeight: 120, maxHeight: 180)
   }
 }
 

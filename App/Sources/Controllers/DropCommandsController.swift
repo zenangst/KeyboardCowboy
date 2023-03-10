@@ -1,6 +1,7 @@
 import Apps
 import Foundation
 
+// TODO: Add support for defaults: Notification (true/false)
 class DropCommandsController {
   static func generateCommands(from urls: [URL],
                                applications: [Application]) -> [Command] {
@@ -12,7 +13,8 @@ class DropCommandsController {
         else { continue }
         let applicationCommand = ApplicationCommand(
           name: "Open \(application.bundleName)",
-          application: application)
+          application: application,
+          notification: false)
         commands.append(Command.application(applicationCommand))
       case .applescript:
         let name = "Run \(url.lastPathComponent)"
@@ -26,13 +28,13 @@ class DropCommandsController {
                                               name: name, source: .path(url.path))))
       case .file:
         let name = "Open \(url.lastPathComponent)"
-        commands.append(Command.open(.init(name: name, path: url.path)))
+        commands.append(Command.open(.init(name: name, path: url.path, notification: false)))
       case .web:
         var name = "Open URL"
         if let scheme = url.scheme {
           name = "Open \(url.absoluteString.replacingOccurrences(of: "\(scheme)://", with: ""))"
         }
-        commands.append(Command.open(.init(name: name, path: url.absoluteString)))
+        commands.append(Command.open(.init(name: name, path: url.absoluteString, notification: false)))
       case .unsupported:
         continue
       }

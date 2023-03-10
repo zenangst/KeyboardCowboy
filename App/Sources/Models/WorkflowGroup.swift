@@ -54,7 +54,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.color = try container.decodeIfPresent(String.self, forKey: .color) ?? "#000"
     self.name = try container.decode(String.self, forKey: .name)
     self.rule = try container.decodeIfPresent(Rule.self, forKey: .rule)
-    self.workflows = try container.decode([Workflow].self, forKey: .workflows)
+    self.workflows = try container.decodeIfPresent([Workflow].self, forKey: .workflows) ?? []
   }
 }
 

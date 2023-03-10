@@ -43,6 +43,8 @@ final class DetailCoordinator {
     }
   }
 
+  // TODO: Add support for `.notification` when adding new commands
+  // - Maybe we should add it to `NewCommandPayload`
   func addOrUpdateCommand(_ payload: NewCommandPayload, workflowId: Workflow.ID,
                           title: String, commandId: Command.ID?) async {
     guard var workflow = groupStore.workflow(withId: workflowId) else { return }
@@ -52,7 +54,7 @@ final class DetailCoordinator {
     case .placeholder:
       return
     case .keyboardShortcut(let keyShortcuts):
-      command = .keyboard(.init(keyboardShortcuts: keyShortcuts))
+      command = .keyboard(.init(keyboardShortcuts: keyShortcuts, notification: false))
     case .script(let value, let kind, let scriptExtension):
       let source: ScriptCommand.Source
       switch kind {
@@ -69,10 +71,11 @@ final class DetailCoordinator {
         command = .script(.shell(id: resolvedCommandId, isEnabled: true, name: title, source: source))
       }
     case .type(let text):
-      command = .type(.init(id: resolvedCommandId, name: text, input: text))
+      // TODO: Add support for notification toggling
+      command = .type(.init(id: resolvedCommandId, name: text, input: text, notification: false))
     case .shortcut(let name):
       command = .shortcut(.init(id: resolvedCommandId, shortcutIdentifier: name,
-                                name: name, isEnabled: true))
+                                name: name, isEnabled: true, notification: false))
     case .application(let application, let action,
                       let inBackground, let hideWhenRunning, let ifNotRunning):
       assert(application != nil)
@@ -97,13 +100,18 @@ final class DetailCoordinator {
                                           name: title,
                                           action: commandAction,
                                           application: application,
-                                          modifiers: modifiers))
+                                          modifiers: modifiers,
+                                          notification: false))
     case .open(let path, let application):
       let resolvedPath = (path as NSString).expandingTildeInPath
-      command = Command.open(.init(id: resolvedCommandId, name: "Open \(path)", application: application, path: resolvedPath))
+      command = Command.open(.init(id: resolvedCommandId,
+                                   name: "Open \(path)", application: application, path: resolvedPath,
+                                   notification: false))
     case .url(let targetUrl, let application):
       let urlString = targetUrl.absoluteString
-      command = Command.open(.init(id: resolvedCommandId, name: "Open \(urlString)", application: application, path: urlString))
+      command = Command.open(.init(id: resolvedCommandId,
+                                   name: "Open \(urlString)", application: application, path: urlString,
+                                   notification: false))
     }
 
     workflow.updateOrAddCommand(command)
