@@ -40,7 +40,6 @@ final class MachPortEngine {
   private static let previousKeyDefault = "."
 
   private var previousKey: String = "."
-  private var lastEvent: MachPortEvent?
   private var subscriptions = Set<AnyCancellable>()
   private var mode: KeyboardCowboyMode
   private var specialKeys: [Int] = [Int]()
@@ -119,8 +118,6 @@ final class MachPortEngine {
       machPortEvent.result = nil
       if kind == .keyDown {
         previousKey = key
-      } else {
-        lastEvent = nil
       }
     case .exact(let workflow):
       machPortEvent.result = nil
@@ -156,24 +153,18 @@ final class MachPortEngine {
                                     with: machPortEvent.eventSource)
           }
         }
-      } else if kind == .keyDown {
-          // Avoid running commands on key down.
-          if let lastEvent, lastEvent.isSame(as: machPortEvent) { return }
+      } else if kind == .keyDown, machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 0 {
+        let commands = workflow.commands.filter(\.isEnabled)
 
-          let commands = workflow.commands.filter(\.isEnabled)
-
-          switch workflow.execution {
-          case .concurrent:
-            commandEngine.concurrentRun(commands)
-          case .serial:
-            commandEngine.serialRun(commands)
-          }
-
-          previousKey = Self.previousKeyDefault
-          lastEvent = machPortEvent
-        } else {
-          lastEvent = nil
+        switch workflow.execution {
+        case .concurrent:
+          commandEngine.concurrentRun(commands)
+        case .serial:
+          commandEngine.serialRun(commands)
         }
+
+        previousKey = Self.previousKeyDefault
+      }
     case .none:
       if kind == .keyDown {
         // No match, reset the lookup key
@@ -219,9 +210,9 @@ final class MachPortEngine {
     let systemShortcuts = store.systemKeys()
       .first(where: { $0.keyCode == keyCode && $0.modifiers ==  virtualModifiers })
 
-//    if systemShortcuts != nil {
-//      validationContext = .systemShortcut(keyboardShortcut)
-//    } else
+    //    if systemShortcuts != nil {
+    //      validationContext = .systemShortcut(keyboardShortcut)
+    //    } else
     if let restrictedKeyCode = RestrictedKeyCode(rawValue: Int(machPortEvent.keyCode)) {
       switch restrictedKeyCode {
       case .backspace, .delete:
