@@ -392,13 +392,16 @@ private struct EditableFocusView<Element>: View where Element: Hashable,
     FocusableProxy(id: element.id, isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
                    onKeyDown: { onKeyDown($element, $0, $1) })
       .overlay(
-        RoundedRectangle(cornerRadius: configuration.cornerRadius)
-          .strokeBorder(isFocused ? configuration.selectedColor.opacity(0.1) : Color.clear,
-                        lineWidth: 1)
-          .shadow(color: isFocused ? configuration.selectedColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
-                  radius: isFocused ? 1.0 : 0.0)
+        Group {
+          RoundedRectangle(cornerRadius: configuration.cornerRadius + 1.5)
+            .strokeBorder(configuration.selectedColor, lineWidth: 1.5)
+            .padding(-1.5)
+          RoundedRectangle(cornerRadius: configuration.cornerRadius + 2.5)
+            .strokeBorder(configuration.selectedColor.opacity(0.5), lineWidth: 1.5)
+            .padding(-2.5)
+        }
           .allowsHitTesting(false)
-          .padding(-1)
+          .opacity(isFocused ? 1 : 0)
       )
       .onChange(of: manager.focus) { newValue in
         guard newValue != nil else { return }
