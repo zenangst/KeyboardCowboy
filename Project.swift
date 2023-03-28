@@ -110,6 +110,7 @@ let project = Project(
                     LaunchArgument(name: "-benchmark", isEnabled: false),
                     LaunchArgument(name: "-debugEditing", isEnabled: false),
                     LaunchArgument(name: "-injection", isEnabled: false),
+                    LaunchArgument(name: "-disableMachPorts", isEnabled: false),
                   ]))
         )
     ],

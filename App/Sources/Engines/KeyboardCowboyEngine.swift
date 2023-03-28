@@ -1,5 +1,6 @@
 import Combine
 import Cocoa
+import CoreGraphics
 import Foundation
 import MachPort
 import os
@@ -16,6 +17,7 @@ final class KeyboardCowboyEngine {
 
   private let applicationTriggerController: ApplicationTriggerController
   private var machPortController: MachPortEventController?
+  private var token: Any?
 
   init(_ contentStore: ContentStore,
        keyboardEngine: KeyboardEngine,
@@ -43,7 +45,7 @@ final class KeyboardCowboyEngine {
 
     guard !isRunningPreview else { return }
 
-    guard contentStore.preferences.machportIsEnabled else { return }
+    guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 
     if !hasPrivileges() { } else {
       do {
@@ -57,6 +59,25 @@ final class KeyboardCowboyEngine {
           machPortEngine.machPort = machPortController
           commandEngine.machPort = machPortController
           self.machPortController = machPortController
+
+//          let swipeEvent = CGEvent(mouseEventSource: nil, mouseType: .otherMouseDragged, mouseCursorPosition: CGPoint.zero, mouseButton: .left)!
+//          swipeEvent.post(tap: .cghidEventTap)
+//          swipeEvent.setDoubleValueField(.gestureSwipeDeltaX, value: 100)
+//          swipeEvent.setDoubleValueField(.gestureSwipeDeltaY, value: 0)
+//          swipeEvent.setIntegerValueField(.gestureSwipeDirection, value: Int32(kCGGestureSwipeRight.rawValue))
+//          swipeEvent.setIntegerValueField(.gestureType, value: Int32(kCGGestureTypeSwipe.rawValue))
+
+//          machPortController.postMouseEvent(.leftMouseDown,
+//                                            position: .init(x: 200, y: 200),
+//                                            button: .left)
+//          machPortController.postMouseEvent(.leftMouseDragged,
+//                                            position: .init(x: 300, y: 300),
+//                                            button: .center)
+//          machPortController.postMouseEvent(.leftMouseUp,
+//                                            position: .init(x: 400, y: 400),
+//                                            button: .center)
+
+
         }
       } catch let error {
         os_log(.error, "\(error.localizedDescription)")

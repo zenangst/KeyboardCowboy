@@ -22,6 +22,8 @@ final class CommandEngine {
   private let workspace: WorkspaceProviding
   private var runningTask: Task<Void, Error>?
 
+  @MainActor
+  var lastExecutedCommand: Command?
   var eventSource: CGEventSource?
 
   init(_ workspace: WorkspaceProviding, scriptEngine: ScriptEngine, keyboardEngine: KeyboardEngine) {
@@ -103,6 +105,12 @@ final class CommandEngine {
   }
 
   private func run(_ command: Command) async throws {
+    if command.notification {
+      await MainActor.run {
+        lastExecutedCommand = command
+      }
+    }
+
     switch command {
     case .application(let applicationCommand):
       try await engines.application.run(applicationCommand)

@@ -13,27 +13,36 @@ extension EnvironmentValues {
 }
 
 final class NotificationWindow<Content>: NSPanel where Content: View {
-  @Binding var isPresented: Bool
+  override var canBecomeKey: Bool { true }
+  override var canBecomeMain: Bool { true }
 
-  init(_ isPresented: Binding<Bool>,
-       contentRect: CGRect,
+  init(contentRect: CGRect,
        content rootView: @escaping () -> Content) {
-    _isPresented = isPresented
     super.init(contentRect: contentRect, styleMask: [
       .borderless, .nonactivatingPanel
     ], backing: .buffered, defer: false)
 
     self.animationBehavior = .utilityWindow
     self.collectionBehavior.insert(.fullScreenAuxiliary)
+    self.isOpaque = false
     self.isFloatingPanel = true
     self.isMovable = false
     self.isMovableByWindowBackground = false
     self.level = .floating
+    self.backgroundColor = .clear
 
-    self.contentView = NSHostingView(
+    let contentView = NSHostingView(
       rootView: rootView()
         .ignoresSafeArea()
         .environment(\.owningWindow, self)
     )
+    contentView.isFlipped = true
+
+    self.contentView = contentView
+
+    contentView.wantsLayer = true
+    contentView.layer?.cornerRadius = 8
+    contentView.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+    contentView.layer?.masksToBounds = true
   }
 }

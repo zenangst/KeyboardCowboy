@@ -5,4 +5,5 @@ enum LaunchArgument: String, LaunchArgumentType {
   case debugEditing = "-debugEditing"
   case injection = "-injection"
   case runningUnitTests = "-running-unit-tests"
+  case disableMachPorts = "-disableMachPorts"
 }
