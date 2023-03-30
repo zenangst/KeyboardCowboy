@@ -69,11 +69,19 @@ final class SystemCommandEngine {
       let window = frontMostApplicationWindows[frontMostIndex]
       window.performAction(.raise)
     case .showDesktop:
-      CoreDockSendNotification("com.apple.showdesktop.awake" as CFString, 0)
+      coreDockSendNotification("com.apple.showdesktop.awake")
     case .applicationWindows:
-      CoreDockSendNotification("com.apple.expose.front.awake" as CFString, 0)
+      coreDockSendNotification("com.apple.expose.front.awake")
     case .missionControl:
-      CoreDockSendNotification("com.apple.expose.awake" as CFString, 0)
+      coreDockSendNotification("com.apple.expose.awake")
+    }
+  }
+
+  // Dispatch this invokation async so that the loop doesn't get stuck and the connection
+  // to the mach port is invalidated.
+  private func coreDockSendNotification(_ string: String) {
+    DispatchQueue.global(qos: .userInitiated).async {
+      CoreDockSendNotification(string as CFString, 0)
     }
   }
 

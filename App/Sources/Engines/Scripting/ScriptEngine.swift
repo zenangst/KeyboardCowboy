@@ -23,9 +23,9 @@ final class ScriptEngine {
     case .appleScript(let id, _, _, let source):
       switch source {
       case .path(let path):
-        result = try plugins.appleScript.executeScript(at: path, withId: id)
+        result = try await plugins.appleScript.executeScript(at: path, withId: id)
       case .inline(let script):
-        result = try plugins.appleScript.execute(script, withId: id)
+        result = try await plugins.appleScript.execute(script, withId: id)
       }
     case .shell(_, _, _, let source):
       switch source {

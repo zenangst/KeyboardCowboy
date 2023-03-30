@@ -1,6 +1,7 @@
 import Combine
 import Cocoa
 
+@MainActor
 final class AppleScriptPlugin {
   enum AppleScriptPluginError: Error {
     case failedToCreateInlineScript
@@ -13,13 +14,18 @@ final class AppleScriptPlugin {
   private var cache = [String: NSAppleScript]()
   private var subscription: AnyCancellable?
 
-  init(workspace: NSWorkspace) {
-    subscription = workspace.publisher(for: \.frontmostApplication)
-      .compactMap { $0 }
-      .filter { $0.bundleIdentifier == self.bundleIdentifier }
-      .sink { [weak self] _ in
-        self?.cache = [:]
+  nonisolated init(workspace: NSWorkspace) {
+    Task {
+      await MainActor.run {
+        subscription = workspace.publisher(for: \.frontmostApplication)
+          .compactMap { $0 }
+          .filter { $0.bundleIdentifier == self.bundleIdentifier }
+          .sink { [weak self] _ in
+            guard let self else { return }
+            self.cache = [:]
+          }
       }
+    }
   }
 
   func executeScript(at path: String, withId id: String) throws -> String? {
