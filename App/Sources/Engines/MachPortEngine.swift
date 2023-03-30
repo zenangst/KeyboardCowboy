@@ -44,6 +44,8 @@ final class MachPortEngine {
   private var mode: KeyboardCowboyMode
   private var specialKeys: [Int] = [Int]()
 
+  private var shouldHandleKeyUp: Bool = false
+
   private let commandEngine: CommandEngine
   private let keyboardEngine: KeyboardEngine
   private let keyboardShortcutsCache: KeyboardShortcutsCache
@@ -91,6 +93,7 @@ final class MachPortEngine {
   private func intercept(_ machPortEvent: MachPortEvent) {
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
+    let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     let kind: Event.Kind
     switch machPortEvent.type {
     case .flagsChanged:
@@ -129,6 +132,28 @@ final class MachPortEngine {
                                 originalEvent: machPortEvent.event,
                                 with: machPortEvent.eventSource)
       } else if workflow.commands.allSatisfy({
+        if case .systemCommand = $0 { return true } else { return false }
+      }) {
+        if machPortEvent.type == .keyDown && isRepeatingEvent {
+          shouldHandleKeyUp = true
+          return
+        }
+
+        if machPortEvent.type == .keyUp {
+          if shouldHandleKeyUp {
+            shouldHandleKeyUp = false
+          } else {
+            return
+          }
+        }
+
+        switch workflow.execution {
+        case .concurrent:
+          commandEngine.concurrentRun(workflow.commands)
+        case .serial:
+          commandEngine.serialRun(workflow.commands)
+        }
+      } else if workflow.commands.allSatisfy({
         if case .keyboard = $0 { return true } else { return false }
       }) {
         let keyboardCommands = workflow.commands
@@ -153,7 +178,7 @@ final class MachPortEngine {
                                     with: machPortEvent.eventSource)
           }
         }
-      } else if kind == .keyDown, machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 0 {
+      } else if kind == .keyDown, !isRepeatingEvent {
         let commands = workflow.commands.filter(\.isEnabled)
 
         switch workflow.execution {

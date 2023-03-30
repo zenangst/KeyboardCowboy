@@ -20,6 +20,8 @@ struct NewCommandView: View {
         return "6"
       case .type:
         return "7"
+      case .system:
+        return "8"
       }
     }
     var key: KeyEquivalent {
@@ -33,6 +35,7 @@ struct NewCommandView: View {
     case shortcut = "Shortcut"
     case script = "Script"
     case type = "Type"
+    case system = "System Command"
   }
 
   private let workflowId: Workflow.ID
@@ -221,6 +224,8 @@ struct NewCommandView: View {
       NewCommandTypeView($payload, validation: $validation) {
         onSubmit()
       }
+    case .system:
+      NewCommandSystemCommandView($payload, validation: $validation)
     }
   }
 

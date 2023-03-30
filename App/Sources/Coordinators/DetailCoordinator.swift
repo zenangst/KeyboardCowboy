@@ -112,6 +112,11 @@ final class DetailCoordinator {
       command = Command.open(.init(id: resolvedCommandId,
                                    name: "Open \(urlString)", application: application, path: urlString,
                                    notification: false))
+    case .systemCommand(let kind):
+      command = Command.systemCommand(.init(id: UUID().uuidString,
+                                            name: "System command",
+                                            kind: kind,
+                                            notification: false))
     }
 
     workflow.updateOrAddCommand(command)

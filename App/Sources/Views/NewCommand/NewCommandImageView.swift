@@ -30,6 +30,8 @@ struct NewCommandImageView: View {
             .resizable()
             .aspectRatio(1, contentMode: .fill)
         }
+      case .system:
+        image(for: "/System")
       }
     }
     .frame(width: 24, height: 24)

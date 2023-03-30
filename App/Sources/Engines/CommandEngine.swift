@@ -10,11 +10,15 @@ final class CommandEngine {
     let script: ScriptEngine
     let shortcut: ShortcutsEngine
     let type: TypeEngine
+    let system: SystemCommandEngine
   }
 
   var machPort: MachPortEventController? {
     didSet {
       engines.keyboard.machPort = machPort
+      if let machPort {
+        engines.system.subscribe(to: machPort.$flagsChanged)
+      }
     }
   }
 
@@ -27,6 +31,7 @@ final class CommandEngine {
   var eventSource: CGEventSource?
 
   init(_ workspace: WorkspaceProviding, scriptEngine: ScriptEngine, keyboardEngine: KeyboardEngine) {
+    let systemCommandEngine = SystemCommandEngine()
     self.engines = .init(
       application: ApplicationEngine(
         scriptEngine: scriptEngine,
@@ -37,7 +42,8 @@ final class CommandEngine {
       open: OpenEngine(scriptEngine, workspace: workspace),
       script: scriptEngine,
       shortcut: ShortcutsEngine(engine: scriptEngine),
-      type: TypeEngine(keyboardEngine: keyboardEngine)
+      type: TypeEngine(keyboardEngine: keyboardEngine),
+      system: systemCommandEngine
     )
     self.workspace = workspace
   }
@@ -75,6 +81,8 @@ final class CommandEngine {
       case .keyboard(_):
         break
       case .type(_):
+        break
+      case .systemCommand(_):
         break
       }
     }
@@ -143,6 +151,8 @@ final class CommandEngine {
       try await engines.shortcut.run(shortcutCommand)
     case .type(let typeCommand):
       try await engines.type.run(typeCommand)
+    case .systemCommand(let systemCommand):
+      try await engines.system.run(systemCommand)
     }
   }
 }

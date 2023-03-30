@@ -181,6 +181,8 @@ struct CommandResolverView: View {
             onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
           }
         })
+    case .systemCommand(let kind):
+      SystemCommandView(kind: kind)
     }
   }
 }

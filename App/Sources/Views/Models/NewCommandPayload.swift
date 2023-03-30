@@ -11,6 +11,7 @@ enum NewCommandPayload: Equatable {
   case shortcut(name: String)
   case keyboardShortcut([KeyShortcut])
   case type(text: String)
+  case systemCommand(kind: SystemCommand.Kind)
 
   var title: String {
     switch self {
@@ -69,6 +70,8 @@ enum NewCommandPayload: Equatable {
       return keyboardShortcutString
     case .type:
       return "Input text"
+    case .systemCommand:
+      return "System command"
     }
   }
 }

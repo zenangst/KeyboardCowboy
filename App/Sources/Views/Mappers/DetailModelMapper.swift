@@ -106,6 +106,9 @@ final class DetailModelMapper {
     case .type(let type):
       kind = .type(input: type.input)
       name = command.name
+    case .systemCommand(let systemCommand):
+      kind = .systemCommand(kind: systemCommand.kind)
+      name = command.name
     }
 
     return DetailViewModel.CommandViewModel(
@@ -142,6 +145,8 @@ private extension Command {
     case .shortcut:
       return nil
     case .type:
+      return nil
+    case .systemCommand:
       return nil
     }
   }

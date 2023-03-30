@@ -146,6 +146,8 @@ struct NewCommandWindow: Scene {
       return .script(value: source, kind: kind, scriptExtension: scriptExtension)
     case .type(let typeCommand):
       return .type(text: typeCommand.input)
+    case .systemCommand(let systemCommand):
+      return .systemCommand(kind: systemCommand.kind)
     }
   }
 
@@ -166,6 +168,8 @@ struct NewCommandWindow: Scene {
       return .script
     case .type:
       return .type
+    case .systemCommand:
+      return .system
     }
   }
 

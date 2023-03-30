@@ -36,6 +36,7 @@ let project = Project(
             resources: resources("App"),
             entitlements: "App/Entitlements/com.zenangst.Keyboard-Cowboy.entitlements",
             dependencies: [
+                .external(name: "AXEssibility"),
                 .external(name: "Apps"),
                 .external(name: "Inject"),
                 .external(name: "InputSources"),

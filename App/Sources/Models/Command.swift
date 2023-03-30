@@ -4,7 +4,7 @@ import Foundation
 /// A `Command` is a polymorphic entity that is used
 /// to store multiple command types in the same workflow.
 /// All underlying data-types are both `Codable` and `Hashable`.
-public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
+enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
   case application(ApplicationCommand)
   case builtIn(BuiltInCommand)
   case keyboard(KeyboardCommand)
@@ -12,8 +12,9 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
   case shortcut(ShortcutCommand)
   case script(ScriptCommand)
   case type(TypeCommand)
+  case systemCommand(SystemCommand)
 
-  public enum CodingKeys: String, CodingKey, CaseIterable {
+  enum CodingKeys: String, CodingKey, CaseIterable {
     case application = "applicationCommand"
     case builtIn = "builtInCommand"
     case keyboard = "keyboardCommand"
@@ -21,9 +22,10 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     case shortcut = "runShortcut"
     case script = "scriptCommand"
     case type = "typeCommand"
+    case system = "systemCommand"
   }
 
-  public var isKeyboardBinding: Bool {
+  var isKeyboardBinding: Bool {
     switch self {
     case .keyboard:
       return true
@@ -32,210 +34,7 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     }
   }
 
-  public var name: String {
-    get {
-      switch self {
-      case .application(let command):
-        return command.name.isEmpty ? "\(command.action.displayValue) \(command.application.displayName)" : command.name
-      case .builtIn(let command):
-        return command.name
-      case .keyboard(let command):
-        var keyboardShortcutString: String = ""
-        command.keyboardShortcuts.forEach { keyboardShortcut in
-          keyboardShortcutString += keyboardShortcut.modifiers.map(\.pretty).joined()
-          keyboardShortcutString += keyboardShortcut.key
-        }
-
-        return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcutString)" : command.name
-      case .open(let command):
-        if !command.name.isEmpty { return command.name }
-        if command.isUrl {
-          return "Open a URL: \(command.path)"
-        } else {
-          return "Open a file: \(command.path)"
-        }
-      case .shortcut(let command):
-        return "Run '\(command.shortcutIdentifier)'"
-      case .script(let command):
-        return command.name
-      case .type(let command):
-        return command.name
-      }
-    }
-    set {
-      switch self {
-      case .application(var command):
-        command.name = newValue
-        self = .application(command)
-      case .builtIn:
-        break
-      case .keyboard(var command):
-        command.name = newValue
-        self = .keyboard(command)
-      case .open(var command):
-        command.name = newValue
-        self = .open(command)
-      case .script(let command):
-        switch command {
-        case .appleScript(let id, let isEnabled, _, let source):
-          self = .script(.appleScript(id: id, isEnabled: isEnabled,
-                                      name: newValue, source: source))
-        case .shell(let id, let isEnabled, _, let source):
-          self = .script(.shell(id: id, isEnabled: isEnabled,
-                                name: newValue, source: source))
-        }
-      case .shortcut(var command):
-        command.name = newValue
-        self = .shortcut(command)
-      case .type(var command):
-        command.name = newValue
-        self = .type(command)
-      }
-    }
-  }
-
-  public var id: String {
-    get {
-      switch self {
-      case .application(let command):
-        return command.id
-      case .builtIn(let command):
-        return command.id
-      case .keyboard(let command):
-        return command.id
-      case .open(let command):
-        return command.id
-      case .script(let command):
-        return command.id
-      case .shortcut(let command):
-        return command.id
-      case .type(let command):
-        return command.id
-      }
-    }
-    set {
-      switch self {
-      case .application(var applicationCommand):
-        applicationCommand.id = newValue
-        self = .application(applicationCommand)
-      case .builtIn(var builtInCommand):
-        builtInCommand.id = newValue
-        self = .builtIn(builtInCommand)
-      case .keyboard(var keyboardCommand):
-        keyboardCommand.id = newValue
-        self = .keyboard(keyboardCommand)
-      case .open(var openCommand):
-        openCommand.id = newValue
-        self = .open(openCommand)
-      case .script(var scriptCommand):
-        scriptCommand.id = newValue
-        self = .script(scriptCommand)
-      case .shortcut(var shortcutCommand):
-        shortcutCommand.id = newValue
-        self = .shortcut(shortcutCommand)
-      case .type(var typeCommand):
-        typeCommand.id = newValue
-        self = .type(typeCommand)
-      }
-    }
-  }
-
-  public var isEnabled: Bool {
-    get {
-      switch self {
-      case .application(let applicationCommand):
-        return applicationCommand.isEnabled
-      case .builtIn(let builtInCommand):
-        return builtInCommand.isEnabled
-      case .keyboard(let keyboardCommand):
-        return keyboardCommand.isEnabled
-      case .open(let openCommand):
-        return openCommand.isEnabled
-      case .script(let scriptCommand):
-        return scriptCommand.isEnabled
-      case .shortcut(let shortcutCommand):
-        return shortcutCommand.isEnabled
-      case .type(let typeCommand):
-        return typeCommand.isEnabled
-      }
-    }
-    set {
-      switch self {
-      case .application(var applicationCommand):
-        applicationCommand.isEnabled = newValue
-        self = .application(applicationCommand)
-      case .builtIn(var builtInCommand):
-        builtInCommand.isEnabled = newValue
-        self = .builtIn(builtInCommand)
-      case .keyboard(var keyboardCommand):
-        keyboardCommand.isEnabled = newValue
-        self = .keyboard(keyboardCommand)
-      case .open(var openCommand):
-        openCommand.isEnabled = newValue
-        self = .open(openCommand)
-      case .script(var scriptCommand):
-        scriptCommand.isEnabled = newValue
-        self = .script(scriptCommand)
-      case .shortcut(var shortcutCommand):
-        shortcutCommand.isEnabled = newValue
-        self = .shortcut(shortcutCommand)
-      case .type(var typeCommand):
-        typeCommand.isEnabled = newValue
-        self = .type(typeCommand)
-      }
-    }
-  }
-
-  public var notification: Bool {
-    get {
-      switch self {
-      case .application(let applicationCommand):
-        return applicationCommand.notification
-      case .builtIn(let builtInCommand):
-        return builtInCommand.notification
-      case .keyboard(let keyboardCommand):
-        return keyboardCommand.notification
-      case .open(let openCommand):
-        return openCommand.notification
-      case .script(let scriptCommand):
-        // TODO: Add support for `.notification` on script commands.
-        return false
-//        return scriptCommand.notification
-      case .shortcut(let shortcutCommand):
-        return shortcutCommand.notification
-      case .type(let typeCommand):
-        return typeCommand.notification
-      }
-    }
-    set {
-      switch self {
-      case .application(var applicationCommand):
-        applicationCommand.notification = newValue
-        self = .application(applicationCommand)
-      case .builtIn(var builtInCommand):
-        builtInCommand.notification = newValue
-        self = .builtIn(builtInCommand)
-      case .keyboard(var keyboardCommand):
-        keyboardCommand.notification = newValue
-        self = .keyboard(keyboardCommand)
-      case .open(var openCommand):
-        openCommand.notification = newValue
-        self = .open(openCommand)
-      case .script(var scriptCommand):
-        // TODO: Add support for notification on script command
-//        scriptCommand.notification = newValue
-        self = .script(scriptCommand)
-      case .shortcut(var shortcutCommand):
-        shortcutCommand.notification = newValue
-        self = .shortcut(shortcutCommand)
-      case .type(var typeCommand):
-        typeCommand.notification = newValue
-        self = .type(typeCommand)
-      }
-    }
-  }
-
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     switch container.allKeys.first {
@@ -260,6 +59,9 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     case .type:
       let command = try container.decode(TypeCommand.self, forKey: .type)
       self = .type(command)
+    case .system:
+      let command = try container.decode(SystemCommand.self, forKey: .system)
+      self = .systemCommand(command)
     case .none:
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
@@ -270,7 +72,7 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     }
   }
 
-  public func encode(to encoder: Encoder) throws {
+  func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
     case .application(let command):
@@ -287,11 +89,13 @@ public enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       try container.encode(command, forKey: .shortcut)
     case .type(let command):
       try container.encode(command, forKey: .type)
+    case .systemCommand(let command):
+      try container.encode(command, forKey: .system)
     }
   }
 }
 
-public extension Command {
+extension Command {
   static func empty(_ kind: CodingKeys) -> Command {
     switch kind {
     case .application:
@@ -310,6 +114,8 @@ public extension Command {
                                     name: "", isEnabled: true, notification: false))
     case .type:
       return Command.type(.init(name: "", input: "", notification: false))
+    case .system:
+      return Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
     }
   }
 

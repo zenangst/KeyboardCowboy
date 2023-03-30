@@ -236,7 +236,7 @@ struct ContentImageView: View {
       case .type:
         RegularKeyIcon(letter: "(...)", width: 25, height: 25)
           .frame(width: 24, height: 24)
-      case .plain:
+      case .plain, .systemCommand:
         EmptyView()
       }
     }
