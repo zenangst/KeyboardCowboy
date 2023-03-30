@@ -91,7 +91,7 @@ final class CommandEngine {
   func serialRun(_ commands: [Command]) {
     runningTask?.cancel()
     runningTask = Task.detached(priority: .userInitiated) { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
       do {
         for command in commands {
           try Task.checkCancellation()
@@ -103,11 +103,16 @@ final class CommandEngine {
   }
 
   func concurrentRun(_ commands: [Command]) {
-    for command in commands {
-      Task(priority: .userInitiated) {
-        do {
-          try await run(command)
-        } catch { }
+    runningTask?.cancel()
+    runningTask = Task.detached { [weak self] in
+      for command in commands {
+        guard let self else { return }
+        Task(priority: .userInitiated) {
+          do {
+            try Task.checkCancellation()
+            try await self.run(command)
+          } catch { }
+        }
       }
     }
   }
