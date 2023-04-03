@@ -94,9 +94,16 @@ final class CommandEngine {
       guard let self else { return }
       do {
         for command in commands {
+          let id = UUID().uuidString
+          FileLogger.log("🏁 Running serial:\(id) \(command.fileLoggerValue)")
           try Task.checkCancellation()
-          try await self.run(command)
+          do {
+            try await self.run(command)
+          } catch {
+            FileLogger.log("⛔️ Failed serial:\(id) \(command.fileLoggerValue)")
+          }
           try await Task.sleep(for: .milliseconds(50))
+          FileLogger.log("✅ Done serial:\(id) \(command.fileLoggerValue)")
         }
       }
     }
@@ -105,13 +112,18 @@ final class CommandEngine {
   func concurrentRun(_ commands: [Command]) {
     runningTask?.cancel()
     runningTask = Task.detached { [weak self] in
+      guard let self else { return }
       for command in commands {
-        guard let self else { return }
+        let id = UUID().uuidString
+        FileLogger.log("🏁 Running concurrent:\(id) \(command.fileLoggerValue)")
         Task(priority: .userInitiated) {
           do {
             try Task.checkCancellation()
             try await self.run(command)
-          } catch { }
+            FileLogger.log("✅ Running concurrent:\(id) \(command.fileLoggerValue)")
+          } catch {
+            FileLogger.log("⛔️ Failed concurrent:\(id) \(command.fileLoggerValue)")
+          }
         }
       }
     }

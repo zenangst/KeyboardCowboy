@@ -112,6 +112,7 @@ let project = Project(
                     LaunchArgument(name: "-debugEditing", isEnabled: false),
                     LaunchArgument(name: "-injection", isEnabled: false),
                     LaunchArgument(name: "-disableMachPorts", isEnabled: false),
+                    LaunchArgument(name: "-fileLogging", isEnabled: false),
                   ]))
         )
     ],

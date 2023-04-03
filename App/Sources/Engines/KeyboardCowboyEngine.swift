@@ -53,31 +53,12 @@ final class KeyboardCowboyEngine {
           let machPortController = try MachPortEventController(
             .privateState,
             signature: "com.zenangst.Keyboard-Cowboy",
-            mode: .commonModes)
+            autoStartMode: .commonModes)
           commandEngine.eventSource = machPortController.eventSource
           machPortEngine.subscribe(to: machPortController.$event)
           machPortEngine.machPort = machPortController
           commandEngine.machPort = machPortController
           self.machPortController = machPortController
-
-//          let swipeEvent = CGEvent(mouseEventSource: nil, mouseType: .otherMouseDragged, mouseCursorPosition: CGPoint.zero, mouseButton: .left)!
-//          swipeEvent.post(tap: .cghidEventTap)
-//          swipeEvent.setDoubleValueField(.gestureSwipeDeltaX, value: 100)
-//          swipeEvent.setDoubleValueField(.gestureSwipeDeltaY, value: 0)
-//          swipeEvent.setIntegerValueField(.gestureSwipeDirection, value: Int32(kCGGestureSwipeRight.rawValue))
-//          swipeEvent.setIntegerValueField(.gestureType, value: Int32(kCGGestureTypeSwipe.rawValue))
-
-//          machPortController.postMouseEvent(.leftMouseDown,
-//                                            position: .init(x: 200, y: 200),
-//                                            button: .left)
-//          machPortController.postMouseEvent(.leftMouseDragged,
-//                                            position: .init(x: 300, y: 300),
-//                                            button: .center)
-//          machPortController.postMouseEvent(.leftMouseUp,
-//                                            position: .init(x: 400, y: 400),
-//                                            button: .center)
-
-
         }
       } catch let error {
         os_log(.error, "\(error.localizedDescription)")
@@ -132,7 +113,9 @@ final class KeyboardCowboyEngine {
     } else {
       newPolicy = .accessory
     }
-
+    // Reload the mach port controller to ensure that a unresponsive application
+    // doesn't break the mach port connection.
+    try? machPortController?.reload(mode: .commonModes)
     _ = NSApplication.shared.setActivationPolicy(newPolicy)
   }
 }
