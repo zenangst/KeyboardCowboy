@@ -113,9 +113,6 @@ final class KeyboardCowboyEngine {
     } else {
       newPolicy = .accessory
     }
-    // Reload the mach port controller to ensure that a unresponsive application
-    // doesn't break the mach port connection.
-    try? machPortController?.reload(mode: .commonModes)
     _ = NSApplication.shared.setActivationPolicy(newPolicy)
   }
 }

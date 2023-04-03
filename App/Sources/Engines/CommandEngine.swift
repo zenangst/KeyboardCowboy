@@ -17,6 +17,7 @@ final class CommandEngine {
     didSet {
       engines.keyboard.machPort = machPort
       if let machPort {
+        engines.system.machPort = machPort
         engines.system.subscribe(to: machPort.$flagsChanged)
       }
     }
@@ -136,40 +137,43 @@ final class CommandEngine {
       }
     }
 
-    switch command {
-    case .application(let applicationCommand):
-      try await engines.application.run(applicationCommand)
-    case .builtIn(let builtInCommand):
-      switch builtInCommand.kind {
-      case .quickRun:
-        break
-      case .recordSequence:
-        break
-      case .repeatLastKeystroke:
-        break
-      }
-    case .keyboard(let keyboardCommand):
-      try engines.keyboard.run(keyboardCommand,
-                               type: .keyDown,
-                               originalEvent: nil,
-                               with: eventSource)
-      try engines.keyboard.run(keyboardCommand,
-                               type: .keyUp,
-                               originalEvent: nil,
-                               with: eventSource)
-      try await Task.sleep(for: .milliseconds(1))
-    case .open(let openCommand):
-      try await engines.open.run(openCommand)
-    case .script(let scriptCommand):
-      Task.detached(priority: .userInitiated) {
+    do {
+      switch command {
+      case .application(let applicationCommand):
+        try await engines.application.run(applicationCommand)
+      case .builtIn(let builtInCommand):
+        switch builtInCommand.kind {
+        case .quickRun:
+          break
+        case .recordSequence:
+          break
+        case .repeatLastKeystroke:
+          break
+        }
+      case .keyboard(let keyboardCommand):
+        try engines.keyboard.run(keyboardCommand,
+                                 type: .keyDown,
+                                 originalEvent: nil,
+                                 with: eventSource)
+        try engines.keyboard.run(keyboardCommand,
+                                 type: .keyUp,
+                                 originalEvent: nil,
+                                 with: eventSource)
+        try await Task.sleep(for: .milliseconds(1))
+      case .open(let openCommand):
+        try await engines.open.run(openCommand)
+      case .script(let scriptCommand):
         _ = try await self.engines.script.run(scriptCommand)
+      case .shortcut(let shortcutCommand):
+        try await engines.shortcut.run(shortcutCommand)
+      case .type(let typeCommand):
+        try await engines.type.run(typeCommand)
+      case .systemCommand(let systemCommand):
+        try await engines.system.run(systemCommand)
       }
-    case .shortcut(let shortcutCommand):
-      try await engines.shortcut.run(shortcutCommand)
-    case .type(let typeCommand):
-      try await engines.type.run(typeCommand)
-    case .systemCommand(let systemCommand):
-      try await engines.system.run(systemCommand)
+    } catch {
+      FileLogger.log("⛔️ Failed to run: \(command.fileLoggerValue)")
+      throw error
     }
   }
 }

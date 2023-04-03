@@ -34,11 +34,16 @@ final class KeyboardEngine {
       let key = try resolveKey(for: keyboardShortcut.key)
       var flags = CGEventFlags()
       keyboardShortcut.modifiers.forEach { flags.insert($0.cgModifierFlags) }
-      try machPort.post(key, type: type, flags: flags) { newEvent in
-        if let originalEvent {
-          let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
-          newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: originalKeyboardEventAutorepeat)
+      do {
+        try machPort.post(key, type: type, flags: flags) { newEvent in
+          if let originalEvent {
+            let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
+            newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: originalKeyboardEventAutorepeat)
+          }
         }
+      } catch let error {
+        FileLogger.log("⌨️ Failed: \(keyboardShortcut)")
+        throw error
       }
     }
   }

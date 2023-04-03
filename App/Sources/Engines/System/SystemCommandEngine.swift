@@ -6,6 +6,8 @@ import MachPort
 import Windows
 
 final class SystemCommandEngine {
+  var machPort: MachPortEventController?
+
   private var subscription: AnyCancellable?
 
   private var visibleApplicationWindows: [WindowModel] = .init()
@@ -49,7 +51,7 @@ final class SystemCommandEngine {
       let processIdentifier = window.ownerPid.pid
       let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
       let app = AppAccessibilityElement(processIdentifier)
-      let axWindow = app.windows.first(where: { $0.id == windowId })
+      let axWindow = try app.windows().first(where: { $0.id == windowId })
       runningApplication?.activate(options: .activateIgnoringOtherApps)
       axWindow?.performAction(.raise)
     case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
@@ -105,7 +107,12 @@ final class SystemCommandEngine {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else { return }
     let pid = frontmostApplication.processIdentifier
     let element = AppAccessibilityElement(pid)
-    self.frontMostApplicationWindows = element.windows
-    self.frontMostIndex = 0
+    do {
+      frontMostApplicationWindows = try element.windows()
+      frontMostIndex = 0
+    } catch { }
+    // Reload the mach port controller to ensure that a unresponsive application
+    // doesn't break the mach port connection.
+    try? machPort?.reload(mode: .commonModes)
   }
 }

@@ -1,7 +1,6 @@
 import Combine
 import Cocoa
 
-@MainActor
 final class AppleScriptPlugin {
   enum AppleScriptPluginError: Error {
     case failedToCreateInlineScript
@@ -11,8 +10,11 @@ final class AppleScriptPlugin {
   }
 
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
+  private let queue = DispatchQueue(label: "ApplicationPlugin")
+
   private var cache = [String: NSAppleScript]()
   private var subscription: AnyCancellable?
+
 
   nonisolated init(workspace: NSWorkspace) {
     Task {
@@ -20,6 +22,7 @@ final class AppleScriptPlugin {
         subscription = workspace.publisher(for: \.frontmostApplication)
           .compactMap { $0 }
           .filter { $0.bundleIdentifier == self.bundleIdentifier }
+          .receive(on: queue)
           .sink { [weak self] _ in
             guard let self else { return }
             self.cache = [:]
@@ -28,45 +31,64 @@ final class AppleScriptPlugin {
     }
   }
 
-  func executeScript(at path: String, withId id: String) throws -> String? {
-    if let cachedAppleScript = cache[id] {
-      return cachedAppleScript.executeAndReturnError(nil).stringValue
+  func executeScript(at path: String, withId id: String) async throws -> String? {
+    try await withCheckedThrowingContinuation { continuation in
+      queue.async {
+        if let cachedAppleScript = self.cache[id] {
+          continuation.resume(with: .success(cachedAppleScript.executeAndReturnError(nil).stringValue))
+          return
+        }
+
+        let filePath = path.sanitizedPath
+        let url = URL(fileURLWithPath: filePath)
+        var errorDictionary: NSDictionary?
+
+        guard let appleScript = NSAppleScript(contentsOf: url, error: &errorDictionary) else {
+          continuation.resume(throwing: AppleScriptPluginError.failedToCreateScriptAtURL(url))
+          return
+        }
+
+        do {
+          try Task.checkCancellation()
+          let descriptor = try self.execute(appleScript)
+          self.cache[id] = appleScript
+          return continuation.resume(with: .success(descriptor.stringValue))
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
     }
-
-    let filePath = path.sanitizedPath
-    let url = URL(fileURLWithPath: filePath)
-    var errorDictionary: NSDictionary?
-
-    guard let appleScript = NSAppleScript(contentsOf: url, error: &errorDictionary) else {
-      throw AppleScriptPluginError.failedToCreateScriptAtURL(url)
-    }
-
-    try Task.checkCancellation()
-
-    let descriptor = try execute(appleScript)
-
-    cache[id] = appleScript
-
-    return descriptor.stringValue
   }
 
-  func execute(_ source: String, withId id: String) throws -> String? {
-    if let cachedAppleScript = cache[id] {
-      try Task.checkCancellation()
-      return cachedAppleScript.executeAndReturnError(nil).stringValue
+  func execute(_ source: String, withId id: String) async throws -> String? {
+    try await withCheckedThrowingContinuation { continuation in
+      queue.async {
+        if let cachedAppleScript = self.cache[id] {
+          do {
+            try Task.checkCancellation()
+          } catch {
+            continuation.resume(throwing: error)
+            return
+          }
+          continuation.resume(with: .success(cachedAppleScript.executeAndReturnError(nil).stringValue))
+          return
+        }
+
+        guard let appleScript = NSAppleScript(source: source) else {
+          continuation.resume(throwing: AppleScriptPluginError.failedToCreateInlineScript)
+          return
+        }
+
+        do {
+          try Task.checkCancellation()
+          let descriptor = try self.execute(appleScript)
+          continuation.resume(with: .success(descriptor.stringValue))
+          self.cache[id] = appleScript
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
     }
-
-    guard let appleScript = NSAppleScript(source: source) else {
-      throw AppleScriptPluginError.failedToCreateInlineScript
-    }
-
-    try Task.checkCancellation()
-
-    let descriptor = try execute(appleScript)
-
-    cache[id] = appleScript
-
-    return descriptor.stringValue
   }
 
   // MARK: Private methods
