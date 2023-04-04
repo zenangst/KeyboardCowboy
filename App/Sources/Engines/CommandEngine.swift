@@ -36,6 +36,7 @@ final class CommandEngine {
     self.engines = .init(
       application: ApplicationEngine(
         scriptEngine: scriptEngine,
+        keyboard: keyboardEngine,
         windowListStore: WindowListStore(),
         workspace: workspace
       ),

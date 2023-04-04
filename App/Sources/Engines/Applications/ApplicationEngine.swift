@@ -13,12 +13,13 @@ final class ApplicationEngine {
   private let plugins: Plugins
 
   init(scriptEngine: ScriptEngine,
+       keyboard: KeyboardEngine,
        windowListStore: WindowListStoring,
        workspace: WorkspaceProviding) {
     self.windowListStore = windowListStore
     self.workspace = workspace
     self.plugins = Plugins(
-      activate: ActivateApplicationPlugin(workspace: workspace),
+      activate: ActivateApplicationPlugin(keyboard: keyboard, workspace: workspace),
       bringToFront: BringToFrontApplicationPlugin(engine: scriptEngine),
       close: CloseApplicationPlugin(workspace: workspace),
       launch: LaunchApplicationPlugin(workspace: workspace)

@@ -110,9 +110,10 @@ final class SystemCommandEngine {
     do {
       frontMostApplicationWindows = try element.windows()
       frontMostIndex = 0
-    } catch { }
-    // Reload the mach port controller to ensure that a unresponsive application
-    // doesn't break the mach port connection.
-    try? machPort?.reload(mode: .commonModes)
+    } catch {
+      // Reload the mach port controller to ensure that a unresponsive application
+      // doesn't break the mach port connection.
+      try? machPort?.reload(mode: .commonModes)
+    }
   }
 }

@@ -19,6 +19,8 @@ final class KeyboardCowboyEngine {
   private var machPortController: MachPortEventController?
   private var token: Any?
 
+  private var waitingForPrivileges: Bool = false
+
   init(_ contentStore: ContentStore,
        keyboardEngine: KeyboardEngine,
        keyboardShortcutsCache: KeyboardShortcutsCache,
@@ -47,23 +49,28 @@ final class KeyboardCowboyEngine {
 
     guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 
-    if !hasPrivileges() { } else {
+    if hasPrivileges() {
       do {
-        if !launchArguments.isEnabled(.runningUnitTests) {
-          let machPortController = try MachPortEventController(
-            .privateState,
-            signature: "com.zenangst.Keyboard-Cowboy",
-            autoStartMode: .commonModes)
-          commandEngine.eventSource = machPortController.eventSource
-          machPortEngine.subscribe(to: machPortController.$event)
-          machPortEngine.machPort = machPortController
-          commandEngine.machPort = machPortController
-          self.machPortController = machPortController
-        }
+        try setupMachPort()
       } catch let error {
         os_log(.error, "\(error.localizedDescription)")
       }
+    } else {
+      waitingForPrivileges = true
     }
+  }
+
+  func setupMachPort() throws {
+    guard !launchArguments.isEnabled(.runningUnitTests) else { return }
+    let machPortController = try MachPortEventController(
+      .privateState,
+      signature: "com.zenangst.Keyboard-Cowboy",
+      autoStartMode: .commonModes)
+    commandEngine.eventSource = machPortController.eventSource
+    machPortEngine.subscribe(to: machPortController.$event)
+    machPortEngine.machPort = machPortController
+    commandEngine.machPort = machPortController
+    self.machPortController = machPortController
   }
 
   func run(_ commands: [Command], execution: Workflow.Execution) {
@@ -113,6 +120,15 @@ final class KeyboardCowboyEngine {
     } else {
       newPolicy = .accessory
     }
+
+    if waitingForPrivileges {
+      do {
+        try setupMachPort()
+      } catch {
+        Swift.print(error)
+      }
+    }
+
     _ = NSApplication.shared.setActivationPolicy(newPolicy)
   }
 }
