@@ -48,7 +48,7 @@ final class SystemCommandEngine {
       }
       let window = visibleApplicationWindows[visibleMostIndex]
       let windowId = UInt32(window.id)
-      let processIdentifier = window.ownerPid.pid
+      let processIdentifier = pid_t(window.ownerPid.rawValue)
       let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
       let app = AppAccessibilityElement(processIdentifier)
       let axWindow = try app.windows().first(where: { $0.id == windowId })
@@ -111,9 +111,7 @@ final class SystemCommandEngine {
       frontMostApplicationWindows = try element.windows()
       frontMostIndex = 0
     } catch {
-      // Reload the mach port controller to ensure that a unresponsive application
-      // doesn't break the mach port connection.
-      try? machPort?.reload(mode: .commonModes)
+      FileLogger.log("🪟 Failed to index front most application windows")
     }
   }
 }

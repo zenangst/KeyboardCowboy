@@ -16,12 +16,11 @@ final class FileLogger {
     let timestamp = formatter.string(from: Date())
     guard let data = (timestamp + ": " + statement() + "\n").data(using: String.Encoding.utf8) else { return }
 
-    if FileManager.default.fileExists(atPath: logFile.path) {
-      if let fileHandle = try? FileHandle(forWritingTo: logFile) {
-        fileHandle.seekToEndOfFile()
-        fileHandle.write(data)
-        fileHandle.closeFile()
-      }
+    if FileManager.default.fileExists(atPath: logFile.path),
+       let fileHandle = try? FileHandle(forWritingTo: logFile) {
+      fileHandle.seekToEndOfFile()
+      fileHandle.write(data)
+      fileHandle.closeFile()
     } else {
       try? data.write(to: logFile, options: .atomicWrite)
     }

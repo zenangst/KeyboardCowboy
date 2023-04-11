@@ -113,19 +113,17 @@ final class CommandEngine {
 
   func concurrentRun(_ commands: [Command]) {
     runningTask?.cancel()
-    runningTask = Task.detached { [weak self] in
+    runningTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
       for command in commands {
         let id = UUID().uuidString
         FileLogger.log("🏁 Running concurrent:\(id) \(command.fileLoggerValue)")
-        Task(priority: .userInitiated) {
-          do {
-            try Task.checkCancellation()
-            try await self.run(command)
-            FileLogger.log("✅ Running concurrent:\(id) \(command.fileLoggerValue)")
-          } catch {
-            FileLogger.log("⛔️ Failed concurrent:\(id) \(command.fileLoggerValue)")
-          }
+        do {
+          try Task.checkCancellation()
+          try await self.run(command)
+          FileLogger.log("✅ Running concurrent:\(id) \(command.fileLoggerValue)")
+        } catch {
+          FileLogger.log("⛔️ Failed concurrent:\(id) \(command.fileLoggerValue)")
         }
       }
     }

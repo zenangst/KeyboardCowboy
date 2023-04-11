@@ -14,6 +14,12 @@ final class LaunchApplicationPlugin {
 
     let url = URL(fileURLWithPath: command.application.path)
     try Task.checkCancellation()
-    _ = try await workspace.openApplication(at: url, configuration: configuration)
+    do {
+      let runningApplication = try await workspace.openApplication(at: url, configuration: configuration)
+      FileLogger.log("🍏 Launched application: \(runningApplication.bundleIdentifier ?? "unknown")")
+    } catch {
+      FileLogger.log("🍎 Failed to launch application: \(error)")
+      throw error
+    }
   }
 }
