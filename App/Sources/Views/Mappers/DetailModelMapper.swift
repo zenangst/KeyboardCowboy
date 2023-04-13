@@ -146,8 +146,26 @@ private extension Command {
       return nil
     case .type:
       return nil
-    case .systemCommand:
-      return nil
+    case .systemCommand(let command):
+      let path: String
+      switch command.kind {
+      case .applicationWindows:
+        path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToNextWindowFront:
+        path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToPreviousWindowFront:
+        path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToNextWindow:
+        path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToPreviousWindow:
+        path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .missionControl:
+        path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+      case .showDesktop:
+        path = "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
+      }
+
+      return .init(bundleIdentifier: path, path: path)
     }
   }
 }

@@ -15,6 +15,7 @@ struct CommandView: View {
     case script(action: ScriptCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
     case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
     case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case system(action: SystemCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
   }
 
   @Environment(\.controlActiveState) var controlActiveState
@@ -182,7 +183,21 @@ struct CommandResolverView: View {
           }
         })
     case .systemCommand(let kind):
-      SystemCommandView(kind: kind)
+      SystemCommandView(command, kind: kind) { action in
+        switch action {
+        case .commandAction(let action):
+          switch action {
+          case .run:
+            onAction(.run(workflowId: workflowId, commandId: command.id))
+          case .delete:
+            onAction(.remove(workflowId: workflowId, commandId: command.id))
+          case .toggleIsEnabled(let isEnabled):
+            onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+          }
+        default:
+          onAction(.modify(.system(action: action, workflowId: workflowId, commandId: command.id)))
+        }
+      }
     }
   }
 }

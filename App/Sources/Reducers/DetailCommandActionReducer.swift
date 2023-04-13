@@ -171,6 +171,22 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
+      case .system(let action, _, _):
+        switch action {
+        case .toggleNotify(let newValue):
+          command.notification = newValue
+          workflow.updateOrAddCommand(command)
+        case .commandAction(let action):
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
+        case .updateKind(let newKind):
+          if case .systemCommand(let oldCommand) = command {
+            command = .systemCommand(.init(id: oldCommand.id, name: oldCommand.name,
+                                           kind: newKind,
+                                           notification: command.notification))
+            workflow.updateOrAddCommand(command)
+          }
+        }
       }
     }
   }
