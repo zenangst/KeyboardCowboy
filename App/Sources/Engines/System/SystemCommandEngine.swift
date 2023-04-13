@@ -1,6 +1,7 @@
 import AXEssibility
 import Cocoa
 import Combine
+import Dock
 import Foundation
 import MachPort
 import Windows
@@ -71,19 +72,11 @@ final class SystemCommandEngine {
       let window = frontMostApplicationWindows[frontMostIndex]
       window.performAction(.raise)
     case .showDesktop:
-      coreDockSendNotification("com.apple.showdesktop.awake")
+      Dock.run(.showDesktop)
     case .applicationWindows:
-      coreDockSendNotification("com.apple.expose.front.awake")
+      Dock.run(.applicationWindows)
     case .missionControl:
-      coreDockSendNotification("com.apple.expose.awake")
-    }
-  }
-
-  // Dispatch this invokation async so that the loop doesn't get stuck and the connection
-  // to the mach port is invalidated.
-  private func coreDockSendNotification(_ string: String) {
-    DispatchQueue.global(qos: .userInitiated).async {
-      CoreDockSendNotification(string as CFString, 0)
+      Dock.run(.missionControl)
     }
   }
 

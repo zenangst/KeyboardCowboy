@@ -38,6 +38,7 @@ let project = Project(
             dependencies: [
                 .external(name: "AXEssibility"),
                 .external(name: "Apps"),
+                .external(name: "Dock"),
                 .external(name: "Inject"),
                 .external(name: "InputSources"),
                 .external(name: "KeyCodes"),
