@@ -1,5 +1,10 @@
 import Cocoa
 
+private let rootFolder = URL(fileURLWithPath: #file).pathComponents
+    .prefix(while: { $0 != "KeyboardCowboy" })
+    .joined(separator: "/")
+    .dropFirst()
+
 struct AppPreferences {
   var hideFromDock: Bool = true
   var hideAppOnLaunch: Bool = true
@@ -33,7 +38,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
                                   filename: filename(for: #function)))
   }
 
@@ -42,7 +47,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
                                   filename: filename(for: #function)))
   }
 
@@ -51,7 +56,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
                                   filename: filename(for: #function)))
 
   }
@@ -61,7 +66,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: true,
-      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
                                   filename: filename(for: #function)))
   }
 
@@ -70,7 +75,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: "~/Developer/KC/Fixtures",
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
                                   filename: filename(for: #function)))
 
   }
