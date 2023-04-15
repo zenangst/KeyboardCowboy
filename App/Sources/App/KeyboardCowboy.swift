@@ -128,6 +128,7 @@ struct KeyboardCowboy: App {
         await detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
                                                    title: title, commandId: commandId)
         await contentCoordinator.handle(.selectWorkflow(models: [workflowId], inGroups: groupIds))
+        await contentCoordinator.handle(.rerender)
       }
     }
 

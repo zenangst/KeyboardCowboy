@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ContentView: View {
   enum Action: Hashable {
+    case rerender
     case selectWorkflow(models: [ContentViewModel.ID], inGroups: [WorkflowGroup.ID])
     case removeWorflows([ContentViewModel.ID])
     case moveWorkflows(source: IndexSet, destination: Int)

@@ -5,6 +5,8 @@ final class ContentViewActionReducer {
                      selectionPublisher: ContentSelectionIdsPublisher,
                      group: inout WorkflowGroup) async {
     switch action {
+    case .rerender:
+      break
     case .addCommands(let workflowId, let commandIds):
       guard let index = group.workflows.firstIndex(where: { $0.id == workflowId }) else {
         return
