@@ -174,6 +174,7 @@ struct ContentImageView: View {
     case .icon(let icon):
       Group {
         IconView(icon: icon, size: .init(width: 32, height: 32))
+          .id(icon)
       }
         .rotationEffect(.degrees(-(3.75 * image.offset)))
         .offset(.init(width: -(image.offset * 1.25),
