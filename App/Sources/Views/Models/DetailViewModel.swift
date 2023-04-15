@@ -18,7 +18,8 @@ enum DetailViewState: Hashable, Identifiable, Equatable {
   case empty
 }
 
-struct IconViewModel: Codable, Hashable, Equatable {
+struct IconViewModel: Identifiable, Codable, Hashable, Equatable {
+  var id: String { path  }
   let bundleIdentifier: String
   let path: String
 

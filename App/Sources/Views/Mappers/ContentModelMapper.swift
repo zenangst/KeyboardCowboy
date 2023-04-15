@@ -122,8 +122,30 @@ private extension Array where Element == Command {
         images.append(.init(id: shortcut.id, offset: convertedOffset, kind: .command(.shortcut)))
       case .type(let type):
         images.append(.init(id: type.id, offset: convertedOffset, kind: .command(.type(input: type.input))))
-      case .systemCommand:
-        continue
+      case .systemCommand(let command):
+        let path: String
+        switch command.kind {
+        case .applicationWindows:
+          path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+        case .moveFocusToNextWindowFront:
+          path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+        case .moveFocusToPreviousWindowFront:
+          path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+        case .moveFocusToNextWindow:
+          path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+        case .moveFocusToPreviousWindow:
+          path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+        case .missionControl:
+          path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+        case .showDesktop:
+          path = "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
+        }
+        images.append(
+          ContentViewModel.ImageModel(
+            id: command.id,
+            offset: convertedOffset,
+            kind: .icon(.init(bundleIdentifier: path, path: path)))
+        )
       }
     }
 
