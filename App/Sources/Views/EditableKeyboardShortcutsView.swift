@@ -14,6 +14,8 @@ struct EditableKeyboardShortcutsView: View {
 
   private let placeholderId = "keyboard_shortcut_placeholder_id"
   private let animation: Animation = .easeOut(duration: 0.2)
+  private let focusManager = EditableFocusManager<KeyShortcut.ID>()
+  private let selectionManager = EditableSelectionManager<KeyShortcut>()
 
   var body: some View {
     ScrollViewReader { proxy in
@@ -24,8 +26,8 @@ struct EditableKeyboardShortcutsView: View {
         Spacer()
         addButton(proxy)
       }
+      .overlay(overlay(proxy))
     }
-    .overlay(overlay())
     .onChange(of: controlActiveState, perform: { value in
       if value != .key {
         reset()
@@ -55,6 +57,8 @@ struct EditableKeyboardShortcutsView: View {
     EditableStack(
       $keyboardShortcuts,
       configuration: .init(axes: .horizontal, selectedColor: selectedColor),
+      focusManager: focusManager,
+      selectionManager: selectionManager,
       scrollProxy: proxy,
       onClick: { id, index in
         if replacing == id {
@@ -114,7 +118,7 @@ struct EditableKeyboardShortcutsView: View {
   }
 
   @ViewBuilder
-  private func overlay() -> some View {
+  private func overlay(_ proxy: ScrollViewProxy) -> some View {
     if state == .recording {
       RoundedRectangle(cornerRadius: 4)
         .stroke(isGlowing
@@ -124,35 +128,40 @@ struct EditableKeyboardShortcutsView: View {
           .easeInOut(duration: 1.25)
           .repeatForever(autoreverses: true), value: isGlowing)
     } else if keyboardShortcuts.isEmpty {
-      Text("Press the plus (+) button to record a keyboard shortcut")
+      Text("Click to record a keyboard shortcut")
         .allowsTightening(true)
         .font(.footnote)
         .padding([.leading, .vertical], 4)
         .padding(.trailing, 32)
+        .onTapGesture(perform: { addButtonAction(proxy) })
     }
   }
 
   private func addButton(_ proxy: ScrollViewProxy) -> some View {
-    Button(action: {
-      state = .recording
-      recorderStore.mode = .record
-      let keyShortcut = KeyShortcut(id: placeholderId, key: "Recording ...", lhs: true)
-      replacing = keyShortcut.id
-      keyboardShortcuts.append(keyShortcut)
-      withAnimation(animation) {
-        isGlowing = true
-        selectedColor = Color(.systemRed)
-        DispatchQueue.main.async {
-          withAnimation(animation) {
-            proxy.scrollTo(keyShortcut.id)
-          }
-        }
-      }
-    },
+    Button(action: { addButtonAction(proxy) },
            label: { Image(systemName: "plus").frame(width: 10, height: 10) })
     .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
     .padding(.trailing, 4)
     .disabled(state == .recording)
+  }
+
+  private func addButtonAction(_ proxy: ScrollViewProxy) {
+    let keyShortcut = KeyShortcut(id: placeholderId, key: "Recording ...", lhs: true)
+    focusManager.focus = .focused(keyShortcut.id)
+    selectionManager.selections = [keyShortcut.id]
+    state = .recording
+    recorderStore.mode = .record
+    replacing = keyShortcut.id
+    keyboardShortcuts.append(keyShortcut)
+    withAnimation(animation) {
+      isGlowing = true
+      selectedColor = Color(.systemRed)
+      DispatchQueue.main.async {
+        withAnimation(animation) {
+          proxy.scrollTo(keyShortcut.id)
+        }
+      }
+    }
   }
 
   private func record() {

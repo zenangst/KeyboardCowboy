@@ -49,11 +49,15 @@ enum EditableStackFocus<Identifier>: Hashable where Identifier: Hashable,
   case focused(Identifier)
 }
 
-private class EditableSelectionManager<Element>: ObservableObject where Element: Identifiable,
+class EditableSelectionManager<Element>: ObservableObject where Element: Identifiable,
                                                                         Element: Equatable,
                                                                         Element: Hashable {
   var selections = Set<Element.ID>() {
-    willSet { if selections != newValue { objectWillChange.send() } }
+    willSet {
+      if selections != newValue {
+        objectWillChange.send()
+      }
+    }
   }
 }
 
@@ -97,7 +101,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   @Binding var data: Data
 
   fileprivate var focusManager: EditableFocusManager<Data.Element.ID>
-  fileprivate var selectionManager: EditableSelectionManager<Data.Element> = .init()
+  fileprivate var selectionManager: EditableSelectionManager<Data.Element>
   fileprivate var dragManager: EditableDragManager<Data.Element> = .init()
 
   @ViewBuilder
@@ -117,6 +121,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
   init(_ data: Binding<Data>,
        configuration: EditableStackConfiguration,
        focusManager: EditableFocusManager<Data.Element.ID> = .init(),
+       selectionManager: EditableSelectionManager<Data.Element> = .init(),
        dropDelegates: [any EditableDropDelegate] = [],
        scrollProxy: ScrollViewProxy? = nil,
        itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
@@ -126,6 +131,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
        @ViewBuilder content: @escaping (Binding<Data.Element>, Int) -> Content) where NoContent == Never {
     _data = data
+    self.selectionManager = selectionManager
     self.configuration = configuration
     self.content = content
     self.dropDelegates = dropDelegates
@@ -145,6 +151,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        dropDelegates: [any EditableDropDelegate] = [],
        @ViewBuilder emptyView: @escaping () -> NoContent,
        focusManager: EditableFocusManager<Data.Element.ID> = .init(),
+       selectionManager: EditableSelectionManager<Data.Element> = .init(),
        scrollProxy: ScrollViewProxy? = nil,
        id: KeyPath<Data.Element, Data.Element.ID> = \.id,
        itemProvider: (([Data.Element]) -> NSItemProvider)? = nil,
@@ -154,6 +161,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
        onDelete: ((_ indexSet: IndexSet) -> Void)? = nil,
        @ViewBuilder content: @escaping (Binding<Data.Element>, Int) -> Content) {
     _data = data
+    self.selectionManager = selectionManager
     self.configuration = configuration
     self.content = content
     self.dropDelegates = dropDelegates
