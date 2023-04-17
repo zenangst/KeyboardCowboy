@@ -7,7 +7,7 @@ final class FileLogger {
 
 
   static func log(_ statement: @autoclosure () -> String) {
-//    guard launchArguments.isEnabled(.fileLogging) else { return }
+    guard launchArguments.isEnabled(.fileLogging) else { return }
 
     let path = rootPath.appending("/_ignored")
     let logFile = URL(filePath: path.appending("/console.log"))
