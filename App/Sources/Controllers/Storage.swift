@@ -4,6 +4,7 @@ import Foundation
 
 enum StorageError: Error {
   case unableToFindFile
+  case unableToCreateFile
   case unableToReadContents
   case unableToSaveContents(Error)
 }
@@ -41,22 +42,32 @@ final class Storage {
 
   func load() async throws -> [KeyboardCowboyConfiguration] {
     Benchmark.start("Storage.load")
-    defer { Benchmark.finish("Storage.load") }
-
-    guard fileManager.fileExists(atPath: configuration.url.path) else {
-      throw StorageError.unableToFindFile
+    defer {
+      Benchmark.finish("Storage.load")
     }
 
-    guard let data = fileManager.contents(atPath: configuration.url.path),
-          !data.isEmpty else {
+    if !fileManager.fileExists(atPath: configuration.url.path) {
+      if !fileManager.createFile(atPath: configuration.url.path, contents: nil) {
+        throw StorageError.unableToFindFile
+      }
+    }
+
+    guard let data = fileManager.contents(atPath: configuration.url.path) else {
       throw StorageError.unableToReadContents
     }
 
+    if data.count <= 1 {
+      let configuration = KeyboardCowboyConfiguration(name: "Default configuration", groups: [])
+      return [configuration]
+    }
+
     do {
-       return try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
+      let result = try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
+      return result
     } catch {
       do {
-        return try await migrateIfNeeded()
+        let result = try await migrateIfNeeded()
+        return result
       } catch {
         // TODO: Do something proper here.
         fatalError("Unable to load contents")
