@@ -4,10 +4,12 @@ import SwiftUI
 @MainActor
 final class ConfigurationCoordinator {
   private var subscription: AnyCancellable?
+  let contentStore: ContentStore
   let store: ConfigurationStore
   let publisher: ConfigurationPublisher
 
-  init(store: ConfigurationStore) {
+  init(contentStore: ContentStore, store: ConfigurationStore) {
+    self.contentStore = contentStore
     self.store = store
     self.publisher = ConfigurationPublisher()
 
@@ -22,7 +24,13 @@ final class ConfigurationCoordinator {
     Task {
       switch action {
       case .selectConfiguration(let id):
-        store.selectConfiguration(withId: id)
+        if let configuration = store.selectConfiguration(withId: id) {
+          contentStore.use(configuration)
+        }
+      case .addConfiguration(let name):
+        let configuration = KeyboardCowboyConfiguration(id: UUID().uuidString, name: name, groups: [])
+        store.add(configuration)
+        contentStore.use(configuration)
       default:
         break
       }

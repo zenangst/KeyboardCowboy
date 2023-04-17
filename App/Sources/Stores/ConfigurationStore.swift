@@ -28,10 +28,14 @@ final class ConfigurationStore: ObservableObject {
     return self
   }
 
-  func selectConfiguration(withId id: String) {
+  func selectConfiguration(withId id: String) -> KeyboardCowboyConfiguration? {
     if let newConfiguration = configurations.first(where: { $0.id == id }) {
       selectedId = id
       selectedConfiguration = newConfiguration
+      Self.appStorage.configId = id
+      return newConfiguration
+    } else {
+      return nil
     }
   }
 

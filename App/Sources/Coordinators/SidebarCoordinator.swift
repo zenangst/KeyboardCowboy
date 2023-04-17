@@ -41,7 +41,7 @@ final class SidebarCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .selectConfiguration, .openScene:
+    case .addConfiguration, .selectConfiguration, .openScene:
       break
     case .selectGroups(let groups):
       Self.appStorage.groupIds = Set(groups)

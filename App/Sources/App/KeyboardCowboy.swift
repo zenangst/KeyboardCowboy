@@ -61,7 +61,9 @@ struct KeyboardCowboy: App {
                                                  groupIdsPublisher: groupIdsPublisher,
                                                  workflowIdsPublisher: workflowIdsPublisher)
     self.contentCoordinator = contentCoordinator
-    self.configurationCoordinator = ConfigurationCoordinator(store: contentStore.configurationStore)
+    self.configurationCoordinator = ConfigurationCoordinator(
+      contentStore: contentStore,
+      store: contentStore.configurationStore)
     self.detailCoordinator = DetailCoordinator(applicationStore: applicationStore,
                                                commandEngine: CommandEngine(NSWorkspace.shared,
                                                                             scriptEngine: scriptEngine,
@@ -104,6 +106,7 @@ struct KeyboardCowboy: App {
             case .openScene(let scene):
               handleScene(scene)
             default:
+              configurationCoordinator.handle(sidebarAction)
               sidebarCoordinator.handle(sidebarAction)
             }
           case .content(let contentAction):

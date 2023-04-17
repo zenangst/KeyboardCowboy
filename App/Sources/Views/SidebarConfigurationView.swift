@@ -3,9 +3,13 @@ import Inject
 
 struct SidebarConfigurationView: View {
   enum Action {
+    case addConfiguration(name: String)
     case selectConfiguration(ConfigurationViewModel.ID)
   }
   @EnvironmentObject private var publisher: ConfigurationPublisher
+
+  @State var popoverIsPresented = false
+  @State var configurationName: String = ""
 
   private let onAction: (Action) -> Void
 
@@ -24,7 +28,7 @@ struct SidebarConfigurationView: View {
         } label: {
           HStack {
             // TODO: Fix this!
-            Text( publisher.models.first?.name ?? "Missing value" )
+            Text(publisher.models.first(where: { publisher.selections.contains($0.id) })?.name ?? "Missing value" )
               .lineLimit(1)
             Spacer()
             Image(systemName: "chevron.down")
@@ -46,10 +50,26 @@ struct SidebarConfigurationView: View {
         }
       )
 
-      Button(action: {}, label: {
+      Button(action: {
+        popoverIsPresented = true
+      }, label: {
         Image(systemName: "plus")
       })
       .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+      .popover(isPresented: $popoverIsPresented) {
+        HStack {
+          Text("Configuration name:")
+          TextField("", text: $configurationName)
+            .frame(width: 170)
+          Button("Save", action: {
+            onAction(.addConfiguration(name: configurationName))
+            popoverIsPresented = false
+            configurationName = ""
+          })
+            .keyboardShortcut(.defaultAction)
+        }
+        .padding()
+      }
     }
   }
 }

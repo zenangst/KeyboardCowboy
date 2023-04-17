@@ -63,6 +63,7 @@ final class ContentStore: ObservableObject {
   func use(_ configuration: KeyboardCowboyConfiguration) {
     keyboardShortcutsCache.createCache(configuration.groups)
     configurationId = configuration.id
+    configurationStore.select(configuration)
     groupStore.groups = configuration.groups
   }
 

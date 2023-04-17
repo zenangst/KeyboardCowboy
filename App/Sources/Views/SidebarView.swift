@@ -17,6 +17,7 @@ struct SidebarView: View {
 
   enum Action {
     case openScene(AppScene)
+    case addConfiguration(name: String)
     case selectConfiguration(ConfigurationViewModel.ID)
     case selectGroups([GroupViewModel.ID])
     case moveGroups(source: IndexSet, destination: Int)
@@ -42,6 +43,8 @@ struct SidebarView: View {
           Label("Configuration", image: "")
           SidebarConfigurationView { action in
             switch action {
+            case .addConfiguration(let name):
+              onAction(.addConfiguration(name: name))
             case .selectConfiguration(let id):
               onAction(.selectConfiguration(id))
             }
