@@ -49,6 +49,7 @@ struct GroupsView: View {
             List(selection: $groupsPublisher.selections) {
                 ForEach(groupsPublisher.models) { group in
                     SidebarItemView(group, onAction: onAction)
+                        .contentShape(RoundedRectangle(cornerRadius: 8))
                         .contextMenu(menuItems: {
                             contextualMenu(for: group, onAction: onAction)
                         })
@@ -86,7 +87,7 @@ struct GroupsView: View {
                     confirmDelete = .single(id: first.id)
                 }
             })
-            .onChange(of: groupsPublisher.selections) { newValue in
+            .onReceive(groupsPublisher.$selections, perform: { newValue in
                 confirmDelete = nil
                 groupIds.publish(.init(ids: Array(newValue)))
                 onAction(.selectGroups(Array(newValue)))
@@ -94,7 +95,7 @@ struct GroupsView: View {
                 if let proxy, let first = newValue.first {
                     proxy.scrollTo(first)
                 }
-            }
+            })
 
             AddButtonView {
                 onAction(.openScene(.addGroup))

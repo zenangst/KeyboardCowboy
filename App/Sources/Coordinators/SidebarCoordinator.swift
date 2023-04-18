@@ -47,6 +47,9 @@ final class SidebarCoordinator {
       Self.appStorage.groupIds = Set(groups)
       groupIdsPublisher.publish(.init(ids: groups))
     case .removeGroups(let ids):
+      for id in ids {
+        Self.appStorage.groupIds.remove(id)
+      }
       store.removeGroups(with: ids)
     case .moveGroups(let source, let destination):
       store.move(source: source, destination: destination)
@@ -77,7 +80,7 @@ final class SidebarCoordinator {
       viewModels.append(viewModel)
 
       if publisherIsEmpty {
-        if newSelections?.isEmpty == true || Self.appStorage.groupIds.contains(group.id) {
+        if newSelections == nil || Self.appStorage.groupIds.contains(group.id) {
           newSelections = []
         }
 
@@ -87,6 +90,10 @@ final class SidebarCoordinator {
           newSelections?.append(group.id)
         }
       }
+    }
+
+    if viewModels.isEmpty {
+      newSelections = []
     }
 
     publisher.publish(viewModels, selections: newSelections)
