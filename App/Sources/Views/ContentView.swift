@@ -11,6 +11,7 @@ struct ContentView: View {
     case addCommands(workflowId: Workflow.ID, commandIds: [DetailViewModel.CommandViewModel.ID])
   }
 
+  @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher
 
@@ -68,18 +69,20 @@ struct ContentView: View {
       .overlay(alignment: .top, content: { overlayView() })
       .toolbar {
         ToolbarItemGroup(placement: .navigation) {
-          Button(action: {
-            onAction(.addWorkflow(workflowId: UUID().uuidString))
-          },
-                 label: {
-            Label(title: {
-              Text("Add workflow")
-            }, icon: {
-              Image(systemName: "rectangle.stack.badge.plus")
-                .renderingMode(.template)
-                .foregroundColor(Color(.systemGray))
+          if !groupsPublisher.models.isEmpty {
+            Button(action: {
+              onAction(.addWorkflow(workflowId: UUID().uuidString))
+            },
+                   label: {
+              Label(title: {
+                Text("Add workflow")
+              }, icon: {
+                Image(systemName: "rectangle.stack.badge.plus")
+                  .renderingMode(.template)
+                  .foregroundColor(Color(.systemGray))
+              })
             })
-          })
+          }
         }
       }
     }
