@@ -151,3 +151,10 @@ struct GroupsView: View {
       })
     }
 }
+
+struct GroupsView_Provider: PreviewProvider {
+  static var previews: some View {
+    GroupsView(onAction: { _ in })
+      .designTime()
+  }
+}

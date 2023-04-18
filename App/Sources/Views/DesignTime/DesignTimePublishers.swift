@@ -25,6 +25,9 @@ enum DesignTime {
       GroupViewModel(id: UUID().uuidString, name: "Folders", icon: nil, color: "", symbol: "", count: 8),
     ]
   }
+
+  static var groupIdsPublisher = GroupIdsPublisher(.init(ids: []))
+
   static var contentPublisher = ContentPublisher {
     [
       ContentViewModel(id: UUID().uuidString, name: "Open News", images: [

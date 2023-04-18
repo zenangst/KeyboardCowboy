@@ -8,6 +8,7 @@ extension View {
       .environmentObject(DesignTime.detailStatePublisher)
       .environmentObject(DesignTime.detailPublisher)
       .environmentObject(DesignTime.groupsPublisher)
+      .environmentObject(DesignTime.groupIdsPublisher)
       .environmentObject(ApplicationStore())
   }
 }
