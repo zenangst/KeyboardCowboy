@@ -21,6 +21,16 @@ struct SidebarView: View {
       VStack(alignment: .leading, spacing: 0) {
         VStack(alignment: .leading) {
           Label("Configuration", image: "")
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .betaFeature("You can create new configurations and switch between them but you can't rename them.",
+                         issueNumber: 237) {
+              Text("BETA")
+                .padding(2)
+                .background(Color(.systemYellow))
+                .foregroundColor(.black)
+                .cornerRadius(4)
+                .padding(.trailing, 8)
+            }
           SidebarConfigurationView { action in
             switch action {
             case .addConfiguration(let name):
@@ -29,8 +39,9 @@ struct SidebarView: View {
               onAction(.selectConfiguration(id))
             }
           }
+          .padding(.trailing, 12)
         }
-        .padding(.horizontal, 12)
+        .padding(.leading, 12)
         .padding(.top)
 
 
