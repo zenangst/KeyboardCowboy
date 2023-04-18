@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WorkflowTriggerView: View {
+  @ObserveInjection var inject
   enum Action {
     case addApplication
     case addKeyboardShortcut
@@ -14,34 +15,44 @@ struct WorkflowTriggerView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
-      HStack(spacing: 16) {
+    VStack {
+      HStack {
         Button(action: { onAction(.addApplication) }, label: {
-          VStack(spacing: 8) {
+          HStack(spacing: 8) {
             Image(systemName: "app.dashed")
               .resizable()
               .aspectRatio(contentMode: .fit)
-              .frame(width: 16)
-            Text("Add Application")
+              .frame(width: 12)
+            Text("Application")
               .lineLimit(1)
           }
+          .padding(8)
+          .frame(maxWidth: .infinity)
         })
+        .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue)))
+
+        Spacer()
 
         Button(action: { onAction(.addKeyboardShortcut) }, label: {
-          VStack(spacing: 8) {
+          HStack(spacing: 8) {
             Image(systemName: "command")
               .resizable()
               .aspectRatio(contentMode: .fit)
-              .frame(width: 16)
+              .frame(width: 12)
             Text("Keyboard Shortcut")
+              .lineLimit(1)
           }
+          .padding(8)
+          .frame(maxWidth: .infinity)
         })
-        Spacer()
+        .buttonStyle(GradientButtonStyle(.init(nsColor: .purple)))
       }
-      .padding(16)
+      .frame(maxWidth: .infinity)
+      .padding(8)
       .background(Color(.gridColor))
       .cornerRadius(8)
     }
     .buttonStyle(.appStyle)
+    .enableInjection()
   }
 }

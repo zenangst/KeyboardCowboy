@@ -60,7 +60,7 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                     .aspectRatio(contentMode: .fit)
                 })
                 .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGray, grayscaleEffect: true)))
-                .frame(width: 12, alignment: .top)
+                .frame(width: 16, alignment: .top)
                 .padding([.top, .trailing], 8)
                 Spacer()
               }

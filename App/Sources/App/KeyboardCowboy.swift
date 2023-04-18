@@ -3,6 +3,7 @@ import Cocoa
 import SwiftUI
 import LaunchArguments
 import Inject
+@_exported import Inject
 
 @main
 struct KeyboardCowboy: App {
@@ -32,6 +33,7 @@ struct KeyboardCowboy: App {
   @Environment(\.scenePhase) private var scenePhase
 
   init() {
+    Inject.animation = .spring()
     let scriptEngine = ScriptEngine(workspace: .shared)
     let keyboardShortcutsCache = KeyboardShortcutsCache()
     let applicationStore = ApplicationStore()
@@ -134,6 +136,8 @@ struct KeyboardCowboy: App {
         await contentCoordinator.handle(.rerender)
       }
     }
+    .defaultSize(.init(width: 520, height: 280))
+    .defaultPosition(.center)
 
     EditWorkflowGroupWindow(contentStore)
       .windowResizability(.contentSize)

@@ -2,6 +2,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct WorkflowCommandListView: View {
+  @ObserveInjection var inject
+  @Environment(\.openWindow) var openWindow
   @EnvironmentObject var applicationStore: ApplicationStore
   @ObservedObject private var detailPublisher: DetailPublisher
   @State private var selections = Set<String>()
@@ -33,9 +35,14 @@ struct WorkflowCommandListView: View {
       ],
       emptyView: {
         VStack {
-          Text("You should add some content here.")
-            .bold()
-          Text("Don't you think?")
+          Button(action: {
+            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.model.id))
+          }) {
+            Text("Add a command")
+              .padding(.vertical, 4)
+              .padding(.horizontal, 16)
+          }
+          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen)))
         }
         .padding()
         .frame(maxWidth: .infinity)
@@ -83,6 +90,7 @@ struct WorkflowCommandListView: View {
           .opacity(dropOverlayIsVisible ? 1 : 0)
           .animation(.linear, value: dropOverlayIsVisible)
       }
+      .enableInjection()
   }
 
   @ViewBuilder

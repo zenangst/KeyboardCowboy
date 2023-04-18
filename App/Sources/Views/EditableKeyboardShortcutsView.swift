@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct EditableKeyboardShortcutsView: View {
+  @ObserveInjection var inject
+
   enum CurrentState: Hashable {
     case recording
   }
@@ -19,12 +21,8 @@ struct EditableKeyboardShortcutsView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
-      HStack {
-        ScrollView(.horizontal) {
-          content(proxy)
-        }
-        Spacer()
-        addButton(proxy)
+      ScrollView(.horizontal) {
+        content(proxy)
       }
       .overlay(overlay(proxy))
     }
@@ -51,6 +49,7 @@ struct EditableKeyboardShortcutsView: View {
         break
       }
     })
+    .enableInjection()
   }
 
   private func content(_ proxy: ScrollViewProxy) -> some View {
@@ -128,21 +127,20 @@ struct EditableKeyboardShortcutsView: View {
           .easeInOut(duration: 1.25)
           .repeatForever(autoreverses: true), value: isGlowing)
     } else if keyboardShortcuts.isEmpty {
-      Text("Click to record a keyboard shortcut")
-        .allowsTightening(true)
-        .font(.footnote)
-        .padding([.leading, .vertical], 4)
-        .padding(.trailing, 32)
-        .onTapGesture(perform: { addButtonAction(proxy) })
+      Button(action: {
+        addButtonAction(proxy)
+      }, label: {
+        HStack(spacing: 0) {
+          Spacer()
+          Text("Click to record a keyboard shortcut")
+            .padding(6)
+            .frame(maxWidth: .infinity)
+          Image(systemName: "plus").frame(width: 10, height: 10)
+          Spacer()
+        }
+      })
+      .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen)))
     }
-  }
-
-  private func addButton(_ proxy: ScrollViewProxy) -> some View {
-    Button(action: { addButtonAction(proxy) },
-           label: { Image(systemName: "plus").frame(width: 10, height: 10) })
-    .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-    .padding(.trailing, 4)
-    .disabled(state == .recording)
   }
 
   private func addButtonAction(_ proxy: ScrollViewProxy) {
