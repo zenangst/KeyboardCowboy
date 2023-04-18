@@ -5,9 +5,9 @@ struct SidebarItemView: View {
   @EnvironmentObject var groupsPublisher: GroupsPublisher
 
   private let group: GroupViewModel
-  private let onAction: (SidebarView.Action) -> Void
+  private let onAction: (GroupsView.Action) -> Void
 
-  init(_ group: GroupViewModel, onAction: @escaping (SidebarView.Action) -> Void) {
+  init(_ group: GroupViewModel, onAction: @escaping (GroupsView.Action) -> Void) {
     self.group = group
     self.onAction = onAction
   }
@@ -50,7 +50,7 @@ struct SidebarItemView: View {
 
   @ViewBuilder
   private func contextualMenu(for group: GroupViewModel,
-                              onAction: @escaping (SidebarView.Action) -> Void) -> some View {
+                              onAction: @escaping (GroupsView.Action) -> Void) -> some View {
     Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
     Divider()
     Button("Remove", action: {
