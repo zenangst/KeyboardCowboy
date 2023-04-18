@@ -45,7 +45,7 @@ struct GroupsView: View {
     }
 
     private func contentView() -> some View {
-        VStack {
+      VStack(spacing: 0) {
             List(selection: $groupsPublisher.selections) {
                 ForEach(groupsPublisher.models) { group in
                     SidebarItemView(group, onAction: onAction)
