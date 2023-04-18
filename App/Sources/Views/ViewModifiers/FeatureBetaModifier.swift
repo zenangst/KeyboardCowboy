@@ -26,10 +26,12 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
           .contentShape(RoundedRectangle(cornerRadius: 4))
           .font(.caption)
           .scaleEffect(isHovered ? 1 : 0.7)
+          .shadow(color: .black.opacity(isHovered ? 0.5 : 0.33), radius: isHovered ? 4 : 2)
           .popover(isPresented: $isShown) {
             HStack(spacing: 4) {
               Text("BETA")
-                .frame(maxHeight: .infinity)
+                .font(.headline)
+                .frame(maxHeight: .infinity, alignment: .top)
                 .padding(8)
                 .foregroundColor(.black)
                 .background(Color(.systemYellow))
@@ -44,6 +46,7 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                     Button("GitHub issue: #\(issueNumber)") {
                       NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/\(issueNumber)")!)
                     }
+                    .buttonStyle(AppButtonStyle())
                   }
                 }
               }
