@@ -37,6 +37,14 @@ struct GroupsView: View {
 
     @ViewBuilder
     var body: some View {
+        if !groupsPublisher.models.isEmpty {
+            contentView()
+        } else {
+            emptyView()
+        }
+    }
+
+    private func contentView() -> some View {
         VStack {
             List(selection: $groupsPublisher.selections) {
                 ForEach(groupsPublisher.models) { group in
@@ -91,9 +99,28 @@ struct GroupsView: View {
             AddButtonView {
                 onAction(.openScene(.addGroup))
             }
+            .font(.caption)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(8)
             .overlay(alignment: .top, content: { overlayView() })
         }
+    }
+
+    private func emptyView() -> some View {
+        VStack {
+            HStack {
+                AddButtonView {
+                    onAction(.openScene(.addGroup))
+                }
+                .frame(maxWidth: .infinity)
+                .font(.headline)
+            }
+
+            Text("No groups yet.\nAdd a group to get started.")
+                .multilineTextAlignment(.center)
+                .font(.footnote)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 
     private func overlayView() -> some View {

@@ -95,10 +95,8 @@ struct AddButtonView: View {
           )
             .animation(.easeOut(duration: 0.2), value: isHovered)
         Text("Add Group")
-          .font(.caption)
       }
     }
-    .frame(maxWidth: .infinity, alignment: .leading)
     .buttonStyle(.plain)
     .onHover(perform: { value in
       self.isHovered = value
