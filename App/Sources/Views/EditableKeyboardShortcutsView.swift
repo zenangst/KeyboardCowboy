@@ -21,8 +21,16 @@ struct EditableKeyboardShortcutsView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
-      ScrollView(.horizontal) {
-        content(proxy)
+      HStack {
+        ScrollView(.horizontal) {
+          content(proxy)
+        }
+        Spacer()
+        Button(action: { addButtonAction(proxy) },
+               label: { Image(systemName: "plus").frame(width: 10, height: 10) })
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+        .padding(.trailing, 4)
+        .disabled(state == .recording)
       }
       .overlay(overlay(proxy))
     }
