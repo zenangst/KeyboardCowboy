@@ -21,6 +21,8 @@ private extension Array where Element == KeyShortcut {
   var binding: String? {
     if count == 1, let firstMatch = first {
       return "\(firstMatch.modifersDisplayValue)\(firstMatch.key)"
+    } else if count > 1 {
+      return compactMap { $0.modifersDisplayValue + $0.key }.joined(separator: ",")
     }
     return nil
   }
