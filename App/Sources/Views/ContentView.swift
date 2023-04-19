@@ -17,7 +17,7 @@ struct ContentView: View {
 
   @State private var dropOverlayIsVisible: Bool = false
   @State var selected = Set<ContentViewModel.ID>()
-  @State var overlayOpacity: CGFloat = 0
+  @State var overlayOpacity: CGFloat = 1
   @State var dropCommands = Set<DetailViewModel.CommandViewModel>()
 
   private let onAction: (Action) -> Void
@@ -32,9 +32,10 @@ struct ContentView: View {
         ForEach(publisher.models) { workflow in
           ContentItemView(workflow: workflow)
             .onFrameChange(perform: { rect in
-              if workflow == publisher.models.first {
+              // TODO: (Quickfix) Find a better solution for contentOffset observation.
+              if workflow == publisher.models.first && rect.origin.y != 52 {
                 let value = min(max(1.0 - rect.origin.y / 52.0, 0.0), 0.9)
-                overlayOpacity = value
+                overlayOpacity <- value
               }
             })
             .grayscale(workflow.isEnabled ? 0 : 0.5)
