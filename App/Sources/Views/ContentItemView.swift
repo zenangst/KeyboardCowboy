@@ -37,6 +37,8 @@ struct ContentItemView: View {
         Spacer()
         KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
           .font(.caption)
+          .allowsTightening(true)
+          .frame(minWidth: 32)
           .layoutPriority(-1)
       }
     }
