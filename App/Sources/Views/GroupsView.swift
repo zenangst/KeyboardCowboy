@@ -46,65 +46,65 @@ struct GroupsView: View {
 
     private func contentView() -> some View {
       VStack(spacing: 0) {
-            List(selection: $groupsPublisher.selections) {
-                ForEach(groupsPublisher.models) { group in
-                    SidebarItemView(group, onAction: onAction)
-                        .contentShape(RoundedRectangle(cornerRadius: 8))
-                        .contextMenu(menuItems: {
-                            contextualMenu(for: group, onAction: onAction)
-                        })
-                        .overlay(content: {
-                            HStack {
-                                Button(action: { confirmDelete = nil },
-                                       label: { Image(systemName: "x.circle") })
-                                .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
-                                .keyboardShortcut(.escape)
-                                Text("Are you sure?")
-                                    .font(.footnote)
-                                Spacer()
-                                Button(action: {
-                                    confirmDelete = nil
-                                    onAction(.removeGroups(Array(groupsPublisher.selections)))
-                                }, label: { Image(systemName: "trash") })
-                                .buttonStyle(.destructiveStyle)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(4)
-                            .background(Color(.windowBackgroundColor))
-                            .cornerRadius(8)
-                            .opacity(confirmDelete?.contains(group.id) == true ? 1 : 0)
-                        })
-                        .tag(group)
+        List(selection: $groupsPublisher.selections) {
+          ForEach(groupsPublisher.models) { group in
+            SidebarItemView(group, onAction: onAction)
+              .contentShape(RoundedRectangle(cornerRadius: 8))
+              .contextMenu(menuItems: {
+                contextualMenu(for: group, onAction: onAction)
+              })
+              .overlay(content: {
+                HStack {
+                  Button(action: { confirmDelete = nil },
+                         label: { Image(systemName: "x.circle") })
+                  .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
+                  .keyboardShortcut(.escape)
+                  Text("Are you sure?")
+                    .font(.footnote)
+                  Spacer()
+                  Button(action: {
+                    confirmDelete = nil
+                    onAction(.removeGroups(Array(groupsPublisher.selections)))
+                  }, label: { Image(systemName: "trash") })
+                  .buttonStyle(.destructiveStyle)
                 }
-                .onMove { source, destination in
-                    onAction(.moveGroups(source: source, destination: destination))
-                }
-            }
-            .onDeleteCommand(perform: {
-                if groupsPublisher.models.count > 1 {
-                    confirmDelete = .multiple(ids: Array(groupsPublisher.selections))
-                } else if let first = groupsPublisher.models.first {
-                    confirmDelete = .single(id: first.id)
-                }
-            })
-            .onReceive(groupsPublisher.$selections, perform: { newValue in
-                confirmDelete = nil
-                groupIds.publish(.init(ids: Array(newValue)))
-                onAction(.selectGroups(Array(newValue)))
-
-                if let proxy, let first = newValue.first {
-                    proxy.scrollTo(first)
-                }
-            })
-
-            AddButtonView {
-                onAction(.openScene(.addGroup))
-            }
-            .font(.caption)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
-            .overlay(alignment: .top, content: { overlayView() })
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(4)
+                .background(Color(.windowBackgroundColor))
+                .cornerRadius(8)
+                .opacity(confirmDelete?.contains(group.id) == true ? 1 : 0)
+              })
+              .tag(group)
+          }
+          .onMove { source, destination in
+            onAction(.moveGroups(source: source, destination: destination))
+          }
         }
+        .onDeleteCommand(perform: {
+          if groupsPublisher.models.count > 1 {
+            confirmDelete = .multiple(ids: Array(groupsPublisher.selections))
+          } else if let first = groupsPublisher.models.first {
+            confirmDelete = .single(id: first.id)
+          }
+        })
+        .onReceive(groupsPublisher.$selections, perform: { newValue in
+          confirmDelete = nil
+          groupIds.publish(.init(ids: Array(newValue)))
+          onAction(.selectGroups(Array(newValue)))
+
+          if let proxy, let first = newValue.first {
+            proxy.scrollTo(first)
+          }
+        })
+
+        AddButtonView {
+          onAction(.openScene(.addGroup))
+        }
+        .font(.caption)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .overlay(alignment: .top, content: { overlayView() })
+      }
     }
 
     private func emptyView() -> some View {
