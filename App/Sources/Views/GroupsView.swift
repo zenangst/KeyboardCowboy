@@ -25,6 +25,8 @@ struct GroupsView: View {
     @EnvironmentObject private var groupStore: GroupStore
     @EnvironmentObject private var groupsPublisher: GroupsPublisher
 
+    @State var dropCommands = Set<ContentViewModel>()
+    @State private var dropOverlayIsVisible: Bool = false
     @State private var confirmDelete: Confirm?
     private let proxy: ScrollViewProxy?
     private let onAction: (Action) -> Void
@@ -49,10 +51,21 @@ struct GroupsView: View {
         List(selection: $groupsPublisher.selections) {
           ForEach(groupsPublisher.models) { group in
             SidebarItemView(group, onAction: onAction)
-              .contentShape(RoundedRectangle(cornerRadius: 8))
+              .onDrop(of: GenericDroplet<ContentViewModel>.writableTypeIdentifiersForItemProvider,
+                      delegate: AppDropDelegate(isVisible: $dropOverlayIsVisible,
+                                                dropElements: $dropCommands,
+                                                onCopy: {
+                groupStore.copy($0.map(\.id), to: group.id)
+                groupsPublisher.publish(selections: [group.id])
+              },
+                                                onDrop: {
+                groupStore.move($0.map(\.id), to: group.id)
+                groupsPublisher.publish(selections: [group.id])
+              }))
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
               })
+              .contentShape(RoundedRectangle(cornerRadius: 8))
               .overlay(content: {
                 HStack {
                   Button(action: { confirmDelete = nil },

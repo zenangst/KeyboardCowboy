@@ -7,15 +7,18 @@ struct AppDropDelegate<Element>: EditableDropDelegate where Element: Codable,
   var uttypes: [String] = GenericDroplet<Element>.writableTypeIdentifiersForItemProvider
 
   private let onDrop: ([Element]) -> Void
+  private let onCopy: (([Element]) -> Void)?
   @State var isValid: Bool = false
   @Binding var isVisible: Bool
   @Binding var dropElements: Set<Element>
 
   init(isVisible: Binding<Bool>,
        dropElements: Binding<Set<Element>>,
+       onCopy: (([Element]) -> Void)? = nil,
        onDrop: @escaping ([Element]) -> Void) {
     _isVisible = isVisible
     _dropElements = dropElements
+    self.onCopy = onCopy
     self.onDrop = onDrop
   }
 
@@ -30,7 +33,11 @@ struct AppDropDelegate<Element>: EditableDropDelegate where Element: Codable,
     let isValid = !info.itemProviders(for: [UTType.data]).isEmpty
     isVisible = isValid
 
-    return isValid ? DropProposal(operation: .copy) : nil
+    if onCopy != nil {
+      return isValid ? DropProposal(operation: NSEvent.modifierFlags.contains(.option) ? .copy : .move) : nil
+    } else {
+      return isValid ? DropProposal(operation: .move) : nil
+    }
   }
 
   func validateDrop(info: DropInfo) -> Bool {
@@ -50,7 +57,11 @@ struct AppDropDelegate<Element>: EditableDropDelegate where Element: Codable,
   }
 
   func performDrop(info: DropInfo) -> Bool {
-    onDrop(Array(dropElements))
+    if let onCopy, NSEvent.modifierFlags.contains(.option) {
+      onCopy(Array(dropElements))
+    } else {
+      onDrop(Array(dropElements))
+    }
     dropElements.removeAll()
     return true
   }

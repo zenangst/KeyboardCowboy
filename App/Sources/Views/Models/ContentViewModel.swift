@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentViewModel: Identifiable, Hashable {
+struct ContentViewModel: Identifiable, Hashable, Codable {
   let id: String
   let groupName: String?
   let name: String
@@ -24,12 +24,12 @@ struct ContentViewModel: Identifiable, Hashable {
     self.isEnabled = isEnabled
   }
 
-  struct ImageModel: Identifiable, Hashable {
+  struct ImageModel: Identifiable, Hashable, Codable {
     let id: String
     let offset: Double
     let kind: Kind
 
-    enum Kind: Hashable {
+    enum Kind: Hashable, Codable {
       case command(DetailViewModel.CommandViewModel.Kind)
       case icon(IconViewModel)
     }

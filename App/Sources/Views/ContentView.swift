@@ -18,7 +18,7 @@ struct ContentView: View {
   @State private var dropOverlayIsVisible: Bool = false
   @State var selected = Set<ContentViewModel.ID>()
   @State var overlayOpacity: CGFloat = 1
-  @State var dropCommands = Set<DetailViewModel.CommandViewModel>()
+  @State var dropCommands = Set<ContentViewModel>()
 
   private let onAction: (Action) -> Void
 
@@ -42,6 +42,11 @@ struct ContentView: View {
             .opacity(workflow.isEnabled ? 1 : 0.5)
             .contextMenu(menuItems: {
               contextualMenu()
+            })
+            .onDrag({
+              NSItemProvider(object: GenericDroplet(publisher.models.filter({ selected.contains($0.id) })))
+            }, preview: {
+              ContentItemView(workflow: workflow)
             })
             .onDrop(of: GenericDroplet<DetailViewModel.CommandViewModel>.writableTypeIdentifiersForItemProvider,
                     delegate: AppDropDelegate(isVisible: $dropOverlayIsVisible,

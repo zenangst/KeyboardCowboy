@@ -31,6 +31,35 @@ final class GroupStore: ObservableObject {
   }
 
   @MainActor
+  func copy(_ workflowIds: [Workflow.ID], to newGroupId: WorkflowGroup.ID) {
+    for workflowId in workflowIds {
+      guard let oldGroup = groupForWorkflow(workflowId),
+            var newGroup = groups.first(where: { $0.id == newGroupId }),
+            let index = oldGroup.workflows.firstIndex(where: { $0.id == workflowId }) else { continue }
+
+      let workflow = oldGroup.workflows[index]
+      newGroup.workflows.append(workflow.copy())
+
+      updateGroups([oldGroup, newGroup])
+    }
+  }
+
+  @MainActor
+  func move(_ workflowIds: [Workflow.ID], to newGroupId: WorkflowGroup.ID) {
+    for workflowId in workflowIds {
+      guard var oldGroup = groupForWorkflow(workflowId),
+            var newGroup = groups.first(where: { $0.id == newGroupId }),
+            let index = oldGroup.workflows.firstIndex(where: { $0.id == workflowId }) else { continue }
+
+      let workflow = oldGroup.workflows[index]
+      oldGroup.workflows.remove(at: index)
+      newGroup.workflows.append(workflow)
+
+      updateGroups([oldGroup, newGroup])
+    }
+  }
+
+  @MainActor
   func move(source: IndexSet, destination: Int) {
     var newGroups = groups
     newGroups.move(fromOffsets: source, toOffset: destination)
@@ -85,6 +114,13 @@ final class GroupStore: ObservableObject {
   }
 
   // MARK: Private methods
+
+  @MainActor
+  private func groupForWorkflow(_ workflowId: Workflow.ID) -> WorkflowGroup? {
+    groups.first(where: {
+      $0.workflows.map(\.id).contains(workflowId)
+    })
+  }
 
   @MainActor
   private func commitGroups(_ newGroups: [WorkflowGroup]) {
