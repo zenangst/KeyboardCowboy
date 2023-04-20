@@ -20,7 +20,7 @@ body {
 }
 
 nav {
-    background-color: rgba(0, 2, 4, 0.1);
+    background-color: rgba(0, 2, 4, 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -47,9 +47,10 @@ hr {
 }
 
 nav a {
-    padding: 8px;
+    padding: 0px;
     display: block;
     font-size: 14px;
+    text-shadow: 0 0 8px rgba(0,0,0,0.3)
 }
 
 nav a:first-child {
@@ -231,13 +232,41 @@ section.constrained {
 .fn-key {
     background-color: rgba(40, 40, 40, 1);
     box-shadow: 0px 20px 30px rgba(120, 58, 192, 0.5);
-    border-top: 4px solid rgba(60, 60, 60, 1);
+    border-top: 2px solid rgba(60, 60, 60, 1);
     border-left: 4px solid rgba(60, 60, 60, 1);
     border-right: 4px solid rgba(60, 60, 60, 1);
-    border-bottom: 8px solid rgba(80, 80, 80, 1);
+    border-bottom: 8px solid rgba(70, 70, 70, 1);
     border-radius: 48px;
     padding: 64px 72px;
     margin: 0 48px 48px 0;
+    width: 52px;
+    height: 52px;
+    z-index: 2;
+}
+
+.fn-key h2 {
+    width: 100%;
+    height: 100%;
+    display: block;
+    margin: -48px 36px;
+    border-radius: 48px;
+    text-align: center;
+    z-index: 2;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.fn-key-background {
+    transform: perspective(800px) rotateX(15deg);
+    opacity: 0.2
+    background: rgba(0,0,0,1);
+    width: 190px;
+    height: 200px;
+    margin-left: 5px;
+    display: block;
+    position: absolute;
+    border-radius: 48px;
+    z-index: -1;
     transform: perspective(800px) rotateX(15deg);
     animation-name: fnGlowAnimation;
     animation-duration: 2s;
@@ -360,7 +389,15 @@ section.hero {
 
 .hero .hero-app {
     text-align: center;
+/*    opacity: 0;*/
     transform: perspective(1000px) rotateX(15deg);
+    animation-name: heroAnimation;
+    animation-duration: 0.75s;
+    animation-fill-mode: both;
+    animation-timing-function: ease-in-out;
+/*    animation-timing-function: cubic-bezier(0.25, 1.25, 0.5, 1);*/
+    position: relative;
+    z-index: 99;
 }
 
 .overlay {
@@ -413,6 +450,26 @@ footer div {
 }
 
 /* MARK: Animations */
+
+@keyframes heroAnimation {
+    0% {
+        opacity: 0;
+        transform: perspective(2500px) rotateX(25deg) translateY(-100px) scale(0.85);
+    }
+    100% {
+        opacity: 1;
+        transform: perspective(1000px) rotateX(15deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
 
 @keyframes fnGlowAnimation {
     from {
