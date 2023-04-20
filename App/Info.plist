@@ -40,6 +40,50 @@
 	<string>https://raw.githubusercontent.com/zenangst/KeyboardCowboy/master/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>ZxEpbxbd8TIwNev9bkzaLrHAaQUK/x0wBTHb4anScsc=</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Workflow</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.zenangst.Keyboard-Cowboy.Workflow</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>kcworkflow</string>
+				</array>
+			</dict>
+    </dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Workflow</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.zenangst.Keyboard-Cowboy.Workflow</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>kcworkflow</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 	<key>com.apple.security.automation.apple-events</key>
 	<true/>
 </dict>
