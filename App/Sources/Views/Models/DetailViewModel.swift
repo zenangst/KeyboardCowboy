@@ -18,7 +18,7 @@ enum DetailViewState: Hashable, Identifiable, Equatable {
   case empty
 }
 
-struct IconViewModel: Identifiable, Codable, Hashable, Equatable {
+struct IconViewModel: Identifiable, Codable, Hashable, Equatable, Sendable {
   var id: String { path  }
   let bundleIdentifier: String
   let path: String
@@ -85,7 +85,7 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     var isEnabled: Bool
     var notify: Bool
 
-    enum Kind: Codable, Hashable, Identifiable {
+    enum Kind: Codable, Hashable, Identifiable, Sendable {
       case application(action: String, inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
       case open(path: String, applicationPath: String?, appName: String?)
       case keyboard(keys: [KeyShortcut])
@@ -96,7 +96,7 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
       case systemCommand(kind: SystemCommand.Kind)
     }
 
-    enum ScriptKind: Codable, Hashable, Identifiable {
+    enum ScriptKind: Codable, Hashable, Identifiable, Sendable {
       case inline(id: String, source: String, scriptExtension: ScriptCommand.Kind)
       case path(id: String, source: String, scriptExtension: ScriptCommand.Kind)
     }

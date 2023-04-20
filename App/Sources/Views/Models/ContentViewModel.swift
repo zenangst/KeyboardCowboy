@@ -1,6 +1,8 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
-struct ContentViewModel: Identifiable, Hashable, Codable {
+struct ContentViewModel: Identifiable, Hashable, Codable,
+                          Sendable, Transferable {
   let id: String
   let groupName: String?
   let name: String
@@ -24,14 +26,22 @@ struct ContentViewModel: Identifiable, Hashable, Codable {
     self.isEnabled = isEnabled
   }
 
-  struct ImageModel: Identifiable, Hashable, Codable {
+  struct ImageModel: Identifiable, Hashable, Codable, Sendable {
     let id: String
     let offset: Double
     let kind: Kind
 
-    enum Kind: Hashable, Codable {
+    enum Kind: Hashable, Codable, Sendable {
       case command(DetailViewModel.CommandViewModel.Kind)
       case icon(IconViewModel)
     }
   }
+
+  static var transferRepresentation: some TransferRepresentation {
+    CodableRepresentation(contentType: .workflow)
+  }
+}
+
+extension UTType {
+    static var workflow: UTType { UTType(exportedAs: "com.zenangst.Keyboard-Cowboy.Workflow") }
 }
