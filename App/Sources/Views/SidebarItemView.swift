@@ -40,7 +40,6 @@ struct SidebarItemView: View {
           .resizable()
           .aspectRatio(1, contentMode: .fit)
           .frame(height: 16)
-
       }
       .opacity(groupsPublisher.selections.contains(group.id) ? 1 : 0)
       .buttonStyle(.plain)

@@ -45,7 +45,7 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.json</string>
+				<string>com.public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Workflow</string>
@@ -56,18 +56,16 @@
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
-				<array>
-					<string>kcworkflow</string>
-				</array>
+				<array/>
 			</dict>
-    </dict>
+		</dict>
 	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.json</string>
+				<string>com.public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Workflow</string>
@@ -76,12 +74,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>com.zenangst.Keyboard-Cowboy.Workflow</string>
 			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>kcworkflow</string>
-				</array>
-			</dict>
+			<dict/>
 		</dict>
 	</array>
 	<key>com.apple.security.automation.apple-events</key>

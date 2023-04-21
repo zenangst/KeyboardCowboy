@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct GroupsView: View {
     enum Confirm {
@@ -51,21 +52,9 @@ struct GroupsView: View {
         List(selection: $groupsPublisher.selections) {
           ForEach(groupsPublisher.models) { group in
             SidebarItemView(group, onAction: onAction)
-              .onDrop(of: GenericDroplet<ContentViewModel>.writableTypeIdentifiersForItemProvider,
-                      delegate: AppDropDelegate(isVisible: $dropOverlayIsVisible,
-                                                dropElements: $dropCommands,
-                                                onCopy: {
-                groupStore.copy($0.map(\.id), to: group.id)
-                groupsPublisher.publish(selections: [group.id])
-              },
-                                                onDrop: {
-                groupStore.move($0.map(\.id), to: group.id)
-                groupsPublisher.publish(selections: [group.id])
-              }))
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
               })
-              .contentShape(RoundedRectangle(cornerRadius: 8))
               .overlay(content: {
                 HStack {
                   Button(action: { confirmDelete = nil },

@@ -3,6 +3,10 @@ import SwiftUI
 struct ContentItemView: View {
   let workflow: ContentViewModel
 
+  init(_ workflow: ContentViewModel) {
+    self.workflow = workflow
+  }
+
   var body: some View {
     HStack {
       ContentImagesView(images: workflow.images)

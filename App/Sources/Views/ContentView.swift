@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ContentView: View {
   enum Action: Hashable {
@@ -15,10 +16,8 @@ struct ContentView: View {
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher
 
-  @State private var dropOverlayIsVisible: Bool = false
   @State var selected = Set<ContentViewModel.ID>()
   @State var overlayOpacity: CGFloat = 1
-  @State var dropCommands = Set<ContentViewModel>()
 
   private let onAction: (Action) -> Void
 
@@ -30,7 +29,7 @@ struct ContentView: View {
     ScrollViewReader { proxy in
       List(selection: $publisher.selections) {
         ForEach(publisher.models) { workflow in
-          ContentItemView(workflow: workflow)
+          ContentItemView(workflow)
             .onFrameChange(perform: { rect in
               // TODO: (Quickfix) Find a better solution for contentOffset observation.
               if workflow == publisher.models.first && rect.origin.y != 52 {
@@ -43,17 +42,6 @@ struct ContentView: View {
             .contextMenu(menuItems: {
               contextualMenu()
             })
-            .onDrag({
-              NSItemProvider(object: GenericDroplet(publisher.models.filter({ selected.contains($0.id) })))
-            }, preview: {
-              ContentItemView(workflow: workflow)
-            })
-            .onDrop(of: GenericDroplet<DetailViewModel.CommandViewModel>.writableTypeIdentifiersForItemProvider,
-                    delegate: AppDropDelegate(isVisible: $dropOverlayIsVisible,
-                                              dropElements: $dropCommands,
-                                              onDrop: { models in
-              onAction(.addCommands(workflowId: workflow.id, commandIds: models.map(\.id)))
-            }))
             .tag(workflow.id)
             .id(workflow.id)
         }
