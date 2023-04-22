@@ -15,16 +15,21 @@ struct DetailView: View {
 
   @ViewBuilder
   var body: some View {
-    switch statePublisher.model {
-    case .empty:
-      Text("Empty")
-    case .single:
-      SingleDetailView(detailPublisher, onAction: {
-        onAction(.singleDetailView($0))
-      })
-    case .multiple:
-      Text("Multiple commands selected")
+    Group {
+      switch statePublisher.model {
+      case .empty:
+        Text("Empty")
+      case .single:
+        SingleDetailView(detailPublisher, onAction: {
+          onAction(.singleDetailView($0))
+        })
+      case .multiple(let viewModels):
+        let limit = 5
+        let count = viewModels.count
+        MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
+      }
     }
+    .animation(.default, value: statePublisher.model)
   }
 }
 
