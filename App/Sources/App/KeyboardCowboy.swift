@@ -110,6 +110,7 @@ struct KeyboardCowboy: App {
             default:
               configurationCoordinator.handle(sidebarAction)
               sidebarCoordinator.handle(sidebarAction)
+              contentCoordinator.handle(sidebarAction)
             }
           case .content(let contentAction):
             Task {

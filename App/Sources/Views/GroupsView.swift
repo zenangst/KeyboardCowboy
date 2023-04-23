@@ -24,7 +24,7 @@ struct GroupsView: View {
     }
     @EnvironmentObject private var groupIds: GroupIdsPublisher
     @EnvironmentObject private var groupStore: GroupStore
-    @EnvironmentObject private var groupsPublisher: GroupsPublisher
+    @EnvironmentObject private var publisher: GroupsPublisher
 
     @State var dropCommands = Set<ContentViewModel>()
     @State private var dropOverlayIsVisible: Bool = false
@@ -40,7 +40,7 @@ struct GroupsView: View {
 
     @ViewBuilder
     var body: some View {
-        if !groupsPublisher.models.isEmpty {
+        if !publisher.models.isEmpty {
             contentView()
         } else {
             emptyView()
@@ -49,8 +49,8 @@ struct GroupsView: View {
 
     private func contentView() -> some View {
       VStack(spacing: 0) {
-        List(selection: $groupsPublisher.selections) {
-          ForEach(groupsPublisher.models) { group in
+        List(selection: $publisher.selections) {
+          ForEach(publisher.models) { group in
             SidebarItemView(group, onAction: onAction)
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
@@ -66,7 +66,7 @@ struct GroupsView: View {
                   Spacer()
                   Button(action: {
                     confirmDelete = nil
-                    onAction(.removeGroups(Array(groupsPublisher.selections)))
+                    onAction(.removeGroups(Array(publisher.selections)))
                   }, label: { Image(systemName: "trash") })
                   .buttonStyle(.destructiveStyle)
                 }
@@ -79,20 +79,32 @@ struct GroupsView: View {
               .tag(group)
           }
           .dropDestination(for: ContentViewModel.self) { items, index in
+            // MARK: Note about .draggable & .dropDestination
+            // For some unexplained reason, items is always a single item.
+            // This means that the user can only drag a single item between containers (such as dragging a workflow to a different group).
+            // Will investigate this further when we receive newer updates of macOS.
             let index = max(index-1,0)
+            let group = groupStore.groups[index]
+            let workflowIds = items.map(\.id)
+            if NSEvent.modifierFlags.contains(.option) {
+              groupStore.copy(workflowIds, to: group.id)
+            } else {
+              groupStore.move(workflowIds, to: group.id)
+            }
+            publisher.selections = [group.id]
           }
           .onMove { source, destination in
             onAction(.moveGroups(source: source, destination: destination))
           }
         }
         .onDeleteCommand(perform: {
-          if groupsPublisher.models.count > 1 {
-            confirmDelete = .multiple(ids: Array(groupsPublisher.selections))
-          } else if let first = groupsPublisher.models.first {
+          if publisher.models.count > 1 {
+            confirmDelete = .multiple(ids: Array(publisher.selections))
+          } else if let first = publisher.models.first {
             confirmDelete = .single(id: first.id)
           }
         })
-        .onReceive(groupsPublisher.$selections, perform: { newValue in
+        .onReceive(publisher.$selections, perform: { newValue in
           confirmDelete = nil
           groupIds.publish(.init(ids: Array(newValue)))
           onAction(.selectGroups(Array(newValue)))

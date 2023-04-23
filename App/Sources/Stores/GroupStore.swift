@@ -49,6 +49,7 @@ final class GroupStore: ObservableObject {
     for workflowId in workflowIds {
       guard var oldGroup = groupForWorkflow(workflowId),
             var newGroup = groups.first(where: { $0.id == newGroupId }),
+            oldGroup.id != newGroupId,
             let index = oldGroup.workflows.firstIndex(where: { $0.id == workflowId }) else { continue }
 
       let workflow = oldGroup.workflows[index]

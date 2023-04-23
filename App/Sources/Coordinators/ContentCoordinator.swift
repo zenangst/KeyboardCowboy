@@ -39,6 +39,25 @@ final class ContentCoordinator {
       }
   }
 
+  func handle(_ action: SidebarView.Action) {
+    switch action {
+    case .openScene:
+      break
+    case .addConfiguration:
+      break
+    case .selectConfiguration:
+      break
+    case .selectGroups:
+      Task {
+        await handle(.rerender)
+      }
+    case .moveGroups:
+      break
+    case .removeGroups:
+      break
+    }
+  }
+
   func handle(_ action: ContentView.Action) async {
     guard selectionPublisher.model.groupIds.count == 1,
           let id = selectionPublisher.model.groupIds.first,
