@@ -29,6 +29,7 @@ struct EditableKeyboardShortcutsView: View {
         Button(action: { addButtonAction(proxy) },
                label: { Image(systemName: "plus").frame(width: 10, height: 10) })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+        .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
         .padding(.trailing, 4)
         .disabled(state == .recording)
       }
@@ -143,7 +144,6 @@ struct EditableKeyboardShortcutsView: View {
           Text("Click to record a keyboard shortcut")
             .padding(6)
             .frame(maxWidth: .infinity)
-          Image(systemName: "plus").frame(width: 10, height: 10)
           Spacer()
         }
       })
