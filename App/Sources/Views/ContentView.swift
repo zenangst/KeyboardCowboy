@@ -13,6 +13,7 @@ struct ContentView: View {
   }
 
   static var appStorage: AppStorageStore = .init()
+
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher

@@ -25,6 +25,7 @@ struct GroupsView: View {
     @EnvironmentObject private var groupIds: GroupIdsPublisher
     @EnvironmentObject private var groupStore: GroupStore
     @EnvironmentObject private var publisher: GroupsPublisher
+    @EnvironmentObject private var contentPublisher: ContentPublisher
 
     @State var dropCommands = Set<ContentViewModel>()
     @State private var dropOverlayIsVisible: Bool = false
@@ -90,6 +91,9 @@ struct GroupsView: View {
               groupStore.copy(workflowIds, to: group.id)
             } else {
               groupStore.move(workflowIds, to: group.id)
+              if let first = workflowIds.first {
+                contentPublisher.selections = [first]
+              }
             }
             publisher.selections = [group.id]
           }
