@@ -26,6 +26,12 @@ extension View {
       self
     }
   }
+
+  func onFrameChange(space: CoordinateSpace = .global, perform: @escaping (CGRect) -> Void) -> some View {
+    self
+      .modifier(GeometryPreferenceKeyView<FramePreferenceKey>(space: space, transform: { $0.frame(in: space) }))
+      .onPreferenceChange(FramePreferenceKey.self, perform: perform)
+  }
 }
 
 private class DebugCommandKeyManager: ObservableObject {

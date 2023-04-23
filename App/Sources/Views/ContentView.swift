@@ -12,12 +12,19 @@ struct ContentView: View {
     case addCommands(workflowId: Workflow.ID, commandIds: [DetailViewModel.CommandViewModel.ID])
   }
 
+  static var appStorage: AppStorageStore = .init()
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
   @EnvironmentObject private var groupIds: GroupIdsPublisher
 
-  @State var selected = Set<ContentViewModel.ID>()
+  @FocusState var focus: Bool
+  @Environment(\.resetFocus) var resetFocus
+  @Namespace var namespace
+
   @State var overlayOpacity: CGFloat = 1
+
+  private let moveManager: MoveManager<ContentViewModel> = .init()
+  private let selectionManager: SelectionManager<ContentViewModel> = .init(Array(Self.appStorage.workflowIds).last)
 
   private let onAction: (Action) -> Void
 
@@ -30,6 +37,16 @@ struct ContentView: View {
       List(selection: $publisher.selections) {
         ForEach(publisher.models) { workflow in
           ContentItemView(workflow)
+            .contentShape(Rectangle())
+            .onTapGesture {
+              publisher.selections = selectionManager.handleOnTap(
+                publisher.models,
+                element: workflow,
+                selections: publisher.selections)
+              focus = true
+              resetFocus.callAsFunction(in: namespace)
+            }
+            .draggable(workflow)
             .onFrameChange(perform: { rect in
               // TODO: (Quickfix) Find a better solution for contentOffset observation.
               if workflow == publisher.models.first && rect.origin.y != 52 {
@@ -48,13 +65,20 @@ struct ContentView: View {
         .onMove { source, destination in
           onAction(.moveWorkflows(source: source, destination: destination))
         }
+        .dropDestination(for: ContentViewModel.self) { items, index in
+          let source = moveManager.onDropDestination(
+            items, index: index,
+            data: publisher.models,
+            selections: publisher.selections)
+          onAction(.moveWorkflows(source: source, destination: index))
+        }
       }
+      .focused($focus)
       .onDeleteCommand(perform: {
         guard !publisher.selections.isEmpty else { return }
         onAction(.removeWorflows(Array(publisher.selections)))
       })
       .onChange(of: publisher.selections, perform: { newValue in
-        selected = newValue
         onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.model.ids))
         if let first = newValue.first {
           proxy.scrollTo(first)
@@ -109,41 +133,10 @@ struct ContentView: View {
   }
 }
 
-struct GeometryPreferenceKeyView<Key: PreferenceKey>: ViewModifier {
-    typealias Transform = (GeometryProxy) -> Key.Value
-    private let space: CoordinateSpace
-    private let transform: Transform
-
-    init(space: CoordinateSpace, transform: @escaping Transform) {
-        self.space = space
-        self.transform = transform
-    }
-
-    func body(content: Content) -> some View {
-        content
-            .background(GeometryReader { Color.clear.preference(key: Key.self, value: transform($0)) })
-    }
-}
-
-struct FramePreferenceKey: PreferenceKey {
-    typealias Value = CGRect
-    static var defaultValue = CGRect.zero
-
-    static func reduce(value: inout Value, nextValue: () -> Value) { }
-}
-
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
     ContentView { _ in }
       .designTime()
       .frame(height: 900)
-  }
-}
-
-extension View {
-  func onFrameChange(space: CoordinateSpace = .global, perform: @escaping (CGRect) -> Void) -> some View {
-      self
-          .modifier(GeometryPreferenceKeyView<FramePreferenceKey>(space: space, transform: { $0.frame(in: space) }))
-          .onPreferenceChange(FramePreferenceKey.self, perform: perform)
   }
 }

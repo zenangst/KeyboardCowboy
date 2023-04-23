@@ -78,6 +78,9 @@ struct GroupsView: View {
               })
               .tag(group)
           }
+          .dropDestination(for: ContentViewModel.self) { items, index in
+            let index = max(index-1,0)
+          }
           .onMove { source, destination in
             onAction(.moveGroups(source: source, destination: destination))
           }
@@ -160,3 +163,20 @@ struct GroupsView_Provider: PreviewProvider {
       .designTime()
   }
 }
+
+private class WorkflowDropDelegate: DropDelegate {
+
+  func dropEntered(info: DropInfo) {
+    Swift.print("🐾 \(#file) - \(#function):\(#line)")
+  }
+
+  func dropExited(info: DropInfo) {
+    Swift.print("🐾 \(#file) - \(#function):\(#line)")
+  }
+
+  func performDrop(info: DropInfo) -> Bool {
+    Swift.print(info)
+    return true
+  }
+}
+
