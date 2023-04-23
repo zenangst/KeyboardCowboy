@@ -121,10 +121,10 @@ struct ContentView: View {
         .frame(height: 1)
         .opacity(0.5)
     }
-      .opacity(overlayOpacity)
-      .allowsHitTesting(false)
-      .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
-      .edgesIgnoringSafeArea(.top)
+    .opacity(overlayOpacity)
+    .allowsHitTesting(false)
+    .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
+    .edgesIgnoringSafeArea(.top)
   }
 
   private func contextualMenu() -> some View {
