@@ -2,8 +2,6 @@ import Apps
 import Carbon
 import SwiftUI
 
-
-
 struct NewCommandWindow: Scene {
   enum Context: Identifiable, Hashable, Codable {
     var id: String {
@@ -40,24 +38,27 @@ struct NewCommandWindow: Scene {
 
   var body: some Scene {
     WindowGroup(for: Context.self) { $context in
-      switch context {
-      case .editCommand(let workflowId, let commandId):
-        if let command = contentStore.groupStore.command(withId: commandId, workflowId: workflowId) {
-          contentView(workflowId,
-                      title: command.name,
-                      selection: selection(for: command),
-                      payload: payload(for: command),
-                      commandId: commandId)
-        } else {
+      Group {
+        switch context {
+        case .editCommand(let workflowId, let commandId):
+          if let command = contentStore.groupStore.command(withId: commandId, workflowId: workflowId) {
+            contentView(workflowId,
+                        title: command.name,
+                        selection: selection(for: command),
+                        payload: payload(for: command),
+                        commandId: commandId)
+          } else {
+            contentView(workflowId, title: "Untitled command", selection: defaultSelection,
+                        payload: defaultPayload, commandId: nil)
+          }
+        case .newCommand(let workflowId):
           contentView(workflowId, title: "Untitled command", selection: defaultSelection,
                       payload: defaultPayload, commandId: nil)
+        case .none:
+          EmptyView()
         }
-      case .newCommand(let workflowId):
-        contentView(workflowId, title: "Untitled command", selection: defaultSelection,
-                    payload: defaultPayload, commandId: nil)
-      case .none:
-        EmptyView()
       }
+      .environment(\.colorScheme, .dark)
     }
     .windowResizability(.contentSize)
     .windowStyle(.hiddenTitleBar)

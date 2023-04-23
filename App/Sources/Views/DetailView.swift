@@ -19,6 +19,7 @@ struct DetailView: View {
       switch statePublisher.data {
       case .empty:
         Text("Empty")
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
       case .single:
         SingleDetailView(detailPublisher, onAction: {
           onAction(.singleDetailView($0))
@@ -30,6 +31,9 @@ struct DetailView: View {
       }
     }
     .animation(.default, value: statePublisher.data)
+    .background(
+      Color(nsColor: .windowBackgroundColor).ignoresSafeArea(edges: .all)
+    )
   }
 }
 

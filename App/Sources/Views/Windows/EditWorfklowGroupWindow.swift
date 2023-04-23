@@ -40,6 +40,7 @@ struct EditWorkflowGroupWindow: Scene {
         KeyboardCowboy.keyWindow?.close()
         KeyboardCowboy.mainWindow?.makeKey()
       }
+      .environment(\.colorScheme, .dark)
     }
     .windowResizability(.contentMinSize)
   }

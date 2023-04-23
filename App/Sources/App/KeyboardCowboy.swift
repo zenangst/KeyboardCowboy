@@ -124,6 +124,8 @@ struct KeyboardCowboy: App {
             contentCoordinator.handle(detailAction)
           }
         }
+        // Force dark mode until the light theme is up-to-date
+        .environment(\.colorScheme, .dark)
       )
     }
     .windowStyle(.hiddenTitleBar)

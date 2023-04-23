@@ -184,6 +184,7 @@ struct NewCommandView: View {
       .buttonStyle(.appStyle)
       .padding()
     }
+    .background(Color(nsColor: .windowBackgroundColor))
   }
 
   @ViewBuilder
