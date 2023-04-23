@@ -3,17 +3,17 @@ import SwiftUI
 @MainActor
 final class ViewModelPublisher<ViewModel>: ObservableObject where ViewModel: Hashable,
                                                                   ViewModel: Identifiable {
-  @Published var model: ViewModel
+  @Published var data: ViewModel
 
-  nonisolated init(_ model: ViewModel) {
-    _model = .init(initialValue: model)
+  nonisolated init(_ data: ViewModel) {
+    _data = .init(initialValue: data)
   }
 
-  nonisolated convenience init(_ model: () -> ViewModel) {
-    self.init(model())
+  nonisolated convenience init(_ data: () -> ViewModel) {
+    self.init(data())
   }
 
   func publish(_ newModel: ViewModel) {
-    self.model = newModel
+    self.data = newModel
   }
 }

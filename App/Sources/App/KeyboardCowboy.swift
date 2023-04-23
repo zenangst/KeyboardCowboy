@@ -83,8 +83,8 @@ struct KeyboardCowboy: App {
 
     if launchArguments.isEnabled(.injection) { _ = Inject.load }
 
-    contentCoordinator.subscribe(to: groupIdsPublisher.$model)
-    detailCoordinator.subscribe(to: workflowIdsPublisher.$model)
+    contentCoordinator.subscribe(to: groupIdsPublisher.$data)
+    detailCoordinator.subscribe(to: workflowIdsPublisher.$data)
   }
 
   var body: some Scene {
@@ -129,7 +129,7 @@ struct KeyboardCowboy: App {
     .windowStyle(.hiddenTitleBar)
 
     NewCommandWindow(contentStore: contentStore) { workflowId, commandId, title, payload in
-      let groupIds = contentCoordinator.selectionPublisher.model.groupIds
+      let groupIds = contentCoordinator.selectionPublisher.data.groupIds
       Task {
         await detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
                                                    title: title, commandId: commandId)

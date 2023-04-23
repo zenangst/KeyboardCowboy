@@ -35,12 +35,12 @@ struct ContentView: View {
   var body: some View {
     ScrollViewReader { proxy in
       List(selection: $publisher.selections) {
-        ForEach(publisher.models) { workflow in
+        ForEach(publisher.data) { workflow in
           ContentItemView(workflow)
             .contentShape(Rectangle())
             .onTapGesture {
               publisher.selections = selectionManager.handleOnTap(
-                publisher.models,
+                publisher.data,
                 element: workflow,
                 selections: publisher.selections)
               focus = true
@@ -49,7 +49,7 @@ struct ContentView: View {
             .draggable(workflow)
             .onFrameChange(perform: { rect in
               // TODO: (Quickfix) Find a better solution for contentOffset observation.
-              if workflow == publisher.models.first && rect.origin.y != 52 {
+              if workflow == publisher.data.first && rect.origin.y != 52 {
                 let value = min(max(1.0 - rect.origin.y / 52.0, 0.0), 0.9)
                 overlayOpacity <- value
               }
@@ -68,7 +68,7 @@ struct ContentView: View {
         .dropDestination(for: ContentViewModel.self) { items, index in
           let source = moveManager.onDropDestination(
             items, index: index,
-            data: publisher.models,
+            data: publisher.data,
             selections: publisher.selections)
           onAction(.moveWorkflows(source: source, destination: index))
         }
@@ -79,7 +79,7 @@ struct ContentView: View {
         onAction(.removeWorflows(Array(publisher.selections)))
       })
       .onChange(of: publisher.selections, perform: { newValue in
-        onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.model.ids))
+        onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.data.ids))
         if let first = newValue.first {
           proxy.scrollTo(first)
         }
@@ -87,7 +87,7 @@ struct ContentView: View {
       .overlay(alignment: .top, content: { overlayView() })
       .toolbar {
         ToolbarItemGroup(placement: .navigation) {
-          if !groupsPublisher.models.isEmpty {
+          if !groupsPublisher.data.isEmpty {
             Button(action: {
               onAction(.addWorkflow(workflowId: UUID().uuidString))
             },

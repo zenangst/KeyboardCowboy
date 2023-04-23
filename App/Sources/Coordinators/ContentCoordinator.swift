@@ -59,8 +59,8 @@ final class ContentCoordinator {
   }
 
   func handle(_ action: ContentView.Action) async {
-    guard selectionPublisher.model.groupIds.count == 1,
-          let id = selectionPublisher.model.groupIds.first,
+    guard selectionPublisher.data.groupIds.count == 1,
+          let id = selectionPublisher.data.groupIds.first,
           var group = store.group(withId: id) else { return }
 
     await ContentViewActionReducer.reduce(
@@ -85,7 +85,7 @@ final class ContentCoordinator {
   func handle(_ action: DetailView.Action) {
     switch action {
     case .singleDetailView:
-      render(selectionPublisher.model.groupIds, calculateSelections: false)
+      render(selectionPublisher.data.groupIds, calculateSelections: false)
     }
   }
 
@@ -133,7 +133,7 @@ final class ContentCoordinator {
     }
 
     if calculateSelections {
-      if publisher.models.isEmpty {
+      if publisher.data.isEmpty {
         if newSelections.isEmpty, let first = viewModels.first {
           newSelections = [first.id]
         }

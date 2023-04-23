@@ -18,7 +18,7 @@ struct NotificationListView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      ForEach(publisher.models) { notification in
+      ForEach(publisher.data) { notification in
         NotificationView(notification: notification)
       }
     }

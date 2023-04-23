@@ -16,7 +16,7 @@ struct DetailView: View {
   @ViewBuilder
   var body: some View {
     Group {
-      switch statePublisher.model {
+      switch statePublisher.data {
       case .empty:
         Text("Empty")
       case .single:
@@ -29,7 +29,7 @@ struct DetailView: View {
         MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
       }
     }
-    .animation(.default, value: statePublisher.model)
+    .animation(.default, value: statePublisher.data)
   }
 }
 

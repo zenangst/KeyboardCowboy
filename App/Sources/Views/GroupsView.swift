@@ -40,7 +40,7 @@ struct GroupsView: View {
 
     @ViewBuilder
     var body: some View {
-        if !publisher.models.isEmpty {
+        if !publisher.data.isEmpty {
             contentView()
         } else {
             emptyView()
@@ -50,7 +50,7 @@ struct GroupsView: View {
     private func contentView() -> some View {
       VStack(spacing: 0) {
         List(selection: $publisher.selections) {
-          ForEach(publisher.models) { group in
+          ForEach(publisher.data) { group in
             SidebarItemView(group, onAction: onAction)
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
@@ -98,9 +98,9 @@ struct GroupsView: View {
           }
         }
         .onDeleteCommand(perform: {
-          if publisher.models.count > 1 {
+          if publisher.data.count > 1 {
             confirmDelete = .multiple(ids: Array(publisher.selections))
-          } else if let first = publisher.models.first {
+          } else if let first = publisher.data.first {
             confirmDelete = .single(id: first.id)
           }
         })

@@ -72,7 +72,7 @@ final class SidebarCoordinator {
     var viewModels = [GroupViewModel]()
     viewModels.reserveCapacity(groups.count)
     var newSelections: [GroupViewModel.ID]?
-    let publisherIsEmpty = publisher.models.isEmpty && publisher.selections.isEmpty
+    let publisherIsEmpty = publisher.data.isEmpty && publisher.selections.isEmpty
 
     for (offset, group) in groups.enumerated() {
       let viewModel = SidebarMapper.map(group, applicationStore: applicationStore)

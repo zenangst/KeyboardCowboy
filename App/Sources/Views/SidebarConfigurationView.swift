@@ -21,14 +21,14 @@ struct SidebarConfigurationView: View {
     HStack {
       HStack {
         Menu {
-          ForEach(publisher.models) { configuration in
+          ForEach(publisher.data) { configuration in
             Button(action: { onAction(.selectConfiguration(configuration.id)) },
                    label: { Text(configuration.name) })
           }
         } label: {
           HStack {
             // TODO: Fix this!
-            Text(publisher.models.first(where: { publisher.selections.contains($0.id) })?.name ?? "Missing value" )
+            Text(publisher.data.first(where: { publisher.selections.contains($0.id) })?.name ?? "Missing value" )
               .lineLimit(1)
             Spacer()
             Image(systemName: "chevron.down")

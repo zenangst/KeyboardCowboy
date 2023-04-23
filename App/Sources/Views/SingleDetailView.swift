@@ -29,24 +29,24 @@ struct SingleDetailView: View {
   }
 
   var body: some View {
-    let shouldShowCommandList = detailPublisher.model.trigger != nil ||
-                               !detailPublisher.model.commands.isEmpty
+    let shouldShowCommandList = detailPublisher.data.trigger != nil ||
+                               !detailPublisher.data.commands.isEmpty
 
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
           WorkflowInfoView(detailPublisher, onAction: { action in
             switch action {
             case .updateName(let name):
-              onAction(.updateName(workflowId: detailPublisher.model.id, name: name))
+              onAction(.updateName(workflowId: detailPublisher.data.id, name: name))
             case .setIsEnabled(let isEnabled):
-              onAction(.setIsEnabled(workflowId: detailPublisher.model.id, isEnabled: isEnabled))
+              onAction(.setIsEnabled(workflowId: detailPublisher.data.id, isEnabled: isEnabled))
             }
           })
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
-          .id(detailPublisher.model.id)
-          WorkflowTriggerListView(detailPublisher.model, onAction: onAction)
-            .id(detailPublisher.model.id)
+          .id(detailPublisher.data.id)
+          WorkflowTriggerListView(detailPublisher.data, onAction: onAction)
+            .id(detailPublisher.data.id)
         }
         .padding([.top, .leading, .trailing])
         .padding(.bottom, 32)
@@ -78,21 +78,21 @@ struct SingleDetailView: View {
             Menu(content: {
               ForEach(DetailViewModel.Execution.allCases) { execution in
                 Button(execution.rawValue, action: {
-                  onAction(.updateExecution(workflowId: detailPublisher.model.id,
+                  onAction(.updateExecution(workflowId: detailPublisher.data.id,
                                             execution: execution))
                 })
               }
             }, label: {
               Image(systemName: "play.fill")
-              Text("Run \(detailPublisher.model.execution.rawValue)")
+              Text("Run \(detailPublisher.data.execution.rawValue)")
             }, primaryAction: {
-              onAction(.runWorkflow(workflowId: detailPublisher.model.id))
+              onAction(.runWorkflow(workflowId: detailPublisher.data.id))
             })
             .fixedSize()
           }
-          .opacity(detailPublisher.model.commands.isEmpty ? 0 : 1)
+          .opacity(detailPublisher.data.commands.isEmpty ? 0 : 1)
           Button(action: {
-            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.model.id))
+            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
           }) {
             HStack(spacing: 4) {
               Image(systemName: "plus")
@@ -100,7 +100,7 @@ struct SingleDetailView: View {
           }
           .padding(.horizontal, 4)
           .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-          .opacity(!detailPublisher.model.commands.isEmpty ? 1 : 0)
+          .opacity(!detailPublisher.data.commands.isEmpty ? 1 : 0)
         }
         .padding(.horizontal)
         .padding(.top, -6)

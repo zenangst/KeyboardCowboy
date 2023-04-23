@@ -23,20 +23,20 @@ struct WorkflowCommandListView: View {
 
   var body: some View {
     EditableStack(
-      $detailPublisher.model.commands,
+      $detailPublisher.data.commands,
       configuration: .init(lazy: true,
                            uttypes: GenericDroplet<DetailViewModel.CommandViewModel>.writableTypeIdentifiersForItemProvider,
                            spacing: 10),
       dropDelegates: [
         WorkflowCommandDropUrlDelegate(isVisible: $dropOverlayIsVisible,
                                        urls: $dropUrls) {
-                                         onAction(.dropUrls(workflowId: detailPublisher.model.id, urls: $0))
+                                         onAction(.dropUrls(workflowId: detailPublisher.data.id, urls: $0))
                                        }
       ],
       emptyView: {
         VStack {
           Button(action: {
-            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.model.id))
+            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
           }) {
             Text("Add a command")
               .padding(.vertical, 4)
@@ -55,17 +55,17 @@ struct WorkflowCommandListView: View {
       onSelection: { self.selections = $0 },
       onMove: { indexSet, toOffset in
         withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-          detailPublisher.model.commands.move(fromOffsets: indexSet, toOffset: toOffset)
+          detailPublisher.data.commands.move(fromOffsets: indexSet, toOffset: toOffset)
         }
-        onAction(.moveCommand(workflowId: $detailPublisher.model.id, indexSet: indexSet, toOffset: toOffset))
+        onAction(.moveCommand(workflowId: $detailPublisher.data.id, indexSet: indexSet, toOffset: toOffset))
       },
       onDelete: { indexSet in
         var ids = Set<Command.ID>()
-        indexSet.forEach { ids.insert(detailPublisher.model.commands[$0].id) }
-        onAction(.removeCommands(workflowId: $detailPublisher.model.id, commandIds: ids))
+        indexSet.forEach { ids.insert(detailPublisher.data.commands[$0].id) }
+        onAction(.removeCommands(workflowId: $detailPublisher.data.id, commandIds: ids))
       }) { command, index in
-        CommandView(command.wrappedValue, workflowId: detailPublisher.model.id) { action in
-          onAction(.commandView(workflowId: detailPublisher.model.id, action: action))
+        CommandView(command.wrappedValue, workflowId: detailPublisher.data.id) { action in
+          onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
         }
         .contextMenu(menuItems: { contextMenu(command) })
       }
@@ -101,13 +101,13 @@ struct WorkflowCommandListView: View {
       if !selections.isEmpty {
         var indexSet = IndexSet()
         selections.forEach { id in
-          if let index = detailPublisher.model.commands.firstIndex(where: { $0.id == id }) {
+          if let index = detailPublisher.data.commands.firstIndex(where: { $0.id == id }) {
             indexSet.insert(index)
           }
         }
-        onAction(.removeCommands(workflowId: detailPublisher.model.id, commandIds: selections))
+        onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selections))
       } else {
-        onAction(.commandView(workflowId: detailPublisher.model.id, action: .remove(workflowId: detailPublisher.model.id, commandId: command.id)))
+        onAction(.commandView(workflowId: detailPublisher.data.id, action: .remove(workflowId: detailPublisher.data.id, commandId: command.id)))
       }
     })
   }

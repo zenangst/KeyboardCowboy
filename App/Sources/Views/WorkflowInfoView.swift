@@ -12,8 +12,8 @@ struct WorkflowInfoView: View {
   private var onAction: (Action) -> Void
 
   init(_ detailPublisher: DetailPublisher, onAction: @escaping (Action) -> Void) {
-    _workflowName = .init(initialValue: detailPublisher.model.name)
-    _isEnabled = .init(initialValue: detailPublisher.model.isEnabled)
+    _workflowName = .init(initialValue: detailPublisher.data.name)
+    _isEnabled = .init(initialValue: detailPublisher.data.isEnabled)
     self.detailPublisher = detailPublisher
     self.onAction = onAction
   }
