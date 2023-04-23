@@ -8,13 +8,14 @@ final class SelectionManager<T: Identifiable> {
     self.lastSelection = lastSelection
   }
 
-  func handleOnTap(_ data: [T], element: T, selections: Set<T.ID>) -> Set<T.ID> {
+  func handleOnTap(_ data: [T], element: T, selections: inout Set<T.ID>) {
+    let copyOfSelections = selections
     if NSEvent.modifierFlags.contains(.shift) {
-      return onShiftTap(data, elementID: element.id, selections: selections)
+      selections = onShiftTap(data, elementID: element.id, selections: copyOfSelections)
     } else if NSEvent.modifierFlags.contains(.command) {
-      return onCommandTap(element, selections: selections)
+      selections = onCommandTap(element, selections: copyOfSelections)
     } else {
-      return onTap(element)
+      selections = onTap(element)
     }
   }
 

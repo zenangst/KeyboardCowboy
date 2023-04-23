@@ -39,10 +39,10 @@ struct ContentView: View {
           ContentItemView(workflow)
             .contentShape(Rectangle())
             .onTapGesture {
-              publisher.selections = selectionManager.handleOnTap(
+              selectionManager.handleOnTap(
                 publisher.data,
                 element: workflow,
-                selections: publisher.selections)
+                selections: &publisher.selections)
               focus = true
               resetFocus.callAsFunction(in: namespace)
             }
