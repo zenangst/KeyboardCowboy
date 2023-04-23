@@ -2,39 +2,34 @@
 
 ## Installation
 
-To get this up and running, you'll need to have `xcodegen` installed.
+To get this up and running, you'll need to have `tuist` installed.
 
-#### Installing XcodeGen
+#### Installing tuist 
 
-The easiest way to install XcodeGen is by using Homebew
+The easiest way to install tuist is by using Homebew
 
 ```fish
-brew install xcodegen
+brew install tuist 
 ```
 
-For more information about [XcodeGen](https://github.com/yonaskolb/XcodeGen), refer to the projects README.
+For more information about [tuist](https://tuist.io), refer to the projects README.
+
+#### Setting up a `.env`
+
+Create a new `.env` file in the root folder.
+Add the following contents to the `.env`-file.
+
+```
+APP_NAME=Keyboard Cowboy
+APP_SCHEME=Keyboard-Cowboy
+APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy
+```
 
 #### Generating an Xcode project
 
-Simply run `xcodegen` in the root folder of the repository
+Simply run the following commands in the root folder of the repository
 
 ```fish
-xcodegen
-```
-
-You'll see it output someting like:
-
-```
-⚙️  Generating plists...
-⚙️  Generating project...
-⚙️  Writing project...
-Created project at /path/KeyboardCowboy3/Keyboard Cowboy.xcodeproj
-```
-
-#### Install developer dependencies
-
-The project relies on both `SwiftLint` and that component can be installed using Homebrew.
-
-```fish
-brew install swiftlint
+tuist fetch
+tuist generate
 ```
