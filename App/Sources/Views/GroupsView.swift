@@ -1,7 +1,10 @@
+import Inject
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct GroupsView: View {
+  @ObserveInjection var inject
+
   enum Confirm {
     case single(id: GroupViewModel.ID)
     case multiple(ids: [GroupViewModel.ID])
@@ -73,8 +76,7 @@ struct GroupsView: View {
               }
               .frame(maxWidth: .infinity, maxHeight: .infinity)
               .padding(4)
-              .background(Color(.windowBackgroundColor))
-              .cornerRadius(8)
+              .background(Color(.windowBackgroundColor).cornerRadius(8))
               .opacity(confirmDelete?.contains(group.id) == true ? 1 : 0)
             })
             .tag(group)
@@ -117,6 +119,7 @@ struct GroupsView: View {
           proxy.scrollTo(first)
         }
       })
+      .debugEdit()
 
       AddButtonView("Add Group") {
         onAction(.openScene(.addGroup))
@@ -124,8 +127,9 @@ struct GroupsView: View {
       .font(.caption)
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(8)
-      .overlay(alignment: .top, content: { overlayView() })
+      .debugEdit()
     }
+    .enableInjection()
   }
 
   private func emptyView() -> some View {

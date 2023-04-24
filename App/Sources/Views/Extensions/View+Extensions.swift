@@ -59,38 +59,47 @@ struct DebugView<Content>: View where Content: View {
 
   var body: some View {
     content()
-      .overlay(content: {
-        ZStack(alignment: .leading) {
-          LinearGradient(colors: [
-            Color(.black).opacity(0.8),
-            Color(.black).opacity(0.95),
-          ], startPoint: .top, endPoint: .bottom)
-          VStack(alignment: .leading) {
-            Text("File: ") + Text("\((file as NSString).lastPathComponent)").bold()
+      .popover(isPresented: $isHovered, content: popover)
+      .onHover {
+        guard NSEvent.modifierFlags.contains(.command) else { return }
+        isHovered = $0
+      }
+  }
 
-            HStack {
-              Button(action: {
-                Task {
-                  NSWorkspace.shared.open(URL(filePath: file))
-                }
-              }, label: {
-                Text("Edit")
-              })
-              
-              Button(action: {
-                Task {
-                  NSWorkspace.shared.reveal(file)
-                }
-              }, label: {
-                Text("Reveal")
-              })
+  private func popover() -> some View {
+    ZStack(alignment: .leading) {
+      VStack(alignment: .leading) {
+        Text("File: ") + Text("\((file as NSString).lastPathComponent)").bold()
+
+        HStack {
+          Button(action: {
+            Task {
+              NSWorkspace.shared.open(URL(filePath: file))
             }
-          }
-          .padding()
+          }, label: {
+            Text("Edit")
+          })
+
+          Button(action: {
+            Task {
+              NSWorkspace.shared.reveal(file)
+            }
+          }, label: {
+            Text("Reveal")
+          })
         }
-        .opacity(isHovered && manager.commandIsPressed ? 1 : 0)
-        .buttonStyle(GradientButtonStyle(.init(nsColor: .systemIndigo)))
-      })
-      .onHover { isHovered = $0 }
+      }
+      .padding()
+    }
+    .buttonStyle(
+      GradientButtonStyle(.init(nsColor: .systemIndigo))
+    )
+    .background(
+      LinearGradient(colors: [
+        Color(.black).opacity(0.8),
+        Color(.black).opacity(0.95),
+      ], startPoint: .top, endPoint: .bottom)
+      .padding(-16)
+    )
   }
 }

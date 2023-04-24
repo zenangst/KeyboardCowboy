@@ -1,8 +1,11 @@
 import Foundation
 import SwiftUI
+import Inject
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+  @ObserveInjection var inject
+
   enum Action: Hashable {
     case rerender
     case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: [ContentViewModel.ID])
@@ -36,120 +39,165 @@ struct ContentView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
-      List(selection: $publisher.selections) {
-        ForEach(publisher.data) { workflow in
-          ContentItemView(workflow)
-            .contentShape(Rectangle())
-            .onTapGesture {
-              selectionManager.handleOnTap(
-                publisher.data,
-                element: workflow,
-                selections: &publisher.selections)
-              focus = true
-              resetFocus.callAsFunction(in: namespace)
+      VStack(spacing: 0) {
+        VStack(alignment: .leading) {
+          if let groupId = groupIds.data.ids.first,
+             let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
+            Label("Group", image: "")
+              .labelStyle(SidebarLabelStyle())
+              .padding(.leading, 8)
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .padding(.top, 6)
+            HStack(spacing: 12) {
+              GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
+                .frame(width: 24, height: 24)
+                .opacity(0.5)
+              Text(group.name)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .draggable(workflow)
-            .onFrameChange(perform: { rect in
-              // TODO: (Quickfix) Find a better solution for contentOffset observation.
-              if workflow == publisher.data.first && rect.origin.y != 52 {
-                let value = min(max(1.0 - rect.origin.y / 52.0, 0.0), 0.9)
-                overlayOpacity <- value
+            .padding(.bottom, 8)
+            .padding(.horizontal, 14)
+            .font(.headline)
+          }
+          Label("Workflows", image: "")
+            .labelStyle(SidebarLabelStyle())
+            .padding(.leading, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+
+        if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
+          emptyView()
+        }
+
+        List(selection: $publisher.selections) {
+          ForEach(publisher.data) { workflow in
+            ContentItemView(workflow)
+              .contentShape(Rectangle())
+              .onTapGesture {
+                selectionManager.handleOnTap(
+                  publisher.data,
+                  element: workflow,
+                  selections: &publisher.selections)
+                focus = true
+                resetFocus.callAsFunction(in: namespace)
               }
-            })
-            .grayscale(workflow.isEnabled ? 0 : 0.5)
-            .opacity(workflow.isEnabled ? 1 : 0.5)
-            .contextMenu(menuItems: {
-              contextualMenu()
-            })
-            .tag(workflow.id)
-            .id(workflow.id)
-        }
-        .onMove { source, destination in
-          onAction(.moveWorkflows(source: source, destination: destination))
-        }
-        .dropDestination(for: ContentViewModel.self) { items, index in
-          let source = moveManager.onDropDestination(
-            items, index: index,
-            data: publisher.data,
-            selections: publisher.selections)
-          onAction(.moveWorkflows(source: source, destination: index))
-        }
-      }
-      .focused($focus)
-      .onDeleteCommand(perform: {
-        guard !publisher.selections.isEmpty else { return }
-        onAction(.removeWorflows(Array(publisher.selections)))
-      })
-      .onChange(of: publisher.selections, perform: { newValue in
-        onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.data.ids))
-        if let first = newValue.first {
-          proxy.scrollTo(first)
-        }
-      })
-      .overlay(alignment: .top, content: { overlayView() })
-      .overlay(
-        emptyView()
-      )
-      .toolbar {
-        ToolbarItemGroup(placement: .navigation) {
-          if !groupsPublisher.data.isEmpty {
-            Button(action: {
-              onAction(.addWorkflow(workflowId: UUID().uuidString))
-            },
-                   label: {
-              Label(title: {
-                Text("Add workflow")
-              }, icon: {
-                Image(systemName: "rectangle.stack.badge.plus")
-                  .renderingMode(.template)
-                  .foregroundColor(Color(.systemGray))
+              .draggable(workflow)
+              .onFrameChange(perform: { rect in
+                // TODO: (Quickfix) Find a better solution for contentOffset observation.
+                if workflow == publisher.data.first && rect.origin.y != 52 {
+                  let value = min(max(1.0 - rect.origin.y / 52.0, 0.0), 0.9)
+                  overlayOpacity <- value
+                }
               })
-            })
+              .grayscale(workflow.isEnabled ? 0 : 0.5)
+              .opacity(workflow.isEnabled ? 1 : 0.5)
+              .contextMenu(menuItems: {
+                contextualMenu()
+              })
+              .tag(workflow.id)
+              .id(workflow.id)
+          }
+          .onMove { source, destination in
+            onAction(.moveWorkflows(source: source, destination: destination))
+          }
+          .dropDestination(for: ContentViewModel.self) { items, index in
+            let source = moveManager.onDropDestination(
+              items, index: index,
+              data: publisher.data,
+              selections: publisher.selections)
+            onAction(.moveWorkflows(source: source, destination: index))
+          }
+        }
+        .focused($focus)
+        .onDeleteCommand(perform: {
+          guard !publisher.selections.isEmpty else { return }
+          onAction(.removeWorflows(Array(publisher.selections)))
+        })
+        .onChange(of: publisher.selections, perform: { newValue in
+          onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.data.ids))
+          if let first = newValue.first {
+            proxy.scrollTo(first)
+          }
+        })
+        .toolbar {
+          ToolbarItemGroup(placement: .navigation) {
+            if !groupsPublisher.data.isEmpty {
+              Button(action: {
+                onAction(.addWorkflow(workflowId: UUID().uuidString))
+              },
+                     label: {
+                Label(title: {
+                  Text("Add workflow")
+                }, icon: {
+                  Image(systemName: "rectangle.stack.badge.plus")
+                    .renderingMode(.template)
+                    .foregroundColor(Color(.systemGray))
+                })
+              })
+            }
           }
         }
       }
+      .scrollContentBackground(.hidden)
+      .background(
+        LinearGradient(stops: [
+          .init(color: Color(.clear), location: 0.5),
+          .init(color: Color(.black).opacity(0.25), location: 1.0),
+        ], startPoint: .top, endPoint: .bottom)
+      )
+      .debugEdit()
     }
+    .enableInjection()
   }
 
   @ViewBuilder
   private func emptyView() -> some View {
-    if groupsPublisher.data.isEmpty {
-      Text("Add a group before adding a workflow.")
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-        .multilineTextAlignment(.center)
-        .foregroundColor(Color(.systemGray))
-    } else if publisher.data.isEmpty {
-      VStack {
-        HStack {
-          AddButtonView("Add Workflow") { onAction(.addWorkflow(workflowId: UUID().uuidString)) }
-          .frame(maxWidth: .infinity)
-          .font(.headline)
-        }
-
-        Text("No workflows yet.\nAdd a workflow to get started.")
+    ScrollView {
+      if groupsPublisher.data.isEmpty {
+        Text("Add a group before adding a workflow.")
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .padding()
           .multilineTextAlignment(.center)
-          .font(.footnote)
+          .foregroundColor(Color(.systemGray))
+      } else if publisher.data.isEmpty {
+        VStack(spacing: 8) {
+          Button(action: {
+            withAnimation {
+              onAction(.addWorkflow(workflowId: UUID().uuidString))
+            }
+          }, label: {
+            HStack(spacing: 8) {
+              Image(systemName: "plus.circle")
+              Text("Add Workflow")
+            }
+            .padding(4)
+          })
+          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, grayscaleEffect: false)))
+
+          Text("No workflows yet,\nadd a workflow to get started.")
+            .multilineTextAlignment(.center)
+            .font(.footnote)
+            .padding(.top, 8)
+        }
+        .padding(.top, 16)
       }
-      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
   }
 
-  private func overlayView() -> some View {
+  private func divider() -> some View {
     VStack(spacing: 0) {
       Rectangle()
-        .fill(Color(.gridColor))
-        .frame(height: 36)
+        .fill(Color(nsColor: .textBackgroundColor))
       Rectangle()
         .fill(Color.gray)
         .frame(height: 1)
-        .opacity(0.25)
+        .opacity(0.15)
       Rectangle()
         .fill(Color.black)
         .frame(height: 1)
         .opacity(0.5)
     }
-    .opacity(overlayOpacity)
     .allowsHitTesting(false)
     .shadow(color: Color(.gridColor), radius: 8, x: 0, y: 2)
     .edgesIgnoringSafeArea(.top)

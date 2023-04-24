@@ -95,7 +95,7 @@ struct SingleDetailView: View {
             openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
           }) {
             HStack(spacing: 4) {
-              Image(systemName: "plus")
+              Text("Add Command")
             }
           }
           .padding(.horizontal, 4)
@@ -103,7 +103,6 @@ struct SingleDetailView: View {
           .opacity(!detailPublisher.data.commands.isEmpty ? 1 : 0)
         }
         .padding(.horizontal)
-        .padding(.top, -6)
 
         ScrollView {
           WorkflowCommandListView(
@@ -127,6 +126,7 @@ struct SingleDetailView: View {
       .opacity(shouldShowCommandList ? 1 : 0)
     }
     .labelStyle(HeaderLabelStyle())
+    .debugEdit()
     .enableInjection()
   }
 

@@ -1,6 +1,8 @@
+import Inject
 import SwiftUI
 
 struct ContentItemView: View {
+  @ObserveInjection var inject
   let workflow: ContentViewModel
 
   init(_ workflow: ContentViewModel) {
@@ -10,6 +12,7 @@ struct ContentItemView: View {
   var body: some View {
     HStack {
       ContentImagesView(images: workflow.images)
+        .frame(minWidth: 32, minHeight: 32)
         .background(Color.accentColor.opacity(0.375).cornerRadius(8, antialiased: false))
         .overlay(alignment: .topTrailing, content: {
           Text("\(workflow.badge)")
@@ -46,5 +49,7 @@ struct ContentItemView: View {
           .layoutPriority(-1)
       }
     }
+    .debugEdit()
+    .enableInjection()
   }
 }

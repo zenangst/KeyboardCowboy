@@ -1,4 +1,5 @@
 import SwiftUI
+import Inject
 import UniformTypeIdentifiers
 
 struct WorkflowCommandListView: View {
@@ -90,6 +91,7 @@ struct WorkflowCommandListView: View {
           .opacity(dropOverlayIsVisible ? 1 : 0)
           .animation(.linear, value: dropOverlayIsVisible)
       }
+      .debugEdit()
       .enableInjection()
   }
 

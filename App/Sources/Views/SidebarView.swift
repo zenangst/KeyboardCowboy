@@ -1,6 +1,9 @@
+import Inject
 import SwiftUI
 
 struct SidebarView: View {
+  @ObserveInjection var inject
+
   enum Action {
     case openScene(AppScene)
     case addConfiguration(name: String)
@@ -25,12 +28,19 @@ struct SidebarView: View {
             .betaFeature("You can create new configurations and switch between them but you can't rename them.",
                          issueNumber: 237) {
               Text("BETA")
+                .shadow(color: Color(.systemYellow.withSystemEffect(.deepPressed)), radius: 0, x: 1, y: 1)
                 .padding(2)
-                .background(Color(.systemYellow))
+                .background(
+                  LinearGradient(stops: [
+                    .init(color: Color(.systemYellow.withSystemEffect(.deepPressed)), location: 0.0),
+                    .init(color: Color(.systemYellow), location: 1.0)
+                  ], startPoint: .top, endPoint: .bottom)
+                )
                 .foregroundColor(.black)
                 .cornerRadius(4)
                 .padding(.trailing, 8)
             }
+            .padding(.top, 6)
           SidebarConfigurationView { action in
             switch action {
             case .addConfiguration(let name):
@@ -42,13 +52,11 @@ struct SidebarView: View {
           .padding(.trailing, 12)
         }
         .padding(.leading, 12)
-        .padding(.top)
-
 
         Label("Groups", image: "")
           .padding(.horizontal, 12)
           .padding(.top)
-          .padding(.bottom, 4)
+          .padding(.bottom, 8)
 
         GroupsView(proxy: proxy) { action in
           switch action {
@@ -65,6 +73,8 @@ struct SidebarView: View {
       }
     }
     .labelStyle(SidebarLabelStyle())
+    .debugEdit()
+    .enableInjection()
   }
 }
 

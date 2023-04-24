@@ -71,6 +71,7 @@ struct SidebarConfigurationView: View {
         .padding()
       }
     }
+    .debugEdit()
   }
 }
 

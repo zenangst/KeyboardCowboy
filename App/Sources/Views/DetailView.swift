@@ -20,6 +20,7 @@ struct DetailView: View {
       case .empty:
         Text("Empty")
           .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .debugEdit()
       case .single:
         SingleDetailView(detailPublisher, onAction: {
           onAction(.singleDetailView($0))

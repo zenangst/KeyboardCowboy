@@ -24,17 +24,23 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                content: {
         betaView()
           .contentShape(RoundedRectangle(cornerRadius: 4))
-          .font(.caption)
+          .font(.subheadline.bold())
           .scaleEffect(isHovered ? 1 : 0.7)
           .shadow(color: .black.opacity(isHovered ? 0.5 : 0.33), radius: isHovered ? 4 : 2)
           .popover(isPresented: $isShown) {
             HStack(spacing: 4) {
               Text("BETA")
+                .shadow(color: Color(.systemYellow.withSystemEffect(.deepPressed)), radius: 0, x: 1, y: 1)
                 .font(.headline)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(8)
                 .foregroundColor(.black)
-                .background(Color(.systemYellow))
+                .background(
+                  LinearGradient(stops: [
+                    .init(color: Color(.systemYellow.withSystemEffect(.deepPressed)), location: 0.0),
+                    .init(color: Color(.systemYellow), location: 1.0)
+                  ], startPoint: .top, endPoint: .bottom)
+                )
               VStack {
                 Text(text)
                   .padding(8)
@@ -65,6 +71,13 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                 Spacer()
               }
             }
+            .background(
+              LinearGradient(colors: [
+                Color(.black).opacity(0.25),
+                Color(.black).opacity(0.5),
+              ], startPoint: .top, endPoint: .bottom)
+              .padding(-16)
+            )
           }
           .animation(.spring(), value: isHovered)
           .onHover(perform: { newValue in

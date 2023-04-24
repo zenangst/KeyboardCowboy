@@ -5,10 +5,15 @@ struct AddButtonView: View {
 
   let text: String
   let action: () -> Void
+  let hoverEffectIsEnabled: Bool
 
-  init(_ text: String, action: @escaping () -> Void) {
+  init(_ text: String,
+       hoverEffectIsEnabled: Bool = true,
+       action: @escaping () -> Void) {
     self.text = text
     self.action = action
+    self.hoverEffectIsEnabled = hoverEffectIsEnabled
+    _isHovered = .init(initialValue: hoverEffectIsEnabled ? false : true)
   }
 
   var body: some View {
@@ -41,6 +46,7 @@ struct AddButtonView: View {
     }
     .buttonStyle(.plain)
     .onHover(perform: { value in
+      guard hoverEffectIsEnabled else { return }
       self.isHovered = value
     })
   }

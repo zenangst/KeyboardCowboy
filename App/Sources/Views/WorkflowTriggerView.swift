@@ -45,7 +45,7 @@ struct WorkflowTriggerView: View {
           .padding(8)
           .frame(maxWidth: .infinity)
         })
-        .buttonStyle(GradientButtonStyle(.init(nsColor: .purple)))
+        .buttonStyle(GradientButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
       }
       .frame(maxWidth: .infinity)
       .padding(8)
@@ -53,6 +53,7 @@ struct WorkflowTriggerView: View {
       .cornerRadius(8)
     }
     .buttonStyle(.appStyle)
+    .debugEdit()
     .enableInjection()
   }
 }

@@ -1,6 +1,8 @@
+import Inject
 import SwiftUI
 
 struct WorkflowInfoView: View {
+  @ObserveInjection var inject
   enum Action {
     case updateName(name: String)
     case setIsEnabled(isEnabled: Bool)
@@ -21,8 +23,8 @@ struct WorkflowInfoView: View {
   var body: some View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $workflowName)
+        .frame(height: 32)
         .textFieldStyle(LargeTextFieldStyle())
-        .frame(minHeight: 32)
         .onChange(of: workflowName) { newValue in
           onAction(.updateName(name: newValue))
         }
@@ -35,5 +37,7 @@ struct WorkflowInfoView: View {
           onAction(.setIsEnabled(isEnabled: newValue))
         }
     }
+    .debugEdit()
+    .enableInjection()
   }
 }

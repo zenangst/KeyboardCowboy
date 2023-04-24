@@ -88,5 +88,6 @@ struct WorkflowApplicationTriggerView: View {
         .shadow(radius: 2)
       }
     }
+    .debugEdit()
   }
 }
