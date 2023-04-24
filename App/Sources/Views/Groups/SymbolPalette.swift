@@ -2,7 +2,14 @@ import SwiftUI
 
 struct SymbolPalette: View {
   private let symbols: [String] = [
+    "autostartstop",
+    "app.dashed",
+    "applescript",
     "folder",
+    "app.connected.to.app.below.fill",
+    "terminal",
+    "laptopcomputer",
+    "safari",
     "archivebox",
     "flame",
     "calendar",

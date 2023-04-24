@@ -9,6 +9,7 @@ extension View {
       .environmentObject(DesignTime.detailPublisher)
       .environmentObject(DesignTime.groupsPublisher)
       .environmentObject(DesignTime.groupIdsPublisher)
+      .environmentObject(KeyShortcutRecorderStore())
       .environmentObject(ApplicationStore())
   }
 }

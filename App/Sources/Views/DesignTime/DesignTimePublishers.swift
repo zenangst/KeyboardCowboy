@@ -13,16 +13,14 @@ enum DesignTime {
 
   static var groupsPublisher = GroupsPublisher {
     [
-      GroupViewModel(id: UUID().uuidString, name: "fn-key", icon: nil, color: "", symbol: "", count: 24),
-      GroupViewModel(id: UUID().uuidString, name: "Finder", icon: nil, color: "", symbol: "", count: 10),
-      GroupViewModel(id: UUID().uuidString, name: "Safari", icon: nil, color: "", symbol: "", count: 5),
-      GroupViewModel(id: UUID().uuidString, name: "Xcode", icon: nil, color: "", symbol: "", count: 2),
-      GroupViewModel(id: UUID().uuidString, name: "Apple News", icon: nil, color: "", symbol: "", count: 0),
-      GroupViewModel(id: UUID().uuidString, name: "Messages", icon: nil, color: "", symbol: "", count: 1),
-      GroupViewModel(id: UUID().uuidString, name: "Global", icon: nil, color: "", symbol: "", count: 50),
-      GroupViewModel(id: UUID().uuidString, name: "Web pages", icon: nil, color: "", symbol: "", count: 14),
-      GroupViewModel(id: UUID().uuidString, name: "Development", icon: nil, color: "", symbol: "", count: 6),
-      GroupViewModel(id: UUID().uuidString, name: "Folders", icon: nil, color: "", symbol: "", count: 8),
+      GroupViewModel(id: UUID().uuidString, name: "Automation", icon: nil, color: "#EB5545", symbol: "autostartstop", count: 24),
+      GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", count: 10),
+      GroupViewModel(id: UUID().uuidString, name: "AppleScripts", icon: nil, color: "#F9D64A", symbol: "applescript", count: 5),
+      GroupViewModel(id: UUID().uuidString, name: "Files & Folders", icon: nil, color: "#6BD35F", symbol: "folder", count: 2),
+      GroupViewModel(id: UUID().uuidString, name: "Rebinding", icon: nil, color: "#3984F7", symbol: "app.connected.to.app.below.fill", count: 0),
+      GroupViewModel(id: UUID().uuidString, name: "ShellScripts", icon: nil, color: "#B263EA", symbol: "terminal", count: 1),
+      GroupViewModel(id: UUID().uuidString, name: "System", icon: nil, color: "#98989D", symbol: "laptopcomputer", count: 50),
+      GroupViewModel(id: UUID().uuidString, name: "Websites", icon: nil, color: "#A78F6D", symbol: "safari", count: 14),
     ]
   }
 

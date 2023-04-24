@@ -5,7 +5,7 @@
     "groups" : [
       {
         "id" : "7DF42FEB-5702-4366-BCD7-2FA267CB3D1B",
-        "symbol" : "sparkles",
+        "symbol" : "autostartstop",
         "name" : "Automation",
         "workflows" : [
 
@@ -14,7 +14,7 @@
       },
       {
         "id" : "7B6B3743-ED08-4558-990D-AF21309F8F7F",
-        "symbol" : "star",
+        "symbol" : "app.dashed",
         "name" : "Applications",
         "workflows" : [
 
@@ -23,7 +23,7 @@
       },
       {
         "id" : "B43AE15C-6C64-4BD7-84E9-12C4C39EE623",
-        "symbol" : "bolt",
+        "symbol" : "applescript",
         "name" : "AppleScripts",
         "workflows" : [
 
@@ -41,7 +41,7 @@
       },
       {
         "id" : "D69E891C-21FD-456F-A121-9ED1E471B282",
-        "symbol" : "link",
+        "symbol" : "app.connected.to.app.below.fill",
         "name" : "Rebinding",
         "workflows" : [
 
@@ -50,7 +50,7 @@
       },
       {
         "id" : "F5FBD29B-694B-4110-9B10-ACAC4D10A60D",
-        "symbol" : "folder",
+        "symbol" : "terminal",
         "name" : "ShellScripts",
         "workflows" : [
 
@@ -59,7 +59,7 @@
       },
       {
         "id" : "749FB151-13A6-48D5-95DD-CA02D291A5D2",
-        "symbol" : "folder",
+        "symbol" : "laptopcomputer",
         "name" : "System",
         "workflows" : [
 
@@ -68,7 +68,7 @@
       },
       {
         "id" : "9F862622-573B-4467-87A8-0ECF0692391E",
-        "symbol" : "bookmark",
+        "symbol" : "safari",
         "name" : "Websites",
         "workflows" : [
 
