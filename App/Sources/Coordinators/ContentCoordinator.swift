@@ -64,7 +64,9 @@ final class ContentCoordinator {
           var group = store.group(withId: id) else { return }
 
     await ContentViewActionReducer.reduce(
-      action, selectionPublisher: selectionPublisher,
+      action,
+      groupStore: store,
+      selectionPublisher: selectionPublisher,
       group: &group)
 
     switch action {

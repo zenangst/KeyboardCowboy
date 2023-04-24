@@ -2,9 +2,15 @@ import Foundation
 
 final class ContentViewActionReducer {
   static func reduce(_ action: ContentView.Action,
+                     groupStore: GroupStore,
                      selectionPublisher: ContentSelectionIdsPublisher,
                      group: inout WorkflowGroup) async {
     switch action {
+    case .moveWorkflowsToGroup(let groupId, let workflows):
+      await groupStore.move(workflows, to: groupId)
+      if let updatedGroup = await groupStore.group(withId: group.id) {
+        group = updatedGroup
+      }
     case .rerender:
       break
     case .addCommands(let workflowId, let commandIds):

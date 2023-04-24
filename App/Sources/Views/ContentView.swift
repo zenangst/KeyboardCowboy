@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct ContentView: View {
   enum Action: Hashable {
     case rerender
+    case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: [ContentViewModel.ID])
     case selectWorkflow(models: [ContentViewModel.ID], inGroups: [WorkflowGroup.ID])
     case removeWorflows([ContentViewModel.ID])
     case moveWorkflows(source: IndexSet, destination: Int)
@@ -127,7 +128,16 @@ struct ContentView: View {
     .edgesIgnoringSafeArea(.top)
   }
 
+  @ViewBuilder
   private func contextualMenu() -> some View {
+    Menu("Move to") {
+      // Show only other groups than the current one.
+      ForEach(groupsPublisher.data.filter({ !groupIds.data.ids.contains($0.id) })) { group in
+        Button(group.name) {
+          onAction(.moveWorkflowsToGroup(group.id, workflows: Array(publisher.selections)))
+        }
+      }
+    }
     Button("Delete", action: {
       onAction(.removeWorflows(publisher.selections.map { $0 }))
     })
