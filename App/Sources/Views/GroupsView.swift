@@ -118,7 +118,7 @@ struct GroupsView: View {
         }
       })
 
-      AddButtonView {
+      AddButtonView("Add Group") {
         onAction(.openScene(.addGroup))
       }
       .font(.caption)
@@ -131,7 +131,7 @@ struct GroupsView: View {
   private func emptyView() -> some View {
     VStack {
       HStack {
-        AddButtonView {
+        AddButtonView("Add Group") {
           onAction(.openScene(.addGroup))
         }
         .frame(maxWidth: .infinity)

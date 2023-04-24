@@ -78,7 +78,13 @@ struct SidebarView_Previews: PreviewProvider {
 struct AddButtonView: View {
   @State private var isHovered = false
 
+  let text: String
   let action: () -> Void
+
+  init(_ text: String, action: @escaping () -> Void) {
+    self.text = text
+    self.action = action
+  }
 
   var body: some View {
     Button(action: action) {
@@ -105,7 +111,7 @@ struct AddButtonView: View {
             Color(.labelColor)
           )
             .animation(.easeOut(duration: 0.2), value: isHovered)
-        Text("Add Group")
+        Text(text)
       }
     }
     .buttonStyle(.plain)
