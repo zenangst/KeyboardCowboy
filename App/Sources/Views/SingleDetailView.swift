@@ -95,6 +95,10 @@ struct SingleDetailView: View {
             openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
           }) {
             HStack(spacing: 4) {
+              Image(systemName: "plus.circle")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 12, height: 12)
               Text("Add Command")
             }
           }

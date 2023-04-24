@@ -39,13 +39,18 @@ struct WorkflowCommandListView: View {
           Button(action: {
             openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
           }) {
-            Text("Add a command")
-              .padding(.vertical, 4)
-              .padding(.horizontal, 16)
+            HStack {
+              Image(systemName: "plus.circle")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16, height: 16)
+              Text("Add a command")
+            }
+            .padding(.vertical, 4)
+            .padding(.horizontal, 8)
           }
-          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen)))
+          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
         }
-        .padding()
         .frame(maxWidth: .infinity)
       },
       focusManager: focusManager,

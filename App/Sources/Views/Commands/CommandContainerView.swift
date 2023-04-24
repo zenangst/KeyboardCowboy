@@ -85,7 +85,7 @@ struct CommandContainerActionView: View {
             .aspectRatio(contentMode: .fit)
         })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
-        .frame(width: 16)
+        .frame(width: 20)
         .frame(maxHeight: .infinity)
         .padding(.vertical, 10)
 
@@ -105,7 +105,7 @@ struct CommandContainerActionView: View {
             .aspectRatio(contentMode: .fit)
         })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-        .frame(width: 16)
+        .frame(width: 20)
         .frame(maxHeight: .infinity)
         .padding(.vertical, 10)
       }

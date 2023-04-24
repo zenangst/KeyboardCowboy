@@ -168,11 +168,14 @@ struct ContentView: View {
           }, label: {
             HStack(spacing: 8) {
               Image(systemName: "plus.circle")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16, height: 16)
               Text("Add Workflow")
             }
             .padding(4)
           })
-          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, grayscaleEffect: false)))
+          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
 
           Text("No workflows yet,\nadd a workflow to get started.")
             .multilineTextAlignment(.center)

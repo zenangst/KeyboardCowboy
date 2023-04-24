@@ -20,5 +20,6 @@ struct WorkflowShortcutsView: View {
       .onChange(of: keyboardShortcuts, perform: { newValue in
         onUpdate(newValue)
       })
+      .debugEdit()
   }
 }

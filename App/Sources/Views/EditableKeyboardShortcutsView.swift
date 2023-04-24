@@ -147,7 +147,7 @@ struct EditableKeyboardShortcutsView: View {
           Spacer()
         }
       })
-      .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen)))
+      .buttonStyle(GradientButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
     }
   }
 
