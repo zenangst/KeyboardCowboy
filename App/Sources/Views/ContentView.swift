@@ -35,6 +35,23 @@ struct ContentView: View {
   }
 
   var body: some View {
+    if groupsPublisher.data.isEmpty {
+      emptyView()
+    } else {
+      content()
+    }
+  }
+
+  private func emptyView() -> some View {
+    Text("Add a group before adding a workflow.")
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .padding()
+      .multilineTextAlignment(.center)
+      .foregroundColor(Color(.systemGray))
+  }
+
+  @ViewBuilder
+  private func content() -> some View {
     ScrollViewReader { proxy in
       List(selection: $publisher.selections) {
         ForEach(publisher.data) { workflow in
@@ -74,34 +91,34 @@ struct ContentView: View {
             selections: publisher.selections)
           onAction(.moveWorkflows(source: source, destination: index))
         }
-      }
-      .focused($focus)
-      .onDeleteCommand(perform: {
-        guard !publisher.selections.isEmpty else { return }
-        onAction(.removeWorflows(Array(publisher.selections)))
-      })
-      .onChange(of: publisher.selections, perform: { newValue in
-        onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.data.ids))
-        if let first = newValue.first {
-          proxy.scrollTo(first)
-        }
-      })
-      .overlay(alignment: .top, content: { overlayView() })
-      .toolbar {
-        ToolbarItemGroup(placement: .navigation) {
-          if !groupsPublisher.data.isEmpty {
-            Button(action: {
-              onAction(.addWorkflow(workflowId: UUID().uuidString))
-            },
-                   label: {
-              Label(title: {
-                Text("Add workflow")
-              }, icon: {
-                Image(systemName: "rectangle.stack.badge.plus")
-                  .renderingMode(.template)
-                  .foregroundColor(Color(.systemGray))
+        .focused($focus)
+        .onDeleteCommand(perform: {
+          guard !publisher.selections.isEmpty else { return }
+          onAction(.removeWorflows(Array(publisher.selections)))
+        })
+        .onChange(of: publisher.selections, perform: { newValue in
+          onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.data.ids))
+          if let first = newValue.first {
+            proxy.scrollTo(first)
+          }
+        })
+        .overlay(alignment: .top, content: { overlayView() })
+        .toolbar {
+          ToolbarItemGroup(placement: .navigation) {
+            if !groupsPublisher.data.isEmpty {
+              Button(action: {
+                onAction(.addWorkflow(workflowId: UUID().uuidString))
+              },
+                     label: {
+                Label(title: {
+                  Text("Add workflow")
+                }, icon: {
+                  Image(systemName: "rectangle.stack.badge.plus")
+                    .renderingMode(.template)
+                    .foregroundColor(Color(.systemGray))
+                })
               })
-            })
+            }
           }
         }
       }
