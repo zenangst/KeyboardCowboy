@@ -15,6 +15,7 @@ struct GradientButtonStyle: ButtonStyle {
     }
   }
 
+  @ObserveInjection var inject
   @State private var isHovered = false
   @Environment(\.colorScheme) var colorScheme
 
@@ -32,14 +33,11 @@ struct GradientButtonStyle: ButtonStyle {
           RoundedRectangle(cornerRadius: config.cornerRadius)
             .fill(
               LinearGradient(stops: [
-                .init(color: Color(config.nsColor), location: 0.0),
+                .init(color: Color(config.nsColor.blended(withFraction: 0.3, of: .black)!), location: 0.0),
                 .init(color: Color(config.nsColor.blended(withFraction: 0.5, of: .black)!), location: 1.0),
               ], startPoint: .top, endPoint: .bottom)
             )
             .opacity(isHovered ? 1.0 : 0.3)
-          RoundedRectangle(cornerRadius: config.cornerRadius)
-            .stroke(Color(config.nsColor))
-            .opacity(isHovered ? 0.4 : 0.1)
         }
       )
       .grayscale(config.grayscaleEffect ? isHovered ? 0 : 1 : 0)
@@ -52,11 +50,23 @@ struct GradientButtonStyle: ButtonStyle {
       .font(.system(.body, design: .rounded, weight: .semibold))
       .opacity(configuration.isPressed ? 0.6 : isHovered ? 1.0 : 0.8)
       .offset(y: configuration.isPressed ? 0.25 : 0.0)
-      .rotation3DEffect(.degrees(configuration.isPressed ? 0.5 : 0), axis: (x: 1.0, y: 0, z: 0))
+      .rotation3DEffect(.degrees(configuration.isPressed ? 3 : 0), axis: (x: 1.0, y: 0, z: 0))
       .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
       .animation(.easeOut(duration: 0.2), value: isHovered)
       .onHover(perform: { value in
         self.isHovered = value
       })
+      .enableInjection()
     }
+}
+
+struct GradientButtonStyle_Previews: PreviewProvider {
+  static var previews: some View {
+    VStack {
+      Button("Hello, world", action: {})
+      Button("Hello, world", action: {})
+        .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen)))
+    }
+    .padding()
+  }
 }
