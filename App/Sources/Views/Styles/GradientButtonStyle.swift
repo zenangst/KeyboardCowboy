@@ -77,7 +77,7 @@ struct GradientButtonStyle_Previews: PreviewProvider {
     VStack {
       Button("Hello, world", action: {})
       Button("Hello, world", action: {})
-        .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen)))
+        .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
     }
     .padding()
   }

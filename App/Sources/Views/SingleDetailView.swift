@@ -98,8 +98,11 @@ struct SingleDetailView: View {
               Image(systemName: "plus.circle")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 12, height: 12)
+                .frame(maxWidth: 12, maxHeight: 12)
+                .layoutPriority(-1)
               Text("Add Command")
+                .lineLimit(1)
+                .allowsTightening(true)
             }
           }
           .padding(.horizontal, 4)

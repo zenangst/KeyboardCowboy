@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SidebarItemView: View {
+  @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject var groupsPublisher: GroupsPublisher
 
@@ -30,6 +31,8 @@ struct SidebarItemView: View {
       .buttonStyle(.plain)
       .layoutPriority(-1)
     }
+    .debugEdit()
+    .enableInjection()
   }
 
   @ViewBuilder

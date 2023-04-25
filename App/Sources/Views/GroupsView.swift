@@ -56,6 +56,8 @@ struct GroupsView: View {
       List(selection: $publisher.selections) {
         ForEach(publisher.data) { group in
           SidebarItemView(group, onAction: onAction)
+            .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
+            .offset(x: 2)
             .contextMenu(menuItems: {
               contextualMenu(for: group, onAction: onAction)
             })

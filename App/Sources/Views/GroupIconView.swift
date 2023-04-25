@@ -1,6 +1,8 @@
 import SwiftUI
+import Inject
 
 struct GroupIconView: View {
+  @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   let color: String
   let icon: IconViewModel?
@@ -8,9 +10,38 @@ struct GroupIconView: View {
 
   var body: some View {
     Circle()
-      .fill(Color(hex: color)
-        .opacity(controlActiveState == .key ? 1 : 0.8))
+      .fill(
+        LinearGradient(stops: [
+          .init(color: Color(nsColor: .init(hex: color).blended(withFraction: 1.0, of: NSColor.white)!), location: 0.0),
+          .init(color: Color(nsColor: .init(hex: color)), location: 0.015),
+          .init(color: Color(nsColor: .init(hex: color).blended(withFraction: 0.1, of: .black)!), location: 1.0),
+        ], startPoint: .top, endPoint: .bottom)
+        .opacity(controlActiveState == .key ? 1 : 0.8)
+      )
+      .overlay(
+        Circle()
+          .stroke(Color.white, lineWidth: 2)
+          .opacity(0.2)
+          .mask(
+            Circle()
+              .fill(
+                LinearGradient(stops: [
+                  .init(color: .black, location: 0),
+                  .init(color: .clear, location: 0.2),
+                  .init(color: .clear, location: 1)
+                ], startPoint: .top, endPoint: .bottom)
+              )
+          )
+      )
+      .grayscale(controlActiveState == .key ? 0 : 0.2)
       .overlay(overlay())
+      .compositingGroup()
+      .shadow(color: Color(nsColor: .init(hex: color)
+        .blended(withFraction: 0.8, of: .black)!)
+        .opacity(0.2),
+              radius: 1, y: 1)
+      .offset(x: 2)
+      .enableInjection()
   }
 
   @ViewBuilder
