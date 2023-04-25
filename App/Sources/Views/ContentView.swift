@@ -41,7 +41,8 @@ struct ContentView: View {
   private func getColor() -> NSColor {
     let color: NSColor
     if let groupId = groupIds.data.ids.first,
-       let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
+       let group = groupsPublisher.data.first(where: { $0.id == groupId }),
+       !group.color.isEmpty {
       color = .init(hex: group.color).blended(withFraction: 0.4, of: .black)!
     } else {
       color = .controlAccentColor.blended(withFraction: 1.0, of: .white)!
