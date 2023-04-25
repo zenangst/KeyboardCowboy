@@ -115,6 +115,7 @@ struct KeyboardCowboy: App {
           case .content(let contentAction):
             Task {
               await contentCoordinator.handle(contentAction)
+              detailCoordinator.handle(contentAction)
               if case .addWorkflow = contentAction {
                 containerFocus = .content
               }

@@ -40,6 +40,7 @@ struct IconView: View {
     .onAppear {
       publisher.load(at: icon.path, bundleIdentifier: icon.bundleIdentifier, of: size)
     }
+    .id(icon.id)
   }
 }
 

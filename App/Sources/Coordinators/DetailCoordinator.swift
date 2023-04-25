@@ -32,6 +32,32 @@ final class DetailCoordinator {
     enableInjection(self, selector: #selector(injected(_:)))
   }
 
+  func handle(_ action: ContentView.Action) {
+    switch action {
+    case .rerender:
+      return
+    case .moveWorkflowsToGroup:
+      return
+    case .selectWorkflow:
+      return
+    case .removeWorflows:
+      guard let first = Self.appStorage.groupIds.first,
+            let group = groupStore.group(withId: first) else {
+        return
+      }
+      if group.workflows.isEmpty {
+        render([], groupIds: Array(Self.appStorage.groupIds))
+      }
+    case .moveWorkflows:
+      return
+    case .addWorkflow(let workflowId):
+      render([workflowId], groupIds: Array(Self.appStorage.groupIds))
+      return
+    case .addCommands:
+      return
+    }
+  }
+
   func subscribe(to publisher: Published<ContentSelectionIds>.Publisher) {
     subscription = publisher
       .debounce(for: .milliseconds(40), scheduler: RunLoop.main)

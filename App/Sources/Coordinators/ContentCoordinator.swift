@@ -73,7 +73,6 @@ final class ContentCoordinator {
     case .addWorkflow(let id):
       store.updateGroups([group])
       render([group.id], selectionOverrides: [id])
-      publisher.publish(selections: [id])
     case .selectWorkflow(let workflowIds, _):
       Self.appStorage.workflowIds <- Set(workflowIds)
     case .rerender:

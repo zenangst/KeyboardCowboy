@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DetailView: View {
+  @ObserveInjection var inject
   enum Action {
     case singleDetailView(SingleDetailView.Action)
   }
@@ -19,8 +20,7 @@ struct DetailView: View {
       switch statePublisher.data {
       case .empty:
         Text("Empty")
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .debugEdit()
+          .allowsHitTesting(false)
       case .single:
         SingleDetailView(detailPublisher, onAction: {
           onAction(.singleDetailView($0))
@@ -35,6 +35,7 @@ struct DetailView: View {
     .background(
       Color(nsColor: .windowBackgroundColor).ignoresSafeArea(edges: .all)
     )
+    .enableInjection()
   }
 }
 

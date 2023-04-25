@@ -34,25 +34,7 @@ extension View {
   }
 }
 
-private class DebugCommandKeyManager: ObservableObject {
-  @Published var commandIsPressed: Bool = false
-
-  init() {
-    NSEvent.addLocalMonitorForEvents(matching: .flagsChanged, handler: commandKey)
-  }
-
-  func commandKey(_ event: NSEvent) -> NSEvent {
-    if event.modifierFlags.contains(.command) {
-      commandIsPressed = true
-    } else {
-      commandIsPressed = false
-    }
-    return event
-  }
-}
-
 struct DebugView<Content>: View where Content: View {
-  @StateObject private var manager: DebugCommandKeyManager = .init()
   @State var isHovered: Bool = false
   var file: String
   var content: () -> Content
@@ -61,7 +43,7 @@ struct DebugView<Content>: View where Content: View {
     content()
       .popover(isPresented: $isHovered, content: popover)
       .onHover {
-        guard NSEvent.modifierFlags.contains(.command) else { return }
+        guard NSEvent.modifierFlags.contains(.option) else { return }
         isHovered = $0
       }
   }
