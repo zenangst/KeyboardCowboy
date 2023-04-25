@@ -45,7 +45,7 @@ struct ContentView: View {
        !group.color.isEmpty {
       color = .init(hex: group.color).blended(withFraction: 0.4, of: .black)!
     } else {
-      color = .controlAccentColor.blended(withFraction: 1.0, of: .white)!
+      color = .controlAccentColor
     }
     return color
   }
