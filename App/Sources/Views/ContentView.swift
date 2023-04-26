@@ -7,7 +7,7 @@ struct ContentView: View {
   @ObserveInjection var inject
 
   enum Action: Hashable {
-    case rerender
+    case rerender(_ groupIds: [WorkflowGroup.ID])
     case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: [ContentViewModel.ID])
     case selectWorkflow(models: [ContentViewModel.ID], inGroups: [WorkflowGroup.ID])
     case removeWorflows([ContentViewModel.ID])

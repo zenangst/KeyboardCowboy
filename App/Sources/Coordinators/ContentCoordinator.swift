@@ -47,9 +47,9 @@ final class ContentCoordinator {
       break
     case .selectConfiguration:
       break
-    case .selectGroups:
+    case .selectGroups(let ids):
       Task {
-        await handle(.rerender)
+        await handle(.rerender(ids))
       }
     case .moveGroups:
       break
@@ -59,6 +59,7 @@ final class ContentCoordinator {
   }
 
   func handle(_ action: ContentView.Action) async {
+    // TODO: We should get rid of this guard.
     guard selectionPublisher.data.groupIds.count == 1,
           let id = selectionPublisher.data.groupIds.first,
           var group = store.group(withId: id) else { return }
@@ -75,8 +76,8 @@ final class ContentCoordinator {
       render([group.id], selectionOverrides: [id])
     case .selectWorkflow(let workflowIds, _):
       Self.appStorage.workflowIds <- Set(workflowIds)
-    case .rerender:
-      render([group.id], calculateSelections: true)
+    case .rerender(let ids):
+      render(ids, calculateSelections: true)
     default:
       store.updateGroups([group])
       render([group.id], calculateSelections: true)
