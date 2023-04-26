@@ -1,4 +1,3 @@
-import Inject
 import SwiftUI
 
 struct SidebarView: View {
@@ -58,7 +57,7 @@ struct SidebarView: View {
           .padding(.top)
           .padding(.bottom, 8)
 
-        GroupsView(proxy: proxy) { action in
+        GroupsView { action in
           switch action {
           case .selectGroups(let ids):
             onAction(.selectGroups(ids))
@@ -74,7 +73,6 @@ struct SidebarView: View {
     }
     .labelStyle(SidebarLabelStyle())
     .debugEdit()
-    .enableInjection()
   }
 }
 

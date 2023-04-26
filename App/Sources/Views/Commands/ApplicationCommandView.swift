@@ -156,7 +156,6 @@ struct ApplicationCommandImageView: View {
         .allowsHitTesting(false)
     )
     .menuIndicator(.hidden)
-    .enableInjection()
   }
 }
 

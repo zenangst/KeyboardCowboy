@@ -2,7 +2,6 @@ import Combine
 import Cocoa
 import SwiftUI
 import LaunchArguments
-import Inject
 @_exported import Inject
 
 @main
@@ -26,7 +25,6 @@ struct KeyboardCowboy: App {
   static let config: AppPreferences = .user()
   static let env: AppEnvironment = .production
 #endif
-
   private var open: Bool = true
 
   @Environment(\.openWindow) private var openWindow

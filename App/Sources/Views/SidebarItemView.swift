@@ -32,7 +32,6 @@ struct SidebarItemView: View {
       .layoutPriority(-1)
     }
     .debugEdit()
-    .enableInjection()
   }
 
   @ViewBuilder

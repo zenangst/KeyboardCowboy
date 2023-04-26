@@ -35,7 +35,6 @@ struct DetailView: View {
     .background(
       Color(nsColor: .windowBackgroundColor).ignoresSafeArea(edges: .all)
     )
-    .enableInjection()
   }
 }
 

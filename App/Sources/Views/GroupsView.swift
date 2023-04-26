@@ -1,9 +1,7 @@
-import Inject
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct GroupsView: View {
-  @ObserveInjection var inject
 
   enum Confirm {
     case single(id: GroupViewModel.ID)
@@ -33,12 +31,9 @@ struct GroupsView: View {
   @State var dropCommands = Set<ContentViewModel>()
   @State private var dropOverlayIsVisible: Bool = false
   @State private var confirmDelete: Confirm?
-  private let proxy: ScrollViewProxy?
   private let onAction: (Action) -> Void
 
-  init(proxy: ScrollViewProxy? = nil,
-       onAction: @escaping (Action) -> Void) {
-    self.proxy = proxy
+  init(onAction: @escaping (Action) -> Void) {
     self.onAction = onAction
   }
 
@@ -117,9 +112,6 @@ struct GroupsView: View {
         groupIds.publish(.init(ids: Array(newValue)))
         onAction(.selectGroups(Array(newValue)))
 
-        if let proxy, let first = newValue.first {
-          proxy.scrollTo(first)
-        }
       })
       .debugEdit()
 
@@ -131,7 +123,6 @@ struct GroupsView: View {
       .padding(8)
       .debugEdit()
     }
-    .enableInjection()
   }
 
   private func emptyView() -> some View {

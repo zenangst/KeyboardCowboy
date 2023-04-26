@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import Inject
 import UniformTypeIdentifiers
 
 struct ContentView: View {
@@ -82,7 +81,6 @@ struct ContentView: View {
       )
       .debugEdit()
     }
-    .enableInjection()
   }
 
   private func list(_ proxy: ScrollViewProxy) -> some View {

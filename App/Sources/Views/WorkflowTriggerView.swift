@@ -54,6 +54,5 @@ struct WorkflowTriggerView: View {
     }
     .buttonStyle(.appStyle)
     .debugEdit()
-    .enableInjection()
   }
 }

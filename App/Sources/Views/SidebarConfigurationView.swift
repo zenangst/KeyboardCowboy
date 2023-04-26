@@ -1,5 +1,4 @@
 import SwiftUI
-import Inject
 
 struct SidebarConfigurationView: View {
   enum Action {

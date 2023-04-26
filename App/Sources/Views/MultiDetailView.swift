@@ -73,7 +73,6 @@ struct MultiDetailView: View {
     }
     .padding(.top, 92)
     .debugEdit()
-    .enableInjection()
   }
 }
 

@@ -68,7 +68,6 @@ struct GradientButtonStyle: ButtonStyle {
         guard config.hoverEffect else { return }
         self.isHovered = value
       })
-      .enableInjection()
     }
 }
 

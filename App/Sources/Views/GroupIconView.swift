@@ -1,8 +1,6 @@
 import SwiftUI
-import Inject
 
 struct GroupIconView: View {
-  @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   let color: String
   let icon: IconViewModel?
@@ -36,12 +34,7 @@ struct GroupIconView: View {
       .grayscale(controlActiveState == .key ? 0 : 0.2)
       .overlay(overlay())
       .compositingGroup()
-      .shadow(color: Color(nsColor: .init(hex: color)
-        .blended(withFraction: 0.8, of: .black)!)
-        .opacity(0.2),
-              radius: 1, y: 1)
       .offset(x: 2)
-      .enableInjection()
   }
 
   @ViewBuilder

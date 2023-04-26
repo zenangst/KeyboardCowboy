@@ -1,4 +1,3 @@
-import Inject
 import SwiftUI
 
 struct NotificationViewModel: Identifiable, Hashable {
@@ -22,7 +21,6 @@ struct NotificationListView: View {
         NotificationView(notification: notification)
       }
     }
-    .enableInjection()
   }
 }
 

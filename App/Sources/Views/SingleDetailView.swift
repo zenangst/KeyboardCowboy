@@ -134,7 +134,6 @@ struct SingleDetailView: View {
     }
     .labelStyle(HeaderLabelStyle())
     .debugEdit()
-    .enableInjection()
   }
 
   private func overlayView() -> some View {

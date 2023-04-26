@@ -1,4 +1,3 @@
-import Inject
 import SwiftUI
 
 struct WorkflowInfoView: View {
@@ -38,6 +37,5 @@ struct WorkflowInfoView: View {
         }
     }
     .debugEdit()
-    .enableInjection()
   }
 }

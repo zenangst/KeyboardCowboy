@@ -59,7 +59,6 @@ struct WorkflowTriggerListView: View {
         }
       }
     }
-    .enableInjection()
   }
 }
 

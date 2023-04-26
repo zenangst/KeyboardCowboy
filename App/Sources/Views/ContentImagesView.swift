@@ -1,4 +1,3 @@
-import Inject
 import SwiftUI
 
 struct ContentImagesView: View {
@@ -28,6 +27,5 @@ struct ContentImagesView: View {
       }
     }
     .debugEdit()
-    .enableInjection()
   }
 }

@@ -58,7 +58,6 @@ struct EditableKeyboardShortcutsView: View {
         break
       }
     })
-    .enableInjection()
   }
 
   private func content(_ proxy: ScrollViewProxy) -> some View {
