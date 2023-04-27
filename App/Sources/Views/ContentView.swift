@@ -163,23 +163,31 @@ struct ContentView: View {
           .padding(.leading, 8)
           .frame(maxWidth: .infinity, alignment: .leading)
           .padding(.top, 6)
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
           GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
             .frame(width: 24, height: 24)
-          Text(group.name)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(4)
+            .background(
+              RoundedRectangle(cornerRadius: 8)
+                .fill(Color(nsColor: .init(hex: group.color)).opacity(0.4))
+            )
+          VStack(alignment: .leading) {
+            Text(group.name)
+              .font(.headline)
+            Text("Workflows: \(group.count)")
+              .font(.caption)
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.bottom, 8)
-        .padding(.horizontal, 14)
-        .font(.headline)
+        .padding(.bottom, 4)
+        .padding(.leading, 14)
       }
 
-      if groupsPublisher.data.isEmpty && !publisher.data.isEmpty {
         Label("Workflows", image: "")
           .labelStyle(SidebarLabelStyle())
           .padding(.leading, 8)
+          .padding(.bottom, 4)
           .frame(maxWidth: .infinity, alignment: .leading)
-      }
     }
   }
 

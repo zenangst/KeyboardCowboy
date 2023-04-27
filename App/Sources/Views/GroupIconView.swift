@@ -34,7 +34,6 @@ struct GroupIconView: View {
       .grayscale(controlActiveState == .key ? 0 : 0.2)
       .overlay(overlay())
       .compositingGroup()
-      .offset(x: 2)
   }
 
   @ViewBuilder
