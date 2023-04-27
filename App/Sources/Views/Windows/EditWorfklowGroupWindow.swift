@@ -17,10 +17,12 @@ struct EditWorkflowGroupWindow: Scene {
 
   private let applicationStore: ApplicationStore
   private let groupStore: GroupStore
+  private let onSubmit: (Context) -> Void
 
-  init(_ contentStore: ContentStore) {
+  init(_ contentStore: ContentStore, onSubmit: @escaping (Context) -> Void) {
     self.applicationStore = contentStore.applicationStore
     self.groupStore = contentStore.groupStore
+    self.onSubmit = onSubmit
   }
 
   var body: some Scene {
@@ -29,12 +31,12 @@ struct EditWorkflowGroupWindow: Scene {
         switch action {
         case .cancel:
           break
-        case .ok(let group):
+        case .ok(let updatedGroup):
           switch context! {
           case .add:
-            groupStore.add(group)
+            onSubmit(.add(updatedGroup))
           case .edit:
-            groupStore.updateGroups([group])
+            onSubmit(.edit(updatedGroup))
           }
         }
         KeyboardCowboy.keyWindow?.close()

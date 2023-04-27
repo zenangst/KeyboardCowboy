@@ -168,7 +168,9 @@ struct KeyboardCowboy: App {
     .defaultSize(.init(width: 520, height: 280))
     .defaultPosition(.center)
 
-    EditWorkflowGroupWindow(contentStore)
+    EditWorkflowGroupWindow(contentStore) { context in
+      sidebarCoordinator.handle(context)
+    }
       .windowResizability(.contentSize)
       .windowStyle(.hiddenTitleBar)
       .defaultPosition(.center)

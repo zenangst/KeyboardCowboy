@@ -3,7 +3,6 @@ import SwiftUI
 
 @MainActor
 final class SidebarCoordinator {
-  static private var appStorage: AppStorageStore = .init()
   private var subscription: AnyCancellable?
 
   private let applicationStore: ApplicationStore
@@ -35,16 +34,25 @@ final class SidebarCoordinator {
     enableInjection(self, selector: #selector(injected(_:)))
   }
 
+  func handle(_ context: EditWorkflowGroupWindow.Context) {
+    switch context {
+    case .add(let group):
+      store.add(group)
+      selectionManager.selections = [group.id]
+      render(store.groups)
+    case .edit(let group):
+      store.updateGroups([group])
+      selectionManager.selections = [group.id]
+      render(store.groups)
+    }
+  }
+
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .addConfiguration, .selectConfiguration, .openScene:
+    case .addConfiguration, .selectConfiguration, .openScene, .selectGroups:
       break
-    case .selectGroups(let groups):
-      Self.appStorage.groupIds = Set(groups)
     case .removeGroups(let ids):
-      for id in ids {
-        Self.appStorage.groupIds.remove(id)
-      }
+      ids.forEach { selectionManager.selections.remove($0) }
       store.removeGroups(with: ids)
     case .moveGroups(let source, let destination):
       store.move(source: source, destination: destination)
@@ -75,11 +83,11 @@ final class SidebarCoordinator {
       groups.append(group)
 
       if publisherIsEmpty {
-        if newSelections == nil || Self.appStorage.groupIds.contains(group.id) {
+        if newSelections == nil || selectionManager.selections.contains(group.id) {
           newSelections = []
         }
 
-        if Self.appStorage.groupIds.contains(group.id) {
+        if selectionManager.selections.contains(group.id) {
           newSelections?.insert(group.id)
         } else if offset == 0 {
           newSelections?.insert(group.id)
