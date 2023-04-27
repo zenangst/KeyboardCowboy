@@ -21,9 +21,8 @@ struct ContentView: View {
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
 
-  @FocusState var focus: Bool
+  @FocusState var focus: AppFocus?
   @Environment(\.resetFocus) var resetFocus
-  @Namespace var namespace
 
   @State var overlayOpacity: CGFloat = 1
 
@@ -84,7 +83,7 @@ struct ContentView: View {
     .cornerRadius(4, antialiased: true)
     .padding(.horizontal, 10)
     .grayscale(controlActiveState == .active ? 0.0 : 0.5)
-    .opacity(focus ? 1 : 0.1)
+    .opacity(focus == .workflows ? 1 : 0.1)
   }
 
   private func list(_ proxy: ScrollViewProxy) -> some View {
@@ -94,8 +93,7 @@ struct ContentView: View {
           .contentShape(Rectangle())
           .onTapGesture {
             contentSelectionManager.handleOnTap(publisher.data, element: workflow)
-            focus = true
-            resetFocus.callAsFunction(in: namespace)
+            focus = .workflows
           }
           .draggable(DraggableView.workflow([workflow]))
           .onFrameChange(perform: { rect in
@@ -132,7 +130,7 @@ struct ContentView: View {
         }
       }
     }
-    .focused($focus)
+    .focused($focus, equals: .workflows)
     .onDeleteCommand(perform: {
       guard !contentSelectionManager.selections.isEmpty else { return }
       onAction(.removeWorflows(contentSelectionManager.selections))

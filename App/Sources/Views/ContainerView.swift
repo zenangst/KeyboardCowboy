@@ -1,12 +1,16 @@
 import SwiftUI
 
-struct ContainerView: View {
-  enum Focus {
-    case sidebar
-    case content
-    case detail
-  }
+enum AppFocus: Hashable {
+  case groups
+  case workflows
+  case detail(Detail)
 
+  enum Detail: Hashable {
+    case name
+  }
+}
+
+struct ContainerView: View {
   enum Action {
     case openScene(AppScene)
     case sidebar(SidebarView.Action)
@@ -14,19 +18,20 @@ struct ContainerView: View {
     case detail(DetailView.Action)
   }
 
+  var focus: FocusState<AppFocus?>.Binding
+
   @EnvironmentObject var groupStore: GroupStore
   @EnvironmentObject var groupsPublisher: GroupsPublisher
   @ObservedObject var navigationPublisher = NavigationPublisher()
 
   @Environment(\.openWindow) private var openWindow
-  var focus: FocusState<Focus?>.Binding
   let onAction: (Action) -> Void
 
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let groupsSelectionManager: SelectionManager<GroupViewModel>
 
-  init(focus: FocusState<Focus?>.Binding,
+  init(focus: FocusState<AppFocus?>.Binding,
        configSelectionManager: SelectionManager<ConfigurationViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupsSelectionManager: SelectionManager<GroupViewModel>,
@@ -44,19 +49,20 @@ struct ContainerView: View {
       sidebar: {
         SidebarView(configSelectionManager: configSelectionManager,
                     groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0)) }
-          .focused(focus, equals: .sidebar)
+          .focused(focus, equals: .groups)
       },
       content: {
         ContentView(contentSelectionManager: contentSelectionManager,
-                    groupSelectionManager: groupsSelectionManager) { action in
+                    groupSelectionManager: groupsSelectionManager,
+                    onAction: { action in
           onAction(.content(action))
-        }
-        .focused(focus, equals: .content)
+        })
+        .focused(focus, equals: .workflows)
       },
       detail: {
-        DetailView(onAction: { onAction(.detail($0)) })
-          .focused(focus, equals: .detail)
+        DetailView(focus, onAction: { onAction(.detail($0)) })
           .edgesIgnoringSafeArea(.top)
+          .focusSection()
       })
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)
@@ -64,11 +70,9 @@ struct ContainerView: View {
 }
 
 struct ContainerView_Previews: PreviewProvider {
-  @FocusState static var focus: ContainerView.Focus?
-
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContainerView(focus: $focus,
-                  configSelectionManager: .init(),
+    ContainerView(focus: $focus, configSelectionManager: .init(),
                   contentSelectionManager: .init(),
                   groupsSelectionManager: .init()) { _ in }
       .designTime()

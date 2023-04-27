@@ -5,12 +5,15 @@ struct DetailView: View {
   enum Action {
     case singleDetailView(SingleDetailView.Action)
   }
+
+  var focus: FocusState<AppFocus?>.Binding
   @EnvironmentObject var statePublisher: DetailStatePublisher
   @EnvironmentObject var detailPublisher: DetailPublisher
-  @State var isFocused: Bool = false
   private var onAction: (DetailView.Action) -> Void
 
-  init(onAction: @escaping (DetailView.Action) -> Void) {
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       onAction: @escaping (DetailView.Action) -> Void) {
+    self.focus = focus
     self.onAction = onAction
   }
 
@@ -22,9 +25,11 @@ struct DetailView: View {
         Text("Empty")
           .allowsHitTesting(false)
       case .single:
-        SingleDetailView(detailPublisher, onAction: {
-          onAction(.singleDetailView($0))
-        })
+        SingleDetailView(
+          focus,
+          detailPublisher: detailPublisher, onAction: {
+            onAction(.singleDetailView($0))
+          })
       case .multiple(let viewModels):
         let limit = 5
         let count = viewModels.count
@@ -39,8 +44,9 @@ struct DetailView: View {
 }
 
 struct DetailView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
-    DetailView { _ in }
+    DetailView($focus) { _ in }
       .designTime()
   }
 }

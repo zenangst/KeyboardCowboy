@@ -22,22 +22,23 @@ struct GroupsView: View {
     case moveGroups(source: IndexSet, destination: Int)
     case removeGroups(Set<GroupViewModel.ID>)
   }
+
   @EnvironmentObject private var groupStore: GroupStore
   @EnvironmentObject private var publisher: GroupsPublisher
   @EnvironmentObject private var contentPublisher: ContentPublisher
-
-  @FocusState var focus: Bool
-  @Environment(\.resetFocus) var resetFocus
-  @Namespace var namespace
 
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
 
   @State private var confirmDelete: Confirm?
 
+  @FocusState var focus: AppFocus?
+  @Environment(\.resetFocus) var resetFocus
+
   private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (Action) -> Void
 
-  init(_ selectionManager: SelectionManager<GroupViewModel>, onAction: @escaping (Action) -> Void) {
+  init(selectionManager: SelectionManager<GroupViewModel>,
+       onAction: @escaping (Action) -> Void) {
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
   }
@@ -58,9 +59,8 @@ struct GroupsView: View {
           SidebarItemView(group, selectionManager: selectionManager, onAction: onAction)
             .contentShape(Rectangle())
             .onTapGesture {
+              focus = .groups
               selectionManager.handleOnTap(publisher.data, element: group)
-              focus = true
-              resetFocus.callAsFunction(in: namespace)
             }
             .draggable(DraggableView.group([group]))
             .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
@@ -121,7 +121,6 @@ struct GroupsView: View {
           onAction(.moveGroups(source: source, destination: destination))
         }
       }
-      .focused($focus)
       .onDeleteCommand(perform: {
         if publisher.data.count > 1 {
           confirmDelete = .multiple(ids: Array(selectionManager.selections))
@@ -133,6 +132,7 @@ struct GroupsView: View {
         confirmDelete = nil
         onAction(.selectGroups(newValue))
       })
+      .focused($focus, equals: .groups)
       .debugEdit()
 
       AddButtonView("Add Group") {
@@ -143,7 +143,6 @@ struct GroupsView: View {
       .padding(8)
       .debugEdit()
     }
-    .focusScope(namespace)
   }
 
   private func emptyView() -> some View {
@@ -193,7 +192,7 @@ struct GroupsView: View {
 
 struct GroupsView_Provider: PreviewProvider {
   static var previews: some View {
-    GroupsView(.init(), onAction: { _ in })
+    GroupsView(selectionManager: .init(), onAction: { _ in })
       .designTime()
   }
 }

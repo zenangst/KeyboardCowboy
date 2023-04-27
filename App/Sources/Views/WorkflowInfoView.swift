@@ -10,9 +10,11 @@ struct WorkflowInfoView: View {
   @ObservedObject private var detailPublisher: DetailPublisher
   @State var workflowName: String
   @State var isEnabled: Bool
+  var focus: FocusState<AppFocus?>.Binding
   private var onAction: (Action) -> Void
 
-  init(_ detailPublisher: DetailPublisher, onAction: @escaping (Action) -> Void) {
+  init(_ focus: FocusState<AppFocus?>.Binding, detailPublisher: DetailPublisher, onAction: @escaping (Action) -> Void) {
+    self.focus = focus
     _workflowName = .init(initialValue: detailPublisher.data.name)
     _isEnabled = .init(initialValue: detailPublisher.data.isEnabled)
     self.detailPublisher = detailPublisher
@@ -22,6 +24,7 @@ struct WorkflowInfoView: View {
   var body: some View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $workflowName)
+        .focused(focus, equals: .detail(.name))
         .frame(height: 32)
         .textFieldStyle(LargeTextFieldStyle())
         .onChange(of: workflowName) { newValue in

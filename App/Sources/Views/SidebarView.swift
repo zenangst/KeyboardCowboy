@@ -63,7 +63,7 @@ struct SidebarView: View {
           .padding(.top)
           .padding(.bottom, 8)
 
-        GroupsView(groupSelectionManager) { action in
+        GroupsView(selectionManager: groupSelectionManager) { action in
           switch action {
           case .selectGroups(let ids):
             onAction(.selectGroups(ids))

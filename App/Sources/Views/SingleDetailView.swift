@@ -2,6 +2,8 @@ import SwiftUI
 import Apps
 
 struct SingleDetailView: View {
+  @Namespace var namespace
+
   enum Action {
     case applicationTrigger(workflowId: Workflow.ID, action: WorkflowApplicationTriggerView.Action)
     case commandView(workflowId: Workflow.ID, action: CommandView.Action)
@@ -16,14 +18,16 @@ struct SingleDetailView: View {
     case updateKeyboardShortcuts(workflowId: Workflow.ID, keyboardShortcuts: [KeyShortcut])
     case updateName(workflowId: Workflow.ID, name: String)
   }
-
+  var focus: FocusState<AppFocus?>.Binding
   @ObserveInjection var inject
   @Environment(\.openWindow) var openWindow
   private var detailPublisher: DetailPublisher
   @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
-  init(_ detailPublisher: DetailPublisher, onAction: @escaping (Action) -> Void) {
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       detailPublisher: DetailPublisher, onAction: @escaping (Action) -> Void) {
+    self.focus = focus
     self.detailPublisher = detailPublisher
     self.onAction = onAction
   }
@@ -34,7 +38,7 @@ struct SingleDetailView: View {
 
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
-          WorkflowInfoView(detailPublisher, onAction: { action in
+          WorkflowInfoView(focus, detailPublisher: detailPublisher, onAction: { action in
             switch action {
             case .updateName(let name):
               onAction(.updateName(workflowId: detailPublisher.data.id, name: name))
@@ -139,6 +143,7 @@ struct SingleDetailView: View {
       .opacity(shouldShowCommandList ? 1 : 0)
     }
     .labelStyle(HeaderLabelStyle())
+    .focusScope(namespace)
     .debugEdit()
   }
 
@@ -164,8 +169,9 @@ struct SingleDetailView: View {
 }
 
 struct SingleDetailView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
-    SingleDetailView(.init(DesignTime.detail)) { _ in }
+    SingleDetailView($focus, detailPublisher: .init(DesignTime.detail)) { _ in }
       .designTime()
       .frame(height: 900)
   }

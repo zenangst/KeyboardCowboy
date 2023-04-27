@@ -7,7 +7,9 @@ import LaunchArguments
 @main
 struct KeyboardCowboy: App {
   static private var appStorage: AppStorageStore = .init()
-  @FocusState var containerFocus: ContainerView.Focus?
+  @Namespace var namespace
+  @Environment(\.resetFocus) var resetFocus
+  @FocusState var focus: AppFocus?
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   private let sidebarCoordinator: SidebarCoordinator
@@ -119,7 +121,7 @@ struct KeyboardCowboy: App {
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
       applyEnvironmentObjects(
-        ContainerView(focus: $containerFocus,
+        ContainerView(focus: $focus,
                       configSelectionManager: configurationCoordinator.selectionManager,
                       contentSelectionManager: contentCoordinator.selectionManager,
                       groupsSelectionManager: sidebarCoordinator.selectionManager
@@ -131,6 +133,13 @@ struct KeyboardCowboy: App {
             switch sidebarAction {
             case .openScene(let scene):
               handleScene(scene)
+            case .selectGroups:
+              configurationCoordinator.handle(sidebarAction)
+              sidebarCoordinator.handle(sidebarAction)
+              contentCoordinator.handle(sidebarAction)
+              detailCoordinator.handle(sidebarAction)
+              focus = .workflows
+              resetFocus.callAsFunction(in: namespace)
             default:
               configurationCoordinator.handle(sidebarAction)
               sidebarCoordinator.handle(sidebarAction)
@@ -142,7 +151,7 @@ struct KeyboardCowboy: App {
               await contentCoordinator.handle(contentAction)
               detailCoordinator.handle(contentAction)
               if case .addWorkflow = contentAction {
-                containerFocus = .content
+                DispatchQueue.main.async { focus = .detail(.name) }
               }
             }
           case .detail(let detailAction):
@@ -150,6 +159,7 @@ struct KeyboardCowboy: App {
             contentCoordinator.handle(detailAction)
           }
         }
+        .focusScope(namespace)
         // MARK: Note - Force dark mode until the light theme is up-to-date
         .environment(\.colorScheme, .dark)
       )
