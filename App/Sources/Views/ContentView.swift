@@ -97,7 +97,7 @@ struct ContentView: View {
             focus = true
             resetFocus.callAsFunction(in: namespace)
           }
-          .draggable(workflow)
+          .draggable(DraggableView.workflow([workflow]))
           .onFrameChange(perform: { rect in
             // TODO: (Quickfix) Find a better solution for contentOffset observation.
             if workflow == publisher.data.first && rect.origin.y != 52 {
@@ -117,12 +117,19 @@ struct ContentView: View {
       .onMove { source, destination in
         onAction(.moveWorkflows(source: source, destination: destination))
       }
-      .dropDestination(for: ContentViewModel.self) { items, index in
-        let source = moveManager.onDropDestination(
-          items, index: index,
-          data: publisher.data,
-          selections: contentSelectionManager.selections)
-        onAction(.moveWorkflows(source: source, destination: index))
+      .dropDestination(for: DraggableView.self) { items, index in
+        for item in items {
+          switch item {
+          case .workflow(let workflows):
+            let source = moveManager.onDropDestination(
+              workflows, index: index,
+              data: publisher.data,
+              selections: contentSelectionManager.selections)
+            onAction(.moveWorkflows(source: source, destination: index))
+          default:
+            break
+          }
+        }
       }
     }
     .focused($focus)

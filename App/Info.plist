@@ -42,6 +42,40 @@
 	<string>ZxEpbxbd8TIwNev9bkzaLrHAaQUK/x0wBTHb4anScsc=</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.public.data</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>DraggableView</string>
+      <key>UTTypeIcons</key>
+      <dict/>
+      <key>UTTypeIdentifier</key>
+      <string>com.zenangst.Keyboard-Cowboy.DraggableView</string>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array/>
+      </dict>
+    </dict>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.public.data</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>WorkflowGroup</string>
+      <key>UTTypeIcons</key>
+      <dict/>
+      <key>UTTypeIdentifier</key>
+      <string>com.zenangst.Keyboard-Cowboy.WorkflowGroup</string>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array/>
+      </dict>
+    </dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -62,20 +96,48 @@
 	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>com.public.data</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>Workflow</string>
-			<key>UTTypeIcons</key>
-			<dict/>
-			<key>UTTypeIdentifier</key>
-			<string>com.zenangst.Keyboard-Cowboy.Workflow</string>
-			<key>UTTypeTagSpecification</key>
-			<dict/>
-		</dict>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.public.data</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>DraggableView</string>
+      <key>UTTypeIcons</key>
+      <dict/>
+      <key>UTTypeIdentifier</key>
+      <string>com.zenangst.Keyboard-Cowboy.DraggableView</string>
+      <key>UTTypeTagSpecification</key>
+      <dict/>
+    </dict>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.public.data</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>WorkflowGroup</string>
+      <key>UTTypeIcons</key>
+      <dict/>
+      <key>UTTypeIdentifier</key>
+      <string>com.zenangst.Keyboard-Cowboy.WorkflowGroup</string>
+      <key>UTTypeTagSpecification</key>
+      <dict/>
+    </dict>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.public.data</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>Workflow</string>
+      <key>UTTypeIcons</key>
+      <dict/>
+      <key>UTTypeIdentifier</key>
+      <string>com.zenangst.Keyboard-Cowboy.Workflow</string>
+      <key>UTTypeTagSpecification</key>
+      <dict/>
+    </dict>
 	</array>
 	<key>com.apple.security.automation.apple-events</key>
 	<true/>

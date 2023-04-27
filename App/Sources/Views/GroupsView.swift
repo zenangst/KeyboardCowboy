@@ -32,9 +32,9 @@ struct GroupsView: View {
 
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
 
-  @State var dropCommands = Set<ContentViewModel>()
-  @State private var dropOverlayIsVisible: Bool = false
   @State private var confirmDelete: Confirm?
+
+  private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (Action) -> Void
 
   init(_ selectionManager: SelectionManager<GroupViewModel>, onAction: @escaping (Action) -> Void) {
@@ -62,6 +62,7 @@ struct GroupsView: View {
               focus = true
               resetFocus.callAsFunction(in: namespace)
             }
+            .draggable(DraggableView.group([group]))
             .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
             .overlay(content: {
               HStack {
@@ -90,20 +91,31 @@ struct GroupsView: View {
             })
             .tag(group)
         }
-        .dropDestination(for: ContentViewModel.self) { items, index in
-          // MARK: Note about .draggable & .dropDestination
-          // For some unexplained reason, items is always a single item.
-          // This means that the user can only drag a single item between containers (such as dragging a workflow to a different group).
-          // Will investigate this further when we receive newer updates of macOS.
-          let index = max(index-1,0)
-          let group = groupStore.groups[index]
-          let workflowIds = Set(items.map(\.id))
-          if NSEvent.modifierFlags.contains(.option) {
-            groupStore.copy(workflowIds, to: group.id)
-          } else {
-            groupStore.move(workflowIds, to: group.id)
+        .dropDestination(for: DraggableView.self) { items, index in
+          for item in items {
+            switch item {
+            case .group(let groups):
+              let source = moveManager.onDropDestination(
+                groups, index: index,
+                data: publisher.data,
+                selections: selectionManager.selections)
+              onAction(.moveGroups(source: source, destination: index))
+            case .workflow(let workflows):
+              // MARK: Note about .draggable & .dropDestination
+              // For some unexplained reason, items is always a single item.
+              // This means that the user can only drag a single item between containers (such as dragging a workflow to a different group).
+              // Will investigate this further when we receive newer updates of macOS.
+              let index = max(index-1,0)
+              let group = groupStore.groups[index]
+              let workflowIds = Set(workflows.map(\.id))
+              if NSEvent.modifierFlags.contains(.option) {
+                groupStore.copy(workflowIds, to: group.id)
+              } else {
+                groupStore.move(workflowIds, to: group.id)
+              }
+              selectionManager.selections = [group.id]
+            }
           }
-          selectionManager.selections = [group.id]
         }
         .onMove { source, destination in
           onAction(.moveGroups(source: source, destination: destination))
