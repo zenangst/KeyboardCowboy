@@ -1,14 +1,23 @@
 import Foundation
 import Cocoa
 
-final class SelectionManager<T: Identifiable> {
+final class SelectionManager<T>: ObservableObject where T: Identifiable,
+                                                        T: Hashable {
   var lastSelection: T.ID?
+  @Published var selections: Set<T.ID>
 
-  init(_ lastSelection: T.ID? = nil) {
-    self.lastSelection = lastSelection
+  init(_ selections: Set<T.ID> = [],
+       lastSelection: T.ID? = nil) {
+    if let lastSelection {
+      self.selections = [lastSelection]
+      self.lastSelection = lastSelection
+    } else {
+      self.selections = selections
+      self.lastSelection = lastSelection
+    }
   }
 
-  func handleOnTap(_ data: [T], element: T, selections: inout Set<T.ID>) {
+  func handleOnTap(_ data: [T], element: T) {
     let copyOfSelections = selections
     if NSEvent.modifierFlags.contains(.shift) {
       selections = onShiftTap(data, elementID: element.id, selections: copyOfSelections)

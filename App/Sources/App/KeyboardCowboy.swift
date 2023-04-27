@@ -97,7 +97,7 @@ struct KeyboardCowboy: App {
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
       applyEnvironmentObjects(
-        ContainerView(focus: $containerFocus) { action in
+        ContainerView(focus: $containerFocus, selectionManager: contentCoordinator.selectionManager) { action in
           switch action {
           case .openScene(let scene):
             handleScene(scene)

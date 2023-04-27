@@ -22,8 +22,13 @@ struct ContainerView: View {
   var focus: FocusState<Focus?>.Binding
   let onAction: (Action) -> Void
 
-  init(focus: FocusState<Focus?>.Binding, onAction: @escaping (Action) -> Void) {
+  private let selectionManager: SelectionManager<ContentViewModel>
+
+  init(focus: FocusState<Focus?>.Binding,
+       selectionManager: SelectionManager<ContentViewModel>,
+       onAction: @escaping (Action) -> Void) {
     self.focus = focus
+    self.selectionManager = selectionManager
     self.onAction = onAction
   }
 
@@ -35,7 +40,7 @@ struct ContainerView: View {
           .focused(focus, equals: .sidebar)
       },
       content: {
-        ContentView(onAction: { action in
+        ContentView(selectionManager, onAction: { action in
           onAction(.content(action))
         })
         .focused(focus, equals: .content)
@@ -54,7 +59,7 @@ struct ContainerView_Previews: PreviewProvider {
   @FocusState static var focus: ContainerView.Focus?
 
   static var previews: some View {
-    ContainerView(focus: $focus) { _ in }
+    ContainerView(focus: $focus, selectionManager: .init()) { _ in }
       .designTime()
       .frame(height: 800)
   }

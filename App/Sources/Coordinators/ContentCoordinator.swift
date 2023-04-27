@@ -16,6 +16,7 @@ final class ContentCoordinator {
   private let mapper: ContentModelMapper
   private let applicationStore: ApplicationStore
 
+  let selectionManager: SelectionManager<ContentViewModel>
   let selectionPublisher: ContentSelectionIdsPublisher
   let publisher: ContentPublisher = ContentPublisher()
 
@@ -25,6 +26,7 @@ final class ContentCoordinator {
     self.store = store
     self.selectionPublisher = selectionPublisher
     self.mapper = ContentModelMapper()
+    self.selectionManager = .init(lastSelection: Array(Self.appStorage.workflowIds).last)
 
     enableInjection(self, selector: #selector(injected(_:)))
   }

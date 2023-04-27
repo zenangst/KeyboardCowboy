@@ -29,37 +29,13 @@ struct ContentView: View {
   @State var overlayOpacity: CGFloat = 1
 
   private let moveManager: MoveManager<ContentViewModel> = .init()
-  private let selectionManager: SelectionManager<ContentViewModel> = .init(Array(Self.appStorage.workflowIds).last)
+  @ObservedObject private var selectionManger: SelectionManager<ContentViewModel>
 
   private let onAction: (Action) -> Void
 
-  init(onAction: @escaping (Action) -> Void) {
+  init(_ selectionManager: SelectionManager<ContentViewModel>, onAction: @escaping (Action) -> Void) {
+    _selectionManger = .init(initialValue: selectionManager)
     self.onAction = onAction
-  }
-
-  private func getColor() -> NSColor {
-    let color: NSColor
-    if let groupId = groupIds.data.ids.first,
-       let group = groupsPublisher.data.first(where: { $0.id == groupId }),
-       !group.color.isEmpty {
-      color = .init(hex: group.color).blended(withFraction: 0.4, of: .black)!
-    } else {
-      color = .controlAccentColor
-    }
-    return color
-  }
-
-  @ViewBuilder
-  func selectedBackground(_ workflow: ContentViewModel) -> some View {
-    Group {
-      if publisher.selections.contains(workflow.id) {
-        Color(nsColor: getColor())
-      }
-    }
-    .cornerRadius(4, antialiased: true)
-    .padding(.horizontal, 10)
-    .grayscale(controlActiveState == .active ? 0.0 : 0.5)
-    .opacity(focus ? 1 : 0.1)
   }
 
   var body: some View {
@@ -83,16 +59,39 @@ struct ContentView: View {
     }
   }
 
+  private func getColor() -> NSColor {
+    let color: NSColor
+    if let groupId = groupIds.data.ids.first,
+       let group = groupsPublisher.data.first(where: { $0.id == groupId }),
+       !group.color.isEmpty {
+      color = .init(hex: group.color).blended(withFraction: 0.4, of: .black)!
+    } else {
+      color = .controlAccentColor
+    }
+    return color
+  }
+
+  @ViewBuilder
+  func selectedBackground(_ workflow: ContentViewModel) -> some View {
+    Group {
+      if selectionManger.selections.contains(workflow.id) {
+        Color(nsColor: getColor())
+      }
+    }
+    .cornerRadius(4, antialiased: true)
+    .padding(.horizontal, 10)
+    .grayscale(controlActiveState == .active ? 0.0 : 0.5)
+    .opacity(focus ? 1 : 0.1)
+  }
+
+
   private func list(_ proxy: ScrollViewProxy) -> some View {
-    List(selection: $publisher.selections) {
+    List(selection: $selectionManger.selections) {
       ForEach(publisher.data) { workflow in
         ContentItemView(workflow)
           .contentShape(Rectangle())
           .onTapGesture {
-            selectionManager.handleOnTap(
-              publisher.data,
-              element: workflow,
-              selections: &publisher.selections)
+            selectionManger.handleOnTap(publisher.data, element: workflow)
             focus = true
             resetFocus.callAsFunction(in: namespace)
           }
@@ -120,16 +119,16 @@ struct ContentView: View {
         let source = moveManager.onDropDestination(
           items, index: index,
           data: publisher.data,
-          selections: publisher.selections)
+          selections: selectionManger.selections)
         onAction(.moveWorkflows(source: source, destination: index))
       }
     }
     .focused($focus)
     .onDeleteCommand(perform: {
-      guard !publisher.selections.isEmpty else { return }
-      onAction(.removeWorflows(Array(publisher.selections)))
+      guard !selectionManger.selections.isEmpty else { return }
+      onAction(.removeWorflows(Array(selectionManger.selections)))
     })
-    .onChange(of: publisher.selections, perform: { newValue in
+    .onChange(of: selectionManger.selections, perform: { newValue in
       onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.data.ids))
       if let first = newValue.first {
         proxy.scrollTo(first)
@@ -246,19 +245,19 @@ struct ContentView: View {
       // Show only other groups than the current one.
       ForEach(groupsPublisher.data.filter({ !groupIds.data.ids.contains($0.id) })) { group in
         Button(group.name) {
-          onAction(.moveWorkflowsToGroup(group.id, workflows: Array(publisher.selections)))
+          onAction(.moveWorkflowsToGroup(group.id, workflows: Array(selectionManger.selections)))
         }
       }
     }
     Button("Delete", action: {
-      onAction(.removeWorflows(publisher.selections.map { $0 }))
+      onAction(.removeWorflows(selectionManger.selections.map { $0 }))
     })
   }
 }
 
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView { _ in }
+    ContentView(.init()) { _ in }
       .designTime()
       .frame(height: 900)
   }
