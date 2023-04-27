@@ -7,14 +7,20 @@ struct SidebarView: View {
     case openScene(AppScene)
     case addConfiguration(name: String)
     case selectConfiguration(ConfigurationViewModel.ID)
-    case selectGroups([GroupViewModel.ID])
+    case selectGroups(Set<GroupViewModel.ID>)
     case moveGroups(source: IndexSet, destination: Int)
-    case removeGroups([GroupViewModel.ID])
+    case removeGroups(Set<GroupViewModel.ID>)
   }
 
+  private let configSelectionManager: SelectionManager<ConfigurationViewModel>
+  private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
 
-  init(onAction: @escaping (Action) -> Void) {
+  init(configSelectionManager: SelectionManager<ConfigurationViewModel>,
+       groupSelectionManager: SelectionManager<GroupViewModel>,
+       onAction: @escaping (Action) -> Void) {
+    self.configSelectionManager = configSelectionManager
+    self.groupSelectionManager = groupSelectionManager
     self.onAction = onAction
   }
 
@@ -40,7 +46,7 @@ struct SidebarView: View {
                 .padding(.trailing, 8)
             }
             .padding(.top, 6)
-          SidebarConfigurationView { action in
+          SidebarConfigurationView(configSelectionManager) { action in
             switch action {
             case .addConfiguration(let name):
               onAction(.addConfiguration(name: name))
@@ -57,7 +63,7 @@ struct SidebarView: View {
           .padding(.top)
           .padding(.bottom, 8)
 
-        GroupsView { action in
+        GroupsView(groupSelectionManager) { action in
           switch action {
           case .selectGroups(let ids):
             onAction(.selectGroups(ids))
@@ -78,7 +84,7 @@ struct SidebarView: View {
 
 struct SidebarView_Previews: PreviewProvider {
   static var previews: some View {
-    SidebarView { _ in }
+    SidebarView(configSelectionManager: .init(), groupSelectionManager: .init()) { _ in }
       .designTime()
   }
 }

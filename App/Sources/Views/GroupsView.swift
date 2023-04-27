@@ -19,21 +19,27 @@ struct GroupsView: View {
 
   enum Action {
     case openScene(AppScene)
-    case selectGroups([GroupViewModel.ID])
+    case selectGroups(Set<GroupViewModel.ID>)
     case moveGroups(source: IndexSet, destination: Int)
-    case removeGroups([GroupViewModel.ID])
+    case removeGroups(Set<GroupViewModel.ID>)
   }
-  @EnvironmentObject private var groupIds: GroupIdsPublisher
   @EnvironmentObject private var groupStore: GroupStore
   @EnvironmentObject private var publisher: GroupsPublisher
   @EnvironmentObject private var contentPublisher: ContentPublisher
+
+  @FocusState var focus: Bool
+  @Environment(\.resetFocus) var resetFocus
+  @Namespace var namespace
+
+  @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
 
   @State var dropCommands = Set<ContentViewModel>()
   @State private var dropOverlayIsVisible: Bool = false
   @State private var confirmDelete: Confirm?
   private let onAction: (Action) -> Void
 
-  init(onAction: @escaping (Action) -> Void) {
+  init(_ selectionManager: SelectionManager<GroupViewModel>, onAction: @escaping (Action) -> Void) {
+    _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
   }
 
@@ -48,9 +54,15 @@ struct GroupsView: View {
 
   private func contentView() -> some View {
     VStack(spacing: 0) {
-      List(selection: $publisher.selections) {
+      List(selection: $selectionManager.selections) {
         ForEach(publisher.data) { group in
-          SidebarItemView(group, onAction: onAction)
+          SidebarItemView(group, selectionManager: selectionManager, onAction: onAction)
+            .contentShape(Rectangle())
+            .onTapGesture {
+              selectionManager.handleOnTap(publisher.data, element: group)
+              focus = true
+              resetFocus.callAsFunction(in: namespace)
+            }
             .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
             .offset(x: 2)
             .contextMenu(menuItems: {
@@ -67,7 +79,7 @@ struct GroupsView: View {
                 Spacer()
                 Button(action: {
                   confirmDelete = nil
-                  onAction(.removeGroups(Array(publisher.selections)))
+                  onAction(.removeGroups(selectionManager.selections))
                 }, label: { Image(systemName: "trash") })
                 .buttonStyle(.destructiveStyle)
               }
@@ -85,33 +97,29 @@ struct GroupsView: View {
           // Will investigate this further when we receive newer updates of macOS.
           let index = max(index-1,0)
           let group = groupStore.groups[index]
-          let workflowIds = items.map(\.id)
+          let workflowIds = Set(items.map(\.id))
           if NSEvent.modifierFlags.contains(.option) {
             groupStore.copy(workflowIds, to: group.id)
           } else {
             groupStore.move(workflowIds, to: group.id)
-            if let first = workflowIds.first {
-              contentPublisher.selections = [first]
-            }
           }
-          publisher.selections = [group.id]
+          selectionManager.selections = [group.id]
         }
         .onMove { source, destination in
           onAction(.moveGroups(source: source, destination: destination))
         }
       }
+      .focused($focus)
       .onDeleteCommand(perform: {
         if publisher.data.count > 1 {
-          confirmDelete = .multiple(ids: Array(publisher.selections))
+          confirmDelete = .multiple(ids: Array(selectionManager.selections))
         } else if let first = publisher.data.first {
           confirmDelete = .single(id: first.id)
         }
       })
-      .onReceive(publisher.$selections, perform: { newValue in
+      .onReceive(selectionManager.$selections, perform: { newValue in
         confirmDelete = nil
-        groupIds.publish(.init(ids: Array(newValue)))
-        onAction(.selectGroups(Array(newValue)))
-
+        onAction(.selectGroups(newValue))
       })
       .debugEdit()
 
@@ -123,6 +131,7 @@ struct GroupsView: View {
       .padding(8)
       .debugEdit()
     }
+    .focusScope(namespace)
   }
 
   private func emptyView() -> some View {
@@ -172,7 +181,7 @@ struct GroupsView: View {
 
 struct GroupsView_Provider: PreviewProvider {
   static var previews: some View {
-    GroupsView(onAction: { _ in })
+    GroupsView(.init(), onAction: { _ in })
       .designTime()
   }
 }

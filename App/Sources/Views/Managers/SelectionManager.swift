@@ -1,20 +1,30 @@
 import Foundation
 import Cocoa
 
+@MainActor
 final class SelectionManager<T>: ObservableObject where T: Identifiable,
                                                         T: Hashable {
+  typealias StoreType = (Set<T.ID>) -> Void
   var lastSelection: T.ID?
   @Published var selections: Set<T.ID>
 
-  init(_ selections: Set<T.ID> = [],
-       lastSelection: T.ID? = nil) {
-    if let lastSelection {
+  private let store: StoreType
+
+  init(_ selections: Set<T.ID> = [], initialSelection: Set<T.ID> = [], store: @escaping StoreType = { _ in }) {
+    self.store = store
+    if let lastSelection = Array(initialSelection).last {
       self.selections = [lastSelection]
       self.lastSelection = lastSelection
     } else {
       self.selections = selections
-      self.lastSelection = lastSelection
+      self.lastSelection = nil
     }
+  }
+
+  @MainActor
+  func publish(_ newSelections: Set<T.ID>) {
+    self.selections = newSelections
+    store(self.selections)
   }
 
   func handleOnTap(_ data: [T], element: T) {
@@ -26,14 +36,15 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
     } else {
       selections = onTap(element)
     }
+    store(self.selections)
   }
 
-  func onTap(_ element: T) -> Set<T.ID> {
+  private func onTap(_ element: T) -> Set<T.ID> {
     lastSelection = element.id
     return [element.id]
   }
 
-  func onCommandTap(_ element: T, selections: Set<T.ID>) -> Set<T.ID> {
+  private func onCommandTap(_ element: T, selections: Set<T.ID>) -> Set<T.ID> {
     var newSelections = selections
     if selections.contains(element.id) {
       newSelections.remove(element.id)
@@ -44,7 +55,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
     return newSelections
   }
 
-  func onShiftTap(_ data: [T], elementID: T.ID, selections: Set<T.ID>) -> Set<T.ID> {
+  private func onShiftTap(_ data: [T], elementID: T.ID, selections: Set<T.ID>) -> Set<T.ID> {
     var newSelections = selections
 
     if newSelections.contains(elementID) {

@@ -5,11 +5,15 @@ struct SidebarItemView: View {
   @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject var groupsPublisher: GroupsPublisher
 
+  private let selectionManager: SelectionManager<GroupViewModel>
   private let group: GroupViewModel
   private let onAction: (GroupsView.Action) -> Void
 
-  init(_ group: GroupViewModel, onAction: @escaping (GroupsView.Action) -> Void) {
+  init(_ group: GroupViewModel,
+       selectionManager: SelectionManager<GroupViewModel>,
+       onAction: @escaping (GroupsView.Action) -> Void) {
     self.group = group
+    self.selectionManager = selectionManager
     self.onAction = onAction
   }
 
@@ -27,7 +31,7 @@ struct SidebarItemView: View {
           .aspectRatio(1, contentMode: .fit)
           .frame(height: 16)
       }
-      .opacity(groupsPublisher.selections.contains(group.id) ? 1 : 0)
+      .opacity(selectionManager.selections.contains(group.id) ? 1 : 0)
       .buttonStyle(.plain)
       .layoutPriority(-1)
     }

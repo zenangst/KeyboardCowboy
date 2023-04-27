@@ -1,44 +1,33 @@
 import Combine
 import SwiftUI
 
-struct ContentSelectionIds: Identifiable, Hashable {
-  var id: Int { groupIds.hashValue + workflowIds.hashValue }
-
-  let groupIds: [GroupViewModel.ID]
-  let workflowIds: [ContentViewModel.ID]
-}
-
 @MainActor
 final class ContentCoordinator {
-  static private var appStorage: AppStorageStore = .init()
-  private var subscription: AnyCancellable?
   private let store: GroupStore
   private let mapper: ContentModelMapper
   private let applicationStore: ApplicationStore
 
+  let groupSelectionManager: SelectionManager<GroupViewModel>
   let selectionManager: SelectionManager<ContentViewModel>
-  let selectionPublisher: ContentSelectionIdsPublisher
   let publisher: ContentPublisher = ContentPublisher()
 
-  init(_ store: GroupStore, applicationStore: ApplicationStore,
-       selectionPublisher: ContentSelectionIdsPublisher) {
+  init(_ store: GroupStore,
+       applicationStore: ApplicationStore,
+       contentSelectionManager: SelectionManager<ContentViewModel>,
+       groupSelectionManager: SelectionManager<GroupViewModel>) {
     self.applicationStore = applicationStore
     self.store = store
-    self.selectionPublisher = selectionPublisher
+    self.groupSelectionManager = groupSelectionManager
     self.mapper = ContentModelMapper()
-    self.selectionManager = .init(lastSelection: Array(Self.appStorage.workflowIds).last)
+    self.selectionManager = contentSelectionManager
 
     enableInjection(self, selector: #selector(injected(_:)))
-  }
 
-  func subscribe(to publisher: Published<WorkflowGroupIds>.Publisher) {
-    subscription = publisher
-      .dropFirst()
-      .debounce(for: .milliseconds(40), scheduler: RunLoop.main)
-      .removeDuplicates()
-      .sink { [weak self] group in
-        self?.render(group.ids, calculateSelections: true)
-      }
+    // Set initial selection
+    if let initialGroupSelection = groupSelectionManager.lastSelection,
+      let initialWorkflowSelection = contentSelectionManager.lastSelection {
+      render([initialGroupSelection], selectionOverrides: [initialWorkflowSelection])
+    }
   }
 
   func handle(_ action: SidebarView.Action) {
@@ -62,22 +51,21 @@ final class ContentCoordinator {
 
   func handle(_ action: ContentView.Action) async {
     // TODO: We should get rid of this guard.
-    guard selectionPublisher.data.groupIds.count == 1,
-          let id = selectionPublisher.data.groupIds.first,
+    guard let id = groupSelectionManager.selections.first,
           var group = store.group(withId: id) else { return }
 
     await ContentViewActionReducer.reduce(
       action,
       groupStore: store,
-      selectionPublisher: selectionPublisher,
+      selectionPublisher: selectionManager,
       group: &group)
 
     switch action {
     case .addWorkflow(let id):
       store.updateGroups([group])
       render([group.id], selectionOverrides: [id])
-    case .selectWorkflow(let workflowIds, _):
-      Self.appStorage.workflowIds <- Set(workflowIds)
+    case .selectWorkflow:
+      break
     case .rerender(let ids):
       render(ids, calculateSelections: true)
     default:
@@ -89,7 +77,7 @@ final class ContentCoordinator {
   func handle(_ action: DetailView.Action) {
     switch action {
     case .singleDetailView:
-      render(selectionPublisher.data.groupIds, calculateSelections: false)
+      render(groupSelectionManager.selections, calculateSelections: false)
     }
   }
 
@@ -98,19 +86,19 @@ final class ContentCoordinator {
   @objc private func injected(_ notification: Notification) {
     guard didInject(self, notification: notification) else { return }
     withAnimation(.easeInOut(duration: 0.2)) {
-      render(Array(Self.appStorage.groupIds), calculateSelections: true)
+      render(groupSelectionManager.selections, calculateSelections: true)
     }
   }
 
-  private func render(_ groupIds: [GroupViewModel.ID],
+  private func render(_ groupIds: Set<GroupViewModel.ID>,
                       calculateSelections: Bool = false,
-                      selectionOverrides: [Workflow.ID]? = nil) {
+                      selectionOverrides: Set<Workflow.ID>? = nil) {
     Benchmark.start("ContentCoordinator.render")
     defer { Benchmark.finish("ContentCoordinator.render") }
 
     var viewModels = [ContentViewModel]()
-    var newSelections = [ContentViewModel.ID]()
-    var selectedWorkflowIds = Self.appStorage.workflowIds
+    var newSelections = Set<ContentViewModel.ID>()
+    var selectedWorkflowIds = selectionManager.selections
     var firstViewModel: ContentViewModel?
 
     for offset in store.groups.indices {
@@ -130,7 +118,7 @@ final class ContentCoordinator {
               !selectedWorkflowIds.isEmpty &&
               selectedWorkflowIds.contains(viewModel.id) {
             selectedWorkflowIds.remove(viewModel.id)
-            newSelections.append(viewModel.id)
+            newSelections.insert(viewModel.id)
           }
         }
       }
@@ -141,19 +129,16 @@ final class ContentCoordinator {
         if newSelections.isEmpty, let first = viewModels.first {
           newSelections = [first.id]
         }
-      } else if !publisher.selections.intersection(viewModels.map(\.id)).isEmpty {
-        newSelections = Array(publisher.selections)
+      } else if !selectionManager.selections.intersection(viewModels.map(\.id)).isEmpty {
+        newSelections = selectionManager.selections
       } else if newSelections.isEmpty, let first = firstViewModel {
         newSelections = [first.id]
       }
-      selectionPublisher.publish(ContentSelectionIds(groupIds: groupIds,
-                                                     workflowIds: newSelections) )
+      selectionManager.selections = newSelections
+    } else if let selectionOverrides {
+      selectionManager.selections = selectionOverrides
     }
 
-    if let selectionOverrides {
-      publisher.publish(viewModels, selections: selectionOverrides)
-    } else {
-      publisher.publish(viewModels, selections: calculateSelections ? newSelections : nil)
-    }
+    publisher.publish(viewModels)
   }
 }

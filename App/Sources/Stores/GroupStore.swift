@@ -31,7 +31,7 @@ final class GroupStore: ObservableObject {
   }
 
   @MainActor
-  func copy(_ workflowIds: [Workflow.ID], to newGroupId: WorkflowGroup.ID) {
+  func copy(_ workflowIds: Set<Workflow.ID>, to newGroupId: WorkflowGroup.ID) {
     for workflowId in workflowIds {
       guard let oldGroup = groupForWorkflow(workflowId),
             var newGroup = groups.first(where: { $0.id == newGroupId }),
@@ -45,7 +45,7 @@ final class GroupStore: ObservableObject {
   }
 
   @MainActor
-  func move(_ workflowIds: [Workflow.ID], to newGroupId: WorkflowGroup.ID) {
+  func move(_ workflowIds: Set<Workflow.ID>, to newGroupId: WorkflowGroup.ID) {
     for workflowId in workflowIds {
       guard var oldGroup = groupForWorkflow(workflowId),
             var newGroup = groups.first(where: { $0.id == newGroupId }),
@@ -68,7 +68,7 @@ final class GroupStore: ObservableObject {
   }
 
   @MainActor
-  func updateGroups(_ groups: [WorkflowGroup]) {
+  func updateGroups(_ groups: Set<WorkflowGroup>) {
     let oldGroups = self.groups
     var newGroups = oldGroups
     for group in groups {
@@ -79,7 +79,7 @@ final class GroupStore: ObservableObject {
   }
 
   @MainActor
-  func removeGroups(with ids: [WorkflowGroup.ID]) {
+  func removeGroups(with ids: Set<WorkflowGroup.ID>) {
     var newGroups = groups
     newGroups.removeAll(where: { ids.contains($0.id) })
     commitGroups(newGroups)

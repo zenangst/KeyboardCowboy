@@ -7,13 +7,17 @@ final class ConfigurationCoordinator {
   let contentStore: ContentStore
   let store: ConfigurationStore
   let publisher: ConfigurationPublisher
+  let selectionManager: SelectionManager<ConfigurationViewModel>
 
-  init(contentStore: ContentStore, store: ConfigurationStore) {
+  init(contentStore: ContentStore, selectionManager: SelectionManager<ConfigurationViewModel>,
+       store: ConfigurationStore) {
     self.contentStore = contentStore
     self.store = store
+    self.selectionManager = selectionManager
     self.publisher = ConfigurationPublisher()
 
     Task {
+      // TODO: Should we remove this subscription and make it more explicit when configurations change?
       subscription = store.$selectedConfiguration.sink(receiveValue: { [weak self] selectedConfiguration in
         self?.render(selectedConfiguration: selectedConfiguration)
       })
@@ -51,7 +55,7 @@ final class ConfigurationCoordinator {
           return viewModel
         }
 
-      publisher.publish(configurations, selections: selections.map(\.id))
+      publisher.publish(configurations)
     }
   }
 }

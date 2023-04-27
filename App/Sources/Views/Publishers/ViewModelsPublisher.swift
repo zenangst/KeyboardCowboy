@@ -3,7 +3,6 @@ import SwiftUI
 final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Hashable,
                                                                    ViewModel: Identifiable {
   @Published var data: [ViewModel] = [ViewModel]()
-  @Published var selections = Set<ViewModel.ID>()
 
   init(_ data: [ViewModel] = [ViewModel]()) {
     _data = .init(initialValue: data)
@@ -26,10 +25,7 @@ final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Ha
   }
 
   @MainActor
-  func publish(_ newData: [ViewModel]? = nil, selections newSelections: [ViewModel.ID]? = nil) {
-    if let newSelections {
-      self.selections = Set(newSelections)
-    }
+  func publish(_ newData: [ViewModel]? = nil) {
     if let newData {
       self.data = newData
     }

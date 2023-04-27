@@ -56,6 +56,7 @@ final class ContentStore: ObservableObject {
       if shouldSave {
         try storage.save(configurationStore.configurations)
       }
+
       Benchmark.finish("ContentStore.init")
     }
   }

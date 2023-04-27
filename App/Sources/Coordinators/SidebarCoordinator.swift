@@ -1,11 +1,6 @@
 import Combine
 import SwiftUI
 
-struct WorkflowGroupIds: Identifiable, Hashable {
-  var id: WorkflowGroup.ID { ids.rawValue }
-  let ids: [WorkflowGroup.ID]
-}
-
 @MainActor
 final class SidebarCoordinator {
   static private var appStorage: AppStorageStore = .init()
@@ -15,28 +10,29 @@ final class SidebarCoordinator {
   private let store: GroupStore
 
   let publisher = GroupsPublisher()
-  let groupIdsPublisher: GroupIdsPublisher
-  let workflowIdsPublisher: ContentSelectionIdsPublisher
 
-  init(_ store: GroupStore,
-       applicationStore: ApplicationStore,
-       groupIdsPublisher: GroupIdsPublisher,
-       workflowIdsPublisher: ContentSelectionIdsPublisher) {
+  let configSelectionManager: SelectionManager<ConfigurationViewModel>
+  let selectionManager: SelectionManager<GroupViewModel>
+
+  init(_ store: GroupStore, applicationStore: ApplicationStore,
+       configSelectionManager: SelectionManager<ConfigurationViewModel>,
+       groupSelectionManager: SelectionManager<GroupViewModel>
+  ) {
     self.applicationStore = applicationStore
-    self.workflowIdsPublisher = workflowIdsPublisher
-    self.groupIdsPublisher = groupIdsPublisher
     self.store = store
+    self.configSelectionManager = configSelectionManager
+    self.selectionManager = groupSelectionManager
 
-    subscribe(to: store.$groups)
-    enableInjection(self, selector: #selector(injected(_:)))
-  }
-
-  func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
-    subscription = publisher
+    // Initial load
+    // Configurations are loaded asynchronously, so we need to wait for them to be loaded
+    subscription = store.$groups
       .dropFirst()
       .sink { [weak self] groups in
         self?.render(groups)
+        self?.subscription = nil
       }
+
+    enableInjection(self, selector: #selector(injected(_:)))
   }
 
   func handle(_ action: SidebarView.Action) {
@@ -45,7 +41,6 @@ final class SidebarCoordinator {
       break
     case .selectGroups(let groups):
       Self.appStorage.groupIds = Set(groups)
-      groupIdsPublisher.publish(.init(ids: groups))
     case .removeGroups(let ids):
       for id in ids {
         Self.appStorage.groupIds.remove(id)
@@ -65,19 +60,19 @@ final class SidebarCoordinator {
     }
   }
 
-  private func render(_ groups: [WorkflowGroup]) {
+  private func render(_ workflowGroups: [WorkflowGroup]) {
     Benchmark.start("SidebarCoordinator.render")
     defer { Benchmark.finish("SidebarCoordinator.render") }
 
-    var viewModels = [GroupViewModel]()
-    viewModels.reserveCapacity(groups.count)
-    var newSelections: [GroupViewModel.ID]?
-    let publisherIsEmpty = publisher.data.isEmpty && publisher.selections.isEmpty
+    var groups = [GroupViewModel]()
+    groups.reserveCapacity(workflowGroups.count)
+    var newSelections: Set<GroupViewModel.ID>?
+    let publisherIsEmpty = publisher.data.isEmpty
 
-    for (offset, group) in groups.enumerated() {
-      let viewModel = SidebarMapper.map(group, applicationStore: applicationStore)
+    for (offset, workflowGroup) in workflowGroups.enumerated() {
+      let group = SidebarMapper.map(workflowGroup, applicationStore: applicationStore)
 
-      viewModels.append(viewModel)
+      groups.append(group)
 
       if publisherIsEmpty {
         if newSelections == nil || Self.appStorage.groupIds.contains(group.id) {
@@ -85,17 +80,21 @@ final class SidebarCoordinator {
         }
 
         if Self.appStorage.groupIds.contains(group.id) {
-          newSelections?.append(group.id)
+          newSelections?.insert(group.id)
         } else if offset == 0 {
-          newSelections?.append(group.id)
+          newSelections?.insert(group.id)
         }
       }
     }
 
-    if viewModels.isEmpty {
+    if groups.isEmpty {
       newSelections = []
     }
 
-    publisher.publish(viewModels, selections: newSelections)
+    publisher.publish(groups)
+
+    if let newSelections {
+      selectionManager.selections = newSelections
+    }
   }
 }

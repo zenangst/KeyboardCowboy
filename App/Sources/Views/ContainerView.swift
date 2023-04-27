@@ -22,13 +22,19 @@ struct ContainerView: View {
   var focus: FocusState<Focus?>.Binding
   let onAction: (Action) -> Void
 
-  private let selectionManager: SelectionManager<ContentViewModel>
+  private let configSelectionManager: SelectionManager<ConfigurationViewModel>
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
+  private let groupsSelectionManager: SelectionManager<GroupViewModel>
 
   init(focus: FocusState<Focus?>.Binding,
-       selectionManager: SelectionManager<ContentViewModel>,
+       configSelectionManager: SelectionManager<ConfigurationViewModel>,
+       contentSelectionManager: SelectionManager<ContentViewModel>,
+       groupsSelectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (Action) -> Void) {
     self.focus = focus
-    self.selectionManager = selectionManager
+    self.configSelectionManager = configSelectionManager
+    self.contentSelectionManager = contentSelectionManager
+    self.groupsSelectionManager = groupsSelectionManager
     self.onAction = onAction
   }
 
@@ -36,13 +42,15 @@ struct ContainerView: View {
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
-        SidebarView { onAction(.sidebar($0)) }
+        SidebarView(configSelectionManager: configSelectionManager,
+                    groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0)) }
           .focused(focus, equals: .sidebar)
       },
       content: {
-        ContentView(selectionManager, onAction: { action in
+        ContentView(contentSelectionManager: contentSelectionManager,
+                    groupSelectionManager: groupsSelectionManager) { action in
           onAction(.content(action))
-        })
+        }
         .focused(focus, equals: .content)
       },
       detail: {
@@ -59,7 +67,10 @@ struct ContainerView_Previews: PreviewProvider {
   @FocusState static var focus: ContainerView.Focus?
 
   static var previews: some View {
-    ContainerView(focus: $focus, selectionManager: .init()) { _ in }
+    ContainerView(focus: $focus,
+                  configSelectionManager: .init(),
+                  contentSelectionManager: .init(),
+                  groupsSelectionManager: .init()) { _ in }
       .designTime()
       .frame(height: 800)
   }

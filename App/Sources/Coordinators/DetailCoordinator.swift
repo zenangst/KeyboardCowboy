@@ -4,32 +4,64 @@ import SwiftUI
 
 @MainActor
 final class DetailCoordinator {
-  static private var appStorage: AppStorageStore = .init()
-  private var subscription: AnyCancellable?
-  private var groupIds: [WorkflowGroup.ID] = []
-
   let applicationStore: ApplicationStore
   let commandEngine: CommandEngine
+  let contentSelectionManager: SelectionManager<ContentViewModel>
   let contentStore: ContentStore
-  let keyboardCowboyEngine: KeyboardCowboyEngine
-  let groupStore: GroupStore
-  let statePublisher: DetailStatePublisher = .init(.empty)
   let detailPublisher: DetailPublisher = .init(DesignTime.emptyDetail)
+  let groupSelectionManager: SelectionManager<GroupViewModel>
+  let groupStore: GroupStore
+  let keyboardCowboyEngine: KeyboardCowboyEngine
   let mapper: DetailModelMapper
+  let statePublisher: DetailStatePublisher = .init(.empty)
 
   init(applicationStore: ApplicationStore,
        commandEngine: CommandEngine,
+       contentSelectionManager: SelectionManager<ContentViewModel>,
        contentStore: ContentStore,
+       groupSelectionManager: SelectionManager<GroupViewModel>,
        keyboardCowboyEngine: KeyboardCowboyEngine,
        groupStore: GroupStore) {
     self.applicationStore = applicationStore
-    self.keyboardCowboyEngine = keyboardCowboyEngine
     self.commandEngine = commandEngine
+    self.contentSelectionManager = contentSelectionManager
     self.contentStore = contentStore
+    self.groupSelectionManager = groupSelectionManager
     self.groupStore = groupStore
+    self.keyboardCowboyEngine = keyboardCowboyEngine
     self.mapper = DetailModelMapper(applicationStore)
 
     enableInjection(self, selector: #selector(injected(_:)))
+  }
+
+  func handle(_ action: SidebarView.Action) {
+    switch action {
+    case .openScene:
+      break
+    case .addConfiguration:
+      break
+    case .selectConfiguration:
+      break
+    case .selectGroups(let array):
+      if let firstId = array.first,
+         let group = groupStore.group(withId: firstId) {
+        var workflowIds = Set<ContentViewModel.ID>()
+
+        let matches = group.workflows.filter { contentSelectionManager.selections.contains($0.id) }
+          .map(\.id)
+
+        if !matches.isEmpty {
+          workflowIds = Set(matches)
+        } else if let firstId = group.workflows.first?.id {
+          workflowIds.insert(firstId)
+        }
+        render(workflowIds, groupIds: Set(array))
+      }
+    case .moveGroups:
+      break
+    case .removeGroups:
+      break
+    }
   }
 
   func handle(_ action: ContentView.Action) {
@@ -38,34 +70,23 @@ final class DetailCoordinator {
       return
     case .moveWorkflowsToGroup:
       return
-    case .selectWorkflow:
-      return
+    case .selectWorkflow(let workflowIds, let groupIds):
+      render(workflowIds, groupIds: groupIds)
     case .removeWorflows:
-      guard let first = Self.appStorage.groupIds.first,
+      guard let first = groupSelectionManager.selections.first,
             let group = groupStore.group(withId: first) else {
         return
       }
       if group.workflows.isEmpty {
-        render([], groupIds: Array(Self.appStorage.groupIds))
+        render([], groupIds: groupSelectionManager.selections)
       }
     case .moveWorkflows:
       return
     case .addWorkflow(let workflowId):
-      render([workflowId], groupIds: Array(Self.appStorage.groupIds))
+      render([workflowId], groupIds: groupSelectionManager.selections)
       return
     case .addCommands:
       return
-    }
-  }
-
-  func subscribe(to publisher: Published<ContentSelectionIds>.Publisher) {
-    subscription = publisher
-      .debounce(for: .milliseconds(40), scheduler: RunLoop.main)
-      .dropFirst()
-      .removeDuplicates()
-      .sink { [weak self] ids in
-        self?.groupIds = ids.groupIds
-        self?.render(ids.workflowIds, groupIds: ids.groupIds)
     }
   }
 
@@ -147,7 +168,8 @@ final class DetailCoordinator {
 
     workflow.updateOrAddCommand(command)
     await groupStore.commit([workflow])
-    render([workflow.id], groupIds: groupIds, animation: .easeInOut(duration: 0.2))
+    render([workflow.id], groupIds: groupSelectionManager.selections,
+           animation: .easeInOut(duration: 0.2))
   }
 
   func handle(_ detailAction: DetailView.Action) {
@@ -162,7 +184,7 @@ final class DetailCoordinator {
       groupStore.commit([workflow])
 
       if shouldCallRender {
-        render([workflow.id], groupIds: groupIds)
+        render([workflow.id], groupIds: groupSelectionManager.selections)
       }
     }
   }
@@ -172,13 +194,13 @@ final class DetailCoordinator {
   @objc private func injected(_ notification: Notification) {
     guard didInject(self, notification: notification) else { return }
     withAnimation(.easeInOut(duration: 0.2)) {
-      render(Array(Self.appStorage.workflowIds),
-             groupIds: Array(Self.appStorage.groupIds),
+      render(contentSelectionManager.selections,
+             groupIds: groupSelectionManager.selections,
              animation: .default)
     }
   }
 
-  private func render(_ ids: [Workflow.ID], groupIds: [WorkflowGroup.ID], animation: Animation? = nil) {
+  private func render(_ ids: Set<Workflow.ID>, groupIds: Set<WorkflowGroup.ID>, animation: Animation? = nil) {
     Benchmark.start("DetailCoordinator.render")
     defer {
       Benchmark.finish("DetailCoordinator.render")
@@ -217,123 +239,3 @@ final class DetailCoordinator {
   }
 }
 
-extension Workflow.Trigger {
-  func asViewModel() -> DetailViewModel.Trigger {
-    switch self {
-    case .application(let triggers):
-      return .applications(
-        triggers.map { trigger in
-          DetailViewModel.ApplicationTrigger(id: trigger.id,
-                                             name: trigger.application.displayName,
-                                             application: trigger.application,
-                                             contexts: trigger.contexts.map {
-            switch $0 {
-            case .closed:
-              return .closed
-            case .frontMost:
-              return .frontMost
-            case .launched:
-              return .launched
-            }
-          })
-        }
-      )
-    case .keyboardShortcuts(let shortcuts):
-      return .keyboardShortcuts(shortcuts)
-    }
-  }
-}
-
-extension DetailView.Action {
-  var workflowId: String? {
-    switch self {
-    case .singleDetailView(let action):
-      return action.workflowId
-    }
-  }
-}
-
-extension CommandView.Kind {
-  var workflowId: DetailViewModel.ID {
-    switch self {
-    case .application(_, let workflowId, _),
-        .keyboard(_, let workflowId, _),
-        .open(_, let workflowId, _),
-        .script(_, let workflowId, _),
-        .shortcut(_, let workflowId, _),
-        .type(_, let workflowId, _),
-        .system(_, let workflowId, _):
-      return workflowId
-    }
-  }
-
-  var commandId: DetailViewModel.CommandViewModel.ID {
-    switch self {
-    case .application(_, _, let commandId),
-        .keyboard(_, _, let commandId),
-        .open(_, _, let commandId),
-        .script(_, _, let commandId),
-        .shortcut(_, _, let commandId),
-        .type(_, _, let commandId),
-        .system(_, _, let commandId):
-      return commandId
-    }
-  }
-}
-
-extension CommandView.Action {
-  var workflowId: DetailViewModel.ID {
-    switch self {
-    case .toggleEnabled(let workflowId, _, _):
-      return workflowId
-    case .modify(let kind):
-      return kind.workflowId
-    case .run(let workflowId, _),
-        .remove(let workflowId, _):
-      return workflowId
-    }
-  }
-
-  var commandId: DetailViewModel.CommandViewModel.ID {
-    switch self {
-    case .toggleEnabled(_, let commandId, _):
-      return commandId
-    case .modify(let kind):
-      return kind.commandId
-    case .run(_, let commandId),
-        .remove(_, let commandId):
-      return commandId
-    }
-  }
-}
-
-extension SingleDetailView.Action {
-  var workflowId: String {
-    switch self {
-    case .dropUrls(let workflowId, _):
-      return workflowId
-    case .updateKeyboardShortcuts(let workflowId, _):
-      return workflowId
-    case .removeTrigger(let workflowId):
-      return workflowId
-    case .setIsEnabled(let workflowId, _):
-      return workflowId
-    case .removeCommands(let workflowId, _):
-      return workflowId
-    case .applicationTrigger(let workflowId, _):
-      return workflowId
-    case .commandView(let workflowId, _):
-      return workflowId
-    case .moveCommand(let workflowId, _, _):
-      return workflowId
-    case .trigger(let workflowId, _):
-      return workflowId
-    case .updateName(let workflowId, _):
-      return workflowId
-    case .updateExecution(let workflowId, _):
-      return workflowId
-    case .runWorkflow(let workflowId):
-      return workflowId
-    }
-  }
-}

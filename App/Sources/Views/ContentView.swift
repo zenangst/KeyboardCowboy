@@ -6,10 +6,10 @@ struct ContentView: View {
   @ObserveInjection var inject
 
   enum Action: Hashable {
-    case rerender(_ groupIds: [WorkflowGroup.ID])
-    case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: [ContentViewModel.ID])
-    case selectWorkflow(models: [ContentViewModel.ID], inGroups: [WorkflowGroup.ID])
-    case removeWorflows([ContentViewModel.ID])
+    case rerender(_ groupIds: Set<WorkflowGroup.ID>)
+    case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: Set<ContentViewModel.ID>)
+    case selectWorkflow(workflowIds: Set<ContentViewModel.ID>, groupIds: Set<WorkflowGroup.ID>)
+    case removeWorflows(Set<ContentViewModel.ID>)
     case moveWorkflows(source: IndexSet, destination: Int)
     case addWorkflow(workflowId: Workflow.ID)
     case addCommands(workflowId: Workflow.ID, commandIds: [DetailViewModel.CommandViewModel.ID])
@@ -20,7 +20,6 @@ struct ContentView: View {
   @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
-  @EnvironmentObject private var groupIds: GroupIdsPublisher
 
   @FocusState var focus: Bool
   @Environment(\.resetFocus) var resetFocus
@@ -29,12 +28,16 @@ struct ContentView: View {
   @State var overlayOpacity: CGFloat = 1
 
   private let moveManager: MoveManager<ContentViewModel> = .init()
-  @ObservedObject private var selectionManger: SelectionManager<ContentViewModel>
+  @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
+  @ObservedObject private var groupSelectionManager: SelectionManager<GroupViewModel>
 
   private let onAction: (Action) -> Void
 
-  init(_ selectionManager: SelectionManager<ContentViewModel>, onAction: @escaping (Action) -> Void) {
-    _selectionManger = .init(initialValue: selectionManager)
+  init(contentSelectionManager: SelectionManager<ContentViewModel>,
+       groupSelectionManager: SelectionManager<GroupViewModel>,
+       onAction: @escaping (Action) -> Void) {
+    _contentSelectionManager = .init(initialValue: contentSelectionManager)
+    _groupSelectionManager = .init(initialValue: groupSelectionManager)
     self.onAction = onAction
   }
 
@@ -61,7 +64,7 @@ struct ContentView: View {
 
   private func getColor() -> NSColor {
     let color: NSColor
-    if let groupId = groupIds.data.ids.first,
+    if let groupId = groupSelectionManager.selections.first,
        let group = groupsPublisher.data.first(where: { $0.id == groupId }),
        !group.color.isEmpty {
       color = .init(hex: group.color).blended(withFraction: 0.4, of: .black)!
@@ -74,7 +77,7 @@ struct ContentView: View {
   @ViewBuilder
   func selectedBackground(_ workflow: ContentViewModel) -> some View {
     Group {
-      if selectionManger.selections.contains(workflow.id) {
+      if contentSelectionManager.selections.contains(workflow.id) {
         Color(nsColor: getColor())
       }
     }
@@ -84,14 +87,13 @@ struct ContentView: View {
     .opacity(focus ? 1 : 0.1)
   }
 
-
   private func list(_ proxy: ScrollViewProxy) -> some View {
-    List(selection: $selectionManger.selections) {
+    List(selection: $contentSelectionManager.selections) {
       ForEach(publisher.data) { workflow in
         ContentItemView(workflow)
           .contentShape(Rectangle())
           .onTapGesture {
-            selectionManger.handleOnTap(publisher.data, element: workflow)
+            contentSelectionManager.handleOnTap(publisher.data, element: workflow)
             focus = true
             resetFocus.callAsFunction(in: namespace)
           }
@@ -119,20 +121,18 @@ struct ContentView: View {
         let source = moveManager.onDropDestination(
           items, index: index,
           data: publisher.data,
-          selections: selectionManger.selections)
+          selections: contentSelectionManager.selections)
         onAction(.moveWorkflows(source: source, destination: index))
       }
     }
     .focused($focus)
     .onDeleteCommand(perform: {
-      guard !selectionManger.selections.isEmpty else { return }
-      onAction(.removeWorflows(Array(selectionManger.selections)))
+      guard !contentSelectionManager.selections.isEmpty else { return }
+      onAction(.removeWorflows(contentSelectionManager.selections))
     })
-    .onChange(of: selectionManger.selections, perform: { newValue in
-      onAction(.selectWorkflow(models: Array(newValue), inGroups: groupIds.data.ids))
-      if let first = newValue.first {
-        proxy.scrollTo(first)
-      }
+    .onChange(of: contentSelectionManager.selections, perform: { newValue in
+      onAction(.selectWorkflow(workflowIds: newValue, groupIds: groupSelectionManager.selections))
+      if let first = newValue.first { proxy.scrollTo(first) }
     })
     .toolbar {
       ToolbarItemGroup(placement: .navigation) {
@@ -156,7 +156,7 @@ struct ContentView: View {
 
   private func headerView() -> some View {
     VStack(alignment: .leading) {
-      if let groupId = groupIds.data.ids.first,
+      if let groupId = groupSelectionManager.selections.first,
          let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
         Label("Group", image: "")
           .labelStyle(SidebarLabelStyle())
@@ -243,21 +243,21 @@ struct ContentView: View {
   private func contextualMenu() -> some View {
     Menu("Move to") {
       // Show only other groups than the current one.
-      ForEach(groupsPublisher.data.filter({ !groupIds.data.ids.contains($0.id) })) { group in
+      ForEach(groupsPublisher.data.filter({ !groupSelectionManager.selections.contains($0.id) })) { group in
         Button(group.name) {
-          onAction(.moveWorkflowsToGroup(group.id, workflows: Array(selectionManger.selections)))
+          onAction(.moveWorkflowsToGroup(group.id, workflows: contentSelectionManager.selections))
         }
       }
     }
     Button("Delete", action: {
-      onAction(.removeWorflows(selectionManger.selections.map { $0 }))
+      onAction(.removeWorflows(contentSelectionManager.selections))
     })
   }
 }
 
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView(.init()) { _ in }
+    ContentView(contentSelectionManager: .init(), groupSelectionManager: .init()) { _ in }
       .designTime()
       .frame(height: 900)
   }

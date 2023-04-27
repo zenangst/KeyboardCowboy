@@ -6,13 +6,15 @@ struct SidebarConfigurationView: View {
     case selectConfiguration(ConfigurationViewModel.ID)
   }
   @EnvironmentObject private var publisher: ConfigurationPublisher
+  let selectionManager: SelectionManager<ConfigurationViewModel>
 
   @State var popoverIsPresented = false
   @State var configurationName: String = ""
 
   private let onAction: (Action) -> Void
 
-  init(onAction: @escaping (Action) -> Void) {
+  init(_ selectionManager: SelectionManager<ConfigurationViewModel>, onAction: @escaping (Action) -> Void) {
+    self.selectionManager = selectionManager
     self.onAction = onAction
   }
 
@@ -27,7 +29,7 @@ struct SidebarConfigurationView: View {
         } label: {
           HStack {
             // TODO: Fix this!
-            Text(publisher.data.first(where: { publisher.selections.contains($0.id) })?.name ?? "Missing value" )
+            Text(publisher.data.first(where: { selectionManager.selections.contains($0.id) })?.name ?? "Missing value" )
               .lineLimit(1)
             Spacer()
             Image(systemName: "chevron.down")
@@ -76,7 +78,7 @@ struct SidebarConfigurationView: View {
 
 struct SidebarConfigurationView_Previews: PreviewProvider {
   static var previews: some View {
-    SidebarConfigurationView { _ in }
+    SidebarConfigurationView(.init()) { _ in }
       .designTime()
   }
 }

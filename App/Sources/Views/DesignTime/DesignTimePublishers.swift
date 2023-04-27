@@ -24,8 +24,6 @@ enum DesignTime {
     ]
   }
 
-  static var groupIdsPublisher = GroupIdsPublisher(.init(ids: []))
-
   static var contentPublisher = ContentPublisher {
     [
       ContentViewModel(id: UUID().uuidString, name: "Open News", images: [

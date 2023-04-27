@@ -6,6 +6,7 @@ import LaunchArguments
 
 @main
 struct KeyboardCowboy: App {
+  static private var appStorage: AppStorageStore = .init()
   @FocusState var containerFocus: ContainerView.Focus?
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
@@ -27,11 +28,14 @@ struct KeyboardCowboy: App {
 #endif
   private var open: Bool = true
 
+
   @Environment(\.openWindow) private var openWindow
   @Environment(\.scenePhase) private var scenePhase
 
   init() {
     Inject.animation = .spring()
+
+    // Core functionality
     let scriptEngine = ScriptEngine(workspace: .shared)
     let keyboardShortcutsCache = KeyboardShortcutsCache()
     let applicationStore = ApplicationStore()
@@ -41,12 +45,6 @@ struct KeyboardCowboy: App {
                                     keyboardShortcutsCache: keyboardShortcutsCache,
                                     shortcutStore: shortcutStore,
                                     scriptEngine: scriptEngine, workspace: .shared)
-    let groupIdsPublisher = GroupIdsPublisher(.init(ids: []))
-    let workflowIdsPublisher = ContentSelectionIdsPublisher(.init(groupIds: [], workflowIds: []))
-    let contentCoordinator = ContentCoordinator(
-      contentStore.groupStore,
-      applicationStore: applicationStore,
-      selectionPublisher: workflowIdsPublisher)
     let keyCodeStore = KeyCodesStore()
     let keyboardEngine = KeyboardEngine(store: keyCodeStore)
     let engine = KeyboardCowboyEngine(contentStore,
@@ -56,21 +54,48 @@ struct KeyboardCowboy: App {
                                       shortcutStore: shortcutStore,
                                       workspace: .shared)
 
-    self.sidebarCoordinator = SidebarCoordinator(contentStore.groupStore,
-                                                 applicationStore: applicationStore,
-                                                 groupIdsPublisher: groupIdsPublisher,
-                                                 workflowIdsPublisher: workflowIdsPublisher)
-    self.contentCoordinator = contentCoordinator
-    self.configurationCoordinator = ConfigurationCoordinator(
+    // Selections
+    let configSelectionManager = SelectionManager<ConfigurationViewModel>()
+    let groupSelectionManager = SelectionManager<GroupViewModel>(initialSelection: Self.appStorage.groupIds) {
+      Self.appStorage.groupIds = $0
+    }
+    let contentSelectionManager = SelectionManager<ContentViewModel>(initialSelection: Self.appStorage.workflowIds) {
+      Self.appStorage.workflowIds = $0
+    }
+
+    // Coordinators
+    let configCoordinator = ConfigurationCoordinator(
       contentStore: contentStore,
+      selectionManager: configSelectionManager,
       store: contentStore.configurationStore)
-    self.detailCoordinator = DetailCoordinator(applicationStore: applicationStore,
-                                               commandEngine: CommandEngine(NSWorkspace.shared,
-                                                                            scriptEngine: scriptEngine,
-                                                                            keyboardEngine: keyboardEngine),
-                                               contentStore: contentStore,
-                                               keyboardCowboyEngine: engine,
-                                               groupStore: contentStore.groupStore)
+
+    let sidebarCoordinator = SidebarCoordinator(
+      contentStore.groupStore,
+      applicationStore: applicationStore,
+      configSelectionManager: configSelectionManager,
+      groupSelectionManager: groupSelectionManager)
+
+    let contentCoordinator = ContentCoordinator(
+      contentStore.groupStore,
+      applicationStore: applicationStore,
+      contentSelectionManager: contentSelectionManager,
+      groupSelectionManager: groupSelectionManager)
+
+    let detailCoordinator = DetailCoordinator(applicationStore: applicationStore,
+                                              commandEngine: CommandEngine(NSWorkspace.shared,
+                                                                           scriptEngine: scriptEngine,
+                                                                           keyboardEngine: keyboardEngine),
+                                              contentSelectionManager: contentSelectionManager,
+                                              contentStore: contentStore,
+                                              groupSelectionManager: groupSelectionManager,
+                                              keyboardCowboyEngine: engine,
+                                              groupStore: contentStore.groupStore)
+
+
+    self.sidebarCoordinator = sidebarCoordinator
+    self.configurationCoordinator = configCoordinator
+    self.contentCoordinator = contentCoordinator
+    self.detailCoordinator = detailCoordinator
 
     self.contentStore = contentStore
     self.groupStore = contentStore.groupStore
@@ -80,9 +105,6 @@ struct KeyboardCowboy: App {
     Benchmark.isEnabled = launchArguments.isEnabled(.benchmark)
 
     if launchArguments.isEnabled(.injection) { _ = Inject.load }
-
-    contentCoordinator.subscribe(to: groupIdsPublisher.$data)
-    detailCoordinator.subscribe(to: workflowIdsPublisher.$data)
   }
 
   var body: some Scene {
@@ -97,7 +119,11 @@ struct KeyboardCowboy: App {
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
       applyEnvironmentObjects(
-        ContainerView(focus: $containerFocus, selectionManager: contentCoordinator.selectionManager) { action in
+        ContainerView(focus: $containerFocus,
+                      configSelectionManager: configurationCoordinator.selectionManager,
+                      contentSelectionManager: contentCoordinator.selectionManager,
+                      groupsSelectionManager: sidebarCoordinator.selectionManager
+                     ) { action in
           switch action {
           case .openScene(let scene):
             handleScene(scene)
@@ -109,6 +135,7 @@ struct KeyboardCowboy: App {
               configurationCoordinator.handle(sidebarAction)
               sidebarCoordinator.handle(sidebarAction)
               contentCoordinator.handle(sidebarAction)
+              detailCoordinator.handle(sidebarAction)
             }
           case .content(let contentAction):
             Task {
@@ -130,11 +157,11 @@ struct KeyboardCowboy: App {
     .windowStyle(.hiddenTitleBar)
 
     NewCommandWindow(contentStore: contentStore) { workflowId, commandId, title, payload in
-      let groupIds = contentCoordinator.selectionPublisher.data.groupIds
+      let groupIds = contentCoordinator.groupSelectionManager.selections
       Task {
         await detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
                                                    title: title, commandId: commandId)
-        await contentCoordinator.handle(.selectWorkflow(models: [workflowId], inGroups: groupIds))
+        await contentCoordinator.handle(.selectWorkflow(workflowIds: [workflowId], groupIds: groupIds))
         await contentCoordinator.handle(.rerender(groupIds))
       }
     }
@@ -178,10 +205,7 @@ private extension KeyboardCowboy {
       .environmentObject(contentStore.groupStore)
       .environmentObject(configurationCoordinator.publisher)
       .environmentObject(sidebarCoordinator.publisher)
-      .environmentObject(sidebarCoordinator.workflowIdsPublisher)
-      .environmentObject(sidebarCoordinator.groupIdsPublisher)
       .environmentObject(contentCoordinator.publisher)
-      .environmentObject(contentCoordinator.selectionPublisher)
       .environmentObject(detailCoordinator.statePublisher)
       .environmentObject(detailCoordinator.detailPublisher)
       .environmentObject(contentStore.recorderStore)
