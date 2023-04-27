@@ -78,12 +78,17 @@ struct WorkflowApplicationTriggerView: View {
               }
               onAction(.updateApplicationTriggers(triggers))
             },
-            label: { Image(systemName: "xmark") })
+            label: {
+              Image(systemName: "xmark")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 8, height: 8)
+            })
           .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
           .padding(.horizontal, 8)
         }
         .padding(.leading, 8)
-        .background(Color(.windowBackgroundColor).opacity(0.75))
+        .background(Color(.textBackgroundColor).opacity(0.75))
         .cornerRadius(8)
         .shadow(radius: 2)
       }

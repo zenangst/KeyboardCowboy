@@ -33,7 +33,7 @@ struct DetailView: View {
     }
     .animation(.default, value: statePublisher.data)
     .background(
-      Color(nsColor: .windowBackgroundColor).ignoresSafeArea(edges: .all)
+      Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all)
     )
   }
 }

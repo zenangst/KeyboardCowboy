@@ -12,10 +12,10 @@ struct WorkflowShortcutsView: View {
   var body: some View {
     EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
       .frame(minHeight: 48)
-      .padding(.horizontal, 6)
+      .padding(.trailing, 6)
       .background(
-        RoundedRectangle(cornerRadius: 4)
-          .fill(Color(.windowBackgroundColor).opacity(0.25))
+        RoundedRectangle(cornerRadius: 8)
+          .fill(Color(.textBackgroundColor).opacity(0.65))
       )
       .onChange(of: keyboardShortcuts, perform: { newValue in
         onUpdate(newValue)

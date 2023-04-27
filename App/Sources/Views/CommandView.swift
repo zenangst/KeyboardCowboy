@@ -37,7 +37,7 @@ struct CommandView: View {
       .onChange(of: command.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
       })
-      .background(Color(.textBackgroundColor).cornerRadius(8))
+      .background(Color(.windowBackgroundColor).cornerRadius(8))
       .animation(.none, value: command.isEnabled)
       .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
       .opacity(command.isEnabled ? 1 : 0.5)
