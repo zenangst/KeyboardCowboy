@@ -2,6 +2,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct GroupsView: View {
+  @Environment(\.controlActiveState) var controlActiveState
+
   enum Confirm {
     case single(id: GroupViewModel.ID)
     case multiple(ids: [GroupViewModel.ID])
@@ -90,6 +92,7 @@ struct GroupsView: View {
               contextualMenu(for: group, onAction: onAction)
             })
             .tag(group)
+            .listRowBackground(selectedBackground(group))
         }
         .dropDestination(for: DraggableView.self) { items, index in
           for item in items {
@@ -143,6 +146,23 @@ struct GroupsView: View {
       .padding(8)
       .debugEdit()
     }
+  }
+
+  @ViewBuilder
+  func selectedBackground(_ group: GroupViewModel) -> some View {
+    Group {
+      if selectionManager.selections.contains(group.id) {
+        Color(nsColor:
+                focus == .groups
+              ? .init(hex: group.color).blended(withFraction: 0.5, of: .black)!
+              : .init(hex: group.color)
+        )
+      }
+    }
+    .cornerRadius(4, antialiased: true)
+    .padding(.horizontal, 10)
+    .grayscale(controlActiveState == .active ? 0.0 : 0.5)
+    .opacity(focus == .groups ? 1.0 : 0.1)
   }
 
   private func emptyView() -> some View {

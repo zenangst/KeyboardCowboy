@@ -133,13 +133,6 @@ struct KeyboardCowboy: App {
             switch sidebarAction {
             case .openScene(let scene):
               handleScene(scene)
-            case .selectGroups:
-              configurationCoordinator.handle(sidebarAction)
-              sidebarCoordinator.handle(sidebarAction)
-              contentCoordinator.handle(sidebarAction)
-              detailCoordinator.handle(sidebarAction)
-              focus = .workflows
-              resetFocus.callAsFunction(in: namespace)
             default:
               configurationCoordinator.handle(sidebarAction)
               sidebarCoordinator.handle(sidebarAction)
