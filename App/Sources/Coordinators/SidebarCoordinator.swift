@@ -54,8 +54,10 @@ final class SidebarCoordinator {
     case .removeGroups(let ids):
       ids.forEach { selectionManager.selections.remove($0) }
       store.removeGroups(with: ids)
+      render(store.groups)
     case .moveGroups(let source, let destination):
       store.move(source: source, destination: destination)
+      render(store.groups)
     }
   }
 

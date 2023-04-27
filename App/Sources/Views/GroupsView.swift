@@ -2,7 +2,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct GroupsView: View {
-
   enum Confirm {
     case single(id: GroupViewModel.ID)
     case multiple(ids: [GroupViewModel.ID])
@@ -64,16 +63,12 @@ struct GroupsView: View {
               resetFocus.callAsFunction(in: namespace)
             }
             .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
-            .offset(x: 2)
-            .contextMenu(menuItems: {
-              contextualMenu(for: group, onAction: onAction)
-            })
             .overlay(content: {
               HStack {
                 Button(action: { confirmDelete = nil },
                        label: { Image(systemName: "x.circle") })
                 .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
-                .keyboardShortcut(.escape)
+                .keyboardShortcut(.cancelAction)
                 Text("Are you sure?")
                   .font(.footnote)
                 Spacer()
@@ -82,11 +77,16 @@ struct GroupsView: View {
                   onAction(.removeGroups(selectionManager.selections))
                 }, label: { Image(systemName: "trash") })
                 .buttonStyle(.destructiveStyle)
+                .keyboardShortcut(.defaultAction)
               }
               .frame(maxWidth: .infinity, maxHeight: .infinity)
-              .padding(4)
-              .background(Color(.windowBackgroundColor).cornerRadius(8))
+              .background(Color(.windowBackgroundColor).cornerRadius(4))
               .opacity(confirmDelete?.contains(group.id) == true ? 1 : 0)
+              .padding(2)
+            })
+            .offset(x: 2)
+            .contextMenu(menuItems: {
+              contextualMenu(for: group, onAction: onAction)
             })
             .tag(group)
         }
