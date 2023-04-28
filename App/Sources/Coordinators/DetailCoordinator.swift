@@ -84,7 +84,6 @@ final class DetailCoordinator {
       return
     case .addWorkflow(let workflowId):
       render([workflowId], groupIds: groupSelectionManager.selections)
-      return
     case .addCommands:
       return
     }

@@ -39,9 +39,7 @@ final class ContentCoordinator {
     case .selectConfiguration:
       break
     case .selectGroups(let ids):
-      Task {
-        await handle(.rerender(ids))
-      }
+      handle(.rerender(ids))
     case .moveGroups:
       break
     case .removeGroups:
@@ -49,12 +47,12 @@ final class ContentCoordinator {
     }
   }
 
-  func handle(_ action: ContentView.Action) async {
+  func handle(_ action: ContentView.Action) {
     // TODO: We should get rid of this guard.
     guard let id = groupSelectionManager.selections.first,
           var group = store.group(withId: id) else { return }
 
-    await ContentViewActionReducer.reduce(
+    ContentViewActionReducer.reduce(
       action,
       groupStore: store,
       selectionPublisher: selectionManager,

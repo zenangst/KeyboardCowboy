@@ -140,12 +140,10 @@ struct KeyboardCowboy: App {
               detailCoordinator.handle(sidebarAction)
             }
           case .content(let contentAction):
-            Task {
-              await contentCoordinator.handle(contentAction)
-              detailCoordinator.handle(contentAction)
-              if case .addWorkflow = contentAction {
-                DispatchQueue.main.async { focus = .detail(.name) }
-              }
+            contentCoordinator.handle(contentAction)
+            detailCoordinator.handle(contentAction)
+            if case .addWorkflow = contentAction {
+              DispatchQueue.main.async { focus = .detail(.name) }
             }
           case .detail(let detailAction):
             detailCoordinator.handle(detailAction)

@@ -36,6 +36,7 @@ struct GroupsView: View {
   @FocusState var focus: AppFocus?
   @Environment(\.resetFocus) var resetFocus
 
+  private let debounceSelectionManager: DebounceManager<Set<String>>
   private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (Action) -> Void
 
@@ -43,6 +44,7 @@ struct GroupsView: View {
        onAction: @escaping (Action) -> Void) {
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
+    self.debounceSelectionManager = .init(selectionManager.selections, milliseconds: 150, onUpdate: { onAction(.selectGroups($0)) })
   }
 
   @ViewBuilder
@@ -66,33 +68,16 @@ struct GroupsView: View {
             }
             .draggable(DraggableView.group([group]))
             .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
-            .overlay(content: {
-              HStack {
-                Button(action: { confirmDelete = nil },
-                       label: { Image(systemName: "x.circle") })
-                .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
-                .keyboardShortcut(.cancelAction)
-                Text("Are you sure?")
-                  .font(.footnote)
-                Spacer()
-                Button(action: {
-                  confirmDelete = nil
-                  onAction(.removeGroups(selectionManager.selections))
-                }, label: { Image(systemName: "trash") })
-                .buttonStyle(.destructiveStyle)
-                .keyboardShortcut(.defaultAction)
-              }
-              .frame(maxWidth: .infinity, maxHeight: .infinity)
-              .background(Color(.windowBackgroundColor).cornerRadius(4))
-              .opacity(confirmDelete?.contains(group.id) == true ? 1 : 0)
-              .padding(2)
-            })
+            .overlay(content: { confirmDeleteView(group) })
             .offset(x: 2)
             .contextMenu(menuItems: {
               contextualMenu(for: group, onAction: onAction)
             })
             .tag(group)
-            .listRowBackground(selectedBackground(group))
+            .listRowBackground(GroupBackgroundView(
+              isFocused: $focus,
+              selectionManager: selectionManager,
+              group: group))
         }
         .dropDestination(for: DraggableView.self) { items, index in
           for item in items {
@@ -104,6 +89,8 @@ struct GroupsView: View {
                 selections: selectionManager.selections)
               onAction(.moveGroups(source: source, destination: index))
             case .workflow(let workflows):
+              // TODO: Should we move this to the coordinator?
+
               // MARK: Note about .draggable & .dropDestination
               // For some unexplained reason, items is always a single item.
               // This means that the user can only drag a single item between containers (such as dragging a workflow to a different group).
@@ -133,7 +120,7 @@ struct GroupsView: View {
       })
       .onReceive(selectionManager.$selections, perform: { newValue in
         confirmDelete = nil
-        onAction(.selectGroups(newValue))
+        debounceSelectionManager.process(newValue)
       })
       .focused($focus, equals: .groups)
       .debugEdit()
@@ -146,6 +133,28 @@ struct GroupsView: View {
       .padding(8)
       .debugEdit()
     }
+  }
+
+  func confirmDeleteView(_ group: GroupViewModel) -> some View {
+    HStack {
+      Button(action: { confirmDelete = nil },
+             label: { Image(systemName: "x.circle") })
+      .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
+      .keyboardShortcut(.cancelAction)
+      Text("Are you sure?")
+        .font(.footnote)
+      Spacer()
+      Button(action: {
+        confirmDelete = nil
+        onAction(.removeGroups(selectionManager.selections))
+      }, label: { Image(systemName: "trash") })
+      .buttonStyle(.destructiveStyle)
+      .keyboardShortcut(.defaultAction)
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color(.windowBackgroundColor).cornerRadius(4))
+    .opacity(confirmDelete?.contains(group.id) == true ? 1 : 0)
+    .padding(2)
   }
 
   @ViewBuilder

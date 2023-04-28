@@ -26,6 +26,7 @@ struct ContentView: View {
 
   @State var overlayOpacity: CGFloat = 1
 
+  private let debounceSelectionManager: DebounceManager<Set<String>>
   private let moveManager: MoveManager<ContentViewModel> = .init()
   @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
   @ObservedObject private var groupSelectionManager: SelectionManager<GroupViewModel>
@@ -38,6 +39,9 @@ struct ContentView: View {
     _contentSelectionManager = .init(initialValue: contentSelectionManager)
     _groupSelectionManager = .init(initialValue: groupSelectionManager)
     self.onAction = onAction
+    self.debounceSelectionManager = .init(contentSelectionManager.selections, milliseconds: 150, onUpdate: {
+      onAction(.selectWorkflow(workflowIds: $0, groupIds: groupSelectionManager.selections))
+    })
   }
 
   var body: some View {
@@ -59,31 +63,6 @@ struct ContentView: View {
       )
       .debugEdit()
     }
-  }
-
-  private func getColor() -> NSColor {
-    let color: NSColor
-    if let groupId = groupSelectionManager.selections.first,
-       let group = groupsPublisher.data.first(where: { $0.id == groupId }),
-       !group.color.isEmpty {
-      color = .init(hex: group.color).blended(withFraction: 0.4, of: .black)!
-    } else {
-      color = .controlAccentColor
-    }
-    return color
-  }
-
-  @ViewBuilder
-  func selectedBackground(_ workflow: ContentViewModel) -> some View {
-    Group {
-      if contentSelectionManager.selections.contains(workflow.id) {
-        Color(nsColor: getColor())
-      }
-    }
-    .cornerRadius(4, antialiased: true)
-    .padding(.horizontal, 10)
-    .grayscale(controlActiveState == .active ? 0.0 : 0.5)
-    .opacity(focus == .workflows ? 1 : 0.1)
   }
 
   private func list(_ proxy: ScrollViewProxy) -> some View {
@@ -110,7 +89,14 @@ struct ContentView: View {
           })
           .tag(workflow.id)
           .id(workflow.id)
-          .listRowBackground(selectedBackground(workflow))
+          .listRowBackground(
+            ContentBackgroundView(
+              focus: $focus,
+              data: groupsPublisher.data,
+              groupSelectionManager: groupSelectionManager,
+              contentSelectionManager: contentSelectionManager,
+              workflow: workflow)
+          )
       }
       .onMove { source, destination in
         onAction(.moveWorkflows(source: source, destination: destination))
@@ -136,7 +122,7 @@ struct ContentView: View {
       onAction(.removeWorflows(contentSelectionManager.selections))
     })
     .onChange(of: contentSelectionManager.selections, perform: { newValue in
-      onAction(.selectWorkflow(workflowIds: newValue, groupIds: groupSelectionManager.selections))
+      debounceSelectionManager.process(newValue)
       if let first = newValue.first { proxy.scrollTo(first) }
     })
     .toolbar {
@@ -159,6 +145,7 @@ struct ContentView: View {
     }
   }
 
+  @ViewBuilder
   private func headerView() -> some View {
     VStack(alignment: .leading) {
       if let groupId = groupSelectionManager.selections.first,
@@ -186,6 +173,7 @@ struct ContentView: View {
         }
         .padding(.bottom, 4)
         .padding(.leading, 14)
+        .id(group)
       }
 
         Label("Workflows", image: "")
