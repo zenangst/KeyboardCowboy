@@ -4,7 +4,7 @@ final class ContentViewActionReducer {
   @MainActor
   static func reduce(_ action: ContentView.Action,
                      groupStore: GroupStore,
-                     selectionPublisher: SelectionManager<ContentViewModel>,
+                     selectionManager: SelectionManager<ContentViewModel>,
                      group: inout WorkflowGroup) {
     switch action {
     case .moveWorkflowsToGroup(let groupId, let workflows):
@@ -34,7 +34,24 @@ final class ContentViewActionReducer {
       let workflow = Workflow.empty(id: workflowId)
       group.workflows.append(workflow)
     case .removeWorflows(let ids):
+
+      var newIndex = 0
+      for (index, group) in group.workflows.enumerated() {
+        if ids.contains(group.id) { newIndex = index }
+      }
+
       group.workflows.removeAll(where: { ids.contains($0.id) })
+
+      if group.workflows.isEmpty {
+        selectionManager.selections = []
+      } else {
+        if newIndex >= group.workflows.count {
+          newIndex = max(group.workflows.count - 1, 0)
+        }
+        selectionManager.selections = [
+          group.workflows[newIndex].id
+        ]
+      }
     case .moveWorkflows(let source, let destination):
       group.workflows.move(fromOffsets: source, toOffset: destination)
     case .selectWorkflow:

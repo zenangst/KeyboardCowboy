@@ -162,8 +162,8 @@ struct KeyboardCowboy: App {
       Task {
         await detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
                                                    title: title, commandId: commandId)
-        await contentCoordinator.handle(.selectWorkflow(workflowIds: [workflowId], groupIds: groupIds))
-        await contentCoordinator.handle(.rerender(groupIds))
+        contentCoordinator.handle(.selectWorkflow(workflowIds: [workflowId], groupIds: groupIds))
+        contentCoordinator.handle(.rerender(groupIds))
       }
     }
     .defaultSize(.init(width: 520, height: 280))

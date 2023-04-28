@@ -2,17 +2,17 @@ import SwiftUI
 
 struct GroupHeaderView: View {
   @ObservedObject private var groupSelectionManager: SelectionManager<GroupViewModel>
-  let data: [GroupViewModel]
+  @EnvironmentObject private var contentPublisher: ContentPublisher
+  @EnvironmentObject private var groupsPublisher: GroupsPublisher
 
-  init(groupSelectionManager: SelectionManager<GroupViewModel>, data: [GroupViewModel]) {
+  init(groupSelectionManager: SelectionManager<GroupViewModel>) {
     self.groupSelectionManager = groupSelectionManager
-    self.data = data
   }
 
   var body: some View {
     VStack(alignment: .leading) {
       if let groupId = groupSelectionManager.selections.first,
-         let group = data.first(where: { $0.id == groupId }) {
+         let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
         Label("Group", image: "")
           .labelStyle(SidebarLabelStyle())
           .padding(.leading, 8)
@@ -29,7 +29,7 @@ struct GroupHeaderView: View {
           VStack(alignment: .leading) {
             Text(group.name)
               .font(.headline)
-            Text("Workflows: \(group.count)")
+            Text("Workflows: \(contentPublisher.data.count)")
               .font(.caption)
           }
           .frame(maxWidth: .infinity, alignment: .leading)

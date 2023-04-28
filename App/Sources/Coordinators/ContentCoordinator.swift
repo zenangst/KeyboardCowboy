@@ -55,7 +55,7 @@ final class ContentCoordinator {
     ContentViewActionReducer.reduce(
       action,
       groupStore: store,
-      selectionPublisher: selectionManager,
+      selectionManager: selectionManager,
       group: &group)
 
     switch action {

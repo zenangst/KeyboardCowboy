@@ -54,7 +54,7 @@ struct ContentView: View {
   var body: some View {
     ScrollViewReader { proxy in
       VStack(spacing: 0) {
-        GroupHeaderView(groupSelectionManager: groupSelectionManager, data: groupsPublisher.data)
+        GroupHeaderView(groupSelectionManager: groupSelectionManager)
 
         if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
           emptyView()
