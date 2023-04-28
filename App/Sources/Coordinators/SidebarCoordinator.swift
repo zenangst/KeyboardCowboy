@@ -52,9 +52,27 @@ final class SidebarCoordinator {
     case .addConfiguration, .selectConfiguration, .openScene, .selectGroups:
       break
     case .removeGroups(let ids):
+      var newIndex = 0
+      for (index, group) in store.groups.enumerated() {
+        if ids.contains(group.id) { newIndex = index }
+      }
+
       ids.forEach { selectionManager.selections.remove($0) }
       store.removeGroups(with: ids)
       render(store.groups)
+
+      // Clear the selection if the group store is empty
+      if store.groups.isEmpty {
+        selectionManager.selections = []
+      } else {
+        // Check that we are not out of bounds
+        if newIndex >= store.groups.count {
+          newIndex = max(store.groups.count - 1, 0)
+        }
+        selectionManager.selections = [
+          store.groups[newIndex].id
+        ]
+      }
     case .moveGroups(let source, let destination):
       store.move(source: source, destination: destination)
       render(store.groups)
