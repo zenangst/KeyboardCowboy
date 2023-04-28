@@ -37,7 +37,15 @@ struct CommandView: View {
       .onChange(of: command.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
       })
-      .background(Color(.windowBackgroundColor).cornerRadius(8))
+      .background(
+        LinearGradient(stops: [
+          .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.1, of: .white.withAlphaComponent(0.1))!), location: 0.0),
+          .init(color: Color(.windowBackgroundColor), location: 0.01),
+          .init(color: Color(.windowBackgroundColor), location: 0.99),
+          .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.2, of: .black.withAlphaComponent(0.1))!), location: 1.0),
+        ], startPoint: .top, endPoint: .bottom)
+        .cornerRadius(8)
+      )
       .animation(.none, value: command.isEnabled)
       .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
       .opacity(command.isEnabled ? 1 : 0.5)
