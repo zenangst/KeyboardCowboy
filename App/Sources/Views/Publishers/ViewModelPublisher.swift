@@ -5,11 +5,11 @@ final class ViewModelPublisher<ViewModel>: ObservableObject where ViewModel: Has
                                                                   ViewModel: Identifiable {
   @Published var data: ViewModel
 
-  nonisolated init(_ data: ViewModel) {
+  init(_ data: ViewModel) {
     _data = .init(initialValue: data)
   }
 
-  nonisolated convenience init(_ data: () -> ViewModel) {
+  convenience init(_ data: () -> ViewModel) {
     self.init(data())
   }
 

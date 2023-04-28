@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Hashable,
                                                                    ViewModel: Identifiable {
   @Published var data: [ViewModel] = [ViewModel]()
@@ -24,7 +25,6 @@ final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Ha
     self.init([data()])
   }
 
-  @MainActor
   func publish(_ newData: [ViewModel]? = nil) {
     if let newData {
       self.data = newData

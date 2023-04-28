@@ -1,6 +1,10 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+struct GroupDebounce: DebounceSnapshot {
+  let groups: Set<GroupViewModel.ID>
+}
+
 struct GroupsView: View {
   @Environment(\.controlActiveState) var controlActiveState
 
@@ -36,7 +40,7 @@ struct GroupsView: View {
   @FocusState var focus: AppFocus?
   @Environment(\.resetFocus) var resetFocus
 
-  private let debounceSelectionManager: DebounceManager<Set<String>>
+  private let debounceSelectionManager: DebounceManager<GroupDebounce>
   private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (Action) -> Void
 
@@ -44,7 +48,9 @@ struct GroupsView: View {
        onAction: @escaping (Action) -> Void) {
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
-    self.debounceSelectionManager = .init(selectionManager.selections, milliseconds: 150, onUpdate: { onAction(.selectGroups($0)) })
+    self.debounceSelectionManager = .init(.init(groups: selectionManager.selections), milliseconds: 150, onUpdate: { snapshot in
+      onAction(.selectGroups(snapshot.groups))
+    })
   }
 
   @ViewBuilder
@@ -120,7 +126,7 @@ struct GroupsView: View {
       })
       .onReceive(selectionManager.$selections, perform: { newValue in
         confirmDelete = nil
-        debounceSelectionManager.process(newValue)
+        debounceSelectionManager.process(.init(groups: newValue))
       })
       .focused($focus, equals: .groups)
       .debugEdit()

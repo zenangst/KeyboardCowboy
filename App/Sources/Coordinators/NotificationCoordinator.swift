@@ -5,6 +5,7 @@ final class NotificationCoordinator {
   private let mapper: DetailModelMapper
   private var subscription: AnyCancellable?
 
+  @MainActor
   let publisher = ViewModelsPublisher<NotificationViewModel>()
 
   init(_ applicationStore: ApplicationStore) {

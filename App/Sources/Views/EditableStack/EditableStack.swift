@@ -176,6 +176,7 @@ struct EditableStack<Data, Content, NoContent>: View where Content: View,
     self.scrollProxy = scrollProxy
   }
 
+  @ViewBuilder
   var body: some View {
     if let emptyView, data.isEmpty {
         emptyView()

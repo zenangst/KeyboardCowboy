@@ -1,6 +1,7 @@
 import SwiftUI
 
 extension View {
+  @MainActor
   func designTime() -> some View {
    self
       .environmentObject(DesignTime.configurationPublisher)

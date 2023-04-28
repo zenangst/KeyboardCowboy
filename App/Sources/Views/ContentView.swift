@@ -2,6 +2,11 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
+struct ContentDebounce: DebounceSnapshot {
+  let workflows: Set<ContentViewModel.ID>
+  let groups: Set<GroupViewModel.ID>
+}
+
 struct ContentView: View {
   @ObserveInjection var inject
 
@@ -26,7 +31,7 @@ struct ContentView: View {
 
   @State var overlayOpacity: CGFloat = 1
 
-  private let debounceSelectionManager: DebounceManager<Set<String>>
+  private let debounceSelectionManager: DebounceManager<ContentDebounce>
   private let moveManager: MoveManager<ContentViewModel> = .init()
   @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
   @ObservedObject private var groupSelectionManager: SelectionManager<GroupViewModel>
@@ -39,15 +44,18 @@ struct ContentView: View {
     _contentSelectionManager = .init(initialValue: contentSelectionManager)
     _groupSelectionManager = .init(initialValue: groupSelectionManager)
     self.onAction = onAction
-    self.debounceSelectionManager = .init(contentSelectionManager.selections, milliseconds: 150, onUpdate: {
-      onAction(.selectWorkflow(workflowIds: $0, groupIds: groupSelectionManager.selections))
+    self.debounceSelectionManager = .init(
+      ContentDebounce(workflows: contentSelectionManager.selections,
+                      groups: groupSelectionManager.selections), milliseconds: 150, onUpdate: { snapshot in
+      onAction(.selectWorkflow(workflowIds: snapshot.workflows, groupIds: snapshot.groups))
     })
   }
 
   var body: some View {
     ScrollViewReader { proxy in
       VStack(spacing: 0) {
-        headerView()
+        GroupHeaderView(groupSelectionManager: groupSelectionManager, data: groupsPublisher.data)
+
         if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
           emptyView()
         } else {
@@ -122,7 +130,7 @@ struct ContentView: View {
       onAction(.removeWorflows(contentSelectionManager.selections))
     })
     .onChange(of: contentSelectionManager.selections, perform: { newValue in
-      debounceSelectionManager.process(newValue)
+      debounceSelectionManager.process(.init(workflows: newValue, groups: groupSelectionManager.selections))
       if let first = newValue.first { proxy.scrollTo(first) }
     })
     .toolbar {

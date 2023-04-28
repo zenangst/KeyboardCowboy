@@ -1,6 +1,7 @@
 import Foundation
 import Cocoa
 
+@MainActor
 enum DesignTime {
   static let sourceRoot = ProcessInfo.processInfo.environment["SOURCE_ROOT"] ?? "SOURCE_ROOT"
 
@@ -106,8 +107,10 @@ enum DesignTime {
       ], binding: "ƒK", badge: 0, badgeOpacity: 0, isEnabled: true),
     ]
   }
-  
+
+  @MainActor
   static var detailStatePublisher = DetailStatePublisher { .single }
+  @MainActor
   static var detailPublisher = DetailPublisher { DesignTime.detail }
 
   static var applicationCommand: DetailViewModel.CommandViewModel {

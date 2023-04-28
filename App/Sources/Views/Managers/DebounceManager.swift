@@ -1,19 +1,21 @@
 import Combine
 import Foundation
 
-final class DebounceManager<T> {
-  private var subscription: AnyCancellable?
-  private let subject = PassthroughSubject<T, Never>()
-  @Published var value: T
+protocol DebounceSnapshot { }
 
-  init(_ initialValue: T, milliseconds: Int, onUpdate: @escaping (T) -> Void) {
-    _value = .init(initialValue: initialValue)
+final class DebounceManager<Snapshot: DebounceSnapshot> {
+  private var subscription: AnyCancellable?
+  private let subject = PassthroughSubject<Snapshot, Never>()
+  @Published var snapshot: Snapshot
+
+  init(_ initialValue: Snapshot, milliseconds: Int, onUpdate: @escaping (Snapshot) -> Void) {
+    _snapshot = .init(initialValue: initialValue)
     subscription = subject
       .debounce(for: .milliseconds(milliseconds), scheduler: DispatchQueue.main)
       .sink { onUpdate($0) }
   }
 
-  func process(_ newValue: T) {
-    subject.send(newValue)
+  func process(_ snapshot: Snapshot) {
+    subject.send(snapshot)
   }
 }
