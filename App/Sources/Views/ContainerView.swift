@@ -62,7 +62,6 @@ struct ContainerView: View {
       detail: {
         DetailView(focus, onAction: { onAction(.detail($0)) })
           .edgesIgnoringSafeArea(.top)
-          .focusSection()
       })
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)

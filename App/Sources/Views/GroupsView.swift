@@ -64,72 +64,79 @@ struct GroupsView: View {
 
   private func contentView() -> some View {
     VStack(spacing: 0) {
-      List(selection: $selectionManager.selections) {
-        ForEach(publisher.data) { group in
-          SidebarItemView(group, selectionManager: selectionManager, onAction: onAction)
-            .contentShape(Rectangle())
-            .onTapGesture {
-              focus = .groups
-              selectionManager.handleOnTap(publisher.data, element: group)
-            }
-            .draggable(DraggableView.group([group]))
-            .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
-            .overlay(content: { confirmDeleteView(group) })
-            .offset(x: 2)
-            .contextMenu(menuItems: {
-              contextualMenu(for: group, onAction: onAction)
-            })
-            .tag(group)
-            .listRowBackground(GroupBackgroundView(
-              isFocused: $focus,
-              selectionManager: selectionManager,
-              group: group))
-        }
-        .dropDestination(for: DraggableView.self) { items, index in
-          for item in items {
-            switch item {
-            case .group(let groups):
-              let source = moveManager.onDropDestination(
-                groups, index: index,
-                data: publisher.data,
-                selections: selectionManager.selections)
-              onAction(.moveGroups(source: source, destination: index))
-            case .workflow(let workflows):
-              // TODO: Should we move this to the coordinator?
-
-              // MARK: Note about .draggable & .dropDestination
-              // For some unexplained reason, items is always a single item.
-              // This means that the user can only drag a single item between containers (such as dragging a workflow to a different group).
-              // Will investigate this further when we receive newer updates of macOS.
-              let index = max(index-1,0)
-              let group = groupStore.groups[index]
-              let workflowIds = Set(workflows.map(\.id))
-              if NSEvent.modifierFlags.contains(.option) {
-                groupStore.copy(workflowIds, to: group.id)
-              } else {
-                groupStore.move(workflowIds, to: group.id)
+      ScrollViewReader { proxy in
+        List(selection: $selectionManager.selections) {
+          ForEach(publisher.data) { group in
+            SidebarItemView(group, selectionManager: selectionManager, onAction: onAction)
+              .contentShape(Rectangle())
+              .onTapGesture {
+                focus = .groups
+                selectionManager.handleOnTap(publisher.data, element: group)
               }
-              selectionManager.selections = [group.id]
+              .draggable(DraggableView.group([group]))
+              .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
+              .overlay(content: { confirmDeleteView(group) })
+              .offset(x: 2)
+              .contextMenu(menuItems: {
+                contextualMenu(for: group, onAction: onAction)
+              })
+              .tag(group)
+              .listRowBackground(GroupBackgroundView(
+                isFocused: $focus,
+                selectionManager: selectionManager,
+                group: group))
+          }
+          .dropDestination(for: DraggableView.self) { items, index in
+            for item in items {
+              switch item {
+              case .group(let groups):
+                let source = moveManager.onDropDestination(
+                  groups, index: index,
+                  data: publisher.data,
+                  selections: selectionManager.selections)
+                onAction(.moveGroups(source: source, destination: index))
+              case .workflow(let workflows):
+                // TODO: Should we move this to the coordinator?
+
+                // MARK: Note about .draggable & .dropDestination
+                // For some unexplained reason, items is always a single item.
+                // This means that the user can only drag a single item between containers (such as dragging a workflow to a different group).
+                // Will investigate this further when we receive newer updates of macOS.
+                let index = max(index-1,0)
+                let group = groupStore.groups[index]
+                let workflowIds = Set(workflows.map(\.id))
+                if NSEvent.modifierFlags.contains(.option) {
+                  groupStore.copy(workflowIds, to: group.id)
+                } else {
+                  groupStore.move(workflowIds, to: group.id)
+                }
+                selectionManager.selections = [group.id]
+              }
             }
           }
+          .onMove { source, destination in
+            onAction(.moveGroups(source: source, destination: destination))
+          }
         }
-        .onMove { source, destination in
-          onAction(.moveGroups(source: source, destination: destination))
+        .onDeleteCommand(perform: {
+          if publisher.data.count > 1 {
+            confirmDelete = .multiple(ids: Array(selectionManager.selections))
+          } else if let first = publisher.data.first {
+            confirmDelete = .single(id: first.id)
+          }
+        })
+        .onReceive(selectionManager.$selections, perform: { newValue in
+          confirmDelete = nil
+          debounceSelectionManager.process(.init(groups: newValue))
+        })
+        .focused($focus, equals: .groups)
+        .onAppear {
+          if let firstSelection = selectionManager.selections.first {
+            proxy.scrollTo(firstSelection)
+          }
         }
+        .debugEdit()
       }
-      .onDeleteCommand(perform: {
-        if publisher.data.count > 1 {
-          confirmDelete = .multiple(ids: Array(selectionManager.selections))
-        } else if let first = publisher.data.first {
-          confirmDelete = .single(id: first.id)
-        }
-      })
-      .onReceive(selectionManager.$selections, perform: { newValue in
-        confirmDelete = nil
-        debounceSelectionManager.process(.init(groups: newValue))
-      })
-      .focused($focus, equals: .groups)
-      .debugEdit()
 
       AddButtonView("Add Group") {
         onAction(.openScene(.addGroup))
