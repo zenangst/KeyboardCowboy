@@ -67,7 +67,7 @@ struct GroupsView: View {
       ScrollViewReader { proxy in
         List(selection: $selectionManager.selections) {
           ForEach(publisher.data) { group in
-            SidebarItemView(group, selectionManager: selectionManager, onAction: onAction)
+            GroupItemView(group, selectionManager: selectionManager, onAction: onAction)
               .contentShape(Rectangle())
               .onTapGesture {
                 focus = .groups

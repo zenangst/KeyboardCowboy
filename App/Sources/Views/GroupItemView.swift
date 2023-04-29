@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SidebarItemView: View {
+struct GroupItemView: View {
   @ObserveInjection var inject
   @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject var groupsPublisher: GroupsPublisher
