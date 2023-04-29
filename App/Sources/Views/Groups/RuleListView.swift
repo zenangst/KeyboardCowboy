@@ -4,16 +4,13 @@ import SwiftUI
 struct RuleListView: View {
   @ObservedObject var applicationStore: ApplicationStore
   @Binding var group: WorkflowGroup
-  @State var selection: String = ""
 
   var body: some View {
     VStack(alignment: .leading) {
       Label("Rules", image: "")
         .labelStyle(HeaderLabelStyle())
       HStack {
-        Picker("Application",
-               selection: $selection,
-               content: {
+        Menu("Application") {
           ForEach(applicationStore.applications.filter({
             if let rule = group.rule {
               return !rule.bundleIdentifiers.contains($0.bundleIdentifier)
@@ -21,18 +18,16 @@ struct RuleListView: View {
               return true
             }
           }), id: \.bundleIdentifier) { application in
-            Text(application.displayName)
-              .id(application.bundleIdentifier)
+            Button {
+              if group.rule == .none {
+                group.rule = .init()
+              }
+              group.rule?.bundleIdentifiers.append(application.bundleIdentifier)
+            } label: {
+              Text(application.displayName)
+            }
           }
-        })
-        Spacer()
-        Button(action: {
-          guard !selection.isEmpty else { return }
-          if group.rule == .none {
-            group.rule = .init()
-          }
-          group.rule?.bundleIdentifiers.append(selection)
-        }, label: { Text("Add") })
+        }
       }
       if let rule = group.rule {
         ForEach(rule.bundleIdentifiers, id: \.self) { bundleIdentifier in
