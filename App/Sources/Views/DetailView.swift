@@ -23,7 +23,9 @@ struct DetailView: View {
       switch statePublisher.data {
       case .empty:
         Text("Empty")
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
           .allowsHitTesting(false)
+          .debugEdit()
       case .single:
         SingleDetailView(
           focus,

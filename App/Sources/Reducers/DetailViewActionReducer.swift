@@ -1,13 +1,19 @@
 import Apps
 import Foundation
 
+enum DetailViewActionReducerResult {
+  case animated
+  case rerender
+  case none
+}
+
 final class DetailViewActionReducer {
   static func reduce(_ action: DetailView.Action,
                      commandEngine: CommandEngine,
                      keyboardCowboyEngine: KeyboardCowboyEngine,
                      applicationStore: ApplicationStore,
-                     workflow: inout Workflow) -> Bool {
-    var result: Bool = true
+                     workflow: inout Workflow) -> DetailViewActionReducerResult {
+    var result: DetailViewActionReducerResult = .rerender
     switch action {
     case .singleDetailView(let action):
       switch action {
@@ -23,12 +29,13 @@ final class DetailViewActionReducer {
           workflow: &workflow)
       case .moveCommand(_, let fromOffsets, let toOffset):
         workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
+        result = .animated
       case .updateName(_, let name):
         workflow.name = name
-        result = false
+        result = .none
       case .setIsEnabled(_, let isEnabled):
         workflow.isEnabled = isEnabled
-        result = false
+        result = .none
       case .removeCommands(_, let commandIds):
         workflow.commands.removeAll(where: { commandIds.contains($0.id) })
       case .trigger(_, let action):
@@ -113,7 +120,7 @@ final class DetailViewActionReducer {
         case .serial:
           commandEngine.serialRun(commands)
         }
-        return false
+        return .none
       }
     }
     return result
