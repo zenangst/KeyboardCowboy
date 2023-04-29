@@ -162,6 +162,11 @@ struct ContentView: View {
         }
       }
     }
+    .onAppear {
+      if let firstSelection = contentSelectionManager.selections.first {
+        proxy.scrollTo(firstSelection)
+      }
+    }
   }
 
   @ViewBuilder
