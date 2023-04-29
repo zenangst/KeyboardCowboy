@@ -73,6 +73,17 @@ struct ContentView: View {
     }
   }
 
+  private func getDraggedWorkflows(_ workflow: ContentViewModel) -> [ContentViewModel] {
+    let workflows: [ContentViewModel]
+    if contentSelectionManager.selections.contains(workflow.id) {
+      workflows = publisher.data
+        .filter { contentSelectionManager.selections.contains($0.id) }
+    } else {
+      workflows = [workflow]
+    }
+    return workflows
+  }
+
   private func list(_ proxy: ScrollViewProxy) -> some View {
     List(selection: $contentSelectionManager.selections) {
       ForEach(publisher.data) { workflow in
@@ -82,7 +93,7 @@ struct ContentView: View {
             contentSelectionManager.handleOnTap(publisher.data, element: workflow)
             focus = .workflows
           }
-          .draggable(DraggableView.workflow([workflow]))
+          .draggable(DraggableView.workflow(getDraggedWorkflows(workflow)))
           .onFrameChange(perform: { rect in
             // TODO: (Quickfix) Find a better solution for contentOffset observation.
             if workflow == publisher.data.first && rect.origin.y != 52 {
