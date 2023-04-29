@@ -49,7 +49,9 @@ final class SidebarCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .addConfiguration, .selectConfiguration, .openScene, .selectGroups:
+    case .selectConfiguration:
+      render(store.groups)
+    case .addConfiguration, .openScene, .selectGroups:
       break
     case .removeGroups(let ids):
       var newIndex = 0

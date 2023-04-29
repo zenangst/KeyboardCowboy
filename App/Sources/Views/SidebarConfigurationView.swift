@@ -6,7 +6,7 @@ struct SidebarConfigurationView: View {
     case selectConfiguration(ConfigurationViewModel.ID)
   }
   @EnvironmentObject private var publisher: ConfigurationPublisher
-  let selectionManager: SelectionManager<ConfigurationViewModel>
+  @ObservedObject var selectionManager: SelectionManager<ConfigurationViewModel>
 
   @State var popoverIsPresented = false
   @State var configurationName: String = ""
@@ -29,7 +29,7 @@ struct SidebarConfigurationView: View {
         } label: {
           HStack {
             // TODO: Fix this!
-            Text(publisher.data.first(where: { selectionManager.selections.contains($0.id) })?.name ?? "Missing value" )
+            Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value" )
               .lineLimit(1)
             Spacer()
             Image(systemName: "chevron.down")

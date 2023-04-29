@@ -25,37 +25,37 @@ final class ConfigurationCoordinator {
   }
 
   func handle(_ action: SidebarView.Action) {
-    Task {
-      switch action {
-      case .selectConfiguration(let id):
-        if let configuration = store.selectConfiguration(withId: id) {
-          contentStore.use(configuration)
-        }
-      case .addConfiguration(let name):
-        let configuration = KeyboardCowboyConfiguration(id: UUID().uuidString, name: name, groups: [])
-        store.add(configuration)
+    switch action {
+    case .selectConfiguration(let id):
+      if let configuration = store.selectConfiguration(withId: id) {
         contentStore.use(configuration)
-      default:
-        break
+        render(selectedConfiguration: configuration)
       }
+    case .addConfiguration(let name):
+      let configuration = KeyboardCowboyConfiguration(id: UUID().uuidString, name: name, groups: [])
+      store.add(configuration)
+      contentStore.use(configuration)
+    default:
+      break
     }
   }
 
   private func render(selectedConfiguration: KeyboardCowboyConfiguration?) {
-    Task {
-      var selections = [ConfigurationViewModel]()
-      let configurations = store.configurations
-        .map { configuration in
-          let viewModel = ConfigurationViewModel(id: configuration.id, name: configuration.name)
+    var selections = [ConfigurationViewModel]()
+    let configurations = store.configurations
+      .map { configuration in
+        let viewModel = ConfigurationViewModel(
+          id: configuration.id,
+          name: configuration.name,
+          selected: selectedConfiguration?.id == configuration.id)
 
-          if let selectedConfiguration, configuration.id == selectedConfiguration.id {
-            selections.append(viewModel)
-          }
-
-          return viewModel
+        if let selectedConfiguration, configuration.id == selectedConfiguration.id {
+          selections.append(viewModel)
         }
 
-      publisher.publish(configurations)
-    }
+        return viewModel
+      }
+
+    publisher.publish(configurations)
   }
 }

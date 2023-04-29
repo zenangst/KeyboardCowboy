@@ -7,8 +7,8 @@ enum DesignTime {
 
   static var configurationPublisher = ConfigurationPublisher {
     [
-      ConfigurationViewModel(id: UUID().uuidString, name: UUID().uuidString),
-      ConfigurationViewModel(id: UUID().uuidString, name: UUID().uuidString),
+      ConfigurationViewModel(id: UUID().uuidString, name: UUID().uuidString, selected: false),
+      ConfigurationViewModel(id: UUID().uuidString, name: UUID().uuidString, selected: false),
     ]
   }
 
