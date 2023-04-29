@@ -59,7 +59,7 @@ struct SingleDetailView: View {
             .fill(
               LinearGradient(stops: [
                 .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.3, of: .white)!), location: 0.0),
-                .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.1, of: .white)!), location: 0.01),
+                .init(color: Color(nsColor: .windowBackgroundColor), location: 0.01),
                 .init(color: Color(nsColor: .windowBackgroundColor), location: 0.8),
                 .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.3, of: .black)!), location: 1.0),
               ], startPoint: .top, endPoint: .bottom)
