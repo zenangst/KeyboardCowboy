@@ -27,23 +27,16 @@ struct SidebarConfigurationView: View {
                    label: { Text(configuration.name) })
           }
         } label: {
-          HStack {
-            // TODO: Fix this!
-            Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value" )
-              .lineLimit(1)
-            Spacer()
-            Image(systemName: "chevron.down")
-          }
-          .fixedSize(horizontal: false, vertical: true)
-          .allowsTightening(true)
-          .contentShape(Rectangle())
+          Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value" )
+            .lineLimit(1)
+            .fixedSize(horizontal: false, vertical: true)
+            .allowsTightening(true)
+            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-
-        Spacer()
+        .menuStyle(IconMenuStyle())
       }
       .padding(.horizontal, 6)
-      .padding(.vertical, 4)
+      .padding(.vertical, 3)
       .background(
         ZStack {
           RoundedRectangle(cornerRadius: 4)
@@ -55,6 +48,10 @@ struct SidebarConfigurationView: View {
         popoverIsPresented = true
       }, label: {
         Image(systemName: "plus")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(height: 12)
+          .padding(2)
       })
       .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
       .popover(isPresented: $popoverIsPresented) {
