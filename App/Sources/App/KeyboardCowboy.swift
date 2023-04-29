@@ -57,7 +57,9 @@ struct KeyboardCowboy: App {
                                       workspace: .shared)
 
     // Selections
-    let configSelectionManager = SelectionManager<ConfigurationViewModel>()
+    let configSelectionManager = SelectionManager<ConfigurationViewModel>(initialSelection: [Self.appStorage.configId]) {
+      Self.appStorage.configId = $0.first ?? ""
+    }
     let groupSelectionManager = SelectionManager<GroupViewModel>(initialSelection: Self.appStorage.groupIds) {
       Self.appStorage.groupIds = $0
     }
