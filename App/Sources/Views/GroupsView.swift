@@ -190,13 +190,24 @@ struct GroupsView: View {
 
   private func emptyView() -> some View {
     VStack {
-      HStack {
-        AddButtonView("Add Group") {
+      Button(action: {
+        withAnimation {
           onAction(.openScene(.addGroup))
         }
-        .frame(maxWidth: .infinity)
-        .font(.headline)
-      }
+      }, label: {
+        HStack(spacing: 8) {
+          Image(systemName: "plus.circle")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 16, height: 16)
+          Divider()
+            .opacity(0.5)
+          Text("Add Group")
+        }
+        .padding(4)
+      })
+      .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+      .frame(maxHeight: 32)
 
       Text("No groups yet.\nAdd a group to get started.")
         .multilineTextAlignment(.center)
