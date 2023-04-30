@@ -161,6 +161,8 @@ struct KeyboardCowboy: App {
     }
     .windowStyle(.hiddenTitleBar)
 
+    OnboardingScene()
+
     NewCommandWindow(contentStore: contentStore) { workflowId, commandId, title, payload in
       let groupIds = contentCoordinator.groupSelectionManager.selections
       Task {
@@ -185,6 +187,8 @@ struct KeyboardCowboy: App {
   private func handleScene(_ scene: AppScene) {
     guard KeyboardCowboy.env != .designTime else { return }
     switch scene {
+    case .onboarding:
+      openWindow(id: KeyboardCowboy.onboardingWindowIdentifier)
     case .mainWindow:
       if let mainWindow = KeyboardCowboy.mainWindow {
         mainWindow.makeKeyAndOrderFront(nil)

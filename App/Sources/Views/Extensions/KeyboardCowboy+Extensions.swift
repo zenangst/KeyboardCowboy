@@ -2,6 +2,7 @@ import Cocoa
 
 extension KeyboardCowboy {
   static let mainWindowIdentifier = "MainWindow"
+  static let onboardingWindowIdentifier = "OnboardingWindow"
 
   static var bundleIdentifier: String { Bundle.main.bundleIdentifier! }
 
