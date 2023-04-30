@@ -138,15 +138,22 @@ struct EditableKeyboardShortcutsView: View {
       Button(action: {
         addButtonAction(proxy)
       }, label: {
-        HStack(spacing: 0) {
+        HStack(spacing: 8) {
           Spacer()
           Text("Click to record a keyboard shortcut")
             .padding(6)
             .frame(maxWidth: .infinity)
           Spacer()
+          Divider()
+            .opacity(0.5)
+          Image(systemName: "plus.circle")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 16, height: 16)
         }
       })
       .buttonStyle(GradientButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
+      .padding(.horizontal, 6)
     }
   }
 

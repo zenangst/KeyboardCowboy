@@ -35,6 +35,7 @@ struct GradientButtonStyle: ButtonStyle {
     configuration.label
       .padding(.vertical, config.padding)
       .padding(.horizontal, config.padding * 1.5)
+      .foregroundColor(Color(.textColor))
       .background(
         RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
           .fill(
@@ -52,9 +53,6 @@ struct GradientButtonStyle: ButtonStyle {
           .offset(y: 0.25)
       )
       .grayscale(config.grayscaleEffect ? isHovered ? 0 : 1 : 0)
-      .foregroundColor(
-        Color(.labelColor)
-      )
       .compositingGroup()
       .shadow(color: Color.black.opacity(isHovered ? 0.5 : 0),
               radius: configuration.isPressed ? 0 : isHovered ? 1 : 1.25,

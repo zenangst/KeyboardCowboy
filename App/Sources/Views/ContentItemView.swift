@@ -22,13 +22,13 @@ struct ContentItemView: View {
             .allowsTightening(true)
             .bold()
             .font(.caption2)
+            .padding(2)
             .background(
-              Color.accentColor
-                .cornerRadius(32)
+              Circle()
+                .fill(Color.accentColor)
             )
             .frame(maxWidth: 12)
             .offset(x: 4, y: 0)
-            .padding(2)
             .compositingGroup()
             .shadow(color: .black.opacity(0.75), radius: 2)
             .opacity(workflow.badgeOpacity)

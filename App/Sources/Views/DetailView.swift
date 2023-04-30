@@ -22,8 +22,7 @@ struct DetailView: View {
     Group {
       switch statePublisher.data {
       case .empty:
-        Text("Empty")
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+        DetailEmptyView()
           .allowsHitTesting(false)
           .debugEdit()
       case .single:
@@ -38,7 +37,7 @@ struct DetailView: View {
         MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
       }
     }
-    .animation(.default, value: statePublisher.data)
+    .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
     .background(
       Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all)
     )

@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentImagesView: View {
   @ObserveInjection var inject
   let images: [ContentViewModel.ImageModel]
+  @State var isHovered: Bool = false
 
   var body: some View {
     ZStack {
@@ -23,6 +24,13 @@ struct ContentImagesView: View {
       } else {
         ForEach(images) { image in
           ContentImageView(image: image)
+            .rotationEffect(.degrees(-(isHovered ? -20 * image.offset : 3.75 * image.offset)))
+            .offset(.init(width: -(image.offset * (isHovered ? -8 : 1.25)),
+                          height: image.offset * (isHovered ? 1.25 : 1.25)))
+        }
+        .animation(.default, value: isHovered)
+        .onHover { newValue in
+          isHovered = newValue
         }
       }
     }

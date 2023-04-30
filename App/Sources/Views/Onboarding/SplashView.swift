@@ -9,7 +9,6 @@ struct SplashView: View {
       Canvas(rendersAsynchronously: true) { context, size in
         context.fill(path(), with: .color(.white))
       }
-      .blur(radius: 40)
       .offset(x: animating ? 80 : 180,
               y: animating ? 80 : 180)
       .opacity(0.2)
@@ -21,7 +20,6 @@ struct SplashView: View {
       }
       .scaleEffect(done ? 4 : 1.75)
       .rotationEffect(.degrees(animating ? 45 : 10))
-      .blur(radius: 40)
       .opacity(0.7)
       .offset(x: animating ? 80 : 180,
               y: animating ? 80 : 180)
@@ -34,13 +32,14 @@ struct SplashView: View {
       }
       .scaleEffect(done ? 2 : 0.75)
       .rotationEffect(.degrees(animating ? 45 : -45))
-      .blur(radius: 40)
+
       .offset(x: animating ? 80 : 180,
               y: animating ? 80 : 180)
       .opacity(0.4)
       .animation(.easeInOut(duration: 3.75).repeatForever(), value: animating)
       .animation(.easeInOut(duration: 1.0), value: done)
     }
+    .blur(radius: 40)
     .background(Color(red: 22/255, green: 23/255, blue: 48/255))
     .onAppear {
       animating = true

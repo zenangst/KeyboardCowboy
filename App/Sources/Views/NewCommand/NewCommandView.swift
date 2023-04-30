@@ -178,7 +178,7 @@ struct NewCommandView: View {
         Button(action: onDismiss, label: { Text("Cancel") })
           .buttonStyle(.gradientStyle(config: .init(nsColor: .red, grayscaleEffect: true)))
         Button(action: onSubmit, label: { Text("Save") })
-          .buttonStyle(.saveStyle)
+          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
           .keyboardShortcut(.defaultAction)
       }
       .buttonStyle(.appStyle)

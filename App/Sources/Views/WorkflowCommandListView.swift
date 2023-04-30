@@ -43,6 +43,9 @@ struct WorkflowCommandListView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 16, height: 16)
+              Divider()
+                .opacity(0.5)
+
               Text("Add a command")
             }
             .padding(.vertical, 4)

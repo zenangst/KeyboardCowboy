@@ -10,9 +10,6 @@ struct ContentImageView: View {
         IconView(icon: icon, size: .init(width: 32, height: 32))
           .id(icon)
       }
-        .rotationEffect(.degrees(-(3.75 * image.offset)))
-        .offset(.init(width: -(image.offset * 1.25),
-                      height: image.offset * 1.25))
     case .command(let kind):
       switch kind {
       case .keyboard(let keys):
