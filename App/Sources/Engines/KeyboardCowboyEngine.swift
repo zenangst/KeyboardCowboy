@@ -45,7 +45,7 @@ final class KeyboardCowboyEngine {
 
     contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
 
-    guard !isRunningPreview else { return }
+    guard KeyboardCowboy.env != .designTime else { return }
 
     guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 

@@ -123,5 +123,6 @@ let project = Project(
         FileElement(stringLiteral: "Project.swift"),
         FileElement(stringLiteral: "Tuist/Dependencies.swift"),
         FileElement(stringLiteral: "Fixtures"),
+        FileElement(stringLiteral: "gh-pages"),
     ]
 )

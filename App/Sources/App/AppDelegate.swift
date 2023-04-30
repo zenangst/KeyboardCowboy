@@ -14,8 +14,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     FileLogger.log("🤠 \(#function)")
     switch KeyboardCowboy.env {
+    case .designTime:
+      break
     case .development:
-      guard !isRunningPreview else { return }
       KeyboardCowboy.activate()
       return
       self.windowController.showWindow(nil)

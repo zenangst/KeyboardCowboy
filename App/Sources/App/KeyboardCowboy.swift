@@ -4,6 +4,8 @@ import SwiftUI
 import LaunchArguments
 @_exported import Inject
 
+private let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
+
 @main
 struct KeyboardCowboy: App {
   static private var appStorage: AppStorageStore = .init()
@@ -23,7 +25,7 @@ struct KeyboardCowboy: App {
   private let engine: KeyboardCowboyEngine
 #if DEBUG
   static let config: AppPreferences = .designTime()
-  static let env: AppEnvironment = .development
+  static let env: AppEnvironment = isRunningPreview ? .designTime : .development
 #else
   static let config: AppPreferences = .user()
   static let env: AppEnvironment = .production
@@ -181,7 +183,7 @@ struct KeyboardCowboy: App {
   }
 
   private func handleScene(_ scene: AppScene) {
-    guard !isRunningPreview else { return }
+    guard KeyboardCowboy.env != .designTime else { return }
     switch scene {
     case .mainWindow:
       if let mainWindow = KeyboardCowboy.mainWindow {

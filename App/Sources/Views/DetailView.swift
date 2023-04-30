@@ -50,5 +50,6 @@ struct DetailView_Previews: PreviewProvider {
   static var previews: some View {
     DetailView($focus) { _ in }
       .designTime()
+      .frame(height: 650)
   }
 }

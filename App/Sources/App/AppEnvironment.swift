@@ -3,4 +3,5 @@ enum AppEnvironment: String, Hashable, Identifiable {
 
   case development
   case production
+  case designTime
 }
