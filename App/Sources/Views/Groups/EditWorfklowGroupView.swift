@@ -1,11 +1,16 @@
 import SwiftUI
 
 struct EditWorfklowGroupView: View {
+  enum Focus {
+    case name
+  }
   enum Action {
     case ok(WorkflowGroup)
     case cancel
   }
 
+  @Namespace var namespace
+  @FocusState var focus: Focus?
   @ObservedObject var applicationStore: ApplicationStore
   @State var editIcon: WorkflowGroup?
   @State var group: WorkflowGroup
@@ -15,6 +20,7 @@ struct EditWorfklowGroupView: View {
     VStack(alignment: .leading, spacing: 0) {
       HStack {
         WorkflowGroupIconView(group: $group, size: 48)
+          .contentShape(Circle())
           .onTapGesture {
             editIcon = group
           }
@@ -24,8 +30,14 @@ struct EditWorfklowGroupView: View {
           .cornerRadius(24, antialiased: true)
         TextField("Name:", text: $group.name)
           .textFieldStyle(LargeTextFieldStyle())
-          .onSubmit { action(.ok(group)) }
-      }.padding()
+          .prefersDefaultFocus(in: namespace)
+          .focused($focus, equals: .name)
+      }
+      .padding()
+      .onAppear {
+        focus = .name
+      }
+
       Divider()
       ScrollView {
         RuleListView(applicationStore: applicationStore,
@@ -47,23 +59,27 @@ struct EditWorfklowGroupView: View {
       Divider()
 
       HStack {
-        Spacer()
-        Group {
-          Button(role: .cancel) {
-            action(.cancel)
-          } label: {
-            Text("Cancel")
-              .frame(minWidth: 40)
-          }
-
-          Button(action: { action(.ok(group)) }) {
-            Text("OK")
-              .frame(minWidth: 40)
-          }
+        Button(role: .cancel) {
+          action(.cancel)
+        } label: {
+          Text("Cancel")
+            .frame(minWidth: 40)
         }
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed)))
+        .keyboardShortcut(.cancelAction)
+
+        Spacer()
+
+        Button(action: { action(.ok(group)) }) {
+          Text("OK")
+            .frame(minWidth: 40)
+        }
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
+        .keyboardShortcut(.defaultAction)
       }
       .padding()
     }
+    .focusScope(namespace)
     .frame(minWidth: 520, minHeight: 400)
   }
 }

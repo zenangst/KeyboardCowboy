@@ -9,6 +9,7 @@ struct WorkflowGroupIconView: View {
   var body: some View {
     Rectangle()
       .fill(Color(hex: group.color))
+      .contentShape(Circle())
       .overlay(overlay)
       .frame(width: size, height: size, alignment: .center)
       .shadow(
@@ -33,7 +34,8 @@ struct WorkflowGroupIconView: View {
         .font(.caption)
         .offset(x: 0, y: 15)
         .opacity(isHovering ? 1.0 : 0.0)
-    }.cursorOnHover(.pointingHand)
+    }
+    .cursorOnHover(.pointingHand)
   }
 }
 
