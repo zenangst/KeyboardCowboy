@@ -158,6 +158,7 @@ struct GroupsView: View {
         .font(.footnote)
       Spacer()
       Button(action: {
+        guard confirmDelete != nil else { return }
         confirmDelete = nil
         onAction(.removeGroups(selectionManager.selections))
       }, label: { Image(systemName: "trash") })
