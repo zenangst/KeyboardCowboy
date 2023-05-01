@@ -50,7 +50,7 @@ struct GroupsView: View {
        onAction: @escaping (Action) -> Void) {
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
-    self.debounceSelectionManager = .init(.init(groups: selectionManager.selections), milliseconds: 150, onUpdate: { snapshot in
+    self.debounceSelectionManager = .init(.init(groups: selectionManager.selections), milliseconds: 100, onUpdate: { snapshot in
       onAction(.selectGroups(snapshot.groups))
     })
   }

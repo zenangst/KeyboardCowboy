@@ -46,7 +46,7 @@ struct ContentView: View {
     self.onAction = onAction
     self.debounceSelectionManager = .init(
       ContentDebounce(workflows: contentSelectionManager.selections,
-                      groups: groupSelectionManager.selections), milliseconds: 150, onUpdate: { snapshot in
+                      groups: groupSelectionManager.selections), milliseconds: 100, onUpdate: { snapshot in
       onAction(.selectWorkflow(workflowIds: snapshot.workflows, groupIds: snapshot.groups))
     })
   }
