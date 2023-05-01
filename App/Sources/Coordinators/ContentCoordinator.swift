@@ -47,6 +47,15 @@ final class ContentCoordinator {
     }
   }
 
+  func handle(_ context: EditWorkflowGroupWindow.Context) {
+    switch context {
+    case .add(let workflowGroup):
+      render([workflowGroup.id])
+    case .edit(let workflowGroup):
+      render([workflowGroup.id])
+    }
+  }
+
   func handle(_ action: ContentView.Action) {
     // TODO: We should get rid of this guard.
     guard let id = groupSelectionManager.selections.first,
