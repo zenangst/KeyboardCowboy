@@ -39,11 +39,15 @@ final class DetailCoordinator {
     case .moveWorkflows, .copyWorkflows:
       render(contentSelectionManager.selections,
              groupIds: groupSelectionManager.selections)
+    case .moveGroups, .removeGroups:
+      render(contentSelectionManager.selections,
+             groupIds: groupSelectionManager.selections)
+    case .selectConfiguration:
+      render(contentSelectionManager.selections,
+             groupIds: groupSelectionManager.selections)
     case .openScene:
       break
     case .addConfiguration:
-      break
-    case .selectConfiguration:
       break
     case .selectGroups(let array):
       if let firstId = array.first,
@@ -60,10 +64,6 @@ final class DetailCoordinator {
         }
         render(workflowIds, groupIds: Set(array))
       }
-    case .moveGroups:
-      break
-    case .removeGroups:
-      break
     }
   }
 
