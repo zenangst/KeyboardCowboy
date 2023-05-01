@@ -32,6 +32,8 @@ final class ContentCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
+    case .moveWorkflows, .copyWorkflows:
+      render(groupSelectionManager.selections)
     case .openScene:
       break
     case .addConfiguration:

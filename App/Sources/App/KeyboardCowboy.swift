@@ -147,7 +147,7 @@ struct KeyboardCowboy: App {
             contentCoordinator.handle(contentAction)
             detailCoordinator.handle(contentAction)
             if case .addWorkflow = contentAction {
-              DispatchQueue.main.async { focus = .detail(.name) }
+              Task { @MainActor in focus = .detail(.name) }
             }
           case .detail(let detailAction):
             detailCoordinator.handle(detailAction)

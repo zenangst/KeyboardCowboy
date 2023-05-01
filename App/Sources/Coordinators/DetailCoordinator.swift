@@ -36,6 +36,9 @@ final class DetailCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
+    case .moveWorkflows, .copyWorkflows:
+      render(contentSelectionManager.selections,
+             groupIds: groupSelectionManager.selections)
     case .openScene:
       break
     case .addConfiguration:

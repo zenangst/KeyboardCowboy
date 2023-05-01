@@ -84,6 +84,10 @@ final class SidebarCoordinator {
     case .moveGroups(let source, let destination):
       store.move(source: source, destination: destination)
       render(store.groups)
+    case .copyWorkflows(let workflowIds, let groupId):
+      store.copy(workflowIds, to: groupId)
+    case .moveWorkflows(let workflowIds, let groupId):
+      store.move(workflowIds, to: groupId)
     }
   }
 

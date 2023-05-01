@@ -10,6 +10,8 @@ struct SidebarView: View {
     case selectGroups(Set<GroupViewModel.ID>)
     case moveGroups(source: IndexSet, destination: Int)
     case removeGroups(Set<GroupViewModel.ID>)
+    case moveWorkflows(workflowIds: Set<ContentViewModel.ID>, groupId: GroupViewModel.ID)
+    case copyWorkflows(workflowIds: Set<ContentViewModel.ID>, groupId: GroupViewModel.ID)
   }
 
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
@@ -72,6 +74,10 @@ struct SidebarView: View {
           onAction(.removeGroups(ids))
         case .openScene(let scene):
           onAction(.openScene(scene))
+        case .moveWorkflows(let workflowIds, let groupId):
+          onAction(.moveWorkflows(workflowIds: workflowIds, groupId: groupId))
+        case .copyWorkflows(let workflowIds, let groupId):
+          onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
         }
       }
     }
