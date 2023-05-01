@@ -6,16 +6,22 @@ protocol DebounceSnapshot { }
 final class DebounceManager<Snapshot: DebounceSnapshot> {
   private var subscription: AnyCancellable?
   private let subject = PassthroughSubject<Snapshot, Never>()
+  private let onUpdate: (Snapshot) -> Void
   @Published var snapshot: Snapshot
 
   init(_ initialValue: Snapshot, milliseconds: Int, onUpdate: @escaping (Snapshot) -> Void) {
-    _snapshot = .init(initialValue: initialValue)
-    subscription = subject
+    self._snapshot = .init(initialValue: initialValue)
+    self.onUpdate = onUpdate
+    self.subscription = subject
       .debounce(for: .milliseconds(milliseconds), scheduler: DispatchQueue.main)
       .sink { onUpdate($0) }
   }
 
   func process(_ snapshot: Snapshot) {
-    subject.send(snapshot)
+    if NSEventController.shared.keyDown {
+      subject.send(snapshot)
+    } else {
+      onUpdate(snapshot)
+    }
   }
 }
