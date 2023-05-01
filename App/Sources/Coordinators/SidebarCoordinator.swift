@@ -50,6 +50,11 @@ final class SidebarCoordinator {
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .selectConfiguration:
+      if let firstGroup = store.groups.first {
+        selectionManager.selections = [firstGroup.id]
+      } else {
+        selectionManager.selections = []
+      }
       render(store.groups)
     case .addConfiguration, .openScene, .selectGroups:
       break

@@ -37,7 +37,7 @@ final class ContentCoordinator {
     case .addConfiguration:
       break
     case .selectConfiguration:
-      break
+      render(groupSelectionManager.selections, calculateSelections: true)
     case .selectGroups(let ids):
       handle(.rerender(ids))
     case .moveGroups:
