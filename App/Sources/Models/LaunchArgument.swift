@@ -6,5 +6,4 @@ enum LaunchArgument: String, LaunchArgumentType {
   case injection = "-injection"
   case runningUnitTests = "-running-unit-tests"
   case disableMachPorts = "-disableMachPorts"
-  case fileLogging = "-fileLogging"
 }

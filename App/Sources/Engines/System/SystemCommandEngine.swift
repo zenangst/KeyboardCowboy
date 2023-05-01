@@ -103,8 +103,6 @@ final class SystemCommandEngine {
     do {
       frontMostApplicationWindows = try element.windows()
       frontMostIndex = 0
-    } catch {
-      FileLogger.log("🪟 Failed to index front most application windows")
-    }
+    } catch { }
   }
 }

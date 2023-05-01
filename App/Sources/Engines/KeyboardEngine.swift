@@ -51,7 +51,6 @@ final class KeyboardEngine {
           }
         }
       } catch let error {
-        FileLogger.log("⌨️ Failed: \(keyboardShortcut)")
         throw error
       }
     }
