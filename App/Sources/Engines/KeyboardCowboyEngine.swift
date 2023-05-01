@@ -113,12 +113,15 @@ final class KeyboardCowboyEngine {
 
   private func reload(with application: NSRunningApplication) {
     guard KeyboardCowboy.env == .production else { return }
-    guard contentStore.preferences.hideFromDock else { return }
-    let newPolicy: NSApplication.ActivationPolicy
-    if application.bundleIdentifier == bundleIdentifier {
-      newPolicy = .regular
-    } else {
-      newPolicy = .accessory
+
+    if contentStore.preferences.hideFromDock {
+      let newPolicy: NSApplication.ActivationPolicy
+      if application.bundleIdentifier == bundleIdentifier {
+        newPolicy = .regular
+      } else {
+        newPolicy = .accessory
+      }
+      _ = NSApplication.shared.setActivationPolicy(newPolicy)
     }
 
     if waitingForPrivileges {
@@ -128,7 +131,5 @@ final class KeyboardCowboyEngine {
         Swift.print(error)
       }
     }
-
-    _ = NSApplication.shared.setActivationPolicy(newPolicy)
   }
 }

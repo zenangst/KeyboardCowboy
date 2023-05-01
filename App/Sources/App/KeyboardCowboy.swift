@@ -176,13 +176,10 @@ struct KeyboardCowboy: App {
       case .github:
         NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy")!)
       case .requestPermissions:
+        NSApplication.shared.keyWindow?.close()
         let trusted = kAXTrustedCheckOptionPrompt.takeUnretainedValue()
         let privOptions = [trusted: true] as CFDictionary
         let accessEnabled = AXIsProcessTrustedWithOptions(privOptions)
-        if accessEnabled {
-          NSApplication.shared.keyWindow?.close()
-          handleScene(.mainWindow)
-        }
       }
     }
 
