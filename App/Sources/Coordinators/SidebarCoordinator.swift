@@ -35,16 +35,17 @@ final class SidebarCoordinator {
   }
 
   func handle(_ context: EditWorkflowGroupWindow.Context) {
+    let groupId: GroupViewModel.ID
     switch context {
     case .add(let group):
+      groupId = group.id
       store.add(group)
-      selectionManager.selections = [group.id]
-      render(store.groups)
     case .edit(let group):
+      groupId = group.id
       store.updateGroups([group])
-      selectionManager.selections = [group.id]
-      render(store.groups)
     }
+    selectionManager.selections = [groupId]
+    render(store.groups)
   }
 
   func handle(_ action: SidebarView.Action) {
