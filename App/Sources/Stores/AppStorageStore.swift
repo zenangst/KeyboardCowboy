@@ -3,12 +3,12 @@ import SwiftUI
 
 struct AppStorageStore {
   #if DEBUG
-  @AppStorage("selectedConfiguration", store: UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.debug")) var configId: String = ""
-  @AppStorage("selectedGroupIds", store: UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.debug")) var groupIds = Set<String>()
-  @AppStorage("selectedWorkflowIds", store: UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.debug")) var workflowIds = Set<String>()
+  static let store = UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.debug")
   #else
-  @AppStorage("selectedConfiguration") var configId: String = ""
-  @AppStorage("selectedGroupIds") var groupIds = Set<String>()
-  @AppStorage("selectedWorkflowIds") var workflowIds = Set<String>()
+  static let store = UserDefaults.standard
   #endif
+
+  @AppStorage("selectedConfiguration", store: Self.store) var configId: String = ""
+  @AppStorage("selectedGroupIds", store: Self.store) var groupIds = Set<String>()
+  @AppStorage("selectedWorkflowIds", store: Self.store) var workflowIds = Set<String>()
 }

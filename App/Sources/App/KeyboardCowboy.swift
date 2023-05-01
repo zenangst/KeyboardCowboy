@@ -1,3 +1,4 @@
+import ApplicationServices
 import Combine
 import Cocoa
 import SwiftUI
@@ -114,14 +115,23 @@ struct KeyboardCowboy: App {
   }
 
   var body: some Scene {
-    AppMenuBar { action in
+    AppMenuBar(onAction:  { action in
       switch action {
+      case .onAppear:
+        if !AXIsProcessTrustedWithOptions(nil) {
+          handleScene(.permissions)
+          return
+        }
+
+        if KeyboardCowboy.env == .development {
+          handleScene(.mainWindow)
+        }
       case .openMainWindow:
         handleScene(.mainWindow)
       case .reveal:
         NSWorkspace.shared.selectFile(Bundle.main.bundlePath, inFileViewerRootedAtPath: "")
       }
-    }
+    })
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
       applyEnvironmentObjects(
@@ -161,7 +171,20 @@ struct KeyboardCowboy: App {
     }
     .windowStyle(.hiddenTitleBar)
 
-    OnboardingScene()
+    PermissionsScene { action in
+      switch action {
+      case .github:
+        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy")!)
+      case .requestPermissions:
+        let trusted = kAXTrustedCheckOptionPrompt.takeUnretainedValue()
+        let privOptions = [trusted: true] as CFDictionary
+        let accessEnabled = AXIsProcessTrustedWithOptions(privOptions)
+        if accessEnabled {
+          NSApplication.shared.keyWindow?.close()
+          handleScene(.mainWindow)
+        }
+      }
+    }
 
     NewCommandWindow(contentStore: contentStore) { workflowId, commandId, title, payload in
       let groupIds = contentCoordinator.groupSelectionManager.selections
@@ -188,8 +211,8 @@ struct KeyboardCowboy: App {
   private func handleScene(_ scene: AppScene) {
     guard KeyboardCowboy.env != .designTime else { return }
     switch scene {
-    case .onboarding:
-      openWindow(id: KeyboardCowboy.onboardingWindowIdentifier)
+    case .permissions:
+      openWindow(id: KeyboardCowboy.permissionsWindowIdentifier)
     case .mainWindow:
       if let mainWindow = KeyboardCowboy.mainWindow {
         mainWindow.makeKeyAndOrderFront(nil)

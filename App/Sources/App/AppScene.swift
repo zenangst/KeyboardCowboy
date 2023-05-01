@@ -1,5 +1,5 @@
 enum AppScene {
-  case onboarding
+  case permissions
   case mainWindow
   case addGroup
   case editGroup(GroupViewModel.ID)

@@ -1,8 +1,14 @@
 import SwiftUI
 
-struct OnboardingView: View {
+struct PermissionsView: View {
+  enum Action {
+    case github
+    case requestPermissions
+  }
   @State var animated: Bool = false
   @State var done: Bool = false
+
+  var onAction: (Action) -> Void
 
   var body: some View {
     VStack {
@@ -68,11 +74,14 @@ struct OnboardingView: View {
         .opacity(animated ? 1 : 0)
         .animation(.easeInOut(duration: 1.5).delay(1.5), value: animated)
       HStack(spacing: 16) {
-        Button("View source code", action: {})
+        Button("View source code", action: {
+          onAction(.github)
+        })
           .buttonStyle(.plain)
         Spacer()
         Button("Request permission", action: {
           done.toggle()
+          onAction(.requestPermissions)
         })
           .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
       }
@@ -93,8 +102,8 @@ struct OnboardingView: View {
   }
 }
 
-struct OnboardingView_Previews: PreviewProvider {
+struct PermissionsView_Previews: PreviewProvider {
     static var previews: some View {
-        OnboardingView()
+      PermissionsView(onAction: { _ in })
     }
 }

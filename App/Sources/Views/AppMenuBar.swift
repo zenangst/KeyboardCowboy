@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AppMenuBar: Scene {
   enum Action {
+    case onAppear
     case openMainWindow
     case reveal
   }
@@ -52,11 +53,7 @@ struct AppMenuBar: Scene {
         .keyboardShortcut("q", modifiers: [.command])
     }) {
       _MenubarIcon()
-        .onAppear {
-          if KeyboardCowboy.env == .development {
-            onAction(.openMainWindow)
-          }
-        }
+        .onAppear(perform: { onAction(.onAppear) })
         .onReceive(pub, perform: { output in
           onAction(.openMainWindow)
         })

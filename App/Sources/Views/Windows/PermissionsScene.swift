@@ -1,12 +1,14 @@
 import SwiftUI
 
-struct OnboardingScene: Scene {
+struct PermissionsScene: Scene {
+  var onAction: (PermissionsView.Action) -> Void
+
   var body: some Scene {
-    WindowGroup(id: KeyboardCowboy.onboardingWindowIdentifier) {
-      OnboardingView()
+    WindowGroup(id: KeyboardCowboy.permissionsWindowIdentifier) {
+      PermissionsView(onAction: onAction)
         .toolbar(content: {
           Spacer()
-          Text("Permissions")
+          Text("Keyboard Cowboy: Permissions")
           Spacer()
         })
         .frame(width: 480, height: 420)
@@ -14,5 +16,6 @@ struct OnboardingScene: Scene {
     .windowResizability(.contentSize)
     .windowToolbarStyle(.unified(showsTitle: true))
     .windowStyle(.hiddenTitleBar)
+    .defaultPosition(.center)
   }
 }

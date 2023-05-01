@@ -90,7 +90,7 @@ final class KeyboardCowboyEngine {
 
   private func hasPrivileges() -> Bool {
     let trusted = kAXTrustedCheckOptionPrompt.takeUnretainedValue()
-    let privOptions = [trusted: true] as CFDictionary
+    let privOptions = [trusted: false] as CFDictionary
     let accessEnabled = AXIsProcessTrustedWithOptions(privOptions)
 
     return accessEnabled
