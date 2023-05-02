@@ -75,6 +75,8 @@ struct GradientButtonStyle_Previews: PreviewProvider {
       Button("Hello, world", action: {})
       Button("Hello, world", action: {})
         .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+      Button("Hello, world", action: {})
+        .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue, hoverEffect: false)))
     }
     .padding()
   }

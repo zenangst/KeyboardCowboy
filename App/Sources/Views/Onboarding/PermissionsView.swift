@@ -12,61 +12,48 @@ struct PermissionsView: View {
 
   var body: some View {
     VStack {
-      VStack(alignment: .leading, spacing: 16) {
-        Text("Accessibility permissions are required for our application to function properly.")
-          .font(.title)
+      HStack(alignment: .top, spacing: 16) {
+        KeyboardCowboyAsset.applicationIcon.swiftUIImage
+          .resizable()
+          .frame(width: 128, height: 128)
           .opacity(animated ? 1 : 0)
-          .offset(y: animated ? 0 : -10)
-          .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
-            axis: (x: 1.0, y: 0.0, z: 0.0)
-          )
           .animation(.easeInOut(duration: 0.2), value: animated)
 
-        Group {
-
+        VStack(alignment: .leading, spacing: 16) {
+          Text("Accessibility permissions are required for Keyboard Cowboy application to function properly.")
+            .font(.title2)
+            .opacity(animated ? 1 : 0)
+            .offset(y: animated ? 0 : -10)
+            .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
+                              axis: (x: 1.0, y: 0.0, z: 0.0)
+            )
+            .animation(.easeInOut(duration: 0.4), value: animated)
           Group {
             Text("This allows our application to record hotkeys and perform other actions.")
               .opacity(animated ? 1 : 0)
               .offset(y: animated ? 0 : -10)
-              .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
-                                axis: (x: 1.0, y: 0.0, z: 0.0)
-              )
             Text("Rest assured that we do not use this information for any purpose other than to serve you.")
               .opacity(animated ? 1 : 0)
               .offset(y: animated ? 0 : -10)
-              .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
-                                axis: (x: 1.0, y: 0.0, z: 0.0)
-              )
           }
           .font(.headline)
           Text("Keyboard Cowboy comes with built-in security measures to protect your sensitive information. Password fields and other secure inputs cannot be monitored by our application.")
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
-            .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
-                              axis: (x: 1.0, y: 0.0, z: 0.0)
-            )
           Text("We value your privacy and take your security seriously.")
             .font(.headline)
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
-            .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
-                              axis: (x: 1.0, y: 0.0, z: 0.0)
-            )
           Text("Additionally, Keyboard Cowboy is 100% open source, so you can review the code for yourself.")
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
-            .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
-                              axis: (x: 1.0, y: 0.0, z: 0.0)
-            )
           Text("If you have any concerns, please contact us.")
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
-            .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
-                              axis: (x: 1.0, y: 0.0, z: 0.0)
-            )
         }
-        .animation(.easeInOut(duration: 0.8).delay(0.8), value: animated)
       }
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+      .animation(.easeInOut(duration: 0.8).delay(0.8), value: animated)
 
       Spacer()
 
@@ -77,13 +64,13 @@ struct PermissionsView: View {
         Button("View source code", action: {
           onAction(.github)
         })
-          .buttonStyle(.plain)
+        .buttonStyle(.plain)
         Spacer()
         Button("Request permission", action: {
           done.toggle()
           onAction(.requestPermissions)
         })
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
       }
       .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
                         axis: (x: 1.0, y: 0.0, z: 0.0)
