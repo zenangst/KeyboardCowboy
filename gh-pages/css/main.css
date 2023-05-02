@@ -21,9 +21,6 @@ body {
 
 nav {
     background-color: rgba(0, 2, 4, 0.2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     position: fixed;
     top: 0;
     z-index: 100;
@@ -34,6 +31,17 @@ nav {
     width: 100%;
     max-width: 100%;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2)
+}
+
+nav div {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    align-content: space-around;
+    margin: 0 auto;
+    max-width: 960px;
 }
 
 img {
@@ -55,6 +63,7 @@ nav a {
 
 nav a:first-child {
     font-size: 18px;
+    flex: 3;
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -112,7 +121,9 @@ a {
 .hero {
     max-width: 960px;
     text-align: center;
+    position: relative;
     display: block;
+    margin-bottom: 48px;
 }
 
 section.constrained {
@@ -122,44 +133,52 @@ section.constrained {
 .button-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-gap: 24px;
+    grid-gap: 8px;
     justify-content: center;
     align-items: center;
-    max-width: 80%;
+    max-width: 50%;
     margin: 0 auto;
     text-align: center;
+    z-index: 100;
+    position: relative;
+/*    background: rgba(0,0,0,0.3);*/
+background: linear-gradient(to bottom,
+rgba(0,0,0, 0.1) 1%,
+rgba(0,0,0, 0.5) 2%,
+rgba(0,0,0, 0.7) 100%);
+    padding: 8px;
+    border-radius: 16px;
+    margin-top: -76px;
 }
 
 .button {
     display: block;
     background-color: rgba(250, 60, 190, 0.7);
-    border-radius: 32px;
+    border-radius: 6px;
     font-weight: 600;
-    padding: 8px 24px;
+    padding: 4px 6px;
     display: inline-block;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.button:active {
+    transform: translateY(1px);
+    box-shadow: 0 5px 12.5px rgba(0, 0, 0, 0.6);
 }
 
 .github-button {
-    display: block;
-    background-color: rgba(80, 160, 40, 0.9);
-    border-radius: 8px;
-    font-weight: 600;
-    padding: 8px 24px;
-    display: inline-block;
-    text-shadow: 0 2px 5px rgba(0, 40, 0, 0.8);
-    box-shadow: 0 2px 5px rgba(0, 60, 0, 0.8);
+    background: linear-gradient(to bottom,
+    rgba(125, 200, 100, 1.00) 1%,
+    rgba(95, 190, 84, 1.00) 2%,
+    rgba(58, 120, 51, 1.00) 100%);
 }
 
 .download-button {
     display: block;
-    background-color: rgba(10, 90, 180, 0.9);
-    border-radius: 8px;
-    font-weight: 600;
-    padding: 8px 24px;
-    display: inline-block;
-    text-shadow: 0 2px 5px rgba(10, 60, 120, 0.7);
-    box-shadow: 0 2px 5px rgba(10, 60, 120, 0.7);
+    background: linear-gradient(to bottom,
+    rgba(49, 110, 211, 1.00) 1%,
+    rgba(35, 103, 200, 1.00) 2%,
+    rgba(29, 72, 141, 1.00) 100%);
 }
 
 .highlight {
@@ -289,12 +308,66 @@ section.constrained {
     color: rgba(100,100,100,1);
 }
 
+.black-container {
+    background: rgba(10,10,10, 1.0);
+    padding: 72px;
+}
+
 .white-container * {
     max-width: 820px;
     margin-left: auto;
     margin-right: auto;
 }
 
+section.features {
+   display: grid;
+   margin: 0px auto;
+   margin-bottom: 96px;
+   text-align:center;
+}
+
+div.features {
+   display: grid;
+   margin: 0px auto;
+   text-align: left;
+}
+
+@media screen and (min-width: 800px) {
+    section.features {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    div.features {
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 48px;
+        max-width: 820px;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    div.features {
+        grid-template-columns: repeat(3, 1fr);
+        grid-gap: 48px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    section.features {
+        grid-gap: 0;
+    }
+    div.features {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    div.feature h4 {
+        margin-bottom: 0px;
+    }
+
+
+    div.feature {
+        margin-bottom: 48px;
+    }
+}
 
 /* MARK: Selectors */
 
@@ -330,25 +403,22 @@ h4.centered {
     text-align: center;
 }
 
-nav > a {
+nav a {
     margin: 8px;
 }
 
-nav > a:first-child {
-    width: 100%;
+nav a:first-child {
     display: block;
-    margin-left: 72px;
 }
 
-nav > a:not(:first-child) {
+nav a:not(:first-child) {
     display: block;
-    border-radius: 32px;
     font-weight: 600;
     padding-left: 16px;
     padding-right: 16px;
 }
 
-nav > a:last-child {
+nav a:last-child {
     margin-right: 72px;
 }
 
@@ -382,22 +452,29 @@ nav .app-icon {
     animation-iteration-count: infinite;
 }
 
-section.hero {
-    margin-bottom: 0;
-    position: relative;
-}
-
 .hero .hero-app {
     text-align: center;
-/*    opacity: 0;*/
-    transform: perspective(1000px) rotateX(15deg);
     animation-name: heroAnimation;
     animation-duration: 0.75s;
     animation-fill-mode: both;
+    animation-delay: 0.45s;
     animation-timing-function: ease-in-out;
-/*    animation-timing-function: cubic-bezier(0.25, 1.25, 0.5, 1);*/
-    position: relative;
     z-index: 99;
+    transform: scale(0.9);
+}
+
+.hero .hero-desktop {
+    animation-name: heroAnimation2;
+    animation-duration: 0.75s;
+    animation-fill-mode: both;
+    animation-delay: 0.35s;
+    animation-timing-function: ease-in-out;
+    position: absolute;
+    display: inline-block;
+    left: 0;
+    transform: perspective(1000px) rotateX(10deg);
+    border-radius: 12px;
+    box-shadow: 0px 12px 30px rgba(0,0,0,0.35);
 }
 
 .overlay {
@@ -421,6 +498,19 @@ section.hero {
     margin-left: 50%;
     text-align:center;
 }
+
+.features {
+    
+}
+
+.feature h4 {
+    margin: 0px;
+}
+
+.feature p {
+    margin: 0px;
+}
+
 
 div.centered {
     margin: 0 auto;
@@ -454,11 +544,21 @@ footer div {
 @keyframes heroAnimation {
     0% {
         opacity: 0;
-        transform: perspective(2500px) rotateX(25deg) translateY(-100px) scale(0.85);
+        transform: perspective(1000px) rotateX(15deg) translate(0px, -150px);
     }
     100% {
         opacity: 1;
-        transform: perspective(1000px) rotateX(15deg);
+    }
+}
+
+@keyframes heroAnimation2 {
+    0% {
+        opacity: 0;
+        transform: perspective(2400px) rotateX(15deg) scale(0.8);
+    }
+    100% {
+        opacity: 0.8;
+        transform: scale(0.8) perspective(1000px) rotateX(15deg)  translate(0px, 25px);
     }
 }
 
