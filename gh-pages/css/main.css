@@ -127,7 +127,7 @@ a {
 }
 
 section.constrained {
-    max-width: 820px;
+    max-width: 680px;
 }
 
 .button-grid {
@@ -141,14 +141,13 @@ section.constrained {
     text-align: center;
     z-index: 100;
     position: relative;
-/*    background: rgba(0,0,0,0.3);*/
-background: linear-gradient(to bottom,
-rgba(0,0,0, 0.1) 1%,
-rgba(0,0,0, 0.5) 2%,
-rgba(0,0,0, 0.7) 100%);
+    background: linear-gradient(to bottom,
+    rgba(0,0,0, 0.1) 1%,
+    rgba(0,0,0, 0.5) 2%,
+    rgba(0,0,0, 0.7) 100%);
     padding: 8px;
     border-radius: 16px;
-    margin-top: -76px;
+    margin-top: -48px;
 }
 
 .button {
@@ -332,6 +331,10 @@ div.features {
    text-align: left;
 }
 
+div.feature h4 {
+    font-size: 24px;
+}
+
 @media screen and (min-width: 800px) {
     section.features {
         grid-template-columns: repeat(1, 1fr);
@@ -361,8 +364,8 @@ div.features {
 
     div.feature h4 {
         margin-bottom: 0px;
+        font-size: 18px;
     }
-
 
     div.feature {
         margin-bottom: 48px;
@@ -460,7 +463,6 @@ nav .app-icon {
     animation-delay: 0.45s;
     animation-timing-function: ease-in-out;
     z-index: 99;
-    transform: scale(0.9);
 }
 
 .hero .hero-desktop {
@@ -558,7 +560,7 @@ footer div {
     }
     100% {
         opacity: 0.8;
-        transform: scale(0.8) perspective(1000px) rotateX(15deg)  translate(0px, 25px);
+        transform: scale(0.9) perspective(1000px) rotateX(15deg)  translate(0px, 25px);
     }
 }
 
