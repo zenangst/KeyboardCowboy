@@ -240,3 +240,17 @@ struct NewCommandView: View {
     onSave(payload, title)
   }
 }
+
+struct NewCommandView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: UUID().uuidString,
+      title: "New command",
+      selection: .application,
+      payload: .application(application: nil, action: .open, inBackground: false, hideWhenRunning: false, ifNotRunning: false),
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
+  }
+}
