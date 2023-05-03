@@ -11,5 +11,6 @@ extension View {
       .environmentObject(DesignTime.groupsPublisher)
       .environmentObject(KeyShortcutRecorderStore())
       .environmentObject(ApplicationStore())
+      .environmentObject(ShortcutStore(engine: ScriptEngine(workspace: .shared)))
   }
 }

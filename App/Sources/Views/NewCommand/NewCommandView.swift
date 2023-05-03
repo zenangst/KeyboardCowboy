@@ -70,9 +70,19 @@ struct NewCommandView: View {
   var body: some View {
     Group {
       if commandId == nil {
-        NavigationSplitView(
-          sidebar: sidebar,
-          detail: { detail(title: $title) })
+        HStack(spacing: 0) {
+          sidebar()
+            .padding(.top, 36)
+            .background(
+              HStack(spacing: 0) {
+                Color(.windowBackgroundColor)
+                Rectangle()
+                  .fill(Color.white.opacity(0.2))
+                  .frame(width: 1)
+              })
+            .frame(maxWidth: 200)
+          detail(title: $title)
+        }
       } else {
         detail(title: $title)
           .toolbar(content: {
@@ -80,7 +90,6 @@ struct NewCommandView: View {
               Spacer()
             }
           })
-          .padding(.top, 36)
       }
     }
     .frame(minWidth: 710, minHeight: 400)
@@ -98,6 +107,7 @@ struct NewCommandView: View {
                 .truncationMode(.tail)
                 .font(.body)
                 .layoutPriority(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
               Spacer()
               Text("\(ModifierKey.command.keyValue)\(kind.rawKey)")
                 .font(.system(.caption, design: .monospaced))
@@ -107,21 +117,31 @@ struct NewCommandView: View {
                 .padding(2)
                 .background(
                   RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(.windowBackgroundColor))
+                    .fill(Color(.textBackgroundColor))
                     .shadow(radius: 4)
                 )
             }
-            .padding(.horizontal, 4)
+            .padding(.leading, 4)
+            .padding(.trailing, 18)
             .padding(.vertical, 4)
             .background(
-              LinearGradient(stops: [
-                .init(color: Color(.controlAccentColor.blended(withFraction: 0.25, of: .systemGreen)!), location: 0.0),
-                .init(color: Color(.controlAccentColor.blended(withFraction: 0.25, of: .black)!), location: 1.0),
-              ], startPoint: .top, endPoint: .bottom)
-                .opacity( kind == selection ? 0.5 : 0)
+              Canvas(rendersAsynchronously: true) { context, size in
+                if kind == selection {
+                  context.stroke(Path { path in
+                    path.move(to: .init(x: size.width, y: 2))
+                    path.addLine(to: .init(x: size.width - 12, y: size.height / 2))
+                    path.addLine(to: .init(x: size.width, y: size.height - 2))
+                  }, with: .color(Color.white.opacity(0.2)), lineWidth: 2)
+
+                  context.fill(Path { path in
+                    path.move(to: .init(x: size.width, y: 2))
+                    path.addLine(to: .init(x: size.width - 12, y: size.height / 2))
+                    path.addLine(to: .init(x: size.width, y: size.height - 2))
+                  }, with: .color(Color(.textBackgroundColor)))
+                }
+              }
             )
-            .cornerRadius(8)
-            .shadow(radius: 2)
+            .offset(x: 4)
           }, onKeyDown: { keyCode, _ in
             if keyCode == kVK_Return {
               selection = kind
@@ -134,12 +154,14 @@ struct NewCommandView: View {
           .keyboardShortcut(kind.key, modifiers: .command)
           .focusable()
           .focused($focused, equals: .application)
-          .padding(.horizontal, 8)
+          .padding(.horizontal, 4)
         }
       }
-      .frame(minWidth: 210)
     }
-    .background(Color(.windowBackgroundColor).opacity(0.6))
+  }
+
+  private func sidebarBackgroundView() -> some View {
+    Color(.textBackgroundColor)
   }
 
   private func detail(title: Binding<String>) -> some View {
@@ -164,7 +186,7 @@ struct NewCommandView: View {
         .padding()
         .background(
           RoundedRectangle(cornerRadius: 8)
-            .fill(Color(.textBackgroundColor))
+            .fill(Color(.windowBackgroundColor))
         )
         .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
                 radius: 2,
@@ -184,7 +206,8 @@ struct NewCommandView: View {
       .buttonStyle(.appStyle)
       .padding()
     }
-    .background(Color(nsColor: .windowBackgroundColor))
+    .padding(.top, 36)
+    .background(Color(.textBackgroundColor))
   }
 
   @ViewBuilder
@@ -245,9 +268,9 @@ struct NewCommandView_Previews: PreviewProvider {
   static var previews: some View {
     NewCommandView(
       workflowId: UUID().uuidString,
-      commandId: UUID().uuidString,
+      commandId: nil,
       title: "New command",
-      selection: .application,
+      selection: .system,
       payload: .application(application: nil, action: .open, inBackground: false, hideWhenRunning: false, ifNotRunning: false),
       onDismiss: {},
       onSave: { _, _ in })

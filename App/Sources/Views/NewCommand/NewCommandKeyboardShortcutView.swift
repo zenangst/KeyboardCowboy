@@ -30,10 +30,9 @@ struct NewCommandKeyboardShortcutView: View {
       EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
         .overlay(NewCommandValidationView($validation).padding(-8))
         .frame(minHeight: 48)
-        .padding(.horizontal, 6)
         .background(
           RoundedRectangle(cornerRadius: 4)
-            .fill(Color(.windowBackgroundColor).opacity(0.25))
+            .fill(Color(.textBackgroundColor).opacity(0.25))
         )
     }
     .onChange(of: keyboardShortcuts, perform: { newValue in

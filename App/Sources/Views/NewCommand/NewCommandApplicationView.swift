@@ -34,7 +34,7 @@ struct NewCommandApplicationView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
+    VStack(alignment: .leading, spacing: 8) {
       Label(title: { Text("Open or Close Application:") }, icon: { EmptyView() })
         .labelStyle(HeaderLabelStyle())
 
@@ -52,9 +52,17 @@ struct NewCommandApplicationView: View {
         .padding(4)
         .background(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.windowBackgroundColor), lineWidth: 2)
+            .stroke(Color(.white).opacity(0.2), lineWidth: 1)
             .frame(height: 40)
         )
+        .overlay(alignment: .trailing, content: {
+          Image(systemName: "chevron.down")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(Color.white.opacity(0.6))
+            .frame(width: 12)
+            .padding(.trailing, 8)
+        })
         .frame(maxWidth: 80)
 
         Menu(content: {
@@ -72,25 +80,31 @@ struct NewCommandApplicationView: View {
               Image(nsImage: NSWorkspace.shared.icon(forFile: application.path))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 16)
               Text(application.displayName)
             }
           } else {
             Image(nsImage: NSWorkspace.shared.icon(forFile: "/Applications"))
               .resizable()
               .aspectRatio(contentMode: .fit)
-              .frame(width: 16)
             Text("Select application")
           }
+        })
+        .overlay(alignment: .trailing, content: {
+          Image(systemName: "chevron.down")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(Color.white.opacity(0.6))
+            .frame(width: 12)
+            .padding(.trailing, 6)
         })
         .padding(4)
         .background(
           RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.windowBackgroundColor), lineWidth: 2)
-            .frame(height: 40)
+            .stroke(Color(.white).opacity(0.2), lineWidth: 1)
         )
       }
       .menuStyle(.borderlessButton)
+      .menuIndicator(.hidden)
 
       HStack {
         Toggle("In background", isOn: $inBackground)

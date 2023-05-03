@@ -49,12 +49,12 @@ struct NewCommandOpenView: View {
             self.path = path
           }))
         })
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemTeal, grayscaleEffect: false)))
       }
       .padding(4)
       .background {
         RoundedRectangle(cornerRadius: 4)
-          .stroke(Color(.windowBackgroundColor), lineWidth: 2)
+          .stroke(Color(.white).opacity(0.2), lineWidth: 1)
       }
       .padding(.bottom, 8)
 
@@ -76,6 +76,21 @@ struct NewCommandOpenView: View {
             Text("Default application")
           }
         })
+        .overlay(alignment: .trailing, content: {
+          Image(systemName: "chevron.down")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(Color.white.opacity(0.6))
+            .frame(width: 12)
+            .padding(.trailing, 6)
+        })
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .padding(4)
+        .background(
+          RoundedRectangle(cornerRadius: 4)
+            .stroke(Color(.white).opacity(0.2), lineWidth: 1)
+        )
       }
     }
     .onAppear {
