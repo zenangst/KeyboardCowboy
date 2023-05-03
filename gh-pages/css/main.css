@@ -313,7 +313,7 @@ section.constrained {
 }
 
 .white-container * {
-    max-width: 820px;
+    max-width: 680px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -398,6 +398,8 @@ section img {
     margin-left: -10%;
 }
 
+section.centered,
+div.centered,
 span.centered,
 a.centered,
 h2.centered,
