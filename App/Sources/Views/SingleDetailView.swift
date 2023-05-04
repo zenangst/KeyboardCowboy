@@ -105,21 +105,37 @@ struct SingleDetailView: View {
             }, primaryAction: {
               onAction(.runWorkflow(workflowId: detailPublisher.data.id))
             })
-            .fixedSize()
+            .padding(.horizontal, 2)
+            .padding(.top, 3)
+            .padding(.bottom, 1)
+            .overlay(alignment: .trailing, content: {
+              Rectangle()
+                .fill(Color(.white).opacity(0.2))
+                .frame(width: 1)
+                .padding(.trailing, 18)
+            })
+            .background(
+              RoundedRectangle(cornerRadius: 4)
+                .stroke(Color(.white).opacity(0.2), lineWidth: 1)
+            )
+            .menuStyle(.borderlessButton)
+            .frame(maxWidth: 150)
           }
           .opacity(detailPublisher.data.commands.isEmpty ? 0 : 1)
           Button(action: {
             openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
           }) {
             HStack(spacing: 4) {
+              Text("Add Command")
+                .lineLimit(1)
+                .allowsTightening(true)
+              Divider()
+                .frame(height: 12)
               Image(systemName: "plus.circle")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(maxWidth: 12, maxHeight: 12)
                 .layoutPriority(-1)
-              Text("Add Command")
-                .lineLimit(1)
-                .allowsTightening(true)
             }
           }
           .padding(.horizontal, 4)
