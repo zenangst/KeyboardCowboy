@@ -31,22 +31,8 @@ struct NewCommandSystemCommandView: View {
         }
       }
       .background(NewCommandValidationView($validation))
-      .overlay(alignment: .trailing, content: {
-        Image(systemName: "chevron.down")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .foregroundColor(Color.white.opacity(0.6))
-          .frame(width: 12)
-          .padding(.trailing, 6)
-      })
-      .padding(4)
-      .background(
-        RoundedRectangle(cornerRadius: 4)
-          .stroke(Color(.white).opacity(0.2), lineWidth: 1)
-      )
-      .menuIndicator(.hidden)
-      .menuStyle(.borderlessButton)
     }
+    .menuStyle(.appStyle)
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       withAnimation { validation = updateAndValidatePayload() }

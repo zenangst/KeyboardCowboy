@@ -55,6 +55,8 @@ struct NewCommandApplicationView: View {
             .stroke(Color(.white).opacity(0.2), lineWidth: 1)
             .frame(height: 40)
         )
+        .menuIndicator(.hidden)
+        .menuStyle(.borderlessButton)
         .overlay(alignment: .trailing, content: {
           Image(systemName: "chevron.down")
             .resizable()
@@ -89,22 +91,7 @@ struct NewCommandApplicationView: View {
             Text("Select application")
           }
         })
-        .overlay(alignment: .trailing, content: {
-          Image(systemName: "chevron.down")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundColor(Color.white.opacity(0.6))
-            .frame(width: 12)
-            .padding(.trailing, 6)
-        })
-        .padding(4)
-        .background(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.white).opacity(0.2), lineWidth: 1)
-        )
       }
-      .menuStyle(.borderlessButton)
-      .menuIndicator(.hidden)
 
       HStack {
         Toggle("In background", isOn: $inBackground)
@@ -119,6 +106,7 @@ struct NewCommandApplicationView: View {
         validation = updateAndValidatePayload()
       }
     }
+    .menuStyle(.appStyle)
     .overlay(NewCommandValidationView($validation).padding(-8))
     .onAppear {
       validation = .unknown

@@ -76,23 +76,9 @@ struct NewCommandOpenView: View {
             Text("Default application")
           }
         })
-        .overlay(alignment: .trailing, content: {
-          Image(systemName: "chevron.down")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundColor(Color.white.opacity(0.6))
-            .frame(width: 12)
-            .padding(.trailing, 6)
-        })
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .padding(4)
-        .background(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.white).opacity(0.2), lineWidth: 1)
-        )
       }
     }
+    .menuStyle(.appStyle)
     .onAppear {
       validation = .valid
       updatePayload()

@@ -28,6 +28,7 @@ struct RuleListView: View {
             }
           }
         }
+        .menuStyle(.appStyle)
       }
       if let rule = group.rule {
         ForEach(rule.bundleIdentifiers, id: \.self) { bundleIdentifier in

@@ -67,19 +67,6 @@ struct NewCommandScriptView: View {
         }, label: {
           Text(scriptExtension.displayName)
         })
-        .overlay(alignment: .trailing, content: {
-          Image(systemName: "chevron.down")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundColor(Color.white.opacity(0.6))
-            .frame(width: 12)
-            .padding(.trailing, 6)
-        })
-        .padding(4)
-        .background(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.white).opacity(0.2), lineWidth: 1)
-        )
 
         Menu(content: {
           ForEach(Kind.allCases) { kind in
@@ -95,19 +82,6 @@ struct NewCommandScriptView: View {
             Text("Inline")
           }
         })
-        .overlay(alignment: .trailing, content: {
-          Image(systemName: "chevron.down")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundColor(Color.white.opacity(0.6))
-            .frame(width: 12)
-            .padding(.trailing, 6)
-        })
-        .padding(4)
-        .background(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.white).opacity(0.2), lineWidth: 1)
-        )
       }
       .padding(.vertical)
 
@@ -128,8 +102,7 @@ struct NewCommandScriptView: View {
         }
       }
     }
-    .menuStyle(.borderlessButton)
-    .menuIndicator(.hidden)
+    .menuStyle(.appStyle)
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       validation = updateAndValidatePayload()
