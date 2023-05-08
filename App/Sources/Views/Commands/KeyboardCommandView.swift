@@ -30,7 +30,7 @@ struct KeyboardCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      command, icon: {
+      $command, icon: { command in
         ZStack {
           Rectangle()
             .fill(Color(.systemGreen))
@@ -42,7 +42,7 @@ struct KeyboardCommandView: View {
           }
           .scaleEffect(0.8)
         }
-      }, content: {
+      }, content: { command in
         VStack {
           HStack(spacing: 0) {
             TextField("", text: $name)
@@ -61,7 +61,7 @@ struct KeyboardCommandView: View {
             .cornerRadius(4)
         }
       },
-      subContent: {
+      subContent: { command in
         Toggle("Notify", isOn: $notify)
           .onChange(of: notify) { newValue in
             onAction(.toggleNotify(newValue: newValue))

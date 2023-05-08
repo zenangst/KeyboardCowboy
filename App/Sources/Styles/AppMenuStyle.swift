@@ -14,6 +14,7 @@ struct AppMenuStyle: MenuStyle {
           .foregroundColor(Color.white.opacity(0.6))
           .frame(width: 12)
           .padding(.trailing, 6)
+          .allowsHitTesting(false)
       })
       .padding(4)
       .background(

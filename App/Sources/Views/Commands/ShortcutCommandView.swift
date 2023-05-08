@@ -22,20 +22,20 @@ struct ShortcutCommandView: View {
   }
   
   var body: some View {
-    CommandContainerView(command, icon: {
+    CommandContainerView($command, icon: { command in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
           .cornerRadius(8, antialiased: false)
         Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Shortcuts.app"))
       }
-    }, content: {
+    }, content: { command in
       TextField("", text: $name)
         .textFieldStyle(AppTextFieldStyle())
         .onChange(of: name, perform: {
           onAction(.updateName(newName: $0))
         })
-    }, subContent: {
+    }, subContent: { command in
       HStack {
         Toggle("Notify", isOn: $notify)
           .onChange(of: notify) { newValue in

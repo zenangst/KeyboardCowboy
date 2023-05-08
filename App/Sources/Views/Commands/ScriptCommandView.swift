@@ -28,7 +28,7 @@ struct ScriptCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(command, icon: {
+    CommandContainerView($command, icon: { command in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
@@ -38,7 +38,7 @@ struct ScriptCommandView: View {
           .aspectRatio(1, contentMode: .fill)
           .frame(width: 32)
       }
-    }, content: {
+    }, content: { command in
       VStack {
         HStack(spacing: 8) {
           TextField("", text: $name)
@@ -49,7 +49,7 @@ struct ScriptCommandView: View {
           Spacer()
         }
 
-        if case .script(let kind) = command.kind {
+        if case .script(let kind) = command.wrappedValue.kind {
           switch kind {
           case .inline(let id, _, let scriptExtension):
             ScriptEditorView(text: $text, syntax: .constant(AppleScriptHighlighting()))
@@ -75,9 +75,9 @@ struct ScriptCommandView: View {
           }
         }
       }
-    }, subContent: {
+    }, subContent: { command in
       HStack {
-        if case .script(let kind) = command.kind {
+        if case .script(let kind) = command.wrappedValue.kind {
           switch kind {
           case .inline:
             EmptyView()

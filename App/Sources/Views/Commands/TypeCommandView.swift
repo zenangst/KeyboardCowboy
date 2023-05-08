@@ -30,8 +30,8 @@ struct TypeCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      command,
-      icon: {
+      $command,
+      icon: { command in
         ZStack {
           Rectangle()
             .fill(Color(.controlAccentColor).opacity(0.375))
@@ -39,12 +39,12 @@ struct TypeCommandView: View {
           RegularKeyIcon(letter: "(...)", width: 24, height: 24)
             .frame(width: 16, height: 16)
         }
-      }, content: {
+      }, content: { command in
         TypeCommandTextEditor(text: $source)
           .onChange(of: source) { newInput in
             onAction(.updateSource(newInput: newInput))
           }
-      }, subContent: {
+      }, subContent: { command in
         Toggle("Notify", isOn: $notify)
           .onChange(of: notify) { newValue in
             onAction(.toggleNotify(newValue: newValue))

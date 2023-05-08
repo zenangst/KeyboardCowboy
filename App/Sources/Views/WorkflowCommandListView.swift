@@ -72,7 +72,7 @@ struct WorkflowCommandListView: View {
         indexSet.forEach { ids.insert(detailPublisher.data.commands[$0].id) }
         onAction(.removeCommands(workflowId: $detailPublisher.data.id, commandIds: ids))
       }) { command, index in
-        CommandView(command.wrappedValue, workflowId: detailPublisher.data.id) { action in
+        CommandView(command, workflowId: detailPublisher.data.id) { action in
           onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
         }
         .contextMenu(menuItems: { contextMenu(command) })

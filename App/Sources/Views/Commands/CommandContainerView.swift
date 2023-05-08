@@ -10,19 +10,19 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
                                                                           Content: View,
                                                                           SubContent: View {
   @State var isEnabled: Bool
-  private let command: DetailViewModel.CommandViewModel
-  private let icon: () -> IconContent
-  private let content: () -> Content
-  private let subContent: () -> SubContent
+  @Binding private var command: DetailViewModel.CommandViewModel
+  private let icon: (Binding<DetailViewModel.CommandViewModel>) -> IconContent
+  private let content: (Binding<DetailViewModel.CommandViewModel>) -> Content
+  private let subContent: (Binding<DetailViewModel.CommandViewModel>) -> SubContent
   private let onAction: (CommandContainerAction) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
-       @ViewBuilder icon: @escaping () -> IconContent,
-       @ViewBuilder content: @escaping () -> Content,
-       @ViewBuilder subContent: @escaping () -> SubContent,
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       @ViewBuilder icon: @escaping (Binding<DetailViewModel.CommandViewModel>) -> IconContent,
+       @ViewBuilder content: @escaping (Binding<DetailViewModel.CommandViewModel>) -> Content,
+       @ViewBuilder subContent: @escaping (Binding<DetailViewModel.CommandViewModel>) -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
-    _isEnabled = .init(initialValue: command.isEnabled)
-    self.command = command
+    _isEnabled = .init(initialValue: command.isEnabled.wrappedValue)
+    _command = command
     self.icon = icon
     self.content = content
     self.subContent = subContent
@@ -33,11 +33,11 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
     HStack(alignment: .center) {
       VStack(alignment: .leading, spacing: 4) {
         HStack(alignment: .top) {
-          icon()
+          icon($command)
             .frame(maxWidth: 32, maxHeight: 32)
           .offset(x: 2)
 
-          content()
+          content($command)
             .frame(minHeight: 30)
         }
         .padding([.top, .leading], 8)
@@ -51,7 +51,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .tint(.green)
             .scaleEffect(0.65)
 
-          subContent()
+          subContent($command)
             .buttonStyle(.appStyle)
             .padding(.leading, 2)
         }

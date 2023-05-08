@@ -10,35 +10,34 @@ struct OpenCommandView: View {
     case reveal(path: String)
   }
   @EnvironmentObject var applicationStore: ApplicationStore
-  @State var command: DetailViewModel.CommandViewModel
+  @Binding var command: DetailViewModel.CommandViewModel
   @State private var name: String
   @State private var isHovered = false
   @State private var notify = false
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
        onAction: @escaping (Action) -> Void) {
-    _command = .init(initialValue: command)
-    _name = .init(initialValue: command.name)
-    _notify = .init(initialValue: command.notify)
+    _command = command
+    _name = .init(initialValue: command.wrappedValue.name)
+    _notify = .init(initialValue: command.wrappedValue.notify)
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView(command, icon: {
+    CommandContainerView($command, icon: { command in
       ZStack(alignment: .bottomTrailing) {
-        if let icon = command.icon {
+        if let icon = command.icon.wrappedValue {
           IconView(icon: icon, size: .init(width: 32, height: 32))
 
-          if case .open(_, let appPath, _) = command.kind,
+          if case .open(_, let appPath, _) = command.wrappedValue.kind,
              let appPath {
             IconView(icon: .init(bundleIdentifier: appPath, path: appPath), size: .init(width: 16, height: 16))
               .shadow(radius: 3)
           }
         }
       }
-    }, content: {
-
+    }, content: { command in
       HStack(spacing: 2) {
         TextField("", text: $name)
           .textFieldStyle(AppTextFieldStyle())
@@ -47,35 +46,27 @@ struct OpenCommandView: View {
           })
         Spacer()
 
-        if case .open(_, _, let appName) = command.kind,
-           let appName {
+        if case .open(_, _, let appName) = command.wrappedValue.kind {
           Menu(content: {
-            ForEach(applicationStore.applicationsToOpen(command.name)) { app in
+            ForEach(applicationStore.applicationsToOpen(command.wrappedValue.name)) { app in
               Button(app.displayName, action: {
                 onAction(.openWith(app))
               })
             }
           }, label: {
-            HStack(spacing: 4) {
-              Text(appName)
+              Text(appName ?? "Default")
                 .fixedSize(horizontal: false, vertical: true)
                 .truncationMode(.middle)
                 .lineLimit(1)
                 .allowsTightening(true)
-              Image(systemName: "chevron.down")
-                .opacity(0.5)
-            }
-            .padding(4)
+                .padding(4)
           })
-          .buttonStyle(.plain)
-          .background(
-            RoundedRectangle(cornerRadius: 4)
-              .stroke(Color(.disabledControlTextColor))
-              .opacity(0.5)
-          )
+          .menuStyle(.appStyle)
+          .menuIndicator(.hidden)
+          .frame(maxWidth: 120)
         }
       }
-    }, subContent: {
+    }, subContent: { command in
       HStack {
         Toggle("Notify", isOn: $notify)
           .onChange(of: notify) { newValue in
@@ -88,7 +79,7 @@ struct OpenCommandView: View {
 
         Text("|")
 
-        switch command.kind {
+        switch command.wrappedValue.kind {
         case .open(let path, _, _):
           Button("Reveal", action: { onAction(.reveal(path: path)) })
             .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue)))
@@ -106,7 +97,7 @@ struct OpenCommandView: View {
 
 struct OpenCommandView_Previews: PreviewProvider {
     static var previews: some View {
-      OpenCommandView(DesignTime.openCommand, onAction: { _ in })
+      OpenCommandView(.constant(DesignTime.openCommand), onAction: { _ in })
         .frame(maxHeight: 80)
     }
 }

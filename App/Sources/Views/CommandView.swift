@@ -21,19 +21,19 @@ struct CommandView: View {
   @Environment(\.controlActiveState) var controlActiveState
 
   let workflowId: String
-  private var command: DetailViewModel.CommandViewModel
+  @Binding private var command: DetailViewModel.CommandViewModel
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
        workflowId: String,
        onAction: @escaping (Action) -> Void) {
-    self.command = command
+    _command = command
     self.workflowId = workflowId
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandResolverView(command, workflowId: workflowId, onAction: onAction)
+    CommandResolverView($command, workflowId: workflowId, onAction: onAction)
       .onChange(of: command.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
       })
@@ -57,14 +57,14 @@ struct CommandView: View {
 }
 
 struct CommandResolverView: View {
-  private let command: DetailViewModel.CommandViewModel
+  @Binding private var command: DetailViewModel.CommandViewModel
   private let workflowId: DetailViewModel.ID
   private let onAction: (CommandView.Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
+  init(_ command: Binding<DetailViewModel.CommandViewModel>,
        workflowId: String,
        onAction: @escaping (CommandView.Action) -> Void) {
-    self.command = command
+    _command = command
     self.workflowId = workflowId
     self.onAction = onAction
   }
@@ -76,7 +76,7 @@ struct CommandResolverView: View {
       UnknownView(command: .constant(command))
     case .open:
       OpenCommandView(
-        command,
+        $command,
         onAction: { action in
           switch action {
           case .commandAction(let action):

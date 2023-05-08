@@ -21,7 +21,7 @@ struct SystemCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(command, icon: {
+    CommandContainerView($command, icon: { command in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
@@ -29,7 +29,7 @@ struct SystemCommandView: View {
         IconView(icon: kind.icon, size: .init(width: 32, height: 32))
           .allowsHitTesting(false)
       }
-    }, content: {
+    }, content: { command in
       HStack(spacing: 8) {
         Menu(content: {
           ForEach(SystemCommand.Kind.allCases) { kind in
@@ -57,7 +57,7 @@ struct SystemCommandView: View {
             .opacity(0.5)
         )
       }
-    }, subContent: {
+    }, subContent: { command in
       Toggle("Notify", isOn: $notify)
         .onChange(of: notify) { newValue in
           onAction(.toggleNotify(newValue: newValue))

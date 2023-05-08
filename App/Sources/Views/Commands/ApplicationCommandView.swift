@@ -50,14 +50,14 @@ struct ApplicationCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      command,
-      icon: {
-        if let icon = command.icon {
+      $command,
+      icon: { command in
+        if let icon = command.icon.wrappedValue {
           ApplicationCommandImageView($command, icon: icon, onAction: onAction)
-            .id(command.icon?.bundleIdentifier)
+            .id(command.wrappedValue.icon?.bundleIdentifier)
         }
       },
-      content: {
+      content: { command in
         HStack(spacing: 8) {
           Menu(content: {
             Button("Open", action: {
@@ -90,7 +90,7 @@ struct ApplicationCommandView: View {
               onAction(.updateName(newName: $0))
             })
         }
-      }, subContent: {
+      }, subContent: { command in
         HStack {
           Toggle("Notify", isOn: $notify)
             .onChange(of: notify) { newValue in
