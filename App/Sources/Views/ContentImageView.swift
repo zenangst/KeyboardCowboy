@@ -2,12 +2,13 @@ import SwiftUI
 
 struct ContentImageView: View {
   let image: ContentViewModel.ImageModel
+  let size: CGFloat
 
   var body: some View {
     switch image.kind {
     case .icon(let icon):
       Group {
-        IconView(icon: icon, size: .init(width: 32, height: 32))
+        IconView(icon: icon, size: .init(width: size, height: size))
           .id(icon)
       }
     case .command(let kind):

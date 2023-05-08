@@ -43,6 +43,7 @@ private extension Workflow {
       groupName: groupName,
       name: name,
       images: commands.images(limit: 3),
+      overlayImages: commands.overlayImages(limit: 3),
       binding: binding,
       badge: commandCount > 1 ? commandCount : 0,
       badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
@@ -62,6 +63,30 @@ private extension Workflow.Trigger {
 }
 
 private extension Array where Element == Command {
+  func overlayImages(limit: Int) -> [ContentViewModel.ImageModel] {
+    var images = [ContentViewModel.ImageModel]()
+
+    for (offset, element) in self.enumerated() where element.isEnabled {
+      if offset == limit { break }
+      let convertedOffset = Double(offset)
+
+      switch element {
+      case .open(let command):
+        if let application = command.application {
+          images.append(ContentViewModel.ImageModel(
+            id: command.id,
+            offset: convertedOffset,
+            kind: .icon(.init(bundleIdentifier: application.bundleIdentifier,
+                              path: application.path))))
+        }
+      default:
+        continue
+      }
+    }
+
+    return images
+  }
+
   func images(limit: Int) -> [ContentViewModel.ImageModel] {
     var images = [ContentViewModel.ImageModel]()
     for (offset, element) in self.enumerated() where element.isEnabled {
