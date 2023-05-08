@@ -169,18 +169,19 @@ struct NewCommandView: View {
       TextField("", text: title, onEditingChanged: { value in
         hasEdited = true
       })
-        .font(.system(.body, design: .rounded,weight: .semibold))
-        .allowsTightening(true)
-        .opacity(controlActiveState == .key ? 1 : 0.6)
-        .padding(.top, -28)
-        .padding(.horizontal)
-        .textFieldStyle(AppTextFieldStyle())
-        .multilineTextAlignment(.center)
-        .fixedSize(horizontal: true, vertical: false)
-        .onChange(of: payload, perform: { newValue in
-          guard !hasEdited else { return }
-          title.wrappedValue = newValue.title
-        })
+      .frame(maxWidth: 420)
+      .font(.system(.body, design: .rounded,weight: .semibold))
+      .allowsTightening(true)
+      .opacity(controlActiveState == .key ? 1 : 0.6)
+      .padding(.top, -28)
+      .padding(.horizontal)
+      .textFieldStyle(AppTextFieldStyle())
+      .multilineTextAlignment(.center)
+      .fixedSize(horizontal: true, vertical: false)
+      .onChange(of: payload, perform: { newValue in
+        guard !hasEdited else { return }
+        title.wrappedValue = newValue.title
+      })
 
       selectedView(selection)
         .padding()
