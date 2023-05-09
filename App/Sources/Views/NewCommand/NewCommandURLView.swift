@@ -56,6 +56,21 @@ struct NewCommandURLView: View {
           .padding(-2)
       }
       .onChange(of: address, perform: { newValue in
+        if let components = URLComponents(string: newValue),
+           let host = components.host,
+           let scheme = components.scheme {
+
+          stringProtocol = scheme
+
+          var newString = host + components.path
+
+          if let query = components.query {
+            newString += "?" + query
+          }
+
+          address <- newString
+        }
+
         validation = updateAndValidatePayload()
       })
       .onChange(of: validation, perform: { newValue in

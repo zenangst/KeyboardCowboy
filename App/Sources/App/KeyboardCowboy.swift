@@ -179,7 +179,7 @@ struct KeyboardCowboy: App {
         NSApplication.shared.keyWindow?.close()
         let trusted = kAXTrustedCheckOptionPrompt.takeUnretainedValue()
         let privOptions = [trusted: true] as CFDictionary
-        let accessEnabled = AXIsProcessTrustedWithOptions(privOptions)
+        _ = AXIsProcessTrustedWithOptions(privOptions)
       }
     }
 

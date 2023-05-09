@@ -36,7 +36,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
     } else {
       selections = onTap(element)
     }
-    store(self.selections)
+    store(selections)
   }
 
   private func onTap(_ element: T) -> Set<T.ID> {
