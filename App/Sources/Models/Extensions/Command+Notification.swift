@@ -12,7 +12,7 @@ extension Command {
         return keyboardCommand.notification
       case .open(let openCommand):
         return openCommand.notification
-      case .script(let scriptCommand):
+      case .script:
         // TODO: Add support for `.notification` on script commands.
         return false
         //        return scriptCommand.notification
@@ -20,7 +20,7 @@ extension Command {
         return shortcutCommand.notification
       case .type(let typeCommand):
         return typeCommand.notification
-      case .systemCommand(var systemCommand):
+      case .systemCommand(let systemCommand):
         return systemCommand.notification
       }
     }

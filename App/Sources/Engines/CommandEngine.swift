@@ -96,7 +96,6 @@ final class CommandEngine {
       guard let self else { return }
       do {
         for command in commands {
-          let id = UUID().uuidString
           try Task.checkCancellation()
           do {
             try await self.run(command)
@@ -112,7 +111,6 @@ final class CommandEngine {
     runningTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
       for command in commands {
-        let id = UUID().uuidString
         do {
           try Task.checkCancellation()
           try await self.run(command)

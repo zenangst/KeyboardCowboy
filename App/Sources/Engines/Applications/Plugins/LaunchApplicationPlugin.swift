@@ -15,7 +15,7 @@ final class LaunchApplicationPlugin {
     let url = URL(fileURLWithPath: command.application.path)
     try Task.checkCancellation()
     do {
-      let runningApplication = try await workspace.openApplication(at: url, configuration: configuration)
+      _ = try await workspace.openApplication(at: url, configuration: configuration)
     } catch {
       throw error
     }
