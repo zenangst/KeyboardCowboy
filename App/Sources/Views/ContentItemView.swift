@@ -42,18 +42,18 @@ struct ContentItemView: View {
         .onHover { newValue in
           isHovered = newValue
         }
+        .zIndex(2)
 
       Text(workflow.name)
         .lineLimit(1)
         .allowsTightening(true)
-        .frame(maxWidth: .infinity, alignment: .leading)
 
+      Spacer()
       if let binding = workflow.binding {
-        Spacer()
         KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
           .font(.caption)
           .allowsTightening(true)
-          .frame(minWidth: 32)
+          .frame(minWidth: 32, maxWidth: .infinity, alignment: .trailing)
           .layoutPriority(-1)
       }
     }
