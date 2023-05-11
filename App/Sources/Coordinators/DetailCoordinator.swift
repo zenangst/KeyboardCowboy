@@ -5,31 +5,40 @@ import SwiftUI
 @MainActor
 final class DetailCoordinator {
   let applicationStore: ApplicationStore
+  let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   let commandEngine: CommandEngine
+  let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
   let contentSelectionManager: SelectionManager<ContentViewModel>
   let contentStore: ContentStore
   let detailPublisher: DetailPublisher = .init(DesignTime.emptyDetail)
   let groupSelectionManager: SelectionManager<GroupViewModel>
   let groupStore: GroupStore
   let keyboardCowboyEngine: KeyboardCowboyEngine
+  let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   let mapper: DetailModelMapper
   let statePublisher: DetailStatePublisher = .init(.empty)
 
   init(applicationStore: ApplicationStore,
+       applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandEngine: CommandEngine,
+       commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        contentStore: ContentStore,
        groupSelectionManager: SelectionManager<GroupViewModel>,
        keyboardCowboyEngine: KeyboardCowboyEngine,
+       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        groupStore: GroupStore) {
     self.applicationStore = applicationStore
     self.commandEngine = commandEngine
+    self.commandSelectionManager = commandSelectionManager
     self.contentSelectionManager = contentSelectionManager
     self.contentStore = contentStore
     self.groupSelectionManager = groupSelectionManager
     self.groupStore = groupStore
     self.keyboardCowboyEngine = keyboardCowboyEngine
     self.mapper = DetailModelMapper(applicationStore)
+    self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
+    self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
 
     enableInjection(self, selector: #selector(injected(_:)))
   }
@@ -63,6 +72,10 @@ final class DetailCoordinator {
           workflowIds.insert(firstId)
         }
         render(workflowIds, groupIds: Set(array))
+
+        applicationTriggerSelectionManager.removeLastSelection()
+        keyboardShortcutSelectionManager.removeLastSelection()
+        commandSelectionManager.removeLastSelection()
       }
     }
   }

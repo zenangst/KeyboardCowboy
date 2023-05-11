@@ -39,6 +39,7 @@ extension KeyView {
         .scaleEffect(isPressed ? 0.95 : 1)
         .animation(.linear(duration: 0.1), value: isPressed)
     }
+    .compositingGroup()
   }
 }
 

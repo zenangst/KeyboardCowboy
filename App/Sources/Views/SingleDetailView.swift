@@ -25,17 +25,28 @@ struct SingleDetailView: View {
   @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
+  private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
+  private let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
+  private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
+
+
   init(_ focus: FocusState<AppFocus?>.Binding,
-       detailPublisher: DetailPublisher, onAction: @escaping (Action) -> Void) {
+       detailPublisher: DetailPublisher,
+       applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
+       commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
+       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
+       onAction: @escaping (Action) -> Void) {
     self.focus = focus
     self.detailPublisher = detailPublisher
+    self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
+    self.commandSelectionManager = commandSelectionManager
+    self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
     self.onAction = onAction
   }
 
   var body: some View {
     let shouldShowCommandList = detailPublisher.data.trigger != nil ||
                                !detailPublisher.data.commands.isEmpty
-
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
           WorkflowInfoView(focus, detailPublisher: detailPublisher, onAction: { action in
@@ -49,7 +60,10 @@ struct SingleDetailView: View {
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
           .id(detailPublisher.data.id)
-          WorkflowTriggerListView(detailPublisher.data, onAction: onAction)
+          WorkflowTriggerListView(focus, data: detailPublisher.data,
+                                  applicationTriggerSelectionManager: applicationTriggerSelectionManager,
+                                  keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+                                  onAction: onAction)
             .id(detailPublisher.data.id)
         }
         .padding([.top, .leading, .trailing])
@@ -82,9 +96,9 @@ struct SingleDetailView: View {
                 }
               }
             )
+            .compositingGroup()
             .shadow(color: Color.white.opacity(0.2), radius: 0, y: 1)
-
-          .shadow(radius: 2, y: 2)
+            .shadow(radius: 2, y: 2)
         })
 
       VStack(spacing: 0) {
@@ -146,22 +160,15 @@ struct SingleDetailView: View {
 
         ScrollView {
           WorkflowCommandListView(
-            detailPublisher,
+            focus,
+            publisher: detailPublisher,
+            selectionManager: commandSelectionManager,
             scrollViewProxy: proxy,
             onAction: { action in
               onAction(action)
             })
-          .onFrameChange(space: .named("WorkflowCommandListView"), perform: { rect in
-            if rect.origin.y < 0 {
-              overlayOpacity <- 1
-            } else {
-              overlayOpacity <- 0
-            }
-          })
         }
-        .overlay(alignment: .top, content: { overlayView() })
-        .coordinateSpace(name: "WorkflowCommandListView")
-        .zIndex(2)
+        .padding(.vertical, 8)
       }
       .opacity(shouldShowCommandList ? 1 : 0)
     }
@@ -169,32 +176,16 @@ struct SingleDetailView: View {
     .focusScope(namespace)
     .debugEdit()
   }
-
-  private func overlayView() -> some View {
-    VStack(spacing: 0) {
-      LinearGradient(stops: [
-        Gradient.Stop.init(color: .clear, location: 0),
-        Gradient.Stop.init(color: .black.opacity(0.5), location: 0.1),
-        Gradient.Stop.init(color: .black, location: 0.5),
-        Gradient.Stop.init(color: .black.opacity(0.5), location: 0.9),
-        Gradient.Stop.init(color: .clear, location: 1),
-      ],
-                     startPoint: .leading,
-                     endPoint: .trailing)
-      .frame(height: 1)
-    }
-      .opacity(overlayOpacity)
-      .allowsHitTesting(false)
-      .shadow(color: Color(.black).opacity(0.75), radius: 2, x: 0, y: 2)
-      .animation(.default, value: overlayOpacity)
-      .edgesIgnoringSafeArea(.top)
-  }
 }
 
 struct SingleDetailView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    SingleDetailView($focus, detailPublisher: .init(DesignTime.detail)) { _ in }
+    SingleDetailView($focus,
+                     detailPublisher: .init(DesignTime.detail),
+                     applicationTriggerSelectionManager: .init(),
+                     commandSelectionManager: .init(),
+                     keyboardShortcutSelectionManager: .init()) { _ in }
       .designTime()
       .frame(height: 900)
   }

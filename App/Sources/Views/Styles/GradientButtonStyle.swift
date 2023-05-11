@@ -37,20 +37,20 @@ struct GradientButtonStyle: ButtonStyle {
       .padding(.horizontal, config.padding * 1.5)
       .foregroundColor(Color(.textColor))
       .background(
-        RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
-          .fill(
-            LinearGradient(stops: [
-              .init(color: Color(config.nsColor), location: 0.0),
-              .init(color: Color(config.nsColor.blended(withFraction: 0.3, of: .black)!), location: 0.025),
-              .init(color: Color(config.nsColor.blended(withFraction: 0.5, of: .black)!), location: 1.0),
-            ], startPoint: .top, endPoint: .bottom)
-          )
-          .opacity(isHovered ? 1.0 : 0.3)
-      )
-      .background(
-        RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
-          .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
-          .offset(y: 0.25)
+        ZStack {
+          RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
+            .fill(
+              LinearGradient(stops: [
+                .init(color: Color(config.nsColor), location: 0.0),
+                .init(color: Color(config.nsColor.blended(withFraction: 0.3, of: .black)!), location: 0.025),
+                .init(color: Color(config.nsColor.blended(withFraction: 0.5, of: .black)!), location: 1.0),
+              ], startPoint: .top, endPoint: .bottom)
+            )
+            .opacity(isHovered ? 1.0 : 0.3)
+          RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
+            .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+            .offset(y: 0.25)
+        }
       )
       .grayscale(config.grayscaleEffect ? isHovered ? 0 : 1 : 0)
       .compositingGroup()

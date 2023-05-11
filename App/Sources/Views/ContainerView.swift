@@ -7,6 +7,9 @@ enum AppFocus: Hashable {
 
   enum Detail: Hashable {
     case name
+    case applicationTriggers
+    case keyboardShortcuts
+    case commands
   }
 }
 
@@ -27,19 +30,28 @@ struct ContainerView: View {
   @Environment(\.openWindow) private var openWindow
   let onAction: (Action) -> Void
 
+  private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
+  private let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let groupsSelectionManager: SelectionManager<GroupViewModel>
+  private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
 
   init(focus: FocusState<AppFocus?>.Binding,
+       applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
+       commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
        configSelectionManager: SelectionManager<ConfigurationViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupsSelectionManager: SelectionManager<GroupViewModel>,
+       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (Action) -> Void) {
     self.focus = focus
+    self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
+    self.commandSelectionManager = commandSelectionManager
     self.configSelectionManager = configSelectionManager
     self.contentSelectionManager = contentSelectionManager
     self.groupsSelectionManager = groupsSelectionManager
+    self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
     self.onAction = onAction
   }
 
@@ -47,20 +59,22 @@ struct ContainerView: View {
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
-        SidebarView(configSelectionManager: configSelectionManager,
+        SidebarView(focus, configSelectionManager: configSelectionManager,
                     groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0)) }
-          .focused(focus, equals: .groups)
       },
       content: {
-        ContentView(contentSelectionManager: contentSelectionManager,
+        ContentView(focus, contentSelectionManager: contentSelectionManager,
                     groupSelectionManager: groupsSelectionManager,
                     onAction: { action in
           onAction(.content(action))
         })
-        .focused(focus, equals: .workflows)
       },
       detail: {
-        DetailView(focus, onAction: { onAction(.detail($0)) })
+        DetailView(focus,
+                   applicationTriggerSelectionManager: applicationTriggerSelectionManager,
+                   commandSelectionManager: commandSelectionManager,
+                   keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+                   onAction: { onAction(.detail($0)) })
           .edgesIgnoringSafeArea(.top)
       })
     .navigationSplitViewStyle(.balanced)
@@ -71,9 +85,13 @@ struct ContainerView: View {
 struct ContainerView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContainerView(focus: $focus, configSelectionManager: .init(),
+    ContainerView(focus: $focus,
+                  applicationTriggerSelectionManager: .init(),
+                  commandSelectionManager: .init(),
+                  configSelectionManager: .init(),
                   contentSelectionManager: .init(),
-                  groupsSelectionManager: .init()) { _ in }
+                  groupsSelectionManager: .init(),
+                  keyboardShortcutSelectionManager: .init()) { _ in }
       .designTime()
       .frame(height: 800)
   }

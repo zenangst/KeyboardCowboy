@@ -36,18 +36,20 @@ struct GroupsView: View {
   @EnvironmentObject private var contentPublisher: ContentPublisher
 
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
+  private var focusPublisher = FocusPublisher<GroupViewModel>()
 
+  var focus: FocusState<AppFocus?>.Binding
   @State private var confirmDelete: Confirm?
-
-  @FocusState var focus: AppFocus?
-  @Environment(\.resetFocus) var resetFocus
+  @State private var dropDestination: Int?
 
   private let debounceSelectionManager: DebounceManager<GroupDebounce>
   private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (Action) -> Void
 
-  init(selectionManager: SelectionManager<GroupViewModel>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       selectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (Action) -> Void) {
+    self.focus = focus
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
     self.debounceSelectionManager = .init(.init(groups: selectionManager.selections), milliseconds: 100, onUpdate: { snapshot in
@@ -63,73 +65,76 @@ struct GroupsView: View {
       emptyView()
     }
   }
-
+  
   private func contentView() -> some View {
-    VStack(spacing: 0) {
-      ScrollViewReader { proxy in
-        List(selection: $selectionManager.selections) {
-          ForEach(publisher.data) { group in
+    ScrollViewReader { proxy in
+      ScrollView {
+        LazyVStack(spacing: 0) {
+          ForEach($publisher.data) { element in
+            let group = element.wrappedValue
             GroupItemView(group, selectionManager: selectionManager, onAction: onAction)
               .contentShape(Rectangle())
-              .onTapGesture {
-                focus = .groups
-                selectionManager.handleOnTap(publisher.data, element: group)
-              }
-              .draggable(DraggableView.group([group]))
-              .listRowInsets(EdgeInsets(top: 0, leading: -2, bottom: 0, trailing: 4))
               .overlay(content: { confirmDeleteView(group) })
-              .offset(x: 2)
+              .padding(.vertical, 4)
+              .padding(.horizontal, 8)
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
               })
-              .tag(group)
-              .listRowBackground(GroupBackgroundView(
-                isFocused: $focus,
-                selectionManager: selectionManager,
-                group: group))
-          }
-          .dropDestination(for: DraggableView.self) { items, index in
-            for item in items {
-              switch item {
-              case .group(let groups):
-                let source = moveManager.onDropDestination(
-                  groups, index: index,
-                  data: publisher.data,
-                  selections: selectionManager.selections)
-                onAction(.moveGroups(source: source, destination: index))
-              case .workflow(let workflows):
-                let group = groupStore.groups[max(index-1,0)]
-                let workflowIds = Set(workflows.map(\.id))
-                if NSEvent.modifierFlags.contains(.option) {
-                  onAction(.copyWorkflows(workflowIds: workflowIds, groupId: group.id))
-                } else {
-                  onAction(.moveWorkflows(workflowIds: workflowIds, groupId: group.id))
-                }
+              .onTapGesture {
+                selectionManager.handleOnTap(publisher.data, element: element.wrappedValue)
+                focusPublisher.publish(element.id)
               }
-            }
+              .background(
+                FocusView(focusPublisher, element: element,
+                          selectionManager: selectionManager,
+                          cornerRadius: 4, style: .list)
+              )
+              .draggable(element.wrappedValue.draggablePayload(prefix: "WG:", selections: selectionManager.selections))
+              .dropDestination(for: String.self) { items, location in
+                guard let (from, destination) = $publisher.data.moveOffsets(for: element, with: items.draggablePayload(prefix: "WG:")) else {
+                  return false
+                }
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+                  publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
+                }
+
+                onAction(.moveGroups(source: from, destination: destination))
+                return true
+              }
+              .tag(group)
           }
-          .onMove { source, destination in
-            onAction(.moveGroups(source: source, destination: destination))
+          .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+            focus.wrappedValue = .workflows
+          })
+          .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: { })
+          .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+            selectionManager.selections = Set(publisher.data.map(\.id))
+          })
+          .onMoveCommand(perform: { direction in
+            if let elementID = selectionManager.handle(
+              direction,
+              publisher.data,
+              proxy: proxy,
+              vertical: true) {
+              focusPublisher.publish(elementID)
+            }
+          })
+          .onDeleteCommand {
+            confirmDelete = .multiple(ids: Array(selectionManager.selections))
           }
         }
-        .onDeleteCommand(perform: {
-          if publisher.data.count > 1 {
-            confirmDelete = .multiple(ids: Array(selectionManager.selections))
-          } else if let first = publisher.data.first {
-            confirmDelete = .single(id: first.id)
-          }
-        })
+        .padding(8)
+        .focused(focus, equals: .groups)
         .onReceive(selectionManager.$selections, perform: { newValue in
           confirmDelete = nil
+          selectionManager.selectedColor = Color(nsColor: getColor())
           debounceSelectionManager.process(.init(groups: newValue))
         })
-        .focused($focus, equals: .groups)
         .onAppear {
           if let firstSelection = selectionManager.selections.first {
             proxy.scrollTo(firstSelection)
           }
         }
-        .debugEdit()
       }
 
       AddButtonView("Add Group") {
@@ -137,9 +142,21 @@ struct GroupsView: View {
       }
       .font(.caption)
       .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(8)
+      .padding([.leading, .bottom], 8)
       .debugEdit()
     }
+  }
+
+  private func getColor() -> NSColor {
+    let color: NSColor
+    if let groupId = selectionManager.selections.first,
+       let group = publisher.data.first(where: { $0.id == groupId }),
+       !group.color.isEmpty {
+      color = .init(hex: group.color).blended(withFraction: 0.4, of: .black)!
+    } else {
+      color = .controlAccentColor
+    }
+    return color
   }
 
   func confirmDeleteView(_ group: GroupViewModel) -> some View {
@@ -163,23 +180,6 @@ struct GroupsView: View {
     .background(Color(.windowBackgroundColor).cornerRadius(4))
     .opacity(confirmDelete?.contains(group.id) == true ? 1 : 0)
     .padding(2)
-  }
-
-  @ViewBuilder
-  func selectedBackground(_ group: GroupViewModel) -> some View {
-    Group {
-      if selectionManager.selections.contains(group.id) {
-        Color(nsColor:
-                focus == .groups
-              ? .init(hex: group.color).blended(withFraction: 0.5, of: .black)!
-              : .init(hex: group.color)
-        )
-      }
-    }
-    .cornerRadius(4, antialiased: true)
-    .padding(.horizontal, 10)
-    .grayscale(controlActiveState == .active ? 0.0 : 0.5)
-    .opacity(focus == .groups ? 1.0 : 0.1)
   }
 
   private func emptyView() -> some View {
@@ -239,8 +239,10 @@ struct GroupsView: View {
 }
 
 struct GroupsView_Provider: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
-    GroupsView(selectionManager: .init(), onAction: { _ in })
+    GroupsView($focus, selectionManager: .init(), onAction: { _ in })
       .designTime()
   }
 }
+

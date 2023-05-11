@@ -14,6 +14,7 @@ struct LargeTextFieldStyle: TextFieldStyle {
       .background(
         RoundedRectangle(cornerRadius: 4)
           .stroke(Color(isFocused ? .controlAccentColor : .windowFrameTextColor), lineWidth: 2)
+          .compositingGroup()
           .shadow(color: Color(isFocused ? .controlAccentColor : .clear), radius: 2)
           .opacity(isFocused ? 0.75 : isHovered ? 0.25 : 0)
       )

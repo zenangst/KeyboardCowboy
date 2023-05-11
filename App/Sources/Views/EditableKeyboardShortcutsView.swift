@@ -16,8 +16,18 @@ struct EditableKeyboardShortcutsView: View {
 
   private let placeholderId = "keyboard_shortcut_placeholder_id"
   private let animation: Animation = .easeOut(duration: 0.2)
-  private let focusManager = EditableFocusManager<KeyShortcut.ID>()
-  private let selectionManager = EditableSelectionManager<KeyShortcut>()
+  private let focusPublisher = FocusPublisher<KeyShortcut>()
+  private let selectionManager: SelectionManager<KeyShortcut>
+
+  var onTab: (Bool) -> Void
+
+  init(_ keyboardShortcuts: Binding<[KeyShortcut]>,
+       selectionManager: SelectionManager<KeyShortcut>,
+       onTab: @escaping (Bool) -> Void) {
+    _keyboardShortcuts = keyboardShortcuts
+    self.onTab = onTab
+    self.selectionManager = selectionManager
+  }
 
   var body: some View {
     ScrollViewReader { proxy in
@@ -61,29 +71,8 @@ struct EditableKeyboardShortcutsView: View {
   }
 
   private func content(_ proxy: ScrollViewProxy) -> some View {
-    EditableStack(
-      $keyboardShortcuts,
-      configuration: .init(axes: .horizontal, selectedColor: selectedColor),
-      focusManager: focusManager,
-      selectionManager: selectionManager,
-      scrollProxy: proxy,
-      onClick: { id, index in
-        if replacing == id {
-          record()
-        }
-        replacing = id
-      },
-      onMove: { from, to in
-        withAnimation(.spring(response: 0.55, dampingFraction: 0.6)) {
-          keyboardShortcuts.move(fromOffsets: from, toOffset: to)
-        }
-      },
-      onDelete: { offsets in
-        withAnimation(animation) {
-          keyboardShortcuts.remove(atOffsets: offsets)
-        }
-      },
-      content: { keyboardShortcut, _ in
+    LazyHStack {
+      ForEach($keyboardShortcuts) { keyboardShortcut in
         HStack(spacing: 6) {
           ForEach(keyboardShortcut.wrappedValue.modifiers) { modifier in
             ModifierKeyIcon(
@@ -119,8 +108,45 @@ struct EditableKeyboardShortcutsView: View {
             .stroke(Color(.disabledControlTextColor))
             .opacity(0.5)
         )
+        .onTapGesture {
+          selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
+          focusPublisher.publish(keyboardShortcut.id)
+        }
+        .background(
+          FocusView(focusPublisher, element: keyboardShortcut,
+                    selectionManager: selectionManager, cornerRadius: 8, style: .focusRing)
+        )
         .id(keyboardShortcut.id)
+      }
+      .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+        onTab(true)
       })
+      .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
+        onTab(false)
+      })
+      .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+        Swift.print("selectAll")
+        selectionManager.selections = Set(keyboardShortcuts.map(\.id))
+      })
+      .onMoveCommand(perform: { direction in
+        if let elementID = selectionManager.handle(
+          direction,
+          keyboardShortcuts,
+          proxy: proxy,
+          vertical: false) {
+          focusPublisher.publish(elementID)
+        }
+      })
+      .onDeleteCommand {
+        let fromOffsets = IndexSet(keyboardShortcuts.enumerated()
+          .filter { selectionManager.selections.contains($0.element.id) }
+          .map { $0.offset })
+
+        withAnimation(animation) {
+          keyboardShortcuts.remove(atOffsets: fromOffsets)
+        }
+      }
+    }
     .padding(4)
   }
 
@@ -159,7 +185,7 @@ struct EditableKeyboardShortcutsView: View {
 
   private func addButtonAction(_ proxy: ScrollViewProxy) {
     let keyShortcut = KeyShortcut(id: placeholderId, key: "Recording ...", lhs: true)
-    focusManager.focus = .focused(keyShortcut.id)
+    focusPublisher.publish(keyShortcut.id)
     selectionManager.selections = [keyShortcut.id]
     state = .recording
     recorderStore.mode = .record

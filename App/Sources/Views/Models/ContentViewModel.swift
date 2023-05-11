@@ -47,6 +47,6 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
 
 extension UTType {
   static var workflow: UTType {
-    UTType(exportedAs: "com.zenangst.Keyboard-Cowboy.Workflow")
+    UTType(exportedAs: "com.zenangst.Keyboard-Cowboy.Workflow", conformingTo: .data)
   }
 }

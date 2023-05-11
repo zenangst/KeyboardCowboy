@@ -17,10 +17,13 @@ struct SidebarView: View {
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
   private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(configSelectionManager: SelectionManager<ConfigurationViewModel>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       configSelectionManager: SelectionManager<ConfigurationViewModel>,
        groupSelectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (Action) -> Void) {
+    self.focus = focus
     self.configSelectionManager = configSelectionManager
     self.groupSelectionManager = groupSelectionManager
     self.onAction = onAction
@@ -64,7 +67,7 @@ struct SidebarView: View {
         .padding(.horizontal, 12)
         .padding(.top)
         .padding(.bottom, 8)
-      GroupsView(selectionManager: groupSelectionManager) { action in
+      GroupsView(focus, selectionManager: groupSelectionManager) { action in
         switch action {
         case .selectGroups(let ids):
           onAction(.selectGroups(ids))
@@ -87,8 +90,9 @@ struct SidebarView: View {
 }
 
 struct SidebarView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
-    SidebarView(configSelectionManager: .init(), groupSelectionManager: .init()) { _ in }
+    SidebarView($focus, configSelectionManager: .init(), groupSelectionManager: .init()) { _ in }
       .designTime()
   }
 }

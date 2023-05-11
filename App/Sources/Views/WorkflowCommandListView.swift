@@ -6,34 +6,31 @@ struct WorkflowCommandListView: View {
   @Environment(\.openWindow) var openWindow
   @EnvironmentObject var applicationStore: ApplicationStore
   @ObservedObject private var detailPublisher: DetailPublisher
+  @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.CommandViewModel>
   @State private var selections = Set<String>()
   @State private var dropOverlayIsVisible: Bool = false
   @State private var dropUrls = Set<URL>()
-  private var focusManager = EditableFocusManager<DetailViewModel.CommandViewModel.ID>()
+  private var focusPublisher = FocusPublisher<DetailViewModel.CommandViewModel>()
   private let scrollViewProxy: ScrollViewProxy?
   private let onAction: (SingleDetailView.Action) -> Void
+  private let focus: FocusState<AppFocus?>.Binding
 
-  init(_ detailPublisher: DetailPublisher,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       publisher: DetailPublisher,
+       selectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
        scrollViewProxy: ScrollViewProxy? = nil,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
-    _detailPublisher = .init(initialValue: detailPublisher)
+    self.focus = focus
+    _detailPublisher = .init(initialValue: publisher)
+    self.selectionManager = selectionManager
     self.scrollViewProxy = scrollViewProxy
     self.onAction = onAction
   }
 
+  @ViewBuilder
   var body: some View {
-    EditableStack(
-      $detailPublisher.data.commands,
-      configuration: .init(lazy: true,
-                           uttypes: GenericDroplet<DetailViewModel.CommandViewModel>.writableTypeIdentifiersForItemProvider,
-                           spacing: 10),
-      dropDelegates: [
-        WorkflowCommandDropUrlDelegate(isVisible: $dropOverlayIsVisible,
-                                       urls: $dropUrls) {
-                                         onAction(.dropUrls(workflowId: detailPublisher.data.id, urls: $0))
-                                       }
-      ],
-      emptyView: {
+    Group {
+      if detailPublisher.data.commands.isEmpty {
         VStack {
           Button(action: {
             openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
@@ -54,51 +51,76 @@ struct WorkflowCommandListView: View {
           .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
         }
         .frame(maxWidth: .infinity)
-      },
-      focusManager: focusManager,
-      scrollProxy: scrollViewProxy,
-      itemProvider: {
-        NSItemProvider(object: GenericDroplet($0))
-      },
-      onSelection: { self.selections = $0 },
-      onMove: { indexSet, toOffset in
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-          detailPublisher.data.commands.move(fromOffsets: indexSet, toOffset: toOffset)
+      } else {
+        LazyVStack(spacing: 10) {
+          ForEach($detailPublisher.data.commands) { element in
+            let command = element
+            CommandView(command, workflowId: detailPublisher.data.id) { action in
+              onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
+            }
+            .contextMenu(menuItems: { contextMenu(command) })
+            .onTapGesture {
+              selectionManager.handleOnTap(detailPublisher.data.commands, element: element.wrappedValue)
+              focusPublisher.publish(element.id)
+            }
+            .background(
+              FocusView(focusPublisher, element: element,
+                        selectionManager: selectionManager, cornerRadius: 8,
+                        style: .focusRing)
+            )
+          }
+          .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
+            let lastSelection = selectionManager.lastSelection
+            if let elementID = selectionManager.handle(.up, detailPublisher.data.commands,
+                                                       proxy: scrollViewProxy) {
+              if lastSelection == detailPublisher.data.commands.first?.id {
+                focus.wrappedValue = .detail(.name)
+              } else {
+                focusPublisher.publish(elementID)
+              }
+            }
+          })
+          .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+            if let elementID = selectionManager.handle(.down, detailPublisher.data.commands,
+                                                       proxy: scrollViewProxy) {
+              focusPublisher.publish(elementID)
+            }
+          })
+          .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+            selectionManager.selections = Set(detailPublisher.data.commands.map(\.id))
+          })
+          .onMoveCommand(perform: { direction in
+            if let elementID = selectionManager.handle(direction, detailPublisher.data.commands,
+                                                       proxy: scrollViewProxy) {
+              focusPublisher.publish(elementID)
+            }
+          })
         }
-        onAction(.moveCommand(workflowId: $detailPublisher.data.id, indexSet: indexSet, toOffset: toOffset))
-      },
-      onDelete: { indexSet in
-        var ids = Set<Command.ID>()
-        indexSet.forEach { ids.insert(detailPublisher.data.commands[$0].id) }
-        onAction(.removeCommands(workflowId: $detailPublisher.data.id, commandIds: ids))
-      }) { command, index in
-        CommandView(command, workflowId: detailPublisher.data.id) { action in
-          onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
-        }
-        .contextMenu(menuItems: { contextMenu(command) })
+        .focused(focus, equals: .detail(.commands))
       }
-      .padding()
-      .overlay {
-        LinearGradient(stops: [
-          .init(color: Color(.systemGreen).opacity(0.75), location: 0.0),
-          .init(color: Color(.systemGreen).opacity(0.25), location: 1.0),
-        ], startPoint: .bottomTrailing, endPoint: .topLeading)
-        .mask(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(style: StrokeStyle(lineWidth: 2, dash: [8]))
-            .foregroundColor(Color(.systemGreen))
-            .padding(8)
-        )
-        .shadow(color: .black, radius: 1)
-        .opacity(dropOverlayIsVisible ? 1 : 0)
-
-        Color(.systemGreen).opacity(0.1)
-          .cornerRadius(4)
+    }
+    .padding()
+    .overlay {
+      LinearGradient(stops: [
+        .init(color: Color(.systemGreen).opacity(0.75), location: 0.0),
+        .init(color: Color(.systemGreen).opacity(0.25), location: 1.0),
+      ], startPoint: .bottomTrailing, endPoint: .topLeading)
+      .mask(
+        RoundedRectangle(cornerRadius: 4)
+          .stroke(style: StrokeStyle(lineWidth: 2, dash: [8]))
+          .foregroundColor(Color(.systemGreen))
           .padding(8)
-          .opacity(dropOverlayIsVisible ? 1 : 0)
-          .animation(.linear, value: dropOverlayIsVisible)
-      }
-      .debugEdit()
+      )
+      .shadow(color: .black, radius: 1)
+      .opacity(dropOverlayIsVisible ? 1 : 0)
+
+      Color(.systemGreen).opacity(0.1)
+        .cornerRadius(4)
+        .padding(8)
+        .opacity(dropOverlayIsVisible ? 1 : 0)
+        .animation(.linear, value: dropOverlayIsVisible)
+    }
+    .debugEdit()
   }
 
   @ViewBuilder
@@ -122,8 +144,11 @@ struct WorkflowCommandListView: View {
 }
 
 struct WorkflowCommandListView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowCommandListView(DetailPublisher(DesignTime.detail)) { _ in }
+    WorkflowCommandListView($focus,
+                            publisher: DetailPublisher(DesignTime.detail),
+                            selectionManager: .init()) { _ in }
       .frame(height: 900)
   }
 }

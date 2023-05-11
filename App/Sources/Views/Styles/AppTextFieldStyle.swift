@@ -13,6 +13,7 @@ struct AppTextFieldStyle: TextFieldStyle {
           .stroke(Color(isFocused ? .controlAccentColor.withAlphaComponent(0.5) : .windowFrameTextColor), lineWidth: 1)
           .opacity(isFocused ? 0.75 : isHovered ? 0.15 : 0)
       )
+      .compositingGroup()
       .shadow(color: isFocused ? .accentColor.opacity(0.8) : Color(.sRGBLinear, white: 0, opacity: 0.33),
               radius: isFocused ? 1.0 : 0.0)
       .onHover(perform: { newValue in  withAnimation { isHovered = newValue } })

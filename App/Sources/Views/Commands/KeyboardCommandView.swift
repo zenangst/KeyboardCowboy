@@ -52,7 +52,9 @@ struct KeyboardCommandView: View {
               })
               .frame(maxWidth: .infinity)
           }
-          EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
+          EditableKeyboardShortcutsView($keyboardShortcuts,
+                                        selectionManager: .init(),
+                                        onTab: { _ in })
             .onChange(of: keyboardShortcuts) { newValue in
               onAction(.updateKeyboardShortcuts(newValue))
             }

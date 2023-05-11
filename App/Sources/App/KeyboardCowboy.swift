@@ -70,6 +70,10 @@ struct KeyboardCowboy: App {
       Self.appStorage.workflowIds = $0
     }
 
+    let keyboardShortcutSelectionManager = SelectionManager<KeyShortcut>()
+    let applicationTriggerSelectionManager = SelectionManager<DetailViewModel.ApplicationTrigger>()
+    let commandSelectionManager = SelectionManager<DetailViewModel.CommandViewModel>()
+
     // Coordinators
     let configCoordinator = ConfigurationCoordinator(
       contentStore: contentStore,
@@ -86,16 +90,20 @@ struct KeyboardCowboy: App {
       contentStore.groupStore,
       applicationStore: applicationStore,
       contentSelectionManager: contentSelectionManager,
-      groupSelectionManager: groupSelectionManager)
+      groupSelectionManager: groupSelectionManager
+    )
 
     let detailCoordinator = DetailCoordinator(applicationStore: applicationStore,
+                                              applicationTriggerSelectionManager: applicationTriggerSelectionManager,
                                               commandEngine: CommandEngine(NSWorkspace.shared,
                                                                            scriptEngine: scriptEngine,
                                                                            keyboardEngine: keyboardEngine),
+                                              commandSelectionManager: commandSelectionManager,
                                               contentSelectionManager: contentSelectionManager,
                                               contentStore: contentStore,
                                               groupSelectionManager: groupSelectionManager,
                                               keyboardCowboyEngine: engine,
+                                              keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
                                               groupStore: contentStore.groupStore)
 
 
@@ -136,9 +144,12 @@ struct KeyboardCowboy: App {
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
       applyEnvironmentObjects(
         ContainerView(focus: $focus,
+                      applicationTriggerSelectionManager: detailCoordinator.applicationTriggerSelectionManager,
+                      commandSelectionManager: detailCoordinator.commandSelectionManager,
                       configSelectionManager: configurationCoordinator.selectionManager,
-                      contentSelectionManager: contentCoordinator.selectionManager,
-                      groupsSelectionManager: sidebarCoordinator.selectionManager
+                      contentSelectionManager: contentCoordinator.contentSelectionManager,
+                      groupsSelectionManager: sidebarCoordinator.selectionManager,
+                      keyboardShortcutSelectionManager: detailCoordinator.keyboardShortcutSelectionManager
                      ) { action in
           switch action {
           case .openScene(let scene):

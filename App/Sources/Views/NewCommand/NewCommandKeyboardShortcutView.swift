@@ -27,7 +27,7 @@ struct NewCommandKeyboardShortcutView: View {
         Spacer()
       }
 
-      EditableKeyboardShortcutsView(keyboardShortcuts: $keyboardShortcuts)
+      EditableKeyboardShortcutsView($keyboardShortcuts, selectionManager: .init(), onTab: { _ in })
         .overlay(NewCommandValidationView($validation).padding(-8))
         .frame(minHeight: 48)
         .background(

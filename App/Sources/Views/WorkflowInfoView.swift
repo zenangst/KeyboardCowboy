@@ -24,12 +24,19 @@ struct WorkflowInfoView: View {
   var body: some View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $workflowName)
+        .onCommand(#selector(NSTextField.insertTab(_:)), perform: {
+          focus.wrappedValue = .detail(.applicationTriggers)
+        })
+        .onCommand(#selector(NSTextField.insertBacktab(_:)), perform: {
+          focus.wrappedValue = .workflows
+        })
         .focused(focus, equals: .detail(.name))
         .frame(height: 32)
         .textFieldStyle(LargeTextFieldStyle())
         .onChange(of: workflowName) { newValue in
           onAction(.updateName(name: newValue))
         }
+
       Spacer()
       Toggle("", isOn: $isEnabled)
         .toggleStyle(SwitchToggleStyle())

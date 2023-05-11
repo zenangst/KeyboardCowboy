@@ -7,8 +7,8 @@ final class ContentCoordinator {
   private let mapper: ContentModelMapper
   private let applicationStore: ApplicationStore
 
+  let contentSelectionManager: SelectionManager<ContentViewModel>
   let groupSelectionManager: SelectionManager<GroupViewModel>
-  let selectionManager: SelectionManager<ContentViewModel>
   let publisher: ContentPublisher = ContentPublisher()
 
   init(_ store: GroupStore,
@@ -19,7 +19,7 @@ final class ContentCoordinator {
     self.store = store
     self.groupSelectionManager = groupSelectionManager
     self.mapper = ContentModelMapper()
-    self.selectionManager = contentSelectionManager
+    self.contentSelectionManager = contentSelectionManager
 
     enableInjection(self, selector: #selector(injected(_:)))
 
@@ -41,7 +41,15 @@ final class ContentCoordinator {
     case .selectConfiguration:
       render(groupSelectionManager.selections, calculateSelections: true)
     case .selectGroups(let ids):
+      let shouldRemoveLastSelection = !publisher.data.isEmpty
       handle(.rerender(ids))
+      if shouldRemoveLastSelection {
+        if let firstId = publisher.data.first?.id {
+          contentSelectionManager.setLastSelection(firstId)
+        } else {
+          contentSelectionManager.removeLastSelection()
+        }
+      }
     case .moveGroups:
       break
     case .removeGroups:
@@ -66,7 +74,7 @@ final class ContentCoordinator {
     ContentViewActionReducer.reduce(
       action,
       groupStore: store,
-      selectionManager: selectionManager,
+      selectionManager: contentSelectionManager,
       group: &group)
 
     switch action {
@@ -107,7 +115,7 @@ final class ContentCoordinator {
 
     var viewModels = [ContentViewModel]()
     var newSelections = Set<ContentViewModel.ID>()
-    var selectedWorkflowIds = selectionManager.selections
+    var selectedWorkflowIds = contentSelectionManager.selections
     var firstViewModel: ContentViewModel?
 
     for offset in store.groups.indices {
@@ -138,14 +146,14 @@ final class ContentCoordinator {
         if newSelections.isEmpty, let first = viewModels.first {
           newSelections = [first.id]
         }
-      } else if !selectionManager.selections.intersection(viewModels.map(\.id)).isEmpty {
-        newSelections = selectionManager.selections
+      } else if !contentSelectionManager.selections.intersection(viewModels.map(\.id)).isEmpty {
+        newSelections = contentSelectionManager.selections
       } else if newSelections.isEmpty, let first = firstViewModel {
         newSelections = [first.id]
       }
-      selectionManager.selections = newSelections
+      contentSelectionManager.selections = newSelections
     } else if let selectionOverrides {
-      selectionManager.selections = selectionOverrides
+      contentSelectionManager.selections = selectionOverrides
     }
 
     publisher.publish(viewModels)

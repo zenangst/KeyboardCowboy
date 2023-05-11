@@ -9,7 +9,7 @@ final class NSEventController: ObservableObject {
   fileprivate init() {
     NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown]) { [weak self] event in
       guard let self else { return event }
-      if event.type == .keyDown {
+      if event.type == .keyDown, event.isARepeat {
         keyDown = true
       } else {
         keyDown = false

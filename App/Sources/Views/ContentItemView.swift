@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentItemView: View {
+  @State var isHovered: Bool = false
   @ObserveInjection var inject
   let workflow: ContentViewModel
 
@@ -34,13 +35,18 @@ struct ContentItemView: View {
             .offset(x: 4, y: 0)
             .compositingGroup()
             .shadow(color: .black.opacity(0.75), radius: 2)
-            .opacity(workflow.badgeOpacity)
+            .opacity(isHovered ? 0 : workflow.badgeOpacity)
+            .animation(.default, value: isHovered)
         })
         .frame(width: 32, height: 32)
+        .onHover { newValue in
+          isHovered = newValue
+        }
 
       Text(workflow.name)
         .lineLimit(1)
         .allowsTightening(true)
+        .frame(maxWidth: .infinity, alignment: .leading)
 
       if let binding = workflow.binding {
         Spacer()
@@ -51,6 +57,7 @@ struct ContentItemView: View {
           .layoutPriority(-1)
       }
     }
+    .contentShape(Rectangle())
     .debugEdit()
   }
 }

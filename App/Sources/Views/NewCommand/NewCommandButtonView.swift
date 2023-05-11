@@ -20,11 +20,6 @@ struct NewCommandButtonView<Content>: View where Content: View {
         .foregroundColor(isFocused ? Color(.controlAccentColor) : Color(.textColor))
         .shadow(color: Color(.controlAccentColor).opacity(isFocused ? 0.5 : 0), radius: 4)
     }
-    .background {
-      ZStack {
-        FocusableProxy(onKeyDown: onKeyDown)
-      }
-    }
     .buttonStyle(.plain)
     .focusable()
     .focused($isFocused)

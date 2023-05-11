@@ -11,10 +11,20 @@ struct DetailView: View {
   @EnvironmentObject var detailPublisher: DetailPublisher
   private var onAction: (DetailView.Action) -> Void
 
+  private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
+  private let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
+  private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
+
   init(_ focus: FocusState<AppFocus?>.Binding,
+       applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
+       commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
+       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (DetailView.Action) -> Void) {
     self.focus = focus
     self.onAction = onAction
+    self.commandSelectionManager = commandSelectionManager
+    self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
+    self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
   }
 
   @ViewBuilder
@@ -28,7 +38,11 @@ struct DetailView: View {
       case .single:
         SingleDetailView(
           focus,
-          detailPublisher: detailPublisher, onAction: {
+          detailPublisher: detailPublisher,
+          applicationTriggerSelectionManager: applicationTriggerSelectionManager,
+          commandSelectionManager: commandSelectionManager,
+          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+          onAction: {
             onAction(.singleDetailView($0))
           })
       case .multiple(let viewModels):
@@ -47,7 +61,9 @@ struct DetailView: View {
 struct DetailView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    DetailView($focus) { _ in }
+    DetailView($focus, applicationTriggerSelectionManager: .init(),
+               commandSelectionManager: .init(),
+               keyboardShortcutSelectionManager: .init()) { _ in }
       .designTime()
       .frame(height: 650)
   }

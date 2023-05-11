@@ -16,6 +16,6 @@ struct GroupViewModel: Identifiable, Hashable, Codable, Sendable, Transferable {
 
 extension UTType {
   static var workflowGroup: UTType {
-    UTType(exportedAs: "com.zenangst.Keyboard-Cowboy.WorkflowGroup")
+    UTType(exportedAs: "com.zenangst.Keyboard-Cowboy.WorkflowGroup", conformingTo: .data)
   }
 }

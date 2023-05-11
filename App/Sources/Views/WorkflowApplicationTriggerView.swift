@@ -9,12 +9,22 @@ struct WorkflowApplicationTriggerView: View {
 
   @EnvironmentObject var applicationStore: ApplicationStore
 
-  @State private var triggers: [DetailViewModel.ApplicationTrigger]
+  @State private var data: [DetailViewModel.ApplicationTrigger]
   @State private var selection: String = UUID().uuidString
+
+  @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
+  private var focusPublisher = FocusPublisher<DetailViewModel.ApplicationTrigger>()
+
+  private var focus: FocusState<AppFocus?>.Binding
   private let onAction: (Action) -> Void
 
-  init(_ triggers: [DetailViewModel.ApplicationTrigger], onAction: @escaping (Action) -> Void) {
-    _triggers = .init(initialValue: triggers)
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       data: [DetailViewModel.ApplicationTrigger],
+       selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
+       onAction: @escaping (Action) -> Void) {
+    self.focus = focus
+    self.selectionManager = selectionManager
+    _data = .init(initialValue: data)
     self.onAction = onAction
   }
 
@@ -25,9 +35,9 @@ struct WorkflowApplicationTriggerView: View {
           ForEach(applicationStore.applications) { application in
             Button(action: {
               let uuid = UUID()
-              triggers.append(.init(id: uuid.uuidString, name: application.displayName,
+              data.append(.init(id: uuid.uuidString, name: application.displayName,
                                     application: application, contexts: []))
-              onAction(.updateApplicationTriggers(triggers))
+              onAction(.updateApplicationTriggers(data))
             }, label: {
               Text(application.displayName)
             })
@@ -37,61 +47,82 @@ struct WorkflowApplicationTriggerView: View {
       }
       .padding(.horizontal, 4)
 
-      EditableStack($triggers,
-                    configuration: .init(lazy: true, spacing: 2),
-                    onMove: { from, to in
-        withAnimation {
-          triggers.move(fromOffsets: from, toOffset: to)
-        }
-        onAction(.updateApplicationTriggers(triggers))
-      }, onDelete: { triggers.remove(atOffsets: $0) }) { trigger, _ in
-        HStack(spacing: 0) {
-          IconView(icon: trigger.wrappedValue.icon, size: .init(width: 36, height: 36))
-          VStack(alignment: .leading, spacing: 4) {
-            Text(trigger.name.wrappedValue)
-            HStack {
-              ForEach(DetailViewModel.ApplicationTrigger.Context.allCases) { context in
-                Toggle(context.displayValue, isOn: Binding<Bool>(get: {
-                  trigger.contexts.wrappedValue.contains(context)
-                }, set: { newValue in
-                  if newValue {
-                    trigger.contexts.wrappedValue.append(context)
-                  } else {
-                    trigger.contexts.wrappedValue.removeAll(where: { $0 == context })
-                  }
+      LazyVStack(spacing: 4) {
+        ForEach($data) { element in
+          HStack(spacing: 0) {
+            IconView(icon: element.wrappedValue.icon, size: .init(width: 36, height: 36))
+            VStack(alignment: .leading, spacing: 4) {
+              Text(element.name.wrappedValue)
+              HStack {
+                ForEach(DetailViewModel.ApplicationTrigger.Context.allCases) { context in
+                  Toggle(context.displayValue, isOn: Binding<Bool>(get: {
+                    element.contexts.wrappedValue.contains(context)
+                  }, set: { newValue in
+                    if newValue {
+                      element.contexts.wrappedValue.append(context)
+                    } else {
+                      element.contexts.wrappedValue.removeAll(where: { $0 == context })
+                    }
 
-                  onAction(.updateApplicationTriggerContext(trigger.wrappedValue))
-                }))
-                .font(.caption)
+                    onAction(.updateApplicationTriggerContext(element.wrappedValue))
+                  }))
+                  .font(.caption)
+                }
               }
             }
+            .padding(8)
+            Spacer()
+            Divider()
+              .opacity(0.25)
+            Button(
+              action: {
+                if let index = data.firstIndex(of: element.wrappedValue) {
+                  data.remove(at: index)
+                }
+                onAction(.updateApplicationTriggers(data))
+              },
+              label: {
+                Image(systemName: "xmark")
+                  .resizable()
+                  .aspectRatio(contentMode: .fill)
+                  .frame(width: 8, height: 8)
+              })
+            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
+            .padding(.horizontal, 8)
           }
-          .padding(.horizontal, 8)
-          .padding(.vertical, 8)
-          Spacer()
-          Divider()
-            .opacity(0.25)
-          Button(
-            action: {
-              if let index = triggers.firstIndex(of: trigger.wrappedValue) {
-                triggers.remove(at: index)
-              }
-              onAction(.updateApplicationTriggers(triggers))
-            },
-            label: {
-              Image(systemName: "xmark")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 8, height: 8)
-            })
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
-          .padding(.horizontal, 8)
+          .padding(.leading, 8)
+          .background(Color(.textBackgroundColor).opacity(0.75))
+          .cornerRadius(8)
+          .compositingGroup()
+          .shadow(radius: 2)
+          .onTapGesture {
+            selectionManager.handleOnTap(data, element: element.wrappedValue)
+            focusPublisher.publish(element.id)
+          }
+          .background(
+            FocusView(focusPublisher, element: element, selectionManager: selectionManager,
+                      cornerRadius: 8, style: .focusRing)
+          )
         }
-        .padding(.leading, 8)
-        .background(Color(.textBackgroundColor).opacity(0.75))
-        .cornerRadius(8)
-        .shadow(radius: 2)
+        .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+          focus.wrappedValue = .detail(.commands)
+        })
+        .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+          selectionManager.selections = Set(data.map(\.id))
+        })
+        .onMoveCommand(perform: { direction in
+          if let elementID = selectionManager.handle(direction, data, proxy: nil) {
+            focusPublisher.publish(elementID)
+          }
+        })
+        .onDeleteCommand {
+          let offsets = data.deleteOffsets(for: selectionManager.selections)
+          withAnimation {
+            data.remove(atOffsets: IndexSet(offsets))
+          }
+        }
       }
+      .focused(focus, equals: .detail(.applicationTriggers))
     }
     .debugEdit()
   }
