@@ -73,6 +73,9 @@ struct NewCommandApplicationView: View {
               application = app
               validation = updateAndValidatePayload()
             }, label: {
+              Image(nsImage: NSWorkspace.shared.icon(forFile: app.path))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
               Text(app.displayName)
             })
           }
