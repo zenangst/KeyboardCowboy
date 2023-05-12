@@ -160,9 +160,12 @@ final class ContentCoordinator {
       } else if newSelections.isEmpty, let first = firstViewModel {
         newSelections = [first.id]
       }
-      contentSelectionManager.selections = newSelections
+      contentSelectionManager.publish(newSelections)
     } else if let selectionOverrides {
-      contentSelectionManager.selections = selectionOverrides
+      contentSelectionManager.publish(selectionOverrides)
+      if let first = selectionOverrides.first {
+        contentSelectionManager.setLastSelection(first)
+      }
     }
 
     publisher.publish(viewModels)

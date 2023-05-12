@@ -59,7 +59,8 @@ struct ContainerView: View {
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
-        SidebarView(focus, configSelectionManager: configSelectionManager,
+        SidebarView(focus,
+                    configSelectionManager: configSelectionManager,
                     groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0)) }
       },
       content: {

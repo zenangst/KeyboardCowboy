@@ -28,7 +28,7 @@ struct RuleListView: View {
             }
           }
         }
-        .menuStyle(.appStyle)
+        .menuStyle(.appStyle(padding: 4))
       }
       if let rule = group.rule {
         ForEach(rule.bundleIdentifiers, id: \.self) { bundleIdentifier in

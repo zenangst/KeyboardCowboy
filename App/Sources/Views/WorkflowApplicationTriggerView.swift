@@ -31,21 +31,27 @@ struct WorkflowApplicationTriggerView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Menu("Add application") {
+        Menu {
           ForEach(applicationStore.applications) { application in
             Button(action: {
               let uuid = UUID()
-              data.append(.init(id: uuid.uuidString, name: application.displayName,
-                                    application: application, contexts: []))
+              withAnimation(WorkflowCommandListView.animation) {
+                data.append(.init(id: uuid.uuidString, name: application.displayName,
+                                  application: application, contexts: []))
+              }
               onAction(.updateApplicationTriggers(data))
             }, label: {
+              Image(nsImage: NSWorkspace.shared.icon(forFile: application.path))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
               Text(application.displayName)
             })
           }
+        } label: {
+         Text("Add application")
         }
-        .menuStyle(.automatic)
+        .menuStyle(.appStyle(padding: 8))
       }
-      .padding(.horizontal, 4)
 
       LazyVStack(spacing: 4) {
         ForEach($data) { element in
@@ -76,8 +82,10 @@ struct WorkflowApplicationTriggerView: View {
               .opacity(0.25)
             Button(
               action: {
-                if let index = data.firstIndex(of: element.wrappedValue) {
-                  data.remove(at: index)
+                withAnimation(WorkflowCommandListView.animation) {
+                  if let index = data.firstIndex(of: element.wrappedValue) {
+                    data.remove(at: index)
+                  }
                 }
                 onAction(.updateApplicationTriggers(data))
               },

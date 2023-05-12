@@ -78,7 +78,7 @@ struct NewCommandOpenView: View {
         })
       }
     }
-    .menuStyle(.appStyle)
+    .menuStyle(.appStyle(padding: 4))
     .onAppear {
       validation = .valid
       updatePayload()

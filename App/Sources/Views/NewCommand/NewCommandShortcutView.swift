@@ -34,7 +34,7 @@ struct NewCommandShortcutView: View {
       }
       .background(NewCommandValidationView($validation))
     }
-    .menuStyle(.appStyle)
+    .menuStyle(.appStyle(padding: 4))
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       withAnimation { validation = updateAndValidatePayload() }

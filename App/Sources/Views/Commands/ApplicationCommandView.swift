@@ -155,7 +155,6 @@ struct ApplicationCommandImageView: View {
         IconView(icon: icon, size: .init(width: 24, height: 24))
           .fixedSize()
       }
-        .drawingGroup()
         .allowsHitTesting(false)
     )
     .menuIndicator(.hidden)

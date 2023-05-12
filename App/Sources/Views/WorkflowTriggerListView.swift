@@ -3,6 +3,8 @@ import SwiftUI
 struct WorkflowTriggerListView: View {
   @ObserveInjection var inject
 
+  @Namespace var namespace
+
   private let data: DetailViewModel
   private let onAction: (SingleDetailView.Action) -> Void
 
@@ -40,6 +42,7 @@ struct WorkflowTriggerListView: View {
         WorkflowShortcutsView(focus, data: shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
           onAction(.updateKeyboardShortcuts(workflowId: data.id, keyboardShortcuts: keyboardShortcuts))
         }
+        .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
 
       case .applications(let triggers):
         HStack {
@@ -56,23 +59,17 @@ struct WorkflowTriggerListView: View {
           onAction(.applicationTrigger(workflowId: data.id, action: action))
         }
         .padding(.bottom, 16)
+        .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .none:
         Label("Add a trigger:", image: "")
           .padding([.leading, .trailing], 8)
         WorkflowTriggerView(onAction: { action in
           onAction(.trigger(workflowId: data.id, action: action))
         })
-
-        HStack {
-          Spacer()
-          Text("Choose if you want to bind this workflow to an application or assign it a global keyboard shortcut sequence.")
-            .multilineTextAlignment(.center)
-            .frame(alignment: .center)
-            .font(.caption)
-          Spacer()
-        }
+        .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       }
     }
+    .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: data.trigger)
   }
 }
 

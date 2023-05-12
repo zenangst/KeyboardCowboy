@@ -43,14 +43,12 @@ final class ContentViewActionReducer {
       group.workflows.removeAll(where: { ids.contains($0.id) })
 
       if group.workflows.isEmpty {
-        selectionManager.selections = []
+        selectionManager.publish([])
       } else {
         if newIndex >= group.workflows.count {
           newIndex = max(group.workflows.count - 1, 0)
         }
-        selectionManager.selections = [
-          group.workflows[newIndex].id
-        ]
+        selectionManager.publish([group.workflows[newIndex].id])
       }
     case .moveWorkflows(let source, let destination):
       group.workflows.move(fromOffsets: source, toOffset: destination)

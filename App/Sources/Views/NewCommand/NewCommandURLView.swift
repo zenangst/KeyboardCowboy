@@ -104,7 +104,7 @@ struct NewCommandURLView: View {
           }
         })
       }
-      .menuStyle(.appStyle)
+      .menuStyle(.appStyle(padding: 4))
       .zIndex(1)
     }
     .textFieldStyle(LargeTextFieldStyle())

@@ -4,9 +4,11 @@ struct ContentListEmptyView: View {
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
 
+  private let namespace: Namespace.ID
   private let onAction: (ContentView.Action) -> Void
 
-  init(onAction: @escaping (ContentView.Action) -> Void) {
+  init(_ namespace: Namespace.ID, onAction: @escaping (ContentView.Action) -> Void) {
+    self.namespace = namespace
     self.onAction = onAction
   }
 
@@ -35,6 +37,7 @@ struct ContentListEmptyView: View {
               Text("Add Workflow")
             }
             .padding(4)
+            .matchedGeometryEffect(id: "add-workflow-button", in: namespace, properties: .position)
           })
           .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
 
@@ -49,8 +52,9 @@ struct ContentListEmptyView: View {
 }
 
 struct ContentListEmptyView_Previews: PreviewProvider {
+  @Namespace static var namespace
   static var previews: some View {
-    ContentListEmptyView { _ in }
+    ContentListEmptyView(namespace) { _ in }
       .designTime()
   }
 }

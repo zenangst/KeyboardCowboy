@@ -61,8 +61,7 @@ struct OpenCommandView: View {
                 .allowsTightening(true)
                 .padding(4)
           })
-          .menuStyle(.appStyle)
-          .menuIndicator(.hidden)
+          .menuStyle(.appStyle(padding: 4))
           .frame(maxWidth: 120)
         }
       }

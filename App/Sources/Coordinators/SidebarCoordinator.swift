@@ -35,6 +35,7 @@ final class SidebarCoordinator {
   }
 
   func handle(_ context: EditWorkflowGroupWindow.Context) {
+    let storeWasEmpty = store.groups.isEmpty
     let groupId: GroupViewModel.ID
     switch context {
     case .add(let group):
@@ -44,20 +45,36 @@ final class SidebarCoordinator {
       groupId = group.id
       store.updateGroups([group])
     }
-    selectionManager.selections = [groupId]
-    render(store.groups)
+    selectionManager.publish([groupId])
+    if storeWasEmpty {
+        withAnimation(WorkflowCommandListView.animation) {
+          render(store.groups)
+        }
+    } else {
+      render(store.groups)
+    }
   }
 
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .selectConfiguration:
       if let firstGroup = store.groups.first {
-        selectionManager.selections = [firstGroup.id]
+        selectionManager.publish([firstGroup.id])
+        selectionManager.selectedColor = Color(hex: firstGroup.color)
       } else {
-        selectionManager.selections = []
+        selectionManager.publish([])
       }
       render(store.groups)
-    case .addConfiguration, .openScene, .selectGroups:
+    case .selectGroups(let ids):
+      withAnimation(.easeInOut(duration: 0.2)) {
+        if ids.count == 1, let id = ids.first, let group = store.group(withId: id) {
+          let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)!
+          selectionManager.selectedColor = Color(nsColor: nsColor)
+        } else {
+          selectionManager.selectedColor = Color.accentColor
+        }
+      }
+    case .addConfiguration, .openScene:
       break
     case .removeGroups(let ids):
       var newIndex = 0
@@ -67,19 +84,26 @@ final class SidebarCoordinator {
 
       ids.forEach { selectionManager.selections.remove($0) }
       store.removeGroups(with: ids)
-      render(store.groups)
+
+      if store.groups.isEmpty {
+        withAnimation(.easeInOut(duration: 0.3)) {
+          render(store.groups)
+        }
+      } else {
+        render(store.groups)
+      }
 
       // Clear the selection if the group store is empty
       if store.groups.isEmpty {
-        selectionManager.selections = []
+        selectionManager.publish([])
       } else {
         // Check that we are not out of bounds
         if newIndex >= store.groups.count {
           newIndex = max(store.groups.count - 1, 0)
         }
-        selectionManager.selections = [
+        selectionManager.publish([
           store.groups[newIndex].id
-        ]
+        ])
       }
     case .moveGroups(let source, let destination):
       store.move(source: source, destination: destination)

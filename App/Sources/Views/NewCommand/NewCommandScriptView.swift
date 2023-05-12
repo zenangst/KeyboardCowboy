@@ -102,7 +102,7 @@ struct NewCommandScriptView: View {
         }
       }
     }
-    .menuStyle(.appStyle)
+    .menuStyle(.appStyle(padding: 4))
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       validation = updateAndValidatePayload()

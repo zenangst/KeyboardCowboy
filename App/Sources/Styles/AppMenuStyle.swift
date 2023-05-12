@@ -1,10 +1,16 @@
 import SwiftUI
 
 enum AppMenuStyleEnum {
-  case appStyle
+  case appStyle(padding: Double)
 }
 
 struct AppMenuStyle: MenuStyle {
+  private let padding: Double
+
+  init(_ padding: Double) {
+    self.padding = padding
+  }
+
   func makeBody(configuration: Configuration) -> some View {
     Menu(configuration)
       .overlay(alignment: .trailing, content: {
@@ -16,7 +22,7 @@ struct AppMenuStyle: MenuStyle {
           .padding(.trailing, 6)
           .allowsHitTesting(false)
       })
-      .padding(4)
+      .padding(padding)
       .background(
         RoundedRectangle(cornerRadius: 4)
           .stroke(Color(.white).opacity(0.2), lineWidth: 1)
@@ -30,8 +36,8 @@ extension View {
   @ViewBuilder
   func menuStyle(_ style: AppMenuStyleEnum) -> some View {
     switch style {
-    case .appStyle:
-      self.menuStyle(AppMenuStyle())
+    case .appStyle(let padding):
+      self.menuStyle(AppMenuStyle(padding))
     }
   }
 }

@@ -5,6 +5,8 @@ struct ContentListView: View {
   private let debounceSelectionManager: DebounceManager<ContentDebounce>
   private var focusPublisher: FocusPublisher<ContentViewModel>
 
+  @Namespace var namespace
+
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
 
@@ -34,7 +36,7 @@ struct ContentListView: View {
     ScrollViewReader { proxy in
       ScrollView {
         if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
-          ContentListEmptyView(onAction: onAction)
+          ContentListEmptyView(namespace, onAction: onAction)
         } else {
           LazyVStack(spacing: 0) {
             ForEach($publisher.data) { element in
@@ -72,7 +74,7 @@ struct ContentListView: View {
               focus.wrappedValue = .groups
             })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-              contentSelectionManager.selections = Set(publisher.data.map(\.id))
+              contentSelectionManager.publish(Set(publisher.data.map(\.id)))
             })
             .onMoveCommand(perform: { direction in
               if let elementID = contentSelectionManager.handle(
@@ -84,7 +86,13 @@ struct ContentListView: View {
               }
             })
             .onDeleteCommand {
-              onAction(.removeWorflows(contentSelectionManager.selections))
+              if contentSelectionManager.selections.count == publisher.data.count {
+                withAnimation {
+                  onAction(.removeWorflows(contentSelectionManager.selections))
+                }
+              } else {
+                onAction(.removeWorflows(contentSelectionManager.selections))
+              }
             }
           }
           .padding(.horizontal, 8)
@@ -101,7 +109,6 @@ struct ContentListView: View {
           }
           .toolbar {
             ToolbarItemGroup(placement: .navigation) {
-              if !groupsPublisher.data.isEmpty {
                 Button(action: {
                   onAction(.addWorkflow(workflowId: UUID().uuidString))
                 },
@@ -114,7 +121,10 @@ struct ContentListView: View {
                       .foregroundColor(Color(.systemGray))
                   })
                 })
-              }
+                .opacity(publisher.data.isEmpty ? 0 : 1)
+                .matchedGeometryEffect(id: "add-workflow-button",
+                                       in: namespace,
+                                       properties: .position)
             }
           }
         }

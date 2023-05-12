@@ -136,8 +136,7 @@ struct EditableKeyboardShortcutsView: View {
         onTab(false)
       })
       .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-        Swift.print("selectAll")
-        selectionManager.selections = Set(keyboardShortcuts.map(\.id))
+        selectionManager.publish(Set(keyboardShortcuts.map(\.id)))
       })
       .onMoveCommand(perform: { direction in
         if let elementID = selectionManager.handle(
@@ -190,7 +189,7 @@ struct EditableKeyboardShortcutsView: View {
         }
       })
       .buttonStyle(GradientButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
-      .padding(.horizontal, 6)
+      .padding(6)
     }
   }
 

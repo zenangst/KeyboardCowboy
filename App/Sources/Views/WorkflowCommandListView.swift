@@ -2,8 +2,11 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct WorkflowCommandListView: View {
+  static let animation: Animation = .spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)
+
   @ObserveInjection var inject
   @Environment(\.openWindow) var openWindow
+  var namespace: Namespace.ID
   @EnvironmentObject var applicationStore: ApplicationStore
   @ObservedObject private var detailPublisher: DetailPublisher
   @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.CommandViewModel>
@@ -16,11 +19,13 @@ struct WorkflowCommandListView: View {
   private let focus: FocusState<AppFocus?>.Binding
 
   init(_ focus: FocusState<AppFocus?>.Binding,
+       namespace: Namespace.ID,
        publisher: DetailPublisher,
        selectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
        scrollViewProxy: ScrollViewProxy? = nil,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.focus = focus
+    self.namespace = namespace
     _detailPublisher = .init(initialValue: publisher)
     self.selectionManager = selectionManager
     self.scrollViewProxy = scrollViewProxy
@@ -30,7 +35,10 @@ struct WorkflowCommandListView: View {
   @ViewBuilder
   var body: some View {
     Group {
-      if !detailPublisher.data.commands.isEmpty {
+      if detailPublisher.data.commands.isEmpty {
+        WorkflowCommandEmptyListView(namespace: namespace, detailPublisher: detailPublisher)
+          .matchedGeometryEffect(id: "command-list", in: namespace)
+      } else {
         LazyVStack(spacing: 0) {
           ForEach($detailPublisher.data.commands, id: \.self) { element in
             let command = element
@@ -53,7 +61,7 @@ struct WorkflowCommandListView: View {
                                                                                         with: items.draggablePayload(prefix: "WC:")) else {
                 return false
               }
-              withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+              withAnimation(Self.animation) {
                 detailPublisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
               }
               onAction(.moveCommand(workflowId: element.id, indexSet: from, toOffset: destination))
@@ -87,27 +95,7 @@ struct WorkflowCommandListView: View {
         .padding(.horizontal)
         .padding(.vertical, 8)
         .focused(focus, equals: .detail(.commands))
-      } else {
-        VStack {
-          Button(action: {
-            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
-          }) {
-            HStack {
-              Image(systemName: "plus.circle")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 16, height: 16)
-              Divider()
-                .opacity(0.5)
-
-              Text("Add a command")
-            }
-            .padding(.vertical, 4)
-            .padding(.horizontal, 8)
-          }
-          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
-        }
-        .frame(maxWidth: .infinity)
+        .matchedGeometryEffect(id: "command-list", in: namespace)
       }
     }
     .overlay {
@@ -130,6 +118,7 @@ struct WorkflowCommandListView: View {
         .opacity(dropOverlayIsVisible ? 1 : 0)
         .animation(.linear, value: dropOverlayIsVisible)
     }
+    .animation(Self.animation, value: detailPublisher.data.commands.isEmpty)
     .debugEdit()
   }
 
@@ -154,9 +143,11 @@ struct WorkflowCommandListView: View {
 }
 
 struct WorkflowCommandListView_Previews: PreviewProvider {
+  @Namespace static var namespace
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     WorkflowCommandListView($focus,
+                            namespace: namespace,
                             publisher: DetailPublisher(DesignTime.detail),
                             selectionManager: .init()) { _ in }
       .frame(height: 900)

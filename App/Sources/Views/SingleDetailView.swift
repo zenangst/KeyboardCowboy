@@ -83,7 +83,8 @@ struct SingleDetailView: View {
                 context.fill(
                   Path(CGRect(origin: .zero, size: CGSize(width: size.width,
                                                           height: size.height - 12))),
-                  with: .color(Color(.black)))
+                  with: .color(Color(.black))
+                )
 
                 if shouldShowCommandList {
                   context.fill(Path { path in
@@ -96,6 +97,8 @@ struct SingleDetailView: View {
                 }
               }
             )
+            .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2),
+                       value: shouldShowCommandList)
             .compositingGroup()
             .shadow(color: Color.white.opacity(0.2), radius: 0, y: 1)
             .shadow(radius: 2, y: 2)
@@ -136,25 +139,28 @@ struct SingleDetailView: View {
             .frame(maxWidth: 150)
           }
           .opacity(detailPublisher.data.commands.isEmpty ? 0 : 1)
-          Button(action: {
-            openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
-          }) {
-            HStack(spacing: 4) {
-              Text("Add Command")
-                .lineLimit(1)
-                .allowsTightening(true)
-              Divider()
-                .frame(height: 12)
-              Image(systemName: "plus.circle")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: 12, maxHeight: 12)
-                .layoutPriority(-1)
+
+          if !detailPublisher.data.commands.isEmpty {
+            Button(action: {
+              openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
+            }) {
+              HStack(spacing: 4) {
+                Text("Add Command")
+                  .lineLimit(1)
+                  .allowsTightening(true)
+                Divider()
+                  .frame(height: 12)
+                Image(systemName: "plus.circle")
+                  .resizable()
+                  .aspectRatio(contentMode: .fit)
+                  .frame(maxWidth: 12, maxHeight: 12)
+                  .layoutPriority(-1)
+              }
             }
+            .padding(.horizontal, 4)
+            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+            .matchedGeometryEffect(id: "add-command-button", in: namespace)
           }
-          .padding(.horizontal, 4)
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-          .opacity(!detailPublisher.data.commands.isEmpty ? 1 : 0)
         }
         .padding(.horizontal)
         .padding(.bottom, 6)
@@ -162,6 +168,7 @@ struct SingleDetailView: View {
         ScrollView {
           WorkflowCommandListView(
             focus,
+            namespace: namespace,
             publisher: detailPublisher,
             selectionManager: commandSelectionManager,
             scrollViewProxy: proxy,
