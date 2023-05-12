@@ -77,6 +77,9 @@ struct ContainerView: View {
                    onAction: { onAction(.detail($0)) })
           .edgesIgnoringSafeArea(.top)
       })
+    .onAppear {
+      focus.wrappedValue = .workflows
+    }
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)
   }
