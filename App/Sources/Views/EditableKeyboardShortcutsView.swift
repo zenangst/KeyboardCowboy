@@ -118,8 +118,9 @@ struct EditableKeyboardShortcutsView: View {
         )
         .draggable(keyboardShortcut.draggablePayload(prefix: "WKS:", selections: selectionManager.selections))
         .dropDestination(for: String.self) { items, location in
-          guard let (from, destination) = keyboardShortcuts.moveOffsets(for: keyboardShortcut.wrappedValue,
-                                                                       with: items.draggablePayload(prefix: "WKS:")) else {
+          guard let payload = items.draggablePayload(prefix: "WKS:"),
+                let (from, destination) = keyboardShortcuts.moveOffsets(for: keyboardShortcut.wrappedValue,
+                                                                        with: payload) else {
             return false
           }
           withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {

@@ -113,8 +113,9 @@ struct WorkflowApplicationTriggerView: View {
           )
           .draggable(element.draggablePayload(prefix: "WAT:", selections: selectionManager.selections))
           .dropDestination(for: String.self) { items, location in
-            guard let (from, destination) = data.moveOffsets(for: element.wrappedValue,
-                                                             with: items.draggablePayload(prefix: "WAT:")) else {
+            guard let payload = items.draggablePayload(prefix: "WAT:"),
+                  let (from, destination) = data.moveOffsets(for: element.wrappedValue,
+                                                             with: payload) else {
               return false
             }
             withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {

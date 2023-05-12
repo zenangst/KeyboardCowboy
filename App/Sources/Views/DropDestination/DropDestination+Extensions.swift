@@ -1,20 +1,20 @@
 import Foundation
 
 extension String {
-  func draggablePayload(prefix: String) -> [String] {
+  func draggablePayload(prefix: String) -> [String]? {
     var copy = self
     if copy.hasPrefix(prefix) {
       copy.removeFirst(prefix.count)
       return copy.split(separator: ",").map(String.init)
     } else {
-      return []
+      return nil
     }
   }
 }
 
 extension Collection where Element == String {
-  func draggablePayload(prefix: String) -> [String] {
-    first?.draggablePayload(prefix: prefix) ?? []
+  func draggablePayload(prefix: String) -> [String]? {
+    first?.draggablePayload(prefix: prefix)
   }
 }
 

@@ -57,7 +57,8 @@ struct ContentListView: View {
                 })
                 .draggable(element.wrappedValue.draggablePayload(prefix: "W:", selections: contentSelectionManager.selections))
                 .dropDestination(for: String.self) { items, location in
-                  guard let (from, destination) = $publisher.data.moveOffsets(for: element, with: items.draggablePayload(prefix: "W:")) else {
+                  guard let payload = items.draggablePayload(prefix: "W:"),
+                          let (from, destination) = $publisher.data.moveOffsets(for: element, with: payload) else {
                     return false
                   }
                   withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {

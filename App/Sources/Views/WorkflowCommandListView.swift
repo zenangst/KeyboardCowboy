@@ -66,8 +66,9 @@ struct WorkflowCommandListView: View {
                     urls.append(url)
                     continue
                   }
-                  guard let (from, destination) = detailPublisher.data.commands.moveOffsets(for: element.wrappedValue,
-                                                                                            with: item.draggablePayload(prefix: "WC:")) else {
+                  guard let payload = item.draggablePayload(prefix: "WC:"),
+                        let (from, destination) = detailPublisher.data.commands.moveOffsets(for: element.wrappedValue,
+                                                                                            with: payload) else {
                     return false
                   }
                   withAnimation(Self.animation) {

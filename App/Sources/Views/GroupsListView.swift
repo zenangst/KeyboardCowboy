@@ -74,15 +74,18 @@ struct GroupsListView: View {
                 )
                 .draggable(element.wrappedValue.draggablePayload(prefix: "WG:", selections: selectionManager.selections))
                 .dropDestination(for: String.self) { items, location in
-                  guard let (from, destination) = $publisher.data.moveOffsets(for: element, with: items.draggablePayload(prefix: "WG:")) else {
-                    return false
-                  }
-                  withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-                    publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
-                  }
+                  if let payload = items.draggablePayload(prefix: "WG:"),
+                      let (from, destination) = $publisher.data.moveOffsets(for: element, with: payload) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+                      publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
+                    }
 
-                  onAction(.moveGroups(source: from, destination: destination))
-                  return true
+                    onAction(.moveGroups(source: from, destination: destination))
+                    return true
+                  } else if let payload = items.draggablePayload(prefix: "W:") {
+                    onAction(.moveWorkflows(workflowIds: Set(payload), groupId: element.id))
+                  }
+                  return false
                 }
                 .tag(group)
             }
