@@ -44,7 +44,7 @@ struct AppButtonStyle: ButtonStyle {
       .compositingGroup()
       .shadow(radius: configuration.isPressed ? 0 : isHovered ? 1 : 2)
       .onHover(perform: { value in
-        self.isHovered = value
+        self.isHovered <- value
       })
       .animation(.linear(duration: 0.1), value: isHovered)
     }

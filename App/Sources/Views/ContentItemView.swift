@@ -38,6 +38,7 @@ struct ContentItemView: View {
             .opacity(isHovered ? 0 : workflow.badgeOpacity)
             .animation(.default, value: isHovered)
         })
+        .fixedSize()
         .frame(width: 32, height: 32)
         .onHover { newValue in
           isHovered <- newValue

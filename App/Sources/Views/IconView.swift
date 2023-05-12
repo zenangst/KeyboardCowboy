@@ -36,6 +36,7 @@ struct IconView: View {
       }
     }
     .aspectRatio(contentMode: .fit)
+    .fixedSize()
     .frame(width: size.width, height: size.height)
     .onAppear {
       publisher.load(at: icon.path, bundleIdentifier: icon.bundleIdentifier, of: size)

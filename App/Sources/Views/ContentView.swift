@@ -196,6 +196,7 @@ struct ContentView: View {
           .padding(.top, 6)
         HStack(spacing: 8) {
           GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
+            .fixedSize()
             .frame(width: 24, height: 24)
             .padding(4)
             .background(
@@ -243,6 +244,7 @@ struct ContentView: View {
               Image(systemName: "plus.circle")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .fixedSize()
                 .frame(width: 16, height: 16)
               Divider()
                 .opacity(0.5)

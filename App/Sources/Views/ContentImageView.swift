@@ -9,6 +9,7 @@ struct ContentImageView: View {
     case .icon(let icon):
       Group {
         IconView(icon: icon, size: .init(width: size, height: size))
+          .fixedSize()
           .id(icon)
       }
     case .command(let kind):
@@ -68,6 +69,7 @@ struct ContentImageView: View {
           .frame(width: 32)
       case .type:
         RegularKeyIcon(letter: "(...)", width: 25, height: 25)
+          .fixedSize()
           .frame(width: 24, height: 24)
       case .plain, .systemCommand:
         EmptyView()

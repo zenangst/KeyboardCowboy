@@ -13,11 +13,13 @@ struct ContentImagesView: View {
         Image(systemName: "app.dashed")
           .resizable()
           .aspectRatio(contentMode: .fit)
+          .fixedSize()
           .frame(width: 24, height: 24)
 
         Image(systemName: "plus")
           .resizable()
           .aspectRatio(contentMode: .fit)
+          .fixedSize()
           .frame(width: 8, height: 8)
       }
       .compositingGroup()

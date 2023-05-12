@@ -145,14 +145,17 @@ struct ApplicationCommandImageView: View {
         })
       }
     }, label: { })
+    .contentShape(Rectangle())
     .menuStyle(IconMenuStyle())
-    .background(
-      Color.accentColor.opacity(0.375)
-        .frame(width: 32, height: 32)
-        .cornerRadius(8, antialiased: false)
-    )
     .overlay(
-      IconView(icon: icon, size: .init(width: 24, height: 24))
+      ZStack {
+        Color.accentColor.opacity(0.375)
+          .frame(width: 32, height: 32)
+          .cornerRadius(8, antialiased: false)
+        IconView(icon: icon, size: .init(width: 24, height: 24))
+          .fixedSize()
+      }
+        .drawingGroup()
         .allowsHitTesting(false)
     )
     .menuIndicator(.hidden)
