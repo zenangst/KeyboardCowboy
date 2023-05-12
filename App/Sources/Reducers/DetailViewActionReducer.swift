@@ -39,6 +39,7 @@ final class DetailViewActionReducer {
         result = .none
       case .removeCommands(_, let commandIds):
         workflow.commands.removeAll(where: { commandIds.contains($0.id) })
+        result = .animated
       case .trigger(_, let action):
         switch action {
         case .addKeyboardShortcut:

@@ -113,6 +113,15 @@ struct WorkflowCommandListView: View {
               focusPublisher.publish(elementID)
             }
           })
+          .onDeleteCommand {
+            if selectionManager.selections.count == detailPublisher.data.commands.count {
+              withAnimation {
+                onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
+              }
+            } else {
+              onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
+            }
+          }
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
