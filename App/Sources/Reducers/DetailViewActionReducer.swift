@@ -20,6 +20,7 @@ final class DetailViewActionReducer {
       case .dropUrls(_, let urls):
         let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
         workflow.commands.append(contentsOf: commands)
+        result = .animated
       case .updateKeyboardShortcuts(_, let keyboardShortcuts):
         workflow.trigger = .keyboardShortcuts(keyboardShortcuts)
       case .commandView(_, let action):

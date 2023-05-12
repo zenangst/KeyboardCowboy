@@ -5,10 +5,12 @@ struct WorkflowCommandEmptyListView: View {
   @ObservedObject private var detailPublisher: DetailPublisher
 
   var namespace: Namespace.ID
+  private var onAction: (SingleDetailView.Action) -> Void
 
-  init(namespace: Namespace.ID, detailPublisher: DetailPublisher) {
+  init(namespace: Namespace.ID, detailPublisher: DetailPublisher, onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.namespace = namespace
     self.detailPublisher = detailPublisher
+    self.onAction = onAction
   }
 
   var body: some View {
@@ -34,6 +36,28 @@ struct WorkflowCommandEmptyListView: View {
         .matchedGeometryEffect(id: "add-command-button", in: namespace)
       }
     }
+    .dropDestination(for: DropItem.self) { items, location in
+      Swift.print(items)
+      var urls = [URL]()
+      for item in items {
+        switch item {
+        case .text(let text):
+          if let url = URL(string: text) {
+            urls.append(url)
+          }
+        case .url(let url):
+          urls.append(url)
+        case .none:
+          continue
+        }
+      }
+
+      if !urls.isEmpty {
+        onAction(.dropUrls(workflowId: detailPublisher.data.id, urls: urls))
+        return true
+      }
+      return false
+    }
     .frame(maxWidth: .infinity)
   }
 }
@@ -41,6 +65,6 @@ struct WorkflowCommandEmptyListView: View {
 struct WorkflowCommandEmptyListView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
-    WorkflowCommandEmptyListView(namespace: namespace, detailPublisher: DesignTime.detailPublisher)
+    WorkflowCommandEmptyListView(namespace: namespace, detailPublisher: DesignTime.detailPublisher) { _ in }
   }
 }

@@ -36,7 +36,8 @@ struct WorkflowCommandListView: View {
   var body: some View {
     Group {
       if detailPublisher.data.commands.isEmpty {
-        WorkflowCommandEmptyListView(namespace: namespace, detailPublisher: detailPublisher)
+        WorkflowCommandEmptyListView(namespace: namespace,
+                                     detailPublisher: detailPublisher, onAction: onAction)
           .matchedGeometryEffect(id: "command-list", in: namespace)
       } else {
         LazyVStack(spacing: 0) {
@@ -56,17 +57,37 @@ struct WorkflowCommandListView: View {
                         style: .focusRing)
             )
             .draggable(element.wrappedValue.draggablePayload(prefix: "WC:", selections: selectionManager.selections))
-            .dropDestination(for: String.self) { items, location in
-              guard let (from, destination) = detailPublisher.data.commands.moveOffsets(for: element.wrappedValue,
-                                                                                        with: items.draggablePayload(prefix: "WC:")) else {
-                return false
+            .dropDestination(for: DropItem.self) { items, location in
+              var urls = [URL]()
+              for item in items {
+                switch item {
+                case .text(let item):
+                  if let url = URL(string: item) {
+                    urls.append(url)
+                    continue
+                  }
+                  guard let (from, destination) = detailPublisher.data.commands.moveOffsets(for: element.wrappedValue,
+                                                                                            with: item.draggablePayload(prefix: "WC:")) else {
+                    return false
+                  }
+                  withAnimation(Self.animation) {
+                    detailPublisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
+                  }
+                  onAction(.moveCommand(workflowId: element.id, indexSet: from, toOffset: destination))
+                  return true
+                case .url(let url):
+                  urls.append(url)
+                case .none:
+                  return false
+                }
               }
-              withAnimation(Self.animation) {
-                detailPublisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
+
+              if !urls.isEmpty {
+                onAction(.dropUrls(workflowId: detailPublisher.data.id, urls: urls))
+                return true
               }
-              onAction(.moveCommand(workflowId: element.id, indexSet: from, toOffset: destination))
-              return true
-            } isTargeted: { _ in }
+              return false
+            }
           }
           .padding(.vertical, 5)
           .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
