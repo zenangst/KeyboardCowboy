@@ -116,6 +116,17 @@ struct EditableKeyboardShortcutsView: View {
           FocusView(focusPublisher, element: keyboardShortcut,
                     selectionManager: selectionManager, cornerRadius: 8, style: .focusRing)
         )
+        .draggable(keyboardShortcut.draggablePayload(prefix: "WKS:", selections: selectionManager.selections))
+        .dropDestination(for: String.self) { items, location in
+          guard let (from, destination) = keyboardShortcuts.moveOffsets(for: keyboardShortcut.wrappedValue,
+                                                                       with: items.draggablePayload(prefix: "WKS:")) else {
+            return false
+          }
+          withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+            keyboardShortcuts.move(fromOffsets: IndexSet(from), toOffset: destination)
+          }
+          return true
+        } isTargeted: { _ in }
         .id(keyboardShortcut.id)
       }
       .onCommand(#selector(NSResponder.insertTab(_:)), perform: {

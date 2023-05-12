@@ -103,6 +103,17 @@ struct WorkflowApplicationTriggerView: View {
             FocusView(focusPublisher, element: element, selectionManager: selectionManager,
                       cornerRadius: 8, style: .focusRing)
           )
+          .draggable(element.draggablePayload(prefix: "WAT:", selections: selectionManager.selections))
+          .dropDestination(for: String.self) { items, location in
+            guard let (from, destination) = data.moveOffsets(for: element.wrappedValue,
+                                                             with: items.draggablePayload(prefix: "WAT:")) else {
+              return false
+            }
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+              data.move(fromOffsets: IndexSet(from), toOffset: destination)
+            }
+            return true
+          } isTargeted: { _ in }
         }
         .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
           focus.wrappedValue = .detail(.commands)

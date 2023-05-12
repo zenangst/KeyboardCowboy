@@ -47,6 +47,18 @@ struct WorkflowCommandListView: View {
                         selectionManager: selectionManager, cornerRadius: 8,
                         style: .focusRing)
             )
+            .draggable(element.wrappedValue.draggablePayload(prefix: "WC:", selections: selectionManager.selections))
+            .dropDestination(for: String.self) { items, location in
+              guard let (from, destination) = detailPublisher.data.commands.moveOffsets(for: element.wrappedValue,
+                                                                                        with: items.draggablePayload(prefix: "WC:")) else {
+                return false
+              }
+              withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+                detailPublisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
+              }
+              onAction(.moveCommand(workflowId: element.id, indexSet: from, toOffset: destination))
+              return true
+            } isTargeted: { _ in }
           }
           .padding(.vertical, 5)
           .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
