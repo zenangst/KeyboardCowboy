@@ -40,8 +40,9 @@ struct ContentItemView: View {
         })
         .frame(width: 32, height: 32)
         .onHover { newValue in
-          isHovered = newValue
+          isHovered <- newValue
         }
+        .compositingGroup()
         .zIndex(2)
 
       Text(workflow.name)

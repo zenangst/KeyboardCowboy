@@ -25,7 +25,14 @@ struct WorkflowInfoView: View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $workflowName)
         .onCommand(#selector(NSTextField.insertTab(_:)), perform: {
-          focus.wrappedValue = .detail(.applicationTriggers)
+          switch detailPublisher.data.trigger {
+          case .applications:
+            focus.wrappedValue = .detail(.applicationTriggers)
+          case .keyboardShortcuts:
+            focus.wrappedValue = .detail(.keyboardShortcuts)
+          case .none:
+            focus.wrappedValue = .detail(.name)
+          }
         })
         .onCommand(#selector(NSTextField.insertBacktab(_:)), perform: {
           focus.wrappedValue = .workflows

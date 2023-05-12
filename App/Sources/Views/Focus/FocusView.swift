@@ -88,7 +88,7 @@ private struct FocusBackgroundView<Element>: View where Element: Hashable, Eleme
     case (.focusRing, false):
       return 0.2
     case (.list, true):
-      return 0.6
+      return 0.8
     case (.list, false):
       return 0.3
     }

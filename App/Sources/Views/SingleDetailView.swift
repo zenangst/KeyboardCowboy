@@ -157,6 +157,7 @@ struct SingleDetailView: View {
           .opacity(!detailPublisher.data.commands.isEmpty ? 1 : 0)
         }
         .padding(.horizontal)
+        .padding(.bottom, 6)
 
         ScrollView {
           WorkflowCommandListView(
@@ -168,7 +169,6 @@ struct SingleDetailView: View {
               onAction(action)
             })
         }
-        .padding(.vertical, 8)
       }
       .opacity(shouldShowCommandList ? 1 : 0)
     }

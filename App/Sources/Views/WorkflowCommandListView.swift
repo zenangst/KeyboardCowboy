@@ -30,7 +30,52 @@ struct WorkflowCommandListView: View {
   @ViewBuilder
   var body: some View {
     Group {
-      if detailPublisher.data.commands.isEmpty {
+      if !detailPublisher.data.commands.isEmpty {
+        LazyVStack(spacing: 0) {
+          ForEach($detailPublisher.data.commands, id: \.self) { element in
+            let command = element
+            CommandView(command, workflowId: detailPublisher.data.id) { action in
+              onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
+            }
+            .contextMenu(menuItems: { contextMenu(command) })
+            .onTapGesture {
+              selectionManager.handleOnTap(detailPublisher.data.commands, element: element.wrappedValue)
+              focusPublisher.publish(element.id)
+            }
+            .background(
+              FocusView(focusPublisher, element: element,
+                        selectionManager: selectionManager, cornerRadius: 8,
+                        style: .focusRing)
+            )
+          }
+          .padding(.vertical, 5)
+          .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
+            switch detailPublisher.data.trigger {
+            case .applications:
+              focus.wrappedValue = .detail(.applicationTriggers)
+            case .keyboardShortcuts:
+              focus.wrappedValue = .detail(.keyboardShortcuts)
+            case .none:
+              focus.wrappedValue = .detail(.name)
+            }
+          })
+          .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+            focus.wrappedValue = .groups
+          })
+          .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+            selectionManager.selections = Set(detailPublisher.data.commands.map(\.id))
+          })
+          .onMoveCommand(perform: { direction in
+            if let elementID = selectionManager.handle(direction, detailPublisher.data.commands,
+                                                       proxy: scrollViewProxy) {
+              focusPublisher.publish(elementID)
+            }
+          })
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .focused(focus, equals: .detail(.commands))
+      } else {
         VStack {
           Button(action: {
             openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
@@ -51,55 +96,8 @@ struct WorkflowCommandListView: View {
           .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
         }
         .frame(maxWidth: .infinity)
-      } else {
-        LazyVStack(spacing: 10) {
-          ForEach($detailPublisher.data.commands) { element in
-            let command = element
-            CommandView(command, workflowId: detailPublisher.data.id) { action in
-              onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
-            }
-            .contextMenu(menuItems: { contextMenu(command) })
-            .onTapGesture {
-              selectionManager.handleOnTap(detailPublisher.data.commands, element: element.wrappedValue)
-              focusPublisher.publish(element.id)
-            }
-            .background(
-              FocusView(focusPublisher, element: element,
-                        selectionManager: selectionManager, cornerRadius: 8,
-                        style: .focusRing)
-            )
-          }
-          .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-            let lastSelection = selectionManager.lastSelection
-            if let elementID = selectionManager.handle(.up, detailPublisher.data.commands,
-                                                       proxy: scrollViewProxy) {
-              if lastSelection == detailPublisher.data.commands.first?.id {
-                focus.wrappedValue = .detail(.name)
-              } else {
-                focusPublisher.publish(elementID)
-              }
-            }
-          })
-          .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-            if let elementID = selectionManager.handle(.down, detailPublisher.data.commands,
-                                                       proxy: scrollViewProxy) {
-              focusPublisher.publish(elementID)
-            }
-          })
-          .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-            selectionManager.selections = Set(detailPublisher.data.commands.map(\.id))
-          })
-          .onMoveCommand(perform: { direction in
-            if let elementID = selectionManager.handle(direction, detailPublisher.data.commands,
-                                                       proxy: scrollViewProxy) {
-              focusPublisher.publish(elementID)
-            }
-          })
-        }
-        .focused(focus, equals: .detail(.commands))
       }
     }
-    .padding()
     .overlay {
       LinearGradient(stops: [
         .init(color: Color(.systemGreen).opacity(0.75), location: 0.0),

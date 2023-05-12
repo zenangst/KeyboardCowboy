@@ -4,12 +4,8 @@ struct FocusableProxy<Element>: NSViewRepresentable where Element: Equatable,
                                                           Element: Hashable,
                                                           Element: Identifiable,
                                                           Element.ID: CustomStringConvertible {
-  static func post(_ id: Element.ID?) {
-    if let id {
+  static func post(_ id: Element.ID) {
       NotificationCenter.default.post(Notification(name: FocusableNSView<Element>.becomeFirstResponderNotification, userInfo: ["id": id]))
-    } else {
-      NotificationCenter.default.post(Notification(name: FocusableNSView<Element>.becomeFirstResponderNotification, userInfo: ["id": "-1"]))
-    }
   }
 
   @Binding var isFocused: Bool
@@ -85,11 +81,10 @@ class FocusableNSView<Element>: NSView where Element: Equatable,
   @objc private func respondToNotification(_ notification: Notification) {
     guard let dictionary = (notification.userInfo as? [String: AnyHashable]) else { return }
     guard let id = dictionary["id"] as? Element.ID else { return }
+    guard self.id == id else { return }
 
-    if self.id == id {
-      window?.makeFirstResponder(self)
-      isFocused = true
-      selectionManager.setLastSelection(id)
-    }
+    isFocused = true
+    selectionManager.setLastSelection(id)
+    window?.makeFirstResponder(self)
   }
 }

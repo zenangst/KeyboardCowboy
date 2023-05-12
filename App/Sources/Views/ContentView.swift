@@ -146,6 +146,9 @@ struct ContentView: View {
         debounceSelectionManager.process(.init(workflows: newValue, groups: groupSelectionManager.selections))
       })
       .onAppear {
+        if let firstSelection = contentSelectionManager.selections.first {
+          proxy.scrollTo(firstSelection)
+        }
         contentSelectionManager.selectedColor = Color(nsColor: getColor())
       }
       .toolbar {
@@ -282,7 +285,9 @@ struct ContentView: View {
   private func contextualMenu() -> some View {
     Menu("Move to") {
       // Show only other groups than the current one.
-      ForEach(groupsPublisher.data.filter({ !groupSelectionManager.selections.contains($0.id) })) { group in
+      // TODO: This is a bottle-neck for performance
+//      .filter({ !groupSelectionManager.selections.contains($0.id) })) { group in
+      ForEach(groupsPublisher.data, id: \.self) { group in
         Button(group.name) {
           onAction(.moveWorkflowsToGroup(group.id, workflows: contentSelectionManager.selections))
         }
