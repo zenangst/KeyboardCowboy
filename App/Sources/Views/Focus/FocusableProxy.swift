@@ -82,7 +82,6 @@ class FocusableNSView<Element>: NSView where Element: Equatable,
     guard let dictionary = (notification.userInfo as? [String: AnyHashable]) else { return }
     guard let id = dictionary["id"] as? Element.ID else { return }
     guard self.id == id else { return }
-
     isFocused = true
     selectionManager.setLastSelection(id)
     window?.makeFirstResponder(self)

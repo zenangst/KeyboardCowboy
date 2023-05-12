@@ -49,6 +49,15 @@ final class ContentCoordinator {
         } else {
           contentSelectionManager.removeLastSelection()
         }
+      } else if let lastSelection = contentSelectionManager.lastSelection {
+        // Check for invalid selections, reset the last selection to the first one.
+        // Otherwise, the focus updates won't work properly because it is looking for an
+        // identifier that does not exist in the current group.
+        if !publisher.data.contains(where: { $0.id == lastSelection }) {
+          if let firstId = publisher.data.first?.id {
+            contentSelectionManager.setLastSelection(firstId)
+          }
+        }
       }
     case .moveGroups:
       break

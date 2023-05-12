@@ -27,6 +27,18 @@ extension View {
     }
   }
 
+  @ViewBuilder
+  func debugId<Element: Identifiable>(_ element: Element) -> some View where Element.ID == String {
+    self
+      .overlay(content: {
+        Text(element.id)
+          .foregroundColor(.black)
+          .background(.yellow)
+          .lineLimit(1)
+          .minimumScaleFactor(0.7)
+      })
+  }
+
   func onFrameChange(space: CoordinateSpace = .global, perform: @escaping (CGRect) -> Void) -> some View {
     self
       .modifier(GeometryPreferenceKeyView<FramePreferenceKey>(space: space, transform: { $0.frame(in: space) }))
