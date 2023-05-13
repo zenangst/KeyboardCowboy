@@ -56,7 +56,7 @@ struct WorkflowCommandListView: View {
                         selectionManager: selectionManager, cornerRadius: 8,
                         style: .focusRing)
             )
-            .draggable(element.wrappedValue.draggablePayload(prefix: "WC:", selections: selectionManager.selections))
+            .draggable(element.wrappedValue.draggablePayload(prefix: "WC|", selections: selectionManager.selections))
             .dropDestination(for: DropItem.self) { items, location in
               var urls = [URL]()
               for item in items {
@@ -66,7 +66,7 @@ struct WorkflowCommandListView: View {
                     urls.append(url)
                     continue
                   }
-                  guard let payload = item.draggablePayload(prefix: "WC:"),
+                  guard let payload = item.draggablePayload(prefix: "WC|"),
                         let (from, destination) = detailPublisher.data.commands.moveOffsets(for: element.wrappedValue,
                                                                                             with: payload) else {
                     return false
@@ -74,7 +74,7 @@ struct WorkflowCommandListView: View {
                   withAnimation(Self.animation) {
                     detailPublisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
                   }
-                  onAction(.moveCommand(workflowId: element.id, indexSet: from, toOffset: destination))
+                  onAction(.moveCommand(workflowId: detailPublisher.data.id, indexSet: from, toOffset: destination))
                   return true
                 case .url(let url):
                   urls.append(url)

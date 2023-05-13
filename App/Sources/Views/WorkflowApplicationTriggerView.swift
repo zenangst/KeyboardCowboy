@@ -111,9 +111,9 @@ struct WorkflowApplicationTriggerView: View {
             FocusView(focusPublisher, element: element, selectionManager: selectionManager,
                       cornerRadius: 8, style: .focusRing)
           )
-          .draggable(element.draggablePayload(prefix: "WAT:", selections: selectionManager.selections))
+          .draggable(element.draggablePayload(prefix: "WAT|", selections: selectionManager.selections))
           .dropDestination(for: String.self) { items, location in
-            guard let payload = items.draggablePayload(prefix: "WAT:"),
+            guard let payload = items.draggablePayload(prefix: "WAT|"),
                   let (from, destination) = data.moveOffsets(for: element.wrappedValue,
                                                              with: payload) else {
               return false
@@ -121,6 +121,7 @@ struct WorkflowApplicationTriggerView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
               data.move(fromOffsets: IndexSet(from), toOffset: destination)
             }
+            onAction(.updateApplicationTriggers(data))
             return true
           } isTargeted: { _ in }
         }

@@ -55,9 +55,9 @@ struct ContentListView: View {
                 .contextMenu(menuItems: {
                   contextualMenu()
                 })
-                .draggable(element.wrappedValue.draggablePayload(prefix: "W:", selections: contentSelectionManager.selections))
+                .draggable(element.wrappedValue.draggablePayload(prefix: "W|", selections: contentSelectionManager.selections))
                 .dropDestination(for: String.self) { items, location in
-                  guard let payload = items.draggablePayload(prefix: "W:"),
+                  guard let payload = items.draggablePayload(prefix: "W|"),
                           let (from, destination) = $publisher.data.moveOffsets(for: element, with: payload) else {
                     return false
                   }

@@ -72,9 +72,9 @@ struct GroupsListView: View {
                             selectionManager: selectionManager,
                             cornerRadius: 4, style: .list)
                 )
-                .draggable(element.wrappedValue.draggablePayload(prefix: "WG:", selections: selectionManager.selections))
+                .draggable(element.wrappedValue.draggablePayload(prefix: "WG|", selections: selectionManager.selections))
                 .dropDestination(for: String.self) { items, location in
-                  if let payload = items.draggablePayload(prefix: "WG:"),
+                  if let payload = items.draggablePayload(prefix: "WG|"),
                       let (from, destination) = $publisher.data.moveOffsets(for: element, with: payload) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
                       publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
@@ -82,7 +82,7 @@ struct GroupsListView: View {
 
                     onAction(.moveGroups(source: from, destination: destination))
                     return true
-                  } else if let payload = items.draggablePayload(prefix: "W:") {
+                  } else if let payload = items.draggablePayload(prefix: "W|") {
                     onAction(.moveWorkflows(workflowIds: Set(payload), groupId: element.id))
                   }
                   return false

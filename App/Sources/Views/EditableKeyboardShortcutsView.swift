@@ -116,9 +116,9 @@ struct EditableKeyboardShortcutsView: View {
           FocusView(focusPublisher, element: keyboardShortcut,
                     selectionManager: selectionManager, cornerRadius: 8, style: .focusRing)
         )
-        .draggable(keyboardShortcut.draggablePayload(prefix: "WKS:", selections: selectionManager.selections))
+        .draggable(keyboardShortcut.draggablePayload(prefix: "WKS|", selections: selectionManager.selections))
         .dropDestination(for: String.self) { items, location in
-          guard let payload = items.draggablePayload(prefix: "WKS:"),
+          guard let payload = items.draggablePayload(prefix: "WKS|"),
                 let (from, destination) = keyboardShortcuts.moveOffsets(for: keyboardShortcut.wrappedValue,
                                                                         with: payload) else {
             return false

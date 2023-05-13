@@ -37,7 +37,6 @@ struct WorkflowCommandEmptyListView: View {
       }
     }
     .dropDestination(for: DropItem.self) { items, location in
-      Swift.print(items)
       var urls = [URL]()
       for item in items {
         switch item {
