@@ -48,7 +48,7 @@ struct ContentView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      GroupHeaderView(groupSelectionManager: groupSelectionManager)
+      ContentHeaderView(groupSelectionManager: groupSelectionManager)
       ContentListView(focus,
                       contentSelectionManager: contentSelectionManager,
                       groupSelectionManager: groupSelectionManager,
@@ -91,71 +91,5 @@ struct ContentView_Previews: PreviewProvider {
     ContentView($focus, contentSelectionManager: .init(), groupSelectionManager: .init()) { _ in }
       .designTime()
       .frame(height: 900)
-  }
-}
-
-final class ContentViewItemProvider: NSObject, NSSecureCoding, NSItemProviderWriting, NSItemProviderReading {
-  static var supportsSecureCoding: Bool = true
-  static var writableTypeIdentifiersForItemProvider = [UTType.workflow.identifier]
-  static var readableTypeIdentifiersForItemProvider = [UTType.workflow.identifier]
-
-  let items: [ContentViewModel]
-
-  init(items: [ContentViewModel]) {
-    self.items = items
-    super.init()
-  }
-
-  init?(coder: NSCoder) {
-    guard let items = coder.decodeObject(forKey: "items") as? [ContentViewModel] else {
-      return nil
-    }
-    self.items = items
-  }
-
-  static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> Self {
-    do {
-      let decoder = JSONDecoder()
-      let items = try decoder.decode([ContentViewModel].self, from: data)
-      return ContentViewItemProvider(items: items) as! Self
-    }
-  }
-
-  func loadData(withTypeIdentifier typeIdentifier: String, forItemProviderCompletionHandler completionHandler: @escaping (Data?, Error?) -> Void) -> Progress? {
-    do {
-      let encoder = JSONEncoder()
-      let data = try encoder.encode(items)
-      completionHandler(data, nil)
-    } catch {
-      completionHandler(nil, error)
-    }
-    return nil
-  }
-
-  // MARK: - NSSecureCoding
-
-    func encode(with coder: NSCoder) {
-      coder.encode(items, forKey: "items")
-    }
-
-}
-
-final class ContentViewDropDelegate: DropDelegate {
-  func performDrop(info: DropInfo) -> Bool {
-    Swift.print("🐾 \(#file) - \(#function):\(#line)")
-    return true
-  }
-
-  func dropEntered(info: DropInfo) {
-    Swift.print("🐾 \(#file) - \(#function):\(#line)")
-  }
-
-  func dropExited(info: DropInfo) {
-    Swift.print("🐾 \(#file) - \(#function):\(#line)")
-  }
-
-  func validateDrop(info: DropInfo) -> Bool {
-    Swift.print("🐾 \(#file) - \(#function):\(#line)")
-    return true
   }
 }

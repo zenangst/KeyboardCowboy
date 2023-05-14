@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct GroupHeaderView: View {
+struct ContentHeaderView: View {
   @ObservedObject private var groupSelectionManager: SelectionManager<GroupViewModel>
   @EnvironmentObject private var contentPublisher: ContentPublisher
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
