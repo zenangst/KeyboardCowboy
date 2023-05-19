@@ -64,7 +64,8 @@ struct ContainerView: View {
                     groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0)) }
       },
       content: {
-        ContentView(focus, contentSelectionManager: contentSelectionManager,
+        ContentView(focus,
+                    contentSelectionManager: contentSelectionManager,
                     groupSelectionManager: groupsSelectionManager,
                     onAction: { action in
           onAction(.content(action))

@@ -89,7 +89,9 @@ final class ContentCoordinator {
     switch action {
     case .addWorkflow(let id):
       store.updateGroups([group])
-      render([group.id], selectionOverrides: [id])
+      withAnimation {
+        render([group.id], selectionOverrides: [id])
+      }
     case .selectWorkflow:
       break
     case .rerender(let ids):

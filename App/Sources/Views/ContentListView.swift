@@ -40,12 +40,8 @@ struct ContentListView: View {
         } else {
           LazyVStack(spacing: 0) {
             ForEach($publisher.data) { element in
-              ContentItemView(element.wrappedValue)
-                .padding(4)
-                .background(
-                  FocusView(focusPublisher, element: element, selectionManager: contentSelectionManager,
-                            cornerRadius: 4, style: .list)
-                )
+              ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
+                              contentSelectionManager: contentSelectionManager, onAction: onAction)
                 .grayscale(element.wrappedValue.isEnabled ? 0 : 0.5)
                 .opacity(element.wrappedValue.isEnabled ? 1 : 0.5)
                 .onTapGesture {
@@ -55,18 +51,6 @@ struct ContentListView: View {
                 .contextMenu(menuItems: {
                   contextualMenu()
                 })
-                .draggable(element.wrappedValue.draggablePayload(prefix: "W|", selections: contentSelectionManager.selections))
-                .dropDestination(for: String.self) { items, location in
-                  guard let payload = items.draggablePayload(prefix: "W|"),
-                          let (from, destination) = $publisher.data.moveOffsets(for: element, with: payload) else {
-                    return false
-                  }
-                  withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-                    publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
-                  }
-                  onAction(.moveWorkflows(source: from, destination: destination))
-                  return true
-                } isTargeted: { _ in }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .detail(.name)
@@ -97,7 +81,6 @@ struct ContentListView: View {
             }
           }
           .padding(.horizontal, 8)
-          .padding(.vertical, 8)
           .onChange(of: contentSelectionManager.selections, perform: { newValue in
             contentSelectionManager.selectedColor = Color(nsColor: getColor())
             debounceSelectionManager.process(.init(workflows: newValue, groups: groupSelectionManager.selections))
@@ -123,9 +106,6 @@ struct ContentListView: View {
                   })
                 })
                 .opacity(publisher.data.isEmpty ? 0 : 1)
-                .matchedGeometryEffect(id: "add-workflow-button",
-                                       in: namespace,
-                                       properties: .position)
             }
           }
         }

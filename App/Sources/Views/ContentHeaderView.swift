@@ -5,19 +5,28 @@ struct ContentHeaderView: View {
   @EnvironmentObject private var contentPublisher: ContentPublisher
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
 
-  init(groupSelectionManager: SelectionManager<GroupViewModel>) {
+  private let namespace: Namespace.ID
+  private let onAction: (ContentView.Action) -> Void
+
+  init(groupSelectionManager: SelectionManager<GroupViewModel>,
+       namespace: Namespace.ID,
+       onAction: @escaping (ContentView.Action) -> Void) {
     self.groupSelectionManager = groupSelectionManager
+    self.namespace = namespace
+    self.onAction = onAction
   }
 
   var body: some View {
     VStack(alignment: .leading) {
       if let groupId = groupSelectionManager.selections.first,
          let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
-        Label("Group", image: "")
-          .labelStyle(SidebarLabelStyle())
-          .padding(.leading, 8)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .padding(.top, 6)
+        HStack {
+          Label("Group", image: "")
+            .labelStyle(SidebarLabelStyle())
+            .padding(.leading, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 6)
+        }
         HStack(spacing: 8) {
           GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
             .frame(width: 24, height: 24)
@@ -33,6 +42,23 @@ struct ContentHeaderView: View {
               .font(.caption)
           }
           .frame(maxWidth: .infinity, alignment: .leading)
+
+          if !contentPublisher.data.isEmpty {
+            Button(action: {
+              withAnimation {
+                onAction(.addWorkflow(workflowId: UUID().uuidString))
+              }
+            }) {
+              Image(systemName: "plus.circle")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 12)
+                .padding(2)
+            }
+            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+            .padding(.trailing, 8)
+            .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
+          }
         }
         .padding(.bottom, 4)
         .padding(.leading, 14)

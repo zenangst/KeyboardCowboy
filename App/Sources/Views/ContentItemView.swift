@@ -1,24 +1,37 @@
 import SwiftUI
 
 struct ContentItemView: View {
+  private var focusPublisher: FocusPublisher<ContentViewModel>
+  @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
   @State var isHovered: Bool = false
+  @State var isTargeted: Bool = false
   @ObserveInjection var inject
-  let workflow: ContentViewModel
+  private let publisher: ContentPublisher
+  private let workflow: Binding<ContentViewModel>
+  private let onAction: (ContentView.Action) -> Void
 
-  init(_ workflow: ContentViewModel) {
+  init(_ workflow: Binding<ContentViewModel>,
+       focusPublisher: FocusPublisher<ContentViewModel>,
+       publisher: ContentPublisher,
+       contentSelectionManager: SelectionManager<ContentViewModel>,
+       onAction: @escaping (ContentView.Action) -> Void) {
+    self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
+    self.focusPublisher = focusPublisher
+    self.publisher = publisher
+    self.onAction = onAction
   }
 
   var body: some View {
     HStack {
-      ContentImagesView(images: workflow.images, size: 32)
+      ContentImagesView(images: workflow.wrappedValue.images, size: 32)
         .background(Color.black.opacity(0.2).cornerRadius(8, antialiased: false))
         .overlay(alignment: .bottomTrailing, content: {
-          ContentImagesView(images: workflow.overlayImages, size: 16)
-            .opacity(workflow.overlayImages.isEmpty ? 0 : 1)
+          ContentImagesView(images: workflow.wrappedValue.overlayImages, size: 16)
+            .opacity(workflow.wrappedValue.overlayImages.isEmpty ? 0 : 1)
         })
         .overlay(alignment: .topTrailing, content: {
-          Text("\(workflow.badge)")
+          Text("\(workflow.wrappedValue.badge)")
             .aspectRatio(1, contentMode: .fill)
             .padding(1)
             .lineLimit(1)
@@ -35,7 +48,7 @@ struct ContentItemView: View {
             .offset(x: 4, y: 0)
             .compositingGroup()
             .shadow(color: .black.opacity(0.75), radius: 2)
-            .opacity(isHovered ? 0 : workflow.badgeOpacity)
+            .opacity(isHovered ? 0 : workflow.wrappedValue.badgeOpacity)
             .animation(.default, value: isHovered)
         })
         .fixedSize()
@@ -46,12 +59,12 @@ struct ContentItemView: View {
         .compositingGroup()
         .zIndex(2)
 
-      Text(workflow.name)
+      Text(workflow.wrappedValue.name)
         .lineLimit(1)
         .allowsTightening(true)
 
       Spacer()
-      if let binding = workflow.binding {
+      if let binding = workflow.wrappedValue.binding {
         KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
           .font(.caption)
           .allowsTightening(true)
@@ -60,6 +73,31 @@ struct ContentItemView: View {
       }
     }
     .contentShape(Rectangle())
+    .padding(4)
+    .background(
+      FocusView(focusPublisher, element: workflow,
+                isTargeted: $isTargeted,
+                selectionManager: contentSelectionManager,
+                cornerRadius: 4, style: .list)
+    )
+    .draggable(getDraggable())
+    .dropDestination(for: String.self) { items, location in
+      guard let payload = items.draggablePayload(prefix: "W|"),
+            let (from, destination) = publisher.data.moveOffsets(for: workflow.wrappedValue, with: payload) else {
+        return false
+      }
+      withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+        publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
+      }
+      onAction(.moveWorkflows(source: from, destination: destination))
+      return true
+    } isTargeted: { newValue in
+      isTargeted = newValue
+    }
     .debugEdit()
+  }
+
+  func getDraggable() -> String {
+    return workflow.draggablePayload(prefix: "W|", selections: contentSelectionManager.selections)
   }
 }

@@ -21,14 +21,27 @@ struct CommandView: View {
   @Environment(\.controlActiveState) var controlActiveState
 
   let workflowId: String
+  private var detailPublisher: DetailPublisher
+  private var selectionManager: SelectionManager<DetailViewModel.CommandViewModel>
+  private var focusPublisher: FocusPublisher<DetailViewModel.CommandViewModel>
+  @State var isTargeted: Bool = false
   @Binding private var command: DetailViewModel.CommandViewModel
+  private let onCommandAction: (SingleDetailView.Action) -> Void
   private let onAction: (Action) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
+       detailPublisher: DetailPublisher,
+       focusPublisher: FocusPublisher<DetailViewModel.CommandViewModel>,
+       selectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
        workflowId: String,
+       onCommandAction: @escaping (SingleDetailView.Action) -> Void,
        onAction: @escaping (Action) -> Void) {
     _command = command
+    self.detailPublisher = detailPublisher
+    self.selectionManager = selectionManager
+    self.focusPublisher = focusPublisher
     self.workflowId = workflowId
+    self.onCommandAction = onCommandAction
     self.onAction = onAction
   }
 
@@ -37,6 +50,12 @@ struct CommandView: View {
       .onChange(of: command.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
       })
+      .background(
+        FocusView(focusPublisher, element: $command,
+                  isTargeted: $isTargeted,
+                  selectionManager: selectionManager, cornerRadius: 8,
+                  style: .focusRing)
+      )
       .background(
         LinearGradient(stops: [
           .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.1, of: .white.withAlphaComponent(0.1))!), location: 0.0),
@@ -47,6 +66,41 @@ struct CommandView: View {
         .cornerRadius(8)
       )
       .compositingGroup()
+      .draggable($command.wrappedValue.draggablePayload(prefix: "WC|", selections: selectionManager.selections))
+      .dropDestination(for: DropItem.self, action: { items, location in
+        var urls = [URL]()
+        for item in items {
+          switch item {
+          case .text(let item):
+            if let url = URL(string: item) {
+              urls.append(url)
+              continue
+            }
+            guard let payload = item.draggablePayload(prefix: "WC|"),
+                  let (from, destination) = detailPublisher.data.commands.moveOffsets(for: $command.wrappedValue,
+                                                                                      with: payload) else {
+              return false
+            }
+            withAnimation(WorkflowCommandListView.animation) {
+              detailPublisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
+            }
+            onCommandAction(.moveCommand(workflowId: detailPublisher.data.id, indexSet: from, toOffset: destination))
+            return true
+          case .url(let url):
+            urls.append(url)
+          case .none:
+            return false
+          }
+        }
+
+        if !urls.isEmpty {
+          onCommandAction(.dropUrls(workflowId: detailPublisher.data.id, urls: urls))
+          return true
+        }
+        return false
+      }, isTargeted: { newValue in
+        isTargeted = newValue
+      })
       .animation(.none, value: command.isEnabled)
       .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
       .opacity(command.isEnabled ? 1 : 0.5)

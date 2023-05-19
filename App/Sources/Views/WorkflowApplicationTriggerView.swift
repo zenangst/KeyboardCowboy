@@ -55,75 +55,14 @@ struct WorkflowApplicationTriggerView: View {
 
       LazyVStack(spacing: 4) {
         ForEach($data) { element in
-          HStack(spacing: 0) {
-            IconView(icon: element.wrappedValue.icon, size: .init(width: 36, height: 36))
-            VStack(alignment: .leading, spacing: 4) {
-              Text(element.name.wrappedValue)
-              HStack {
-                ForEach(DetailViewModel.ApplicationTrigger.Context.allCases) { context in
-                  Toggle(context.displayValue, isOn: Binding<Bool>(get: {
-                    element.contexts.wrappedValue.contains(context)
-                  }, set: { newValue in
-                    if newValue {
-                      element.contexts.wrappedValue.append(context)
-                    } else {
-                      element.contexts.wrappedValue.removeAll(where: { $0 == context })
-                    }
-
-                    onAction(.updateApplicationTriggerContext(element.wrappedValue))
-                  }))
-                  .font(.caption)
-                }
-              }
-            }
-            .padding(8)
-            Spacer()
-            Divider()
-              .opacity(0.25)
-            Button(
-              action: {
-                withAnimation(WorkflowCommandListView.animation) {
-                  if let index = data.firstIndex(of: element.wrappedValue) {
-                    data.remove(at: index)
-                  }
-                }
-                onAction(.updateApplicationTriggers(data))
-              },
-              label: {
-                Image(systemName: "xmark")
-                  .resizable()
-                  .aspectRatio(contentMode: .fill)
-                  .frame(width: 8, height: 8)
-              })
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
-            .padding(.horizontal, 8)
-          }
-          .padding(.leading, 8)
-          .background(Color(.textBackgroundColor).opacity(0.75))
-          .cornerRadius(8)
-          .compositingGroup()
-          .shadow(radius: 2)
+          WorkflowApplicationTriggerItemView(element, data: $data,
+                                             focusPublisher: focusPublisher,
+                                             selectionManager: selectionManager,
+                                             onAction: onAction)
           .onTapGesture {
             selectionManager.handleOnTap(data, element: element.wrappedValue)
             focusPublisher.publish(element.id)
           }
-          .background(
-            FocusView(focusPublisher, element: element, selectionManager: selectionManager,
-                      cornerRadius: 8, style: .focusRing)
-          )
-          .draggable(element.draggablePayload(prefix: "WAT|", selections: selectionManager.selections))
-          .dropDestination(for: String.self) { items, location in
-            guard let payload = items.draggablePayload(prefix: "WAT|"),
-                  let (from, destination) = data.moveOffsets(for: element.wrappedValue,
-                                                             with: payload) else {
-              return false
-            }
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-              data.move(fromOffsets: IndexSet(from), toOffset: destination)
-            }
-            onAction(.updateApplicationTriggers(data))
-            return true
-          } isTargeted: { _ in }
         }
         .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
           focus.wrappedValue = .detail(.commands)

@@ -22,6 +22,7 @@ struct ContentView: View {
 
   static var appStorage: AppStorageStore = .init()
 
+  @Namespace var namespace
   @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
@@ -48,7 +49,9 @@ struct ContentView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      ContentHeaderView(groupSelectionManager: groupSelectionManager)
+      ContentHeaderView(groupSelectionManager: groupSelectionManager,
+                        namespace: namespace,
+                        onAction: onAction)
       ContentListView(focus,
                       contentSelectionManager: contentSelectionManager,
                       groupSelectionManager: groupSelectionManager,
@@ -88,7 +91,9 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContentView($focus, contentSelectionManager: .init(), groupSelectionManager: .init()) { _ in }
+    ContentView($focus,
+                contentSelectionManager: .init(),
+                groupSelectionManager: .init()) { _ in }
       .designTime()
       .frame(height: 900)
   }

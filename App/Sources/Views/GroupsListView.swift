@@ -55,37 +55,18 @@ struct GroupsListView: View {
           LazyVStack(spacing: 0) {
             ForEach($publisher.data) { element in
               let group = element.wrappedValue
-              GroupItemView(group, selectionManager: selectionManager, onAction: onAction)
+              GroupItemView(element,
+                            focusPublisher: focusPublisher,
+                            selectionManager: selectionManager,
+                            onAction: onAction)
                 .contentShape(Rectangle())
                 .overlay(content: { confirmDeleteView(group) })
-                .padding(.vertical, 4)
-                .padding(.horizontal, 8)
                 .contextMenu(menuItems: {
                   contextualMenu(for: group, onAction: onAction)
                 })
                 .onTapGesture {
                   selectionManager.handleOnTap(publisher.data, element: element.wrappedValue)
                   focusPublisher.publish(element.id)
-                }
-                .background(
-                  FocusView(focusPublisher, element: element,
-                            selectionManager: selectionManager,
-                            cornerRadius: 4, style: .list)
-                )
-                .draggable(element.wrappedValue.draggablePayload(prefix: "WG|", selections: selectionManager.selections))
-                .dropDestination(for: String.self) { items, location in
-                  if let payload = items.draggablePayload(prefix: "WG|"),
-                      let (from, destination) = $publisher.data.moveOffsets(for: element, with: payload) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-                      publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
-                    }
-
-                    onAction(.moveGroups(source: from, destination: destination))
-                    return true
-                  } else if let payload = items.draggablePayload(prefix: "W|") {
-                    onAction(.moveWorkflows(workflowIds: Set(payload), groupId: element.id))
-                  }
-                  return false
                 }
                 .tag(group)
             }

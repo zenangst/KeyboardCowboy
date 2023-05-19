@@ -37,9 +37,9 @@ struct ContentListEmptyView: View {
               Text("Add Workflow")
             }
             .padding(4)
-            .matchedGeometryEffect(id: "add-workflow-button", in: namespace, properties: .position)
           })
           .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+          .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
 
           Text("No workflows yet,\nadd a workflow to get started.")
             .multilineTextAlignment(.center)

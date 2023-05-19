@@ -13,37 +13,76 @@ struct MultiDetailView: View {
 
   var body: some View {
     VStack(spacing: 24) {
-      Text("Multiple commands selected: \(count)")
-        .font(.title)
-      ZStack {
-        ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
-          let offset = Double(offset)
-          let scaleDelta = -(offset * 0.025)
-          let offsetDelta: CGFloat = (offset * 10)
-          HStack {
-            ZStack {
-              ForEach(element.commands) { command in
-                if let icon = command.icon {
-                  IconView(icon: icon, size: .init(width: 32, height: 32))
+      VStack {
+        Text("Multiple commands selected: \(count)")
+          .font(.title)
+        ZStack {
+          ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
+            let offset = Double(offset)
+            let scaleDelta = -(offset * 0.025)
+            let offsetDelta: CGFloat = (offset * 5)
+            HStack {
+              ZStack {
+                ForEach(element.commands) { command in
+                  if let icon = command.icon {
+                    IconView(icon: icon, size: .init(width: 32, height: 32))
+                  }
                 }
               }
-            }
 
-            Text(element.name)
-              .frame(maxWidth: .infinity, alignment: .leading)
+              Text(element.name)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity)
+            .background(Color.init(nsColor: .windowBackgroundColor).cornerRadius(8))
+            .shadow(color: .black.opacity(0.2), radius: 4)
+            .padding(8)
+            .opacity(1 - scaleDelta)
+            .zIndex(100 - offset)
+            .offset(y: offsetDelta)
+            .scaleEffect(1 + scaleDelta)
           }
-          .padding(16)
-          .frame(maxWidth: .infinity)
-          .background(Color.init(nsColor: .textBackgroundColor).cornerRadius(8))
-          .shadow(color: .black.opacity(0.2), radius: 4)
-          .padding()
-          .opacity(1 - scaleDelta)
-          .zIndex(100 - offset)
-          .offset(y: offsetDelta)
-          .scaleEffect(1 + scaleDelta)
         }
+        .padding(8)
+        .padding(8)
+        .background(Color.init(nsColor: .textBackgroundColor).cornerRadius(8))
+        .frame(maxHeight: 100)
       }
-      .frame(maxHeight: 100)
+      .padding(.horizontal, 8)
+      .padding(.bottom)
+      .padding(.top, 32)
+      .background(alignment: .bottom, content: {
+        Rectangle()
+          .fill(
+            LinearGradient(stops: [
+              .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.3, of: .white)!), location: 0.0),
+              .init(color: Color(nsColor: .windowBackgroundColor), location: 0.01),
+              .init(color: Color(nsColor: .windowBackgroundColor), location: 0.8),
+              .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.3, of: .black)!), location: 1.0),
+            ], startPoint: .top, endPoint: .bottom)
+          )
+          .mask(
+            Canvas(rendersAsynchronously: true) { context, size in
+              context.fill(
+                Path(CGRect(origin: .zero, size: CGSize(width: size.width,
+                                                        height: size.height - 12))),
+                with: .color(Color(.black))
+              )
+
+              context.fill(Path { path in
+                path.move(to: CGPoint(x: size.width / 2, y: size.height - 12))
+                path.addLine(to: CGPoint(x: size.width / 2 - 24, y: size.height - 12))
+                path.addLine(to: CGPoint(x: size.width / 2, y: size.height - 2))
+                path.addLine(to: CGPoint(x: size.width / 2 + 24, y: size.height - 12))
+                path.addLine(to: CGPoint(x: size.width / 2, y: size.height - 12))
+              }, with: .color(Color(.black)))
+            }
+          )
+          .compositingGroup()
+          .shadow(color: Color.white.opacity(0.2), radius: 0, y: 1)
+          .shadow(radius: 2, y: 2)
+      })
 
       HStack {
         Menu {
@@ -71,7 +110,6 @@ struct MultiDetailView: View {
 
       Spacer()
     }
-    .padding(.top, 92)
     .debugEdit()
   }
 }

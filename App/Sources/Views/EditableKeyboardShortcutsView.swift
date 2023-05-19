@@ -33,7 +33,64 @@ struct EditableKeyboardShortcutsView: View {
     ScrollViewReader { proxy in
       HStack {
         ScrollView(.horizontal) {
-          content(proxy)
+          LazyHStack {
+            ForEach($keyboardShortcuts) { keyboardShortcut in
+              EditableKeyboardShortcutsItemView(
+                focusPublisher: focusPublisher,
+                keyboardShortcut: keyboardShortcut,
+                keyboardShortcuts: $keyboardShortcuts,
+                selectionManager: selectionManager
+              )
+                .contextMenu {
+                  Text(keyboardShortcut.wrappedValue.validationValue)
+                  Divider()
+                  Button("Re-record") {
+                    replacing = keyboardShortcut.id
+                    record()
+                  }
+                  Button("Remove") {
+                    if let index = keyboardShortcuts.firstIndex(where: { $0.id == keyboardShortcut.id }) {
+                      _ = withAnimation(animation) {
+                        keyboardShortcuts.remove(at: index)
+                      }
+                    }
+                  }
+                }
+                .onTapGesture {
+                  selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
+                  focusPublisher.publish(keyboardShortcut.id)
+                }
+                .id(keyboardShortcut.id)
+            }
+            .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+              onTab(true)
+            })
+            .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
+              onTab(false)
+            })
+            .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+              selectionManager.publish(Set(keyboardShortcuts.map(\.id)))
+            })
+            .onMoveCommand(perform: { direction in
+              if let elementID = selectionManager.handle(
+                direction,
+                keyboardShortcuts,
+                proxy: proxy,
+                vertical: false) {
+                focusPublisher.publish(elementID)
+              }
+            })
+            .onDeleteCommand {
+              let fromOffsets = IndexSet(keyboardShortcuts.enumerated()
+                .filter { selectionManager.selections.contains($0.element.id) }
+                .map { $0.offset })
+
+              withAnimation(animation) {
+                keyboardShortcuts.remove(atOffsets: fromOffsets)
+              }
+            }
+          }
+          .padding(4)
         }
         Spacer()
         Button(action: { addButtonAction(proxy) },
@@ -68,97 +125,6 @@ struct EditableKeyboardShortcutsView: View {
         break
       }
     })
-  }
-
-  private func content(_ proxy: ScrollViewProxy) -> some View {
-    LazyHStack {
-      ForEach($keyboardShortcuts) { keyboardShortcut in
-        HStack(spacing: 6) {
-          ForEach(keyboardShortcut.wrappedValue.modifiers) { modifier in
-            ModifierKeyIcon(
-              key: modifier,
-              alignment: keyboardShortcut.wrappedValue.lhs
-              ? modifier == .shift ? .bottomLeading : .topTrailing
-              : modifier == .shift ? .bottomTrailing : .topLeading
-            )
-            .frame(minWidth: modifier == .command || modifier == .shift ? 44 : 32, minHeight: 32)
-            .fixedSize(horizontal: true, vertical: true)
-          }
-          RegularKeyIcon(letter: keyboardShortcut.wrappedValue.key, width: 32, height: 32)
-            .fixedSize(horizontal: true, vertical: true)
-        }
-        .contextMenu {
-          Text(keyboardShortcut.wrappedValue.validationValue)
-          Divider()
-          Button("Re-record") {
-            replacing = keyboardShortcut.id
-            record()
-          }
-          Button("Remove") {
-            if let index = keyboardShortcuts.firstIndex(where: { $0.id == keyboardShortcut.id }) {
-              _ = withAnimation(animation) {
-                keyboardShortcuts.remove(at: index)
-              }
-            }
-          }
-        }
-        .padding(4)
-        .background(
-          RoundedRectangle(cornerRadius: 8, style: .continuous)
-            .stroke(Color(.disabledControlTextColor))
-            .opacity(0.5)
-        )
-        .onTapGesture {
-          selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
-          focusPublisher.publish(keyboardShortcut.id)
-        }
-        .background(
-          FocusView(focusPublisher, element: keyboardShortcut,
-                    selectionManager: selectionManager, cornerRadius: 8, style: .focusRing)
-        )
-        .draggable(keyboardShortcut.draggablePayload(prefix: "WKS|", selections: selectionManager.selections))
-        .dropDestination(for: String.self) { items, location in
-          guard let payload = items.draggablePayload(prefix: "WKS|"),
-                let (from, destination) = keyboardShortcuts.moveOffsets(for: keyboardShortcut.wrappedValue,
-                                                                        with: payload) else {
-            return false
-          }
-          withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-            keyboardShortcuts.move(fromOffsets: IndexSet(from), toOffset: destination)
-          }
-          return true
-        } isTargeted: { _ in }
-        .id(keyboardShortcut.id)
-      }
-      .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-        onTab(true)
-      })
-      .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-        onTab(false)
-      })
-      .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-        selectionManager.publish(Set(keyboardShortcuts.map(\.id)))
-      })
-      .onMoveCommand(perform: { direction in
-        if let elementID = selectionManager.handle(
-          direction,
-          keyboardShortcuts,
-          proxy: proxy,
-          vertical: false) {
-          focusPublisher.publish(elementID)
-        }
-      })
-      .onDeleteCommand {
-        let fromOffsets = IndexSet(keyboardShortcuts.enumerated()
-          .filter { selectionManager.selections.contains($0.element.id) }
-          .map { $0.offset })
-
-        withAnimation(animation) {
-          keyboardShortcuts.remove(atOffsets: fromOffsets)
-        }
-      }
-    }
-    .padding(4)
   }
 
   @ViewBuilder

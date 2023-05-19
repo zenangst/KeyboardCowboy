@@ -47,7 +47,7 @@ struct SidebarConfigurationView: View {
       Button(action: {
         popoverIsPresented = true
       }, label: {
-        Image(systemName: "plus")
+        Image(systemName: "plus.circle")
           .resizable()
           .aspectRatio(contentMode: .fit)
           .frame(height: 12)

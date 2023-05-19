@@ -43,51 +43,18 @@ struct WorkflowCommandListView: View {
         LazyVStack(spacing: 0) {
           ForEach($detailPublisher.data.commands, id: \.self) { element in
             let command = element
-            CommandView(command, workflowId: detailPublisher.data.id) { action in
+            CommandView(command,
+                        detailPublisher: detailPublisher,
+                        focusPublisher: focusPublisher,
+                        selectionManager: selectionManager,
+                        workflowId: detailPublisher.data.id,
+                        onCommandAction: onAction) { action in
               onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
             }
             .contextMenu(menuItems: { contextMenu(command) })
             .onTapGesture {
               selectionManager.handleOnTap(detailPublisher.data.commands, element: element.wrappedValue)
               focusPublisher.publish(element.id)
-            }
-            .background(
-              FocusView(focusPublisher, element: element,
-                        selectionManager: selectionManager, cornerRadius: 8,
-                        style: .focusRing)
-            )
-            .draggable(element.wrappedValue.draggablePayload(prefix: "WC|", selections: selectionManager.selections))
-            .dropDestination(for: DropItem.self) { items, location in
-              var urls = [URL]()
-              for item in items {
-                switch item {
-                case .text(let item):
-                  if let url = URL(string: item) {
-                    urls.append(url)
-                    continue
-                  }
-                  guard let payload = item.draggablePayload(prefix: "WC|"),
-                        let (from, destination) = detailPublisher.data.commands.moveOffsets(for: element.wrappedValue,
-                                                                                            with: payload) else {
-                    return false
-                  }
-                  withAnimation(Self.animation) {
-                    detailPublisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
-                  }
-                  onAction(.moveCommand(workflowId: detailPublisher.data.id, indexSet: from, toOffset: destination))
-                  return true
-                case .url(let url):
-                  urls.append(url)
-                case .none:
-                  return false
-                }
-              }
-
-              if !urls.isEmpty {
-                onAction(.dropUrls(workflowId: detailPublisher.data.id, urls: urls))
-                return true
-              }
-              return false
             }
           }
           .padding(.vertical, 5)
