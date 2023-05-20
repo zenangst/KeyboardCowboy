@@ -9,6 +9,7 @@ struct IconMenuStyle: MenuStyle {
 }
 
 struct ApplicationCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case changeApplication(Application)
     case updateName(newName: String)
@@ -84,6 +85,8 @@ struct ApplicationCommandView: View {
               .stroke(Color(.disabledControlTextColor))
               .opacity(0.5)
           )
+          .compositingGroup()
+
           TextField("", text: $name)
             .textFieldStyle(AppTextFieldStyle())
             .onChange(of: name, perform: {
@@ -116,6 +119,10 @@ struct ApplicationCommandView: View {
       },
       onAction: { onAction(.commandAction($0)) })
     .debugEdit()
+    .frame(height: 80)
+    .fixedSize(horizontal: false, vertical: true)
+    .id(command.id)
+    .enableInjection()
   }
 }
 

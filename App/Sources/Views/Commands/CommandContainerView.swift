@@ -36,7 +36,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
           icon($command)
             .fixedSize()
             .frame(maxWidth: 32, maxHeight: 32)
-            .offset(x: 2)
 
           content($command)
             .frame(minHeight: 30)
@@ -44,23 +43,26 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .padding([.top, .leading], 8)
 
         HStack(spacing: 0) {
-          Toggle("", isOn: $isEnabled)
+          Toggle(isOn: $isEnabled) { }
             .onChange(of: isEnabled, perform: {
               onAction(.toggleIsEnabled($0))
             })
             .toggleStyle(.switch)
             .tint(.green)
+            .compositingGroup()
             .scaleEffect(0.65)
 
           subContent($command)
             .buttonStyle(.appStyle)
             .padding(.leading, 2)
         }
-        .padding([.bottom], 8)
+        .padding(.bottom, 8)
+        .padding(.leading, 4)
       }
       Spacer()
       CommandContainerActionView(onAction: onAction)
     }
+    .id(command.id)
   }
 }
 

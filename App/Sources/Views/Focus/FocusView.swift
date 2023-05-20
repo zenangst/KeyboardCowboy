@@ -35,12 +35,12 @@ struct FocusView<Element>: View where Element: Hashable,
                    isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
                    selectionManager: selectionManager)
       .overlay(
-        FocusOverlayView(isFocused: _isFocused, isTargeted: $isTargeted,
+        FocusOverlayView(isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }), isTargeted: $isTargeted,
                          cornerRadius: cornerRadius,
                          manager: selectionManager, style: style)
       )
       .background(
-        FocusBackgroundView(isFocused: _isFocused,
+        FocusBackgroundView(isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
                             isTargeted: $isTargeted,
                             manager: selectionManager,
                             element: element,
@@ -52,7 +52,7 @@ struct FocusView<Element>: View where Element: Hashable,
 }
 
 private struct FocusOverlayView<Element>: View where Element: Hashable, Element: Identifiable {
-  @FocusState var isFocused: Bool
+  @Binding var isFocused: Bool
   @Binding var isTargeted: Bool
   let cornerRadius: Double
   @ObservedObject var manager: SelectionManager<Element>
@@ -84,7 +84,7 @@ private struct FocusOverlayView<Element>: View where Element: Hashable, Element:
 }
 
 private struct FocusBackgroundView<Element>: View where Element: Hashable, Element: Identifiable {
-  @FocusState var isFocused: Bool
+  @Binding var isFocused: Bool
   @Binding var isTargeted: Bool
   @ObservedObject var manager: SelectionManager<Element>
   let element: Element
@@ -95,6 +95,7 @@ private struct FocusBackgroundView<Element>: View where Element: Hashable, Eleme
     manager.selectedColor
       .cornerRadius(cornerRadius)
       .opacity(focusOpacity())
+      .id(element.id)
   }
 
   private func focusOpacity() -> Double {

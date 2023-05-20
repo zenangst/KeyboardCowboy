@@ -124,129 +124,15 @@ struct CommandResolverView: View {
     self.onAction = onAction
   }
 
+  @ViewBuilder
   var body: some View {
-    Group {
-      switch command.kind {
-      case .plain:
-        UnknownView(command: .constant(command))
-      case .open:
-        OpenCommandView(
-          $command,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              case .toggleIsEnabled(let isEnabled):
-                onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
-              }
-            default:
-              onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .application(let action, let inBackground, let hideWhenRunning, let ifNotRunning):
-        ApplicationCommandView(
-          command,
-          actionName: action,
-          notify: command.notify,
-          inBackground: inBackground,
-          hideWhenRunning: hideWhenRunning,
-          ifNotRunning: ifNotRunning,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              case .toggleIsEnabled(let isEnabled):
-                onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
-              }
-            default:
-              onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .script:
-        ScriptCommandView(
-          command,
-          onAction: { action in
-            switch action {
-            case .edit:
-              return
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              case .toggleIsEnabled(let isEnabled):
-                onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
-              }
-            default:
-              onAction(.modify(.script(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .keyboard:
-        KeyboardCommandView(
-          command,
-          notify: command.notify,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              case .toggleIsEnabled(let isEnabled):
-                onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
-              }
-            default:
-              onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .shortcut:
-        ShortcutCommandView(
-          command,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              case .toggleIsEnabled(let isEnabled):
-                onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
-              }
-            default:
-              onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .type:
-        TypeCommandView(
-          command,
-          onAction: { action in
-            switch action {
-            case .commandAction(let action):
-              switch action {
-              case .run:
-                onAction(.run(workflowId: workflowId, commandId: command.id))
-              case .delete:
-                onAction(.remove(workflowId: workflowId, commandId: command.id))
-              case .toggleIsEnabled(let isEnabled):
-                onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
-              }
-            default:
-              onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
-            }
-          })
-      case .systemCommand(let kind):
-        SystemCommandView(command, kind: kind) { action in
+    switch command.kind {
+    case .plain:
+      UnknownView(command: .constant(command))
+    case .open:
+      OpenCommandView(
+        $command,
+        onAction: { action in
           switch action {
           case .commandAction(let action):
             switch action {
@@ -258,12 +144,124 @@ struct CommandResolverView: View {
               onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
             }
           default:
-            onAction(.modify(.system(action: action, workflowId: workflowId, commandId: command.id)))
+            onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
           }
+        })
+    case .application(let action, let inBackground, let hideWhenRunning, let ifNotRunning):
+      ApplicationCommandView(
+        command,
+        actionName: action,
+        notify: command.notify,
+        inBackground: inBackground,
+        hideWhenRunning: hideWhenRunning,
+        ifNotRunning: ifNotRunning,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+            }
+          default:
+            onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .script:
+      ScriptCommandView(
+        command,
+        onAction: { action in
+          switch action {
+          case .edit:
+            return
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+            }
+          default:
+            onAction(.modify(.script(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .keyboard:
+      KeyboardCommandView(
+        command,
+        notify: command.notify,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+            }
+          default:
+            onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .shortcut:
+      ShortcutCommandView(
+        command,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+            }
+          default:
+            onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .type:
+      TypeCommandView(
+        command,
+        onAction: { action in
+          switch action {
+          case .commandAction(let action):
+            switch action {
+            case .run:
+              onAction(.run(workflowId: workflowId, commandId: command.id))
+            case .delete:
+              onAction(.remove(workflowId: workflowId, commandId: command.id))
+            case .toggleIsEnabled(let isEnabled):
+              onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+            }
+          default:
+            onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
+          }
+        })
+    case .systemCommand(let kind):
+      SystemCommandView(command, kind: kind) { action in
+        switch action {
+        case .commandAction(let action):
+          switch action {
+          case .run:
+            onAction(.run(workflowId: workflowId, commandId: command.id))
+          case .delete:
+            onAction(.remove(workflowId: workflowId, commandId: command.id))
+          case .toggleIsEnabled(let isEnabled):
+            onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+          }
+        default:
+          onAction(.modify(.system(action: action, workflowId: workflowId, commandId: command.id)))
         }
       }
     }
-    .id(command.id)
   }
 }
 

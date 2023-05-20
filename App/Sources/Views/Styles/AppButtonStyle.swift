@@ -42,6 +42,7 @@ struct AppButtonStyle: ButtonStyle {
       .opacity(configuration.isPressed ? 0.6 : isHovered ? 1.0 : 0.8)
       .offset(y: configuration.isPressed ? 0.25 : 0.0)
       .compositingGroup()
+      .drawingGroup()
       .shadow(radius: configuration.isPressed ? 0 : isHovered ? 1 : 2)
       .onHover(perform: { value in
         self.isHovered <- value
