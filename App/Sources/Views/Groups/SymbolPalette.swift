@@ -7,6 +7,7 @@ struct SymbolPalette: View {
     "applescript",
     "folder",
     "app.connected.to.app.below.fill",
+    "flowchart",
     "terminal",
     "laptopcomputer",
     "safari",

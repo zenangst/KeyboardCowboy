@@ -57,8 +57,7 @@ final class Storage {
     }
 
     if data.count <= 1 {
-      let configuration = KeyboardCowboyConfiguration(name: "Default configuration", groups: [])
-      return [configuration]
+      return [KeyboardCowboyConfiguration.initial()]
     }
 
     do {
