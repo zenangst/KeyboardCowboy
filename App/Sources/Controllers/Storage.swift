@@ -7,6 +7,7 @@ enum StorageError: Error {
   case unableToCreateFile
   case unableToReadContents
   case unableToSaveContents(Error)
+  case emptyFile
 }
 
 final class Storage {
@@ -57,7 +58,7 @@ final class Storage {
     }
 
     if data.count <= 1 {
-      return [KeyboardCowboyConfiguration.initial()]
+      throw StorageError.emptyFile
     }
 
     do {

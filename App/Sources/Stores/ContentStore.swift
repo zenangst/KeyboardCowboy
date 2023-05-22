@@ -4,7 +4,14 @@ import SwiftUI
 
 @MainActor
 final class ContentStore: ObservableObject {
+  enum State {
+    case loading
+    case noConfiguration
+    case initialized
+  }
+
   static var appStorage: AppStorageStore = .init()
+  @Published private(set) var state: State = .loading
   @Published private(set) var preferences: AppPreferences
 
   var undoManager: UndoManager?
@@ -46,19 +53,40 @@ final class ContentStore: ObservableObject {
       await applicationStore.reload()
       shortcutStore.index()
       let configurations: [KeyboardCowboyConfiguration]
-      configurations = try await storage.load()
-      let shouldSave = configurations.isEmpty
-      configurationStore.updateConfigurations(configurations)
-      use(configurationStore.selectedConfiguration)
-      storage.subscribe(to: configurationStore.$configurations)
-      subscribe(to: groupStore.$groups)
 
-      if shouldSave {
-        try storage.save(configurationStore.configurations)
+      do {
+        configurations = try await storage.load()
+        setup(configurations)
+      } catch let error as StorageError {
+        switch error {
+        case .unableToFindFile:
+          break
+        case .unableToCreateFile:
+          break
+        case .unableToReadContents:
+          break
+        case .unableToSaveContents:
+          break
+        case .emptyFile:
+          state = .noConfiguration
+        }
       }
 
       Benchmark.finish("ContentStore.init")
     }
+  }
+
+  @MainActor
+  func handle(_ action: EmptyConfigurationView.Action) {
+    let configurations: [KeyboardCowboyConfiguration]
+    switch action {
+    case .empty:
+      configurations = [.empty()]
+    case .initial:
+      configurations = [.initial()]
+    }
+    setup(configurations)
+    try? storage.save(configurationStore.configurations)
   }
 
   func use(_ configuration: KeyboardCowboyConfiguration) {
@@ -73,6 +101,14 @@ final class ContentStore: ObservableObject {
   }
 
   // MARK: Private methods
+
+  private func setup(_ configurations: [KeyboardCowboyConfiguration]) {
+    configurationStore.updateConfigurations(configurations)
+    use(configurationStore.selectedConfiguration)
+    storage.subscribe(to: configurationStore.$configurations)
+    subscribe(to: groupStore.$groups)
+    state = .initialized
+  }
 
   @MainActor
   private func applyConfiguration(_ newConfiguration: KeyboardCowboyConfiguration) async {

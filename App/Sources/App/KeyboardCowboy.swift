@@ -20,7 +20,7 @@ struct KeyboardCowboy: App {
   private let contentCoordinator: ContentCoordinator
   private let detailCoordinator: DetailCoordinator
 
-  private let contentStore: ContentStore
+  @ObservedObject private var contentStore: ContentStore
   private let groupStore: GroupStore
   private let scriptEngine: ScriptEngine
   private let engine: KeyboardCowboyEngine
@@ -142,44 +142,72 @@ struct KeyboardCowboy: App {
     })
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
-      applyEnvironmentObjects(
-        ContainerView(focus: $focus,
-                      applicationTriggerSelectionManager: detailCoordinator.applicationTriggerSelectionManager,
-                      commandSelectionManager: detailCoordinator.commandSelectionManager,
-                      configSelectionManager: configurationCoordinator.selectionManager,
-                      contentSelectionManager: contentCoordinator.contentSelectionManager,
-                      groupsSelectionManager: sidebarCoordinator.selectionManager,
-                      keyboardShortcutSelectionManager: detailCoordinator.keyboardShortcutSelectionManager
-                     ) { action in
-          switch action {
-          case .openScene(let scene):
-            handleScene(scene)
-          case .sidebar(let sidebarAction):
-            switch sidebarAction {
+
+      Group {
+        switch contentStore.state {
+        case .initialized:
+          ContainerView(focus: $focus,
+                        applicationTriggerSelectionManager: detailCoordinator.applicationTriggerSelectionManager,
+                        commandSelectionManager: detailCoordinator.commandSelectionManager,
+                        configSelectionManager: configurationCoordinator.selectionManager,
+                        contentSelectionManager: contentCoordinator.contentSelectionManager,
+                        groupsSelectionManager: sidebarCoordinator.selectionManager,
+                        keyboardShortcutSelectionManager: detailCoordinator.keyboardShortcutSelectionManager
+          ) { action in
+            switch action {
             case .openScene(let scene):
               handleScene(scene)
-            default:
-              configurationCoordinator.handle(sidebarAction)
-              sidebarCoordinator.handle(sidebarAction)
-              contentCoordinator.handle(sidebarAction)
-              detailCoordinator.handle(sidebarAction)
+            case .sidebar(let sidebarAction):
+              switch sidebarAction {
+              case .openScene(let scene):
+                handleScene(scene)
+              default:
+                configurationCoordinator.handle(sidebarAction)
+                sidebarCoordinator.handle(sidebarAction)
+                contentCoordinator.handle(sidebarAction)
+                detailCoordinator.handle(sidebarAction)
+              }
+            case .content(let contentAction):
+              contentCoordinator.handle(contentAction)
+              detailCoordinator.handle(contentAction)
+              if case .addWorkflow = contentAction {
+                Task { @MainActor in focus = .detail(.name) }
+              }
+            case .detail(let detailAction):
+              detailCoordinator.handle(detailAction)
+              contentCoordinator.handle(detailAction)
             }
-          case .content(let contentAction):
-            contentCoordinator.handle(contentAction)
-            detailCoordinator.handle(contentAction)
-            if case .addWorkflow = contentAction {
-              Task { @MainActor in focus = .detail(.name) }
-            }
-          case .detail(let detailAction):
-            detailCoordinator.handle(detailAction)
-            contentCoordinator.handle(detailAction)
           }
+          .focusScope(namespace)
+          // MARK: Note - Force dark mode until the light theme is up-to-date
+          .environment(\.colorScheme, .dark)
+          .environmentObject(contentStore.configurationStore)
+          .environmentObject(contentStore.applicationStore)
+          .environmentObject(contentStore.groupStore)
+          .environmentObject(configurationCoordinator.publisher)
+          .environmentObject(sidebarCoordinator.publisher)
+          .environmentObject(contentCoordinator.publisher)
+          .environmentObject(detailCoordinator.statePublisher)
+          .environmentObject(detailCoordinator.detailPublisher)
+          .environmentObject(contentStore.recorderStore)
+          .environmentObject(OpenPanelController())
+          .matchedGeometryEffect(id: "content-window", in: namespace)
+        case .loading:
+          AppLoadingView()
+            .frame(width: 480, height: 360)
+            .matchedGeometryEffect(id: "content-window", in: namespace)
+        case .noConfiguration:
+          EmptyConfigurationView {
+            contentStore.handle($0)
+          }
+            .matchedGeometryEffect(id: "content-window", in: namespace)
+            .frame(width: 480, height: 360)
+            .animation(.none, value: contentStore.state)
         }
-        .focusScope(namespace)
-        // MARK: Note - Force dark mode until the light theme is up-to-date
-        .environment(\.colorScheme, .dark)
-      )
+      }
+      .animation(.spring(), value: contentStore.state)
     }
+    .windowResizability(.contentSize)
     .windowStyle(.hiddenTitleBar)
 
     PermissionsScene { action in
@@ -237,21 +265,5 @@ struct KeyboardCowboy: App {
         assertionFailure("Unable to find workflow group")
       }
     }
-  }
-}
-
-private extension KeyboardCowboy {
-  func applyEnvironmentObjects<Content: View>(_ content: @autoclosure () -> Content) -> some View {
-    content()
-      .environmentObject(contentStore.configurationStore)
-      .environmentObject(contentStore.applicationStore)
-      .environmentObject(contentStore.groupStore)
-      .environmentObject(configurationCoordinator.publisher)
-      .environmentObject(sidebarCoordinator.publisher)
-      .environmentObject(contentCoordinator.publisher)
-      .environmentObject(detailCoordinator.statePublisher)
-      .environmentObject(detailCoordinator.detailPublisher)
-      .environmentObject(contentStore.recorderStore)
-      .environmentObject(OpenPanelController())
   }
 }
