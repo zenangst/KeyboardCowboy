@@ -62,7 +62,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
       Spacer()
       CommandContainerActionView(onAction: onAction)
     }
-    .id(command.id)
   }
 }
 
