@@ -15,6 +15,7 @@ struct GroupsListView: View {
     }
   }
 
+  @FocusState var isFocused: Bool
   private var focus: FocusState<AppFocus?>.Binding
   private var focusPublisher: FocusPublisher<GroupViewModel>
   private let namespace: Namespace.ID
@@ -70,7 +71,17 @@ struct GroupsListView: View {
                 }
                 .tag(group)
             }
+            .focused($isFocused)
             .focusSection()
+            .onChange(of: isFocused, perform: { newValue in
+              guard newValue else { return }
+
+              guard let lastSelection = selectionManager.lastSelection else { return }
+
+              withAnimation {
+                proxy.scrollTo(lastSelection)
+              }
+            })
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .workflows
             })
