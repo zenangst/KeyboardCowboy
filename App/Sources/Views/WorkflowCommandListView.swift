@@ -41,7 +41,7 @@ struct WorkflowCommandListView: View {
           .matchedGeometryEffect(id: "command-list", in: namespace)
       } else {
         LazyVStack(spacing: 0) {
-          ForEach($detailPublisher.data.commands, id: \.self) { element in
+          ForEach($detailPublisher.data.commands) { element in
             let command = element
             CommandView(command,
                         detailPublisher: detailPublisher,

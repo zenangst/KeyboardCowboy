@@ -111,6 +111,7 @@ struct ContentListView: View {
         }
       }
     }
+    .debugEdit()
   }
 
   private func getColor() -> NSColor {
