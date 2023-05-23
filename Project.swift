@@ -52,7 +52,7 @@ let project = Project(
                         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                         "CODE_SIGN_IDENTITY": "Apple Development",
                         "CODE_SIGN_STYLE": "Automatic",
-                        "CURRENT_PROJECT_VERSION": "136",
+                        "CURRENT_PROJECT_VERSION": "137",
                         "DEVELOPMENT_TEAM": env["TEAM_ID"],
                         "ENABLE_HARDENED_RUNTIME": true,
                         "MARKETING_VERSION": "3.0.0",
