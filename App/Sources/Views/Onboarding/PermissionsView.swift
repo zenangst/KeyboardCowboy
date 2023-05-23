@@ -81,7 +81,7 @@ struct PermissionsView: View {
     }
     .compositingGroup()
     .padding()
-    .frame(maxHeight: .infinity)
+    .frame(maxHeight: .infinity, alignment: .top)
     .background(SplashView(done: $done))
     .onAppear {
       animated = true
