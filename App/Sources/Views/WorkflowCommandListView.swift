@@ -57,6 +57,7 @@ struct WorkflowCommandListView: View {
               focusPublisher.publish(element.id)
             }
           }
+          .focusSection()
           .padding(.vertical, 5)
           .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
             switch detailPublisher.data.trigger {

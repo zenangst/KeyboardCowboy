@@ -70,6 +70,7 @@ struct GroupsListView: View {
                 }
                 .tag(group)
             }
+            .focusSection()
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .workflows
             })

@@ -64,6 +64,7 @@ struct WorkflowApplicationTriggerView: View {
             focusPublisher.publish(element.id)
           }
         }
+        .focusSection()
         .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
           focus.wrappedValue = .detail(.commands)
         })
