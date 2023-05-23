@@ -31,7 +31,7 @@ public struct OpenCommand: Identifiable, Codable, Hashable, Sendable {
   public init(id: String = UUID().uuidString,
               name: String = "",
               application: Application? = nil, path: String,
-              notification: Bool) {
+              notification: Bool = false) {
     self.id = id
     self.name = name
     self.application = application

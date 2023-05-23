@@ -41,7 +41,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
               action: Action = .open,
               application: Application,
               modifiers: [Modifier] = [],
-              notification: Bool) {
+              notification: Bool = false) {
     self.id = id
     self.name = name
     self.application = application
