@@ -48,6 +48,18 @@ struct FocusView<Element>: View where Element: Hashable,
                             style: style))
       .compositingGroup()
       .focused($isFocused)
+      .onAppear {
+        // Get the active window
+        guard let activeWindow = NSApp.windows.first(where: \.isKeyWindow),
+              // Check if the active window is the first responder
+              activeWindow == activeWindow.firstResponder,
+              // Check if the element ID matches the last selection in the selection manager
+              element.id == selectionManager.lastSelection
+        else { return }
+
+        // Set isFocused to true to become the first responder.
+        isFocused = true
+      }
   }
 }
 
