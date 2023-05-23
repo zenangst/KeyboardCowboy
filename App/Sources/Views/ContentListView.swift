@@ -52,6 +52,7 @@ struct ContentListView: View {
                   contextualMenu()
                 })
             }
+            .focusSection()
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .detail(.name)
             })

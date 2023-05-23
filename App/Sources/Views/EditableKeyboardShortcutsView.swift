@@ -62,6 +62,7 @@ struct EditableKeyboardShortcutsView: View {
                 }
                 .id(keyboardShortcut.id)
             }
+            .focusSection()
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               onTab(true)
             })
