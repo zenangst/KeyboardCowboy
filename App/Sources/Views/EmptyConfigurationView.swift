@@ -7,6 +7,9 @@ struct EmptyConfigurationView: View {
   }
 
   @State var done: Bool = false
+  private let colors = SplashColors(primaryColor: Color(.systemGreen),
+                                    secondaryColor: Color(.systemBlue),
+                                    backgroundColor: Color(.sRGB, red: 0.03, green: 0.11, blue: 0.25, opacity: 1.0))
   private let onAction: (Action) -> Void
 
   init(onAction: @escaping (Action) -> Void) {
@@ -53,7 +56,7 @@ struct EmptyConfigurationView: View {
     }
     .padding()
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-    .background(SplashView(done: $done))
+    .background(SplashView(colors: colors, done: $done))
   }
 }
 

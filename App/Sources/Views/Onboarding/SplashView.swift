@@ -1,8 +1,31 @@
 import SwiftUI
 
+struct SplashColors {
+  let primaryColor: Color
+  let secondaryColor: Color
+  let backgroundColor: Color
+
+  init(primaryColor: Color,
+       secondaryColor: Color,
+       backgroundColor: Color) {
+    self.primaryColor = primaryColor
+    self.secondaryColor = secondaryColor
+    self.backgroundColor = backgroundColor
+  }
+}
+
 struct SplashView: View {
+  let colors: SplashColors
   @State var animating: Bool = false
   @Binding var done: Bool
+
+  init(colors: SplashColors = SplashColors(primaryColor: Color(red: 220/255, green: 58/255, blue: 102/255),
+                                           secondaryColor: Color(red: 114/255, green: 59/255, blue: 120/255),
+                                           backgroundColor: Color(red: 22/255, green: 23/255, blue: 48/255)),
+       done: Binding<Bool>) {
+    self.colors = colors
+    _done = done
+  }
 
   var body: some View {
     ZStack {
@@ -16,7 +39,7 @@ struct SplashView: View {
       .animation(.easeInOut(duration: 1.0), value: done)
 
       Canvas(rendersAsynchronously: true) { context, size in
-        context.fill(path(), with: .color(Color(red: 114/255, green: 59/255, blue: 120/255)))
+        context.fill(path(), with: .color(colors.secondaryColor))
       }
       .scaleEffect(done ? 4 : 1.75)
       .rotationEffect(.degrees(animating ? 45 : 10))
@@ -28,7 +51,7 @@ struct SplashView: View {
 
 
       Canvas(rendersAsynchronously: true) { context, size in
-        context.fill(path(), with: .color(Color(red: 220/255, green: 58/255, blue: 102/255)))
+        context.fill(path(), with: .color(colors.primaryColor))
       }
       .scaleEffect(done ? 2 : 0.75)
       .rotationEffect(.degrees(animating ? 45 : -45))
@@ -40,7 +63,7 @@ struct SplashView: View {
       .animation(.easeInOut(duration: 1.0), value: done)
     }
     .blur(radius: 40)
-    .background(Color(red: 22/255, green: 23/255, blue: 48/255))
+    .background(colors.backgroundColor)
     .onAppear {
       animating = true
     }
@@ -79,12 +102,26 @@ fileprivate final class SplashDemo: ObservableObject {
 struct SplashView_Previews: PreviewProvider {
   @ObservedObject fileprivate static var publisher = SplashDemo()
   static var previews: some View {
-    SplashView(done: $publisher.done)
-      .overlay {
-        Button(action: { publisher.done.toggle() }, label: {
-          Text("Try me!")
-        })
-      }
+    Group {
+      SplashView(done: $publisher.done)
+        .overlay {
+          Button(action: { publisher.done.toggle() }, label: {
+            Text("Try me!")
+          })
+        }
+        .previewDisplayName("Default colors")
+
+      SplashView(colors: SplashColors(primaryColor: Color(.systemGreen),
+                                      secondaryColor: Color(.systemBlue),
+                                      backgroundColor: Color(.sRGB, red: 0.03, green: 0.11, blue: 0.25, opacity: 1.0)),
+                 done: $publisher.done)
+        .overlay {
+          Button(action: { publisher.done.toggle() }, label: {
+            Text("Try me!")
+          })
+        }
+        .previewDisplayName("Custom colors")
+    }
   }
 }
 
