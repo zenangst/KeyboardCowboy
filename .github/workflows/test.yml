@@ -24,9 +24,9 @@ jobs:
         run: |
           touch .env
           echo "APP_NAME=Keyboard Cowboy" >> .env
-          echo -e "APP_SCHEME=Keyboard-Cowboy\n"
-          echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy\n"
-          echo -e "TEAM_ID=XXXXXXXXXX\n"
+          echo -e "APP_SCHEME=Keyboard-Cowboy" >> .env
+          echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
+          echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           brew install tuist
           tuist fetch
           tuist generate -n
