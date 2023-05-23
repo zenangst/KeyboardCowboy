@@ -20,7 +20,7 @@ jobs:
           swift package --version
       - name: Checkout
         uses: actions/checkout@main
-      - name: Install and run xcodegen
+      - name: Install and run tuist
         run: |
           brew install tuist
           tuist fetch
