@@ -71,6 +71,6 @@ struct ContentHeaderView: View {
         .padding(.bottom, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-
+    .debugEdit()
   }
 }
