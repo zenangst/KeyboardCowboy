@@ -6,6 +6,14 @@ extension KeyboardCowboy {
 
   static var bundleIdentifier: String { Bundle.main.bundleIdentifier! }
 
+  static var marektingVersion: String {
+    Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
+  }
+
+  static var buildNumber: String {
+    Bundle.main.infoDictionary!["CFBundleVersion"] as! String
+  }
+
   static var keyWindow: NSWindow? {
     KeyboardCowboy.app.keyWindow
   }
@@ -26,4 +34,5 @@ extension KeyboardCowboy {
   // MARK: Private variables
 
   static private var app: NSApplication = .shared
+
 }

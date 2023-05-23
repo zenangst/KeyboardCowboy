@@ -49,6 +49,7 @@ struct AppMenuBar: Scene {
         NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
       })
       Divider()
+      Text("Version: \(KeyboardCowboy.marektingVersion) (\(KeyboardCowboy.buildNumber))")
       Button("Quit") { NSApplication.shared.terminate(nil) }
         .keyboardShortcut("q", modifiers: [.command])
     }) {

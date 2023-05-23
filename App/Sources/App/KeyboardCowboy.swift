@@ -126,13 +126,13 @@ struct KeyboardCowboy: App {
     AppMenuBar(onAction:  { action in
       switch action {
       case .onAppear:
-        if !AXIsProcessTrustedWithOptions(nil) {
-          handleScene(.permissions)
-          return
-        }
-
         if KeyboardCowboy.env == .development {
           handleScene(.mainWindow)
+        } else {
+          if !AXIsProcessTrustedWithOptions(nil) {
+            handleScene(.permissions)
+            return
+          }
         }
       case .openMainWindow:
         handleScene(.mainWindow)
@@ -142,7 +142,6 @@ struct KeyboardCowboy: App {
     })
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
-
       Group {
         switch contentStore.state {
         case .initialized:
