@@ -7,7 +7,7 @@ jobs:
     runs-on: macOS-latest
     strategy:
         matrix:
-          xcode: ['12_beta']
+          xcode: ['14.3']
     steps:
       - name: Set Xcode ${{ matrix.xcode }}
         run: |
@@ -22,8 +22,9 @@ jobs:
         uses: actions/checkout@main
       - name: Install and run xcodegen
         run: |
-          brew install xcodegen
-          xcodegen generate
+          brew install tuist
+          tuist fetch
+          tuist generate -n
       - name: Build and Test
         run: |
-          xcodebuild -project Keyboard-Cowboy.xcodeproj -scheme "Keyboard-Cowboy" -sdk macosx clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO" | xcpretty
+          xcodebuild -workspace Keyboard-Cowboy.xcworkspace -scheme "Keyboard-Cowboy" -sdk macosx clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO" | xcpretty
