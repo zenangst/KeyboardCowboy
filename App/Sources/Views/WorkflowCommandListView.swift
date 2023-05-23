@@ -4,6 +4,8 @@ import UniformTypeIdentifiers
 struct WorkflowCommandListView: View {
   static let animation: Animation = .spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)
 
+  @FocusState var isFocused: Bool
+
   @ObserveInjection var inject
   @Environment(\.openWindow) var openWindow
   var namespace: Namespace.ID
@@ -57,7 +59,17 @@ struct WorkflowCommandListView: View {
               focusPublisher.publish(element.id)
             }
           }
+          .focused($isFocused)
           .focusSection()
+          .onChange(of: isFocused, perform: { newValue in
+            guard newValue else { return }
+
+            guard let lastSelection = selectionManager.lastSelection else { return }
+
+            withAnimation {
+              scrollViewProxy?.scrollTo(lastSelection)
+            }
+          })
           .padding(.vertical, 5)
           .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
             switch detailPublisher.data.trigger {

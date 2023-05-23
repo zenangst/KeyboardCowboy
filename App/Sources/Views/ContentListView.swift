@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentListView: View {
+  @FocusState var isFocused: Bool
   private var focus: FocusState<AppFocus?>.Binding
   private let debounceSelectionManager: DebounceManager<ContentDebounce>
   private var focusPublisher: FocusPublisher<ContentViewModel>
@@ -52,7 +53,17 @@ struct ContentListView: View {
                   contextualMenu()
                 })
             }
+            .focused($isFocused)
             .focusSection()
+            .onChange(of: isFocused, perform: { newValue in
+              guard newValue else { return }
+
+              guard let lastSelection = contentSelectionManager.lastSelection else { return }
+
+              withAnimation {
+                proxy.scrollTo(lastSelection)
+              }
+            })
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .detail(.name)
             })

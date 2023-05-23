@@ -6,6 +6,9 @@ struct EditableKeyboardShortcutsView: View {
   enum CurrentState: Hashable {
     case recording
   }
+
+  @FocusState var isFocused: Bool
+
   @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
   @Binding var keyboardShortcuts: [KeyShortcut]
@@ -62,7 +65,17 @@ struct EditableKeyboardShortcutsView: View {
                 }
                 .id(keyboardShortcut.id)
             }
+            .focused($isFocused)
             .focusSection()
+            .onChange(of: isFocused, perform: { newValue in
+              guard newValue else { return }
+
+              guard let lastSelection = selectionManager.lastSelection else { return }
+
+              withAnimation {
+                proxy.scrollTo(lastSelection)
+              }
+            })
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               onTab(true)
             })
