@@ -23,6 +23,7 @@ Add the following contents to the `.env`-file.
 APP_NAME=Keyboard Cowboy
 APP_SCHEME=Keyboard-Cowboy
 APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy
+TEAM_ID=XXXXXXXXXX
 ```
 
 #### Generating an Xcode project
