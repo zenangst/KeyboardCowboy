@@ -83,7 +83,7 @@ final class ContentStore: ObservableObject {
     case .empty:
       configurations = [.empty()]
     case .initial:
-      configurations = [.initial()]
+      configurations = [.default()]
     }
     setup(configurations)
     try? storage.save(configurationStore.configurations)

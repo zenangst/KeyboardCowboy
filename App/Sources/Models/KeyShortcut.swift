@@ -36,7 +36,7 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
 
   public init(id: String = UUID().uuidString,
               key: String,
-              lhs: Bool,
+              lhs: Bool = true,
               modifiers: [ModifierKey] = []) {
     self.id = id
     self.key = key

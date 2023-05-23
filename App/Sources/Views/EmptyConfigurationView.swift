@@ -45,7 +45,7 @@ struct EmptyConfigurationView: View {
         }
 
         VStack {
-          Button("Start Configuration", action: {
+          Button("Default Configuration", action: {
             onAction(.initial)
           })
           .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))

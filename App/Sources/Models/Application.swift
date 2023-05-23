@@ -20,6 +20,12 @@ public extension Application {
       bundleName: "Finder", path: "/System/Library/CoreServices/Finder.app")
   }
 
+  static func systemSettings(id: String = UUID().uuidString) -> Application {
+    Application(
+      bundleIdentifier: "com.apple.systempreferences",
+      bundleName: "Finder", path: "/System/Applications/System Settings.app")
+  }
+
   static func photoshop(id: String = UUID().uuidString) -> Application {
     Application(
       bundleIdentifier: "com.adobe.Photoshop",
