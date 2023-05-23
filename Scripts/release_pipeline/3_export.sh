@@ -3,7 +3,7 @@
 source .env
 
 BUILD_NUMBER=`agvtool what-version | sed -n 2p | xargs`
-VERSION_NUMBER=`sed -n '/MARKETING_VERSION/{s/MARKETING_VERSION: //;s/;//;s/^[[:space:]]*//;p;q;}' ./project.yml`
+VERSION_NUMBER=`sed -n '/MARKETING_VERSION/s/.*: *"\([0-9.]*\)".*/\1/p' ./Project.swift`
 FILENAME="$APP_SCHEME.$VERSION_NUMBER.$BUILD_NUMBER.xcarchive"
 PLIST_CONTENTS=$(cat <<EOF
 <?xml version="1.0" encoding="UTF-8"?>

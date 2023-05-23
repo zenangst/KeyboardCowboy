@@ -2,4 +2,5 @@
 
 # Fetch external dependencies
 echo "🗃 Resolving dependencies"
-xcodebuild -resolvePackageDependencies
+tuist fetch
+tuist generate -n

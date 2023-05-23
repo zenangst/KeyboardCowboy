@@ -2,7 +2,7 @@
 
 source .env
 
-VERSION_NUMBER=`sed -n '/MARKETING_VERSION/{s/MARKETING_VERSION: //;s/;//;s/^[[:space:]]*//;p;q;}' ./project.yml`
+VERSION_NUMBER=`sed -n '/MARKETING_VERSION/s/.*: *"\([0-9.]*\)".*/\1/p' ./Project.swift`
 BUILD_FOLDER="Build/Releases"
 BUILD_PATH="$BUILD_FOLDER/$APP_NAME $VERSION_NUMBER.dmg"
 
