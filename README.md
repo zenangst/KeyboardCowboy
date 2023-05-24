@@ -1,17 +1,42 @@
 # Keyboard Cowboy 3
 
-<img src="https://github.com/zenangst/KeyboardCowboy/blob/main/App/Resources/Assets.xcassets/AppIcon.appiconset/icon_256x256.png?raw=true" alt="Keyboard Cowboy Icon" align="right" />
+<img src="https://github.com/zenangst/KeyboardCowboy/blob/main/App/Resources/Assets.xcassets/AppIcon.appiconset/icon_256x256.png?raw=true" alt="Keyboard Cowboy Icon" width="20%" align="right" />
 
-### Simplify complex tasks and streamline workflows for Mac users.
+### Boost macOS productivity with Keyboard Cowboy.
+
+Introducing Keyboard Cowboy - the ultimate productivity app for macOS that empowers users with incredible efficiency and control,
+all at the tip of their fingers.
+
+Download Keyboard Cowboy today, and see what you can accomplish when you saddle up and take control of your Mac like a true cowboy. Experience the incredible power and efficiency of Keyboard Cowboy for yourself and take your macOS experience to the next level.
+<hr/>
+<div align="center">
+<img src="https://github.com/zenangst/KeyboardCowboy/blob/main/gh-pages/img/app.png?raw=true" width="80%" alt="Application image" align="center" />
+</div>
+
+## Simplify complex tasks and streamline workflows for Mac users.
+
 With Keyboard Cowboy, users can automate repetitive actions, launch applications and scripts, control system settings, manipulate files and folders, and perform a wide range of actions – all without ever having to take their hands off the keyboard.
 
 Keyboard Cowboy's intuitive interface and simple setup process make it easy for users of all levels to get started. And with its lightning-fast performance and seamless integration with macOS, Keyboard Cowboy is the ultimate tool for power users and casual users alike.
 
-### The best shortcut is no shortcut at all.
+
+# The best shortcut is no shortcut at all.
+<div align="center">
+<img src="https://github.com/zenangst/KeyboardCowboy/blob/main/gh-pages/img/automation.png?raw=true" width="80%" alt="Automation" align="center" />
+</div>
 
 **With contextual application triggers, you can set up workflows that respond to a wide range of conditions, such as when an application is opened, closed, or when the user switches to the application.**
 
 Once you've created your workflow, it will run automatically, without the need for any keyboard shortcuts or manual intervention. This powerful automation tool can help you save time and effort by automating a variety of tasks based on your context.
+
+<div align="center">
+<img src="https://github.com/zenangst/KeyboardCowboy/blob/main/gh-pages/img/new-command-xcode.png?raw=true" width="80%" alt="New command screenshot" align="center" />
+</div>
+
+### Using the function key to bind up commands can be incredibly useful for programmers and power users.
+
+By assigning frequently-used commands to the function key, you can streamline your workflow and save time. Overall, utilizing function keys can help you work more efficiently and effectively, making it a valuable tool for any programmer or power user.
+
 
 ## Development
 
