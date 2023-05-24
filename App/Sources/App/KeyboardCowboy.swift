@@ -192,19 +192,19 @@ struct KeyboardCowboy: App {
           .environmentObject(OpenPanelController())
           .matchedGeometryEffect(id: "content-window", in: namespace)
         case .loading:
-          AppLoadingView()
-            .frame(width: 480, height: 360)
+          AppLoadingView(namespace: namespace)
+            .frame(width: 560, height: 380)
             .matchedGeometryEffect(id: "content-window", in: namespace)
         case .noConfiguration:
-          EmptyConfigurationView {
+          EmptyConfigurationView(namespace) {
             contentStore.handle($0)
           }
             .matchedGeometryEffect(id: "content-window", in: namespace)
-            .frame(width: 480, height: 360)
+            .frame(width: 560, height: 380)
             .animation(.none, value: contentStore.state)
         }
       }
-      .animation(.spring(), value: contentStore.state)
+      .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: contentStore.state)
     }
     .windowResizability(.contentSize)
     .windowStyle(.hiddenTitleBar)

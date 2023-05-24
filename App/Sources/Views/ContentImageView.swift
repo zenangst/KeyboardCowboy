@@ -56,6 +56,7 @@ struct ContentImageView: View {
             Text(">_")
               .font(Font.system(.caption, design: .monospaced))
           }
+          .frame(width: size, height: size)
         case .path:
           Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Utilities/Script Editor.app"))
             .resizable()

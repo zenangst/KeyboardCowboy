@@ -55,7 +55,7 @@ final class IconCache {
   // MARK: Private methods
 
   private func load(_ identifier: String) async throws -> NSImage? {
-    let url = try applicationCacheDirectory().appending(component: "\(identifier).tiff")
+    let url = try applicationCacheDirectory().appending(component: identifier)
 
     if FileManager.default.fileExists(atPath: url.path()) {
       return NSImage(contentsOf: url)
@@ -64,7 +64,7 @@ final class IconCache {
   }
 
   private func save(_ image: NSImage, identifier: String) async throws {
-    let url = try applicationCacheDirectory().appending(component: "\(identifier).tiff")
+    let url = try applicationCacheDirectory().appending(component: identifier)
 
     guard let tiff = image.tiffRepresentation else {
       throw IconCacheError.unableToObtainTiffRepresentation
@@ -100,5 +100,5 @@ final class IconCache {
 }
 
 private extension CGSize {
-  var suffix: String { "\(width)x\(height)" }
+  var suffix: String { "\(Int(width))x\(Int(height))" }
 }

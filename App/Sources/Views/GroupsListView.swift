@@ -103,16 +103,10 @@ struct GroupsListView: View {
             }
           }
           .padding(8)
-
           .onReceive(selectionManager.$selections, perform: { newValue in
             confirmDelete = nil
             debounceSelectionManager.process(.init(groups: newValue))
           })
-          .onAppear {
-            if let firstSelection = selectionManager.selections.first {
-              proxy.scrollTo(firstSelection)
-            }
-          }
         }
       }
     }

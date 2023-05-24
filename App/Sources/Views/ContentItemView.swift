@@ -25,11 +25,7 @@ struct ContentItemView: View {
   var body: some View {
     HStack {
       ContentImagesView(images: workflow.wrappedValue.images, size: 32)
-        .background(Color.black.opacity(0.2).cornerRadius(8, antialiased: false))
-        .overlay(alignment: .bottomTrailing, content: {
-          ContentImagesView(images: workflow.wrappedValue.overlayImages, size: 16)
-            .opacity(workflow.wrappedValue.overlayImages.isEmpty ? 0 : 1)
-        })
+        .background(Color.black.opacity(0.3).cornerRadius(8, antialiased: false))
         .overlay(alignment: .topTrailing, content: {
           Text("\(workflow.wrappedValue.badge)")
             .aspectRatio(1, contentMode: .fill)

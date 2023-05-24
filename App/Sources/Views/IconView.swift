@@ -30,14 +30,16 @@ struct IconView: View {
       if let image = publisher.image {
         Image(nsImage: image)
           .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: size.width, height: size.height)
+          .fixedSize()
       } else {
         Rectangle()
           .fill(.clear)
+          .frame(width: size.width, height: size.height)
+          .fixedSize()
       }
     }
-    .aspectRatio(contentMode: .fit)
-    .fixedSize()
-    .frame(width: size.width, height: size.height)
     .onAppear {
       publisher.load(at: icon.path, bundleIdentifier: icon.bundleIdentifier, of: size)
     }

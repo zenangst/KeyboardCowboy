@@ -3,7 +3,7 @@ import Cocoa
 
 final class DetailCommandActionReducer {
   static func reduce(_ action: CommandView.Action,
-                     keyboardCowboyEngine: KeyboardCowboyEngine,
+                     commandEngine: CommandEngine,
                      workflow: inout  Workflow) {
     guard var command: Command = workflow.commands.first(where: { $0.id == action.commandId }) else {
       fatalError("Unable to find command.")
@@ -14,7 +14,29 @@ final class DetailCommandActionReducer {
       command.isEnabled = newValue
       workflow.updateOrAddCommand(command)
     case .run(_, _):
-      break
+      let runCommand = command
+      Task {
+        do {
+          try await commandEngine.run(runCommand)
+        } catch let error as KeyboardEngineError {
+          let alert = await NSAlert(error: error)
+          await alert.runModal()
+        } catch let error as AppleScriptPluginError {
+          let alert: NSAlert
+          switch error {
+          case .failedToCreateInlineScript:
+            alert = await NSAlert(error: error)
+          case .failedToCreateScriptAtURL:
+            alert = await NSAlert(error: error)
+          case .compileFailed(let error):
+            alert = await NSAlert(error: error)
+          case .executionFailed(let error):
+            alert = await NSAlert(error: error)
+          }
+
+          await alert.runModal()
+        }
+      }
     case .remove(_, let commandId):
       workflow.commands.removeAll(where: { $0.id == commandId })
     case .modify(let kind):
@@ -126,7 +148,7 @@ final class DetailCommandActionReducer {
           let execution = workflow.execution
           Task {
             let path = (source as NSString).expandingTildeInPath
-            await keyboardCowboyEngine.run([.open(.init(path: path, notification: false))], execution: execution)
+            try await commandEngine.run(.open(.init(path: path)))
           }
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")

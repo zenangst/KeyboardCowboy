@@ -120,7 +120,7 @@ final class CommandEngine {
     }
   }
 
-  private func run(_ command: Command) async throws {
+  func run(_ command: Command) async throws {
     if command.notification {
       await MainActor.run {
         lastExecutedCommand = command

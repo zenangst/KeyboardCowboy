@@ -66,7 +66,6 @@ struct EditableKeyboardShortcutsView: View {
                 .id(keyboardShortcut.id)
             }
             .focused($isFocused)
-            .focusSection()
             .onChange(of: isFocused, perform: { newValue in
               guard newValue else { return }
 
@@ -104,6 +103,7 @@ struct EditableKeyboardShortcutsView: View {
               }
             }
           }
+          .focusSection()
           .padding(4)
         }
         Spacer()

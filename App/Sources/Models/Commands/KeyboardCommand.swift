@@ -16,7 +16,7 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
   public init(id: String = UUID().uuidString,
               name: String = "",
               keyboardShortcut: KeyShortcut,
-              notification: Bool) {
+              notification: Bool = false) {
     self.id = id
     self.name = name
     self.keyboardShortcuts = [keyboardShortcut]
