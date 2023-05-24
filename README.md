@@ -7,7 +7,8 @@
 Introducing Keyboard Cowboy - the ultimate productivity app for macOS that empowers users with incredible efficiency and control,
 all at the tip of their fingers.
 
-Download Keyboard Cowboy today, and see what you can accomplish when you saddle up and take control of your Mac like a true cowboy. Experience the incredible power and efficiency of Keyboard Cowboy for yourself and take your macOS experience to the next level.
+[Download Keyboard Cowboy today](https://github.com/zenangst/KeyboardCowboy/releases), and see what you can accomplish when you saddle up and take control of your Mac like a true cowboy. Experience the incredible power and efficiency of Keyboard Cowboy for yourself and take your macOS experience to the next level.
+
 <hr/>
 <div align="center">
 <img src="https://github.com/zenangst/KeyboardCowboy/blob/main/gh-pages/img/app.png?raw=true" width="80%" alt="Application image" align="center" />
