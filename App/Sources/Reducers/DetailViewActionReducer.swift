@@ -24,10 +24,7 @@ final class DetailViewActionReducer {
       case .updateKeyboardShortcuts(_, let keyboardShortcuts):
         workflow.trigger = .keyboardShortcuts(keyboardShortcuts)
       case .commandView(_, let action):
-        DetailCommandActionReducer.reduce(
-          action,
-          keyboardCowboyEngine: keyboardCowboyEngine,
-          workflow: &workflow)
+        DetailCommandActionReducer.reduce(action, commandEngine: commandEngine, workflow: &workflow)
       case .moveCommand(_, let fromOffsets, let toOffset):
         workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
         result = .animated

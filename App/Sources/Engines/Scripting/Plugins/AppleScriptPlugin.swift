@@ -1,13 +1,14 @@
 import Combine
 import Cocoa
 
+enum AppleScriptPluginError: Error {
+  case failedToCreateInlineScript
+  case failedToCreateScriptAtURL(URL)
+  case compileFailed(Error)
+  case executionFailed(Error)
+}
+
 final class AppleScriptPlugin {
-  enum AppleScriptPluginError: Error {
-    case failedToCreateInlineScript
-    case failedToCreateScriptAtURL(URL)
-    case compileFailed(Error)
-    case executionFailed(Error)
-  }
 
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let queue = DispatchQueue(label: "ApplicationPlugin")

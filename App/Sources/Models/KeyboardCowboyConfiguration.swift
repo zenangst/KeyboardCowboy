@@ -1,3 +1,4 @@
+import Cocoa
 import Foundation
 
 struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
@@ -16,7 +17,33 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
   }
 
   static func `default`() -> KeyboardCowboyConfiguration {
-    KeyboardCowboyConfiguration(
+    let editorWorkflow: Workflow
+
+    if !NSWorkspace.shared.urlsForApplications(withBundleIdentifier: "com.apple.dt.Xcode").isEmpty {
+      editorWorkflow = Workflow(
+        name: "Switch to Xcode",
+        trigger: .keyboardShortcuts([.init(key: "E", modifiers: [.function])]),
+        commands: [
+          .application(
+            .init(application: .xcode())
+          )
+        ]
+      )
+    } else {
+      editorWorkflow = Workflow(
+        name: "Switch to TextEdit",
+        trigger: .keyboardShortcuts([.init(key: "E", modifiers: [.function])]),
+        commands: [
+          .application(
+            .init(application: .init(bundleIdentifier: "com.apple.TextEdit",
+                                     bundleName: "TextEdit",
+                                     path: "/System/Applications/TextEdit.app"))
+          )
+        ]
+      )
+    }
+
+    return KeyboardCowboyConfiguration(
       name: "Default Configuration",
       groups: [
         WorkflowGroup(symbol: "autostartstop", name: "Automation", color: "#EB5545"),
@@ -30,6 +57,29 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
               )
             ]
           ),
+          editorWorkflow,
+          Workflow(
+            name: "Switch to Terminal",
+            trigger: .keyboardShortcuts([.init(key: "T", modifiers: [.function])]),
+            commands: [
+              .application(
+                .init(application: .init(
+                  bundleIdentifier: "com.apple.Terminal",
+                  bundleName: "Terminal",
+                  path: "/System/Applications/Utilities/Terminal.app"))
+              )
+            ]
+          ),
+
+          Workflow(
+            name: "Switch to Safari",
+            trigger: .keyboardShortcuts([.init(key: "S", modifiers: [.function])]),
+            commands: [
+              .application(
+                .init(application: .safari())
+              )
+            ]
+          ),
           Workflow(
             name: "Open System Settings",
             trigger: .keyboardShortcuts([.init(key: ",", modifiers: [.function])]),
@@ -40,16 +90,60 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
             ]
           ),
         ]),
-        WorkflowGroup(symbol: "applescript", name: "AppleScripts", color: "#F9D64A"),
+        WorkflowGroup(symbol: "applescript", name: "AppleScripts", color: "#F9D64A",
+                     workflows: [
+                      Workflow(name: "Open a specific note",
+                               commands: [
+                                .script(.appleScript(name: "Show note", source: .inline("""
+                                  tell application "Notes"
+                                      show note "awesome note"
+                                  end tell
+                                  """)))
+                               ])
+                     ]),
         WorkflowGroup(symbol: "folder", name: "Files & Folders", color: "#6BD35F",
                       workflows: [
                         Workflow(name: "Open Home folder",
                                  trigger: .keyboardShortcuts([.init(key: "H", modifiers: [.function])]),
                                  commands: [
-                                  .open(.init(path: "~/"))
-                                 ])
+                                  .open(.init(path: ("~/" as NSString).expandingTildeInPath))
+                                 ]),
+                        Workflow(name: "Open Documents folder",
+                                 trigger: .keyboardShortcuts([]),
+                                 commands: [
+                                  .open(.init(path: ("~/Documents" as NSString).expandingTildeInPath))
+                                 ]),
+                        Workflow(name: "Open Downloads folder",
+                                 trigger: .keyboardShortcuts([]),
+                                 commands: [
+                                  .open(.init(path: ("~/Downloads" as NSString).expandingTildeInPath))
+                                 ]),
                       ]),
-        WorkflowGroup(symbol: "app.connected.to.app.below.fill", name: "Rebinding", color: "#3984F7"),
+        WorkflowGroup(symbol: "app.connected.to.app.below.fill",
+                      name: "Rebinding",
+                      color: "#3984F7",
+                      workflows: [
+                        Workflow(name: "Vim bindings H to ←",
+                                 trigger: .keyboardShortcuts([.init(key: "H", modifiers: [.option])]),
+                                 commands: [
+                                  .keyboard(.init(keyboardShortcut: .init(key: "←")))
+                                 ], isEnabled: false),
+                        Workflow(name: "Vim bindings J to ↓",
+                                 trigger: .keyboardShortcuts([.init(key: "J", modifiers: [.option])]),
+                                 commands: [
+                                  .keyboard(.init(keyboardShortcut: .init(key: "↓")))
+                                 ], isEnabled: false),
+                        Workflow(name: "Vim bindings K to ↑",
+                                 trigger: .keyboardShortcuts([.init(key: "K", modifiers: [.option])]),
+                                 commands: [
+                                  .keyboard(.init(keyboardShortcut: .init(key: "↑")))
+                                 ], isEnabled: false),
+                        Workflow(name: "Vim bindings L to →",
+                                 trigger: .keyboardShortcuts([.init(key: "L", modifiers: [.option])]),
+                                 commands: [
+                                  .keyboard(.init(keyboardShortcut: .init(key: "→")))
+                                 ], isEnabled: false)
+                      ]),
         WorkflowGroup(symbol: "flowchart", name: "Shortcuts", color: "#B263EA"),
         WorkflowGroup(symbol: "terminal", name: "ShellScripts", color: "#5D5FDE"),
         WorkflowGroup(symbol: "laptopcomputer", name: "System", color: "#A78F6D"),
@@ -67,8 +161,28 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                                   .init(key: "G"),
                                  ]),
                                  commands: [.open(.init(path: "https://www.github.com"))]),
-
+                        Workflow(name: "Open imdb.com",
+                                 trigger: .keyboardShortcuts([
+                                  .init(key: "⇥", modifiers: [.function]),
+                                  .init(key: "I"),
+                                 ]),
+                                 commands: [.open(.init(path: "https://www.imdb.com"))]),
                       ]),
+        WorkflowGroup(name: "Mail", color:"#3984F7",
+                      rule: Rule.init(bundleIdentifiers: ["com.apple.mail"]),
+                      workflows: [
+                        Workflow(name: "Type mail signature",
+                                 trigger: .keyboardShortcuts([.init(key: "S", modifiers: [.function, .command])]),
+                                 commands: [
+                                  .type(.init(name: "Signature", input: """
+Stay hungry, stay awesome!
+--------------------------
+xoxo
+\(NSFullUserName())
+"""
+                                             ))
+                                 ])
+                      ])
       ])
   }
 }

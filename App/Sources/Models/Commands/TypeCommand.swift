@@ -10,7 +10,7 @@ public struct TypeCommand: Identifiable, Codable, Hashable, Sendable {
   public init(id: String = UUID().uuidString,
               name: String,
               input: String,
-              notification: Bool) {
+              notification: Bool = false) {
     self.id = id
     self.name = name
     self.input = input

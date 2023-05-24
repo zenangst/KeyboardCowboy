@@ -3,13 +3,14 @@ import MachPort
 import CoreGraphics
 import KeyCodes
 
+enum KeyboardEngineError: Error {
+  case failedToResolveMachPortController
+  case failedToResolveKey(String)
+  case failedToCreateKeyCode(Int)
+  case failedToCreateEvent
+}
+
 final class KeyboardEngine {
-  enum KeyboardEngineError: Error {
-    case failedToResolveMachPortController
-    case failedToResolveKey(String)
-    case failedToCreateKeyCode(Int)
-    case failedToCreateEvent
-  }
 
   var machPort: MachPortEventController?
   let store: KeyCodesStore

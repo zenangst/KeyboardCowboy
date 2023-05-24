@@ -9,8 +9,8 @@ public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
     case shellScript = "sh"
   }
 
-  case appleScript(id: String, isEnabled: Bool, name: String?, source: Source)
-  case shell(id: String, isEnabled: Bool, name: String?, source: Source)
+  case appleScript(id: String = UUID().uuidString, isEnabled: Bool = true, name: String?, source: Source)
+  case shell(id: String = UUID().uuidString, isEnabled: Bool = true, name: String?, source: Source)
 
   public enum CodingKeys: String, CodingKey {
     case appleScript
