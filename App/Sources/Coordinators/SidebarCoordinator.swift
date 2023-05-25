@@ -66,13 +66,11 @@ final class SidebarCoordinator {
       }
       render(store.groups)
     case .selectGroups(let ids):
-      withAnimation(.easeInOut(duration: 0.2)) {
-        if ids.count == 1, let id = ids.first, let group = store.group(withId: id) {
-          let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)!
-          selectionManager.selectedColor = Color(nsColor: nsColor)
-        } else {
-          selectionManager.selectedColor = Color.accentColor
-        }
+      if ids.count == 1, let id = ids.first, let group = store.group(withId: id) {
+        let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)!
+        selectionManager.selectedColor = Color(nsColor: nsColor)
+      } else {
+        selectionManager.selectedColor = Color.accentColor
       }
     case .addConfiguration, .openScene:
       break
