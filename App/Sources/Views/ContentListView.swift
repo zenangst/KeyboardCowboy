@@ -54,9 +54,6 @@ struct ContentListView: View {
                 })
             }
             .focused($isFocused)
-            // This is a hack to avoid the extra padding that gets added when using `.focusSection`
-            .padding(.bottom, -8)
-            .focusSection()
             .onChange(of: isFocused, perform: { newValue in
               guard newValue else { return }
 

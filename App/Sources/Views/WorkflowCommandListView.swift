@@ -60,7 +60,6 @@ struct WorkflowCommandListView: View {
             }
           }
           .focused($isFocused)
-          .focusSection()
           .onChange(of: isFocused, perform: { newValue in
             guard newValue else { return }
 

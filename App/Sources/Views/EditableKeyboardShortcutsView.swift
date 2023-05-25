@@ -103,7 +103,6 @@ struct EditableKeyboardShortcutsView: View {
               }
             }
           }
-          .focusSection()
           .padding(4)
         }
         Spacer()
