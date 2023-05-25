@@ -28,7 +28,7 @@ extension View {
   }
 
   @ViewBuilder
-  func debugId<Element: Identifiable>(_ element: Element) -> some View where Element.ID == String {
+  func debugID<Element: Identifiable>(_ element: Element) -> some View where Element.ID == String {
     self
       .overlay(content: {
         Text(element.id)
@@ -36,6 +36,7 @@ extension View {
           .background(.yellow)
           .lineLimit(1)
           .minimumScaleFactor(0.7)
+          .allowsHitTesting(false)
       })
   }
 
