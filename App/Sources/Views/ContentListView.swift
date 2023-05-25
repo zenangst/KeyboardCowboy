@@ -94,7 +94,7 @@ struct ContentListView: View {
               }
             }
           }
-          .padding(.horizontal, 8)
+          .padding(8)
           .onChange(of: contentSelectionManager.selections, perform: { newValue in
             contentSelectionManager.selectedColor = Color(nsColor: getColor())
             debounceSelectionManager.process(.init(workflows: newValue, groups: groupSelectionManager.selections))
