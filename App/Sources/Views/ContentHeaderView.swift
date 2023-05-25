@@ -45,9 +45,7 @@ struct ContentHeaderView: View {
 
           if !contentPublisher.data.isEmpty {
             Button(action: {
-              withAnimation {
-                onAction(.addWorkflow(workflowId: UUID().uuidString))
-              }
+              onAction(.addWorkflow(workflowId: UUID().uuidString))
             }) {
               Image(systemName: "plus.circle")
                 .resizable()
