@@ -55,6 +55,7 @@ final class IconCache {
   // MARK: Private methods
 
   private func load(_ identifier: String) async throws -> NSImage? {
+    var identifier = identifier.replacingOccurrences(of: "/", with: "_")
     let url = try applicationCacheDirectory().appending(component: identifier)
 
     if FileManager.default.fileExists(atPath: url.path()) {
@@ -64,6 +65,8 @@ final class IconCache {
   }
 
   private func save(_ image: NSImage, identifier: String) async throws {
+    var identifier = identifier.replacingOccurrences(of: "/", with: "_")
+
     let url = try applicationCacheDirectory().appending(component: identifier)
 
     guard let tiff = image.tiffRepresentation else {
