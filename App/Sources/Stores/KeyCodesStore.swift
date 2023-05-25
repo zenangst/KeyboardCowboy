@@ -44,11 +44,12 @@ final class KeyCodesStore {
   private var virtualSystemKeys = [VirtualKey]()
 
   internal init() {
-    subscription = NotificationCenter.default.publisher(for: NSTextInputContext.keyboardSelectionDidChangeNotification)
-      .sink(receiveValue: { [weak self] _ in
-        try? self?.mapKeys()
-      })
     try? mapKeys()
+  }
+
+  func subscribe() {
+    subscription = NotificationCenter.default.publisher(for: NSTextInputContext.keyboardSelectionDidChangeNotification)
+      .sink { [weak self] _ in try? self?.mapKeys() }
   }
 
   func systemKeys() -> [VirtualKey] {

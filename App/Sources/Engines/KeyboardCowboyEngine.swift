@@ -11,6 +11,7 @@ final class KeyboardCowboyEngine {
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let commandEngine: CommandEngine
   private let contentStore: ContentStore
+  private let keyCodeStore: KeyCodesStore
   private let machPortEngine: MachPortEngine
   private let shortcutStore: ShortcutStore
   private let workspace: NSWorkspace
@@ -22,12 +23,14 @@ final class KeyboardCowboyEngine {
   init(_ contentStore: ContentStore,
        keyboardEngine: KeyboardEngine,
        keyboardShortcutsCache: KeyboardShortcutsCache,
+       keyCodeStore: KeyCodesStore,
        scriptEngine: ScriptEngine,
        shortcutStore: ShortcutStore,
        workspace: NSWorkspace = .shared) {
     
     let commandEngine = CommandEngine(workspace, scriptEngine: scriptEngine, keyboardEngine: keyboardEngine)
     self.contentStore = contentStore
+    self.keyCodeStore = keyCodeStore
     self.commandEngine = commandEngine
     self.machPortEngine = MachPortEngine(store: keyboardEngine.store,
                                          commandEngine: commandEngine,
@@ -55,20 +58,21 @@ final class KeyboardCowboyEngine {
   }
 
   func setupMachPortAndSubscriptions(_ workspace: NSWorkspace) throws {
-    subscribe(to: workspace)
-    machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
-    contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
-
     guard !launchArguments.isEnabled(.runningUnitTests) else { return }
+
     let newMachPortController = try MachPortEventController(
       .privateState,
       signature: "com.zenangst.Keyboard-Cowboy",
       autoStartMode: .commonModes)
     commandEngine.eventSource = newMachPortController.eventSource
+    subscribe(to: workspace)
+    contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
+    machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
     machPortEngine.subscribe(to: newMachPortController.$event)
     machPortEngine.machPort = newMachPortController
     commandEngine.machPort = newMachPortController
     machPortController = newMachPortController
+    keyCodeStore.subscribe()
   }
 
   func run(_ commands: [Command], execution: Workflow.Execution) {

@@ -55,6 +55,7 @@ struct KeyboardCowboy: App {
     let engine = KeyboardCowboyEngine(contentStore,
                                       keyboardEngine: keyboardEngine,
                                       keyboardShortcutsCache: keyboardShortcutsCache,
+                                      keyCodeStore: keyCodeStore,
                                       scriptEngine: scriptEngine,
                                       shortcutStore: shortcutStore,
                                       workspace: .shared)
