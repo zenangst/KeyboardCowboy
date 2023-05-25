@@ -94,6 +94,7 @@ struct ContentListView: View {
               }
             }
           }
+          .id(groupSelectionManager.selections)
           .padding(8)
           .onChange(of: contentSelectionManager.selections, perform: { newValue in
             contentSelectionManager.selectedColor = Color(nsColor: getColor())
@@ -125,7 +126,6 @@ struct ContentListView: View {
         }
       }
     }
-    .id(groupSelectionManager.selections)
     .debugEdit()
   }
 
