@@ -130,6 +130,13 @@ section.constrained {
     max-width: 680px;
 }
 
+div.constrained {
+    max-width: 680px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .button-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

@@ -40,13 +40,27 @@ struct PermissionsView: View {
           Text("Keyboard Cowboy comes with built-in security measures to protect your sensitive information. Password fields and other secure inputs cannot be monitored by our application.")
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
-          Text("We value your privacy and take your security seriously.")
+          Text("Keyboard Cowboy is designed to be secure and private.")
             .font(.headline)
+            .opacity(animated ? 1 : 0)
+            .offset(y: animated ? 0 : -10)
+          Text("It does not collect any personal information or send any data to third parties. All data is stored locally on your computer and is never transmitted over the internet.")
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
           Text("Additionally, Keyboard Cowboy is 100% open source, so you can review the code for yourself.")
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
+
+          Text("tl;dr")
+            .bold()
+            .opacity(animated ? 1 : 0)
+            .offset(y: animated ? 0 : -10)
+
+          Text("We don't stalk you, we don't collect your data, we don't sell your data. We don't even know who you are. But we care about your privacy and security. ❤️")
+            .opacity(animated ? 1 : 0)
+            .offset(y: animated ? 0 : -10)
+
+
           Text("If you have any concerns, please contact us.")
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
@@ -81,7 +95,7 @@ struct PermissionsView: View {
     }
     .compositingGroup()
     .padding()
-    .frame(maxHeight: .infinity, alignment: .top)
+    .frame(minHeight: 560, maxHeight: .infinity, alignment: .top)
     .background(SplashView(done: $done))
     .onAppear {
       animated = true
@@ -92,5 +106,6 @@ struct PermissionsView: View {
 struct PermissionsView_Previews: PreviewProvider {
     static var previews: some View {
       PermissionsView(onAction: { _ in })
+        .previewLayout(.sizeThatFits)
     }
 }
