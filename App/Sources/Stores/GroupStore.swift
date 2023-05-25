@@ -1,21 +1,12 @@
-import Combine
 import SwiftUI
 
 final class GroupStore: ObservableObject {
   private static var appStorage: AppStorageStore = .init()
-  private var subscription: AnyCancellable?
   @MainActor
   @Published var groups = [WorkflowGroup]()
 
   init(_ groups: [WorkflowGroup] = []) {
     _groups = .init(initialValue: groups)
-  }
-
-  @MainActor
-  func subscribe(to publisher: Published<KeyboardCowboyConfiguration>.Publisher) {
-    subscription = publisher.sink { [weak self] configuration in
-      self?.commitGroups(configuration.groups)
-    }
   }
 
   @MainActor
