@@ -2,6 +2,10 @@ import Combine
 import Cocoa
 
 final class ApplicationTriggerController {
+  private var frontmostApplicationSubscription: AnyCancellable?
+  private var runningApplicationsSubscription: AnyCancellable?
+  private var workflowGroupsSubscription: AnyCancellable?
+
   private let commandEngine: CommandEngine
   private var activateActions = [String: [Workflow]]()
   private var bundleIdentifiers = [String]()
@@ -14,28 +18,18 @@ final class ApplicationTriggerController {
   }
 
   func subscribe(to workspace: NSWorkspace) {
-    workspace
+    runningApplicationsSubscription = workspace
       .publisher(for: \.runningApplications)
       .map { $0.compactMap { $0.bundleIdentifier } }
-      .sink { [weak self] in
-        self?.process($0)
-      }
-      .store(in: &subscriptions)
+      .sink { [weak self] in self?.process($0) }
 
-    workspace.publisher(for: \.frontmostApplication)
+    frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
       .compactMap { $0 }
-      .sink { [weak self] in
-        self?.process($0)
-      }
-      .store(in: &subscriptions)
+      .sink { [weak self] in self?.process($0) }
   }
 
   func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
-    publisher
-      .sink { [weak self] groups in
-        self?.receive(groups)
-      }
-      .store(in: &subscriptions)
+    workflowGroupsSubscription = publisher.sink { [weak self] in self?.receive($0) }
   }
 
   private func receive(_ groups: [WorkflowGroup]) {
