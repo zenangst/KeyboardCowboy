@@ -11,7 +11,7 @@ struct PermissionsScene: Scene {
           Text("Keyboard Cowboy: Permissions")
           Spacer()
         })
-        .frame(width: 640, height: 380)
+        .frame(width: 640, height: 560)
     }
     .windowResizability(.contentSize)
     .windowToolbarStyle(.unified(showsTitle: true))

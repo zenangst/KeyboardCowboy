@@ -38,6 +38,16 @@ Once you've created your workflow, it will run automatically, without the need f
 
 By assigning frequently-used commands to the function key, you can streamline your workflow and save time. Overall, utilizing function keys can help you work more efficiently and effectively, making it a valuable tool for any programmer or power user.
 
+### Security and Privacy
+
+Keyboard Cowboy is designed to be secure and private. It does not collect any personal information or send any data to third parties. All data is stored locally on your computer and is never transmitted over the internet.
+
+In addition, macOS comes with built in security, so Keyboard Cowboy will be disabled when you are focsed on a password field or when you are in a secure input mode.
+
+**tl;dr**
+
+We don't stalk you, we don't collect your data, we don't sell your data. We don't even know who you are. But we care about your privacy and security. ❤️
+
 
 ## Development
 
