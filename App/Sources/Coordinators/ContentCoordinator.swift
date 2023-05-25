@@ -21,8 +21,6 @@ final class ContentCoordinator {
     self.mapper = ContentModelMapper()
     self.contentSelectionManager = contentSelectionManager
 
-    enableInjection(self, selector: #selector(injected(_:)))
-
     // Set initial selection
     if let initialGroupSelection = groupSelectionManager.lastSelection,
       let initialWorkflowSelection = contentSelectionManager.lastSelection {
@@ -85,7 +83,6 @@ final class ContentCoordinator {
       groupStore: store,
       selectionManager: contentSelectionManager,
       group: &group)
-
     switch action {
     case .addWorkflow(let id):
       store.updateGroups([group])
@@ -110,13 +107,6 @@ final class ContentCoordinator {
   }
 
   // MARK: Private methods
-
-  @objc private func injected(_ notification: Notification) {
-    guard didInject(self, notification: notification) else { return }
-    withAnimation(.easeInOut(duration: 0.2)) {
-      render(groupSelectionManager.selections, calculateSelections: true)
-    }
-  }
 
   private func render(_ groupIds: Set<GroupViewModel.ID>,
                       calculateSelections: Bool = false,
