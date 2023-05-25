@@ -122,7 +122,6 @@ struct ApplicationCommandView: View {
     .frame(height: 80)
     .fixedSize(horizontal: false, vertical: true)
     .id(command.id)
-    .enableInjection()
   }
 }
 
