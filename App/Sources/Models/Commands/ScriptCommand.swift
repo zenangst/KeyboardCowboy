@@ -162,6 +162,7 @@ public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
     }
 
     try idContainer.encode(commandId, forKey: .id)
+    try idContainer.encode(isEnabled, forKey: .isEnabled)
     if commandName != nil {
       try idContainer.encode(commandName, forKey: .name)
     }
