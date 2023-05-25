@@ -33,10 +33,6 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
     self.notification = notification
   }
 
-  enum MigrationKeys: String, CodingKey {
-    case keyboardShortcut
-  }
-
   enum CodingKeys: String, CodingKey {
     case id
     case name
@@ -47,17 +43,10 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    let migrationContainer = try decoder.container(keyedBy: MigrationKeys.self)
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
-
-    if let keyboardShortcut = try? migrationContainer.decode(KeyShortcut.self, forKey: .keyboardShortcut) {
-      self.keyboardShortcuts = [keyboardShortcut]
-    } else {
-      self.keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
-    }
-
+    self.keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
     self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
     self.notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
   }
