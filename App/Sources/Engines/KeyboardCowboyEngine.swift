@@ -7,18 +7,16 @@ import os
 
 @MainActor
 final class KeyboardCowboyEngine {
-  private var subscriptions = Set<AnyCancellable>()
-
+  private let applicationTriggerController: ApplicationTriggerController
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
-  private let contentStore: ContentStore
   private let commandEngine: CommandEngine
+  private let contentStore: ContentStore
   private let machPortEngine: MachPortEngine
   private let shortcutStore: ShortcutStore
+  private let workspace: NSWorkspace
 
-  private let applicationTriggerController: ApplicationTriggerController
+  private var frontmostApplicationSubscription: AnyCancellable?
   private var machPortController: MachPortEventController?
-  private var token: Any?
-
   private var waitingForPrivileges: Bool = false
 
   init(_ contentStore: ContentStore,
@@ -38,12 +36,7 @@ final class KeyboardCowboyEngine {
                                          mode: .intercept)
     self.shortcutStore = shortcutStore
     self.applicationTriggerController = ApplicationTriggerController(commandEngine)
-
-    subscribe(to: workspace)
-
-    machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
-
-    contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
+    self.workspace = workspace
 
     guard KeyboardCowboy.env != .designTime else { return }
 
@@ -51,26 +44,31 @@ final class KeyboardCowboyEngine {
 
     if hasPrivileges() {
       do {
-        try setupMachPort()
+        try setupMachPortAndSubscriptions(workspace)
       } catch let error {
-        os_log(.error, "\(error.localizedDescription)")
+        // TODO: Improve error handling here
+        NSAlert(error: error).runModal()
       }
     } else {
       waitingForPrivileges = true
     }
   }
 
-  func setupMachPort() throws {
+  func setupMachPortAndSubscriptions(_ workspace: NSWorkspace) throws {
+    subscribe(to: workspace)
+    machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
+    contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
+
     guard !launchArguments.isEnabled(.runningUnitTests) else { return }
-    let machPortController = try MachPortEventController(
+    let newMachPortController = try MachPortEventController(
       .privateState,
       signature: "com.zenangst.Keyboard-Cowboy",
       autoStartMode: .commonModes)
-    commandEngine.eventSource = machPortController.eventSource
-    machPortEngine.subscribe(to: machPortController.$event)
-    machPortEngine.machPort = machPortController
-    commandEngine.machPort = machPortController
-    self.machPortController = machPortController
+    commandEngine.eventSource = newMachPortController.eventSource
+    machPortEngine.subscribe(to: newMachPortController.$event)
+    machPortEngine.machPort = newMachPortController
+    commandEngine.machPort = newMachPortController
+    machPortController = newMachPortController
   }
 
   func run(_ commands: [Command], execution: Workflow.Execution) {
@@ -97,13 +95,12 @@ final class KeyboardCowboyEngine {
   }
 
   private func subscribe(to workspace: NSWorkspace) {
-    workspace.publisher(for: \.frontmostApplication)
-      .debounce(for: .milliseconds(250), scheduler: RunLoop.main)
+    frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
+      .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
       .compactMap { $0 }
       .sink { [weak self] application in
         self?.reload(with: application)
       }
-      .store(in: &subscriptions)
 
     guard KeyboardCowboy.env == .production else { return }
 
@@ -126,7 +123,7 @@ final class KeyboardCowboyEngine {
 
     if waitingForPrivileges {
       do {
-        try setupMachPort()
+        try setupMachPortAndSubscriptions(workspace)
       } catch {
         Swift.print(error)
       }

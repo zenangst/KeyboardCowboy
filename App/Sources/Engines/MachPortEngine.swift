@@ -40,7 +40,8 @@ final class MachPortEngine {
   private static let previousKeyDefault = "."
 
   private var previousKey: String = "."
-  private var subscriptions = Set<AnyCancellable>()
+  private var keyboardCowboyModeSubscription: AnyCancellable?
+  private var machPortEventSubscription: AnyCancellable?
   private var mode: KeyboardCowboyMode
   private var specialKeys: [Int] = [Int]()
 
@@ -65,17 +66,17 @@ final class MachPortEngine {
   }
 
   func subscribe(to publisher: Published<KeyboardCowboyMode?>.Publisher) {
-    publisher
+    keyboardCowboyModeSubscription = publisher
       .compactMap({ $0 })
       .sink { [weak self] mode in
         guard let self else { return }
         self.mode = mode
         self.specialKeys = Array(self.store.specialKeys().keys)
-      }.store(in: &subscriptions)
+      }
   }
 
   func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
-    publisher
+    machPortEventSubscription = publisher
       .compactMap { $0 }
       .sink { [weak self] event in
         guard let self = self else { return }
@@ -87,7 +88,7 @@ final class MachPortEngine {
         case .disabled:
           break
         }
-      }.store(in: &subscriptions)
+      }
   }
 
   private func intercept(_ machPortEvent: MachPortEvent) {

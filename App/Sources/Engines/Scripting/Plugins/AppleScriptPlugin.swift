@@ -14,22 +14,18 @@ final class AppleScriptPlugin {
   private let queue = DispatchQueue(label: "ApplicationPlugin")
 
   private var cache = [String: NSAppleScript]()
-  private var subscription: AnyCancellable?
+  private var frontmostApplicationSubscription: AnyCancellable?
 
 
-  nonisolated init(workspace: NSWorkspace) {
-    Task {
-      await MainActor.run {
-        subscription = workspace.publisher(for: \.frontmostApplication)
-          .compactMap { $0 }
-          .filter { $0.bundleIdentifier == self.bundleIdentifier }
-          .receive(on: queue)
-          .sink { [weak self] _ in
-            guard let self else { return }
-            self.cache = [:]
-          }
+  init(workspace: NSWorkspace) {
+    frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
+      .compactMap { $0 }
+      .filter { $0.bundleIdentifier == self.bundleIdentifier }
+      .receive(on: queue)
+      .sink { [weak self] _ in
+        guard let self else { return }
+        self.cache = [:]
       }
-    }
   }
 
   func executeScript(at path: String, withId id: String) async throws -> String? {

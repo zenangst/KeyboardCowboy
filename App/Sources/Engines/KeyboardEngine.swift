@@ -11,7 +11,6 @@ enum KeyboardEngineError: Error {
 }
 
 final class KeyboardEngine {
-
   var machPort: MachPortEventController?
   let store: KeyCodesStore
 
@@ -56,6 +55,8 @@ final class KeyboardEngine {
       }
     }
   }
+
+  // MARK: Private methods
 
   private func resolveKey(for string: String) throws -> Int {
     let uppercased = string.uppercased()
