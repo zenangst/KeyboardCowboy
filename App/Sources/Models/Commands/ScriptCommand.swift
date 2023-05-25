@@ -178,13 +178,21 @@ public enum ScriptCommand: Identifiable, Codable, Hashable, Sendable {
 
     public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
-      do {
-        let value = try container.decode(String.self, forKey: .path)
-        self = .path(value)
-      } catch {
-        let inline = try container.decode(String.self, forKey: .inline)
-        self = .inline(inline)
+
+      for key in container.allKeys {
+        switch key {
+        case .inline:
+          let value = try container.decode(String.self, forKey: .inline)
+          self = .inline(value)
+          return
+        case .path:
+          let value = try container.decode(String.self, forKey: .path)
+          self = .path(value)
+          return
+        }
       }
+
+      throw DecodingError.dataCorrupted(.init(codingPath: container.allKeys, debugDescription: "Unable to find a suitable coding key"))
     }
 
     public func encode(to encoder: Encoder) throws {
