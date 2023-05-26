@@ -67,13 +67,13 @@ class FocusableNSView<Element>: NSView where Element: Equatable,
   }
 
   override func becomeFirstResponder() -> Bool {
-    if let lastSelection = selectionManager.lastSelection,
-       lastSelection != id {
+    // Guide focus to the first view that matches the id.
+    if let lastSelection = selectionManager.lastSelection, lastSelection != id {
       FocusableProxy<Element>.post(lastSelection)
       return false
     }
-    let result = super.becomeFirstResponder()
-    return result
+
+    return super.becomeFirstResponder()
   }
 
   // MARK: Private methods
@@ -82,6 +82,7 @@ class FocusableNSView<Element>: NSView where Element: Equatable,
     guard let dictionary = (notification.userInfo as? [String: AnyHashable]) else { return }
     guard let id = dictionary["id"] as? Element.ID else { return }
     guard self.id == id else { return }
+
     isFocused = true
     selectionManager.setLastSelection(id)
     window?.makeFirstResponder(self)
