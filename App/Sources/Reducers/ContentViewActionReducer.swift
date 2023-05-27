@@ -7,13 +7,13 @@ final class ContentViewActionReducer {
                      selectionManager: SelectionManager<ContentViewModel>,
                      group: inout WorkflowGroup) {
     switch action {
+    case .rerender, .selectWorkflow:
+      break
     case .moveWorkflowsToGroup(let groupId, let workflows):
       groupStore.move(workflows, to: groupId)
       if let updatedGroup = groupStore.group(withId: group.id) {
         group = updatedGroup
       }
-    case .rerender:
-      break
     case .addCommands(let workflowId, let commandIds):
       guard let index = group.workflows.firstIndex(where: { $0.id == workflowId }) else {
         return
@@ -34,7 +34,6 @@ final class ContentViewActionReducer {
       let workflow = Workflow.empty(id: workflowId)
       group.workflows.append(workflow)
     case .removeWorflows(let ids):
-
       var newIndex = 0
       for (index, group) in group.workflows.enumerated() {
         if ids.contains(group.id) { newIndex = index }
@@ -52,8 +51,6 @@ final class ContentViewActionReducer {
       }
     case .moveWorkflows(let source, let destination):
       group.workflows.move(fromOffsets: source, toOffset: destination)
-    case .selectWorkflow:
-      break
     }
   }
 }
