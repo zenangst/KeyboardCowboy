@@ -75,7 +75,9 @@ struct AppMenuBar: Scene {
 
 private struct _MenubarIcon: View {
   var body: some View {
-    if KeyboardCowboy.env == .production {
+    if launchArguments.isEnabled(.runningUnitTests) {
+      Image(systemName: "testtube.2")
+    } else if KeyboardCowboy.env == .production {
       Text("⌘")
     } else {
       Image(systemName: "hammer.circle")
