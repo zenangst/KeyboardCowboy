@@ -27,10 +27,6 @@ struct FocusableProxy<Element>: NSViewRepresentable where Element: Equatable,
   func updateNSView(_ nsView: FocusableNSView<Element>, context: Context) { }
 }
 
-extension Never.ID: CustomStringConvertible {
-  public var description: String { "Never" }
-}
-
 class FocusableNSView<Element>: NSView where Element: Equatable,
                                              Element: Hashable,
                                              Element: Identifiable,
