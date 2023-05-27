@@ -1,1 +1,0 @@
-- "{\"id\":\"foobar\",\"name\":\"\",\"keyboardShortcut\":{\"id\":\"foobar\",\"key\":\"A\"}}"
