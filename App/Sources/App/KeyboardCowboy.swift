@@ -125,6 +125,7 @@ struct KeyboardCowboy: App {
 
   var body: some Scene {
     AppMenuBar(onAction:  { action in
+      guard !launchArguments.isEnabled(.runningUnitTests) else { return }
       switch action {
       case .onAppear:
         if KeyboardCowboy.env == .development {
