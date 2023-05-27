@@ -58,7 +58,3 @@ final class ContentViewActionReducerTests: XCTestCase {
     (store: GroupStore(groups), selector: SelectionManager())
   }
 }
-
-private struct GroupSelection: Identifiable, Hashable {
-  let id: String
-}
