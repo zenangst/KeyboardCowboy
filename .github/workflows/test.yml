@@ -38,6 +38,8 @@ jobs:
           destination: platform=macOS
           action: test
           result-bundle-path: ResultBundle.xcresult
+          sdk: macosx
+          build-settings: CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO"
       - name: Upload test results
         uses: actions/upload-artifact@v2
         with:
