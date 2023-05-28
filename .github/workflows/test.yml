@@ -32,4 +32,4 @@ jobs:
           tuist generate -n
       - name: Build and Test
         run: |
-          xcodebuild -workspace Keyboard\ Cowboy.xcworkspace -scheme "Keyboard-Cowboy" -sdk macosx clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO" | xcpretty
+          xcodebuild -workspace Keyboard\ Cowboy.xcworkspace -scheme "Keyboard-Cowboy" -sdk macosx clean build test CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO" | xcpretty
