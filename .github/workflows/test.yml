@@ -37,6 +37,7 @@ jobs:
           scheme: "Keyboard-Cowboy"
           destination: platform=macOS
           action: test
+          result-bundle-path: ResultBundle.xcresult
       - name: Upload test results
         uses: actions/upload-artifact@v2
         with:
