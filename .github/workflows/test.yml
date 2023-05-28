@@ -33,7 +33,7 @@ jobs:
       - name: Run tests
         uses: sersoft-gmbh/xcodebuild-action@v2
         with:
-          workspace: Keyboard\ Cowboy.xcworkspace
+          workspace: "Keyboard Cowboy.xcworkspace"
           scheme: "Keyboard-Cowboy"
           destination: platform=macOS
           action: test
