@@ -14,22 +14,6 @@ final class ContentViewActionReducer {
       if let updatedGroup = groupStore.group(withId: group.id) {
         group = updatedGroup
       }
-    case .addCommands(let workflowId, let commandIds):
-      guard let index = group.workflows.firstIndex(where: { $0.id == workflowId }) else {
-        return
-      }
-      var workflow = group.workflows[index]
-      var commands = group.workflows.flatMap(\.commands)
-        .filter({ commandIds.contains($0.id) })
-
-      for (offset, _) in commands.enumerated() {
-        commands[offset].id = UUID().uuidString
-      }
-
-      // We need to create copies of the commands.
-
-      workflow.commands.append(contentsOf: commands)
-      group.workflows[index] = workflow
     case .addWorkflow(let workflowId):
       let workflow = Workflow.empty(id: workflowId)
       group.workflows.append(workflow)
