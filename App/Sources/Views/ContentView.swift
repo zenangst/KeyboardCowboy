@@ -17,7 +17,6 @@ struct ContentView: View {
     case removeWorflows(Set<ContentViewModel.ID>)
     case moveWorkflows(source: IndexSet, destination: Int)
     case addWorkflow(workflowId: Workflow.ID)
-    case addCommands(workflowId: Workflow.ID, commandIds: [DetailViewModel.CommandViewModel.ID])
   }
 
   static var appStorage: AppStorageStore = .init()
