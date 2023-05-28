@@ -255,3 +255,64 @@ final class DetailCoordinator {
   }
 }
 
+extension CommandView.Kind {
+  var workflowId: DetailViewModel.ID {
+    switch self {
+    case .application(_, let workflowId, _),
+        .keyboard(_, let workflowId, _),
+        .open(_, let workflowId, _),
+        .script(_, let workflowId, _),
+        .shortcut(_, let workflowId, _),
+        .type(_, let workflowId, _),
+        .system(_, let workflowId, _):
+      return workflowId
+    }
+  }
+
+  var commandId: DetailViewModel.CommandViewModel.ID {
+    switch self {
+    case .application(_, _, let commandId),
+        .keyboard(_, _, let commandId),
+        .open(_, _, let commandId),
+        .script(_, _, let commandId),
+        .shortcut(_, _, let commandId),
+        .type(_, _, let commandId),
+        .system(_, _, let commandId):
+      return commandId
+    }
+  }
+}
+
+extension CommandView.Action {
+  var commandId: DetailViewModel.CommandViewModel.ID {
+    switch self {
+    case .toggleEnabled(_, let commandId, _):
+      return commandId
+    case .modify(let kind):
+      return kind.commandId
+    case .run(_, let commandId),
+        .remove(_, let commandId):
+      return commandId
+    }
+  }
+}
+
+extension SingleDetailView.Action {
+  var workflowId: String {
+    switch self {
+    case .dropUrls(let workflowId, _),
+         .updateKeyboardShortcuts(let workflowId, _),
+         .removeTrigger(let workflowId),
+         .setIsEnabled(let workflowId, _),
+         .removeCommands(let workflowId, _),
+         .applicationTrigger(let workflowId, _),
+         .commandView(let workflowId, _),
+         .moveCommand(let workflowId, _, _),
+         .trigger(let workflowId, _),
+         .updateName(let workflowId, _),
+         .updateExecution(let workflowId, _),
+         .runWorkflow(let workflowId):
+      return workflowId
+    }
+  }
+}
