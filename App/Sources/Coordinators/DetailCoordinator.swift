@@ -82,9 +82,7 @@ final class DetailCoordinator {
 
   func handle(_ action: ContentView.Action) {
     switch action {
-    case .rerender:
-      return
-    case .moveWorkflowsToGroup:
+    case .rerender, .moveWorkflowsToGroup, .moveWorkflows:
       return
     case .selectWorkflow(let workflowIds, let groupIds):
       render(workflowIds, groupIds: groupIds)
@@ -96,8 +94,6 @@ final class DetailCoordinator {
       if group.workflows.isEmpty {
         render([], groupIds: groupSelectionManager.selections)
       }
-    case .moveWorkflows:
-      return
     case .addWorkflow(let workflowId):
       render([workflowId], groupIds: groupSelectionManager.selections)
     }
