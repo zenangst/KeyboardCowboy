@@ -1,5 +1,5 @@
 # Keyboard Cowboy 3
-
+[![Test](https://github.com/zenangst/KeyboardCowboy/actions/workflows/test.yml/badge.svg)](https://github.com/zenangst/KeyboardCowboy/actions/workflows/test.yml)
 <img src="https://github.com/zenangst/KeyboardCowboy/blob/main/App/Resources/Assets.xcassets/AppIcon.appiconset/icon_256x256.png?raw=true" alt="Keyboard Cowboy Icon" width="20%" align="right" />
 
 ### Boost macOS productivity with Keyboard Cowboy.
