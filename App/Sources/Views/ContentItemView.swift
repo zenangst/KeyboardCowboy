@@ -85,7 +85,7 @@ struct ContentItemView: View {
       withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
         publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
       }
-      onAction(.moveWorkflows(source: from, destination: destination))
+      onAction(.reorderWorkflows(source: from, destination: destination))
       return true
     } isTargeted: { newValue in
       isTargeted = newValue

@@ -84,10 +84,10 @@ struct ContentListView: View {
             .onDeleteCommand {
               if contentSelectionManager.selections.count == publisher.data.count {
                 withAnimation {
-                  onAction(.removeWorflows(contentSelectionManager.selections))
+                  onAction(.removeWorkflows(contentSelectionManager.selections))
                 }
               } else {
-                onAction(.removeWorflows(contentSelectionManager.selections))
+                onAction(.removeWorkflows(contentSelectionManager.selections))
               }
             }
           }
@@ -151,7 +151,7 @@ struct ContentListView: View {
       }
     }
     Button("Delete", action: {
-      onAction(.removeWorflows(contentSelectionManager.selections))
+      onAction(.removeWorkflows(contentSelectionManager.selections))
     })
   }
 }

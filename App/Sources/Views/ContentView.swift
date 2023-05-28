@@ -14,8 +14,8 @@ struct ContentView: View {
     case rerender(_ groupIds: Set<WorkflowGroup.ID>)
     case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: Set<ContentViewModel.ID>)
     case selectWorkflow(workflowIds: Set<ContentViewModel.ID>, groupIds: Set<WorkflowGroup.ID>)
-    case removeWorflows(Set<ContentViewModel.ID>)
-    case moveWorkflows(source: IndexSet, destination: Int)
+    case removeWorkflows(Set<ContentViewModel.ID>)
+    case reorderWorkflows(source: IndexSet, destination: Int)
     case addWorkflow(workflowId: Workflow.ID)
   }
 
