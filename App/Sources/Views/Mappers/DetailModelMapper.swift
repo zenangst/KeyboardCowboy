@@ -171,3 +171,30 @@ private extension Command {
     }
   }
 }
+
+extension Workflow.Trigger {
+  func asViewModel() -> DetailViewModel.Trigger {
+    switch self {
+    case .application(let triggers):
+      return .applications(
+        triggers.map { trigger in
+          DetailViewModel.ApplicationTrigger(id: trigger.id,
+                                             name: trigger.application.displayName,
+                                             application: trigger.application,
+                                             contexts: trigger.contexts.map {
+            switch $0 {
+            case .closed:
+              return .closed
+            case .frontMost:
+              return .frontMost
+            case .launched:
+              return .launched
+            }
+          })
+        }
+      )
+    case .keyboardShortcuts(let shortcuts):
+      return .keyboardShortcuts(shortcuts)
+    }
+  }
+}
