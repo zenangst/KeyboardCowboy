@@ -19,3 +19,4 @@ Tuist/Dependencies/graph.json
 exportOptions.plist
 Build/*.xcarchive
 Build/Releases/*
+ResultBundle.xcresult
