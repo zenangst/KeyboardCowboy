@@ -17,7 +17,7 @@ final class ContentViewActionReducer {
     case .addWorkflow(let workflowId):
       let workflow = Workflow.empty(id: workflowId)
       group.workflows.append(workflow)
-    case .removeWorflows(let ids):
+    case .removeWorkflows(let ids):
       var newIndex = 0
       for (index, group) in group.workflows.enumerated() {
         if ids.contains(group.id) { newIndex = index }
@@ -33,7 +33,7 @@ final class ContentViewActionReducer {
         }
         selectionManager.publish([group.workflows[newIndex].id])
       }
-    case .moveWorkflows(let source, let destination):
+    case .reorderWorkflows(let source, let destination):
       group.workflows.move(fromOffsets: source, toOffset: destination)
     }
   }

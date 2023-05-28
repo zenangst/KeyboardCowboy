@@ -82,11 +82,11 @@ final class DetailCoordinator {
 
   func handle(_ action: ContentView.Action) {
     switch action {
-    case .rerender, .moveWorkflowsToGroup, .moveWorkflows:
+    case .rerender, .moveWorkflowsToGroup, .reorderWorkflows:
       return
     case .selectWorkflow(let workflowIds, let groupIds):
       render(workflowIds, groupIds: groupIds)
-    case .removeWorflows:
+    case .removeWorkflows:
       guard let first = groupSelectionManager.selections.first,
             let group = groupStore.group(withId: first) else {
         return
