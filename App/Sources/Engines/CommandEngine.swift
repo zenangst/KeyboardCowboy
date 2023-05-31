@@ -14,8 +14,8 @@ final class CommandEngine: CommandRunning {
     let open: OpenEngine
     let script: ScriptEngine
     let shortcut: ShortcutsEngine
-    let type: TypeEngine
     let system: SystemCommandEngine
+    let type: TypeEngine
   }
 
   var machPort: MachPortEventController? {
