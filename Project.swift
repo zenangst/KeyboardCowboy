@@ -100,7 +100,13 @@ let project = Project(
                     ],
                     launchArguments: [
                         LaunchArgument(name: "-running-unit-tests", isEnabled: true)
-                    ])
+                    ]),
+                options: TestActionOptions.options(
+                    coverage: true,
+                    codeCoverageTargets: [
+                        TargetReference(stringLiteral: "Keyboard-Cowboy")
+                    ]
+                )
             ),
             runAction: .runAction(
                 executable: "Keyboard-Cowboy",
