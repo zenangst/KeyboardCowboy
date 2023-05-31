@@ -2,9 +2,8 @@ import Apps
 import Foundation
 
 // TODO: Add support for defaults: Notification (true/false)
-class DropCommandsController {
-  static func generateCommands(from urls: [URL],
-                               applications: [Application]) -> [Command] {
+final class DropCommandsController {
+  static func generateCommands(from urls: [URL], applications: [Application]) -> [Command] {
     var commands = [Command]()
     for url in urls {
       switch url.dropType {

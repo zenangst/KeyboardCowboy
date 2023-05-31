@@ -38,7 +38,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                   filename: filename(for: #function)))
   }
 
@@ -47,7 +47,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
+      storageConfiguration: .init(path: rootFolder.appending("//jsonKeyboardCowboy/Fixtures"),
                                   filename: filename(for: #function)))
   }
 
@@ -56,7 +56,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                   filename: filename(for: #function)))
 
   }
@@ -66,7 +66,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: true,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                   filename: filename(for: #function)))
   }
 
@@ -75,7 +75,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures"),
+      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                   filename: filename(for: #function)))
 
   }
