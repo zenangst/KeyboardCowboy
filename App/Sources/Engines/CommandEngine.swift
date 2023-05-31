@@ -49,8 +49,8 @@ final class CommandEngine: CommandRunning {
       open: OpenEngine(scriptEngine, workspace: workspace),
       script: scriptEngine,
       shortcut: ShortcutsEngine(engine: scriptEngine),
-      type: TypeEngine(keyboardEngine: keyboardEngine),
-      system: systemCommandEngine
+      system: systemCommandEngine,
+      type: TypeEngine(keyboardEngine: keyboardEngine)
     )
     self.workspace = workspace
   }

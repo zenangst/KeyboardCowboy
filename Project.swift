@@ -118,6 +118,7 @@ let project = Project(
     ],
     additionalFiles: [
         FileElement(stringLiteral: ".gitignore"),
+        FileElement(stringLiteral: ".github/workflows"),
         FileElement(stringLiteral: ".env"),
         FileElement(stringLiteral: "Project.swift"),
         FileElement(stringLiteral: "Tuist/Dependencies.swift"),
