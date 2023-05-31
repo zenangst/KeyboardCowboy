@@ -51,14 +51,11 @@ jobs:
           name: Test results
           path: ResultBundle.xcresult
       - name: "Run Danger"
-        steps:
-          - uses: actions/checkout@v1
-          - name: Danger
-            uses: danger/swift@3.15.0
-            with:
-                args: --failOnErrors --no-publish-check
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: danger/swift@3.15.0
+        with:
+          args: --failOnErrors --no-publish-check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add comment to PR
         uses: actions/github-script@v6
         if: always()
