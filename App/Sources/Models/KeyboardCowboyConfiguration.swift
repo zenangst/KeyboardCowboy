@@ -125,24 +125,24 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                       workflows: [
                         Workflow(name: "Vim bindings H to ←",
                                  trigger: .keyboardShortcuts([.init(key: "H", modifiers: [.option])]),
-                                 commands: [
+                                 isEnabled: false, commands: [
                                   .keyboard(.init(keyboardShortcut: .init(key: "←")))
-                                 ], isEnabled: false),
+                                 ]),
                         Workflow(name: "Vim bindings J to ↓",
                                  trigger: .keyboardShortcuts([.init(key: "J", modifiers: [.option])]),
-                                 commands: [
+                                 isEnabled: false, commands: [
                                   .keyboard(.init(keyboardShortcut: .init(key: "↓")))
-                                 ], isEnabled: false),
+                                 ]),
                         Workflow(name: "Vim bindings K to ↑",
                                  trigger: .keyboardShortcuts([.init(key: "K", modifiers: [.option])]),
-                                 commands: [
+                                 isEnabled: false, commands: [
                                   .keyboard(.init(keyboardShortcut: .init(key: "↑")))
-                                 ], isEnabled: false),
+                                 ]),
                         Workflow(name: "Vim bindings L to →",
                                  trigger: .keyboardShortcuts([.init(key: "L", modifiers: [.option])]),
-                                 commands: [
+                                 isEnabled: false, commands: [
                                   .keyboard(.init(keyboardShortcut: .init(key: "→")))
-                                 ], isEnabled: false)
+                                 ])
                       ]),
         WorkflowGroup(symbol: "flowchart", name: "Shortcuts", color: "#B263EA"),
         WorkflowGroup(symbol: "terminal", name: "ShellScripts", color: "#5D5FDE"),

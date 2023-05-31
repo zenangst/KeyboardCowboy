@@ -15,6 +15,7 @@ final class KeyboardCowboyEngine {
   private let machPortEngine: MachPortEngine
   private let shortcutStore: ShortcutStore
   private let workspace: NSWorkspace
+  private let workspacePublisher: WorkspacePublisher
 
   private var frontmostApplicationSubscription: AnyCancellable?
   private var machPortController: MachPortEventController?
@@ -40,6 +41,7 @@ final class KeyboardCowboyEngine {
     self.shortcutStore = shortcutStore
     self.applicationTriggerController = ApplicationTriggerController(commandEngine)
     self.workspace = workspace
+    self.workspacePublisher = WorkspacePublisher(workspace)
 
     guard KeyboardCowboy.env != .designTime else { return }
 
@@ -108,7 +110,8 @@ final class KeyboardCowboyEngine {
 
     guard KeyboardCowboy.env == .production else { return }
 
-    applicationTriggerController.subscribe(to: workspace)
+    applicationTriggerController.subscribe(to: workspacePublisher.$frontmostApplication)
+    applicationTriggerController.subscribe(to: workspacePublisher.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
   }
 
