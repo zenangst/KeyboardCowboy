@@ -65,20 +65,25 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   var trigger: Trigger?
   var isEnabled: Bool = true
   var name: String
-  var execution: Execution = .concurrent
+  var execution: Execution
 
   var isRebinding: Bool {
     if commands.count == 1, case .keyboard = commands.first { return true }
     return false
   }
 
-  init(id: String = UUID().uuidString, name: String, trigger: Trigger? = nil,
-       commands: [Command] = [], isEnabled: Bool = true) {
+  init(id: String = UUID().uuidString, name: String,
+       trigger: Trigger? = nil,
+       execution: Execution = .concurrent,
+       isEnabled: Bool = true,
+       commands: [Command] = []
+       ) {
     self.id = id
     self.commands = commands
     self.trigger = trigger
     self.name = name
     self.isEnabled = isEnabled
+    self.execution = execution
   }
 
   func copy() -> Self {

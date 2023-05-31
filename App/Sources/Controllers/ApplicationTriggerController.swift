@@ -2,28 +2,27 @@ import Combine
 import Cocoa
 
 final class ApplicationTriggerController {
-  private var frontmostApplicationSubscription: AnyCancellable?
-  private var runningApplicationsSubscription: AnyCancellable?
-  private var workflowGroupsSubscription: AnyCancellable?
-
-  private let commandEngine: CommandEngine
+  private let commandEngine: CommandRunning
   private var activateActions = [String: [Workflow]]()
   private var bundleIdentifiers = [String]()
   private var closeActions = [String: [Workflow]]()
+  private var frontmostApplicationSubscription: AnyCancellable?
   private var openActions = [String: [Workflow]]()
-  private var subscriptions: [AnyCancellable] = .init()
+  private var runningApplicationsSubscription: AnyCancellable?
+  private var workflowGroupsSubscription: AnyCancellable?
 
-  init(_ commandEngine: CommandEngine) {
+  init(_ commandEngine: CommandRunning) {
     self.commandEngine = commandEngine
   }
 
-  func subscribe(to workspace: NSWorkspace) {
-    runningApplicationsSubscription = workspace
-      .publisher(for: \.runningApplications)
+  func subscribe(to publisher: Published<[RunningApplication]>.Publisher) {
+    runningApplicationsSubscription = publisher
       .map { $0.compactMap { $0.bundleIdentifier } }
       .sink { [weak self] in self?.process($0) }
+  }
 
-    frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
+  func subscribe(to publisher: Published<RunningApplication?>.Publisher) {
+    frontmostApplicationSubscription = publisher
       .compactMap { $0 }
       .sink { [weak self] in self?.process($0) }
   }
@@ -32,32 +31,29 @@ final class ApplicationTriggerController {
     workflowGroupsSubscription = publisher.sink { [weak self] in self?.receive($0) }
   }
 
+  // MARK: Private methods
+
   private func receive(_ groups: [WorkflowGroup]) {
     self.openActions.removeAll()
     self.closeActions.removeAll()
     self.activateActions.removeAll()
 
     let workflows = groups.flatMap({ $0.workflows })
-    for workflow in workflows where workflow.isEnabled {
+    workflows.forEach { workflow in
+      guard workflow.isEnabled else { return }
       switch workflow.trigger {
       case .application(let triggers):
         for trigger in triggers {
           if trigger.contexts.contains(.closed) {
-            var closeActions = self.closeActions[trigger.application.bundleIdentifier] ?? []
-            closeActions.append(workflow)
-            self.closeActions[trigger.application.bundleIdentifier] = closeActions
+            self.closeActions[trigger.application.bundleIdentifier, default: []].append(workflow)
           }
 
           if trigger.contexts.contains(.launched) {
-            var openActions = self.openActions[trigger.application.bundleIdentifier] ?? []
-            openActions.append(workflow)
-            self.openActions[trigger.application.bundleIdentifier] = openActions
+            self.openActions[trigger.application.bundleIdentifier, default: []].append(workflow)
           }
 
           if trigger.contexts.contains(.frontMost) {
-            var activateActions = self.activateActions[trigger.application.bundleIdentifier] ?? []
-            activateActions.append(workflow)
-            self.activateActions[trigger.application.bundleIdentifier] = activateActions
+            self.activateActions[trigger.application.bundleIdentifier, default: []].append(workflow)
           }
         }
       case .keyboardShortcuts, .none:
@@ -65,8 +61,6 @@ final class ApplicationTriggerController {
       }
     }
   }
-
-  // MARK: Private methods
 
   private func process(_ frontMostApplication: RunningApplication) {
     guard let bundleIdentifier = frontMostApplication.bundleIdentifier,

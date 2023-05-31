@@ -2,7 +2,12 @@ import Foundation
 import AppKit
 import MachPort
 
-final class CommandEngine {
+protocol CommandRunning {
+  func serialRun(_ commands: [Command])
+  func concurrentRun(_ commands: [Command])
+}
+
+final class CommandEngine: CommandRunning {
   struct Engines {
     let application: ApplicationEngine
     let keyboard: KeyboardEngine
