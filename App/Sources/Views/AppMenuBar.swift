@@ -8,6 +8,7 @@ struct AppMenuBar: Scene {
   }
 
   @Environment(\.scenePhase) private var scenePhase
+  @StateObject var appUpdater = AppUpdater()
 
   private var applicationName: String {
     switch KeyboardCowboy.env {
@@ -42,9 +43,13 @@ struct AppMenuBar: Scene {
   var body: some Scene {
     MenuBarExtra(content: {
       Button("Open \(applicationName)") { onAction(.openMainWindow) }
-      Button("Reveal") { onAction(.reveal) }
+      Button("Check for updates...", action: {
+        appUpdater.checkForUpdates()
+      })
       Divider()
-      Button("Check for updates...", action: {})
+      if KeyboardCowboy.env == .development {
+        Button("Reveal") { onAction(.reveal) }
+      }
       Button("Provide feedback...", action: {
         NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
       })

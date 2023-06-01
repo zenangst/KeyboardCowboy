@@ -11,8 +11,7 @@ let dependencies = Dependencies(
       .remote(url: "https://github.com/zenangst/LaunchArguments.git", requirement: .exact("1.0.1")),
       .remote(url: "https://github.com/zenangst/MachPort.git", requirement: .exact("3.0.1")),
       .remote(url: "https://github.com/zenangst/Windows.git", requirement: .exact("1.0.0")),
-//      .local(path: "../AXEssibility"),
-//      .local(path: "../MachPort"),
+      .remote(url: "https://github.com/sparkle-project/Sparkle.git", requirement: .exact("2.4.1")),
     ],
     platforms: [.macOS]
 )
