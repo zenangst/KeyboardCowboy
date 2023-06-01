@@ -2,53 +2,63 @@ import Foundation
 import Cocoa
 
 enum KeyboardShortcutResult {
-  case partialMatch(String)
+  case partialMatch(PartialMatch)
   case exact(Workflow)
 }
 
-final class KeyboardShortcutsCache {
-  var cache = [String: KeyboardShortcutResult]()
+struct PartialMatch {
+  let rawValue: String
+}
 
-  func lookup(_ keyboardShortcut: KeyShortcut, previousKey: String = ".") -> KeyboardShortcutResult? {
+final class KeyboardShortcutsController {
+  private var cache = [String: KeyboardShortcutResult]()
+
+  func lookup(_ keyboardShortcut: KeyShortcut, partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
     if let bundleIdentifier = NSWorkspace.shared.frontApplication?.bundleIdentifier {
-      let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: previousKey)
+      let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: partialMatch.rawValue)
       if let result = cache[scopedKey] {
         return result
       }
     }
-    let globalKey = createKey(keyboardShortcut, bundleIdentifier: "*", previousKey: previousKey)
+    let globalKey = createKey(keyboardShortcut, bundleIdentifier: "*", previousKey: partialMatch.rawValue)
     let result = cache[globalKey]
     return result
   }
 
-  func createCache(_ groups: [WorkflowGroup]) {
+  func cache(_ groups: [WorkflowGroup]) {
     var newCache = [String: KeyboardShortcutResult]()
-    for group in groups {
+    groups.forEach { group in
       var bundleIdentifiers: [String] = ["*"]
       if let rule = group.rule {
         bundleIdentifiers = rule.bundleIdentifiers
       }
-      for bundleIdentifier in bundleIdentifiers {
-        for workflow in group.workflows where workflow.isEnabled {
-          guard case .keyboardShortcuts(let keyboardShortcuts) = workflow.trigger else { continue }
+      bundleIdentifiers.forEach { bundleIdentifier in
+        group.workflows.forEach { workflow in
+          guard workflow.isEnabled else { return }
+          guard case .keyboardShortcuts(let keyboardShortcuts) = workflow.trigger else { return }
 
           let count = keyboardShortcuts.count - 1
           var previousKey: String = "."
-          for (offset, keyboardShortcut) in keyboardShortcuts.enumerated() {
+          var offset = 0
+          keyboardShortcuts.forEach { keyboardShortcut in
             let key = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: previousKey)
             previousKey += "\(keyboardShortcut.dictionaryKey)+"
 
             if offset == count {
               newCache[key] = .exact(workflow)
             } else {
-              newCache[key] = .partialMatch(previousKey)
+              newCache[key] = .partialMatch(.init(rawValue: previousKey))
             }
+
+            offset += 1
           }
         }
       }
     }
     cache = newCache
   }
+
+  // MARK: - Private methods
 
   private func createKey(_ keyboardShortcut: KeyShortcut, bundleIdentifier: String, previousKey: String) -> String {
     "\(bundleIdentifier)\(previousKey)\(keyboardShortcut.dictionaryKey)"

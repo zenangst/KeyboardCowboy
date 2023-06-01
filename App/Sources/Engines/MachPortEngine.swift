@@ -37,9 +37,9 @@ final class MachPortEngine {
     didSet { keyboardEngine.machPort = machPort }
   }
 
-  private static let previousKeyDefault = "."
+  private static let defaultPartialMatch: PartialMatch = .init(rawValue: ".")
+  private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
 
-  private var previousKey: String = "."
   private var keyboardCowboyModeSubscription: AnyCancellable?
   private var machPortEventSubscription: AnyCancellable?
   private var mode: KeyboardCowboyMode
@@ -49,17 +49,17 @@ final class MachPortEngine {
 
   private let commandEngine: CommandEngine
   private let keyboardEngine: KeyboardEngine
-  private let keyboardShortcutsCache: KeyboardShortcutsCache
+  private let keyboardShortcutsController: KeyboardShortcutsController
   private let store: KeyCodesStore
 
   internal init(store: KeyCodesStore,
                 commandEngine: CommandEngine,
                 keyboardEngine: KeyboardEngine,
-                keyboardShortcutsCache: KeyboardShortcutsCache,
+                keyboardShortcutsController: KeyboardShortcutsController,
                 mode: KeyboardCowboyMode) {
     self.commandEngine = commandEngine
     self.store = store
-    self.keyboardShortcutsCache = keyboardShortcutsCache
+    self.keyboardShortcutsController = keyboardShortcutsController
     self.keyboardEngine = keyboardEngine
     self.mode = mode
     self.specialKeys = Array(store.specialKeys().keys)
@@ -115,13 +115,13 @@ final class MachPortEngine {
     let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
     // Found a match
-    let result = keyboardShortcutsCache.lookup(keyboardShortcut, previousKey: previousKey)
+    let result = keyboardShortcutsController.lookup(keyboardShortcut, partialMatch: previousPartialMatch)
 
     switch result {
     case .partialMatch(let key):
       machPortEvent.result = nil
       if kind == .keyDown {
-        previousKey = key
+        previousPartialMatch = key
       }
     case .exact(let workflow):
       machPortEvent.result = nil
@@ -189,12 +189,12 @@ final class MachPortEngine {
           commandEngine.serialRun(commands)
         }
 
-        previousKey = Self.previousKeyDefault
+        previousPartialMatch = Self.defaultPartialMatch
       }
     case .none:
       if kind == .keyDown {
         // No match, reset the lookup key
-        previousKey = Self.previousKeyDefault
+        previousPartialMatch = Self.defaultPartialMatch
       }
     }
   }

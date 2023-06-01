@@ -42,19 +42,19 @@ struct KeyboardCowboy: App {
 
     // Core functionality
     let scriptEngine = ScriptEngine(workspace: .shared)
-    let keyboardShortcutsCache = KeyboardShortcutsCache()
+    let keyboardShortcutsController = KeyboardShortcutsController()
     let applicationStore = ApplicationStore()
     let shortcutStore = ShortcutStore(engine: scriptEngine)
     let contentStore = ContentStore(Self.config,
                                     applicationStore: applicationStore,
-                                    keyboardShortcutsCache: keyboardShortcutsCache,
+                                    keyboardShortcutsController: keyboardShortcutsController,
                                     shortcutStore: shortcutStore,
                                     scriptEngine: scriptEngine, workspace: .shared)
     let keyCodeStore = KeyCodesStore()
     let keyboardEngine = KeyboardEngine(store: keyCodeStore)
     let engine = KeyboardCowboyEngine(contentStore,
                                       keyboardEngine: keyboardEngine,
-                                      keyboardShortcutsCache: keyboardShortcutsCache,
+                                      keyboardShortcutsController: keyboardShortcutsController,
                                       keyCodeStore: keyCodeStore,
                                       scriptEngine: scriptEngine,
                                       shortcutStore: shortcutStore,

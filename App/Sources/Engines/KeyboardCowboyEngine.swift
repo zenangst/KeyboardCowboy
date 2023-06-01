@@ -23,7 +23,7 @@ final class KeyboardCowboyEngine {
 
   init(_ contentStore: ContentStore,
        keyboardEngine: KeyboardEngine,
-       keyboardShortcutsCache: KeyboardShortcutsCache,
+       keyboardShortcutsController: KeyboardShortcutsController,
        keyCodeStore: KeyCodesStore,
        scriptEngine: ScriptEngine,
        shortcutStore: ShortcutStore,
@@ -36,7 +36,7 @@ final class KeyboardCowboyEngine {
     self.machPortEngine = MachPortEngine(store: keyboardEngine.store,
                                          commandEngine: commandEngine,
                                          keyboardEngine: keyboardEngine,
-                                         keyboardShortcutsCache: keyboardShortcutsCache,
+                                         keyboardShortcutsController: keyboardShortcutsController,
                                          mode: .intercept)
     self.shortcutStore = shortcutStore
     self.applicationTriggerController = ApplicationTriggerController(commandEngine)

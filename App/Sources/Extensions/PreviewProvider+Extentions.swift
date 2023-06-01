@@ -7,7 +7,7 @@ extension PreviewProvider {
     ContentStore(
       .designTime(),
       applicationStore: applicationStore,
-      keyboardShortcutsCache: KeyboardShortcutsCache(),
+      keyboardShortcutsController: KeyboardShortcutsController(),
       shortcutStore: .init(engine: ScriptEngine(workspace: .shared)),
       scriptEngine: .init(workspace: .shared),
       workspace: .shared)
