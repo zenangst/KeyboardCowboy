@@ -20,3 +20,4 @@ exportOptions.plist
 Build/*.xcarchive
 Build/Releases/*
 ResultBundle.xcresult
+Sparkle/*

@@ -44,6 +44,7 @@ let project = Project(
                 .external(name: "KeyCodes"),
                 .external(name: "LaunchArguments"),
                 .external(name: "MachPort"),
+                .external(name: "Sparkle"),
                 .external(name: "Windows"),
             ],
             settings:
@@ -52,10 +53,10 @@ let project = Project(
                         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                         "CODE_SIGN_IDENTITY": "Apple Development",
                         "CODE_SIGN_STYLE": "Automatic",
-                        "CURRENT_PROJECT_VERSION": "139",
+                        "CURRENT_PROJECT_VERSION": "140",
                         "DEVELOPMENT_TEAM": env["TEAM_ID"],
                         "ENABLE_HARDENED_RUNTIME": true,
-                        "MARKETING_VERSION": "3.0.2",
+                        "MARKETING_VERSION": "3.1.0",
                         "PRODUCT_NAME": "Keyboard Cowboy"
                     ],
                     configurations: [
@@ -123,12 +124,13 @@ let project = Project(
         )
     ],
     additionalFiles: [
-        FileElement(stringLiteral: ".gitignore"),
-        FileElement(stringLiteral: ".github/workflows"),
         FileElement(stringLiteral: ".env"),
+        FileElement(stringLiteral: ".github/workflows"),
+        FileElement(stringLiteral: ".gitignore"),
+        FileElement(stringLiteral: "Fixtures"),
         FileElement(stringLiteral: "Project.swift"),
         FileElement(stringLiteral: "Tuist/Dependencies.swift"),
-        FileElement(stringLiteral: "Fixtures"),
+        FileElement(stringLiteral: "appcast.xml"),
         FileElement(stringLiteral: "gh-pages"),
     ]
 )
