@@ -8,6 +8,9 @@
             <sparkle:version>141</sparkle:version>
             <sparkle:shortVersionString>3.1.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <sparkle:releaseNotesLink>
+            https://github.com/zenangst/KeyboardCowboy/releases/tag/3.1.0
+            </sparkle:releaseNotesLink>
             <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.1.0/Keyboard.Cowboy.3.1.0.dmg" length="6666915" type="application/octet-stream" sparkle:edSignature="pnXnM4ESnuOX01CotLH1ZDkS5Bh0MQ/42ILLXUQIwDgEcX5TkHLROh904hib6zbxpk4ykS3fgkAjlmnvg1cfCA=="/>
         </item>
         <item>
