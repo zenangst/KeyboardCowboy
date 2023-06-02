@@ -30,12 +30,12 @@ final class ContentCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
+    case .openScene, .addConfiguration, .updateConfiguration,
+        .moveGroups, .removeGroups, .deleteConfiguraiton:
+      // NOOP
+      break
     case .moveWorkflows, .copyWorkflows:
       render(groupSelectionManager.selections)
-    case .openScene:
-      break
-    case .addConfiguration:
-      break
     case .selectConfiguration:
       render(groupSelectionManager.selections, calculateSelections: true)
     case .selectGroups(let ids):
@@ -57,10 +57,6 @@ final class ContentCoordinator {
           }
         }
       }
-    case .moveGroups:
-      break
-    case .removeGroups:
-      break
     }
   }
 

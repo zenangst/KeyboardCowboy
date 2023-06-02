@@ -4,7 +4,7 @@ enum AppButtonStyleEnum {
   case appStyle
   case saveStyle
   case destructiveStyle
-  case gradientStyle(config: GradientButtonStyle.GradientConfiguration)
+  case gradientStyle(config: GradientConfiguration)
 }
 
 extension View {
