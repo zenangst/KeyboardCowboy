@@ -57,7 +57,9 @@ final class SidebarCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .selectConfiguration:
+    case .updateConfiguration:
+      break
+    case .deleteConfiguraiton, .selectConfiguration:
       if let firstGroup = store.groups.first {
         selectionManager.publish([firstGroup.id])
         selectionManager.selectedColor = Color(hex: firstGroup.color)
@@ -72,7 +74,9 @@ final class SidebarCoordinator {
       } else {
         selectionManager.selectedColor = Color.accentColor
       }
-    case .addConfiguration, .openScene:
+    case .addConfiguration:
+      render(store.groups)
+    case .openScene:
       break
     case .removeGroups(let ids):
       var newIndex = 0

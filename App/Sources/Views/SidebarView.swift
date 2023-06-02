@@ -6,6 +6,8 @@ struct SidebarView: View {
   enum Action {
     case openScene(AppScene)
     case addConfiguration(name: String)
+    case updateConfiguration(name: String)
+    case deleteConfiguraiton(id: ConfigurationViewModel.ID)
     case selectConfiguration(ConfigurationViewModel.ID)
     case selectGroups(Set<GroupViewModel.ID>)
     case moveGroups(source: IndexSet, destination: Int)
@@ -33,26 +35,14 @@ struct SidebarView: View {
 
     VStack(alignment: .leading, spacing: 0) {
       VStack(alignment: .leading) {
-        Label("Configuration", image: "")
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .betaFeature("You can create new configurations and switch between them but you can't rename them.",
-                       issueNumber: 237) {
-            Text("BETA")
-              .shadow(color: Color(.systemYellow.withSystemEffect(.deepPressed)), radius: 0, x: 1, y: 1)
-              .padding(2)
-              .background(
-                LinearGradient(stops: [
-                  .init(color: Color(.systemYellow.withSystemEffect(.deepPressed)), location: 0.0),
-                  .init(color: Color(.systemYellow), location: 1.0)
-                ], startPoint: .top, endPoint: .bottom)
-              )
-              .foregroundColor(.black)
-              .cornerRadius(4)
-              .padding(.trailing, 8)
-          }
-                       .padding(.top, 6)
+        SidebarConfigurationHeaderView()
+          .padding(.trailing, 12)
         SidebarConfigurationView(configSelectionManager) { action in
           switch action {
+          case .deleteConfiguration(let id):
+            onAction(.deleteConfiguraiton(id: id))
+          case .updateName(let newName):
+            onAction(.updateConfiguration(name: newName))
           case .addConfiguration(let name):
             onAction(.addConfiguration(name: name))
           case .selectConfiguration(let id):

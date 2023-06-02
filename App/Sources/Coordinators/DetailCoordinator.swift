@@ -45,6 +45,9 @@ final class DetailCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
+    case .updateConfiguration, .openScene, .addConfiguration, .deleteConfiguraiton:
+      // NOOP
+      break
     case .moveWorkflows, .copyWorkflows:
       render(contentSelectionManager.selections,
              groupIds: groupSelectionManager.selections)
@@ -54,10 +57,6 @@ final class DetailCoordinator {
     case .selectConfiguration:
       render(contentSelectionManager.selections,
              groupIds: groupSelectionManager.selections)
-    case .openScene:
-      break
-    case .addConfiguration:
-      break
     case .selectGroups(let array):
       if let firstId = array.first,
          let group = groupStore.group(withId: firstId) {
