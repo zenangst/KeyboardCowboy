@@ -66,7 +66,6 @@ struct ContentHeaderView: View {
       Label("Workflows", image: "")
         .labelStyle(SidebarLabelStyle())
         .padding(.leading, 8)
-        .padding(.bottom, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     .debugEdit()

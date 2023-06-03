@@ -4,6 +4,7 @@ enum AppFocus: Hashable {
   case groups
   case workflows
   case detail(Detail)
+  case search
 
   enum Detail: Hashable {
     case name

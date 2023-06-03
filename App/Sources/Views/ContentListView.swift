@@ -14,6 +14,8 @@ struct ContentListView: View {
   @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
   @ObservedObject private var groupSelectionManager: SelectionManager<GroupViewModel>
 
+  @State var searchTerm: String = ""
+
   private let onAction: (ContentView.Action) -> Void
 
   init(_ focus: FocusState<AppFocus?>.Binding,
@@ -33,25 +35,51 @@ struct ContentListView: View {
     })
   }
 
+  private func search(_ workflow: Binding<ContentViewModel>) -> Bool {
+    guard !searchTerm.isEmpty else { return true }
+    if workflow.wrappedValue.name.lowercased().hasPrefix(searchTerm.lowercased()) {
+      return true
+    } else if workflow.wrappedValue.name.contains(searchTerm) {
+      return true
+    }
+    return false
+  }
+
+  @ViewBuilder
   var body: some View {
+    HStack(spacing: 8) {
+      Image(systemName: searchTerm.isEmpty
+            ? "line.3.horizontal.decrease.circle"
+            : "line.3.horizontal.decrease.circle.fill")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .foregroundColor(contentSelectionManager.selectedColor)
+        .frame(width: 12)
+        .padding(.leading, 8)
+      TextField("Filter", text: $searchTerm)
+        .textFieldStyle(AppTextFieldStyle(.caption2, color: contentSelectionManager.selectedColor))
+        .focused(focus, equals: .search)
+    }
+    .padding(8)
+
     ScrollViewReader { proxy in
       ScrollView {
         if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
           ContentListEmptyView(namespace, onAction: onAction)
         } else {
-          LazyVStack(spacing: 0) {
-            ForEach($publisher.data) { element in
+          LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+            ForEach($publisher.data.filter(search)) { element in
               ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
                               contentSelectionManager: contentSelectionManager, onAction: onAction)
-                .grayscale(element.wrappedValue.isEnabled ? 0 : 0.5)
-                .opacity(element.wrappedValue.isEnabled ? 1 : 0.5)
-                .onTapGesture {
-                  contentSelectionManager.handleOnTap(publisher.data, element: element.wrappedValue)
-                  focusPublisher.publish(element.id)
-                }
-                .contextMenu(menuItems: {
-                  contextualMenu()
-                })
+              .grayscale(element.wrappedValue.isEnabled ? 0 : 0.5)
+              .opacity(element.wrappedValue.isEnabled ? 1 : 0.5)
+              .onTapGesture {
+                contentSelectionManager.handleOnTap(publisher.data, element: element.wrappedValue)
+                focusPublisher.publish(element.id)
+              }
+              .contextMenu(menuItems: {
+                contextualMenu()
+              })
             }
             .focused($isFocused)
             .onChange(of: isFocused, perform: { newValue in
@@ -91,6 +119,15 @@ struct ContentListView: View {
               }
             }
           }
+          .onChange(of: searchTerm, perform: { newValue in
+            if !searchTerm.isEmpty {
+              if let firstSelection = $publisher.data.filter(search).first {
+                contentSelectionManager.publish([firstSelection.id])
+              } else {
+                contentSelectionManager.publish([])
+              }
+            }
+          })
           .padding(8)
           .onChange(of: contentSelectionManager.selections, perform: { newValue in
             contentSelectionManager.selectedColor = Color(nsColor: getColor())
@@ -104,19 +141,20 @@ struct ContentListView: View {
           }
           .toolbar {
             ToolbarItemGroup(placement: .navigation) {
-                Button(action: {
-                  onAction(.addWorkflow(workflowId: UUID().uuidString))
-                },
-                       label: {
-                  Label(title: {
-                    Text("Add workflow")
-                  }, icon: {
-                    Image(systemName: "rectangle.stack.badge.plus")
-                      .renderingMode(.template)
-                      .foregroundColor(Color(.systemGray))
-                  })
+              Button(action: {
+                searchTerm = ""
+                onAction(.addWorkflow(workflowId: UUID().uuidString))
+              },
+                     label: {
+                Label(title: {
+                  Text("Add workflow")
+                }, icon: {
+                  Image(systemName: "rectangle.stack.badge.plus")
+                    .renderingMode(.template)
+                    .foregroundColor(Color(.systemGray))
                 })
-                .opacity(publisher.data.isEmpty ? 0 : 1)
+              })
+              .opacity(publisher.data.isEmpty ? 0 : 1)
             }
           }
         }
