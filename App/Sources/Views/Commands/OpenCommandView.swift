@@ -76,12 +76,12 @@ struct OpenCommandView: View {
           .truncationMode(.tail)
           .font(.caption)
 
-        Text("|")
-
         switch command.wrappedValue.kind {
         case .open(let path, _, _):
-          Button("Reveal", action: { onAction(.reveal(path: path)) })
-            .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue)))
+          if !path.hasPrefix("http") {
+            Button("Reveal", action: { onAction(.reveal(path: path)) })
+              .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue)))
+          }
         default:
           EmptyView()
         }
