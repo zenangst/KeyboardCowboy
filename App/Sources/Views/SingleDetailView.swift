@@ -159,6 +159,7 @@ struct SingleDetailView: View {
         }
         .padding(.horizontal)
         .padding(.bottom, 6)
+        .debugEdit()
 
         ScrollView {
           WorkflowCommandListView(
