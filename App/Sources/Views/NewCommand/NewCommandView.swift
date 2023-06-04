@@ -271,7 +271,7 @@ struct NewCommandView_Previews: PreviewProvider {
       workflowId: UUID().uuidString,
       commandId: nil,
       title: "New command",
-      selection: .system,
+      selection: .keyboardShortcut,
       payload: .application(application: nil, action: .open, inBackground: false, hideWhenRunning: false, ifNotRunning: false),
       onDismiss: {},
       onSave: { _, _ in })

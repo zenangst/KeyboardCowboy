@@ -47,20 +47,22 @@ struct ContentListView: View {
 
   @ViewBuilder
   var body: some View {
-    HStack(spacing: 8) {
-      Image(systemName: searchTerm.isEmpty
-            ? "line.3.horizontal.decrease.circle"
-            : "line.3.horizontal.decrease.circle.fill")
+    if !publisher.data.isEmpty {
+      HStack(spacing: 8) {
+        Image(systemName: searchTerm.isEmpty
+              ? "line.3.horizontal.decrease.circle"
+              : "line.3.horizontal.decrease.circle.fill")
         .resizable()
         .aspectRatio(contentMode: .fit)
         .foregroundColor(contentSelectionManager.selectedColor)
         .frame(width: 12)
         .padding(.leading, 8)
-      TextField("Filter", text: $searchTerm)
-        .textFieldStyle(AppTextFieldStyle(.caption2, color: contentSelectionManager.selectedColor))
-        .focused(focus, equals: .search)
+        TextField("Filter", text: $searchTerm)
+          .textFieldStyle(AppTextFieldStyle(.caption2, color: contentSelectionManager.selectedColor))
+          .focused(focus, equals: .search)
+      }
+      .padding(8)
     }
-    .padding(8)
 
     ScrollViewReader { proxy in
       ScrollView {

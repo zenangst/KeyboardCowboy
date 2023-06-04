@@ -136,7 +136,8 @@ struct SingleDetailView: View {
                 .stroke(Color(.white).opacity(0.2), lineWidth: 1)
             )
             .menuStyle(.borderlessButton)
-            .frame(maxWidth: 150)
+            .frame(maxWidth: detailPublisher.data.execution == .concurrent ? 144 : 110,
+                   alignment: .leading)
           }
           .opacity(detailPublisher.data.commands.isEmpty ? 0 : 1)
 
@@ -145,21 +146,17 @@ struct SingleDetailView: View {
               openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
             }) {
               HStack(spacing: 4) {
-                Text("Add Command")
-                  .lineLimit(1)
-                  .allowsTightening(true)
-                Divider()
-                  .frame(height: 12)
-                Image(systemName: "plus.circle")
+                Image(systemName: "plus.app")
                   .resizable()
                   .aspectRatio(contentMode: .fit)
                   .frame(maxWidth: 12, maxHeight: 12)
+                  .padding(2)
                   .layoutPriority(-1)
               }
             }
             .padding(.horizontal, 4)
             .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-            .matchedGeometryEffect(id: "add-command-button", in: namespace)
+            .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
           }
         }
         .padding(.horizontal)

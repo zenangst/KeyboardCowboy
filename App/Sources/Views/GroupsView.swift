@@ -17,7 +17,7 @@ struct GroupsView: View {
     case removeGroups(Set<GroupViewModel.ID>)
   }
 
-  @Namespace var namespace
+  var namespace: Namespace.ID
 
   @EnvironmentObject private var publisher: GroupsPublisher
   @EnvironmentObject private var contentPublisher: ContentPublisher
@@ -34,11 +34,13 @@ struct GroupsView: View {
   private let onAction: (Action) -> Void
 
   init(_ focus: FocusState<AppFocus?>.Binding,
+       namespace: Namespace.ID,
        selectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (Action) -> Void) {
     self.focus = focus
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
+    self.namespace = namespace
     self.debounceSelectionManager = .init(.init(groups: selectionManager.selections),
                                           milliseconds: 100,
                                           onUpdate: { snapshot in
@@ -48,24 +50,11 @@ struct GroupsView: View {
 
   @ViewBuilder
   var body: some View {
-    VStack {
-      GroupsListView(focus,
-                     namespace: namespace,
-                     focusPublisher: focusPublisher,
-                     selectionManager: selectionManager, onAction: onAction)
-        .focused(focus, equals: .groups)
-
-      if !publisher.data.isEmpty {
-        AddButtonView("Add Group") {
-          onAction(.openScene(.addGroup))
-        }
-        .font(.caption)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding([.leading, .bottom], 8)
-        .debugEdit()
-        .matchedGeometryEffect(id: "add-group-button", in: namespace)
-      }
-    }
+    GroupsListView(focus,
+                   namespace: namespace,
+                   focusPublisher: focusPublisher,
+                   selectionManager: selectionManager, onAction: onAction)
+    .focused(focus, equals: .groups)
   }
 
   private func overlayView() -> some View {
@@ -87,9 +76,12 @@ struct GroupsView: View {
 }
 
 struct GroupsView_Provider: PreviewProvider {
+  @Namespace static var namespace
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    GroupsView($focus, selectionManager: .init(), onAction: { _ in })
+    GroupsView($focus, namespace: namespace,
+               selectionManager: .init(),
+               onAction: { _ in })
       .designTime()
   }
 }

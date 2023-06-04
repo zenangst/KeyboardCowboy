@@ -47,7 +47,7 @@ struct ContentHeaderView: View {
             Button(action: {
               onAction(.addWorkflow(workflowId: UUID().uuidString))
             }) {
-              Image(systemName: "plus.circle")
+              Image(systemName: "plus.square.dashed")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 12)

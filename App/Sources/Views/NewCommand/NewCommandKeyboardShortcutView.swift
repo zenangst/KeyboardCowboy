@@ -29,7 +29,7 @@ struct NewCommandKeyboardShortcutView: View {
 
       EditableKeyboardShortcutsView($keyboardShortcuts, selectionManager: .init(), onTab: { _ in })
         .overlay(NewCommandValidationView($validation).padding(-8))
-        .frame(minHeight: 48)
+        .frame(minHeight: 48, maxHeight: 48)
         .background(
           RoundedRectangle(cornerRadius: 4)
             .fill(Color(.textBackgroundColor).opacity(0.25))
@@ -60,8 +60,11 @@ struct NewCommandKeyboardShortcutView: View {
   }
 }
 
-//struct NewCommandKeyboardShortcutView_Previews: PreviewProvider {
-//  static var previews: some View {
-//    NewCommandKeyboardShortcutView()
-//  }
-//}
+struct NewCommandKeyboardShortcutView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandKeyboardShortcutView(.constant(.keyboardShortcut([
+      .init(key: "f")
+    ])), validation: .constant(.unknown))
+      .designTime()
+  }
+}

@@ -49,7 +49,10 @@ struct SidebarConfigurationView: View {
       )
 
       Menu(content: {
-        Button("New Configuration", action: { newConfigurationPopover = true })
+        Button("New Configuration", action: {
+          configurationName = ""
+          newConfigurationPopover = true
+        })
         Button("Rename Configuration", action: {
           configurationName = publisher.data.first(where: { $0.selected })?.name ?? ""
           updateConfigurationNamePopover = true

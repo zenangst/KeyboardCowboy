@@ -16,6 +16,8 @@ struct SidebarView: View {
     case copyWorkflows(workflowIds: Set<ContentViewModel.ID>, groupId: GroupViewModel.ID)
   }
 
+  @Namespace var namespace
+  @EnvironmentObject private var publisher: GroupsPublisher
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
   private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
@@ -53,11 +55,13 @@ struct SidebarView: View {
       }
       .padding(.leading, 12)
 
-      Label("Groups", image: "")
-        .padding(.horizontal, 12)
-        .padding(.top)
-        .padding(.bottom, 8)
-      GroupsView(focus, selectionManager: groupSelectionManager) { action in
+      GroupsHeaderView { action in
+        switch action {
+        case .addGroup:
+          onAction(.openScene(.addGroup))
+        }
+      }
+      GroupsView(focus, namespace: namespace, selectionManager: groupSelectionManager) { action in
         switch action {
         case .selectGroups(let ids):
           onAction(.selectGroups(ids))
@@ -72,6 +76,24 @@ struct SidebarView: View {
         case .copyWorkflows(let workflowIds, let groupId):
           onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
         }
+      }
+
+      if !publisher.data.isEmpty {
+        Button(action: {
+          onAction(.openScene(.addGroup))
+        }) {
+          HStack {
+            Image(systemName: "plus.circle")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(height: 10)
+              .padding(2)
+          }
+        }
+        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+        .padding(.leading, 12)
+        .padding(.bottom, 6)
+        .matchedGeometryEffect(id: "add-group-button", in: namespace)
       }
     }
     .labelStyle(SidebarLabelStyle())
