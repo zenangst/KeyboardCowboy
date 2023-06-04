@@ -26,11 +26,17 @@ struct ContentImagesView: View {
       .frame(width: size, height: size)
     } else {
       ZStack {
-        ForEach(images) { image in
-          ContentImageView(image: image, size: size - 2)
-            .rotationEffect(.degrees(-(isHovered ? -20 * image.offset : 3.75 * image.offset)))
-            .offset(.init(width: -(image.offset * (isHovered ? -8 : 1.25)),
-                          height: image.offset * (isHovered ? 1.25 : 1.25)))
+        if images.count == 1 {
+          ForEach(images) { image in
+            ContentImageView(image: image, size: size - 2)
+          }
+        } else {
+          ForEach(images) { image in
+            ContentImageView(image: image, size: size - 2)
+              .rotationEffect(.degrees(-(isHovered ? -20 * image.offset : 3.75 * image.offset)))
+              .offset(.init(width: -(image.offset * (isHovered ? -8 : 1.25)),
+                            height: image.offset * (isHovered ? 1.25 : 1.25)))
+          }
         }
       }
       .animation(.default, value: isHovered)
