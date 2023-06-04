@@ -107,7 +107,12 @@ struct EditableKeyboardShortcutsView: View {
         }
         Spacer()
         Button(action: { addButtonAction(proxy) },
-               label: { Image(systemName: "plus").frame(width: 10, height: 10) })
+               label: {
+          Image(systemName: "plus.diamond")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 16, height: 16)
+        })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
         .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
         .padding(.trailing, 4)
@@ -162,10 +167,11 @@ struct EditableKeyboardShortcutsView: View {
           Spacer()
           Divider()
             .opacity(0.5)
-          Image(systemName: "plus.circle")
+          Image(systemName: "plus.diamond")
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 16, height: 16)
+            .padding(.trailing, 4)
         }
       })
       .buttonStyle(GradientButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))

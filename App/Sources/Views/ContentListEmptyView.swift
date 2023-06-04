@@ -13,6 +13,7 @@ struct ContentListEmptyView: View {
   }
 
   var body: some View {
+    Group {
       if groupsPublisher.data.isEmpty {
         Text("Add a group before adding a workflow.")
           .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -27,7 +28,7 @@ struct ContentListEmptyView: View {
             }
           }, label: {
             HStack(spacing: 8) {
-              Image(systemName: "plus.circle")
+              Image(systemName: "plus.square.dashed")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .fixedSize()
@@ -48,6 +49,8 @@ struct ContentListEmptyView: View {
         }
         .padding(.top, 128)
       }
+    }
+    .debugEdit()
   }
 }
 

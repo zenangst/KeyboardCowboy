@@ -20,7 +20,7 @@ struct WorkflowCommandEmptyListView: View {
           openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
         }) {
           HStack {
-            Image(systemName: "plus.circle")
+            Image(systemName: "plus.app")
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 16, height: 16)
@@ -33,7 +33,7 @@ struct WorkflowCommandEmptyListView: View {
           .padding(.horizontal, 8)
         }
         .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
-        .matchedGeometryEffect(id: "add-command-button", in: namespace)
+        .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
       }
     }
     .dropDestination(for: DropItem.self) { items, location in
