@@ -129,13 +129,11 @@ struct SingleDetailView: View {
               Rectangle()
                 .fill(Color(.white).opacity(0.2))
                 .frame(width: 1)
-                .padding(.trailing, 18)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 4)
+                .offset(x: -4, y: 1)
             })
-            .background(
-              RoundedRectangle(cornerRadius: 4)
-                .stroke(Color(.white).opacity(0.2), lineWidth: 1)
-            )
-            .menuStyle(.borderlessButton)
+            .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray)))
             .frame(maxWidth: detailPublisher.data.execution == .concurrent ? 144 : 110,
                    alignment: .leading)
           }
