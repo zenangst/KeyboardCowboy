@@ -18,6 +18,7 @@ struct ContentImageView: View {
         ZStack {
           ForEach(keys) { key in
             RegularKeyIcon(letter: key.key)
+              .fixedSize()
               .scaleEffect(0.8)
 
             ForEach(key.modifiers) { modifier in
