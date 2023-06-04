@@ -3,6 +3,14 @@
     <channel>
         <title>Keyboard Cowboy</title>
         <item>
+            <title>3.3.1</title>
+            <pubDate>Sun, 04 Jun 2023 18:31:13 +0200</pubDate>
+            <sparkle:version>144</sparkle:version>
+            <sparkle:shortVersionString>3.3.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.3.1/Keyboard.Cowboy.3.3.1.dmg" length="6755299" type="application/octet-stream" sparkle:edSignature="W0PhzUbW7n0/1U17uR/m5Uk9+aA72kkRAirUsXMVq7qhAWMGyjUeR+notVsfjiIlSqm8TzL2NBR/451quUUmDQ=="/>
+        </item>
+        <item>
             <title>3.3.0</title>
             <pubDate>Sat, 03 Jun 2023 19:44:58 +0200</pubDate>
             <sparkle:version>143</sparkle:version>
@@ -17,17 +25,6 @@
             <sparkle:shortVersionString>3.2.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.2.0/Keyboard.Cowboy.3.2.0.dmg" length="6706604" type="application/octet-stream" sparkle:edSignature="TdwICT5fVfpnpK2BbUxCOyIxv+0rWHD2NZe298YI1NoRkGMegya0Fu7EbrjsYqMzwyLjdBIpG4G2DcOyS2ixAA=="/>
-        </item>
-        <item>
-            <title>3.1.0</title>
-            <pubDate>Thu, 01 Jun 2023 22:56:34 +0200</pubDate>
-            <sparkle:version>141</sparkle:version>
-            <sparkle:shortVersionString>3.1.0</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <sparkle:releaseNotesLink>
-            https://github.com/zenangst/KeyboardCowboy/releases/tag/3.1.0
-            </sparkle:releaseNotesLink>
-            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.1.0/Keyboard.Cowboy.3.1.0.dmg" length="6666915" type="application/octet-stream" sparkle:edSignature="pnXnM4ESnuOX01CotLH1ZDkS5Bh0MQ/42ILLXUQIwDgEcX5TkHLROh904hib6zbxpk4ykS3fgkAjlmnvg1cfCA=="/>
         </item>
         <item>
             <title>0.4.1</title>
