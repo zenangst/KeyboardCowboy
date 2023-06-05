@@ -21,7 +21,7 @@ final class NotificationCoordinator {
       }
   }
 
-  // MARK: Private methods
+  // MARK: - Private methods
 
   private func process(_ command: Command) {
     Task {

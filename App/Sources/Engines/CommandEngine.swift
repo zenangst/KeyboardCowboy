@@ -119,8 +119,7 @@ final class CommandEngine: CommandRunning {
         do {
           try Task.checkCancellation()
           try await self.run(command)
-        } catch {
-        }
+        } catch { }
       }
     }
   }
@@ -129,6 +128,7 @@ final class CommandEngine: CommandRunning {
     if command.notification {
       await MainActor.run {
         lastExecutedCommand = command
+        BezelNotificationController.shared.post(.init(text: command.name))
       }
     }
 
