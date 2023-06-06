@@ -2,54 +2,37 @@ import AppKit
 import Carbon
 import Combine
 import Foundation
-import InputSources
 import KeyCodes
+import InputSources
+
+protocol CurrentInputSourceProviding {
+  func inputSource() throws -> TISInputSource
+}
+
+// Conform `InputSources` to `CurrentInputSourceProviding` in to make the
+// implementation agnostic to the framework itself.
+extension InputSourceController: CurrentInputSourceProviding {
+  func inputSource() throws -> TISInputSource {
+    try currentInputSource().source
+  }
+}
 
 final class KeyCodesStore {
-  enum KeyCodeModifier: CaseIterable {
-    case clear
-    case shift
-    case option
-    case shiftOption
-
-    var int: UInt32 {
-      switch self {
-      case .clear:
-        return 0
-      case .shift:
-        return UInt32(shiftKey >> 8) & 0xFF
-      case .option:
-        return UInt32(optionKey >> 8) & 0xFF
-      case .shiftOption:
-        return KeyCodeModifier.shift.int | KeyCodeModifier.option.int
-      }
-    }
-
-    var modifierKeys: [ModifierKey] {
-      switch self {
-      case .clear:
-        return []
-      case .shift:
-        return [.shift]
-      case .option:
-        return [.option]
-      case .shiftOption:
-        return [.option, .shift]
-      }
-    }
-  }
-
   private var subscription: AnyCancellable?
   private var virtualKeyContainer: VirtualKeyContainer?
   private var virtualSystemKeys = [VirtualKey]()
 
-  internal init() {
-    try? mapKeys()
+  private let currentInputProvider: CurrentInputSourceProviding
+
+  internal init(_ currentInputProvider: CurrentInputSourceProviding) {
+    self.currentInputProvider = currentInputProvider
   }
 
-  func subscribe() {
-    subscription = NotificationCenter.default.publisher(for: NSTextInputContext.keyboardSelectionDidChangeNotification)
-      .sink { [weak self] _ in try? self?.mapKeys() }
+  func subscribe(to publisher: Published<UUID?>.Publisher) {
+    subscription = publisher
+      .sink { [weak self] _ in
+        self?.reloadCurrentSource()
+      }
   }
 
   func systemKeys() -> [VirtualKey] {
@@ -79,17 +62,15 @@ final class KeyCodesStore {
 
   // MARK: Private methods
 
-  private func mapKeys() throws {
-    let controller = InputSourceController()
-    let keyCodes = KeyCodes()
-    let input = try controller.currentInputSource()
-    let virtualKeyContainer = try keyCodes.mapKeyCodes(from: input.source)
-    let virtualSystemKeys = try keyCodes.systemKeys(from: input.source)
-
-    update(virtualKeyContainer, virtualSystemKeys: virtualSystemKeys)
+  private func reloadCurrentSource() {
+    guard let currentInputSource = try? currentInputProvider.inputSource() else { return }
+    try? mapKeys(from: currentInputSource)
   }
 
-  private func update(_ virtualKeyContainer: VirtualKeyContainer, virtualSystemKeys: [VirtualKey]) {
+  private func mapKeys(from inputSource: TISInputSource) throws {
+    let keyCodes = KeyCodes()
+    let virtualKeyContainer = try keyCodes.mapKeyCodes(from: inputSource)
+    let virtualSystemKeys = try keyCodes.systemKeys(from: inputSource)
     self.virtualKeyContainer = virtualKeyContainer
     self.virtualSystemKeys = virtualSystemKeys
   }

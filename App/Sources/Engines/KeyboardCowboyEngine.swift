@@ -13,6 +13,7 @@ final class KeyboardCowboyEngine {
   private let contentStore: ContentStore
   private let keyCodeStore: KeyCodesStore
   private let machPortEngine: MachPortEngine
+  private let notificationCenterPublisher: NotificationCenterPublisher
   private let shortcutStore: ShortcutStore
   private let workspace: NSWorkspace
   private let workspacePublisher: WorkspacePublisher
@@ -25,6 +26,7 @@ final class KeyboardCowboyEngine {
        keyboardEngine: KeyboardEngine,
        keyboardShortcutsController: KeyboardShortcutsController,
        keyCodeStore: KeyCodesStore,
+       notificationCenter: NotificationCenter = .default,
        scriptEngine: ScriptEngine,
        shortcutStore: ShortcutStore,
        workspace: NSWorkspace = .shared) {
@@ -42,6 +44,7 @@ final class KeyboardCowboyEngine {
     self.applicationTriggerController = ApplicationTriggerController(commandEngine)
     self.workspace = workspace
     self.workspacePublisher = WorkspacePublisher(workspace)
+    self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
 
     guard KeyboardCowboy.env != .designTime else { return }
 
@@ -74,7 +77,7 @@ final class KeyboardCowboyEngine {
     machPortEngine.machPort = newMachPortController
     commandEngine.machPort = newMachPortController
     machPortController = newMachPortController
-    keyCodeStore.subscribe()
+    keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
   }
 
   func run(_ commands: [Command], execution: Workflow.Execution) {
