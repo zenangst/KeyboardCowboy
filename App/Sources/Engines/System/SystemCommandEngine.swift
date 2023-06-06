@@ -9,7 +9,9 @@ import Windows
 final class SystemCommandEngine {
   var machPort: MachPortEventController?
 
-  private var subscription: AnyCancellable?
+  private var subjectSubscription: AnyCancellable?
+  private var flagSubscription: AnyCancellable?
+  private var subject = PassthroughSubject<Void, Never>()
 
   private var visibleApplicationWindows: [WindowModel] = .init()
   private var visibleMostIndex: Int = 0
@@ -21,15 +23,26 @@ final class SystemCommandEngine {
     indexVisibleApplications()
     indexFrontmost()
 
-    subscription = publisher
+    subjectSubscription = publisher
+      .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+      .sink { [weak self] flags in
+        guard let self else { return }
+        self.index()
+      }
+
+    flagSubscription = publisher
       .sink { [weak self] flags in
         guard let self else { return }
 
         // TODO: This should not be bound to `.maskShift`
         guard flags == CGEventFlags.maskNonCoalesced || flags?.contains(.maskShift) == false else { return }
-        self.indexVisibleApplications()
-        self.indexFrontmost()
+        self.subject.send()
       }
+  }
+
+  func index() {
+    self.indexVisibleApplications()
+    self.indexFrontmost()
   }
 
   func run(_ command: SystemCommand) async throws {
