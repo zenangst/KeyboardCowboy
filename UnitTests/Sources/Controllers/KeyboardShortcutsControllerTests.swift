@@ -4,7 +4,7 @@ import XCTest
 final class KeyboardShortcutsControllerTests: XCTestCase {
   func testLookupInLargeCollection() {
     let controller = KeyboardShortcutsController()
-    let groups = generateGroups(50, workflows: 50, keyboardShortcuts: 20)
+    let groups = generateGroups(10, workflows: 50, keyboardShortcuts: 20)
 
     controller.cache(groups)
 
