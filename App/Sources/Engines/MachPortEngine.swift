@@ -207,11 +207,7 @@ final class MachPortEngine {
     switch recording {
     case .valid:
       mode = .intercept
-    case .systemShortcut:
-      break
-    case .delete:
-      break
-    case .cancel:
+    case .delete, .cancel:
       break
     }
 
@@ -233,12 +229,6 @@ final class MachPortEngine {
     let modifiers = virtualModifiers
       .compactMap({ ModifierKey(rawValue: $0.rawValue) })
     let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
-//    let systemShortcuts = store.systemKeys()
-//      .first(where: { $0.keyCode == keyCode && $0.modifiers ==  virtualModifiers })
-
-    //    if systemShortcuts != nil {
-    //      validationContext = .systemShortcut(keyboardShortcut)
-    //    } else
     if let restrictedKeyCode = RestrictedKeyCode(rawValue: Int(machPortEvent.keyCode)) {
       switch restrictedKeyCode {
       case .backspace, .delete:
@@ -258,14 +248,6 @@ final class MachPortEngine {
 
 public enum KeyShortcutRecording: Hashable {
   case valid(KeyShortcut)
-  case systemShortcut(KeyShortcut)
   case delete(KeyShortcut)
   case cancel(KeyShortcut)
-}
-
-private extension MachPortEvent {
-  func isSame(as otherEvent: MachPortEvent) -> Bool {
-    keyCode == otherEvent.keyCode &&
-    type == otherEvent.type
-  }
 }

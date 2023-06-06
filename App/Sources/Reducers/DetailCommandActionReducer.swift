@@ -145,7 +145,6 @@ final class DetailCommandActionReducer {
           command.name = newName
           workflow.updateOrAddCommand(command)
         case .open(let source):
-          let execution = workflow.execution
           Task {
             let path = (source as NSString).expandingTildeInPath
             try await commandEngine.run(.open(.init(path: path)))

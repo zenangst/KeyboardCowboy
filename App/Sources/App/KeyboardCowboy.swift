@@ -3,6 +3,7 @@ import Combine
 import Cocoa
 import SwiftUI
 import LaunchArguments
+import InputSources
 @_exported import Inject
 
 private let isRunningPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
@@ -50,7 +51,7 @@ struct KeyboardCowboy: App {
                                     keyboardShortcutsController: keyboardShortcutsController,
                                     shortcutStore: shortcutStore,
                                     scriptEngine: scriptEngine, workspace: .shared)
-    let keyCodeStore = KeyCodesStore()
+    let keyCodeStore = KeyCodesStore(InputSourceController())
     let keyboardEngine = KeyboardEngine(store: keyCodeStore)
     let engine = KeyboardCowboyEngine(contentStore,
                                       keyboardEngine: keyboardEngine,

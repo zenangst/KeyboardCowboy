@@ -1,5 +1,5 @@
-import Combine
 import Cocoa
+import Combine
 
 final class WorkspacePublisher {
   @Published private(set) var frontmostApplication: RunningApplication?
