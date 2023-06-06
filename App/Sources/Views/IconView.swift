@@ -2,19 +2,11 @@ import SwiftUI
 
 @MainActor
 final class IconPublisher: ObservableObject {
-  @Published var image: NSImage?
+  @Published var cgImage: CGImage?
 
   func load(at path: String, bundleIdentifier: String, of size: CGSize) {
-    if let cachedImage = IconCache.shared.loadFromCache(at: path, bundleIdentifier: bundleIdentifier, size: size) {
-      image = cachedImage
-    } else {
-      Task {
-        let cachedImage = await IconCache.shared.icon(
-          at: path,
-          bundleIdentifier: bundleIdentifier,
-          size: size)
-        image = cachedImage
-      }
+    Task {
+      cgImage = await IconCache.shared.icon(at: path, bundleIdentifier: bundleIdentifier, size: size)
     }
   }
 }
@@ -27,8 +19,8 @@ struct IconView: View {
 
   var body: some View {
     Group {
-      if let image = publisher.image {
-        Image(nsImage: image)
+      if let cgImage = publisher.cgImage {
+        Image(nsImage: NSImage(cgImage: cgImage, size: size))
           .resizable()
           .aspectRatio(contentMode: .fit)
           .frame(width: size.width, height: size.height)
@@ -40,6 +32,7 @@ struct IconView: View {
           .fixedSize()
       }
     }
+    .animation(.easeInOut(duration: 1.0), value: publisher.cgImage)
     .onAppear {
       publisher.load(at: icon.path, bundleIdentifier: icon.bundleIdentifier, of: size)
     }
