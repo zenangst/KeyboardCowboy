@@ -35,10 +35,6 @@ final class KeyCodesStore {
       }
   }
 
-  func systemKeys() -> [VirtualKey] {
-    virtualSystemKeys
-  }
-
   func specialKeys() -> [Int: String] {
     VirtualSpecialKey.keys
   }
@@ -50,10 +46,6 @@ final class KeyCodesStore {
   func keyCode(for string: String, matchDisplayValue: Bool) -> Int? {
     virtualKeyContainer?.valueForString(string, modifier: nil,
                                         matchDisplayValue: matchDisplayValue)?.keyCode
-  }
-
-  func string(for keyCode: Int) -> String? {
-    virtualKeyContainer?.valueForKeyCode(keyCode, modifier: nil)?.rawValue
   }
 
   func displayValue(for keyCode: Int) -> String? {
