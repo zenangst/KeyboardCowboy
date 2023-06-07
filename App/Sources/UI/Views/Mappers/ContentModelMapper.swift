@@ -161,9 +161,9 @@ private extension Array where Element == Command {
           path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
         case .moveFocusToPreviousWindowFront:
           path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-        case .moveFocusToNextWindow:
+        case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
           path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-        case .moveFocusToPreviousWindow:
+        case .moveFocusToPreviousWindow, .moveFocusToPreviousWindowGlobal:
           path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
         case .missionControl:
           path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"

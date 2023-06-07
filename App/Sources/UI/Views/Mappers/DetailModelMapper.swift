@@ -153,9 +153,9 @@ private extension Command {
       switch command.kind {
       case .applicationWindows:
         path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToNextWindowFront:
+      case .moveFocusToNextWindowFront, .moveFocusToNextWindowGlobal:
         path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToPreviousWindowFront:
+      case .moveFocusToPreviousWindowFront, .moveFocusToPreviousWindowGlobal:
         path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .moveFocusToNextWindow:
         path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
