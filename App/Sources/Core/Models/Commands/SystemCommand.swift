@@ -12,6 +12,10 @@ struct SystemCommand: Identifiable, Equatable, Codable, Hashable, Sendable {
         return "Mission Control"
       case .showDesktop:
         return "Show Desktop"
+      case .moveFocusToNextWindowGlobal:
+        return "Move focus to next window (all windows)"
+      case .moveFocusToPreviousWindowGlobal:
+        return "Move focus to previous window (all windows)"
       case .moveFocusToNextWindow:
         return "Move focus to next window"
       case .moveFocusToPreviousWindow:
@@ -28,6 +32,8 @@ struct SystemCommand: Identifiable, Equatable, Codable, Hashable, Sendable {
     case moveFocusToPreviousWindowFront
     case moveFocusToNextWindow
     case moveFocusToPreviousWindow
+    case moveFocusToNextWindowGlobal
+    case moveFocusToPreviousWindowGlobal
     case missionControl
     case showDesktop
   }
