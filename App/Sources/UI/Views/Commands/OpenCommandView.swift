@@ -44,7 +44,7 @@ struct OpenCommandView: View {
           .onChange(of: name, perform: {
             onAction(.updateName(newName: $0))
           })
-        Spacer()
+          .frame(maxWidth: .infinity)
 
         if case .open(_, _, let appName) = command.wrappedValue.kind {
           Menu(content: {
@@ -55,14 +55,15 @@ struct OpenCommandView: View {
             }
           }, label: {
               Text(appName ?? "Default")
-                .fixedSize(horizontal: false, vertical: true)
+                .font(.caption)
                 .truncationMode(.middle)
                 .lineLimit(1)
                 .allowsTightening(true)
                 .padding(4)
           })
-          .menuStyle(.appStyle(padding: 4))
-          .frame(maxWidth: 120)
+          .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false),
+                                       menuIndicator: applicationStore.applicationsToOpen(command.wrappedValue.name).isEmpty ? .hidden : .visible))
+//          .frame(maxWidth: 120, alignment: .trailing)
         }
       }
     }, subContent: { command in

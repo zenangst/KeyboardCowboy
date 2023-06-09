@@ -67,7 +67,6 @@ struct SidebarConfigurationView: View {
           .resizable()
       })
       .menuStyle(GradientMenuStyle(.init(nsColor: .systemGreen, grayscaleEffect: true)))
-      .menuIndicator(.hidden)
       .popover(isPresented: $deleteConfigurationPopover, arrowEdge: .bottom, content: {
         VStack {
           Text("Are you sure you want to delete '\(configurationName)'")

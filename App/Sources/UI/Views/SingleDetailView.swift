@@ -133,7 +133,7 @@ struct SingleDetailView: View {
                 .padding(.vertical, 4)
                 .offset(x: -4, y: 1)
             })
-            .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray)))
+            .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray), menuIndicator: .visible))
             .frame(maxWidth: detailPublisher.data.execution == .concurrent ? 144 : 110,
                    alignment: .leading)
           }
