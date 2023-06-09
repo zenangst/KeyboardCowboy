@@ -98,6 +98,7 @@ struct KeyboardCowboy: App {
     let detailCoordinator = DetailCoordinator(applicationStore: applicationStore,
                                               applicationTriggerSelectionManager: applicationTriggerSelectionManager,
                                               commandEngine: CommandEngine(NSWorkspace.shared,
+                                                                           applicationStore: applicationStore,
                                                                            scriptEngine: scriptEngine,
                                                                            keyboardEngine: keyboardEngine),
                                               commandSelectionManager: commandSelectionManager,

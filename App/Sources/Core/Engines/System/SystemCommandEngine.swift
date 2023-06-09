@@ -20,6 +20,14 @@ final class SystemCommandEngine {
   private var frontMostApplicationWindows: [WindowAccessibilityElement] = .init()
   private var frontMostIndex: Int = 0
 
+  private let applicationStore: ApplicationStore
+  private let workspace: WorkspaceProviding
+
+  init(_ applicationStore: ApplicationStore, workspace: WorkspaceProviding = NSWorkspace.shared) {
+    self.applicationStore = applicationStore
+    self.workspace = workspace
+  }
+
   func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
     subjectSubscription = publisher
       .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
@@ -74,8 +82,26 @@ final class SystemCommandEngine {
           $0.id == windowId
         })
 
-        runningApplication?.activate(options: .activateIgnoringOtherApps)
-        axWindow?.performAction(.raise)
+
+        if let runningApplication  {
+          let options: NSApplication.ActivationOptions = [.activateIgnoringOtherApps]
+          runningApplication.activate(options: options)
+          if let bundleIdentifier = runningApplication.bundleIdentifier,
+             bundleIdentifier != workspace.frontApplication?.bundleIdentifier,
+             let application = applicationStore.application(for: bundleIdentifier) {
+            let url = URL(fileURLWithPath: application.path)
+            Task.detached { [workspace] in
+              let configuration = NSWorkspace.OpenConfiguration()
+              configuration.activates = true
+              _ = try? await workspace.openApplication(at: url, configuration: configuration)
+            }
+            return
+          }
+        }
+
+        _ = await MainActor.run {
+          axWindow?.performAction(.raise)
+        }
       case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
         guard frontMostApplicationWindows.count > 1 else { return }
 
@@ -92,7 +118,9 @@ final class SystemCommandEngine {
         }
         
         let window = frontMostApplicationWindows[frontMostIndex]
-        window.performAction(.raise)
+        _ = await MainActor.run {
+          window.performAction(.raise)
+        }
       case .showDesktop:
         Dock.run(.showDesktop)
       case .applicationWindows:
@@ -110,6 +138,7 @@ final class SystemCommandEngine {
     let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
 
     frontMostIndex = 0
+    visibleMostIndex = 0
 
     indexAllApplicationsInSpace(windowModels)
     indexVisibleApplications(windowModels)
@@ -144,7 +173,6 @@ final class SystemCommandEngine {
       }
 
     visibleApplicationWindows = windowModels
-    visibleMostIndex = 0
   }
 
   private func indexFrontmost() {

@@ -31,7 +31,12 @@ final class KeyboardCowboyEngine {
        shortcutStore: ShortcutStore,
        workspace: NSWorkspace = .shared) {
     
-    let commandEngine = CommandEngine(workspace, scriptEngine: scriptEngine, keyboardEngine: keyboardEngine)
+    let commandEngine = CommandEngine(
+      workspace,
+      applicationStore: contentStore.applicationStore,
+      scriptEngine: scriptEngine,
+      keyboardEngine: keyboardEngine
+    )
     self.contentStore = contentStore
     self.keyCodeStore = keyCodeStore
     self.commandEngine = commandEngine
