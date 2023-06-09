@@ -38,7 +38,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .frame(maxWidth: 32, maxHeight: 32)
 
           content($command)
-            .frame(minHeight: 30)
+            .frame(minHeight: 30, maxHeight: .infinity)
         }
         .padding([.top, .leading], 8)
 
@@ -54,7 +54,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
           subContent($command)
             .buttonStyle(.appStyle)
-            .padding(.leading, 2)
+            .padding(.leading, 8)
         }
         .padding(.bottom, 8)
         .padding(.leading, 4)

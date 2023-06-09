@@ -49,7 +49,8 @@ struct ShortcutCommandView: View {
         Text("|")
 
         Button("Open Shortcuts", action: { onAction(.openShortcuts) })
-          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemPurple)))
+          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemPurple, grayscaleEffect: true)))
+          .font(.caption)
       }
     }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()

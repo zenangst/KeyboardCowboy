@@ -80,7 +80,7 @@ struct OpenCommandView: View {
         case .open(let path, _, _):
           if !path.hasPrefix("http") {
             Button("Reveal", action: { onAction(.reveal(path: path)) })
-              .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue)))
+              .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue, grayscaleEffect: true)))
           }
         default:
           EmptyView()
