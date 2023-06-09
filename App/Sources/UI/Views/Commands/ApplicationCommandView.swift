@@ -79,12 +79,7 @@ struct ApplicationCommandView: View {
             }
             .padding(4)
           })
-          .buttonStyle(.plain)
-          .background(
-            RoundedRectangle(cornerRadius: 4)
-              .stroke(Color(.disabledControlTextColor))
-              .opacity(0.5)
-          )
+          .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
           .compositingGroup()
 
           TextField("", text: $name)
