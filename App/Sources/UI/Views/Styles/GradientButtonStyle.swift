@@ -85,16 +85,26 @@ struct GradientButtonStyle_Previews: PreviewProvider {
 
 struct GradientMenuStyle: MenuStyle {
   private let config: GradientConfiguration
+  private let fixedSize: Bool
+  private let menuIndicator: Visibility
   @State private var isHovered: Bool
 
-  init(_ config: GradientConfiguration) {
+  init(_ config: GradientConfiguration,
+       fixedSize: Bool = true,
+       menuIndicator: Visibility = .visible) {
     self.config = config
+    self.fixedSize = fixedSize
+    self.menuIndicator = menuIndicator
     _isHovered = .init(initialValue: config.hoverEffect ? false : true)
   }
 
   func makeBody(configuration: Configuration) -> some View {
     Menu(configuration)
+      .font(.caption)
+      .truncationMode(.middle)
+      .allowsTightening(true)
       .menuStyle(.borderlessButton)
+      .menuIndicator(menuIndicator)
       .foregroundColor(Color(.textColor))
       .padding(.horizontal, 4)
       .frame(minHeight: 24)
@@ -125,7 +135,7 @@ struct GradientMenuStyle: MenuStyle {
         guard config.hoverEffect else { return }
         self.isHovered = value
       })
-      .fixedSize()
+      .fixedSize(horizontal: fixedSize, vertical: true)
       .contentShape(Rectangle())
   }
 }

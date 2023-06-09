@@ -42,20 +42,12 @@ struct SystemCommandView: View {
           HStack(spacing: 4) {
             Text(kind.displayValue)
               .font(.caption)
-              .fixedSize(horizontal: false, vertical: true)
               .truncationMode(.middle)
               .allowsTightening(true)
-            Image(systemName: "chevron.down")
-              .opacity(0.5)
           }
           .padding(4)
         })
-        .buttonStyle(.plain)
-        .background(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.disabledControlTextColor))
-            .opacity(0.5)
-        )
+        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
       }
     }, subContent: { command in
       Toggle("Notify", isOn: $notify)

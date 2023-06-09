@@ -74,8 +74,6 @@ struct ApplicationCommandView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .truncationMode(.middle)
                 .allowsTightening(true)
-              Image(systemName: "chevron.down")
-                .opacity(0.5)
             }
             .padding(4)
           })
