@@ -36,8 +36,11 @@ final class CommandEngine: CommandRunning {
   var lastExecutedCommand: Command?
   var eventSource: CGEventSource?
 
-  init(_ workspace: WorkspaceProviding, scriptEngine: ScriptEngine, keyboardEngine: KeyboardEngine) {
-    let systemCommandEngine = SystemCommandEngine()
+  init(_ workspace: WorkspaceProviding,
+       applicationStore: ApplicationStore,
+       scriptEngine: ScriptEngine,
+       keyboardEngine: KeyboardEngine) {
+    let systemCommandEngine = SystemCommandEngine(applicationStore)
     self.engines = .init(
       application: ApplicationEngine(
         scriptEngine: scriptEngine,

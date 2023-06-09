@@ -9,10 +9,8 @@ final class ActivateApplicationPlugin {
   }
 
   private let workspace: WorkspaceProviding
-  private let keyboard: KeyboardEngine
 
-  init(keyboard: KeyboardEngine, workspace: WorkspaceProviding) {
-    self.keyboard = keyboard
+  init(workspace: WorkspaceProviding) {
     self.workspace = workspace
   }
 
@@ -48,22 +46,6 @@ final class ActivateApplicationPlugin {
 
     if !runningApplication.activate(options: options) {
       throw ActivateApplicationPlugin.failedToActivate
-    }
-
-    let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as [AnyObject]? ?? []
-    let missionControlIsActive = !windows.filter { entry in
-      guard let appName = entry[kCGWindowOwnerName as String] as? String,
-            let layer = entry[kCGWindowLayer as String] as? Int,
-            appName == "Dock" &&
-            layer == CGWindowLevelKey.desktopIconWindow.rawValue else {
-        return false
-      }
-
-      return true
-    }.isEmpty
-
-    if missionControlIsActive {
-      
     }
   }
 }
