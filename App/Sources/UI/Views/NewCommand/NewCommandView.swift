@@ -80,7 +80,7 @@ struct NewCommandView: View {
                   .fill(Color.white.opacity(0.2))
                   .frame(width: 1)
               })
-            .frame(maxWidth: 200)
+            .frame(maxWidth: 225)
           detail(title: $title)
         }
       } else {
@@ -109,17 +109,9 @@ struct NewCommandView: View {
                 .layoutPriority(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
               Spacer()
-              Text("\(ModifierKey.command.keyValue)\(kind.rawKey)")
-                .font(.system(.caption, design: .monospaced))
-                .multilineTextAlignment(.center)
-                .tracking(2)
-                .layoutPriority(1)
-                .padding(2)
-                .background(
-                  RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(.textBackgroundColor))
-                    .shadow(radius: 4)
-                )
+
+              RegularKeyIcon(letter: "\(ModifierKey.command.keyValue)\(kind.rawKey)", width: 24, height: 24)
+                .fixedSize()
             }
             .padding(.leading, 4)
             .padding(.trailing, 18)

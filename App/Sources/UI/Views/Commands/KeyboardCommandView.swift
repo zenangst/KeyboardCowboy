@@ -55,12 +55,13 @@ struct KeyboardCommandView: View {
           EditableKeyboardShortcutsView($keyboardShortcuts,
                                         selectionManager: .init(),
                                         onTab: { _ in })
-            .onChange(of: keyboardShortcuts) { newValue in
-              onAction(.updateKeyboardShortcuts(newValue))
-            }
-            .padding(.horizontal, 2)
-            .background(Color(.textBackgroundColor).opacity(0.65))
-            .cornerRadius(4)
+          .font(.caption)
+          .frame(height: 40)
+          .onChange(of: keyboardShortcuts) { newValue in
+            onAction(.updateKeyboardShortcuts(newValue))
+          }
+          .padding(.vertical, 4)
+          .background(Color(.textBackgroundColor).opacity(0.65).cornerRadius(4))
         }
       },
       subContent: { command in

@@ -89,11 +89,12 @@ private extension Array where Element == Command {
 
   func images(limit: Int) -> [ContentViewModel.ImageModel] {
     var images = [ContentViewModel.ImageModel]()
-    for (offset, element) in self.enumerated() where element.isEnabled {
+    for (offset, element) in self.reversed().enumerated() where element.isEnabled {
       // Don't render icons for commands that are not enabled.
       if !element.isEnabled { continue }
 
       if offset == limit { break }
+
       let convertedOffset = Double(offset)
       switch element {
       case .application(let command):
@@ -179,6 +180,6 @@ private extension Array where Element == Command {
       }
     }
 
-    return images
+    return images.reversed()
   }
 }

@@ -59,6 +59,10 @@ struct SystemCommandView: View {
       }
     }, subContent: { command in
       Toggle("Notify", isOn: $notify)
+        .lineLimit(1)
+        .allowsTightening(true)
+        .truncationMode(.tail)
+        .font(.caption)
         .onChange(of: notify) { newValue in
           onAction(.toggleNotify(newValue: newValue))
         }
