@@ -63,7 +63,6 @@ struct OpenCommandView: View {
           })
           .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false),
                                        menuIndicator: applicationStore.applicationsToOpen(command.wrappedValue.name).isEmpty ? .hidden : .visible))
-//          .frame(maxWidth: 120, alignment: .trailing)
         }
       }
     }, subContent: { command in
