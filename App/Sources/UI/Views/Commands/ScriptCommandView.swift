@@ -71,6 +71,7 @@ struct ScriptCommandView: View {
                 }))
               })
               .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+              .font(.caption)
             }
           }
         }
@@ -83,7 +84,9 @@ struct ScriptCommandView: View {
             EmptyView()
           case .path(_, let source, _):
             Button("Open", action: { onAction(.open(path: source)) })
+              .buttonStyle(.gradientStyle(config: .init(nsColor: .systemCyan, grayscaleEffect: true)))
             Button("Reveal", action: { onAction(.reveal(path: source)) })
+              .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
           }
         }
       }
