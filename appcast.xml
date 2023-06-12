@@ -3,6 +3,14 @@
     <channel>
         <title>Keyboard Cowboy</title>
         <item>
+            <title>3.5.1</title>
+            <pubDate>Mon, 12 Jun 2023 19:50:00 +0200</pubDate>
+            <sparkle:version>161</sparkle:version>
+            <sparkle:shortVersionString>3.5.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.5.1/Keyboard.Cowboy.3.5.1.dmg" length="6569900" type="application/octet-stream" sparkle:edSignature="RkJOOpAOdHL7ZQdawfLbZsLG9l+sWXArMdHt7AohQB39xdVwvUMd61Sf4gtf60BR7U07DC/367nh2pcQuWPCAg=="/>
+        </item>
+        <item>
             <title>3.5.0</title>
             <pubDate>Wed, 07 Jun 2023 23:38:34 +0200</pubDate>
             <sparkle:version>152</sparkle:version>
@@ -17,22 +25,6 @@
             <sparkle:shortVersionString>3.4.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.4.0/Keyboard.Cowboy.3.4.0.dmg" length="6557410" type="application/octet-stream" sparkle:edSignature="S1SudcIb38rzPPDJl6FbpBQHcklf/evx1Ithkcy4NhKxOm8ysRbQWpE0nSh99T8frn9+QOi0TacikPIZR95JAw=="/>
-        </item>
-        <item>
-            <title>3.3.1</title>
-            <pubDate>Sun, 04 Jun 2023 18:31:13 +0200</pubDate>
-            <sparkle:version>144</sparkle:version>
-            <sparkle:shortVersionString>3.3.1</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.3.1/Keyboard.Cowboy.3.3.1.dmg" length="6755299" type="application/octet-stream" sparkle:edSignature="W0PhzUbW7n0/1U17uR/m5Uk9+aA72kkRAirUsXMVq7qhAWMGyjUeR+notVsfjiIlSqm8TzL2NBR/451quUUmDQ=="/>
-        </item>
-        <item>
-            <title>3.3.0</title>
-            <pubDate>Sat, 03 Jun 2023 19:44:58 +0200</pubDate>
-            <sparkle:version>143</sparkle:version>
-            <sparkle:shortVersionString>3.3.0</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.3.0/Keyboard.Cowboy.3.3.0.dmg" length="6734482" type="application/octet-stream" sparkle:edSignature="usHJRG5EQbGvzJvHb/42b8yWXTSQ0lttaQgLg/niMvOfm7M38t46H2DJv/7/DoUckCmQh3B4gtCOPuxed2dPBg=="/>
         </item>
         <item>
             <title>0.4.1</title>
