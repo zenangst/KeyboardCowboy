@@ -93,7 +93,6 @@ final class SystemCommandEngine {
           $0.id == windowId
         })
 
-
         if let runningApplication  {
           let options: NSApplication.ActivationOptions = [.activateIgnoringOtherApps]
           runningApplication.activate(options: options)
