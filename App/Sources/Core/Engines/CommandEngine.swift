@@ -28,6 +28,7 @@ final class CommandEngine: CommandRunning {
     }
   }
 
+  private let missionControl: MissionControlPlugin
   private let engines: Engines
   private let workspace: WorkspaceProviding
   private var runningTask: Task<Void, Error>?
@@ -41,6 +42,7 @@ final class CommandEngine: CommandRunning {
        scriptEngine: ScriptEngine,
        keyboardEngine: KeyboardEngine) {
     let systemCommandEngine = SystemCommandEngine(applicationStore)
+    self.missionControl = MissionControlPlugin(keyboard: keyboardEngine)
     self.engines = .init(
       application: ApplicationEngine(
         scriptEngine: scriptEngine,
@@ -59,6 +61,7 @@ final class CommandEngine: CommandRunning {
   }
 
   func reveal(_ commands: [Command]) {
+    missionControl.dismissIfActive()
     for command in commands {
       switch command {
       case .application(let applicationCommand):
@@ -99,6 +102,7 @@ final class CommandEngine: CommandRunning {
   }
 
   func serialRun(_ commands: [Command]) {
+    missionControl.dismissIfActive()
     runningTask?.cancel()
     runningTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
@@ -115,6 +119,7 @@ final class CommandEngine: CommandRunning {
   }
 
   func concurrentRun(_ commands: [Command]) {
+    missionControl.dismissIfActive()
     runningTask?.cancel()
     runningTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }

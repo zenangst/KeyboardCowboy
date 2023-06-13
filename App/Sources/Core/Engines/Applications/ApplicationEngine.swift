@@ -6,7 +6,6 @@ final class ApplicationEngine {
     let bringToFront: BringToFrontApplicationPlugin
     let close: CloseApplicationPlugin
     let launch: LaunchApplicationPlugin
-    let missionControl: MissionControlPlugin
   }
 
   private let windowListStore: WindowListStoring
@@ -23,8 +22,7 @@ final class ApplicationEngine {
       activate: ActivateApplicationPlugin(workspace: workspace),
       bringToFront: BringToFrontApplicationPlugin(engine: scriptEngine),
       close: CloseApplicationPlugin(workspace: workspace),
-      launch: LaunchApplicationPlugin(workspace: workspace),
-      missionControl: MissionControlPlugin(keyboard: keyboard)
+      launch: LaunchApplicationPlugin(workspace: workspace)
     )
   }
 
@@ -80,8 +78,6 @@ final class ApplicationEngine {
       if !windowListStore.windowOwners().contains(command.application.bundleName) {
         try await plugins.activate.execute(command)
       }
-
-      plugins.missionControl.execute()
     }
   }
 }
