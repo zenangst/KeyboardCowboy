@@ -7,7 +7,7 @@ final class MissionControlPlugin {
     self.keyboard = keyboard
   }
 
-  func execute() {
+  func dismissIfActive() {
     let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as [AnyObject]? ?? []
     let missionControlIsActive = !windows.filter { entry in
       guard let appName = entry[kCGWindowOwnerName as String] as? String,
