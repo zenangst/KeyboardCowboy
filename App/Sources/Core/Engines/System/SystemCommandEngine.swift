@@ -29,21 +29,32 @@ final class SystemCommandEngine {
   }
 
   func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
-    subjectSubscription = publisher
+    subjectSubscription = subject
       .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
-      .sink { [weak self] flags in
-        guard let self else { return }
-        self.index()
+      .sink { [weak self] in
+        self?.index()
       }
 
     flagSubscription = publisher
+      .compactMap { $0 }
       .sink { [weak self] flags in
         guard let self else { return }
-
-        // TODO: This should not be bound to `.maskShift`
-        guard flags == CGEventFlags.maskNonCoalesced || flags?.contains(.maskShift) == false else { return }
+        let result = self.containsStandardModifierKeys(flags)
+        guard !result else { return }
         self.subject.send()
       }
+
+    index()
+  }
+
+  func containsStandardModifierKeys(_ flags: CGEventFlags) -> Bool {
+      let standardModifierKeys: [CGEventFlags] = [.maskShift, .maskControl, .maskAlternate, .maskCommand, .maskSecondaryFn]
+      for modifierKey in standardModifierKeys {
+          if flags.contains(modifierKey) {
+              return true
+          }
+      }
+      return false
   }
 
   func run(_ command: SystemCommand) async throws {
@@ -55,7 +66,7 @@ final class SystemCommandEngine {
         command.kind == .moveFocusToPreviousWindowGlobal
         ? allVisibleApplicationsInSpace
         : visibleApplicationWindows
-        
+
         guard collection.count > 1 else { return }
         if case .moveFocusToNextWindow = command.kind {
           visibleMostIndex += 1
@@ -116,7 +127,7 @@ final class SystemCommandEngine {
             frontMostIndex = frontMostApplicationWindows.count - 1
           }
         }
-        
+
         let window = frontMostApplicationWindows[frontMostIndex]
         _ = await MainActor.run {
           window.performAction(.raise)
