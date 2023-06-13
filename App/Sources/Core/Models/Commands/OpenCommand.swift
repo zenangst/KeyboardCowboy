@@ -11,7 +11,7 @@ public struct OpenCommand: Identifiable, Codable, Hashable, Sendable {
   /// The difference here is that `path` is forced to be a
   /// file-path (file://). There will most certainly be a
   /// difference between the two in terms of UI.
-  public let path: String
+  public var path: String
   public var name: String
   public var isEnabled: Bool = true
   public var notification: Bool

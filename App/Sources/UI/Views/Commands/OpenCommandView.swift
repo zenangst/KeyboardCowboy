@@ -4,14 +4,14 @@ import SwiftUI
 struct OpenCommandView: View {
   enum Action {
     case toggleNotify(newValue: Bool)
-    case updateName(newName: String)
+    case updatePath(newPath: String)
     case openWith(Application)
     case commandAction(CommandContainerAction)
     case reveal(path: String)
   }
   @EnvironmentObject var applicationStore: ApplicationStore
   @Binding var command: DetailViewModel.CommandViewModel
-  @State private var name: String
+  @State private var path: String
   @State private var isHovered = false
   @State private var notify = false
   private let onAction: (Action) -> Void
@@ -19,7 +19,7 @@ struct OpenCommandView: View {
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
        onAction: @escaping (Action) -> Void) {
     _command = command
-    _name = .init(initialValue: command.wrappedValue.name)
+    _path = .init(initialValue: command.wrappedValue.name)
     _notify = .init(initialValue: command.wrappedValue.notify)
     self.onAction = onAction
   }
@@ -39,10 +39,10 @@ struct OpenCommandView: View {
       }
     }, content: { command in
       HStack(spacing: 2) {
-        TextField("", text: $name)
+        TextField("", text: $path)
           .textFieldStyle(AppTextFieldStyle())
-          .onChange(of: name, perform: {
-            onAction(.updateName(newName: $0))
+          .onChange(of: path, perform: {
+            onAction(.updatePath(newPath: $0))
           })
           .frame(maxWidth: .infinity)
 

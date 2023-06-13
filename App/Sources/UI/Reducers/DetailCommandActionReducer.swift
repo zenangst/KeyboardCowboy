@@ -98,8 +98,14 @@ final class DetailCommandActionReducer {
         case .toggleNotify(let newValue):
           command.notification = newValue
           workflow.updateOrAddCommand(command)
-        case .updateName(let newName):
-          command.name = newName
+        case .updatePath(let newPath):
+          if case var .open(openCommand) = command {
+            openCommand.name = newPath
+            openCommand.path = newPath
+            command = .open(openCommand)
+          } else {
+            fatalError("This shouldn't happen.")
+          }
           workflow.updateOrAddCommand(command)
         case .openWith(let application):
           if case .open(let oldCommand) = command {
