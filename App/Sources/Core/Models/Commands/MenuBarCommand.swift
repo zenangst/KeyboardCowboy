@@ -1,7 +1,16 @@
 import Foundation
 
 struct MenuBarCommand: Equatable, Hashable, Codable {
-  enum Token: Equatable, Hashable, Codable {
+  enum Token: Identifiable, Equatable, Hashable, Codable {
+    var id: String {
+      switch self {
+      case .pick(let value):
+        return value
+      case .toggle(let lhs, let rhs):
+        return lhs + rhs
+      }
+    }
+
     case pick(String)
     case toggle(String, String)
   }

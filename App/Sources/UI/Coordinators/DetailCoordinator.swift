@@ -106,7 +106,7 @@ final class DetailCoordinator {
     let command: Command
     let resolvedCommandId: String = commandId ?? UUID().uuidString
     switch payload {
-    case .placeholder:
+    case .placeholder, .menuBar:
       return
     case .keyboardShortcut(let keyShortcuts):
       command = .keyboard(.init(keyboardShortcuts: keyShortcuts, notification: false))
