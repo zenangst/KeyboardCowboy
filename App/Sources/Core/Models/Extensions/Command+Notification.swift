@@ -22,6 +22,8 @@ extension Command {
         return typeCommand.notification
       case .systemCommand(let systemCommand):
         return systemCommand.notification
+      case .menuBar(let menuCommand):
+        return menuCommand.notification
       }
     }
     set {
@@ -51,6 +53,9 @@ extension Command {
       case .systemCommand(var systemCommand):
         systemCommand.notification = newValue
         self = .systemCommand(systemCommand)
+      case .menuBar(var menuBarCommand):
+        menuBarCommand.notification = newValue
+        self = .menuBar(menuBarCommand)
       }
     }
   }

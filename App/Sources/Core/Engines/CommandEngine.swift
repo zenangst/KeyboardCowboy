@@ -11,6 +11,7 @@ final class CommandEngine: CommandRunning {
   struct Engines {
     let application: ApplicationEngine
     let keyboard: KeyboardEngine
+    let menubar: MenuBarEngine
     let open: OpenEngine
     let script: ScriptEngine
     let shortcut: ShortcutsEngine
@@ -51,6 +52,7 @@ final class CommandEngine: CommandRunning {
         workspace: workspace
       ),
       keyboard: keyboardEngine,
+      menubar: MenuBarEngine(),
       open: OpenEngine(scriptEngine, workspace: workspace),
       script: scriptEngine,
       shortcut: ShortcutsEngine(engine: scriptEngine),
@@ -89,13 +91,8 @@ final class CommandEngine: CommandRunning {
                                                   name: "Reveal \(shortcut.shortcutIdentifier)",
                                                   source: .inline(source)))
         }
-      case .builtIn(_):
-        break
-      case .keyboard(_):
-        break
-      case .type(_):
-        break
-      case .systemCommand(_):
+      case .builtIn, .keyboard, .type,
+           .systemCommand, .menuBar:
         break
       }
     }
@@ -163,6 +160,8 @@ final class CommandEngine: CommandRunning {
                                  originalEvent: nil,
                                  with: eventSource)
         try await Task.sleep(for: .milliseconds(1))
+      case .menuBar(let menuBarCommand):
+        try await engines.menubar.execute(menuBarCommand)
       case .open(let openCommand):
         try await engines.open.run(openCommand)
       case .script(let scriptCommand):

@@ -20,6 +20,8 @@ extension Command {
         return command.id
       case .systemCommand(let command):
         return command.id
+      case .menuBar(let command):
+        return command.id
       }
     }
     set {
@@ -48,6 +50,9 @@ extension Command {
       case .systemCommand(var systemCommand):
         systemCommand.id = newValue
         self = .systemCommand(systemCommand)
+      case .menuBar(var menuCommand):
+        menuCommand.id = newValue
+        self = .menuBar(menuCommand)
       }
     }
   }

@@ -63,6 +63,9 @@ final class DetailModelMapper {
     case .keyboard(let keyboardCommand):
       kind =  .keyboard(keys: keyboardCommand.keyboardShortcuts)
       name = command.name
+    case .menuBar(let menubarCommand):
+      kind = .plain
+      name = command.name
     case .open(let openCommand):
       let appName: String?
       let appPath: String?
@@ -130,9 +133,7 @@ private extension Command {
     case .application(let command):
       return .init(bundleIdentifier: command.application.bundleIdentifier,
                    path: command.application.path)
-    case .builtIn:
-      return nil
-    case .keyboard:
+    case .builtIn, .menuBar, .keyboard:
       return nil
     case .open(let command):
       let path: String
