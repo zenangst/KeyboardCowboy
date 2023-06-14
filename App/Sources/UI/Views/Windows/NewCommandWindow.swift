@@ -111,7 +111,7 @@ struct NewCommandWindow: Scene {
                           inBackground: inBackground,
                           hideWhenRunning: hideWhenRunning,
                           ifNotRunning: ifNotRunning)
-    case .builtIn:
+    case .builtIn, .menuBar:
       return .placeholder
     case .keyboard:
       return .placeholder
@@ -157,7 +157,7 @@ struct NewCommandWindow: Scene {
     switch command {
     case .application:
       return .application
-    case .builtIn:
+    case .builtIn, .menuBar:
       // TODO: Fix this!
       return .application
     case .keyboard:

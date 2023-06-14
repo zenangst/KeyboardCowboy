@@ -105,7 +105,7 @@ private extension Array where Element == Command {
             kind: .icon(.init(bundleIdentifier: command.application.bundleIdentifier,
                               path: command.application.path)))
         )
-      case .builtIn:
+      case .menuBar, .builtIn:
         continue
       case .keyboard(let keyCommand):
         if let keyboardShortcut = keyCommand.keyboardShortcuts.first {

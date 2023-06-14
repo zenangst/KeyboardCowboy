@@ -20,6 +20,8 @@ extension Command {
         return typeCommand.isEnabled
       case .systemCommand(let systemCommand):
         return systemCommand.isEnabled
+      case .menuBar(let menuBarCommand):
+        return menuBarCommand.isEnabled
       }
     }
     set {
@@ -48,6 +50,9 @@ extension Command {
       case .systemCommand(var systemCommand):
         systemCommand.isEnabled = newValue
         self = .systemCommand(systemCommand)
+      case .menuBar(var menuBarCommand):
+        menuBarCommand.isEnabled = newValue
+        self = .menuBar(menuBarCommand)
       }
     }
   }

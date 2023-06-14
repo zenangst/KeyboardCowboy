@@ -8,6 +8,7 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
   case application(ApplicationCommand)
   case builtIn(BuiltInCommand)
   case keyboard(KeyboardCommand)
+  case menuBar(MenuBarCommand)
   case open(OpenCommand)
   case shortcut(ShortcutCommand)
   case script(ScriptCommand)
@@ -18,6 +19,7 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     case application = "applicationCommand"
     case builtIn = "builtInCommand"
     case keyboard = "keyboardCommand"
+    case menuBar = "menuBarCommand"
     case open = "openCommand"
     case shortcut = "runShortcut"
     case script = "scriptCommand"
@@ -47,6 +49,9 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
     case .keyboard:
       let command = try container.decode(KeyboardCommand.self, forKey: .keyboard)
       self = .keyboard(command)
+    case .menuBar:
+      let command = try container.decode(MenuBarCommand.self, forKey: .menuBar)
+      self = .menuBar(command)
     case .open:
       let command = try container.decode(OpenCommand.self, forKey: .open)
       self = .open(command)
@@ -81,6 +86,8 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       try container.encode(command, forKey: .builtIn)
     case .keyboard(let command):
       try container.encode(command, forKey: .keyboard)
+    case .menuBar(let command):
+      try container.encode(command, forKey: .menuBar)
     case .open(let command):
       try container.encode(command, forKey: .open)
     case .script(let command):
@@ -104,6 +111,8 @@ extension Command {
       return Command.builtIn(.init(kind: .quickRun, notification: false))
     case .keyboard:
       return Command.keyboard(KeyboardCommand.empty())
+    case .menuBar:
+      return Command.menuBar(MenuBarCommand(tokens: []))
     case .open:
       return Command.open(.init(path: "", notification: false))
     case .script:
