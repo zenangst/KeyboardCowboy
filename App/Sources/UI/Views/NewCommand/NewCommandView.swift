@@ -22,6 +22,8 @@ struct NewCommandView: View {
         return "7"
       case .system:
         return "8"
+      case .menuBar:
+        return "9"
       }
     }
     var key: KeyEquivalent {
@@ -36,6 +38,7 @@ struct NewCommandView: View {
     case script = "Script"
     case type = "Type"
     case system = "System Command"
+    case menuBar = "MenuBar Command"
   }
 
   private let workflowId: Workflow.ID
@@ -243,6 +246,8 @@ struct NewCommandView: View {
       }
     case .system:
       NewCommandSystemCommandView($payload, validation: $validation)
+    case .menuBar:
+      NewCommandMenuBarView($payload, validation: $validation)
     }
   }
 
@@ -259,14 +264,29 @@ struct NewCommandView: View {
 
 struct NewCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    NewCommandView(
-      workflowId: UUID().uuidString,
-      commandId: nil,
-      title: "New command",
-      selection: .keyboardShortcut,
-      payload: .application(application: nil, action: .open, inBackground: false, hideWhenRunning: false, ifNotRunning: false),
-      onDismiss: {},
-      onSave: { _, _ in })
+    VStack {
+      NewCommandView(
+        workflowId: UUID().uuidString,
+        commandId: nil,
+        title: "New command",
+        selection: .menuBar,
+        payload: .menuBar(tokens: [
+          .pick("View"),
+          .pick("Navigators"),
+          .toggle("Show Navigator", "Hide Navigator")
+        ]),
+        onDismiss: {},
+        onSave: { _, _ in })
+
+//      NewCommandView(
+//        workflowId: UUID().uuidString,
+//        commandId: nil,
+//        title: "New command",
+//        selection: .keyboardShortcut,
+//        payload: .application(application: nil, action: .open, inBackground: false, hideWhenRunning: false, ifNotRunning: false),
+//        onDismiss: {},
+//        onSave: { _, _ in })
+    }
     .designTime()
   }
 }

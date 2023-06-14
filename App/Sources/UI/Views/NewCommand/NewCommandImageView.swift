@@ -32,6 +32,8 @@ struct NewCommandImageView: View {
         }
       case .system:
         image(for: "/System")
+      case .menuBar:
+        image(for: "/System/Library/PreferencePanes/Appearance.prefPane")
       }
     }
     .frame(width: 24, height: 24)
