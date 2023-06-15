@@ -111,8 +111,10 @@ struct NewCommandWindow: Scene {
                           inBackground: inBackground,
                           hideWhenRunning: hideWhenRunning,
                           ifNotRunning: ifNotRunning)
-    case .builtIn, .menuBar:
+    case .builtIn:
       return .placeholder
+    case .menuBar(let command):
+      return .menuBar(tokens: command.tokens)
     case .keyboard:
       return .placeholder
     case .open(let openCommand):
@@ -157,11 +159,13 @@ struct NewCommandWindow: Scene {
     switch command {
     case .application:
       return .application
-    case .builtIn, .menuBar:
+    case .builtIn:
       // TODO: Fix this!
       return .application
     case .keyboard:
       return .keyboardShortcut
+    case .menuBar:
+      return .menuBar
     case .open:
       return .open
     case .shortcut:

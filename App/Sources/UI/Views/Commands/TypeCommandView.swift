@@ -13,7 +13,8 @@ struct TypeCommandView: View {
   @State private var notify: Bool
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel, onAction: @escaping (Action) -> Void) {
+  init(_ command: DetailViewModel.CommandViewModel,
+       onAction: @escaping (Action) -> Void) {
     _command = .init(initialValue: command)
     _name = .init(initialValue: command.name)
     _notify = .init(initialValue: command.notify)

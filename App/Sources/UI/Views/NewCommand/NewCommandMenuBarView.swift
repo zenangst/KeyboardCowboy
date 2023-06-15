@@ -60,23 +60,27 @@ struct NewCommandMenuBarView: View {
                   var container = container
                   container.token = .menuItem(name: $0)
                   tokens.replace(container)
+                  validation = updateAndValidatePayload()
                 }), onSubmit: {})
               case .menuItems(let lhs, let rhs):
                 NewCommandMenuBarTokenMenuItemsView(lhs: Binding(get: { lhs }, set: {
                   var container = container
                   container.token = .menuItems(name: $0, fallbackName: rhs)
                   tokens.replace(container)
+                  validation = updateAndValidatePayload()
                 }),
                                                  rhs: Binding(get: { rhs }, set: {
                   var container = container
                   container.token = .menuItems(name: lhs, fallbackName: $0)
                   tokens.replace(container)
+                  validation = updateAndValidatePayload()
                 }), onSubmit: {})
               }
               Spacer()
               Button(action: {
                 withAnimation {
                   tokens.remove(container)
+                  validation = updateAndValidatePayload()
                 }
               }, label: {
                 Image(systemName: "xmark")
@@ -115,7 +119,11 @@ struct NewCommandMenuBarView: View {
       withAnimation { validation = updateAndValidatePayload() }
     })
     .onAppear {
-      validation = .unknown
+      if tokens.isEmpty {
+        validation = .unknown
+      } else {
+        validation = updateAndValidatePayload()
+      }
     }
     .focusScope(namespace)
     .frame(maxWidth: .infinity, alignment: .leading)

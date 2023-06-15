@@ -94,6 +94,7 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
       case shortcut
       case type(input: String)
       case systemCommand(kind: SystemCommand.Kind)
+      case menuBar(tokens: [MenuBarCommand.Token])
     }
 
     enum ScriptKind: Codable, Hashable, Identifiable, Sendable {
@@ -127,6 +128,8 @@ extension DetailViewModel.CommandViewModel.Kind {
       return "type"
     case .systemCommand:
       return "systemCommand"
+    case .menuBar:
+      return "menuBar"
     }
   }
 

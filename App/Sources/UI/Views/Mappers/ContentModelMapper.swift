@@ -105,7 +105,15 @@ private extension Array where Element == Command {
             kind: .icon(.init(bundleIdentifier: command.application.bundleIdentifier,
                               path: command.application.path)))
         )
-      case .menuBar, .builtIn:
+      case .menuBar(let command):
+        let path = "/System/Library/PreferencePanes/Appearance.prefPane"
+        images.append(
+          ContentViewModel.ImageModel(
+            id: command.id,
+            offset: convertedOffset,
+            kind: .icon(.init(bundleIdentifier: path, path: path)))
+        )
+      case .builtIn:
         continue
       case .keyboard(let keyCommand):
         if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
