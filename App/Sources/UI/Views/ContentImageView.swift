@@ -14,6 +14,8 @@ struct ContentImageView: View {
       }
     case .command(let kind):
       switch kind {
+      case .menuBar:
+        EmptyView()
       case .keyboard(let keys):
         ZStack {
           ForEach(keys) { key in

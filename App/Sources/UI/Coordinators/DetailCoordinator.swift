@@ -109,7 +109,7 @@ final class DetailCoordinator {
     case .placeholder:
       return
     case .menuBar(let tokens):
-      command = .menuBar(.init(tokens: tokens))
+      command = .menuBar(.init(id: resolvedCommandId, tokens: tokens))
     case .keyboardShortcut(let keyShortcuts):
       command = .keyboard(.init(keyboardShortcuts: keyShortcuts, notification: false))
     case .script(let value, let kind, let scriptExtension):

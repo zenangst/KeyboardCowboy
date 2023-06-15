@@ -18,6 +18,7 @@ struct CommandView: View {
     case system(action: SystemCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
   }
 
+  @Environment(\.openWindow) var openWindow
   @Environment(\.controlActiveState) var controlActiveState
 
   let workflowId: String
@@ -112,6 +113,7 @@ struct CommandView: View {
 }
 
 struct CommandResolverView: View {
+  @Environment(\.openWindow) var openWindow
   @Binding private var command: DetailViewModel.CommandViewModel
   private let workflowId: DetailViewModel.ID
   private let onAction: (CommandView.Action) -> Void
@@ -129,6 +131,25 @@ struct CommandResolverView: View {
     switch command.kind {
     case .plain:
       UnknownView(command: .constant(command))
+    case .menuBar(let tokens):
+      MenuBarCommandView($command, tokens: Binding(get: { tokens }, set: { _ in })) { action in
+        switch action {
+        case .editCommand(let command):
+          openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
+          break
+        case .commandAction(let action):
+          switch action {
+          case .run:
+            onAction(.run(workflowId: workflowId, commandId: command.id))
+          case .delete:
+            onAction(.remove(workflowId: workflowId, commandId: command.id))
+          case .toggleIsEnabled(let isEnabled):
+            onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+          default:
+            break
+          }
+        }
+      }
     case .open:
       OpenCommandView(
         $command,
@@ -142,6 +163,8 @@ struct CommandResolverView: View {
               onAction(.remove(workflowId: workflowId, commandId: command.id))
             case .toggleIsEnabled(let isEnabled):
               onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+            default:
+              break
             }
           default:
             onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
