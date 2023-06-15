@@ -78,7 +78,7 @@ struct NewCommandOpenView: View {
         })
       }
     }
-    .menuStyle(.appStyle(padding: 4))
+    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
     .onAppear {
       validation = .valid
       updatePayload()
@@ -91,5 +91,19 @@ struct NewCommandOpenView: View {
 
   private func updatePayload() {
     payload = .open(path: path, application: application)
+  }
+}
+
+struct NewCommandOpenView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .open,
+      payload: .placeholder,
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
   }
 }

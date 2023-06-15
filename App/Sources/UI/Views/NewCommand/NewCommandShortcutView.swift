@@ -14,10 +14,9 @@ struct NewCommandShortcutView: View {
   }
 
   var body: some View {
-    HStack {
+    VStack(alignment: .leading) {
       Label(title: { Text("Shortcut:") }, icon: { EmptyView() })
         .labelStyle(HeaderLabelStyle())
-      Spacer()
       Menu {
         ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in
           Button(shortcut.name, action: {
@@ -34,7 +33,7 @@ struct NewCommandShortcutView: View {
       }
       .background(NewCommandValidationView($validation))
     }
-    .menuStyle(.appStyle(padding: 4))
+    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       withAnimation { validation = updateAndValidatePayload() }
@@ -54,8 +53,17 @@ struct NewCommandShortcutView: View {
   }
 }
 
-//struct NewCommandShortcutView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NewCommandShortcutView()
-//    }
-//}
+struct NewCommandShortcutView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .shortcut,
+      payload: .placeholder,
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
+  }
+}
+

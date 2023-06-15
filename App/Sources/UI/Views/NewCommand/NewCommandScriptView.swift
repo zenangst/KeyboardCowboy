@@ -83,7 +83,8 @@ struct NewCommandScriptView: View {
           }
         })
       }
-      .padding(.vertical)
+      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
+      .padding(.vertical, 8)
 
       switch kind {
       case .file:
@@ -186,8 +187,16 @@ struct NewCommandScriptSourceView: View {
   }
 }
 
-//struct NewCommandScriptView_Previews: PreviewProvider {
-//  static var previews: some View {
-//    NewCommandScriptView()
-//  }
-//}
+struct NewCommandScriptView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .script,
+      payload: .placeholder,
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
+  }
+}

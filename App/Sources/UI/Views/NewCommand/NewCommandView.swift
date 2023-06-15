@@ -2,35 +2,17 @@ import Carbon
 import SwiftUI
 
 struct NewCommandView: View {
-  enum Kind: String, CaseIterable, Identifiable {
+  enum Kind: String, CaseIterable, Hashable, Identifiable {
     var id: String { self.rawValue }
     var rawKey: String {
-      switch self {
-      case .application:
-        return "1"
-      case .url:
-        return "2"
-      case .open:
-        return "3"
-      case .keyboardShortcut:
-        return "4"
-      case .shortcut:
-        return "5"
-      case .script:
-        return "6"
-      case .type:
-        return "7"
-      case .system:
-        return "8"
-      case .menuBar:
-        return "9"
-      }
+      String(Self.allCases.firstIndex(of: self)! + 1)
     }
     var key: KeyEquivalent {
       return KeyEquivalent(rawKey.first!)
     }
 
     case application = "Application"
+    case menuBar = "MenuBar Command"
     case url = "URL"
     case open = "Open"
     case keyboardShortcut = "Keyboard Shortcut"
@@ -38,7 +20,6 @@ struct NewCommandView: View {
     case script = "Script"
     case type = "Type"
     case system = "System Command"
-    case menuBar = "MenuBar Command"
   }
 
   private let workflowId: Workflow.ID
@@ -47,7 +28,7 @@ struct NewCommandView: View {
   @Environment(\.controlActiveState) var controlActiveState
   @State private var payload: NewCommandPayload
   @State private var selection: Kind
-  @State private var validation: NewCommandValidation = .needsValidation
+  @State private var validation: NewCommandValidation
   @State private var title: String
   @State private var hasEdited: Bool = false
   private let onDismiss: () -> Void
@@ -59,11 +40,13 @@ struct NewCommandView: View {
        title: String,
        selection: Kind,
        payload: NewCommandPayload,
+       validation: NewCommandValidation = .needsValidation,
        onDismiss: @escaping () -> Void,
        onSave: @escaping (NewCommandPayload, String) -> Void) {
     _selection = .init(initialValue: selection)
     _payload = .init(initialValue: payload)
     _title = .init(initialValue: title)
+    _validation = .init(initialValue: validation)
     self.workflowId = workflowId
     self.commandId = commandId
     self.onSave = onSave
@@ -264,29 +247,18 @@ struct NewCommandView: View {
 
 struct NewCommandView_Previews: PreviewProvider {
   static var previews: some View {
-    VStack {
-      NewCommandView(
-        workflowId: UUID().uuidString,
-        commandId: nil,
-        title: "New command",
-        selection: .menuBar,
-        payload: .menuBar(tokens: [
-          .pick("View"),
-          .pick("Navigators"),
-          .toggle("Show Navigator", "Hide Navigator")
-        ]),
-        onDismiss: {},
-        onSave: { _, _ in })
-
-//      NewCommandView(
-//        workflowId: UUID().uuidString,
-//        commandId: nil,
-//        title: "New command",
-//        selection: .keyboardShortcut,
-//        payload: .application(application: nil, action: .open, inBackground: false, hideWhenRunning: false, ifNotRunning: false),
-//        onDismiss: {},
-//        onSave: { _, _ in })
-    }
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .menuBar,
+      payload: .menuBar(tokens: [
+        .menuItem(name: "View"),
+        .menuItem(name: "Navigators"),
+        .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
+      ]),
+      onDismiss: {},
+      onSave: { _, _ in })
     .designTime()
   }
 }

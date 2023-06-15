@@ -19,3 +19,17 @@ extension Array: RawRepresentable where Element: Codable {
     return result
   }
 }
+
+extension Array where Element: Identifiable {
+  mutating func replace(_ element: Element) {
+    if let index = firstIndex(where: { $0.id == element.id }) {
+      self[index] = element
+    }
+  }
+
+  mutating func remove(_ element: Element) {
+    if let index = firstIndex(where: { $0.id == element.id }) {
+      remove(at: index)
+    }
+  }
+}
