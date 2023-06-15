@@ -7,10 +7,11 @@ enum MenuBarEngineError: Error {
   case recursionFailed
 }
 
+@MainActor
 final class MenuBarEngine {
-  init() { }
+  nonisolated init() { }
 
-  func execute(_ command: MenuBarCommand) throws {
+  func execute(_ command: MenuBarCommand) async throws {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
       throw MenuBarEngineError.failedToFindFrontmostApplication
     }
