@@ -29,6 +29,7 @@ struct AppTextFieldStyle: TextFieldStyle {
             .opacity(isFocused ? 1 : isHovered ? 0.5 : 0)
             .grayscale(isFocused ? 0 : 1)
         )
+        .padding(2.5)
         .compositingGroup()
         .onHover(perform: { newValue in
           isHovered <- newValue

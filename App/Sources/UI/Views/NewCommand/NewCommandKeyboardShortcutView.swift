@@ -62,9 +62,15 @@ struct NewCommandKeyboardShortcutView: View {
 
 struct NewCommandKeyboardShortcutView_Previews: PreviewProvider {
   static var previews: some View {
-    NewCommandKeyboardShortcutView(.constant(.keyboardShortcut([
-      .init(key: "f")
-    ])), validation: .constant(.unknown))
-      .designTime()
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .keyboardShortcut,
+      payload: .placeholder,
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
   }
 }
+

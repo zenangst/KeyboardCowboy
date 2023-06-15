@@ -4,15 +4,15 @@ struct MenuBarCommand: Equatable, Hashable, Codable {
   enum Token: Identifiable, Equatable, Hashable, Codable {
     var id: String {
       switch self {
-      case .pick(let value):
+      case .menuItem(let value):
         return value
-      case .toggle(let lhs, let rhs):
+      case .menuItems(let lhs, let rhs):
         return lhs + rhs
       }
     }
 
-    case pick(String)
-    case toggle(String, String)
+    case menuItem(name: String)
+    case menuItems(name: String, fallbackName: String)
   }
 
   var id: String

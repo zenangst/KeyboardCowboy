@@ -13,6 +13,10 @@ struct NewCommandTypeView: View {
     _payload = payload
     _validation = validation
     self.onSubmit = onSubmit
+
+    if case .type(let text) = _payload.wrappedValue {
+      _text = .init(initialValue: text)
+    }
   }
 
   var body: some View {
@@ -36,8 +40,16 @@ struct NewCommandTypeView: View {
   }
 }
 
-//struct NewCommandTypeView_Previews: PreviewProvider {
-//  static var previews: some View {
-//    NewCommandTypeView()
-//  }
-//}
+struct NewCommandTypeView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .type,
+      payload: .type(text: "Hello, world!"),
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
+  }
+}

@@ -104,7 +104,7 @@ struct NewCommandURLView: View {
           }
         })
       }
-      .menuStyle(.appStyle(padding: 4))
+      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
       .zIndex(1)
     }
     .textFieldStyle(LargeTextFieldStyle())
@@ -123,5 +123,19 @@ struct NewCommandURLView: View {
     }
     payload = .url(targetUrl: url, application: application)
     return .valid
+  }
+}
+
+struct NewCommandURLView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .url,
+      payload: .url(targetUrl: URL(filePath: "~/"), application: nil),
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
   }
 }

@@ -51,9 +51,9 @@ final class MenuBarEngine {
   private func find(_ token: MenuBarCommand.Token, in items: [MenuBarItemAccessibilityElement]) -> MenuBarItemAccessibilityElement? {
     items.first(where: { item in
       switch token {
-      case .pick(let title):
+      case .menuItem(let title):
         return item.title == title
-      case .toggle(let title1, let title2):
+      case .menuItems(let title1, let title2):
         return item.title == title1 || item.title == title2
       }
     })

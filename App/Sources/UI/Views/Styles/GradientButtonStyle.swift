@@ -3,12 +3,17 @@ import SwiftUI
 struct GradientConfiguration {
   let cornerRadius: CGFloat
   let nsColor: NSColor
-  let padding: Double
+  let padding: Padding
   let grayscaleEffect: Bool
   let hoverEffect: Bool
 
+  struct Padding {
+    let horizontal: CGFloat
+    let vertical: CGFloat?
+  }
+
   internal init(nsColor: NSColor, cornerRadius: CGFloat = 4,
-                padding: Double = 4,
+                padding: Padding = .init(horizontal: 4, vertical: 4),
                 grayscaleEffect: Bool = false,
                 hoverEffect: Bool = true) {
     self.nsColor = nsColor
@@ -34,8 +39,8 @@ struct GradientButtonStyle: ButtonStyle {
 
   func makeBody(configuration: Configuration) -> some View {
     configuration.label
-      .padding(.vertical, config.padding)
-      .padding(.horizontal, config.padding * 1.5)
+      .padding(.vertical, config.padding.vertical)
+      .padding(.horizontal, config.padding.horizontal * 1.5)
       .foregroundColor(Color(.textColor))
       .background(
         ZStack {
@@ -106,7 +111,8 @@ struct GradientMenuStyle: MenuStyle {
       .menuStyle(.borderlessButton)
       .menuIndicator(menuIndicator)
       .foregroundColor(Color(.textColor))
-      .padding(.horizontal, 4)
+      .padding(.horizontal, config.padding.horizontal)
+      .padding(.vertical, config.padding.vertical)
       .frame(minHeight: 24)
       .background(
         ZStack {

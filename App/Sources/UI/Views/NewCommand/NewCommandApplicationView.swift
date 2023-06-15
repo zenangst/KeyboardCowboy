@@ -49,22 +49,7 @@ struct NewCommandApplicationView: View {
         }, label: {
           Text(action.rawValue)
         })
-        .padding(4)
-        .background(
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.white).opacity(0.2), lineWidth: 1)
-            .frame(height: 40)
-        )
-        .menuIndicator(.hidden)
-        .menuStyle(.borderlessButton)
-        .overlay(alignment: .trailing, content: {
-          Image(systemName: "chevron.down")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundColor(Color.white.opacity(0.6))
-            .frame(width: 12)
-            .padding(.trailing, 8)
-        })
+        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, padding: .init(horizontal: 8, vertical: 7)), fixedSize: false))
         .frame(maxWidth: 80)
 
         Menu(content: {
@@ -79,22 +64,30 @@ struct NewCommandApplicationView: View {
               Text(app.displayName)
             })
           }
-        }, label: {
-          if let application {
-            HStack {
+        }, label: { })
+        .overlay(alignment: .leading, content: {
+          HStack {
+            if let application {
               Image(nsImage: NSWorkspace.shared.icon(forFile: application.path))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
               Text(application.displayName)
+            } else {
+              Image(nsImage: NSWorkspace.shared.icon(forFile: "/Applications"))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
+              Text("Select application")
             }
-          } else {
-            Image(nsImage: NSWorkspace.shared.icon(forFile: "/Applications"))
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-            Text("Select application")
           }
+          .padding(.leading, 8)
+          .allowsHitTesting(false)
         })
       }
+      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, padding: .init(horizontal: 8, vertical: 8)), fixedSize: false))
+
+      Divider()
 
       HStack {
         Toggle("In background", isOn: $inBackground)
@@ -125,5 +118,19 @@ struct NewCommandApplicationView: View {
                            inBackground: inBackground,
                            hideWhenRunning: hideWhenRunning, ifNotRunning: ifNotRunning)
     return .valid
+  }
+}
+
+struct NewCommandApplicationView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .application,
+      payload: .placeholder,
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
   }
 }

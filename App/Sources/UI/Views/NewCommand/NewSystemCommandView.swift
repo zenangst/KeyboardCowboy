@@ -12,10 +12,9 @@ struct NewCommandSystemCommandView: View {
   }
 
   var body: some View {
-    HStack {
+    VStack(alignment: .leading) {
       Label(title: { Text("System command:") }, icon: { EmptyView() })
         .labelStyle(HeaderLabelStyle())
-      Spacer()
       Menu {
         ForEach(SystemCommand.Kind.allCases) { kind in
           Button(kind.displayValue, action: {
@@ -32,7 +31,8 @@ struct NewCommandSystemCommandView: View {
       }
       .background(NewCommandValidationView($validation))
     }
-    .menuStyle(.appStyle(padding: 4))
+    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray),
+                                 fixedSize: false))
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       withAnimation { validation = updateAndValidatePayload() }
@@ -49,5 +49,19 @@ struct NewCommandSystemCommandView: View {
     payload = .systemCommand(kind: kind)
 
     return .valid
+  }
+}
+
+struct NewCommandSystemCommandView_Previews: PreviewProvider {
+  static var previews: some View {
+    NewCommandView(
+      workflowId: UUID().uuidString,
+      commandId: nil,
+      title: "New command",
+      selection: .system,
+      payload: .systemCommand(kind: .applicationWindows),
+      onDismiss: {},
+      onSave: { _, _ in })
+    .designTime()
   }
 }
