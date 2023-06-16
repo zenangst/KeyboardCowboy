@@ -125,6 +125,15 @@ enum DesignTime {
           notify: false)
   }
 
+  static var menuBarCommand: DetailViewModel.CommandViewModel {
+    return .init(id: UUID().uuidString, name: "",
+                 kind: .menuBar(tokens: [
+                  .menuItem(name: "View"),
+                  .menuItem(name: "Navigators"),
+                  .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
+                 ]), isEnabled: true, notify: false)
+  }
+
   static var openCommand: DetailViewModel.CommandViewModel {
     let homeDirectory = ("~/" as NSString).expandingTildeInPath
     return .init(id: UUID().uuidString,
@@ -183,6 +192,7 @@ enum DesignTime {
       isEnabled: true,
       trigger: .keyboardShortcuts([.init(key: "f", lhs: true, modifiers: [.function])]),
       commands: [
+        Self.menuBarCommand,
         Self.applicationCommand,
         Self.openCommand,
         Self.scriptCommandWithPath,

@@ -24,27 +24,62 @@ struct MenuBarCommandView: View {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
           .cornerRadius(8, antialiased: false)
+          .frame(width: 32, height: 32)
         Image(nsImage: NSWorkspace.shared.icon(forFile:"/System/Library/PreferencePanes/Appearance.prefPane"))
           .resizable()
-          .aspectRatio(1, contentMode: .fill)
-          .frame(width: 32)
+          .aspectRatio(1, contentMode: .fit)
+          .frame(width: 28, height: 28)
       }
     } content: { _ in
-      VStack(alignment: .leading, spacing: 4) {
-        ForEach(tokens) { token in
-          switch token {
-          case .menuItem(let name):
-            Text(name)
-          case .menuItems(let lhs, let rhs):
-            HStack(spacing: 0) {
-              Text(lhs).bold()
-              Text(" or ")
-              Text(rhs).bold()
+      ScrollView {
+        HStack(spacing: 4) {
+          ForEach(tokens) { token in
+            switch token {
+            case .menuItem(let name):
+              HStack(spacing: 0) {
+                Text(name)
+                  .lineLimit(1)
+                  .fixedSize(horizontal: true, vertical: true)
+                if token != tokens.last {
+                  Text("❯")
+                    .padding(.leading, 4)
+                }
+              }
+            case .menuItems(let lhs, let rhs):
+              HStack(spacing: 0) {
+                Text(lhs).bold()
+                  .lineLimit(1)
+                  .fixedSize(horizontal: true, vertical: true)
+                Text(" or ")
+                Text(rhs).bold()
+                  .lineLimit(1)
+                  .fixedSize(horizontal: true, vertical: true)
+                if token != tokens.last {
+                  Text("❯")
+                    .padding(.leading, 4)
+                }
+              }
             }
           }
+          .padding(4)
+          .background(
+            RoundedRectangle(cornerRadius: 4)
+              .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+          )
+          .background(
+            RoundedRectangle(cornerRadius: 4)
+              .fill(
+                LinearGradient(colors: [
+                  Color(nsColor: .windowBackgroundColor),
+                  Color(nsColor: .gridColor),
+                ], startPoint: .top, endPoint: .bottom)
+              )
+          )
+          .shadow(radius: 3)
+          .font(.caption)
         }
-        .padding(.horizontal, 4)
-        .font(.caption)
+        .padding(.horizontal, 2)
+        .padding(.vertical, 6)
       }
     } subContent: { _ in
       Button {
@@ -71,9 +106,10 @@ struct MenuBarCommandView_Previews: PreviewProvider {
   static var previews: some View {
     MenuBarCommandView(.constant(command),
                        tokens: .constant([
-                        .menuItem(name: "View"),
-                        .menuItem(name: "Navigators"),
-                        .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
+                        .menuItem(name: "Editor"),
+                        .menuItem(name: "Canvas"),
+//                        .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
                        ])) { _ in }
+      .frame(maxHeight: 80)
   }
 }
