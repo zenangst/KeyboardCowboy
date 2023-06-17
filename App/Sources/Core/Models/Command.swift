@@ -73,7 +73,7 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
   case menuBar(MenuBarCommand)
   case open(OpenCommand)
   case shortcut(ShortcutCommand)
-  case script(ScriptCommand)
+  case script(OldScriptCommand)
   case type(TypeCommand)
   case systemCommand(SystemCommand)
 
@@ -118,7 +118,7 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       let command = try container.decode(OpenCommand.self, forKey: .open)
       self = .open(command)
     case .script:
-      let command = try container.decode(ScriptCommand.self, forKey: .script)
+      let command = try container.decode(OldScriptCommand.self, forKey: .script)
       self = .script(command)
     case .shortcut:
       let command = try container.decode(ShortcutCommand.self, forKey: .shortcut)
@@ -210,11 +210,11 @@ extension Command {
   }
 
   static func appleScriptCommand(id: String) -> Command {
-    Command.script(ScriptCommand.empty(.appleScript, id: id))
+    Command.script(OldScriptCommand.empty(.appleScript, id: id))
   }
 
   static func shellScriptCommand(id: String) -> Command {
-    Command.script(ScriptCommand.empty(.shell, id: id))
+    Command.script(OldScriptCommand.empty(.shell, id: id))
   }
 
   static func shortcutCommand(id: String) -> Command {

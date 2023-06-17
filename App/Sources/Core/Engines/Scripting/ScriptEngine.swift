@@ -17,7 +17,7 @@ final class ScriptEngine {
     self.plugins = Plugins(workspace: workspace)
   }
 
-  func run(_ command: ScriptCommand) async throws -> String? {
+  func run(_ command: OldScriptCommand) async throws -> String? {
     var result: String?
     switch command {
     case .appleScript(let id, _, _, let source):
