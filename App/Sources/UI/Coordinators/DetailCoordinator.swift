@@ -113,7 +113,7 @@ final class DetailCoordinator {
     case .keyboardShortcut(let keyShortcuts):
       command = .keyboard(.init(keyboardShortcuts: keyShortcuts, notification: false))
     case .script(let value, let kind, let scriptExtension):
-      let source: OldScriptCommand.Source
+      let source: ScriptCommand.Source
       switch kind {
       case .file:
         source = .path(value)
@@ -123,9 +123,9 @@ final class DetailCoordinator {
 
       switch scriptExtension {
       case .appleScript:
-        command = .script(.appleScript(id: resolvedCommandId, isEnabled: true, name: title, source: source))
+        command = .script(.init(name: title, kind: .appleScript, source: source, notification: false))
       case .shellScript:
-        command = .script(.shell(id: resolvedCommandId, isEnabled: true, name: title, source: source))
+        command = .script(.init(name: title, kind: .shellScript, source: source, notification: false))
       }
     case .type(let text):
       // TODO: Add support for notification toggling

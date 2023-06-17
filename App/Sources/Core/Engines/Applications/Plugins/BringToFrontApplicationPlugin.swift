@@ -19,12 +19,8 @@ final class BringToFrontApplicationPlugin {
         """
 
     try Task.checkCancellation()
-
     _ = try await engine.run(
-      OldScriptCommand.appleScript(
-        id: "BringToFrontApplicationPlugin",
-        isEnabled: true,
-        name: "BringToFrontApplicationPlugin",
-        source: .inline(source)))
+      ScriptCommand(name: "BringToFrontApplicationPlugin", kind: .appleScript, source: .inline(source), notification: false)
+    )
   }
 }

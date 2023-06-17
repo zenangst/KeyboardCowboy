@@ -11,10 +11,9 @@ final class ShortcutsEngine {
     let source = """
     shortcuts run "\(command.shortcutIdentifier)"
     """
-    let command = OldScriptCommand.shell(
+    let shellScript = ScriptCommand(
       id: "ShortcutCommand.\(command.shortcutIdentifier)",
-      isEnabled: true, name: command.name,
-      source: .inline(source))
-    _ = try await engine.run(command)
+      name: command.name, kind: .shellScript, source: .inline(source), notification: false)
+    _ = try await engine.run(shellScript)
   }
 }
