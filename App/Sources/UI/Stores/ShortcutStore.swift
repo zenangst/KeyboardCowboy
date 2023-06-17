@@ -13,7 +13,7 @@ final class ShortcutStore: ObservableObject {
     let source = """
     shortcuts list
     """
-    let script = ScriptCommand.shell(id: "ShortcutStore", isEnabled: true,
+    let script = OldScriptCommand.shell(id: "ShortcutStore", isEnabled: true,
                                      name: "List shorcuts", source: .inline(source))
 
     Task {

@@ -128,7 +128,7 @@ final class DetailCommandActionReducer {
       case .script(let action, _, _):
         switch action {
         case .updateSource(let newKind):
-          let scriptCommand: ScriptCommand
+          let scriptCommand: OldScriptCommand
           switch newKind {
           case .path(let id, let source, let kind):
             switch kind {

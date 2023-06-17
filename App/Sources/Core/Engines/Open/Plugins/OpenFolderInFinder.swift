@@ -22,7 +22,7 @@ final class OpenFolderInFinder {
         set the target of the front Finder window to folder ("\(url.path)" as POSIX file)
       end tell
       """
-    let script = ScriptCommand.appleScript(
+    let script = OldScriptCommand.appleScript(
       id: "OpenFolderInFinder.\(command.path)",
       isEnabled: true,
       name: "Open folder in Finder: \(command.path)",

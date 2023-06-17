@@ -135,7 +135,7 @@ private extension Array where Element == Command {
             kind: .icon(.init(bundleIdentifier: path, path: path)))
         )
       case .script(let script):
-        let scriptExtension: ScriptCommand.Kind
+        let scriptExtension: OldScriptCommand.Kind
         switch script {
         case .appleScript:
           scriptExtension = .appleScript

@@ -113,7 +113,7 @@ final class DetailCoordinator {
     case .keyboardShortcut(let keyShortcuts):
       command = .keyboard(.init(keyboardShortcuts: keyShortcuts, notification: false))
     case .script(let value, let kind, let scriptExtension):
-      let source: ScriptCommand.Source
+      let source: OldScriptCommand.Source
       switch kind {
       case .file:
         source = .path(value)
