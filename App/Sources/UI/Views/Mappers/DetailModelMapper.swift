@@ -118,6 +118,7 @@ final class DetailModelMapper {
       name: name,
       kind: kind,
       icon: command.icon,
+      delay: command.meta.delay,
       isEnabled: command.isEnabled,
       notify: command.notification
     )

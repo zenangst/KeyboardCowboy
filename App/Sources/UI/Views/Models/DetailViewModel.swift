@@ -82,6 +82,7 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     var name: String
     var kind: Kind
     var icon: IconViewModel?
+    var delay: Double?
     var isEnabled: Bool
     var notify: Bool
 

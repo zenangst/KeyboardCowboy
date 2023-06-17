@@ -43,7 +43,9 @@ enum MetaDataMigrator: String, CodingKey {
     let name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
     let isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
     let notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
-    return Command.MetaData(id: id, name: name, isEnabled: isEnabled, notification: notification)
+    let delay = try container.decodeIfPresent(Double.self, forKey: .delay)
+    return Command.MetaData(delay: delay, id: id, name: name,
+                            isEnabled: isEnabled, notification: notification)
   }
 }
 
