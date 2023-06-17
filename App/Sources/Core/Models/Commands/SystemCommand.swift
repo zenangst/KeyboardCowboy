@@ -1,6 +1,6 @@
 import Foundation
 
-struct SystemCommand: Identifiable, Equatable, Codable, Hashable, Sendable {
+struct SystemCommand: MetaDataProviding {
   enum Kind: String, Identifiable, Codable, CaseIterable {
     var id: String { rawValue }
 
@@ -37,9 +37,21 @@ struct SystemCommand: Identifiable, Equatable, Codable, Hashable, Sendable {
     case missionControl
     case showDesktop
   }
-  var id: String
-  var name: String
   var kind: Kind
-  var isEnabled: Bool = true
-  var notification: Bool
+  var meta: Command.MetaData
+
+  init(id: String = UUID().uuidString, name: String, kind: Kind, notification: Bool) {
+    self.kind = kind
+    self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.kind = try container.decode(Kind.self, forKey: .kind)
+    do {
+      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    } catch {
+      self.meta = try MetaDataMigrator.migrate(decoder)
+    }
+  }
 }

@@ -3,8 +3,8 @@ import Foundation
 
 /// An application command is a container that is used for
 /// launching or activing applications.
-public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
-  public enum Modifier: String, Toggleable, Codable, Hashable, CaseIterable, Sendable {
+struct ApplicationCommand: MetaDataProviding {
+  enum Modifier: String, Toggleable, Codable, Hashable, CaseIterable, Sendable {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {
@@ -18,7 +18,7 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
     case onlyIfNotRunning
   }
 
-  public enum Action: String, Codable, Hashable, Equatable, Toggleable, Sendable {
+  enum Action: String, Codable, Hashable, Equatable, Toggleable, Sendable {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {
@@ -29,51 +29,38 @@ public struct ApplicationCommand: Identifiable, Codable, Hashable, Sendable {
     case open, close
   }
 
-  public var id: String
-  public var name: String
-  public var application: Application
-  public var action: Action
-  public var modifiers: Set<Modifier>
-  public var isEnabled: Bool = true
-  public var notification: Bool
+  var application: Application
+  var action: Action
+  var modifiers: Set<Modifier>
+  var meta: Command.MetaData
 
-  public init(id: String = UUID().uuidString, name: String = "",
+  init(id: String = UUID().uuidString,
+              name: String = "",
               action: Action = .open,
               application: Application,
               modifiers: [Modifier] = [],
               notification: Bool = false) {
-    self.id = id
-    self.name = name
+    self.meta = Command.MetaData(id: id, name: name,
+                                 isEnabled: true, notification: notification)
     self.application = application
     self.modifiers = Set(modifiers)
     self.action = action
-    self.notification = notification
   }
 
-  enum CodingKeys: String, CodingKey {
-    case id
-    case name
-    case action
-    case application
-    case modifiers
-    case isEnabled = "enabled"
-    case notification
-  }
-
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-    self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
-    self.action = try container.decodeIfPresent(Action.self, forKey: .action) ?? .open
     self.application = try container.decode(Application.self, forKey: .application)
-    self.modifiers = try container.decodeIfPresent(Set<Modifier>.self, forKey: .modifiers) ?? []
-    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
-    self.notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
+    self.action = try container.decode(ApplicationCommand.Action.self, forKey: .action)
+    self.modifiers = try container.decode(Set<ApplicationCommand.Modifier>.self, forKey: .modifiers)
+    do {
+      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    } catch {
+      self.meta = try MetaDataMigrator.migrate(decoder)
+    }
   }
 }
 
-public extension ApplicationCommand {
+extension ApplicationCommand {
   static func empty() -> ApplicationCommand {
     ApplicationCommand(action: .open,
                        application: Application(bundleIdentifier: "", bundleName: "", path: ""),
