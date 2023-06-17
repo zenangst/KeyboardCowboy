@@ -63,6 +63,11 @@ final class Storage {
 
     do {
       let result = try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
+
+      if MetaDataMigrator.didMigrate {
+         try save(result)
+      }
+
       return result
     } catch {
       do {

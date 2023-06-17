@@ -3,7 +3,6 @@ import Foundation
 import SwiftUI
 
 final class ConfigurationStore: ObservableObject {
-  static var didMigrate: Bool = false
   static var appStorage: AppStorageStore = .init()
   @Published private(set) var configurations = [KeyboardCowboyConfiguration]()
   @Published private(set) var selectedConfiguration: KeyboardCowboyConfiguration = .empty()
