@@ -51,7 +51,7 @@ enum MetaDataMigrator: String, CodingKey {
 /// A `Command` is a polymorphic entity that is used
 /// to store multiple command types in the same workflow.
 /// All underlying data-types are both `Codable` and `Hashable`.
-enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
+enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sendable {
   struct MetaData: Identifiable, Codable, Hashable, Sendable {
     public var delay: Double?
     public var id: String
@@ -65,6 +65,53 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       case name
       case isEnabled = "enabled"
       case notification
+    }
+  }
+
+  var meta: MetaData {
+    get {
+      switch self {
+      case .application(let applicationCommand):
+        return applicationCommand.meta
+      case .builtIn(let builtInCommand):
+        return builtInCommand.meta
+      case .keyboard(let keyboardCommand):
+        return keyboardCommand.meta
+      case .menuBar(let menuBarCommand):
+        return menuBarCommand.meta
+      case .open(let openCommand):
+        return openCommand.meta
+      case .shortcut(let shortcutCommand):
+        return shortcutCommand.meta
+      case .script(let scriptCommand):
+        return scriptCommand.meta
+      case .type(let typeCommand):
+        return typeCommand.meta
+      case .systemCommand(let systemCommand):
+        return systemCommand.meta
+      }
+    }
+    set {
+      switch self {
+      case .application(var applicationCommand):
+        applicationCommand.meta = newValue
+      case .builtIn(var builtInCommand):
+        builtInCommand.meta = newValue
+      case .keyboard(var keyboardCommand):
+        keyboardCommand.meta = newValue
+      case .menuBar(var menuBarCommand):
+        menuBarCommand.meta = newValue
+      case .open(var openCommand):
+        openCommand.meta = newValue
+      case .shortcut(var shortcutCommand):
+        shortcutCommand.meta = newValue
+      case .script(var scriptCommand):
+        scriptCommand.meta = newValue
+      case .type(var typeCommand):
+        typeCommand.meta = newValue
+      case .systemCommand(var systemCommand):
+        systemCommand.meta = newValue
+      }
     }
   }
 
