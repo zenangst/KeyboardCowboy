@@ -98,8 +98,8 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     }
 
     enum ScriptKind: Codable, Hashable, Identifiable, Sendable {
-      case inline(id: String, source: String, scriptExtension: OldScriptCommand.Kind)
-      case path(id: String, source: String, scriptExtension: OldScriptCommand.Kind)
+      case inline(id: String, source: String, scriptExtension: ScriptCommand.Kind)
+      case path(id: String, source: String, scriptExtension: ScriptCommand.Kind)
     }
   }
 }

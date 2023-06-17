@@ -125,28 +125,26 @@ struct NewCommandWindow: Scene {
       let source: String
       let kind: NewCommandScriptView.Kind
       let scriptExtension: NewCommandScriptView.ScriptExtension
-      switch scriptCommand {
-      case .appleScript(_ ,_, _, let newSource):
-        switch newSource {
-        case .path(let path):
-          source = path
-          kind = .file
-        case .inline(let newSource):
-          source = newSource
-          kind = .source
-        }
+
+      switch (scriptCommand.kind, scriptCommand.source) {
+      case (.appleScript, .inline(let newSource)):
+        source = newSource
+        kind = .source
         scriptExtension = .appleScript
-      case .shell(_ ,_, _, let newSource):
-        switch newSource {
-        case .path(let path):
-          source = path
-          kind = .file
-        case .inline(let newSource):
-          source = newSource
-          kind = .source
-        }
+      case (.appleScript, .path(let path)):
+        source = path
+        kind = .file
+        scriptExtension = .appleScript
+      case (.shellScript, .inline(let newSource)):
+        source = newSource
+        kind = .source
+        scriptExtension = .shellScript
+      case (.shellScript, .path(let path)):
+        source = path
+        kind = .file
         scriptExtension = .shellScript
       }
+
       return .script(value: source, kind: kind, scriptExtension: scriptExtension)
     case .type(let typeCommand):
       return .type(text: typeCommand.input)

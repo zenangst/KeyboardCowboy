@@ -51,7 +51,6 @@ enum MetaDataMigrator: String, CodingKey {
 /// All underlying data-types are both `Codable` and `Hashable`.
 enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
   struct MetaData: Identifiable, Codable, Hashable, Sendable {
-
     public var delay: Double?
     public var id: String
     public var name: String
@@ -73,7 +72,7 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
   case menuBar(MenuBarCommand)
   case open(OpenCommand)
   case shortcut(ShortcutCommand)
-  case script(OldScriptCommand)
+  case script(ScriptCommand)
   case type(TypeCommand)
   case systemCommand(SystemCommand)
 
@@ -118,7 +117,7 @@ enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
       let command = try container.decode(OpenCommand.self, forKey: .open)
       self = .open(command)
     case .script:
-      let command = try container.decode(OldScriptCommand.self, forKey: .script)
+      let command = try container.decode(ScriptCommand.self, forKey: .script)
       self = .script(command)
     case .shortcut:
       let command = try container.decode(ShortcutCommand.self, forKey: .shortcut)
@@ -178,8 +177,7 @@ extension Command {
     case .open:
       return Command.open(.init(path: "", notification: false))
     case .script:
-      return Command.script(.appleScript(id: UUID().uuidString, isEnabled: true,
-                                         name: nil, source: .path("")))
+      return Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))
     case .shortcut:
       return Command.shortcut(.init(id: UUID().uuidString, shortcutIdentifier: "",
                                     name: "", isEnabled: true, notification: false))
@@ -210,11 +208,11 @@ extension Command {
   }
 
   static func appleScriptCommand(id: String) -> Command {
-    Command.script(OldScriptCommand.empty(.appleScript, id: id))
+    Command.script(.init(id: id, name: "", kind: .appleScript, source: .path(""), notification: false))
   }
 
   static func shellScriptCommand(id: String) -> Command {
-    Command.script(OldScriptCommand.empty(.shell, id: id))
+    Command.script(.init(id: id, name: "", kind: .shellScript, source: .path(""), notification: false))
   }
 
   static func shortcutCommand(id: String) -> Command {

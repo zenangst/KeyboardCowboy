@@ -71,25 +71,18 @@ final class CommandEngine: CommandRunning {
       case .open(let openCommand):
         workspace.reveal(openCommand.path)
       case .script(let scriptCommand):
-        switch scriptCommand {
-        case .appleScript(_, _, _, let source),
-            .shell(_, _, _, let source):
-          switch source {
-          case .path(let path):
-            workspace.reveal(path)
-          case .inline:
-            // TODO: Open editing for this particular script.
-            break
-          }
+        if case .path(let path) = scriptCommand.source {
+          workspace.reveal(path)
         }
       case .shortcut(let shortcut):
         Task(priority: .userInitiated) {
           let source = """
           shortcuts view "\(shortcut.shortcutIdentifier)"
           """
-          _ = try await engines.script.run(.shell(id: UUID().uuidString, isEnabled: true,
-                                                  name: "Reveal \(shortcut.shortcutIdentifier)",
-                                                  source: .inline(source)))
+          let shellScript = ScriptCommand(name: "Reveal \(shortcut.shortcutIdentifier)",
+                                          kind: .shellScript, source: .inline(source), notification: false)
+
+          _ = try await engines.script.run(shellScript)
         }
       case .builtIn, .keyboard, .type,
            .systemCommand, .menuBar:

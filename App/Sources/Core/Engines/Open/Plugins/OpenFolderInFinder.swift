@@ -22,11 +22,10 @@ final class OpenFolderInFinder {
         set the target of the front Finder window to folder ("\(url.path)" as POSIX file)
       end tell
       """
-    let script = OldScriptCommand.appleScript(
-      id: "OpenFolderInFinder.\(command.path)",
-      isEnabled: true,
-      name: "Open folder in Finder: \(command.path)",
-      source: .inline(source))
+    let script = ScriptCommand(name: "Open folder in Finder: \(command.path)",
+                               kind: .appleScript,
+                               source: .inline(source),
+                               notification: false)
     try Task.checkCancellation()
     _ = try await engine.run(script)
   }

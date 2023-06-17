@@ -48,15 +48,9 @@ extension Command {
       case .open(var command):
         command.name = newValue
         self = .open(command)
-      case .script(let command):
-        switch command {
-        case .appleScript(let id, let isEnabled, _, let source):
-          self = .script(.appleScript(id: id, isEnabled: isEnabled,
-                                      name: newValue, source: source))
-        case .shell(let id, let isEnabled, _, let source):
-          self = .script(.shell(id: id, isEnabled: isEnabled,
-                                name: newValue, source: source))
-        }
+      case .script(var command):
+        command.name = newValue
+        self = .script(command)
       case .shortcut(var command):
         command.name = newValue
         self = .shortcut(command)

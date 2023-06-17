@@ -17,23 +17,18 @@ final class ScriptEngine {
     self.plugins = Plugins(workspace: workspace)
   }
 
-  func run(_ command: OldScriptCommand) async throws -> String? {
+  func run(_ command: ScriptCommand) async throws -> String? {
     var result: String?
-    switch command {
-    case .appleScript(let id, _, _, let source):
-      switch source {
-      case .path(let path):
-        result = try await plugins.appleScript.executeScript(at: path, withId: id)
-      case .inline(let script):
-        result = try await plugins.appleScript.execute(script, withId: id)
-      }
-    case .shell(_, _, _, let source):
-      switch source {
-      case .path(let path):
-        result = try plugins.shellScript.executeScript(at: path)
-      case .inline(let source):
-        result = try plugins.shellScript.executeScript(source)
-      }
+
+    switch (command.kind, command.source) {
+    case (.appleScript, .path(let source)):
+      result = try await plugins.appleScript.execute(source, withId: command.id)
+    case (.appleScript, .inline(let script)):
+      result = try await plugins.appleScript.execute(script, withId: command.id)
+    case (.shellScript, .path(let source)):
+      result = try plugins.shellScript.executeScript(at: source)
+    case (.shellScript, .inline(let script)):
+      result = try plugins.shellScript.executeScript(script)
     }
 
     return result

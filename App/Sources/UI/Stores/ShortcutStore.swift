@@ -10,14 +10,11 @@ final class ShortcutStore: ObservableObject {
   }
 
   func index() {
-    let source = """
-    shortcuts list
-    """
-    let script = OldScriptCommand.shell(id: "ShortcutStore", isEnabled: true,
-                                     name: "List shorcuts", source: .inline(source))
+    let shellScript = ScriptCommand(name: "List shortcuts", kind: .shellScript,
+                                    source: .inline("shortcuts list"), notification: false)
 
     Task {
-      guard let result = try await engine.run(script) else {
+      guard let result = try await engine.run(shellScript) else {
         return
       }
 

@@ -17,14 +17,12 @@ final class DropCommandsController {
         commands.append(Command.application(applicationCommand))
       case .applescript:
         let name = "Run \(url.lastPathComponent)"
-        commands.append(Command.script(.appleScript(id: UUID().uuidString,
-                                                    isEnabled: true,
-                                                    name: name, source: .path(url.path))))
+        let command = Command.script(.init(name: name, kind: .appleScript, source: .path(url.path), notification: false))
+        commands.append(command)
       case .shellscript:
         let name = "Run \(url.lastPathComponent)"
-        commands.append(Command.script(.shell(id: UUID().uuidString,
-                                              isEnabled: true,
-                                              name: name, source: .path(url.path))))
+        let command = Command.script(.init(name: name, kind: .shellScript, source: .path(url.path), notification: false))
+        commands.append(command)
       case .file:
         let name = "Open \(url.lastPathComponent)"
         commands.append(Command.open(.init(name: name, path: url.path, notification: false)))

@@ -94,11 +94,11 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                      workflows: [
                       Workflow(name: "Open a specific note",
                                commands: [
-                                .script(.appleScript(name: "Show note", source: .inline("""
+                                .script(.init(name: "Show note", kind: .appleScript, source: .inline("""
                                   tell application "Notes"
                                       show note "awesome note"
                                   end tell
-                                  """)))
+                                  """), notification: false))
                                ])
                      ]),
         WorkflowGroup(symbol: "folder", name: "Files & Folders", color: "#6BD35F",

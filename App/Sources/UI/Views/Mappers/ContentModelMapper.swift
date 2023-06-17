@@ -135,27 +135,19 @@ private extension Array where Element == Command {
             kind: .icon(.init(bundleIdentifier: path, path: path)))
         )
       case .script(let script):
-        let scriptExtension: OldScriptCommand.Kind
-        switch script {
-        case .appleScript:
-          scriptExtension = .appleScript
-        case .shell:
-          scriptExtension = .shellScript
-        }
-
-        switch script.sourceType {
+        switch script.source {
         case .inline(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
                               kind: .command(.script(.inline(id: script.id,
                                                              source: source,
-                                                             scriptExtension: scriptExtension)))))
+                                                             scriptExtension: script.kind)))))
         case .path(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
                               kind: .command(.script(.path(id: script.id,
                                                            source: source,
-                                                           scriptExtension: scriptExtension)))))
+                                                           scriptExtension: script.kind)))))
         }
       case .shortcut(let shortcut):
         images.append(.init(id: shortcut.id, offset: convertedOffset, kind: .command(.shortcut)))

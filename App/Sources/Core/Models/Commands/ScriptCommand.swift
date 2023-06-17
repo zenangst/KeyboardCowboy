@@ -6,9 +6,9 @@ struct ScriptCommand: MetaDataProviding {
     case shellScript = "sh"
   }
 
-  enum Source: String, Codable, Sendable {
-    case path
-    case inline
+  enum Source: Hashable, Codable, Sendable {
+    case path(String)
+    case inline(String)
   }
 
   var kind: Kind

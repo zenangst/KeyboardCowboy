@@ -95,18 +95,15 @@ final class DetailModelMapper {
       kind = .shortcut
       name = command.name
     case .script(let script):
-      switch script {
-      case .appleScript(_ , _, _, let source),
-          .shell(_ , _, _, let source):
-        switch source {
-        case .path(let source):
-          kind = .script(.path(id: script.id,
-                               source: source,
-                               scriptExtension: script.kind))
-        case .inline(let source):
-          kind = .script(.inline(id: script.id, source: source, scriptExtension: script.kind))
-        }
+      let source: String
+      switch script.source {
+      case .path(let string):
+        source = string
+      case .inline(let string):
+        source = string
       }
+
+      kind = .script(.inline(id: script.id, source: source, scriptExtension: script.kind))
       name = command.name
     case .type(let type):
       kind = .type(input: type.input)
@@ -146,8 +143,16 @@ private extension Command {
         path = command.path
       }
       return .init(bundleIdentifier: path, path: path)
-    case .script(let kind):
-      return .init(bundleIdentifier: kind.path, path: kind.path)
+    case .script(let scriptCommand):
+      let path: String
+      switch scriptCommand.source {
+      case .path(let sourcePath):
+        path = sourcePath
+      case .inline:
+        path = ""
+      }
+
+      return .init(bundleIdentifier: path, path: path)
     case .shortcut:
       return nil
     case .type:
