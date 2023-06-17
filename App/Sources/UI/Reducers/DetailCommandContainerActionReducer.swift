@@ -11,6 +11,8 @@ final class DetailCommandContainerActionReducer {
       command.isEnabled = isEnabled
     case .toggleNotify(let newValue):
       command.notification = newValue
+    case .changeDelay(let delay):
+      command.meta.delay = delay
     }
   }
 }

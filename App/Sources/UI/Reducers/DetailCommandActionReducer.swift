@@ -10,6 +10,9 @@ final class DetailCommandActionReducer {
     }
 
     switch action {
+    case .changeDelay(_, _, let newValue):
+      command.delay = newValue
+      workflow.updateOrAddCommand(command)
     case .toggleEnabled(_, _, let newValue):
       command.isEnabled = newValue
       workflow.updateOrAddCommand(command)

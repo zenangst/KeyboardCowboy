@@ -25,6 +25,12 @@ extension MetaDataProviding {
     get { meta.isEnabled }
     set { meta.isEnabled = newValue }
   }
+
+  var delay: Double? {
+    get { meta.delay }
+    set { meta.delay = newValue }
+  }
+
 }
 
 enum MetaDataMigrator: String, CodingKey {

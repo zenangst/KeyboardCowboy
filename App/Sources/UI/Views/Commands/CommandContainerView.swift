@@ -3,6 +3,7 @@ import SwiftUI
 enum CommandContainerAction {
   case run
   case delete
+  case changeDelay(Double?)
   case toggleIsEnabled(Bool)
   case toggleNotify(Bool)
 }
@@ -10,8 +11,13 @@ enum CommandContainerAction {
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
-  @State var isEnabled: Bool
-  @State var notify: Bool
+  @State private var isEnabled: Bool
+  @State private var notify: Bool
+  @State private var delay: Double?
+  @State private var delayString: String = ""
+  @State private var delayOverlay: Bool = false
+
+  @EnvironmentObject var detailPublisher: DetailPublisher
   @Binding private var command: DetailViewModel.CommandViewModel
   private let icon: (Binding<DetailViewModel.CommandViewModel>) -> IconContent
   private let content: (Binding<DetailViewModel.CommandViewModel>) -> Content
@@ -25,6 +31,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
        onAction: @escaping (CommandContainerAction) -> Void) {
     _isEnabled = .init(initialValue: command.isEnabled.wrappedValue)
     _notify = .init(initialValue: command.notify.wrappedValue)
+    _delay = .init(initialValue: command.delay.wrappedValue)
     _command = command
     self.icon = icon
     self.content = content
@@ -60,6 +67,47 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
               .onChange(of: notify) { newValue in
                 onAction(.toggleNotify(newValue))
               }
+
+            if detailPublisher.data.execution == .serial {
+              Button {
+                delayOverlay = true
+              } label: {
+                HStack {
+                  if let delay {
+                    Text("\(Int(delay)) milliseconds")
+                      .font(.caption)
+                  } else {
+                    Text("No delay")
+                      .font(.caption)
+                  }
+                  Divider()
+                    .frame(height: 6)
+                  Image(systemName: "chevron.down")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 6, height: 6)
+                }
+              }
+              .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGray)))
+              .popover(isPresented: $delayOverlay, content: {
+                HStack {
+                  TextField("Delay", text: $delayString) { isEditing in
+                    if !isEditing {
+                      if let value = Double(self.delayString) {
+                        if value > 0 {
+                          self.delay = value
+                        } else {
+                          self.delay = nil
+                        }
+                        onAction(.changeDelay(value))
+                      }
+                    }
+                  }
+                }
+                .padding(16)
+              })
+            }
+
             subContent($command)
           }
             .buttonStyle(.appStyle)

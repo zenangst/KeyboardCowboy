@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CommandView: View {
   enum Action {
+    case changeDelay(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID, newValue: Double?)
     case toggleNotify(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID, newValue: Bool)
     case toggleEnabled(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID, newValue: Bool)
     case modify(Kind)
@@ -238,6 +239,8 @@ struct CommandResolverView: View {
       onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
     case .toggleNotify(let newValue):
       onAction(.toggleNotify(workflowId: workflowId, commandId: command.id, newValue: newValue))
+    case .changeDelay(let newValue):
+      onAction(.changeDelay(workflowId: workflowId, commandId: command.id, newValue: newValue))
     }
   }
 }

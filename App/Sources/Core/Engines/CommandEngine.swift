@@ -102,7 +102,9 @@ final class CommandEngine: CommandRunning {
           do {
             try await self.run(command)
           } catch { }
-          try await Task.sleep(for: .milliseconds(50))
+          if let delay = command.delay {
+            try await Task.sleep(for: .milliseconds(delay))
+          }
         }
       }
     }
