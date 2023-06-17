@@ -2,7 +2,6 @@ import SwiftUI
 
 struct TypeCommandView: View {
   enum Action {
-    case toggleNotify(newValue: Bool)
     case updateName(newName: String)
     case updateSource(newInput: String)
     case commandAction(CommandContainerAction)
@@ -45,16 +44,7 @@ struct TypeCommandView: View {
           .onChange(of: source) { newInput in
             onAction(.updateSource(newInput: newInput))
           }
-      }, subContent: { command in
-        Toggle("Notify", isOn: $notify)
-          .onChange(of: notify) { newValue in
-            onAction(.toggleNotify(newValue: newValue))
-          }
-          .lineLimit(1)
-          .allowsTightening(true)
-          .truncationMode(.tail)
-          .font(.caption)
-      }, onAction: { onAction(.commandAction($0)) })
+      }, subContent: { _ in }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()
   }
 }

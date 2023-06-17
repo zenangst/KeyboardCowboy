@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ShortcutCommandView: View {
   enum Action {
-    case toggleNotify(newValue: Bool)
     case updateName(newName: String)
     case openShortcuts
     case commandAction(CommandContainerAction)
@@ -37,17 +36,6 @@ struct ShortcutCommandView: View {
         })
     }, subContent: { command in
       HStack {
-        Toggle("Notify", isOn: $notify)
-          .onChange(of: notify) { newValue in
-            onAction(.toggleNotify(newValue: newValue))
-          }
-          .lineLimit(1)
-          .allowsTightening(true)
-          .truncationMode(.tail)
-          .font(.caption)
-
-        Text("|")
-
         Button("Open Shortcuts", action: { onAction(.openShortcuts) })
           .buttonStyle(GradientButtonStyle(.init(nsColor: .systemPurple, grayscaleEffect: true)))
           .font(.caption)

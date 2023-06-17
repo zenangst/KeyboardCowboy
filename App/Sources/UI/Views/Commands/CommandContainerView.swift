@@ -4,12 +4,14 @@ enum CommandContainerAction {
   case run
   case delete
   case toggleIsEnabled(Bool)
+  case toggleNotify(Bool)
 }
 
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
   @State var isEnabled: Bool
+  @State var notify: Bool
   @Binding private var command: DetailViewModel.CommandViewModel
   private let icon: (Binding<DetailViewModel.CommandViewModel>) -> IconContent
   private let content: (Binding<DetailViewModel.CommandViewModel>) -> Content
@@ -22,6 +24,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
        @ViewBuilder subContent: @escaping (Binding<DetailViewModel.CommandViewModel>) -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
     _isEnabled = .init(initialValue: command.isEnabled.wrappedValue)
+    _notify = .init(initialValue: command.notify.wrappedValue)
     _command = command
     self.icon = icon
     self.content = content
@@ -52,8 +55,18 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .compositingGroup()
             .scaleEffect(0.65)
 
-          subContent($command)
+          HStack {
+            Toggle("Notify", isOn: $notify)
+              .onChange(of: notify) { newValue in
+                onAction(.toggleNotify(newValue))
+              }
+            subContent($command)
+          }
             .buttonStyle(.appStyle)
+            .lineLimit(1)
+            .allowsTightening(true)
+            .truncationMode(.tail)
+            .font(.caption)
             .padding(.leading, 8)
         }
         .padding(.bottom, 8)

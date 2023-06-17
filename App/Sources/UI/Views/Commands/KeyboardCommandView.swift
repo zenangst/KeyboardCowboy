@@ -2,7 +2,6 @@ import SwiftUI
 
 struct KeyboardCommandView: View {
   enum Action {
-    case toggleNotify(newValue: Bool)
     case updateName(newName: String)
     case updateKeyboardShortcuts([KeyShortcut])
     case commandAction(CommandContainerAction)
@@ -64,16 +63,7 @@ struct KeyboardCommandView: View {
           .background(Color(.textBackgroundColor).opacity(0.65).cornerRadius(4))
         }
       },
-      subContent: { command in
-        Toggle("Notify", isOn: $notify)
-          .onChange(of: notify) { newValue in
-            onAction(.toggleNotify(newValue: newValue))
-          }
-          .lineLimit(1)
-          .allowsTightening(true)
-          .truncationMode(.tail)
-          .font(.caption)
-      },
+      subContent: { _ in },
       onAction: { onAction(.commandAction($0)) })
     .debugEdit()
   }

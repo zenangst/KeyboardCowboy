@@ -13,6 +13,9 @@ final class DetailCommandActionReducer {
     case .toggleEnabled(_, _, let newValue):
       command.isEnabled = newValue
       workflow.updateOrAddCommand(command)
+    case .toggleNotify(_, _, let newValue):
+      command.notification = newValue
+      workflow.updateOrAddCommand(command)
     case .run(_, _):
       let runCommand = command
       Task {
@@ -47,9 +50,6 @@ final class DetailCommandActionReducer {
         }
 
         switch action {
-        case .toggleNotify(let newValue):
-          command.notification = newValue
-          workflow.updateOrAddCommand(command)
         case .changeApplication(let application):
           applicationCommand.application = application
           command = .application(applicationCommand)
@@ -80,9 +80,6 @@ final class DetailCommandActionReducer {
         }
       case .keyboard(let action, _, _):
         switch action {
-        case .toggleNotify(let newValue):
-          command.notification = newValue
-          workflow.updateOrAddCommand(command)
         case .updateKeyboardShortcuts(let keyboardShortcuts):
           command = .keyboard(.init(id: command.id, keyboardShortcuts: keyboardShortcuts, notification: command.notification))
           workflow.updateOrAddCommand(command)
@@ -95,9 +92,6 @@ final class DetailCommandActionReducer {
         }
       case .open(let action, _, _):
         switch action {
-        case .toggleNotify(let newValue):
-          command.notification = newValue
-          workflow.updateOrAddCommand(command)
         case .updatePath(let newPath):
           if case var .open(openCommand) = command {
             openCommand.name = newPath
@@ -155,9 +149,6 @@ final class DetailCommandActionReducer {
         }
       case .shortcut(let action, _, _):
         switch action {
-        case .toggleNotify(let newValue):
-          command.notification = newValue
-          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
@@ -169,9 +160,6 @@ final class DetailCommandActionReducer {
         }
       case .type(let action, _, _):
         switch action {
-        case .toggleNotify(let newValue):
-          command.notification = newValue
-          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
@@ -190,9 +178,6 @@ final class DetailCommandActionReducer {
         }
       case .system(let action, _, _):
         switch action {
-        case .toggleNotify(let newValue):
-          command.notification = newValue
-          workflow.updateOrAddCommand(command)
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
