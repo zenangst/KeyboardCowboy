@@ -287,7 +287,7 @@ extension CommandView.Kind {
 extension CommandView.Action {
   var commandId: DetailViewModel.CommandViewModel.ID {
     switch self {
-    case .toggleEnabled(_, let commandId, _):
+    case .toggleEnabled(_, let commandId, _), .toggleNotify(_, let commandId, _):
       return commandId
     case .modify(let kind):
       return kind.commandId

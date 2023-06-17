@@ -9,6 +9,8 @@ final class DetailCommandContainerActionReducer {
       workflow.commands.removeAll(where: { $0.id == command.id })
     case .toggleIsEnabled(let isEnabled):
       command.isEnabled = isEnabled
+    case .toggleNotify(let newValue):
+      command.notification = newValue
     }
   }
 }

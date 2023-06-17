@@ -3,7 +3,6 @@ import SwiftUI
 
 struct OpenCommandView: View {
   enum Action {
-    case toggleNotify(newValue: Bool)
     case updatePath(newPath: String)
     case openWith(Application)
     case commandAction(CommandContainerAction)
@@ -67,15 +66,6 @@ struct OpenCommandView: View {
       }
     }, subContent: { command in
       HStack {
-        Toggle("Notify", isOn: $notify)
-          .onChange(of: notify) { newValue in
-            onAction(.toggleNotify(newValue: newValue))
-          }
-          .lineLimit(1)
-          .allowsTightening(true)
-          .truncationMode(.tail)
-          .font(.caption)
-
         switch command.wrappedValue.kind {
         case .open(let path, _, _):
           if !path.hasPrefix("http") {
@@ -86,7 +76,6 @@ struct OpenCommandView: View {
           EmptyView()
         }
       }
-      .padding(.bottom, 4)
       .frame(maxWidth: .infinity, alignment: .leading)
       .font(.caption)
     }, onAction: { onAction(.commandAction($0)) })

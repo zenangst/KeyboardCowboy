@@ -97,22 +97,31 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       switch self {
       case .application(var applicationCommand):
         applicationCommand.meta = newValue
+        self = .application(applicationCommand)
       case .builtIn(var builtInCommand):
         builtInCommand.meta = newValue
+        self = .builtIn(builtInCommand)
       case .keyboard(var keyboardCommand):
         keyboardCommand.meta = newValue
+        self = .keyboard(keyboardCommand)
       case .menuBar(var menuBarCommand):
         menuBarCommand.meta = newValue
+        self = .menuBar(menuBarCommand)
       case .open(var openCommand):
         openCommand.meta = newValue
+        self = .open(openCommand)
       case .shortcut(var shortcutCommand):
         shortcutCommand.meta = newValue
+        self = .shortcut(shortcutCommand)
       case .script(var scriptCommand):
         scriptCommand.meta = newValue
+        self = .script(scriptCommand)
       case .type(var typeCommand):
         typeCommand.meta = newValue
+        self = .type(typeCommand)
       case .systemCommand(var systemCommand):
         systemCommand.meta = newValue
+        self = .systemCommand(systemCommand)
       }
     }
   }

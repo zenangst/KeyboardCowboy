@@ -3,7 +3,6 @@ import SwiftUI
 struct SystemCommandView: View {
   enum Action {
     case updateKind(newKind: SystemCommand.Kind)
-    case toggleNotify(newValue: Bool)
     case commandAction(CommandContainerAction)
   }
   @State private var command: DetailViewModel.CommandViewModel
@@ -49,16 +48,7 @@ struct SystemCommandView: View {
         })
         .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
       }
-    }, subContent: { command in
-      Toggle("Notify", isOn: $notify)
-        .lineLimit(1)
-        .allowsTightening(true)
-        .truncationMode(.tail)
-        .font(.caption)
-        .onChange(of: notify) { newValue in
-          onAction(.toggleNotify(newValue: newValue))
-        }
-    },
+    }, subContent: { _ in },
     onAction: { onAction(.commandAction($0)) })
     .id(kind)
   }

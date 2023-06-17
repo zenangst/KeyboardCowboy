@@ -13,7 +13,6 @@ struct ApplicationCommandView: View {
   enum Action {
     case changeApplication(Application)
     case updateName(newName: String)
-    case toggleNotify(newValue: Bool)
     case changeApplicationModifier(modifier: ApplicationCommand.Modifier, newValue: Bool)
     case changeApplicationAction(ApplicationCommand.Action)
     case commandAction(CommandContainerAction)
@@ -88,10 +87,6 @@ struct ApplicationCommandView: View {
         }
       }, subContent: { command in
         HStack {
-          Toggle("Notify", isOn: $notify)
-            .onChange(of: notify) { newValue in
-              onAction(.toggleNotify(newValue: newValue))
-            }
           Toggle("In background", isOn: $inBackground)
             .onChange(of: inBackground) { newValue in
               onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
@@ -105,10 +100,6 @@ struct ApplicationCommandView: View {
               onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
             }
         }
-        .lineLimit(1)
-        .allowsTightening(true)
-        .truncationMode(.tail)
-        .font(.caption)
       },
       onAction: { onAction(.commandAction($0)) })
     .debugEdit()
