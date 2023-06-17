@@ -1,10 +1,72 @@
 import Apps
 import Foundation
 
+protocol MetaDataProviding: Identifiable, Codable, Hashable, Sendable {
+  var meta: Command.MetaData { get set }
+}
+
+extension MetaDataProviding {
+  var id: String {
+    get { meta.id }
+    set { meta.id = newValue }
+  }
+
+  var name: String {
+    get { meta.name }
+    set { meta.name = newValue }
+  }
+
+  var notification: Bool {
+    get { meta.notification }
+    set { meta.notification = newValue }
+  }
+
+  var isEnabled: Bool {
+    get { meta.isEnabled }
+    set { meta.isEnabled = newValue }
+  }
+}
+
+enum MetaDataMigrator: String, CodingKey {
+  case id
+  case name
+  case isEnabled = "enabled"
+  case notification
+
+  static func migrate(_ decoder: Decoder) throws -> Command.MetaData {
+    ConfigurationStore.didMigrate = true
+    // Try and migrate from the previous data structure.
+    let container = try decoder.container(keyedBy: Command.MetaData.CodingKeys.self)
+    let id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    let name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+    let isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+    let notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
+    return Command.MetaData(id: id, name: name, isEnabled: isEnabled, notification: notification)
+  }
+}
+
+
 /// A `Command` is a polymorphic entity that is used
 /// to store multiple command types in the same workflow.
 /// All underlying data-types are both `Codable` and `Hashable`.
 enum Command: Identifiable, Equatable, Codable, Hashable, Sendable {
+  struct MetaData: Identifiable, Codable, Hashable, Sendable {
+
+    public var delay: Double?
+    public var id: String
+    public var name: String
+    public var isEnabled: Bool
+    public var notification: Bool
+
+    enum CodingKeys: String, CodingKey {
+      case delay
+      case id
+      case name
+      case isEnabled = "enabled"
+      case notification
+    }
+  }
+
   case application(ApplicationCommand)
   case builtIn(BuiltInCommand)
   case keyboard(KeyboardCommand)

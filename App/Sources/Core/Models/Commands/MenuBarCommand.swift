@@ -1,7 +1,7 @@
 import Foundation
 
-struct MenuBarCommand: Equatable, Hashable, Codable {
-  enum Token: Identifiable, Equatable, Hashable, Codable {
+struct MenuBarCommand: MetaDataProviding {
+  enum Token: Identifiable, Equatable, Hashable, Codable, Sendable {
     var id: String {
       switch self {
       case .menuItem(let value):
@@ -15,20 +15,28 @@ struct MenuBarCommand: Equatable, Hashable, Codable {
     case menuItems(name: String, fallbackName: String)
   }
 
-  var id: String
   let tokens: [Token]
-  var name: String
-  var isEnabled: Bool = true
-  var notification: Bool
+  var meta: Command.MetaData
 
   init(id: String = UUID().uuidString, name: String = "",
        tokens: [Token],
        isEnabled: Bool = true,
        notification: Bool = false) {
-    self.id = id
-    self.name = name
     self.tokens = tokens
-    self.isEnabled = isEnabled
-    self.notification = notification
+    self.meta = Command.MetaData(id: id, name: name,
+                                 isEnabled: isEnabled,
+                                 notification: notification)
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    do {
+      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    } catch {
+      self.meta = try MetaDataMigrator.migrate(decoder)
+    }
+
+    self.tokens = try container.decode([Token].self, forKey: .tokens)
   }
 }

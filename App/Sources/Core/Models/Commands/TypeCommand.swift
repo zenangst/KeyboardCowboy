@@ -1,29 +1,24 @@
 import Foundation
 
-public struct TypeCommand: Identifiable, Codable, Hashable, Sendable {
-  public var id: String
-  public var name: String
-  public var input: String
-  public var isEnabled: Bool = true
-  public var notification: Bool
+struct TypeCommand: MetaDataProviding {
+  var input: String
+  var meta: Command.MetaData
 
-  public init(id: String = UUID().uuidString,
-              name: String,
-              input: String,
-              notification: Bool = false) {
-    self.id = id
-    self.name = name
+  init(id: String = UUID().uuidString, name: String,
+       input: String, notification: Bool = false) {
     self.input = input
-    self.notification = notification
+    self.meta = Command.MetaData(id: id, name: name,
+                                 isEnabled: true,
+                                 notification: notification)
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    self.id = try container.decode(String.self, forKey: .id)
-    self.name = try container.decode(String.self, forKey: .name)
     self.input = try container.decode(String.self, forKey: .input)
-    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
-    self.notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
+    do {
+      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    } catch {
+      self.meta = try MetaDataMigrator.migrate(decoder)
+    }
   }
 }

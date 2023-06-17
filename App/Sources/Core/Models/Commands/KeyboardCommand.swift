@@ -2,38 +2,31 @@ import Foundation
 
 /// Keyboard commands only have output because the trigger
 /// will be the `Combination` found in the `Workflow`.
-public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
-  public var id: String
-  public var name: String
-  public let keyboardShortcuts: [KeyShortcut]
-  @available(macOS, deprecated, message: "Use `.keyboardShortcuts`")
-  public var keyboardShortcut: KeyShortcut {
-    keyboardShortcuts.first!
-  }
-  public var isEnabled: Bool = true
-  public var notification: Bool
+struct KeyboardCommand: MetaDataProviding {
+  let keyboardShortcuts: [KeyShortcut]
+  var meta: Command.MetaData
 
-  public init(id: String = UUID().uuidString,
+  init(id: String = UUID().uuidString,
               name: String = "",
               keyboardShortcut: KeyShortcut,
               notification: Bool = false) {
-    self.id = id
-    self.name = name
     self.keyboardShortcuts = [keyboardShortcut]
-    self.notification = notification
+    self.meta = Command.MetaData(id: id, name: name,
+                                 isEnabled: true,
+                                 notification: notification)
   }
 
-  public init(id: String = UUID().uuidString,
+  init(id: String = UUID().uuidString,
               name: String = "",
               keyboardShortcuts: [KeyShortcut],
               notification: Bool) {
-    self.id = id
-    self.name = name
     self.keyboardShortcuts = keyboardShortcuts
-    self.notification = notification
+    self.meta = Command.MetaData(id: id, name: name,
+                                 isEnabled: true,
+                                 notification: notification)
   }
 
-  enum CodingKeys: String, CodingKey {
+  enum MigrationCodingKeys: String, CodingKey {
     case id
     case name
     case keyboardShortcuts
@@ -41,18 +34,20 @@ public struct KeyboardCommand: Identifiable, Codable, Hashable, Sendable {
     case notification
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-    self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+    do {
+      self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
+    } catch {
+      self.meta = try MetaDataMigrator.migrate(decoder)
+    }
+
     self.keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
-    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
-    self.notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
   }
 }
 
-public extension KeyboardCommand {
+extension KeyboardCommand {
   static func empty() -> KeyboardCommand {
     KeyboardCommand(keyboardShortcut: KeyShortcut(key: "", lhs: true), notification: false)
   }
