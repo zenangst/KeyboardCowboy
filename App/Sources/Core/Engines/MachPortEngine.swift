@@ -156,7 +156,7 @@ final class MachPortEngine {
         }
       } else if workflow.commands.allSatisfy({
         if case .keyboard = $0 { return true } else { return false }
-      }) {
+      }) && workflow.commands.count == 1 {
         let keyboardCommands = workflow.commands
           .filter(\.isEnabled)
           .compactMap {
