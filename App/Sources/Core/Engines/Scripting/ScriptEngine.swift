@@ -21,8 +21,8 @@ final class ScriptEngine {
     var result: String?
 
     switch (command.kind, command.source) {
-    case (.appleScript, .path(let source)):
-      result = try await plugins.appleScript.execute(source, withId: command.id)
+    case (.appleScript, .path(let path)):
+      result = try await plugins.appleScript.executeScript(at: path, withId: command.id)
     case (.appleScript, .inline(let script)):
       result = try await plugins.appleScript.execute(script, withId: command.id)
     case (.shellScript, .path(let source)):

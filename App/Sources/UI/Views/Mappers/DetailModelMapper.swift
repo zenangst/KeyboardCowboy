@@ -95,15 +95,13 @@ final class DetailModelMapper {
       kind = .shortcut
       name = command.name
     case .script(let script):
-      let source: String
       switch script.source {
-      case .path(let string):
-        source = string
-      case .inline(let string):
-        source = string
+      case .path(let source):
+        kind = .script(.path(id: script.id, source: source, scriptExtension: script.kind))
+      case .inline(let source):
+        kind = .script(.inline(id: script.id, source: source, scriptExtension: script.kind))
       }
 
-      kind = .script(.inline(id: script.id, source: source, scriptExtension: script.kind))
       name = command.name
     case .type(let type):
       kind = .type(input: type.input)
