@@ -39,8 +39,10 @@ final class KeyCodesStore {
     VirtualSpecialKey.keys
   }
 
-  func virtualKey(for string: String) -> VirtualKey? {
-    virtualKeyContainer?.valueForString(string, matchDisplayValue: false)
+  func virtualKey(for string: String, modifiers: [VirtualModifierKey] = [], matchDisplayValue: Bool = true) -> VirtualKey? {
+    virtualKeyContainer?.valueForString(string,
+                                        modifiers: modifiers,
+                                        matchDisplayValue: matchDisplayValue)
   }
 
   func keyCode(for string: String, matchDisplayValue: Bool) -> Int? {

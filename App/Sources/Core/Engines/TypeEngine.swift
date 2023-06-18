@@ -22,31 +22,25 @@ final class TypeEngine {
     let newLines = CharacterSet.newlines
 
     for character in input {
-      if naturalTyping != .disabled {
-        let sleepTime = TimeInterval.random(in: 0...naturalTyping.rawValue)
-        let duration = UInt64(sleepTime * 1_000_000_000)
-        try await Task.sleep(nanoseconds: duration)
-      }
       let string = String(character)
       let charSet = CharacterSet(charactersIn: string)
-
-      guard let virtualKey = keyboardEngine.virtualKey(for: string) else { continue }
-
-      var modifiers = [ModifierKey]()
-      let key: String
-      if charSet.isSubset(of: newLines) {
-        modifiers = []
-        key = String(format: "%C", 0x21A9)
-      } else {
-        key = virtualKey.rawValue
-        modifiers = virtualKey.modifiers.compactMap {
-          ModifierKey(rawValue: $0.rawValue)
+      var flags = CGEventFlags()
+      let keyCode: Int
+        if let virtualKey = keyboardEngine.virtualKey(for: String(character), matchDisplayValue: true) {
+          keyCode = virtualKey.keyCode
+        } else if let virtualKey = keyboardEngine.virtualKey(for: String(character), modifiers: [.shift], matchDisplayValue: true) {
+          keyCode = virtualKey.keyCode
+          flags.insert(.maskShift)
+        } else if let virtualKey = keyboardEngine.virtualKey(for: String(character), modifiers: [.option], matchDisplayValue: true) {
+          keyCode = virtualKey.keyCode
+          flags.insert(.maskAlternate)
+        } else if charSet.isSubset(of: newLines) {
+          keyCode = 36
+        } else {
+          continue
         }
-      }
 
-      let command = KeyboardCommand(keyboardShortcut: KeyShortcut(key: key, lhs: true, modifiers: modifiers),
-                                    notification: command.notification)
-      try keyboardEngine.run(command, type: .keyDown, originalEvent: nil, with: nil)
+      try keyboardEngine.machPort?.post(keyCode, type: .keyDown, flags: flags)
     }
   }
 }
