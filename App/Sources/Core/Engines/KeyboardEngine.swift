@@ -18,8 +18,8 @@ final class KeyboardEngine {
     self.store = store
   }
 
-  func virtualKey(for string: String) -> VirtualKey? {
-    store.virtualKey(for: string)
+  func virtualKey(for string: String, modifiers: [VirtualModifierKey] = [], matchDisplayValue: Bool = true) -> VirtualKey? {
+    store.virtualKey(for: string, modifiers: modifiers, matchDisplayValue: matchDisplayValue)
   }
 
   func run(_ command: KeyboardCommand,

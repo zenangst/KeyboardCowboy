@@ -115,7 +115,11 @@ final class MachPortEngine {
     let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
     // Found a match
-    let result = keyboardShortcutsController.lookup(keyboardShortcut, partialMatch: previousPartialMatch)
+    var result = keyboardShortcutsController.lookup(keyboardShortcut, partialMatch: previousPartialMatch)
+    if result == nil {
+      let keyboardShortcut = KeyShortcut(key: displayValue.uppercased(), lhs: machPortEvent.lhs, modifiers: modifiers)
+      result = keyboardShortcutsController.lookup(keyboardShortcut, partialMatch: previousPartialMatch)
+    }
 
     switch result {
     case .partialMatch(let key):
