@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentListView: View {
   @FocusState var isFocused: Bool
   private var focus: FocusState<AppFocus?>.Binding
-  private let debounceSelectionManager: DebounceManager<ContentDebounce>
+  private let debounceSelectionManager: DebounceSelectionManager<ContentDebounce>
   private var focusPublisher: FocusPublisher<ContentViewModel>
 
   @Namespace var namespace

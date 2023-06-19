@@ -13,6 +13,7 @@ struct OpenCommandView: View {
   @State private var path: String
   @State private var isHovered = false
   @State private var notify = false
+  private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
   init(_ command: Binding<DetailViewModel.CommandViewModel>,
@@ -20,6 +21,9 @@ struct OpenCommandView: View {
     _command = command
     _path = .init(initialValue: command.wrappedValue.name)
     _notify = .init(initialValue: command.wrappedValue.notify)
+    self.debounce = DebounceManager(for: .milliseconds(500)) { newPath in
+      onAction(.updatePath(newPath: newPath))
+    }
     self.onAction = onAction
   }
 
@@ -40,9 +44,7 @@ struct OpenCommandView: View {
       HStack(spacing: 2) {
         TextField("", text: $path)
           .textFieldStyle(AppTextFieldStyle())
-          .onChange(of: path, perform: {
-            onAction(.updatePath(newPath: $0))
-          })
+          .onChange(of: path, perform: { debounce.send($0) })
           .frame(maxWidth: .infinity)
 
         if case .open(_, _, let appName) = command.wrappedValue.kind {

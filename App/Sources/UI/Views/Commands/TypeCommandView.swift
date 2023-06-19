@@ -1,4 +1,3 @@
-import Combine
 import SwiftUI
 
 struct TypeCommandView: View {
@@ -11,8 +10,7 @@ struct TypeCommandView: View {
   @State private var source: String
   @State private var name: String
   @State private var notify: Bool
-  private var subscription: AnyCancellable?
-  private let subject = PassthroughSubject<String, Never>()
+  private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
   init(_ command: DetailViewModel.CommandViewModel,
@@ -24,13 +22,12 @@ struct TypeCommandView: View {
     switch command.kind {
     case .type(let input):
       _source = .init(initialValue: input)
-      subscription = subject
-        .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
-        .sink { newInput in
+      debounce = DebounceManager(for: .milliseconds(500)) { newInput in
         onAction(.updateSource(newInput: newInput))
       }
     default:
       _source = .init(initialValue: "")
+      debounce = DebounceManager(for: .milliseconds(500)) { _ in }
     }
 
     self.onAction = onAction
@@ -49,9 +46,7 @@ struct TypeCommandView: View {
         }
       }, content: { command in
         TypeCommandTextEditor(text: $source)
-          .onChange(of: source) { newInput in
-            subject.send(newInput)
-          }
+          .onChange(of: source) { debounce.send($0) }
       }, subContent: { _ in }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()
   }
