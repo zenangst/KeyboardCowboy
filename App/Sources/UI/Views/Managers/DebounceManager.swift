@@ -1,27 +1,20 @@
 import Combine
 import Foundation
 
-protocol DebounceSnapshot { }
-
-final class DebounceManager<Snapshot: DebounceSnapshot> {
+final class DebounceManager<T> {
   private var subscription: AnyCancellable?
-  private let subject = PassthroughSubject<Snapshot, Never>()
-  private let onUpdate: (Snapshot) -> Void
-  @Published var snapshot: Snapshot
+  private let subject = PassthroughSubject<T, Never>()
+  private let onUpdate: (T) -> Void
 
-  init(_ initialValue: Snapshot, milliseconds: Int, onUpdate: @escaping (Snapshot) -> Void) {
-    self._snapshot = .init(initialValue: initialValue)
+  init(for stride:  DispatchQueue.SchedulerTimeType.Stride,
+       onUpdate: @escaping (T) -> Void) {
     self.onUpdate = onUpdate
     self.subscription = subject
-      .debounce(for: .milliseconds(milliseconds), scheduler: DispatchQueue.main)
+      .debounce(for: stride, scheduler: DispatchQueue.main)
       .sink { onUpdate($0) }
   }
 
-  func process(_ snapshot: Snapshot) {
-    if NSEventController.shared.keyDown {
-      subject.send(snapshot)
-    } else {
-      onUpdate(snapshot)
-    }
+  func send(_ value: T) {
+    subject.send(value)
   }
 }

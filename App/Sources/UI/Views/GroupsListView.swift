@@ -19,7 +19,7 @@ struct GroupsListView: View {
   private var focus: FocusState<AppFocus?>.Binding
   private var focusPublisher: FocusPublisher<GroupViewModel>
   private let namespace: Namespace.ID
-  private let debounceSelectionManager: DebounceManager<GroupDebounce>
+  private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
   private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (GroupsView.Action) -> Void
 
