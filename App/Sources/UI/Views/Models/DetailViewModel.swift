@@ -46,20 +46,20 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
 
   enum Trigger: Hashable, Equatable {
     case applications([DetailViewModel.ApplicationTrigger])
-    case keyboardShortcuts([KeyShortcut])
+    case keyboardShortcuts(DetailViewModel.KeyboardTrigger)
   }
 
   struct ApplicationTrigger: Codable, Hashable, Identifiable, Equatable {
-    public var id: String
-    public var name: String
-    public var application: Application
-    public var contexts: [Context]
+    var id: String
+    var name: String
+    var application: Application
+    var contexts: [Context]
 
-    public var icon: IconViewModel {
+    var icon: IconViewModel {
       IconViewModel(bundleIdentifier: application.bundleIdentifier, path: application.path)
     }
 
-    public enum Context: String, Hashable, Codable, CaseIterable, Identifiable {
+    enum Context: String, Hashable, Codable, CaseIterable, Identifiable {
       public var id: String { rawValue }
 
       case closed, launched, frontMost
@@ -75,6 +75,11 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
         }
       }
     }
+  }
+
+  struct KeyboardTrigger: Codable, Hashable, Equatable {
+    var passthrough: Bool
+    var shortcuts: [KeyShortcut]
   }
 
   struct CommandViewModel: Codable, Hashable, Identifiable {

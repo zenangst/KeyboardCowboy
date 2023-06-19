@@ -202,7 +202,7 @@ extension Workflow.Trigger {
         }
       )
     case .keyboardShortcuts(let trigger):
-      return .keyboardShortcuts(trigger.shortcuts)
+      return .keyboardShortcuts(.init(passthrough: trigger.passthrough, shortcuts: trigger.shortcuts))
     }
   }
 }

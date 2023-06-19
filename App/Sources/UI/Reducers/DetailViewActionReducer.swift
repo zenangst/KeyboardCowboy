@@ -17,6 +17,11 @@ final class DetailViewActionReducer {
     switch action {
     case .singleDetailView(let action):
       switch action {
+      case .togglePassthrough:
+        if case .keyboardShortcuts(var previousTrigger) = workflow.trigger {
+          previousTrigger.passthrough.toggle()
+          workflow.trigger = .keyboardShortcuts(previousTrigger)
+        }
       case .dropUrls(_, let urls):
         let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
         workflow.commands.append(contentsOf: commands)

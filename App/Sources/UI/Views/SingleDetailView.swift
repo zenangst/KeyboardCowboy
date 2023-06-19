@@ -11,6 +11,7 @@ struct SingleDetailView: View {
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
     case removeCommands(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
     case removeTrigger(workflowId: Workflow.ID)
+    case togglePassthrough(workflowId: Workflow.ID, newValue: Bool)
     case runWorkflow(workflowId: Workflow.ID)
     case setIsEnabled(workflowId: Workflow.ID, isEnabled: Bool)
     case trigger(workflowId: Workflow.ID, action: WorkflowTriggerView.Action)
