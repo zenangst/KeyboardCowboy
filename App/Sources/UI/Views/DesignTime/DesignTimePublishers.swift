@@ -174,7 +174,7 @@ enum DesignTime {
   }
 
   static var shortcutCommand: DetailViewModel.CommandViewModel {
-    .init(id: UUID().uuidString, name: "Run shortcut", kind: .shortcut, icon: nil, isEnabled: true, notify: true)
+    .init(id: UUID().uuidString, name: "Run shortcut", kind: .shortcut("Shortcut identifier"), icon: nil, isEnabled: true, notify: true)
   }
 
   static var typeCommand: DetailViewModel.CommandViewModel {

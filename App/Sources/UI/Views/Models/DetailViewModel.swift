@@ -97,7 +97,7 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
       case keyboard(keys: [KeyShortcut])
       case script(ScriptKind)
       case plain
-      case shortcut
+      case shortcut(String)
       case type(input: String)
       case systemCommand(kind: SystemCommand.Kind)
       case menuBar(tokens: [MenuBarCommand.Token])
