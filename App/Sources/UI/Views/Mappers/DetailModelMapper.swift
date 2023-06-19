@@ -201,8 +201,8 @@ extension Workflow.Trigger {
           })
         }
       )
-    case .keyboardShortcuts(let shortcuts):
-      return .keyboardShortcuts(shortcuts)
+    case .keyboardShortcuts(let trigger):
+      return .keyboardShortcuts(trigger.shortcuts)
     }
   }
 }

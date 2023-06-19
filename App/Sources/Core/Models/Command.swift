@@ -34,15 +34,13 @@ extension MetaDataProviding {
 }
 
 enum MetaDataMigrator: String, CodingKey {
-  static var didMigrate: Bool = false
-
   case id
   case name
   case isEnabled = "enabled"
   case notification
 
   static func migrate(_ decoder: Decoder) throws -> Command.MetaData {
-    Self.didMigrate = true
+    Migration.shouldSave = true
     // Try and migrate from the previous data structure.
     let container = try decoder.container(keyedBy: Command.MetaData.CodingKeys.self)
     let id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
