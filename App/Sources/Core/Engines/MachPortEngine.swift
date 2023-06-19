@@ -122,13 +122,22 @@ final class MachPortEngine {
     }
 
     switch result {
-    case .partialMatch(let key):
-      machPortEvent.result = nil
+    case .partialMatch(let match):
+      if let workflow = match.workflow,
+         workflow.trigger?.isPassthrough == true {
+        // NOOP
+      } else {
+        machPortEvent.result = nil
+      }
       if kind == .keyDown {
-        previousPartialMatch = key
+        previousPartialMatch = match
       }
     case .exact(let workflow):
-      machPortEvent.result = nil
+      if workflow.trigger?.isPassthrough == true {
+        // NOOP
+      } else {
+        machPortEvent.result = nil
+      }
 
       if workflow.commands.count == 1,
          case .keyboard(let command) = workflow.commands.first(where: \.isEnabled) {
