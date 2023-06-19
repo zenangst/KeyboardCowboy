@@ -149,6 +149,17 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   }
 }
 
+extension Workflow.Trigger {
+  var isPassthrough: Bool {
+    switch self {
+    case .application:
+      return false
+    case .keyboardShortcuts(let trigger):
+      return trigger.passthrough
+    }
+  }
+}
+
 extension Workflow {
   static func empty(id: String = UUID().uuidString) -> Workflow {
     Workflow(

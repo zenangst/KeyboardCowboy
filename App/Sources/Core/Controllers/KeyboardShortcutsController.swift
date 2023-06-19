@@ -8,6 +8,12 @@ enum KeyboardShortcutResult {
 
 struct PartialMatch {
   let rawValue: String
+  let workflow: Workflow?
+
+  init(rawValue: String, workflow: Workflow? = nil) {
+    self.rawValue = rawValue
+    self.workflow = workflow
+  }
 }
 
 final class KeyboardShortcutsController {
@@ -47,7 +53,7 @@ final class KeyboardShortcutsController {
             if offset == count {
               newCache[key] = .exact(workflow)
             } else {
-              newCache[key] = .partialMatch(.init(rawValue: previousKey))
+              newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
             }
 
             offset += 1
