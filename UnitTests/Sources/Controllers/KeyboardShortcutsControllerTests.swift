@@ -67,7 +67,7 @@ final class KeyboardShortcutsControllerTests: XCTestCase {
       let newPrefix = "\(prefix)-workflow"
       return Workflow(id: "\(newPrefix)-id-\($0)",
                       name: "\(newPrefix)-name-\($0)",
-                      trigger: Workflow.Trigger.keyboardShortcuts(generateTriggers(keyboardShortcuts, prefix: newPrefix)))
+                      trigger: Workflow.Trigger.keyboardShortcuts(.init(shortcuts: generateTriggers(keyboardShortcuts, prefix: newPrefix))))
     }
   }
 
