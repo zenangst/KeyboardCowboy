@@ -22,7 +22,7 @@ final class DetailViewActionReducer {
         workflow.commands.append(contentsOf: commands)
         result = .animated
       case .updateKeyboardShortcuts(_, let keyboardShortcuts):
-        workflow.trigger = .keyboardShortcuts(keyboardShortcuts)
+        workflow.trigger = .keyboardShortcuts(.init(shortcuts: keyboardShortcuts))
       case .commandView(_, let action):
         DetailCommandActionReducer.reduce(action, commandEngine: commandEngine, workflow: &workflow)
       case .moveCommand(_, let fromOffsets, let toOffset):
@@ -40,7 +40,7 @@ final class DetailViewActionReducer {
       case .trigger(_, let action):
         switch action {
         case .addKeyboardShortcut:
-          workflow.trigger = .keyboardShortcuts([])
+          workflow.trigger = .keyboardShortcuts(.init(shortcuts: []))
         case .removeKeyboardShortcut:
           workflow.trigger = nil
         case .addApplication:

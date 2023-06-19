@@ -54,8 +54,8 @@ private extension Workflow {
 private extension Workflow.Trigger {
   var binding: String? {
     switch self {
-    case .keyboardShortcuts(let shortcuts):
-      return shortcuts.binding
+    case .keyboardShortcuts(let trigger):
+      return trigger.shortcuts.binding
     case .application:
       return nil
     }

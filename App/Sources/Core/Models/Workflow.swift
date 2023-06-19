@@ -7,7 +7,7 @@ import Foundation
 struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   enum Trigger: Hashable, Equatable, Codable, Sendable {
     case application([ApplicationTrigger])
-    case keyboardShortcuts([KeyShortcut])
+    case keyboardShortcuts(KeyboardShortcutTrigger)
 
     enum CodingKeys: String, CodingKey {
       case application
@@ -21,8 +21,14 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         let applicationTrigger = try container.decode([ApplicationTrigger].self, forKey: .application)
         self = .application(applicationTrigger)
       case .keyboardShortcuts:
-        let keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
-        self = .keyboardShortcuts(keyboardShortcuts)
+        do {
+          let keyboardShortcutTrigger = try container.decode(KeyboardShortcutTrigger.self, forKey: .keyboardShortcuts)
+          self = .keyboardShortcuts(keyboardShortcutTrigger)
+        } catch {
+          Migration.shouldSave = true
+          let keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
+          self = .keyboardShortcuts(.init(shortcuts: keyboardShortcuts))
+        }
       case .none:
         throw DecodingError.dataCorrupted(
           DecodingError.Context(
@@ -111,14 +117,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.name = try container.decode(String.self, forKey: .name)
     self.commands = try container.decodeIfPresent([Command].self, forKey: .commands) ?? []
     self.execution = try container.decodeIfPresent(Execution.self, forKey: .execution) ?? .concurrent
-
-    // Migrate keyboard shortcuts to trigger property
-    if let keyboardShortcuts = try? container.decodeIfPresent([KeyShortcut].self, forKey: .keyboardShortcuts) {
-      self.trigger = .keyboardShortcuts(keyboardShortcuts)
-    } else {
-      self.trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
-    }
-
+    self.trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
     self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
   }
 

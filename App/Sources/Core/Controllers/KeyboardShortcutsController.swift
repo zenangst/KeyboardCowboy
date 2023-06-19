@@ -35,12 +35,12 @@ final class KeyboardShortcutsController {
       bundleIdentifiers.forEach { bundleIdentifier in
         group.workflows.forEach { workflow in
           guard workflow.isEnabled else { return }
-          guard case .keyboardShortcuts(let keyboardShortcuts) = workflow.trigger else { return }
+          guard case .keyboardShortcuts(let trigger) = workflow.trigger else { return }
 
-          let count = keyboardShortcuts.count - 1
+          let count = trigger.shortcuts.count - 1
           var previousKey: String = "."
           var offset = 0
-          keyboardShortcuts.forEach { keyboardShortcut in
+          trigger.shortcuts.forEach { keyboardShortcut in
             let key = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: previousKey)
             previousKey += "\(keyboardShortcut.dictionaryKey)+"
 
