@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 
 struct TypeCommandView: View {
@@ -10,6 +11,8 @@ struct TypeCommandView: View {
   @State private var source: String
   @State private var name: String
   @State private var notify: Bool
+  private var subscription: AnyCancellable?
+  private let subject = PassthroughSubject<String, Never>()
   private let onAction: (Action) -> Void
 
   init(_ command: DetailViewModel.CommandViewModel,
@@ -21,6 +24,11 @@ struct TypeCommandView: View {
     switch command.kind {
     case .type(let input):
       _source = .init(initialValue: input)
+      subscription = subject
+        .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+        .sink { newInput in
+        onAction(.updateSource(newInput: newInput))
+      }
     default:
       _source = .init(initialValue: "")
     }
@@ -42,7 +50,7 @@ struct TypeCommandView: View {
       }, content: { command in
         TypeCommandTextEditor(text: $source)
           .onChange(of: source) { newInput in
-            onAction(.updateSource(newInput: newInput))
+            subject.send(newInput)
           }
       }, subContent: { _ in }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()
