@@ -314,7 +314,8 @@ extension SingleDetailView.Action {
          .trigger(let workflowId, _),
          .updateName(let workflowId, _),
          .updateExecution(let workflowId, _),
-         .runWorkflow(let workflowId):
+         .runWorkflow(let workflowId),
+         .togglePassthrough(let workflowId, _):
       return workflowId
     }
   }

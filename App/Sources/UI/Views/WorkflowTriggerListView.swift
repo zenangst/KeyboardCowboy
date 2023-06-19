@@ -27,22 +27,9 @@ struct WorkflowTriggerListView: View {
   var body: some View {
     Group {
       switch data.trigger {
-      case .keyboardShortcuts(let shortcuts):
-        HStack {
-          Button(action: {
-            onAction(.removeTrigger(workflowId: data.id))
-          },
-                 label: { Image(systemName: "xmark") })
-          .buttonStyle(.appStyle)
-          Label("Keyboard Shortcuts sequence:", image: "")
-            .padding(.trailing, 12)
-        }
-        .padding([.leading, .trailing], 8)
-
-        WorkflowShortcutsView(focus, data: shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
-          onAction(.updateKeyboardShortcuts(workflowId: data.id, keyboardShortcuts: keyboardShortcuts))
-        }
-        .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
+      case .keyboardShortcuts(var trigger):
+       KeyboardTriggerView(namespace: namespace, focus: focus, data: data, trigger: trigger,
+                           keyboardShortcutSelectionManager: keyboardShortcutSelectionManager, onAction: onAction)
 
       case .applications(let triggers):
         HStack {
@@ -79,6 +66,7 @@ struct WorkflowTriggerListView_Previews: PreviewProvider {
     WorkflowTriggerListView($focus, data: DesignTime.detail,
                             applicationTriggerSelectionManager: .init(),
                             keyboardShortcutSelectionManager: .init()) { _ in }
+      .designTime()
       .frame(height: 900)
   }
 }
