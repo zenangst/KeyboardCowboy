@@ -31,7 +31,7 @@ struct MenuBarCommandView: View {
           .frame(width: 28, height: 28)
       }
     } content: { _ in
-      ScrollView {
+      ScrollView(.horizontal) {
         HStack(spacing: 4) {
           ForEach(tokens) { token in
             switch token {
@@ -81,6 +81,7 @@ struct MenuBarCommandView: View {
         .padding(.horizontal, 2)
         .padding(.vertical, 6)
       }
+      .scrollIndicators(.hidden)
     } subContent: { _ in
       Button {
         onAction(.editCommand(command))
