@@ -152,6 +152,17 @@ final class DetailCommandActionReducer {
         }
       case .shortcut(let action, _, _):
         switch action {
+        case .updateShortcut(let shortcutName):
+          command = .shortcut(
+            .init(
+              id: command.id,
+              shortcutIdentifier: shortcutName,
+              name: command.name,
+              isEnabled: command.isEnabled,
+              notification: command.notification
+            )
+          )
+          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)

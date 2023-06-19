@@ -3,21 +3,34 @@ import SwiftUI
 struct ShortcutCommandView: View {
   enum Action {
     case updateName(newName: String)
+    case updateShortcut(shortcutName: String)
     case openShortcuts
     case commandAction(CommandContainerAction)
   }
 
+  @EnvironmentObject var shortcutStore: ShortcutStore
   @State private var name: String
+  @State private var shortcut: String
   @State var command: DetailViewModel.CommandViewModel
-  @State var notify: Bool = false
+
+  private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
   init(_ command: DetailViewModel.CommandViewModel,
        onAction: @escaping (Action) -> Void) {
     _command = .init(initialValue: command)
     _name = .init(initialValue: command.name)
-    _notify = .init(initialValue: command.notify)
+
+    if case .shortcut(let name) = command.kind {
+      _shortcut = .init(initialValue: name)
+    } else {
+      _shortcut = .init(initialValue: "")
+    }
+
     self.onAction = onAction
+    self.debounce = DebounceManager(for: .milliseconds(500), onUpdate: { value in
+      onAction(.updateName(newName: value))
+    })
   }
   
   var body: some View {
@@ -29,11 +42,21 @@ struct ShortcutCommandView: View {
         Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Shortcuts.app"))
       }
     }, content: { command in
-      TextField("", text: $name)
-        .textFieldStyle(AppTextFieldStyle())
-        .onChange(of: name, perform: {
-          onAction(.updateName(newName: $0))
-        })
+      VStack {
+        TextField("", text: $name)
+          .textFieldStyle(AppTextFieldStyle())
+          .onChange(of: name, perform: { debounce.send($0) })
+        Menu(shortcut) {
+          ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in
+            Button(shortcut.name, action: {
+              self.shortcut = shortcut.name
+              onAction(.updateShortcut(shortcutName: shortcut.name))
+            })
+          }
+        }
+        .menuStyle(GradientMenuStyle(.init(nsColor: .systemPurple, grayscaleEffect: true), fixedSize: false))
+        .padding(.bottom, 4)
+      }
     }, subContent: { command in
       HStack {
         Button("Open Shortcuts", action: { onAction(.openShortcuts) })
@@ -48,6 +71,7 @@ struct ShortcutCommandView: View {
 struct ShortcutCommandView_Previews: PreviewProvider {
   static var previews: some View {
     ShortcutCommandView(DesignTime.shortcutCommand, onAction: { _ in})
-      .frame(maxHeight: 80)
+      .frame(maxHeight: 100)
+      .designTime()
   }
 }

@@ -150,7 +150,9 @@ private extension Array where Element == Command {
                                                            scriptExtension: script.kind)))))
         }
       case .shortcut(let shortcut):
-        images.append(.init(id: shortcut.id, offset: convertedOffset, kind: .command(.shortcut)))
+        images.append(.init(id: shortcut.id,
+                            offset: convertedOffset,
+                            kind: .command(.shortcut(shortcut.shortcutIdentifier))))
       case .type(let type):
         images.append(.init(id: type.id, offset: convertedOffset, kind: .command(.type(input: type.input))))
       case .systemCommand(let command):

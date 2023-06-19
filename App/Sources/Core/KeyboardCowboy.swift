@@ -187,6 +187,7 @@ struct KeyboardCowboy: App {
           .environmentObject(contentStore.configurationStore)
           .environmentObject(contentStore.applicationStore)
           .environmentObject(contentStore.groupStore)
+          .environmentObject(contentStore.shortcutStore)
           .environmentObject(configurationCoordinator.publisher)
           .environmentObject(sidebarCoordinator.publisher)
           .environmentObject(contentCoordinator.publisher)

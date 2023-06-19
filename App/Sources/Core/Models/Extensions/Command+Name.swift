@@ -24,7 +24,7 @@ extension Command {
           return "Open a file: \(command.path)"
         }
       case .shortcut(let command):
-        return "Run '\(command.shortcutIdentifier)'"
+        return command.name
       case .script(let command):
         return command.name
       case .type(let command):

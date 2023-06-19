@@ -91,8 +91,8 @@ final class DetailModelMapper {
       } else {
         name = openCommand.path
       }
-    case .shortcut(_):
-      kind = .shortcut
+    case .shortcut(let shortcut):
+      kind = .shortcut(shortcut.shortcutIdentifier)
       name = command.name
     case .script(let script):
       switch script.source {
