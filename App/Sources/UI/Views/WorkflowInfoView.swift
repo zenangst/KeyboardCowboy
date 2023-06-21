@@ -7,6 +7,7 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
+  private let debounce: DebounceManager<String>
   @ObservedObject private var detailPublisher: DetailPublisher
   @State var workflowName: String
   @State var isEnabled: Bool
@@ -19,6 +20,7 @@ struct WorkflowInfoView: View {
     _isEnabled = .init(initialValue: detailPublisher.data.isEnabled)
     self.detailPublisher = detailPublisher
     self.onAction = onAction
+    self.debounce = DebounceManager(for: .milliseconds(250)) { onAction(.updateName(name: $0)) }
   }
 
   var body: some View {
@@ -40,9 +42,7 @@ struct WorkflowInfoView: View {
         .focused(focus, equals: .detail(.name))
         .frame(height: 32)
         .textFieldStyle(LargeTextFieldStyle())
-        .onChange(of: workflowName) { newValue in
-          onAction(.updateName(name: newValue))
-        }
+        .onChange(of: workflowName) { debounce.send($0) }
 
       Spacer()
       Toggle("", isOn: $isEnabled)

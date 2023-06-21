@@ -6,7 +6,7 @@ final class DebounceManager<T> {
   private let subject = PassthroughSubject<T, Never>()
   private let onUpdate: (T) -> Void
 
-  init(for stride:  DispatchQueue.SchedulerTimeType.Stride,
+  init(for stride:  DispatchQueue.SchedulerTimeType.Stride = .milliseconds(500),
        onUpdate: @escaping (T) -> Void) {
     self.onUpdate = onUpdate
     self.subscription = subject

@@ -14,8 +14,6 @@ final class ContentStore: ObservableObject {
   @Published private(set) var state: State = .loading
   @Published private(set) var preferences: AppPreferences
 
-  var undoManager: UndoManager?
-
   private let storage: Storage
   private let keyboardShortcutsController: KeyboardShortcutsController
 
@@ -31,15 +29,15 @@ final class ContentStore: ObservableObject {
 
   init(_ preferences: AppPreferences,
        applicationStore: ApplicationStore,
-       keyboardShortcutsController: KeyboardShortcutsController,
-       shortcutStore: ShortcutStore,
-       scriptEngine: ScriptEngine,
-       workspace: NSWorkspace) {
+       keyboardShortcutsController: KeyboardShortcutsController = .init(),
+       shortcutStore shortcutStoreOverride: ShortcutStore? = nil,
+       scriptEngine: ScriptEngine = .init(workspace: .shared),
+       workspace: NSWorkspace = .shared) {
     _configurationId = .init(initialValue: Self.appStorage.configId)
 
     let groupStore = GroupStore()
     self.applicationStore = applicationStore
-    self.shortcutStore = shortcutStore
+    self.shortcutStore = shortcutStoreOverride ?? ShortcutStore(engine: scriptEngine)
     self.groupStore = groupStore
     self.configurationStore = ConfigurationStore()
     self.keyboardShortcutsController = keyboardShortcutsController
@@ -108,15 +106,6 @@ final class ContentStore: ObservableObject {
     storage.subscribe(to: configurationStore.$configurations)
     subscribe(to: groupStore.$groups)
     state = .initialized
-  }
-
-  @MainActor
-  private func applyConfiguration(_ newConfiguration: KeyboardCowboyConfiguration) async {
-    let oldConfiguration = configurationStore.selectedConfiguration
-    undoManager?.registerUndo(withTarget: self, handler: { contentStore in
-      Task { await contentStore.applyConfiguration(oldConfiguration) }
-    })
-    configurationStore.update(newConfiguration)
   }
 
   private func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {

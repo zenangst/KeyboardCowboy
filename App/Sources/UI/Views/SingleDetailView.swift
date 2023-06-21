@@ -30,7 +30,6 @@ struct SingleDetailView: View {
   private let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
 
-
   init(_ focus: FocusState<AppFocus?>.Binding,
        detailPublisher: DetailPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
