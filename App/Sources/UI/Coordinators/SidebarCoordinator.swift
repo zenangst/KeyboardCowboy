@@ -57,6 +57,8 @@ final class SidebarCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
+    case .refresh:
+      render(store.groups)
     case .updateConfiguration:
       break
     case .deleteConfiguraiton, .selectConfiguration:

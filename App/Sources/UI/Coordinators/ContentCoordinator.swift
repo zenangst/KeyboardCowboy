@@ -30,7 +30,7 @@ final class ContentCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .openScene, .addConfiguration, .updateConfiguration,
+    case .refresh, .openScene, .addConfiguration, .updateConfiguration,
         .moveGroups, .removeGroups, .deleteConfiguraiton:
       // NOOP
       break
@@ -40,7 +40,7 @@ final class ContentCoordinator {
       render(groupSelectionManager.selections, calculateSelections: true)
     case .selectGroups(let ids):
       let shouldRemoveLastSelection = !publisher.data.isEmpty
-      handle(.rerender(ids))
+      handle(.refresh(ids))
       if shouldRemoveLastSelection {
         if let firstId = publisher.data.first?.id {
           contentSelectionManager.setLastSelection(firstId)
@@ -87,7 +87,7 @@ final class ContentCoordinator {
       }
     case .selectWorkflow:
       break
-    case .rerender(let ids):
+    case .refresh(let ids):
       render(ids, calculateSelections: true)
     default:
       store.updateGroups([group])

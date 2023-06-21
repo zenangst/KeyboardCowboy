@@ -4,6 +4,7 @@ import SwiftUI
 
 final class ConfigurationStore: ObservableObject {
   static var appStorage: AppStorageStore = .init()
+
   @Published private(set) var configurations = [KeyboardCowboyConfiguration]()
   @Published private(set) var selectedConfiguration: KeyboardCowboyConfiguration = .empty()
   @State private(set) var selectedId: String = ""
@@ -56,6 +57,7 @@ final class ConfigurationStore: ObservableObject {
     guard let index = configurations.firstIndex(where: { $0.id == configuration.id }) else {
       return
     }
+
     var newConfigurations = self.configurations
 
     guard newConfigurations[index] != configuration else { return }

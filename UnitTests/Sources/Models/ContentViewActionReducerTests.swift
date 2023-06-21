@@ -9,7 +9,7 @@ final class ContentViewActionReducerTests: XCTestCase {
     var subject = subject(id)
 
     // Nothing should happen because `.rerender` is no-op.
-    ContentViewActionReducer.reduce(.rerender([id]), groupStore: ctx.store,
+    ContentViewActionReducer.reduce(.refresh([id]), groupStore: ctx.store,
                                     selectionManager: ctx.selector,
                                     group: &subject.original)
 

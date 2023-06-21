@@ -3,7 +3,7 @@ import Foundation
 
 enum DetailViewActionReducerResult {
   case animated
-  case rerender
+  case refresh
   case none
 }
 
@@ -13,7 +13,7 @@ final class DetailViewActionReducer {
                      keyboardCowboyEngine: KeyboardCowboyEngine,
                      applicationStore: ApplicationStore,
                      workflow: inout Workflow) -> DetailViewActionReducerResult {
-    var result: DetailViewActionReducerResult = .rerender
+    var result: DetailViewActionReducerResult = .refresh
     switch action {
     case .singleDetailView(let action):
       switch action {

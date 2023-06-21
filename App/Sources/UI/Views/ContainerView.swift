@@ -24,12 +24,13 @@ struct ContainerView: View {
 
   var focus: FocusState<AppFocus?>.Binding
 
+  @Environment(\.undoManager) var undoManager
   @EnvironmentObject var groupStore: GroupStore
   @EnvironmentObject var groupsPublisher: GroupsPublisher
   @ObservedObject var navigationPublisher = NavigationPublisher()
 
   @Environment(\.openWindow) private var openWindow
-  let onAction: (Action) -> Void
+  let onAction: (Action, UndoManager?) -> Void
 
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
@@ -45,7 +46,7 @@ struct ContainerView: View {
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupsSelectionManager: SelectionManager<GroupViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
-       onAction: @escaping (Action) -> Void) {
+       onAction: @escaping (Action, UndoManager?) -> Void) {
     self.focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
@@ -62,22 +63,20 @@ struct ContainerView: View {
       sidebar: {
         SidebarView(focus,
                     configSelectionManager: configSelectionManager,
-                    groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0)) }
+                    groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0), undoManager) }
       },
       content: {
         ContentView(focus,
                     contentSelectionManager: contentSelectionManager,
                     groupSelectionManager: groupsSelectionManager,
-                    onAction: { action in
-          onAction(.content(action))
-        })
+                    onAction: { onAction(.content($0), undoManager) })
       },
       detail: {
         DetailView(focus,
                    applicationTriggerSelectionManager: applicationTriggerSelectionManager,
                    commandSelectionManager: commandSelectionManager,
                    keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
-                   onAction: { onAction(.detail($0)) })
+                   onAction: { onAction(.detail($0), undoManager) })
           .edgesIgnoringSafeArea(.top)
       })
     .navigationSplitViewStyle(.balanced)
@@ -97,7 +96,7 @@ struct ContainerView_Previews: PreviewProvider {
                   configSelectionManager: .init(),
                   contentSelectionManager: .init(),
                   groupsSelectionManager: .init(),
-                  keyboardShortcutSelectionManager: .init()) { _ in }
+                  keyboardShortcutSelectionManager: .init()) { _, _ in }
       .designTime()
       .frame(height: 800)
   }

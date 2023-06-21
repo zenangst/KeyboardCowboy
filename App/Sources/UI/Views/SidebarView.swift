@@ -4,6 +4,7 @@ struct SidebarView: View {
   @ObserveInjection var inject
 
   enum Action {
+    case refresh
     case openScene(AppScene)
     case addConfiguration(name: String)
     case updateConfiguration(name: String)

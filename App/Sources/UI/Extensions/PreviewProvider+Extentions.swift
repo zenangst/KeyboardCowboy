@@ -4,13 +4,7 @@ extension PreviewProvider {
   static var applicationStore: ApplicationStore { contentStore.applicationStore }
   static var configurationStore: ConfigurationStore { contentStore.configurationStore }
   static var contentStore: ContentStore {
-    ContentStore(
-      .designTime(),
-      applicationStore: applicationStore,
-      keyboardShortcutsController: KeyboardShortcutsController(),
-      shortcutStore: .init(engine: ScriptEngine(workspace: .shared)),
-      scriptEngine: .init(workspace: .shared),
-      workspace: .shared)
+    ContentStore(.designTime(), applicationStore: applicationStore)
   }
   static var groupStore: GroupStore { contentStore.groupStore }
   static func autoCompletionStore(_ completions: [String],

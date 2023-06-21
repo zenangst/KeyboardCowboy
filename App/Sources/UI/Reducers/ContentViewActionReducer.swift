@@ -7,7 +7,7 @@ final class ContentViewActionReducer {
                      selectionManager: SelectionManager<ContentViewModel>,
                      group: inout WorkflowGroup) {
     switch action {
-    case .rerender, .selectWorkflow:
+    case .refresh, .selectWorkflow:
       break
     case .moveWorkflowsToGroup(let groupId, let workflows):
       groupStore.move(workflows, to: groupId)

@@ -50,7 +50,7 @@ struct KeyboardCowboy: App {
                                     applicationStore: applicationStore,
                                     keyboardShortcutsController: keyboardShortcutsController,
                                     shortcutStore: shortcutStore,
-                                    scriptEngine: scriptEngine, workspace: .shared)
+                                    scriptEngine: scriptEngine)
     let keyCodeStore = KeyCodesStore(InputSourceController())
     let keyboardEngine = KeyboardEngine(store: keyCodeStore)
     let engine = KeyboardCowboyEngine(contentStore,
@@ -156,7 +156,10 @@ struct KeyboardCowboy: App {
                         contentSelectionManager: contentCoordinator.contentSelectionManager,
                         groupsSelectionManager: sidebarCoordinator.selectionManager,
                         keyboardShortcutSelectionManager: detailCoordinator.keyboardShortcutSelectionManager
-          ) { action in
+          ) { action, undoManager in
+
+            let oldConfiguration = configurationCoordinator.store.selectedConfiguration
+
             switch action {
             case .openScene(let scene):
               handleScene(scene)
@@ -180,6 +183,15 @@ struct KeyboardCowboy: App {
               detailCoordinator.handle(detailAction)
               contentCoordinator.handle(detailAction)
             }
+
+            undoManager?.registerUndo(withTarget: configurationCoordinator.store, handler: { store in
+              store.update(oldConfiguration)
+              contentStore.use(oldConfiguration)
+              sidebarCoordinator.handle(.refresh)
+              contentCoordinator.handle(.refresh(contentCoordinator.groupSelectionManager.selections))
+              detailCoordinator.handle(.selectWorkflow(workflowIds: contentCoordinator.contentSelectionManager.selections,
+                                                       groupIds: contentCoordinator.groupSelectionManager.selections))
+            })
           }
           .focusScope(namespace)
           // MARK: Note - Force dark mode until the light theme is up-to-date
@@ -232,7 +244,7 @@ struct KeyboardCowboy: App {
         await detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
                                                    title: title, commandId: commandId)
         contentCoordinator.handle(.selectWorkflow(workflowIds: [workflowId], groupIds: groupIds))
-        contentCoordinator.handle(.rerender(groupIds))
+        contentCoordinator.handle(.refresh(groupIds))
       }
     }
     .defaultSize(.init(width: 520, height: 280))

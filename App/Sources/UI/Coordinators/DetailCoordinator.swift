@@ -45,7 +45,7 @@ final class DetailCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
-    case .updateConfiguration, .openScene, .addConfiguration, .deleteConfiguraiton:
+    case .refresh, .updateConfiguration, .openScene, .addConfiguration, .deleteConfiguraiton:
       // NOOP
       break
     case .moveWorkflows, .copyWorkflows:
@@ -81,7 +81,7 @@ final class DetailCoordinator {
 
   func handle(_ action: ContentView.Action) {
     switch action {
-    case .rerender, .moveWorkflowsToGroup, .reorderWorkflows:
+    case .refresh, .moveWorkflowsToGroup, .reorderWorkflows:
       return
     case .selectWorkflow(let workflowIds, let groupIds):
       render(workflowIds, groupIds: groupIds)
@@ -198,7 +198,7 @@ final class DetailCoordinator {
         withAnimation(.default) {
           render([workflow.id], groupIds: groupSelectionManager.selections)
         }
-      case .rerender:
+      case .refresh:
         render([workflow.id], groupIds: groupSelectionManager.selections)
       case .none:
         break
