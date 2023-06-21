@@ -24,7 +24,7 @@ struct MultiDetailView: View {
             HStack {
               ZStack {
                 ForEach(element.commands) { command in
-                  if let icon = command.icon {
+                  if let icon = command.meta.icon {
                     IconView(icon: icon, size: .init(width: 32, height: 32))
                   }
                 }

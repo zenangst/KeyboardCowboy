@@ -7,29 +7,21 @@ struct KeyboardCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @State private var command: DetailViewModel.CommandViewModel
-  @State private var notify: Bool
-  @State private var name: String
-  @State private var keyboardShortcuts: [KeyShortcut]
+  @State private var metaData: CommandViewModel.MetaData
+  @State private var model: CommandViewModel.Kind.KeyboardModel
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
-       notify: Bool,
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.KeyboardModel,
        onAction: @escaping (Action) -> Void) {
-    _command = .init(initialValue: command)
-    _name = .init(initialValue: command.name)
+    _metaData = .init(initialValue: metaData)
+    _model = .init(initialValue: model)
     self.onAction = onAction
-    self.notify = .init(notify)
-    if case .keyboard(let keyboardShortcuts) = command.kind {
-      _keyboardShortcuts = .init(initialValue: keyboardShortcuts)
-    } else {
-      _keyboardShortcuts = .init(initialValue: [])
-    }
   }
 
   var body: some View {
     CommandContainerView(
-      $command, icon: { command in
+      $metaData, icon: { command in
         ZStack {
           Rectangle()
             .fill(Color(.systemGreen))
@@ -44,19 +36,19 @@ struct KeyboardCommandView: View {
       }, content: { command in
         VStack {
           HStack(spacing: 0) {
-            TextField("", text: $name)
+            TextField("", text: $metaData.name)
               .textFieldStyle(AppTextFieldStyle())
-              .onChange(of: name, perform: {
+              .onChange(of: metaData.name, perform: {
                 onAction(.updateName(newName: $0))
               })
               .frame(maxWidth: .infinity)
           }
-          EditableKeyboardShortcutsView($keyboardShortcuts,
+          EditableKeyboardShortcutsView($model.keys,
                                         selectionManager: .init(),
                                         onTab: { _ in })
           .font(.caption)
           .frame(height: 40)
-          .onChange(of: keyboardShortcuts) { newValue in
+          .onChange(of: model.keys) { newValue in
             onAction(.updateKeyboardShortcuts(newValue))
           }
           .padding(.vertical, 4)
@@ -71,8 +63,10 @@ struct KeyboardCommandView: View {
 
 struct RebindingCommandView_Previews: PreviewProvider {
   static let recorderStore = KeyShortcutRecorderStore()
+  static let command = DesignTime.rebindingCommand
   static var previews: some View {
-    KeyboardCommandView(DesignTime.rebindingCommand, notify: false, onAction: { _ in })
+    KeyboardCommandView(command.model.meta, model: command.kind) { _ in }
+      .designTime()
       .environmentObject(recorderStore)
       .frame(maxHeight: 120)
   }

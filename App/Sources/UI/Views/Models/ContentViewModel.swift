@@ -35,7 +35,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
     let kind: Kind
 
     enum Kind: Hashable, Codable, Sendable {
-      case command(DetailViewModel.CommandViewModel.Kind)
+      case command(CommandViewModel.Kind)
       case icon(IconViewModel)
     }
   }

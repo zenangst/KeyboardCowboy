@@ -18,57 +18,42 @@ struct ApplicationCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @State private var command: DetailViewModel.CommandViewModel
+  @State private var metaData: CommandViewModel.MetaData
+  @State private var model: CommandViewModel.Kind.ApplicationModel
 
   @EnvironmentObject var applicationStore: ApplicationStore
 
-  @State private var name: String
-  @State private var notify: Bool
-  @State private var inBackground: Bool
-  @State private var hideWhenRunning: Bool
-  @State private var ifNotRunning: Bool
-  @State private var actionName: String
-
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
-       actionName: String,
-       notify: Bool,
-       inBackground: Bool,
-       hideWhenRunning: Bool,
-       ifNotRunning: Bool,
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.ApplicationModel,
        onAction: @escaping (Action) -> Void) {
-    _command = .init(initialValue: command)
-    _name = .init(initialValue: command.name)
-    _actionName = .init(initialValue: actionName)
-    _notify = .init(initialValue: notify)
-    _inBackground = .init(initialValue: inBackground)
-    _hideWhenRunning = .init(initialValue: hideWhenRunning)
-    _ifNotRunning = .init(initialValue: ifNotRunning)
+    _metaData = .init(initialValue: metaData)
+    _model = .init(initialValue: model)
     self.onAction = onAction
   }
 
   var body: some View {
     CommandContainerView(
-      $command,
-      icon: { command in
-        if let icon = command.icon.wrappedValue {
-          ApplicationCommandImageView($command, icon: icon, onAction: onAction)
-            .id(command.wrappedValue.icon?.bundleIdentifier)
+      $metaData,
+      icon: { metaData in
+        if let icon = metaData.icon.wrappedValue {
+          ApplicationCommandImageView($metaData, icon: icon, onAction: onAction)
+            .id(metaData.wrappedValue.icon?.bundleIdentifier)
         }
       },
       content: { command in
         HStack(spacing: 8) {
           Menu(content: {
             Button("Open", action: {
-              actionName = "Open"
+              model.action = "Open"
               onAction(.changeApplicationAction(.open)) })
             Button("Close", action: {
-              actionName = "Close"
+              model.action = "Close"
               onAction(.changeApplicationAction(.close)) })
           }, label: {
             HStack(spacing: 4) {
-              Text(actionName)
+              Text(model.action)
                 .font(.caption)
                 .fixedSize(horizontal: false, vertical: true)
                 .truncationMode(.middle)
@@ -79,24 +64,24 @@ struct ApplicationCommandView: View {
           .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
           .compositingGroup()
 
-          TextField("", text: $name)
+          TextField("", text: $metaData.name)
             .textFieldStyle(AppTextFieldStyle())
-            .onChange(of: name, perform: {
+            .onChange(of: metaData.name, perform: {
               onAction(.updateName(newName: $0))
             })
         }
-      }, subContent: { command in
+      }, subContent: { _ in
         HStack {
-          Toggle("In background", isOn: $inBackground)
-            .onChange(of: inBackground) { newValue in
+          Toggle("In background", isOn: $model.inBackground)
+            .onChange(of: model.inBackground) { newValue in
               onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
             }
-          Toggle("Hide when opening", isOn: $hideWhenRunning)
-            .onChange(of: hideWhenRunning) { newValue in
+          Toggle("Hide when opening", isOn: $model.hideWhenRunning)
+            .onChange(of: model.hideWhenRunning) { newValue in
               onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
             }
-          Toggle("If not running", isOn: $ifNotRunning)
-            .onChange(of: ifNotRunning) { newValue in
+          Toggle("If not running", isOn: $model.ifNotRunning)
+            .onChange(of: model.ifNotRunning) { newValue in
               onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
             }
         }
@@ -105,21 +90,21 @@ struct ApplicationCommandView: View {
     .debugEdit()
     .frame(height: 80)
     .fixedSize(horizontal: false, vertical: true)
-    .id(command.id)
+    .id(metaData.id)
   }
 }
 
 struct ApplicationCommandImageView: View {
   @EnvironmentObject var applicationStore: ApplicationStore
   @State var isHovered: Bool = false
-  @Binding private var command: DetailViewModel.CommandViewModel
+  @Binding private var metaData: CommandViewModel.MetaData
   private let icon: IconViewModel
   private let onAction: (ApplicationCommandView.Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ metaData: Binding<CommandViewModel.MetaData>,
        icon: IconViewModel,
        onAction: @escaping (ApplicationCommandView.Action) -> Void) {
-    _command = command
+    _metaData = metaData
     self.icon = icon
     self.onAction = onAction
   }
@@ -129,7 +114,7 @@ struct ApplicationCommandImageView: View {
       ForEach(applicationStore.applications) { app in
         Button(action: {
           onAction(.changeApplication(app))
-          command.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
+          metaData.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
         }, label: {
           Text(app.displayName)
         })
@@ -152,14 +137,9 @@ struct ApplicationCommandImageView: View {
 }
 
 struct ApplicationCommandView_Previews: PreviewProvider {
+  static let command = DesignTime.applicationCommand
   static var previews: some View {
-    ApplicationCommandView(DesignTime.applicationCommand,
-                           actionName: "Open",
-                           notify: false,
-                           inBackground: false,
-                           hideWhenRunning: false,
-                           ifNotRunning: false,
-                           onAction: { _ in })
+    ApplicationCommandView(command.model.meta, model: command.kind) { _ in }
       .designTime()
       .frame(maxHeight: 80)
   }

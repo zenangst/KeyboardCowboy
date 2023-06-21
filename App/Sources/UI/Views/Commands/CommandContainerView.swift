@@ -11,28 +11,23 @@ enum CommandContainerAction {
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
-  @State private var isEnabled: Bool
-  @State private var notify: Bool
   @State private var delay: Double?
   @State private var delayString: String = ""
   @State private var delayOverlay: Bool = false
 
   @EnvironmentObject var detailPublisher: DetailPublisher
-  @Binding private var command: DetailViewModel.CommandViewModel
-  private let icon: (Binding<DetailViewModel.CommandViewModel>) -> IconContent
-  private let content: (Binding<DetailViewModel.CommandViewModel>) -> Content
-  private let subContent: (Binding<DetailViewModel.CommandViewModel>) -> SubContent
+  @Binding private var metaData: CommandViewModel.MetaData
+  private let icon: (Binding<CommandViewModel.MetaData>) -> IconContent
+  private let content: (Binding<CommandViewModel.MetaData>) -> Content
+  private let subContent: (Binding<CommandViewModel.MetaData>) -> SubContent
   private let onAction: (CommandContainerAction) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
-       @ViewBuilder icon: @escaping (Binding<DetailViewModel.CommandViewModel>) -> IconContent,
-       @ViewBuilder content: @escaping (Binding<DetailViewModel.CommandViewModel>) -> Content,
-       @ViewBuilder subContent: @escaping (Binding<DetailViewModel.CommandViewModel>) -> SubContent,
+  init(_ metaData: Binding<CommandViewModel.MetaData>,
+       @ViewBuilder icon: @escaping (Binding<CommandViewModel.MetaData>) -> IconContent,
+       @ViewBuilder content: @escaping (Binding<CommandViewModel.MetaData>) -> Content,
+       @ViewBuilder subContent: @escaping (Binding<CommandViewModel.MetaData>) -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
-    _isEnabled = .init(initialValue: command.isEnabled.wrappedValue)
-    _notify = .init(initialValue: command.notify.wrappedValue)
-    _delay = .init(initialValue: command.delay.wrappedValue)
-    _command = command
+    _metaData = metaData
     self.icon = icon
     self.content = content
     self.subContent = subContent
@@ -43,18 +38,18 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
     HStack(alignment: .center) {
       VStack(alignment: .leading, spacing: 4) {
         HStack(alignment: .top) {
-          icon($command)
+          icon($metaData)
             .fixedSize()
             .frame(maxWidth: 32, maxHeight: 32)
 
-          content($command)
-            .frame(minHeight: 30, maxHeight: .infinity)
+          content($metaData)
+            .frame(minHeight: 30)
         }
         .padding([.top, .leading], 8)
 
         HStack(spacing: 0) {
-          Toggle(isOn: $isEnabled) { }
-            .onChange(of: isEnabled, perform: {
+          Toggle(isOn: $metaData.isEnabled) { }
+            .onChange(of: metaData.isEnabled, perform: {
               onAction(.toggleIsEnabled($0))
             })
             .toggleStyle(.switch)
@@ -63,8 +58,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .scaleEffect(0.65)
 
           HStack {
-            Toggle("Notify", isOn: $notify)
-              .onChange(of: notify) { newValue in
+            Toggle("Notify", isOn: $metaData.notification)
+              .onChange(of: metaData.notification) { newValue in
                 onAction(.toggleNotify(newValue))
               }
 
@@ -95,9 +90,9 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
                     if !isEditing {
                       if let value = Double(self.delayString) {
                         if value > 0 {
-                          self.delay = value
+                          metaData.delay = value
                         } else {
-                          self.delay = nil
+                          metaData.delay = nil
                         }
                         onAction(.changeDelay(value))
                       }
@@ -108,7 +103,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
               })
             }
 
-            subContent($command)
+            subContent($metaData)
           }
             .buttonStyle(.appStyle)
             .lineLimit(1)
@@ -139,7 +134,6 @@ struct CommandContainerActionView: View {
           .frame(width: 1)
           .opacity(0.5)
       }
-
       VStack(alignment: .center, spacing: 0) {
         Button(action: { onAction(.delete) },
                label: {
@@ -148,8 +142,7 @@ struct CommandContainerActionView: View {
             .aspectRatio(contentMode: .fit)
         })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
-        .frame(width: 20)
-        .frame(maxHeight: .infinity)
+        .frame(maxWidth: 20, maxHeight: .infinity)
         .padding(.vertical, 10)
 
         VStack(spacing: 0) {
@@ -168,8 +161,7 @@ struct CommandContainerActionView: View {
             .aspectRatio(contentMode: .fit)
         })
         .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-        .frame(width: 20)
-        .frame(maxHeight: .infinity)
+        .frame(maxWidth: 20, maxHeight: .infinity)
         .padding(.vertical, 10)
       }
       .buttonStyle(.plain)
@@ -179,15 +171,19 @@ struct CommandContainerActionView: View {
   }
 }
 
-//struct CommandContainerView_Previews: PreviewProvider {
-//  static var previews: some View {
-//    CommandContainerView(
-//      isEnabled: .constant(true),
-//      icon: { Text("Foo") },
-//      content: {
-//        Text("Bar")
-//      },
-//      subContent: { Text("Baz") }) { _ in }
-//      .frame(maxHeight: 80)
-//  }
-//}
+struct CommandContainerView_Previews: PreviewProvider {
+  static let command = DesignTime.applicationCommand
+
+  static var previews: some View {
+    CommandContainerView(
+      .constant(command.model.meta),
+      icon: { _ in
+        Text("Icon")
+      }, content: { _ in
+        Text("Content")
+      }, subContent: { _ in
+        Text("SubContent")
+      }, onAction: { _ in })
+    .designTime()
+  }
+}

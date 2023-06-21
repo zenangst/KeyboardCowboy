@@ -1,3 +1,4 @@
+import Apps
 import Cocoa
 
 final class DetailModelMapper {
@@ -11,7 +12,7 @@ final class DetailModelMapper {
     var viewModels = [DetailViewModel]()
     viewModels.reserveCapacity(workflows.count)
     for workflow in workflows {
-      var workflowCommands = [DetailViewModel.CommandViewModel]()
+      var workflowCommands = [CommandViewModel]()
       workflowCommands.reserveCapacity(workflow.commands.count)
       for command in workflow.commands {
         let workflowCommand = map(command)
@@ -41,85 +42,61 @@ final class DetailModelMapper {
     return viewModels
   }
 
-  func map(_ command: Command) -> DetailViewModel.CommandViewModel {
-    let kind: DetailViewModel.CommandViewModel.Kind
-    let name: String
-    switch command {
+  func map(_ command: Command) -> CommandViewModel {
+    CommandViewModel(meta: command.meta.viewModel(command),
+                     kind: command.viewModel(applicationStore))
+  }
+}
+
+private extension Command.MetaData {
+  func viewModel(_ command: Command) -> CommandViewModel.MetaData {
+    CommandViewModel.MetaData(id: id, name: name,
+                              isEnabled: isEnabled,
+                              notification: notification,
+                              icon: command.icon)
+  }
+}
+
+private extension Command {
+  func viewModel(_ applicationStore: ApplicationStore) -> CommandViewModel.Kind {
+    let kind: CommandViewModel.Kind
+    switch self {
     case .application(let applicationCommand):
       let inBackground = applicationCommand.modifiers.contains(.background)
       let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
-      let onlyIfRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
-      kind = .application(action: applicationCommand.action.displayValue,
-                          inBackground: inBackground,
-                          hideWhenRunning: hideWhenRunning,
-                          ifNotRunning: onlyIfRunning)
+      let ifNotRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
+      kind = .application(.init(id: applicationCommand.id, action: applicationCommand.action.displayValue,
+                                inBackground: inBackground, hideWhenRunning: hideWhenRunning, ifNotRunning: ifNotRunning))
 
-      name = applicationCommand.name.isEmpty
-      ? applicationCommand.application.displayName
-      : command.name
     case .builtIn(_):
       kind = .plain
-      name = command.name
     case .keyboard(let keyboardCommand):
-      kind =  .keyboard(keys: keyboardCommand.keyboardShortcuts)
-      name = command.name
+      kind =  .keyboard(.init(id: keyboardCommand.id, keys: keyboardCommand.keyboardShortcuts))
     case .menuBar(let menubarCommand):
-      kind = .menuBar(tokens: menubarCommand.tokens)
-      name = command.name
+      kind = .menuBar(.init(id: menubarCommand.id, tokens: menubarCommand.tokens))
     case .open(let openCommand):
-      let appName: String?
-      let appPath: String?
-      if let app = openCommand.application {
-        appName = app.displayName
-        appPath = app.path
-      } else if openCommand.isUrl,
-                let url = URL(string: openCommand.path),
-                let appUrl = NSWorkspace.shared.urlForApplication(toOpen: url),
-                let app = applicationStore.application(at: appUrl)
-      {
-        appName = app.displayName
-        appPath = app.path
-      } else {
-        appName = nil
-        appPath = nil
-      }
-
-      kind = .open(path: openCommand.path, applicationPath: appPath, appName: appName)
-
-      if openCommand.isUrl {
-        name = openCommand.path
-      } else {
-        name = openCommand.path
-      }
+      let applications = applicationStore.applicationsToOpen(openCommand.path)
+      kind = .open(.init(id: openCommand.id,
+                         path: openCommand.path,
+                         applicationPath: openCommand.application?.path,
+                         appName: openCommand.application?.displayName,
+                         applications: applications))
     case .shortcut(let shortcut):
-      kind = .shortcut(shortcut.shortcutIdentifier)
-      name = command.name
+      kind = .shortcut(.init(id: shortcut.id, shortcutIdentifier: shortcut.shortcutIdentifier))
     case .script(let script):
       switch script.source {
       case .path(let source):
-        kind = .script(.path(id: script.id, source: source, scriptExtension: script.kind))
+        kind = .script(.init(id: script.id, source: .path(source), scriptExtension: script.kind))
       case .inline(let source):
-        kind = .script(.inline(id: script.id, source: source, scriptExtension: script.kind))
+        kind = .script(.init(id: script.id, source: .inline(source), scriptExtension: script.kind))
       }
-
-      name = command.name
     case .type(let type):
-      kind = .type(input: type.input)
-      name = command.name
+      kind = .type(.init(id: type.id, input: type.input))
     case .systemCommand(let systemCommand):
-      kind = .systemCommand(kind: systemCommand.kind)
-      name = command.name
+      kind = .systemCommand(.init(id: systemCommand.id, kind: systemCommand.kind))
     }
 
-    return DetailViewModel.CommandViewModel(
-      id: command.id,
-      name: name,
-      kind: kind,
-      icon: command.icon,
-      delay: command.meta.delay,
-      isEnabled: command.isEnabled,
-      notify: command.notification
-    )
+    return kind
   }
 }
 

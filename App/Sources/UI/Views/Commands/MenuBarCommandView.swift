@@ -2,24 +2,24 @@ import SwiftUI
 
 struct MenuBarCommandView: View {
   enum Action {
-    case editCommand(DetailViewModel.CommandViewModel)
+    case editCommand(CommandViewModel.Kind.MenuBarModel)
     case commandAction(CommandContainerAction)
   }
   @Environment(\.openWindow) private var openWindow
-  @Binding private var command: DetailViewModel.CommandViewModel
-  @Binding private var tokens: [MenuBarCommand.Token]
+  @State var metaData: CommandViewModel.MetaData
+  @State var model: CommandViewModel.Kind.MenuBarModel
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
-       tokens: Binding<[MenuBarCommand.Token]>,
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.MenuBarModel,
        onAction: @escaping (Action) -> Void) {
-    _command = command
-    _tokens = tokens
+    _metaData = .init(initialValue: metaData)
+    _model = .init(initialValue: model)
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($command) { _ in
+    CommandContainerView($metaData) { _ in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
@@ -33,14 +33,14 @@ struct MenuBarCommandView: View {
     } content: { _ in
       ScrollView(.horizontal) {
         HStack(spacing: 4) {
-          ForEach(tokens) { token in
+          ForEach(model.tokens) { token in
             switch token {
             case .menuItem(let name):
               HStack(spacing: 0) {
                 Text(name)
                   .lineLimit(1)
                   .fixedSize(horizontal: true, vertical: true)
-                if token != tokens.last {
+                if token != model.tokens.last {
                   Text("❯")
                     .padding(.leading, 4)
                 }
@@ -54,7 +54,7 @@ struct MenuBarCommandView: View {
                 Text(rhs).bold()
                   .lineLimit(1)
                   .fixedSize(horizontal: true, vertical: true)
-                if token != tokens.last {
+                if token != model.tokens.last {
                   Text("❯")
                     .padding(.leading, 4)
                 }
@@ -84,7 +84,7 @@ struct MenuBarCommandView: View {
       .scrollIndicators(.hidden)
     } subContent: { _ in
       Button {
-        onAction(.editCommand(command))
+        onAction(.editCommand(model))
       } label: {
         Text("Edit")
           .font(.caption)
@@ -98,19 +98,10 @@ struct MenuBarCommandView: View {
 }
 
 struct MenuBarCommandView_Previews: PreviewProvider {
-  static let command: DetailViewModel.CommandViewModel = .init(
-    id: UUID().uuidString,
-    name: "Hello, world!",
-    kind: .menuBar(tokens: []),
-    isEnabled: true,
-    notify: false)
+  static let command = DesignTime.menuBarCommand
   static var previews: some View {
-    MenuBarCommandView(.constant(command),
-                       tokens: .constant([
-                        .menuItem(name: "Editor"),
-                        .menuItem(name: "Canvas"),
-//                        .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
-                       ])) { _ in }
+    MenuBarCommandView(command.model.meta, model: command.kind) { _ in }
+      .designTime()
       .frame(maxHeight: 80)
   }
 }

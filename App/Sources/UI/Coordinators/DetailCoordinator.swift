@@ -7,7 +7,7 @@ final class DetailCoordinator {
   let applicationStore: ApplicationStore
   let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   let commandEngine: CommandEngine
-  let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
+  let commandSelectionManager: SelectionManager<CommandViewModel>
   let contentSelectionManager: SelectionManager<ContentViewModel>
   let contentStore: ContentStore
   let detailPublisher: DetailPublisher = .init(DesignTime.emptyDetail)
@@ -21,7 +21,7 @@ final class DetailCoordinator {
   init(applicationStore: ApplicationStore,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandEngine: CommandEngine,
-       commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
+       commandSelectionManager: SelectionManager<CommandViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        contentStore: ContentStore,
        groupSelectionManager: SelectionManager<GroupViewModel>,
@@ -270,7 +270,7 @@ extension CommandView.Kind {
     }
   }
 
-  var commandId: DetailViewModel.CommandViewModel.ID {
+  var commandId: CommandViewModel.ID {
     switch self {
     case .application(_, _, let commandId),
         .keyboard(_, _, let commandId),
@@ -285,7 +285,7 @@ extension CommandView.Kind {
 }
 
 extension CommandView.Action {
-  var commandId: DetailViewModel.CommandViewModel.ID {
+  var commandId: CommandViewModel.ID {
     switch self {
     case .toggleEnabled(_, let commandId, _),
          .toggleNotify(_, let commandId, _),

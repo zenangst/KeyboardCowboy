@@ -27,13 +27,13 @@ struct SingleDetailView: View {
   private let onAction: (Action) -> Void
 
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
-  private let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
+  private let commandSelectionManager: SelectionManager<CommandViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        detailPublisher: DetailPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
+       commandSelectionManager: SelectionManager<CommandViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (Action) -> Void) {
     self.focus = focus

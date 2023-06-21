@@ -118,7 +118,7 @@ private extension Array where Element == Command {
       case .keyboard(let keyCommand):
         if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
           images.append(.init(id: keyboardShortcut.id, offset: convertedOffset,
-                              kind: .command(.keyboard(keys: keyCommand.keyboardShortcuts))))
+                              kind: .command(.keyboard(.init(id: keyCommand.id, keys: [keyboardShortcut])))))
         }
       case .open(let command):
         let path: String
@@ -139,22 +139,19 @@ private extension Array where Element == Command {
         case .inline(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
-                              kind: .command(.script(.inline(id: script.id,
-                                                             source: source,
-                                                             scriptExtension: script.kind)))))
+                              kind: .command(.script(.init(id: script.id, source: .inline(source), scriptExtension: script.kind)))))
         case .path(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
-                              kind: .command(.script(.path(id: script.id,
-                                                           source: source,
-                                                           scriptExtension: script.kind)))))
+                              kind: .command(.script(.init(id: script.id, source: .path(source), scriptExtension: script.kind)))))
         }
+
       case .shortcut(let shortcut):
         images.append(.init(id: shortcut.id,
                             offset: convertedOffset,
-                            kind: .command(.shortcut(shortcut.shortcutIdentifier))))
+                            kind: .command( .shortcut(.init(id: shortcut.id, shortcutIdentifier: shortcut.shortcutIdentifier)))))
       case .type(let type):
-        images.append(.init(id: type.id, offset: convertedOffset, kind: .command(.type(input: type.input))))
+        images.append(.init(id: type.id, offset: convertedOffset, kind: .command(.type(.init(id: type.id, input: type.input)))))
       case .systemCommand(let command):
         let path: String
         switch command.kind {

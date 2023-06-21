@@ -3,32 +3,36 @@ import SwiftUI
 struct ScriptCommandView: View {
   enum Action {
     case updateName(newName: String)
-    case updateSource(kind: DetailViewModel.CommandViewModel.ScriptKind)
+    case updateSource(CommandViewModel.Kind.ScriptModel)
     case open(path: String)
     case reveal(path: String)
     case edit
     case commandAction(CommandContainerAction)
   }
   @EnvironmentObject var openPanel: OpenPanelController
-  @State private var name: String
   @State private var text: String
-  @State private var command: DetailViewModel.CommandViewModel
+  @State private var metaData: CommandViewModel.MetaData
+  @State private var model: CommandViewModel.Kind.ScriptModel
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel, onAction: @escaping (Action) -> Void) {
-    _command = .init(initialValue: command)
-    _name = .init(initialValue: command.name)
-    self.onAction = onAction
-    switch command.kind {
-    case .script(let kind):
-      _text = .init(initialValue: kind.source)
-    default:
-      _text = .init(initialValue: "")
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.ScriptModel,
+       onAction: @escaping (Action) -> Void) {
+    _metaData = .init(initialValue: metaData)
+    _model = .init(initialValue: model)
+
+    switch model.source {
+    case .inline(let source):
+      _text = .init(initialValue: source)
+    case .path(let source):
+      _text = .init(initialValue: source)
     }
+
+    self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($command, icon: { command in
+    CommandContainerView($metaData, icon: { command in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
@@ -38,56 +42,52 @@ struct ScriptCommandView: View {
           .aspectRatio(1, contentMode: .fill)
           .frame(width: 32)
       }
-    }, content: { command in
+    }, content: { metaData in
       VStack {
         HStack(spacing: 8) {
-          TextField("", text: $name)
+          TextField("", text: $metaData.name)
             .textFieldStyle(AppTextFieldStyle())
-            .onChange(of: name, perform: {
+            .onChange(of: metaData.wrappedValue.name, perform: {
               onAction(.updateName(newName: $0))
             })
           Spacer()
         }
 
-        if case .script(let kind) = command.wrappedValue.kind {
-          switch kind {
-          case .inline(let id, _, let scriptExtension):
-            ScriptEditorView(text: $text, syntax: .constant(AppleScriptHighlighting()))
-              .onChange(of: text) { newSource in
-                onAction(.updateSource(kind: .inline(id: id, source: newSource, scriptExtension: scriptExtension)))
-              }
-          case .path(let id, _, let scriptExtension):
-            HStack {
-              TextField("Path", text: $text)
-                .textFieldStyle(FileSystemTextFieldStyle())
-                .onChange(of: text) { newPath in
-                  self.text = newPath
-                  onAction(.updateSource(kind: .path(id: id, source: newPath, scriptExtension: scriptExtension)))
-                }
-              Button("Browse", action: {
-                openPanel.perform(.selectFile(type: scriptExtension.rawValue, handler: { newPath in
-                  self.text = newPath
-                  onAction(.updateSource(kind: .path(id: id, source: newPath, scriptExtension: scriptExtension)))
-                }))
-              })
-              .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
-              .font(.caption)
+        switch model.source {
+        case .inline:
+          ScriptEditorView(text: $text, syntax: .constant(AppleScriptHighlighting()))
+            .onChange(of: text) { newSource in
+              onAction(.updateSource(.init(id: model.id, source: .inline(newSource), scriptExtension: model.scriptExtension)))
             }
+        case .path:
+          HStack {
+            TextField("Path", text: $text)
+              .textFieldStyle(FileSystemTextFieldStyle())
+              .onChange(of: text) { newPath in
+                self.text = newPath
+                onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
+              }
+            Button("Browse", action: {
+              openPanel.perform(.selectFile(type: model.scriptExtension.rawValue, handler: { newPath in
+                self.text = newPath
+                onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
+              }))
+            })
+            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+            .font(.caption)
           }
         }
       }
-    }, subContent: { command in
+    }, subContent: { _ in
       HStack {
-        if case .script(let kind) = command.wrappedValue.kind {
-          switch kind {
-          case .inline:
+        switch model.source {
+        case .path(let source):
+          Button("Open", action: { onAction(.open(path: source)) })
+            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemCyan, grayscaleEffect: true)))
+          Button("Reveal", action: { onAction(.reveal(path: source)) })
+            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+        case .inline:
             EmptyView()
-          case .path(_, let source, _):
-            Button("Open", action: { onAction(.open(path: source)) })
-              .buttonStyle(.gradientStyle(config: .init(nsColor: .systemCyan, grayscaleEffect: true)))
-            Button("Reveal", action: { onAction(.reveal(path: source)) })
-              .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
-          }
         }
       }
       .font(.caption)
@@ -97,13 +97,18 @@ struct ScriptCommandView: View {
 }
 
 struct ScriptCommandView_Previews: PreviewProvider {
+  static let inlineCommand = DesignTime.scriptCommandInline
+  static let pathCommand = DesignTime.scriptCommandWithPath
+
   static var previews: some View {
-    VStack {
-      ScriptCommandView(DesignTime.scriptCommandInline, onAction: { _ in })
-        .frame(maxHeight: 80)
-      Divider()
-      ScriptCommandView(DesignTime.scriptCommandWithPath, onAction: { _ in })
-        .frame(maxHeight: 80)
+    Group {
+      ScriptCommandView(inlineCommand.model.meta, model: inlineCommand.kind) { _ in }
+        .frame(maxHeight: 120)
+        .previewDisplayName("Inline")
+      ScriptCommandView(pathCommand.model.meta, model: pathCommand.kind) { _ in }
+        .frame(maxHeight: 120)
+        .previewDisplayName("Path")
     }
+    .designTime()
   }
 }

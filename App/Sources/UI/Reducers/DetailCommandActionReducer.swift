@@ -124,15 +124,17 @@ final class DetailCommandActionReducer {
         }
       case .script(let action, _, _):
         switch action {
-        case .updateSource(let newKind):
-          let scriptCommand: ScriptCommand
-          switch newKind {
-          case .path(_, let source, let kind):
-            scriptCommand = .init(name: command.name, kind: kind, source: .path(source), notification: false)
-          case .inline(_, let source, let kind):
-            scriptCommand = .init(name: command.name, kind: kind, source: .inline(source), notification: false)
+        case .updateSource(let model):
+          let kind: ScriptCommand.Kind
+          switch model.scriptExtension {
+          case .appleScript:
+            kind = .appleScript
+          case .shellScript:
+            kind = .shellScript
           }
-          command = .script(scriptCommand)
+          command = .script(.init(id: command.id,
+                                  name: command.name, kind: kind, source: model.source,
+                                  notification: command.meta.notification))
           workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
