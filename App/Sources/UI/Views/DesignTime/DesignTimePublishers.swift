@@ -113,72 +113,83 @@ enum DesignTime {
   @MainActor
   static var detailPublisher = DetailPublisher { DesignTime.detail }
 
-  static var applicationCommand: DetailViewModel.CommandViewModel {
-    .init(id: UUID().uuidString,
-          name: "News",
-          kind: .application(action: "Open",
-                             inBackground: true,
-                             hideWhenRunning: false,
-                             ifNotRunning: false),
-          icon: .init(bundleIdentifier: "com.apple.news", path: "/System/Applications/News.app"),
-          isEnabled: true,
-          notify: false)
+  static func metadata(name: String, icon: IconViewModel?) -> CommandViewModel.MetaData {
+    CommandViewModel.MetaData(
+      id: UUID().uuidString,
+      name: name,
+      isEnabled: true,
+      notification: false,
+      icon: icon)
   }
 
-  static var menuBarCommand: DetailViewModel.CommandViewModel {
-    return .init(id: UUID().uuidString, name: "",
-                 kind: .menuBar(tokens: [
-                  .menuItem(name: "View"),
-                  .menuItem(name: "Navigators"),
-                  .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
-                 ]), isEnabled: true, notify: false)
+  static var applicationCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.ApplicationModel) {
+    let kind = CommandViewModel.Kind.ApplicationModel(id: UUID().uuidString, action: "Open",
+                                                      inBackground: false, hideWhenRunning: false,
+                                                      ifNotRunning: false)
+    return (.init(meta: metadata(name: "News", icon: .init(bundleIdentifier: "com.apple.news",
+                                                           path: "/System/Applications/News.app")),
+                  kind: .application(kind)), kind)
   }
 
-  static var openCommand: DetailViewModel.CommandViewModel {
+  static var menuBarCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.MenuBarModel) {
+    let kind = CommandViewModel.Kind.MenuBarModel(id: UUID().uuidString, tokens: [
+      .menuItem(name: "View"),
+      .menuItem(name: "Navigators"),
+      .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
+    ])
+    return (.init(meta: metadata(name: "", icon: nil), kind: .menuBar(kind)), kind)
+  }
+
+  static var openCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.OpenModel) {
     let homeDirectory = ("~/" as NSString).expandingTildeInPath
-    return .init(id: UUID().uuidString,
-                 name: "Home Folder",
-                 kind: .open(path: "", applicationPath: nil, appName: nil),
-                 icon: .init(bundleIdentifier: homeDirectory, path: homeDirectory),
-                 isEnabled: true,
-                 notify: true)
+    let kind = CommandViewModel.Kind.OpenModel(id: UUID().uuidString, path: homeDirectory, applications: [])
+
+    return (.init(meta: metadata(
+      name: "Home Folder",
+      icon: .init(bundleIdentifier: homeDirectory, path: homeDirectory)),
+                  kind: .open(kind)), kind)
   }
 
-  static var scriptCommandWithPath: DetailViewModel.CommandViewModel {
+  static var scriptCommandWithPath: (model: CommandViewModel, kind: CommandViewModel.Kind.ScriptModel) {
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
-    return .init(id: UUID().uuidString,
-                 name: scriptFile,
-                 kind: .script(.path(id: UUID().uuidString, source: "", scriptExtension: .appleScript)),
-                 icon: .init(bundleIdentifier: scriptFile, path: scriptFile),
-                 isEnabled: true,
-                 notify: true)
+    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .path(scriptFile), scriptExtension: .appleScript)
+    return (.init(meta: metadata(name: "Run AppleScript.scpt",
+                                 icon: .init(bundleIdentifier: scriptFile, path: scriptFile)),
+                  kind: .script(kind)), kind)
   }
 
-  static var scriptCommandInline: DetailViewModel.CommandViewModel {
+  static var scriptCommandInline: (model: CommandViewModel, kind: CommandViewModel.Kind.ScriptModel) {
+    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .inline("hello, world!"), scriptExtension: .appleScript)
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
-    return .init(id: UUID().uuidString,
-                 name: "Left align the Dock",
-                 kind: .script(.inline(id: UUID().uuidString, source: "hello world", scriptExtension: .shellScript)),
-                 icon: .init(bundleIdentifier: scriptFile, path: scriptFile),
-                 isEnabled: true,
-                 notify: false)
+
+    return (.init(meta: metadata(name: "Left align the Dock",
+                                 icon: .init(bundleIdentifier: scriptFile, path: scriptFile)),
+                  kind: .script(kind)), kind)
   }
 
-  static var rebindingCommand: DetailViewModel.CommandViewModel {
-    .init(id: UUID().uuidString,
-          name: "Rebind esc to enter",
-          kind: .keyboard(keys: [.init(id: UUID().uuidString, key: "F", lhs: false, modifiers: [.function, .command])]),
-          icon: nil,
-          isEnabled: true,
-          notify: false)
+  static var rebindingCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.KeyboardModel) {
+    let kind = CommandViewModel.Kind.KeyboardModel(id: UUID().uuidString, keys: [
+      .init(id: UUID().uuidString, key: "F", lhs: false, modifiers: [.function, .command])
+    ])
+    return (.init(meta: metadata(name: "Rebind esc to enter", icon: nil),
+           kind: .keyboard(kind)), kind)
   }
 
-  static var shortcutCommand: DetailViewModel.CommandViewModel {
-    .init(id: UUID().uuidString, name: "Run shortcut", kind: .shortcut("Shortcut identifier"), icon: nil, isEnabled: true, notify: true)
+  static var shortcutCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.ShortcutModel) {
+    let kind = CommandViewModel.Kind.ShortcutModel(id: UUID().uuidString, shortcutIdentifier: "Run shortcut")
+    return (.init(meta: metadata(name: "Run shortcut", icon: nil),
+                 kind: .shortcut(kind)), kind)
   }
 
-  static var typeCommand: DetailViewModel.CommandViewModel {
-    .init(id: UUID().uuidString, name: "Type command", kind: .type(input: "input"), icon: nil, isEnabled: true, notify: true)
+  static var systemCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.SystemModel) {
+    let kind = CommandViewModel.Kind.SystemModel(id: UUID().uuidString, kind: .moveFocusToNextWindow)
+    return (.init(meta: metadata(name: "Run shortcut", icon: nil),
+                 kind: .systemCommand(kind)), kind)
+  }
+
+  static var typeCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.TypeModel) {
+    let kind = CommandViewModel.Kind.TypeModel(id: UUID().uuidString, input: "typing ...")
+    return (.init(meta: metadata(name: "Typing...", icon: nil), kind: .type(kind)), kind)
   }
 
   static var emptyDetail: DetailViewModel {
@@ -192,12 +203,12 @@ enum DesignTime {
       isEnabled: true,
       trigger: .keyboardShortcuts(.init(passthrough: false, shortcuts: [.init(key: "f", lhs: true, modifiers: [.function])])),
       commands: [
-        Self.menuBarCommand,
-        Self.applicationCommand,
-        Self.openCommand,
-        Self.scriptCommandWithPath,
-        Self.scriptCommandInline,
-        Self.rebindingCommand
+        Self.menuBarCommand.model,
+        Self.applicationCommand.model,
+        Self.openCommand.model,
+        Self.scriptCommandWithPath.model,
+        Self.scriptCommandInline.model,
+        Self.rebindingCommand.model
       ], execution: .serial)
   }
 }

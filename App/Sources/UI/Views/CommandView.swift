@@ -2,22 +2,22 @@ import SwiftUI
 
 struct CommandView: View {
   enum Action {
-    case changeDelay(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID, newValue: Double?)
-    case toggleNotify(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID, newValue: Bool)
-    case toggleEnabled(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID, newValue: Bool)
+    case changeDelay(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID, newValue: Double?)
+    case toggleNotify(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID, newValue: Bool)
+    case toggleEnabled(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID, newValue: Bool)
     case modify(Kind)
-    case run(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
-    case remove(workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case run(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case remove(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
   }
 
   enum Kind {
-    case application(action: ApplicationCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
-    case keyboard(action: KeyboardCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
-    case open(action: OpenCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
-    case script(action: ScriptCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
-    case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
-    case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
-    case system(action: SystemCommandView.Action, workflowId: DetailViewModel.ID, commandId: DetailViewModel.CommandViewModel.ID)
+    case application(action: ApplicationCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case keyboard(action: KeyboardCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case open(action: OpenCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case script(action: ScriptCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case system(action: SystemCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
   }
 
   @Environment(\.openWindow) var openWindow
@@ -25,17 +25,17 @@ struct CommandView: View {
 
   let workflowId: String
   private var detailPublisher: DetailPublisher
-  private var selectionManager: SelectionManager<DetailViewModel.CommandViewModel>
-  private var focusPublisher: FocusPublisher<DetailViewModel.CommandViewModel>
+  private var selectionManager: SelectionManager<CommandViewModel>
+  private var focusPublisher: FocusPublisher<CommandViewModel>
   @State var isTargeted: Bool = false
-  @Binding private var command: DetailViewModel.CommandViewModel
+  @Binding private var command: CommandViewModel
   private let onCommandAction: (SingleDetailView.Action) -> Void
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ command: Binding<CommandViewModel>,
        detailPublisher: DetailPublisher,
-       focusPublisher: FocusPublisher<DetailViewModel.CommandViewModel>,
-       selectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
+       focusPublisher: FocusPublisher<CommandViewModel>,
+       selectionManager: SelectionManager<CommandViewModel>,
        workflowId: String,
        onCommandAction: @escaping (SingleDetailView.Action) -> Void,
        onAction: @escaping (Action) -> Void) {
@@ -50,7 +50,7 @@ struct CommandView: View {
 
   var body: some View {
     CommandResolverView($command, workflowId: workflowId, onAction: onAction)
-      .onChange(of: command.isEnabled, perform: { newValue in
+      .onChange(of: command.meta.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
       })
       .background(
@@ -104,23 +104,23 @@ struct CommandView: View {
       }, isTargeted: { newValue in
         isTargeted = newValue
       })
-      .animation(.none, value: command.isEnabled)
-      .grayscale(command.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
-      .opacity(command.isEnabled ? 1 : 0.5)
+      .animation(.none, value: command.meta.isEnabled)
+      .grayscale(command.meta.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
+      .opacity(command.meta.isEnabled ? 1 : 0.5)
       .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
-              radius: command.isEnabled ? 4 : 2,
-              y: command.isEnabled ? 2 : 0)
-      .animation(.easeIn(duration: 0.2), value: command.isEnabled)
+              radius: command.meta.isEnabled ? 4 : 2,
+              y: command.meta.isEnabled ? 2 : 0)
+      .animation(.easeIn(duration: 0.2), value: command.meta.isEnabled)
   }
 }
 
 struct CommandResolverView: View {
   @Environment(\.openWindow) var openWindow
-  @Binding private var command: DetailViewModel.CommandViewModel
+  @Binding private var command: CommandViewModel
   private let workflowId: DetailViewModel.ID
   private let onAction: (CommandView.Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ command: Binding<CommandViewModel>,
        workflowId: String,
        onAction: @escaping (CommandView.Action) -> Void) {
     _command = command
@@ -133,8 +133,8 @@ struct CommandResolverView: View {
     switch command.kind {
     case .plain:
       UnknownView(command: .constant(command))
-    case .menuBar(let tokens):
-      MenuBarCommandView($command, tokens: Binding(get: { tokens }, set: { _ in })) { action in
+    case .menuBar(let model):
+      MenuBarCommandView(command.meta, model: model) { action in
         switch action {
         case .editCommand(let command):
           openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
@@ -143,37 +143,26 @@ struct CommandResolverView: View {
           handleCommandContainerAction(action)
         }
       }
-    case .open:
-      OpenCommandView(
-        $command,
-        onAction: { action in
+    case .open(let model):
+      OpenCommandView(command.meta, model: model){ action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
             onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
           }
-        })
-    case .application(let action, let inBackground, let hideWhenRunning, let ifNotRunning):
-      ApplicationCommandView(
-        command,
-        actionName: action,
-        notify: command.notify,
-        inBackground: inBackground,
-        hideWhenRunning: hideWhenRunning,
-        ifNotRunning: ifNotRunning,
-        onAction: { action in
+        }
+    case .application(let model):
+      ApplicationCommandView(command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
             onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
           }
-        })
-    case .script:
-      ScriptCommandView(
-        command,
-        onAction: { action in
+        }
+    case .script(let model):
+      ScriptCommandView(command.meta, model: model) { action in
           switch action {
           case .edit:
             return
@@ -182,43 +171,36 @@ struct CommandResolverView: View {
           default:
             onAction(.modify(.script(action: action, workflowId: workflowId, commandId: command.id)))
           }
-        })
-    case .keyboard:
-      KeyboardCommandView(
-        command,
-        notify: command.notify,
-        onAction: { action in
+        }
+    case .keyboard(let model):
+      KeyboardCommandView(command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
             onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
           }
-        })
-    case .shortcut:
-      ShortcutCommandView(
-        command,
-        onAction: { action in
+        }
+    case .shortcut(let model):
+      ShortcutCommandView(command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
             onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
           }
-        })
-    case .type:
-      TypeCommandView(
-        command,
-        onAction: { action in
+        }
+    case .type(let model):
+      TypeCommandView(command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
             onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
           }
-        })
-    case .systemCommand(let kind):
-      SystemCommandView(command, kind: kind) { action in
+        }
+    case .systemCommand(let model):
+      SystemCommandView(command.meta, model: model) { action in
         switch action {
         case .commandAction(let action):
           handleCommandContainerAction(action)

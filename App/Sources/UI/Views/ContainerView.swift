@@ -33,7 +33,7 @@ struct ContainerView: View {
   let onAction: (Action, UndoManager?) -> Void
 
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
-  private let commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>
+  private let commandSelectionManager: SelectionManager<CommandViewModel>
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let groupsSelectionManager: SelectionManager<GroupViewModel>
@@ -41,7 +41,7 @@ struct ContainerView: View {
 
   init(focus: FocusState<AppFocus?>.Binding,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       commandSelectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
+       commandSelectionManager: SelectionManager<CommandViewModel>,
        configSelectionManager: SelectionManager<ConfigurationViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupsSelectionManager: SelectionManager<GroupViewModel>,

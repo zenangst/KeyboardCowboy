@@ -9,24 +9,17 @@ struct ShortcutCommandView: View {
   }
 
   @EnvironmentObject var shortcutStore: ShortcutStore
-  @State private var name: String
-  @State private var shortcut: String
-  @State var command: DetailViewModel.CommandViewModel
+  @State var metaData: CommandViewModel.MetaData
+  @State var model: CommandViewModel.Kind.ShortcutModel
 
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.ShortcutModel,
        onAction: @escaping (Action) -> Void) {
-    _command = .init(initialValue: command)
-    _name = .init(initialValue: command.name)
-
-    if case .shortcut(let name) = command.kind {
-      _shortcut = .init(initialValue: name)
-    } else {
-      _shortcut = .init(initialValue: "")
-    }
-
+    _metaData = .init(initialValue: metaData)
+    _model = .init(initialValue: model)
     self.onAction = onAction
     self.debounce = DebounceManager(for: .milliseconds(500), onUpdate: { value in
       onAction(.updateName(newName: value))
@@ -34,7 +27,7 @@ struct ShortcutCommandView: View {
   }
   
   var body: some View {
-    CommandContainerView($command, icon: { command in
+    CommandContainerView($metaData, icon: { metaData in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
@@ -43,13 +36,13 @@ struct ShortcutCommandView: View {
       }
     }, content: { command in
       VStack {
-        TextField("", text: $name)
+        TextField("", text: $metaData.name)
           .textFieldStyle(AppTextFieldStyle())
-          .onChange(of: name, perform: { debounce.send($0) })
-        Menu(shortcut) {
+          .onChange(of: metaData.name, perform: { debounce.send($0) })
+        Menu(model.shortcutIdentifier) {
           ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in
             Button(shortcut.name, action: {
-              self.shortcut = shortcut.name
+              model.shortcutIdentifier = shortcut.name
               onAction(.updateShortcut(shortcutName: shortcut.name))
             })
           }
@@ -69,8 +62,9 @@ struct ShortcutCommandView: View {
 }
 
 struct ShortcutCommandView_Previews: PreviewProvider {
+  static let command = DesignTime.shortcutCommand
   static var previews: some View {
-    ShortcutCommandView(DesignTime.shortcutCommand, onAction: { _ in})
+    ShortcutCommandView(command.model.meta, model: command.kind) { _ in }
       .frame(maxHeight: 100)
       .designTime()
   }

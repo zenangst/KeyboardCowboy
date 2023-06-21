@@ -4,23 +4,20 @@ import SwiftUI
 struct OpenCommandView: View {
   enum Action {
     case updatePath(newPath: String)
-    case openWith(Application)
+    case openWith(Application?)
     case commandAction(CommandContainerAction)
     case reveal(path: String)
   }
-  @EnvironmentObject var applicationStore: ApplicationStore
-  @Binding var command: DetailViewModel.CommandViewModel
-  @State private var path: String
-  @State private var isHovered = false
-  @State private var notify = false
+  @State var metaData: CommandViewModel.MetaData
+  @State var model: CommandViewModel.Kind.OpenModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<DetailViewModel.CommandViewModel>,
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.OpenModel,
        onAction: @escaping (Action) -> Void) {
-    _command = command
-    _path = .init(initialValue: command.wrappedValue.name)
-    _notify = .init(initialValue: command.wrappedValue.notify)
+    _metaData = .init(initialValue: metaData)
+    _model = .init(initialValue: model)
     self.debounce = DebounceManager(for: .milliseconds(500)) { newPath in
       onAction(.updatePath(newPath: newPath))
     }
@@ -28,13 +25,11 @@ struct OpenCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($command, icon: { command in
+    CommandContainerView($metaData, icon: { command in
       ZStack(alignment: .bottomTrailing) {
         if let icon = command.icon.wrappedValue {
           IconView(icon: icon, size: .init(width: 32, height: 32))
-
-          if case .open(_, let appPath, _) = command.wrappedValue.kind,
-             let appPath {
+          if let appPath = model.applicationPath {
             IconView(icon: .init(bundleIdentifier: appPath, path: appPath), size: .init(width: 16, height: 16))
               .shadow(radius: 3)
           }
@@ -42,40 +37,43 @@ struct OpenCommandView: View {
       }
     }, content: { command in
       HStack(spacing: 2) {
-        TextField("", text: $path)
+        TextField("", text: $model.path)
           .textFieldStyle(AppTextFieldStyle())
-          .onChange(of: path, perform: { debounce.send($0) })
+          .onChange(of: model.path, perform: { debounce.send($0) })
           .frame(maxWidth: .infinity)
 
-        if case .open(_, _, let appName) = command.wrappedValue.kind {
-          Menu(content: {
-            ForEach(applicationStore.applicationsToOpen(command.wrappedValue.name)) { app in
-              Button(app.displayName, action: {
-                onAction(.openWith(app))
-              })
-            }
-          }, label: {
-              Text(appName ?? "Default")
-                .font(.caption)
-                .truncationMode(.middle)
-                .lineLimit(1)
-                .allowsTightening(true)
-                .padding(4)
-          })
-          .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false),
-                                       menuIndicator: applicationStore.applicationsToOpen(command.wrappedValue.name).isEmpty ? .hidden : .visible))
-        }
+        Menu(content: {
+          ForEach(model.applications) { app in
+            Button(app.displayName, action: {
+              model.appName = app.displayName
+              model.applicationPath = app.path
+              onAction(.openWith(app))
+            })
+          }
+          if !model.applications.isEmpty {
+            Divider()
+            Button("Default", action: {
+              model.appName = nil
+              model.applicationPath = nil
+              onAction(.openWith(nil))
+            })
+          }
+        }, label: {
+          Text(model.appName ?? "Default")
+            .font(.caption)
+            .truncationMode(.middle)
+            .lineLimit(1)
+            .allowsTightening(true)
+            .padding(4)
+        })
+        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false),
+                                     menuIndicator: model.applications.isEmpty ? .hidden : .visible))
       }
     }, subContent: { command in
       HStack {
-        switch command.wrappedValue.kind {
-        case .open(let path, _, _):
-          if !path.hasPrefix("http") {
-            Button("Reveal", action: { onAction(.reveal(path: path)) })
-              .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue, grayscaleEffect: true)))
-          }
-        default:
-          EmptyView()
+        if model.path.hasPrefix("http") == false {
+          Button("Reveal", action: { onAction(.reveal(path: model.path)) })
+            .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue, grayscaleEffect: true)))
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
@@ -86,8 +84,10 @@ struct OpenCommandView: View {
 }
 
 struct OpenCommandView_Previews: PreviewProvider {
-    static var previews: some View {
-      OpenCommandView(.constant(DesignTime.openCommand), onAction: { _ in })
-        .frame(maxHeight: 80)
-    }
+  static let command = DesignTime.openCommand
+  static var previews: some View {
+    OpenCommandView(command.model.meta, model: command.kind) { _ in }
+      .designTime()
+      .frame(maxHeight: 80)
+  }
 }

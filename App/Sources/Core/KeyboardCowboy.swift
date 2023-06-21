@@ -74,7 +74,7 @@ struct KeyboardCowboy: App {
 
     let keyboardShortcutSelectionManager = SelectionManager<KeyShortcut>()
     let applicationTriggerSelectionManager = SelectionManager<DetailViewModel.ApplicationTrigger>()
-    let commandSelectionManager = SelectionManager<DetailViewModel.CommandViewModel>()
+    let commandSelectionManager = SelectionManager<CommandViewModel>()
 
     // Coordinators
     let configCoordinator = ConfigurationCoordinator(

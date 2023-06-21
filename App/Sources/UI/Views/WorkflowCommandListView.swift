@@ -11,11 +11,11 @@ struct WorkflowCommandListView: View {
   var namespace: Namespace.ID
   @EnvironmentObject var applicationStore: ApplicationStore
   @ObservedObject private var detailPublisher: DetailPublisher
-  @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.CommandViewModel>
+  @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
   @State private var selections = Set<String>()
   @State private var dropOverlayIsVisible: Bool = false
   @State private var dropUrls = Set<URL>()
-  private var focusPublisher = FocusPublisher<DetailViewModel.CommandViewModel>()
+  private var focusPublisher = FocusPublisher<CommandViewModel>()
   private let scrollViewProxy: ScrollViewProxy?
   private let onAction: (SingleDetailView.Action) -> Void
   private let focus: FocusState<AppFocus?>.Binding
@@ -23,7 +23,7 @@ struct WorkflowCommandListView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
        publisher: DetailPublisher,
-       selectionManager: SelectionManager<DetailViewModel.CommandViewModel>,
+       selectionManager: SelectionManager<CommandViewModel>,
        scrollViewProxy: ScrollViewProxy? = nil,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.focus = focus
@@ -133,7 +133,7 @@ struct WorkflowCommandListView: View {
   }
 
   @ViewBuilder
-  private func contextMenu(_ command: Binding<DetailViewModel.CommandViewModel>) -> some View {
+  private func contextMenu(_ command: Binding<CommandViewModel>) -> some View {
     Button("Run", action: {})
     Divider()
     Button("Remove", action: {

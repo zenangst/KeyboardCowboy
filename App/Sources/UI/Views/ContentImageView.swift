@@ -16,9 +16,9 @@ struct ContentImageView: View {
       switch kind {
       case .menuBar:
         EmptyView()
-      case .keyboard(let keys):
+      case .keyboard(let model):
         ZStack {
-          ForEach(keys) { key in
+          ForEach(model.keys) { key in
             RegularKeyIcon(letter: key.key)
               .fixedSize()
               .scaleEffect(0.8)
@@ -40,8 +40,8 @@ struct ContentImageView: View {
        EmptyView()
       case .open:
         EmptyView()
-      case .script(let scriptKind):
-        switch scriptKind {
+      case .script(let model):
+        switch model.source {
         case .inline:
           ZStack {
             Rectangle()

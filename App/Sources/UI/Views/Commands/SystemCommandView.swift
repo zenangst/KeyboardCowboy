@@ -5,27 +5,25 @@ struct SystemCommandView: View {
     case updateKind(newKind: SystemCommand.Kind)
     case commandAction(CommandContainerAction)
   }
-  @State private var command: DetailViewModel.CommandViewModel
-  @State private var kind: SystemCommand.Kind
-  @State private var notify: Bool
+  @State var metaData: CommandViewModel.MetaData
+  @State var model: CommandViewModel.Kind.SystemModel
   let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
-       kind: SystemCommand.Kind,
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.SystemModel,
        onAction: @escaping (Action) -> Void) {
-    _kind = .init(initialValue: kind)
-    _notify = .init(initialValue: command.notify)
-    _command = .init(initialValue: command)
+    _metaData = .init(initialValue: metaData)
+    _model = .init(initialValue: model)
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($command, icon: { command in
+    CommandContainerView($metaData, icon: { command in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
           .cornerRadius(8, antialiased: false)
-        IconView(icon: kind.icon, size: .init(width: 32, height: 32))
+        IconView(icon: model.kind.icon, size: .init(width: 32, height: 32))
           .allowsHitTesting(false)
       }
     }, content: { command in
@@ -33,13 +31,13 @@ struct SystemCommandView: View {
         Menu(content: {
           ForEach(SystemCommand.Kind.allCases) { kind in
             Button(kind.displayValue) {
-              self.kind = kind
+              model.kind = kind
               onAction(.updateKind(newKind: kind))
             }
           }
         }, label: {
           HStack(spacing: 4) {
-            Text(kind.displayValue)
+            Text(model.kind.displayValue)
               .font(.caption)
               .truncationMode(.middle)
               .allowsTightening(true)
@@ -50,7 +48,7 @@ struct SystemCommandView: View {
       }
     }, subContent: { _ in },
     onAction: { onAction(.commandAction($0)) })
-    .id(kind)
+    .id(model.id)
   }
 }
 
@@ -78,9 +76,9 @@ extension SystemCommand.Kind {
 }
 
 struct SystemCommandView_Previews: PreviewProvider {
-  static let kind: SystemCommand.Kind = .missionControl
-  static let command = DetailViewModel.CommandViewModel(id: UUID().uuidString, name: "Test", kind: .systemCommand(kind: kind), isEnabled: true, notify: true)
+  static let command = DesignTime.systemCommand
   static var previews: some View {
-    SystemCommandView(command, kind: kind) { _ in }
+    SystemCommandView(command.model.meta, model: command.kind) { _ in }
+      .designTime()
   }
 }

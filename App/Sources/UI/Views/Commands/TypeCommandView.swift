@@ -6,37 +6,26 @@ struct TypeCommandView: View {
     case updateSource(newInput: String)
     case commandAction(CommandContainerAction)
   }
-  @State var command: DetailViewModel.CommandViewModel
-  @State private var source: String
-  @State private var name: String
-  @State private var notify: Bool
+  @State var metaData: CommandViewModel.MetaData
+  @State var model: CommandViewModel.Kind.TypeModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
-  init(_ command: DetailViewModel.CommandViewModel,
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.TypeModel,
        onAction: @escaping (Action) -> Void) {
-    _command = .init(initialValue: command)
-    _name = .init(initialValue: command.name)
-    _notify = .init(initialValue: command.notify)
-
-    switch command.kind {
-    case .type(let input):
-      _source = .init(initialValue: input)
-      debounce = DebounceManager(for: .milliseconds(500)) { newInput in
-        onAction(.updateSource(newInput: newInput))
-      }
-    default:
-      _source = .init(initialValue: "")
-      debounce = DebounceManager(for: .milliseconds(500)) { _ in }
+    _metaData = .init(initialValue: metaData)
+    _model = .init(initialValue: model)
+    debounce = DebounceManager(for: .milliseconds(500)) { newInput in
+      onAction(.updateSource(newInput: newInput))
     }
-
     self.onAction = onAction
   }
 
   var body: some View {
     CommandContainerView(
-      $command,
-      icon: { command in
+      $metaData,
+      icon: { metaData in
         ZStack {
           Rectangle()
             .fill(Color(.controlAccentColor).opacity(0.375))
@@ -44,17 +33,19 @@ struct TypeCommandView: View {
           RegularKeyIcon(letter: "(...)", width: 24, height: 24)
             .frame(width: 16, height: 16)
         }
-      }, content: { command in
-        TypeCommandTextEditor(text: $source)
-          .onChange(of: source) { debounce.send($0) }
+      }, content: { metaData in
+        TypeCommandTextEditor(text: $model.input)
+          .onChange(of: model.input) { debounce.send($0) }
       }, subContent: { _ in }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()
   }
 }
 
 struct TypeCommandView_Previews: PreviewProvider {
+  static let command = DesignTime.typeCommand
   static var previews: some View {
-    TypeCommandView(DesignTime.typeCommand, onAction: { _ in })
+    TypeCommandView(command.model.meta, model: command.kind) { _ in }
+      .designTime()
       .frame(idealHeight: 120, maxHeight: 180)
   }
 }

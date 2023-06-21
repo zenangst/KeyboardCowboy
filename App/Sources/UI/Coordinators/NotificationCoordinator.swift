@@ -25,10 +25,10 @@ final class NotificationCoordinator {
 
   private func process(_ command: Command) {
     Task {
-      let commandViewModel: DetailViewModel.CommandViewModel = mapper.map(command)
-      let viewModel = NotificationViewModel(id: commandViewModel.id,
-                                            icon: commandViewModel.icon,
-                                            name: commandViewModel.name,
+      let commandViewModel: CommandViewModel = mapper.map(command)
+      let viewModel = NotificationViewModel(id: commandViewModel.meta.id,
+                                            icon: commandViewModel.meta.icon,
+                                            name: commandViewModel.meta.name,
                                             result: .success)
       await publisher.publish([viewModel])
     }
