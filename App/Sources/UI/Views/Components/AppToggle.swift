@@ -8,18 +8,18 @@ struct AppToggle: View {
     var size: CGSize {
       switch self {
       case .regular:
-        CGSize(width: 38, height: 20)
+        return CGSize(width: 38, height: 20)
       case .small:
-        CGSize(width: 22, height: 12)
+        return CGSize(width: 22, height: 12)
       }
     }
 
     var circle: CGSize {
       switch self {
       case .regular:
-        CGSize(width: 19, height: 19)
+        return CGSize(width: 19, height: 19)
       case .small:
-        CGSize(width: 11, height: 11)
+        return CGSize(width: 11, height: 11)
       }
     }
   }
