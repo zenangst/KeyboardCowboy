@@ -6,5 +6,5 @@ echo "APP_SCHEME=Keyboard-Cowboy" >> .env
 echo "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
 echo "TEAM_ID=XXXXXXXXXX" >> .env
 source .env
-tuist fetch
-tuist generate
+tuist fetch --path ../
+tuist generate --path ../
