@@ -8,4 +8,4 @@ echo "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
 echo "TEAM_ID=XXXXXXXXXX" >> .env
 source .env
 tuist fetch
-tuist generate
+tuist generate -n
