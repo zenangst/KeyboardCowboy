@@ -1,5 +1,5 @@
 #!/bin/sh
-brew install --cask tuist
+curl -Ls https://install.tuist.io | bash
 touch .ci_env
 echo "APP_NAME=Keyboard Cowboy" >> .env
 echo "APP_SCHEME=Keyboard-Cowboy" >> .env
