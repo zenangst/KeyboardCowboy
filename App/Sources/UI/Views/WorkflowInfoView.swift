@@ -45,13 +45,7 @@ struct WorkflowInfoView: View {
         .onChange(of: workflowName) { debounce.send($0) }
 
       Spacer()
-      Toggle("", isOn: $isEnabled)
-        .toggleStyle(SwitchToggleStyle())
-        .tint(Color.green)
-        .font(.callout)
-        .onChange(of: isEnabled) { newValue in
-          onAction(.setIsEnabled(isEnabled: newValue))
-        }
+      AppToggle("", onColor: Color(.systemGreen), isOn: $isEnabled) { onAction(.setIsEnabled(isEnabled: $0)) }
     }
     .debugEdit()
   }

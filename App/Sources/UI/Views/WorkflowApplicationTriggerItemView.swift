@@ -27,7 +27,7 @@ struct WorkflowApplicationTriggerItemView: View {
         Text(element.name)
         HStack {
           ForEach(DetailViewModel.ApplicationTrigger.Context.allCases) { context in
-            Toggle(context.displayValue, isOn: Binding<Bool>(get: {
+            AppCheckbox(context.displayValue, style: .small, isOn: Binding<Bool>(get: {
               element.contexts.contains(context)
             }, set: { newValue in
               if newValue {
@@ -37,8 +37,12 @@ struct WorkflowApplicationTriggerItemView: View {
               }
 
               onAction(.updateApplicationTriggerContext(element))
-            }))
-            .font(.caption)
+            })) { _ in }
+              .lineLimit(1)
+              .allowsTightening(true)
+              .truncationMode(.tail)
+              .font(.caption)
+
           }
         }
       }

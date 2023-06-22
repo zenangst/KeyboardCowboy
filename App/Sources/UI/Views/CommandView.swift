@@ -60,13 +60,7 @@ struct CommandView: View {
                   style: .focusRing)
       )
       .background(
-        LinearGradient(stops: [
-          .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.1, of: .white.withAlphaComponent(0.1))!), location: 0.0),
-          .init(color: Color(.windowBackgroundColor), location: 0.01),
-          .init(color: Color(.windowBackgroundColor), location: 0.99),
-          .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.2, of: .black.withAlphaComponent(0.1))!), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
-        .cornerRadius(8)
+        Color(.windowBackgroundColor).cornerRadius(8)
       )
       .compositingGroup()
       .draggable($command.wrappedValue.draggablePayload(prefix: "WC|", selections: selectionManager.selections))
@@ -107,9 +101,6 @@ struct CommandView: View {
       .animation(.none, value: command.meta.isEnabled)
       .grayscale(command.meta.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
       .opacity(command.meta.isEnabled ? 1 : 0.5)
-      .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
-              radius: command.meta.isEnabled ? 4 : 2,
-              y: command.meta.isEnabled ? 2 : 0)
       .animation(.easeIn(duration: 0.2), value: command.meta.isEnabled)
   }
 }
@@ -128,7 +119,6 @@ struct CommandResolverView: View {
     self.onAction = onAction
   }
 
-  @ViewBuilder
   var body: some View {
     switch command.kind {
     case .plain:

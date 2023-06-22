@@ -90,13 +90,16 @@ struct NewCommandApplicationView: View {
       Divider()
 
       HStack {
-        Toggle("In background", isOn: $inBackground)
-        Toggle("Hide when opening", isOn: $hideWhenRunning)
-        Toggle("If not running", isOn: $ifNotRunning)
+        AppCheckbox("In background", isOn: $inBackground) { _ in
+         updateAndValidatePayload()
+        }
+        AppCheckbox("Hide when opening", isOn: $hideWhenRunning) { _ in
+          updateAndValidatePayload()
+         }
+        AppCheckbox("If not running", isOn: $ifNotRunning) { _ in
+          updateAndValidatePayload()
+         }
       }
-      .onChange(of: inBackground, perform: { _ in updateAndValidatePayload() })
-      .onChange(of: hideWhenRunning, perform: { _ in updateAndValidatePayload() })
-      .onChange(of: ifNotRunning, perform: { _ in updateAndValidatePayload() })
       .onChange(of: validation) { newValue in
         guard newValue == .needsValidation else { return }
         validation = updateAndValidatePayload()

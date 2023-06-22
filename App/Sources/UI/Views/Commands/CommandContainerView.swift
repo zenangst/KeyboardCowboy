@@ -46,22 +46,19 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .frame(minHeight: 30)
         }
         .padding([.top, .leading], 8)
+        .padding(.bottom, 4)
 
         HStack(spacing: 0) {
-          Toggle(isOn: $metaData.isEnabled) { }
-            .onChange(of: metaData.isEnabled, perform: {
-              onAction(.toggleIsEnabled($0))
-            })
-            .toggleStyle(.switch)
-            .tint(.green)
-            .compositingGroup()
-            .scaleEffect(0.65)
+          AppToggle("", onColor: Color(.systemGreen), style: .small, isOn: $metaData.isEnabled) {
+            onAction(.toggleIsEnabled($0))
+          }
+          .padding(.leading, 5)
+          .padding(.trailing, 5)
 
           HStack {
-            Toggle("Notify", isOn: $metaData.notification)
-              .onChange(of: metaData.notification) { newValue in
-                onAction(.toggleNotify(newValue))
-              }
+            AppCheckbox("Notify", style: .small, isOn: $metaData.notification) {
+              onAction(.toggleNotify($0))
+            }
 
             if detailPublisher.data.execution == .serial {
               Button {
