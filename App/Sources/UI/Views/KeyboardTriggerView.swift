@@ -35,7 +35,7 @@ struct KeyboardTriggerView: View {
       Label("Keyboard Shortcuts sequence:", image: "")
         .padding(.trailing, 12)
       Spacer()
-      AppToggle("Passthrough", isOn: $passthrough) { newValue in
+      AppCheckbox("Passthrough", isOn: $passthrough) { newValue in
         onAction(.togglePassthrough(workflowId: data.id, newValue: newValue))
       }
       .font(.caption)
