@@ -80,22 +80,21 @@ struct AppCheckbox_Previews: PreviewProvider {
           Text("System")
             .font(.headline)
           systemToggles
-            .toggleStyle(.switch)
         }
 
         VStack(alignment: .leading) {
           Text("Regular")
             .font(.headline)
-          AppToggle("Default on", isOn: .constant(true)) { _ in }
-          AppToggle("Default off", isOn: .constant(false)) { _ in }
+          AppCheckbox("Default on", isOn: .constant(true)) { _ in }
+          AppCheckbox("Default off", isOn: .constant(false)) { _ in }
         }
 
         VStack(alignment: .leading) {
           Text("Small")
             .font(.headline)
-          AppToggle("Default on", style: .small, isOn: .constant(true)) { _ in }
+          AppCheckbox("Default on", style: .small, isOn: .constant(true)) { _ in }
             .font(.caption)
-          AppToggle("Default off", style: .small, isOn: .constant(false)) { _ in }
+          AppCheckbox("Default off", style: .small, isOn: .constant(false)) { _ in }
             .font(.caption)
         }
       }
