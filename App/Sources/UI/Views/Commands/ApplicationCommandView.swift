@@ -21,6 +21,8 @@ struct ApplicationCommandView: View {
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.ApplicationModel
 
+  private let debounce: DebounceManager<String>
+
   @EnvironmentObject var applicationStore: ApplicationStore
 
   private let onAction: (Action) -> Void
@@ -31,6 +33,9 @@ struct ApplicationCommandView: View {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.onAction = onAction
+    self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
+      onAction(.updateName(newName: newName))
+    }
   }
 
   var body: some View {
@@ -66,24 +71,17 @@ struct ApplicationCommandView: View {
 
           TextField("", text: $metaData.name)
             .textFieldStyle(AppTextFieldStyle())
-            .onChange(of: metaData.name, perform: {
-              onAction(.updateName(newName: $0))
-            })
+            .onChange(of: metaData.name, perform: { debounce.send($0) })
         }
       }, subContent: { _ in
-        HStack {
-          Toggle("In background", isOn: $model.inBackground)
-            .onChange(of: model.inBackground) { newValue in
-              onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
-            }
-          Toggle("Hide when opening", isOn: $model.hideWhenRunning)
-            .onChange(of: model.hideWhenRunning) { newValue in
-              onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
-            }
-          Toggle("If not running", isOn: $model.ifNotRunning)
-            .onChange(of: model.ifNotRunning) { newValue in
-              onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
-            }
+        AppCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
+          onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
+        }
+        AppCheckbox("Hide when opening", style: .small, isOn: $model.hideWhenRunning) { newValue in
+          onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
+        }
+        AppCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
+          onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
         }
       },
       onAction: { onAction(.commandAction($0)) })

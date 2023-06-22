@@ -27,7 +27,7 @@ struct WorkflowTriggerListView: View {
   var body: some View {
     Group {
       switch data.trigger {
-      case .keyboardShortcuts(var trigger):
+      case .keyboardShortcuts(let trigger):
        KeyboardTriggerView(namespace: namespace, focus: focus, data: data, trigger: trigger,
                            keyboardShortcutSelectionManager: keyboardShortcutSelectionManager, onAction: onAction)
 
