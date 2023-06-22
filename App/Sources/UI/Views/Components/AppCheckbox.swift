@@ -8,9 +8,9 @@ struct AppCheckbox: View {
     var size: CGSize {
       switch self {
       case .regular:
-        CGSize(width: 16, height: 16)
+        return CGSize(width: 16, height: 16)
       case .small:
-        CGSize(width: 12, height: 12)
+        return CGSize(width: 12, height: 12)
       }
     }
 
@@ -85,16 +85,16 @@ struct AppCheckbox_Previews: PreviewProvider {
         VStack(alignment: .leading) {
           Text("Regular")
             .font(.headline)
-          AppCheckbox("Default on", isOn: .constant(true)) { _ in }
-          AppCheckbox("Default off", isOn: .constant(false)) { _ in }
+          AppCheckbox("Default on", isOn: .constant(true))
+          AppCheckbox("Default off", isOn: .constant(false))
         }
 
         VStack(alignment: .leading) {
           Text("Small")
             .font(.headline)
-          AppCheckbox("Default on", style: .small, isOn: .constant(true)) { _ in }
+          AppCheckbox("Default on", style: .small, isOn: .constant(true))
             .font(.caption)
-          AppCheckbox("Default off", style: .small, isOn: .constant(false)) { _ in }
+          AppCheckbox("Default off", style: .small, isOn: .constant(false))
             .font(.caption)
         }
       }
