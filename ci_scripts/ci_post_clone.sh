@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 brew install tuist
 touch .env
 echo "APP_NAME=Keyboard Cowboy" >> .env

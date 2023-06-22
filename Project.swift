@@ -127,6 +127,7 @@ let project = Project(
         FileElement(stringLiteral: ".env"),
         FileElement(stringLiteral: ".github/workflows"),
         FileElement(stringLiteral: ".gitignore"),
+        FileElement(stringLiteral: "ci_scripts"),
         FileElement(stringLiteral: "Fixtures"),
         FileElement(stringLiteral: "Project.swift"),
         FileElement(stringLiteral: "Tuist/Dependencies.swift"),
