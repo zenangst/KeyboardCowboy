@@ -121,6 +121,7 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: workspacePublisher.$frontmostApplication)
     applicationTriggerController.subscribe(to: workspacePublisher.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
+    commandEngine.engines.system.subscribe(to: workspacePublisher.$frontmostApplication)
   }
 
   private func reload(with application: NSRunningApplication) {

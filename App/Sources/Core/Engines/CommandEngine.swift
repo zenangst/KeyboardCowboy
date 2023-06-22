@@ -30,9 +30,10 @@ final class CommandEngine: CommandRunning {
   }
 
   private let missionControl: MissionControlPlugin
-  private let engines: Engines
   private let workspace: WorkspaceProviding
   private var runningTask: Task<Void, Error>?
+  
+  let engines: Engines
 
   @MainActor
   var lastExecutedCommand: Command?

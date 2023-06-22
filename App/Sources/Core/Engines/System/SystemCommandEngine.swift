@@ -9,6 +9,7 @@ import Windows
 final class SystemCommandEngine {
   var machPort: MachPortEventController?
 
+  private var frontmostApplicationSubscription: AnyCancellable?
   private var subjectSubscription: AnyCancellable?
   private var flagSubscription: AnyCancellable?
   private var subject = PassthroughSubject<Void, Never>()
@@ -26,6 +27,15 @@ final class SystemCommandEngine {
   init(_ applicationStore: ApplicationStore, workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.applicationStore = applicationStore
     self.workspace = workspace
+  }
+
+  func subscribe(to publisher: Published<RunningApplication?>.Publisher) {
+    frontmostApplicationSubscription = publisher
+      .sink { [weak self] _ in
+        guard let self else { return }
+        self.frontMostIndex = 0
+        self.indexFrontmost()
+      }
   }
 
   func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
@@ -143,9 +153,14 @@ final class SystemCommandEngine {
 
   // MARK: - Private methods
 
-  private func index() {
+  private func getWindows() -> [WindowModel] {
     let options: CGWindowListOption = [.optionOnScreenOnly, .optionIncludingWindow, .excludeDesktopElements]
     let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
+    return windowModels
+  }
+
+  private func index() {
+    let windowModels = getWindows()
 
     frontMostIndex = 0
     visibleMostIndex = 0
