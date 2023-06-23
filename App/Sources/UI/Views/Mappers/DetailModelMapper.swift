@@ -50,10 +50,14 @@ final class DetailModelMapper {
 
 private extension Command.MetaData {
   func viewModel(_ command: Command) -> CommandViewModel.MetaData {
-    CommandViewModel.MetaData(id: id, name: name,
-                              isEnabled: isEnabled,
-                              notification: notification,
-                              icon: command.icon)
+    CommandViewModel.MetaData(
+      id: id,
+      name: name,
+      namePlaceholder: command.name,
+      isEnabled: isEnabled,
+      notification: notification,
+      icon: command.icon
+    )
   }
 }
 

@@ -43,7 +43,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
             .frame(maxWidth: 32, maxHeight: 32)
 
           content($metaData)
-            .frame(minHeight: 30)
+            .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
         }
         .padding([.top, .leading], 8)
         .padding(.bottom, 4)
@@ -112,7 +113,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .padding(.bottom, 8)
         .padding(.leading, 4)
       }
-      Spacer()
       CommandContainerActionView(onAction: onAction)
     }
   }

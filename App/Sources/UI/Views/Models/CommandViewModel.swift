@@ -6,6 +6,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     var delay: Double?
     var id: String
     var name: String
+    var namePlaceholder: String
     var isEnabled: Bool
     var notification: Bool
     var icon: IconViewModel?
