@@ -5,6 +5,7 @@ struct IconMenuStyle: MenuStyle {
   func makeBody(configuration: Configuration) -> some View {
     Menu(configuration)
       .menuStyle(.borderlessButton)
+      .menuIndicator(.hidden)
   }
 }
 
@@ -42,10 +43,7 @@ struct ApplicationCommandView: View {
     CommandContainerView(
       $metaData,
       icon: { metaData in
-        if let icon = metaData.icon.wrappedValue {
-          ApplicationCommandImageView($metaData, icon: icon, onAction: onAction)
-            .id(metaData.wrappedValue.icon?.bundleIdentifier)
-        }
+        ApplicationCommandImageView(metaData.wrappedValue, onAction: onAction)
       },
       content: { command in
         HStack(spacing: 8) {
@@ -69,7 +67,7 @@ struct ApplicationCommandView: View {
           .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
           .compositingGroup()
 
-          TextField("", text: $metaData.name)
+          TextField(metaData.namePlaceholder, text: $metaData.name)
             .textFieldStyle(AppTextFieldStyle())
             .onChange(of: metaData.name, perform: { debounce.send($0) })
         }
@@ -86,24 +84,19 @@ struct ApplicationCommandView: View {
       },
       onAction: { onAction(.commandAction($0)) })
     .debugEdit()
-    .frame(height: 80)
-    .fixedSize(horizontal: false, vertical: true)
     .id(metaData.id)
   }
 }
 
 struct ApplicationCommandImageView: View {
   @EnvironmentObject var applicationStore: ApplicationStore
-  @State var isHovered: Bool = false
-  @Binding private var metaData: CommandViewModel.MetaData
-  private let icon: IconViewModel
+  @State private var isHovered: Bool = false
+  @State private var metaData: CommandViewModel.MetaData
   private let onAction: (ApplicationCommandView.Action) -> Void
 
-  init(_ metaData: Binding<CommandViewModel.MetaData>,
-       icon: IconViewModel,
+  init(_ metaData: CommandViewModel.MetaData,
        onAction: @escaping (ApplicationCommandView.Action) -> Void) {
-    _metaData = metaData
-    self.icon = icon
+    _metaData = .init(initialValue: metaData)
     self.onAction = onAction
   }
 
@@ -121,16 +114,17 @@ struct ApplicationCommandImageView: View {
     .contentShape(Rectangle())
     .menuStyle(IconMenuStyle())
     .overlay(
-      ZStack {
-        Color.accentColor.opacity(0.375)
-          .frame(width: 32, height: 32)
-          .cornerRadius(8, antialiased: false)
-        IconView(icon: icon, size: .init(width: 24, height: 24))
-          .fixedSize()
-      }
+      Color.accentColor.opacity(0.375)
+        .cornerRadius(8, antialiased: false)
+        .frame(width: 32, height: 32)
+        .overlay(content: {
+          if let icon = metaData.icon {
+            IconView(icon: icon, size: .init(width: 24, height: 24))
+              .fixedSize()
+          }
+        })
         .allowsHitTesting(false)
     )
-    .menuIndicator(.hidden)
   }
 }
 

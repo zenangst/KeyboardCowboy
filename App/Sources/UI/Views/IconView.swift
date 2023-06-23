@@ -4,10 +4,23 @@ import SwiftUI
 final class IconPublisher: ObservableObject {
   @Published var cgImage: CGImage?
 
+  var task: Task<(), Error>?
+
   func load(at path: String, bundleIdentifier: String, of size: CGSize) {
-    Task {
-      cgImage = await IconCache.shared.icon(at: path, bundleIdentifier: bundleIdentifier, size: size)
+    self.task?.cancel()
+    self.task = Task {
+      do {
+        let image = try await IconCache.shared.icon(at: path, bundleIdentifier: bundleIdentifier, size: size)
+        try Task.checkCancellation()
+        cgImage = image
+      } catch {
+        Swift.print(error)
+      }
     }
+  }
+
+  func cancel() {
+    task?.cancel()
   }
 }
 
@@ -35,6 +48,9 @@ struct IconView: View {
     .animation(.easeInOut(duration: 1.0), value: publisher.cgImage)
     .onAppear {
       publisher.load(at: icon.path, bundleIdentifier: icon.bundleIdentifier, of: size)
+    }
+    .onDisappear {
+      publisher.cancel()
     }
     .id(icon.id)
   }

@@ -129,28 +129,4 @@ final class ContentStore: ObservableObject {
     configurationStore.select(newConfiguration)
     use(newConfiguration)
   }
-
-  private func generatePerformanceData() {
-    var updatedGroups = Set<WorkflowGroup>()
-    updatedGroups.reserveCapacity(groupStore.groups.count)
-
-    for group in groupStore.groups {
-      var copy = group
-      let appsCount = applicationStore.applications.count
-      (0..<5).forEach { x in
-        var workflow = Workflow(name: "Performance workflow \(x)")
-        (0..<50).forEach { y in
-          let randomApp = applicationStore.applications[Int.random(in: 0..<appsCount)]
-          let command: Command = .application(
-            ApplicationCommand(name: "Application command: \(y)", application: randomApp)
-          )
-          workflow.commands.append(command)
-        }
-        copy.workflows.append(workflow)
-      }
-      updatedGroups.insert(copy)
-    }
-
-    groupStore.updateGroups(updatedGroups)
-  }
 }

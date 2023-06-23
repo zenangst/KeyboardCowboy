@@ -14,7 +14,8 @@ actor IconCache {
 
   private init() {}
 
-  public func icon(at path: String, bundleIdentifier: String, size: CGSize) async -> CGImage? {
+  public func icon(at path: String, bundleIdentifier: String, size: CGSize) async throws -> CGImage? {
+
     let identifier: String = "\(bundleIdentifier)_\(size.suffix).tiff"
     // Load from in-memory cache
     if let inMemoryImage = cache.object(forKey: identifier as NSString) {
@@ -37,6 +38,7 @@ actor IconCache {
       if let imageRef = imageRef {
         image = NSImage(cgImage: imageRef, size: imageRect.size)
       }
+
     }
 
     try? await save(image, identifier: identifier)
@@ -59,6 +61,7 @@ actor IconCache {
     if FileManager.default.fileExists(atPath: url.path()) {
       return NSImage(contentsOf: url)?.cgImage(forProposedRect: nil, context: nil, hints: nil)
     }
+
     return nil
   }
 

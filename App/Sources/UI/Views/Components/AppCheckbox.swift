@@ -53,7 +53,6 @@ struct AppCheckbox: View {
               .opacity(isOn ? 1 : 0)
           })
           .frame(width: style.size.width, height: style.size.height)
-
       })
       .buttonStyle(.plain)
       Text(titleKey)

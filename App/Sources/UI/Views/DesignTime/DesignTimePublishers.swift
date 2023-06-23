@@ -117,6 +117,7 @@ enum DesignTime {
     CommandViewModel.MetaData(
       id: UUID().uuidString,
       name: name,
+      namePlaceholder: name,
       isEnabled: true,
       notification: false,
       icon: icon)
