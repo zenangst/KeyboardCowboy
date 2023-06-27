@@ -7,6 +7,7 @@ import os
 
 @MainActor
 final class KeyboardCowboyEngine {
+  private let appPermissions = AppPermissions()
   private let applicationTriggerController: ApplicationTriggerController
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let commandEngine: CommandEngine
@@ -18,9 +19,9 @@ final class KeyboardCowboyEngine {
   private let workspace: NSWorkspace
   private let workspacePublisher: WorkspacePublisher
 
+  private var pendingPermissionsSubscription: AnyCancellable?
   private var frontmostApplicationSubscription: AnyCancellable?
   private var machPortController: MachPortEventController?
-  private var waitingForPrivileges: Bool = false
 
   init(_ contentStore: ContentStore,
        keyboardEngine: KeyboardEngine,
@@ -55,34 +56,38 @@ final class KeyboardCowboyEngine {
 
     guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 
-    if hasPrivileges() {
-      do {
-        try setupMachPortAndSubscriptions(workspace)
-      } catch let error {
-        // TODO: Improve error handling here
-        NSAlert(error: error).runModal()
-      }
+    if !appPermissions.hasPrivileges(shouldPrompt: false) {
+      appPermissions.subscribe(to: workspacePublisher.$frontmostApplication)
+      pendingPermissionsSubscription = appPermissions.$hasPermissions
+        .sink { [weak self, workspace] hasPermissions in
+          guard hasPermissions else { return }
+          self?.setupMachPortAndSubscriptions(workspace)
+        }
     } else {
-      waitingForPrivileges = true
+      setupMachPortAndSubscriptions(workspace)
     }
   }
 
-  func setupMachPortAndSubscriptions(_ workspace: NSWorkspace) throws {
+  func setupMachPortAndSubscriptions(_ workspace: NSWorkspace) {
     guard !launchArguments.isEnabled(.runningUnitTests) else { return }
 
-    let newMachPortController = try MachPortEventController(
-      .privateState,
-      signature: "com.zenangst.Keyboard-Cowboy",
-      autoStartMode: .commonModes)
-    commandEngine.eventSource = newMachPortController.eventSource
-    subscribe(to: workspace)
-    contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
-    machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
-    machPortEngine.subscribe(to: newMachPortController.$event)
-    machPortEngine.machPort = newMachPortController
-    commandEngine.machPort = newMachPortController
-    machPortController = newMachPortController
-    keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
+    do {
+      let newMachPortController = try MachPortEventController(
+        .privateState,
+        signature: "com.zenangst.Keyboard-Cowboy",
+        autoStartMode: .commonModes)
+      commandEngine.eventSource = newMachPortController.eventSource
+      subscribe(to: workspace)
+      contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
+      machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
+      machPortEngine.subscribe(to: newMachPortController.$event)
+      machPortEngine.machPort = newMachPortController
+      commandEngine.machPort = newMachPortController
+      machPortController = newMachPortController
+      keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
+    } catch let error {
+      NSAlert(error: error).runModal()
+    }
   }
 
   func run(_ commands: [Command], execution: Workflow.Execution) {
@@ -99,14 +104,6 @@ final class KeyboardCowboyEngine {
   }
 
   // MARK: Private methods
-
-  private func hasPrivileges() -> Bool {
-    let trusted = kAXTrustedCheckOptionPrompt.takeUnretainedValue()
-    let privOptions = [trusted: false] as CFDictionary
-    let accessEnabled = AXIsProcessTrustedWithOptions(privOptions)
-
-    return accessEnabled
-  }
 
   private func subscribe(to workspace: NSWorkspace) {
     frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
@@ -135,14 +132,6 @@ final class KeyboardCowboyEngine {
         newPolicy = .accessory
       }
       _ = NSApplication.shared.setActivationPolicy(newPolicy)
-    }
-
-    if waitingForPrivileges {
-      do {
-        try setupMachPortAndSubscriptions(workspace)
-      } catch {
-        Swift.print(error)
-      }
     }
   }
 }
