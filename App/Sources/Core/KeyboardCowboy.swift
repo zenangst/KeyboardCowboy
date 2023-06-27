@@ -194,8 +194,6 @@ struct KeyboardCowboy: App {
             })
           }
           .focusScope(namespace)
-          // MARK: Note - Force dark mode until the light theme is up-to-date
-          .environment(\.colorScheme, .dark)
           .environmentObject(contentStore.configurationStore)
           .environmentObject(contentStore.applicationStore)
           .environmentObject(contentStore.groupStore)
