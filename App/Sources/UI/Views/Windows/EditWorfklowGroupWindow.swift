@@ -42,8 +42,6 @@ struct EditWorkflowGroupWindow: Scene {
         KeyboardCowboy.keyWindow?.close()
         KeyboardCowboy.mainWindow?.makeKey()
       }
-      // MARK: Note - Force dark mode until the light theme is up-to-date
-      .environment(\.colorScheme, .dark)
     }
     .windowResizability(.contentMinSize)
   }

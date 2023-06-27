@@ -43,7 +43,7 @@ struct EditWorfklowGroupView: View {
         RuleListView(applicationStore: applicationStore,
                      group: $group)
         .padding()
-        .background(Color(.windowBackgroundColor.withAlphaComponent(0.5)))
+        .background(Color(.windowBackgroundColor))
         .focusSection()
         
         VStack(alignment: .leading, spacing: 16) {

@@ -58,8 +58,6 @@ struct NewCommandWindow: Scene {
           EmptyView()
         }
       }
-      // MARK: Note - Force dark mode until the light theme is up-to-date
-      .environment(\.colorScheme, .dark)
     }
     .windowResizability(.contentSize)
     .windowStyle(.hiddenTitleBar)
