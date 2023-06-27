@@ -19,9 +19,8 @@ final class ConfigurationCoordinator {
     Task {
       // TODO: Should we remove this subscription and make it more explicit when configurations change?
       // Why do we do this inside of a Task?
-      subscription = store.$selectedConfiguration.sink(receiveValue: { [weak self] selectedConfiguration in
-        self?.render(selectedConfiguration: selectedConfiguration)
-      })
+      subscription = store.$selectedConfiguration
+        .sink { [weak self] in self?.render(selectedConfiguration: $0) }
     }
   }
 
