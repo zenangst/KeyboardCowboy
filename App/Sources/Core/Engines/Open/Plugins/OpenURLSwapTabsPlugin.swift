@@ -38,6 +38,14 @@ final class OpenURLSwapTabsPlugin {
       if !success {
         throw OpenURLSwapToPluginError.couldFindOpenUrl
       }
+    } else if let url = URL(string: command.path) {
+      let configuration = NSWorkspace.OpenConfiguration()
+      if let application = command.application {
+        try await NSWorkspace.shared.open([url], withApplicationAt: URL(filePath: application.path),
+                                          configuration: configuration)
+      } else {
+        NSWorkspace.shared.open(url)
+      }
     }
   }
 }
