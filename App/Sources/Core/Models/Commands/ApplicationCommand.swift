@@ -35,11 +35,11 @@ struct ApplicationCommand: MetaDataProviding {
   var meta: Command.MetaData
 
   init(id: String = UUID().uuidString,
-              name: String = "",
-              action: Action = .open,
-              application: Application,
-              modifiers: [Modifier] = [],
-              notification: Bool = false) {
+       name: String = "",
+       action: Action = .open,
+       application: Application,
+       modifiers: [Modifier] = [],
+       notification: Bool = false) {
     self.meta = Command.MetaData(id: id, name: name,
                                  isEnabled: true, notification: notification)
     self.application = application

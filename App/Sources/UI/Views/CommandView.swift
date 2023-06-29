@@ -124,7 +124,7 @@ struct CommandResolverView: View {
     case .plain:
       UnknownView(command: .constant(command))
     case .menuBar(let model):
-      MenuBarCommandView(command.meta, model: model) { action in
+      MenuBarCommandView($command.meta, model: model) { action in
         switch action {
         case .editCommand(let command):
           openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
@@ -190,7 +190,7 @@ struct CommandResolverView: View {
           }
         }
     case .systemCommand(let model):
-      SystemCommandView(command.meta, model: model) { action in
+      SystemCommandView($command.meta, model: model) { action in
         switch action {
         case .commandAction(let action):
           handleCommandContainerAction(action)

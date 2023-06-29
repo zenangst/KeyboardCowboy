@@ -6,15 +6,15 @@ struct MenuBarCommandView: View {
     case commandAction(CommandContainerAction)
   }
   @Environment(\.openWindow) private var openWindow
-  @State var metaData: CommandViewModel.MetaData
-  @State var model: CommandViewModel.Kind.MenuBarModel
+  @Binding var metaData: CommandViewModel.MetaData
+  @Binding var model: CommandViewModel.Kind.MenuBarModel
   private let onAction: (Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData,
+  init(_ metaData: Binding<CommandViewModel.MetaData>,
        model: CommandViewModel.Kind.MenuBarModel,
        onAction: @escaping (Action) -> Void) {
-    _metaData = .init(initialValue: metaData)
-    _model = .init(initialValue: model)
+    _metaData = metaData
+    _model = Binding<CommandViewModel.Kind.MenuBarModel>(model)
     self.onAction = onAction
   }
 
@@ -100,7 +100,7 @@ struct MenuBarCommandView: View {
 struct MenuBarCommandView_Previews: PreviewProvider {
   static let command = DesignTime.menuBarCommand
   static var previews: some View {
-    MenuBarCommandView(command.model.meta, model: command.kind) { _ in }
+    MenuBarCommandView(.constant(command.model.meta), model: command.kind) { _ in }
       .designTime()
       .frame(maxHeight: 80)
   }

@@ -9,6 +9,7 @@ struct KeyboardCommandView: View {
 
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.KeyboardModel
+  private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
@@ -17,6 +18,9 @@ struct KeyboardCommandView: View {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.onAction = onAction
+    self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
+      onAction(.updateName(newName: newName))
+    }
   }
 
   var body: some View {
@@ -38,9 +42,7 @@ struct KeyboardCommandView: View {
           HStack(spacing: 0) {
             TextField("", text: $metaData.name)
               .textFieldStyle(AppTextFieldStyle())
-              .onChange(of: metaData.name, perform: {
-                onAction(.updateName(newName: $0))
-              })
+              .onChange(of: metaData.name, perform: { debounce.send($0) })
               .frame(maxWidth: .infinity)
           }
           EditableKeyboardShortcutsView($model.keys,
