@@ -1,6 +1,9 @@
 import Foundation
 
 final class ShellScriptPlugin {
+  enum ShellScriptPluginError: Error {
+    case noData
+  }
   let fileManager: FileManager
 
   init(_ fileManager: FileManager = .default) {
@@ -22,7 +25,7 @@ final class ShellScriptPlugin {
     let filePath = path.sanitizedPath
     let command = (filePath as NSString).lastPathComponent
     let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
-    let (process, pipe) = createProcess()
+    let (process, pipe, _) = createProcess()
 
     process.arguments = ["-i", "-l", command]
     process.currentDirectoryURL = url
@@ -31,7 +34,10 @@ final class ShellScriptPlugin {
 
     try process.run()
 
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    guard let data = try pipe.fileHandleForReading.readToEnd() else {
+      throw ShellScriptPluginError.noData
+    }
+
     let output = String(data: data, encoding: .utf8)
 
     process.waitUntilExit()
@@ -54,15 +60,16 @@ final class ShellScriptPlugin {
     return url
   }
 
-  private func createProcess() -> (Process, Pipe) {
+  private func createProcess() -> (Process, Pipe, Pipe) {
     let outputPipe = Pipe()
     let errorPipe = Pipe()
     let process = Process()
+    let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
 
-    process.launchPath = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+    process.executableURL = URL(filePath: shell)
     process.standardOutput = outputPipe
     process.standardError = errorPipe
 
-    return (process, outputPipe)
+    return (process, outputPipe, errorPipe)
   }
 }
