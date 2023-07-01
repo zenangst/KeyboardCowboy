@@ -34,11 +34,12 @@ final class ShellScriptPlugin {
 
     try process.run()
 
-    guard let data = try pipe.fileHandleForReading.readToEnd() else {
-      throw ShellScriptPluginError.noData
+    let output: String
+    if let data = try pipe.fileHandleForReading.readToEnd() {
+      output = String(data: data, encoding: .utf8) ?? ""
+    } else {
+      output = ""
     }
-
-    let output = String(data: data, encoding: .utf8)
 
     process.waitUntilExit()
 
