@@ -126,17 +126,12 @@ final class CommandEngine: CommandRunning {
   }
 
   func run(_ command: Command) async throws {
-    if command.notification {
-      await MainActor.run {
-        lastExecutedCommand = command
-        BezelNotificationController.shared.post(.init(text: command.name))
-      }
-    }
-
     do {
+      let output: String
       switch command {
       case .application(let applicationCommand):
         try await engines.application.run(applicationCommand)
+        output = command.name
       case .builtIn(let builtInCommand):
         switch builtInCommand.kind {
         case .quickRun:
@@ -146,6 +141,7 @@ final class CommandEngine: CommandRunning {
         case .repeatLastKeystroke:
           break
         }
+        output = command.name
       case .keyboard(let keyboardCommand):
         try engines.keyboard.run(keyboardCommand,
                                  type: .keyDown,
@@ -156,18 +152,37 @@ final class CommandEngine: CommandRunning {
                                  originalEvent: nil,
                                  with: eventSource)
         try await Task.sleep(for: .milliseconds(1))
+        output = command.name
       case .menuBar(let menuBarCommand):
         try await engines.menubar.execute(menuBarCommand)
+        output = command.name
       case .open(let openCommand):
         try await engines.open.run(openCommand)
+        output = command.name
       case .script(let scriptCommand):
-        _ = try await self.engines.script.run(scriptCommand)
+        let result = try await self.engines.script.run(scriptCommand)
+        if let result = result {
+          let trimmedResult = result.trimmingCharacters(in: .newlines)
+          output = command.name + " " + trimmedResult
+        } else {
+          output = command.name
+        }
       case .shortcut(let shortcutCommand):
         try await engines.shortcut.run(shortcutCommand)
+        output = command.name
       case .type(let typeCommand):
         try await engines.type.run(typeCommand)
+        output = command.name
       case .systemCommand(let systemCommand):
         try await engines.system.run(systemCommand)
+        output = command.name
+      }
+
+      if command.notification {
+        await MainActor.run {
+          lastExecutedCommand = command
+          BezelNotificationController.shared.post(.init(text: output))
+        }
       }
     } catch {
       throw error
