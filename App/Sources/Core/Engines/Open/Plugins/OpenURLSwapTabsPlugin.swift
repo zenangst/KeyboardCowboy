@@ -7,7 +7,7 @@ final class OpenURLSwapTabsPlugin {
     case failedToCreate
     case failedToCompile
     case failedToRun
-    case couldFindOpenUrl
+    case couldNotFindOpenUrl
   }
 
   private let engine: ScriptEngine
@@ -19,8 +19,7 @@ final class OpenURLSwapTabsPlugin {
   func execute(_ command: OpenCommand) async throws {
     let bundleIdentifier = command.application?.bundleIdentifier ?? "com.apple.Safari"
     if let runningApplication = NSWorkspace.shared.runningApplications
-      .first(where: { $0.bundleIdentifier == bundleIdentifier })
-    {
+      .first(where: { $0.bundleIdentifier == bundleIdentifier }) {
       let axApp = AppAccessibilityElement(runningApplication.processIdentifier)
       let windows = try axApp.windows()
       var success: Bool = false
@@ -36,7 +35,31 @@ final class OpenURLSwapTabsPlugin {
       }
 
       if !success {
-        throw OpenURLSwapToPluginError.couldFindOpenUrl
+        let appName = command.application?.displayName ?? "Safari"
+        let source = """
+property wantedURL : "\(command.path)"
+tell application "\(appName)"
+  activate
+  set theURLs to (get URL of every tab of every window)
+  repeat with x from 1 to length of theURLs
+    set tmp to item x of theURLs
+    repeat with y from 1 to length of tmp
+      if item y of tmp contains wantedURL then
+        set the index of window x to 1
+        tell window 1
+          if index of current tab is not y then set current tab to tab y
+          return 0
+        end tell
+      end if
+    end repeat
+  end repeat
+  return -1
+end tell
+"""
+        let scriptCommand = ScriptCommand(name: UUID().uuidString, kind: .appleScript, source: .inline(source), notification: false)
+        if try await engine.run(scriptCommand) == "-1" {
+          throw OpenURLSwapToPluginError.couldNotFindOpenUrl
+        }
       }
     } else if let url = URL(string: command.path) {
       let configuration = NSWorkspace.OpenConfiguration()
