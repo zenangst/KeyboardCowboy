@@ -3,14 +3,14 @@ import MachPort
 import CoreGraphics
 import KeyCodes
 
-enum KeyboardEngineError: Error {
+enum KeyboardCommandRunnerError: Error {
   case failedToResolveMachPortController
   case failedToResolveKey(String)
   case failedToCreateKeyCode(Int)
   case failedToCreateEvent
 }
 
-final class KeyboardEngine {
+final class KeyboardCommandRunner {
   var machPort: MachPortEventController?
   let store: KeyCodesStore
 
@@ -27,7 +27,7 @@ final class KeyboardEngine {
            originalEvent: CGEvent?,
            with eventSource: CGEventSource?) throws {
     guard let machPort else {
-      throw KeyboardEngineError.failedToResolveMachPortController
+      throw KeyboardCommandRunnerError.failedToResolveMachPortController
     }
 
     for keyboardShortcut in command.keyboardShortcuts {
@@ -68,6 +68,6 @@ final class KeyboardEngine {
       return stringResult
     }
 
-    throw KeyboardEngineError.failedToResolveKey(string)
+    throw KeyboardCommandRunnerError.failedToResolveKey(string)
   }
 }

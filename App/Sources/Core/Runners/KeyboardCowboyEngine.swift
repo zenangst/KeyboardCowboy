@@ -10,10 +10,10 @@ final class KeyboardCowboyEngine {
   private let appPermissions = AppPermissions()
   private let applicationTriggerController: ApplicationTriggerController
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
-  private let commandEngine: CommandEngine
+  private let commandRunner: CommandRunner
   private let contentStore: ContentStore
   private let keyCodeStore: KeyCodesStore
-  private let machPortEngine: MachPortEngine
+  private let machPortCoordinator: MachPortCoordinator
   private let notificationCenterPublisher: NotificationCenterPublisher
   private let shortcutStore: ShortcutStore
   private let workspace: NSWorkspace
@@ -24,30 +24,30 @@ final class KeyboardCowboyEngine {
   private var machPortController: MachPortEventController?
 
   init(_ contentStore: ContentStore,
-       keyboardEngine: KeyboardEngine,
+       keyboardCommandRunner: KeyboardCommandRunner,
        keyboardShortcutsController: KeyboardShortcutsController,
        keyCodeStore: KeyCodesStore,
        notificationCenter: NotificationCenter = .default,
-       scriptEngine: ScriptEngine,
+       scriptCommandRunner: ScriptCommandRunner,
        shortcutStore: ShortcutStore,
        workspace: NSWorkspace = .shared) {
     
-    let commandEngine = CommandEngine(
+    let commandRunner = CommandRunner(
       workspace,
       applicationStore: contentStore.applicationStore,
-      scriptEngine: scriptEngine,
-      keyboardEngine: keyboardEngine
+      scriptCommandRunner: scriptCommandRunner,
+      keyboardCommandRunner: keyboardCommandRunner
     )
     self.contentStore = contentStore
     self.keyCodeStore = keyCodeStore
-    self.commandEngine = commandEngine
-    self.machPortEngine = MachPortEngine(store: keyboardEngine.store,
-                                         commandEngine: commandEngine,
-                                         keyboardEngine: keyboardEngine,
-                                         keyboardShortcutsController: keyboardShortcutsController,
-                                         mode: .intercept)
+    self.commandRunner = commandRunner
+    self.machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
+                                                   commandRunner: commandRunner,
+                                                   keyboardCommandRunner: keyboardCommandRunner,
+                                                   keyboardShortcutsController: keyboardShortcutsController,
+                                                   mode: .intercept)
     self.shortcutStore = shortcutStore
-    self.applicationTriggerController = ApplicationTriggerController(commandEngine)
+    self.applicationTriggerController = ApplicationTriggerController(commandRunner)
     self.workspace = workspace
     self.workspacePublisher = WorkspacePublisher(workspace)
     self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
@@ -76,13 +76,13 @@ final class KeyboardCowboyEngine {
         .privateState,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes)
-      commandEngine.eventSource = newMachPortController.eventSource
+      commandRunner.eventSource = newMachPortController.eventSource
       subscribe(to: workspace)
-      contentStore.recorderStore.subscribe(to: machPortEngine.$recording)
-      machPortEngine.subscribe(to: contentStore.recorderStore.$mode)
-      machPortEngine.subscribe(to: newMachPortController.$event)
-      machPortEngine.machPort = newMachPortController
-      commandEngine.machPort = newMachPortController
+      contentStore.recorderStore.subscribe(to: machPortCoordinator.$recording)
+      machPortCoordinator.subscribe(to: contentStore.recorderStore.$mode)
+      machPortCoordinator.subscribe(to: newMachPortController.$event)
+      machPortCoordinator.machPort = newMachPortController
+      commandRunner.machPort = newMachPortController
       machPortController = newMachPortController
       keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
     } catch let error {
@@ -93,14 +93,14 @@ final class KeyboardCowboyEngine {
   func run(_ commands: [Command], execution: Workflow.Execution) {
     switch execution {
     case .concurrent:
-      commandEngine.concurrentRun(commands)
+      commandRunner.concurrentRun(commands)
     case .serial:
-      commandEngine.serialRun(commands)
+      commandRunner.serialRun(commands)
     }
   }
 
   func reveal(_ commands: [Command]) {
-    commandEngine.reveal(commands)
+    commandRunner.reveal(commands)
   }
 
   // MARK: Private methods
@@ -118,7 +118,7 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: workspacePublisher.$frontmostApplication)
     applicationTriggerController.subscribe(to: workspacePublisher.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
-    commandEngine.engines.system.subscribe(to: workspacePublisher.$frontmostApplication)
+    commandRunner.runners.system.subscribe(to: workspacePublisher.$frontmostApplication)
   }
 
   private func reload(with application: NSRunningApplication) {

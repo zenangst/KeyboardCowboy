@@ -7,24 +7,24 @@ protocol CommandRunning {
   func concurrentRun(_ commands: [Command])
 }
 
-final class CommandEngine: CommandRunning {
-  struct Engines {
-    let application: ApplicationEngine
-    let keyboard: KeyboardEngine
-    let menubar: MenuBarEngine
-    let open: OpenEngine
-    let script: ScriptEngine
-    let shortcut: ShortcutsEngine
-    let system: SystemCommandEngine
-    let type: TypeEngine
+final class CommandRunner: CommandRunning {
+  struct Runners {
+    let application: ApplicationCommandRunner
+    let keyboard: KeyboardCommandRunner
+    let menubar: MenuBarCommandRunner
+    let open: OpenCommandRunner
+    let script: ScriptCommandRunner
+    let shortcut: ShortcutsCommandRunner
+    let system: SystemCommandRunner
+    let type: TypeCommandRunner
   }
 
   var machPort: MachPortEventController? {
     didSet {
-      engines.keyboard.machPort = machPort
+      runners.keyboard.machPort = machPort
       if let machPort {
-        engines.system.machPort = machPort
-        engines.system.subscribe(to: machPort.$flagsChanged)
+        runners.system.machPort = machPort
+        runners.system.subscribe(to: machPort.$flagsChanged)
       }
     }
   }
@@ -33,32 +33,32 @@ final class CommandEngine: CommandRunning {
   private let workspace: WorkspaceProviding
   private var runningTask: Task<Void, Error>?
   
-  let engines: Engines
+  let runners: Runners
 
   @MainActor
   var lastExecutedCommand: Command?
   var eventSource: CGEventSource?
 
-  init(_ workspace: WorkspaceProviding,
+  init(_ workspace: WorkspaceProviding = NSWorkspace.shared,
        applicationStore: ApplicationStore,
-       scriptEngine: ScriptEngine,
-       keyboardEngine: KeyboardEngine) {
-    let systemCommandEngine = SystemCommandEngine(applicationStore)
-    self.missionControl = MissionControlPlugin(keyboard: keyboardEngine)
-    self.engines = .init(
-      application: ApplicationEngine(
-        scriptEngine: scriptEngine,
-        keyboard: keyboardEngine,
+       scriptCommandRunner: ScriptCommandRunner,
+       keyboardCommandRunner: KeyboardCommandRunner) {
+    let systemCommandRunner = SystemCommandRunner(applicationStore)
+    self.missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
+    self.runners = .init(
+      application: ApplicationCommandRunner(
+        scriptCommandRunner: scriptCommandRunner,
+        keyboard: keyboardCommandRunner,
         windowListStore: WindowListStore(),
         workspace: workspace
       ),
-      keyboard: keyboardEngine,
-      menubar: MenuBarEngine(),
-      open: OpenEngine(scriptEngine, workspace: workspace),
-      script: scriptEngine,
-      shortcut: ShortcutsEngine(engine: scriptEngine),
-      system: systemCommandEngine,
-      type: TypeEngine(keyboardEngine: keyboardEngine)
+      keyboard: keyboardCommandRunner,
+      menubar: MenuBarCommandRunner(),
+      open: OpenCommandRunner(scriptCommandRunner, workspace: workspace),
+      script: scriptCommandRunner,
+      shortcut: ShortcutsCommandRunner(scriptCommandRunner),
+      system: systemCommandRunner,
+      type: TypeCommandRunner(keyboardCommandRunner)
     )
     self.workspace = workspace
   }
@@ -83,7 +83,7 @@ final class CommandEngine: CommandRunning {
           let shellScript = ScriptCommand(name: "Reveal \(shortcut.shortcutIdentifier)",
                                           kind: .shellScript, source: .inline(source), notification: false)
 
-          _ = try await engines.script.run(shellScript)
+          _ = try await runners.script.run(shellScript)
         }
       case .builtIn, .keyboard, .type,
            .systemCommand, .menuBar:
@@ -130,7 +130,7 @@ final class CommandEngine: CommandRunning {
       let output: String
       switch command {
       case .application(let applicationCommand):
-        try await engines.application.run(applicationCommand)
+        try await runners.application.run(applicationCommand)
         output = command.name
       case .builtIn(let builtInCommand):
         switch builtInCommand.kind {
@@ -143,24 +143,24 @@ final class CommandEngine: CommandRunning {
         }
         output = command.name
       case .keyboard(let keyboardCommand):
-        try engines.keyboard.run(keyboardCommand,
+        try runners.keyboard.run(keyboardCommand,
                                  type: .keyDown,
                                  originalEvent: nil,
                                  with: eventSource)
-        try engines.keyboard.run(keyboardCommand,
+        try runners.keyboard.run(keyboardCommand,
                                  type: .keyUp,
                                  originalEvent: nil,
                                  with: eventSource)
         try await Task.sleep(for: .milliseconds(1))
         output = command.name
       case .menuBar(let menuBarCommand):
-        try await engines.menubar.execute(menuBarCommand)
+        try await runners.menubar.execute(menuBarCommand)
         output = command.name
       case .open(let openCommand):
-        try await engines.open.run(openCommand)
+        try await runners.open.run(openCommand)
         output = command.name
       case .script(let scriptCommand):
-        let result = try await self.engines.script.run(scriptCommand)
+        let result = try await self.runners.script.run(scriptCommand)
         if let result = result {
           let trimmedResult = result.trimmingCharacters(in: .newlines)
           output = command.name + " " + trimmedResult
@@ -168,13 +168,13 @@ final class CommandEngine: CommandRunning {
           output = command.name
         }
       case .shortcut(let shortcutCommand):
-        try await engines.shortcut.run(shortcutCommand)
+        try await runners.shortcut.run(shortcutCommand)
         output = command.name
       case .type(let typeCommand):
-        try await engines.type.run(typeCommand)
+        try await runners.type.run(typeCommand)
         output = command.name
       case .systemCommand(let systemCommand):
-        try await engines.system.run(systemCommand)
+        try await runners.system.run(systemCommand)
         output = command.name
       }
 

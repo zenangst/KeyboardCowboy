@@ -31,13 +31,13 @@ final class ContentStore: ObservableObject {
        applicationStore: ApplicationStore,
        keyboardShortcutsController: KeyboardShortcutsController = .init(),
        shortcutStore shortcutStoreOverride: ShortcutStore? = nil,
-       scriptEngine: ScriptEngine = .init(workspace: .shared),
+       scriptCommandRunner: ScriptCommandRunner = .init(workspace: .shared),
        workspace: NSWorkspace = .shared) {
     _configurationId = .init(initialValue: Self.appStorage.configId)
 
     let groupStore = GroupStore()
     self.applicationStore = applicationStore
-    self.shortcutStore = shortcutStoreOverride ?? ShortcutStore(engine: scriptEngine)
+    self.shortcutStore = shortcutStoreOverride ?? ShortcutStore(scriptCommandRunner)
     self.groupStore = groupStore
     self.configurationStore = ConfigurationStore()
     self.keyboardShortcutsController = keyboardShortcutsController

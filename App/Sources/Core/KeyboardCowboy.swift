@@ -23,7 +23,7 @@ struct KeyboardCowboy: App {
 
   @ObservedObject private var contentStore: ContentStore
   private let groupStore: GroupStore
-  private let scriptEngine: ScriptEngine
+  private let scriptCommandRunner: ScriptCommandRunner
   private let engine: KeyboardCowboyEngine
 #if DEBUG
   static let config: AppPreferences = .designTime()
@@ -42,22 +42,22 @@ struct KeyboardCowboy: App {
     Inject.animation = .spring()
 
     // Core functionality
-    let scriptEngine = ScriptEngine(workspace: .shared)
+    let scriptCommandRunner = ScriptCommandRunner(workspace: .shared)
     let keyboardShortcutsController = KeyboardShortcutsController()
     let applicationStore = ApplicationStore()
-    let shortcutStore = ShortcutStore(engine: scriptEngine)
+    let shortcutStore = ShortcutStore(scriptCommandRunner)
     let contentStore = ContentStore(Self.config,
                                     applicationStore: applicationStore,
                                     keyboardShortcutsController: keyboardShortcutsController,
                                     shortcutStore: shortcutStore,
-                                    scriptEngine: scriptEngine)
+                                    scriptCommandRunner: scriptCommandRunner)
     let keyCodeStore = KeyCodesStore(InputSourceController())
-    let keyboardEngine = KeyboardEngine(store: keyCodeStore)
+    let keyboardCommandRunner = KeyboardCommandRunner(store: keyCodeStore)
     let engine = KeyboardCowboyEngine(contentStore,
-                                      keyboardEngine: keyboardEngine,
+                                      keyboardCommandRunner: keyboardCommandRunner,
                                       keyboardShortcutsController: keyboardShortcutsController,
                                       keyCodeStore: keyCodeStore,
-                                      scriptEngine: scriptEngine,
+                                      scriptCommandRunner: scriptCommandRunner,
                                       shortcutStore: shortcutStore,
                                       workspace: .shared)
 
@@ -97,10 +97,9 @@ struct KeyboardCowboy: App {
 
     let detailCoordinator = DetailCoordinator(applicationStore: applicationStore,
                                               applicationTriggerSelectionManager: applicationTriggerSelectionManager,
-                                              commandEngine: CommandEngine(NSWorkspace.shared,
-                                                                           applicationStore: applicationStore,
-                                                                           scriptEngine: scriptEngine,
-                                                                           keyboardEngine: keyboardEngine),
+                                              commandRunner: CommandRunner(applicationStore: applicationStore,
+                                                                           scriptCommandRunner: scriptCommandRunner,
+                                                                           keyboardCommandRunner: keyboardCommandRunner),
                                               commandSelectionManager: commandSelectionManager,
                                               contentSelectionManager: contentSelectionManager,
                                               contentStore: contentStore,
@@ -118,7 +117,7 @@ struct KeyboardCowboy: App {
     self.contentStore = contentStore
     self.groupStore = contentStore.groupStore
     self.engine = engine
-    self.scriptEngine = scriptEngine
+    self.scriptCommandRunner = scriptCommandRunner
 
     Benchmark.isEnabled = launchArguments.isEnabled(.benchmark)
 

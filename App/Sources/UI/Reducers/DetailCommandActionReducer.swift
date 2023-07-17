@@ -3,7 +3,7 @@ import Cocoa
 
 final class DetailCommandActionReducer {
   static func reduce(_ action: CommandView.Action,
-                     commandEngine: CommandEngine,
+                     commandRunner: CommandRunner,
                      workflow: inout  Workflow) {
     guard var command: Command = workflow.commands.first(where: { $0.id == action.commandId }) else {
       fatalError("Unable to find command.")
@@ -23,8 +23,8 @@ final class DetailCommandActionReducer {
       let runCommand = command
       Task {
         do {
-          try await commandEngine.run(runCommand)
-        } catch let error as KeyboardEngineError {
+          try await commandRunner.run(runCommand)
+        } catch let error as KeyboardCommandRunnerError {
           let alert = await NSAlert(error: error)
           await alert.runModal()
         } catch let error as AppleScriptPluginError {
@@ -142,7 +142,7 @@ final class DetailCommandActionReducer {
         case .open(let source):
           Task {
             let path = (source as NSString).expandingTildeInPath
-            try await commandEngine.run(.open(.init(path: path)))
+            try await commandRunner.run(.open(.init(path: path)))
           }
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")

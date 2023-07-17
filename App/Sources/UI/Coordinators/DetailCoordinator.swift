@@ -6,7 +6,7 @@ import SwiftUI
 final class DetailCoordinator {
   let applicationStore: ApplicationStore
   let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
-  let commandEngine: CommandEngine
+  let commandRunner: CommandRunner
   let commandSelectionManager: SelectionManager<CommandViewModel>
   let contentSelectionManager: SelectionManager<ContentViewModel>
   let contentStore: ContentStore
@@ -20,7 +20,7 @@ final class DetailCoordinator {
 
   init(applicationStore: ApplicationStore,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       commandEngine: CommandEngine,
+       commandRunner: CommandRunner,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        contentStore: ContentStore,
@@ -29,7 +29,7 @@ final class DetailCoordinator {
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        groupStore: GroupStore) {
     self.applicationStore = applicationStore
-    self.commandEngine = commandEngine
+    self.commandRunner = commandRunner
     self.commandSelectionManager = commandSelectionManager
     self.contentSelectionManager = contentSelectionManager
     self.contentStore = contentStore
@@ -187,7 +187,7 @@ final class DetailCoordinator {
     case .singleDetailView(let action):
       guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
       let result = DetailViewActionReducer.reduce(detailAction,
-                                                  commandEngine: commandEngine,
+                                                  commandRunner: commandRunner,
                                                   keyboardCowboyEngine: keyboardCowboyEngine,
                                                   applicationStore: applicationStore,
                                                   workflow: &workflow)

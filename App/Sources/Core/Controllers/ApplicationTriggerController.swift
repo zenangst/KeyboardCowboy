@@ -2,7 +2,7 @@ import Combine
 import Cocoa
 
 final class ApplicationTriggerController {
-  private let commandEngine: CommandRunning
+  private let commandRunner: CommandRunning
   private var activateActions = [String: [Workflow]]()
   private var bundleIdentifiers = [String]()
   private var closeActions = [String: [Workflow]]()
@@ -11,8 +11,8 @@ final class ApplicationTriggerController {
   private var runningApplicationsSubscription: AnyCancellable?
   private var workflowGroupsSubscription: AnyCancellable?
 
-  init(_ commandEngine: CommandRunning) {
-    self.commandEngine = commandEngine
+  init(_ commandRunner: CommandRunning) {
+    self.commandRunner = commandRunner
   }
 
   func subscribe(to publisher: Published<[RunningApplication]>.Publisher) {
@@ -97,9 +97,9 @@ final class ApplicationTriggerController {
     let commands = workflow.commands.filter(\.isEnabled)
     switch workflow.execution {
     case .concurrent:
-      commandEngine.concurrentRun(commands)
+      commandRunner.concurrentRun(commands)
     case .serial:
-      commandEngine.serialRun(commands)
+      commandRunner.serialRun(commands)
     }
   }
 }

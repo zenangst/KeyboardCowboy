@@ -2,7 +2,7 @@ import Carbon
 import KeyCodes
 import Foundation
 
-final class TypeEngine {
+final class TypeCommandRunner {
   enum NaturalTyping: TimeInterval {
     case disabled = 0
     case slow = 0.0275
@@ -10,11 +10,11 @@ final class TypeEngine {
     case fast = 0.01
   }
 
-  private let keyboardEngine: KeyboardEngine
+  private let keyboardCommandRunner: KeyboardCommandRunner
   private var naturalTyping: NaturalTyping = .fast
 
-  internal init(keyboardEngine: KeyboardEngine) {
-    self.keyboardEngine = keyboardEngine
+  internal init(_ keyboardCommandRunner: KeyboardCommandRunner) {
+    self.keyboardCommandRunner = keyboardCommandRunner
   }
 
   func run(_ command: TypeCommand) async throws {
@@ -26,12 +26,12 @@ final class TypeEngine {
       let charSet = CharacterSet(charactersIn: string)
       var flags = CGEventFlags()
       let keyCode: Int
-        if let virtualKey = keyboardEngine.virtualKey(for: String(character), matchDisplayValue: true) {
+        if let virtualKey = keyboardCommandRunner.virtualKey(for: String(character), matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
-        } else if let virtualKey = keyboardEngine.virtualKey(for: String(character), modifiers: [.shift], matchDisplayValue: true) {
+        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: String(character), modifiers: [.shift], matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
           flags.insert(.maskShift)
-        } else if let virtualKey = keyboardEngine.virtualKey(for: String(character), modifiers: [.option], matchDisplayValue: true) {
+        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: String(character), modifiers: [.option], matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
           flags.insert(.maskAlternate)
         } else if charSet.isSubset(of: newLines) {
@@ -40,7 +40,7 @@ final class TypeEngine {
           continue
         }
 
-      try keyboardEngine.machPort?.post(keyCode, type: .keyDown, flags: flags)
+      try keyboardCommandRunner.machPort?.post(keyCode, type: .keyDown, flags: flags)
     }
   }
 }

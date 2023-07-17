@@ -3,10 +3,10 @@ import Cocoa
 final class ShortcutStore: ObservableObject {
   @MainActor
   @Published private(set) var shortcuts = [Shortcut]()
-  private let engine: ScriptEngine
+  private let scriptCommandRunner: ScriptCommandRunner
 
-  init(engine: ScriptEngine) {
-    self.engine = engine
+  init(_ scriptCommandRunner: ScriptCommandRunner) {
+    self.scriptCommandRunner = scriptCommandRunner
   }
 
   func index() {
@@ -14,7 +14,7 @@ final class ShortcutStore: ObservableObject {
                                     source: .inline("shortcuts list"), notification: false)
 
     Task {
-      guard let result = try await engine.run(shellScript) else {
+      guard let result = try await scriptCommandRunner.run(shellScript) else {
         return
       }
 
