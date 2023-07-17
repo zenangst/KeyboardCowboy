@@ -168,8 +168,13 @@ final class CommandRunner: CommandRunning {
           output = command.name
         }
       case .shortcut(let shortcutCommand):
-        try await runners.shortcut.run(shortcutCommand)
-        output = command.name
+        let result = try await runners.shortcut.run(shortcutCommand)
+        if let result = result {
+          let trimmedResult = result.trimmingCharacters(in: .newlines)
+          output = command.name + " " + trimmedResult
+        } else {
+          output = command.name
+        }
       case .type(let typeCommand):
         try await runners.type.run(typeCommand)
         output = command.name
