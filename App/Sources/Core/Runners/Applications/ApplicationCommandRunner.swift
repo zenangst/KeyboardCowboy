@@ -43,28 +43,31 @@ final class ApplicationCommandRunner {
   }
 
   private func openApplication(command: ApplicationCommand) async throws {
-    if await KeyboardCowboy.bundleIdentifier == command.application.bundleIdentifier {
+    let bundleIdentifier = command.application.bundleIdentifier
+    let bundleName = command.application.bundleName
+
+    if await KeyboardCowboy.bundleIdentifier == bundleIdentifier {
       await MainActor.run {
         NotificationCenter.default.post(Notification(name: Notification.Name("OpenMainWindow")))
       }
       return
     }
 
-    if command.modifiers.contains(.background) ||
-        command.application.metadata.isElectron {
+    let isBackgroundOrElectron = command.modifiers.contains(.background) || command.application.metadata.isElectron
+
+    if isBackgroundOrElectron {
       try await plugins.launch.execute(command)
       return
     }
 
     try Task.checkCancellation()
 
-    let isFrontMostApplication = command.application
-      .bundleIdentifier == workspace.frontApplication?.bundleIdentifier
+    let isFrontMostApplication = bundleIdentifier == workspace.frontApplication?.bundleIdentifier
 
     if isFrontMostApplication {
       do {
         try await plugins.activate.execute(command)
-        if !windowListStore.windowOwners().contains(command.application.bundleName) {
+        if !windowListStore.windowOwners().contains(bundleName) {
           try await plugins.launch.execute(command)
         } else {
           try await plugins.bringToFront.execute()
@@ -75,7 +78,7 @@ final class ApplicationCommandRunner {
     } else {
       try await plugins.launch.execute(command)
 
-      if !windowListStore.windowOwners().contains(command.application.bundleName) {
+      if !windowListStore.windowOwners().contains(bundleName) {
         try await plugins.activate.execute(command)
       }
     }
