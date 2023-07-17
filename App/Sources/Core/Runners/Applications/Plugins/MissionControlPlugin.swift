@@ -1,9 +1,9 @@
 import Cocoa
 
 final class MissionControlPlugin {
-  private let keyboard: KeyboardEngine
+  private let keyboard: KeyboardCommandRunner
 
-  init(keyboard: KeyboardEngine) {
+  init(keyboard: KeyboardCommandRunner) {
     self.keyboard = keyboard
   }
 

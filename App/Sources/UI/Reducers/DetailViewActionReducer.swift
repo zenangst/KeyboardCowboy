@@ -9,7 +9,7 @@ enum DetailViewActionReducerResult {
 
 final class DetailViewActionReducer {
   static func reduce(_ action: DetailView.Action,
-                     commandEngine: CommandEngine,
+                     commandRunner: CommandRunner,
                      keyboardCowboyEngine: KeyboardCowboyEngine,
                      applicationStore: ApplicationStore,
                      workflow: inout Workflow) -> DetailViewActionReducerResult {
@@ -29,7 +29,7 @@ final class DetailViewActionReducer {
       case .updateKeyboardShortcuts(_, let keyboardShortcuts):
         workflow.trigger = .keyboardShortcuts(.init(shortcuts: keyboardShortcuts))
       case .commandView(_, let action):
-        DetailCommandActionReducer.reduce(action, commandEngine: commandEngine, workflow: &workflow)
+        DetailCommandActionReducer.reduce(action, commandRunner: commandRunner, workflow: &workflow)
       case .moveCommand(_, let fromOffsets, let toOffset):
         workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
         result = .animated
@@ -120,9 +120,9 @@ final class DetailViewActionReducer {
         let commands = workflow.commands.filter(\.isEnabled)
         switch workflow.execution {
         case .concurrent:
-          commandEngine.concurrentRun(commands)
+          commandRunner.concurrentRun(commands)
         case .serial:
-          commandEngine.serialRun(commands)
+          commandRunner.serialRun(commands)
         }
         return .none
       }

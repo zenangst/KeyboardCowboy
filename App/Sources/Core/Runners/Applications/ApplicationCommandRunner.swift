@@ -1,6 +1,6 @@
 import Cocoa
 
-final class ApplicationEngine {
+final class ApplicationCommandRunner {
   private struct Plugins {
     let activate: ActivateApplicationPlugin
     let bringToFront: BringToFrontApplicationPlugin
@@ -12,15 +12,15 @@ final class ApplicationEngine {
   private let workspace: WorkspaceProviding
   private let plugins: Plugins
 
-  init(scriptEngine: ScriptEngine,
-       keyboard: KeyboardEngine,
+  init(scriptCommandRunner: ScriptCommandRunner,
+       keyboard: KeyboardCommandRunner,
        windowListStore: WindowListStoring,
        workspace: WorkspaceProviding) {
     self.windowListStore = windowListStore
     self.workspace = workspace
     self.plugins = Plugins(
       activate: ActivateApplicationPlugin(workspace: workspace),
-      bringToFront: BringToFrontApplicationPlugin(engine: scriptEngine),
+      bringToFront: BringToFrontApplicationPlugin(scriptCommandRunner),
       close: CloseApplicationPlugin(workspace: workspace),
       launch: LaunchApplicationPlugin(workspace: workspace)
     )
@@ -28,7 +28,7 @@ final class ApplicationEngine {
 
   func run(_ command: ApplicationCommand) async throws {
     if command.modifiers.contains(.onlyIfNotRunning) {
-      let bundleIdentifiers = self.workspace.applications.compactMap({ $0.bundleIdentifier })
+      let bundleIdentifiers = self.workspace.applications.compactMap(\.bundleIdentifier)
       if bundleIdentifiers.contains(command.application.bundleIdentifier) {
         return
       }

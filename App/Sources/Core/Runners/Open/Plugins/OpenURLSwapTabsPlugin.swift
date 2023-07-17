@@ -10,10 +10,10 @@ final class OpenURLSwapTabsPlugin {
     case couldNotFindOpenUrl
   }
 
-  private let engine: ScriptEngine
+  private let commandRunner: ScriptCommandRunner
 
-  init(engine: ScriptEngine) {
-    self.engine = engine
+  init(_ commandRunner: ScriptCommandRunner) {
+    self.commandRunner = commandRunner
   }
 
   func execute(_ command: OpenCommand) async throws {
@@ -57,7 +57,7 @@ tell application "\(appName)"
 end tell
 """
         let scriptCommand = ScriptCommand(name: UUID().uuidString, kind: .appleScript, source: .inline(source), notification: false)
-        if try await engine.run(scriptCommand) == "-1" {
+        if try await commandRunner.run(scriptCommand) == "-1" {
           throw OpenURLSwapToPluginError.couldNotFindOpenUrl
         }
       }

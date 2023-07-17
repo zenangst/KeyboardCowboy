@@ -6,7 +6,7 @@ import Foundation
 import MachPort
 import Windows
 
-final class SystemCommandEngine {
+final class SystemCommandRunner {
   var machPort: MachPortEventController?
 
   private var frontmostApplicationSubscription: AnyCancellable?

@@ -1,6 +1,6 @@
 import Cocoa
 
-final class ScriptEngine {
+final class ScriptCommandRunner {
   private struct Plugins {
     let appleScript: AppleScriptPlugin
     let shellScript: ShellScriptPlugin

@@ -1,6 +1,6 @@
 import Foundation
 
-final class OpenEngine {
+final class OpenCommandRunner {
   struct Plugins {
     let finderFolder: OpenFolderInFinder
     let parser = OpenURLParser()
@@ -11,11 +11,11 @@ final class OpenEngine {
   private let plugins: Plugins
   private let workspace: WorkspaceProviding
 
-  init(_ scriptEngine: ScriptEngine, workspace: WorkspaceProviding) {
+  init(_ commandRunner: ScriptCommandRunner, workspace: WorkspaceProviding) {
     self.plugins = .init(
-      finderFolder: OpenFolderInFinder(engine: scriptEngine, workspace: workspace),
+      finderFolder: OpenFolderInFinder(commandRunner, workspace: workspace),
       open: OpenFilePlugin(workspace: workspace),
-      swapTab: OpenURLSwapTabsPlugin(engine: scriptEngine))
+      swapTab: OpenURLSwapTabsPlugin(commandRunner))
     self.workspace = workspace
   }
 

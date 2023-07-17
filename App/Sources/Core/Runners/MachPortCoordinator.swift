@@ -7,7 +7,7 @@ import InputSources
 import KeyCodes
 import os
 
-final class MachPortEngine {
+final class MachPortCoordinator {
   struct Event: Equatable {
     enum Kind {
       case flagsChanged
@@ -34,7 +34,7 @@ final class MachPortEngine {
   @Published var recording: KeyShortcutRecording?
 
   var machPort: MachPortEventController? {
-    didSet { keyboardEngine.machPort = machPort }
+    didSet { keyboardCommandRunner.machPort = machPort }
   }
 
   private static let defaultPartialMatch: PartialMatch = .init(rawValue: ".")
@@ -47,20 +47,20 @@ final class MachPortEngine {
 
   private var shouldHandleKeyUp: Bool = false
 
-  private let commandEngine: CommandEngine
-  private let keyboardEngine: KeyboardEngine
+  private let commandRunner: CommandRunner
+  private let keyboardCommandRunner: KeyboardCommandRunner
   private let keyboardShortcutsController: KeyboardShortcutsController
   private let store: KeyCodesStore
 
   internal init(store: KeyCodesStore,
-                commandEngine: CommandEngine,
-                keyboardEngine: KeyboardEngine,
+                commandRunner: CommandRunner,
+                keyboardCommandRunner: KeyboardCommandRunner,
                 keyboardShortcutsController: KeyboardShortcutsController,
                 mode: KeyboardCowboyMode) {
-    self.commandEngine = commandEngine
+    self.commandRunner = commandRunner
     self.store = store
     self.keyboardShortcutsController = keyboardShortcutsController
-    self.keyboardEngine = keyboardEngine
+    self.keyboardCommandRunner = keyboardCommandRunner
     self.mode = mode
     self.specialKeys = Array(store.specialKeys().keys)
   }
@@ -141,10 +141,10 @@ final class MachPortEngine {
 
       if workflow.commands.count == 1,
          case .keyboard(let command) = workflow.commands.first(where: \.isEnabled) {
-        try? keyboardEngine.run(command,
-                                type: machPortEvent.type,
-                                originalEvent: machPortEvent.event,
-                                with: machPortEvent.eventSource)
+        try? keyboardCommandRunner.run(command,
+                                       type: machPortEvent.type,
+                                       originalEvent: machPortEvent.event,
+                                       with: machPortEvent.eventSource)
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
       }) {
@@ -163,18 +163,18 @@ final class MachPortEngine {
 
         switch workflow.execution {
         case .concurrent:
-          commandEngine.concurrentRun(workflow.commands)
+          commandRunner.concurrentRun(workflow.commands)
         case .serial:
-          commandEngine.serialRun(workflow.commands)
+          commandRunner.serialRun(workflow.commands)
         }
       } else if kind == .keyDown, !isRepeatingEvent {
         let commands = workflow.commands.filter(\.isEnabled)
 
         switch workflow.execution {
         case .concurrent:
-          commandEngine.concurrentRun(commands)
+          commandRunner.concurrentRun(commands)
         case .serial:
-          commandEngine.serialRun(commands)
+          commandRunner.serialRun(commands)
         }
 
         previousPartialMatch = Self.defaultPartialMatch

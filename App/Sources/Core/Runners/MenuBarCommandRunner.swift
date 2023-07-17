@@ -1,19 +1,19 @@
 import AXEssibility
 import Cocoa
 
-enum MenuBarEngineError: Error {
+enum MenuBarCommandRunnerError: Error {
   case failedToFindFrontmostApplication
   case ranOutOfTokens
   case recursionFailed
 }
 
 @MainActor
-final class MenuBarEngine {
+final class MenuBarCommandRunner {
   nonisolated init() { }
 
   func execute(_ command: MenuBarCommand) async throws {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
-      throw MenuBarEngineError.failedToFindFrontmostApplication
+      throw MenuBarCommandRunnerError.failedToFindFrontmostApplication
     }
 
     let application = AppAccessibilityElement(frontmostApplication.processIdentifier)
@@ -27,7 +27,7 @@ final class MenuBarEngine {
   private func recursiveSearch(
     _ tokens: [MenuBarCommand.Token],
     items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement {
-      guard let token = tokens.first else { throw MenuBarEngineError.ranOutOfTokens }
+      guard let token = tokens.first else { throw MenuBarCommandRunnerError.ranOutOfTokens }
 
       var nextTokens = tokens
 
@@ -46,7 +46,7 @@ final class MenuBarEngine {
         }
       }
 
-      throw MenuBarEngineError.recursionFailed
+      throw MenuBarCommandRunnerError.recursionFailed
     }
 
   private func find(_ token: MenuBarCommand.Token, in items: [MenuBarItemAccessibilityElement]) -> MenuBarItemAccessibilityElement? {

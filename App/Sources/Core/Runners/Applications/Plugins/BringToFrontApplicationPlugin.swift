@@ -4,10 +4,10 @@ import Cocoa
 /// This is only here because sending `.activateAllWindows` to `NSRunningApplication.activate()`
 /// currently does not work as expected.
 final class BringToFrontApplicationPlugin {
-  private let engine: ScriptEngine
+  private let commandRunner: ScriptCommandRunner
 
-  init(engine: ScriptEngine) {
-    self.engine = engine
+  init(_ commandRunner: ScriptCommandRunner) {
+    self.commandRunner = commandRunner
   }
 
   func execute() async throws {
@@ -19,7 +19,7 @@ final class BringToFrontApplicationPlugin {
         """
 
     try Task.checkCancellation()
-    _ = try await engine.run(
+    _ = try await commandRunner.run(
       ScriptCommand(name: "BringToFrontApplicationPlugin", kind: .appleScript, source: .inline(source), notification: false)
     )
   }

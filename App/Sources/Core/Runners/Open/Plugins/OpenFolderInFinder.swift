@@ -2,11 +2,11 @@ import Cocoa
 
 final class OpenFolderInFinder {
   private let finderBundleIdentifier = "com.apple.finder"
-  private let engine: ScriptEngine
+  private let commandRunner: ScriptCommandRunner
   private let workspace: WorkspaceProviding
 
-  init(engine: ScriptEngine, workspace: WorkspaceProviding) {
-    self.engine = engine
+  init(_ commandRunner: ScriptCommandRunner, workspace: WorkspaceProviding = NSWorkspace.shared) {
+    self.commandRunner = commandRunner
     self.workspace = workspace
   }
 
@@ -27,6 +27,6 @@ final class OpenFolderInFinder {
                                source: .inline(source),
                                notification: false)
     try Task.checkCancellation()
-    _ = try await engine.run(script)
+    _ = try await commandRunner.run(script)
   }
 }
