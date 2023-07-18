@@ -20,12 +20,29 @@ private extension Array where Element == Workflow {
 private extension Array where Element == KeyShortcut {
   var binding: String? {
     if count == 1, let firstMatch = first {
-      return "\(firstMatch.modifersDisplayValue)\(firstMatch.key)"
+      let key: String = firstMatch.key.count == 1
+      ? firstMatch.key.uppercaseFirstLetter()
+      : firstMatch.key
+      return "\(firstMatch.modifersDisplayValue)\(key)"
     } else if count > 1 {
-      return compactMap { $0.modifersDisplayValue + $0.key }.joined(separator: ",")
+      return compactMap {
+        let key: String = $0.key.count == 1 ? $0.key.uppercaseFirstLetter() : $0.key
+        return $0.modifersDisplayValue + key
+      }.joined(separator: ",")
     }
     return nil
   }
+}
+
+private extension String {
+    func uppercaseFirstLetter() -> String {
+        guard let firstCharacter = self.first else {
+            return self
+        }
+        let uppercaseFirstCharacter = String(firstCharacter).uppercased()
+        let remainingString = String(self.dropFirst())
+        return uppercaseFirstCharacter + remainingString
+    }
 }
 
 private extension Workflow {
