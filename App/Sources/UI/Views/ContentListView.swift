@@ -134,14 +134,12 @@ struct ContentListView: View {
           })
           .padding(8)
           .onChange(of: contentSelectionManager.selections, perform: { newValue in
-            contentSelectionManager.selectedColor = Color(nsColor: getColor())
             debounceSelectionManager.process(.init(workflows: newValue, groups: groupSelectionManager.selections))
           })
           .onAppear {
             if let firstSelection = contentSelectionManager.selections.first {
               proxy.scrollTo(firstSelection)
             }
-            contentSelectionManager.selectedColor = Color(nsColor: getColor())
           }
           .toolbar {
             ToolbarItemGroup(placement: .navigation) {
@@ -166,18 +164,6 @@ struct ContentListView: View {
     }
     .id(groupSelectionManager.selections)
     .debugEdit()
-  }
-
-  private func getColor() -> NSColor {
-    let color: NSColor
-    if let groupId = groupSelectionManager.selections.first,
-       let group = groupsPublisher.data.first(where: { $0.id == groupId }),
-       !group.color.isEmpty {
-      color = .init(hex: group.color).blended(withFraction: 0.4, of: .black)!
-    } else {
-      color = .controlAccentColor
-    }
-    return color
   }
 
   @ViewBuilder
