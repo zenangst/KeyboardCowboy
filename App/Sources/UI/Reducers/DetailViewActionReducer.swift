@@ -37,7 +37,7 @@ final class DetailViewActionReducer {
         }
 
         selectionManager.publish(newIds)
-        result = .animated(.interactiveSpring(duration: 0.15, extraBounce: 0.0, blendDuration: 0.25))
+        result = .animated(.easeInOut(duration: 0.15))
       case .togglePassthrough:
         if case .keyboardShortcuts(var previousTrigger) = workflow.trigger {
           previousTrigger.passthrough.toggle()
