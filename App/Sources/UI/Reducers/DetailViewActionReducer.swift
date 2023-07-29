@@ -1,8 +1,9 @@
 import Apps
 import Foundation
+import SwiftUI
 
 enum DetailViewActionReducerResult {
-  case animated
+  case animated(_ animation: Animation)
   case refresh
   case none
 }
@@ -36,6 +37,7 @@ final class DetailViewActionReducer {
         }
 
         selectionManager.publish(newIds)
+        result = .animated(.interactiveSpring)
       case .togglePassthrough:
         if case .keyboardShortcuts(var previousTrigger) = workflow.trigger {
           previousTrigger.passthrough.toggle()
@@ -44,14 +46,14 @@ final class DetailViewActionReducer {
       case .dropUrls(_, let urls):
         let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
         workflow.commands.append(contentsOf: commands)
-        result = .animated
+        result = .animated(.default)
       case .updateKeyboardShortcuts(_, let keyboardShortcuts):
         workflow.trigger = .keyboardShortcuts(.init(shortcuts: keyboardShortcuts))
       case .commandView(_, let action):
         DetailCommandActionReducer.reduce(action, commandRunner: commandRunner, workflow: &workflow)
       case .moveCommand(_, let fromOffsets, let toOffset):
         workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
-        result = .animated
+        result = .animated(.default)
       case .updateName(_, let name):
         workflow.name = name
         result = .none
@@ -60,7 +62,7 @@ final class DetailViewActionReducer {
         result = .none
       case .removeCommands(_, let commandIds):
         workflow.commands.removeAll(where: { commandIds.contains($0.id) })
-        result = .animated
+        result = .animated(.default)
       case .trigger(_, let action):
         switch action {
         case .addKeyboardShortcut:

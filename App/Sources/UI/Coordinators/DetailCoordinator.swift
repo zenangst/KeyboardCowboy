@@ -57,10 +57,15 @@ final class DetailCoordinator {
     case .selectConfiguration:
       render(contentSelectionManager.selections,
              groupIds: groupSelectionManager.selections)
-    case .selectGroups(let array):
-      if let firstId = array.first,
+    case .selectGroups(let ids):
+      if let firstId = ids.first,
          let group = groupStore.group(withId: firstId) {
         var workflowIds = Set<ContentViewModel.ID>()
+
+        let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black) ?? .controlAccentColor
+        applicationTriggerSelectionManager.selectedColor = Color(nsColor: nsColor)
+        keyboardShortcutSelectionManager.selectedColor = Color(nsColor: nsColor)
+        commandSelectionManager.selectedColor = Color(nsColor: nsColor)
 
         let matches = group.workflows.filter { contentSelectionManager.selections.contains($0.id) }
           .map(\.id)
@@ -70,7 +75,7 @@ final class DetailCoordinator {
         } else if let firstId = group.workflows.first?.id {
           workflowIds.insert(firstId)
         }
-        render(workflowIds, groupIds: Set(array))
+        render(workflowIds, groupIds: Set(ids))
 
         applicationTriggerSelectionManager.removeLastSelection()
         keyboardShortcutSelectionManager.removeLastSelection()
@@ -197,8 +202,8 @@ final class DetailCoordinator {
       groupStore.commit([workflow])
 
       switch result {
-      case .animated:
-        withAnimation(.default) {
+      case .animated(let animation):
+        withAnimation(animation) {
           render([workflow.id], groupIds: groupSelectionManager.selections)
         }
       case .refresh:

@@ -39,6 +39,11 @@ final class ContentCoordinator {
     case .selectConfiguration:
       render(groupSelectionManager.selections, calculateSelections: true)
     case .selectGroups(let ids):
+      if let id = ids.first,
+         let firstGroup = store.group(withId: id) {
+        contentSelectionManager.selectedColor = Color(hex: firstGroup.color)
+      }
+
       let shouldRemoveLastSelection = !publisher.data.isEmpty
       handle(.refresh(ids))
       if shouldRemoveLastSelection {
@@ -79,6 +84,7 @@ final class ContentCoordinator {
       groupStore: store,
       selectionManager: contentSelectionManager,
       group: &group)
+
     switch action {
     case .addWorkflow(let id):
       store.updateGroups([group])
