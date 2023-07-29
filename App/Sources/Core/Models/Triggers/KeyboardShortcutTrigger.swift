@@ -8,4 +8,10 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
     self.passthrough = passthrough
     self.shortcuts = shortcuts
   }
+
+  func copy() -> Self {
+    KeyboardShortcutTrigger(
+      passthrough: passthrough,
+      shortcuts: shortcuts.map { $0.copy() })
+  }
 }

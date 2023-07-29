@@ -81,7 +81,7 @@ final class DetailCoordinator {
 
   func handle(_ action: ContentView.Action) {
     switch action {
-    case .refresh, .moveWorkflowsToGroup, .reorderWorkflows:
+    case .refresh, .moveWorkflowsToGroup, .reorderWorkflows, .duplicate:
       return
     case .selectWorkflow(let workflowIds, let groupIds):
       render(workflowIds, groupIds: groupIds)
@@ -186,11 +186,14 @@ final class DetailCoordinator {
     switch detailAction {
     case .singleDetailView(let action):
       guard var workflow = groupStore.workflow(withId: action.workflowId) else { return }
-      let result = DetailViewActionReducer.reduce(detailAction,
-                                                  commandRunner: commandRunner,
-                                                  keyboardCowboyEngine: keyboardCowboyEngine,
-                                                  applicationStore: applicationStore,
-                                                  workflow: &workflow)
+      let result = DetailViewActionReducer.reduce(
+        detailAction,
+        commandRunner: commandRunner,
+        selectionManager: commandSelectionManager,
+        keyboardCowboyEngine: keyboardCowboyEngine,
+        applicationStore: applicationStore,
+        workflow: &workflow)
+      
       groupStore.commit([workflow])
 
       switch result {
@@ -304,6 +307,7 @@ extension SingleDetailView.Action {
   var workflowId: String {
     switch self {
     case .dropUrls(let workflowId, _),
+         .duplicate(let workflowId, _),
          .updateKeyboardShortcuts(let workflowId, _),
          .removeTrigger(let workflowId),
          .setIsEnabled(let workflowId, _),

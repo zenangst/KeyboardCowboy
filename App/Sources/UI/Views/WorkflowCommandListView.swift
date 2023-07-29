@@ -12,7 +12,6 @@ struct WorkflowCommandListView: View {
   @EnvironmentObject var applicationStore: ApplicationStore
   @ObservedObject private var detailPublisher: DetailPublisher
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
-  @State private var selections = Set<String>()
   @State private var dropOverlayIsVisible: Bool = false
   @State private var dropUrls = Set<URL>()
   private var focusPublisher = FocusPublisher<CommandViewModel>()
@@ -136,15 +135,16 @@ struct WorkflowCommandListView: View {
   private func contextMenu(_ command: Binding<CommandViewModel>) -> some View {
     Button("Run", action: {})
     Divider()
+    Button("Duplicate", action: {
+      if !selectionManager.selections.isEmpty {
+        onAction(.duplicate(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
+      } else {
+        onAction(.duplicate(workflowId: detailPublisher.data.id, commandIds: Set(arrayLiteral: command.id)))
+      }
+    })
     Button("Remove", action: {
-      if !selections.isEmpty {
-        var indexSet = IndexSet()
-        selections.forEach { id in
-          if let index = detailPublisher.data.commands.firstIndex(where: { $0.id == id }) {
-            indexSet.insert(index)
-          }
-        }
-        onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selections))
+      if !selectionManager.selections.isEmpty {
+        onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
       } else {
         onAction(.commandView(workflowId: detailPublisher.data.id, action: .remove(workflowId: detailPublisher.data.id, commandId: command.id)))
       }

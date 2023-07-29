@@ -8,8 +8,10 @@ enum DetailViewActionReducerResult {
 }
 
 final class DetailViewActionReducer {
+  @MainActor
   static func reduce(_ action: DetailView.Action,
                      commandRunner: CommandRunner,
+                     selectionManager: SelectionManager<CommandViewModel>,
                      keyboardCowboyEngine: KeyboardCowboyEngine,
                      applicationStore: ApplicationStore,
                      workflow: inout Workflow) -> DetailViewActionReducerResult {
@@ -17,6 +19,23 @@ final class DetailViewActionReducer {
     switch action {
     case .singleDetailView(let action):
       switch action {
+      case .duplicate(_, let commandIds):
+        var newIds = Set<CommandViewModel.ID>()
+        for commandId in commandIds {
+          guard let command = workflow.commands.first(where: { $0.id == commandId }) else {
+            continue
+          }
+
+          let copy = command.copy()
+          if let index = workflow.commands.firstIndex(where: { $0.id == commandId }) {
+            workflow.commands.insert(copy, at: index)
+          } else {
+            workflow.commands.append(copy)
+          }
+          newIds.insert(copy.id)
+        }
+
+        selectionManager.publish(newIds)
       case .togglePassthrough:
         if case .keyboardShortcuts(var previousTrigger) = workflow.trigger {
           previousTrigger.passthrough.toggle()

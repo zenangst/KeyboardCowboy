@@ -8,6 +8,7 @@ struct SingleDetailView: View {
     case applicationTrigger(workflowId: Workflow.ID, action: WorkflowApplicationTriggerView.Action)
     case commandView(workflowId: Workflow.ID, action: CommandView.Action)
     case dropUrls(workflowId: Workflow.ID, urls: [URL])
+    case duplicate(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
     case removeCommands(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
     case removeTrigger(workflowId: Workflow.ID)

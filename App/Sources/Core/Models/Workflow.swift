@@ -92,10 +92,24 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.execution = execution
   }
 
-  func copy() -> Self {
+  func copy(appendCopyToName: Bool = true) -> Self {
     var clone = self
     clone.id = UUID().uuidString
-    clone.name += " copy"
+    if appendCopyToName {
+      clone.name += " copy"
+    }
+
+    switch clone.trigger {
+    case .application(let array):
+      clone.trigger = .application(array.map { $0.copy() })
+    case .keyboardShortcuts(let keyboardShortcutTrigger):
+      clone.trigger = .keyboardShortcuts(keyboardShortcutTrigger.copy())
+    case .none:
+      break
+    }
+
+    clone.commands = clone.commands.map { $0.copy(appendCopyToName: false) }
+
     return clone
   }
 
