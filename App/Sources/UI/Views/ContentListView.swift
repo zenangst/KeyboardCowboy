@@ -182,6 +182,9 @@ struct ContentListView: View {
 
   @ViewBuilder
   private func contextualMenu() -> some View {
+    Button("Duplicate", action: {
+      onAction(.duplicate(workflowIds: contentSelectionManager.selections))
+    })
     Menu("Move to") {
       // Show only other groups than the current one.
       // TODO: This is a bottle-neck for performance

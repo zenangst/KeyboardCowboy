@@ -14,6 +14,12 @@ public struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Se
     self.contexts = Set(contexts)
   }
 
+  func copy() -> Self {
+    var clone = self
+    clone.id = UUID().uuidString
+    return clone
+  }
+
   public enum Context: String, Toggleable, Hashable, Codable, CaseIterable, Sendable {
     public var id: String { rawValue }
 

@@ -52,6 +52,10 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     self.lhs = try container.decodeIfPresent(Bool.self, forKey: .lhs) ?? true
     self.modifiers = (try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)) ?? []
   }
+
+  func copy() -> Self {
+    KeyShortcut(key: key, lhs: lhs, modifiers: modifiers)
+  }
 }
 
 public extension KeyShortcut {

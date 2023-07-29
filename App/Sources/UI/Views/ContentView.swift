@@ -11,6 +11,7 @@ struct ContentView: View {
   @ObserveInjection var inject
 
   enum Action: Hashable {
+    case duplicate(workflowIds: Set<ContentViewModel.ID>)
     case refresh(_ groupIds: Set<WorkflowGroup.ID>)
     case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: Set<ContentViewModel.ID>)
     case selectWorkflow(workflowIds: Set<ContentViewModel.ID>, groupIds: Set<WorkflowGroup.ID>)

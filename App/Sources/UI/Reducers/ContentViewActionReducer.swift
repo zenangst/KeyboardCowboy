@@ -9,6 +9,21 @@ final class ContentViewActionReducer {
     switch action {
     case .refresh, .selectWorkflow:
       break
+    case .duplicate(let workflowIds):
+      var newIds = Set<Workflow.ID>()
+      for workflowId in workflowIds {
+        guard let workflow = groupStore.workflow(withId: workflowId) else { continue }
+        let workflowCopy = workflow.copy()
+
+        if let index = group.workflows.firstIndex(where: { $0.id == workflowId }) {
+          group.workflows.insert(workflowCopy, at: index)
+        } else {
+          group.workflows.append(workflowCopy)
+        }
+
+        newIds.insert(workflowCopy.id)
+      }
+      selectionManager.publish(newIds)
     case .moveWorkflowsToGroup(let groupId, let workflows):
       groupStore.move(workflows, to: groupId)
       if let updatedGroup = groupStore.group(withId: group.id) {
