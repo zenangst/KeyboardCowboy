@@ -62,6 +62,18 @@ struct ContentListView: View {
                                             unfocusedOpacity: 0,
                                             color: contentSelectionManager.selectedColor))
           .focused(focus, equals: .search)
+          .onExitCommand(perform: {
+            searchTerm = ""
+          })
+          .onSubmit {
+            focus.wrappedValue = .workflows
+          }
+        if !searchTerm.isEmpty {
+          Button(action: { searchTerm = "" },
+                 label: { Text("Clear") })
+          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGray)))
+          .font(.caption2)
+        }
       }
       .padding(8)
     }
@@ -107,7 +119,7 @@ struct ContentListView: View {
             .onMoveCommand(perform: { direction in
               if let elementID = contentSelectionManager.handle(
                 direction,
-                publisher.data,
+                $publisher.data.filter(search).map(\.wrappedValue),
                 proxy: proxy,
                 vertical: true) {
                 focusPublisher.publish(elementID)
