@@ -80,15 +80,17 @@ final class ApplicationTriggerController {
     for change in difference {
       switch change {
       case .insert(_, let bundleIdentifier, _):
-        workflows.append(contentsOf: openActions[bundleIdentifier] ?? [])
+        if let openActions = openActions[bundleIdentifier] {
+          workflows.append(contentsOf: openActions)
+        }
       case .remove(_, let bundleIdentifier, _):
-        workflows.append(contentsOf: closeActions[bundleIdentifier] ?? [])
+        if let closeActions = closeActions[bundleIdentifier] {
+          workflows.append(contentsOf: closeActions)
+        }
       }
     }
 
-    for workflow in workflows {
-      runCommands(in: workflow)
-    }
+    workflows.forEach { runCommands(in: $0) }
 
     self.bundleIdentifiers = bundleIdentifiers
   }
