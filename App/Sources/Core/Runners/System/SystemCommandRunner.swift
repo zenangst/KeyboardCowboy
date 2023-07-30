@@ -175,6 +175,7 @@ final class SystemCommandRunner {
     let minimumSize = CGSize(width: 0, height: 0)
     let windowModels: [WindowModel] = models
       .filter {
+        $0.id > 0 &&
         $0.isOnScreen &&
         $0.rect.size.width > minimumSize.width &&
         $0.rect.size.height > minimumSize.height &&
@@ -191,6 +192,7 @@ final class SystemCommandRunner {
     let minimumSize = CGSize(width: 300, height: 300)
     let windowModels: [WindowModel] = models
       .filter {
+        $0.id > 0 &&
         $0.isOnScreen &&
         $0.rect.size.width > minimumSize.width &&
         $0.rect.size.height > minimumSize.height &&
@@ -206,6 +208,9 @@ final class SystemCommandRunner {
     let element = AppAccessibilityElement(pid)
     do {
       frontMostApplicationWindows = try element.windows()
+        .filter({
+          $0.id > 0
+        })
     } catch { }
   }
 }
