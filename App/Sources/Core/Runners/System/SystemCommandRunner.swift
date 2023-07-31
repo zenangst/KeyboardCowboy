@@ -209,7 +209,8 @@ final class SystemCommandRunner {
     do {
       frontMostApplicationWindows = try element.windows()
         .filter({
-          $0.id > 0
+          $0.id > 0 &&
+          ($0.frame?.size.height ?? 0) > 20
         })
     } catch { }
   }
