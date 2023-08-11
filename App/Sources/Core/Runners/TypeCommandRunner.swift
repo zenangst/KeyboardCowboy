@@ -22,23 +22,22 @@ final class TypeCommandRunner {
     let newLines = CharacterSet.newlines
 
     for character in input {
-      let string = String(character)
-      let charSet = CharacterSet(charactersIn: string)
+      let characterString = String(character)
       var flags = CGEventFlags()
       let keyCode: Int
-        if let virtualKey = keyboardCommandRunner.virtualKey(for: String(character), matchDisplayValue: true) {
-          keyCode = virtualKey.keyCode
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: String(character), modifiers: [.shift], matchDisplayValue: true) {
-          keyCode = virtualKey.keyCode
-          flags.insert(.maskShift)
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: String(character), modifiers: [.option], matchDisplayValue: true) {
-          keyCode = virtualKey.keyCode
-          flags.insert(.maskAlternate)
-        } else if charSet.isSubset(of: newLines) {
-          keyCode = 36
-        } else {
-          continue
-        }
+      if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, matchDisplayValue: true) {
+        keyCode = virtualKey.keyCode
+      } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.shift], matchDisplayValue: true) {
+        keyCode = virtualKey.keyCode
+        flags.insert(.maskShift)
+      } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.option], matchDisplayValue: true) {
+        keyCode = virtualKey.keyCode
+        flags.insert(.maskAlternate)
+      } else if CharacterSet(charactersIn: characterString).isSubset(of: newLines) {
+        keyCode = 36
+      } else {
+        continue
+      }
 
       try keyboardCommandRunner.machPort?.post(keyCode, type: .keyDown, flags: flags)
     }

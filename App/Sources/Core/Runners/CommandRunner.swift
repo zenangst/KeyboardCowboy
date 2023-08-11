@@ -22,8 +22,8 @@ final class CommandRunner: CommandRunning {
   var machPort: MachPortEventController? {
     didSet {
       runners.keyboard.machPort = machPort
+      runners.system.machPort = machPort
       if let machPort {
-        runners.system.machPort = machPort
         runners.system.subscribe(to: machPort.$flagsChanged)
       }
     }

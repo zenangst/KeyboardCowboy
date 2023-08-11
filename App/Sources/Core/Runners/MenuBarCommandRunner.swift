@@ -16,38 +16,37 @@ final class MenuBarCommandRunner {
       throw MenuBarCommandRunnerError.failedToFindFrontmostApplication
     }
 
-    let application = AppAccessibilityElement(frontmostApplication.processIdentifier)
-    let menuBar = try application.menuBar()
-    let menuItems = try menuBar.menuItems()
+    let menuItems = try AppAccessibilityElement(frontmostApplication.processIdentifier)
+      .menuBar()
+      .menuItems()
     let match = try recursiveSearch(command.tokens, items: menuItems)
 
     match.performAction(.pick)
   }
 
-  private func recursiveSearch(
-    _ tokens: [MenuBarCommand.Token],
-    items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement {
-      guard let token = tokens.first else { throw MenuBarCommandRunnerError.ranOutOfTokens }
+  private func recursiveSearch(_ tokens: [MenuBarCommand.Token],
+                               items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement {
+    guard let token = tokens.first else { throw MenuBarCommandRunnerError.ranOutOfTokens }
 
-      var nextTokens = tokens
+    var nextTokens = tokens
 
-      if let matchingItem = find(token, in: items) {
-        nextTokens.remove(at: 0)
-        if nextTokens.isEmpty {
-          return matchingItem
-        } else {
-          let nextItems = try matchingItem.menuItems()
-          return try recursiveSearch(nextTokens, items: nextItems)
-        }
+    if let matchingItem = find(token, in: items) {
+      nextTokens.remove(at: 0)
+      if nextTokens.isEmpty {
+        return matchingItem
       } else {
-        for item in items {
-          let children = try item.menuItems()
-          return try recursiveSearch(nextTokens, items: children)
-        }
+        let nextItems = try matchingItem.menuItems()
+        return try recursiveSearch(nextTokens, items: nextItems)
       }
-
-      throw MenuBarCommandRunnerError.recursionFailed
+    } else {
+      for item in items {
+        let children = try item.menuItems()
+        return try recursiveSearch(nextTokens, items: children)
+      }
     }
+
+    throw MenuBarCommandRunnerError.recursionFailed
+  }
 
   private func find(_ token: MenuBarCommand.Token, in items: [MenuBarItemAccessibilityElement]) -> MenuBarItemAccessibilityElement? {
     items.first(where: { item in

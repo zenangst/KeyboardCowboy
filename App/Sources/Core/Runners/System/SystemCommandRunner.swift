@@ -77,35 +77,34 @@ final class SystemCommandRunner {
         ? allVisibleApplicationsInSpace
         : visibleApplicationWindows
 
-        guard collection.count > 1 else { return }
-        if case .moveFocusToNextWindow = command.kind {
+        let collectionCount = collection.count
+
+        guard collectionCount > 1 else { return }
+
+        switch command.kind {
+        case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
           visibleMostIndex += 1
-          if visibleMostIndex >= collection.count {
+          if visibleMostIndex >= collectionCount {
             visibleMostIndex = 0
           }
-        } else if case .moveFocusToNextWindowGlobal = command.kind {
-          visibleMostIndex += 1
-          if visibleMostIndex >= collection.count {
-            visibleMostIndex = 0
-          }
-        } else {
+        default:
           visibleMostIndex -= 1
           if visibleMostIndex < 0 {
-            visibleMostIndex = collection.count - 1
+            visibleMostIndex = collectionCount - 1
           }
         }
+
         let window = collection[visibleMostIndex]
         let windowId = UInt32(window.id)
         let processIdentifier = pid_t(window.ownerPid.rawValue)
         let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
         let app = AppAccessibilityElement(processIdentifier)
-        let axWindow = try app.windows().first(where: {
-          $0.id == windowId
-        })
+        let axWindow = try app.windows().first(where: { $0.id == windowId })
 
-        if let runningApplication  {
+        if let runningApplication = runningApplication {
           let options: NSApplication.ActivationOptions = [.activateIgnoringOtherApps]
           runningApplication.activate(options: options)
+
           if let bundleIdentifier = runningApplication.bundleIdentifier,
              bundleIdentifier != workspace.frontApplication?.bundleIdentifier,
              let application = applicationStore.application(for: bundleIdentifier) {

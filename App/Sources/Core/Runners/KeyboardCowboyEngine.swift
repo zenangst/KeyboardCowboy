@@ -106,7 +106,8 @@ final class KeyboardCowboyEngine {
   // MARK: Private methods
 
   private func subscribe(to workspace: NSWorkspace) {
-    frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
+    frontmostApplicationSubscription = workspace
+      .publisher(for: \.frontmostApplication)
       .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
       .compactMap { $0 }
       .sink { [weak self] application in

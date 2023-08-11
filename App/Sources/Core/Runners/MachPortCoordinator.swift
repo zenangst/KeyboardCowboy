@@ -203,12 +203,10 @@ final class MachPortCoordinator {
   }
 
   private func validate(_ machPortEvent: MachPortEvent) -> KeyShortcutRecording {
-    let validationContext: KeyShortcutRecording
     let keyCode = Int(machPortEvent.keyCode)
 
     guard let displayValue = store.displayValue(for: keyCode) else {
-      validationContext = .cancel(.empty())
-      return validationContext
+      return .cancel(.empty())
     }
 
     let virtualModifiers = VirtualModifierKey
@@ -217,20 +215,19 @@ final class MachPortCoordinator {
     let modifiers = virtualModifiers
       .compactMap({ ModifierKey(rawValue: $0.rawValue) })
     let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
-    if let restrictedKeyCode = RestrictedKeyCode(rawValue: Int(machPortEvent.keyCode)) {
+
+    if let restrictedKeyCode = RestrictedKeyCode(rawValue: keyCode) {
       switch restrictedKeyCode {
       case .backspace, .delete:
-        validationContext = .delete(keyboardShortcut)
+        return .delete(keyboardShortcut)
       case .escape:
-        validationContext = .cancel(keyboardShortcut)
+        return .cancel(keyboardShortcut)
       case .enter:
-        validationContext = .valid(keyboardShortcut)
+        return .valid(keyboardShortcut)
       }
     } else {
-      validationContext = .valid(keyboardShortcut)
+      return .valid(keyboardShortcut)
     }
-
-    return validationContext
   }
 }
 
