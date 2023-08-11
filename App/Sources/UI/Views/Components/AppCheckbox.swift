@@ -50,7 +50,6 @@ struct AppCheckbox: View {
           .overlay(content: {
             Image(systemName: "checkmark")
               .font(Font.system(size: style.fontSize, weight: .heavy))
-              .rotation3DEffect(.degrees(isOn ? 0 : 90), axis: (x: 1, y: 0, z: 0))
               .offset(y: isOn ? 0 : -8)
               .opacity(isOn ? 1 : 0)
               .animation(.easeInOut(duration: 0.15), value: isOn)
