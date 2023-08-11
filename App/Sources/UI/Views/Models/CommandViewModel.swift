@@ -3,8 +3,8 @@ import Foundation
 
 struct CommandViewModel: Codable, Hashable, Identifiable {
   struct MetaData: Identifiable, Codable, Hashable, Sendable {
-    var delay: Double?
     var id: String
+    var delay: Double?
     var name: String
     var namePlaceholder: String
     var isEnabled: Bool

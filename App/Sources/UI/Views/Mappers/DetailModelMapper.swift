@@ -52,6 +52,7 @@ private extension Command.MetaData {
   func viewModel(_ command: Command) -> CommandViewModel.MetaData {
     CommandViewModel.MetaData(
       id: id,
+      delay: command.delay,
       name: name,
       namePlaceholder: command.name,
       isEnabled: isEnabled,

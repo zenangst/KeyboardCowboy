@@ -11,7 +11,6 @@ enum CommandContainerAction {
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
-  @State private var delay: Double?
   @State private var delayString: String = ""
   @State private var delayOverlay: Bool = false
 
@@ -66,7 +65,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
                 delayOverlay = true
               } label: {
                 HStack {
-                  if let delay {
+                  if let delay = metaData.delay {
                     Text("\(Int(delay)) milliseconds")
                       .font(.caption)
                   } else {
