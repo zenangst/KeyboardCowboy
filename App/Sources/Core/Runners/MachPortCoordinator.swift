@@ -146,7 +146,7 @@ final class MachPortCoordinator {
                                        originalEvent: machPortEvent.event,
                                        with: machPortEvent.eventSource)
       } else if workflow.commands.allSatisfy({
-        if case .systemCommand = $0 { return true } else { return false }
+        if case .systemCommand = $0 { true } else { false }
       }) {
         if machPortEvent.type == .keyDown && isRepeatingEvent {
           shouldHandleKeyUp = true
@@ -161,11 +161,12 @@ final class MachPortCoordinator {
           }
         }
 
+        let commands = workflow.commands.filter(\.isEnabled)
         switch workflow.execution {
         case .concurrent:
-          commandRunner.concurrentRun(workflow.commands)
+          commandRunner.concurrentRun(commands)
         case .serial:
-          commandRunner.serialRun(workflow.commands)
+          commandRunner.serialRun(commands)
         }
       } else if kind == .keyDown, !isRepeatingEvent {
         let commands = workflow.commands.filter(\.isEnabled)
