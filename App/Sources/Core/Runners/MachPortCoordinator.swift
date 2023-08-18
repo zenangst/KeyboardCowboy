@@ -146,7 +146,7 @@ final class MachPortCoordinator {
                                        originalEvent: machPortEvent.event,
                                        with: machPortEvent.eventSource)
       } else if workflow.commands.allSatisfy({
-        if case .systemCommand = $0 { true } else { false }
+        if case .systemCommand = $0 { return true } else { return false }
       }) {
         if machPortEvent.type == .keyDown && isRepeatingEvent {
           shouldHandleKeyUp = true
