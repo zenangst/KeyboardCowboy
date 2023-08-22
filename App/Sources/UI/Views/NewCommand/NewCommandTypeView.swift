@@ -38,6 +38,7 @@ struct NewCommandTypeView: View {
       }, label: {
         Text(mode.rawValue)
       })
+      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
     }
     .onChange(of: text) { newValue in
       validation = updateAndValidatePayload()
