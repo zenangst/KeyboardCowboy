@@ -42,10 +42,13 @@ final class MachPortCoordinator {
 
   private var keyboardCowboyModeSubscription: AnyCancellable?
   private var machPortEventSubscription: AnyCancellable?
+  private var flagsChangedSubscription: AnyCancellable?
   private var mode: KeyboardCowboyMode
   private var specialKeys: [Int] = [Int]()
 
   private var shouldHandleKeyUp: Bool = false
+
+  private var workItem: DispatchWorkItem?
 
   private let commandRunner: CommandRunner
   private let keyboardCommandRunner: KeyboardCommandRunner
@@ -91,6 +94,15 @@ final class MachPortCoordinator {
       }
   }
 
+  func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
+    flagsChangedSubscription = publisher
+      .compactMap { $0 }
+      .sink { [weak self] recording in
+        self?.workItem?.cancel()
+        self?.workItem = nil
+      }
+  }
+
   private func intercept(_ machPortEvent: MachPortEvent) {
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
@@ -103,6 +115,8 @@ final class MachPortCoordinator {
       kind = .keyDown
     case .keyUp:
       kind = .keyUp
+      workItem?.cancel()
+      workItem = nil
     default:
       return
     }
@@ -161,21 +175,16 @@ final class MachPortCoordinator {
           }
         }
 
-        let commands = workflow.commands.filter(\.isEnabled)
-        switch workflow.execution {
-        case .concurrent:
-          commandRunner.concurrentRun(commands)
-        case .serial:
-          commandRunner.serialRun(commands)
+        if let delay = shouldSchedule(workflow) {
+          workItem = schedule(workflow, after: delay)
+        } else {
+          run(workflow)
         }
       } else if kind == .keyDown, !isRepeatingEvent {
-        let commands = workflow.commands.filter(\.isEnabled)
-
-        switch workflow.execution {
-        case .concurrent:
-          commandRunner.concurrentRun(commands)
-        case .serial:
-          commandRunner.serialRun(commands)
+        if let delay = shouldSchedule(workflow) {
+          workItem = schedule(workflow, after: delay)
+        } else {
+          run(workflow)
         }
 
         previousPartialMatch = Self.defaultPartialMatch
@@ -223,6 +232,39 @@ final class MachPortCoordinator {
       }
     } else {
       return .valid(keyboardShortcut)
+    }
+  }
+
+  private func run(_ workflow: Workflow) {
+    let commands = workflow.commands.filter(\.isEnabled)
+    switch workflow.execution {
+    case .concurrent:
+      commandRunner.concurrentRun(commands)
+    case .serial:
+      commandRunner.serialRun(commands)
+    }
+  }
+
+  private func schedule(_ workflow: Workflow, after duration: Double) -> DispatchWorkItem {
+    let workItem = DispatchWorkItem { [weak self] in
+      guard let self else { return }
+
+      guard self.workItem?.isCancelled != true else { return }
+
+      self.run(workflow)
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
+    return workItem
+  }
+
+  private func shouldSchedule(_ workflow: Workflow) -> Double? {
+    if case .keyboardShortcuts(let trigger) = workflow.trigger,
+       trigger.shortcuts.count == 1,
+       let holdDuration = trigger.holdDuration,
+       holdDuration > 0 {
+      return holdDuration
+    } else {
+      return nil
     }
   }
 }

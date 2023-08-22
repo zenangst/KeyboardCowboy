@@ -81,6 +81,7 @@ final class KeyboardCowboyEngine {
       contentStore.recorderStore.subscribe(to: machPortCoordinator.$recording)
       machPortCoordinator.subscribe(to: contentStore.recorderStore.$mode)
       machPortCoordinator.subscribe(to: newMachPortController.$event)
+      machPortCoordinator.subscribe(to: newMachPortController.$flagsChanged)
       machPortCoordinator.machPort = newMachPortController
       commandRunner.machPort = newMachPortController
       machPortController = newMachPortController
