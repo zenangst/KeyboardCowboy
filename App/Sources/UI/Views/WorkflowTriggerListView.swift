@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 
 struct WorkflowTriggerListView: View {
@@ -30,7 +31,6 @@ struct WorkflowTriggerListView: View {
       case .keyboardShortcuts(let trigger):
        KeyboardTriggerView(namespace: namespace, focus: focus, data: data, trigger: trigger,
                            keyboardShortcutSelectionManager: keyboardShortcutSelectionManager, onAction: onAction)
-
       case .applications(let triggers):
         HStack {
           Button(action: {
@@ -63,10 +63,13 @@ struct WorkflowTriggerListView: View {
 struct WorkflowTriggerListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowTriggerListView($focus, data: DesignTime.detail,
-                            applicationTriggerSelectionManager: .init(),
-                            keyboardShortcutSelectionManager: .init()) { _ in }
+    VStack {
+      WorkflowTriggerListView($focus, data: DesignTime.detail,
+                              applicationTriggerSelectionManager: .init(),
+                              keyboardShortcutSelectionManager: .init()) { _ in }
+    }
       .designTime()
-      .frame(height: 900)
+      .padding()
+      .frame(minHeight: 100)
   }
 }
