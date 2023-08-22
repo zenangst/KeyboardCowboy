@@ -103,7 +103,7 @@ struct NewCommandScriptView: View {
         }
       }
     }
-    .menuStyle(.appStyle(padding: 4))
+    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       validation = updateAndValidatePayload()

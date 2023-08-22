@@ -255,7 +255,7 @@ extension Command {
       return Command.shortcut(.init(id: UUID().uuidString, shortcutIdentifier: "",
                                     name: "", isEnabled: true, notification: false))
     case .type:
-      return Command.type(.init(name: "", input: "", notification: false))
+      return Command.type(.init(name: "", mode: .instant, input: "", notification: false))
     case .system:
       return Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
     }
@@ -315,6 +315,7 @@ extension Command {
   }
 
   static func typeCommand(id: String) -> Command {
-    Command.type(.init(id: id, name: "Type input", input: "", notification: false))
+    Command.type(.init(id: id, name: "Type input", mode: .instant,
+                       input: "", notification: false))
   }
 }

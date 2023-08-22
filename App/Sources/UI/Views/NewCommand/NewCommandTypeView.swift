@@ -5,6 +5,7 @@ struct NewCommandTypeView: View {
   @Binding var validation: NewCommandValidation
 
   @State private var text: String = ""
+  @State private var mode: TypeCommand.Mode = .instant
   private let onSubmit: () -> Void
 
   init(_ payload: Binding<NewCommandPayload>,
@@ -14,8 +15,9 @@ struct NewCommandTypeView: View {
     _validation = validation
     self.onSubmit = onSubmit
 
-    if case .type(let text) = _payload.wrappedValue {
+    if case .type(let text, let mode) = _payload.wrappedValue {
       _text = .init(initialValue: text)
+      _mode = .init(initialValue: mode)
     }
   }
 
@@ -24,6 +26,18 @@ struct NewCommandTypeView: View {
       Label(title: { Text("Type text:") }, icon: { EmptyView() })
         .labelStyle(HeaderLabelStyle())
       TypeCommandTextEditor(text: $text, onCommandReturnKey: onSubmit)
+
+      Menu(content: {
+        ForEach(TypeCommand.Mode.allCases) { mode in
+          Button(action: {
+            self.mode = mode
+            self.validation = updateAndValidatePayload()
+          },
+                 label: { Text(mode.rawValue) })
+        }
+      }, label: {
+        Text(mode.rawValue)
+      })
     }
     .onChange(of: text) { newValue in
       validation = updateAndValidatePayload()
@@ -34,7 +48,7 @@ struct NewCommandTypeView: View {
   private func updateAndValidatePayload() -> NewCommandValidation {
     guard !text.isEmpty else { return .invalid(reason: "Pick a shortcut.") }
 
-    payload = .type(text: text)
+    payload = .type(text: text, mode: mode)
 
     return .valid
   }
@@ -47,7 +61,7 @@ struct NewCommandTypeView_Previews: PreviewProvider {
       commandId: nil,
       title: "New command",
       selection: .type,
-      payload: .type(text: "Hello, world!"),
+      payload: .type(text: "Hello, world!", mode: .instant),
       onDismiss: {},
       onSave: { _, _ in })
     .designTime()

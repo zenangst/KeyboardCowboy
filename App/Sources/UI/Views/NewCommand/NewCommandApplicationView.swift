@@ -105,7 +105,7 @@ struct NewCommandApplicationView: View {
         validation = updateAndValidatePayload()
       }
     }
-    .menuStyle(.appStyle(padding: 4))
+    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
     .overlay(NewCommandValidationView($validation).padding(-8))
     .onAppear {
       validation = .unknown

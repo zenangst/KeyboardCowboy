@@ -94,6 +94,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
 
     struct TypeModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var mode: TypeCommand.Mode
       var input: String
     }
   }

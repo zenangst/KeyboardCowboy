@@ -189,7 +189,9 @@ enum DesignTime {
   }
 
   static var typeCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.TypeModel) {
-    let kind = CommandViewModel.Kind.TypeModel(id: UUID().uuidString, input: "typing ...")
+    let kind = CommandViewModel.Kind.TypeModel(id: UUID().uuidString, 
+                                               mode: .instant,
+                                               input: "typing ...")
     return (.init(meta: metadata(name: "Typing...", icon: nil), kind: .type(kind)), kind)
   }
 

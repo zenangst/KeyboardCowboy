@@ -4,18 +4,19 @@ struct TypeCommandView: View {
   enum Action {
     case updateName(newName: String)
     case updateSource(newInput: String)
+    case updateMode(newMode: TypeCommand.Mode)
     case commandAction(CommandContainerAction)
   }
-  @State var metaData: CommandViewModel.MetaData
-  @State var model: CommandViewModel.Kind.TypeModel
+  @Binding var metaData: CommandViewModel.MetaData
+  @Binding var model: CommandViewModel.Kind.TypeModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.TypeModel,
+  init(_ metaData: Binding<CommandViewModel.MetaData>,
+       model: Binding<CommandViewModel.Kind.TypeModel>,
        onAction: @escaping (Action) -> Void) {
-    _metaData = .init(initialValue: metaData)
-    _model = .init(initialValue: model)
+    _metaData = metaData
+    _model = model
     debounce = DebounceManager(for: .milliseconds(500)) { newInput in
       onAction(.updateSource(newInput: newInput))
     }
@@ -36,15 +37,42 @@ struct TypeCommandView: View {
       }, content: { metaData in
         TypeCommandTextEditor(text: $model.input)
           .onChange(of: model.input) { debounce.send($0) }
-      }, subContent: { _ in }, onAction: { onAction(.commandAction($0)) })
+      }, subContent: { _ in
+        TypeCommandModeView(mode: $model.mode) { newMode in
+          onAction(.updateMode(newMode: newMode))
+        }
+      }, onAction: { onAction(.commandAction($0)) })
     .debugEdit()
+  }
+}
+
+fileprivate struct TypeCommandModeView: View {
+  @Binding var mode: TypeCommand.Mode
+  private let onAction: (TypeCommand.Mode) -> Void
+
+  init(mode: Binding<TypeCommand.Mode>, onAction: @escaping (TypeCommand.Mode) -> Void) {
+    _mode = mode
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    Menu(content: {
+      ForEach(TypeCommand.Mode.allCases) { mode in
+        Button(action: { onAction(mode) }, label: { Text(mode.rawValue) })
+      }
+    }, label: {
+      Text(mode.rawValue)
+        .font(.caption)
+    })
+    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
   }
 }
 
 struct TypeCommandView_Previews: PreviewProvider {
   static let command = DesignTime.typeCommand
   static var previews: some View {
-    TypeCommandView(command.model.meta, model: command.kind) { _ in }
+    TypeCommandView(.constant(command.model.meta), 
+                    model: .constant(command.kind)) { _ in }
       .designTime()
       .frame(idealHeight: 120, maxHeight: 180)
   }
