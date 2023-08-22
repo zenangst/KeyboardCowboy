@@ -145,7 +145,7 @@ struct NewCommandWindow: Scene {
 
       return .script(value: source, kind: kind, scriptExtension: scriptExtension)
     case .type(let typeCommand):
-      return .type(text: typeCommand.input)
+      return .type(text: typeCommand.input, mode: typeCommand.mode)
     case .systemCommand(let systemCommand):
       return .systemCommand(kind: systemCommand.kind)
     }

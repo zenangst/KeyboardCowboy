@@ -176,6 +176,15 @@ final class DetailCommandActionReducer {
         }
       case .type(let action, _, _):
         switch action {
+        case .updateMode(let newMode):
+          switch command {
+          case .type(var typeCommand):
+            typeCommand.mode = newMode
+            command = .type(typeCommand)
+          default:
+            fatalError("Wrong command type")
+          }
+          workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)

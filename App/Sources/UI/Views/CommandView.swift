@@ -181,7 +181,7 @@ struct CommandResolverView: View {
           }
         }
     case .type(let model):
-      TypeCommandView(command.meta, model: model) { action in
+      TypeCommandView($command.meta, model: Binding(get: { model }, set: { _ in })) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)

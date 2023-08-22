@@ -174,7 +174,8 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                         Workflow(name: "Type mail signature",
                                  trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "S", modifiers: [.function, .command])])),
                                  commands: [
-                                  .type(.init(name: "Signature", input: """
+                                  .type(.init(name: "Signature",
+                                              mode: .instant, input: """
 Stay hungry, stay awesome!
 --------------------------
 xoxo

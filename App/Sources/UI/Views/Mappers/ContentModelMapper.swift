@@ -168,7 +168,12 @@ private extension Array where Element == Command {
                             offset: convertedOffset,
                             kind: .command( .shortcut(.init(id: shortcut.id, shortcutIdentifier: shortcut.shortcutIdentifier)))))
       case .type(let type):
-        images.append(.init(id: type.id, offset: convertedOffset, kind: .command(.type(.init(id: type.id, input: type.input)))))
+        images.append(
+          .init(id: type.id,
+                offset: convertedOffset,
+                kind: .command(.type(.init(id: type.id, mode: type.mode, input: type.input)))
+               )
+        )
       case .systemCommand(let command):
         let path: String
         switch command.kind {

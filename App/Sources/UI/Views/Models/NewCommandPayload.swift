@@ -10,7 +10,7 @@ enum NewCommandPayload: Equatable {
   case open(path: String, application: Application?)
   case shortcut(name: String)
   case keyboardShortcut([KeyShortcut])
-  case type(text: String)
+  case type(text: String, mode: TypeCommand.Mode)
   case systemCommand(kind: SystemCommand.Kind)
   case menuBar(tokens: [MenuBarCommand.Token])
 
