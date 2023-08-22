@@ -58,6 +58,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     runner: CommandRunner,
     workspacePublisher: WorkspacePublisherMock) {
     let command = Command.type(.init(name: "Type command",
+                                     mode: .instant,
                                      input: "Hello, Finder!"))
     let runner = CommandRunner(
       concurrent: { _ in fatalError("Should not be invoked yet.") },
