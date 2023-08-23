@@ -198,6 +198,14 @@ private extension Array where Element == Command {
             offset: convertedOffset,
             kind: .icon(.init(bundleIdentifier: path, path: path)))
         )
+      case .windowManagement(let command):
+        let path: String = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+        images.append(
+          ContentViewModel.ImageModel(
+            id: command.id,
+            offset: convertedOffset,
+            kind: .icon(.init(bundleIdentifier: path, path: path)))
+        )
       }
     }
 

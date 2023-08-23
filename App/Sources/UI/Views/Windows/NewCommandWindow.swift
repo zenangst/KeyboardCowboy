@@ -148,6 +148,8 @@ struct NewCommandWindow: Scene {
       return .type(text: typeCommand.input, mode: typeCommand.mode)
     case .systemCommand(let systemCommand):
       return .systemCommand(kind: systemCommand.kind)
+    case .windowManagement(let windowCommand):
+      return .windowManagement(kind: windowCommand.kind)
     }
   }
 
@@ -172,6 +174,8 @@ struct NewCommandWindow: Scene {
       return .type
     case .systemCommand:
       return .system
+    case .windowManagement:
+      return .windowManagement
     }
   }
 

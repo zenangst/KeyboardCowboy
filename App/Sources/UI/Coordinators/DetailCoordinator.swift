@@ -179,6 +179,11 @@ final class DetailCoordinator {
                                             name: "System command",
                                             kind: kind,
                                             notification: false))
+    case .windowManagement(let kind):
+      command = Command.windowManagement(.init(id: UUID().uuidString,
+                                               name: "Window management command",
+                                               kind: kind,
+                                               notification: false))
     }
 
     workflow.updateOrAddCommand(command)

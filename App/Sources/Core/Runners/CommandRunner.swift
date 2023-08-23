@@ -17,6 +17,7 @@ final class CommandRunner: CommandRunning {
     let shortcut: ShortcutsCommandRunner
     let system: SystemCommandRunner
     let type: TypeCommandRunner
+    let window: WindowCommandRunner
   }
 
   var machPort: MachPortEventController? {
@@ -58,7 +59,8 @@ final class CommandRunner: CommandRunning {
       script: scriptCommandRunner,
       shortcut: ShortcutsCommandRunner(scriptCommandRunner),
       system: systemCommandRunner,
-      type: TypeCommandRunner(keyboardCommandRunner)
+      type: TypeCommandRunner(keyboardCommandRunner),
+      window: WindowCommandRunner()
     )
     self.workspace = workspace
   }
@@ -86,7 +88,7 @@ final class CommandRunner: CommandRunning {
           _ = try await runners.script.run(shellScript)
         }
       case .builtIn, .keyboard, .type,
-           .systemCommand, .menuBar:
+          .systemCommand, .menuBar, .windowManagement:
         break
       }
     }
@@ -181,6 +183,9 @@ final class CommandRunner: CommandRunning {
       case .systemCommand(let systemCommand):
         try await runners.system.run(systemCommand)
         output = command.name
+      case .windowManagement(let windowCommand):
+        try await runners.window.run(windowCommand)
+        output = "foo bar baz"
       }
 
       if command.notification {

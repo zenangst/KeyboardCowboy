@@ -95,6 +95,8 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
         return typeCommand.meta
       case .systemCommand(let systemCommand):
         return systemCommand.meta
+      case .windowManagement(let windowCommand):
+        return windowCommand.meta
       }
     }
     set {
@@ -126,6 +128,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case .systemCommand(var systemCommand):
         systemCommand.meta = newValue
         self = .systemCommand(systemCommand)
+      case .windowManagement(var windowCommand):
+        windowCommand.meta = newValue
+        self = .windowManagement(windowCommand)
       }
     }
   }
@@ -139,6 +144,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   case script(ScriptCommand)
   case type(TypeCommand)
   case systemCommand(SystemCommand)
+  case windowManagement(WindowCommand)
 
   enum CodingKeys: String, CodingKey, CaseIterable {
     case application = "applicationCommand"
@@ -150,6 +156,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case script = "scriptCommand"
     case type = "typeCommand"
     case system = "systemCommand"
+    case window = "windowCommand"
   }
 
   var isKeyboardBinding: Bool {
@@ -192,6 +199,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .system:
       let command = try container.decode(SystemCommand.self, forKey: .system)
       self = .systemCommand(command)
+    case .window:
+      let command = try container.decode(WindowCommand.self, forKey: .window)
+      self = .windowManagement(command)
     case .none:
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
@@ -223,6 +233,8 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       try container.encode(command, forKey: .type)
     case .systemCommand(let command):
       try container.encode(command, forKey: .system)
+    case .windowManagement(let command):
+      try container.encode(command, forKey: .window)
     }
   }
 
@@ -258,6 +270,8 @@ extension Command {
       return Command.type(.init(name: "", mode: .instant, input: "", notification: false))
     case .system:
       return Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
+    case .window:
+      return Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false))
     }
   }
 

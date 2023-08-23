@@ -198,6 +198,15 @@ struct CommandResolverView: View {
           onAction(.modify(.system(action: action, workflowId: workflowId, commandId: command.id)))
         }
       }
+    case .windowManagement(let model):
+      WindowManagementCommandView($command.meta, model: model) { action in
+        switch action {
+        case .onUpdate:
+          print("⚠️ implement this")
+        case .commandAction(let commandContainerAction):
+          handleCommandContainerAction(commandContainerAction)
+        }
+      }
     }
   }
 

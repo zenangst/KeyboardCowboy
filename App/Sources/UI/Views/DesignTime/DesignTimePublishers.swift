@@ -195,6 +195,11 @@ enum DesignTime {
     return (.init(meta: metadata(name: "Typing...", icon: nil), kind: .type(kind)), kind)
   }
 
+  static var windowCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.WindowManagementModel) {
+    let kind = CommandViewModel.Kind.WindowManagementModel(id: UUID().uuidString, kind: .center)
+    return (.init(meta: metadata(name: "Window Management", icon: nil), kind: .windowManagement(kind)), kind)
+  }
+
   static var emptyDetail: DetailViewModel {
     DetailViewModel(id: UUID().uuidString, name: "", isEnabled: false, commands: [], execution: .concurrent)
   }
