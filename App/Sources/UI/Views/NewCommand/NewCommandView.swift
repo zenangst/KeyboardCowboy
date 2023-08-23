@@ -5,7 +5,13 @@ struct NewCommandView: View {
   enum Kind: String, CaseIterable, Hashable, Identifiable {
     var id: String { self.rawValue }
     var rawKey: String {
-      String(Self.allCases.firstIndex(of: self)! + 1)
+      let value = Self.allCases.firstIndex(of: self)! + 1
+
+      if value == 10 {
+        return "0"
+      }
+
+      return String(value)
     }
     var key: KeyEquivalent {
       return KeyEquivalent(rawKey.first!)
@@ -20,6 +26,7 @@ struct NewCommandView: View {
     case script = "Script"
     case type = "Type"
     case system = "System Command"
+    case windowManagement = "Window Management"
   }
 
   private let workflowId: Workflow.ID
@@ -66,7 +73,7 @@ struct NewCommandView: View {
                   .fill(Color.white.opacity(0.2))
                   .frame(width: 1)
               })
-            .frame(maxWidth: 225)
+            .frame(maxWidth: 235)
           detail(title: $title)
         }
       } else {
@@ -78,7 +85,7 @@ struct NewCommandView: View {
           })
       }
     }
-    .frame(minWidth: 710, minHeight: 400)
+    .frame(minWidth: 710, minHeight: 410)
   }
 
   private func sidebar() -> some View {
@@ -231,6 +238,8 @@ struct NewCommandView: View {
       NewCommandSystemCommandView($payload, validation: $validation)
     case .menuBar:
       NewCommandMenuBarView($payload, validation: $validation)
+    case .windowManagement:
+      NewCommandWindowManagementView($payload, validation: $validation)
     }
   }
 

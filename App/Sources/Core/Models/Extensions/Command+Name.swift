@@ -33,6 +33,8 @@ extension Command {
         return command.name
       case .menuBar(let command):
         return command.name
+      case .windowManagement(let command):
+        return command.name
       }
     }
     set {
@@ -63,6 +65,9 @@ extension Command {
       case .menuBar(var command):
         command.name = newValue
         self = .menuBar(command)
+      case .windowManagement(var command):
+        command.name = newValue
+        self = .windowManagement(command)
       }
     }
   }

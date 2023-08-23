@@ -13,6 +13,7 @@ enum NewCommandPayload: Equatable {
   case type(text: String, mode: TypeCommand.Mode)
   case systemCommand(kind: SystemCommand.Kind)
   case menuBar(tokens: [MenuBarCommand.Token])
+  case windowManagement(kind: WindowCommand.Kind)
 
   var title: String {
     switch self {
@@ -75,6 +76,8 @@ enum NewCommandPayload: Equatable {
       return "System command"
     case .menuBar:
       return "MenuBar command"
+    case .windowManagement:
+      return "Window management command"
     }
   }
 }

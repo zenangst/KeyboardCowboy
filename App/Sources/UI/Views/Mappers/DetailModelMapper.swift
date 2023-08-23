@@ -99,6 +99,8 @@ private extension Command {
       kind = .type(.init(id: type.id, mode: type.mode, input: type.input))
     case .systemCommand(let systemCommand):
       kind = .systemCommand(.init(id: systemCommand.id, kind: systemCommand.kind))
+    case .windowManagement(let windowCommand):
+      kind = .windowManagement(.init(id: windowCommand.id, kind: windowCommand.kind))
     }
 
     return kind
@@ -157,6 +159,9 @@ private extension Command {
         path = "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
       }
 
+      return .init(bundleIdentifier: path, path: path)
+    case .windowManagement:
+      let path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
       return .init(bundleIdentifier: path, path: path)
     }
   }

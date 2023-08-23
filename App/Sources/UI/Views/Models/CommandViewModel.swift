@@ -17,28 +17,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
   var kind: Kind
 
   enum Kind: Codable, Hashable, Identifiable, Sendable {
-    var id: String {
-      switch self {
-      case .application(let applicationModel):
-        return applicationModel.id
-      case .open(let openModel):
-        return openModel.id
-      case .keyboard(let keyboardModel):
-        return keyboardModel.id
-      case .script(let scriptModel):
-        return scriptModel.id
-      case .plain:
-        return UUID().uuidString
-      case .shortcut(let shortcutModel):
-        return shortcutModel.id
-      case .type(let typeModel):
-        return typeModel.id
-      case .systemCommand(let systemModel):
-        return systemModel.id
-      case .menuBar(let menuBarModel):
-        return menuBarModel.id
-      }
-    }
+    var id: String { (self as (any Identifiable<String>)).id }
 
     case application(ApplicationModel)
     case open(OpenModel)
@@ -49,6 +28,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     case type(TypeModel)
     case systemCommand(SystemModel)
     case menuBar(MenuBarModel)
+    case windowManagement(WindowManagementModel)
 
     struct ApplicationModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
@@ -96,6 +76,11 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
       let id: String
       var mode: TypeCommand.Mode
       var input: String
+    }
+
+    struct WindowManagementModel: Codable, Hashable, Identifiable, Sendable {
+      let id: String
+      var kind: WindowCommand.Kind
     }
   }
 }
