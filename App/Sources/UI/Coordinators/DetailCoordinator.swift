@@ -181,7 +181,7 @@ final class DetailCoordinator {
                                             notification: false))
     case .windowManagement(let kind):
       command = Command.windowManagement(.init(id: UUID().uuidString,
-                                               name: "Window management command",
+                                               name: "Window Management Command",
                                                kind: kind,
                                                notification: false))
     }
