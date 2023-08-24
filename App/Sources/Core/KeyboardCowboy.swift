@@ -34,7 +34,6 @@ struct KeyboardCowboy: App {
 #endif
   private var open: Bool = true
 
-
   @Environment(\.openWindow) private var openWindow
   @Environment(\.scenePhase) private var scenePhase
 
