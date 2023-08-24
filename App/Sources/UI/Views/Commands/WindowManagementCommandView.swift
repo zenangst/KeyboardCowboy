@@ -72,7 +72,7 @@ struct WindowManagementCommandView: View {
             }
             .matchedGeometryEffect(id: "geometry-container-id", in: namespace)
             .compositingGroup()
-            .animation(.smooth, value: model.kind)
+            .animation(.easeInOut, value: model.kind)
         case .fullscreen:
           ZStack {
             RoundedRectangle(cornerSize: .init(width: 8, height: 8))
