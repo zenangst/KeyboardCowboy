@@ -14,6 +14,27 @@ struct WindowCommand: MetaDataProviding {
     case bottom
     case bottomTrailing
 
+    func imageSystemName(increment: Bool) -> String {
+      switch self {
+      case .leading:
+        return increment ? "arrow.left" : "arrow.right"
+      case .topLeading:
+        return increment ? "arrow.up.left" : "arrow.down.right"
+      case .top:
+        return increment ? "arrow.up" : "arrow.down"
+      case .topTrailing:
+        return increment ? "arrow.up.right" : "arrow.down.left"
+      case .trailing:
+        return increment ? "arrow.right" : "arrow.left"
+      case .bottomTrailing:
+        return increment ? "arrow.down.right" : "arrow.up.left"
+      case .bottom:
+        return increment ? "arrow.down" : "arrow.up"
+      case .bottomLeading:
+        return increment ? "arrow.down.left" : "arrow.up.right"
+      }
+    }
+
     func displayValue(increment: Bool) -> String {
       switch self {
       case .leading:

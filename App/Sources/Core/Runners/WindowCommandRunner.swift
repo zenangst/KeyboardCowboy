@@ -151,8 +151,6 @@ final class WindowCommandRunner {
     var (window, windowFrame) = try getFocusedWindow()
     let oldValue = windowFrame
 
-    print(direction)
-
     switch direction {
     case .leading:
       windowFrame.origin.x += newValue
