@@ -35,8 +35,7 @@ struct NewCommandImageView: View {
       case .menuBar:
         image(for: "/System/Library/PreferencePanes/Appearance.prefPane")
       case .windowManagement:
-        Rectangle()
-          .fill(Color.red)
+        image(for: "/System/Applications/Mission Control.app")
       }
     }
     .frame(width: 24, height: 24)
