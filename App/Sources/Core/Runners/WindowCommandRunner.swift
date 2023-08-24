@@ -142,6 +142,10 @@ final class WindowCommandRunner {
       windowFrame.size.height += newValue
     }
 
+    if constrainedToScreen {
+      windowFrame.origin.x = max(0, windowFrame.origin.x)
+    }
+
     window.frame = windowFrame
   }
 
