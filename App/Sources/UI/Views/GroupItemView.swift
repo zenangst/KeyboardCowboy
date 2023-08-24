@@ -27,6 +27,7 @@ struct GroupItemView: View {
         .frame(width: 24)
       Text(group.wrappedValue.name)
         .font(.body)
+        .lineLimit(1)
       Spacer()
       Menu(content: { contextualMenu(for: group.wrappedValue, onAction: onAction) }) {
         Image(systemName: "ellipsis.circle")
