@@ -2,36 +2,36 @@ import Foundation
 import SwiftUI
 
 struct WindowCommand: MetaDataProviding {
-  enum Direction: String, Identifiable, Codable {
+  enum Direction: String, Identifiable, Codable, CaseIterable {
     var id: String { rawValue }
 
-    case leading
     case topLeading
     case top
     case topTrailing
+    case leading
     case trailing
-    case bottomTrailing
-    case bottom
     case bottomLeading
+    case bottom
+    case bottomTrailing
 
-    var displayValue: String {
+    func displayValue(increment: Bool) -> String {
       switch self {
       case .leading:
-        return "←"
+        return increment ? "←" : "→"
       case .topLeading:
-        return "↖"
+        return increment ? "↖" : "↘"
       case .top:
-        return "↑"
+        return increment ? "↑" : "↓"
       case .topTrailing:
-        return "↗"
+        return increment ? "↗" : "↙"
       case .trailing:
-        return "→"
+        return increment ? "→" : "←"
       case .bottomTrailing:
-        return "↘"
+        return increment ? "↘" : "↖"
       case .bottom:
-        return "↓"
+        return increment ? "↓" : "↑"
       case .bottomLeading:
-        return "↙"
+        return increment ? "↙" : "↗"
       }
     }
   }
@@ -82,10 +82,19 @@ struct WindowCommand: MetaDataProviding {
       [.center,
        .fullscreen(padding: 0),
        .move(by: 0, direction: .trailing, constrainedToScreen: false),
-       .decreaseSize(by: 0, direction: .trailing, constrainedToScreen: false),
-       .increaseSize(by: 0, direction: .trailing, constrainedToScreen: false),
+       .decreaseSize(by: 0, direction: .bottomTrailing, constrainedToScreen: false),
+       .increaseSize(by: 0, direction: .bottomTrailing, constrainedToScreen: false),
        .moveToNextDisplay(mode: .center),
        .moveToNextDisplay(mode: .relative)]
+    }
+
+    var isIncremental: Bool {
+      switch self {
+      case .decreaseSize:
+        return false
+      default:
+        return true
+      }
     }
   }
 
