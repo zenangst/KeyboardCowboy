@@ -185,10 +185,10 @@ final class CommandRunner: CommandRunning {
         output = command.name
       case .windowManagement(let windowCommand):
         try await runners.window.run(windowCommand)
-        output = "foo bar baz"
+        output = ""
       }
 
-      if command.notification {
+      if command.notification, !output.isEmpty {
         await MainActor.run {
           lastExecutedCommand = command
           BezelNotificationController.shared.post(.init(text: output))
