@@ -18,6 +18,7 @@ struct CommandView: View {
     case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case system(action: SystemCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case window(action: WindowManagementCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
   }
 
   @Environment(\.openWindow) var openWindow
@@ -202,7 +203,7 @@ struct CommandResolverView: View {
       WindowManagementCommandView($command.meta, model: model) { action in
         switch action {
         case .onUpdate:
-          print("⚠️ implement this")
+          onAction(.modify(.window(action: action, workflowId: workflowId, commandId: command.id)))
         case .commandAction(let commandContainerAction):
           handleCommandContainerAction(commandContainerAction)
         }
