@@ -13,9 +13,7 @@ final class IconPublisher: ObservableObject {
         let image = try await IconCache.shared.icon(at: path, bundleIdentifier: bundleIdentifier, size: size)
         try Task.checkCancellation()
         cgImage = image
-      } catch {
-        Swift.print(error)
-      }
+      } catch { }
     }
   }
 

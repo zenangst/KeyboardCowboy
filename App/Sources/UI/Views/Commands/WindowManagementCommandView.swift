@@ -6,8 +6,10 @@ struct WindowManagementCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
+  @Namespace var namespace
   @Binding var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.WindowManagementModel
+  @State var pixels: String
 
   private let onAction: (Action) -> Void
 
@@ -17,6 +19,15 @@ struct WindowManagementCommandView: View {
     _metaData = metaData
     _model = .init(initialValue: model)
     self.onAction = onAction
+
+    switch model.kind {
+    case  .increaseSize(let value, _, _),
+        .decreaseSize(let value, _, _),
+        .move(let value, _, _):
+      _pixels = .init(initialValue: String(value))
+    default:
+      _pixels = .init(initialValue: "0")
+    }
   }
 
   var body: some View {
@@ -26,8 +37,8 @@ struct WindowManagementCommandView: View {
       ZStack {
         switch model.kind {
         case  .increaseSize(_, let direction, _),
-            .decreaseSize(_, let direction, _),
-            .move(_, let direction, _):
+              .decreaseSize(_, let direction, _),
+              .move(_, let direction, _):
           RoundedRectangle(cornerSize: .init(width: 8, height: 8))
             .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
             .frame(width: 32, height: 32, alignment: .center)
@@ -41,14 +52,17 @@ struct WindowManagementCommandView: View {
                 .fill(Color.white)
                 .frame(width: 10, height: 10)
                 .overlay {
-                  Text(direction.displayValue(increment: true))
+                  Image(systemName: direction.imageSystemName(increment: true))
+                    .resizable()
                     .foregroundStyle(Color.black)
-                    .font(Font.system(size: 12, weight: .bold, design: .monospaced))
-                    .allowsTightening(true)
-                    .minimumScaleFactor(0.5)
+                    .frame(width: 6, height: 6)
+                    .matchedGeometryEffect(id: "geometry-image-id", in: namespace)
                 }
                 .padding(4)
             }
+            .matchedGeometryEffect(id: "geometry-container-id", in: namespace)
+            .compositingGroup()
+            .animation(.smooth, value: model.kind)
         case .fullscreen:
           ZStack {
             RoundedRectangle(cornerSize: .init(width: 8, height: 8))
@@ -116,9 +130,9 @@ struct WindowManagementCommandView: View {
         .menuStyle(GradientMenuStyle(.init(nsColor: .gray), fixedSize: false))
         
         switch model.kind {
-        case  .increaseSize(let value, let direction, _),
-            .decreaseSize(let value, let direction, _),
-            .move(let value, let direction, _):
+        case  .increaseSize(_, let direction, _),
+              .decreaseSize(_, let direction, _),
+              .move(_, let direction, _):
 
           HStack {
             let models = WindowCommand.Direction.allCases
@@ -128,13 +142,23 @@ struct WindowManagementCommandView: View {
                       alignment: .center,
                       spacing: 1,
                       content: {
-              ForEach(Array(zip(models.indices, models)), id: \.1.id) {
-                offset,
-                element in
-                if offset == 4 {
-                  Spacer()
-                }
-                Button { } label: {
+              ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
+                if offset == 4 { Spacer() }
+                Button {
+                  let kind: WindowCommand.Kind
+                  switch model.kind {
+                  case .increaseSize(let value, _, let constrainedToScreen):
+                    kind = .increaseSize(by: value, direction: element, constrainedToScreen: constrainedToScreen)
+                  case .decreaseSize(let value, _, let constrainedToScreen):
+                    kind = .decreaseSize(by: value, direction: element, constrainedToScreen: constrainedToScreen)
+                  case .move(let value, _, let constrainedToScreen):
+                    kind = .move(by: value, direction: element, constrainedToScreen: constrainedToScreen)
+                  default:
+                    return
+                  }
+                  model.kind = kind
+                  onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
+                } label: {
                   Text(element.displayValue(increment: model.kind.isIncremental))
                 }
                 .buttonStyle(
@@ -146,10 +170,25 @@ struct WindowManagementCommandView: View {
             })
             .fixedSize()
             HStack {
-              TextField("", text: .constant(String(value)))
-                .textFieldStyle(AppTextFieldStyle())
-                .frame(width: 32)
-                .fixedSize()
+              IntegerTextField(text: $pixels, onValidChange: { newValue in
+                guard let pixels = Int(newValue) else { return }
+                let kind: WindowCommand.Kind
+                switch model.kind {
+                case .increaseSize(_, let direction, let constrainedToScreen):
+                  kind = .increaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                case .decreaseSize(_, let direction, let constrainedToScreen):
+                  kind = .decreaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                case .move(_, let direction, let constrainedToScreen):
+                  kind = .move(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                default:
+                  return
+                }
+
+                onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
+              })
+              .textFieldStyle(AppTextFieldStyle())
+              .frame(width: 64)
+              .fixedSize()
               Text("pixels")
                 .font(.caption)
             }
