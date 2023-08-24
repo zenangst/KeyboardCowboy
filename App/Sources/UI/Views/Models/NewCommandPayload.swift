@@ -73,11 +73,11 @@ enum NewCommandPayload: Equatable {
     case .type:
       return "Input text"
     case .systemCommand:
-      return "System command"
+      return "System Command"
     case .menuBar:
-      return "MenuBar command"
+      return "MenuBar Command"
     case .windowManagement:
-      return "Window management command"
+      return "Window Management Command"
     }
   }
 }
