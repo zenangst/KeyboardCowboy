@@ -25,6 +25,7 @@ struct SymbolPalette: View {
     "star",
     "tag",
     "bolt",
+    "macwindow"
   ]
 
   var items: [GridItem] {
