@@ -160,6 +160,12 @@ final class MachPortCoordinator {
                                        originalEvent: machPortEvent.event,
                                        with: machPortEvent.eventSource)
       } else if workflow.commands.allSatisfy({
+        if case .windowManagement = $0 { return true } else { return false }
+      }) {
+        guard machPortEvent.type == .keyDown else { return }
+        run(workflow)
+        previousPartialMatch = Self.defaultPartialMatch
+      } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
       }) {
         if machPortEvent.type == .keyDown && isRepeatingEvent {
