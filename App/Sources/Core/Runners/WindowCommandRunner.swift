@@ -8,6 +8,8 @@ enum WindowCommandRunnerError: Error {
 }
 
 final class WindowCommandRunner {
+  private var fullscreenCache = [CGWindowID: CGRect]()
+
   @MainActor
   func run(_ command: WindowCommand) async throws {
     switch command.kind {
@@ -42,7 +44,7 @@ final class WindowCommandRunner {
 
   private func fullscreen(with padding: Int) throws {
     guard let screen = NSScreen.main else { return }
-    let (window, _) = try getFocusedWindow()
+    let (window, windowFrame) = try getFocusedWindow()
 
     let value: CGFloat
     if padding > 1 {
@@ -51,7 +53,15 @@ final class WindowCommandRunner {
       value = 0
     }
 
-    window.frame = screen.visibleFrame.insetBy(dx: value, dy: value)
+    let newValue = screen.visibleFrame.insetBy(dx: value, dy: value)
+
+    if window.frame?.size.width == newValue.size.width,
+       let cachedFrame = fullscreenCache[window.id] {
+      window.frame = cachedFrame
+    } else {
+      window.frame = newValue
+      fullscreenCache[window.id] = windowFrame
+    }
   }
 
   private func move(_ byValue: Int, in direction: WindowCommand.Direction, 
