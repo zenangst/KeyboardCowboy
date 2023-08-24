@@ -214,6 +214,19 @@ final class DetailCommandActionReducer {
             workflow.updateOrAddCommand(command)
           }
         }
+      case .window(let action, _, _):
+        switch action {
+        case .commandAction(let action):
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
+        case .onUpdate(let newModel):
+          if case .windowManagement(let oldCommand) = command {
+            command = .windowManagement(.init(id: oldCommand.id,
+                                              name: oldCommand.name, kind: newModel.kind,
+                                              notification: oldCommand.notification))
+            workflow.updateOrAddCommand(command)
+          }
+        }
       }
     }
   }

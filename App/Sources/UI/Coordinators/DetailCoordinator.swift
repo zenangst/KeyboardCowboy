@@ -278,7 +278,8 @@ extension CommandView.Kind {
         .script(_, let workflowId, _),
         .shortcut(_, let workflowId, _),
         .type(_, let workflowId, _),
-        .system(_, let workflowId, _):
+        .system(_, let workflowId, _),
+        .window(_, let workflowId, _):
       return workflowId
     }
   }
@@ -291,7 +292,8 @@ extension CommandView.Kind {
         .script(_, _, let commandId),
         .shortcut(_, _, let commandId),
         .type(_, _, let commandId),
-        .system(_, _, let commandId):
+        .system(_, _, let commandId),
+        .window(_, _, let commandId):
       return commandId
     }
   }

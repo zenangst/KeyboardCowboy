@@ -4,11 +4,14 @@ struct WindowCommand: MetaDataProviding {
   enum Kind: String, Identifiable, Codable, CaseIterable {
     var id: String { rawValue }
     case center
+    case moveToNextDisplay
 
     var displayValue: String {
       switch self {
       case .center:
-        return "Center window"
+        return "Center Window"
+      case .moveToNextDisplay:
+        return "Move to Next Display"
       }
     }
   }
