@@ -9,7 +9,9 @@ struct WindowManagementCommandView: View {
   @Namespace var namespace
   @Binding var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.WindowManagementModel
+  @State var padding: String
   @State var pixels: String
+  @State var constrainToScreen: Bool
 
   private let onAction: (Action) -> Void
 
@@ -21,12 +23,20 @@ struct WindowManagementCommandView: View {
     self.onAction = onAction
 
     switch model.kind {
-    case  .increaseSize(let value, _, _),
-        .decreaseSize(let value, _, _),
-        .move(let value, _, _):
+    case  .increaseSize(let value, _, let constrainedToScreen),
+        .decreaseSize(let value, _, let constrainedToScreen),
+        .move(let value, _, let constrainedToScreen):
       _pixels = .init(initialValue: String(value))
-    default:
+      _constrainToScreen = .init(initialValue: constrainedToScreen)
+      _padding = .init(initialValue: "0")
+    case .fullscreen(let padding):
+      _padding = .init(initialValue: String(padding))
       _pixels = .init(initialValue: "0")
+      _constrainToScreen = .init(initialValue: true)
+    default:
+      _padding = .init(initialValue: "0")
+      _pixels = .init(initialValue: "0")
+      _constrainToScreen = .init(initialValue: true)
     }
   }
 
@@ -134,7 +144,7 @@ struct WindowManagementCommandView: View {
               .decreaseSize(_, let direction, _),
               .move(_, let direction, _):
 
-          HStack {
+          HStack(spacing: 16) {
             let models = WindowCommand.Direction.allCases
             LazyVGrid(columns: (0..<3).map {
               _ in GridItem(.fixed(24), spacing: 1)
@@ -169,37 +179,72 @@ struct WindowManagementCommandView: View {
               }
             })
             .fixedSize()
-            HStack {
-              IntegerTextField(text: $pixels, onValidChange: { newValue in
-                guard let pixels = Int(newValue) else { return }
+
+            VStack(alignment: .leading) {
+              HStack {
+                IntegerTextField(text: $pixels, onValidChange: { newValue in
+                  guard let pixels = Int(newValue) else { return }
+                  let kind: WindowCommand.Kind
+                  switch model.kind {
+                  case .increaseSize(_, let direction, let constrainedToScreen):
+                    kind = .increaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                  case .decreaseSize(_, let direction, let constrainedToScreen):
+                    kind = .decreaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                  case .move(_, let direction, let constrainedToScreen):
+                    kind = .move(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                  default:
+                    return
+                  }
+                  model.kind = kind
+                  onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
+                })
+                .textFieldStyle(AppTextFieldStyle())
+                .frame(width: 64)
+                .fixedSize()
+                Text("pixels")
+                  .font(.caption)
+              }
+
+              AppCheckbox(
+                "Constrain to screen bounds",
+                style: .small,
+                isOn: $constrainToScreen
+              ) { constrainedToScreen in
                 let kind: WindowCommand.Kind
                 switch model.kind {
-                case .increaseSize(_, let direction, let constrainedToScreen):
+                case .increaseSize(let pixels, let direction, _):
                   kind = .increaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
-                case .decreaseSize(_, let direction, let constrainedToScreen):
+                case .decreaseSize(let pixels, let direction, _):
                   kind = .decreaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
-                case .move(_, let direction, let constrainedToScreen):
+                case .move(let pixels, let direction, _):
                   kind = .move(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
                 default:
                   return
                 }
-
+                model.kind = kind
                 onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
-              })
-              .textFieldStyle(AppTextFieldStyle())
-              .frame(width: 64)
-              .fixedSize()
-              Text("pixels")
-                .font(.caption)
+              }
+              .font(.caption)
             }
-            .padding(.leading, 8)
 
           }
-        case .fullscreen(let padding):
+        case .fullscreen(var padding):
           HStack {
             Text("Padding:")
               .font(.caption)
-            TextField("", text: .constant(String(padding)))
+            IntegerTextField(text: $padding, onValidChange: { newValue in
+              guard let newPadding = Int(newValue) else { return }
+              let kind: WindowCommand.Kind
+              switch model.kind {
+              case .fullscreen:
+                kind = .fullscreen(padding: newPadding)
+              default:
+                return
+              }
+              model.kind = kind
+              onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
+
+            })
               .textFieldStyle(AppTextFieldStyle())
               .frame(width: 32)
               .fixedSize()
