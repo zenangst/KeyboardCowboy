@@ -185,7 +185,7 @@ final class WindowCommandRunner {
       windowFrame.size.height -= newValue
       window.frame = windowFrame
     case .topTrailing:
-      windowFrame.origin.y += newValue
+      windowFrame.origin.x += newValue
       windowFrame.size.height -= newValue
       windowFrame.size.width -= newValue
       window.frame = windowFrame
@@ -197,6 +197,7 @@ final class WindowCommandRunner {
       windowFrame.size.width -= newValue
       window.frame = windowFrame
     case .bottomTrailing:
+      windowFrame.origin.x += newValue
       windowFrame.origin.y += newValue
       windowFrame.size.width -= newValue
       windowFrame.size.height -= newValue
@@ -207,7 +208,6 @@ final class WindowCommandRunner {
       window.frame = windowFrame
     case .bottomLeading:
       windowFrame.origin.y += newValue
-      windowFrame.origin.x += newValue
       windowFrame.size.width -= newValue
       windowFrame.size.height -= newValue
       window.frame = windowFrame
