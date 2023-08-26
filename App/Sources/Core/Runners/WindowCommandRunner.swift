@@ -64,7 +64,7 @@ final class WindowCommandRunner {
     }
   }
 
-  private func move(_ byValue: Int, in direction: WindowCommand.Direction, 
+  private func move(_ byValue: Int, in direction: WindowCommand.Direction,
                     constrainedToScreen: Bool) throws {
     let newValue = CGFloat(byValue)
     var (window, windowFrame) = try getFocusedWindow()
@@ -230,18 +230,26 @@ final class WindowCommandRunner {
       window.frame?.origin.x = nextScreen.frame.origin.x
       try self.center(nextScreen)
     case .relative:
-      // MARK: ⚠️ This needs fixing
-
       let currentFrame = mainScreen.frame
       let nextFrame = nextScreen.frame
+      var windowFrame = windowFrame
 
-      let widthMultiplier = currentFrame.width / nextFrame.width
-      let heightMultiplier = currentFrame.height / nextFrame.height
+      // Make window frame relative to the next frame
+      windowFrame.origin.x -= currentFrame.origin.x
+      windowFrame.origin.y -= currentFrame.origin.y
 
-      let newX = (windowFrame.origin.x * widthMultiplier) + nextFrame.origin.x
-      let newY = (windowFrame.origin.y * heightMultiplier) + nextFrame.origin.y
+      let screenMultiplier = CGSize(
+        width: nextFrame.width / currentFrame.width,
+        height: nextFrame.height / currentFrame.height
+      )
 
-      window.frame?.origin = .init(x: newX, y: newY)
+      let width = windowFrame.size.width * screenMultiplier.width
+      let height = windowFrame.size.height * screenMultiplier.height
+      let x = nextFrame.origin.x + (windowFrame.origin.x * screenMultiplier.width)
+      let y = nextFrame.origin.y  + (windowFrame.origin.y * screenMultiplier.height)
+      let newFrame: CGRect = .init(x: x, y: y, width: width, height: height)
+
+      window.frame = newFrame
     }
   }
 
