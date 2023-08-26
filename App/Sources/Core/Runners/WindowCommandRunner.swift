@@ -55,8 +55,11 @@ final class WindowCommandRunner {
 
     var newValue = screen.visibleFrame.insetBy(dx: value, dy: value)
 
-    if window.frame?.size.width == newValue.size.width,
-       let cachedFrame = fullscreenCache[window.id] {
+    let dockSize = getDockSize(screen)
+    if getDockPosition(screen) == .bottom { newValue.origin.y -= dockSize }
+    let delta = ((window.frame?.size.width) ?? 0) - newValue.size.width
+    let shouldToggle = delta >= -1 && delta <= 1
+    if shouldToggle, let cachedFrame = fullscreenCache[window.id] {
       window.frame = cachedFrame
     } else {
       let statusBarHeight = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -64,7 +67,7 @@ final class WindowCommandRunner {
         .window?
         .frame
         .height ?? 0
-      newValue.origin.y -= statusBarHeight
+      newValue.origin.y -= statusBarHeight + NSStatusBar.system.thickness
       window.frame = newValue
       fullscreenCache[window.id] = windowFrame
     }
@@ -275,4 +278,37 @@ final class WindowCommandRunner {
 
     return (window, windowFrame)
   }
+}
+
+enum DockPosition: Int {
+  case bottom = 0
+  case left = 1
+  case right = 2
+}
+
+func getDockPosition(_ screen: NSScreen) -> DockPosition {
+  if screen.visibleFrame.origin.y == screen.frame.origin.y {
+    if screen.visibleFrame.origin.x == screen.frame.origin.x {
+      return .right
+    } else {
+      return .left
+    }
+  } else {
+    return .bottom
+  }
+}
+
+func getDockSize(_ screen: NSScreen) -> CGFloat {
+  switch getDockPosition(screen) {
+  case .right:
+    return screen.frame.width - screen.visibleFrame.width
+  case .left:
+    return screen.visibleFrame.origin.x
+  case .bottom:
+    return screen.visibleFrame.origin.y
+  }
+}
+
+func isDockHidden(_ screen: NSScreen) -> Bool {
+  getDockSize(screen) < 25
 }
