@@ -98,6 +98,8 @@ final class WindowCommandRunner {
         windowFrame.origin.x = screen.frame.maxX - windowFrame.size.width
       } else if windowFrame.origin.x <= 0 {
         windowFrame.origin.x = screen.frame.origin.x
+      } else if windowFrame.origin.x < screen.frame.origin.x {
+        windowFrame.origin.x = screen.frame.origin.x
       }
 
       if windowFrame.maxY >= screen.visibleFrame.maxY {
