@@ -68,6 +68,7 @@ final class WindowCommandRunner {
                     constrainedToScreen: Bool) throws {
     let newValue = CGFloat(byValue)
     var (window, windowFrame) = try getFocusedWindow()
+    let oldWindowFrame = windowFrame
 
     switch direction {
     case .leading:
@@ -92,9 +93,9 @@ final class WindowCommandRunner {
       windowFrame.origin.x -= newValue
     }
 
-    if let screen = NSScreen.main, constrainedToScreen {
+    if let screen = NSScreen.screens.first(where: { $0.frame.contains(oldWindowFrame) }), constrainedToScreen {
       if windowFrame.maxX >= screen.frame.maxX {
-        windowFrame.origin.x = screen.frame.width - windowFrame.size.width
+        windowFrame.origin.x = screen.frame.maxX - windowFrame.size.width
       } else if windowFrame.origin.x <= 0 {
         windowFrame.origin.x = screen.frame.origin.x
       }
@@ -105,6 +106,7 @@ final class WindowCommandRunner {
         windowFrame.origin.y = screen.visibleFrame.maxY
       }
     }
+
     window.frame?.origin = windowFrame.origin
   }
 
