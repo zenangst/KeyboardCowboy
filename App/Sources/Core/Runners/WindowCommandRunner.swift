@@ -53,12 +53,18 @@ final class WindowCommandRunner {
       value = 0
     }
 
-    let newValue = screen.visibleFrame.insetBy(dx: value, dy: value)
+    var newValue = screen.visibleFrame.insetBy(dx: value, dy: value)
 
     if window.frame?.size.width == newValue.size.width,
        let cachedFrame = fullscreenCache[window.id] {
       window.frame = cachedFrame
     } else {
+      let statusBarHeight = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        .button?
+        .window?
+        .frame
+        .height ?? 0
+      newValue.origin.y -= statusBarHeight
       window.frame = newValue
       fullscreenCache[window.id] = windowFrame
     }
