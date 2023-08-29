@@ -52,9 +52,13 @@ final class MenuBarCommandRunner {
     items.first(where: { item in
       switch token {
       case .menuItem(let title):
-        return item.title == title
+        return item.title == title 
+        || item.title?.hasPrefix(title) == true
       case .menuItems(let title1, let title2):
-        return item.title == title1 || item.title == title2
+        return item.title == title1 
+        || item.title == title2
+        || item.title?.hasPrefix(title1) == true
+        || item.title?.hasPrefix(title2) == true
       }
     })
   }
