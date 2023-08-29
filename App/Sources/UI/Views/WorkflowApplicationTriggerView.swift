@@ -59,7 +59,7 @@ struct WorkflowApplicationTriggerView: View {
                 vertical: 8
               ),
               grayscaleEffect: false
-            )
+            ),  fixedSize: false
           )
         )
       }
