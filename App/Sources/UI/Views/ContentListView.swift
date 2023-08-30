@@ -87,8 +87,6 @@ struct ContentListView: View {
             ForEach($publisher.data.filter(search)) { element in
               ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
                               contentSelectionManager: contentSelectionManager, onAction: onAction)
-              .grayscale(element.wrappedValue.isEnabled ? 0 : 0.5)
-              .opacity(element.wrappedValue.isEnabled ? 1 : 0.5)
               .onTapGesture {
                 contentSelectionManager.handleOnTap(publisher.data, element: element.wrappedValue)
                 focusPublisher.publish(element.id)

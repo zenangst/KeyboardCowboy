@@ -127,7 +127,6 @@ struct WorkflowCommandListView: View {
         .opacity(dropOverlayIsVisible ? 1 : 0)
         .animation(.linear, value: dropOverlayIsVisible)
     }
-    .animation(Self.animation, value: detailPublisher.data.commands.isEmpty)
     .debugEdit()
   }
 

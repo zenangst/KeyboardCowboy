@@ -29,6 +29,18 @@ struct ContentItemView: View {
           Color.black.opacity(0.3).cornerRadius(8, antialiased: false)
             .frame(maxWidth: 32)
         )
+        .overlay(alignment: .bottomTrailing, content: {
+          ZStack {
+            Circle()
+              .fill(Color.white)
+              .frame(width: 14, height: 14)
+            Image(systemName: "pause.circle.fill")
+              .resizable()
+              .foregroundStyle(Color.accentColor)
+              .frame(width: 12, height: 12)
+          }
+          .opacity(!workflow.wrappedValue.isEnabled ? 1 : 0)
+        })
         .overlay(alignment: .topTrailing, content: {
           Text("\(workflow.wrappedValue.badge)")
             .aspectRatio(1, contentMode: .fill)
