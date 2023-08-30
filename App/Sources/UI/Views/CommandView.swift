@@ -70,7 +70,7 @@ struct CommandView: View {
         for item in items {
           switch item {
           case .text(let item):
-            if let url = URL(string: item) {
+            if !item.hasPrefix("WC|"), let url = URL(string: item) {
               urls.append(url)
               continue
             }
