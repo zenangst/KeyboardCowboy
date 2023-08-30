@@ -27,6 +27,10 @@ struct IconViewModel: Identifiable, Codable, Hashable, Equatable, Sendable {
     self.bundleIdentifier = bundleIdentifier
     self.path = path
   }
+
+  init(_ application: Application) {
+    self.init(bundleIdentifier: application.bundleIdentifier, path: application.path)
+  }
 }
 
 struct DetailViewModel: Hashable, Identifiable, Equatable {

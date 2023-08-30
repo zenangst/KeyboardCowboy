@@ -41,9 +41,6 @@ struct WorkflowApplicationTriggerView: View {
               }
               onAction(.updateApplicationTriggers(data))
             }, label: {
-              Image(nsImage: NSWorkspace.shared.icon(forFile: application.path))
-                .resizable()
-                .aspectRatio(contentMode: .fit)
               Text(application.displayName)
             })
           }

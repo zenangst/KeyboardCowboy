@@ -56,23 +56,6 @@ struct GroupsView: View {
                    selectionManager: selectionManager, onAction: onAction)
     .focused(focus, equals: .groups)
   }
-
-  private func overlayView() -> some View {
-    VStack(spacing: 0) {
-      LinearGradient(stops: [
-        Gradient.Stop.init(color: .clear, location: 0),
-        Gradient.Stop.init(color: .black.opacity(0.25), location: 0.25),
-        Gradient.Stop.init(color: .black.opacity(0.75), location: 0.5),
-        Gradient.Stop.init(color: .black.opacity(0.25), location: 0.75),
-        Gradient.Stop.init(color: .clear, location: 1),
-      ],
-                     startPoint: .leading,
-                     endPoint: .trailing)
-      .frame(height: 1)
-    }
-    .allowsHitTesting(false)
-    .shadow(color: Color(.black).opacity(0.25), radius: 2, x: 0, y: -2)
-  }
 }
 
 struct GroupsView_Provider: PreviewProvider {
