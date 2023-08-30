@@ -42,32 +42,32 @@ struct OpenCommandView: View {
           .onChange(of: model.path, perform: { debounce.send($0) })
           .frame(maxWidth: .infinity)
 
-        Menu(content: {
-          ForEach(model.applications) { app in
-            Button(app.displayName, action: {
-              model.appName = app.displayName
-              model.applicationPath = app.path
-              onAction(.openWith(app))
-            })
-          }
-          if !model.applications.isEmpty {
+        if !model.applications.isEmpty {
+          Menu(content: {
+            ForEach(model.applications) { app in
+              Button(app.displayName, action: {
+                model.appName = app.displayName
+                model.applicationPath = app.path
+                onAction(.openWith(app))
+              })
+            }
             Divider()
             Button("Default", action: {
               model.appName = nil
               model.applicationPath = nil
               onAction(.openWith(nil))
             })
-          }
-        }, label: {
-          Text(model.appName ?? "Default")
-            .font(.caption)
-            .truncationMode(.middle)
-            .lineLimit(1)
-            .allowsTightening(true)
-            .padding(4)
-        })
-        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false),
-                                     menuIndicator: model.applications.isEmpty ? .hidden : .visible))
+          }, label: {
+            Text(model.appName ?? "Default")
+              .font(.caption)
+              .truncationMode(.middle)
+              .lineLimit(1)
+              .allowsTightening(true)
+              .padding(4)
+          })
+          .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false),
+                                       menuIndicator: model.applications.isEmpty ? .hidden : .visible))
+        }
       }
     }, subContent: { command in
       HStack {
