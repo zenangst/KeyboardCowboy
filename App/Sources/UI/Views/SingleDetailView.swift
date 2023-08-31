@@ -160,7 +160,6 @@ struct SingleDetailView: View {
         }
         .padding(.horizontal)
         .padding(.bottom, 6)
-        .debugEdit()
 
         ScrollView {
           WorkflowCommandListView(
@@ -178,7 +177,6 @@ struct SingleDetailView: View {
     }
     .labelStyle(HeaderLabelStyle())
     .focusScope(namespace)
-    .debugEdit()
   }
 }
 

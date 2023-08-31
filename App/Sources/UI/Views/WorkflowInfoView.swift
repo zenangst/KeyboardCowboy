@@ -47,6 +47,5 @@ struct WorkflowInfoView: View {
       Spacer()
       AppToggle("", onColor: Color(.systemGreen), isOn: $isEnabled) { onAction(.setIsEnabled(isEnabled: $0)) }
     }
-    .debugEdit()
   }
 }

@@ -53,6 +53,5 @@ struct WorkflowTriggerView: View {
       .cornerRadius(8)
     }
     .buttonStyle(.appStyle)
-    .debugEdit()
   }
 }

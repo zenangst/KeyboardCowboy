@@ -52,7 +52,6 @@ struct KeyboardTriggerView: View {
         onAction(.updateKeyboardShortcuts(workflowId: data.id, keyboardShortcuts: keyboardShortcuts))
       }
       .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
-      .debugEdit()
       
       if trigger.shortcuts.count == 1 {
         HStack {

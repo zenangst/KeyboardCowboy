@@ -83,7 +83,6 @@ struct ApplicationCommandView: View {
         }
       },
       onAction: { onAction(.commandAction($0)) })
-    .debugEdit()
     .id(metaData.id)
   }
 }

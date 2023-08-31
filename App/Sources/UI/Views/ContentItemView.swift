@@ -105,7 +105,6 @@ struct ContentItemView: View {
     } isTargeted: { newValue in
       isTargeted = newValue
     }
-    .debugEdit()
   }
 
   func getDraggable() -> String {

@@ -64,7 +64,6 @@ struct GroupItemView: View {
     }, isTargeted: { newValue in
       isTargeted = newValue
     })
-    .debugEdit()
   }
 
   @ViewBuilder
