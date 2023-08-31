@@ -39,14 +39,9 @@ struct SidebarConfigurationView: View {
             .allowsTightening(true)
             .contentShape(Rectangle())
         }
-        .menuStyle(IconMenuStyle())
+        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: true),
+                                     fixedSize: false))
       }
-      .padding(.vertical, 4)
-      .padding(.horizontal, 6)
-      .background(
-        RoundedRectangle(cornerRadius: 4)
-          .stroke(Color(.disabledControlTextColor))
-      )
 
       Menu(content: {
         Button("New Configuration", action: {
@@ -67,63 +62,26 @@ struct SidebarConfigurationView: View {
           .resizable()
       })
       .menuStyle(GradientMenuStyle(.init(nsColor: .systemGreen, grayscaleEffect: true)))
-      .popover(isPresented: $deleteConfigurationPopover, arrowEdge: .bottom, content: {
-        VStack {
-          Text("Are you sure you want to delete '\(configurationName)'")
-          HStack {
-            Button("Abort", action: {
-              deleteConfigurationPopover = false
-            })
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGray, hoverEffect: false)))
-            .keyboardShortcut(.cancelAction)
-            Button("Confirm", action: {
-              onAction(.deleteConfiguration(id: selectionManager.selections.first ?? ""))
-              deleteConfigurationPopover = false
-            })
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
-          }
-        }
-        .padding()
+      .popover(isPresented: $deleteConfigurationPopover,
+               arrowEdge: .bottom,
+               content: {
+        SidebarDeleteConfigurationPopoverView($deleteConfigurationPopover,
+                                              id: selectionManager.selections.first ?? "",
+                                              configurationName: publisher.data.first(where: { $0.selected })?.name ?? "",
+                                              selectionManager: selectionManager,
+                                              onAction: { onAction(.deleteConfiguration(id: $0)) })
       })
-      .popover(isPresented: $updateConfigurationNamePopover, arrowEdge: .bottom, content: {
-        HStack {
-          Text("Configuration name:")
-          TextField("", text: $configurationName)
-            .frame(width: 170)
-            .onSubmit {
-              onAction(.updateName(name: configurationName))
-              updateConfigurationNamePopover = false
-              configurationName = ""
-            }
-          Button("Save", action: {
-            onAction(.updateName(name: configurationName))
-            updateConfigurationNamePopover = false
-            configurationName = ""
-          })
-          .keyboardShortcut(.defaultAction)
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
-        }
-        .padding()
+      .popover(isPresented: $updateConfigurationNamePopover,
+               arrowEdge: .bottom,
+               content: {
+        SidebarUpdateConfigurationNamePopoverView($updateConfigurationNamePopover, configurationName: $configurationName, onAction: {
+          onAction(.updateName(name: $0))
+        })
       })
       .popover(isPresented: $newConfigurationPopover, arrowEdge: .bottom) {
-        HStack {
-          Text("Configuration name:")
-          TextField("", text: $configurationName)
-            .frame(width: 170)
-            .onSubmit {
-              onAction(.addConfiguration(name: configurationName))
-              newConfigurationPopover = false
-              configurationName = ""
-            }
-          Button("Save", action: {
-            onAction(.addConfiguration(name: configurationName))
-            newConfigurationPopover = false
-            configurationName = ""
-          })
-          .keyboardShortcut(.defaultAction)
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
-        }
-        .padding()
+        SidebarNewConfigurationPopoverView($newConfigurationPopover, configurationName: "", onAction: {
+          onAction(.addConfiguration(name: $0))
+        })
       }
     }
     .debugEdit()
