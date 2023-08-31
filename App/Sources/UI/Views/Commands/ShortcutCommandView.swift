@@ -57,7 +57,6 @@ struct ShortcutCommandView: View {
           .font(.caption)
       }
     }, onAction: { onAction(.commandAction($0)) })
-    .debugEdit()
   }
 }
 

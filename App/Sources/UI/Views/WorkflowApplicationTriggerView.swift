@@ -92,7 +92,6 @@ struct WorkflowApplicationTriggerView: View {
       }
       .focused(focus, equals: .detail(.applicationTriggers))
     }
-    .debugEdit()
   }
 }
 

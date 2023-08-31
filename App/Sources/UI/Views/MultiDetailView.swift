@@ -110,7 +110,6 @@ struct MultiDetailView: View {
 
       Spacer()
     }
-    .debugEdit()
   }
 }
 

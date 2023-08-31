@@ -33,6 +33,5 @@ struct WorkflowShortcutsView: View {
         onUpdate(newValue)
       })
       .focused(focus, equals: .detail(.keyboardShortcuts))
-      .debugEdit()
   }
 }

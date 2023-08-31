@@ -59,7 +59,6 @@ struct KeyboardCommandView: View {
       },
       subContent: { _ in },
       onAction: { onAction(.commandAction($0)) })
-    .debugEdit()
   }
 }
 

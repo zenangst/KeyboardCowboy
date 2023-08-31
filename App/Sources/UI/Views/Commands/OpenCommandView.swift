@@ -79,7 +79,6 @@ struct OpenCommandView: View {
       .frame(maxWidth: .infinity, alignment: .leading)
       .font(.caption)
     }, onAction: { onAction(.commandAction($0)) })
-    .debugEdit()
   }
 }
 

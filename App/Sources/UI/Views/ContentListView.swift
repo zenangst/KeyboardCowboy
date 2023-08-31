@@ -173,7 +173,6 @@ struct ContentListView: View {
       }
     }
     .id(groupSelectionManager.selections)
-    .debugEdit()
   }
 
   @ViewBuilder

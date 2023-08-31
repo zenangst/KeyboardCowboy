@@ -98,7 +98,6 @@ struct SidebarView: View {
       }
     }
     .labelStyle(SidebarLabelStyle())
-    .debugEdit()
   }
 }
 

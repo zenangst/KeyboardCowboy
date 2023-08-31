@@ -84,7 +84,6 @@ struct SidebarConfigurationView: View {
         })
       }
     }
-    .debugEdit()
   }
 }
 

@@ -34,7 +34,6 @@ struct DetailView: View {
       case .empty:
         DetailEmptyView()
           .allowsHitTesting(false)
-          .debugEdit()
       case .single:
         SingleDetailView(
           focus,

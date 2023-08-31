@@ -66,7 +66,6 @@ struct ContentView: View {
       ], startPoint: .topLeading, endPoint: .bottomTrailing)
     )
     .focusSection()
-    .debugEdit()
   }
 
   private func divider() -> some View {

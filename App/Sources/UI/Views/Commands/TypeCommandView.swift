@@ -42,7 +42,6 @@ struct TypeCommandView: View {
           onAction(.updateMode(newMode: newMode))
         }
       }, onAction: { onAction(.commandAction($0)) })
-    .debugEdit()
   }
 }
 

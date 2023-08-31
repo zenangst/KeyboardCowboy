@@ -50,7 +50,6 @@ struct ContentListEmptyView: View {
         .padding(.top, 128)
       }
     }
-    .debugEdit()
   }
 }
 
