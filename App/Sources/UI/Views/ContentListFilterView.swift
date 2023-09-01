@@ -36,7 +36,7 @@ struct ContentListFilterView: View {
           .onSubmit {
             focus.wrappedValue = .workflows
           }
-          .frame(maxHeight: 16)
+          .frame(height: 24)
         if !searchTerm.isEmpty {
           Button(action: { searchTerm = "" },
                  label: { Text("Clear") })
