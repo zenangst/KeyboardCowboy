@@ -8,30 +8,9 @@ struct GroupIconView: View {
 
   var body: some View {
     Circle()
-      .fill(
-        LinearGradient(stops: [
-          .init(color: Color(nsColor: .init(hex: color).blended(withFraction: 1.0, of: NSColor.white)!), location: 0.0),
-          .init(color: Color(nsColor: .init(hex: color)), location: 0.015),
-          .init(color: Color(nsColor: .init(hex: color).blended(withFraction: 0.1, of: .black)!), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
-        .opacity(controlActiveState == .key ? 1 : 0.8)
-      )
-      .overlay(
-        Circle()
-          .stroke(Color.white, lineWidth: 2)
-          .opacity(0.2)
-          .mask(
-            Circle()
-              .fill(
-                LinearGradient(stops: [
-                  .init(color: .black, location: 0),
-                  .init(color: .clear, location: 0.2),
-                  .init(color: .clear, location: 1)
-                ], startPoint: .top, endPoint: .bottom)
-              )
-          )
-      )
+      .fill(Color(.init(hex: color)))
       .grayscale(controlActiveState == .key ? 0 : 0.2)
+      .opacity(controlActiveState == .key ? 1 : 0.8)
       .overlay(overlay())
       .compositingGroup()
   }

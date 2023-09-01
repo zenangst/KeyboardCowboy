@@ -2,7 +2,6 @@ import SwiftUI
 
 struct GroupItemView: View {
   @ObserveInjection var inject
-  @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject var groupsPublisher: GroupsPublisher
 
   private let focusPublisher: FocusPublisher<GroupViewModel>
