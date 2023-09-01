@@ -8,33 +8,27 @@ enum IconCacheError: Error {
 }
 
 actor IconCache {
-  private let cache = NSCache<NSString, CGImage>()
+  private let cache = NSCache<NSString, NSData>()
 
   public static var shared = IconCache()
 
   private init() {}
 
-  public func icon(at path: String, bundleIdentifier: String, size: CGSize) async -> CGImage? {
-    Benchmark.start("IconCache.load")
-    defer { Benchmark.finish("IconCache.load") }
-
+  public func icon(at path: String, bundleIdentifier: String, size: CGSize) -> Data? {
     let identifier: String = "\(bundleIdentifier)_\(size.suffix).tiff"
       .replacingOccurrences(of: "/", with: "_")
       .replacingOccurrences(of: " ", with: "-")
 
     // Load from in-memory cache
     if let inMemoryImage = cache.object(forKey: identifier as NSString) {
-      return inMemoryImage
+      return inMemoryImage as Data
     }
 
     // Load from disk
     var image: NSImage
-    if let imageFromDisk = try? await load(identifier) {
-      image = NSImage(cgImage: imageFromDisk, size: size)
-      if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
-        cache.setObject(cgImage, forKey: identifier as NSString)
-        return cgImage
-      }
+    if let dataFromDisk = try? load(identifier) {
+      cache.setObject(dataFromDisk as NSData, forKey: identifier as NSString)
+      return dataFromDisk
     } else {
       if path.hasSuffix("icns") {
         image = NSImage(byReferencing: URL(filePath: path))
@@ -51,30 +45,22 @@ actor IconCache {
 
     image.size = size
 
-    try? await save(image, identifier: identifier)
-
-    guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-      return nil
-    }
-
-    cache.setObject(cgImage, forKey: identifier as NSString)
-
-    return cgImage
+    return try? save(image, identifier: identifier)
   }
 
   // MARK: Private methods
 
-  private func load(_ identifier: String) async throws -> CGImage? {
+  private func load(_ identifier: String) throws -> Data? {
     let url = try applicationCacheDirectory().appending(component: identifier)
 
     if FileManager.default.fileExists(atPath: url.path()) {
-      return NSImage(contentsOf: url)?.cgImage(forProposedRect: nil, context: nil, hints: nil)
+      return try? Data(contentsOf: url)
     }
 
     return nil
   }
 
-  private func save(_ image: NSImage, identifier: String) async throws {
+  private func save(_ image: NSImage, identifier: String) throws -> Data {
     let url = try applicationCacheDirectory().appending(component: identifier)
 
     guard let tiff = image.tiffRepresentation else {
@@ -90,6 +76,10 @@ actor IconCache {
     }
 
     try data.write(to: url)
+
+    cache.setObject(data as NSData, forKey: identifier as NSString)
+
+    return data
   }
 
   private func applicationCacheDirectory() throws -> URL {
