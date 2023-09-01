@@ -1,6 +1,21 @@
 import SwiftUI
 
+struct ContentDebounce: DebounceSnapshot {
+  let workflows: Set<ContentViewModel.ID>
+  let groups: Set<GroupViewModel.ID>
+}
+
 struct ContentListView: View {
+  enum Action: Hashable {
+    case duplicate(workflowIds: Set<ContentViewModel.ID>)
+    case refresh(_ groupIds: Set<WorkflowGroup.ID>)
+    case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: Set<ContentViewModel.ID>)
+    case selectWorkflow(workflowIds: Set<ContentViewModel.ID>, groupIds: Set<WorkflowGroup.ID>)
+    case removeWorkflows(Set<ContentViewModel.ID>)
+    case reorderWorkflows(source: IndexSet, destination: Int)
+    case addWorkflow(workflowId: Workflow.ID)
+  }
+
   @FocusState var isFocused: Bool
   private var focus: FocusState<AppFocus?>.Binding
   private let debounceSelectionManager: DebounceSelectionManager<ContentDebounce>
@@ -16,13 +31,13 @@ struct ContentListView: View {
 
   @State var searchTerm: String = ""
 
-  private let onAction: (ContentView.Action) -> Void
+  private let onAction: (Action) -> Void
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupSelectionManager: SelectionManager<GroupViewModel>,
        focusPublisher: FocusPublisher<ContentViewModel>,
-       onAction: @escaping (ContentView.Action) -> Void) {
+       onAction: @escaping (Action) -> Void) {
     _contentSelectionManager = .init(initialValue: contentSelectionManager)
     _groupSelectionManager = .init(initialValue: groupSelectionManager)
     self.focusPublisher = focusPublisher
@@ -47,43 +62,15 @@ struct ContentListView: View {
 
   @ViewBuilder
   var body: some View {
-    if !publisher.data.isEmpty {
-      HStack(spacing: 8) {
-        Image(systemName: searchTerm.isEmpty
-              ? "line.3.horizontal.decrease.circle"
-              : "line.3.horizontal.decrease.circle.fill")
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .foregroundColor(contentSelectionManager.selectedColor)
-        .frame(width: 12)
-        .padding(.leading, 8)
-        TextField("Filter", text: $searchTerm)
-          .textFieldStyle(AppTextFieldStyle(.caption2,
-                                            unfocusedOpacity: 0,
-                                            color: contentSelectionManager.selectedColor))
-          .focused(focus, equals: .search)
-          .onExitCommand(perform: {
-            searchTerm = ""
-          })
-          .onSubmit {
-            focus.wrappedValue = .workflows
-          }
-        if !searchTerm.isEmpty {
-          Button(action: { searchTerm = "" },
-                 label: { Text("Clear") })
-          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGray)))
-          .font(.caption2)
-        }
-      }
-      .padding(8)
-    }
-
-    ScrollViewReader { proxy in
-      ScrollView {
-        if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
-          ContentListEmptyView(namespace, onAction: onAction)
-        } else {
-          LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+    ContentListFilterView(focus, 
+                          contentSelectionManager: contentSelectionManager,
+                          searchTerm: $searchTerm)
+    if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
+      ContentListEmptyView(namespace, onAction: onAction)
+    } else {
+      ScrollViewReader { proxy in
+        ScrollView {
+          LazyVStack(spacing: 0) {
             ForEach($publisher.data.filter(search)) { element in
               ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
                               contentSelectionManager: contentSelectionManager, onAction: onAction)
@@ -172,7 +159,6 @@ struct ContentListView: View {
         }
       }
     }
-    .id(groupSelectionManager.selections)
   }
 
   @ViewBuilder

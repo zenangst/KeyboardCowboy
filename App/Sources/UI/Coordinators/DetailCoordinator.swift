@@ -84,7 +84,7 @@ final class DetailCoordinator {
     }
   }
 
-  func handle(_ action: ContentView.Action) {
+  func handle(_ action: ContentListView.Action) {
     switch action {
     case .refresh, .moveWorkflowsToGroup, .reorderWorkflows, .duplicate:
       return

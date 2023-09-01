@@ -25,9 +25,7 @@ final class ViewModelsPublisher<ViewModel>: ObservableObject where ViewModel: Ha
     self.init([data()])
   }
 
-  func publish(_ newData: [ViewModel]? = nil) {
-    if let newData {
-      self.data = newData
-    }
+  func publish(_ newData: [ViewModel]) {
+    self.data = newData
   }
 }

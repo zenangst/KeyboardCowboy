@@ -101,7 +101,7 @@ struct GroupsListView: View {
               confirmDelete = .multiple(ids: Array(selectionManager.selections))
             }
           }
-          .padding(8)
+          .padding(.horizontal, 8)
           .onReceive(selectionManager.$selections, perform: { newValue in
             confirmDelete = nil
             debounceSelectionManager.process(.init(groups: newValue))
