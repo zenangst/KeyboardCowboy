@@ -25,10 +25,9 @@ struct MenuBarCommandView: View {
           .fill(Color(.controlAccentColor).opacity(0.375))
           .cornerRadius(8, antialiased: false)
           .frame(width: 32, height: 32)
-        Image(nsImage: NSWorkspace.shared.icon(forFile:"/System/Library/PreferencePanes/Appearance.prefPane"))
-          .resizable()
-          .aspectRatio(1, contentMode: .fit)
-          .frame(width: 28, height: 28)
+        IconView(icon: .init(bundleIdentifier: "/System/Library/PreferencePanes/Appearance.prefPane",
+                             path: "/System/Library/PreferencePanes/Appearance.prefPane"),
+                 size: .init(width: 28, height: 28))
       }
     } content: { _ in
       ScrollView(.horizontal) {

@@ -62,19 +62,18 @@ struct NewCommandApplicationView: View {
             })
           }
         }, label: { })
-        .overlay(alignment: .leading, content: {
+        .overlay(alignment: .leading,
+                 content: {
           HStack {
             if let application {
-              Image(nsImage: NSWorkspace.shared.icon(forFile: application.path))
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 24, height: 24)
+              IconView(icon: .init(application), size: .init(width: 24, height: 24))
               Text(application.displayName)
             } else {
-              Image(nsImage: NSWorkspace.shared.icon(forFile: "/Applications"))
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 24, height: 24)
+              IconView(
+                icon: .init(bundleIdentifier: "/System/Applications/Utilities/Script Editor.app",
+                           path: "/System/Applications/Utilities/Script Editor.app"),
+                size: .init(width: 24, height: 24)
+              )
               Text("Select application")
             }
           }

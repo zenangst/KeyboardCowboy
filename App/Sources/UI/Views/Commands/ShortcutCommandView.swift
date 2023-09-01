@@ -32,7 +32,10 @@ struct ShortcutCommandView: View {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
           .cornerRadius(8, antialiased: false)
-        Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Shortcuts.app"))
+
+        IconView(icon: .init(bundleIdentifier: "/System/Applications/Shortcuts.app", 
+                             path: "/System/Applications/Shortcuts.app"),
+                 size: .init(width: 32, height: 32))
       }
     }, content: { command in
       VStack {

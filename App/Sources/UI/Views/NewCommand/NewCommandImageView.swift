@@ -42,9 +42,7 @@ struct NewCommandImageView: View {
   }
 
   private func image(for path: String) -> some View {
-    Image(nsImage: NSWorkspace.shared.icon(forFile: path))
-      .resizable()
-      .aspectRatio(1, contentMode: .fill)
+    IconView(icon: .init(bundleIdentifier: path, path: path), size: .init(width: 24, height: 24))
   }
 }
 
