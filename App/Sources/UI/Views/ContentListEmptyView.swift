@@ -16,7 +16,7 @@ struct ContentListEmptyView: View {
     Group {
       if groupsPublisher.data.isEmpty {
         Text("Add a group before adding a workflow.")
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .frame(maxWidth: .infinity)
           .padding()
           .multilineTextAlignment(.center)
           .foregroundColor(Color(.systemGray))
@@ -47,7 +47,6 @@ struct ContentListEmptyView: View {
             .font(.footnote)
             .padding(.top, 8)
         }
-        .padding(.top, 128)
       }
     }
   }

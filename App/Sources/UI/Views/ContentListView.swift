@@ -62,12 +62,16 @@ struct ContentListView: View {
 
   @ViewBuilder
   var body: some View {
-    ContentListFilterView(focus, 
-                          contentSelectionManager: contentSelectionManager,
-                          searchTerm: $searchTerm)
     if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
       ContentListEmptyView(namespace, onAction: onAction)
+        .fixedSize()
     } else {
+      ContentHeaderView(groupSelectionManager: groupSelectionManager,
+                        namespace: namespace,
+                        onAction: onAction)
+      ContentListFilterView(focus,
+                            contentSelectionManager: contentSelectionManager,
+                            searchTerm: $searchTerm)
       ScrollViewReader { proxy in
         ScrollView {
           LazyVStack(spacing: 0) {
