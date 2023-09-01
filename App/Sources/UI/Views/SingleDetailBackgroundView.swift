@@ -3,9 +3,7 @@ import SwiftUI
 struct SingleDetailBackgroundView: View {
   @EnvironmentObject private var detailPublisher: DetailPublisher
 
-  init() {
-
-  }
+  init() { }
 
   var body: some View {
     let shouldShowCommandList = detailPublisher.data.trigger != nil ||

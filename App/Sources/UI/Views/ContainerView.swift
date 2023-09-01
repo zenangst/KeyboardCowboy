@@ -68,9 +68,6 @@ struct ContainerView: View {
           .labelStyle(SidebarLabelStyle())
       },
       content: {
-        ContentHeaderView(groupSelectionManager: groupsSelectionManager,
-                          namespace: namespace,
-                          onAction: { onAction(.content($0), undoManager) })
         ContentListView(focus,
                         contentSelectionManager: contentSelectionManager,
                         groupSelectionManager: groupsSelectionManager,
