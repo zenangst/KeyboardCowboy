@@ -26,7 +26,7 @@ struct SidebarAddGroupButtonView: View {
           .padding(2)
       }
       .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-      .padding(.leading, 14)
+      .padding(.leading, 6)
       .padding(.bottom, 6)
       .matchedGeometryEffect(id: "add-group-button", in: namespace)
     } else {
