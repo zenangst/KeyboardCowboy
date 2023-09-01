@@ -1,33 +1,26 @@
+import Combine
 import SwiftUI
 
 struct IconView: View {
   let icon: IconViewModel
   let size: CGSize
+  @State var visible: Bool = false
 
   var body: some View {
     InternalIconView(at: icon.path, size: size, content: { phase in
-      Group {
-        switch phase {
-        case .success(let image):
-          image
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: size.width, height: size.height)
-            .fixedSize()
-        case .empty, .failure:
-          placeholder()
-        @unknown default:
-          placeholder()
-        }
+      if case .success(let image) = phase {
+        image
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: size.width, height: size.height)
+          .fixedSize()
+      } else {
+        RoundedRectangle(cornerRadius: 4)
+          .fill(Color.clear)
+          .frame(width: size.width, height: size.height)
+          .fixedSize()
       }
     })
-  }
-
-  private func placeholder() -> some View {
-    Rectangle()
-      .fill(.clear)
-      .frame(width: size.width, height: size.height)
-      .fixedSize()
   }
 }
 
@@ -40,9 +33,12 @@ struct IconView_Previews: PreviewProvider {
 }
 
 fileprivate final class ImageLoader: ObservableObject {
+  private var passthrough = PassthroughSubject<CGSize, Never>()
+  private var subscription: AnyCancellable?
+
   @MainActor
   @Published var phase = AsyncImagePhase.empty
-  private var task: Task<(), Never>? {
+  private var task: Task<(), Error>? {
     willSet {
       self.task?.cancel()
     }
@@ -51,17 +47,34 @@ fileprivate final class ImageLoader: ObservableObject {
 
   init(at path: String) {
     self.path = path
+    self.subscription = passthrough
+      .sink { [weak self] size in
+        guard let self else { return }
+        self.internalLoad(size)
+      }
+  }
+
+  deinit {
+    task?.cancel()
   }
 
   func load(with size: CGSize) async {
+    task?.cancel()
+    passthrough.send(size)
+  }
+
+  private func internalLoad(_ size: CGSize) {
     self.task?.cancel()
     let path = path
     let task = Task {
-      guard let cgImage = await IconCache.shared.icon(at: path, bundleIdentifier: path, size: size) else {
-        return
-      }
-      let image = Image(cgImage, scale: 1.0, label: Text(""))
-      await MainActor.run {
+      guard let data = await IconCache.shared.icon(at: path, bundleIdentifier: path, size: size),
+            let nsImage = NSImage(data: data)
+      else { return }
+
+      let image = Image(nsImage: nsImage)
+      try Task.checkCancellation()
+      try await MainActor.run {
+        try Task.checkCancellation()
         phase = .success(image)
       }
     }
