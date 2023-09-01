@@ -6,8 +6,6 @@ struct GroupDebounce: DebounceSnapshot {
 }
 
 struct GroupsView: View {
-  @Environment(\.controlActiveState) var controlActiveState
-
   enum Action {
     case openScene(AppScene)
     case selectGroups(Set<GroupViewModel.ID>)
