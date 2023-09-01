@@ -32,17 +32,22 @@ struct ScriptCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($metaData, icon: { command in
+    CommandContainerView($metaData,
+                         icon: { command in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
           .cornerRadius(8, antialiased: false)
-        Image(nsImage: NSWorkspace.shared.icon(forFile: "/System/Applications/Utilities/Script Editor.app"))
-          .resizable()
-          .aspectRatio(1, contentMode: .fill)
-          .frame(width: 32)
+        IconView(
+          icon: .init(
+            bundleIdentifier: "/System/Applications/Utilities/Script Editor.app",
+            path: "/System/Applications/Utilities/Script Editor.app"
+          ),
+          size: .init(width: 32, height: 32)
+        )
       }
-    }, content: { metaData in
+    },
+                         content: { metaData in
       VStack {
         HStack(spacing: 8) {
           TextField("", text: $metaData.name)
@@ -52,7 +57,7 @@ struct ScriptCommandView: View {
             })
           Spacer()
         }
-
+        
         switch model.source {
         case .inline:
           ScriptEditorView(text: $text, syntax: .constant(AppleScriptHighlighting()))
@@ -78,7 +83,8 @@ struct ScriptCommandView: View {
           }
         }
       }
-    }, subContent: { _ in
+    },
+                         subContent: { _ in
       HStack {
         switch model.source {
         case .path(let source):
@@ -87,11 +93,12 @@ struct ScriptCommandView: View {
           Button("Reveal", action: { onAction(.reveal(path: source)) })
             .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
         case .inline:
-            EmptyView()
+          EmptyView()
         }
       }
       .font(.caption)
-    }, onAction: { onAction(.commandAction($0)) })
+    },
+                         onAction: { onAction(.commandAction($0)) })
   }
 }
 
