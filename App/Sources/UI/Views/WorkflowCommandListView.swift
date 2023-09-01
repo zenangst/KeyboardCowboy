@@ -35,94 +35,98 @@ struct WorkflowCommandListView: View {
 
   @ViewBuilder
   var body: some View {
-    if detailPublisher.data.commands.isEmpty {
-      WorkflowCommandEmptyListView(namespace: namespace,
-                                   detailPublisher: detailPublisher, onAction: onAction)
-      .matchedGeometryEffect(id: "command-list", in: namespace)
-    } else {
-      LazyVStack(spacing: 0) {
-        ForEach($detailPublisher.data.commands) { element in
-          let command = element
-          CommandView(command,
-                      detailPublisher: detailPublisher,
-                      focusPublisher: focusPublisher,
-                      selectionManager: selectionManager,
-                      workflowId: detailPublisher.data.id,
-                      onCommandAction: onAction) { action in
-            onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
+    ScrollView {
+      if detailPublisher.data.commands.isEmpty {
+        WorkflowCommandEmptyListView(namespace: namespace,
+                                     detailPublisher: detailPublisher, onAction: onAction)
+        .matchedGeometryEffect(id: "command-list", in: namespace)
+      } else {
+        LazyVStack(spacing: 0) {
+          ForEach($detailPublisher.data.commands) { element in
+            let command = element
+            CommandView(command,
+                        detailPublisher: detailPublisher,
+                        focusPublisher: focusPublisher,
+                        selectionManager: selectionManager,
+                        workflowId: detailPublisher.data.id,
+                        onCommandAction: onAction) { action in
+              onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
+            }
+                        .contextMenu(menuItems: { contextMenu(command) })
+                        .onTapGesture {
+                          selectionManager.handleOnTap(detailPublisher.data.commands, element: element.wrappedValue)
+                          focusPublisher.publish(element.id)
+                        }
           }
-                      .contextMenu(menuItems: { contextMenu(command) })
-                      .onTapGesture {
-                        selectionManager.handleOnTap(detailPublisher.data.commands, element: element.wrappedValue)
-                        focusPublisher.publish(element.id)
-                      }
-        }
-        .focused($isFocused)
-        .onChange(of: isFocused, perform: { newValue in
-          guard newValue else { return }
-
-          guard let lastSelection = selectionManager.lastSelection else { return }
-
-          withAnimation {
-            scrollViewProxy?.scrollTo(lastSelection)
-          }
-        })
-        .padding(.vertical, 5)
-        .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-          switch detailPublisher.data.trigger {
-          case .applications:
-            focus.wrappedValue = .detail(.applicationTriggers)
-          case .keyboardShortcuts:
-            focus.wrappedValue = .detail(.keyboardShortcuts)
-          case .none:
-            focus.wrappedValue = .detail(.name)
-          }
-        })
-        .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-          focus.wrappedValue = .groups
-        })
-        .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-          selectionManager.selections = Set(detailPublisher.data.commands.map(\.id))
-        })
-        .onMoveCommand(perform: { direction in
-          if let elementID = selectionManager.handle(direction, detailPublisher.data.commands,
-                                                     proxy: scrollViewProxy) {
-            focusPublisher.publish(elementID)
-          }
-        })
-        .onDeleteCommand {
-          if selectionManager.selections.count == detailPublisher.data.commands.count {
+          .focused($isFocused)
+          .onChange(of: isFocused, perform: { newValue in
+            guard newValue else { return }
+            
+            guard let lastSelection = selectionManager.lastSelection else { return }
+            
             withAnimation {
+              scrollViewProxy?.scrollTo(lastSelection)
+            }
+          })
+          .padding(.vertical, 5)
+          .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
+            switch detailPublisher.data.trigger {
+            case .applications:
+              focus.wrappedValue = .detail(.applicationTriggers)
+            case .keyboardShortcuts:
+              focus.wrappedValue = .detail(.keyboardShortcuts)
+            case .none:
+              focus.wrappedValue = .detail(.name)
+            }
+          })
+          .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+            focus.wrappedValue = .groups
+          })
+          .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+            selectionManager.selections = Set(detailPublisher.data.commands.map(\.id))
+          })
+          .onMoveCommand(perform: { direction in
+            if let elementID = selectionManager.handle(direction, detailPublisher.data.commands,
+                                                       proxy: scrollViewProxy) {
+              focusPublisher.publish(elementID)
+            }
+          })
+          .onDeleteCommand {
+            if selectionManager.selections.count == detailPublisher.data.commands.count {
+              withAnimation {
+                onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
+              }
+            } else {
               onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
             }
-          } else {
-            onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
           }
         }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .focused(focus, equals: .detail(.commands))
+        .matchedGeometryEffect(id: "command-list", in: namespace)
       }
-      .padding(.horizontal)
-      .padding(.vertical, 8)
-      .focused(focus, equals: .detail(.commands))
-      .matchedGeometryEffect(id: "command-list", in: namespace)
     }
   }
 
   @ViewBuilder
   private func contextMenu(_ command: Binding<CommandViewModel>) -> some View {
-    Button("Run", action: {})
+    let workflowId = detailPublisher.data.id
+    let commandIds = !selectionManager.selections.isEmpty
+    ? selectionManager.selections
+    : Set(arrayLiteral: command.id)
+    Button("Run", action: {
+      onAction(.commandView(workflowId: workflowId, action: .run(workflowId: workflowId, commandId: command.id)))
+    })
     Divider()
     Button("Duplicate", action: {
-      if !selectionManager.selections.isEmpty {
-        onAction(.duplicate(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
-      } else {
-        onAction(.duplicate(workflowId: detailPublisher.data.id, commandIds: Set(arrayLiteral: command.id)))
-      }
+      onAction(.duplicate(workflowId: workflowId, commandIds: commandIds))
     })
     Button("Remove", action: {
       if !selectionManager.selections.isEmpty {
-        onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
+        onAction(.removeCommands(workflowId: workflowId, commandIds: commandIds))
       } else {
-        onAction(.commandView(workflowId: detailPublisher.data.id, action: .remove(workflowId: detailPublisher.data.id, commandId: command.id)))
+        onAction(.commandView(workflowId: workflowId, action: .remove(workflowId: workflowId, commandId: command.id)))
       }
     })
   }

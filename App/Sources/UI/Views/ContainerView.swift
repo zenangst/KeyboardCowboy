@@ -18,26 +18,26 @@ struct ContainerView: View {
   enum Action {
     case openScene(AppScene)
     case sidebar(SidebarView.Action)
-    case content(ContentView.Action)
+    case content(ContentListView.Action)
     case detail(DetailView.Action)
   }
 
   var focus: FocusState<AppFocus?>.Binding
 
+  @Namespace var namespace
   @Environment(\.undoManager) var undoManager
-  @EnvironmentObject var groupStore: GroupStore
-  @EnvironmentObject var groupsPublisher: GroupsPublisher
+  @Environment(\.openWindow) private var openWindow
   @ObservedObject var navigationPublisher = NavigationPublisher()
 
-  @Environment(\.openWindow) private var openWindow
-  let onAction: (Action, UndoManager?) -> Void
-
+  private let onAction: (Action, UndoManager?) -> Void
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandSelectionManager: SelectionManager<CommandViewModel>
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let groupsSelectionManager: SelectionManager<GroupViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
+
+  private var contentFocusPublisher = FocusPublisher<ContentViewModel>()
 
   init(focus: FocusState<AppFocus?>.Binding,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
@@ -64,12 +64,19 @@ struct ContainerView: View {
         SidebarView(focus,
                     configSelectionManager: configSelectionManager,
                     groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0), undoManager) }
+          .frame(minWidth: 180, alignment: .leading)
+          .labelStyle(SidebarLabelStyle())
       },
       content: {
-        ContentView(focus,
-                    contentSelectionManager: contentSelectionManager,
-                    groupSelectionManager: groupsSelectionManager,
-                    onAction: { onAction(.content($0), undoManager) })
+        ContentHeaderView(groupSelectionManager: groupsSelectionManager,
+                          namespace: namespace,
+                          onAction: { onAction(.content($0), undoManager) })
+        ContentListView(focus,
+                        contentSelectionManager: contentSelectionManager,
+                        groupSelectionManager: groupsSelectionManager,
+                        focusPublisher: contentFocusPublisher,
+                        onAction: { onAction(.content($0), undoManager) })
+        .focused(focus, equals: .workflows)
       },
       detail: {
         DetailView(focus,
@@ -78,6 +85,7 @@ struct ContainerView: View {
                    keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
                    onAction: { onAction(.detail($0), undoManager) })
           .edgesIgnoringSafeArea(.top)
+          .background(Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all))
       })
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)

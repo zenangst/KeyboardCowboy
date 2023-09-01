@@ -16,8 +16,11 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
   @EnvironmentObject var detailPublisher: DetailPublisher
   @Binding private var metaData: CommandViewModel.MetaData
+  @ViewBuilder
   private let icon: (Binding<CommandViewModel.MetaData>) -> IconContent
+  @ViewBuilder
   private let content: (Binding<CommandViewModel.MetaData>) -> Content
+  @ViewBuilder
   private let subContent: (Binding<CommandViewModel.MetaData>) -> SubContent
   private let onAction: (CommandContainerAction) -> Void
 

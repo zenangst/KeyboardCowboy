@@ -23,25 +23,23 @@ struct SidebarConfigurationView: View {
 
   var body: some View {
     HStack {
-      HStack {
-        Menu {
-          ForEach(publisher.data) { configuration in
-            Button(action: {
-              selectionManager.publish([configuration.id])
-              onAction(.selectConfiguration(configuration.id))
-            }, label: { Text(configuration.name) })
-          }
-        } label: {
-          Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value" )
-            .font(.callout)
-            .lineLimit(1)
-            .fixedSize(horizontal: false, vertical: true)
-            .allowsTightening(true)
-            .contentShape(Rectangle())
+      Menu {
+        ForEach(publisher.data) { configuration in
+          Button(action: {
+            selectionManager.publish([configuration.id])
+            onAction(.selectConfiguration(configuration.id))
+          }, label: { Text(configuration.name) })
         }
-        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: true),
-                                     fixedSize: false))
+      } label: {
+        Text(publisher.data.first(where: { $0.selected })?.name ?? "Missing value" )
+          .font(.callout)
+          .lineLimit(1)
+          .fixedSize(horizontal: false, vertical: true)
+          .allowsTightening(true)
+          .contentShape(Rectangle())
       }
+      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: true),
+                                   fixedSize: false))
 
       Menu(content: {
         Button("New Configuration", action: {
@@ -84,6 +82,7 @@ struct SidebarConfigurationView: View {
         })
       }
     }
+    .padding(.top, 4)
   }
 }
 

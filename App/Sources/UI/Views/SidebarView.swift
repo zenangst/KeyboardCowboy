@@ -35,69 +35,46 @@ struct SidebarView: View {
   }
 
   var body: some View {
-
-    VStack(alignment: .leading, spacing: 0) {
-      VStack(alignment: .leading) {
-        SidebarConfigurationHeaderView()
-          .padding(.trailing, 12)
-        SidebarConfigurationView(configSelectionManager) { action in
-          switch action {
-          case .deleteConfiguration(let id):
-            onAction(.deleteConfiguraiton(id: id))
-          case .updateName(let newName):
-            onAction(.updateConfiguration(name: newName))
-          case .addConfiguration(let name):
-            onAction(.addConfiguration(name: name))
-          case .selectConfiguration(let id):
-            onAction(.selectConfiguration(id))
-          }
-        }
-        .padding(.trailing, 12)
-      }
-      .padding(.leading, 12)
-
-      GroupsHeaderView { action in
-        switch action {
-        case .addGroup:
-          onAction(.openScene(.addGroup))
-        }
-      }
-      GroupsView(focus, namespace: namespace, selectionManager: groupSelectionManager) { action in
-        switch action {
-        case .selectGroups(let ids):
-          onAction(.selectGroups(ids))
-        case .moveGroups(let source, let destination):
-          onAction(.moveGroups(source: source, destination: destination))
-        case .removeGroups(let ids):
-          onAction(.removeGroups(ids))
-        case .openScene(let scene):
-          onAction(.openScene(scene))
-        case .moveWorkflows(let workflowIds, let groupId):
-          onAction(.moveWorkflows(workflowIds: workflowIds, groupId: groupId))
-        case .copyWorkflows(let workflowIds, let groupId):
-          onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
-        }
-      }
-
-      if !publisher.data.isEmpty {
-        Button(action: {
-          onAction(.openScene(.addGroup))
-        }) {
-          HStack {
-            Image(systemName: "plus.circle")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 10)
-              .padding(2)
-          }
-        }
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-        .padding(.leading, 12)
-        .padding(.bottom, 6)
-        .matchedGeometryEffect(id: "add-group-button", in: namespace)
+    SidebarConfigurationHeaderView()
+      .padding(.horizontal, 12)
+    SidebarConfigurationView(configSelectionManager) { action in
+      switch action {
+      case .deleteConfiguration(let id):
+        onAction(.deleteConfiguraiton(id: id))
+      case .updateName(let newName):
+        onAction(.updateConfiguration(name: newName))
+      case .addConfiguration(let name):
+        onAction(.addConfiguration(name: name))
+      case .selectConfiguration(let id):
+        onAction(.selectConfiguration(id))
       }
     }
-    .labelStyle(SidebarLabelStyle())
+    .padding(.horizontal, 12)
+
+    Label("Groups", image: "")
+      .padding(.top, 6)
+      .padding(.horizontal, 12)
+
+    GroupsView(focus, namespace: namespace, selectionManager: groupSelectionManager) { action in
+      switch action {
+      case .selectGroups(let ids):
+        onAction(.selectGroups(ids))
+      case .moveGroups(let source, let destination):
+        onAction(.moveGroups(source: source, destination: destination))
+      case .removeGroups(let ids):
+        onAction(.removeGroups(ids))
+      case .openScene(let scene):
+        onAction(.openScene(scene))
+      case .moveWorkflows(let workflowIds, let groupId):
+        onAction(.moveWorkflows(workflowIds: workflowIds, groupId: groupId))
+      case .copyWorkflows(let workflowIds, let groupId):
+        onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
+      }
+    }
+    SidebarAddGroupButtonView(isVisible: Binding<Bool>.readonly(!publisher.data.isEmpty),
+                              namespace: namespace, onAction: {
+      onAction(.openScene(.addGroup))
+    })
   }
 }
 

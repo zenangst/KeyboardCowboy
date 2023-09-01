@@ -6,18 +6,17 @@ struct ContentHeaderView: View {
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
 
   private let namespace: Namespace.ID
-  private let onAction: (ContentView.Action) -> Void
+  private let onAction: (ContentListView.Action) -> Void
 
   init(groupSelectionManager: SelectionManager<GroupViewModel>,
        namespace: Namespace.ID,
-       onAction: @escaping (ContentView.Action) -> Void) {
+       onAction: @escaping (ContentListView.Action) -> Void) {
     self.groupSelectionManager = groupSelectionManager
     self.namespace = namespace
     self.onAction = onAction
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
       if let groupId = groupSelectionManager.selections.first,
          let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
         HStack {
@@ -67,6 +66,5 @@ struct ContentHeaderView: View {
         .labelStyle(SidebarLabelStyle())
         .padding(.leading, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
   }
 }

@@ -8,13 +8,13 @@ struct ContentItemView: View {
   @ObserveInjection var inject
   private let publisher: ContentPublisher
   private let workflow: Binding<ContentViewModel>
-  private let onAction: (ContentView.Action) -> Void
+  private let onAction: (ContentListView.Action) -> Void
 
   init(_ workflow: Binding<ContentViewModel>,
        focusPublisher: FocusPublisher<ContentViewModel>,
        publisher: ContentPublisher,
        contentSelectionManager: SelectionManager<ContentViewModel>,
-       onAction: @escaping (ContentView.Action) -> Void) {
+       onAction: @escaping (ContentListView.Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.focusPublisher = focusPublisher

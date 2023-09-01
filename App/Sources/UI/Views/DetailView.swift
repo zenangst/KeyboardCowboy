@@ -8,7 +8,6 @@ struct DetailView: View {
 
   var focus: FocusState<AppFocus?>.Binding
   @EnvironmentObject var statePublisher: DetailStatePublisher
-  @EnvironmentObject var detailPublisher: DetailPublisher
   private var onAction: (DetailView.Action) -> Void
 
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
@@ -29,31 +28,26 @@ struct DetailView: View {
 
   @ViewBuilder
   var body: some View {
-    Group {
-      switch statePublisher.data {
-      case .empty:
-        DetailEmptyView()
-          .allowsHitTesting(false)
-      case .single:
-        SingleDetailView(
-          focus,
-          detailPublisher: detailPublisher,
-          applicationTriggerSelectionManager: applicationTriggerSelectionManager,
-          commandSelectionManager: commandSelectionManager,
-          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
-          onAction: {
-            onAction(.singleDetailView($0))
-          })
-      case .multiple(let viewModels):
-        let limit = 5
-        let count = viewModels.count
-        MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
-      }
+    switch statePublisher.data {
+    case .empty:
+      DetailEmptyView()
+        .allowsHitTesting(false)
+        .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
+    case .single:
+      SingleDetailView(
+        focus,
+        applicationTriggerSelectionManager: applicationTriggerSelectionManager,
+        commandSelectionManager: commandSelectionManager,
+        keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+        onAction: {
+          onAction(.singleDetailView($0))
+        })
+      .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
+    case .multiple(let viewModels):
+      let limit = 5
+      let count = viewModels.count
+      MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
     }
-    .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
-    .background(
-      Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all)
-    )
   }
 }
 

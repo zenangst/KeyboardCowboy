@@ -217,7 +217,7 @@ struct KeyboardCowboy: App {
             .animation(.none, value: contentStore.state)
         }
       }
-      .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: contentStore.state)
+      .animation(.easeInOut, value: contentStore.state)
     }
     .windowResizability(.contentSize)
     .windowStyle(.hiddenTitleBar)
