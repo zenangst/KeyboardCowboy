@@ -15,8 +15,13 @@ actor IconCache {
   private init() {}
 
   public func icon(at path: String, bundleIdentifier: String, size: CGSize) async -> CGImage? {
+    Benchmark.start("IconCache.load")
+    defer { Benchmark.finish("IconCache.load") }
 
     let identifier: String = "\(bundleIdentifier)_\(size.suffix).tiff"
+      .replacingOccurrences(of: "/", with: "_")
+      .replacingOccurrences(of: " ", with: "-")
+
     // Load from in-memory cache
     if let inMemoryImage = cache.object(forKey: identifier as NSString) {
       return inMemoryImage
@@ -26,6 +31,10 @@ actor IconCache {
     var image: NSImage
     if let imageFromDisk = try? await load(identifier) {
       image = NSImage(cgImage: imageFromDisk, size: size)
+      if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+        cache.setObject(cgImage, forKey: identifier as NSString)
+        return cgImage
+      }
     } else {
       if path.hasSuffix("icns") {
         image = NSImage(byReferencing: URL(filePath: path))
@@ -39,6 +48,8 @@ actor IconCache {
         image = NSImage(cgImage: imageRef, size: imageRect.size)
       }
     }
+
+    image.size = size
 
     try? await save(image, identifier: identifier)
 
@@ -54,7 +65,6 @@ actor IconCache {
   // MARK: Private methods
 
   private func load(_ identifier: String) async throws -> CGImage? {
-    let identifier = identifier.replacingOccurrences(of: "/", with: "_")
     let url = try applicationCacheDirectory().appending(component: identifier)
 
     if FileManager.default.fileExists(atPath: url.path()) {
@@ -65,7 +75,6 @@ actor IconCache {
   }
 
   private func save(_ image: NSImage, identifier: String) async throws {
-    let identifier = identifier.replacingOccurrences(of: "/", with: "_")
     let url = try applicationCacheDirectory().appending(component: identifier)
 
     guard let tiff = image.tiffRepresentation else {
