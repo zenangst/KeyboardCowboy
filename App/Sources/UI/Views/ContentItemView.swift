@@ -7,10 +7,10 @@ struct ContentItemView: View {
   @State var isTargeted: Bool = false
   @ObserveInjection var inject
   private let publisher: ContentPublisher
-  private let workflow: Binding<ContentViewModel>
+  private let workflow: ContentViewModel
   private let onAction: (ContentListView.Action) -> Void
 
-  init(_ workflow: Binding<ContentViewModel>,
+  init(_ workflow: ContentViewModel,
        focusPublisher: FocusPublisher<ContentViewModel>,
        publisher: ContentPublisher,
        contentSelectionManager: SelectionManager<ContentViewModel>,
@@ -24,7 +24,7 @@ struct ContentItemView: View {
 
   var body: some View {
     HStack {
-      ContentImagesView(images: workflow.wrappedValue.images, size: 32)
+      ContentImagesView(images: workflow.images, size: 32)
         .background(
           Color.black.opacity(0.3).cornerRadius(8, antialiased: false)
             .frame(maxWidth: 32)
@@ -39,10 +39,10 @@ struct ContentItemView: View {
               .foregroundStyle(Color.accentColor)
               .frame(width: 12, height: 12)
           }
-          .opacity(!workflow.wrappedValue.isEnabled ? 1 : 0)
+          .opacity(!workflow.isEnabled ? 1 : 0)
         })
         .overlay(alignment: .topTrailing, content: {
-          Text("\(workflow.wrappedValue.badge)")
+          Text("\(workflow.badge)")
             .aspectRatio(1, contentMode: .fill)
             .padding(1)
             .lineLimit(1)
@@ -59,7 +59,7 @@ struct ContentItemView: View {
             .offset(x: 4, y: 0)
             .compositingGroup()
             .shadow(color: .black.opacity(0.75), radius: 2)
-            .opacity(isHovered ? 0 : workflow.wrappedValue.badgeOpacity)
+            .opacity(isHovered ? 0 : workflow.badgeOpacity)
             .animation(.default, value: isHovered)
         })
         .fixedSize()
@@ -70,12 +70,12 @@ struct ContentItemView: View {
         .compositingGroup()
         .zIndex(2)
 
-      Text(workflow.wrappedValue.name)
+      Text(workflow.name)
         .lineLimit(1)
         .allowsTightening(true)
 
       Spacer()
-      if let binding = workflow.wrappedValue.binding {
+      if let binding = workflow.binding {
         KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
           .font(.caption)
           .allowsTightening(true)
@@ -86,7 +86,7 @@ struct ContentItemView: View {
     .contentShape(Rectangle())
     .padding(4)
     .background(
-      FocusView(focusPublisher, element: workflow,
+      FocusView(focusPublisher, element: Binding.readonly(workflow),
                 isTargeted: $isTargeted,
                 selectionManager: contentSelectionManager,
                 cornerRadius: 4, style: .list)
@@ -94,7 +94,7 @@ struct ContentItemView: View {
     .draggable(getDraggable())
     .dropDestination(for: String.self) { items, location in
       guard let payload = items.draggablePayload(prefix: "W|"),
-            let (from, destination) = publisher.data.moveOffsets(for: workflow.wrappedValue, with: payload) else {
+            let (from, destination) = publisher.data.moveOffsets(for: workflow, with: payload) else {
         return false
       }
       withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {

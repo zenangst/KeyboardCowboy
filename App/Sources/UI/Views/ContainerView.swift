@@ -64,7 +64,7 @@ struct ContainerView: View {
         SidebarView(focus,
                     configSelectionManager: configSelectionManager,
                     groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0), undoManager) }
-          .frame(minWidth: 180, alignment: .leading)
+          .frame(minWidth: 180, maxWidth: .infinity, alignment: .leading)
           .labelStyle(SidebarLabelStyle())
       },
       content: {

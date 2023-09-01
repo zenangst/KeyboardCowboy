@@ -50,11 +50,9 @@ struct ContentListView: View {
     })
   }
 
-  private func search(_ workflow: Binding<ContentViewModel>) -> Bool {
+  private func search(_ workflow: ContentViewModel) -> Bool {
     guard !searchTerm.isEmpty else { return true }
-    if workflow.wrappedValue.name.lowercased().hasPrefix(searchTerm.lowercased()) {
-      return true
-    } else if workflow.wrappedValue.name.contains(searchTerm) {
+    if workflow.name.lowercased().contains(searchTerm.lowercased()) {
       return true
     }
     return false
@@ -75,11 +73,11 @@ struct ContentListView: View {
       ScrollViewReader { proxy in
         ScrollView {
           LazyVStack(spacing: 0) {
-            ForEach($publisher.data.filter(search)) { element in
+            ForEach(publisher.data.filter(search)) { element in
               ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
                               contentSelectionManager: contentSelectionManager, onAction: onAction)
               .onTapGesture {
-                contentSelectionManager.handleOnTap(publisher.data, element: element.wrappedValue)
+                contentSelectionManager.handleOnTap(publisher.data, element: element)
                 focusPublisher.publish(element.id)
               }
               .contextMenu(menuItems: {
@@ -108,7 +106,7 @@ struct ContentListView: View {
             .onMoveCommand(perform: { direction in
               if let elementID = contentSelectionManager.handle(
                 direction,
-                $publisher.data.filter(search).map(\.wrappedValue),
+                publisher.data.filter(search),
                 proxy: proxy,
                 vertical: true) {
                 focusPublisher.publish(elementID)
@@ -126,7 +124,7 @@ struct ContentListView: View {
           }
           .onChange(of: searchTerm, perform: { newValue in
             if !searchTerm.isEmpty {
-              if let firstSelection = $publisher.data.filter(search).first {
+              if let firstSelection = publisher.data.filter(search).first {
                 contentSelectionManager.publish([firstSelection.id])
               } else {
                 contentSelectionManager.publish([])
