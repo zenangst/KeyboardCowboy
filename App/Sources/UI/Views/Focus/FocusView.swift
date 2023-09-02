@@ -10,13 +10,14 @@ struct FocusView<Element>: View where Element: Hashable,
                                       Element: Identifiable,
                                       Element.ID: CustomStringConvertible {
 
-  @ObservedObject var focusPublisher: FocusPublisher<Element>
-  @ObservedObject var selectionManager: SelectionManager<Element>
-  @FocusState var isFocused: Bool
-  @Binding var element: Element
-  @Binding var isTargeted: Bool
-  let cornerRadius: Double
-  let style: FocusBackgroundViewStyle
+  @FocusState private var isFocused: Bool
+  @Binding private var element: Element
+  @Binding private var isTargeted: Bool
+
+  private let cornerRadius: Double
+  private let focusPublisher: FocusPublisher<Element>
+  private let selectionManager: SelectionManager<Element>
+  private let style: FocusBackgroundViewStyle
 
   init(_ focusPublisher: FocusPublisher<Element>, element: Binding<Element>,
        isTargeted: Binding<Bool>,
@@ -52,11 +53,20 @@ struct FocusView<Element>: View where Element: Hashable,
 }
 
 private struct FocusOverlayView<Element>: View where Element: Hashable, Element: Identifiable {
-  @Binding var isFocused: Bool
-  @Binding var isTargeted: Bool
-  let cornerRadius: Double
-  @ObservedObject var manager: SelectionManager<Element>
-  let style: FocusBackgroundViewStyle
+  @Binding private var isFocused: Bool
+  @Binding private var isTargeted: Bool
+  private let cornerRadius: Double
+  private let manager: SelectionManager<Element>
+  private let style: FocusBackgroundViewStyle
+
+  init(isFocused: Binding<Bool>, isTargeted: Binding<Bool>, cornerRadius: Double,
+       manager: SelectionManager<Element>, style: FocusBackgroundViewStyle) {
+    _isFocused = isFocused
+    _isTargeted = isTargeted
+    self.cornerRadius = cornerRadius
+    self.manager = manager
+    self.style = style
+  }
 
   var body: some View {
     Group {
@@ -84,12 +94,23 @@ private struct FocusOverlayView<Element>: View where Element: Hashable, Element:
 }
 
 private struct FocusBackgroundView<Element>: View where Element: Hashable, Element: Identifiable {
-  @Binding var isFocused: Bool
-  @Binding var isTargeted: Bool
-  @ObservedObject var manager: SelectionManager<Element>
-  let element: Element
-  let cornerRadius: Double
-  let style: FocusBackgroundViewStyle
+  @Binding private var isFocused: Bool
+  @Binding private var isTargeted: Bool
+  private let manager: SelectionManager<Element>
+  private let element: Element
+  private let cornerRadius: Double
+  private let style: FocusBackgroundViewStyle
+
+  init(isFocused: Binding<Bool>, isTargeted: Binding<Bool>,
+       manager: SelectionManager<Element>, element: Element,
+       cornerRadius: Double, style: FocusBackgroundViewStyle) {
+    _isFocused = isFocused
+    _isTargeted = isTargeted
+    self.manager = manager
+    self.element = element
+    self.cornerRadius = cornerRadius
+    self.style = style
+  }
 
   var body: some View {
     manager.selectedColor
@@ -98,6 +119,7 @@ private struct FocusBackgroundView<Element>: View where Element: Hashable, Eleme
       .id(element.id)
   }
 
+  @MainActor
   private func focusOpacity() -> Double {
     if isTargeted {
       return 0.5
