@@ -24,10 +24,10 @@ struct CommandView: View {
   @Environment(\.openWindow) var openWindow
   @Environment(\.controlActiveState) var controlActiveState
 
-  let workflowId: String
-  private var detailPublisher: DetailPublisher
-  private var selectionManager: SelectionManager<CommandViewModel>
-  private var focusPublisher: FocusPublisher<CommandViewModel>
+  private let workflowId: String
+  private let detailPublisher: DetailPublisher
+  private let selectionManager: SelectionManager<CommandViewModel>
+  private let focusPublisher: FocusPublisher<CommandViewModel>
   @State var isTargeted: Bool = false
   @Binding private var command: CommandViewModel
   private let onCommandAction: (SingleDetailView.Action) -> Void
