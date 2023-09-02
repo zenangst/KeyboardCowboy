@@ -79,7 +79,7 @@ class FocusableNSView<Element>: NSView where Element: Equatable,
     guard let id = dictionary["id"] as? Element.ID else { return }
     guard self.id == id else { return }
 
-    isFocused = true
+    isFocused <- true
     selectionManager.setLastSelection(id)
     window?.makeFirstResponder(self)
   }
