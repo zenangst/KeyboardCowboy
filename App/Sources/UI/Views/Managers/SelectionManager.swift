@@ -31,15 +31,15 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   }
 
   func setLastSelection(_ selection: T.ID) {
-    self.lastSelection = selection
+    self.lastSelection <- selection
     if self.selections.isEmpty {
-      self.selections = [selection]
+      self.selections <- [selection]
     }
   }
 
   @MainActor
   func publish(_ newSelections: Set<T.ID>) {
-    self.selections = newSelections
+    self.selections <- newSelections
     store(self.selections)
   }
 
