@@ -38,7 +38,7 @@ struct SidebarConfigurationView: View {
           .allowsTightening(true)
           .contentShape(Rectangle())
       }
-      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: true),
+      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: true),
                                    fixedSize: false))
 
       Menu(content: {
@@ -59,7 +59,7 @@ struct SidebarConfigurationView: View {
         Image(systemName: "ellipsis.circle")
           .resizable()
       })
-      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGreen, grayscaleEffect: true)))
+      .menuStyle(AppMenuStyle(.init(nsColor: .systemGreen, grayscaleEffect: true)))
       .popover(isPresented: $deleteConfigurationPopover,
                arrowEdge: .bottom,
                content: {

@@ -50,13 +50,13 @@ struct ShortcutCommandView: View {
             })
           }
         }
-        .menuStyle(GradientMenuStyle(.init(nsColor: .systemPurple, grayscaleEffect: true), fixedSize: false))
+        .menuStyle(AppMenuStyle(.init(nsColor: .systemPurple, grayscaleEffect: true), fixedSize: false))
         .padding(.bottom, 4)
       }
     }, subContent: { command in
       HStack {
         Button("Open Shortcuts", action: { onAction(.openShortcuts) })
-          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemPurple, grayscaleEffect: true)))
+          .buttonStyle(AppButtonStyle(.init(nsColor: .systemPurple, grayscaleEffect: true)))
           .font(.caption)
       }
     }, onAction: { onAction(.commandAction($0)) })

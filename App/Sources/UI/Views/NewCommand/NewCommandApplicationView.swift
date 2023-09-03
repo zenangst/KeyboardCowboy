@@ -49,7 +49,7 @@ struct NewCommandApplicationView: View {
         }, label: {
           Text(action.rawValue)
         })
-        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, padding: .init(horizontal: 8, vertical: 7)), fixedSize: false))
+        .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, padding: .init(horizontal: 8, vertical: 7)), fixedSize: false))
         .frame(maxWidth: 80)
 
         Menu(content: {
@@ -81,7 +81,7 @@ struct NewCommandApplicationView: View {
           .allowsHitTesting(false)
         })
       }
-      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, padding: .init(horizontal: 8, vertical: 8)), fixedSize: false))
+      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, padding: .init(horizontal: 8, vertical: 8)), fixedSize: false))
 
       Divider()
 
@@ -101,7 +101,7 @@ struct NewCommandApplicationView: View {
         validation = updateAndValidatePayload()
       }
     }
-    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
+    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
     .overlay(NewCommandValidationView($validation).padding(-8))
     .onAppear {
       validation = .unknown

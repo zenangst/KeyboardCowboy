@@ -27,7 +27,7 @@ struct GroupsEmptyListView: View {
         }
         .padding(4)
       })
-      .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+      .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
       .frame(maxHeight: 32)
       .matchedGeometryEffect(id: "add-group-button", in: namespace)
 

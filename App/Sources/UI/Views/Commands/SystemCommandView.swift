@@ -44,7 +44,7 @@ struct SystemCommandView: View {
           }
           .padding(4)
         })
-        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
+        .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
       }
     }, subContent: { _ in },
     onAction: { onAction(.commandAction($0)) })

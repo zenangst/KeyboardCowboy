@@ -83,7 +83,7 @@ struct NewCommandScriptView: View {
           }
         })
       }
-      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
+      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
       .padding(.vertical, 8)
 
       switch kind {
@@ -103,7 +103,7 @@ struct NewCommandScriptView: View {
         }
       }
     }
-    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
+    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       validation = updateAndValidatePayload()

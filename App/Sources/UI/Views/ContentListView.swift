@@ -73,7 +73,7 @@ struct ContentListView: View {
       ScrollViewReader { proxy in
         ScrollView {
           LazyVStack(spacing: 0) {
-            ForEach(publisher.data.filter(search)) { element in
+            ForEach(publisher.data.filter(search), id: \.id) { element in
               ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
                               contentSelectionManager: contentSelectionManager, onAction: onAction)
               .onTapGesture {

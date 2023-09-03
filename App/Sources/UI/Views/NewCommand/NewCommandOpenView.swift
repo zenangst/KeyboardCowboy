@@ -78,7 +78,7 @@ struct NewCommandOpenView: View {
         })
       }
     }
-    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
+    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
     .onAppear {
       validation = .valid
       updatePayload()

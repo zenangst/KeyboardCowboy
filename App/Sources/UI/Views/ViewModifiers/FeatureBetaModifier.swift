@@ -52,7 +52,7 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                     Button("GitHub issue: #\(issueNumber)") {
                       NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/\(issueNumber)")!)
                     }
-                    .buttonStyle(AppButtonStyle())
+                    .buttonStyle(.appStyle)
                   }
                 }
               }
