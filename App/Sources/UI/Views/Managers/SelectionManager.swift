@@ -91,20 +91,25 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
       let currentElementID = data[currentIndex].id
       let nextElementID = data[nextIndex].id
 
+      var newSelections = selections
+
       if NSEvent.modifierFlags.contains(.shift) {
-        if selections.contains(nextElementID) {
-          selections.remove(currentElementID)
+        if newSelections.contains(nextElementID) {
+          newSelections.remove(currentElementID)
         } else {
-          selections.insert(currentElementID)
+          newSelections.insert(currentElementID)
         }
-        selections.insert(nextElementID)
+        newSelections.insert(nextElementID)
       } else {
-        selections = [nextElementID]
+        newSelections = [nextElementID]
       }
 
+      selections = newSelections
       lastSelection = nextElementID
 
-      proxy?.scrollTo(nextElementID)
+      defer {
+        proxy?.scrollTo(nextElementID)
+      }
 
       return nextElementID
     }
