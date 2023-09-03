@@ -5,7 +5,12 @@ struct FocusableProxy<Element>: NSViewRepresentable where Element: Equatable,
                                                           Element: Identifiable,
                                                           Element.ID: CustomStringConvertible {
   static func post(_ id: Element.ID) {
-      NotificationCenter.default.post(Notification(name: FocusableNSView<Element>.becomeFirstResponderNotification, userInfo: ["id": id]))
+    NotificationCenter.default.post(
+      Notification(
+        name: FocusableNSView<Element>.becomeFirstResponderNotification,
+        userInfo: ["id": id]
+      )
+    )
   }
 
   @Binding var isFocused: Bool

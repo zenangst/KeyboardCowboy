@@ -36,9 +36,11 @@ struct FocusView<Element>: View where Element: Hashable,
                    isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
                    selectionManager: selectionManager)
       .overlay(
-        FocusOverlayView(isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }), isTargeted: $isTargeted,
+        FocusOverlayView(isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }), 
+                         isTargeted: $isTargeted,
                          cornerRadius: cornerRadius,
                          manager: selectionManager, style: style)
+        .drawingGroup()
       )
       .background(
         FocusBackgroundView(isFocused: Binding<Bool>(get: { isFocused }, set: { isFocused = $0 }),
@@ -46,7 +48,9 @@ struct FocusView<Element>: View where Element: Hashable,
                             manager: selectionManager,
                             element: element,
                             cornerRadius: cornerRadius,
-                            style: style))
+                            style: style)
+        .drawingGroup()
+      )
       .compositingGroup()
       .focused($isFocused)
   }

@@ -54,7 +54,7 @@ struct GroupsListView: View {
           GroupsEmptyListView(namespace, onAction: onAction)
         } else {
           LazyVStack(spacing: 0) {
-            ForEach($publisher.data) { element in
+            ForEach($publisher.data, id: \.id) { element in
               let group = element.wrappedValue
               GroupItemView(element,
                             focusPublisher: focusPublisher,

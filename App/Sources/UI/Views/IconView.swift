@@ -38,6 +38,7 @@ fileprivate final class ImageLoader: ObservableObject {
 
   @MainActor
   @Published var phase = AsyncImagePhase.empty
+
   private var task: Task<(), Error>? {
     willSet {
       self.task?.cancel()
@@ -50,6 +51,7 @@ fileprivate final class ImageLoader: ObservableObject {
     self.subscription = passthrough
       .sink { [weak self] size in
         guard let self else { return }
+        self.task?.cancel()
         self.internalLoad(size)
       }
   }
@@ -59,7 +61,6 @@ fileprivate final class ImageLoader: ObservableObject {
   }
 
   func load(with size: CGSize) async {
-    task?.cancel()
     passthrough.send(size)
   }
 
