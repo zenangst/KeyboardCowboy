@@ -173,7 +173,7 @@ struct NewCommandMenuBarView: View {
       } label: {
         Text(kind.rawValue)
       }
-      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray)))
+      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray)))
 
       Button(action: onSubmit, label: { Text("Add") })
       .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen)))

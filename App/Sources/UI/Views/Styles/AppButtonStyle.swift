@@ -4,7 +4,7 @@ enum AppButtonStyleEnum {
   case appStyle
   case saveStyle
   case destructiveStyle
-  case gradientStyle(config: GradientConfiguration)
+  case gradientStyle(config: AppButtonConfiguration)
 }
 
 extension View {
@@ -12,57 +12,103 @@ extension View {
   func buttonStyle(_ style: AppButtonStyleEnum) -> some View {
     switch style {
     case .appStyle:
-      self.buttonStyle(AppButtonStyle())
+      self.buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
     case .saveStyle:
-      self.buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen)))
+      self.buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen)))
     case .destructiveStyle:
-      self.buttonStyle(GradientButtonStyle(.init(nsColor: .systemRed)))
+      self.buttonStyle(AppButtonStyle(.init(nsColor: .systemRed)))
     case .gradientStyle(let config):
-      self.buttonStyle(GradientButtonStyle(config))
+      self.buttonStyle(AppButtonStyle(config))
     }
+  }
+}
+
+struct AppButtonConfiguration {
+  let cornerRadius: CGFloat
+  let nsColor: NSColor
+  let padding: Padding
+  let grayscaleEffect: Bool
+  let hoverEffect: Bool
+
+  struct Padding {
+    let horizontal: CGFloat
+    let vertical: CGFloat?
+  }
+
+  internal init(nsColor: NSColor, cornerRadius: CGFloat = 4,
+                padding: Padding = .init(horizontal: 4, vertical: 4),
+                grayscaleEffect: Bool = false,
+                hoverEffect: Bool = true) {
+    self.nsColor = nsColor
+    self.cornerRadius = cornerRadius
+    self.padding = padding
+    self.grayscaleEffect = grayscaleEffect
+    self.hoverEffect = hoverEffect
   }
 }
 
 struct AppButtonStyle: ButtonStyle {
-  @State private var isHovered = false
+
+  @ObserveInjection var inject
+  @State private var isHovered: Bool
   @Environment(\.colorScheme) var colorScheme
+
+  private let config: AppButtonConfiguration
+
+  init(_ config: AppButtonConfiguration) {
+    self.config = config
+    _isHovered = .init(initialValue: config.hoverEffect ? false : true)
+  }
 
   func makeBody(configuration: Configuration) -> some View {
     configuration.label
-      .padding(4)
-      .background(
-        RoundedRectangle(cornerRadius: 4)
-          .stroke(Color(.controlColor))
-          .opacity( isHovered ? 0.8 : 0.25)
-      )
-      .foregroundColor(
-        Color(.labelColor)
-      )
-      .font(.system(.body, design: .rounded, weight: .semibold))
-      .opacity(configuration.isPressed ? 0.6 : isHovered ? 1.0 : 0.8)
-      .offset(y: configuration.isPressed ? 0.25 : 0.0)
-      .compositingGroup()
-      .drawingGroup()
-      .shadow(radius: configuration.isPressed ? 0 : isHovered ? 1 : 2)
-      .onHover(perform: { value in
-        self.isHovered <- value
-      })
-      .animation(.linear(duration: 0.1), value: isHovered)
-    }
-
-  static func modifiers<Content: View>(_ content: Content) -> some View {
-    content
-      .padding(6)
+      .padding(.vertical, config.padding.vertical)
+      .padding(.horizontal, config.padding.horizontal * 1.5)
+      .foregroundColor(Color(.textColor))
       .background(
         ZStack {
-          RoundedRectangle(cornerRadius: 4)
-            .stroke(Color(.controlColor))
+          RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
+            .fill(
+              LinearGradient(stops: [
+                .init(color: Color(config.nsColor), location: 0.0),
+                .init(color: Color(config.nsColor.blended(withFraction: 0.3, of: .black)!), location: 0.025),
+                .init(color: Color(config.nsColor.blended(withFraction: 0.5, of: .black)!), location: 1.0),
+              ], startPoint: .top, endPoint: .bottom)
+            )
+            .opacity(isHovered ? 1.0 : 0.3)
+          RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
+            .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+            .offset(y: 0.25)
         }
       )
-      .foregroundColor(
-        Color(.labelColor)
-      )
-      .buttonStyle(BorderlessButtonStyle())
+      .grayscale(config.grayscaleEffect ? isHovered ? 0 : 1 : 0)
+      .compositingGroup()
+      .shadow(color: Color.black.opacity(isHovered ? 0.5 : 0),
+              radius: configuration.isPressed ? 0 : isHovered ? 1 : 1.25,
+              y: configuration.isPressed ? 0 : isHovered ? 2 : 3)
+      .opacity(configuration.isPressed ? 0.7 : isHovered ? 1.0 : 0.8)
+      .offset(y: configuration.isPressed ? 0.25 : 0.0)
+      .rotation3DEffect(.degrees(configuration.isPressed ? 2 : 0), axis: (x: 1.0, y: 0, z: 0))
+      .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
+      .animation(.easeOut(duration: 0.2), value: isHovered)
+      .onHover(perform: { value in
+        guard config.hoverEffect else { return }
+        self.isHovered = value
+      })
+    }
+}
+
+struct GradientButtonStyle_Previews: PreviewProvider {
+  static var previews: some View {
+    VStack {
+      Button("Hello, world", action: {})
+      Button("Hello, world", action: {})
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+      Button("Hello, world", action: {})
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemBlue, hoverEffect: false)))
+    }
+    .padding()
   }
 }
+
 

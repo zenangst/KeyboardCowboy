@@ -83,7 +83,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
                     .frame(width: 6, height: 6)
                 }
               }
-              .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGray)))
+              .buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
               .popover(isPresented: $delayOverlay, content: {
                 HStack {
                   TextField("Delay", text: $delayString) { isEditing in

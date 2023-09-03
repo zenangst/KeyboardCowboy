@@ -137,7 +137,7 @@ struct WindowManagementCommandView: View {
         }, label: {
           Text(model.kind.displayValue)
         })
-        .menuStyle(GradientMenuStyle(.init(nsColor: .gray), fixedSize: false))
+        .menuStyle(AppMenuStyle(.init(nsColor: .gray), fixedSize: false))
         
         switch model.kind {
         case  .increaseSize(_, let direction, _),

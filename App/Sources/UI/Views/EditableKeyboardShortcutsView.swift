@@ -175,7 +175,7 @@ struct EditableKeyboardShortcutsView: View {
             .padding(.trailing, 4)
         }
       })
-      .buttonStyle(GradientButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
+      .buttonStyle(AppButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
       .padding(6)
     }
   }

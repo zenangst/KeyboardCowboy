@@ -28,7 +28,7 @@ struct RuleListView: View {
             }
           }
         }
-        .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
+        .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
       }
       if let rule = group.rule {
         ForEach(rule.bundleIdentifiers, id: \.self) { bundleIdentifier in

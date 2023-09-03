@@ -104,7 +104,7 @@ struct NewCommandURLView: View {
           }
         })
       }
-      .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
+      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
       .zIndex(1)
     }
     .textFieldStyle(LargeTextFieldStyle())

@@ -27,7 +27,7 @@ struct NewCommandWindowManagementView: View {
       } label: {
         Text(selection.displayValue)
       }
-      .menuStyle(GradientMenuStyle(.init(nsColor: .gray), fixedSize: false))
+      .menuStyle(AppMenuStyle(.init(nsColor: .gray), fixedSize: false))
     }
     .onChange(of: validation) { newValue in
       guard newValue == .needsValidation else { return }

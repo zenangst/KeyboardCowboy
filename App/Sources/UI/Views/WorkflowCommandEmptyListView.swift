@@ -32,7 +32,7 @@ struct WorkflowCommandEmptyListView: View {
           .padding(.vertical, 4)
           .padding(.horizontal, 8)
         }
-        .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
         .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
       }
     }

@@ -87,7 +87,7 @@ struct DebugView<Content>: View where Content: View {
       .padding()
     }
     .buttonStyle(
-      GradientButtonStyle(.init(nsColor: .systemIndigo))
+      AppButtonStyle(.init(nsColor: .systemIndigo))
     )
     .background(
       LinearGradient(colors: [

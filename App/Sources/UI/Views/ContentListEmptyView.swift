@@ -39,7 +39,7 @@ struct ContentListEmptyView: View {
             }
             .padding(4)
           })
-          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+          .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
           .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
 
           Text("No workflows yet,\nadd a workflow to get started.")

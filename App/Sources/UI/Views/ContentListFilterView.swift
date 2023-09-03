@@ -40,7 +40,7 @@ struct ContentListFilterView: View {
         if !searchTerm.isEmpty {
           Button(action: { searchTerm = "" },
                  label: { Text("Clear") })
-          .buttonStyle(GradientButtonStyle(.init(nsColor: .systemGray)))
+          .buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
           .font(.caption2)
         }
       }

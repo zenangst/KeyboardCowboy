@@ -29,7 +29,7 @@ struct WorkflowTriggerView: View {
           .padding(8)
           .frame(maxWidth: .infinity)
         })
-        .buttonStyle(GradientButtonStyle(.init(nsColor: .systemBlue)))
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemBlue)))
 
         Spacer()
 
@@ -45,7 +45,7 @@ struct WorkflowTriggerView: View {
           .padding(8)
           .frame(maxWidth: .infinity)
         })
-        .buttonStyle(GradientButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
+        .buttonStyle(AppButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
       }
       .frame(maxWidth: .infinity)
       .padding(8)

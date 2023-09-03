@@ -31,7 +31,7 @@ struct NewCommandSystemCommandView: View {
       }
       .background(NewCommandValidationView($validation))
     }
-    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray),
+    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray),
                                  fixedSize: false))
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }

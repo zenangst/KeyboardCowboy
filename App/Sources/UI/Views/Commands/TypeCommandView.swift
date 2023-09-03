@@ -63,7 +63,7 @@ fileprivate struct TypeCommandModeView: View {
       Text(mode.rawValue)
         .font(.caption)
     })
-    .menuStyle(GradientMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
+    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
   }
 }
 

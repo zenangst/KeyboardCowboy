@@ -48,7 +48,7 @@ struct WorkflowApplicationTriggerView: View {
          Text("Add application")
         }
         .menuStyle(
-          GradientMenuStyle(
+          AppMenuStyle(
             .init(
               nsColor: .systemGray,
               padding: .init(
