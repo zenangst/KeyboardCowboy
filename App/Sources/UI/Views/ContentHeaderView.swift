@@ -19,13 +19,11 @@ struct ContentHeaderView: View {
   var body: some View {
       if let groupId = groupSelectionManager.selections.first,
          let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
-        HStack {
-          Label("Group", image: "")
-            .labelStyle(SidebarLabelStyle())
-            .padding(.leading, 8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 6)
-        }
+        Label("Group", image: "")
+          .labelStyle(SidebarLabelStyle())
+          .padding(.leading, 8)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .padding(.top, 6)
         HStack(spacing: 8) {
           GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
             .frame(width: 24, height: 24)

@@ -15,26 +15,25 @@ struct WorkflowCommandEmptyListView: View {
 
   var body: some View {
     VStack {
-      if detailPublisher.data.commands.isEmpty {
-        Button(action: {
-          openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
-        }) {
-          HStack {
-            Image(systemName: "plus.app")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 16, height: 16)
-            Divider()
-              .opacity(0.5)
+      Button(action: {
+        openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
+      }) {
+        HStack {
+          Image(systemName: "plus.app")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 16, height: 16)
+          Divider()
+            .opacity(0.5)
 
-            Text("Add a command")
-          }
-          .padding(.vertical, 4)
-          .padding(.horizontal, 8)
+          Text("Add a command")
+          Text("bla bla bla")
         }
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
-        .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
       }
+      .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+      .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
     }
     .dropDestination(for: DropItem.self) { items, location in
       var urls = [URL]()

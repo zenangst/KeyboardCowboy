@@ -129,7 +129,6 @@ struct CommandContainerActionView: View {
         .frame(maxWidth: 20, maxHeight: .infinity)
         .padding(.vertical, 10)
       }
-      .buttonStyle(.plain)
       .frame(width: 32)
       .offset(x: -1, y: 1)
     }

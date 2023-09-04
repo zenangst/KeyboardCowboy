@@ -35,35 +35,42 @@ struct WorkflowCommandListView: View {
 
   @ViewBuilder
   var body: some View {
-    ScrollView {
-      if detailPublisher.data.commands.isEmpty {
-        WorkflowCommandEmptyListView(namespace: namespace,
-                                     detailPublisher: detailPublisher, onAction: onAction)
-        .matchedGeometryEffect(id: "command-list", in: namespace)
-      } else {
+    if detailPublisher.data.commands.isEmpty {
+      WorkflowCommandEmptyListView(namespace: namespace,
+                                   detailPublisher: detailPublisher, onAction: onAction)
+      .matchedGeometryEffect(id: "command-list", in: namespace)
+    } else {
+      ScrollView {
         LazyVStack(spacing: 0) {
-          ForEach($detailPublisher.data.commands) { element in
+          ForEach($detailPublisher.data.commands, id: \.id) { element in
             let command = element
             CommandView(command,
                         detailPublisher: detailPublisher,
                         focusPublisher: focusPublisher,
                         selectionManager: selectionManager,
                         workflowId: detailPublisher.data.id,
-                        onCommandAction: onAction) { action in
+                        onCommandAction: onAction, onAction: { action in
               onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
+            })
+            .contextMenu(menuItems: {
+              WorkflowCommandListContextMenuView(
+                command.wrappedValue,
+                detailPublisher: detailPublisher,
+                selectionManager: selectionManager,
+                onAction: onAction
+              )
+            })
+            .onTapGesture {
+              selectionManager.handleOnTap(detailPublisher.data.commands, element: element.wrappedValue)
+              focusPublisher.publish(element.id)
             }
-                        .contextMenu(menuItems: { contextMenu(command) })
-                        .onTapGesture {
-                          selectionManager.handleOnTap(detailPublisher.data.commands, element: element.wrappedValue)
-                          focusPublisher.publish(element.id)
-                        }
           }
           .focused($isFocused)
           .onChange(of: isFocused, perform: { newValue in
             guard newValue else { return }
-            
+
             guard let lastSelection = selectionManager.lastSelection else { return }
-            
+
             withAnimation {
               scrollViewProxy?.scrollTo(lastSelection)
             }
@@ -107,28 +114,6 @@ struct WorkflowCommandListView: View {
         .matchedGeometryEffect(id: "command-list", in: namespace)
       }
     }
-  }
-
-  @ViewBuilder
-  private func contextMenu(_ command: Binding<CommandViewModel>) -> some View {
-    let workflowId = detailPublisher.data.id
-    let commandIds = !selectionManager.selections.isEmpty
-    ? selectionManager.selections
-    : Set(arrayLiteral: command.id)
-    Button("Run", action: {
-      onAction(.commandView(workflowId: workflowId, action: .run(workflowId: workflowId, commandId: command.id)))
-    })
-    Divider()
-    Button("Duplicate", action: {
-      onAction(.duplicate(workflowId: workflowId, commandIds: commandIds))
-    })
-    Button("Remove", action: {
-      if !selectionManager.selections.isEmpty {
-        onAction(.removeCommands(workflowId: workflowId, commandIds: commandIds))
-      } else {
-        onAction(.commandView(workflowId: workflowId, action: .remove(workflowId: workflowId, commandId: command.id)))
-      }
-    })
   }
 }
 

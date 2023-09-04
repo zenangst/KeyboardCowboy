@@ -30,37 +30,14 @@ struct ContentItemView: View {
             .frame(maxWidth: 32)
         )
         .overlay(alignment: .bottomTrailing, content: {
-          ZStack {
-            Circle()
-              .fill(Color.white)
-              .frame(width: 14, height: 14)
-            Image(systemName: "pause.circle.fill")
-              .resizable()
-              .foregroundStyle(Color.accentColor)
-              .frame(width: 12, height: 12)
-          }
-          .opacity(!workflow.isEnabled ? 1 : 0)
+          ContentItemIsDisabledOverlayView(isEnabled: workflow.isEnabled)
         })
-        .overlay(alignment: .topTrailing, content: {
-          Text("\(workflow.badge)")
-            .aspectRatio(1, contentMode: .fill)
-            .padding(1)
-            .lineLimit(1)
-            .minimumScaleFactor(0.5)
-            .allowsTightening(true)
-            .bold()
-            .font(.caption2)
-            .padding(2)
-            .background(
-              Circle()
-                .fill(Color.accentColor)
-            )
-            .frame(maxWidth: 12)
-            .offset(x: 4, y: 0)
-            .compositingGroup()
-            .shadow(color: .black.opacity(0.75), radius: 2)
-            .opacity(isHovered ? 0 : workflow.badgeOpacity)
-            .animation(.default, value: isHovered)
+        .overlay(alignment: .topTrailing,
+                 content: {
+          ContentItemBadgeOverlayView(isHovered: $isHovered,
+                                      text: "\(workflow.badge)",
+                                      badgeOpacity: workflow.badgeOpacity)
+          .offset(x: 4, y: 0)
         })
         .fixedSize()
         .frame(width: 32, height: 32)
