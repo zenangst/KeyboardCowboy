@@ -63,45 +63,11 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
               onAction(.toggleNotify($0))
             }
 
-            if detailPublisher.data.execution == .serial {
-              Button {
-                delayOverlay = true
-              } label: {
-                HStack {
-                  if let delay = metaData.delay {
-                    Text("\(Int(delay)) milliseconds")
-                      .font(.caption)
-                  } else {
-                    Text("No delay")
-                      .font(.caption)
-                  }
-                  Divider()
-                    .frame(height: 6)
-                  Image(systemName: "chevron.down")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 6, height: 6)
-                }
-              }
-              .buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
-              .popover(isPresented: $delayOverlay, content: {
-                HStack {
-                  TextField("Delay", text: $delayString) { isEditing in
-                    if !isEditing {
-                      if let value = Double(self.delayString) {
-                        if value > 0 {
-                          metaData.delay = value
-                        } else {
-                          metaData.delay = nil
-                        }
-                        onAction(.changeDelay(value))
-                      }
-                    }
-                  }
-                }
-                .padding(16)
-              })
-            }
+            CommandContainerDelayView(
+              metaData: $metaData,
+              execution: detailPublisher.data.execution,
+              onChange: { onAction(.changeDelay($0)) }
+            )
 
             subContent($metaData)
           }
