@@ -17,52 +17,41 @@ struct ContentHeaderView: View {
   }
 
   var body: some View {
-      if let groupId = groupSelectionManager.selections.first,
-         let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
-        Label("Group", image: "")
-          .labelStyle(SidebarLabelStyle())
-          .padding(.leading, 8)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .padding(.top, 6)
-        HStack(spacing: 8) {
-          GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
-            .frame(width: 24, height: 24)
-            .padding(4)
-            .background(
-              RoundedRectangle(cornerRadius: 8)
-                .fill(Color(nsColor: .init(hex: group.color)).opacity(0.4))
-            )
-          VStack(alignment: .leading) {
-            Text(group.name)
-              .font(.headline)
-            Text("Workflows: \(contentPublisher.data.count)")
-              .font(.caption)
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
-
-          if !contentPublisher.data.isEmpty {
-            Button(action: {
-              onAction(.addWorkflow(workflowId: UUID().uuidString))
-            }) {
-              Image(systemName: "plus.square.dashed")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 12)
-                .padding(2)
-            }
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-            .padding(.trailing, 8)
-            .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
-          }
-        }
-        .padding(.bottom, 4)
-        .padding(.leading, 14)
-        .id(group)
-      }
-
-      Label("Workflows", image: "")
-        .labelStyle(SidebarLabelStyle())
+    if let groupId = groupSelectionManager.selections.first,
+       let group = groupsPublisher.data.first(where: { $0.id == groupId }) {
+      Text("Group")
+        .sidebarLabel()
         .padding(.leading, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 6)
+      HStack(spacing: 8) {
+        GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
+          .frame(width: 24, height: 24)
+          .padding(4)
+          .background(
+            RoundedRectangle(cornerRadius: 8)
+              .fill(Color(nsColor: .init(hex: group.color)).opacity(0.4))
+          )
+        VStack(alignment: .leading) {
+          Text(group.name)
+            .font(.headline)
+          Text("Workflows: \(contentPublisher.data.count)")
+            .font(.caption)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+
+        ContentAddWorkflowHeaderView(namespace, onAction: {
+          onAction(.addWorkflow(workflowId: UUID().uuidString))
+        })
+      }
+      .padding(.bottom, 4)
+      .padding(.leading, 14)
+      .id(group)
+    }
+
+    Text("Workflows")
+      .sidebarLabel()
+      .padding(.leading, 8)
+      .frame(maxWidth: .infinity, alignment: .leading)
   }
 }

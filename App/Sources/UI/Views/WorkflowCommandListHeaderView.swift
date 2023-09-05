@@ -3,7 +3,7 @@ import SwiftUI
 struct WorkflowCommandListHeaderView: View {
   @EnvironmentObject var detailPublisher: DetailPublisher
   @Environment(\.openWindow) var openWindow
-  let namespace: Namespace.ID
+  private let namespace: Namespace.ID
 
   init(namespace: Namespace.ID, onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.namespace = namespace
@@ -39,29 +39,15 @@ struct WorkflowCommandListHeaderView: View {
           .padding(.horizontal, 18)
           .padding(.vertical, 4)
           .offset(x: -4, y: 1)
+          .drawingGroup()
       })
       .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), menuIndicator: .visible))
       .frame(maxWidth: detailPublisher.data.execution == .concurrent ? 144 : 110,
              alignment: .leading)
       .opacity(detailPublisher.data.commands.isEmpty ? 0 : 1)
 
-      if !detailPublisher.data.commands.isEmpty {
-        Button(action: {
-          openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
-        }) {
-          HStack(spacing: 4) {
-            Image(systemName: "plus.app")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(maxWidth: 12, maxHeight: 12)
-              .padding(2)
-              .layoutPriority(-1)
-          }
-        }
-        .padding(.horizontal, 4)
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
-        .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
-      }
+      WorkflowCommandListHeaderAddView(namespace)
+
     }
     .padding(.horizontal)
   }

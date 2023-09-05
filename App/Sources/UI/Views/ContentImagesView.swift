@@ -27,11 +27,11 @@ struct ContentImagesView: View {
     } else {
       ZStack {
         if images.count == 1 {
-          ForEach(images) { image in
+          ForEach(images.lazy) { image in
             ContentImageView(image: image, size: size - 2)
           }
-        } else {
-          ForEach(images) { image in
+        } else if images.count > 1 {
+          ForEach(images.lazy) { image in
             ContentImageView(image: image, size: size - 2)
               .rotationEffect(.degrees(-(isHovered ? -20 * image.offset : 3.75 * image.offset)))
               .offset(.init(width: -(image.offset * (isHovered ? -8 : 1.25)),

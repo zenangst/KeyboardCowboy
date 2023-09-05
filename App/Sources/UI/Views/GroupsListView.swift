@@ -22,11 +22,9 @@ struct GroupsListView: View {
   private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
   private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (GroupsView.Action) -> Void
-
-  @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
+  private let selectionManager: SelectionManager<GroupViewModel>
 
   @EnvironmentObject private var publisher: GroupsPublisher
-  @EnvironmentObject private var contentPublisher: ContentPublisher
 
   @State private var confirmDelete: Confirm?
 
@@ -38,7 +36,7 @@ struct GroupsListView: View {
     self.focus = focus
     self.namespace = namespace
     self.focusPublisher = focusPublisher
-    _selectionManager = .init(initialValue: selectionManager)
+    self.selectionManager = selectionManager
     self.onAction = onAction
     self.debounceSelectionManager = .init(.init(groups: selectionManager.selections),
                                           milliseconds: 100,
@@ -54,9 +52,9 @@ struct GroupsListView: View {
           GroupsEmptyListView(namespace, onAction: onAction)
         } else {
           LazyVStack(spacing: 0) {
-            ForEach($publisher.data, id: \.id) { element in
-              let group = element.wrappedValue
-              GroupItemView(element,
+            ForEach(publisher.data.lazy, id: \.id) { group in
+              GroupItemView(group,
+                            proxy: proxy,
                             focusPublisher: focusPublisher,
                             selectionManager: selectionManager,
                             onAction: onAction)
@@ -66,12 +64,10 @@ struct GroupsListView: View {
                   contextualMenu(for: group, onAction: onAction)
                 })
                 .onTapGesture {
-                  selectionManager.handleOnTap(publisher.data, element: element.wrappedValue)
-                  focusPublisher.publish(element.id)
+                  selectionManager.handleOnTap(publisher.data, element: group)
+                  focusPublisher.publish(group.id)
                 }
-                .tag(group)
             }
-            .focused($isFocused)
             .onChange(of: isFocused, perform: { newValue in
               guard newValue else { return }
 
@@ -81,6 +77,7 @@ struct GroupsListView: View {
                 proxy.scrollTo(lastSelection)
               }
             })
+            .focused($isFocused)
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .workflows
             })

@@ -80,8 +80,8 @@ private struct FocusOverlayView<Element>: View where Element: Hashable, Element:
         .strokeBorder(manager.selectedColor.opacity(0.5), lineWidth: 1.5)
         .padding(1.5)
     }
-      .allowsHitTesting(false)
-      .opacity(focusOpacity())
+    .allowsHitTesting(false)
+    .opacity(focusOpacity())
   }
 
   private func focusOpacity() -> Double {

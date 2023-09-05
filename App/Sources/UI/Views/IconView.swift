@@ -21,6 +21,7 @@ struct IconView: View {
           .fixedSize()
       }
     })
+    .drawingGroup()
   }
 }
 
@@ -33,9 +34,6 @@ struct IconView_Previews: PreviewProvider {
 }
 
 fileprivate final class ImageLoader: ObservableObject {
-  private var passthrough = PassthroughSubject<CGSize, Never>()
-  private var subscription: AnyCancellable?
-
   @MainActor
   @Published var phase = AsyncImagePhase.empty
 
@@ -48,38 +46,34 @@ fileprivate final class ImageLoader: ObservableObject {
 
   init(at path: String) {
     self.path = path
-    self.subscription = passthrough
-      .sink { [weak self] size in
-        guard let self else { return }
-        self.task?.cancel()
-        self.internalLoad(size)
-      }
   }
 
   deinit {
     task?.cancel()
   }
 
+  @MainActor
   func load(with size: CGSize) async {
-    passthrough.send(size)
+    if let data = await IconCache.shared.iconFromCache(at: path, bundleIdentifier: path, size: size),
+       let nsImage = NSImage(data: data) {
+      nsImage.size = size
+      phase = .success(Image(nsImage: nsImage))
+    } else {
+      await internalLoad(size)
+    }
   }
 
-  private func internalLoad(_ size: CGSize) {
+  private func internalLoad(_ size: CGSize) async {
     self.task?.cancel()
     let path = path
-    let task = Task {
-      guard let data = await IconCache.shared.icon(at: path, bundleIdentifier: path, size: size),
-            let nsImage = NSImage(data: data)
-      else { return }
+    guard let data = await IconCache.shared.icon(at: path, bundleIdentifier: path, size: size),
+          let nsImage = NSImage(data: data)
+    else { return }
 
-      let image = Image(nsImage: nsImage)
-      try Task.checkCancellation()
-      try await MainActor.run {
-        try Task.checkCancellation()
-        phase = .success(image)
-      }
+    let image = Image(nsImage: nsImage)
+    await MainActor.run {
+      phase = .success(image)
     }
-    self.task = task
   }
 }
 
