@@ -228,7 +228,7 @@ struct WindowManagementCommandView: View {
             }
 
           }
-        case .fullscreen(var padding):
+        case .fullscreen:
           HStack {
             Text("Padding:")
               .font(.caption)

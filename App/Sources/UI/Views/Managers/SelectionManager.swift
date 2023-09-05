@@ -39,7 +39,9 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
 
   @MainActor
   func publish(_ newSelections: Set<T.ID>) {
-    self.selections <- newSelections
+    if self.selections != newSelections {
+      self.selections = newSelections
+    }
     store(self.selections)
   }
 
@@ -69,14 +71,18 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
 
   func handleOnTap(_ data: [T], element: T) {
     let copyOfSelections = selections
+    var newSelections: Set<T.ID> = []
     if NSEvent.modifierFlags.contains(.shift) {
-      selections = onShiftTap(data, elementID: element.id, selections: copyOfSelections)
+      newSelections = onShiftTap(data, elementID: element.id, selections: copyOfSelections)
     } else if NSEvent.modifierFlags.contains(.command) {
-      selections = onCommandTap(element, selections: copyOfSelections)
+      newSelections = onCommandTap(element, selections: copyOfSelections)
     } else {
-      selections = onTap(element)
+      newSelections = onTap(element)
     }
-    store(selections)
+    store(newSelections)
+    if newSelections != selections {
+      selections = newSelections
+    }
   }
 
   // MARK: Private methods
@@ -118,7 +124,9 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   }
 
   private func onTap(_ element: T) -> Set<T.ID> {
-    lastSelection = element.id
+    if lastSelection != element.id {
+      lastSelection = element.id
+    }
     return [element.id]
   }
 
@@ -129,7 +137,9 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
     } else {
       newSelections.insert(element.id)
     }
-    lastSelection = element.id
+    if lastSelection != element.id {
+      lastSelection = element.id
+    }
     return newSelections
   }
 
@@ -165,7 +175,9 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
       }
     }
 
-    self.lastSelection = elementID
+    if lastSelection != elementID {
+      self.lastSelection = elementID
+    }
 
     return newSelections
   }

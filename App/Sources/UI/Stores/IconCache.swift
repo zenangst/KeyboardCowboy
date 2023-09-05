@@ -14,6 +14,17 @@ actor IconCache {
 
   private init() {}
 
+  public func iconFromCache(at path: String, bundleIdentifier: String, size: CGSize) -> Data? {
+    let identifier: String = "\(bundleIdentifier)_\(size.suffix).tiff"
+      .replacingOccurrences(of: "/", with: "_")
+      .replacingOccurrences(of: " ", with: "-")
+
+    if let inMemoryImage = cache.object(forKey: identifier as NSString) {
+      return inMemoryImage as Data
+    }
+    return nil
+  }
+
   public func icon(at path: String, bundleIdentifier: String, size: CGSize) -> Data? {
     let identifier: String = "\(bundleIdentifier)_\(size.suffix).tiff"
       .replacingOccurrences(of: "/", with: "_")

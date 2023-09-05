@@ -68,7 +68,10 @@ struct SingleDetailView: View {
         }
         .padding([.top, .leading, .trailing])
         .padding(.bottom, 32)
-        .background(alignment: .bottom, content: { SingleDetailBackgroundView() })
+        .background(alignment: .bottom, content: { 
+          SingleDetailBackgroundView()
+            .drawingGroup()
+        })
 
       WorkflowCommandListHeaderView(namespace: namespace, onAction: onAction)
       WorkflowCommandListView(

@@ -26,8 +26,8 @@ struct ContentListView: View {
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
 
-  @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
-  @ObservedObject private var groupSelectionManager: SelectionManager<GroupViewModel>
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
+  private let groupSelectionManager: SelectionManager<GroupViewModel>
 
   @State var searchTerm: String = ""
 
@@ -38,8 +38,8 @@ struct ContentListView: View {
        groupSelectionManager: SelectionManager<GroupViewModel>,
        focusPublisher: FocusPublisher<ContentViewModel>,
        onAction: @escaping (Action) -> Void) {
-    _contentSelectionManager = .init(initialValue: contentSelectionManager)
-    _groupSelectionManager = .init(initialValue: groupSelectionManager)
+    self.contentSelectionManager = contentSelectionManager
+    self.groupSelectionManager = groupSelectionManager
     self.focusPublisher = focusPublisher
     self.focus = focus
     self.onAction = onAction
@@ -73,7 +73,7 @@ struct ContentListView: View {
       ScrollViewReader { proxy in
         ScrollView {
           LazyVStack(spacing: 0) {
-            ForEach(publisher.data.filter(search), id: \.id) { element in
+            ForEach(publisher.data.filter(search).lazy, id: \.id) { element in
               ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
                               contentSelectionManager: contentSelectionManager, onAction: onAction)
               .onTapGesture {

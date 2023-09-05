@@ -13,6 +13,7 @@ final class DebounceSelectionManager<Snapshot: DebounceSnapshot> {
     self._snapshot = .init(initialValue: initialValue)
     self.onUpdate = onUpdate
     self.subscription = subject
+      .dropFirst()
       .debounce(for: .milliseconds(milliseconds), scheduler: DispatchQueue.main)
       .sink { onUpdate($0) }
   }

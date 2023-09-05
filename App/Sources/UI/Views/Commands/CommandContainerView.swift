@@ -99,6 +99,8 @@ struct CommandContainerActionView: View {
           .frame(width: 1)
           .opacity(0.5)
       }
+      .drawingGroup()
+
       VStack(alignment: .center, spacing: 0) {
         Button(action: { onAction(.delete) },
                label: {
@@ -118,6 +120,7 @@ struct CommandContainerActionView: View {
             .frame(height: 1)
             .opacity(0.5)
         }
+        .drawingGroup()
 
         Button(action: { onAction(.run) },
                label: {

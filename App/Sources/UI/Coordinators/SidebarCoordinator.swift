@@ -161,7 +161,7 @@ final class SidebarCoordinator {
 
     publisher.publish(groups)
 
-    if let newSelections {
+    if let newSelections, selectionManager.selections != newSelections {
       selectionManager.selections = newSelections
     }
   }
