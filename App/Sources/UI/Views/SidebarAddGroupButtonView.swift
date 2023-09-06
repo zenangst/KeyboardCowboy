@@ -29,6 +29,7 @@ struct SidebarAddGroupButtonView: View {
       .padding(.leading, 6)
       .padding(.bottom, 6)
       .matchedGeometryEffect(id: "add-group-button", in: namespace)
+      .help("Add Group")
     } else {
       EmptyView()
     }

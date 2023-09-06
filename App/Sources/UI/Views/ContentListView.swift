@@ -156,6 +156,7 @@ struct ContentListView: View {
                 })
               })
               .opacity(publisher.data.isEmpty ? 0 : 1)
+              .help("Add workflow")
             }
           }
         }

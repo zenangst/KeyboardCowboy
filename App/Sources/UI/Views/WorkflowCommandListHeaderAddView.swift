@@ -23,6 +23,7 @@ struct WorkflowCommandListHeaderAddView: View {
             .layoutPriority(-1)
         }
       }
+      .help("Add Command")
       .padding(.horizontal, 4)
       .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
       .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)

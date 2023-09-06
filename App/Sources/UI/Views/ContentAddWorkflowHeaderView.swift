@@ -21,6 +21,7 @@ struct ContentAddWorkflowHeaderView: View {
           .frame(height: 12)
           .padding(2)
       }
+      .help("Add Workflow")
       .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
       .padding(.trailing, 8)
       .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
