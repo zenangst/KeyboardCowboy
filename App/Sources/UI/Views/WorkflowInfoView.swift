@@ -26,6 +26,7 @@ struct WorkflowInfoView: View {
   var body: some View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $workflowName)
+        .focused(focus, equals: .detail(.name))
         .onCommand(#selector(NSTextField.insertTab(_:)), perform: {
           switch detailPublisher.data.trigger {
           case .applications:
@@ -39,8 +40,8 @@ struct WorkflowInfoView: View {
         .onCommand(#selector(NSTextField.insertBacktab(_:)), perform: {
           focus.wrappedValue = .workflows
         })
-        .focused(focus, equals: .detail(.name))
         .frame(height: 32)
+        .fixedSize(horizontal: false, vertical: true)
         .textFieldStyle(LargeTextFieldStyle())
         .onChange(of: workflowName) { debounce.send($0) }
 

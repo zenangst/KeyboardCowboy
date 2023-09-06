@@ -137,7 +137,6 @@ struct NewCommandView: View {
             focused = nil
           }
           .keyboardShortcut(kind.key, modifiers: .command)
-          .focusable()
           .focused($focused, equals: .application)
           .padding(.horizontal, 4)
         }

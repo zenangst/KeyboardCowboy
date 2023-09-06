@@ -18,8 +18,8 @@ struct LargeTextFieldStyle: TextFieldStyle {
           .shadow(color: Color(isFocused ? .controlAccentColor : .clear), radius: 2)
           .opacity(isFocused ? 0.75 : isHovered ? 0.25 : 0)
       )
+      .fixedSize(horizontal: false, vertical: true)
       .onHover(perform: { newValue in  withAnimation { isHovered <- newValue } })
-      .focusable()
       .focused($isFocused)
   }
 }
