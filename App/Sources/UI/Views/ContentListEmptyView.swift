@@ -39,6 +39,7 @@ struct ContentListEmptyView: View {
             }
             .padding(4)
           })
+          .help("Add Workflow")
           .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
           .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
 
