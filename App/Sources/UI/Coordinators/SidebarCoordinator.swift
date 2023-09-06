@@ -6,12 +6,11 @@ final class SidebarCoordinator {
   private var subscription: AnyCancellable?
 
   private let applicationStore: ApplicationStore
+  private let configSelectionManager: SelectionManager<ConfigurationViewModel>
+  private let selectionManager: SelectionManager<GroupViewModel>
   private let store: GroupStore
 
   let publisher = GroupsPublisher()
-
-  let configSelectionManager: SelectionManager<ConfigurationViewModel>
-  let selectionManager: SelectionManager<GroupViewModel>
 
   init(_ store: GroupStore, applicationStore: ApplicationStore,
        configSelectionManager: SelectionManager<ConfigurationViewModel>,
@@ -25,7 +24,6 @@ final class SidebarCoordinator {
     // Initial load
     // Configurations are loaded asynchronously, so we need to wait for them to be loaded
     subscription = store.$groups
-      .dropFirst()
       .sink { [weak self] groups in
         self?.render(groups)
         self?.subscription = nil

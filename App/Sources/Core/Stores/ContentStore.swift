@@ -21,28 +21,30 @@ final class ContentStore: ObservableObject {
 
   private(set) var configurationStore: ConfigurationStore
   private(set) var groupStore: GroupStore
-  private(set) var recorderStore = KeyShortcutRecorderStore()
+  private(set) var recorderStore: KeyShortcutRecorderStore
   private(set) var shortcutStore: ShortcutStore
 
-  @Published private var configurationId: String
+  private var configurationId: String
   let applicationStore: ApplicationStore
 
   init(_ preferences: AppPreferences,
        applicationStore: ApplicationStore,
-       keyboardShortcutsController: KeyboardShortcutsController = .init(),
-       shortcutStore shortcutStoreOverride: ShortcutStore? = nil,
+       configurationStore: ConfigurationStore,
+       groupStore: GroupStore,
+       keyboardShortcutsController: KeyboardShortcutsController,
+       recorderStore: KeyShortcutRecorderStore,
+       shortcutStore: ShortcutStore,
        scriptCommandRunner: ScriptCommandRunner = .init(workspace: .shared),
        workspace: NSWorkspace = .shared) {
-    _configurationId = .init(initialValue: Self.appStorage.configId)
-
-    let groupStore = GroupStore()
+    self.configurationId = Self.appStorage.configId
     self.applicationStore = applicationStore
-    self.shortcutStore = shortcutStoreOverride ?? ShortcutStore(scriptCommandRunner)
+    self.shortcutStore = shortcutStore
     self.groupStore = groupStore
-    self.configurationStore = ConfigurationStore()
+    self.configurationStore = configurationStore
     self.keyboardShortcutsController = keyboardShortcutsController
     self.preferences = preferences
     self.storage = Storage(preferences.storageConfiguration)
+    self.recorderStore = recorderStore
 
     guard KeyboardCowboy.env != .designTime else { return }
 
@@ -114,7 +116,6 @@ final class ContentStore: ObservableObject {
       .removeDuplicates()
       .sink { [weak self] groups in
         self?.updateConfiguration(groups)
-
     }.store(in: &subscriptions)
   }
 

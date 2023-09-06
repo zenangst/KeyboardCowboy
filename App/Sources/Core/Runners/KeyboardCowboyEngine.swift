@@ -24,6 +24,7 @@ final class KeyboardCowboyEngine {
   private var machPortController: MachPortEventController?
 
   init(_ contentStore: ContentStore,
+       commandRunner: CommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
        keyboardShortcutsController: KeyboardShortcutsController,
        keyCodeStore: KeyCodesStore,
@@ -32,12 +33,6 @@ final class KeyboardCowboyEngine {
        shortcutStore: ShortcutStore,
        workspace: NSWorkspace = .shared) {
     
-    let commandRunner = CommandRunner(
-      workspace,
-      applicationStore: contentStore.applicationStore,
-      scriptCommandRunner: scriptCommandRunner,
-      keyboardCommandRunner: keyboardCommandRunner
-    )
     self.contentStore = contentStore
     self.keyCodeStore = keyCodeStore
     self.commandRunner = commandRunner
