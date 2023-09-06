@@ -37,7 +37,6 @@ struct AppTextFieldStyle: TextFieldStyle {
         .onHover(perform: { newValue in
           isHovered <- newValue
         })
-        .focusable()
         .focused($isFocused)
     }
   }

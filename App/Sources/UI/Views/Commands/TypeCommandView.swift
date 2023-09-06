@@ -119,7 +119,6 @@ struct TypeCommandTextEditor: View {
       }
     )
     .onHover(perform: { newValue in  withAnimation(.easeInOut(duration: 0.2)) { isHovered = newValue } })
-    .focusable()
     .focused($isFocused)
   }
 }
