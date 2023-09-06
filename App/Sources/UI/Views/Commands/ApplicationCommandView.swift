@@ -10,7 +10,6 @@ struct IconMenuStyle: MenuStyle {
 }
 
 struct ApplicationCommandView: View {
-  @ObserveInjection var inject
   enum Action {
     case changeApplication(Application)
     case updateName(newName: String)

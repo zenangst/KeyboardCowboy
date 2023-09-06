@@ -4,10 +4,12 @@ import SwiftUI
 @MainActor
 final class ConfigurationCoordinator {
   private var subscription: AnyCancellable?
-  let contentStore: ContentStore
-  let store: ConfigurationStore
+
+  private let contentStore: ContentStore
+  private let selectionManager: SelectionManager<ConfigurationViewModel>
+  private let store: ConfigurationStore
+
   let publisher: ConfigurationPublisher
-  let selectionManager: SelectionManager<ConfigurationViewModel>
 
   init(contentStore: ContentStore, selectionManager: SelectionManager<ConfigurationViewModel>,
        store: ConfigurationStore) {

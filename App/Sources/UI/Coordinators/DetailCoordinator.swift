@@ -4,17 +4,18 @@ import SwiftUI
 
 @MainActor
 final class DetailCoordinator {
-  let applicationStore: ApplicationStore
-  let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
-  let commandRunner: CommandRunner
-  let commandSelectionManager: SelectionManager<CommandViewModel>
-  let contentSelectionManager: SelectionManager<ContentViewModel>
-  let contentStore: ContentStore
+  private let applicationStore: ApplicationStore
+  private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
+  private let commandRunner: CommandRunner
+  private let commandSelectionManager: SelectionManager<CommandViewModel>
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
+  private let contentStore: ContentStore
+  private let groupSelectionManager: SelectionManager<GroupViewModel>
+  private let groupStore: GroupStore
+  private let keyboardCowboyEngine: KeyboardCowboyEngine
+  private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
+
   let detailPublisher: DetailPublisher = .init(DesignTime.emptyDetail)
-  let groupSelectionManager: SelectionManager<GroupViewModel>
-  let groupStore: GroupStore
-  let keyboardCowboyEngine: KeyboardCowboyEngine
-  let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   let mapper: DetailModelMapper
   let statePublisher: DetailStatePublisher = .init(.empty)
 

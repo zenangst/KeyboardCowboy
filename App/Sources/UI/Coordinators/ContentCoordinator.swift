@@ -3,12 +3,12 @@ import SwiftUI
 
 @MainActor
 final class ContentCoordinator {
-  private let store: GroupStore
-  private let mapper: ContentModelMapper
   private let applicationStore: ApplicationStore
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
+  private let groupSelectionManager: SelectionManager<GroupViewModel>
+  private let mapper: ContentModelMapper
+  private let store: GroupStore
 
-  let contentSelectionManager: SelectionManager<ContentViewModel>
-  let groupSelectionManager: SelectionManager<GroupViewModel>
   let publisher: ContentPublisher = ContentPublisher()
 
   init(_ store: GroupStore,
