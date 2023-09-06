@@ -26,7 +26,7 @@ struct ContentListView: View {
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
 
-  private let contentSelectionManager: SelectionManager<ContentViewModel>
+  @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
   private let groupSelectionManager: SelectionManager<GroupViewModel>
 
   @State var searchTerm: String = ""
@@ -38,7 +38,7 @@ struct ContentListView: View {
        groupSelectionManager: SelectionManager<GroupViewModel>,
        focusPublisher: FocusPublisher<ContentViewModel>,
        onAction: @escaping (Action) -> Void) {
-    self.contentSelectionManager = contentSelectionManager
+    _contentSelectionManager = .init(initialValue: contentSelectionManager)
     self.groupSelectionManager = groupSelectionManager
     self.focusPublisher = focusPublisher
     self.focus = focus
