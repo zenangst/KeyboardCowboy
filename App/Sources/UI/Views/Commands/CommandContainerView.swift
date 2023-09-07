@@ -59,6 +59,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
           .padding(.trailing, 5)
 
           HStack {
+            // Fix this bug that you can't notify when running
+            // modifying a menubar command.
             AppCheckbox("Notify", style: .small, isOn: $metaData.notification) {
               onAction(.toggleNotify($0))
             }
