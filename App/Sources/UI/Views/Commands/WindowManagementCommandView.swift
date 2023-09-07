@@ -7,7 +7,7 @@ struct WindowManagementCommandView: View {
   }
 
   @Namespace var namespace
-  @Binding var metaData: CommandViewModel.MetaData
+  @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.WindowManagementModel
   @State var padding: String
   @State var pixels: String
@@ -15,10 +15,10 @@ struct WindowManagementCommandView: View {
 
   private let onAction: (Action) -> Void
 
-  init(_ metaData: Binding<CommandViewModel.MetaData>,
+  init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
        onAction: @escaping (Action) -> Void) {
-    _metaData = metaData
+    _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.onAction = onAction
 
@@ -303,7 +303,7 @@ struct WindowManagementCommandView_Previews: PreviewProvider {
     VStack {
       ForEach(models, id: \.model) { container in
         WindowManagementCommandView(
-          .constant(container.model.meta),
+          container.model.meta,
           model: .init(id: container.model.id, kind: container.kind)
         ) { _ in }
           .frame(maxHeight: 180)

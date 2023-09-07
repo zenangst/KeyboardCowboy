@@ -5,15 +5,15 @@ struct SystemCommandView: View {
     case updateKind(newKind: SystemCommand.Kind)
     case commandAction(CommandContainerAction)
   }
-  @Binding var metaData: CommandViewModel.MetaData
-  @State var model: CommandViewModel.Kind.SystemModel
+  @State var metaData: CommandViewModel.MetaData
+  @Binding var model: CommandViewModel.Kind.SystemModel
   let onAction: (Action) -> Void
 
-  init(_ metaData: Binding<CommandViewModel.MetaData>,
+  init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.SystemModel,
        onAction: @escaping (Action) -> Void) {
-    _metaData = metaData
-    _model = .init(initialValue: model)
+    _metaData = .init(initialValue: metaData)
+    _model = Binding<CommandViewModel.Kind.SystemModel>(model)
     self.onAction = onAction
   }
 
@@ -78,7 +78,7 @@ extension SystemCommand.Kind {
 struct SystemCommandView_Previews: PreviewProvider {
   static let command = DesignTime.systemCommand
   static var previews: some View {
-    SystemCommandView(.constant(command.model.meta), model: command.kind) { _ in }
+    SystemCommandView(command.model.meta, model: command.kind) { _ in }
       .designTime()
   }
 }

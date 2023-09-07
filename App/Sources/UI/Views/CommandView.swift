@@ -125,7 +125,7 @@ struct CommandResolverView: View {
     case .plain:
       UnknownView(command: .constant(command))
     case .menuBar(let model):
-      MenuBarCommandView($command.meta, model: model) { action in
+      MenuBarCommandView(command.meta, model: model) { action in
         switch action {
         case .editCommand(let command):
           openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
@@ -135,7 +135,7 @@ struct CommandResolverView: View {
         }
       }
     case .open(let model):
-      OpenCommandView(command.meta, model: model){ action in
+      OpenCommandView(command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
@@ -182,7 +182,7 @@ struct CommandResolverView: View {
           }
         }
     case .type(let model):
-      TypeCommandView($command.meta, model: Binding(get: { model }, set: { _ in })) { action in
+      TypeCommandView(command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
@@ -191,7 +191,7 @@ struct CommandResolverView: View {
           }
         }
     case .systemCommand(let model):
-      SystemCommandView($command.meta, model: model) { action in
+      SystemCommandView(command.meta, model: model) { action in
         switch action {
         case .commandAction(let action):
           handleCommandContainerAction(action)
@@ -200,7 +200,7 @@ struct CommandResolverView: View {
         }
       }
     case .windowManagement(let model):
-      WindowManagementCommandView($command.meta, model: model) { action in
+      WindowManagementCommandView(command.meta, model: model) { action in
         switch action {
         case .onUpdate:
           onAction(.modify(.window(action: action, workflowId: workflowId, commandId: command.id)))
