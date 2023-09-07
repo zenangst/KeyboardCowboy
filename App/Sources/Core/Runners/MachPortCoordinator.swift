@@ -124,8 +124,10 @@ final class MachPortCoordinator {
     guard let displayValue = store.displayValue(for: Int(machPortEvent.keyCode)) else {
       return
     }
+
     let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
       .compactMap({ ModifierKey(rawValue: $0.rawValue) })
+
     let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
     // Found a match
