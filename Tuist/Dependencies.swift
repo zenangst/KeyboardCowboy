@@ -7,7 +7,7 @@ let dependencies = Dependencies(
       .remote(url: "https://github.com/zenangst/AXEssibility.git", requirement: .exact("0.0.5")),
       .remote(url: "https://github.com/zenangst/Dock.git", requirement: .exact("1.0.1")),
       .remote(url: "https://github.com/zenangst/InputSources.git", requirement: .exact("1.0.1")),
-      .remote(url: "https://github.com/zenangst/KeyCodes.git", requirement: .exact("4.0.4")),
+      .remote(url: "https://github.com/zenangst/KeyCodes.git", requirement: .exact("4.0.5")),
       .remote(url: "https://github.com/zenangst/LaunchArguments.git", requirement: .exact("1.0.1")),
       .remote(url: "https://github.com/zenangst/MachPort.git", requirement: .exact("3.0.1")),
       .remote(url: "https://github.com/zenangst/Windows.git", requirement: .exact("1.0.0")),
