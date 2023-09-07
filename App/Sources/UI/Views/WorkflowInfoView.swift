@@ -40,8 +40,8 @@ struct WorkflowInfoView: View {
         .onCommand(#selector(NSTextField.insertBacktab(_:)), perform: {
           focus.wrappedValue = .workflows
         })
-        .frame(height: 32)
         .fixedSize(horizontal: false, vertical: true)
+        .frame(height: 32)
         .textFieldStyle(LargeTextFieldStyle())
         .onChange(of: workflowName) { debounce.send($0) }
 

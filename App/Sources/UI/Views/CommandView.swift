@@ -62,6 +62,7 @@ struct CommandView: View {
       )
       .background(
         Color(.windowBackgroundColor).cornerRadius(8)
+          .drawingGroup()
       )
       .compositingGroup()
       .draggable($command.wrappedValue.draggablePayload(prefix: "WC|", selections: selectionManager.selections))
@@ -134,6 +135,8 @@ struct CommandResolverView: View {
           handleCommandContainerAction(action)
         }
       }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(height: 80)
     case .open(let model):
       OpenCommandView(command.meta, model: model){ action in
           switch action {
@@ -143,6 +146,8 @@ struct CommandResolverView: View {
             onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
           }
         }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(height: 80)
     case .application(let model):
       ApplicationCommandView(command.meta, model: model) { action in
           switch action {
@@ -152,6 +157,8 @@ struct CommandResolverView: View {
             onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
           }
         }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(height: 80)
     case .script(let model):
       ScriptCommandView(command.meta, model: model) { action in
           switch action {
@@ -172,6 +179,8 @@ struct CommandResolverView: View {
             onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
           }
         }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(height: 124)
     case .shortcut(let model):
       ShortcutCommandView(command.meta, model: model) { action in
           switch action {
@@ -181,6 +190,8 @@ struct CommandResolverView: View {
             onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
           }
         }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(height: 110)
     case .type(let model):
       TypeCommandView($command.meta, model: Binding(get: { model }, set: { _ in })) { action in
           switch action {
@@ -199,6 +210,8 @@ struct CommandResolverView: View {
           onAction(.modify(.system(action: action, workflowId: workflowId, commandId: command.id)))
         }
       }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(height: 80)
     case .windowManagement(let model):
       WindowManagementCommandView($command.meta, model: model) { action in
         switch action {
@@ -208,6 +221,8 @@ struct CommandResolverView: View {
           handleCommandContainerAction(commandContainerAction)
         }
       }
+      .fixedSize(horizontal: false, vertical: true)
+      .frame(height: 80)
     }
   }
 
