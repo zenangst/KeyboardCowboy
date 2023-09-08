@@ -249,16 +249,20 @@ final class DetailCoordinator {
     } else if let viewModel = viewModels.first {
       state = .single
 
-      if let animation {
-        withAnimation(animation) {
+      if detailPublisher.data != viewModel {
+        if let animation {
+          withAnimation(animation) {
+            detailPublisher.publish(viewModel)
+          }
+        } else {
           detailPublisher.publish(viewModel)
         }
-      } else {
-        detailPublisher.publish(viewModel)
       }
     } else {
       state = .empty
     }
+
+    guard statePublisher.data != state else { return }
 
     if let animation {
       withAnimation(animation) {
