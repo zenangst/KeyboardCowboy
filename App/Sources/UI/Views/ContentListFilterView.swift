@@ -44,7 +44,7 @@ struct ContentListFilterView: View {
           .font(.caption2)
         }
       }
-      .padding(8)
+      .padding(.horizontal, 8)
     } else {
       EmptyView()
     }

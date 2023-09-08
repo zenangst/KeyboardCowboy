@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-protocol DebounceSnapshot { }
+protocol DebounceSnapshot: Equatable { }
 
 final class DebounceSelectionManager<Snapshot: DebounceSnapshot> {
   private var subscription: AnyCancellable?
@@ -14,6 +14,7 @@ final class DebounceSelectionManager<Snapshot: DebounceSnapshot> {
     self.onUpdate = onUpdate
     self.subscription = subject
       .dropFirst()
+      .removeDuplicates()
       .debounce(for: .milliseconds(milliseconds), scheduler: DispatchQueue.main)
       .sink { onUpdate($0) }
   }
