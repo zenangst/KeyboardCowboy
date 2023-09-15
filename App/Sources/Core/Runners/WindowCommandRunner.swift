@@ -34,9 +34,11 @@ final class WindowCommandRunner {
     guard let screen = screen else { return }
 
     let (window, windowFrame) = try getFocusedWindow()
+
+    let menubarOffset = abs(screen.visibleFrame.size.height - screen.frame.size.height)
     let screenFrame = screen.frame
     let x: Double = screenFrame.midX - (windowFrame.width / 2)
-    let y: Double = (screenFrame.height / 2) - (windowFrame.height / 2)
+    let y: Double = screenFrame.midY - (windowFrame.height / 2) + menubarOffset / 2
     let origin: CGPoint = .init(x: x, y: y)
 
     window.frame?.origin = origin
