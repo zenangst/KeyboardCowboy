@@ -1,6 +1,7 @@
 import Cocoa
 
 public typealias WorkspaceCompletion = ((RunningApplication?, Error?) -> Void)
+
 public protocol WorkspaceProviding {
   var applications: [RunningApplication] { get }
   var frontApplication: RunningApplication? { get }

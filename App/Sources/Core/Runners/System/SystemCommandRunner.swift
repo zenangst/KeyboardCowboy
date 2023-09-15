@@ -21,6 +21,9 @@ final class SystemCommandRunner {
   private var frontMostApplicationWindows: [WindowAccessibilityElement] = .init()
   private var frontMostIndex: Int = 0
 
+  private var frontmostApplication: RunningApplication = NSRunningApplication.current
+  private var interactive: Bool = false
+
   private let applicationStore: ApplicationStore
   private let workspace: WorkspaceProviding
 
@@ -31,30 +34,33 @@ final class SystemCommandRunner {
 
   func subscribe(to publisher: Published<RunningApplication?>.Publisher) {
     frontmostApplicationSubscription = publisher
-      .sink { [weak self] _ in
+      .compactMap { $0 }
+      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
+      .sink { [weak self]  in
         guard let self else { return }
-        self.frontMostIndex = 0
-        self.indexFrontmost()
+        self.frontmostApplication = $0
+        if self.interactive == false { self.index($0) }
       }
   }
 
   func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
     subjectSubscription = subject
-      .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
+      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self] in
-        self?.index()
+        guard let self, self.interactive == false else { return }
+        self.index(self.frontmostApplication)
       }
-
     flagSubscription = publisher
       .compactMap { $0 }
       .sink { [weak self] flags in
         guard let self else { return }
-        let result = self.containsStandardModifierKeys(flags)
-        guard !result else { return }
-        self.subject.send()
+        self.interactive = flags != CGEventFlags.maskNonCoalesced
+        if self.interactive == false {
+          self.frontMostIndex = 0
+          self.visibleMostIndex = 0
+          self.subject.send()
+        }
       }
-
-    index()
   }
 
   func containsStandardModifierKeys(_ flags: CGEventFlags) -> Bool {
@@ -99,7 +105,6 @@ final class SystemCommandRunner {
         let processIdentifier = pid_t(window.ownerPid.rawValue)
         let runningApplication = NSRunningApplication(processIdentifier: processIdentifier)
         let app = AppAccessibilityElement(processIdentifier)
-        let axWindow = try app.windows().first(where: { $0.id == windowId })
 
         if let runningApplication = runningApplication {
           let options: NSApplication.ActivationOptions = [.activateIgnoringOtherApps]
@@ -114,10 +119,10 @@ final class SystemCommandRunner {
               configuration.activates = true
               _ = try? await workspace.openApplication(at: url, configuration: configuration)
             }
-            return
           }
         }
 
+        let axWindow = try app.windows().first(where: { $0.id == windowId })
         _ = await MainActor.run {
           axWindow?.performAction(.raise)
         }
@@ -158,15 +163,11 @@ final class SystemCommandRunner {
     return windowModels
   }
 
-  private func index() {
+  private func index(_ runningApplication: RunningApplication) {
     let windowModels = getWindows()
-
-    frontMostIndex = 0
-    visibleMostIndex = 0
-
     indexAllApplicationsInSpace(windowModels)
     indexVisibleApplications(windowModels)
-    indexFrontmost()
+    indexFrontmost(runningApplication)
   }
 
   private func indexAllApplicationsInSpace(_ models: [WindowModel]) {
@@ -201,8 +202,7 @@ final class SystemCommandRunner {
     visibleApplicationWindows = windowModels
   }
 
-  private func indexFrontmost() {
-    guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else { return }
+  private func indexFrontmost(_ frontMostApplication: RunningApplication) {
     let pid = frontmostApplication.processIdentifier
     let element = AppAccessibilityElement(pid)
     do {
