@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct WorkflowTriggerView: View {
-  @ObserveInjection var inject
   enum Action {
     case addApplication
     case addKeyboardShortcut

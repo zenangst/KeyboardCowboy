@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct EditableKeyboardShortcutsView: View {
-  @ObserveInjection var inject
-
   enum CurrentState: Hashable {
     case recording
   }

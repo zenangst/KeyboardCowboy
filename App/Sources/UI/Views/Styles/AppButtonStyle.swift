@@ -48,8 +48,6 @@ struct AppButtonConfiguration {
 }
 
 struct AppButtonStyle: ButtonStyle {
-
-  @ObserveInjection var inject
   @State private var isHovered: Bool
   @Environment(\.colorScheme) var colorScheme
 

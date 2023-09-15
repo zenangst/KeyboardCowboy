@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct DetailView: View {
-  @ObserveInjection var inject
   enum Action {
     case singleDetailView(SingleDetailView.Action)
   }

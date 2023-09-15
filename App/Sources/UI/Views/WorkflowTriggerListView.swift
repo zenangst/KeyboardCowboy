@@ -2,8 +2,6 @@ import Combine
 import SwiftUI
 
 struct WorkflowTriggerListView: View {
-  @ObserveInjection var inject
-
   @Namespace var namespace
 
   private let data: DetailViewModel

@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct ContentImagesView: View {
-  @ObserveInjection var inject
   let images: [ContentViewModel.ImageModel]
   let size: CGFloat
   @State var isHovered: Bool = false

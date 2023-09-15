@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct WorkflowInfoView: View {
-  @ObserveInjection var inject
   enum Action {
     case updateName(name: String)
     case setIsEnabled(isEnabled: Bool)

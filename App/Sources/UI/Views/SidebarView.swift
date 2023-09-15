@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct SidebarView: View {
-  @ObserveInjection var inject
-
   enum Action {
     case refresh
     case openScene(AppScene)

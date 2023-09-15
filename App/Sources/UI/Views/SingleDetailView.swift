@@ -22,7 +22,6 @@ struct SingleDetailView: View {
     case updateName(workflowId: Workflow.ID, name: String)
   }
   var focus: FocusState<AppFocus?>.Binding
-  @ObserveInjection var inject
   @Environment(\.openWindow) var openWindow
   @EnvironmentObject var detailPublisher: DetailPublisher
   @State var overlayOpacity: CGFloat = 0

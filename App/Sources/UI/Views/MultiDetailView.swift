@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct MultiDetailView: View {
-  @ObserveInjection var inject
   @EnvironmentObject var groupStore: GroupStore
   let models: [DetailViewModel]
   let count: Int

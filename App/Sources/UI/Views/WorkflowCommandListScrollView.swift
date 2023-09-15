@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct WorkflowCommandListScrollView: View {
-  @ObserveInjection var inject
   @Environment(\.openWindow) var openWindow
   var namespace: Namespace.ID
   @EnvironmentObject var applicationStore: ApplicationStore

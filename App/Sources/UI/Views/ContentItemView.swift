@@ -5,7 +5,6 @@ struct ContentItemView: View {
   @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
   @State var isHovered: Bool = false
   @State var isTargeted: Bool = false
-  @ObserveInjection var inject
   private let publisher: ContentPublisher
   private let workflow: ContentViewModel
   private let onAction: (ContentListView.Action) -> Void

@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct GroupItemView: View {
-  @ObserveInjection var inject
   @EnvironmentObject var groupsPublisher: GroupsPublisher
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
 
