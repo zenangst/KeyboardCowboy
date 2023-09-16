@@ -16,7 +16,7 @@ struct WindowManagementAnimationDurationView: View {
     } label: {
       HStack {
         HStack(spacing: 4) {
-          Image(systemName: "speedometer")
+          Image(systemName: "sparkles")
           if windowCommand.animationDuration > 0 {
             Text("\(Int(windowCommand.animationDuration * 1000)) milliseconds")
               .font(.caption)
