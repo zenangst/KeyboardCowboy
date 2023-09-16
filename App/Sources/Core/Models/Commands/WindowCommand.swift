@@ -135,10 +135,27 @@ struct WindowCommand: MetaDataProviding {
   }
 
   var kind: Kind
+  var animationDuration: Double
   var meta: Command.MetaData
 
-  init(id: String = UUID().uuidString, name: String, kind: Kind, notification: Bool) {
+  enum CodingKeys: CodingKey {
+    case kind
+    case animationDuration
+    case meta
+  }
+
+  init(id: String = UUID().uuidString, name: String, 
+       kind: Kind, notification: Bool, animationDuration: Double) {
     self.kind = kind
     self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
+    self.animationDuration = animationDuration
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    self.kind = try container.decode(Kind.self, forKey: .kind)
+    self.animationDuration = try container.decodeIfPresent(Double.self, forKey: .animationDuration) ?? 0
+    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
 }

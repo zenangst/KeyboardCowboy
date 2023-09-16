@@ -14,15 +14,15 @@ final class WindowCommandRunner {
   func run(_ command: WindowCommand) async throws {
     switch command.kind {
     case .decreaseSize(let byValue, let direction, let value):
-      try decreaseSize(byValue, in: direction, constrainedToScreen: value)
+      try decreaseSize(byValue, in: direction, constrainedToScreen: value, animationDuration: command.animationDuration)
     case .increaseSize(let byValue, let direction, let value):
-      try increaseSize(byValue, in: direction, constrainedToScreen: value)
+      try increaseSize(byValue, in: direction, constrainedToScreen: value, animationDuration: command.animationDuration)
     case .move(let toValue, let direction, let value):
-      try move(toValue, in: direction, constrainedToScreen: value)
+      try move(toValue, in: direction, constrainedToScreen: value, animationDuration: command.animationDuration)
     case .fullscreen(let padding):
-      try fullscreen(with: padding)
+      try fullscreen(with: padding, animationDuration: command.animationDuration)
     case .center:
-      try center()
+      try center(animationDuration: command.animationDuration)
     case .moveToNextDisplay(let mode):
       try moveToNextDisplay(mode)
     }
@@ -30,7 +30,7 @@ final class WindowCommandRunner {
 
   // MARK: Private methods
 
-  private func center(_ screen: NSScreen? = NSScreen.main) throws {
+  private func center(_ screen: NSScreen? = NSScreen.main, animationDuration: Double) throws {
     guard let screen = screen else { return }
 
     let (window, windowFrame) = try getFocusedWindow()
@@ -51,10 +51,14 @@ final class WindowCommandRunner {
       x -= dockSize / 2
     }
 
-    window.frame?.origin = .init(x: x, y: y)
+    let newRect = CGRect(x: x, y: y, width: windowFrame.width, height: windowFrame.height)
+
+    interpolateWindowFrame(from: windowFrame, to: newRect, duration: animationDuration, onUpdate: { newRect in
+      window.frame?.origin = newRect.origin
+    })
   }
 
-  private func fullscreen(with padding: Int) throws {
+  private func fullscreen(with padding: Int, animationDuration: Double) throws {
     guard let screen = NSScreen.main else { return }
     let (window, windowFrame) = try getFocusedWindow()
 
@@ -67,12 +71,22 @@ final class WindowCommandRunner {
 
     var newValue = screen.visibleFrame.insetBy(dx: value, dy: value)
 
+    var animationDuration = animationDuration
+    if let runningApplication = NSWorkspace.shared.frontmostApplication {
+      // Disable animation for Xcode
+      if runningApplication.bundleIdentifier?.lowercased().contains("xcode") == true {
+        animationDuration = 0
+      }
+    }
+
     let dockSize = getDockSize(screen)
     if getDockPosition(screen) == .bottom { newValue.origin.y -= dockSize }
     let delta = ((window.frame?.size.width) ?? 0) - newValue.size.width
     let shouldToggle = delta >= -1 && delta <= 1
     if shouldToggle, let cachedFrame = fullscreenCache[window.id] {
-      window.frame = cachedFrame
+      interpolateWindowFrame(from: windowFrame, to: cachedFrame, duration: animationDuration) { newRect in
+        window.frame = newRect
+      }
     } else {
       let statusBarHeight = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         .button?
@@ -80,16 +94,21 @@ final class WindowCommandRunner {
         .frame
         .height ?? 0
       newValue.origin.y -= statusBarHeight + NSStatusBar.system.thickness
-      window.frame = newValue
+
+      interpolateWindowFrame(from: windowFrame, to: newValue, duration: animationDuration) { newRect in
+        window.frame = newRect
+      }
+
       fullscreenCache[window.id] = windowFrame
     }
   }
 
   private func move(_ byValue: Int, in direction: WindowCommand.Direction,
-                    constrainedToScreen: Bool) throws {
+                    constrainedToScreen: Bool,
+                    animationDuration: Double) throws {
     guard let screen = NSScreen.main else { return }
     let newValue = CGFloat(byValue)
-    var dockSize = getDockSize(screen)
+    let dockSize = getDockSize(screen)
     let dockPosition = getDockPosition(screen)
     var (window, windowFrame) = try getFocusedWindow()
     let oldWindowFrame = windowFrame
@@ -147,102 +166,120 @@ final class WindowCommandRunner {
       }
     }
 
-    window.frame?.origin = windowFrame.origin
+    interpolateWindowFrame(from: oldWindowFrame, to: windowFrame, duration: animationDuration) { newRect in
+      window.frame?.origin = newRect.origin
+    }
   }
 
   private func increaseSize(_ byValue: Int, in direction: WindowCommand.Direction,
-                            constrainedToScreen: Bool) throws {
+                            constrainedToScreen: Bool, animationDuration: Double) throws {
     let newValue = CGFloat(byValue)
-    var (window, windowFrame) = try getFocusedWindow()
+    var (window, newWindowFrame) = try getFocusedWindow()
+    let oldWindowFrame = newWindowFrame
 
     switch direction {
     case .leading:
-      windowFrame.origin.x -= newValue
-      windowFrame.size.width += newValue
+      newWindowFrame.origin.x -= newValue
+      newWindowFrame.size.width += newValue
     case .topLeading:
-      windowFrame.origin.x -= newValue
-      windowFrame.size.width += newValue
-      windowFrame.origin.y -= newValue
-      windowFrame.size.height += newValue
+      newWindowFrame.origin.x -= newValue
+      newWindowFrame.size.width += newValue
+      newWindowFrame.origin.y -= newValue
+      newWindowFrame.size.height += newValue
     case .top:
-      windowFrame.origin.y -= newValue
-      windowFrame.size.height += newValue
+      newWindowFrame.origin.y -= newValue
+      newWindowFrame.size.height += newValue
     case .topTrailing:
-      windowFrame.origin.y -= newValue
-      windowFrame.size.height += newValue
-      windowFrame.size.width += newValue
+      newWindowFrame.origin.y -= newValue
+      newWindowFrame.size.height += newValue
+      newWindowFrame.size.width += newValue
     case .trailing:
-      windowFrame.size.width += newValue
+      newWindowFrame.size.width += newValue
     case .bottomTrailing:
-      windowFrame.size.width += newValue
-      windowFrame.size.height += newValue
+      newWindowFrame.size.width += newValue
+      newWindowFrame.size.height += newValue
     case .bottom:
-      windowFrame.size.height += newValue
+      newWindowFrame.size.height += newValue
     case .bottomLeading:
-      windowFrame.origin.x -= newValue
-      windowFrame.size.width += newValue
-      windowFrame.size.height += newValue
+      newWindowFrame.origin.x -= newValue
+      newWindowFrame.size.width += newValue
+      newWindowFrame.size.height += newValue
     }
 
     if constrainedToScreen {
-      windowFrame.origin.x = max(0, windowFrame.origin.x)
+      newWindowFrame.origin.x = max(0, newWindowFrame.origin.x)
     }
 
-    window.frame = windowFrame
+    interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
+      window.frame = newRect
+    }
   }
 
   private func decreaseSize(_ byValue: Int, in direction: WindowCommand.Direction,
-                            constrainedToScreen: Bool) throws {
+                            constrainedToScreen: Bool,
+                            animationDuration: Double) throws {
     let newValue = CGFloat(byValue)
-    var (window, windowFrame) = try getFocusedWindow()
-    let oldValue = windowFrame
+    var (window, newWindowFrame) = try getFocusedWindow()
+    let oldWindowFrame = newWindowFrame
 
     switch direction {
     case .leading:
-      windowFrame.origin.x += newValue
-      windowFrame.size.width -= newValue
-      window.frame = windowFrame
+      newWindowFrame.origin.x += newValue
+      newWindowFrame.size.width -= newValue
 
-      if window.frame?.width != windowFrame.width {
-        window.frame?.origin.x = oldValue.origin.x
+      interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
+        window.frame = newRect
+        if window.frame?.width != newWindowFrame.width {
+          window.frame?.origin.x = oldWindowFrame.origin.x
+        }
       }
     case .topLeading:
-      windowFrame.size.width -= newValue
-      windowFrame.size.height -= newValue
-      window.frame = windowFrame
+      newWindowFrame.size.width -= newValue
+      newWindowFrame.size.height -= newValue
+      interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
+        window.frame = newRect
+      }
     case .top:
-      windowFrame.size.height -= newValue
-      window.frame = windowFrame
+      newWindowFrame.size.height -= newValue
+      window.frame = newWindowFrame
     case .topTrailing:
-      windowFrame.origin.x += newValue
-      windowFrame.size.height -= newValue
-      windowFrame.size.width -= newValue
-      window.frame = windowFrame
-
-      if window.frame?.width != windowFrame.width {
-        window.frame?.origin = oldValue.origin
+      newWindowFrame.origin.x += newValue
+      newWindowFrame.size.height -= newValue
+      newWindowFrame.size.width -= newValue
+      interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
+        window.frame = newRect
+        if window.frame?.width != newWindowFrame.width {
+          window.frame?.origin = oldWindowFrame.origin
+        }
       }
     case .trailing:
-      windowFrame.size.width -= newValue
-      window.frame = windowFrame
+      newWindowFrame.size.width -= newValue
+      interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
+        window.frame = newRect
+      }
     case .bottomTrailing:
-      windowFrame.origin.x += newValue
-      windowFrame.origin.y += newValue
-      windowFrame.size.width -= newValue
-      windowFrame.size.height -= newValue
-      window.frame = windowFrame
+      newWindowFrame.origin.x += newValue
+      newWindowFrame.origin.y += newValue
+      newWindowFrame.size.width -= newValue
+      newWindowFrame.size.height -= newValue
+      interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
+        window.frame = newRect
+      }
     case .bottom:
-      windowFrame.origin.y += newValue
-      windowFrame.size.height -= newValue
-      window.frame = windowFrame
+      newWindowFrame.origin.y += newValue
+      newWindowFrame.size.height -= newValue
+      interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
+        window.frame = newRect
+      }
     case .bottomLeading:
-      windowFrame.origin.y += newValue
-      windowFrame.size.width -= newValue
-      windowFrame.size.height -= newValue
-      window.frame = windowFrame
-
-      if window.frame?.width != windowFrame.width {
-        window.frame?.origin = oldValue.origin
+      newWindowFrame.origin.y += newValue
+      newWindowFrame.size.width -= newValue
+      newWindowFrame.size.height -= newValue
+      interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
+        window.frame = newRect
+        if window.frame?.width != newWindowFrame.width {
+          window.frame?.origin = oldWindowFrame.origin
+        }
       }
     }
   }
@@ -268,7 +305,7 @@ final class WindowCommandRunner {
     switch mode {
     case .center:
       window.frame?.origin.x = nextScreen.frame.origin.x
-      try self.center(nextScreen)
+      try self.center(nextScreen, animationDuration: 0.0)
     case .relative:
       let currentFrame = mainScreen.frame
       let nextFrame = nextScreen.frame
@@ -307,7 +344,35 @@ final class WindowCommandRunner {
 
     return (window, windowFrame)
   }
+
+  private func interpolateWindowFrame(from oldFrame: CGRect, to newFrame: CGRect, 
+                                      duration: TimeInterval, onUpdate: @escaping (CGRect) -> Void) {
+    if duration == 0 {
+      onUpdate(newFrame)
+      return
+    }
+
+    let numberOfFrames = Int(duration * 120)
+
+    for frameIndex in 0...numberOfFrames {
+      let progress = CGFloat(frameIndex) / CGFloat(numberOfFrames)
+      let interpolatedOrigin = CGPoint(x: interpolate(from: oldFrame.origin.x, to: newFrame.origin.x, progress: progress),
+                                       y: interpolate(from: oldFrame.origin.y, to: newFrame.origin.y, progress: progress))
+      let interpolatedSize = CGSize(width: interpolate(from: oldFrame.size.width, to: newFrame.size.width, progress: progress),
+                                    height: interpolate(from: oldFrame.size.height, to: newFrame.size.height, progress: progress))
+      let interpolatedFrame = CGRect(origin: interpolatedOrigin, size: interpolatedSize)
+
+      DispatchQueue.main.asyncAfter(deadline: .now() + (duration / TimeInterval(numberOfFrames)) * TimeInterval(frameIndex)) {
+        onUpdate(interpolatedFrame)
+      }
+    }
+  }
+
+  private func interpolate(from oldValue: CGFloat, to newValue: CGFloat, progress: CGFloat) -> CGFloat {
+    return oldValue + (newValue - oldValue) * progress
+  }
 }
+
 
 enum DockPosition: Int {
   case bottom = 0
