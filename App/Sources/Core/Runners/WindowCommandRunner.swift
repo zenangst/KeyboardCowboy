@@ -87,7 +87,10 @@ final class WindowCommandRunner {
 
   private func move(_ byValue: Int, in direction: WindowCommand.Direction,
                     constrainedToScreen: Bool) throws {
+    guard let screen = NSScreen.main else { return }
     let newValue = CGFloat(byValue)
+    var dockSize = getDockSize(screen)
+    let dockPosition = getDockPosition(screen)
     var (window, windowFrame) = try getFocusedWindow()
     let oldWindowFrame = windowFrame
 
@@ -114,17 +117,31 @@ final class WindowCommandRunner {
       windowFrame.origin.x -= newValue
     }
 
+    var dockRightSize: CGFloat = 0
+    var dockBottomSize: CGFloat = 0
+    var dockLeftSize: CGFloat = 0
+
+    switch dockPosition {
+    case .bottom:
+      dockBottomSize = dockSize
+    case .left:
+      dockLeftSize = dockSize
+    case .right:
+      dockRightSize = dockSize
+    }
+
     if let screen = NSScreen.screens.first(where: { $0.frame.contains(oldWindowFrame) }), constrainedToScreen {
-      if windowFrame.maxX >= screen.frame.maxX {
-        windowFrame.origin.x = screen.frame.maxX - windowFrame.size.width
-      } else if windowFrame.origin.x <= 0 {
-        windowFrame.origin.x = screen.frame.origin.x
+      if windowFrame.maxX >= screen.frame.maxX - dockRightSize {
+        windowFrame.origin.x = screen.frame.maxX - windowFrame.size.width - dockRightSize
+      } else if windowFrame.origin.x <= dockLeftSize {
+        windowFrame.origin.x = dockLeftSize
       } else if windowFrame.origin.x < screen.frame.origin.x {
         windowFrame.origin.x = screen.frame.origin.x
       }
 
-      if windowFrame.maxY >= screen.visibleFrame.maxY {
-        windowFrame.origin.y = screen.visibleFrame.maxY - windowFrame.size.height
+      if windowFrame.maxY >= screen.frame.maxY - dockBottomSize {
+        windowFrame.origin.y = screen.frame.maxY - windowFrame.size.height
+        windowFrame.origin.y -= dockBottomSize
       } else if windowFrame.origin.y >= screen.visibleFrame.maxY {
         windowFrame.origin.y = screen.visibleFrame.maxY
       }
