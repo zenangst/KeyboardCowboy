@@ -34,14 +34,24 @@ final class WindowCommandRunner {
     guard let screen = screen else { return }
 
     let (window, windowFrame) = try getFocusedWindow()
+    let dockSize = getDockSize(screen)
+    let dockPosition = getDockPosition(screen)
 
     let menubarOffset = abs(screen.visibleFrame.size.height - screen.frame.size.height)
     let screenFrame = screen.frame
-    let x: Double = screenFrame.midX - (windowFrame.width / 2)
-    let y: Double = screenFrame.midY - (windowFrame.height / 2) + menubarOffset / 2
-    let origin: CGPoint = .init(x: x, y: y)
+    var x: Double = screenFrame.midX - (windowFrame.width / 2)
+    var y: Double = screenFrame.midY - (windowFrame.height / 2) + menubarOffset / 2
 
-    window.frame?.origin = origin
+    switch dockPosition {
+    case .bottom:
+      y -= dockSize
+    case .left:
+      x += dockSize / 2
+    case .right:
+      x -= dockSize / 2
+    }
+
+    window.frame?.origin = .init(x: x, y: y)
   }
 
   private func fullscreen(with padding: Int) throws {
