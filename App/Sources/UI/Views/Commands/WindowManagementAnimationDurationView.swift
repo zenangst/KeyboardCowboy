@@ -15,12 +15,15 @@ struct WindowManagementAnimationDurationView: View {
       animationDurationVisible = true
     } label: {
       HStack {
-        if windowCommand.animationDuration > 0 {
-          Text("\(Int(windowCommand.animationDuration * 1000)) milliseconds")
-            .font(.caption)
-        } else {
-          Text("No animation")
-            .font(.caption)
+        HStack(spacing: 4) {
+          Image(systemName: "speedometer")
+          if windowCommand.animationDuration > 0 {
+            Text("\(Int(windowCommand.animationDuration * 1000)) milliseconds")
+              .font(.caption)
+          } else {
+            Text("No animation")
+              .font(.caption)
+          }
         }
         Divider()
           .frame(height: 6)

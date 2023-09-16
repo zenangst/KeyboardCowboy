@@ -23,12 +23,15 @@ struct CommandContainerDelayView: View {
         delayOverlay = true
       } label: {
         HStack {
-          if let delay = metaData.delay {
-            Text("\(Int(delay)) milliseconds")
-              .font(.caption)
-          } else {
-            Text("No delay")
-              .font(.caption)
+          HStack(spacing: 4) {
+            Image(systemName: "hourglass")
+            if let delay = metaData.delay {
+              Text("\(Int(delay)) milliseconds")
+                .font(.caption)
+            } else {
+              Text("No delay")
+                .font(.caption)
+            }
           }
           Divider()
             .frame(height: 6)
