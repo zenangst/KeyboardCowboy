@@ -222,8 +222,10 @@ final class DetailCommandActionReducer {
         case .onUpdate(let newModel):
           if case .windowManagement(let oldCommand) = command {
             command = .windowManagement(.init(id: oldCommand.id,
-                                              name: oldCommand.name, kind: newModel.kind,
-                                              notification: oldCommand.notification))
+                                              name: oldCommand.name, 
+                                              kind: newModel.kind,
+                                              notification: oldCommand.notification,
+                                              animationDuration: newModel.animationDuration))
             workflow.updateOrAddCommand(command)
           }
         }

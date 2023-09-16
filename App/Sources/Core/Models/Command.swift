@@ -271,7 +271,7 @@ extension Command {
     case .system:
       return Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
     case .window:
-      return Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false))
+      return Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false, animationDuration: 0))
     }
   }
 

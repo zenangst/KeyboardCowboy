@@ -184,7 +184,8 @@ final class DetailCoordinator {
       command = Command.windowManagement(.init(id: UUID().uuidString,
                                                name: "Window Management Command",
                                                kind: kind,
-                                               notification: false))
+                                               notification: false,
+                                               animationDuration: 0))
     }
 
     workflow.updateOrAddCommand(command)

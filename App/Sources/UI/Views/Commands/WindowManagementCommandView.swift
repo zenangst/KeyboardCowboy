@@ -167,7 +167,7 @@ struct WindowManagementCommandView: View {
                     return
                   }
                   model.kind = kind
-                  onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
+                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
                 } label: {
                   Text(element.displayValue(increment: model.kind.isIncremental))
                 }
@@ -196,7 +196,7 @@ struct WindowManagementCommandView: View {
                     return
                   }
                   model.kind = kind
-                  onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
+                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
                 })
                 .textFieldStyle(AppTextFieldStyle())
                 .frame(width: 64)
@@ -222,7 +222,7 @@ struct WindowManagementCommandView: View {
                   return
                 }
                 model.kind = kind
-                onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
+                onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
               }
               .font(.caption)
             }
@@ -242,8 +242,7 @@ struct WindowManagementCommandView: View {
                 return
               }
               model.kind = kind
-              onAction(.onUpdate(.init(id: metaData.id, kind: kind)))
-
+              onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
             })
               .textFieldStyle(AppTextFieldStyle())
               .frame(width: 32)
@@ -255,10 +254,14 @@ struct WindowManagementCommandView: View {
         }
         
       }
-    },
-                         subContent: { _ in }) {
+    }, subContent: { _ in
+      WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
+        model.animationDuration = newDuration
+        onAction(.onUpdate(.init(id: metaData.id, kind: model.kind, animationDuration: newDuration)))
+      }
+    }, onAction: {
       onAction(.commandAction($0))
-    }
+    })
   }
 
   private func resolveAlignment(_ kind: WindowCommand.Kind) -> Alignment {
@@ -304,7 +307,7 @@ struct WindowManagementCommandView_Previews: PreviewProvider {
       ForEach(models, id: \.model) { container in
         WindowManagementCommandView(
           container.model.meta,
-          model: .init(id: container.model.id, kind: container.kind)
+          model: .init(id: container.model.id, kind: container.kind, animationDuration: 0)
         ) { _ in }
           .frame(maxHeight: 180)
         Divider()

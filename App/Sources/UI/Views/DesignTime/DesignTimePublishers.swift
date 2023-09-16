@@ -196,7 +196,7 @@ enum DesignTime {
   }
 
   static func windowCommand(_ kind: WindowCommand.Kind) -> (model: CommandViewModel, kind: WindowCommand.Kind) {
-    let model = CommandViewModel.Kind.WindowManagementModel(id: UUID().uuidString, kind: kind)
+    let model = CommandViewModel.Kind.WindowManagementModel(id: UUID().uuidString, kind: kind, animationDuration: 0)
     return (.init(meta: metadata(name: "Window Management", icon: nil), kind: .windowManagement(model)), kind)
   }
 

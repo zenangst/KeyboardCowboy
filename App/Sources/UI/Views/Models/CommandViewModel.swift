@@ -81,6 +81,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     struct WindowManagementModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var kind: WindowCommand.Kind
+      var animationDuration: Double
     }
   }
 }
