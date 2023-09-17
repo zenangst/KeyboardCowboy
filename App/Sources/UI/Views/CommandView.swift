@@ -222,7 +222,7 @@ struct CommandResolverView: View {
         }
       }
       .fixedSize(horizontal: false, vertical: true)
-      .frame(minHeight: 80, maxHeight: 140)
+      .frame(minHeight: 80, maxHeight: 160)
     }
   }
 

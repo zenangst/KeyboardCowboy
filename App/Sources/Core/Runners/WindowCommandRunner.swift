@@ -8,7 +8,13 @@ enum WindowCommandRunnerError: Error {
 }
 
 final class WindowCommandRunner {
+  private var centerCache = [CGWindowID: CGRect]()
   private var fullscreenCache = [CGWindowID: CGRect]()
+  private var task: Task<Void, Error>? {
+    willSet {
+      task?.cancel()
+    }
+  }
 
   @MainActor
   func run(_ command: WindowCommand) async throws {
@@ -30,6 +36,7 @@ final class WindowCommandRunner {
 
   // MARK: Private methods
 
+  @MainActor
   private func center(_ screen: NSScreen? = NSScreen.main, animationDuration: Double) throws {
     guard let screen = screen else { return }
 
@@ -52,12 +59,32 @@ final class WindowCommandRunner {
     }
 
     let newRect = CGRect(x: x, y: y, width: windowFrame.width, height: windowFrame.height)
+    let deltaX = windowFrame.origin.x - newRect.origin.x
+    let deltaY = windowFrame.origin.y - newRect.origin.y
+    let shouldToggleX = deltaX >= -1 && deltaX <= 1
+    let shouldToggleY = deltaY >= -1 && deltaY <= 1
 
-    interpolateWindowFrame(from: windowFrame, to: newRect, duration: animationDuration, onUpdate: { newRect in
-      window.frame?.origin = newRect.origin
-    })
+    if let cachedRect = centerCache[window.id], shouldToggleX, shouldToggleY {
+      interpolateWindowFrame(from: windowFrame,
+                             to: cachedRect,
+                             curve: .easeInOut,
+                             duration: animationDuration,
+                             onUpdate: { newRect in
+        window.frame?.origin = newRect.origin
+      })
+    } else {
+      interpolateWindowFrame(from: windowFrame,
+                             to: newRect,
+                             curve: .easeInOut,
+                             duration: animationDuration,
+                             onUpdate: { newRect in
+        window.frame?.origin = newRect.origin
+      })
+      centerCache[window.id] = windowFrame
+    }
   }
 
+  @MainActor
   private func fullscreen(with padding: Int, animationDuration: Double) throws {
     guard let screen = NSScreen.main else { return }
     let (window, windowFrame) = try getFocusedWindow()
@@ -70,21 +97,12 @@ final class WindowCommandRunner {
     }
 
     var newValue = screen.visibleFrame.insetBy(dx: value, dy: value)
-
-    var animationDuration = animationDuration
-    if let runningApplication = NSWorkspace.shared.frontmostApplication {
-      // Disable animation for Xcode
-      if runningApplication.bundleIdentifier?.lowercased().contains("xcode") == true {
-        animationDuration = 0
-      }
-    }
-
     let dockSize = getDockSize(screen)
     if getDockPosition(screen) == .bottom { newValue.origin.y -= dockSize }
     let delta = ((window.frame?.size.width) ?? 0) - newValue.size.width
     let shouldToggle = delta >= -1 && delta <= 1
     if shouldToggle, let cachedFrame = fullscreenCache[window.id] {
-      interpolateWindowFrame(from: windowFrame, to: cachedFrame, duration: animationDuration) { newRect in
+      interpolateWindowFrame(from: windowFrame, to: cachedFrame, curve: .easeIn, duration: animationDuration) { newRect in
         window.frame = newRect
       }
     } else {
@@ -95,7 +113,7 @@ final class WindowCommandRunner {
         .height ?? 0
       newValue.origin.y -= statusBarHeight + NSStatusBar.system.thickness
 
-      interpolateWindowFrame(from: windowFrame, to: newValue, duration: animationDuration) { newRect in
+      interpolateWindowFrame(from: windowFrame, to: newValue, curve: .easeIn, duration: animationDuration) { newRect in
         window.frame = newRect
       }
 
@@ -103,6 +121,7 @@ final class WindowCommandRunner {
     }
   }
 
+  @MainActor
   private func move(_ byValue: Int, in direction: WindowCommand.Direction,
                     constrainedToScreen: Bool,
                     animationDuration: Double) throws {
@@ -171,6 +190,7 @@ final class WindowCommandRunner {
     }
   }
 
+  @MainActor
   private func increaseSize(_ byValue: Int, in direction: WindowCommand.Direction,
                             constrainedToScreen: Bool, animationDuration: Double) throws {
     let newValue = CGFloat(byValue)
@@ -215,6 +235,7 @@ final class WindowCommandRunner {
     }
   }
 
+  @MainActor
   private func decreaseSize(_ byValue: Int, in direction: WindowCommand.Direction,
                             constrainedToScreen: Bool,
                             animationDuration: Double) throws {
@@ -284,6 +305,7 @@ final class WindowCommandRunner {
     }
   }
 
+  @MainActor
   private func moveToNextDisplay(_ mode: WindowCommand.Mode) throws {
     guard let mainScreen = NSScreen.main else { return }
 
@@ -345,34 +367,73 @@ final class WindowCommandRunner {
     return (window, windowFrame)
   }
 
-  private func interpolateWindowFrame(from oldFrame: CGRect, to newFrame: CGRect, 
-                                      duration: TimeInterval, onUpdate: @escaping (CGRect) -> Void) {
+  @MainActor
+  private func interpolateWindowFrame(from oldFrame: CGRect, to newFrame: CGRect,
+                                      curve: InterpolationCurve = .linear,
+                                      duration: TimeInterval, onUpdate: @MainActor @escaping (CGRect) -> Void) {
     if duration == 0 {
       onUpdate(newFrame)
       return
     }
 
-    let numberOfFrames = Int(duration * 120)
+    self.task = Task {
+      await withThrowingTaskGroup(of: Void.self) { group in
+        let numberOfFrames = Int(duration * 120)
+        for frameIndex in 0...numberOfFrames {
+          group.addTask {
+            let progress = CGFloat(frameIndex) / CGFloat(numberOfFrames)
+            let easedProgress: CGFloat
 
-    for frameIndex in 0...numberOfFrames {
-      let progress = CGFloat(frameIndex) / CGFloat(numberOfFrames)
-      let interpolatedOrigin = CGPoint(x: interpolate(from: oldFrame.origin.x, to: newFrame.origin.x, progress: progress),
-                                       y: interpolate(from: oldFrame.origin.y, to: newFrame.origin.y, progress: progress))
-      let interpolatedSize = CGSize(width: interpolate(from: oldFrame.size.width, to: newFrame.size.width, progress: progress),
-                                    height: interpolate(from: oldFrame.size.height, to: newFrame.size.height, progress: progress))
-      let interpolatedFrame = CGRect(origin: interpolatedOrigin, size: interpolatedSize)
+            switch curve {
+            case .easeIn:
+              easedProgress = Self.easeIn(progress)
+            case .easeInOut:
+              easedProgress = Self.easeInOut(progress)
+            case .spring:
+              easedProgress = Self.spring(progress)
+            case .linear:
+              easedProgress = progress
+            }
 
-      DispatchQueue.main.asyncAfter(deadline: .now() + (duration / TimeInterval(numberOfFrames)) * TimeInterval(frameIndex)) {
-        onUpdate(interpolatedFrame)
+            let interpolatedOrigin = CGPoint(x: Self.interpolate(from: oldFrame.origin.x, to: newFrame.origin.x, progress: easedProgress),
+                                             y: Self.interpolate(from: oldFrame.origin.y, to: newFrame.origin.y, progress: easedProgress))
+            let interpolatedSize = CGSize(width: Self.interpolate(from: oldFrame.size.width, to: newFrame.size.width, progress: easedProgress),
+                                          height: Self.interpolate(from: oldFrame.size.height, to: newFrame.size.height, progress: easedProgress))
+            let interpolatedFrame = CGRect(origin: interpolatedOrigin, size: interpolatedSize)
+
+            let delay = (duration / TimeInterval(numberOfFrames)) * TimeInterval(frameIndex)
+            try await Task.sleep(for: .seconds(delay))
+            try Task.checkCancellation()
+            await onUpdate(interpolatedFrame)
+          }
+        }
       }
     }
   }
 
-  private func interpolate(from oldValue: CGFloat, to newValue: CGFloat, progress: CGFloat) -> CGFloat {
+  private static func interpolate(from oldValue: CGFloat, to newValue: CGFloat, progress: CGFloat) -> CGFloat {
     return oldValue + (newValue - oldValue) * progress
+  }
+
+  private static func easeInOut(_ t: CGFloat) -> CGFloat {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+  }
+
+  private static func spring(_ t: CGFloat, mass: CGFloat = 1.0, damping: CGFloat = 1.0) -> CGFloat {
+    return (1 - cos(t * CGFloat.pi * 4)) * pow(2, -damping * t) + 1
+  }
+
+  private static func easeIn(_ t: CGFloat) -> CGFloat {
+    return t * t
   }
 }
 
+fileprivate enum InterpolationCurve {
+  case easeIn
+  case easeInOut
+  case spring
+  case linear
+}
 
 enum DockPosition: Int {
   case bottom = 0
