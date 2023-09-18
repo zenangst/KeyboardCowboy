@@ -61,7 +61,6 @@ final class Core {
     Self.appStorage.workflowIds = $0
   }
 
-
   // MARK: - Stores
 
   lazy private(set) var applicationStore = ApplicationStore()
@@ -100,6 +99,10 @@ final class Core {
   // MARK: - Controllers
 
   lazy private(set) var keyboardShortcutsController = KeyboardShortcutsController()
+
+  // MARK: - Context
+
+  let systemContext = SystemContext()
 
   init() { }
 }
