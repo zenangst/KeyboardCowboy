@@ -80,6 +80,7 @@ struct PermissionsView: View {
         })
         .buttonStyle(.plain)
         Spacer()
+
         Button("Request permission", action: {
           done.toggle()
           onAction(.requestPermissions)

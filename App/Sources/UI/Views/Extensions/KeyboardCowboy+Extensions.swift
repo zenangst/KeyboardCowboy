@@ -2,6 +2,7 @@ import Cocoa
 
 extension KeyboardCowboy {
   static let mainWindowIdentifier = "MainWindow"
+  static let permissionsSettingsWindowIdentifier = "PermissionsSettingsWindow"
   static let permissionsWindowIdentifier = "PermissionsWindow"
 
   static var bundleIdentifier: String { Bundle.main.bundleIdentifier! }

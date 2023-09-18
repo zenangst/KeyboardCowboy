@@ -55,6 +55,22 @@ struct KeyboardCowboy: App {
       }
     })
 
+    Settings {
+      TabView {
+        PermissionsSettings()
+          .tabItem { Label("Permissions", systemImage: "hand.raised.circle.fill") }
+      }
+      .frame(width: 360, height: 180)
+    }
+
+    WindowGroup(id: KeyboardCowboy.permissionsSettingsWindowIdentifier) {
+      PermissionsSettings()
+        .frame(width: 360, height: 180)
+    }
+    .windowStyle(.hiddenTitleBar)
+    .windowResizability(.contentSize)
+    .windowToolbarStyle(.unified)
+
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
       VStack {
         switch core.contentStore.state {
@@ -139,9 +155,8 @@ struct KeyboardCowboy: App {
         NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy")!)
       case .requestPermissions:
         NSApplication.shared.keyWindow?.close()
-        let trusted = kAXTrustedCheckOptionPrompt.takeUnretainedValue()
-        let privOptions = [trusted: true] as CFDictionary
-        _ = AXIsProcessTrustedWithOptions(privOptions)
+        openWindow(id: KeyboardCowboy.permissionsSettingsWindowIdentifier)
+        AccessibilityPermission.shared.requestPermission()
       }
     }
 
@@ -172,6 +187,7 @@ struct KeyboardCowboy: App {
     switch scene {
     case .permissions:
       openWindow(id: KeyboardCowboy.permissionsWindowIdentifier)
+      KeyboardCowboy.activate()
     case .mainWindow:
       if let mainWindow = KeyboardCowboy.mainWindow {
         mainWindow.makeKeyAndOrderFront(nil)

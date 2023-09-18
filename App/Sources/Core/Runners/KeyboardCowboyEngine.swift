@@ -7,7 +7,6 @@ import os
 
 @MainActor
 final class KeyboardCowboyEngine {
-  private let appPermissions = AppPermissions()
   private let applicationTriggerController: ApplicationTriggerController
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let commandRunner: CommandRunner
@@ -51,13 +50,10 @@ final class KeyboardCowboyEngine {
 
     guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 
-    if !appPermissions.hasPrivileges(shouldPrompt: false) {
-      appPermissions.subscribe(to: workspacePublisher.$frontmostApplication)
-      pendingPermissionsSubscription = appPermissions.$hasPermissions
-        .sink { [weak self, workspace] hasPermissions in
-          guard hasPermissions else { return }
-          self?.setupMachPortAndSubscriptions(workspace)
-        }
+    if AccessibilityPermission.shared.permission != .authorized {
+      AccessibilityPermission.shared.subscribe(to: workspacePublisher.$frontmostApplication) { [weak self] in
+        self?.setupMachPortAndSubscriptions(workspace)
+      }
     } else {
       setupMachPortAndSubscriptions(workspace)
     }
