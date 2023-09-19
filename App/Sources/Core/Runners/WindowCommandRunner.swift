@@ -41,24 +41,22 @@ final class WindowCommandRunner {
     guard let screen = screen else { return }
 
     let (window, windowFrame) = try getFocusedWindow()
-    let dockSize = getDockSize(screen)
-    let dockPosition = getDockPosition(screen)
-
-    let menubarOffset = abs(screen.visibleFrame.size.height - screen.frame.size.height)
     let screenFrame = screen.frame
-    var x: Double = screenFrame.midX - (windowFrame.width / 2)
-    var y: Double = screenFrame.midY - (windowFrame.height / 2) + menubarOffset / 2
+    let menubarOffset = abs(screen.visibleFrame.size.height - screen.frame.size.height)
+    let x: Double = screenFrame.midX - (windowFrame.width / 2)
+    let y: Double = screenFrame.midY - (windowFrame.height / 2) + menubarOffset / 2
+    var newRect = CGRect(x: x, y: y, width: windowFrame.width, height: windowFrame.height)
 
-    switch dockPosition {
-    case .bottom:
-      y -= dockSize
-    case .left:
-      x += dockSize / 2
-    case .right:
-      x -= dockSize / 2
+    if !screen.isMainDisplay {
+      // TODO: Verify that this works.
+      if screen.frame.origin.y < 0 {
+        newRect = invert(newRect)
+      } else {
+        // TODO: This needs work
+        newRect.origin.y = screenFrame.origin.y - windowFrame.height
+      }
     }
 
-    let newRect = CGRect(x: x, y: y, width: windowFrame.width, height: windowFrame.height)
     let deltaX = windowFrame.origin.x - newRect.origin.x
     let deltaY = windowFrame.origin.y - newRect.origin.y
     let shouldToggleX = deltaX >= -1 && deltaX <= 1
@@ -82,6 +80,15 @@ final class WindowCommandRunner {
       })
       centerCache[window.id] = windowFrame
     }
+  }
+
+  private func statusBarHeight() -> CGFloat {
+    let statusBarHeight = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+      .button?
+      .window?
+      .frame
+      .height ?? 0
+    return statusBarHeight + NSStatusBar.system.thickness
   }
 
   @MainActor
@@ -111,7 +118,13 @@ final class WindowCommandRunner {
         .window?
         .frame
         .height ?? 0
-      newValue.origin.y -= statusBarHeight + NSStatusBar.system.thickness
+      newValue.origin.y += statusBarHeight + NSStatusBar.system.thickness
+
+      if screen.frame.origin.y < 0 {
+        newValue = invert(newValue)
+      } else {
+        newValue.origin.y = -abs(screen.frame.origin.y)
+      }
 
       interpolateWindowFrame(from: windowFrame, to: newValue, curve: .easeIn, duration: animationDuration) { newRect in
         window.frame = newRect
@@ -126,38 +139,46 @@ final class WindowCommandRunner {
                     constrainedToScreen: Bool,
                     animationDuration: Double) throws {
     guard let screen = NSScreen.main else { return }
+
     let newValue = CGFloat(byValue)
     let dockSize = getDockSize(screen)
     let dockPosition = getDockPosition(screen)
-    var (window, windowFrame) = try getFocusedWindow()
-    let oldWindowFrame = windowFrame
+    var (window, newWindowFrame) = try getFocusedWindow()
+    let oldWindowFrame = newWindowFrame
 
     switch direction {
     case .leading:
-      windowFrame.origin.x -= newValue
+      newWindowFrame.origin.x -= newValue
     case .topLeading:
-      windowFrame.origin.x -= newValue
-      windowFrame.origin.y -= newValue
+      newWindowFrame.origin.x -= newValue
+      newWindowFrame.origin.y -= newValue
     case .top:
-      windowFrame.origin.y -= newValue
+      newWindowFrame.origin.y -= newValue
     case .topTrailing:
-      windowFrame.origin.x += newValue
-      windowFrame.origin.y -= newValue
+      newWindowFrame.origin.x += newValue
+      newWindowFrame.origin.y -= newValue
     case .trailing:
-      windowFrame.origin.x += newValue
+      newWindowFrame.origin.x += newValue
     case .bottomTrailing:
-      windowFrame.origin.x += newValue
-      windowFrame.origin.y += newValue
+      newWindowFrame.origin.x += newValue
+      newWindowFrame.origin.y += newValue
     case .bottom:
-      windowFrame.origin.y += newValue
+      newWindowFrame.origin.y += newValue
     case .bottomLeading:
-      windowFrame.origin.y += newValue
-      windowFrame.origin.x -= newValue
+      newWindowFrame.origin.y += newValue
+      newWindowFrame.origin.x -= newValue
     }
 
     var dockRightSize: CGFloat = 0
     var dockBottomSize: CGFloat = 0
     var dockLeftSize: CGFloat = 0
+
+    let currentScreen: NSScreen
+    if constrainedToScreen {
+      currentScreen = NSScreen.screenContaining(oldWindowFrame) ?? screen
+    } else {
+      currentScreen = screen
+    }
 
     switch dockPosition {
     case .bottom:
@@ -168,24 +189,36 @@ final class WindowCommandRunner {
       dockRightSize = dockSize
     }
 
-    if let screen = NSScreen.screens.first(where: { $0.frame.contains(oldWindowFrame) }), constrainedToScreen {
-      if windowFrame.maxX >= screen.frame.maxX - dockRightSize {
-        windowFrame.origin.x = screen.frame.maxX - windowFrame.size.width - dockRightSize
-      } else if windowFrame.origin.x <= dockLeftSize {
-        windowFrame.origin.x = dockLeftSize
-      } else if windowFrame.origin.x < screen.frame.origin.x {
-        windowFrame.origin.x = screen.frame.origin.x
+    if constrainedToScreen {
+      if newWindowFrame.maxX >= currentScreen.frame.maxX - dockRightSize {
+        newWindowFrame.origin.x = currentScreen.frame.maxX - newWindowFrame.size.width - dockRightSize
+      } else if newWindowFrame.origin.x <= currentScreen.frame.origin.x + dockLeftSize {
+        newWindowFrame.origin.x = currentScreen.frame.origin.x + dockLeftSize
+      } else if newWindowFrame.origin.x < currentScreen.frame.origin.x {
+        newWindowFrame.origin.x = currentScreen.frame.origin.x
       }
 
-      if windowFrame.maxY >= screen.frame.maxY - dockBottomSize {
-        windowFrame.origin.y = screen.frame.maxY - windowFrame.size.height
-        windowFrame.origin.y -= dockBottomSize
-      } else if windowFrame.origin.y >= screen.visibleFrame.maxY {
-        windowFrame.origin.y = screen.visibleFrame.maxY
+      if currentScreen.isMainDisplay {
+        if newWindowFrame.maxY >= screen.frame.maxY - dockBottomSize {
+          newWindowFrame.origin.y = screen.frame.maxY - newWindowFrame.size.height
+          newWindowFrame.origin.y -= dockBottomSize
+        } else if newWindowFrame.origin.y >= screen.visibleFrame.maxY {
+          newWindowFrame.origin.y = screen.visibleFrame.maxY
+        }
+      } else {
+        if currentScreen.frame.origin.y >= 0 {
+        } else {
+          print(newWindowFrame)
+//          let invertedFrame = invert(newWindowFrame)
+//          if invertedFrame.origin.y <= currentScreen.frame.origin.y {
+//            newWindowFrame.origin.y = currentScreen.frame.maxY + dockBottomSize + statusBarHeight()
+//          }
+        }
       }
     }
 
-    interpolateWindowFrame(from: oldWindowFrame, to: windowFrame, duration: animationDuration) { newRect in
+
+    interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
       window.frame?.origin = newRect.origin
     }
   }
@@ -193,6 +226,7 @@ final class WindowCommandRunner {
   @MainActor
   private func increaseSize(_ byValue: Int, in direction: WindowCommand.Direction,
                             constrainedToScreen: Bool, animationDuration: Double) throws {
+    guard let screen = NSScreen.main else { return }
     let newValue = CGFloat(byValue)
     var (window, newWindowFrame) = try getFocusedWindow()
     let oldWindowFrame = newWindowFrame
@@ -227,7 +261,7 @@ final class WindowCommandRunner {
     }
 
     if constrainedToScreen {
-      newWindowFrame.origin.x = max(0, newWindowFrame.origin.x)
+      newWindowFrame.origin.x = max(screen.frame.origin.x, newWindowFrame.origin.x)
     }
 
     interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
@@ -346,7 +380,8 @@ final class WindowCommandRunner {
       let height = windowFrame.size.height * screenMultiplier.height
       let x = nextFrame.origin.x + (windowFrame.origin.x * screenMultiplier.width)
       let y = nextFrame.origin.y  + (windowFrame.origin.y * screenMultiplier.height)
-      let newFrame: CGRect = .init(x: x, y: y, width: width, height: height)
+      var newFrame: CGRect = .init(x: x, y: y, width: width, height: height)
+      newFrame = invert(newFrame)
 
       window.frame = newFrame
     }
@@ -466,4 +501,24 @@ func getDockSize(_ screen: NSScreen) -> CGFloat {
 
 func isDockHidden(_ screen: NSScreen) -> Bool {
   getDockSize(screen) < 25
+}
+
+func invert(_ rect: CGRect) -> CGRect {
+  let inverted = CGPoint(x: rect.origin.x, y: NSScreen.maxY - rect.maxY)
+  return CGRect(origin: inverted, size: rect.size)
+}
+
+extension NSScreen {
+  var isMainDisplay: Bool { frame.origin == .zero }
+  static var mainDisplay: NSScreen? { screens.first(where: { $0.isMainDisplay }) }
+
+  static func screenContaining(_ rect: CGRect) -> NSScreen? {
+    NSScreen.screens.first(where: { $0.frame.contains(rect) })
+  }
+
+  static var maxY: CGFloat {
+    screens.max(by: {
+      $0.frame.maxY < $1.frame.maxY
+    })?.frame.maxY ?? 0
+  }
 }
