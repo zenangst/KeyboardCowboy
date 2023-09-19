@@ -2,28 +2,47 @@ import Foundation
 import CoreWLAN
 import SystemConfiguration.CaptiveNetwork
 
+enum WifiInfoError: Error {
+  case needsPermissions
+}
+
 final class WifiInfo: CWEventDelegate {
-  @Published private(set) var ssid: String?
+  struct Model: Equatable {
+    let ssid: String
+
+    init?(ssid: String?) {
+      guard let ssid = ssid else { return nil }
+      self.ssid = ssid
+    }
+  }
+
+  @Published private(set) var data: Model?
 
   static let shared = WifiInfo()
   private let client = CWWiFiClient.shared()
 
   private init() {
     client.delegate = self
-    startMonitoringSSIDChanges()
-    ssid = client.interface()?.ssid()
+    do {
+      try startMonitoringSSIDChanges()
+      data = Model(ssid: client.interface()?.ssid())
+    } catch {
+      print("Error starting WiFi monitoring: \(error)")
+    }
   }
 
-  func startMonitoringSSIDChanges() {
-    try? client.startMonitoringEvent(with: .ssidDidChange)
+  func startMonitoringSSIDChanges() throws {
+    guard LocationPermission.shared.permission != .authorizedAlways else {
+      throw WifiInfoError.needsPermissions
+    }
+    try client.startMonitoringEvent(with: .ssidDidChange)
   }
 
-  func stopMonitoringSSIDChanges() {
-    try? client.stopMonitoringEvent(with: .ssidDidChange)
+  func stopMonitoringSSIDChanges() throws {
+    try client.stopMonitoringEvent(with: .ssidDidChange)
   }
 
   func ssidDidChangeForWiFiInterface(withName interfaceName: String) {
-    let ssid = client.interface(withName: interfaceName)?.ssid()
-    self.ssid = ssid
+    data = Model(ssid: client.interface(withName: interfaceName)?.ssid())
   }
 }
