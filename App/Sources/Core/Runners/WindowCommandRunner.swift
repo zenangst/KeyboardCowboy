@@ -41,19 +41,33 @@ final class WindowCommandRunner {
     guard let screen = screen else { return }
 
     let (window, windowFrame) = try getFocusedWindow()
+    let dockSize = getDockSize(screen)
+    let dockPosition = getDockPosition(screen)
     let screenFrame = screen.frame
     let menubarOffset = abs(screen.visibleFrame.size.height - screen.frame.size.height)
     let x: Double = screenFrame.midX - (windowFrame.width / 2)
     let y: Double = screenFrame.midY - (windowFrame.height / 2) + menubarOffset / 2
     var newRect = CGRect(x: x, y: y, width: windowFrame.width, height: windowFrame.height)
 
-    if !screen.isMainDisplay {
-      // TODO: Verify that this works.
-      if screen.frame.origin.y < 0 {
-        newRect = invert(newRect)
+    if screen.isMainDisplay {
+      switch dockPosition {
+      case .bottom:
+        newRect.origin.y -= dockSize
+      case .left:
+        newRect.origin.x += dockSize / 2
+      case .right:
+        newRect.origin.x -= dockSize / 2
+      }
+    } else {
+      if let mainDisplay = NSScreen.mainDisplay, screen.frame.origin.y > 0 {
+        // The second screen is above the main display
+        let heightOffset = mainDisplay.frame.height - screen.visibleFrame.height - screen.frame.origin.y - NSStatusBar.system.thickness
+        let newY: CGFloat = heightOffset + (screen.frame.height / 2 - newRect.height / 2) - dockSize
+        newRect.origin.y = newY
       } else {
-        // TODO: This needs work
-        newRect.origin.y = screenFrame.origin.y - windowFrame.height
+        // The second screen is below the main display.
+        newRect.origin.y = screen.visibleFrame.midY - (windowFrame.height / 2)
+        newRect = invert(newRect)
       }
     }
 
@@ -124,6 +138,7 @@ final class WindowCommandRunner {
         newValue = invert(newValue)
       } else {
         newValue.origin.y = -abs(screen.frame.origin.y)
+        newValue.origin.y -= statusBarHeight + NSStatusBar.system.thickness
       }
 
       interpolateWindowFrame(from: windowFrame, to: newValue, curve: .easeIn, duration: animationDuration) { newRect in
@@ -495,7 +510,11 @@ func getDockSize(_ screen: NSScreen) -> CGFloat {
   case .left:
     return screen.visibleFrame.origin.x
   case .bottom:
-    return screen.visibleFrame.origin.y
+    if screen.isMainDisplay {
+      return screen.visibleFrame.origin.y
+    } else {
+      return abs(screen.visibleFrame.height - screen.frame.size.height)
+    }
   }
 }
 
@@ -509,6 +528,9 @@ func invert(_ rect: CGRect) -> CGRect {
 }
 
 extension NSScreen {
+  // Different from `NSScreen.main`, the `mainDisplay` sets the conditions for the
+  // coordinate system. All other screens have a coordinate space that is relative
+  // to the main screen.
   var isMainDisplay: Bool { frame.origin == .zero }
   static var mainDisplay: NSScreen? { screens.first(where: { $0.isMainDisplay }) }
 
