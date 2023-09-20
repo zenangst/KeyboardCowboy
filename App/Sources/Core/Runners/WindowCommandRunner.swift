@@ -38,18 +38,18 @@ final class WindowCommandRunner {
 
   @MainActor
   private func center(_ screen: NSScreen? = NSScreen.main, animationDuration: Double) throws {
-    guard let screen = screen else { return }
+    guard let currentScreen = screen else { return }
 
     let (window, windowFrame) = try getFocusedWindow()
-    let dockSize = getDockSize(screen)
-    let dockPosition = getDockPosition(screen)
-    let screenFrame = screen.frame
-    let menubarOffset = abs(screen.visibleFrame.size.height - screen.frame.size.height)
+    let dockSize = getDockSize(currentScreen)
+    let dockPosition = getDockPosition(currentScreen)
+    let screenFrame = currentScreen.frame
+    let menubarOffset = abs(currentScreen.visibleFrame.size.height - currentScreen.frame.size.height)
     let x: Double = screenFrame.midX - (windowFrame.width / 2)
     let y: Double = screenFrame.midY - (windowFrame.height / 2) + menubarOffset / 2
     var newRect = CGRect(x: x, y: y, width: windowFrame.width, height: windowFrame.height)
 
-    if screen.isMainDisplay {
+    if currentScreen.isMainDisplay {
       switch dockPosition {
       case .bottom:
         newRect.origin.y -= dockSize
@@ -59,15 +59,16 @@ final class WindowCommandRunner {
         newRect.origin.x -= dockSize / 2
       }
     } else {
-      if let mainDisplay = NSScreen.mainDisplay, screen.frame.origin.y > 0 {
-        // The second screen is above the main display
-        let heightOffset = mainDisplay.frame.height - screen.visibleFrame.height - screen.frame.origin.y - NSStatusBar.system.thickness
-        let newY: CGFloat = heightOffset + (screen.frame.height / 2 - newRect.height / 2) - dockSize
-        newRect.origin.y = newY
+      if currentScreen.frame.origin.y > 0 {
+        // The second screen is above the main display.
+        let zeroPoint = -abs(currentScreen.frame.origin.y) - statusBarHeightAndSystemThickness()
+        let prototype = CGRect(origin: .init(x: 0, y: zeroPoint), size: currentScreen.frame.size)
+        newRect.origin.y = prototype.midY - (windowFrame.size.height / 2) - dockSize / 2
       } else {
         // The second screen is below the main display.
-        newRect.origin.y = screen.visibleFrame.midY - (windowFrame.height / 2)
-        newRect = invert(newRect)
+        let zeroPoint = abs(currentScreen.frame.origin.y) - statusBarHeight()
+        let prototype = CGRect(origin: .init(x: 0, y: zeroPoint), size: currentScreen.frame.size)
+        newRect.origin.y = prototype.midY - (windowFrame.size.height / 2) - dockSize
       }
     }
 
@@ -97,12 +98,19 @@ final class WindowCommandRunner {
   }
 
   private func statusBarHeight() -> CGFloat {
-    let statusBarHeight = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+    NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
       .button?
       .window?
       .frame
       .height ?? 0
-    return statusBarHeight + NSStatusBar.system.thickness
+  }
+
+  private func statusBarThickness() -> CGFloat {
+    NSStatusBar.system.thickness
+  }
+
+  private func statusBarHeightAndSystemThickness() -> CGFloat {
+    statusBarHeight() + statusBarThickness()
   }
 
   @MainActor
@@ -153,11 +161,11 @@ final class WindowCommandRunner {
   private func move(_ byValue: Int, in direction: WindowCommand.Direction,
                     constrainedToScreen: Bool,
                     animationDuration: Double) throws {
-    guard let screen = NSScreen.main else { return }
+    guard let mainScreen = NSScreen.main else { return }
 
     let newValue = CGFloat(byValue)
-    let dockSize = getDockSize(screen)
-    let dockPosition = getDockPosition(screen)
+    let dockSize = getDockSize(mainScreen)
+    let dockPosition = getDockPosition(mainScreen)
     var (window, newWindowFrame) = try getFocusedWindow()
     let oldWindowFrame = newWindowFrame
 
@@ -190,9 +198,9 @@ final class WindowCommandRunner {
 
     let currentScreen: NSScreen
     if constrainedToScreen {
-      currentScreen = NSScreen.screenContaining(oldWindowFrame) ?? screen
+      currentScreen = NSScreen.screenContaining(oldWindowFrame) ?? mainScreen
     } else {
-      currentScreen = screen
+      currentScreen = mainScreen
     }
 
     switch dockPosition {
@@ -214,24 +222,28 @@ final class WindowCommandRunner {
       }
 
       if currentScreen.isMainDisplay {
-        if newWindowFrame.maxY >= screen.frame.maxY - dockBottomSize {
-          newWindowFrame.origin.y = screen.frame.maxY - newWindowFrame.size.height
+        if newWindowFrame.maxY >= currentScreen.frame.maxY - dockBottomSize {
+          newWindowFrame.origin.y = currentScreen.frame.maxY - newWindowFrame.size.height
           newWindowFrame.origin.y -= dockBottomSize
-        } else if newWindowFrame.origin.y >= screen.visibleFrame.maxY {
-          newWindowFrame.origin.y = screen.visibleFrame.maxY
+        } else if newWindowFrame.origin.y >= currentScreen.visibleFrame.maxY {
+          newWindowFrame.origin.y = currentScreen.visibleFrame.maxY
         }
       } else {
-        if currentScreen.frame.origin.y >= 0 {
+        if currentScreen.frame.origin.y > 0 {
+          // The second screen is above the main display.
+          let zeroPoint = -abs(currentScreen.frame.origin.y) - statusBarHeightAndSystemThickness()
+          let prototype = CGRect(origin: .init(x: 0, y: zeroPoint), size: currentScreen.frame.size)
+          let maxY = prototype.origin.y + currentScreen.frame.height - newWindowFrame.height
+          newWindowFrame.origin.y = min(newWindowFrame.origin.y, maxY)
         } else {
-          print(newWindowFrame)
-//          let invertedFrame = invert(newWindowFrame)
-//          if invertedFrame.origin.y <= currentScreen.frame.origin.y {
-//            newWindowFrame.origin.y = currentScreen.frame.maxY + dockBottomSize + statusBarHeight()
-//          }
+          // The second screen is below the main display.
+          let zeroPoint = abs(currentScreen.frame.origin.y) - statusBarHeight()
+          let prototype = CGRect(origin: .init(x: 0, y: zeroPoint), size: currentScreen.frame.size)
+          let maxY = prototype.origin.y + currentScreen.frame.height - newWindowFrame.height - statusBarHeight()
+          newWindowFrame.origin.y = min(newWindowFrame.origin.y, maxY)
         }
       }
     }
-
 
     interpolateWindowFrame(from: oldWindowFrame, to: newWindowFrame, duration: animationDuration) { newRect in
       window.frame?.origin = newRect.origin
