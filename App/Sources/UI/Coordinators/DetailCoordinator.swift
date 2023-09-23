@@ -326,7 +326,7 @@ extension SingleDetailView.Action {
     switch self {
     case .dropUrls(let workflowId, _),
          .duplicate(let workflowId, _),
-         .updateKeyboardShortcuts(let workflowId, _),
+         .updateKeyboardShortcuts(let workflowId, _, _, _),
          .removeTrigger(let workflowId),
          .setIsEnabled(let workflowId, _),
          .removeCommands(let workflowId, _),

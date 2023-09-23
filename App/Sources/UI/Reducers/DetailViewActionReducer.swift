@@ -47,8 +47,14 @@ final class DetailViewActionReducer {
         let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
         workflow.commands.append(contentsOf: commands)
         result = .animated(.default)
-      case .updateKeyboardShortcuts(_, let keyboardShortcuts):
-        workflow.trigger = .keyboardShortcuts(.init(shortcuts: keyboardShortcuts))
+      case .updateKeyboardShortcuts(_, let passthrough, let holdDuration, let keyboardShortcuts):
+        workflow.trigger = .keyboardShortcuts(
+          .init(
+            passthrough: passthrough,
+            holdDuration: holdDuration,
+            shortcuts: keyboardShortcuts
+          )
+        )
       case .updateHoldDuration(_, let holdDuration):
         guard case .keyboardShortcuts(var trigger) = workflow.trigger else {
           return .none

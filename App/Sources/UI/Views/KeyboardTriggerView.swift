@@ -49,7 +49,10 @@ struct KeyboardTriggerView: View {
       .padding([.leading, .trailing], 8)
       
       WorkflowShortcutsView(focus, data: trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
-        onAction(.updateKeyboardShortcuts(workflowId: data.id, keyboardShortcuts: keyboardShortcuts))
+        onAction(.updateKeyboardShortcuts(workflowId: data.id, 
+                                          passthrough: passthrough,
+                                          holdDuration: Double(holdDurationText),
+                                          keyboardShortcuts: keyboardShortcuts))
       }
       .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       

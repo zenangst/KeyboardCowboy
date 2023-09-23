@@ -18,7 +18,10 @@ struct SingleDetailView: View {
     case trigger(workflowId: Workflow.ID, action: WorkflowTriggerView.Action)
     case updateExecution(workflowId: Workflow.ID, execution: DetailViewModel.Execution)
     case updateHoldDuration(workflowId: Workflow.ID, holdDuration: Double?)
-    case updateKeyboardShortcuts(workflowId: Workflow.ID, keyboardShortcuts: [KeyShortcut])
+    case updateKeyboardShortcuts(workflowId: Workflow.ID, 
+                                 passthrough: Bool,
+                                 holdDuration: Double?,
+                                 keyboardShortcuts: [KeyShortcut])
     case updateName(workflowId: Workflow.ID, name: String)
   }
   var focus: FocusState<AppFocus?>.Binding
