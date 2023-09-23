@@ -30,7 +30,7 @@ final class WindowCommandRunner {
     case .center:
       try center(animationDuration: command.animationDuration)
     case .moveToNextDisplay(let mode):
-      try moveToNextDisplay(mode)
+      try moveToNextDisplay(mode, animationDuration: command.animationDuration)
     }
   }
 
@@ -46,6 +46,7 @@ final class WindowCommandRunner {
       let x: CGFloat
       let y: CGFloat
       let newFrame: CGRect
+
       if currentScreen == mainScreen {
         // Handle main screen
         x = CGFloat.formula(currentScreen.frame.origin.x) { fn in
@@ -61,13 +62,6 @@ final class WindowCommandRunner {
         }
 
         newFrame = CGRect(origin: CGPoint(x: x, y: y), size: originFrame.size)
-
-        interpolateWindowFrame(
-          from: originFrame,
-          to: newFrame,
-          duration: animationDuration,
-          onUpdate: { activeWindow.frame = $0 }
-        )
       } else {
         // Handle secondary screens
         x = CGFloat.formula(currentScreen.frame.origin.x) { fn in
@@ -187,14 +181,14 @@ final class WindowCommandRunner {
   private func move(_ byValue: Int, in direction: WindowCommand.Direction,
                     constrainedToScreen: Bool,
                     animationDuration: Double) throws {
-    guard let mainScreen = NSScreen.main else { return }
+    guard let mainScreen = NSScreen.main, let mainDisplay = NSScreen.mainDisplay else { return }
 
     let newValue = CGFloat(byValue)
     let dockSize = getDockSize(mainScreen)
     let dockPosition = getDockPosition(mainScreen)
 
-    try getFocusedWindow { window, newWindowFrame in
-      var newWindowFrame = newWindowFrame
+    try getFocusedWindow { window, originFrame in
+      var newWindowFrame = originFrame
       let oldWindowFrame = newWindowFrame
 
       switch direction {
@@ -240,38 +234,18 @@ final class WindowCommandRunner {
         dockRightSize = dockSize
       }
 
-      // MARK: - TODO: Rewrite this method with the help of the math functions.
-
       if constrainedToScreen {
-        if newWindowFrame.maxX >= currentScreen.frame.maxX - dockRightSize {
-          newWindowFrame.origin.x = currentScreen.frame.maxX - newWindowFrame.size.width - dockRightSize
-        } else if newWindowFrame.origin.x <= currentScreen.frame.origin.x + dockLeftSize {
-          newWindowFrame.origin.x = currentScreen.frame.origin.x + dockLeftSize
-        } else if newWindowFrame.origin.x < currentScreen.frame.origin.x {
-          newWindowFrame.origin.x = currentScreen.frame.origin.x
-        }
+        let maxX = currentScreen.frame.maxX - newWindowFrame.width
+        let maxY = currentScreen.frame.maxY - newWindowFrame.height
+
+        newWindowFrame.origin.x = min(max(currentScreen.frame.origin.x + dockLeftSize,
+                                          newWindowFrame.origin.x), maxX - dockRightSize)
 
         if currentScreen.isMainDisplay {
-          if newWindowFrame.maxY >= currentScreen.frame.maxY - dockBottomSize {
-            newWindowFrame.origin.y = currentScreen.frame.maxY - newWindowFrame.size.height
-            newWindowFrame.origin.y -= dockBottomSize
-          } else if newWindowFrame.origin.y >= currentScreen.visibleFrame.maxY {
-            newWindowFrame.origin.y = currentScreen.visibleFrame.maxY
-          }
+          newWindowFrame.origin.y = min(newWindowFrame.origin.y, maxY - dockBottomSize)
         } else {
-          if currentScreen.frame.origin.y > 0 {
-            // The second screen is above the main display.
-            let zeroPoint = -abs(currentScreen.frame.origin.y) - statusBarHeightAndSystemThickness()
-            let prototype = CGRect(origin: .init(x: 0, y: zeroPoint), size: currentScreen.frame.size)
-            let maxY = prototype.origin.y + currentScreen.frame.height - newWindowFrame.height
-            newWindowFrame.origin.y = min(newWindowFrame.origin.y, maxY)
-          } else {
-            // The second screen is below the main display.
-            let zeroPoint = abs(currentScreen.frame.origin.y) - statusBarHeight()
-            let prototype = CGRect(origin: .init(x: 0, y: zeroPoint), size: currentScreen.frame.size)
-            let maxY = prototype.origin.y + currentScreen.frame.height - newWindowFrame.height - statusBarHeight()
-            newWindowFrame.origin.y = min(newWindowFrame.origin.y, maxY)
-          }
+          let maxY = mainDisplay.frame.maxY - currentScreen.visibleFrame.origin.y - originFrame.height
+          newWindowFrame.origin.y = min(newWindowFrame.origin.y, maxY)
         }
       }
 
@@ -403,8 +377,8 @@ final class WindowCommandRunner {
   }
 
   @MainActor
-  private func moveToNextDisplay(_ mode: WindowCommand.Mode) throws {
-    guard let mainScreen = NSScreen.main else { return }
+  private func moveToNextDisplay(_ mode: WindowCommand.Mode, animationDuration: Double) throws {
+    guard NSScreen.screens.count > 1, let currentScreen = NSScreen.main else { return }
 
     var nextScreen: NSScreen? = NSScreen.screens.first
     var foundMain: Bool = false
@@ -412,44 +386,45 @@ final class WindowCommandRunner {
       if foundMain {
         nextScreen = screen
         break
-      } else if mainScreen == nextScreen {
+      } else if currentScreen == nextScreen {
         foundMain = true
       }
     }
 
-    guard let nextScreen else { return }
+    guard let nextScreen,
+          let mainDisplay = NSScreen.mainDisplay else { return }
 
-    try getFocusedWindow { window, windowFrame in
-      switch mode {
-      case .center:
-        window.frame?.origin.x = nextScreen.frame.origin.x
-        try self.center(nextScreen, animationDuration: 0.0)
-      case .relative:
-        let currentFrame = mainScreen.frame
-        let nextFrame = nextScreen.frame
-        var windowFrame = windowFrame
+    try getFocusedWindow { activeWindow, originFrame in
+      var (x, y): (CGFloat, CGFloat)
+      let newFrame: CGRect
+      let widthRatio: CGFloat = nextScreen.frame.width / currentScreen.frame.width
+      let heightRatio = nextScreen.frame.height / currentScreen.frame.height
+      let size = CGSize(width: round(originFrame.width * widthRatio),
+                        height: round(originFrame.height * heightRatio))
 
-        let scaleWidthFactor = nextFrame.width / currentFrame.width
-        let scaleHeightFactor = nextFrame.height / currentFrame.height
+      let relativeX = originFrame.origin.x - currentScreen.frame.origin.x
+      let percentageX = relativeX / (currentScreen.frame.width * widthRatio)
+      let nextScreenMaxWidth = nextScreen.frame.width * widthRatio
+      let newX = nextScreenMaxWidth * percentageX
 
+      x = nextScreen.frame.origin.x + newX
 
-        let zeroPoint: CGFloat
-        if currentFrame.origin.y > nextFrame.origin.y {
-          zeroPoint = -abs(currentFrame.origin.y)
-        } else {
-          zeroPoint = abs(currentFrame.origin.y)
-        }
+      let zeroPoint = mainDisplay.frame.maxY - currentScreen.visibleFrame.origin.y - originFrame.height
+      let currentPoint = originFrame.origin.y
+      let diff = currentPoint - zeroPoint
+      let transformedDiff = diff * heightRatio
 
-        let maxY = currentFrame.height - abs(zeroPoint)
-        let current = windowFrame.origin.y / maxY
-        let newY = (nextFrame.size.height - windowFrame.size.height) * current
+      y = CGFloat.formula(NSScreen.maxY) { fn in
+        fn.subtract(nextScreen.frame.origin.y)
+        fn.subtract(size.height)
+        fn.add(transformedDiff)
+      }
 
-        windowFrame.size.width *= scaleWidthFactor
-        windowFrame.size.height *= scaleHeightFactor
-        windowFrame.origin.y = newY
-        windowFrame.origin.x = (windowFrame.origin.x - currentFrame.origin.x) * scaleWidthFactor + nextFrame.origin.x
+      let origin = CGPoint(x: x, y: y)
+      newFrame = CGRect(origin: origin, size: size)
 
-        window.frame = windowFrame
+      interpolateWindowFrame(from: originFrame, to: newFrame, duration: animationDuration) { newFrame in
+        activeWindow.frame = newFrame
       }
     }
   }
