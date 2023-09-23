@@ -8,22 +8,22 @@ extension CGRect {
 
 extension CGFloat {
   static func formula(_ initialValue: CGFloat = 0, 
-                      debug: Bool = false,
+                      debug prefix: String? = nil,
                       @GenericBuilder<Math> _ builder: (Math.Type) -> [Math]) -> CGFloat {
     let instructions = builder(Math.self)
-    var result: CGFloat = initialValue
+    var result: CGFloat = initialValue.rounded()
 
     var debugString = "\(initialValue)"
 
     for instruction in instructions {
       switch instruction {
       case .add(let fn):
-        let value = fn()
+        let value = fn().rounded()
         debugString += " + \(value)"
         result += value
 
       case .subtract(let fn):
-        let value = fn()
+        let value = fn().rounded()
         debugString += " - \(value)"
         result -= value
       }
@@ -31,7 +31,7 @@ extension CGFloat {
 
     debugString += " = \(result)"
 
-    if debug { print("🧮 \(debugString)") }
+    if let prefix { print("🧮 \(prefix) \(debugString)") }
 
     return result
   }
