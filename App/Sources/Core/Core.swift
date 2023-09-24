@@ -5,11 +5,11 @@ import InputSources
 final class Core {
   static private var appStorage: AppStorageStore = .init()
 
-//#if DEBUG
-//  static let config: AppPreferences = .designTime()
-//#else
+#if DEBUG
+  static let config: AppPreferences = .designTime()
+#else
   static let config: AppPreferences = .user()
-//#endif
+#endif
 
   // MARK: - Coordinators
 
