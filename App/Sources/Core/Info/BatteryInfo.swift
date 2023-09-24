@@ -5,20 +5,17 @@ final class BatteryInfo {
   struct Model: Equatable {
     let acPowered: Bool?
     let currentCapacity: Float
-    let hasInternalBattery: Bool
     let isLowPowerModeEnabled: Bool
     let isCharged: Bool?
     let isCharging: Bool?
 
     init(acPowered: Bool?,
          currentCapacity: Float,
-         hasInternalBattery: Bool = ProcessInfo.processInfo.isLowPowerModeEnabled,
          isLowPowerModeEnabled: Bool = ProcessInfo.processInfo.isLowPowerModeEnabled,
          isCharging: Bool?,
          isCharged: Bool?) {
       self.acPowered = acPowered
       self.currentCapacity = currentCapacity
-      self.hasInternalBattery = hasInternalBattery
       self.isLowPowerModeEnabled = isLowPowerModeEnabled
       self.isCharged = isCharged
       self.isCharging = isCharging
