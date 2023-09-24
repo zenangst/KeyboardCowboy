@@ -43,6 +43,8 @@
 	<string>Needs permission to Apple Events in order to run Apple Scripts</string>
   <key>NSBluetoothAlwaysUsageDescription</key>
   <string>Needs permission to access Bluetooth peripheral information in order to execute contextual commands.</string>
+  <key>NSBluetoothPeripheralUsageDescription</key>
+  <string>Needs permission to access Bluetooth peripheral information in order to execute contextual commands.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2019 zenangst. All rights reserved.</string>
 	<key>NSPrincipalClass</key>

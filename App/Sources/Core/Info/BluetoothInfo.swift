@@ -2,54 +2,62 @@ import Foundation
 import CoreBluetooth
 
 final class BluetoothInfo: NSObject, CBCentralManagerDelegate {
-  private var centralManager: CBCentralManager!
-
   static let shared = BluetoothInfo()
+  private var central: CBCentralManager!
+  @MainActor
+  private var peripherals = Set<CBPeripheral>()
 
   private override init() {
     super.init()
-    self.centralManager = CBCentralManager(delegate: self, queue: nil)
-    centralManager.delegate = self
+    self.central = CBCentralManager(delegate: self, queue: nil)
+
   }
 
-  func getConnectedDevices() -> [CBPeripheral] {
-    var connectedDevices: [CBPeripheral] = []
 
-    let connectedPeripherals = centralManager.retrieveConnectedPeripherals(withServices: [CBUUID]())
-
-    connectedDevices = connectedPeripherals
-
-    return connectedDevices
+  @MainActor
+  func listConnectedBluetoothDevices(_ central: CBCentralManager) async -> Set<CBPeripheral> {
+    peripherals.removeAll()
+    central.scanForPeripherals(withServices: [])
+    try? await Task.sleep(for: .seconds(2))
+    central.stopScan()
+    return peripherals
   }
 
-  func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-    print(#function)
- }
 
-  func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-//    print(#function)
+  // MARK: CBCentralManagerDelegate
+
+  @MainActor
+  func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, 
+                      advertisementData: [String : Any], rssi RSSI: NSNumber) {
+    peripherals.insert(peripheral)
   }
 
   func centralManagerDidUpdateState(_ central: CBCentralManager) {
-    return
-//    switch central.state {
-//    case .poweredOn:
-//
-//      let connectedDevices = getConnectedDevices()
-//
-//      print("poweredOn")
-//      print(connectedDevices)
-//
-//    case .poweredOff:
-//      print("poweredOff")
-//    case .resetting:
-//      print("resetting")
-//    case .unauthorized:
-//      print("unauthorized")
-//    case .unsupported:
-//      print("unsupported")
-//    case .unknown:
-//      print("unknown")
-//    }
+    switch central.state {
+    case .unknown:
+      print("central.state is .unknown")
+    case .resetting:
+      print("central.state is .resetting")
+    case .unsupported:
+      print("central.state is .unsupported")
+    case .unauthorized:
+      print("central.state is .unauthorized")
+    case .poweredOff:
+      print("central.state is .poweredOff")
+    case .poweredOn:
+      print("central.state is .poweredOn")
+
+      Task {
+        let results = await listConnectedBluetoothDevices(central)
+
+        for peripheral in results {
+          print(peripheral)
+        }
+
+        print(results.count)
+      }
+    @unknown default:
+      fatalError("ops!")
+    }
   }
 }
