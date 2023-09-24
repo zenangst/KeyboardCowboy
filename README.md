@@ -23,23 +23,23 @@ Keyboard Cowboy's intuitive interface and simple setup process make it easy for 
 # Feature overview
 
 | Applications  | Automation |
-| ------------- | ------------- |
+| :--- | :--- |
 | A single key or combination bound to open or activate an application improves workflow efficiency and saves time.  | Automating workflows by triggering them through application events, such as opening, switching, or closing an application.  |
 
 | App-specific  | AppleScripts |
-| ------------- | ------------- |
+| :--- | :--- |
 | By binding groups of workflows to specific applications, you can stay focused and run workflows seamlessly, making you a multitasking master.  | Leveraging the power of AppleScripts can enhance the overall user experience of macOS, allowing you to accomplish tasks quickly and efficiently.  |
 
 | Files & Folders | ShellScripts |
-| ------------- | ------------- |
+| :--- | :--- |
 | By utilizing keyboard shortcuts to open files and folders, macOS users can significantly improve their productivity and save valuable time in their daily workflow.  | With keyboard shortcuts at their fingertips, programmers can unleash the power of shell scripts and turbocharge their productivity, leaving tedious tasks in the dust.  |
 
 | Rebinding | System commands |
-| ------------- | ------------- |
+| :--- |:--- |
 | By rebinding keys to perform different actions or execute complex key sequences, power users can unlock a new level of efficiency and customize their workflow to fit their unique needs.  | Switch effortlessly between open application windows or invoke Exposé with a key of your choosing.  |
 
 | Websites | Window Management |
-| ------------- | ------------- |
+| :--- | :--- |
 | Save time and customize your browsing experience by opening websites in a browser of your choice with a single keystroke.  | Adjust the window by moving it, enlarging or reducing its size, centering it, switching to fullscreen, or transferring it to the next display. |
 
 # The best shortcut is no shortcut at all.
