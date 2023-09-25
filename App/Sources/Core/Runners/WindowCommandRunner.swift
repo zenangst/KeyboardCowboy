@@ -414,7 +414,7 @@ final class WindowCommandRunner {
       let diff = currentPoint - zeroPoint
       let transformedDiff = diff * heightRatio
 
-      y = CGFloat.formula(NSScreen.maxY) { fn in
+      y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
         fn.subtract(nextScreen.frame.origin.y)
         fn.subtract(size.height)
         fn.add(transformedDiff)
