@@ -150,9 +150,9 @@ final class WindowRunnerAnchorWindow {
         }
       }
     case .trailing:
-      if abs(originFrame.width - maxWidth) < 2 {
+      if abs(originFrame.width - maxWidth) < deltaLimit {
         width = midWidth
-      } else if abs(originFrame.width - midWidth) < 2 {
+      } else if abs(originFrame.width - midWidth) < deltaLimit {
         width = minWidth
       } else {
         width = maxWidth
