@@ -1,6 +1,8 @@
 import AXEssibility
 import Cocoa
+import Combine
 import Foundation
+import MachPort
 
 enum WindowCommandRunnerError: Error {
   case unableToResolveFrontmostApplication
@@ -8,6 +10,9 @@ enum WindowCommandRunnerError: Error {
 }
 
 final class WindowCommandRunner {
+  private var isRepeatingEvent: Bool = false
+  private var subscription: AnyCancellable?
+  private var minSizeCache = [CGWindowID: CGSize]()
   private var centerCache = [CGWindowID: CGRect]()
   private var fullscreenCache = [CGWindowID: CGRect]()
   private var task: Task<Void, Error>? {
@@ -16,14 +21,21 @@ final class WindowCommandRunner {
     }
   }
 
+  func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
+    subscription = publisher
+      .compactMap { $0 }
+      .sink { [weak self] machPortEvent in
+        let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
+        self?.isRepeatingEvent = isRepeatingEvent
+    }
+  }
+
   @MainActor
   func run(_ command: WindowCommand) async throws {
     guard let currentScreen = NSScreen.main,
           let mainDisplay = NSScreen.mainDisplay else { return }
 
-    try getFocusedWindow {
-      activeWindow,
-      originFrame in
+    try getFocusedWindow { app, activeWindow, originFrame in
       let newFrame: CGRect
       switch command.kind {
       case .anchor(let position, let padding):
@@ -35,6 +47,28 @@ final class WindowCommandRunner {
             currentScreen: currentScreen,
             mainDisplay: mainDisplay
           )
+
+        try getFocusedWindow(sizeCache: true, then: { app, activeWindow, originFrame in
+          let minSize: CGSize?
+          if let size = minSizeCache[activeWindow.id] {
+            minSize = CGSize(width: size.width + CGFloat(padding),
+                             height: size.height + CGFloat(padding))
+          } else {
+            minSize = nil
+          }
+
+          interpolateWindowFrame(
+            from: originFrame,
+            to: newFrame,
+            minSize: minSize,
+            currentScreen: currentScreen,
+            mainDisplay: mainDisplay,
+            constrainedToScreen: true,
+            duration: command.animationDuration,
+            onUpdate: { activeWindow.frame = $0 }
+          )
+        })
+        return
       case .decreaseSize(let byValue, let direction, let constrainedToScreen):
         newFrame = WindowRunnerDecreaseWindowSize
           .calulateRect(
@@ -56,6 +90,7 @@ final class WindowCommandRunner {
             mainDisplay: mainDisplay
           )
       case .move(let byValue, let direction, let constrainedToScreen):
+        app.enhancedUserInterface = !isRepeatingEvent
         newFrame = WindowRunnerMoveWindow
           .calulateRect(
             originFrame,
@@ -71,7 +106,7 @@ final class WindowCommandRunner {
                         padding: padding,
                         currentScreen: currentScreen,
                         mainDisplay: mainDisplay)
-        
+
         let lhs = resolvedFrame.origin.x + resolvedFrame.origin.y + resolvedFrame.width + resolvedFrame.size.height + statusBarHeight()
         let rhs = originFrame.origin.x + originFrame.origin.y + originFrame.width + originFrame.size.height
         let delta = abs(lhs - rhs)
@@ -126,6 +161,8 @@ final class WindowCommandRunner {
       interpolateWindowFrame(
         from: originFrame,
         to: newFrame,
+        currentScreen: currentScreen,
+        mainDisplay: mainDisplay,
         duration: command.animationDuration,
         onUpdate: { activeWindow.frame = $0 }
       )
@@ -150,7 +187,7 @@ final class WindowCommandRunner {
     statusBarHeight() + statusBarThickness()
   }
 
-  private func getFocusedWindow(_ then: (WindowAccessibilityElement, CGRect) throws -> Void) throws {
+  private func getFocusedWindow(sizeCache: Bool = false, then: (AppAccessibilityElement, WindowAccessibilityElement, CGRect) throws -> Void) throws {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
       throw WindowCommandRunnerError.unableToResolveFrontmostApplication
     }
@@ -170,23 +207,75 @@ final class WindowCommandRunner {
       throw WindowCommandRunnerError.unabelToResolveWindowFrame
     }
 
-    try then(focusedWindow, windowFrame)
+    if sizeCache, minSizeCache[focusedWindow.id] == nil, let oldSize = focusedWindow.size {
+      focusedWindow.frame?.size = .zero
+      if let size = focusedWindow.size {
+        minSizeCache[focusedWindow.id] = size
+      }
+      focusedWindow.frame?.size = oldSize
+    }
+
+    try then(app, focusedWindow, windowFrame)
 
     app.enhancedUserInterface = previousValue
   }
 
   @MainActor
   private func interpolateWindowFrame(from oldFrame: CGRect, to newFrame: CGRect,
+                                      minSize: CGSize? = nil,
+                                      currentScreen: NSScreen, mainDisplay: NSScreen,
                                       curve: InterpolationCurve = .easeInOut,
-                                      duration: TimeInterval, onUpdate: @MainActor @escaping (CGRect) -> Void) {
+                                      constrainedToScreen: Bool = false, duration: TimeInterval,
+                                      onUpdate: @MainActor @escaping (CGRect) -> Void) {
+    let dockSize = getDockSize(mainDisplay)
+    let dockPosition = getDockPosition(mainDisplay)
+    let currenScreenFrame = currentScreen.frame
+    let currentScreenVisibleFrame = currentScreen.visibleFrame
+    let currentScreenIsMainDisplay = currentScreen.isMainDisplay
+    let mainDisplayMaxY = mainDisplay.frame.maxY
+    let maximumFramesPerSecond = TimeInterval(currentScreen.maximumFramesPerSecond)
+
+    let dockRightSize: CGFloat
+    let dockBottomSize: CGFloat
+    let dockLeftSize: CGFloat
+
+    switch dockPosition {
+    case .bottom:
+      dockRightSize = 0
+      dockLeftSize = 0
+      dockBottomSize = dockSize
+    case .left:
+      dockBottomSize = 0
+      dockLeftSize = dockSize
+      dockRightSize = 0
+    case .right:
+      dockBottomSize = 0
+      dockLeftSize = 0
+      dockRightSize = dockSize
+    }
+
     if duration == 0 {
-      onUpdate(newFrame)
+      var modifiedFrame = newFrame
+      if constrainedToScreen {
+        Self.constrainToMax(
+          &modifiedFrame,
+          minSize: minSize,
+          currenScreenFrame: currenScreenFrame,
+          currenScreenVisibleFrame: currentScreenVisibleFrame,
+          dockBottomSize: dockBottomSize,
+          dockLeftSize: dockLeftSize,
+          dockRightSize: dockRightSize,
+          currentScreenIsMainDisplay: currentScreenIsMainDisplay,
+          mainDisplayMaxY: mainDisplayMaxY
+        )
+      }
+      onUpdate(modifiedFrame)
       return
     }
 
     self.task = Task {
       await withThrowingTaskGroup(of: Void.self) { group in
-        let numberOfFrames = Int(duration * 60)
+        let numberOfFrames = Int(duration * maximumFramesPerSecond)
         for frameIndex in 0...numberOfFrames {
           group.addTask {
             let progress = CGFloat(frameIndex) / CGFloat(numberOfFrames)
@@ -207,14 +296,51 @@ final class WindowCommandRunner {
                                              y: Self.interpolate(from: oldFrame.origin.y, to: newFrame.origin.y, progress: easedProgress))
             let interpolatedSize = CGSize(width: Self.interpolate(from: oldFrame.size.width, to: newFrame.size.width, progress: easedProgress),
                                           height: Self.interpolate(from: oldFrame.size.height, to: newFrame.size.height, progress: easedProgress))
-            let interpolatedFrame = CGRect(origin: interpolatedOrigin, size: interpolatedSize)
+            var interpolatedFrame = CGRect(origin: interpolatedOrigin, size: interpolatedSize)
             let delay = (duration / TimeInterval(numberOfFrames)) * TimeInterval(frameIndex)
+
+            if constrainedToScreen {
+              Self.constrainToMax(
+                &interpolatedFrame,
+                minSize: minSize,
+                currenScreenFrame: currenScreenFrame,
+                currenScreenVisibleFrame: currentScreenVisibleFrame,
+                dockBottomSize: dockBottomSize,
+                dockLeftSize: dockLeftSize,
+                dockRightSize: dockRightSize,
+                currentScreenIsMainDisplay: currentScreenIsMainDisplay,
+                mainDisplayMaxY: mainDisplayMaxY
+              )
+            }
+
             try await Task.sleep(for: .seconds(delay))
             try Task.checkCancellation()
             await onUpdate(interpolatedFrame)
           }
         }
       }
+    }
+  }
+
+  private static func constrainToMax(_ interpolatedFrame: inout CGRect,
+                                     minSize: CGSize? = nil,
+                                     currenScreenFrame: CGRect,
+                                     currenScreenVisibleFrame: CGRect,
+                                     dockBottomSize: CGFloat,
+                                     dockLeftSize: CGFloat,
+                                     dockRightSize: CGFloat,
+                                     currentScreenIsMainDisplay: Bool,
+                                     mainDisplayMaxY: CGFloat) {
+    let maxX = currenScreenFrame.maxX - (minSize?.width ?? interpolatedFrame.width)
+    let maxY = currenScreenFrame.maxY - (minSize?.height ?? interpolatedFrame.height)
+
+    interpolatedFrame.origin.x = min(interpolatedFrame.origin.x, maxX)
+
+    if currentScreenIsMainDisplay {
+      interpolatedFrame.origin.y = min(interpolatedFrame.origin.y, maxY - dockBottomSize)
+    } else {
+      let maxY = mainDisplayMaxY - currenScreenVisibleFrame.origin.y - interpolatedFrame.height
+      interpolatedFrame.origin.y = min(interpolatedFrame.origin.y, maxY)
     }
   }
 
