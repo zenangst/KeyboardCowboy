@@ -26,6 +26,15 @@ final class WindowCommandRunner {
       originFrame in
       let newFrame: CGRect
       switch command.kind {
+      case .anchor(let position, let padding):
+        newFrame = WindowRunnerAnchorWindow
+          .calulateRect(
+            originFrame,
+            position: position,
+            padding: padding,
+            currentScreen: currentScreen,
+            mainDisplay: mainDisplay
+          )
       case .decreaseSize(let byValue, let direction, let constrainedToScreen):
         newFrame = WindowRunnerDecreaseWindowSize
           .calulateRect(

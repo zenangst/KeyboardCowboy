@@ -33,6 +33,10 @@ struct WindowManagementCommandView: View {
       _padding = .init(initialValue: String(padding))
       _pixels = .init(initialValue: "0")
       _constrainToScreen = .init(initialValue: true)
+    case .anchor(_, let padding):
+      _padding = .init(initialValue: String(padding))
+      _pixels = .init(initialValue: String(padding))
+      _constrainToScreen = .init(initialValue: false)
     default:
       _padding = .init(initialValue: "0")
       _pixels = .init(initialValue: "0")
@@ -48,7 +52,8 @@ struct WindowManagementCommandView: View {
         switch model.kind {
         case  .increaseSize(_, let direction, _),
               .decreaseSize(_, let direction, _),
-              .move(_, let direction, _):
+              .move(_, let direction, _),
+              .anchor(let direction, _):
           RoundedRectangle(cornerSize: .init(width: 8, height: 8))
             .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
             .frame(width: 32, height: 32, alignment: .center)
@@ -142,8 +147,8 @@ struct WindowManagementCommandView: View {
         switch model.kind {
         case  .increaseSize(_, let direction, _),
               .decreaseSize(_, let direction, _),
-              .move(_, let direction, _):
-
+              .move(_, let direction, _),
+              .anchor(let direction, _):
           HStack(spacing: 16) {
             let models = WindowCommand.Direction.allCases
             LazyVGrid(columns: (0..<3).map {
@@ -163,6 +168,8 @@ struct WindowManagementCommandView: View {
                     kind = .decreaseSize(by: value, direction: element, constrainedToScreen: constrainedToScreen)
                   case .move(let value, _, let constrainedToScreen):
                     kind = .move(by: value, direction: element, constrainedToScreen: constrainedToScreen)
+                  case .anchor(_, let padding):
+                    kind = .anchor(position: element, padding: padding)
                   default:
                     return
                   }
@@ -192,6 +199,8 @@ struct WindowManagementCommandView: View {
                     kind = .decreaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
                   case .move(_, let direction, let constrainedToScreen):
                     kind = .move(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                  case .anchor(let position, _):
+                    kind = .anchor(position: position, padding: pixels)
                   default:
                     return
                   }
@@ -201,30 +210,41 @@ struct WindowManagementCommandView: View {
                 .textFieldStyle(AppTextFieldStyle())
                 .frame(width: 64)
                 .fixedSize()
-                Text("pixels")
-                  .font(.caption)
+                if case .anchor = model.kind {
+                  Text("padding")
+                    .font(.caption)
+                } else {
+                  Text("pixels")
+                    .font(.caption)
+                }
               }
 
-              AppCheckbox(
-                "Constrain to screen bounds",
-                style: .small,
-                isOn: $constrainToScreen
-              ) { constrainedToScreen in
-                let kind: WindowCommand.Kind
-                switch model.kind {
-                case .increaseSize(let pixels, let direction, _):
-                  kind = .increaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
-                case .decreaseSize(let pixels, let direction, _):
-                  kind = .decreaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
-                case .move(let pixels, let direction, _):
-                  kind = .move(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
-                default:
-                  return
+              if case .anchor = model.kind {
+                EmptyView()
+              } else {
+                AppCheckbox(
+                  "Constrain to screen bounds",
+                  style: .small,
+                  isOn: $constrainToScreen
+                ) { constrainedToScreen in
+                  let kind: WindowCommand.Kind
+                  switch model.kind {
+                  case .increaseSize(let pixels, let direction, _):
+                    kind = .increaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                  case .decreaseSize(let pixels, let direction, _):
+                    kind = .decreaseSize(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                  case .move(let pixels, let direction, _):
+                    kind = .move(by: pixels, direction: direction, constrainedToScreen: constrainedToScreen)
+                  case .anchor(let position, let padding):
+                    kind = .anchor(position: position, padding: padding)
+                  default:
+                    return
+                  }
+                  model.kind = kind
+                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
                 }
-                model.kind = kind
-                onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                .font(.caption)
               }
-              .font(.caption)
             }
 
           }
@@ -268,7 +288,8 @@ struct WindowManagementCommandView: View {
     switch kind {
     case .increaseSize(_, let direction, _),
         .decreaseSize(_, let direction, _),
-        .move(_, let direction, _):
+        .move(_, let direction, _),
+        .anchor(let direction, _):
       switch direction {
       case .leading:
         return .leading
