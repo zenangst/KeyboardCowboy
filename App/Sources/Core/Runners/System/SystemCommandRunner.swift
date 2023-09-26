@@ -39,6 +39,7 @@ final class SystemCommandRunner {
       .sink { [weak self]  in
         guard let self else { return }
         self.frontmostApplication = $0
+        self.indexFrontmost($0)
         if self.interactive == false { self.index($0) }
       }
   }
