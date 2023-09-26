@@ -58,14 +58,16 @@ final class WindowCommandRunner {
           )
       case .fullscreen(let padding):
         let resolvedFrame = WindowRunnerFullscreen
-          .calulateRect(originFrame, currentScreen: currentScreen, 
+          .calulateRect(originFrame, 
+                        padding: padding,
+                        currentScreen: currentScreen,
                         mainDisplay: mainDisplay)
         
         let lhs = resolvedFrame.origin.x + resolvedFrame.origin.y + resolvedFrame.width + resolvedFrame.size.height + statusBarHeight()
         let rhs = originFrame.origin.x + originFrame.origin.y + originFrame.width + originFrame.size.height
         let delta = abs(lhs - rhs)
-        let limit = currentScreen.visibleFrame.height - currentScreen.frame.height
-        
+        let limit = currentScreen.visibleFrame.height - currentScreen.frame.height - CGFloat(padding)
+
         if delta <= abs(limit),
            let restoreFrame = fullscreenCache[activeWindow.id] {
           newFrame = restoreFrame
