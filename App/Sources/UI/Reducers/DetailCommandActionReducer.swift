@@ -5,9 +5,7 @@ final class DetailCommandActionReducer {
   static func reduce(_ action: CommandView.Action,
                      commandRunner: CommandRunner,
                      workflow: inout  Workflow) {
-    guard var command: Command = workflow.commands.first(where: { $0.id == action.commandId }) else {
-      fatalError("Unable to find command.")
-    }
+    guard var command: Command = workflow.commands.first(where: { $0.id == action.commandId }) else { return }
 
     switch action {
     case .changeDelay(_, _, let newValue):

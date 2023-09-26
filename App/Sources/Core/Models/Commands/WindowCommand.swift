@@ -72,6 +72,8 @@ struct WindowCommand: MetaDataProviding {
         return "move:\(toValue)\(direction.rawValue)"
       case .moveToNextDisplay(let mode):
         return "moveToNextDisplay.\(mode.rawValue)"
+      case .anchor:
+        return "anchor"
       }
     }
 
@@ -81,6 +83,7 @@ struct WindowCommand: MetaDataProviding {
     case fullscreen(padding: Int)
     case center
     case moveToNextDisplay(mode: Mode)
+    case anchor(position: Direction, padding: Int)
 
     var displayValue: String {
       switch self {
@@ -89,13 +92,15 @@ struct WindowCommand: MetaDataProviding {
       case .fullscreen:
         return "Fullscreen"
       case .move:
-        return "Move window"
+        return "Move Window"
       case .decreaseSize:
-        return "Shrink window"
+        return "Shrink Window"
       case .increaseSize:
-        return "Grow window"
+        return "Grow Window"
       case .moveToNextDisplay(let mode):
         return "Move to Next Display - \(mode.displayValue)"
+      case .anchor:
+        return "Anchor and Resize Window"
       }
     }
 
@@ -106,7 +111,9 @@ struct WindowCommand: MetaDataProviding {
        .decreaseSize(by: 0, direction: .bottomTrailing, constrainedToScreen: false),
        .increaseSize(by: 0, direction: .bottomTrailing, constrainedToScreen: false),
        .moveToNextDisplay(mode: .center),
-       .moveToNextDisplay(mode: .relative)]
+       .moveToNextDisplay(mode: .relative),
+       .anchor(position: .leading, padding: 0)
+      ]
     }
 
     var isIncremental: Bool {
