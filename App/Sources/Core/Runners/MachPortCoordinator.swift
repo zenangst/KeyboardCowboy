@@ -128,7 +128,7 @@ final class MachPortCoordinator {
     let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
       .compactMap({ ModifierKey(rawValue: $0.rawValue) })
 
-    let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
+    let keyboardShortcut = KeyShortcut(id: UUID().uuidString, key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
     // Found a match
     var result = keyboardShortcutsController.lookup(keyboardShortcut, partialMatch: previousPartialMatch)
@@ -223,7 +223,7 @@ final class MachPortCoordinator {
                    specialKeys: Array(store.specialKeys().keys))
     let modifiers = virtualModifiers
       .compactMap({ ModifierKey(rawValue: $0.rawValue) })
-    let keyboardShortcut = KeyShortcut(key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
+    let keyboardShortcut = KeyShortcut(id: UUID().uuidString, key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
 
     if allowAllKeys {
       return .valid(keyboardShortcut)
