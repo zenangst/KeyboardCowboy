@@ -2,16 +2,16 @@ import SwiftUI
 
 struct WorkflowShortcutsView: View {
   var focus: FocusState<AppFocus?>.Binding
-  @State private var data: [KeyShortcut]
+  @Binding private var data: [KeyShortcut]
   private let onUpdate: ([KeyShortcut]) -> Void
   private let selectionManager: SelectionManager<KeyShortcut>
 
-  init(_ focus: FocusState<AppFocus?>.Binding, data: [KeyShortcut],
+  init(_ focus: FocusState<AppFocus?>.Binding, data: Binding<[KeyShortcut]>,
        selectionManager: SelectionManager<KeyShortcut>,
        onUpdate: @escaping ([KeyShortcut]) -> Void) {
     self.focus = focus
     self.selectionManager = selectionManager
-    _data = .init(initialValue: data)
+    _data = data
     self.onUpdate = onUpdate
   }
 

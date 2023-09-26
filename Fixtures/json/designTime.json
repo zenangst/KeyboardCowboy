@@ -4,76 +4,95 @@
     "name" : "Default configuration",
     "groups" : [
       {
-        "id" : "7DF42FEB-5702-4366-BCD7-2FA267CB3D1B",
+        "color" : "#EB5545",
         "symbol" : "autostartstop",
         "name" : "Automation",
+        "id" : "7DF42FEB-5702-4366-BCD7-2FA267CB3D1B",
         "workflows" : [
-
-        ],
-        "color" : "#EB5545"
+          {
+            "id" : "B6F3D78D-61AE-4759-83E4-7D137E2F2A1C",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "key" : "k",
+                    "id" : "A9B35E85-0AFA-4B41-AA22-A66D3E242D29",
+                    "lhs" : false,
+                    "modifiers" : [
+                      "@"
+                    ]
+                  }
+                ]
+              }
+            },
+            "name" : "Untitled workflow",
+            "execution" : "concurrent"
+          }
+        ]
       },
       {
         "id" : "7B6B3743-ED08-4558-990D-AF21309F8F7F",
-        "symbol" : "app.dashed",
+        "color" : "#F2A23C",
         "name" : "Applications",
         "workflows" : [
 
         ],
-        "color" : "#F2A23C"
+        "symbol" : "app.dashed"
       },
       {
-        "id" : "B43AE15C-6C64-4BD7-84E9-12C4C39EE623",
-        "symbol" : "applescript",
-        "name" : "AppleScripts",
         "workflows" : [
 
         ],
-        "color" : "#F9D64A"
+        "symbol" : "applescript",
+        "id" : "B43AE15C-6C64-4BD7-84E9-12C4C39EE623",
+        "color" : "#F9D64A",
+        "name" : "AppleScripts"
       },
       {
-        "id" : "7F60EBF8-AB2A-4C23-AD46-E610DF7BAB0C",
-        "symbol" : "folder",
+        "color" : "#6BD35F",
         "name" : "Files & Folders",
         "workflows" : [
 
         ],
-        "color" : "#6BD35F"
+        "symbol" : "folder",
+        "id" : "7F60EBF8-AB2A-4C23-AD46-E610DF7BAB0C"
       },
       {
-        "id" : "D69E891C-21FD-456F-A121-9ED1E471B282",
-        "symbol" : "app.connected.to.app.below.fill",
-        "name" : "Rebinding",
         "workflows" : [
 
         ],
+        "id" : "D69E891C-21FD-456F-A121-9ED1E471B282",
+        "name" : "Rebinding",
+        "symbol" : "app.connected.to.app.below.fill",
         "color" : "#3984F7"
       },
       {
         "id" : "F5FBD29B-694B-4110-9B10-ACAC4D10A60D",
-        "symbol" : "terminal",
+        "color" : "#B263EA",
         "name" : "ShellScripts",
+        "symbol" : "terminal",
         "workflows" : [
 
-        ],
-        "color" : "#B263EA"
+        ]
       },
       {
-        "id" : "749FB151-13A6-48D5-95DD-CA02D291A5D2",
-        "symbol" : "laptopcomputer",
         "name" : "System",
+        "id" : "749FB151-13A6-48D5-95DD-CA02D291A5D2",
+        "color" : "#98989D",
         "workflows" : [
 
         ],
-        "color" : "#98989D"
+        "symbol" : "laptopcomputer"
       },
       {
         "id" : "9F862622-573B-4467-87A8-0ECF0692391E",
-        "symbol" : "safari",
-        "name" : "Websites",
+        "color" : "#A78F6D",
         "workflows" : [
 
         ],
-        "color" : "#A78F6D"
+        "name" : "Websites",
+        "symbol" : "safari"
       }
     ]
   }
