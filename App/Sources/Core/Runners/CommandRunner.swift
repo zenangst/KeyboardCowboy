@@ -26,6 +26,7 @@ final class CommandRunner: CommandRunning {
       runners.system.machPort = machPort
       if let machPort {
         runners.system.subscribe(to: machPort.$flagsChanged)
+        runners.window.subscribe(to: machPort.$event)
       }
     }
   }

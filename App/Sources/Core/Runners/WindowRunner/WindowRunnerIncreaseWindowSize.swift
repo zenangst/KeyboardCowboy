@@ -11,7 +11,6 @@ final class WindowRunnerIncreaseWindowSize {
                            mainDisplay: NSScreen) -> CGRect {
     let newValue = CGFloat(byValue)
     var newFrame = originFrame
-    let oldWindowFrame = newFrame
 
     switch direction {
     case .leading:
