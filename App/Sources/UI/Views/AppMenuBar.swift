@@ -42,21 +42,56 @@ struct AppMenuBar: Scene {
 
   var body: some Scene {
     MenuBarExtra(content: {
-      Button("Open \(applicationName)") { onAction(.openMainWindow) }
-      Button("Check for updates...", action: {
-        appUpdater.checkForUpdates()
-      })
-      Divider()
-      if KeyboardCowboy.env == .development {
-        Button("Reveal") { onAction(.reveal) }
+      Button {
+        onAction(.openMainWindow)
+      } label: {
+        Image(systemName: "text.and.command.macwindow")
+        Text("Open \(applicationName)")
       }
-      Button("Provide feedback...", action: {
-        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
+
+      Button {
+        appUpdater.checkForUpdates()
+      } label: {
+        Image(systemName: "sparkles")
+        Text("Check for updates…")
+      }
+
+      Divider()
+
+      Button(action: {
+        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki")!)
+      }, label: {
+        Image(systemName: "info.square")
+        Text("Wiki")
       })
+
+      Button(action: {
+        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/discussions")!)
+      }, label: {
+        Image(systemName: "bubble.left")
+        Text("Discussions")
+      })
+
+      Button(action: {
+        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
+      }, label: {
+        Image(systemName: "ladybug")
+        Text("File a Bug")
+      })
+
       Divider()
       Text("Version: \(KeyboardCowboy.marektingVersion) (\(KeyboardCowboy.buildNumber))")
-      Button("Quit") { NSApplication.shared.terminate(nil) }
-        .keyboardShortcut("q", modifiers: [.command])
+#if DEBUG
+      Button(action: { onAction(.reveal) }, label: {
+        Text("Reveal")
+      })
+#endif
+      Button(action: {
+        NSApplication.shared.terminate(nil)
+      }, label: {
+        Text("Quit")
+      })
+      .keyboardShortcut("q", modifiers: [.command])
     }) {
       _MenubarIcon()
         .onAppear(perform: { onAction(.onAppear) })
@@ -83,7 +118,7 @@ private struct _MenubarIcon: View {
     if launchArguments.isEnabled(.runningUnitTests) {
       Image(systemName: "testtube.2")
     } else if KeyboardCowboy.env == .production {
-      Text("⌘")
+      Image(systemName: "command")
     } else {
       Image(systemName: "hammer.circle")
     }
