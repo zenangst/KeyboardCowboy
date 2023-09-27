@@ -43,7 +43,7 @@ struct CommandContainerDelayView: View {
       }
       .buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
       .popover(isPresented: $delayOverlay, content: {
-        CommandContainerDelayPopoverView($metaData, onChange: onChange)
+        CommandContainerDelayPopoverView($metaData, isShown: $delayOverlay, onChange: onChange)
       })
     }
   }
