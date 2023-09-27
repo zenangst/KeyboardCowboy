@@ -9,6 +9,7 @@ struct AppMenuBar: Scene {
 
   @Environment(\.scenePhase) private var scenePhase
   @StateObject var appUpdater = AppUpdater()
+  @StateObject var loginItem = LoginItem()
 
   private var applicationName: String {
     switch KeyboardCowboy.env {
@@ -49,12 +50,19 @@ struct AppMenuBar: Scene {
         Text("Open \(applicationName)")
       }
 
+
       Button {
         appUpdater.checkForUpdates()
       } label: {
         Image(systemName: "sparkles")
         Text("Check for updates…")
       }
+
+      Toggle(isOn: $loginItem.isEnabled, label: {
+        Image(systemName: "person")
+        Text("Open at Login")
+      })
+      .toggleStyle(.checkbox)
 
       Divider()
 
