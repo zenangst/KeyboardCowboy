@@ -9,7 +9,6 @@ final class SystemInfo {
 
   @Published private(set) var context: Context
 
-  let bluetooth = BluetoothInfo.shared
   let wifiInfo = WifiInfo.shared
   let batteryInfo = BatteryInfo.shared
   var subscriptions = [AnyCancellable]()

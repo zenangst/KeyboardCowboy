@@ -33,7 +33,5 @@ final class ContextualTriggerController {
 
   private func evaluate(_ context: SystemInfo.Context) {
     self.currentContext = context
-    print("🍏 Context changed:")
-    dump(context)
   }
 }

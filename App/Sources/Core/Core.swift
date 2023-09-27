@@ -100,12 +100,5 @@ final class Core {
 
   lazy private(set) var keyboardShortcutsController = KeyboardShortcutsController()
 
-  // MARK: - Context
-
-  let systemInfo = SystemInfo()
-  let contextualController = ContextualTriggerController()
-
-  init() { 
-    contextualController.subscribe(to: systemInfo.$context)
-  }
+  init() { }
 }
