@@ -35,83 +35,85 @@ final class WindowCommandRunner {
     guard let currentScreen = NSScreen.main,
           let mainDisplay = NSScreen.mainDisplay else { return }
 
-    try getFocusedWindow { app, activeWindow, originFrame in
+    try getFocusedWindow(sizeCache: {
+      switch command.kind {
+      case .anchor: true
+      default: false
+      }
+    }()) {
+      app,
+      activeWindow,
+      originFrame in
       let newFrame: CGRect
       switch command.kind {
       case .anchor(let position, let padding):
-        newFrame = WindowRunnerAnchorWindow
-          .calulateRect(
-            originFrame,
-            position: position,
-            padding: padding,
-            currentScreen: currentScreen,
-            mainDisplay: mainDisplay
-          )
-
-        try getFocusedWindow(sizeCache: true, then: { app, activeWindow, originFrame in
-          let minSize: CGSize?
-          if let size = minSizeCache[activeWindow.id] {
-            minSize = CGSize(width: size.width + CGFloat(padding),
-                             height: size.height + CGFloat(padding))
-          } else {
-            minSize = nil
-          }
-
-          interpolateWindowFrame(
-            from: originFrame,
-            to: newFrame,
-            minSize: minSize,
-            currentScreen: currentScreen,
-            mainDisplay: mainDisplay,
-            constrainedToScreen: true,
-            duration: command.animationDuration,
-            onUpdate: { activeWindow.frame = $0 }
-          )
-        })
+        let minSize: CGSize?
+        if let size = minSizeCache[activeWindow.id] {
+          minSize = CGSize(width: size.width + CGFloat(padding),
+                           height: size.height + CGFloat(padding))
+        } else {
+          minSize = nil
+        }
+        newFrame = WindowRunnerAnchorWindow.calulateRect(
+          originFrame,
+          minSize: minSize,
+          position: position,
+          padding: padding,
+          currentScreen: currentScreen,
+          mainDisplay: mainDisplay
+        )
+        
+        interpolateWindowFrame(
+          from: originFrame,
+          to: newFrame,
+          minSize: minSize,
+          currentScreen: currentScreen,
+          mainDisplay: mainDisplay,
+          constrainedToScreen: true,
+          duration: command.animationDuration,
+          onUpdate: { activeWindow.frame = $0 }
+        )
         return
       case .decreaseSize(let byValue, let direction, let constrainedToScreen):
-        newFrame = WindowRunnerDecreaseWindowSize
-          .calulateRect(
-            originFrame,
-            byValue: byValue,
-            in: direction,
-            constrainedToScreen: constrainedToScreen,
-            currentScreen: currentScreen,
-            mainDisplay: mainDisplay
-          )
+        newFrame = WindowRunnerDecreaseWindowSize.calulateRect(
+          originFrame,
+          byValue: byValue,
+          in: direction,
+          constrainedToScreen: constrainedToScreen,
+          currentScreen: currentScreen,
+          mainDisplay: mainDisplay
+        )
       case .increaseSize(let byValue, let direction, let constrainedToScreen):
-        newFrame = WindowRunnerIncreaseWindowSize
-          .calulateRect(
-            originFrame,
-            byValue: byValue,
-            in: direction,
-            constrainedToScreen: constrainedToScreen,
-            currentScreen: currentScreen,
-            mainDisplay: mainDisplay
-          )
+        newFrame = WindowRunnerIncreaseWindowSize.calulateRect(
+          originFrame,
+          byValue: byValue,
+          in: direction,
+          constrainedToScreen: constrainedToScreen,
+          currentScreen: currentScreen,
+          mainDisplay: mainDisplay
+        )
       case .move(let byValue, let direction, let constrainedToScreen):
         app.enhancedUserInterface = !isRepeatingEvent
-        newFrame = WindowRunnerMoveWindow
-          .calulateRect(
-            originFrame,
-            byValue: byValue,
-            in: direction,
-            constrainedToScreen: constrainedToScreen,
-            currentScreen: currentScreen,
-            mainDisplay: mainDisplay
-          )
+        newFrame = WindowRunnerMoveWindow.calulateRect(
+          originFrame,
+          byValue: byValue,
+          in: direction,
+          constrainedToScreen: constrainedToScreen,
+          currentScreen: currentScreen,
+          mainDisplay: mainDisplay
+        )
       case .fullscreen(let padding):
-        let resolvedFrame = WindowRunnerFullscreen
-          .calulateRect(originFrame, 
-                        padding: padding,
-                        currentScreen: currentScreen,
-                        mainDisplay: mainDisplay)
-
+        let resolvedFrame = WindowRunnerFullscreen.calulateRect(
+          originFrame,
+          padding: padding,
+          currentScreen: currentScreen,
+          mainDisplay: mainDisplay)
+        
         let lhs = resolvedFrame.origin.x + resolvedFrame.origin.y + resolvedFrame.width + resolvedFrame.size.height + statusBarHeight()
         let rhs = originFrame.origin.x + originFrame.origin.y + originFrame.width + originFrame.size.height
         let delta = abs(lhs - rhs)
         let limit = currentScreen.visibleFrame.height - currentScreen.frame.height - CGFloat(padding)
-
+        
         if delta <= abs(limit),
            let restoreFrame = fullscreenCache[activeWindow.id] {
           newFrame = restoreFrame
@@ -120,9 +122,12 @@ final class WindowCommandRunner {
           fullscreenCache[activeWindow.id] = originFrame
         }
       case .center:
-        let resolvedFrame = WindowRunnerCenterWindow
-          .calulateRect(originFrame, currentScreen: currentScreen, mainDisplay: mainDisplay)
-        
+        let resolvedFrame = WindowRunnerCenterWindow.calulateRect(
+          originFrame,
+          currentScreen: currentScreen,
+          mainDisplay: mainDisplay
+        )
+
         let lhs = resolvedFrame.origin.x + resolvedFrame.origin.y
         let rhs = originFrame.origin.x + originFrame.origin.y
         let delta = abs(lhs - rhs)
@@ -150,11 +155,17 @@ final class WindowCommandRunner {
 
           guard let nextScreen else { return }
 
-          newFrame = WindowRunnerCenterWindow
-            .calulateRect(originFrame, currentScreen: nextScreen, mainDisplay: mainDisplay)
+          newFrame = WindowRunnerCenterWindow.calulateRect(
+            originFrame,
+            currentScreen: nextScreen,
+            mainDisplay: mainDisplay
+          )
         case .relative:
-          newFrame = WindowRunnerMoveToNextDisplayRelative
-            .calulateRect(originFrame, currentScreen: currentScreen, mainDisplay: mainDisplay)
+          newFrame = WindowRunnerMoveToNextDisplayRelative.calulateRect(
+              originFrame,
+              currentScreen: currentScreen,
+              mainDisplay: mainDisplay
+            )
         }
       }
 
