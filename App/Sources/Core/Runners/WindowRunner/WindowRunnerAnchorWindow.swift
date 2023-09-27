@@ -4,6 +4,7 @@ final class WindowRunnerAnchorWindow {
   private init() {}
 
   static func calulateRect(_ originFrame: CGRect,
+                           minSize: CGSize?,
                            position: WindowCommand.Direction,
                            padding: Int,
                            currentScreen: NSScreen,
@@ -20,26 +21,28 @@ final class WindowRunnerAnchorWindow {
     let midHeight = round(currentScreen.frame.height / 2) - paddingOffset * 1.5
     let minHeight = round(currentScreen.frame.height / 3) - paddingOffset * 1.5
 
-    let width: CGFloat
-    let height: CGFloat
+    var width: CGFloat
+    var height: CGFloat
     let x: CGFloat
     let y: CGFloat
-
     let deltaLimit: CGFloat = 10
+    let minSize: CGSize = minSize ?? .zero
+
+    if abs(originFrame.width - minWidth) < deltaLimit ||
+       originFrame.size.width == minSize.width {
+      width = midWidth
+      height = midHeight
+    } else if abs(originFrame.width - midWidth) < deltaLimit ||
+                  originFrame.size.width == minSize.width {
+      width = maxWidth
+      height = maxHeight
+    } else {
+      width = max(minWidth, minSize.width)
+      height = minHeight
+    }
 
     switch position {
     case .topLeading:
-      if abs(originFrame.width - maxWidth) < deltaLimit {
-        width = midWidth
-        height = midHeight
-      } else if abs(originFrame.width - midWidth) < deltaLimit {
-        width = minWidth
-        height = minHeight
-      } else {
-        width = maxWidth
-        height = maxHeight
-      }
-
       x = currentScreen.frame.origin.x + paddingOffset
 
       if currentScreen == mainDisplay {
@@ -90,17 +93,6 @@ final class WindowRunnerAnchorWindow {
         }
       }
     case .topTrailing:
-      if abs(originFrame.width - maxWidth) < deltaLimit {
-        width = midWidth
-        height = midHeight
-      } else if abs(originFrame.width - midWidth) < deltaLimit {
-        width = minWidth
-        height = minHeight
-      } else {
-        width = maxWidth
-        height = maxHeight
-      }
-
       x = CGFloat.formula(currentScreen.frame.origin.x) { fn in
         fn.add(currentScreen.frame.size.width)
         fn.subtract(width)
@@ -124,14 +116,6 @@ final class WindowRunnerAnchorWindow {
         }
       }
     case .leading:
-      if abs(originFrame.width - maxWidth) < deltaLimit {
-        width = midWidth
-      } else if abs(originFrame.width - midWidth) < deltaLimit {
-        width = minWidth
-      } else {
-        width = maxWidth
-      }
-
       height = currentScreen.visibleFrame.height - (paddingOffset * 2)
 
       x = CGFloat.formula(currentScreen.frame.origin.x) { fn in
@@ -154,14 +138,6 @@ final class WindowRunnerAnchorWindow {
         }
       }
     case .trailing:
-      if abs(originFrame.width - maxWidth) < deltaLimit {
-        width = midWidth
-      } else if abs(originFrame.width - midWidth) < deltaLimit {
-        width = minWidth
-      } else {
-        width = maxWidth
-      }
-
       height = currentScreen.visibleFrame.height - (paddingOffset * 2)
 
       x = CGFloat.formula(currentScreen.frame.origin.x) { fn in
@@ -186,24 +162,13 @@ final class WindowRunnerAnchorWindow {
         }
       }
     case .bottomLeading:
-      if abs(originFrame.width - maxWidth) < deltaLimit {
-        width = midWidth
-        height = midHeight
-      } else if abs(originFrame.width - midWidth) < deltaLimit {
-        width = minWidth
-        height = minHeight
-      } else {
-        width = maxWidth
-        height = maxHeight
-      }
-
       x = currentScreen.frame.origin.x + paddingOffset
       if currentScreen == mainDisplay {
         y = CGFloat.formula(currentScreen.frame.origin.y) { fn in
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset)
+          fn.subtract(paddingOffset / 2)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
@@ -242,17 +207,6 @@ final class WindowRunnerAnchorWindow {
         }
       }
     case .bottomTrailing:
-      if abs(originFrame.width - maxWidth) < deltaLimit {
-        width = midWidth
-        height = midHeight
-      } else if abs(originFrame.width - midWidth) < deltaLimit {
-        width = minWidth
-        height = minHeight
-      } else {
-        width = maxWidth
-        height = maxHeight
-      }
-
       x = CGFloat.formula(currentScreen.frame.origin.x) { fn in
         fn.add(currentScreen.frame.size.width)
         fn.subtract(width)
@@ -265,7 +219,7 @@ final class WindowRunnerAnchorWindow {
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset)
+          fn.subtract(paddingOffset / 2)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
