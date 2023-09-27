@@ -54,6 +54,7 @@ final class WindowRunnerAnchorWindow {
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
           fn.subtract(paddingOffset / 2)
+          fn.subtract(currentScreen.frame.height - height)
         }
       }
     case .top:
@@ -84,6 +85,7 @@ final class WindowRunnerAnchorWindow {
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
           fn.subtract(paddingOffset / 2)
+          fn.subtract(currentScreen.frame.height - height)
         }
       }
     case .topTrailing:
@@ -117,6 +119,7 @@ final class WindowRunnerAnchorWindow {
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
           fn.subtract(paddingOffset / 2)
+          fn.subtract(currentScreen.frame.height - height)
         }
       }
     case .leading:
