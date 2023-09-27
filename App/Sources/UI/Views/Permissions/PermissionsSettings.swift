@@ -26,19 +26,6 @@ struct PermissionsSettings: View {
           }
           .animation(.easeInOut, value: accessibilityPermission.viewModel)
         }
-
-        GridRow {
-          PermissionOverviewItem(
-            status: .readonly(locationPermission.viewModel),
-            icon: "wifi.circle.fill",
-            name: "Location permissions",
-            explanation: "Used to determine your WiFi network so that you can trigger workflows when you move between networks.",
-            color: Color(.systemBlue)
-          ) {
-            LocationPermission.shared.requestPermission()
-          }
-          .animation(.easeInOut, value: locationPermission.viewModel)
-        }
       }
     }
     .padding()
