@@ -7,7 +7,7 @@ jobs:
     runs-on: macos-13
     strategy:
         matrix:
-          xcode: ['14.3']
+          xcode: ['15.0']
     steps:
       - name: Set Xcode ${{ matrix.xcode }}
         run: |
