@@ -28,7 +28,7 @@ struct PermissionsSettings: View {
         }
       }
     }
-    .padding()
+    .padding(24)
   }
 }
 
@@ -48,16 +48,16 @@ fileprivate struct PermissionOverviewItem: View {
       .aspectRatio(contentMode: .fit)
       .frame(width: 24, height: 24)
       .foregroundStyle(color)
-      .background(Circle().fill(Color.white))
+      .background(Circle().fill(Color.white).padding(4))
+
     VStack(alignment: .leading) {
       Text(name)
         .font(.headline)
         .bold()
-        .frame(alignment: .leading)
       Text(explanation)
         .font(.caption)
-        .frame(alignment: .leading)
     }
+    .frame(maxWidth: .infinity, alignment: .leading)
 
     HStack {
       switch status {
@@ -65,7 +65,7 @@ fileprivate struct PermissionOverviewItem: View {
         Image(systemName: "checkmark.circle.fill")
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(width: 24, height: 24)
+          .frame(width: 20, height: 20)
           .foregroundStyle(Color(.systemGreen))
           .matchedGeometryEffect(id: "permission-overview-item", in: namespace)
       case .pending:
@@ -78,13 +78,12 @@ fileprivate struct PermissionOverviewItem: View {
           .matchedGeometryEffect(id: "permission-overview-item", in: namespace)
       }
     }
-    .frame(width: 70)
   }
 }
 
 struct PermissionsOverview_Previews: PreviewProvider {
   static var previews: some View {
     PermissionsSettings()
-      .frame(width: 480, height: 320)
+      .frame(width: 360, height: 180)
   }
 }

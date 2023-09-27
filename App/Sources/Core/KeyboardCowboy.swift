@@ -60,7 +60,7 @@ struct KeyboardCowboy: App {
         PermissionsSettings()
           .tabItem { Label("Permissions", systemImage: "hand.raised.circle.fill") }
       }
-      .frame(width: 360, height: 180)
+      .frame(width: 360, height: 180, alignment: .top)
     }
 
     WindowGroup(id: KeyboardCowboy.permissionsSettingsWindowIdentifier) {
