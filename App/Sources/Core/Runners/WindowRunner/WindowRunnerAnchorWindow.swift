@@ -40,25 +40,26 @@ final class WindowRunnerAnchorWindow {
         height = maxHeight
       }
 
-      x = currentScreen.frame.origin.x
+      x = currentScreen.frame.origin.x + paddingOffset
+
       if currentScreen == mainDisplay {
         y = CGFloat.formula(currentScreen.frame.origin.y) { fn in
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset / 2)
-          fn.subtract(currentScreen.frame.height - height)
+          fn.subtract(currentScreen.visibleFrame.height - height)
+          fn.add(paddingOffset)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
-          fn.subtract(paddingOffset / 2)
-          fn.subtract(currentScreen.frame.height - height)
+          fn.add(paddingOffset)
+          fn.subtract(currentScreen.visibleFrame.height - height)
         }
       }
     case .top:
-      width = currentScreen.frame.width - paddingOffset
+      width = currentScreen.frame.width - (paddingOffset * 2)
       if abs(originFrame.height - maxHeight) < deltaLimit {
         height = midHeight
       } else if abs(originFrame.height - midHeight) < deltaLimit {
@@ -77,15 +78,15 @@ final class WindowRunnerAnchorWindow {
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset / 2)
-          fn.subtract(currentScreen.frame.height - height)
+          fn.subtract(currentScreen.visibleFrame.height - height)
+          fn.add(paddingOffset)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
-          fn.subtract(paddingOffset / 2)
-          fn.subtract(currentScreen.frame.height - height)
+          fn.add(paddingOffset)
+          fn.subtract(currentScreen.visibleFrame.height - height)
         }
       }
     case .topTrailing:
@@ -111,15 +112,15 @@ final class WindowRunnerAnchorWindow {
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset / 2)
-          fn.subtract(currentScreen.frame.height - height)
+          fn.subtract(currentScreen.visibleFrame.height - height)
+          fn.add(paddingOffset)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
-          fn.subtract(paddingOffset / 2)
-          fn.subtract(currentScreen.frame.height - height)
+          fn.add(paddingOffset)
+          fn.subtract(currentScreen.visibleFrame.height - height)
         }
       }
     case .leading:
@@ -131,7 +132,7 @@ final class WindowRunnerAnchorWindow {
         width = maxWidth
       }
 
-      height = currentScreen.visibleFrame.height - paddingOffset
+      height = currentScreen.visibleFrame.height - (paddingOffset * 2)
 
       x = CGFloat.formula(currentScreen.frame.origin.x) { fn in
         fn.add({ dockPosition == .left ? dockSize : 0 }())
@@ -143,13 +144,13 @@ final class WindowRunnerAnchorWindow {
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset / 2)
+          fn.subtract(paddingOffset)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
-          fn.subtract(paddingOffset / 2)
+          fn.subtract(paddingOffset)
         }
       }
     case .trailing:
@@ -161,7 +162,7 @@ final class WindowRunnerAnchorWindow {
         width = maxWidth
       }
 
-      height = currentScreen.visibleFrame.height - paddingOffset
+      height = currentScreen.visibleFrame.height - (paddingOffset * 2)
 
       x = CGFloat.formula(currentScreen.frame.origin.x) { fn in
         fn.add(currentScreen.frame.size.width)
@@ -175,7 +176,7 @@ final class WindowRunnerAnchorWindow {
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset / 2)
+          fn.subtract(paddingOffset)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
@@ -196,23 +197,23 @@ final class WindowRunnerAnchorWindow {
         height = maxHeight
       }
 
-      x = currentScreen.frame.origin.x
+      x = currentScreen.frame.origin.x + paddingOffset
       if currentScreen == mainDisplay {
         y = CGFloat.formula(currentScreen.frame.origin.y) { fn in
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset / 2)
+          fn.subtract(paddingOffset)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
-          fn.subtract(paddingOffset / 2)
+          fn.subtract(paddingOffset)
         }
       }
     case .bottom:
-      width = currentScreen.frame.width - paddingOffset
+      width = currentScreen.frame.width - (paddingOffset * 2)
       if abs(originFrame.height - maxHeight) < deltaLimit {
         height = midHeight
       } else if abs(originFrame.height - midHeight) < deltaLimit {
@@ -237,7 +238,7 @@ final class WindowRunnerAnchorWindow {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
-          fn.subtract(paddingOffset / 2)
+          fn.subtract(paddingOffset)
         }
       }
     case .bottomTrailing:
@@ -264,13 +265,13 @@ final class WindowRunnerAnchorWindow {
           fn.add(currentScreen.frame.height)
           fn.subtract(height)
           fn.subtract({ dockPosition == .bottom ? dockSize : 0 }())
-          fn.subtract(paddingOffset / 2)
+          fn.subtract(paddingOffset)
         }
       } else {
         y = CGFloat.formula(mainDisplay.frame.maxY) { fn in
           fn.subtract(currentScreen.visibleFrame.origin.y)
           fn.subtract(height)
-          fn.subtract(paddingOffset / 2)
+          fn.subtract(paddingOffset)
         }
       }
     }
