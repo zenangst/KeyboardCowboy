@@ -75,7 +75,6 @@ struct SingleDetailView: View {
             .drawingGroup()
         })
 
-      WorkflowCommandListHeaderView(namespace: namespace, onAction: onAction)
       WorkflowCommandListView(
         focus,
         namespace: namespace,
@@ -86,9 +85,11 @@ struct SingleDetailView: View {
           onAction(action)
         })
       .opacity(shouldShowCommandList ? 1 : 0)
+      .id(detailPublisher.data.id)
     }
     .labelStyle(HeaderLabelStyle())
     .focusScope(namespace)
+    .frame(maxHeight: .infinity, alignment: .top)
   }
 }
 
