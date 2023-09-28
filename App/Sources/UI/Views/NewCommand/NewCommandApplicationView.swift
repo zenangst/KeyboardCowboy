@@ -102,7 +102,7 @@ struct NewCommandApplicationView: View {
       }
     }
     .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
-    .overlay(NewCommandValidationView($validation).padding(-8))
+    .overlay(NewCommandValidationView($validation).padding(-16))
     .onAppear {
       validation = .unknown
     }
