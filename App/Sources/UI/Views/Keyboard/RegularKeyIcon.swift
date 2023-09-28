@@ -1,50 +1,6 @@
 import SwiftUI
 
-protocol KeyView {
-  var colorScheme: ColorScheme { get }
-}
-
-extension KeyView {
-  @ViewBuilder
-  func keyBackgroundView(_ height: CGFloat, isPressed: Bool) -> some View {
-    ZStack {
-      Rectangle()
-        .fill(Color.black.opacity( colorScheme == .light ? 0.3 : 0.9 ))
-        .cornerRadius(height * 0.1)
-        .offset(x: 0, y: 1)
-        .blur(radius: 2)
-        .scaleEffect(CGSize(width: 0.99, height: 1.0))
-        .opacity(isPressed ? 0 : 1)
-        .animation(.linear(duration: 0.1), value: isPressed)
-
-      Rectangle()
-        .fill(Color.black.opacity( colorScheme == .light ? 0.33 : 0.9 ))
-        .cornerRadius(height * 0.1)
-        .offset(x: 0, y: height * 0.025)
-        .blur(radius: 1.0)
-        .scaleEffect(CGSize(width: 0.95, height: 1.0))
-
-      Rectangle()
-        .fill(Color(.windowFrameTextColor))
-        .cornerRadius(height * 0.1)
-        .opacity(0.25)
-        .offset(y: isPressed ? 1 : 0)
-        .scaleEffect(isPressed ? 0.95 : 1)
-        .animation(.linear(duration: 0.1), value: isPressed)
-      Rectangle()
-        .fill(Color(.windowBackgroundColor))
-        .cornerRadius(height * 0.1)
-        .padding(0.1)
-        .offset(y: isPressed ? 1 : 0)
-        .scaleEffect(isPressed ? 0.95 : 1)
-        .animation(.linear(duration: 0.1), value: isPressed)
-    }
-    .compositingGroup()
-  }
-}
-
-public struct RegularKeyIcon: View, KeyView {
-  @Environment(\.colorScheme) var colorScheme
+public struct RegularKeyIcon: View {
   @State private var isPressed: Bool = false
   private var letters: [Letter]
   private var width: CGFloat
@@ -78,27 +34,32 @@ public struct RegularKeyIcon: View, KeyView {
   }
 
   public var body: some View {
-    letter(height: height)
-      .frame(minWidth: width, maxWidth: .infinity, alignment: alignment)
-      .background(
-        keyBackgroundView(height, isPressed: isPressed)
-                    .foregroundColor(Color(.textColor).opacity(0.66))
-                    .background(
-                      RoundedRectangle(cornerRadius: height * 0.1)
-                        .stroke(glow
-                                ? Color(.systemRed) .opacity(0.5)
-                                : Color.clear, lineWidth: 2)
-                        .padding(-2)
-                    )
-      )
-      .rotation3DEffect(.degrees(isPressed ? 0.5 : 0), axis: (x: 1.0, y: 0, z: 0))
-      .animation(.linear(duration: 0.1), value: isPressed)
-      .onAppear {
-        if glow {
-          withAnimation(animation, { glow.toggle() })
+    ZStack {
+      KeyBackgroundView(isPressed: $isPressed, height: height)
+        .foregroundColor(Color(.textColor).opacity(0.66))
+        .background(
+          RoundedRectangle(cornerRadius: height * 0.1)
+            .stroke(glow
+                    ? Color(.systemRed) .opacity(0.5)
+                    : Color.clear, lineWidth: 2)
+            .padding(-2)
+        )
+        .frame(
+          minWidth: width,
+          maxWidth: .infinity,
+          minHeight: height,
+          alignment: alignment
+        )
+        .rotation3DEffect(.degrees(isPressed ? 0.5 : 0), axis: (x: 1.0, y: 0, z: 0))
+        .animation(.linear(duration: 0.1), value: isPressed)
+        .onAppear {
+          if glow {
+            withAnimation(animation, { glow.toggle() })
+          }
         }
-      }
+      letter(height: height)
     }
+  }
 
   func letter(height: CGFloat) -> some View {
     VStack {
@@ -133,14 +94,15 @@ public struct RegularKeyIcon: View, KeyView {
 }
 
 struct RegularKeyIcon_Previews: PreviewProvider {
+  static let size: CGFloat = 64
   static var previews: some View {
     HStack {
-      RegularKeyIcon(letter: "h", height: 80).frame(width: 80, height: 80)
-      RegularKeyIcon(letter: "e", height: 80).frame(width: 80, height: 80)
-      RegularKeyIcon(letter: "l", height: 80).frame(width: 80, height: 80)
-      RegularKeyIcon(letter: "l", height: 80).frame(width: 80, height: 80)
-      RegularKeyIcon(letter: "o", height: 80, glow: .constant(true)).frame(width: 80, height: 80)
+      RegularKeyIcon(letter: "h", height: size).frame(width: size, height: size)
+      RegularKeyIcon(letter: "e", height: size).frame(width: size, height: size)
+      RegularKeyIcon(letter: "l", height: size).frame(width: size, height: size)
+      RegularKeyIcon(letter: "l", height: size).frame(width: size, height: size)
+      RegularKeyIcon(letter: "o", height: size, glow: .constant(true)).frame(width: size, height: size)
     }
-    .padding(3)
+    .padding()
   }
 }
