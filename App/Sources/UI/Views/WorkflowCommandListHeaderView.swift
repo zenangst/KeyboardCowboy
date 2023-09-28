@@ -44,11 +44,9 @@ struct WorkflowCommandListHeaderView: View {
       .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), menuIndicator: .visible))
       .frame(maxWidth: detailPublisher.data.execution == .concurrent ? 144 : 110,
              alignment: .leading)
-      .opacity(detailPublisher.data.commands.isEmpty ? 0 : 1)
-
       WorkflowCommandListHeaderAddView(namespace)
-
     }
+    .opacity(detailPublisher.data.commands.isEmpty ? 0 : 1)
     .padding(.horizontal)
   }
 }
