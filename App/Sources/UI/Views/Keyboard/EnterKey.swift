@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct EnterKey: View, KeyView {
+struct EnterKey: View {
   @Environment(\.colorScheme) var colorScheme
   let parameters = ShapeParameters()
   let width: CGFloat

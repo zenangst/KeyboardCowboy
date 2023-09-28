@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ModifierKeyIcon: View, KeyView {
+struct ModifierKeyIcon: View {
   @Environment(\.colorScheme) var colorScheme
   let key: ModifierKey
   let alignment: Alignment
@@ -19,7 +19,7 @@ struct ModifierKeyIcon: View, KeyView {
   var body: some View {
     GeometryReader { proxy in
       ZStack {
-        keyBackgroundView(proxy.size.height, isPressed: false)
+        KeyBackgroundView(isPressed: .constant(false), height: proxy.size.height)
 
         Group {
         Text(key.keyValue)
@@ -51,7 +51,6 @@ struct ModifierKeyIcon: View, KeyView {
           .frame(height: proxy.size.height, alignment: .bottom)
           .offset(y: -proxy.size.width * 0.065)
       }
-//      .fixedSize(horizontal: true, vertical: true)
       .foregroundColor(
         Color(.textColor)
           .opacity(0.66)

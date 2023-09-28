@@ -111,15 +111,15 @@ struct TypeCommandTextEditor: View {
     }
     .padding(4)
     .background(
-      ZStack {
       RoundedRectangle(cornerRadius: 4)
         .fill(Color(isFocused ? .controlAccentColor.withAlphaComponent(0.5) : .windowFrameTextColor))
         .opacity(isFocused ? 0.15 : isHovered ? 0.015 : 0)
-
+    )
+    .background(
       RoundedRectangle(cornerRadius: 4)
         .stroke(Color(isFocused ? .controlAccentColor.withAlphaComponent(0.5) : .windowFrameTextColor), lineWidth: 1)
         .opacity(isFocused ? 0.75 : isHovered ? 0.15 : 0)
-      }
+
     )
     .onHover(perform: { newValue in  withAnimation(.easeInOut(duration: 0.2)) { isHovered = newValue } })
     .focused($isFocused)

@@ -1,8 +1,6 @@
 import SwiftUI
 
-struct CommandSymbolIcon: View, KeyView {
-  @Environment(\.colorScheme) var colorScheme
-
+struct CommandSymbolIcon: View {
   let background: Color
   let textColor: Color
 
