@@ -23,6 +23,10 @@ struct AppMenuStyle: MenuStyle {
       .menuStyle(.borderlessButton)
       .menuIndicator(menuIndicator)
       .foregroundColor(Color(.textColor))
+      .onHover(perform: { value in
+        guard config.hoverEffect else { return }
+        self.isHovered = value
+      })
       .padding(.horizontal, config.padding.horizontal)
       .padding(.vertical, config.padding.vertical)
       .frame(minHeight: 24)
@@ -49,10 +53,6 @@ struct AppMenuStyle: MenuStyle {
               y: isHovered ? 2 : 3)
       .opacity(isHovered ? 1.0 : 0.8)
       .animation(.easeOut(duration: 0.2), value: isHovered)
-      .onHover(perform: { value in
-        guard config.hoverEffect else { return }
-        self.isHovered = value
-      })
       .fixedSize(horizontal: fixedSize, vertical: true)
       .contentShape(Rectangle())
   }
