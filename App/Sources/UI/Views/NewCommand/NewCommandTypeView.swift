@@ -25,7 +25,7 @@ struct NewCommandTypeView: View {
     VStack(alignment: .leading) {
       Label(title: { Text("Type text:") }, icon: { EmptyView() })
         .labelStyle(HeaderLabelStyle())
-      TypeCommandTextEditor(text: $text, onCommandReturnKey: onSubmit)
+      AppTextEditor(text: $text, placeholder: "Enter text…", onCommandReturnKey: onSubmit)
 
       Menu(content: {
         ForEach(TypeCommand.Mode.allCases) { mode in
