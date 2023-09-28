@@ -60,10 +60,10 @@ struct ScriptCommandView: View {
         
         switch model.source {
         case .inline:
-          ScriptEditorView(text: $text, syntax: .constant(AppleScriptHighlighting()))
-            .onChange(of: text) { newSource in
-              onAction(.updateSource(.init(id: model.id, source: .inline(newSource), scriptExtension: model.scriptExtension)))
-            }
+          AppTextEditor(text: $text, placeholder: "Script goes here…", font: Font.system(.body, design: .monospaced))
+            .onChange(of: text, perform: { newValue in
+              onAction(.updateSource(.init(id: model.id, source: .inline(newValue), scriptExtension: model.scriptExtension)))
+            })
         case .path:
           HStack {
             TextField("Path", text: $text)

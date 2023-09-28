@@ -22,15 +22,6 @@ struct NewCommandScriptView: View {
         return "AppleScript"
       }
     }
-
-    var syntax: any SyntaxHighlighting {
-      switch self {
-      case .appleScript:
-        return AppleScriptHighlighting()
-      case .shellScript:
-        return ShellScriptHighlighting()
-      }
-    }
   }
 
   @EnvironmentObject var openPanel: OpenPanelController
@@ -182,7 +173,7 @@ struct NewCommandScriptSourceView: View {
   }
 
   var body: some View {
-    ScriptEditorView(text: $text, syntax: Binding(get: { kind.syntax }, set: { _ in }))
+    AppTextEditor(text: $text, placeholder: "Script goes here…", font: Font.system(.body, design: .monospaced))
       .onChange(of: text, perform: onChange)
   }
 }
