@@ -50,6 +50,7 @@ struct AppButtonConfiguration {
 struct AppButtonStyle: ButtonStyle {
   @State private var isHovered: Bool
   @Environment(\.colorScheme) var colorScheme
+  @Environment(\.controlActiveState) var controlActiveState
 
   private let config: AppButtonConfiguration
 
@@ -80,6 +81,7 @@ struct AppButtonStyle: ButtonStyle {
         }
       )
       .grayscale(config.grayscaleEffect ? isHovered ? 0 : 1 : 0)
+      .grayscale(controlActiveState == .key ? 0 : 0.4)
       .compositingGroup()
       .shadow(color: Color.black.opacity(isHovered ? 0.5 : 0),
               radius: configuration.isPressed ? 0 : isHovered ? 1 : 1.25,
