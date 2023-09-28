@@ -46,6 +46,7 @@ struct WorkflowCommandListHeaderView: View {
              alignment: .leading)
       WorkflowCommandListHeaderAddView(namespace)
     }
+    .opacity(detailPublisher.data.commands.isEmpty ? 0 : 1)
     .padding(.horizontal)
     .id(detailPublisher.data.id)
   }
