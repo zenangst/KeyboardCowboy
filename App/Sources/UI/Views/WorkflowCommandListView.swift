@@ -29,13 +29,18 @@ struct WorkflowCommandListView: View {
 
   @ViewBuilder
   var body: some View {
-    WorkflowCommandEmptyListView(namespace: namespace, onAction: onAction)
-    WorkflowCommandListScrollView(focus,
-                                  detailPublisher: detailPublisher,
-                                  namespace: namespace,
-                                  selectionManager: selectionManager,
-                                  scrollViewProxy: scrollViewProxy,
-                                  onAction: onAction)
+    if detailPublisher.data.commands.isEmpty {
+      WorkflowCommandEmptyListView(namespace: namespace, onAction: onAction)
+    } else {
+      WorkflowCommandListHeaderView(namespace: namespace, onAction: onAction)
+        .id(detailPublisher.data.id)
+      WorkflowCommandListScrollView(focus,
+                                    detailPublisher: detailPublisher,
+                                    namespace: namespace,
+                                    selectionManager: selectionManager,
+                                    scrollViewProxy: scrollViewProxy,
+                                    onAction: onAction)
+    }
   }
 }
 
