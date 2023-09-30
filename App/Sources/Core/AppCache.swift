@@ -23,4 +23,35 @@ enum AppCache {
 
     return url
   }
+
+  static func load<T: Decodable>(_ domain: String, name: String, decoder: JSONDecoder = .init()) throws -> T? {
+    let url = AppCache
+      .rootDirectory
+      .appendingPathComponent(domain)
+      .appending(path: name)
+
+    guard FileManager.default.fileExists(atPath: url.path()) else {
+      return nil
+    }
+
+    let data = try Data(contentsOf: url)
+    return try decoder.decode(T.self, from: data)
+  }
+
+  static func entry(_ domain: String, name: String) -> Entry {
+    let url = AppCache
+      .rootDirectory
+      .appendingPathComponent(domain)
+      .appending(path: name)
+    return Entry(url: url)
+  }
+
+  struct Entry {
+    let url: URL
+    func write<T: Encodable>(_ object: T) throws {
+      let encoder = JSONEncoder()
+      let data = try encoder.encode(object)
+      try data.write(to: url)
+    }
+  }
 }
