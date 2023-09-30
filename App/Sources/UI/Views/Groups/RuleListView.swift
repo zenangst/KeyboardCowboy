@@ -59,7 +59,7 @@ struct RuleListView: View {
 struct RuleListView_Previews: PreviewProvider {
   static let group = WorkflowGroup.designTime()
   static var previews: some View {
-    RuleListView(applicationStore: ApplicationStore(),
+    RuleListView(applicationStore: ApplicationStore.shared,
                  group: .constant(group))
   }
 }

@@ -70,7 +70,7 @@ struct NotificationView: View {
 }
 
 struct NotificationView_Previews: PreviewProvider {
-  static var coordinator = NotificationCoordinator(.init())
+  static var coordinator = NotificationCoordinator(.shared)
 
   static var previews: some View {
     NotificationListView(publisher: coordinator.publisher)

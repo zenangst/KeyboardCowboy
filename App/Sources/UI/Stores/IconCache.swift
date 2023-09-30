@@ -62,7 +62,7 @@ actor IconCache {
   // MARK: Private methods
 
   private func load(_ identifier: String) throws -> Data? {
-    let url = try applicationCacheDirectory().appending(component: identifier)
+    let url = try AppCache.domain("IconCache").appending(component: identifier)
 
     if FileManager.default.fileExists(atPath: url.path()) {
       return try? Data(contentsOf: url)
@@ -72,7 +72,7 @@ actor IconCache {
   }
 
   private func save(_ image: NSImage, identifier: String) throws -> Data {
-    let url = try applicationCacheDirectory().appending(component: identifier)
+    let url = try AppCache.domain("IconCache").appending(component: identifier)
 
     guard let tiff = image.tiffRepresentation else {
       throw IconCacheError.unableToObtainTiffRepresentation
@@ -91,23 +91,6 @@ actor IconCache {
     cache.setObject(data as NSData, forKey: identifier as NSString)
 
     return data
-  }
-
-  private func applicationCacheDirectory() throws -> URL {
-    let url = try FileManager.default.url(for: .cachesDirectory,
-                                          in: .userDomainMask,
-                                          appropriateFor: nil,
-                                          create: true)
-      .appendingPathComponent(Bundle.main.bundleIdentifier!)
-      .appendingPathComponent("IconCache")
-
-    if !FileManager.default.fileExists(atPath: url.path) {
-      try FileManager.default.createDirectory(at: url,
-                                              withIntermediateDirectories: true,
-                                              attributes: nil)
-    }
-
-    return url
   }
 }
 

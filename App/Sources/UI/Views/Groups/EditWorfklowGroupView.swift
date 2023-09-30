@@ -88,7 +88,7 @@ struct EditWorfklowGroupView_Previews: PreviewProvider {
   static let group = WorkflowGroup.designTime()
   static var previews: some View {
     EditWorfklowGroupView(
-      applicationStore: ApplicationStore(),
+      applicationStore: ApplicationStore.shared,
       group: group,
       action: { _ in })
   }

@@ -57,11 +57,17 @@ struct KeyboardCowboy: App {
 
     Settings {
       TabView {
+        ApplicationSettingsView()
+          .tabItem { Label("Applications", systemImage: "appclip") }
         PermissionsSettings()
           .tabItem { Label("Permissions", systemImage: "hand.raised.circle.fill") }
       }
-      .frame(width: 360, height: 180, alignment: .top)
+      .environmentObject(OpenPanelController())
     }
+    .windowStyle(.hiddenTitleBar)
+    .windowResizability(.contentSize)
+    .windowToolbarStyle(.unified)
+
 
     WindowGroup(id: KeyboardCowboy.permissionsSettingsWindowIdentifier) {
       PermissionsSettings()
@@ -117,7 +123,7 @@ struct KeyboardCowboy: App {
           }
           .focusScope(namespace)
 
-          .environmentObject(core.applicationStore)
+          .environmentObject(ApplicationStore.shared)
           .environmentObject(core.contentStore)
           .environmentObject(core.groupStore)
           .environmentObject(core.shortcutStore)

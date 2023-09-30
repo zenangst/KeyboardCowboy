@@ -11,4 +11,5 @@ struct AppStorageStore {
   @AppStorage("selectedConfiguration", store: Self.store) var configId: String = ""
   @AppStorage("selectedGroupIds", store: Self.store) var groupIds = Set<String>()
   @AppStorage("selectedWorkflowIds", store: Self.store) var workflowIds = Set<String>()
+  @AppStorage("additionalApplicationPaths", store: Self.store) var additionalApplicationPaths = [String]()
 }
