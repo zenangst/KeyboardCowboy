@@ -50,7 +50,7 @@ final class ContentStore: ObservableObject {
 
     Task {
       Benchmark.start("ContentStore.init")
-      await applicationStore.reload()
+      await applicationStore.load()
       shortcutStore.index()
       let configurations: [KeyboardCowboyConfiguration]
 

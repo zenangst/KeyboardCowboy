@@ -3,6 +3,7 @@ import Combine
 import Cocoa
 
 final class ApplicationStore: ObservableObject {
+  static var domain: String = "ApplicationStore"
   static var appStorage: AppStorageStore = .init()
   private var passthrough = PassthroughSubject<Void, Never>()
   private var subscription: AnyCancellable?
@@ -37,12 +38,38 @@ final class ApplicationStore: ObservableObject {
     dictionary[bundleIdentifier]
   }
 
-  func reload() async {
+  func load() async {
     Benchmark.start("ApplicationController.load")
+    let decoder = JSONDecoder()
+    if let newApplications: [Application] = try? AppCache.load(Self.domain, name: "applications.json", decoder: decoder) {
+      do {
+        var applicationDictionary = [String: Application]()
+        var applicationsByPath = [String: Application]()
+        for application in newApplications {
+          applicationDictionary[application.bundleIdentifier] = application
+          applicationsByPath[application.path] = application
+        }
+
+        self.applications = newApplications
+        self.dictionary = applicationDictionary
+        self.applicationsByPath = applicationsByPath
+
+        Task.detached { [weak self] in
+          await self?.reload()
+        }
+      }
+    } else {
+      await reload()
+    }
+    Benchmark.finish("ApplicationController.load")
+  }
+
+  private func reload() async {
+    Benchmark.start("ApplicationController.reload")
     let newApplications = await ApplicationController.load(
       Self.appStorage.additionalApplicationPaths.map { URL(filePath: $0) }
     )
-    Benchmark.finish("ApplicationController.load")
+    Benchmark.finish("ApplicationController.reload")
     var applicationDictionary = [String: Application]()
     var applicationsByPath = [String: Application]()
     for application in newApplications {
@@ -54,6 +81,12 @@ final class ApplicationStore: ObservableObject {
       self.applications = newApplications
       self.dictionary = applicationDictionary
       self.applicationsByPath = applicationsByPath
+    }
+
+    do {
+      try AppCache.entry(Self.domain, name: "applications.json").write(applications)
+    } catch let error {
+      print(error)
     }
   }
 }
