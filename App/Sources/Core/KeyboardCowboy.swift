@@ -8,11 +8,11 @@ import InputSources
 
 @main
 struct KeyboardCowboy: App {
-//#if DEBUG
-//  static let env: AppEnvironment = isRunningPreview ? .designTime : .development
-//#else
+#if DEBUG
+  static let env: AppEnvironment = isRunningPreview ? .designTime : .development
+#else
   static let env: AppEnvironment = .production
-//#endif
+#endif
 
   static private var appStorage: AppStorageStore = .init()
   @Namespace var namespace
