@@ -107,6 +107,6 @@ struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
       selectionManager: SelectionManager(),
       onAction: { _ in }
     )
-    .environmentObject(ApplicationStore())
+    .environmentObject(ApplicationStore.shared)
   }
 }

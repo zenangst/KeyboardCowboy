@@ -20,19 +20,19 @@ final class Core {
 
   lazy private(set) var sidebarCoordinator = SidebarCoordinator(
     groupStore,
-    applicationStore: applicationStore,
+    applicationStore: ApplicationStore.shared,
     configSelectionManager: configSelectionManager,
     groupSelectionManager: groupSelectionManager)
 
   lazy private(set) var contentCoordinator = ContentCoordinator(
     groupStore,
-    applicationStore: applicationStore,
+    applicationStore: ApplicationStore.shared,
     contentSelectionManager: contentSelectionManager,
     groupSelectionManager: groupSelectionManager
   )
 
   lazy private(set) var detailCoordinator = DetailCoordinator(
-    applicationStore: applicationStore,
+    applicationStore: ApplicationStore.shared,
     applicationTriggerSelectionManager: applicationTriggerSelectionManager,
     commandRunner: commandRunner,
     commandSelectionManager: commandSelectionManager,
@@ -63,11 +63,10 @@ final class Core {
 
   // MARK: - Stores
 
-  lazy private(set) var applicationStore = ApplicationStore()
   lazy private(set) var configurationStore = ConfigurationStore()
   lazy private(set) var contentStore = ContentStore(
     Self.config,
-    applicationStore: applicationStore,
+    applicationStore: ApplicationStore.shared,
     configurationStore: configurationStore,
     groupStore: groupStore,
     keyboardShortcutsController: keyboardShortcutsController,
@@ -90,7 +89,7 @@ final class Core {
 
   // MARK: - Runners
   lazy private(set) var commandRunner = CommandRunner(
-    applicationStore: applicationStore,
+    applicationStore: ApplicationStore.shared,
     scriptCommandRunner: scriptCommandRunner,
     keyboardCommandRunner: keyboardCommandRunner)
   lazy private(set) var keyboardCommandRunner = KeyboardCommandRunner(store: keyCodeStore)

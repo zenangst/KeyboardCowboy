@@ -10,7 +10,7 @@ extension View {
       .environmentObject(DesignTime.detailPublisher)
       .environmentObject(DesignTime.groupsPublisher)
       .environmentObject(KeyShortcutRecorderStore())
-      .environmentObject(ApplicationStore())
+      .environmentObject(ApplicationStore.shared)
       .environmentObject(ShortcutStore(ScriptCommandRunner(workspace: .shared)))
   }
 }
