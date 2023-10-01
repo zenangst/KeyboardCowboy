@@ -9,8 +9,8 @@ final class ApplicationStore: ObservableObject {
   private var fileWatchers = [FileWatcher]()
   private var passthrough = PassthroughSubject<Void, Never>()
   private var subscription: AnyCancellable?
-  private(set) var applicationsByPath = [String: Application]()
 
+  private(set) var applicationsByPath = [String: Application]()
   @Published private(set) var applications = [Application]()
   @Published private(set) var dictionary = [String: Application]()
 
@@ -53,9 +53,11 @@ final class ApplicationStore: ObservableObject {
           applicationsByPath[application.path] = application
         }
 
-        self.applications = newApplications
-        self.dictionary = applicationDictionary
-        self.applicationsByPath = applicationsByPath
+        await MainActor.run { [applicationDictionary, applicationsByPath] in
+          self.applications = newApplications
+          self.dictionary = applicationDictionary
+          self.applicationsByPath = applicationsByPath
+        }
 
         Task.detached { [weak self] in
           await self?.reload()
@@ -77,17 +79,19 @@ final class ApplicationStore: ObservableObject {
     let newApplications = await ApplicationController.load(additionalDirectories)
     Benchmark.finish("ApplicationController.reload")
 
-    var applicationDictionary = [String: Application]()
-    var applicationsByPath = [String: Application]()
-    for application in newApplications {
-      applicationDictionary[application.bundleIdentifier] = application
-      applicationsByPath[application.path] = application
-    }
+    if applications != newApplications {
+      var applicationDictionary = [String: Application]()
+      var applicationsByPath = [String: Application]()
+      for application in newApplications {
+        applicationDictionary[application.bundleIdentifier] = application
+        applicationsByPath[application.path] = application
+      }
 
-    await MainActor.run { [applicationDictionary, applicationsByPath] in
-      self.applications = newApplications
-      self.dictionary = applicationDictionary
-      self.applicationsByPath = applicationsByPath
+      await MainActor.run { [applicationDictionary, applicationsByPath] in
+        self.applications = newApplications
+        self.dictionary = applicationDictionary
+        self.applicationsByPath = applicationsByPath
+      }
     }
 
     do {
