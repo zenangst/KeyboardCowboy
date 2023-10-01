@@ -5,6 +5,8 @@ struct NewCommandOpenView: View {
   enum Focus {
     case path
   }
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#open-commands")!
+
   @EnvironmentObject var applicationStore: ApplicationStore
   @EnvironmentObject var openPanel: OpenPanelController
 
@@ -22,8 +24,14 @@ struct NewCommandOpenView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Label(title: { Text("Open file or folder:") }, icon: { EmptyView() })
-        .labelStyle(HeaderLabelStyle())
+      HStack {
+        Label(title: { Text("Open file or folder:") }, icon: { EmptyView() })
+          .labelStyle(HeaderLabelStyle())
+        Spacer()
+        Button(action: { NSWorkspace.shared.open(wikiUrl) },
+               label: { Image(systemName: "questionmark.circle.fill") })
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+      }
 
       HStack {
         ZStack(alignment: .bottomTrailing) {

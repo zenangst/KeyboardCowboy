@@ -8,6 +8,8 @@ struct NewCommandURLView: View {
     case address
   }
 
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#url-commands")!
+
   @EnvironmentObject var applicationStore: ApplicationStore
   @FocusState var focus: Focus?
 
@@ -29,8 +31,14 @@ struct NewCommandURLView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Label(title: { Text("Open URL:") }, icon: { EmptyView() })
-        .labelStyle(HeaderLabelStyle())
+      HStack {
+        Label(title: { Text("Open URL:") }, icon: { EmptyView() })
+          .labelStyle(HeaderLabelStyle())
+        Spacer()
+        Button(action: { NSWorkspace.shared.open(wikiUrl) },
+               label: { Image(systemName: "questionmark.circle.fill") })
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+      }
       HStack(spacing: 0) {
         TextField("protocol", text: $stringProtocol)
           .frame(maxWidth: 120)
