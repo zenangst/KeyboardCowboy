@@ -17,6 +17,8 @@ struct NewCommandMenuBarView: View {
     case add
   }
 
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#menu-bar-commands")!
+
   @Namespace var namespace
   @FocusState var focus: Focus?
   @Environment(\.resetFocus) var resetFocus
@@ -47,8 +49,14 @@ struct NewCommandMenuBarView: View {
   @ViewBuilder
   var body: some View {
     VStack(alignment: .leading) {
-      Label(title: { Text("Menu Bar item:") }, icon: { EmptyView() })
-        .labelStyle(HeaderLabelStyle())
+      HStack {
+        Label(title: { Text("Menu Bar item:") }, icon: { EmptyView() })
+          .labelStyle(HeaderLabelStyle())
+        Spacer()
+        Button(action: { NSWorkspace.shared.open(wikiUrl) },
+               label: { Image(systemName: "questionmark.circle.fill") })
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+      }
 
       VStack {
         ScrollView {

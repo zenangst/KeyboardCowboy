@@ -7,6 +7,8 @@ struct NewCommandApplicationView: View {
     case close = "Close"
   }
 
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#application-commands")!
+
   @EnvironmentObject var applicationStore: ApplicationStore
   @State private var action: ApplicationAction
   @State private var application: Application?
@@ -35,8 +37,14 @@ struct NewCommandApplicationView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Label(title: { Text("Open or Close Application:") }, icon: { EmptyView() })
-        .labelStyle(HeaderLabelStyle())
+      HStack {
+        Label(title: { Text("Open or Close Application:") }, icon: { EmptyView() })
+          .labelStyle(HeaderLabelStyle())
+        Spacer()
+        Button(action: { NSWorkspace.shared.open(wikiUrl) },
+               label: { Image(systemName: "questionmark.circle.fill") })
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+      }
 
       HStack {
         Menu(content: {

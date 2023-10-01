@@ -5,6 +5,7 @@ struct NewCommandKeyboardShortcutView: View {
     case recording
   }
 
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#keyboard-shortcuts-commands")!
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
 
   @Binding var payload: NewCommandPayload
@@ -25,6 +26,9 @@ struct NewCommandKeyboardShortcutView: View {
         Label(title: { Text("Keyboard Shortcut:") }, icon: { EmptyView() })
           .labelStyle(HeaderLabelStyle())
         Spacer()
+        Button(action: { NSWorkspace.shared.open(wikiUrl) },
+               label: { Image(systemName: "questionmark.circle.fill") })
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
       }
 
       EditableKeyboardShortcutsView($keyboardShortcuts, selectionManager: .init(), onTab: { _ in })

@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct NewCommandTypeView: View {
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#type-commands")!
+
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
@@ -23,8 +25,14 @@ struct NewCommandTypeView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Label(title: { Text("Type text:") }, icon: { EmptyView() })
-        .labelStyle(HeaderLabelStyle())
+      HStack {
+        Label(title: { Text("Type text:") }, icon: { EmptyView() })
+          .labelStyle(HeaderLabelStyle())
+        Spacer()
+        Button(action: { NSWorkspace.shared.open(wikiUrl) },
+               label: { Image(systemName: "questionmark.circle.fill") })
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+      }
       AppTextEditor(text: $text, placeholder: "Enter text…", onCommandReturnKey: onSubmit)
 
       Menu(content: {

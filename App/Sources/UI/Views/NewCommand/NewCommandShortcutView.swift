@@ -1,12 +1,14 @@
 import SwiftUI
 
 struct NewCommandShortcutView: View {
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#shortcuts-commands")!
+
+  @EnvironmentObject var shortcutStore: ShortcutStore
+
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
   @State private var shortcut: Shortcut? = nil
-
-  @EnvironmentObject var shortcutStore: ShortcutStore
 
   init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
@@ -15,8 +17,14 @@ struct NewCommandShortcutView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Label(title: { Text("Shortcut:") }, icon: { EmptyView() })
-        .labelStyle(HeaderLabelStyle())
+      HStack {
+        Label(title: { Text("Shortcut:") }, icon: { EmptyView() })
+          .labelStyle(HeaderLabelStyle())
+        Spacer()
+        Button(action: { NSWorkspace.shared.open(wikiUrl) },
+               label: { Image(systemName: "questionmark.circle.fill") })
+        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+      }
       Menu {
         ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in
           Button(shortcut.name, action: {
