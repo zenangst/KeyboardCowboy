@@ -32,17 +32,19 @@ struct AppTextEditor: View {
             .fill(
               Color(isFocused
                     ? .controlAccentColor.withAlphaComponent(0.5)
-                    : .windowFrameTextColor.withAlphaComponent(0.5)
+                    : .windowFrameTextColor.withAlphaComponent(0.15)
               )
             )
             .frame(width: 5)
         })
       Text(placeholder)
+        .font(font)
         .animation(nil, value: text.isEmpty)
         .opacity(text.isEmpty ? 0.5 : 0)
         .animation(.easeInOut(duration: 0.2), value: text.isEmpty)
         .allowsHitTesting(false)
-        .padding([.leading, .top], 4)
+        .padding(.top, 4)
+        .padding(.leading, 8)
       Button("", action: { onCommandReturnKey?() })
         .opacity(0.0)
         .keyboardShortcut(.return, modifiers: [.command])
@@ -67,6 +69,7 @@ struct AppTextEditor: View {
 struct AppTextEditor_Previews: PreviewProvider {
   static var previews: some View {
     Group {
+      AppTextEditor(text: .readonly(""), placeholder: "Enter text ...")
       AppTextEditor(text: .constant("""
 #!/usr/bin/env bash
 
