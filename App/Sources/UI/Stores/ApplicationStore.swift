@@ -5,9 +5,12 @@ import Cocoa
 final class ApplicationStore: ObservableObject {
   static var domain: String = "ApplicationStore"
   static var appStorage: AppStorageStore = .init()
+
+  private var fileWatchers = [FileWatcher]()
   private var passthrough = PassthroughSubject<Void, Never>()
   private var subscription: AnyCancellable?
   private(set) var applicationsByPath = [String: Application]()
+
   @Published private(set) var applications = [Application]()
   @Published private(set) var dictionary = [String: Application]()
 
@@ -64,12 +67,16 @@ final class ApplicationStore: ObservableObject {
     Benchmark.finish("ApplicationController.load")
   }
 
+  // MARK: - Private methods
+
   private func reload() async {
     Benchmark.start("ApplicationController.reload")
-    let newApplications = await ApplicationController.load(
-      Self.appStorage.additionalApplicationPaths.map { URL(filePath: $0) }
-    )
+    let additionalDirectories = Self.appStorage.additionalApplicationPaths.map {
+      URL(filePath: $0)
+    }
+    let newApplications = await ApplicationController.load(additionalDirectories)
     Benchmark.finish("ApplicationController.reload")
+
     var applicationDictionary = [String: Application]()
     var applicationsByPath = [String: Application]()
     for application in newApplications {
@@ -85,6 +92,22 @@ final class ApplicationStore: ObservableObject {
 
     do {
       try AppCache.entry(Self.domain, name: "applications.json").write(applications)
+
+      var monitorPaths: [URL] = additionalDirectories
+      monitorPaths.append(URL(filePath: ("~/Applications" as NSString).expandingTildeInPath))
+      monitorPaths.append(URL(filePath: ("/Applications" as NSString).expandingTildeInPath))
+
+      fileWatchers.forEach { $0.stop() }
+      var newWatchers = [FileWatcher]()
+      for path in monitorPaths {
+        if let fileWatcher = try? FileWatcher(path, handler: { [weak self] url in
+          self?.passthrough.send(())
+        }) {
+          newWatchers.append(fileWatcher)
+          fileWatcher.start()
+        }
+      }
+      fileWatchers = newWatchers
     } catch let error {
       print(error)
     }
