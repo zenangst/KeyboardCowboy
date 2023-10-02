@@ -1,5 +1,7 @@
 import Foundation
 import AppKit
+import Carbon
+import Combine
 import MachPort
 
 protocol CommandRunning {
@@ -27,14 +29,17 @@ final class CommandRunner: CommandRunning {
       if let machPort {
         runners.system.subscribe(to: machPort.$flagsChanged)
         runners.window.subscribe(to: machPort.$event)
+        subscribe(to: machPort.$event)
       }
     }
   }
 
   private let missionControl: MissionControlPlugin
   private let workspace: WorkspaceProviding
-  private var runningTask: Task<Void, Error>?
-  
+  private var serialTask: Task<Void, Error>?
+  private var concurrentTask: Task<Void, Error>?
+  private var subscription: AnyCancellable?
+
   let runners: Runners
 
   @MainActor
@@ -97,8 +102,8 @@ final class CommandRunner: CommandRunning {
 
   func serialRun(_ commands: [Command]) {
     missionControl.dismissIfActive()
-    runningTask?.cancel()
-    runningTask = Task.detached(priority: .userInitiated) { [weak self] in
+    serialTask?.cancel()
+    serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
       do {
         for command in commands {
@@ -116,8 +121,8 @@ final class CommandRunner: CommandRunning {
 
   func concurrentRun(_ commands: [Command]) {
     missionControl.dismissIfActive()
-    runningTask?.cancel()
-    runningTask = Task.detached(priority: .userInitiated) { [weak self] in
+    concurrentTask?.cancel()
+    concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
       for command in commands {
         do {
@@ -198,5 +203,22 @@ final class CommandRunner: CommandRunning {
     } catch {
       throw error
     }
+  }
+
+  private func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
+    subscription = publisher
+      .compactMap { $0 }
+      .sink { [weak self] machPortEvent in
+        let emptyFlags = machPortEvent.event.flags == CGEventFlags.maskNonCoalesced
+
+        guard machPortEvent.keyCode == kVK_Escape,
+              machPortEvent.type == .keyDown,
+              emptyFlags else {
+          return
+        }
+
+        self?.concurrentTask?.cancel()
+        self?.serialTask?.cancel()
+      }
   }
 }
