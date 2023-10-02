@@ -71,7 +71,6 @@ struct KeyboardCowboy: App {
 
     WindowGroup(id: KeyboardCowboy.permissionsSettingsWindowIdentifier) {
       PermissionsSettings()
-        .frame(width: 360, height: 180)
     }
     .windowStyle(.hiddenTitleBar)
     .windowResizability(.contentSize)
