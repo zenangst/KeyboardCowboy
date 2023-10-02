@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct BezelNotificationViewModel: Identifiable, Hashable {
-  var id: String { return text }
+  var id: String
   let text: String
 }
 
@@ -26,7 +26,7 @@ struct BezelNotificationView: View {
 }
 
 struct NotificationBezel_Previews: PreviewProvider {
-  static var publisher = BezelNotificationPublisher(.init(text: ""))
+  static var publisher = BezelNotificationPublisher(.init(id: UUID().uuidString, text: ""))
   static var previews: some View {
     ZStack {
       BezelNotificationView(publisher: publisher)
@@ -34,7 +34,7 @@ struct NotificationBezel_Previews: PreviewProvider {
     }
     .onAppear {
       withAnimation(.default.delay(5)) {
-        publisher.publish(.init(text: "Hello, world!"))
+        publisher.publish(.init(id: UUID().uuidString, text: "Hello, world!"))
       }
     }
   }

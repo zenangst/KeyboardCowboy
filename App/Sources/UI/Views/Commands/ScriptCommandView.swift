@@ -33,7 +33,8 @@ struct ScriptCommandView: View {
 
   var body: some View {
     CommandContainerView($metaData,
-                         icon: { command in
+                         icon: {
+      command in
       ZStack {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
@@ -64,6 +65,36 @@ struct ScriptCommandView: View {
             .onChange(of: text, perform: { newValue in
               onAction(.updateSource(.init(id: model.id, source: .inline(newValue), scriptExtension: model.scriptExtension)))
             })
+          
+          HStack(spacing: 4) {
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+              .fill(Color(nsColor: .systemYellow))
+              .betaFeature("Script environment variables only work in application that have documents.") {
+                Text("BETA")
+                  .foregroundStyle(Color.black)
+                  .font(.caption2)
+                  .frame(maxWidth: .infinity)
+              }
+              .frame(width: 32)
+            Spacer()
+            Text("Environment:")
+            Group {
+              Button(action: { text.append(" $DIRECTORY") },
+                     label: { Text("$DIRECTORY") })
+              Button(action: { text.append(" $FILE") },
+                     label: { Text("$FILE") })
+              Button(action: { text.append(" $FILENAME") },
+                     label: { Text("$FILENAME") })
+              Button(action: { text.append(" $EXTENSION") }, 
+                     label: { Text("$EXTENSION") })
+            }
+            .buttonStyle(.gradientStyle(config: .init(nsColor: .black)))
+          }
+          .allowsTightening(true)
+          .lineLimit(1)
+          .font(.caption2)
+          .frame(alignment: .leading)
+          .padding(.trailing)
         case .path:
           HStack {
             TextField("Path", text: $text)

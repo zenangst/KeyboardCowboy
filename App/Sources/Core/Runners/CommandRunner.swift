@@ -135,6 +135,7 @@ final class CommandRunner: CommandRunning {
 
   func run(_ command: Command) async throws {
     do {
+      let id = UUID().uuidString
       let output: String
       switch command {
       case .application(let applicationCommand):
@@ -168,6 +169,9 @@ final class CommandRunner: CommandRunning {
         try await runners.open.run(openCommand)
         output = command.name
       case .script(let scriptCommand):
+        if command.notification {
+          await BezelNotificationController.shared.post(.init(id: id, text: "Running \(scriptCommand.name)"))
+        }
         let result = try await self.runners.script.run(scriptCommand)
         if let result = result {
           let trimmedResult = result.trimmingCharacters(in: .newlines)
@@ -197,7 +201,7 @@ final class CommandRunner: CommandRunning {
       if command.notification, !output.isEmpty {
         await MainActor.run {
           lastExecutedCommand = command
-          BezelNotificationController.shared.post(.init(text: output))
+          BezelNotificationController.shared.post(.init(id: id, text: output))
         }
       }
     } catch {

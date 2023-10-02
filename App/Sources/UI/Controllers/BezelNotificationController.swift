@@ -28,6 +28,7 @@ final class BezelNotificationController {
 
   func post(_ notification: BezelNotificationViewModel) {
     window?.close()
+
     let window = createWindow()
     withAnimation(.easeOut(duration: 0.175)) {
       coordinator.publish(notification)
@@ -38,7 +39,7 @@ final class BezelNotificationController {
   }
 
   private func clean() {
-    coordinator.publish(.init(text: ""))
+    coordinator.publish(.init(id: UUID().uuidString, text: ""))
     window?.animator().close()
   }
 }

@@ -1,3 +1,5 @@
+import AXEssibility
+import Cocoa
 import Foundation
 
 final class ShellScriptPlugin {
@@ -25,9 +27,28 @@ final class ShellScriptPlugin {
     let filePath = path.sanitizedPath
     let command = (filePath as NSString).lastPathComponent
     let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
-    let (process, pipe, _) = createProcess()
+    let (process, pipe, errorPipe) = createProcess()
 
     process.arguments = ["-i", "-l", command]
+
+    if let frontmostApplication = NSWorkspace.shared.frontmostApplication {
+      let app = AppAccessibilityElement(frontmostApplication.processIdentifier)
+      if let focusedWindow = try? app.focusedWindow(),
+         let documentPath = focusedWindow.document {
+        var environment: [String: String] = ProcessInfo.processInfo.environment
+        let url = URL(filePath: documentPath)
+
+        if let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+          environment["DIRECTORY"] = (components.path as NSString).deletingLastPathComponent
+          environment["FILE"] = url.lastPathComponent
+          environment["FILENAME"] = (url.lastPathComponent as NSString).deletingPathExtension
+          environment["EXTENSION"] = (url.lastPathComponent as NSString).pathExtension
+        }
+
+        process.environment = environment
+      }
+    }
+
     process.currentDirectoryURL = url
 
     try Task.checkCancellation()
@@ -35,7 +56,10 @@ final class ShellScriptPlugin {
     try process.run()
 
     let output: String
-    if let data = try pipe.fileHandleForReading.readToEnd() {
+
+    if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
+      output = String(data: errorPipe, encoding: .utf8) ?? ""
+    } else if let data = try pipe.fileHandleForReading.readToEnd() {
       output = String(data: data, encoding: .utf8) ?? ""
     } else {
       output = ""
