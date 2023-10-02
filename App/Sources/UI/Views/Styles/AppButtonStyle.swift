@@ -65,23 +65,23 @@ struct AppButtonStyle: ButtonStyle {
       .padding(.horizontal, config.padding.horizontal * 1.5)
       .foregroundColor(Color(.textColor))
       .background(
-        ZStack {
-          RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
-            .fill(
-              LinearGradient(stops: [
-                .init(color: Color(config.nsColor), location: 0.0),
-                .init(color: Color(config.nsColor.blended(withFraction: 0.3, of: .black)!), location: 0.025),
-                .init(color: Color(config.nsColor.blended(withFraction: 0.5, of: .black)!), location: 1.0),
-              ], startPoint: .top, endPoint: .bottom)
-            )
-            .opacity(isHovered ? 1.0 : 0.3)
-          RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
-            .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
-            .offset(y: 0.25)
-        }
+        RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
+          .fill(
+            LinearGradient(stops: [
+              .init(color: Color(config.nsColor), location: 0.0),
+              .init(color: Color(config.nsColor.blended(withFraction: 0.3, of: .black)!), location: 0.025),
+              .init(color: Color(config.nsColor.blended(withFraction: 0.5, of: .black)!), location: 1.0),
+            ], startPoint: .top, endPoint: .bottom)
+          )
+          .opacity(isHovered ? 1.0 : 0.3)
+          .background(
+            RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)
+              .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+              .offset(y: 0.25)
+          )
+          .drawingGroup()
       )
-      .grayscale(config.grayscaleEffect ? isHovered ? 0 : 1 : 0)
-      .grayscale(controlActiveState == .key ? 0 : 0.4)
+      .grayscale(config.grayscaleEffect ? isHovered ? 0 : 1 : controlActiveState == .key ? 0 : 0.4)
       .compositingGroup()
       .shadow(color: Color.black.opacity(isHovered ? 0.5 : 0),
               radius: configuration.isPressed ? 0 : isHovered ? 1 : 1.25,
@@ -93,7 +93,7 @@ struct AppButtonStyle: ButtonStyle {
       .animation(.easeOut(duration: 0.2), value: isHovered)
       .onHover(perform: { value in
         guard config.hoverEffect else { return }
-        self.isHovered = value
+        self.isHovered <- value
       })
     }
 }

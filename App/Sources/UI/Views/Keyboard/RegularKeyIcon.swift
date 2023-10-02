@@ -50,7 +50,6 @@ public struct RegularKeyIcon: View {
           minHeight: height,
           alignment: alignment
         )
-        .rotation3DEffect(.degrees(isPressed ? 0.5 : 0), axis: (x: 1.0, y: 0, z: 0))
         .animation(.linear(duration: 0.1), value: isPressed)
         .onAppear {
           if glow {
@@ -87,8 +86,6 @@ public struct RegularKeyIcon: View {
           .allowsHitTesting(false)
       }
     }
-    .rotation3DEffect(.degrees(isPressed ? 20 : 0), axis: (x: 1.0, y: 0, z: 0))
-    .animation(.linear(duration: 0.1), value: isPressed)
     .frame(height: height)
   }
 }

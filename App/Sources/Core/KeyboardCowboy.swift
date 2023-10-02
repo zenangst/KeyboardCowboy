@@ -131,7 +131,8 @@ struct KeyboardCowboy: App {
 
           .environmentObject(core.configCoordinator.publisher)
           .environmentObject(core.sidebarCoordinator.publisher)
-          .environmentObject(core.contentCoordinator.publisher)
+          .environmentObject(core.contentCoordinator.contentPublisher)
+          .environmentObject(core.contentCoordinator.groupPublisher)
           .environmentObject(core.detailCoordinator.statePublisher)
           .environmentObject(core.detailCoordinator.detailPublisher)
 

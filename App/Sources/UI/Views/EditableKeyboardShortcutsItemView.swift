@@ -27,10 +27,10 @@ struct EditableKeyboardShortcutsItemView: View {
     .background(
       FocusView(focusPublisher, element: keyboardShortcut,
                 isTargeted: $isTargeted,
-                selectionManager: selectionManager, cornerRadius: 8, style: .focusRing)
+                selectionManager: selectionManager, cornerRadius: 4, style: .focusRing)
     )
     .background(
-      RoundedRectangle(cornerRadius: 10, style: .continuous)
+      RoundedRectangle(cornerRadius: 6, style: .continuous)
         .stroke(Color(.disabledControlTextColor))
         .opacity(0.5)
     )
@@ -58,5 +58,6 @@ struct EditableKeyboardShortcutsItemView_Previews: PreviewProvider {
         keyboardShortcut: .constant(.init(key: UUID().uuidString, lhs: true)),
         keyboardShortcuts: .constant([]),
         selectionManager: .init())
+      .padding()
     }
 }

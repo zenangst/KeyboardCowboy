@@ -9,7 +9,11 @@ final class ContentCoordinator {
   private let mapper: ContentModelMapper
   private let store: GroupStore
 
-  let publisher: ContentPublisher = ContentPublisher()
+  let groupPublisher: GroupPublisher = GroupPublisher(
+    .init(id: UUID().uuidString, name: "", icon: nil,
+      color: "", symbol: "", count: 0)
+  )
+  let contentPublisher: ContentPublisher = ContentPublisher()
 
   init(_ store: GroupStore,
        applicationStore: ApplicationStore,
@@ -41,13 +45,15 @@ final class ContentCoordinator {
     case .selectGroups(let ids):
       if let id = ids.first,
          let firstGroup = store.group(withId: id) {
+        let group = SidebarMapper.map(firstGroup, applicationStore: applicationStore)
+        groupPublisher.publish(group)
         contentSelectionManager.selectedColor = Color(hex: firstGroup.color)
       }
 
-      let shouldRemoveLastSelection = !publisher.data.isEmpty
+      let shouldRemoveLastSelection = !contentPublisher.data.isEmpty
       handle(.refresh(ids))
       if shouldRemoveLastSelection {
-        if let firstId = publisher.data.first?.id {
+        if let firstId = contentPublisher.data.first?.id {
           contentSelectionManager.setLastSelection(firstId)
         } else {
           contentSelectionManager.removeLastSelection()
@@ -56,8 +62,8 @@ final class ContentCoordinator {
         // Check for invalid selections, reset the last selection to the first one.
         // Otherwise, the focus updates won't work properly because it is looking for an
         // identifier that does not exist in the current group.
-        if !publisher.data.contains(where: { $0.id == lastSelection }) {
-          if let firstId = publisher.data.first?.id {
+        if !contentPublisher.data.contains(where: { $0.id == lastSelection }) {
+          if let firstId = contentPublisher.data.first?.id {
             contentSelectionManager.setLastSelection(firstId)
           }
         }
@@ -70,6 +76,8 @@ final class ContentCoordinator {
     case .add(let workflowGroup):
       render([workflowGroup.id])
     case .edit(let workflowGroup):
+      let group = SidebarMapper.map(workflowGroup, applicationStore: applicationStore)
+      groupPublisher.publish(group)
       render([workflowGroup.id])
     }
   }
@@ -145,7 +153,7 @@ final class ContentCoordinator {
     }
 
     if calculateSelections {
-      if publisher.data.isEmpty {
+      if contentPublisher.data.isEmpty {
         if newSelections.isEmpty, let first = viewModels.first {
           newSelections = [first.id]
         }
@@ -162,6 +170,6 @@ final class ContentCoordinator {
       }
     }
 
-    publisher.publish(viewModels)
+    contentPublisher.publish(viewModels)
   }
 }
