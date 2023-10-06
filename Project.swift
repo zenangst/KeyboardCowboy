@@ -56,7 +56,7 @@ let project = Project(
                         "CURRENT_PROJECT_VERSION": "245",
                         "DEVELOPMENT_TEAM": env["TEAM_ID"],
                         "ENABLE_HARDENED_RUNTIME": true,
-                        "MARKETING_VERSION": "3.16.0",
+                        "MARKETING_VERSION": "3.16.1",
                         "PRODUCT_NAME": "Keyboard Cowboy"
                     ],
                     configurations: [
