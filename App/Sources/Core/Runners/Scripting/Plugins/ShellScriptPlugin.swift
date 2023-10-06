@@ -38,6 +38,8 @@ final class ShellScriptPlugin {
         var environment: [String: String] = ProcessInfo.processInfo.environment
         let url = URL(filePath: documentPath)
 
+        environment["TERM"] = "xterm-256color"
+
         if let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
           environment["DIRECTORY"] = (components.path as NSString).deletingLastPathComponent
           environment["FILE"] = url.lastPathComponent
@@ -57,10 +59,10 @@ final class ShellScriptPlugin {
 
     let output: String
 
-    if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
-      output = String(data: errorPipe, encoding: .utf8) ?? ""
-    } else if let data = try pipe.fileHandleForReading.readToEnd() {
+    if let data = try pipe.fileHandleForReading.readToEnd() {
       output = String(data: data, encoding: .utf8) ?? ""
+    } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
+      output = String(data: errorPipe, encoding: .utf8) ?? ""
     } else {
       output = ""
     }
