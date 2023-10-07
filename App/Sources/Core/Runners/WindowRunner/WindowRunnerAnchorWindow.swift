@@ -5,6 +5,7 @@ final class WindowRunnerAnchorWindow {
 
   static func calulateRect(_ originFrame: CGRect,
                            minSize: CGSize?,
+                           shouldCycle: Bool,
                            position: WindowCommand.Direction,
                            padding: Int,
                            currentScreen: NSScreen,
@@ -28,17 +29,35 @@ final class WindowRunnerAnchorWindow {
     let deltaLimit: CGFloat = 10
     let minSize: CGSize = minSize ?? .zero
 
-    if abs(originFrame.width - minWidth) < deltaLimit ||
-       originFrame.size.width == minSize.width {
-      width = midWidth
-      height = midHeight
-    } else if abs(originFrame.width - midWidth) < deltaLimit ||
+    if shouldCycle {
+      if abs(originFrame.width - minWidth) < deltaLimit ||
+          originFrame.size.width == minSize.width {
+        width = midWidth
+        height = midHeight
+      } else if abs(originFrame.width - midWidth) < deltaLimit ||
                   originFrame.size.width == minSize.width {
-      width = maxWidth
-      height = maxHeight
+        width = maxWidth
+        height = maxHeight
+      } else {
+        width = max(minWidth, minSize.width)
+        height = minHeight
+      }
     } else {
-      width = max(minWidth, minSize.width)
-      height = minHeight
+      let delta1 = abs(originFrame.width - minWidth)
+      let delta2 = abs(originFrame.width - midWidth)
+      let delta3 = abs(originFrame.width - maxWidth)
+      let minDelta = min(delta1, min(delta2, delta3))
+
+      if delta1 == minDelta {
+        width = max(minWidth, minSize.width)
+        height = minHeight
+      } else if delta2 == minDelta {
+        width = max(midWidth, minSize.width)
+        height = midHeight
+      } else {
+        width = max(maxWidth, minSize.width)
+        height = maxHeight
+      }
     }
 
     switch position {

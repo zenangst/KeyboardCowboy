@@ -10,6 +10,8 @@ enum WindowCommandRunnerError: Error {
 }
 
 final class WindowCommandRunner {
+  private var lastKeyCode: Int64?
+  private var shouldCycle: Bool = false
   private var isRepeatingEvent: Bool = false
   private var subscription: AnyCancellable?
   private var minSizeCache = [CGWindowID: CGSize]()
@@ -25,8 +27,12 @@ final class WindowCommandRunner {
     subscription = publisher
       .compactMap { $0 }
       .sink { [weak self] machPortEvent in
+        guard let self else { return }
         let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
-        self?.isRepeatingEvent = isRepeatingEvent
+
+        self.isRepeatingEvent = isRepeatingEvent
+        self.shouldCycle = machPortEvent.keyCode == self.lastKeyCode
+        self.lastKeyCode = machPortEvent.keyCode
     }
   }
 
@@ -57,6 +63,7 @@ final class WindowCommandRunner {
         newFrame = WindowRunnerAnchorWindow.calulateRect(
           originFrame,
           minSize: minSize,
+          shouldCycle: shouldCycle,
           position: position,
           padding: padding,
           currentScreen: currentScreen,
