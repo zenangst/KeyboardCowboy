@@ -75,7 +75,7 @@ fileprivate struct PermissionOverviewItem: View {
           .matchedGeometryEffect(id: "permission-overview-item", in: namespace)
       case .request, .unknown:
         Button(action: onAction, label: { Text(status.rawValue) })
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .green)))
+          .buttonStyle(.zen(.init(color: .systemGreen)))
           .matchedGeometryEffect(id: "permission-overview-item", in: namespace)
       }
     }
@@ -85,6 +85,6 @@ fileprivate struct PermissionOverviewItem: View {
 struct PermissionsOverview_Previews: PreviewProvider {
   static var previews: some View {
     PermissionsSettings()
-      .frame(width: 360, height: 180)
+      .padding(.all)
   }
 }

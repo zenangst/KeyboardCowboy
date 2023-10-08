@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct CommandContainerDelayPopoverView: View {
   @State private var delayString: String
@@ -44,7 +45,7 @@ struct CommandContainerDelayPopoverView: View {
       }, label: {
         Image(systemName: "clear")
       })
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed)))
+      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemRed, grayscaleEffect: true)))
     }
     .padding(16)
   }

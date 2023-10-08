@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
   private let issueNumber: Int?
@@ -52,7 +53,7 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                     Button("GitHub issue: #\(issueNumber)") {
                       NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/\(issueNumber)")!)
                     }
-                    .buttonStyle(.appStyle)
+                    .buttonStyle(.regular)
                   }
                 }
               }
@@ -65,7 +66,7 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                 })
-                .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGray, grayscaleEffect: true)))
+                .buttonStyle(.zen(.init(color: .systemGray, grayscaleEffect: true)))
                 .frame(width: 16, alignment: .top)
                 .padding([.top, .trailing], 8)
                 Spacer()

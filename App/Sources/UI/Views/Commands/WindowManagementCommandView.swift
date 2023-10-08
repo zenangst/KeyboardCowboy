@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct WindowManagementCommandView: View {
   enum Action {
@@ -142,8 +143,8 @@ struct WindowManagementCommandView: View {
         }, label: {
           Text(model.kind.displayValue)
         })
-        .menuStyle(AppMenuStyle(.init(nsColor: .gray), fixedSize: false))
-        
+        .menuStyle(.regular)
+
         switch model.kind {
         case  .increaseSize(_, let direction, _),
               .decreaseSize(_, let direction, _),
@@ -179,9 +180,7 @@ struct WindowManagementCommandView: View {
                   Text(element.displayValue(increment: model.kind.isIncremental))
                 }
                 .buttonStyle(
-                  .gradientStyle(
-                    config: .init(nsColor: element == direction ? .systemGreen : .systemGray)
-                  )
+                  .zen(.init(color: element == direction ? .systemGreen : .systemGray))
                 )
               }
             })

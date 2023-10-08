@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct ContentListFilterView: View {
   @EnvironmentObject private var publisher: ContentPublisher
@@ -40,7 +41,7 @@ struct ContentListFilterView: View {
         if !searchTerm.isEmpty {
           Button(action: { searchTerm = "" },
                  label: { Text("Clear") })
-          .buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
+          .buttonStyle(.calm(color: .systemGray, padding: .medium))
           .font(.caption2)
         }
       }
@@ -51,3 +52,12 @@ struct ContentListFilterView: View {
   }
 }
 
+struct ContentListFilterView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
+  static var previews: some View {
+    ContentListFilterView($focus, 
+                          contentSelectionManager: SelectionManager<ContentViewModel>(),
+                          searchTerm: .constant("test"))
+    .designTime()
+  }
+}

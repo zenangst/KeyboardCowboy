@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct SidebarAddGroupButtonView: View {
   @Binding private var isVisible: Bool
@@ -25,7 +26,7 @@ struct SidebarAddGroupButtonView: View {
           .frame(height: 10)
           .padding(2)
       }
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+      .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: true)))
       .padding(.leading, 6)
       .padding(.bottom, 6)
       .matchedGeometryEffect(id: "add-group-button", in: namespace)
@@ -33,5 +34,16 @@ struct SidebarAddGroupButtonView: View {
     } else {
       EmptyView()
     }
+  }
+}
+
+struct SidebarAddGroupButtonView_Previews: PreviewProvider {
+  @Namespace static var namespace
+  static var previews: some View {
+    SidebarAddGroupButtonView(isVisible: .constant(true),
+                              namespace: namespace,
+                              onAction: { })
+    .padding(40)
+    .designTime()
   }
 }

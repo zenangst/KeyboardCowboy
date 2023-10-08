@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct ContentAddWorkflowHeaderView: View {
   @EnvironmentObject private var contentPublisher: ContentPublisher
@@ -22,9 +23,18 @@ struct ContentAddWorkflowHeaderView: View {
           .padding(2)
       }
       .help("Add Workflow")
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+      .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: true)))
       .padding(.trailing, 8)
       .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
     }
+  }
+}
+
+struct ContentAddWorkflowHeaderView_Previews: PreviewProvider {
+  @Namespace static var namespace
+  static var previews: some View {
+    ContentAddWorkflowHeaderView(namespace) {}
+      .designTime()
+      .padding(.all)
   }
 }

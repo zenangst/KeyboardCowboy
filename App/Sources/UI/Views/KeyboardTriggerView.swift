@@ -1,5 +1,6 @@
 import Combine
 import SwiftUI
+import ZenViewKit
 
 struct KeyboardTriggerView: View {
   private let data: DetailViewModel
@@ -33,15 +34,17 @@ struct KeyboardTriggerView: View {
   var body: some View {
     VStack {
       HStack {
-        Button(action: {
-          onAction(.removeTrigger(workflowId: data.id))
-        },
-               label: { Image(systemName: "xmark") })
-        .buttonStyle(.appStyle)
-        Label("Keyboard Shortcuts sequence:", image: "")
-          .padding(.trailing, 12)
+        Button(action: { onAction(.removeTrigger(workflowId: data.id)) },
+               label: {
+          Image(systemName: "xmark")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 10, height: 10)
+        })
+        .buttonStyle(.calm(color: .systemRed, padding: .medium))
+        Label("Keyboard Shortcuts Sequence:", image: "")
         Spacer()
-        AppCheckbox("Passthrough", isOn: $passthrough) { newValue in
+        AppCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
           onAction(.togglePassthrough(workflowId: data.id, newValue: newValue))
         }
         .font(.caption)
@@ -73,3 +76,23 @@ struct KeyboardTriggerView: View {
   }
 }
 
+struct KeyboardTriggerView_Previews: PreviewProvider {
+  @Namespace static var namespace
+  @FocusState static var focus: AppFocus?
+  static var previews: some View {
+    KeyboardTriggerView(namespace: namespace,
+                        focus: $focus,
+                        data: .init(id: UUID().uuidString,
+                                    name: UUID().uuidString, isEnabled: true,
+                                    commands: [], execution: .concurrent),
+                        trigger: .init(passthrough: false, shortcuts: [
+                          .empty()
+                        ]),
+                        keyboardShortcutSelectionManager: .init(),
+                        onAction: {
+      _ in
+    })
+    .designTime()
+    .padding()
+  }
+}

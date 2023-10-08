@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct WorkflowShortcutsView: View {
   var focus: FocusState<AppFocus?>.Binding
@@ -33,5 +34,19 @@ struct WorkflowShortcutsView: View {
         onUpdate(newValue)
       })
       .focused(focus, equals: .detail(.keyboardShortcuts))
+  }
+}
+
+struct WorkflowShortcutsView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
+  static var previews: some View {
+    WorkflowShortcutsView($focus,
+                          data: .constant([]),
+                          selectionManager: .init(),
+                          onUpdate: {
+      _ in
+    })
+      .designTime()
+      .padding()
   }
 }

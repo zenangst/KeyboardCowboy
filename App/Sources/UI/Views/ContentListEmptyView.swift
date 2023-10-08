@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct ContentListEmptyView: View {
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
@@ -40,7 +41,7 @@ struct ContentListEmptyView: View {
             .padding(4)
           })
           .help("Add Workflow")
-          .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+          .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: false)))
           .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
 
           Text("No workflows yet,\nadd a workflow to get started.")

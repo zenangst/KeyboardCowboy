@@ -1,5 +1,6 @@
 import Apps
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandOpenView: View {
   enum Focus {
@@ -30,7 +31,7 @@ struct NewCommandOpenView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
 
       HStack {
@@ -57,7 +58,7 @@ struct NewCommandOpenView: View {
             self.path = path
           }))
         })
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemTeal, grayscaleEffect: false)))
+        .buttonStyle(.zen(.init(color: .systemTeal, grayscaleEffect: false)))
       }
       .padding(4)
       .background {
@@ -86,7 +87,7 @@ struct NewCommandOpenView: View {
         })
       }
     }
-    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
+    .menuStyle(.zen(.init(color: .systemGray)))
     .onAppear {
       validation = .valid
       updatePayload()

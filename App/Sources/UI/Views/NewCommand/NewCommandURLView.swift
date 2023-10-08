@@ -37,7 +37,7 @@ struct NewCommandURLView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
       HStack(spacing: 0) {
         TextField("protocol", text: $stringProtocol)
@@ -112,7 +112,7 @@ struct NewCommandURLView: View {
           }
         })
       }
-      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
+      .menuStyle(.regular)
       .zIndex(1)
     }
     .textFieldStyle(LargeTextFieldStyle())

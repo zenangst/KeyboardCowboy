@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct WorkflowCommandListHeaderAddView: View {
   @EnvironmentObject var detailPublisher: DetailPublisher
@@ -24,7 +25,16 @@ struct WorkflowCommandListHeaderAddView: View {
     }
     .help("Add Command")
     .padding(.horizontal, 4)
-    .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+    .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: true)))
     .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
+  }
+}
+
+struct WorkflowCommandListHeaderAddView_Previews: PreviewProvider {
+  @Namespace static var namespace
+  static var previews: some View {
+    WorkflowCommandListHeaderAddView(namespace)
+      .designTime()
+      .padding()
   }
 }

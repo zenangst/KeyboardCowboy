@@ -31,7 +31,7 @@ struct NewCommandTypeView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
       AppTextEditor(text: $text, placeholder: "Enter text…", onCommandReturnKey: onSubmit)
 
@@ -46,7 +46,7 @@ struct NewCommandTypeView: View {
       }, label: {
         Text(mode.rawValue)
       })
-      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
+      .menuStyle(.regular)
     }
     .onChange(of: text) { newValue in
       validation = updateAndValidatePayload()

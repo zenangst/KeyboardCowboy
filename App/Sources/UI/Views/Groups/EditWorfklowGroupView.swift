@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct EditWorfklowGroupView: View {
   enum Focus {
@@ -19,7 +20,7 @@ struct EditWorfklowGroupView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack {
-        WorkflowGroupIconView(group: $group, size: 48)
+        WorkflowGroupIconView(group: $group, size: 36)
           .contentShape(Circle())
           .onTapGesture {
             editIcon = group
@@ -65,7 +66,7 @@ struct EditWorfklowGroupView: View {
           Text("Cancel")
             .frame(minWidth: 40)
         }
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed)))
+        .buttonStyle(.destructive)
         .keyboardShortcut(.cancelAction)
 
         Spacer()
@@ -74,7 +75,7 @@ struct EditWorfklowGroupView: View {
           Text("OK")
             .frame(minWidth: 40)
         }
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
+        .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: false)))
         .keyboardShortcut(.defaultAction)
       }
       .padding()

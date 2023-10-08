@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct PermissionsView: View {
   enum Action {
@@ -60,7 +61,6 @@ struct PermissionsView: View {
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
 
-
           Text("If you have any concerns, please contact us.")
             .opacity(animated ? 1 : 0)
             .offset(y: animated ? 0 : -10)
@@ -74,18 +74,20 @@ struct PermissionsView: View {
       Divider()
         .opacity(animated ? 1 : 0)
         .animation(.easeInOut(duration: 1.5).delay(1.5), value: animated)
+        .padding(.bottom, 4)
+
       HStack(spacing: 16) {
         Button("View source code", action: {
           onAction(.github)
         })
-        .buttonStyle(.plain)
+        .buttonStyle(.calm(color: .systemGreen, padding: .medium))
         Spacer()
 
         Button("Request permission", action: {
           done.toggle()
           onAction(.requestPermissions)
         })
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
+        .buttonStyle(.positive)
       }
       .rotation3DEffect(Angle(degrees: animated ? 0 : 45),
                         axis: (x: 1.0, y: 0.0, z: 0.0)

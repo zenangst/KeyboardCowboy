@@ -38,8 +38,7 @@ struct SidebarConfigurationView: View {
           .allowsTightening(true)
           .contentShape(Rectangle())
       }
-      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: true),
-                                   fixedSize: false))
+      .menuStyle(.regular)
 
       Menu(content: {
         Button("New Configuration", action: {
@@ -59,7 +58,8 @@ struct SidebarConfigurationView: View {
         Image(systemName: "ellipsis.circle")
           .resizable()
       })
-      .menuStyle(AppMenuStyle(.init(nsColor: .systemGreen, grayscaleEffect: true)))
+      .menuStyle(.zen(.init(color: .systemGreen, grayscaleEffect: true)))
+      .fixedSize()
       .popover(isPresented: $deleteConfigurationPopover,
                arrowEdge: .bottom,
                content: {
@@ -90,5 +90,6 @@ struct SidebarConfigurationView_Previews: PreviewProvider {
   static var previews: some View {
     SidebarConfigurationView(.init()) { _ in }
       .designTime()
+      .padding()
   }
 }

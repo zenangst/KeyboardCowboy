@@ -38,13 +38,12 @@ struct SystemCommandView: View {
         }, label: {
           HStack(spacing: 4) {
             Text(model.kind.displayValue)
-              .font(.caption)
               .truncationMode(.middle)
               .allowsTightening(true)
           }
           .padding(4)
         })
-        .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
+        .menuStyle(.regular)
       }
     }, subContent: { _ in },
     onAction: { onAction(.commandAction($0)) })

@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandValidationView: View {
   @Binding var validation: NewCommandValidation
@@ -29,7 +30,7 @@ struct NewCommandValidationView: View {
                   .frame(width: 8, height: 8)
                   .aspectRatio(1, contentMode: .fit)
               })
-              .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed)))
+              .buttonStyle(.calm(color: .systemRed, padding: .medium))
             }
             .offset(.init(width: 0, height: validation.isInvalid ? 0 : 300))
             .animation(.easeInOut.delay(0.2), value: validation)
@@ -76,6 +77,7 @@ struct NewCommandValidationView_Previews: PreviewProvider {
       ForEach(cases) { validation in
         NewCommandValidationView(.constant(validation))
           .previewDisplayName(validation.rawValue)
+          .padding(48)
       }
     }
   }

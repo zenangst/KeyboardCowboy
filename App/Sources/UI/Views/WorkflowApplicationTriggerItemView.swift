@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct WorkflowApplicationTriggerItemView: View {
   @Binding var element: DetailViewModel.ApplicationTrigger
@@ -65,7 +66,7 @@ struct WorkflowApplicationTriggerItemView: View {
             .aspectRatio(contentMode: .fill)
             .frame(width: 8, height: 8)
         })
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
+      .buttonStyle(.calm(color: .systemRed, padding: .medium))
       .padding(.horizontal, 8)
     }
     .padding(.leading, 8)

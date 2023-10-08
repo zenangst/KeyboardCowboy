@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct EditableKeyboardShortcutsView: View {
   enum CurrentState: Hashable {
@@ -112,7 +113,7 @@ struct EditableKeyboardShortcutsView: View {
             .frame(maxWidth: 14, maxHeight: 14)
             .padding(1)
         })
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+        .buttonStyle(.calm(color: .systemGreen, padding: .medium))
         .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
         .padding(.trailing, 4)
         .disabled(state == .recording)
@@ -217,5 +218,18 @@ struct EditableKeyboardShortcutsView: View {
     withAnimation(animation) {
       keyboardShortcuts.removeAll(where: { $0.id == placeholderId })
     }
+  }
+}
+
+struct EditableKeyboardShortcutsView_Previews: PreviewProvider {
+  static var previews: some View {
+    EditableKeyboardShortcutsView(
+      .constant([
+        .empty()
+      ]),
+      selectionManager: SelectionManager<KeyShortcut>.init(),
+      onTab: { _ in })
+    .designTime()
+    .padding()
   }
 }

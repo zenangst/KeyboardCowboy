@@ -90,7 +90,7 @@ struct EmptyConfigurationView: View {
       }, label: {
         Text("Confirm")
       })
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
+      .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: false)))
       .padding(.vertical)
       .matchedGeometryEffect(id: "initial-item", in: namespace)
     }

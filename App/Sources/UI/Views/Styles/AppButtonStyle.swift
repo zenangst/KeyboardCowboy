@@ -1,28 +1,5 @@
 import SwiftUI
 
-enum AppButtonStyleEnum {
-  case appStyle
-  case saveStyle
-  case destructiveStyle
-  case gradientStyle(config: AppButtonConfiguration)
-}
-
-extension View {
-  @ViewBuilder
-  func buttonStyle(_ style: AppButtonStyleEnum) -> some View {
-    switch style {
-    case .appStyle:
-      self.buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
-    case .saveStyle:
-      self.buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen)))
-    case .destructiveStyle:
-      self.buttonStyle(AppButtonStyle(.init(nsColor: .systemRed)))
-    case .gradientStyle(let config):
-      self.buttonStyle(AppButtonStyle(config))
-    }
-  }
-}
-
 struct AppButtonConfiguration {
   let cornerRadius: CGFloat
   let nsColor: NSColor

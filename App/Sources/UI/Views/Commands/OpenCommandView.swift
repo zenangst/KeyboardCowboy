@@ -1,5 +1,6 @@
 import Apps
 import SwiftUI
+import ZenViewKit
 
 struct OpenCommandView: View {
   enum Action {
@@ -65,8 +66,8 @@ struct OpenCommandView: View {
               .allowsTightening(true)
               .padding(4)
           })
-          .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false),
-                                       menuIndicator: model.applications.isEmpty ? .hidden : .visible))
+          .menuStyle(.zen(.init(color: .systemGray, grayscaleEffect: false)))
+          .menuIndicator(model.applications.isEmpty ? .hidden : .visible)
         }
       }
     }, subContent: { command in

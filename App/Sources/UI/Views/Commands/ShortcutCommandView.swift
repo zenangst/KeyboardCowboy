@@ -50,7 +50,7 @@ struct ShortcutCommandView: View {
             })
           }
         }
-        .menuStyle(AppMenuStyle(.init(nsColor: .systemPurple, grayscaleEffect: true), fixedSize: false))
+        .menuStyle(.zen(.init(color: .systemPurple, grayscaleEffect: true)))
         .padding(.bottom, 4)
       }
     }, subContent: { command in

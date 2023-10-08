@@ -47,18 +47,7 @@ struct WorkflowApplicationTriggerView: View {
         } label: {
          Text("Add application")
         }
-        .menuStyle(
-          AppMenuStyle(
-            .init(
-              nsColor: .systemGray,
-              padding: .init(
-                horizontal: 8,
-                vertical: 8
-              ),
-              grayscaleEffect: false
-            ),  fixedSize: false
-          )
-        )
+        .menuStyle(.zen(.init(color: .systemGray, padding: .init(horizontal: .large, vertical: .large))))
       }
 
       LazyVStack(spacing: 4) {

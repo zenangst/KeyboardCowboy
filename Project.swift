@@ -46,6 +46,7 @@ let project = Project(
                 .external(name: "MachPort"),
                 .external(name: "Sparkle"),
                 .external(name: "Windows"),
+                .external(name: "ZenViewKit"),
             ],
             settings:
                 Settings.settings(

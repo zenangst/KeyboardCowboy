@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct ScriptCommandView: View {
   enum Action {
@@ -88,7 +89,7 @@ struct ScriptCommandView: View {
               Button(action: { text.append(" $EXTENSION") }, 
                      label: { Text("$EXTENSION") })
             }
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .black)))
+            .buttonStyle(.zen(ZenStyleConfiguration(color: .black)))
           }
           .allowsTightening(true)
           .lineLimit(1)
@@ -109,7 +110,7 @@ struct ScriptCommandView: View {
                 onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
               }))
             })
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: true)))
             .font(.caption)
           }
         }
@@ -120,9 +121,9 @@ struct ScriptCommandView: View {
         switch model.source {
         case .path(let source):
           Button("Open", action: { onAction(.open(path: source)) })
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemCyan, grayscaleEffect: true)))
+            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemCyan, grayscaleEffect: true)))
           Button("Reveal", action: { onAction(.reveal(path: source)) })
-            .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: true)))
         case .inline:
           EmptyView()
         }

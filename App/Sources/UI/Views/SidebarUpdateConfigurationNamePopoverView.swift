@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct SidebarUpdateConfigurationNamePopoverView: View {
   @Binding private var updateConfigurationNamePopover: Bool
@@ -23,16 +24,23 @@ struct SidebarUpdateConfigurationNamePopoverView: View {
           updateConfigurationNamePopover = false
           configurationName = ""
         }
+        .textFieldStyle(AppTextFieldStyle())
       Button("Save", action: {
         onAction(configurationName)
         updateConfigurationNamePopover = false
         configurationName = ""
       })
       .keyboardShortcut(.defaultAction)
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
+      .buttonStyle(.positive)
     }
     .padding()
-
   }
 }
 
+struct SidebarUpdateConfigurationNamePopoverView_Previews: PreviewProvider {
+  static var previews: some View {
+    SidebarUpdateConfigurationNamePopoverView(.constant(true),
+                                               configurationName: .constant("Default"),
+                                               onAction: { _ in })
+  }
+}
