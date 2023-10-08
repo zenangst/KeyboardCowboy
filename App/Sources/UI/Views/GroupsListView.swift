@@ -112,7 +112,7 @@ struct GroupsListView: View {
     HStack {
       Button(action: { confirmDelete = nil },
              label: { Image(systemName: "x.circle") })
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .brown)))
+      .buttonStyle(.calm(color: .systemBrown, padding: .medium))
       .keyboardShortcut(.cancelAction)
       Text("Are you sure?")
         .font(.footnote)
@@ -122,7 +122,7 @@ struct GroupsListView: View {
         confirmDelete = nil
         onAction(.removeGroups(selectionManager.selections))
       }, label: { Image(systemName: "trash") })
-      .buttonStyle(.destructiveStyle)
+      .buttonStyle(.calm(color: .systemRed, padding: .medium))
       .keyboardShortcut(.defaultAction)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct MenuBarCommandView: View {
   enum Action {
@@ -88,8 +89,7 @@ struct MenuBarCommandView: View {
         Text("Edit")
           .font(.caption)
       }
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemCyan, grayscaleEffect: true)))
-
+      .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: true)))
     } onAction: { action in
       onAction(.commandAction(action))
     }

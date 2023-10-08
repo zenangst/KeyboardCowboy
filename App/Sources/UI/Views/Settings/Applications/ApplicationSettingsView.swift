@@ -1,5 +1,6 @@
 import Apps
 import SwiftUI
+import ZenViewKit
 
 struct ApplicationSettingsView: View {
   @EnvironmentObject var openPanel: OpenPanelController
@@ -8,12 +9,17 @@ struct ApplicationSettingsView: View {
   @State private var isPresentingPopover: Bool = false
 
   var body: some View {
-    ScrollView(.vertical) {
-      VStack(alignment: .leading) {
-        Text("Additional directories")
-          .font(.headline)
+    VStack(spacing: 0) {
+      HStack(alignment: .bottom) {
+        Label("Additional Directories", image: "")
+          .labelStyle(HeaderLabelStyle())
+        Spacer()
+      }
+      .padding([.top, .leading, .trailing], 16)
+      .background(Color(.windowBackgroundColor))
 
-        VStack {
+      ScrollView(.vertical) {
+        VStack(alignment: .leading, spacing: 0) {
           if additionalApplicationPaths.isEmpty {
             Text("No additional directories")
               .frame(maxWidth: .infinity)
@@ -27,43 +33,46 @@ struct ApplicationSettingsView: View {
                 }, label: {
                   Image(systemName: "trash")
                 })
+                .buttonStyle(.calm(color: .systemRed, padding: .medium))
               }
+              .padding(.horizontal, 16)
+              .padding(.vertical, 8)
+              Divider()
             }
           }
         }
+        .frame(maxHeight: .infinity)
+      }
+      .background(Color(.windowBackgroundColor))
+      .layoutPriority(100)
 
-        Divider()
-
-        HStack {
-          Spacer()
-          Button(action: {
-            openPanel.perform(.selectFolder(handler: { string in
-              guard !additionalApplicationPaths.contains(string) else { return }
-              additionalApplicationPaths.append(string)
-            }))
-          }, label: {
-            HStack(spacing: 4) {
-              Image(systemName: "folder")
-              Divider()
-              Text("Add Folder")
-            }
-          })
-          .buttonStyle(AppButtonStyle(.init(nsColor: .systemBlue)))
-          .font(.callout)
-
-          Button(action: {
-            isPresentingPopover = true
-          }, label: {
-            Image(systemName: "questionmark.app.fill")
-          })
-          .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 48)))
-          .popover(isPresented: $isPresentingPopover,
-                   arrowEdge: .bottom,
-                   content: {
-            ApplicationSettingsPopoverView()
-          })
-        }
-
+      HStack {
+        Button(action: {
+          isPresentingPopover = true
+        }, label: {
+          Image(systemName: "questionmark.app.fill")
+        })
+        .buttonStyle(.calm(color: .systemYellow, padding: .medium))
+        .popover(isPresented: $isPresentingPopover,
+                 arrowEdge: .bottom,
+                 content: {
+          ApplicationSettingsPopoverView()
+        })
+        Spacer()
+        Button(action: {
+          openPanel.perform(.selectFolder(handler: { string in
+            guard !additionalApplicationPaths.contains(string) else { return }
+            additionalApplicationPaths.append(string)
+          }))
+        }, label: {
+          HStack(spacing: 4) {
+            Image(systemName: "folder")
+            Divider()
+            Text("Add Folder")
+          }
+        })
+        .buttonStyle(.zen(.init(color: .systemBlue)))
+        .font(.callout)
       }
       .padding(16)
     }
@@ -91,6 +100,5 @@ struct ApplicationSettingsPopoverView: View {
 
 #Preview {
   ApplicationSettingsView()
-    .padding()
     .environmentObject(OpenPanelController())
 }

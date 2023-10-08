@@ -1,5 +1,6 @@
 import Apps
 import SwiftUI
+import ZenViewKit
 
 struct RuleListView: View {
   @ObservedObject var applicationStore: ApplicationStore
@@ -28,7 +29,7 @@ struct RuleListView: View {
             }
           }
         }
-        .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false), fixedSize: false))
+        .menuStyle(.regular)
       }
       if let rule = group.rule {
         ForEach(rule.bundleIdentifiers, id: \.self) { bundleIdentifier in
@@ -47,6 +48,7 @@ struct RuleListView: View {
             }, label: {
               Image(systemName: "trash")
             })
+            .buttonStyle(.calm(color: .systemRed, padding: .medium))
           }
         }
       } else {
@@ -61,5 +63,6 @@ struct RuleListView_Previews: PreviewProvider {
   static var previews: some View {
     RuleListView(applicationStore: ApplicationStore.shared,
                  group: .constant(group))
+    .padding()
   }
 }

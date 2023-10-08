@@ -63,7 +63,8 @@ struct ApplicationCommandView: View {
             }
             .padding(4)
           })
-          .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
+          .menuStyle(.zen(.init(color: .systemGray)))
+          .fixedSize()
           .compositingGroup()
 
           TextField(metaData.namePlaceholder, text: $metaData.name)

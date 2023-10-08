@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandSystemCommandView: View {
   @Binding var payload: NewCommandPayload
@@ -31,8 +32,7 @@ struct NewCommandSystemCommandView: View {
       }
       .background(NewCommandValidationView($validation))
     }
-    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray),
-                                 fixedSize: false))
+    .menuStyle(.regular)
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       withAnimation { validation = updateAndValidatePayload() }

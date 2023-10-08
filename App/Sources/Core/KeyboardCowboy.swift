@@ -5,6 +5,7 @@ import SwiftUI
 import LaunchArguments
 import InputSources
 @_exported import Inject
+@_exported import ZenViewKit
 
 @main
 struct KeyboardCowboy: App {

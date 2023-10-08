@@ -73,7 +73,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
             subContent($metaData)
           }
-            .buttonStyle(.appStyle)
+            .buttonStyle(.regular)
             .lineLimit(1)
             .allowsTightening(true)
             .truncationMode(.tail)
@@ -111,7 +111,7 @@ struct CommandContainerActionView: View {
             .aspectRatio(contentMode: .fit)
         })
         .help("Delete Command")
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
+        .buttonStyle(.calm(color: .systemRed, padding: .medium))
         .frame(maxWidth: 20, maxHeight: .infinity)
         .padding(.vertical, 10)
 
@@ -132,7 +132,7 @@ struct CommandContainerActionView: View {
             .aspectRatio(contentMode: .fit)
         })
         .help("Run Workflow")
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, grayscaleEffect: true)))
+        .buttonStyle(.calm(color: .systemGreen, padding: .medium))
         .frame(maxWidth: 20, maxHeight: .infinity)
         .padding(.vertical, 10)
       }

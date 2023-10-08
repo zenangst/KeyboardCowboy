@@ -1,5 +1,6 @@
 import Carbon
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandView: View {
   enum Kind: String, CaseIterable, Hashable, Identifiable {
@@ -183,12 +184,11 @@ struct NewCommandView: View {
       HStack {
         Spacer()
         Button(action: onDismiss, label: { Text("Cancel") })
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .red, grayscaleEffect: true)))
+          .buttonStyle(.zen(.init(color: .systemRed, grayscaleEffect: true)))
         Button(action: onSubmit, label: { Text("Save") })
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
+          .buttonStyle(.positive)
           .keyboardShortcut(.defaultAction)
       }
-      .buttonStyle(.appStyle)
       .padding()
     }
     .padding(.top, 36)

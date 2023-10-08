@@ -39,13 +39,13 @@ struct EditConfigurationView: View {
         Button("Cancel", role: .cancel, action: {
           action(.cancel)
         })
-        .buttonStyle(.appStyle)
+        .buttonStyle(.regular)
         .keyboardShortcut(.cancelAction)
 
         Button("OK", action: {
           action(.ok(configuration))
         })
-        .buttonStyle(.appStyle)
+        .buttonStyle(.regular)
         .keyboardShortcut(.defaultAction)
       }
       .padding([.leading, .trailing, .bottom])

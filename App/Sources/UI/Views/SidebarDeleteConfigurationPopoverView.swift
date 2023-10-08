@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct SidebarDeleteConfigurationPopoverView: View {
   @Binding private var deleteConfigurationPopover: Bool
@@ -29,15 +30,25 @@ struct SidebarDeleteConfigurationPopoverView: View {
         Button("Abort", action: {
           deleteConfigurationPopover = false
         })
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGray, hoverEffect: false)))
+        .buttonStyle(.calm(color: .systemGray, padding: .medium))
         .keyboardShortcut(.cancelAction)
         Button("Confirm", action: {
           onAction(id)
           deleteConfigurationPopover = false
         })
-        .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen, hoverEffect: false)))
+        .buttonStyle(.destructive)
       }
     }
     .padding()
+  }
+}
+
+struct SidebarDeleteConfigurationPopoverView_Previews: PreviewProvider {
+  static var previews: some View {
+    SidebarDeleteConfigurationPopoverView(.constant(true),
+                                          id: UUID().uuidString,
+                                          configurationName: "Default",
+                                          selectionManager: SelectionManager([]),
+                                          onAction: { _ in })
   }
 }

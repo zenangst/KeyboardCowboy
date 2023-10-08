@@ -28,7 +28,7 @@ struct NewCommandKeyboardShortcutView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
 
       EditableKeyboardShortcutsView($keyboardShortcuts, selectionManager: .init(), onTab: { _ in })

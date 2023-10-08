@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandWindowManagementView: View {
   @Binding var payload: NewCommandPayload
@@ -27,7 +28,7 @@ struct NewCommandWindowManagementView: View {
       } label: {
         Text(selection.displayValue)
       }
-      .menuStyle(AppMenuStyle(.init(nsColor: .gray), fixedSize: false))
+      .menuStyle(.regular)
     }
     .onChange(of: validation) { newValue in
       guard newValue == .needsValidation else { return }

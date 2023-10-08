@@ -1,5 +1,6 @@
 import Combine
 import SwiftUI
+import ZenViewKit
 
 struct WorkflowTriggerListView: View {
   @Namespace var namespace
@@ -31,12 +32,15 @@ struct WorkflowTriggerListView: View {
                            keyboardShortcutSelectionManager: keyboardShortcutSelectionManager, onAction: onAction)
       case .applications(let triggers):
         HStack {
-          Button(action: {
-            onAction(.removeTrigger(workflowId: data.id))
-          },
-                 label: { Image(systemName: "xmark") })
-          .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
-          Label("Application trigger:", image: "")
+          Button(action: { onAction(.removeTrigger(workflowId: data.id)) },
+                 label: {
+            Image(systemName: "xmark")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 10, height: 10)
+          })
+          .buttonStyle(.calm(color: .systemRed, padding: .medium))
+          Label("Application Trigger:", image: "")
         }
         .padding([.leading, .trailing], 8)
         WorkflowApplicationTriggerView(focus, data: triggers,

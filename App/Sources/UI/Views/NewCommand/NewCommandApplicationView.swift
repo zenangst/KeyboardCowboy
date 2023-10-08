@@ -1,5 +1,6 @@
 import Apps
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandApplicationView: View {
   enum ApplicationAction: String, CaseIterable {
@@ -43,7 +44,7 @@ struct NewCommandApplicationView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
 
       HStack {
@@ -57,7 +58,6 @@ struct NewCommandApplicationView: View {
         }, label: {
           Text(action.rawValue)
         })
-        .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, padding: .init(horizontal: 8, vertical: 7)), fixedSize: false))
         .frame(maxWidth: 80)
 
         Menu(content: {
@@ -89,18 +89,20 @@ struct NewCommandApplicationView: View {
           .allowsHitTesting(false)
         })
       }
-      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, padding: .init(horizontal: 8, vertical: 8)), fixedSize: false))
+
+      .menuStyle(.zen(.init(color: .systemGray, 
+                            padding: .init(horizontal: .large, vertical: .large))))
 
       Divider()
 
       HStack {
-        AppCheckbox("In background", isOn: $inBackground) { _ in
+        AppCheckbox("In background", style: .small, isOn: $inBackground) { _ in
          updateAndValidatePayload()
         }
-        AppCheckbox("Hide when opening", isOn: $hideWhenRunning) { _ in
+        AppCheckbox("Hide when opening", style: .small, isOn: $hideWhenRunning) { _ in
           updateAndValidatePayload()
          }
-        AppCheckbox("If not running", isOn: $ifNotRunning) { _ in
+        AppCheckbox("If not running", style: .small, isOn: $ifNotRunning) { _ in
           updateAndValidatePayload()
          }
       }
@@ -109,7 +111,6 @@ struct NewCommandApplicationView: View {
         validation = updateAndValidatePayload()
       }
     }
-    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
     .overlay(NewCommandValidationView($validation).padding(-16))
     .onAppear {
       validation = .unknown

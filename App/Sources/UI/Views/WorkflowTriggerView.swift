@@ -51,6 +51,6 @@ struct WorkflowTriggerView: View {
       .background(Color(.gridColor))
       .cornerRadius(8)
     }
-    .buttonStyle(.appStyle)
+    .buttonStyle(.regular)
   }
 }

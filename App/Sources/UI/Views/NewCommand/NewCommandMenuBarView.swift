@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandMenuBarView: View {
   struct TokenContainer: Identifiable, Hashable {
@@ -55,7 +56,7 @@ struct NewCommandMenuBarView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
 
       VStack {
@@ -96,7 +97,7 @@ struct NewCommandMenuBarView: View {
                   .aspectRatio(contentMode: .fill)
                   .frame(width: 8, height: 8)
               })
-              .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed, grayscaleEffect: true)))
+              .buttonStyle(.calm(color: .systemRed, padding: .medium))
             }
             .padding(4)
             .background(
@@ -181,10 +182,11 @@ struct NewCommandMenuBarView: View {
       } label: {
         Text(kind.rawValue)
       }
-      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray)))
+      .menuStyle(.regular)
+      .fixedSize()
 
       Button(action: onSubmit, label: { Text("Add") })
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemGreen)))
+        .buttonStyle(.zen(.init(color: .systemGreen)))
     }
   }
 

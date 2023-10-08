@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct CommandContainerDelayView: View {
   @State private var delayOverlay: Bool = false
@@ -41,10 +42,30 @@ struct CommandContainerDelayView: View {
             .frame(width: 6, height: 6)
         }
       }
-      .buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
+      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemGray)))
       .popover(isPresented: $delayOverlay, content: {
         CommandContainerDelayPopoverView($metaData, isShown: $delayOverlay, onChange: onChange)
       })
     }
+  }
+}
+
+struct CommandContainerDelayView_Previews: PreviewProvider {
+  static let model = CommandViewModel.MetaData(
+    id: UUID().uuidString,
+    delay: 1.0,
+    name: UUID().uuidString,
+    namePlaceholder: UUID().uuidString,
+    isEnabled: false,
+    notification: false
+  )
+
+  static var previews: some View {
+    CommandContainerDelayView(
+      metaData: .constant(model),
+      execution: .serial,
+      onChange: { _ in }
+    )
+    .padding()
   }
 }

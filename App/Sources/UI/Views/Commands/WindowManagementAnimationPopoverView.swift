@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct WindowManagementAnimationPopoverView: View {
   @State private var animationDuration: String
@@ -40,7 +41,7 @@ struct WindowManagementAnimationPopoverView: View {
       }, label: {
         Image(systemName: "clear")
       })
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemRed)))
+      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemRed, grayscaleEffect: true)))
     }
     .padding(16)
   }

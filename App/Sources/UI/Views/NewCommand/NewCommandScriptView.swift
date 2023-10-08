@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandScriptView: View {
   enum Kind: String, CaseIterable, Hashable, Identifiable {
@@ -53,7 +54,7 @@ struct NewCommandScriptView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemYellow, cornerRadius: 32)))
+        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
 
       HStack {
@@ -82,7 +83,7 @@ struct NewCommandScriptView: View {
           }
         })
       }
-      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), fixedSize: false))
+      .menuStyle(.regular)
       .padding(.vertical, 8)
 
       switch kind {
@@ -102,7 +103,7 @@ struct NewCommandScriptView: View {
         }
       }
     }
-    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
+    .menuStyle(.regular)
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       validation = updateAndValidatePayload()
@@ -157,7 +158,7 @@ struct NewCommandFileSelectorView: View {
           onPathChange(newPath)
         }))
       })
-      .buttonStyle(.gradientStyle(config: .init(nsColor: .systemBlue, grayscaleEffect: true)))
+      .buttonStyle(.zen(.init(color: .systemBlue)))
     }
     .padding(4)
     .background {

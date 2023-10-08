@@ -66,7 +66,8 @@ fileprivate struct TypeCommandModeView: View {
       Text(mode.rawValue)
         .font(.caption)
     })
-    .menuStyle(AppMenuStyle(.init(nsColor: .systemGray, grayscaleEffect: false)))
+    .menuStyle(.regular)
+    .fixedSize()
   }
 }
 

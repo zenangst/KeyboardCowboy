@@ -32,21 +32,20 @@ struct WorkflowCommandListHeaderView: View {
       .padding(.horizontal, 2)
       .padding(.top, 3)
       .padding(.bottom, 1)
-      .overlay(alignment: .trailing, content: {
-        Rectangle()
-          .fill(Color(.white).opacity(0.2))
-          .frame(width: 1)
-          .padding(.horizontal, 18)
-          .padding(.vertical, 4)
-          .offset(x: -4, y: 1)
-          .drawingGroup()
-      })
-      .menuStyle(AppMenuStyle(.init(nsColor: .systemGray), menuIndicator: .visible))
+      .menuStyle(.regular)
       .frame(maxWidth: detailPublisher.data.execution == .concurrent ? 144 : 110,
              alignment: .leading)
       WorkflowCommandListHeaderAddView(namespace)
     }
     .padding(.horizontal)
     .id(detailPublisher.data.id)
+  }
+}
+
+struct WorkflowCommandListHeaderView_Previews: PreviewProvider {
+  @Namespace static var namespace
+  static var previews: some View {
+    WorkflowCommandListHeaderView(namespace: namespace, onAction: { _ in })
+      .designTime()
   }
 }
