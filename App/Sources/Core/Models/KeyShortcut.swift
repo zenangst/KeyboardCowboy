@@ -50,7 +50,12 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     self.key = try container.decode(String.self, forKey: .key)
     self.lhs = try container.decodeIfPresent(Bool.self, forKey: .lhs) ?? true
-    self.modifiers = (try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)) ?? []
+
+    var modifiers = (try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)) ?? []
+    modifiers.sort(by: { lhs, rhs in
+      lhs.sortValue < rhs.sortValue
+    })
+    self.modifiers = modifiers
   }
 
   func copy() -> Self {
