@@ -11,76 +11,62 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable, 
   case option = "~"
   case command = "@"
 
+  var sortValue: Int {
+    switch self {
+    case .function: 0
+    case .shift: 1
+    case .control: 2
+    case .option: 3
+    case .command: 4
+    }
+  }
+
   public var symbol: String {
     switch self {
-    case .function:
-      return "globe"
-    case .shift:
-      return ""
-    case .control:
-      return ""
-    case .option:
-      return ""
-    case .command:
-      return ""
+    case .function: "globe"
+    case .shift: ""
+    case .control: ""
+    case .option: ""
+    case .command: ""
     }
   }
 
   public var writtenValue: String {
     switch self {
-    case .function, .shift:
-      return ""
-    case .control:
-      return "control"
-    case .option:
-      return "option"
-    case .command:
-      return "command"
+    case .function, .shift: ""
+    case .control:          "control"
+    case .option:           "option"
+    case .command:          "command"
     }
   }
 
   public var keyValue: String {
     switch self {
-    case .function:
-      return "fn"
-    case .shift:
-      return "⇧"
-    case .control:
-      return "⌃"
-    case .option:
-      return "⌥"
-    case .command:
-      return "⌘"
+    case .function: "fn"
+    case .shift:    "⇧"
+    case .control:  "⌃"
+    case .option:   "⌥"
+    case .command:  "⌘"
     }
   }
 
   public var pretty: String {
     switch self {
-    case .function:
-      return "ƒ"
-    case .shift:
-      return "⇧"
-    case .control:
-      return "⌃"
-    case .option:
-      return "⌥"
-    case .command:
-      return "⌘"
+    case .function:"ƒ"
+    case .shift:   "⇧"
+    case .control: "⌃"
+    case .option:  "⌥"
+    case .command: "⌘"
     }
   }
 
   public var cgModifierFlags: CGEventFlags {
     switch self {
-    case .shift:
-      return .maskShift
-    case .control:
-      return .maskControl
-    case .option:
-      return .maskAlternate
-    case .command:
-      return .maskCommand
-    case .function:
-      return .maskSecondaryFn
+    case .shift:    .maskShift
+    case .control:  .maskControl
+    case .option:   .maskAlternate
+    case .command:  .maskCommand
+    case .function: .maskSecondaryFn
     }
   }
 }
