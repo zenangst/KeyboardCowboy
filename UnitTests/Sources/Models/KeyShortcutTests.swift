@@ -9,7 +9,7 @@ final class KeyShortcutTests: XCTestCase {
     XCTAssertEqual(KeyShortcut(key: "A", modifiers: [.control]).modifersDisplayValue, "⌃")
     XCTAssertEqual(KeyShortcut(key: "A", modifiers: [.option]).modifersDisplayValue, "⌥")
     XCTAssertEqual(KeyShortcut(key: "A", modifiers: [.command]).modifersDisplayValue, "⌘")
-    XCTAssertEqual(KeyShortcut(key: "A", modifiers: ModifierKey.allCases).modifersDisplayValue, "⇧ƒ⌃⌥⌘")
+    XCTAssertEqual(KeyShortcut(key: "A", modifiers: ModifierKey.allCases).modifersDisplayValue, "ƒ⇧⌃⌥⌘")
   }
 
   func testValidationValue() {
@@ -18,7 +18,7 @@ final class KeyShortcutTests: XCTestCase {
     XCTAssertEqual(KeyShortcut(key: "A", modifiers: [.control]).validationValue, "⌃A")
     XCTAssertEqual(KeyShortcut(key: "A", modifiers: [.option]).validationValue, "⌥A")
     XCTAssertEqual(KeyShortcut(key: "A", modifiers: [.command]).validationValue, "⌘A")
-    XCTAssertEqual(KeyShortcut(key: "A", modifiers: ModifierKey.allCases).validationValue, "⇧ƒ⌃⌥⌘A")
+    XCTAssertEqual(KeyShortcut(key: "A", modifiers: ModifierKey.allCases).validationValue, "ƒ⇧⌃⌥⌘A")
   }
 
   func testStringValue() {
@@ -107,7 +107,7 @@ final class KeyShortcutTests: XCTestCase {
       "id": "\(id)",
       "key": "A",
       "lhs": false,
-      "modifiers": ["$", "fn", "^", "~", "@"]
+      "modifiers": ["fn", "$", "^", "~", "@"]
     }
     """.data(using: .utf8)!
 
