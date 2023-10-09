@@ -41,7 +41,7 @@ struct KeyboardCommandView: View {
         VStack {
           HStack(spacing: 0) {
             TextField("", text: $metaData.name)
-              .textFieldStyle(AppTextFieldStyle())
+              .textFieldStyle(.regular)
               .onChange(of: metaData.name, perform: { debounce.send($0) })
               .frame(maxWidth: .infinity)
           }

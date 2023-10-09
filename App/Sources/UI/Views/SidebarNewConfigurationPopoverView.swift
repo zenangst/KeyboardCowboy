@@ -24,7 +24,7 @@ struct SidebarNewConfigurationPopoverView: View {
           newConfigurationPopover = false
           configurationName = ""
         }
-        .textFieldStyle(AppTextFieldStyle())
+        .textFieldStyle(.regular)
       Button("Save", action: {
         onAction(configurationName)
         newConfigurationPopover = false
