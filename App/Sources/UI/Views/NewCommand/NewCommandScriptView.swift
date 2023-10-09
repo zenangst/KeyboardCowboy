@@ -182,7 +182,7 @@ struct NewCommandScriptSourceView: View {
   }
 
   var body: some View {
-    AppTextEditor(text: $text, placeholder: "Script goes here…", font: Font.system(.body, design: .monospaced))
+    ZenTextEditor(text: $text, placeholder: "Script goes here…", font: Font.system(.body, design: .monospaced))
       .onChange(of: text, perform: onChange)
   }
 }

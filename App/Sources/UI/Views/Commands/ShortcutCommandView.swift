@@ -40,7 +40,7 @@ struct ShortcutCommandView: View {
     }, content: { command in
       VStack {
         TextField("", text: $metaData.name)
-          .textFieldStyle(.regular)
+          .textFieldStyle(.regular(Color(.windowBackgroundColor)))
           .onChange(of: metaData.name, perform: { debounce.send($0) })
         Menu(model.shortcutIdentifier) {
           ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in

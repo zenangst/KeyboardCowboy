@@ -66,7 +66,7 @@ struct KeyboardTriggerView: View {
           IntegerTextField(text: $holdDurationText) {
             onAction(.updateHoldDuration(workflowId: data.id, holdDuration: Double($0)))
           }
-          .textFieldStyle(.zen(.caption, 0.1, .accentColor))
+          .textFieldStyle(.zen(.init(font: .caption)))
           .frame(maxWidth: 32)
           Text("seconds")
         }

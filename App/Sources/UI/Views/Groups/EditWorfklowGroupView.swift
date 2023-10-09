@@ -30,7 +30,8 @@ struct EditWorfklowGroupView: View {
           })
           .cornerRadius(24, antialiased: true)
         TextField("Name:", text: $group.name)
-          .textFieldStyle(LargeTextFieldStyle())
+          .textFieldStyle(.large(color: .accentColor, backgroundColor: Color(.windowBackgroundColor),
+                                 glow: true))
           .prefersDefaultFocus(in: namespace)
           .focused($focus, equals: .name)
       }

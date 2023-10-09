@@ -219,7 +219,7 @@ private struct NewCommandMenuBarTokenMenuItemView: View {
 
   var body: some View {
     TextField("Menu item", text: $value)
-      .textFieldStyle(.regular)
+      .textFieldStyle(.regular(Color(.windowBackgroundColor)))
       .onSubmit(onSubmit)
   }
 }
@@ -248,7 +248,7 @@ private struct NewCommandMenuBarTokenMenuItemsView: View {
         .focused($focus, equals: .rhs)
         .onSubmit(onSubmit)
     }
-    .textFieldStyle(.regular)
+    .textFieldStyle(.regular(Color(.windowBackgroundColor)))
     .focusScope(namespace)
   }
 }

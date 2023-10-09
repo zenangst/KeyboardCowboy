@@ -59,6 +59,7 @@ struct SingleDetailView: View {
               onAction(.setIsEnabled(workflowId: detailPublisher.data.id, isEnabled: isEnabled))
             }
           })
+          .environmentObject(commandSelectionManager)
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
           .id(detailPublisher.data.id)

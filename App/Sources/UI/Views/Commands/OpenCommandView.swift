@@ -28,18 +28,23 @@ struct OpenCommandView: View {
   var body: some View {
     CommandContainerView($metaData, icon: { command in
       ZStack(alignment: .bottomTrailing) {
-        if let icon = command.icon.wrappedValue {
+        switch command.icon.wrappedValue {
+        case .some(let icon):
           IconView(icon: icon, size: .init(width: 32, height: 32))
           if let appPath = model.applicationPath {
-            IconView(icon: .init(bundleIdentifier: appPath, path: appPath), size: .init(width: 16, height: 16))
+            IconView(icon: .init(bundleIdentifier: appPath, path: appPath), 
+                     size: .init(width: 16, height: 16))
               .shadow(radius: 3)
+              .id("open-with-\(appPath)")
           }
+        case .none:
+          EmptyView()
         }
       }
     }, content: { command in
       HStack(spacing: 2) {
         TextField("", text: $model.path)
-          .textFieldStyle(.regular)
+          .textFieldStyle(.regular(Color(.windowBackgroundColor)))
           .onChange(of: model.path, perform: { debounce.send($0) })
           .frame(maxWidth: .infinity)
 
@@ -68,6 +73,7 @@ struct OpenCommandView: View {
           })
           .menuStyle(.zen(.init(color: .systemGray, grayscaleEffect: .constant(false))))
           .menuIndicator(model.applications.isEmpty ? .hidden : .visible)
+          .fixedSize(horizontal: true, vertical: false)
         }
       }
     }, subContent: { command in

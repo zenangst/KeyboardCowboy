@@ -1,5 +1,6 @@
 import Apps
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandURLView: View {
   enum Focus: String, Identifiable, Hashable {
@@ -115,7 +116,7 @@ struct NewCommandURLView: View {
       .menuStyle(.regular)
       .zIndex(1)
     }
-    .textFieldStyle(LargeTextFieldStyle())
+    .textFieldStyle(.large(color: .accentColor, backgroundColor: Color(nsColor: .windowBackgroundColor), glow: true))
     .onAppear {
       validation = .unknown
       updateAndValidatePayload()

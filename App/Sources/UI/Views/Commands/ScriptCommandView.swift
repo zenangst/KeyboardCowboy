@@ -10,6 +10,7 @@ struct ScriptCommandView: View {
     case edit
     case commandAction(CommandContainerAction)
   }
+  @EnvironmentObject var selection: SelectionManager<CommandViewModel>
   @EnvironmentObject var openPanel: OpenPanelController
   @State private var text: String
   @State private var metaData: CommandViewModel.MetaData
@@ -53,7 +54,7 @@ struct ScriptCommandView: View {
       VStack {
         HStack(spacing: 8) {
           TextField("", text: $metaData.name)
-            .textFieldStyle(.regular)
+            .textFieldStyle(.regular(Color(.windowBackgroundColor)))
             .onChange(of: metaData.wrappedValue.name, perform: {
               onAction(.updateName(newName: $0))
             })
@@ -62,11 +63,16 @@ struct ScriptCommandView: View {
         
         switch model.source {
         case .inline:
-          AppTextEditor(text: $text, placeholder: "Script goes here…", font: Font.system(.body, design: .monospaced))
+          ZenTextEditor(color: .custom(selection.selectedColor),
+                        text: $text,
+                        placeholder: "Script goes here…",
+                        font: Font.system(.body, design: .monospaced))
             .onChange(of: text, perform: { newValue in
-              onAction(.updateSource(.init(id: model.id, source: .inline(newValue), scriptExtension: model.scriptExtension)))
+              onAction(.updateSource(.init(id: model.id, source: .inline(newValue), 
+                                           scriptExtension: model.scriptExtension)))
             })
-          
+            .padding([.trailing, .bottom], 8)
+
           HStack(spacing: 4) {
             RoundedRectangle(cornerRadius: 6, style: .continuous)
               .fill(Color(nsColor: .systemYellow))
@@ -82,12 +88,16 @@ struct ScriptCommandView: View {
             Group {
               Button(action: { text.append(" $DIRECTORY") },
                      label: { Text("$DIRECTORY") })
+              .help("$DIRECTORY: The current directory")
               Button(action: { text.append(" $FILE") },
                      label: { Text("$FILE") })
+              .help("$FILE: The current file")
               Button(action: { text.append(" $FILENAME") },
                      label: { Text("$FILENAME") })
-              Button(action: { text.append(" $EXTENSION") }, 
+              .help("$FILENAME: The current filename")
+              Button(action: { text.append(" $EXTENSION") },
                      label: { Text("$EXTENSION") })
+              .help("$EXTENSION: The current file extension")
             }
             .buttonStyle(.zen(ZenStyleConfiguration(color: .black)))
           }

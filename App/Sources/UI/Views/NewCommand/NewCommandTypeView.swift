@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct NewCommandTypeView: View {
   private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#type-commands")!
@@ -33,7 +34,7 @@ struct NewCommandTypeView: View {
                label: { Image(systemName: "questionmark.circle.fill") })
         .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
-      AppTextEditor(text: $text, placeholder: "Enter text…", onCommandReturnKey: onSubmit)
+      ZenTextEditor(text: $text, placeholder: "Enter text…", onCommandReturnKey: onSubmit)
 
       Menu(content: {
         ForEach(TypeCommand.Mode.allCases) { mode in
