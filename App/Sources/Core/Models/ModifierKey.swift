@@ -2,7 +2,7 @@ import Carbon
 import Cocoa
 import KeyCodes
 
-public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable, Sendable {
+public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
   public var id: String { return rawValue }
 
   case shift = "$"
@@ -11,14 +11,8 @@ public enum ModifierKey: String, CaseIterable, Codable, Hashable, Identifiable, 
   case option = "~"
   case command = "@"
 
-  var sortValue: Int {
-    switch self {
-    case .function: 0
-    case .shift: 1
-    case .control: 2
-    case .option: 3
-    case .command: 4
-    }
+  public static var allCases: [ModifierKey] {
+    return [.function, .shift, .control, .option, .command]
   }
 
   public var symbol: String {
