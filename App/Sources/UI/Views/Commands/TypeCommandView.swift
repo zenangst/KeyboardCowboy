@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct TypeCommandView: View {
   enum Action {
@@ -7,6 +8,7 @@ struct TypeCommandView: View {
     case updateMode(newMode: TypeCommand.Mode)
     case commandAction(CommandContainerAction)
   }
+  @EnvironmentObject var selection: SelectionManager<CommandViewModel>
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.TypeModel
   private let debounce: DebounceManager<String>
@@ -35,7 +37,10 @@ struct TypeCommandView: View {
             .frame(width: 16, height: 16)
         }
       }, content: { metaData in
-        AppTextEditor(text: $model.input, placeholder: "Enter text...", onCommandReturnKey: nil)
+        ZenTextEditor(
+          color: .custom(selection.selectedColor),
+          text: $model.input,
+          placeholder: "Enter text...", onCommandReturnKey: nil)
           .onChange(of: model.input) { debounce.send($0) }
       }, subContent: { _ in
         TypeCommandModeView(mode: model.mode) { newMode in

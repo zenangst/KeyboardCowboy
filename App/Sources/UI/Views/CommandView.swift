@@ -100,6 +100,7 @@ struct CommandView: View {
       }, isTargeted: { newValue in
         isTargeted = newValue
       })
+      .environmentObject(selectionManager)
       .animation(.none, value: command.meta.isEnabled)
       .grayscale(command.meta.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
       .opacity(command.meta.isEnabled ? 1 : 0.5)
