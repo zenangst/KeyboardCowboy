@@ -66,7 +66,7 @@ struct OpenCommandView: View {
               .allowsTightening(true)
               .padding(4)
           })
-          .menuStyle(.zen(.init(color: .systemGray, grayscaleEffect: false)))
+          .menuStyle(.zen(.init(color: .systemGray, grayscaleEffect: .constant(false))))
           .menuIndicator(model.applications.isEmpty ? .hidden : .visible)
         }
       }
@@ -74,7 +74,7 @@ struct OpenCommandView: View {
       HStack {
         if model.path.hasPrefix("http") == false {
           Button("Reveal", action: { onAction(.reveal(path: model.path)) })
-            .buttonStyle(AppButtonStyle(.init(nsColor: .systemBlue, grayscaleEffect: true)))
+            .buttonStyle(.zen(.init(color: .systemBlue)))
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)

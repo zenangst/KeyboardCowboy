@@ -58,7 +58,7 @@ struct SidebarConfigurationView: View {
         Image(systemName: "ellipsis.circle")
           .resizable()
       })
-      .menuStyle(.zen(.init(color: .systemGreen, grayscaleEffect: true)))
+      .menuStyle(.zen(.init(color: .systemGreen, grayscaleEffect: .constant(true))))
       .fixedSize()
       .popover(isPresented: $deleteConfigurationPopover,
                arrowEdge: .bottom,

@@ -33,7 +33,7 @@ struct WindowManagementAnimationDurationView: View {
           .frame(width: 6, height: 6)
       }
     }
-    .buttonStyle(AppButtonStyle(.init(nsColor: .systemGray)))
+    .buttonStyle(.zen(.init(color: .systemGray)))
     .popover(isPresented: $animationDurationVisible, content: {
       WindowManagementAnimationPopoverView($windowCommand, isShown: $animationDurationVisible, onChange: {
         windowCommand.animationDuration = $0

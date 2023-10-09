@@ -110,7 +110,7 @@ struct ScriptCommandView: View {
                 onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
               }))
             })
-            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: true)))
+            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: .constant(true))))
             .font(.caption)
           }
         }
@@ -121,9 +121,9 @@ struct ScriptCommandView: View {
         switch model.source {
         case .path(let source):
           Button("Open", action: { onAction(.open(path: source)) })
-            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemCyan, grayscaleEffect: true)))
+            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemCyan, grayscaleEffect: .constant(true))))
           Button("Reveal", action: { onAction(.reveal(path: source)) })
-            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: true)))
+            .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: .constant(true))))
         case .inline:
           EmptyView()
         }

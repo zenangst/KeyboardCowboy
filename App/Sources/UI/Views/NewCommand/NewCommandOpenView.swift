@@ -58,7 +58,7 @@ struct NewCommandOpenView: View {
             self.path = path
           }))
         })
-        .buttonStyle(.zen(.init(color: .systemTeal, grayscaleEffect: false)))
+        .buttonStyle(.zen(.init(color: .systemTeal, grayscaleEffect: .constant(false))))
       }
       .padding(4)
       .background {

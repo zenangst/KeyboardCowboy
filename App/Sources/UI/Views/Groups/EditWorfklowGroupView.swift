@@ -75,7 +75,7 @@ struct EditWorfklowGroupView: View {
           Text("OK")
             .frame(minWidth: 40)
         }
-        .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: false)))
+        .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
         .keyboardShortcut(.defaultAction)
       }
       .padding()

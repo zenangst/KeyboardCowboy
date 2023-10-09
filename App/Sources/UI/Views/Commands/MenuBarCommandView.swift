@@ -89,7 +89,7 @@ struct MenuBarCommandView: View {
         Text("Edit")
           .font(.caption)
       }
-      .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: true)))
+      .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
     } onAction: { action in
       onAction(.commandAction(action))
     }

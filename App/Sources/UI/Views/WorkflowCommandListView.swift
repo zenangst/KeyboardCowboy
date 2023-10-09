@@ -30,7 +30,14 @@ struct WorkflowCommandListView: View {
   @ViewBuilder
   var body: some View {
     if detailPublisher.data.commands.isEmpty {
-      WorkflowCommandEmptyListView(namespace: namespace, onAction: onAction)
+      WorkflowCommandEmptyListView(namespace: namespace, 
+                                   isPrimary: Binding<Bool>.init(get: {
+        switch detailPublisher.data.trigger {
+        case .applications(let array): !array.isEmpty
+        case .keyboardShortcuts(let keyboardTrigger): !keyboardTrigger.shortcuts.isEmpty
+        case .none: false
+        }
+      }, set: { _ in }), onAction: onAction)
     } else {
       WorkflowCommandListHeaderView(namespace: namespace, onAction: onAction)
         .id(detailPublisher.data.id)

@@ -1,13 +1,18 @@
 import SwiftUI
+import ZenViewKit
 
 struct WorkflowCommandEmptyListView: View {
   @Environment(\.openWindow) var openWindow
   @EnvironmentObject private var detailPublisher: DetailPublisher
 
-  var namespace: Namespace.ID
-  private var onAction: (SingleDetailView.Action) -> Void
+  private let namespace: Namespace.ID
+  private let isPrimary: Binding<Bool>
+  private let onAction: (SingleDetailView.Action) -> Void
 
-  init(namespace: Namespace.ID, onAction: @escaping (SingleDetailView.Action) -> Void) {
+  init(namespace: Namespace.ID, 
+       isPrimary: Binding<Bool>,
+       onAction: @escaping (SingleDetailView.Action) -> Void) {
+    self.isPrimary = isPrimary
     self.namespace = namespace
     self.onAction = onAction
   }
@@ -25,12 +30,14 @@ struct WorkflowCommandEmptyListView: View {
           Divider()
             .opacity(0.5)
 
-          Text("Add a command")
+          Text("Add Command")
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
       }
-      .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+      .buttonStyle(.zen(.init(color: .systemGreen,
+                              grayscaleEffect: .readonly(!isPrimary.wrappedValue),
+                              hoverEffect: .readonly(!isPrimary.wrappedValue))))
       .fixedSize()
       .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
     }
@@ -64,7 +71,7 @@ struct WorkflowCommandEmptyListView: View {
 struct WorkflowCommandEmptyListView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
-    WorkflowCommandEmptyListView(namespace: namespace) { _ in }
+    WorkflowCommandEmptyListView(namespace: namespace, isPrimary: .constant(true)) { _ in }
       .designTime()
   }
 }

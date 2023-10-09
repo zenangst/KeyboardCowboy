@@ -25,7 +25,7 @@ struct WorkflowCommandListHeaderAddView: View {
     }
     .help("Add Command")
     .padding(.horizontal, 4)
-    .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: true)))
+    .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: .constant(true))))
     .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
   }
 }

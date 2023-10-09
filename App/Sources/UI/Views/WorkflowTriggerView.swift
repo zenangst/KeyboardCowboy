@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct WorkflowTriggerView: View {
   enum Action {
@@ -25,10 +26,10 @@ struct WorkflowTriggerView: View {
             Text("Application")
               .lineLimit(1)
           }
-          .padding(8)
+          .padding(6)
           .frame(maxWidth: .infinity)
         })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .systemBlue)))
+        .buttonStyle(.zen(.init(color: .systemBlue, grayscaleEffect: .constant(true))))
 
         Spacer()
 
@@ -41,10 +42,10 @@ struct WorkflowTriggerView: View {
             Text("Keyboard Shortcut")
               .lineLimit(1)
           }
-          .padding(8)
+          .padding(6)
           .frame(maxWidth: .infinity)
         })
-        .buttonStyle(AppButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
+        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
       }
       .frame(maxWidth: .infinity)
       .padding(8)
@@ -52,5 +53,11 @@ struct WorkflowTriggerView: View {
       .cornerRadius(8)
     }
     .buttonStyle(.regular)
+  }
+}
+
+struct WorkflowTriggerView_Previews: PreviewProvider {
+  static var previews: some View {
+    WorkflowTriggerView(onAction: { _ in })
   }
 }

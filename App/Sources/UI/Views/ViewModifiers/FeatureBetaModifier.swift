@@ -66,7 +66,7 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                 })
-                .buttonStyle(.zen(.init(color: .systemGray, grayscaleEffect: true)))
+                .buttonStyle(.zen(.init(color: .systemGray, grayscaleEffect: .constant(true))))
                 .frame(width: 16, alignment: .top)
                 .padding([.top, .trailing], 8)
                 Spacer()
