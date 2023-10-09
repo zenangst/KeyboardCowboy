@@ -27,9 +27,7 @@ struct ContentListFilterView: View {
         .frame(width: 12)
         .padding(.leading, 8)
         TextField("Filter", text: $searchTerm)
-          .textFieldStyle(AppTextFieldStyle(.caption2,
-                                            unfocusedOpacity: 0,
-                                            color: contentSelectionManager.selectedColor))
+          .textFieldStyle(.zen(.caption2, 0, .custom(contentSelectionManager.selectedColor)))
           .focused(focus, equals: .search)
           .onExitCommand(perform: {
             searchTerm = ""

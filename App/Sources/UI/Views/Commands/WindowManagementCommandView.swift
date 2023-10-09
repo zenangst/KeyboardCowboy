@@ -206,7 +206,7 @@ struct WindowManagementCommandView: View {
                   model.kind = kind
                   onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
                 })
-                .textFieldStyle(AppTextFieldStyle())
+                .textFieldStyle(.regular)
                 .frame(width: 64)
                 .fixedSize()
                 if case .anchor = model.kind {
@@ -263,9 +263,9 @@ struct WindowManagementCommandView: View {
               model.kind = kind
               onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
             })
-              .textFieldStyle(AppTextFieldStyle())
-              .frame(width: 32)
-              .fixedSize()
+            .textFieldStyle(.regular)
+            .frame(width: 32)
+            .fixedSize()
           }
           .padding(.leading, 8)
         default:

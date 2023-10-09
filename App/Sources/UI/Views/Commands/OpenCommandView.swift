@@ -39,7 +39,7 @@ struct OpenCommandView: View {
     }, content: { command in
       HStack(spacing: 2) {
         TextField("", text: $model.path)
-          .textFieldStyle(AppTextFieldStyle())
+          .textFieldStyle(.regular)
           .onChange(of: model.path, perform: { debounce.send($0) })
           .frame(maxWidth: .infinity)
 

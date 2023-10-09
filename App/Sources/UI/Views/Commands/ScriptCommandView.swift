@@ -53,7 +53,7 @@ struct ScriptCommandView: View {
       VStack {
         HStack(spacing: 8) {
           TextField("", text: $metaData.name)
-            .textFieldStyle(AppTextFieldStyle())
+            .textFieldStyle(.regular)
             .onChange(of: metaData.wrappedValue.name, perform: {
               onAction(.updateName(newName: $0))
             })

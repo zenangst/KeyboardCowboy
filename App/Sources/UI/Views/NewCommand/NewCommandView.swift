@@ -160,7 +160,7 @@ struct NewCommandView: View {
       .opacity(controlActiveState == .key ? 1 : 0.6)
       .padding(.top, -28)
       .padding(.horizontal)
-      .textFieldStyle(AppTextFieldStyle())
+      .textFieldStyle(.regular)
       .multilineTextAlignment(.center)
       .fixedSize(horizontal: true, vertical: false)
       .onChange(of: payload, perform: { newValue in

@@ -68,7 +68,7 @@ struct ApplicationCommandView: View {
           .compositingGroup()
 
           TextField(metaData.namePlaceholder, text: $metaData.name)
-            .textFieldStyle(AppTextFieldStyle())
+            .textFieldStyle(.regular)
             .onChange(of: metaData.name, perform: { debounce.send($0) })
         }
       }, subContent: { _ in

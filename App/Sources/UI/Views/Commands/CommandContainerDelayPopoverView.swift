@@ -36,7 +36,7 @@ struct CommandContainerDelayPopoverView: View {
           }
         }
       }
-      .textFieldStyle(AppTextFieldStyle())
+      .textFieldStyle(.regular)
 
       Button(action: {
         onChange(0)
