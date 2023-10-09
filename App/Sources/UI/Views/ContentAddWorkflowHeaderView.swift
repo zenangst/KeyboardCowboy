@@ -23,7 +23,7 @@ struct ContentAddWorkflowHeaderView: View {
           .padding(2)
       }
       .help("Add Workflow")
-      .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: true)))
+      .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: .constant(true))))
       .padding(.trailing, 8)
       .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
     }

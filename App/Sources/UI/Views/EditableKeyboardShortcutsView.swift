@@ -24,9 +24,11 @@ struct EditableKeyboardShortcutsView: View {
   var onTab: (Bool) -> Void
 
   init(_ keyboardShortcuts: Binding<[KeyShortcut]>,
+       state: CurrentState? = nil,
        selectionManager: SelectionManager<KeyShortcut>,
        onTab: @escaping (Bool) -> Void) {
     _keyboardShortcuts = keyboardShortcuts
+    _state = .init(initialValue: state)
     self.onTab = onTab
     self.selectionManager = selectionManager
   }
@@ -174,7 +176,8 @@ struct EditableKeyboardShortcutsView: View {
             .padding(.trailing, 4)
         }
       })
-      .buttonStyle(AppButtonStyle(.init(nsColor: .black.blended(withFraction: 0.35, of: NSColor.white)!)))
+      .buttonStyle(.positive)
+      .fixedSize(horizontal: false, vertical: true)
       .padding(6)
     }
   }
@@ -225,8 +228,9 @@ struct EditableKeyboardShortcutsView_Previews: PreviewProvider {
   static var previews: some View {
     EditableKeyboardShortcutsView(
       .constant([
-        .empty()
+
       ]),
+      state: .recording,
       selectionManager: SelectionManager<KeyShortcut>.init(),
       onTab: { _ in })
     .designTime()

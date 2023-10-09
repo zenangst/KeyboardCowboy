@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct GroupsEmptyListView: View {
   private let onAction: (GroupsView.Action) -> Void
@@ -27,7 +28,7 @@ struct GroupsEmptyListView: View {
         }
         .padding(4)
       })
-      .buttonStyle(AppButtonStyle(.init(nsColor: .systemGreen, hoverEffect: false)))
+      .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
       .frame(maxHeight: 32)
       .matchedGeometryEffect(id: "add-group-button", in: namespace)
 

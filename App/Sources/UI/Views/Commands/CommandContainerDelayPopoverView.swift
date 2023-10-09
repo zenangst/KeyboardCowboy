@@ -45,7 +45,7 @@ struct CommandContainerDelayPopoverView: View {
       }, label: {
         Image(systemName: "clear")
       })
-      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemRed, grayscaleEffect: true)))
+      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemRed, grayscaleEffect: .constant(true))))
     }
     .padding(16)
   }

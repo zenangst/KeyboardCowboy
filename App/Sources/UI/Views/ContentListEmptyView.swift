@@ -41,7 +41,7 @@ struct ContentListEmptyView: View {
             .padding(4)
           })
           .help("Add Workflow")
-          .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: false)))
+          .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
           .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
 
           Text("No workflows yet,\nadd a workflow to get started.")

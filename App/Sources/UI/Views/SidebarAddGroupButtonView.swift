@@ -26,7 +26,7 @@ struct SidebarAddGroupButtonView: View {
           .frame(height: 10)
           .padding(2)
       }
-      .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: true)))
+      .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: .constant(true))))
       .padding(.leading, 6)
       .padding(.bottom, 6)
       .matchedGeometryEffect(id: "add-group-button", in: namespace)

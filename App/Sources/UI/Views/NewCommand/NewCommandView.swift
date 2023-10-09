@@ -184,7 +184,7 @@ struct NewCommandView: View {
       HStack {
         Spacer()
         Button(action: onDismiss, label: { Text("Cancel") })
-          .buttonStyle(.zen(.init(color: .systemRed, grayscaleEffect: true)))
+          .buttonStyle(.zen(.init(color: .systemRed, grayscaleEffect: .constant(true))))
         Button(action: onSubmit, label: { Text("Save") })
           .buttonStyle(.positive)
           .keyboardShortcut(.defaultAction)
