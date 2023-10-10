@@ -31,6 +31,50 @@ final class KeyboardShortcutsController {
     return result
   }
 
+  func allMatchingPrefix(_ prefix: String, shortcutIndexPrefix: Int) -> [Workflow] {
+    var results = [KeyboardShortcutResult]()
+    do {
+      if let bundleIdentifier = NSWorkspace.shared.frontApplication?.bundleIdentifier {
+        let lookup = "\(bundleIdentifier)\(prefix)"
+        let keys = cache.keys.filter { $0.hasPrefix(lookup) }
+        let matches = keys.compactMap { key in
+          cache[key]
+        }
+        results.append(contentsOf: matches)
+      }
+    }
+
+    do {
+      let lookup = "*\(prefix)"
+      let keys = cache.keys.filter { $0.hasPrefix(lookup) }
+      let matches = keys.compactMap { key in
+        cache[key]
+      }
+      results.append(contentsOf: matches)
+    }
+
+    var workflows = results.compactMap { result in
+      switch result {
+      case .partialMatch(let partialMatch):
+        partialMatch.workflow
+      case .exact(let workflow):
+        workflow
+      }
+    }
+
+    for (offset, workflow) in workflows.enumerated() {
+      guard case .keyboardShortcuts(var trigger) = workflow.trigger else {
+        continue
+      }
+      let shortcuts = Array(trigger.shortcuts.suffix(shortcutIndexPrefix))
+      workflows[offset].trigger = .keyboardShortcuts(.init(
+        shortcuts: shortcuts
+      ))
+    }
+
+    return workflows
+  }
+
   func cache(_ groups: [WorkflowGroup]) {
     var newCache = [String: KeyboardShortcutResult]()
     groups.forEach { group in

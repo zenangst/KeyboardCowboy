@@ -5,4 +5,5 @@ typealias ContentPublisher = ViewModelsPublisher<ContentViewModel>
 typealias DetailStatePublisher = ViewModelPublisher<DetailViewState>
 typealias DetailPublisher = ViewModelPublisher<DetailViewModel>
 typealias BezelNotificationPublisher = ViewModelPublisher<BezelNotificationViewModel>
+typealias WorkflowNotificationPublisher = ViewModelPublisher<WorkflowNotificationViewModel>
 

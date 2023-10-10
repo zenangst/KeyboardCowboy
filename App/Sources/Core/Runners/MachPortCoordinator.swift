@@ -149,7 +149,23 @@ final class MachPortCoordinator {
       } else {
         machPortEvent.result = nil
       }
+
       if kind == .keyDown {
+        let splits = match.rawValue.split(separator: "+")
+        let prefix = splits.count - 1
+        if let workflow = match.workflow,
+           case .keyboardShortcuts(let trigger) = workflow.trigger {
+          let shortcuts = Array(trigger.shortcuts.prefix(prefix))
+          let matches = keyboardShortcutsController.allMatchingPrefix(match.rawValue, shortcutIndexPrefix: prefix)
+
+          Task { @MainActor in
+            WorkflowNotificationController.shared.post(.init(id: workflow.id,
+                                                             matches: matches,
+                                                             glow: true,
+                                                             keyboardShortcuts: shortcuts))
+          }
+        }
+
         previousPartialMatch = match
       }
     case .exact(let workflow):
@@ -161,6 +177,21 @@ final class MachPortCoordinator {
 
       if workflow.commands.count == 1,
          case .keyboard(let command) = workflow.commands.first(where: \.isEnabled) {
+        if !isRepeatingEvent && machPortEvent.event.type == .keyDown {
+          Task { @MainActor in
+            var keyboardShortcuts = [KeyShortcut]()
+            if case .keyboardShortcuts(let trigger) = workflow.trigger {
+              keyboardShortcuts.append(contentsOf: trigger.shortcuts)
+              keyboardShortcuts.append(.init(id: "spacer", key: "="))
+              keyboardShortcuts.append(contentsOf: command.keyboardShortcuts)
+            }
+
+            WorkflowNotificationController.shared.post(.init(id: workflow.id,
+                                                             workflow: nil,
+                                                             keyboardShortcuts: keyboardShortcuts))
+          }
+        }
+
         try? keyboardCommandRunner.run(command,
                                        type: machPortEvent.type,
                                        originalEvent: machPortEvent.event,
@@ -257,6 +288,14 @@ final class MachPortCoordinator {
   }
 
   private func run(_ workflow: Workflow) {
+    if case .keyboardShortcuts(let trigger) = workflow.trigger {
+      Task { @MainActor in
+        WorkflowNotificationController.shared.post(.init(id: workflow.id, 
+                                                         workflow: workflow,
+                                                         keyboardShortcuts: trigger.shortcuts))
+      }
+    }
+
     let commands = workflow.commands.filter(\.isEnabled)
     switch workflow.execution {
     case .concurrent:

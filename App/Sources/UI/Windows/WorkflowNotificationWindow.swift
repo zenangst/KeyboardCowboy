@@ -1,12 +1,12 @@
 import AppKit
 import SwiftUI
 
-final class BezelNotificationWindow<Content>: NSPanel where Content: View {
-  override var canBecomeKey: Bool { true }
-  override var canBecomeMain: Bool { true }
+final class WorkflowNotificationWindow<Content>: NSPanel where Content: View {
+  override var canBecomeKey: Bool { false }
+  override var canBecomeMain: Bool { false }
 
   convenience init(contentRect: CGRect,
-       content rootView: @autoclosure @escaping () -> Content) {
+                   content rootView: @autoclosure @escaping () -> Content) {
     self.init(contentRect: contentRect, content: { rootView() })
   }
 
@@ -22,10 +22,17 @@ final class BezelNotificationWindow<Content>: NSPanel where Content: View {
     self.isFloatingPanel = true
     self.isMovable = false
     self.isMovableByWindowBackground = false
-    self.level = .floating
+    self.level = .screenSaver
+    self.becomesKeyOnlyIfNeeded = true
     self.backgroundColor = .clear
-    self.contentViewController = NSHostingController(rootView: rootView().ignoresSafeArea()
+    self.acceptsMouseMovedEvents = false
+
+    let rootView = rootView()
+      .ignoresSafeArea()
       .environment(\.owningWindow, self)
-    )
+      .padding()
+
+    self.contentViewController = NSHostingController(rootView: rootView)
   }
 }
+
