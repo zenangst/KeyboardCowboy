@@ -24,6 +24,9 @@ final class ShellScriptPlugin {
   }
 
   func executeScript(at path: String) throws -> String? {
+    var environment: [String: String] = ProcessInfo.processInfo.environment
+    environment["TERM"] = "xterm-256color"
+
     let filePath = path.sanitizedPath
     let command = (filePath as NSString).lastPathComponent
     let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
@@ -35,10 +38,7 @@ final class ShellScriptPlugin {
       let app = AppAccessibilityElement(frontmostApplication.processIdentifier)
       if let focusedWindow = try? app.focusedWindow(),
          let documentPath = focusedWindow.document {
-        var environment: [String: String] = ProcessInfo.processInfo.environment
         let url = URL(filePath: documentPath)
-
-        environment["TERM"] = "xterm-256color"
 
         if let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
           environment["DIRECTORY"] = (components.path as NSString).deletingLastPathComponent
@@ -47,10 +47,10 @@ final class ShellScriptPlugin {
           environment["EXTENSION"] = (url.lastPathComponent as NSString).pathExtension
         }
 
-        process.environment = environment
       }
     }
 
+    process.environment = environment
     process.currentDirectoryURL = url
 
     try Task.checkCancellation()
