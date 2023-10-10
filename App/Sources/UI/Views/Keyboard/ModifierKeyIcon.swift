@@ -4,9 +4,17 @@ struct ModifierKeyIcon: View {
   @Environment(\.colorScheme) var colorScheme
   let key: ModifierKey
   let alignment: Alignment
+  @Binding var glow: Bool
+  private let animation = Animation
+    .easeInOut(duration: 1.25)
+    .repeatForever(autoreverses: true)
 
-  init(key: ModifierKey, alignment: Alignment? = nil) {
+
+  init(key: ModifierKey, 
+       alignment: Alignment? = nil,
+       glow: Binding<Bool> = .constant(false)) {
     self.key = key
+    _glow = glow
 
     if let alignment = alignment {
       self.alignment = alignment
@@ -20,6 +28,13 @@ struct ModifierKeyIcon: View {
     GeometryReader { proxy in
       ZStack {
         KeyBackgroundView(isPressed: .constant(false), height: proxy.size.height)
+          .background(
+            RoundedRectangle(cornerRadius: proxy.size.height * 0.1)
+              .stroke(glow
+                      ? Color(.systemRed) .opacity(0.5)
+                      : Color.clear, lineWidth: 2)
+              .padding(-2)
+          )
 
         Group {
         Text(key.keyValue)
@@ -55,6 +70,11 @@ struct ModifierKeyIcon: View {
         Color(.textColor)
           .opacity(0.66)
       )
+      .onAppear {
+        if glow {
+          withAnimation(animation, { glow.toggle() })
+        }
+      }
     }
   }
 }
