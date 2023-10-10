@@ -103,7 +103,7 @@ final class MachPortCoordinator {
       }
   }
 
-  private func intercept(_ machPortEvent: MachPortEvent) {
+  private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool = false) {
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
@@ -205,6 +205,10 @@ final class MachPortCoordinator {
       if kind == .keyDown {
         // No match, reset the lookup key
         previousPartialMatch = Self.defaultPartialMatch
+
+        if !tryGlobals {
+          intercept(machPortEvent, tryGlobals: true)
+        }
       }
     }
   }
