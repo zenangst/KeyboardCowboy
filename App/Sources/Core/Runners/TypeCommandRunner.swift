@@ -10,10 +10,8 @@ final class TypeCommandRunner {
     self.keyboardCommandRunner = keyboardCommandRunner
   }
 
-  func run(_ command: TypeCommand) async throws {
-    let input = command.input
-
-    switch command.mode {
+  func run(_ input: String, mode: TypeCommand.Mode) async throws {
+    switch mode {
     case .typing:
       let newLines = CharacterSet.newlines
       for character in input {
@@ -39,7 +37,7 @@ final class TypeCommandRunner {
     case .instant:
       let pasteboard = NSPasteboard.general
       pasteboard.clearContents()
-      pasteboard.setString(command.input, forType: .string)
+      pasteboard.setString(input, forType: .string)
 
       let keyCode = 9 // v
       try keyboardCommandRunner.machPort?.post(keyCode, type: .keyDown, flags: .maskCommand)

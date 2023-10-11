@@ -190,7 +190,8 @@ final class CommandRunner: CommandRunning {
           output = command.name
         }
       case .type(let typeCommand):
-        try await runners.type.run(typeCommand)
+        let input = snapshot.replaceSelectedText(typeCommand.input)
+        try await runners.type.run(input, mode: typeCommand.mode)
         output = command.name
       case .systemCommand(let systemCommand):
         try await runners.system.run(systemCommand)
