@@ -21,7 +21,7 @@ final class DetailCommandActionReducer {
       let runCommand = command
       Task {
         do {
-          try await commandRunner.run(runCommand)
+          try await commandRunner.run(runCommand, snapshot: UserSpace.shared.snapshot())
         } catch let error as KeyboardCommandRunnerError {
           let alert = await NSAlert(error: error)
           await alert.runModal()
@@ -140,7 +140,7 @@ final class DetailCommandActionReducer {
         case .open(let source):
           Task {
             let path = (source as NSString).expandingTildeInPath
-            try await commandRunner.run(.open(.init(path: path)))
+            try await commandRunner.run(.open(.init(path: path)), snapshot: UserSpace.shared.snapshot())
           }
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")

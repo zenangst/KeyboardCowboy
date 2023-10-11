@@ -101,6 +101,7 @@ final class CommandRunner: CommandRunning {
   }
 
   func serialRun(_ commands: [Command]) {
+    let snapshot = UserSpace.shared.snapshot()
     missionControl.dismissIfActive()
     serialTask?.cancel()
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
@@ -109,7 +110,7 @@ final class CommandRunner: CommandRunning {
         for command in commands {
           try Task.checkCancellation()
           do {
-            try await self.run(command)
+            try await self.run(command, snapshot: snapshot)
           } catch { }
           if let delay = command.delay {
             try await Task.sleep(for: .milliseconds(delay))
@@ -120,6 +121,7 @@ final class CommandRunner: CommandRunning {
   }
 
   func concurrentRun(_ commands: [Command]) {
+    let snapshot = UserSpace.shared.snapshot()
     missionControl.dismissIfActive()
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
@@ -127,13 +129,13 @@ final class CommandRunner: CommandRunning {
       for command in commands {
         do {
           try Task.checkCancellation()
-          try await self.run(command)
+          try await self.run(command, snapshot: snapshot)
         } catch { }
       }
     }
   }
 
-  func run(_ command: Command) async throws {
+  func run(_ command: Command, snapshot: UserSpace.Snapshot) async throws {
     do {
       let id = UUID().uuidString
       let output: String
@@ -166,7 +168,7 @@ final class CommandRunner: CommandRunning {
         try await runners.menubar.execute(menuBarCommand)
         output = command.name
       case .open(let openCommand):
-        try await runners.open.run(openCommand)
+        try await runners.open.run(openCommand, snapshot: snapshot)
         output = command.name
       case .script(let scriptCommand):
         if command.notification {

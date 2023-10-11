@@ -1,3 +1,4 @@
+import Apps
 import AXEssibility
 import Windows
 import Cocoa
@@ -22,9 +23,9 @@ final class OpenURLSwapTabsPlugin {
   /// - Parameters:
   ///   - command: The open command to execute.
   /// - Throws: An error if the URL cannot be opened.
-  func execute(_ command: OpenCommand) async throws {
+  func execute(_ path: String, application: Application?) async throws {
     // Get the bundle identifier of the target application, default to Safari if not provided
-    let bundleIdentifier = command.application?.bundleIdentifier ?? "com.apple.Safari"
+    let bundleIdentifier = application?.bundleIdentifier ?? "com.apple.Safari"
 
     // Check if the target application is already running
     if let runningApplication = NSWorkspace.shared.runningApplications
@@ -39,7 +40,7 @@ final class OpenURLSwapTabsPlugin {
       for window in windows {
         // Find the URL attribute of the web area in the window that matches the command path
         if let url: URL = window.findAttribute(.url, of: "AXWebArea"),
-           url.absoluteString.contains(command.path) {
+           url.absoluteString.contains(path) {
           window.performAction(.raise)
           runningApplication.activate(options: .activateIgnoringOtherApps)
           success = true
@@ -48,7 +49,7 @@ final class OpenURLSwapTabsPlugin {
       }
 
       if !success {
-        let appName = command.application?.displayName ?? "Safari"
+        let appName = application?.displayName ?? "Safari"
 
         // Create an AppleScript to search for the URL in tabs
         //
@@ -58,7 +59,7 @@ final class OpenURLSwapTabsPlugin {
         // If it finds a tab with a URL that contains the desired URL, it sets that window as the active window and switches to the corresponding tab.
         // If it successfully swaps the tab, it returns 0. Otherwise, it returns -1.
         let source = """
-            property matchingURL : "\(command.path)"
+            property matchingURL : "\(path)"
             tell application "\(appName)"
             activate
             set theURLs to (get URL of every tab of every window)
@@ -85,10 +86,10 @@ final class OpenURLSwapTabsPlugin {
           throw OpenURLSwapToPluginError.couldNotFindOpenUrl
         }
       }
-    } else if let url = URL(string: command.path) {
+    } else if let url = URL(string: path) {
       // If the target application is not running, open the URL directly
       let configuration = NSWorkspace.OpenConfiguration()
-      if let application = command.application {
+      if let application = application {
         try await NSWorkspace.shared.open([url], withApplicationAt: URL(filePath: application.path),
                                           configuration: configuration)
       } else {
