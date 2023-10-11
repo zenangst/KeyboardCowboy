@@ -90,21 +90,23 @@ final class WindowCommandRunner {
           currentScreen: currentScreen,
           mainDisplay: mainDisplay
         )
-      case .increaseSize(let byValue, let direction, let constrainedToScreen):
+      case .increaseSize(let byValue, let direction, let padding, let constrainedToScreen):
         newFrame = WindowRunnerIncreaseWindowSize.calulateRect(
           originFrame,
           byValue: byValue,
           in: direction,
+          padding: padding,
           constrainedToScreen: constrainedToScreen,
           currentScreen: currentScreen,
           mainDisplay: mainDisplay
         )
-      case .move(let byValue, let direction, let constrainedToScreen):
+      case .move(let byValue, let direction, let padding, let constrainedToScreen):
         app.enhancedUserInterface = !isRepeatingEvent
         newFrame = WindowRunnerMoveWindow.calulateRect(
           originFrame,
           byValue: byValue,
           in: direction,
+          padding: padding,
           constrainedToScreen: constrainedToScreen,
           currentScreen: currentScreen,
           mainDisplay: mainDisplay

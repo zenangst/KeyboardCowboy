@@ -6,6 +6,7 @@ final class WindowRunnerIncreaseWindowSize {
   static func calulateRect(_ originFrame: CGRect,
                            byValue: Int,
                            in direction: WindowCommand.Direction,
+                           padding: Int,
                            constrainedToScreen: Bool,
                            currentScreen: NSScreen,
                            mainDisplay: NSScreen) -> CGRect {
