@@ -19,23 +19,24 @@ final class OpenCommandRunner {
     self.workspace = workspace
   }
 
-  func run(_ command: OpenCommand) async throws {
+  func run(_ command: OpenCommand, snapshot: UserSpace.Snapshot) async throws {
+    let interpolatedPath = snapshot.replaceSelectedText(command.path)
     do {
       if plugins.finderFolder.validate(command) {
-        try await plugins.finderFolder.execute(command)
+        try await plugins.finderFolder.execute(interpolatedPath)
       } else if command.isUrl {
-        try await plugins.swapTab.execute(command)
+        try await plugins.swapTab.execute(interpolatedPath, application: command.application)
       } else {
-        try await plugins.open.execute(command)
+        try await plugins.open.execute(interpolatedPath, application: command.application)
       }
     } catch {
       let url = URL(fileURLWithPath: command.path)
       let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
       // TODO: Check if this is what we want.
       if command.application?.bundleName == "Finder", isDirectory == true {
-        try await plugins.finderFolder.execute(command)
+        try await plugins.finderFolder.execute(interpolatedPath)
       } else {
-        try await plugins.open.execute(command)
+        try await plugins.open.execute(interpolatedPath, application: command.application)
       }
     }
   }
