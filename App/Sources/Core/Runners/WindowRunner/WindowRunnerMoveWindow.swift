@@ -4,9 +4,11 @@ final class WindowRunnerMoveWindow {
   static func calulateRect(_ originFrame: CGRect,
                            byValue: Int,
                            in direction: WindowCommand.Direction,
+                           padding: Int,
                            constrainedToScreen: Bool,
                            currentScreen: NSScreen,
                            mainDisplay: NSScreen) -> CGRect {
+    let padding = CGFloat(padding)
     let newValue = CGFloat(byValue)
     let dockSize = getDockSize(mainDisplay)
     let dockPosition = getDockPosition(mainDisplay)
@@ -50,18 +52,30 @@ final class WindowRunnerMoveWindow {
     }
 
     if constrainedToScreen {
-      let maxX = currentScreen.frame.maxX - newFrame.width
-      let maxY = currentScreen.frame.maxY - newFrame.height
+      var maxX = currentScreen.frame.maxX - newFrame.width - dockRightSize
+      var minX = max(currentScreen.frame.origin.x + dockLeftSize,
+                     newFrame.origin.x)
+      var maxY = currentScreen.isMainDisplay
+      ? currentScreen.frame.maxY - newFrame.height  - dockBottomSize
+      : mainDisplay.frame.maxY - currentScreen.visibleFrame.origin.y - originFrame.height
+      var minY: CGFloat = newFrame.origin.y
 
-      newFrame.origin.x = min(max(currentScreen.frame.origin.x + dockLeftSize,
-                                        newFrame.origin.x), maxX - dockRightSize)
-
-      if currentScreen.isMainDisplay {
-        newFrame.origin.y = min(newFrame.origin.y, maxY - dockBottomSize)
-      } else {
-        let maxY = mainDisplay.frame.maxY - currentScreen.visibleFrame.origin.y - originFrame.height
-        newFrame.origin.y = min(newFrame.origin.y, maxY)
+      switch direction {
+      case .leading, .trailing:
+        maxX -= padding
+        minX += padding
+      case .topLeading, .bottomLeading:
+        minX += padding
+        maxY -= padding
+      case .topTrailing, .bottomTrailing:
+        maxX -= padding
+        maxY -= padding
+      case .top, .bottom:
+        minY += padding
+        maxY -= padding
       }
+
+      newFrame.origin = CGPoint(x: min(minX, maxX), y: min(minY, maxY))
     }
 
     return newFrame
