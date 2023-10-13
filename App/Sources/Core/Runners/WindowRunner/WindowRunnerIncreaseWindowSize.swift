@@ -66,7 +66,14 @@ final class WindowRunnerIncreaseWindowSize {
     if constrainedToScreen {
       let minX = max(currentScreen.frame.origin.x, padding)
       let maxX = min(newFrame.origin.x, currentScreen.frame.maxX + maxWidth)
-      newFrame.origin.x = max(maxX, minX)
+      let exceedsMax = newFrame.maxX >= currentScreen.frame.maxX
+
+      if exceedsMax {
+        newFrame.origin.x -= padding
+        newFrame.size.width = currentScreen.frame.width - originFrame.origin.x
+      } else {
+        newFrame.origin.x = max(maxX, minX)
+      }
 
       var maxY = currentScreen.isMainDisplay
       ? currentScreen.frame.maxY - newFrame.height  - dockBottomSize
