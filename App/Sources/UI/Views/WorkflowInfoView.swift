@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 struct WorkflowInfoView: View {
   enum Action {
@@ -50,7 +51,7 @@ struct WorkflowInfoView: View {
       }
 
       Spacer()
-      AppToggle("", onColor: Color(.systemGreen), isOn: $isEnabled) { onAction(.setIsEnabled(isEnabled: $0)) }
+      ZenToggle("", config: .init(color: .systemGreen), isOn: $isEnabled) { onAction(.setIsEnabled(isEnabled: $0)) }
     }
   }
 }

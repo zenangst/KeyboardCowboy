@@ -96,13 +96,13 @@ struct NewCommandApplicationView: View {
       Divider()
 
       HStack {
-        AppCheckbox("In background", style: .small, isOn: $inBackground) { _ in
+        ZenCheckbox("In background", style: .small, isOn: $inBackground) { _ in
          updateAndValidatePayload()
         }
-        AppCheckbox("Hide when opening", style: .small, isOn: $hideWhenRunning) { _ in
+        ZenCheckbox("Hide when opening", style: .small, isOn: $hideWhenRunning) { _ in
           updateAndValidatePayload()
          }
-        AppCheckbox("If not running", style: .small, isOn: $ifNotRunning) { _ in
+        ZenCheckbox("If not running", style: .small, isOn: $ifNotRunning) { _ in
           updateAndValidatePayload()
          }
       }

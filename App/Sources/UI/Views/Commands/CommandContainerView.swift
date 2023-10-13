@@ -1,4 +1,5 @@
 import SwiftUI
+import ZenViewKit
 
 enum CommandContainerAction {
   case run
@@ -52,16 +53,16 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .padding(.bottom, 4)
 
         HStack(spacing: 0) {
-          AppToggle("", onColor: Color(.systemGreen), style: .small, isOn: $metaData.isEnabled) {
+          ZenToggle("", config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) {
             onAction(.toggleIsEnabled($0))
           }
-          .padding(.leading, 5)
+          .padding(.leading, 1)
           .padding(.trailing, 5)
 
           HStack {
             // Fix this bug that you can't notify when running
             // modifying a menubar command.
-            AppCheckbox("Notify", style: .small, isOn: $metaData.notification) {
+            ZenCheckbox("Notify", style: .small, isOn: $metaData.notification) {
               onAction(.toggleNotify($0))
             }
 

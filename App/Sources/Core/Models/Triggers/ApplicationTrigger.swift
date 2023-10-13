@@ -20,7 +20,7 @@ public struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Se
     return clone
   }
 
-  public enum Context: String, Toggleable, Hashable, Codable, CaseIterable, Sendable {
+  public enum Context: String, Hashable, Codable, CaseIterable, Sendable {
     public var id: String { rawValue }
 
     case closed, launched, frontMost

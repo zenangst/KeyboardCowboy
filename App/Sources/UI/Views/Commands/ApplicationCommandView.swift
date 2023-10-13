@@ -1,5 +1,6 @@
 import Apps
 import SwiftUI
+import ZenViewKit
 
 struct IconMenuStyle: MenuStyle {
   func makeBody(configuration: Configuration) -> some View {
@@ -72,13 +73,13 @@ struct ApplicationCommandView: View {
             .onChange(of: metaData.name, perform: { debounce.send($0) })
         }
       }, subContent: { _ in
-        AppCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
+        ZenCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
           onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
         }
-        AppCheckbox("Hide when opening", style: .small, isOn: $model.hideWhenRunning) { newValue in
+        ZenCheckbox("Hide when opening", style: .small, isOn: $model.hideWhenRunning) { newValue in
           onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
         }
-        AppCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
+        ZenCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
           onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
         }
       },

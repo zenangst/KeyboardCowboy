@@ -44,7 +44,7 @@ struct KeyboardTriggerView: View {
         .buttonStyle(.calm(color: .systemRed, padding: .medium))
         Label("Keyboard Shortcuts Sequence:", image: "")
         Spacer()
-        AppCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
+        ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
           onAction(.togglePassthrough(workflowId: data.id, newValue: newValue))
         }
         .font(.caption)

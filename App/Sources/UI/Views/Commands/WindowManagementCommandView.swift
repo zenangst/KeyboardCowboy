@@ -279,7 +279,7 @@ struct WindowManagementCommandView: View {
               if case .anchor = model.kind {
                 EmptyView()
               } else {
-                AppCheckbox(
+                ZenCheckbox(
                   "Constrain to screen bounds",
                   style: .small,
                   isOn: $constrainToScreen

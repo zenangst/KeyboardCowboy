@@ -4,7 +4,7 @@ import Foundation
 /// An application command is a container that is used for
 /// launching or activing applications.
 struct ApplicationCommand: MetaDataProviding {
-  enum Modifier: String, Toggleable, Codable, Hashable, CaseIterable, Sendable {
+  enum Modifier: String, Codable, Hashable, CaseIterable, Sendable {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {
@@ -18,7 +18,7 @@ struct ApplicationCommand: MetaDataProviding {
     case onlyIfNotRunning
   }
 
-  enum Action: String, Codable, Hashable, Equatable, Toggleable, Sendable {
+  enum Action: String, Codable, Hashable, Equatable, Sendable {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {

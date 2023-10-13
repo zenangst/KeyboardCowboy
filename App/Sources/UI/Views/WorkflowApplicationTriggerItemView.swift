@@ -28,7 +28,7 @@ struct WorkflowApplicationTriggerItemView: View {
         Text(element.name)
         HStack {
           ForEach(DetailViewModel.ApplicationTrigger.Context.allCases) { context in
-            AppCheckbox(context.displayValue, style: .small, isOn: Binding<Bool>(get: {
+            ZenCheckbox(context.displayValue, style: .small, isOn: Binding<Bool>(get: {
               element.contexts.contains(context)
             }, set: { newValue in
               if newValue {
