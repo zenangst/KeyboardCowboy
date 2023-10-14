@@ -7,21 +7,29 @@ struct BezelNotificationViewModel: Identifiable, Hashable {
 
 struct BezelNotificationView: View {
   @ObservedObject var publisher: BezelNotificationPublisher
+  @EnvironmentObject var manager: WindowManager
 
   init(publisher: BezelNotificationPublisher) {
     self.publisher = publisher
   }
 
   var body: some View {
-    Group {
-      Text(publisher.data.text)
-        .font(.largeTitle)
-        .padding(.horizontal, 32)
-        .padding(.vertical, 16)
-        .background(Color(.windowBackgroundColor).opacity(0.5).cornerRadius(32))
-        .padding(32)
-        .frame(maxWidth: .infinity)
-    }
+    Text(publisher.data.text)
+      .font(.largeTitle)
+      .padding(.horizontal, 24)
+      .padding(.vertical, 16)
+      .background(backgroundView)
+      .padding(32)
+      .frame(maxWidth: .infinity)
+      .onReceive(publisher.$data, perform: { _ in
+        manager.close(after: .seconds(1))
+      })
+  }
+
+  private var backgroundView: some View {
+    Color(.windowBackgroundColor)
+      .opacity(publisher.data.text.isEmpty ? 0 : 0.5)
+      .cornerRadius(32)
   }
 }
 
@@ -33,7 +41,7 @@ struct NotificationBezel_Previews: PreviewProvider {
         .background(Color(.systemGray))
     }
     .onAppear {
-      withAnimation(.default.delay(5)) {
+      withAnimation(.default.delay(1)) {
         publisher.publish(.init(id: UUID().uuidString, text: "Hello, world!"))
       }
     }

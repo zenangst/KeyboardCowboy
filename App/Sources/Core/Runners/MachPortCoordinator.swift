@@ -113,6 +113,16 @@ final class MachPortCoordinator {
       kind = .flagsChanged
     case .keyDown:
       kind = .keyDown
+
+      if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue,
+         machPortEvent.keyCode == kVK_Escape {
+        if machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
+          machPortEvent.result = nil
+          reset()
+          return
+        }
+      }
+
     case .keyUp:
       kind = .keyUp
       workItem?.cancel()
@@ -302,6 +312,16 @@ final class MachPortCoordinator {
       commandRunner.concurrentRun(commands)
     case .serial:
       commandRunner.serialRun(commands)
+    }
+  }
+
+  private func reset() {
+    previousPartialMatch = Self.defaultPartialMatch
+    Task { @MainActor in
+      WorkflowNotificationController.shared.post(.init(id: UUID().uuidString,
+                                                       matches: [],
+                                                       glow: false,
+                                                       keyboardShortcuts: []))
     }
   }
 

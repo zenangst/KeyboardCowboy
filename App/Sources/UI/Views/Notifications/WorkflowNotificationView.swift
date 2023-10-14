@@ -2,19 +2,6 @@ import SwiftUI
 import Inject
 import ZenViewKit
 
-extension AnyTransition {
-  static var moveAndFade: AnyTransition {
-    .asymmetric(
-      insertion: 
-          .scale(scale: 0, anchor: .trailing)
-          .combined(with: .opacity)
-      ,
-      removal: 
-          .scale.combined(with: .opacity)
-    )
-  }
-}
-
 struct WorkflowNotificationViewModel: Identifiable, Hashable {
   var id: String
   var workflow: Workflow?
@@ -27,41 +14,15 @@ struct WorkflowNotificationView: View {
   static var animation: Animation = .smooth(duration: 0.2)
   @ObservedObject var publisher: WorkflowNotificationPublisher
 
+  @EnvironmentObject var windowManager: WindowManager
+  let alignment: Alignment = .bottomTrailing
+
   var body: some View {
-    VStack(alignment: .trailing) {
-      if !publisher.data.matches.isEmpty {
-        ScrollView {
-          LazyVStack(alignment: .trailing) {
-            ForEach(publisher.data.matches, id: \.id) { workflow in
-              HStack {
-                Text(workflow.name)
-                switch workflow.trigger {
-                case .keyboardShortcuts(let trigger):
-                  ForEach(trigger.shortcuts) { shortcut in
-                    WorkflowNotificationKeyView(keyShortcut: shortcut, glow: .constant(false))
-                  }
-                case .application, .none:
-                  EmptyView()
-                }
-              }
-              .frame(alignment: .trailing)
-              .transition(AnyTransition.moveAndFade.animation(Self.animation))
-            }
-          }
-          .padding()
-        }
-        .scrollIndicators(.hidden)
-        .frame(height: 300)
-        .padding(4)
-        .background(Color(nsColor: .windowBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-      }
-
-      Spacer()
-
+    NotificationView(alignment) {
+      WorkflowNotificationMatchesView(publisher: publisher)
+        .frame(maxWidth: 250, maxHeight: 250, alignment: alignment)
       HStack {
-        Spacer()
-        ForEach(publisher.data.keyboardShortcuts, id: \.stringValue) { keyShortcut in
+        ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
           WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: Binding<Bool>(get: {
             publisher.data.glow
           }, set: { _ in }))
@@ -71,6 +32,8 @@ struct WorkflowNotificationView: View {
         if let workflow = publisher.data.workflow {
           Text(workflow.name)
             .textStyle(.zen)
+            .allowsTightening(true)
+            .minimumScaleFactor(0.8)
             .bold()
             .font(.footnote)
             .lineLimit(1)
@@ -83,7 +46,22 @@ struct WorkflowNotificationView: View {
       .padding(4)
       .clipShape(RoundedRectangle(cornerRadius: 8))
     }
-    .frame(alignment: .trailing)
+    .onReceive(publisher.$data, perform: { newValue in
+      guard let screen = NSScreen.main else { return }
+
+      windowManager.window?.setFrame(
+        NSRect(origin: .zero,
+               size: screen.visibleFrame.size),
+        display: false,
+        animate: false
+      )
+
+      if newValue.matches.isEmpty {
+        windowManager.close(after: .seconds(1))
+      } else {
+        windowManager.cancelClose()
+      }
+    })
   }
 }
 
@@ -142,18 +120,5 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
   static var previews: some View {
     WorkflowNotificationView(publisher: publisher)
       .padding(64)
-//      .onAppear {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//          withAnimation(WorkflowNotificationView.animation) {
-//            publisher.publish(singleModel)
-//          }
-//
-//          DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//            withAnimation(WorkflowNotificationView.animation) {
-//              publisher.publish(fullModel)
-//            }
-//          }
-//        }
-//      }
   }
 }

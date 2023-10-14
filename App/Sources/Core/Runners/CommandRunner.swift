@@ -172,7 +172,7 @@ final class CommandRunner: CommandRunning {
         output = command.name
       case .script(let scriptCommand):
         if command.notification {
-          await BezelNotificationController.shared.post(.init(id: id, text: "Running \(scriptCommand.name)"))
+          await BezelNotificationController.shared.post(.init(id: id, text: "\(scriptCommand.name) ▶️"))
         }
         let result = try await self.runners.script.run(scriptCommand)
         if let result = result {
