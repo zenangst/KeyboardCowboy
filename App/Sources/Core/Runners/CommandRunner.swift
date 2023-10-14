@@ -171,9 +171,6 @@ final class CommandRunner: CommandRunning {
         try await runners.open.run(openCommand, snapshot: snapshot)
         output = command.name
       case .script(let scriptCommand):
-        if command.notification {
-          await BezelNotificationController.shared.post(.init(id: id, text: "\(scriptCommand.name) ▶️"))
-        }
         let result = try await self.runners.script.run(scriptCommand)
         if let result = result {
           let trimmedResult = result.trimmingCharacters(in: .newlines)
