@@ -41,10 +41,11 @@ struct WorkflowNotificationMatchesView: View {
         }
         .padding()
       }
+      .frame(maxHeight: .infinity)
+      .background(
+        Color(nsColor: .windowBackgroundColor).opacity(0.8).cornerRadius(8)
+      )
       .scrollIndicators(.hidden)
-      .padding(4)
-      .background(Color(nsColor: .windowBackgroundColor).opacity(0.8))
-      .clipShape(RoundedRectangle(cornerRadius: 8))
     }
   }
 }

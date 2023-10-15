@@ -44,7 +44,6 @@ struct WorkflowNotificationView: View {
         }
       }
       .padding(4)
-      .clipShape(RoundedRectangle(cornerRadius: 8))
     }
     .onReceive(publisher.$data, perform: { newValue in
       guard let screen = NSScreen.main else { return }
@@ -119,6 +118,7 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
   static var publisher = WorkflowNotificationPublisher(fullModel)
   static var previews: some View {
     WorkflowNotificationView(publisher: publisher)
+      .environmentObject(WindowManager())
       .padding(64)
   }
 }
