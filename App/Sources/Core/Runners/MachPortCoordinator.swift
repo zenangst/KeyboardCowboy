@@ -53,6 +53,7 @@ final class MachPortCoordinator {
   private let commandRunner: CommandRunner
   private let keyboardCommandRunner: KeyboardCommandRunner
   private let keyboardShortcutsController: KeyboardShortcutsController
+  private let notifications: MachPortNotifications
   private let store: KeyCodesStore
 
   internal init(store: KeyCodesStore,
@@ -64,6 +65,7 @@ final class MachPortCoordinator {
     self.store = store
     self.keyboardShortcutsController = keyboardShortcutsController
     self.keyboardCommandRunner = keyboardCommandRunner
+    self.notifications = MachPortNotifications(keyboardShortcutsController: keyboardShortcutsController)
     self.mode = mode
     self.specialKeys = Array(store.specialKeys().keys)
   }
@@ -152,8 +154,8 @@ final class MachPortCoordinator {
     }
 
     switch result {
-    case .partialMatch(let match):
-      if let workflow = match.workflow,
+    case .partialMatch(let partialMatch):
+      if let workflow = partialMatch.workflow,
          workflow.trigger?.isPassthrough == true {
         // NOOP
       } else {
@@ -161,22 +163,8 @@ final class MachPortCoordinator {
       }
 
       if kind == .keyDown {
-        let splits = match.rawValue.split(separator: "+")
-        let prefix = splits.count - 1
-        if let workflow = match.workflow,
-           case .keyboardShortcuts(let trigger) = workflow.trigger {
-          let shortcuts = Array(trigger.shortcuts.prefix(prefix))
-          let matches = keyboardShortcutsController.allMatchingPrefix(match.rawValue, shortcutIndexPrefix: prefix)
-
-          Task { @MainActor in
-            WorkflowNotificationController.shared.post(.init(id: workflow.id,
-                                                             matches: matches,
-                                                             glow: true,
-                                                             keyboardShortcuts: shortcuts))
-          }
-        }
-
-        previousPartialMatch = match
+        notifications.notifyBundles(partialMatch)
+        previousPartialMatch = partialMatch
       }
     case .exact(let workflow):
       if workflow.trigger?.isPassthrough == true {
@@ -188,18 +176,7 @@ final class MachPortCoordinator {
       if workflow.commands.count == 1,
          case .keyboard(let command) = workflow.commands.first(where: \.isEnabled) {
         if !isRepeatingEvent && machPortEvent.event.type == .keyDown {
-          Task { @MainActor in
-            var keyboardShortcuts = [KeyShortcut]()
-            if case .keyboardShortcuts(let trigger) = workflow.trigger {
-              keyboardShortcuts.append(contentsOf: trigger.shortcuts)
-              keyboardShortcuts.append(.init(id: "spacer", key: "="))
-              keyboardShortcuts.append(contentsOf: command.keyboardShortcuts)
-            }
-
-            WorkflowNotificationController.shared.post(.init(id: workflow.id,
-                                                             workflow: nil,
-                                                             keyboardShortcuts: keyboardShortcuts))
-          }
+          notifications.notifyKeyboardCommand(workflow, command: command)
         }
 
         try? keyboardCommandRunner.run(command,
@@ -298,14 +275,7 @@ final class MachPortCoordinator {
   }
 
   private func run(_ workflow: Workflow) {
-    if case .keyboardShortcuts(let trigger) = workflow.trigger {
-      Task { @MainActor in
-        WorkflowNotificationController.shared.post(.init(id: workflow.id, 
-                                                         workflow: workflow,
-                                                         keyboardShortcuts: trigger.shortcuts))
-      }
-    }
-
+    notifications.notifyRunningWorkflow(workflow)
     let commands = workflow.commands.filter(\.isEnabled)
     switch workflow.execution {
     case .concurrent:
@@ -317,12 +287,7 @@ final class MachPortCoordinator {
 
   private func reset() {
     previousPartialMatch = Self.defaultPartialMatch
-    Task { @MainActor in
-      WorkflowNotificationController.shared.post(.init(id: UUID().uuidString,
-                                                       matches: [],
-                                                       glow: false,
-                                                       keyboardShortcuts: []))
-    }
+    notifications.reset()
   }
 
   private func schedule(_ workflow: Workflow, after duration: Double) -> DispatchWorkItem {

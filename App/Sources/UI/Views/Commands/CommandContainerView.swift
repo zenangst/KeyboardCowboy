@@ -53,10 +53,10 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .padding(.bottom, 4)
 
         HStack(spacing: 0) {
-          ZenToggle("", config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) {
+          ZenToggle(config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) {
             onAction(.toggleIsEnabled($0))
           }
-          .padding(.leading, 1)
+          .padding(.leading, 9)
           .padding(.trailing, 5)
 
           HStack {

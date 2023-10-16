@@ -2,6 +2,10 @@ import SwiftUI
 import ZenViewKit
 
 struct NotificationsSettingsView: View {
+  @AppStorage("Notifications.KeyboardCommands") var keyboardCommands: Bool = false
+  @AppStorage("Notifications.RunningWorkflows") var runningWorkflows: Bool = false
+  @AppStorage("Notifications.Bundles") var bundles: Bool = false
+
   var body: some View {
     VStack(alignment: .center) {
       VStack {
@@ -59,11 +63,11 @@ struct NotificationsSettingsView: View {
 
       Grid(alignment: .leading) {
         GridRow {
-          ZenToggle(isOn: .constant(false))
+          ZenToggle(isOn: $keyboardCommands)
           Text("Keyboard Commands")
-          ZenToggle(isOn: .constant(false))
+          ZenToggle(isOn: $runningWorkflows)
           Text("Running Workflows")
-          ZenToggle(isOn: .constant(false))
+          ZenToggle(isOn: $bundles)
           Text("Show bundles")
         }
       }
