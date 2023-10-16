@@ -10,17 +10,42 @@ struct WorkflowNotificationViewModel: Identifiable, Hashable {
   let keyboardShortcuts: [KeyShortcut]
 }
 
+enum NotificationPlacement: String, RawRepresentable {
+  case center
+  case leading
+  case trailing
+  case top
+  case bottom
+  case topLeading
+  case topTrailing
+  case bottomLeading
+  case bottomTrailing
+
+  var alignment: Alignment {
+    switch self {
+    case .center: .center
+    case .leading: .leading
+    case .trailing: .trailing
+    case .top: .top
+    case .bottom: .bottom
+    case .topLeading: .topLeading
+    case .topTrailing: .topTrailing
+    case .bottomLeading: .bottomLeading
+    case .bottomTrailing: .bottomTrailing
+    }
+  }
+}
+
 struct WorkflowNotificationView: View {
   static var animation: Animation = .smooth(duration: 0.2)
   @ObservedObject var publisher: WorkflowNotificationPublisher
-
   @EnvironmentObject var windowManager: WindowManager
-  let alignment: Alignment = .bottomTrailing
+  @AppStorage("Notifications.Placement") var notificationPlacement: NotificationPlacement = .bottomLeading
 
   var body: some View {
-    NotificationView(alignment) {
+    NotificationView(notificationPlacement.alignment) {
       WorkflowNotificationMatchesView(publisher: publisher)
-        .frame(maxWidth: 250, maxHeight: 250, alignment: alignment)
+        .frame(maxWidth: 250, maxHeight: 250, alignment: notificationPlacement.alignment)
       HStack {
         ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
           WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: Binding<Bool>(get: {

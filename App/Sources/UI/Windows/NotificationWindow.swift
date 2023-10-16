@@ -32,19 +32,15 @@ final class NotificationWindow<Content>: NSPanel where Content: View {
   override var canBecomeKey: Bool { false }
   override var canBecomeMain: Bool { false }
 
-  convenience init(contentRect: CGRect,
-                   content rootView: @autoclosure @escaping () -> Content) {
-    self.init(contentRect: contentRect, content: { rootView() })
-  }
-
-  init(contentRect: CGRect,
-       content rootView: @escaping () -> Content) {
+  init(animationBehavior: NSWindow.AnimationBehavior,
+       content rootView: @autoclosure @escaping () -> Content) {
     self.manager = WindowManager()
+    let contentRect = NSScreen.main?.frame ?? .init(origin: .zero, size: .init(width: 200, height: 200))
     super.init(contentRect: contentRect, styleMask: [
-      .borderless, .nonactivatingPanel
+      .borderless, .nonactivatingPanel, .fullSizeContentView
     ], backing: .buffered, defer: false)
 
-    self.animationBehavior = .utilityWindow
+    self.animationBehavior = animationBehavior
     self.collectionBehavior.insert(.fullScreenAuxiliary)
     self.isOpaque = false
     self.isFloatingPanel = true
@@ -58,11 +54,13 @@ final class NotificationWindow<Content>: NSPanel where Content: View {
     self.manager.window = self
 
     let rootView = rootView()
-      .ignoresSafeArea()
       .environmentObject(manager)
+      .ignoresSafeArea()
       .padding()
 
     self.contentViewController = NSHostingController(rootView: rootView)
+
+    setFrame(contentRect, display: false)
   }
 }
 
