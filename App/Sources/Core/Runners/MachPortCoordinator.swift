@@ -53,7 +53,7 @@ final class MachPortCoordinator {
   private let commandRunner: CommandRunner
   private let keyboardCommandRunner: KeyboardCommandRunner
   private let keyboardShortcutsController: KeyboardShortcutsController
-  private let notifications: MachPortNotifications
+  private let notifications: MachPortUINotifications
   private let store: KeyCodesStore
 
   internal init(store: KeyCodesStore,
@@ -65,7 +65,7 @@ final class MachPortCoordinator {
     self.store = store
     self.keyboardShortcutsController = keyboardShortcutsController
     self.keyboardCommandRunner = keyboardCommandRunner
-    self.notifications = MachPortNotifications(keyboardShortcutsController: keyboardShortcutsController)
+    self.notifications = MachPortUINotifications(keyboardShortcutsController: keyboardShortcutsController)
     self.mode = mode
     self.specialKeys = Array(store.specialKeys().keys)
   }

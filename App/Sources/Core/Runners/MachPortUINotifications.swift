@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-final class MachPortNotifications {
+final class MachPortUINotifications {
   @AppStorage("Notifications.KeyboardCommands") var notificationKeyboardCommands: Bool = false
   @AppStorage("Notifications.RunningWorkflows") var notificationRunningWorkflows: Bool = false
   @AppStorage("Notifications.Bundles") var notificationBundles: Bool = false
