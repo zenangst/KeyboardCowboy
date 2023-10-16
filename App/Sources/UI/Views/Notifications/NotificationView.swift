@@ -14,10 +14,10 @@ struct NotificationView<Content: View>: View {
     HStack {
       AlignmentSpacer(alignment, validAlignments: .top, .bottom, .topTrailing, .trailing, .bottomTrailing)
       VStack(alignment: horizontalAlignment) {
-        AlignmentSpacer(alignment, validAlignments: .bottom, .bottomLeading, .bottomTrailing)
+        AlignmentSpacer(alignment, validAlignments: .leading, .trailing, .bottom, .bottomLeading, .bottomTrailing)
         content()
           .frame(alignment: alignment)
-        AlignmentSpacer(alignment, validAlignments: .top, .topLeading, .topTrailing)
+        AlignmentSpacer(alignment, validAlignments: .leading, .trailing, .top, .topLeading, .topTrailing)
       }
       AlignmentSpacer(alignment, validAlignments: .top, .bottom, .topLeading, .leading, .bottomLeading)
     }
