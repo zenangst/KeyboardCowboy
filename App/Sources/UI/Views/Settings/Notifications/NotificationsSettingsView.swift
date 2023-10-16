@@ -5,6 +5,7 @@ struct NotificationsSettingsView: View {
   @AppStorage("Notifications.KeyboardCommands") var keyboardCommands: Bool = false
   @AppStorage("Notifications.RunningWorkflows") var runningWorkflows: Bool = false
   @AppStorage("Notifications.Bundles") var bundles: Bool = false
+  @AppStorage("Notifications.Placement") var notificationPlacement: NotificationPlacement = .bottomTrailing
 
   var body: some View {
     VStack(alignment: .center) {
@@ -18,42 +19,74 @@ struct NotificationsSettingsView: View {
               .font(.caption2)
           })
           .overlay(alignment: .topLeading) {
-            ZenCheckbox(config: .init(color: .accentColor), isOn: .constant(false))
+            ZenCheckbox(config: .init(color: .accentColor), isOn: Binding(get: {
+              notificationPlacement == .topLeading
+            }, set: { _ in
+              notificationPlacement = .topLeading
+            }))
               .padding(8)
           }
 
           .overlay(alignment: .top) {
-            ZenCheckbox(config: .init(color: .accentColor), isOn: .constant(false))
+            ZenCheckbox(config: .init(color: .accentColor), isOn: Binding(get: { 
+              notificationPlacement == .top
+            }, set: { _ in
+              notificationPlacement = .top
+            }))
               .padding(8)
           }
 
           .overlay(alignment: .topTrailing) {
-            ZenCheckbox(config: .init(color: .accentColor), isOn: .constant(false))
+            ZenCheckbox(config: .init(color: .accentColor), isOn: Binding(get: {
+              notificationPlacement == .topTrailing
+            }, set: { _ in
+              notificationPlacement = .topTrailing
+            }))
               .padding(8)
           }
 
           .overlay(alignment: .leading) {
-            ZenCheckbox(config: .init(color: .accentColor), isOn: .constant(false))
+            ZenCheckbox(config: .init(color: .accentColor), isOn: Binding(get: {
+              notificationPlacement == .leading
+            }, set: { _ in
+              notificationPlacement = .leading
+            }))
               .padding(8)
           }
 
           .overlay(alignment: .trailing) {
-            ZenCheckbox(config: .init(color: .accentColor), isOn: .constant(false))
+            ZenCheckbox(config: .init(color: .accentColor), isOn: Binding(get: {
+              notificationPlacement == .trailing
+            }, set: { _ in
+              notificationPlacement = .trailing
+            }))
               .padding(8)
           }
 
           .overlay(alignment: .bottomLeading) {
-            ZenCheckbox(config: .init(color: .accentColor), isOn: .constant(false))
+            ZenCheckbox(config: .init(color: .accentColor), isOn: Binding(get: {
+              notificationPlacement == .bottomLeading
+            }, set: { _ in
+              notificationPlacement = .bottomLeading
+            }))
               .padding(8)
           }
 
           .overlay(alignment: .bottom) {
-            ZenCheckbox(config: .init(color: .accentColor), isOn: .constant(false))
+            ZenCheckbox(config: .init(color: .accentColor), isOn: Binding(get: {
+              notificationPlacement == .bottom
+            }, set: { _ in
+              notificationPlacement = .bottom
+            }))
               .padding(8)
           }
 
           .overlay(alignment: .bottomTrailing) {
-            ZenCheckbox(config: .init(color: .accentColor), isOn: .constant(false))
+            ZenCheckbox(config: .init(color: .accentColor), isOn: Binding(get: {
+              notificationPlacement == .bottomTrailing
+            }, set: { _ in
+              notificationPlacement = .bottomTrailing
+            }))
               .padding(8)
           }
       }

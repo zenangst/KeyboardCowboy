@@ -12,13 +12,9 @@ final class WorkflowNotificationController: ObservableObject {
   private var subscription: AnyCancellable?
 
   lazy var windowController: NSWindowController = {
-    let contentRect = NSRect(origin: .zero, size: NSScreen.main?.frame.size ?? .zero)
     let content = WorkflowNotificationView(publisher: publisher)
-    let window = NotificationWindow(contentRect: contentRect, content: content)
-    window.layoutIfNeeded()
+    let window = NotificationWindow(animationBehavior: .utilityWindow, content: content)
     let windowController = NSWindowController(window: window)
-    windowController.loadWindow()
-    window.setFrame(contentRect, display: false)
     return windowController
   }()
 

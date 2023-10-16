@@ -7,10 +7,8 @@ final class BezelNotificationController {
   static let shared = BezelNotificationController()
 
   lazy var windowController: NSWindowController = {
-    let contentRect = NSScreen.main?.visibleFrame ?? .init(origin: .zero, size: .init(width: 200, height: 200))
     let content = BezelNotificationView(publisher: publisher)
-    let window = NotificationWindow(contentRect: contentRect, content: content)
-    window.setFrame(contentRect, display: false)
+    let window = NotificationWindow(animationBehavior: .alertPanel, content: content)
     let windowController = NSWindowController(window: window)
     return windowController
   }()
