@@ -222,7 +222,7 @@ final class MachPortCoordinator {
     case .none:
       if kind == .keyDown {
         // No match, reset the lookup key
-        previousPartialMatch = Self.defaultPartialMatch
+        reset()
 
         if !tryGlobals {
           intercept(machPortEvent, tryGlobals: true)
