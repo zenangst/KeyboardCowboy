@@ -92,12 +92,9 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.execution = execution
   }
 
-  func copy(appendCopyToName: Bool = true) -> Self {
+  func copy() -> Self {
     var clone = self
     clone.id = UUID().uuidString
-    if appendCopyToName {
-      clone.name += " copy"
-    }
 
     switch clone.trigger {
     case .application(let array):
@@ -108,7 +105,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       break
     }
 
-    clone.commands = clone.commands.map { $0.copy(appendCopyToName: false) }
+    clone.commands = clone.commands.map { $0.copy() }
 
     return clone
   }

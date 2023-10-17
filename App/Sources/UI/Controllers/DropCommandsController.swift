@@ -11,25 +11,25 @@ final class DropCommandsController {
         guard let application = applications.first(where: { $0.path == url.path })
         else { continue }
         let applicationCommand = ApplicationCommand(
-          name: "Open \(application.bundleName)",
+          name: "\(application.bundleName)",
           application: application,
           notification: false)
         commands.append(Command.application(applicationCommand))
       case .applescript:
-        let name = "Run \(url.lastPathComponent)"
+        let name = "\(url.lastPathComponent)"
         let command = Command.script(.init(name: name, kind: .appleScript, source: .path(url.path), notification: false))
         commands.append(command)
       case .shellscript:
-        let name = "Run \(url.lastPathComponent)"
+        let name = "\(url.lastPathComponent)"
         let command = Command.script(.init(name: name, kind: .shellScript, source: .path(url.path), notification: false))
         commands.append(command)
       case .file:
-        let name = "Open \(url.lastPathComponent)"
+        let name = "\(url.lastPathComponent)"
         commands.append(Command.open(.init(name: name, path: url.path, notification: false)))
       case .web:
-        var name = "Open URL"
+        var name = "URL"
         if let scheme = url.scheme {
-          name = "Open \(url.absoluteString.replacingOccurrences(of: "\(scheme)://", with: ""))"
+          name = "\(url.absoluteString.replacingOccurrences(of: "\(scheme)://", with: ""))"
         }
         commands.append(Command.open(.init(name: name, path: url.absoluteString, notification: false)))
       case .unsupported:

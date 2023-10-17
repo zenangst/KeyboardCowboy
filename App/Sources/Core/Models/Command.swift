@@ -241,9 +241,6 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   func copy(appendCopyToName: Bool = true) -> Self {
     var clone = self
     clone.id = UUID().uuidString
-    if appendCopyToName {
-      clone.name += " copy"
-    }
     return clone
   }
 }
