@@ -33,8 +33,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
   func copy() -> Self {
     var clone = self
     clone.id = UUID().uuidString
-    clone.name += " copy"
-    clone.workflows = workflows.map { $0.copy(appendCopyToName: false) }
+    clone.workflows = workflows.map { $0.copy() }
     return clone
   }
 

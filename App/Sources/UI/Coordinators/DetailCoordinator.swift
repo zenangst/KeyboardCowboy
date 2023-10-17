@@ -168,12 +168,12 @@ final class DetailCoordinator {
     case .open(let path, let application):
       let resolvedPath = (path as NSString).expandingTildeInPath
       command = Command.open(.init(id: resolvedCommandId,
-                                   name: "Open \(path)", application: application, path: resolvedPath,
+                                   name: "\(path)", application: application, path: resolvedPath,
                                    notification: false))
     case .url(let targetUrl, let application):
       let urlString = targetUrl.absoluteString
       command = Command.open(.init(id: resolvedCommandId,
-                                   name: "Open \(urlString)", application: application, path: urlString,
+                                   name: "\(urlString)", application: application, path: urlString,
                                    notification: false))
     case .systemCommand(let kind):
       command = Command.systemCommand(.init(id: UUID().uuidString,
