@@ -39,8 +39,7 @@ final class TypeCommandRunner {
       pasteboard.clearContents()
       pasteboard.setString(input, forType: .string)
 
-      let keyCode = 9 // v
-      try keyboardCommandRunner.machPort?.post(keyCode, type: .keyDown, flags: .maskCommand)
+      try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
     }
   }
 }
