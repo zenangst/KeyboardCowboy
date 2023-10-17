@@ -45,7 +45,15 @@ struct SymbolPalette: View {
           Circle()
             .fill(Color(.windowBackgroundColor))
             .frame(width: size, height: size)
-            .overlay(Image(systemName: symbol))
+            .overlay(
+              Group {
+                if !symbol.isEmpty {
+                  Image(systemName: symbol)
+                } else {
+                  EmptyView()
+                }
+              }
+            )
             .onTapGesture {
               group.symbol = symbol
             }

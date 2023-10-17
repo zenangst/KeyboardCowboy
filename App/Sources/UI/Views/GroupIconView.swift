@@ -25,10 +25,16 @@ struct GroupIconView: View {
         .contrast(1.2)
         .saturation(1.2)
         .mask {
-          Image(systemName: symbol)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 14, height: 14)
+          Group {
+            if !symbol.isEmpty {
+              Image(systemName: symbol)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 14, height: 14)
+            } else {
+              EmptyView()
+            }
+          }
         }
         .shadow(color: Color(nsColor: .textColor).opacity(0.1), radius: 0, y: -0.5)
         .shadow(color: Color(nsColor: .textBackgroundColor).opacity(0.25), radius: 0, y: 0.5)
