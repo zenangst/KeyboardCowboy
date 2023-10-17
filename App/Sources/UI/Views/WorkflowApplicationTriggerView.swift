@@ -32,7 +32,7 @@ struct WorkflowApplicationTriggerView: View {
     VStack(alignment: .leading) {
       HStack {
         Menu {
-          ForEach(applicationStore.applications.lazy, id: \.id) { application in
+          ForEach(applicationStore.applications.lazy, id: \.path) { application in
             Button(action: {
               let uuid = UUID()
               withAnimation(WorkflowCommandListView.animation) {

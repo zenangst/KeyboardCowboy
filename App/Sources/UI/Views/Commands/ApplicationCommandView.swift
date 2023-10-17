@@ -102,7 +102,7 @@ struct ApplicationCommandImageView: View {
 
   var body: some View {
     Menu(content: {
-      ForEach(applicationStore.applications) { app in
+      ForEach(applicationStore.applications.lazy, id: \.path) { app in
         Button(action: {
           onAction(.changeApplication(app))
           metaData.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)

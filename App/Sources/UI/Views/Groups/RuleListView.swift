@@ -12,13 +12,13 @@ struct RuleListView: View {
         .labelStyle(HeaderLabelStyle())
       HStack {
         Menu("Application") {
-          ForEach(applicationStore.applications.filter({
+          ForEach(applicationStore.applications.lazy.filter({
             if let rule = group.rule {
               return !rule.bundleIdentifiers.contains($0.bundleIdentifier)
             } else {
               return true
             }
-          }), id: \.bundleIdentifier) { application in
+          }), id: \.path) { application in
             Button {
               if group.rule == .none {
                 group.rule = .init()

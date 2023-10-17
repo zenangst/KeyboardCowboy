@@ -61,7 +61,7 @@ struct NewCommandApplicationView: View {
         .frame(maxWidth: 80)
 
         Menu(content: {
-          ForEach(applicationStore.applications) { app in
+          ForEach(applicationStore.applications, id: \.path) { app in
             Button(action: {
               application = app
               validation = updateAndValidatePayload()
