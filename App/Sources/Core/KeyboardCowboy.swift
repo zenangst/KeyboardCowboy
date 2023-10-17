@@ -9,7 +9,7 @@ import InputSources
 @main
 struct KeyboardCowboy: App {
 #if DEBUG
-  static let env: AppEnvironment = isRunningPreview ? .designTime : .production
+  static let env: AppEnvironment = .designTime
 #else
   static let env: AppEnvironment = .production
 #endif
