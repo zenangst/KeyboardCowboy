@@ -23,7 +23,7 @@ class DropCommandsControllerTests: XCTestCase {
       return
     }
 
-    XCTAssertEqual(applicationCommand.name, "Open Notes")
+    XCTAssertEqual(applicationCommand.name, "Notes")
   }
 
   func testGeneratingAppleScriptCommand() {
@@ -40,7 +40,7 @@ class DropCommandsControllerTests: XCTestCase {
       return
     }
 
-    XCTAssertEqual(scriptCommand.name, "Run AppleScript.scpt")
+    XCTAssertEqual(scriptCommand.name, "AppleScript.scpt")
   }
 
   func testGeneratingShellScriptCommand() {
@@ -58,7 +58,7 @@ class DropCommandsControllerTests: XCTestCase {
       return
     }
 
-    XCTAssertEqual(scriptCommand.name, "Run script.sh")
+    XCTAssertEqual(scriptCommand.name, "script.sh")
   }
 
   func testGeneratingFileCommand() {
@@ -76,7 +76,7 @@ class DropCommandsControllerTests: XCTestCase {
       return
     }
 
-    XCTAssertEqual(openCommand.name, "Open file")
+    XCTAssertEqual(openCommand.name, "file")
   }
 
   func testGeneratingWebCommand() {
@@ -88,6 +88,6 @@ class DropCommandsControllerTests: XCTestCase {
       return
     }
 
-    XCTAssertEqual(openCommand.name, "Open www.apple.com")
+    XCTAssertEqual(openCommand.name, "www.apple.com")
   }
 }

@@ -7,7 +7,7 @@ final class WorkflowTests: XCTestCase {
     let copy = subject.copy()
 
     XCTAssertNotEqual(subject.id, copy.id)
-    XCTAssertEqual(subject.name + " copy", copy.name)
+    XCTAssertEqual(subject.name, copy.name)
     XCTAssertEqual(subject.isEnabled, copy.isEnabled)
 
     switch (subject.trigger, copy.trigger) {
