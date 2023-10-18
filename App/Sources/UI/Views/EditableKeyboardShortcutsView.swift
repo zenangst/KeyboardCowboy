@@ -164,6 +164,7 @@ struct EditableKeyboardShortcutsView: View {
         HStack(spacing: 8) {
           Spacer()
           Text("Click to record a keyboard shortcut")
+            .lineLimit(1)
             .padding(6)
             .frame(maxWidth: .infinity)
           Spacer()
