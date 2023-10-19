@@ -26,7 +26,7 @@ struct KeyBackgroundView: View {
           .fill(Color.black.opacity( colorScheme == .light ? 0.3 : 0.9 ))
           .clipShape(RoundedRectangle(cornerRadius: height * 0.1))
           .offset(x: 0, y: 1)
-          .blur(radius: 2)
+          .blur(radius: 1)
           .scaleEffect(CGSize(width: 0.99, height: 1.0))
           .opacity(isPressed ? 0 : 1)
           .animation(.linear(duration: 0.1), value: isPressed)

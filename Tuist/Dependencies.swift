@@ -12,7 +12,7 @@ let dependencies = Dependencies(
       .remote(url: "https://github.com/zenangst/LaunchArguments.git", requirement: .exact("1.0.1")),
       .remote(url: "https://github.com/zenangst/MachPort.git", requirement: .exact("3.0.1")),
       .remote(url: "https://github.com/zenangst/Windows.git", requirement: .exact("1.0.0")),
-      .remote(url: "https://github.com/zenangst/ZenViewKit.git", requirement: .revision("fd53680097fc8c41bd988f0a21799e73f6726c47")),
+      .remote(url: "https://github.com/zenangst/ZenViewKit.git", requirement: .revision("37fbe150fc477a99c22abc20bfbd2eb91e27cb95")),
     ],
     platforms: [.macOS]
 )

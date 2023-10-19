@@ -47,7 +47,10 @@ struct WorkflowApplicationTriggerView: View {
         } label: {
          Text("Add application")
         }
-        .menuStyle(.zen(.init(color: .systemGray, padding: .init(horizontal: .large, vertical: .large))))
+        .menuStyle(.zen(.init(color: data.isEmpty ? .systemGreen : .systemBlue,
+                              grayscaleEffect: Binding<Bool>.readonly(!data.isEmpty),
+                              hoverEffect: Binding<Bool>.readonly(!data.isEmpty),
+                              padding: .init(horizontal: .large, vertical: .large))))
       }
 
       LazyVStack(spacing: 4) {
@@ -81,6 +84,7 @@ struct WorkflowApplicationTriggerView: View {
       }
       .focused(focus, equals: .detail(.applicationTriggers))
     }
+    .padding(.horizontal, 8)
   }
 }
 

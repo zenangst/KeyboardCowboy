@@ -34,6 +34,8 @@ struct KeyboardTriggerView: View {
   var body: some View {
     VStack {
       HStack {
+        Label("Keyboard Shortcuts Sequence", image: "")
+        Spacer()
         Button(action: { onAction(.removeTrigger(workflowId: data.id)) },
                label: {
           Image(systemName: "xmark")
@@ -42,15 +44,8 @@ struct KeyboardTriggerView: View {
             .frame(width: 10, height: 10)
         })
         .buttonStyle(.calm(color: .systemRed, padding: .medium))
-        Label("Keyboard Shortcuts Sequence:", image: "")
-        Spacer()
-        ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
-          onAction(.togglePassthrough(workflowId: data.id, newValue: newValue))
-        }
-        .font(.caption)
       }
-      .padding([.leading, .trailing], 8)
-      
+
       WorkflowShortcutsView(focus, data: $trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
         onAction(.updateKeyboardShortcuts(workflowId: data.id,
                                           passthrough: passthrough,
@@ -59,20 +54,25 @@ struct KeyboardTriggerView: View {
       }
       .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       
-      if trigger.shortcuts.count == 1 {
-        HStack {
-          Spacer()
+      HStack {
+        ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
+          onAction(.togglePassthrough(workflowId: data.id, newValue: newValue))
+        }
+        .font(.caption)
+        Spacer()
+        if trigger.shortcuts.count == 1 {
           Text("Hold for")
           IntegerTextField(text: $holdDurationText) {
             onAction(.updateHoldDuration(workflowId: data.id, holdDuration: Double($0)))
           }
-          .textFieldStyle(.zen(.init(font: .caption)))
+          .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.1, of: .black)!), font: .caption)))
           .frame(maxWidth: 32)
           Text("seconds")
         }
-        .font(.caption2)
       }
+      .font(.caption2)
     }
+    .padding(.horizontal, 8)
   }
 }
 

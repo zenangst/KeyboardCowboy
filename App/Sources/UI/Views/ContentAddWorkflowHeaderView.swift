@@ -19,11 +19,10 @@ struct ContentAddWorkflowHeaderView: View {
         Image(systemName: "plus.square.dashed")
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(height: 12)
-          .padding(2)
+          .frame(height: 14)
       }
       .help("Add Workflow")
-      .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: .constant(true))))
+      .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true))))
       .padding(.trailing, 8)
       .matchedGeometryEffect(id: "add-workflow-button", in: namespace)
     }

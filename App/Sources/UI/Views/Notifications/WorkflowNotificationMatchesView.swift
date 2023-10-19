@@ -4,7 +4,7 @@ extension AnyTransition {
   static var moveAndFade: AnyTransition {
     .asymmetric(
       insertion:
-          .scale(scale: 0, anchor: .trailing)
+          .scale(scale: 0.1, anchor: .trailing)
           .combined(with: .opacity)
       ,
       removal:

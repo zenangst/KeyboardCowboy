@@ -32,6 +32,8 @@ struct WorkflowTriggerListView: View {
                            keyboardShortcutSelectionManager: keyboardShortcutSelectionManager, onAction: onAction)
       case .applications(let triggers):
         HStack {
+          Label("Application Trigger", image: "")
+          Spacer()
           Button(action: { onAction(.removeTrigger(workflowId: data.id)) },
                  label: {
             Image(systemName: "xmark")
@@ -40,7 +42,6 @@ struct WorkflowTriggerListView: View {
               .frame(width: 10, height: 10)
           })
           .buttonStyle(.calm(color: .systemRed, padding: .medium))
-          Label("Application Trigger:", image: "")
         }
         .padding([.leading, .trailing], 8)
         WorkflowApplicationTriggerView(focus, data: triggers,
@@ -50,7 +51,7 @@ struct WorkflowTriggerListView: View {
         .padding(.bottom, 16)
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .none:
-        Label("Add a trigger:", image: "")
+        Label("Add Trigger", image: "")
           .padding([.leading, .trailing], 8)
         WorkflowTriggerView(onAction: { action in
           onAction(.trigger(workflowId: data.id, action: action))
