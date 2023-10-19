@@ -38,6 +38,7 @@ let project = Project(
             dependencies: [
                 .external(name: "AXEssibility"),
                 .external(name: "Apps"),
+                .external(name: "Bonzai"),
                 .external(name: "Dock"),
                 .external(name: "Inject"),
                 .external(name: "InputSources"),
@@ -46,7 +47,6 @@ let project = Project(
                 .external(name: "MachPort"),
                 .external(name: "Sparkle"),
                 .external(name: "Windows"),
-                .external(name: "ZenViewKit"),
             ],
             settings:
                 Settings.settings(

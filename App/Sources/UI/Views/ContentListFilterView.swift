@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct ContentListFilterView: View {
   @EnvironmentObject private var publisher: ContentPublisher

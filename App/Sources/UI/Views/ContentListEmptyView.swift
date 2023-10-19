@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct ContentListEmptyView: View {
   @EnvironmentObject private var groupsPublisher: GroupsPublisher

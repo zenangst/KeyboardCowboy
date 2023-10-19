@@ -1,6 +1,6 @@
 import Apps
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct ApplicationSettingsView: View {
   @EnvironmentObject var openPanel: OpenPanelController

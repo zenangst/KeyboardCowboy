@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct WindowManagementCommandView: View {
   enum Action {

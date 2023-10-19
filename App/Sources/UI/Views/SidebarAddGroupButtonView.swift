@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct SidebarAddGroupButtonView: View {
   @Binding private var isVisible: Bool

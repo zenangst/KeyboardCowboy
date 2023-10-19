@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct WorkflowApplicationTriggerItemView: View {
   @Binding var element: DetailViewModel.ApplicationTrigger

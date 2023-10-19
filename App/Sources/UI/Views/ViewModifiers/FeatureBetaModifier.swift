@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
   private let issueNumber: Int?

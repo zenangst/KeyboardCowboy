@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct WindowManagementAnimationPopoverView: View {
   @State private var animationDuration: String

@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NewCommandMenuBarView: View {
   struct TokenContainer: Identifiable, Hashable {

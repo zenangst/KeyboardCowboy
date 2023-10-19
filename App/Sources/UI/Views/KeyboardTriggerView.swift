@@ -1,6 +1,6 @@
 import Combine
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct KeyboardTriggerView: View {
   private let data: DetailViewModel

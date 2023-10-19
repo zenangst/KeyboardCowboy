@@ -1,6 +1,6 @@
 import Apps
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NewCommandApplicationView: View {
   enum ApplicationAction: String, CaseIterable {

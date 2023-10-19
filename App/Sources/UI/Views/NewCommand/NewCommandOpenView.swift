@@ -1,6 +1,6 @@
 import Apps
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NewCommandOpenView: View {
   enum Focus {

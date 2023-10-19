@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct SidebarDeleteConfigurationPopoverView: View {
   @Binding private var deleteConfigurationPopover: Bool

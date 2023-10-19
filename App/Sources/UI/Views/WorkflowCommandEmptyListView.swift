@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct WorkflowCommandEmptyListView: View {
   @Environment(\.openWindow) var openWindow

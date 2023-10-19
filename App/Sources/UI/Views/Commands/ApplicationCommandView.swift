@@ -1,6 +1,6 @@
 import Apps
+import Bonzai
 import SwiftUI
-import ZenViewKit
 
 struct IconMenuStyle: MenuStyle {
   func makeBody(configuration: Configuration) -> some View {

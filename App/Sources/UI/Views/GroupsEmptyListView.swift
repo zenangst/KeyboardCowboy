@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct GroupsEmptyListView: View {
   private let onAction: (GroupsView.Action) -> Void

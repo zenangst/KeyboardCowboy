@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NewCommandValidationView: View {
   @Binding var validation: NewCommandValidation

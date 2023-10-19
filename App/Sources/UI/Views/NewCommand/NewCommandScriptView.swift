@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NewCommandScriptView: View {
   enum Kind: String, CaseIterable, Hashable, Identifiable {

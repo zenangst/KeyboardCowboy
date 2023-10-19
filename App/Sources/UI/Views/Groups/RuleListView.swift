@@ -1,6 +1,6 @@
 import Apps
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct RuleListView: View {
   @ObservedObject var applicationStore: ApplicationStore

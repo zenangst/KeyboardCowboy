@@ -1,6 +1,6 @@
 import Carbon
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NewCommandView: View {
   enum Kind: String, CaseIterable, Hashable, Identifiable {

@@ -1,6 +1,6 @@
 import SwiftUI
 import Inject
-import ZenViewKit
+import Bonzai
 
 struct WorkflowNotificationViewModel: Identifiable, Hashable {
   var id: String

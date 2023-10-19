@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NewCommandWindowManagementView: View {
   @Binding var payload: NewCommandPayload

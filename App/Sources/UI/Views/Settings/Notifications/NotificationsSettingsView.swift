@@ -1,5 +1,5 @@
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NotificationsSettingsView: View {
   @AppStorage("Notifications.KeyboardCommands") var keyboardCommands: Bool = false

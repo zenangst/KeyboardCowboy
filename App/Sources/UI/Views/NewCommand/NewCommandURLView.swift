@@ -1,6 +1,6 @@
 import Apps
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct NewCommandURLView: View {
   enum Focus: String, Identifiable, Hashable {

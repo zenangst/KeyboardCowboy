@@ -1,6 +1,6 @@
 import Combine
 import SwiftUI
-import ZenViewKit
+import Bonzai
 
 struct WorkflowTriggerListView: View {
   @Namespace var namespace
