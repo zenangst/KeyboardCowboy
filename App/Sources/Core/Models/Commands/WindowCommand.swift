@@ -161,10 +161,6 @@ struct WindowCommand: MetaDataProviding {
           padding: try nestedContainer.decode(Int.self, forKey: WindowCommand.Kind.FullscreenCodingKeys.padding)
         )
       case .center:
-        let nestedContainer = try container.nestedContainer(
-          keyedBy: WindowCommand.Kind.CenterCodingKeys.self,
-          forKey: WindowCommand.Kind.CodingKeys.center
-        )
         self = WindowCommand.Kind.center
       case .moveToNextDisplay:
         let nestedContainer = try container.nestedContainer(

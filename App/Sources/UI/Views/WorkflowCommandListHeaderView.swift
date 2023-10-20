@@ -1,12 +1,16 @@
 import SwiftUI
 
 struct WorkflowCommandListHeaderView: View {
-  @EnvironmentObject var detailPublisher: DetailPublisher
+  @EnvironmentObject var publisher: CommandsPublisher
   @Environment(\.openWindow) var openWindow
+  private let workflowId: String
   private let namespace: Namespace.ID
 
-  init(namespace: Namespace.ID, onAction: @escaping (SingleDetailView.Action) -> Void) {
+  init(namespace: Namespace.ID,
+       workflowId: String,
+       onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.namespace = namespace
+    self.workflowId = workflowId
     self.onAction = onAction
   }
 
@@ -19,34 +23,33 @@ struct WorkflowCommandListHeaderView: View {
       Menu(content: {
         ForEach(DetailViewModel.Execution.allCases) { execution in
           Button(execution.rawValue, action: {
-            onAction(.updateExecution(workflowId: detailPublisher.data.id,
-                                      execution: execution))
+            onAction(.updateExecution(workflowId: workflowId, execution: execution))
           })
         }
       }, label: {
         Image(systemName: "play.fill")
-        Text("Run \(detailPublisher.data.execution.rawValue)")
+        Text("Run \(publisher.data.execution.rawValue)")
       }, primaryAction: {
-        onAction(.runWorkflow(workflowId: detailPublisher.data.id))
+        onAction(.runWorkflow(workflowId: workflowId))
       })
       .padding(.horizontal, 2)
       .padding(.top, 3)
       .padding(.bottom, 1)
       .menuStyle(.regular)
-      .frame(maxWidth: detailPublisher.data.execution == .concurrent ? 144 : 110,
+      .frame(maxWidth: publisher.data.execution == .concurrent ? 144 : 110,
              alignment: .leading)
-      WorkflowCommandListHeaderAddView(namespace)
+      WorkflowCommandListHeaderAddView(namespace, workflowId: workflowId)
     }
     .padding(.leading, 24)
     .padding(.trailing, 16)
-    .id(detailPublisher.data.id)
+    .id(workflowId)
   }
 }
 
 struct WorkflowCommandListHeaderView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
-    WorkflowCommandListHeaderView(namespace: namespace, onAction: { _ in })
+    WorkflowCommandListHeaderView(namespace: namespace, workflowId: UUID().uuidString, onAction: { _ in })
       .designTime()
   }
 }

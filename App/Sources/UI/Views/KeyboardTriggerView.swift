@@ -3,8 +3,8 @@ import SwiftUI
 import Bonzai
 
 struct KeyboardTriggerView: View {
-  private let data: DetailViewModel
   private let namespace: Namespace.ID
+  private let workflowId: String
   private let onAction: (SingleDetailView.Action) -> Void
   @State private var trigger: DetailViewModel.KeyboardTrigger
   private let focus: FocusState<AppFocus?>.Binding
@@ -14,14 +14,14 @@ struct KeyboardTriggerView: View {
   @State private var passthrough: Bool
 
   init(namespace: Namespace.ID,
+       workflowId: String,
        focus: FocusState<AppFocus?>.Binding,
-       data: DetailViewModel,
        trigger: DetailViewModel.KeyboardTrigger,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.namespace = namespace
+    self.workflowId = workflowId
     self.focus = focus
-    self.data = data
     _trigger = .init(initialValue: trigger)
     self.onAction = onAction
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
@@ -36,7 +36,7 @@ struct KeyboardTriggerView: View {
       HStack {
         Label("Keyboard Shortcuts Sequence", image: "")
         Spacer()
-        Button(action: { onAction(.removeTrigger(workflowId: data.id)) },
+        Button(action: { onAction(.removeTrigger(workflowId: workflowId)) },
                label: {
           Image(systemName: "xmark")
             .resizable()
@@ -47,7 +47,7 @@ struct KeyboardTriggerView: View {
       }
 
       WorkflowShortcutsView(focus, data: $trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
-        onAction(.updateKeyboardShortcuts(workflowId: data.id,
+        onAction(.updateKeyboardShortcuts(workflowId: workflowId,
                                           passthrough: passthrough,
                                           holdDuration: Double(holdDurationText),
                                           keyboardShortcuts: keyboardShortcuts))
@@ -56,14 +56,14 @@ struct KeyboardTriggerView: View {
       
       HStack {
         ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
-          onAction(.togglePassthrough(workflowId: data.id, newValue: newValue))
+          onAction(.togglePassthrough(workflowId: workflowId, newValue: newValue))
         }
         .font(.caption)
         Spacer()
         if trigger.shortcuts.count == 1 {
           Text("Hold for")
           IntegerTextField(text: $holdDurationText) {
-            onAction(.updateHoldDuration(workflowId: data.id, holdDuration: Double($0)))
+            onAction(.updateHoldDuration(workflowId: workflowId, holdDuration: Double($0)))
           }
           .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.1, of: .black)!), font: .caption)))
           .frame(maxWidth: 32)
@@ -81,10 +81,8 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     KeyboardTriggerView(namespace: namespace,
+                        workflowId: UUID().uuidString,
                         focus: $focus,
-                        data: .init(id: UUID().uuidString,
-                                    name: UUID().uuidString, isEnabled: true,
-                                    commands: [], execution: .concurrent),
                         trigger: .init(passthrough: false, shortcuts: [
                           .empty()
                         ]),

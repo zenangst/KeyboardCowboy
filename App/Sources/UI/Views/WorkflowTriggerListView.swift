@@ -5,7 +5,8 @@ import Bonzai
 struct WorkflowTriggerListView: View {
   @Namespace var namespace
 
-  private let data: DetailViewModel
+  private let workflowId: String
+  @ObservedObject private var publisher: TriggerPublisher
   private let onAction: (SingleDetailView.Action) -> Void
 
   var focus: FocusState<AppFocus?>.Binding
@@ -13,28 +14,31 @@ struct WorkflowTriggerListView: View {
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
 
-  init(_ focus: FocusState<AppFocus?>.Binding, data: DetailViewModel,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       workflowId: String,
+       publisher: TriggerPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.focus = focus
-    self.data = data
+    self.publisher = publisher
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
     self.onAction = onAction
+    self.workflowId = workflowId
   }
 
   var body: some View {
     Group {
-      switch data.trigger {
+      switch publisher.data {
       case .keyboardShortcuts(let trigger):
-       KeyboardTriggerView(namespace: namespace, focus: focus, data: data, trigger: trigger,
+       KeyboardTriggerView(namespace: namespace, workflowId: workflowId, focus: focus, trigger: trigger,
                            keyboardShortcutSelectionManager: keyboardShortcutSelectionManager, onAction: onAction)
       case .applications(let triggers):
         HStack {
           Label("Application Trigger", image: "")
           Spacer()
-          Button(action: { onAction(.removeTrigger(workflowId: data.id)) },
+          Button(action: { onAction(.removeTrigger(workflowId: workflowId)) },
                  label: {
             Image(systemName: "xmark")
               .resizable()
@@ -46,20 +50,20 @@ struct WorkflowTriggerListView: View {
         .padding([.leading, .trailing], 8)
         WorkflowApplicationTriggerView(focus, data: triggers,
                                        selectionManager: applicationTriggerSelectionManager) { action in
-          onAction(.applicationTrigger(workflowId: data.id, action: action))
+          onAction(.applicationTrigger(workflowId: workflowId, action: action))
         }
         .padding(.bottom, 16)
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
-      case .none:
+      case .empty:
         Label("Add Trigger", image: "")
           .padding([.leading, .trailing], 8)
         WorkflowTriggerView(onAction: { action in
-          onAction(.trigger(workflowId: data.id, action: action))
+          onAction(.trigger(workflowId: workflowId, action: action))
         })
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       }
     }
-    .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: data.trigger)
+    .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: publisher.data)
   }
 }
 
@@ -67,7 +71,8 @@ struct WorkflowTriggerListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     VStack {
-      WorkflowTriggerListView($focus, data: DesignTime.detail,
+      WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
+                              publisher: .init(DesignTime.detail.trigger),
                               applicationTriggerSelectionManager: .init(),
                               keyboardShortcutSelectionManager: .init()) { _ in }
     }

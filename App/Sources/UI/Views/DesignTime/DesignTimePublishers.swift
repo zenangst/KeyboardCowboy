@@ -111,8 +111,6 @@ enum DesignTime {
 
   @MainActor
   static var detailStatePublisher = DetailStatePublisher { .single }
-  @MainActor
-  static var detailPublisher = DetailPublisher { DesignTime.detail }
 
   static func metadata(name: String, icon: Icon?) -> CommandViewModel.MetaData {
     CommandViewModel.MetaData(
@@ -202,22 +200,41 @@ enum DesignTime {
   }
 
   static var emptyDetail: DetailViewModel {
-    DetailViewModel(id: UUID().uuidString, name: "", isEnabled: false, commands: [], execution: .concurrent)
+    DetailViewModel(
+      info: .init(id: UUID().uuidString, name: UUID().uuidString, isEnabled: false),
+      commandsInfo: .init(id: UUID().uuidString, commands: [], execution: .concurrent)
+    )
   }
 
   static var detail: DetailViewModel {
     DetailViewModel(
-      id: UUID().uuidString,
-      name: "Open News",
-      isEnabled: true,
-      trigger: .keyboardShortcuts(.init(passthrough: false, shortcuts: [.init(key: "f", lhs: true, modifiers: [.function])])),
-      commands: [
-        Self.menuBarCommand.model,
-        Self.applicationCommand.model,
-        Self.openCommand.model,
-        Self.scriptCommandWithPath.model,
-        Self.scriptCommandInline.model,
-        Self.rebindingCommand.model
-      ], execution: .serial)
+      info: .init(
+        id: UUID().uuidString,
+        name: "Open News",
+        isEnabled: true
+      ),
+      commandsInfo: .init(
+        id: UUID().uuidString,
+        commands: [
+          Self.menuBarCommand.model,
+          Self.applicationCommand.model,
+          Self.openCommand.model,
+          Self.scriptCommandWithPath.model,
+          Self.scriptCommandInline.model,
+          Self.rebindingCommand.model
+        ],
+        execution: .serial
+      ),
+      trigger: .keyboardShortcuts(
+        .init(
+          passthrough: false,
+          shortcuts: [.init(
+            key: "f",
+            lhs: true,
+            modifiers: [.function]
+          )]
+        )
+      )
+      )
   }
 }

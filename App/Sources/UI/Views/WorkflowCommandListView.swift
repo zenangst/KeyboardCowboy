@@ -5,22 +5,31 @@ struct WorkflowCommandListView: View {
   static let animation: Animation = .spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)
 
   @Environment(\.openWindow) var openWindow
-  var namespace: Namespace.ID
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
+  @Binding var isPrimary: Bool
+  private let workflowId: String
+  private var namespace: Namespace.ID
   private var focusPublisher = FocusPublisher<CommandViewModel>()
-  private let detailPublisher: DetailPublisher
+  private let triggerPublisher: TriggerPublisher
+  private let publisher: CommandsPublisher
   private let scrollViewProxy: ScrollViewProxy?
   private let onAction: (SingleDetailView.Action) -> Void
   private let focus: FocusState<AppFocus?>.Binding
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
-       publisher: DetailPublisher,
+       workflowId: String,
+       isPrimary: Binding<Bool>,
+       publisher: CommandsPublisher,
+       triggerPublisher: TriggerPublisher,
        selectionManager: SelectionManager<CommandViewModel>,
        scrollViewProxy: ScrollViewProxy? = nil,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
+    _isPrimary = isPrimary
     self.focus = focus
-    self.detailPublisher = publisher
+    self.publisher = publisher
+    self.triggerPublisher = triggerPublisher
+    self.workflowId = workflowId
     self.namespace = namespace
     self.selectionManager = selectionManager
     self.scrollViewProxy = scrollViewProxy
@@ -29,21 +38,18 @@ struct WorkflowCommandListView: View {
 
   @ViewBuilder
   var body: some View {
-    if detailPublisher.data.commands.isEmpty {
-      WorkflowCommandEmptyListView(namespace: namespace, 
-                                   isPrimary: Binding<Bool>.init(get: {
-        switch detailPublisher.data.trigger {
-        case .applications(let array): !array.isEmpty
-        case .keyboardShortcuts(let keyboardTrigger): !keyboardTrigger.shortcuts.isEmpty
-        case .none: false
-        }
-      }, set: { _ in }), onAction: onAction)
+    if publisher.data.commands.isEmpty {
+      WorkflowCommandEmptyListView(namespace: namespace,
+                                   workflowId: publisher.data.id,
+                                   isPrimary: $isPrimary,
+                                   onAction: onAction)
     } else {
-      WorkflowCommandListHeaderView(namespace: namespace, onAction: onAction)
-        .id(detailPublisher.data.id)
+      WorkflowCommandListHeaderView(namespace: namespace, workflowId: workflowId, onAction: onAction)
       WorkflowCommandListScrollView(focus,
-                                    detailPublisher: detailPublisher,
+                                    publisher: publisher,
+                                    triggerPublisher: triggerPublisher,
                                     namespace: namespace,
+                                    workflowId: workflowId,
                                     selectionManager: selectionManager,
                                     scrollViewProxy: scrollViewProxy,
                                     onAction: onAction)
@@ -57,7 +63,10 @@ struct WorkflowCommandListView_Previews: PreviewProvider {
   static var previews: some View {
     WorkflowCommandListView($focus,
                             namespace: namespace,
-                            publisher: DetailPublisher(DesignTime.detail),
+                            workflowId: "workflowId",
+                            isPrimary: .constant(true),
+                            publisher: CommandsPublisher(DesignTime.detail.commandsInfo),
+                            triggerPublisher: TriggerPublisher(DesignTime.detail.trigger),
                             selectionManager: .init()) { _ in }
       .frame(height: 900)
   }

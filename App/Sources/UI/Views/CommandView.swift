@@ -25,7 +25,7 @@ struct CommandView: View {
   @Environment(\.controlActiveState) var controlActiveState
 
   private let workflowId: String
-  private let detailPublisher: DetailPublisher
+  private let publisher: CommandsPublisher
   private let selectionManager: SelectionManager<CommandViewModel>
   private let focusPublisher: FocusPublisher<CommandViewModel>
   @State var isTargeted: Bool = false
@@ -34,14 +34,14 @@ struct CommandView: View {
   private let onAction: (Action) -> Void
 
   init(_ command: Binding<CommandViewModel>,
-       detailPublisher: DetailPublisher,
+       publisher: CommandsPublisher,
        focusPublisher: FocusPublisher<CommandViewModel>,
        selectionManager: SelectionManager<CommandViewModel>,
        workflowId: String,
        onCommandAction: @escaping (SingleDetailView.Action) -> Void,
        onAction: @escaping (Action) -> Void) {
     _command = command
-    self.detailPublisher = detailPublisher
+    self.publisher = publisher
     self.selectionManager = selectionManager
     self.focusPublisher = focusPublisher
     self.workflowId = workflowId
@@ -76,14 +76,14 @@ struct CommandView: View {
               continue
             }
             guard let payload = item.draggablePayload(prefix: "WC|"),
-                  let (from, destination) = detailPublisher.data.commands.moveOffsets(for: $command.wrappedValue,
+                  let (from, destination) = publisher.data.commands.moveOffsets(for: $command.wrappedValue,
                                                                                       with: payload) else {
               return false
             }
             withAnimation(WorkflowCommandListView.animation) {
-              detailPublisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
+              publisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
             }
-            onCommandAction(.moveCommand(workflowId: detailPublisher.data.id, indexSet: from, toOffset: destination))
+            onCommandAction(.moveCommand(workflowId: workflowId, indexSet: from, toOffset: destination))
             return true
           case .url(let url):
             urls.append(url)
@@ -93,7 +93,7 @@ struct CommandView: View {
         }
 
         if !urls.isEmpty {
-          onCommandAction(.dropUrls(workflowId: detailPublisher.data.id, urls: urls))
+          onCommandAction(.dropUrls(workflowId: workflowId, urls: urls))
           return true
         }
         return false

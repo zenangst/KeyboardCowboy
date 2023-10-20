@@ -63,7 +63,7 @@ final class KeyboardShortcutsController {
     }
 
     for (offset, workflow) in workflows.enumerated() {
-      guard case .keyboardShortcuts(var trigger) = workflow.trigger else {
+      guard case .keyboardShortcuts(let trigger) = workflow.trigger else {
         continue
       }
       let shortcuts = Array(trigger.shortcuts.suffix(shortcutIndexPrefix))

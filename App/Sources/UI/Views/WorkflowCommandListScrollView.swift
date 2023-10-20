@@ -4,7 +4,9 @@ struct WorkflowCommandListScrollView: View {
   @Environment(\.openWindow) var openWindow
   var namespace: Namespace.ID
   @EnvironmentObject var applicationStore: ApplicationStore
-  private let detailPublisher: DetailPublisher
+  private let triggerPublisher: TriggerPublisher
+  private let publisher: CommandsPublisher
+  private let workflowId: String
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
   @State private var dropOverlayIsVisible: Bool = false
   @State private var dropUrls = Set<URL>()
@@ -16,13 +18,17 @@ struct WorkflowCommandListScrollView: View {
   @FocusState var isFocused: Bool
 
   init(_ focus: FocusState<AppFocus?>.Binding,
-       detailPublisher: DetailPublisher,
+       publisher: CommandsPublisher,
+       triggerPublisher: TriggerPublisher,
        namespace: Namespace.ID,
+       workflowId: String,
        selectionManager: SelectionManager<CommandViewModel>,
        scrollViewProxy: ScrollViewProxy? = nil,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
-    self.detailPublisher = detailPublisher
+    self.publisher = publisher
+    self.triggerPublisher = triggerPublisher
     self.focus = focus
+    self.workflowId = workflowId
     self.namespace = namespace
     self.selectionManager = selectionManager
     self.scrollViewProxy = scrollViewProxy
@@ -32,25 +38,26 @@ struct WorkflowCommandListScrollView: View {
   var body: some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        ForEach(detailPublisher.data.commands.lazy, id: \.id) { command in
+        ForEach(publisher.data.commands.lazy, id: \.id) { command in
           CommandView(Binding.readonly(command),
-                      detailPublisher: detailPublisher,
+                      publisher: publisher,
                       focusPublisher: focusPublisher,
                       selectionManager: selectionManager,
-                      workflowId: detailPublisher.data.id,
+                      workflowId: workflowId,
                       onCommandAction: onAction, onAction: { action in
-            onAction(.commandView(workflowId: detailPublisher.data.id, action: action))
+            onAction(.commandView(workflowId: workflowId, action: action))
           })
           .contextMenu(menuItems: {
             WorkflowCommandListContextMenuView(
               command,
-              detailPublisher: detailPublisher,
+              workflowId: workflowId,
+              publisher: publisher,
               selectionManager: selectionManager,
               onAction: onAction
             )
           })
           .onTapGesture {
-            selectionManager.handleOnTap(detailPublisher.data.commands, element: command)
+            selectionManager.handleOnTap(publisher.data.commands, element: command)
             focusPublisher.publish(command.id)
           }
         }
@@ -66,12 +73,12 @@ struct WorkflowCommandListScrollView: View {
         })
         .padding(.vertical, 5)
         .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-          switch detailPublisher.data.trigger {
+          switch triggerPublisher.data {
           case .applications:
             focus.wrappedValue = .detail(.applicationTriggers)
           case .keyboardShortcuts:
             focus.wrappedValue = .detail(.keyboardShortcuts)
-          case .none:
+          case .empty:
             focus.wrappedValue = .detail(.name)
           }
         })
@@ -79,21 +86,21 @@ struct WorkflowCommandListScrollView: View {
           focus.wrappedValue = .groups
         })
         .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-          selectionManager.selections = Set(detailPublisher.data.commands.map(\.id))
+          selectionManager.selections = Set(publisher.data.commands.map(\.id))
         })
         .onMoveCommand(perform: { direction in
-          if let elementID = selectionManager.handle(direction, detailPublisher.data.commands,
+          if let elementID = selectionManager.handle(direction, publisher.data.commands,
                                                      proxy: scrollViewProxy) {
             focusPublisher.publish(elementID)
           }
         })
         .onDeleteCommand {
-          if selectionManager.selections.count == detailPublisher.data.commands.count {
+          if selectionManager.selections.count == publisher.data.commands.count {
             withAnimation {
-              onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
+              onAction(.removeCommands(workflowId: workflowId, commandIds: selectionManager.selections))
             }
           } else {
-            onAction(.removeCommands(workflowId: detailPublisher.data.id, commandIds: selectionManager.selections))
+            onAction(.removeCommands(workflowId: workflowId, commandIds: selectionManager.selections))
           }
         }
       }

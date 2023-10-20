@@ -2,22 +2,24 @@ import SwiftUI
 
 struct WorkflowCommandListContextMenuView: View {
   private let command: CommandViewModel
-  private let detailPublisher: DetailPublisher
+  private let workflowId: String
+  private let detailPublisher: CommandsPublisher
   private let selectionManager: SelectionManager<CommandViewModel>
   private let onAction: (SingleDetailView.Action) -> Void
 
   init(_ command: CommandViewModel,
-       detailPublisher: DetailPublisher,
+       workflowId: String,
+       publisher: CommandsPublisher,
        selectionManager: SelectionManager<CommandViewModel>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.command = command
-    self.detailPublisher = detailPublisher
+    self.workflowId = workflowId
+    self.detailPublisher = publisher
     self.selectionManager = selectionManager
     self.onAction = onAction
   }
 
   var body: some View {
-    let workflowId = detailPublisher.data.id
     let commandIds = !selectionManager.selections.isEmpty
     ? selectionManager.selections
     : Set(arrayLiteral: command.id)

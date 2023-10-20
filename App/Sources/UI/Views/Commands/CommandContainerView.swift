@@ -15,7 +15,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   @State private var delayString: String = ""
   @State private var delayOverlay: Bool = false
 
-  @EnvironmentObject var detailPublisher: DetailPublisher
+  @EnvironmentObject var publisher: CommandsPublisher
   @Binding private var metaData: CommandViewModel.MetaData
   @ViewBuilder
   private let icon: (Binding<CommandViewModel.MetaData>) -> IconContent
@@ -68,7 +68,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
             CommandContainerDelayView(
               metaData: $metaData,
-              execution: detailPublisher.data.execution,
+              execution: publisher.data.execution,
               onChange: { onAction(.changeDelay($0)) }
             )
 

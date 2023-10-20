@@ -23,14 +23,14 @@ struct MultiDetailView: View {
             let offsetDelta: CGFloat = (offset * 5)
             HStack {
               ZStack {
-                ForEach(element.commands) { command in
+                ForEach(element.commandsInfo.commands) { command in
                   if let icon = command.meta.icon {
                     IconView(icon: icon, size: .init(width: 32, height: 32))
                   }
                 }
               }
 
-              Text(element.name)
+              Text(element.info.name)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(8)

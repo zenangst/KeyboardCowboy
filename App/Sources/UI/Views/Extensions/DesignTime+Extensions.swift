@@ -7,7 +7,6 @@ extension View {
       .environmentObject(DesignTime.configurationPublisher)
       .environmentObject(DesignTime.contentPublisher)
       .environmentObject(DesignTime.detailStatePublisher)
-      .environmentObject(DesignTime.detailPublisher)
       .environmentObject(DesignTime.groupsPublisher)
       .environmentObject(KeyShortcutRecorderStore())
       .environmentObject(ApplicationStore.shared)

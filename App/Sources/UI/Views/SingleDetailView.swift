@@ -26,7 +26,9 @@ struct SingleDetailView: View {
   }
   var focus: FocusState<AppFocus?>.Binding
   @Environment(\.openWindow) var openWindow
-  @EnvironmentObject var detailPublisher: DetailPublisher
+  @EnvironmentObject var triggerPublisher: TriggerPublisher
+  @EnvironmentObject var infoPublisher: InfoPublisher
+  @EnvironmentObject var commandPublisher: CommandsPublisher
   @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
@@ -47,46 +49,67 @@ struct SingleDetailView: View {
   }
 
   var body: some View {
-    let shouldShowCommandList = detailPublisher.data.trigger != nil ||
-                               !detailPublisher.data.commands.isEmpty
+    let shouldShowCommandList = triggerPublisher.data != .empty ||
+                               !commandPublisher.data.commands.isEmpty
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
-          WorkflowInfoView(focus, detailPublisher: detailPublisher, onAction: { action in
+          WorkflowInfoView(focus, publisher: infoPublisher, 
+                           onInsertTab: {
+            switch triggerPublisher.data {
+            case .applications:
+              focus.wrappedValue = .detail(.applicationTriggers)
+            case .keyboardShortcuts:
+              focus.wrappedValue = .detail(.keyboardShortcuts)
+            case .empty:
+              focus.wrappedValue = .detail(.name)
+            }
+          }, onAction: { action in
             switch action {
             case .updateName(let name):
-              onAction(.updateName(workflowId: detailPublisher.data.id, name: name))
+              onAction(.updateName(workflowId: infoPublisher.data.id, name: name))
             case .setIsEnabled(let isEnabled):
-              onAction(.setIsEnabled(workflowId: detailPublisher.data.id, isEnabled: isEnabled))
+              onAction(.setIsEnabled(workflowId: infoPublisher.data.id, isEnabled: isEnabled))
             }
           })
           .environmentObject(commandSelectionManager)
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
-          .id(detailPublisher.data.id)
-          WorkflowTriggerListView(focus, data: detailPublisher.data,
+          WorkflowTriggerListView(focus,
+                                  workflowId: infoPublisher.data.id,
+                                  publisher: triggerPublisher,
                                   applicationTriggerSelectionManager: applicationTriggerSelectionManager,
                                   keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
                                   onAction: onAction)
-            .id(detailPublisher.data.id)
+          .id(infoPublisher.data.id)
         }
         .padding([.top, .leading, .trailing])
         .padding(.bottom, 32)
         .background(alignment: .bottom, content: { 
-          SingleDetailBackgroundView()
+          SingleDetailBackgroundView(commandsPublisher: commandPublisher,
+                                     triggerPublisher: triggerPublisher)
             .drawingGroup()
         })
 
       WorkflowCommandListView(
         focus,
         namespace: namespace,
-        publisher: detailPublisher,
+        workflowId: infoPublisher.data.id,
+        isPrimary: Binding<Bool>.init(get: {
+          switch triggerPublisher.data {
+          case .applications(let array): !array.isEmpty
+          case .keyboardShortcuts(let keyboardTrigger): !keyboardTrigger.shortcuts.isEmpty
+          case .empty: false
+          }
+        }, set: { _ in }),
+        publisher: commandPublisher,
+        triggerPublisher: triggerPublisher,
         selectionManager: commandSelectionManager,
         scrollViewProxy: proxy,
         onAction: { action in
           onAction(action)
         })
       .opacity(shouldShowCommandList ? 1 : 0)
-      .id(detailPublisher.data.id)
+      .id(infoPublisher.data.id)
     }
     .labelStyle(HeaderLabelStyle())
     .focusScope(namespace)

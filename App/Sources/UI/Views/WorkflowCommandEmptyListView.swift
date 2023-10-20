@@ -3,16 +3,18 @@ import Bonzai
 
 struct WorkflowCommandEmptyListView: View {
   @Environment(\.openWindow) var openWindow
-  @EnvironmentObject private var detailPublisher: DetailPublisher
 
   private let namespace: Namespace.ID
+  private let workflowId: String
   private let isPrimary: Binding<Bool>
   private let onAction: (SingleDetailView.Action) -> Void
 
   init(namespace: Namespace.ID, 
+       workflowId: String,
        isPrimary: Binding<Bool>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.isPrimary = isPrimary
+    self.workflowId = workflowId
     self.namespace = namespace
     self.onAction = onAction
   }
@@ -20,7 +22,7 @@ struct WorkflowCommandEmptyListView: View {
   var body: some View {
     VStack {
       Button(action: {
-        openWindow(value: NewCommandWindow.Context.newCommand(workflowId: detailPublisher.data.id))
+        openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflowId))
       }) {
         HStack {
           Image(systemName: "plus.app")
@@ -58,7 +60,7 @@ struct WorkflowCommandEmptyListView: View {
       }
 
       if !urls.isEmpty {
-        onAction(.dropUrls(workflowId: detailPublisher.data.id, urls: urls))
+        onAction(.dropUrls(workflowId: workflowId, urls: urls))
         return true
       }
       return false
@@ -71,7 +73,7 @@ struct WorkflowCommandEmptyListView: View {
 struct WorkflowCommandEmptyListView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
-    WorkflowCommandEmptyListView(namespace: namespace, isPrimary: .constant(true)) { _ in }
+    WorkflowCommandEmptyListView(namespace: namespace, workflowId: UUID().uuidString, isPrimary: .constant(true)) { _ in }
       .designTime()
   }
 }

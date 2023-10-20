@@ -1,13 +1,17 @@
 import SwiftUI
 
 struct SingleDetailBackgroundView: View {
-  @EnvironmentObject private var detailPublisher: DetailPublisher
+  private var commandsPublisher: CommandsPublisher
+  private var triggerPublisher: TriggerPublisher
 
-  init() { }
+  init(commandsPublisher: CommandsPublisher, triggerPublisher: TriggerPublisher) {
+    self.commandsPublisher = commandsPublisher
+    self.triggerPublisher = triggerPublisher
+  }
 
   var body: some View {
-    let shouldShowCommandList = detailPublisher.data.trigger != nil ||
-    !detailPublisher.data.commands.isEmpty
+    let shouldShowCommandList = triggerPublisher.data != .empty ||
+    !commandsPublisher.data.commands.isEmpty
 
     Rectangle()
       .fill(

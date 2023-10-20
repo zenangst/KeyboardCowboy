@@ -28,15 +28,10 @@ final class DetailModelMapper {
         execution = .serial
       }
 
-      let trigger = workflow.trigger?.asViewModel()
-
       let viewModel = DetailViewModel(
-        id: workflow.id,
-        name: workflow.name,
-        isEnabled: workflow.isEnabled,
-        trigger: trigger,
-        commands: workflowCommands,
-        execution: execution)
+        info: DetailViewModel.Info(id: workflow.id, name: workflow.name, isEnabled: workflow.isEnabled),
+        commandsInfo: DetailViewModel.CommandsInfo(id: workflow.id, commands: workflowCommands, execution: execution),
+        trigger: workflow.trigger?.asViewModel() ?? .empty)
       viewModels.append(viewModel)
     }
 

@@ -135,7 +135,9 @@ struct KeyboardCowboy: App {
           .environmentObject(core.contentCoordinator.contentPublisher)
           .environmentObject(core.contentCoordinator.groupPublisher)
           .environmentObject(core.detailCoordinator.statePublisher)
-          .environmentObject(core.detailCoordinator.detailPublisher)
+          .environmentObject(core.detailCoordinator.infoPublisher)
+          .environmentObject(core.detailCoordinator.triggerPublisher)
+          .environmentObject(core.detailCoordinator.commandsPublisher)
 
           .environmentObject(OpenPanelController())
           .matchedGeometryEffect(id: "content-window", in: namespace)

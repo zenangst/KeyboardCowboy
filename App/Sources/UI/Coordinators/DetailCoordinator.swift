@@ -15,7 +15,10 @@ final class DetailCoordinator {
   private let keyboardCowboyEngine: KeyboardCowboyEngine
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
 
-  let detailPublisher: DetailPublisher = .init(DesignTime.emptyDetail)
+  let infoPublisher: InfoPublisher = .init(.init(id: "empty", name: "", isEnabled: false))
+  let triggerPublisher: TriggerPublisher = .init(.empty)
+  let commandsPublisher: CommandsPublisher = .init(.init(id: "empty", commands: [], execution: .concurrent))
+
   let mapper: DetailModelMapper
   let statePublisher: DetailStatePublisher = .init(.empty)
 
@@ -250,12 +253,12 @@ final class DetailCoordinator {
     } else if let viewModel = viewModels.first {
       state = .single
 
-      if let animation {
-        withAnimation(animation) {
-          detailPublisher.publish(viewModel)
-        }
-      } else {
-        detailPublisher.publish(viewModel)
+      withAnimation(animation) {
+        infoPublisher.publish(viewModel.info)
+        triggerPublisher.publish(viewModel.trigger)
+        commandsPublisher.publish(.init(id: viewModel.id,
+                                        commands: viewModel.commandsInfo.commands,
+                                        execution: viewModel.commandsInfo.execution))
       }
     } else {
       state = .empty

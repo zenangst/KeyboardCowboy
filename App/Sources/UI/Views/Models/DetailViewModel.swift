@@ -21,12 +21,23 @@ enum DetailViewState: Hashable, Identifiable, Equatable {
 
 struct DetailViewModel: Hashable, Identifiable, Equatable {
   // Workflow.Id
-  let id: String
-  var name: String
-  var isEnabled: Bool
-  var trigger: Trigger?
-  var commands: [CommandViewModel]
-  var execution: Execution
+  var id: String { info.id }
+  let info: Info
+  let commandsInfo: CommandsInfo
+
+  var trigger: Trigger = .empty
+
+  struct Info: Hashable, Identifiable, Equatable {
+    let id: String
+    var name: String
+    var isEnabled: Bool
+  }
+
+  struct CommandsInfo: Hashable, Identifiable, Equatable {
+    let id: String
+    var commands: [CommandViewModel]
+    var execution: Execution
+  }
 
   enum Execution: String, CaseIterable, Hashable, Identifiable, Equatable {
     var id: String { rawValue }
@@ -34,9 +45,18 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     case serial = "Serial"
   }
 
-  enum Trigger: Hashable, Equatable {
+  enum Trigger: Hashable, Equatable, Identifiable {
+    var id: String {
+      switch self {
+      case .applications(let array): array.map(\.id).joined()
+      case .keyboardShortcuts(let keyboardTrigger): keyboardTrigger.shortcuts.map(\.id).joined()
+      case .empty: "empty"
+      }
+    }
+
     case applications([DetailViewModel.ApplicationTrigger])
     case keyboardShortcuts(DetailViewModel.KeyboardTrigger)
+    case empty
   }
 
   struct ApplicationTrigger: Codable, Hashable, Identifiable, Equatable {

@@ -3,7 +3,9 @@ typealias GroupsPublisher = ViewModelsPublisher<GroupViewModel>
 typealias GroupPublisher = ViewModelPublisher<GroupViewModel>
 typealias ContentPublisher = ViewModelsPublisher<ContentViewModel>
 typealias DetailStatePublisher = ViewModelPublisher<DetailViewState>
-typealias DetailPublisher = ViewModelPublisher<DetailViewModel>
 typealias BezelNotificationPublisher = ViewModelPublisher<BezelNotificationViewModel>
 typealias WorkflowNotificationPublisher = ViewModelPublisher<WorkflowNotificationViewModel>
 
+typealias InfoPublisher = ViewModelPublisher<DetailViewModel.Info>
+typealias TriggerPublisher = ViewModelPublisher<DetailViewModel.Trigger>
+typealias CommandsPublisher = ViewModelPublisher<DetailViewModel.CommandsInfo>
