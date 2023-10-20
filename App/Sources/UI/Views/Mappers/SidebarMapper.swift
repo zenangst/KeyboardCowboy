@@ -1,9 +1,10 @@
 import Apps
+import Bonzai
 import Foundation
 
 final class SidebarMapper {
   static func map(_ group: WorkflowGroup, applicationStore: ApplicationStore) -> GroupViewModel {
-    let icon: IconViewModel?
+    let icon: Icon?
     if let rule = group.rule {
       icon = rule.icon(using: applicationStore)
     } else {
@@ -14,7 +15,7 @@ final class SidebarMapper {
 }
 
 extension WorkflowGroup {
-  func asViewModel(_ icon: IconViewModel?) -> GroupViewModel {
+  func asViewModel(_ icon: Icon?) -> GroupViewModel {
     GroupViewModel(
       id: id,
       name: name,
@@ -26,7 +27,7 @@ extension WorkflowGroup {
 }
 
 private extension Rule {
-  func icon(using applicationStore: ApplicationStore) -> IconViewModel? {
+  func icon(using applicationStore: ApplicationStore) -> Icon? {
     if let bundleIdentifier: String = bundleIdentifiers.first,
        let app: Application = applicationStore.application(for: bundleIdentifier) {
       return .init(bundleIdentifier: app.bundleIdentifier, path: app.path)

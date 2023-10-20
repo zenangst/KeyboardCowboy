@@ -1,4 +1,5 @@
 import Apps
+import Bonzai
 import Foundation
 
 struct CommandViewModel: Codable, Hashable, Identifiable {
@@ -9,7 +10,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     var namePlaceholder: String
     var isEnabled: Bool
     var notification: Bool
-    var icon: IconViewModel?
+    var icon: Icon?
   }
 
   var id: String { meta.id }

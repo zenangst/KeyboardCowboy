@@ -5,7 +5,7 @@ let dependencies = Dependencies(
       .remote(url: "https://github.com/krzysztofzablocki/Inject.git", requirement: .exact("1.1.0")),
       .remote(url: "https://github.com/sparkle-project/Sparkle.git", requirement: .exact("2.4.1")),
       .remote(url: "https://github.com/zenangst/AXEssibility.git", requirement: .exact("0.0.8")),
-      .remote(url: "https://github.com/zenangst/Bonzai.git", requirement: .revision("f4267a22c1ff41e4b389e3066dbcd363670085f3")),
+      .remote(url: "https://github.com/zenangst/Bonzai.git", requirement: .revision("3cc38ad3fa42dea6d87f57306c1fac550c539b8f")),
       .remote(url: "https://github.com/zenangst/Apps.git", requirement: .exact("1.4.0")),
       .remote(url: "https://github.com/zenangst/Dock.git", requirement: .exact("1.0.1")),
       .remote(url: "https://github.com/zenangst/InputSources.git", requirement: .exact("1.0.1")),

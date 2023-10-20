@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -36,7 +37,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
 
     enum Kind: Hashable, Codable, Sendable {
       case command(CommandViewModel.Kind)
-      case icon(IconViewModel)
+      case icon(Icon)
     }
   }
 

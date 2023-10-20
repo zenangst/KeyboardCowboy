@@ -1,5 +1,6 @@
-import SwiftUI
 import Apps
+import Bonzai
+import SwiftUI
 
 enum DetailViewState: Hashable, Identifiable, Equatable {
   var id: String {
@@ -16,21 +17,6 @@ enum DetailViewState: Hashable, Identifiable, Equatable {
   case single
   case multiple([DetailViewModel])
   case empty
-}
-
-struct IconViewModel: Identifiable, Codable, Hashable, Equatable, Sendable {
-  var id: String { path  }
-  let bundleIdentifier: String
-  let path: String
-
-  internal init(bundleIdentifier: String, path: String) {
-    self.bundleIdentifier = bundleIdentifier
-    self.path = path
-  }
-
-  init(_ application: Application) {
-    self.init(bundleIdentifier: application.bundleIdentifier, path: application.path)
-  }
 }
 
 struct DetailViewModel: Hashable, Identifiable, Equatable {
@@ -59,8 +45,8 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     var application: Application
     var contexts: [Context]
 
-    var icon: IconViewModel {
-      IconViewModel(bundleIdentifier: application.bundleIdentifier, path: application.path)
+    var icon: Icon {
+      Icon(bundleIdentifier: application.bundleIdentifier, path: application.path)
     }
 
     enum Context: String, Hashable, Codable, CaseIterable, Identifiable {

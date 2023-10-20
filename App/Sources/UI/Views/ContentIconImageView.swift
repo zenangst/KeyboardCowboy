@@ -1,7 +1,8 @@
+import Bonzai
 import SwiftUI
 
 struct ContentIconImageView: View {
-  let icon: IconViewModel
+  let icon: Icon
   let size: CGFloat
 
   var body: some View {

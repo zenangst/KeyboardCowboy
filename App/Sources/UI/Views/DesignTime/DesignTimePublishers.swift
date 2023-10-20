@@ -1,5 +1,6 @@
-import Foundation
+import Bonzai
 import Cocoa
+import Foundation
 
 @MainActor
 enum DesignTime {
@@ -113,7 +114,7 @@ enum DesignTime {
   @MainActor
   static var detailPublisher = DetailPublisher { DesignTime.detail }
 
-  static func metadata(name: String, icon: IconViewModel?) -> CommandViewModel.MetaData {
+  static func metadata(name: String, icon: Icon?) -> CommandViewModel.MetaData {
     CommandViewModel.MetaData(
       id: UUID().uuidString,
       name: name,

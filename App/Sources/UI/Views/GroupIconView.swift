@@ -1,9 +1,10 @@
+import Bonzai
 import SwiftUI
 
 struct GroupIconView: View {
   @Environment(\.controlActiveState) var controlActiveState
   let color: String
-  let icon: IconViewModel?
+  let icon: Icon?
   let symbol: String
 
   var body: some View {

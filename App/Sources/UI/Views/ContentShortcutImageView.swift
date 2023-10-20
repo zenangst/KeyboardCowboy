@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct ContentShortcutImageView: View {

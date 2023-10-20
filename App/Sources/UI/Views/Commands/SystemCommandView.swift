@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct SystemCommandView: View {
@@ -52,7 +53,7 @@ struct SystemCommandView: View {
 }
 
 extension SystemCommand.Kind {
-  var icon: IconViewModel {
+  var icon: Icon {
     let path: String
     switch self {
     case .applicationWindows:
@@ -70,7 +71,7 @@ extension SystemCommand.Kind {
     case .showDesktop:
       path = "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
     }
-    return IconViewModel(bundleIdentifier: path, path: path)
+    return Icon(bundleIdentifier: path, path: path)
   }
 }
 

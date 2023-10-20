@@ -1,4 +1,5 @@
 import Apps
+import Bonzai
 import Cocoa
 
 final class DetailModelMapper {
@@ -108,7 +109,7 @@ private extension Command {
 }
 
 private extension Command {
-  var icon: IconViewModel? {
+  var icon: Icon? {
     switch self {
     case .application(let command):
       return .init(bundleIdentifier: command.application.bundleIdentifier,

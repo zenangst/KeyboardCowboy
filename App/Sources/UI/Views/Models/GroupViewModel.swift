@@ -1,10 +1,11 @@
+import Bonzai
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct GroupViewModel: Identifiable, Hashable, Codable, Sendable, Transferable {
   let id: String
   let name: String
-  let icon: IconViewModel?
+  let icon: Icon?
   let color: String
   let symbol: String
   let count: Int
