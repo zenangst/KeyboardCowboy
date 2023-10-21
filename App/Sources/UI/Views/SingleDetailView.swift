@@ -109,7 +109,6 @@ struct SingleDetailView: View {
           onAction(action)
         })
       .opacity(shouldShowCommandList ? 1 : 0)
-      .id(infoPublisher.data.id)
     }
     .labelStyle(HeaderLabelStyle())
     .focusScope(namespace)

@@ -32,9 +32,7 @@ struct WorkflowInfoView: View {
           .onCommand(#selector(NSTextField.insertBacktab(_:)), perform: {
             focus.wrappedValue = .workflows
           })
-          .fixedSize(horizontal: false, vertical: true)
-          .frame(height: 32)
-          .textFieldStyle(.large(color: .custom(selection.selectedColor), 
+          .textFieldStyle(.large(color: .custom(selection.selectedColor),
                                  backgroundColor: Color(nsColor: .windowBackgroundColor),
                                  glow: true))
           .onChange(of: publisher.data.name) { onAction(.updateName(name: $0)) }

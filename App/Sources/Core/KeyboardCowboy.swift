@@ -22,6 +22,7 @@ struct KeyboardCowboy: App {
   private let core: Core
   @ObservedObject var contentStore: ContentStore
 
+  @FocusState var focus: AppFocus?
   @Environment(\.openWindow) private var openWindow
   @Environment(\.scenePhase) private var scenePhase
 
@@ -82,12 +83,14 @@ struct KeyboardCowboy: App {
       VStack {
         switch core.contentStore.state {
         case .initialized:
-          ContainerView(applicationTriggerSelectionManager: core.applicationTriggerSelectionManager,
-                        commandSelectionManager: core.commandSelectionManager,
-                        configSelectionManager: core.configSelectionManager,
-                        contentSelectionManager: core.contentSelectionManager,
-                        groupsSelectionManager: core.groupSelectionManager,
-                        keyboardShortcutSelectionManager: core.keyboardShortcutSelectionManager
+          ContainerView(
+            $focus,
+            applicationTriggerSelectionManager: core.applicationTriggerSelectionManager,
+            commandSelectionManager: core.commandSelectionManager,
+            configSelectionManager: core.configSelectionManager,
+            contentSelectionManager: core.contentSelectionManager,
+            groupsSelectionManager: core.groupSelectionManager,
+            keyboardShortcutSelectionManager: core.keyboardShortcutSelectionManager
           ) { action, undoManager in
 
             let oldConfiguration = core.configurationStore.selectedConfiguration
@@ -155,9 +158,37 @@ struct KeyboardCowboy: App {
         }
       }
       .animation(.easeInOut, value: core.contentStore.state)
+      .onAppear { NSWindow.allowsAutomaticWindowTabbing = false }
     }
     .windowResizability(.contentSize)
     .windowStyle(.hiddenTitleBar)
+    .commands {
+      CommandGroup(after: .appSettings) {
+        AppMenu()
+      }
+      CommandGroup(replacing: .newItem) {
+        FileMenu(
+          onNewConfiguration: {
+            let action = SidebarView.Action.addConfiguration(name: "New Configuration")
+            core.configCoordinator.handle(action)
+            core.sidebarCoordinator.handle(action)
+            core.contentCoordinator.handle(action)
+            core.detailCoordinator.handle(action)
+          },
+          onNewGroup: { handleScene(.addGroup) },
+          onNewWorkflow: {
+            let action = ContentListView.Action.addWorkflow(workflowId: UUID().uuidString)
+            core.contentCoordinator.handle(action)
+            core.detailCoordinator.handle(action)
+            focus = .detail(.name)
+          }
+        )
+        .environmentObject(contentStore.groupStore)
+      }
+      CommandGroup(replacing: .help) {
+        HelpMenu()
+      }
+    }
 
     PermissionsScene { action in
       switch action {

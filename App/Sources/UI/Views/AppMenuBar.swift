@@ -8,8 +8,6 @@ struct AppMenuBar: Scene {
   }
 
   @Environment(\.scenePhase) private var scenePhase
-  @StateObject var appUpdater = AppUpdater()
-  @StateObject var loginItem = LoginItem()
 
   private var applicationName: String {
     switch KeyboardCowboy.env {
@@ -43,50 +41,10 @@ struct AppMenuBar: Scene {
 
   var body: some Scene {
     MenuBarExtra(content: {
-      Button {
-        onAction(.openMainWindow)
-      } label: {
-        Image(systemName: "text.and.command.macwindow")
-        Text("Open \(applicationName)")
-      }
-
-
-      Button {
-        appUpdater.checkForUpdates()
-      } label: {
-        Image(systemName: "sparkles")
-        Text("Check for updates…")
-      }
-
-      Toggle(isOn: $loginItem.isEnabled, label: {
-        Image(systemName: "person")
-        Text("Open at Login")
-      })
-      .toggleStyle(.checkbox)
-
+      Button { onAction(.openMainWindow) } label: { Text("Open \(applicationName)") }
+      AppMenu()
       Divider()
-
-      Button(action: {
-        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki")!)
-      }, label: {
-        Image(systemName: "info.square")
-        Text("Wiki")
-      })
-
-      Button(action: {
-        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/discussions")!)
-      }, label: {
-        Image(systemName: "bubble.left")
-        Text("Discussions")
-      })
-
-      Button(action: {
-        NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
-      }, label: {
-        Image(systemName: "ladybug")
-        Text("File a Bug")
-      })
-
+      HelpMenu()
       Divider()
       Text("Version: \(KeyboardCowboy.marektingVersion) (\(KeyboardCowboy.buildNumber))")
 #if DEBUG

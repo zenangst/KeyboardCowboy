@@ -22,7 +22,7 @@ struct ContainerView: View {
     case detail(DetailView.Action)
   }
 
-  @FocusState var focus: AppFocus?
+  private var focus: FocusState<AppFocus?>.Binding
 
   @Namespace var namespace
   @Environment(\.undoManager) var undoManager
@@ -38,13 +38,15 @@ struct ContainerView: View {
 
   private var contentFocusPublisher = FocusPublisher<ContentViewModel>()
 
-  init(applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        configSelectionManager: SelectionManager<ConfigurationViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupsSelectionManager: SelectionManager<GroupViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (Action, UndoManager?) -> Void) {
+    self.focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
     self.configSelectionManager = configSelectionManager
@@ -58,14 +60,14 @@ struct ContainerView: View {
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
-        SidebarView($focus,
+        SidebarView(focus,
                     configSelectionManager: configSelectionManager,
                     groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0), undoManager) }
           .frame(minWidth: 180, maxWidth: .infinity, alignment: .leading)
           .labelStyle(SidebarLabelStyle())
       },
       content: {
-        ContentListView($focus,
+        ContentListView(focus,
                         contentSelectionManager: contentSelectionManager,
                         groupSelectionManager: groupsSelectionManager,
                         focusPublisher: contentFocusPublisher,
@@ -73,13 +75,13 @@ struct ContainerView: View {
           onAction(.content($0), undoManager)
 
           if case .addWorkflow = $0 {
-            Task { @MainActor in focus = .detail(.name) }
+            Task { @MainActor in focus.wrappedValue = .detail(.name) }
           }
         })
-        .focused($focus, equals: .workflows)
+        .focused(focus, equals: .workflows)
       },
       detail: {
-        DetailView($focus,
+        DetailView(focus,
                    applicationTriggerSelectionManager: applicationTriggerSelectionManager,
                    commandSelectionManager: commandSelectionManager,
                    keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
@@ -90,19 +92,22 @@ struct ContainerView: View {
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)
     .onAppear {
-      focus = .groups
+      focus.wrappedValue = .groups
     }
   }
 }
 
 struct ContainerView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContainerView(applicationTriggerSelectionManager: .init(),
-                  commandSelectionManager: .init(),
-                  configSelectionManager: .init(),
-                  contentSelectionManager: .init(),
-                  groupsSelectionManager: .init(),
-                  keyboardShortcutSelectionManager: .init()) { _, _ in }
+    ContainerView(
+      $focus,
+      applicationTriggerSelectionManager: .init(),
+      commandSelectionManager: .init(),
+      configSelectionManager: .init(),
+      contentSelectionManager: .init(),
+      groupsSelectionManager: .init(),
+      keyboardShortcutSelectionManager: .init()) { _, _ in }
       .designTime()
       .frame(height: 800)
   }
