@@ -32,7 +32,7 @@ struct WorkflowGroupIconView: View {
         .frame(width: 12, height: 12, alignment: .center)
       Text("Edit")
         .font(.caption)
-        .offset(x: 0, y: 15)
+        .offset(x: 0, y: 12)
         .opacity(isHovering ? 1.0 : 0.0)
     }
     .cursorOnHover(.pointingHand)
