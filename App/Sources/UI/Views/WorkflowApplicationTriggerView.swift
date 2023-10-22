@@ -52,6 +52,11 @@ struct WorkflowApplicationTriggerView: View {
                               hoverEffect: Binding<Bool>.readonly(!data.isEmpty),
                               padding: .init(horizontal: .large, vertical: .large))))
       }
+      .padding(6)
+      .background(
+        RoundedRectangle(cornerRadius: 8)
+          .fill(Color(.textBackgroundColor).opacity(0.65))
+      )
 
       LazyVStack(spacing: 4) {
         ForEach($data.lazy, id: \.id) { element in

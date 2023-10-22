@@ -52,7 +52,6 @@ struct WorkflowTriggerListView: View {
                                        selectionManager: applicationTriggerSelectionManager) { action in
           onAction(.applicationTrigger(workflowId: workflowId, action: action))
         }
-        .padding(.bottom, 16)
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .empty:
         Label("Add Trigger", image: "")

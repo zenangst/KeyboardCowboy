@@ -85,8 +85,7 @@ struct SingleDetailView: View {
         .padding([.top, .leading, .trailing])
         .padding(.bottom, 32)
         .background(alignment: .bottom, content: { 
-          SingleDetailBackgroundView(commandsPublisher: commandPublisher,
-                                     triggerPublisher: triggerPublisher)
+          SingleDetailBackgroundView()
             .drawingGroup()
         })
 
