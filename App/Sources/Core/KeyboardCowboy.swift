@@ -185,6 +185,13 @@ struct KeyboardCowboy: App {
         )
         .environmentObject(contentStore.groupStore)
       }
+
+      CommandGroup(replacing: .toolbar) {
+        ViewMenu(onFilter: {
+          focus = .search
+        })
+      }
+
       CommandGroup(replacing: .help) {
         HelpMenu()
       }
