@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 final class NSEventController: ObservableObject {
-  @Published var keyDown: Bool = false
+  @Published var repeatingKeyDown: Bool = false
 
   static let shared: NSEventController = .init()
 
@@ -10,9 +10,9 @@ final class NSEventController: ObservableObject {
     NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown]) { [weak self] event in
       guard let self else { return event }
       if event.type == .keyDown, event.isARepeat {
-        keyDown = true
+        repeatingKeyDown = true
       } else {
-        keyDown = false
+        repeatingKeyDown = false
       }
       return event
     }

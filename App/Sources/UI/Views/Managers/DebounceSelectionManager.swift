@@ -14,13 +14,15 @@ final class DebounceSelectionManager<Snapshot: DebounceSnapshot> {
     self.onUpdate = onUpdate
     self.subscription = subject
       .dropFirst()
-      .removeDuplicates()
       .debounce(for: .milliseconds(milliseconds), scheduler: DispatchQueue.main)
-      .sink { onUpdate($0) }
+      .removeDuplicates()
+      .sink {
+        onUpdate($0)
+      }
   }
 
   func process(_ snapshot: Snapshot) {
-    if NSEventController.shared.keyDown {
+    if NSEventController.shared.repeatingKeyDown {
       subject.send(snapshot)
     } else {
       onUpdate(snapshot)

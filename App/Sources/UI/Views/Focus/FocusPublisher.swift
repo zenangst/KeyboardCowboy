@@ -30,8 +30,9 @@ final class FocusPublisher<Element>: ObservableObject where Element: Equatable,
                                                             Element: Hashable,
                                                             Element: Identifiable,
                                                             Element.ID: CustomStringConvertible {
-  private let debouncer: FocusPublisherDebouncer<Element> = .init(milliseconds: 50) { elementID in
+  private lazy var debouncer: FocusPublisherDebouncer<Element> = .init(milliseconds: 50) { elementID in
     FocusableProxy<Element>.post(elementID)
+    self.focus = .elementID(elementID)
   }
 
   private(set) var focus: Focused<Element> = .elementID("-1" as! Element.ID)
@@ -42,7 +43,11 @@ final class FocusPublisher<Element>: ObservableObject where Element: Equatable,
   }
 
   func publish(_ elementID: Element.ID) {
-    debouncer.process(elementID)
-    focus = .elementID(elementID)
+    if NSEventController.shared.repeatingKeyDown {
+      debouncer.process(elementID)
+    } else {
+      FocusableProxy<Element>.post(elementID)
+      focus = .elementID(elementID)
+    }
   }
 }
