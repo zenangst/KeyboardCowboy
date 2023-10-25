@@ -167,7 +167,14 @@ final class DetailCommandActionReducer {
           command.name = newName
           workflow.updateOrAddCommand(command)
         case .openShortcuts:
-          break
+          Task {
+            guard let shortcutsApp = ApplicationStore.shared.applications
+              .first(where: { $0.bundleIdentifier.lowercased() == "com.apple.shortcuts" }) else {
+              return
+            }
+            let command = ApplicationCommand(application: shortcutsApp)
+            try await commandRunner.run(.application(command), snapshot: .init(documentPath: nil, selectedText: ""))
+          }
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
