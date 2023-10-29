@@ -173,7 +173,7 @@ final class MachPortCoordinator {
         machPortEvent.result = nil
       }
 
-      if workflow.commands.count == 1,
+      if workflow.commands.filter(\.isEnabled).count == 1,
          case .keyboard(let command) = workflow.commands.first(where: \.isEnabled) {
         if !isRepeatingEvent && machPortEvent.event.type == .keyDown {
           notifications.notifyKeyboardCommand(workflow, command: command)
