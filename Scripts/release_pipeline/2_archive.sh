@@ -16,4 +16,4 @@ xcodebuild \
  -scheme $APP_SCHEME \
  -archivePath ./Build/$FILENAME \
  archive \
- | xcpretty
+ | xcbeautify

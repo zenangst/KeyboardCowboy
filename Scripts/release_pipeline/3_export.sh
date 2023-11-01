@@ -27,4 +27,4 @@ xcodebuild \
   -exportArchive \
   -exportPath 'Build/Releases'\
   -exportOptionsPlist exportOptions.plist \
-  | xcpretty
+  | xcbeautify
