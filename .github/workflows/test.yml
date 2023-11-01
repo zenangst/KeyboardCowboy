@@ -28,6 +28,7 @@ jobs:
           echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           brew install tuist
+          tuist install 3.21.1
           tuist fetch
           tuist generate -n
       - name: Run tests
