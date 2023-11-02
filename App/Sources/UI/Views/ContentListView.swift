@@ -81,7 +81,7 @@ struct ContentListView: View {
                 focusPublisher.publish(element.id)
               }
               .contextMenu(menuItems: {
-                contextualMenu()
+                contextualMenu(element.id)
               })
             }
             .focused($isFocused)
@@ -165,9 +165,19 @@ struct ContentListView: View {
   }
 
   @ViewBuilder
-  private func contextualMenu() -> some View {
+  private func contextualMenu(_ selectedId: ContentViewModel.ID) -> some View {
     Button("Duplicate", action: {
-      onAction(.duplicate(workflowIds: contentSelectionManager.selections))
+      if contentSelectionManager.selections.contains(selectedId) {
+        onAction(.duplicate(workflowIds: contentSelectionManager.selections))
+      } else {
+        onAction(.duplicate(workflowIds: [selectedId]))
+        contentSelectionManager.selections = [selectedId]
+        contentSelectionManager.setLastSelection(selectedId)
+      }
+
+      if contentSelectionManager.selections.count == 1 {
+        focus.wrappedValue = .detail(.name)
+      }
     })
     Menu("Move to") {
       // Show only other groups than the current one.

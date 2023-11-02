@@ -26,6 +26,17 @@ enum DesignTime {
     ]
   }
 
+  static let groupPublisher = GroupPublisher(GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", count: 10))
+  static let infoPublisher: InfoPublisher = .init(.init(id: "empty", name: "", isEnabled: false))
+  static let triggerPublisher: TriggerPublisher = .init(.keyboardShortcuts(.init(passthrough: false, holdDuration: nil, shortcuts: [
+    .init(key: "a", modifiers: [.command])
+  ])))
+  static let commandsPublisher: CommandsPublisher = .init(.init(id: "empty", commands: [
+    Self.applicationCommand.model,
+    Self.menuBarCommand.model,
+    Self.typeCommand.model
+  ], execution: .concurrent))
+
   static var contentPublisher = ContentPublisher {
     [
       ContentViewModel(id: UUID().uuidString, name: "Open News", images: [

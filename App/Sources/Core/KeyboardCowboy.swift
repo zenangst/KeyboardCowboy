@@ -9,7 +9,7 @@ import InputSources
 @main
 struct KeyboardCowboy: App {
 #if DEBUG
-  static let env: AppEnvironment = .development
+  static let env: AppEnvironment = isRunningPreview ? .previews : .development
 #else
   static let env: AppEnvironment = .production
 #endif
@@ -231,7 +231,7 @@ struct KeyboardCowboy: App {
   }
 
   private func handleScene(_ scene: AppScene) {
-    guard KeyboardCowboy.env != .designTime else { return }
+    guard KeyboardCowboy.env != .previews else { return }
     switch scene {
     case .permissions:
       openWindow(id: KeyboardCowboy.permissionsWindowIdentifier)
