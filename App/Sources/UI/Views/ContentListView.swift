@@ -76,6 +76,7 @@ struct ContentListView: View {
             ForEach(publisher.data.filter(search).lazy, id: \.id) { element in
               ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
                               contentSelectionManager: contentSelectionManager, onAction: onAction)
+              .contentShape(Rectangle())
               .onTapGesture {
                 contentSelectionManager.handleOnTap(publisher.data, element: element)
                 focusPublisher.publish(element.id)
@@ -161,6 +162,13 @@ struct ContentListView: View {
               .opacity(publisher.data.isEmpty ? 0 : 1)
               .help("Add workflow")
             }
+          }
+        }
+      }
+      .onAppear {
+        if !publisher.data.isEmpty {
+          DispatchQueue.main.async {
+            focus.wrappedValue = .workflows
           }
         }
       }
