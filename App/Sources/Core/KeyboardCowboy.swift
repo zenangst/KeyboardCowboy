@@ -85,6 +85,7 @@ struct KeyboardCowboy: App {
         case .initialized:
           ContainerView(
             $focus,
+            publisher: core.contentCoordinator.contentPublisher,
             applicationTriggerSelectionManager: core.applicationTriggerSelectionManager,
             commandSelectionManager: core.commandSelectionManager,
             configSelectionManager: core.configSelectionManager,

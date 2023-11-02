@@ -35,10 +35,12 @@ struct ContainerView: View {
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let groupsSelectionManager: SelectionManager<GroupViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
+  private let publisher: ContentPublisher
 
   private var contentFocusPublisher = FocusPublisher<ContentViewModel>()
 
   init(_ focus: FocusState<AppFocus?>.Binding,
+       publisher: ContentPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        configSelectionManager: SelectionManager<ConfigurationViewModel>,
@@ -47,6 +49,7 @@ struct ContainerView: View {
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (Action, UndoManager?) -> Void) {
     self.focus = focus
+    self.publisher = publisher
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
     self.configSelectionManager = configSelectionManager
@@ -79,6 +82,13 @@ struct ContainerView: View {
           }
         })
         .focused(focus, equals: .workflows)
+        .onAppear {
+          if !publisher.data.isEmpty {
+            DispatchQueue.main.async {
+              focus.wrappedValue = .workflows
+            }
+          }
+        }
       },
       detail: {
         DetailView(focus,
@@ -115,6 +125,7 @@ struct ContainerView_Previews: PreviewProvider {
   static var previews: some View {
     ContainerView(
       $focus,
+      publisher: DesignTime.contentPublisher,
       applicationTriggerSelectionManager: .init(),
       commandSelectionManager: .init(),
       configSelectionManager: .init(),

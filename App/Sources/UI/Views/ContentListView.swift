@@ -165,13 +165,6 @@ struct ContentListView: View {
           }
         }
       }
-      .onAppear {
-        if !publisher.data.isEmpty {
-          DispatchQueue.main.async {
-            focus.wrappedValue = .workflows
-          }
-        }
-      }
     }
   }
 
