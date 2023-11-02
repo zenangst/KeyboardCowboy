@@ -46,7 +46,7 @@ final class KeyboardCowboyEngine {
     self.workspacePublisher = WorkspacePublisher(workspace)
     self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
 
-    guard KeyboardCowboy.env != .designTime else { return }
+    guard KeyboardCowboy.env != .previews else { return }
 
     guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 

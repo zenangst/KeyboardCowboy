@@ -11,7 +11,7 @@ struct AppMenuBar: Scene {
 
   private var applicationName: String {
     switch KeyboardCowboy.env {
-    case .designTime:
+    case .previews:
       return "Keyboard Cowboy (designTime)"
     case .production:
       return "Keyboard Cowboy"
