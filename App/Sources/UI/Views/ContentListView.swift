@@ -137,7 +137,10 @@ struct ContentListView: View {
           })
           .onAppear {
             if let firstSelection = contentSelectionManager.selections.first {
-              proxy.scrollTo(firstSelection)
+              // We need to wait before we tell the proxy to scroll to the first selection.
+              DispatchQueue.main.async {
+                proxy.scrollTo(firstSelection)
+              }
             }
           }
           .toolbar {
