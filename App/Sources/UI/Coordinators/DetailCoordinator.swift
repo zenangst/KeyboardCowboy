@@ -47,6 +47,14 @@ final class DetailCoordinator {
     enableInjection(self, selector: #selector(injected(_:)))
   }
 
+  func handle(_ context: EditWorkflowGroupWindow.Context) {
+    switch context {
+    case .add(let workflowGroup), .edit(let workflowGroup):
+      contentSelectionManager.selectedColor = Color(hex: workflowGroup.color)
+      commandSelectionManager.selectedColor = Color(hex: workflowGroup.color)
+    }
+  }
+
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .refresh, .updateConfiguration, .openScene, .addConfiguration, .deleteConfiguraiton:

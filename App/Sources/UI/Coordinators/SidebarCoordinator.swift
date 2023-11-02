@@ -39,9 +39,11 @@ final class SidebarCoordinator {
     case .add(let group):
       groupId = group.id
       store.add(group)
+      selectionManager.selectedColor = Color(hex: group.color)
     case .edit(let group):
       groupId = group.id
       store.updateGroups([group])
+      selectionManager.selectedColor = Color(hex: group.color)
     }
     selectionManager.publish([groupId])
     if storeWasEmpty {
