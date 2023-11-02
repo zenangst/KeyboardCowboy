@@ -105,6 +105,14 @@ struct GroupsListView: View {
           })
         }
       }
+      .onAppear {
+        if let firstSelection = selectionManager.selections.first {
+          // We need to wait before we tell the proxy to scroll to the first selection.
+          DispatchQueue.main.async {
+            proxy.scrollTo(firstSelection, anchor: .center)
+          }
+        }
+      }
     }
   }
 
