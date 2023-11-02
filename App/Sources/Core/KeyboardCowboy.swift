@@ -223,6 +223,7 @@ struct KeyboardCowboy: App {
     EditWorkflowGroupWindow(core.contentStore) { context in
       core.sidebarCoordinator.handle(context)
       core.contentCoordinator.handle(context)
+      core.detailCoordinator.handle(context)
     }
       .windowResizability(.contentSize)
       .windowStyle(.hiddenTitleBar)

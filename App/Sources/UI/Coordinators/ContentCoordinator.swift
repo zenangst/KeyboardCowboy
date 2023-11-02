@@ -75,9 +75,11 @@ final class ContentCoordinator {
     switch context {
     case .add(let workflowGroup):
       render([workflowGroup.id])
+      contentSelectionManager.selectedColor = Color(hex: workflowGroup.color)
     case .edit(let workflowGroup):
-      let group = SidebarMapper.map(workflowGroup, applicationStore: applicationStore)
-      groupPublisher.publish(group)
+      let workflowGroup = SidebarMapper.map(workflowGroup, applicationStore: applicationStore)
+      contentSelectionManager.selectedColor = Color(hex: workflowGroup.color)
+      groupPublisher.publish(workflowGroup)
       render([workflowGroup.id])
     }
   }
