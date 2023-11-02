@@ -49,14 +49,15 @@ struct ContentItemView: View {
       Text(workflow.name)
         .lineLimit(1)
         .allowsTightening(true)
+        .frame(maxWidth: .infinity, alignment: .leading)
 
-      Spacer()
       if let binding = workflow.binding {
         KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
+          .fixedSize()
           .font(.caption)
+          .lineLimit(1)
           .allowsTightening(true)
-          .frame(minWidth: 32, maxWidth: .infinity, alignment: .trailing)
-          .layoutPriority(-1)
+          .frame(minWidth: 32, alignment: .trailing)
       }
     }
     .contentShape(Rectangle())
