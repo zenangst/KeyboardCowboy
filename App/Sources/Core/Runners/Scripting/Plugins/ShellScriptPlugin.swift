@@ -41,7 +41,10 @@ final class ShellScriptPlugin {
         let url = URL(filePath: documentPath)
 
         if let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-          environment["DIRECTORY"] = (components.path as NSString).deletingLastPathComponent
+          let directory = (components.path as NSString)
+            .deletingLastPathComponent
+            .replacingOccurrences(of: "%20", with: " ")
+          environment["DIRECTORY"] = directory
           environment["FILE"] = url.lastPathComponent
           environment["FILENAME"] = (url.lastPathComponent as NSString).deletingPathExtension
           environment["EXTENSION"] = (url.lastPathComponent as NSString).pathExtension
