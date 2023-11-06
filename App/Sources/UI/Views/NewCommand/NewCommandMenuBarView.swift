@@ -1,6 +1,7 @@
 import SwiftUI
 import Bonzai
 
+@MainActor
 struct NewCommandMenuBarView: View {
   struct TokenContainer: Identifiable, Hashable {
     let id = UUID()
@@ -164,12 +165,12 @@ struct NewCommandMenuBarView: View {
     HStack {
       switch kind {
       case .menuItem:
-        NewCommandMenuBarTokenMenuItemView(value: $menuItem, onSubmit: onSubmit)
+        NewCommandMenuBarTokenMenuItemView(value: $menuItem, onSubmit: { onSubmit() })
           .focused($focus, equals: .add)
       case .menuItems:
         NewCommandMenuBarTokenMenuItemsView(lhs: Binding(get: { menuItems.0 }, set: { menuItems.0 = $0 }),
                                          rhs: Binding(get: { menuItems.1 }, set: { menuItems.1 = $0 }),
-                                         onSubmit: onSubmit)
+                                            onSubmit: { onSubmit() })
         .focused($focus, equals: .add)
       }
 
@@ -185,7 +186,7 @@ struct NewCommandMenuBarView: View {
       .menuStyle(.regular)
       .fixedSize()
 
-      Button(action: onSubmit, label: { Text("Add") })
+      Button(action: { onSubmit() }, label: { Text("Add") })
         .buttonStyle(.zen(.init(color: .systemGreen)))
     }
   }

@@ -2,6 +2,7 @@ import Cocoa
 import Combine
 import Foundation
 
+@MainActor
 final class AccessibilityPermission: ObservableObject {
   enum Permission {
     case authorized

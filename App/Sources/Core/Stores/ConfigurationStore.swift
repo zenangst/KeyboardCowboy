@@ -2,9 +2,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-final class ConfigurationStore: ObservableObject {
-  static var appStorage: AppStorageStore = .init()
-
+final class ConfigurationStore: ObservableObject, @unchecked Sendable {
   @Published private(set) var configurations = [KeyboardCowboyConfiguration]()
   @Published private(set) var selectedConfiguration: KeyboardCowboyConfiguration = .empty()
   @State private(set) var selectedId: String = ""
@@ -12,7 +10,7 @@ final class ConfigurationStore: ObservableObject {
   @discardableResult
   func updateConfigurations(_ configurations: [KeyboardCowboyConfiguration]) -> Self {
     self.configurations = configurations
-    _selectedId = .init(initialValue: Self.appStorage.configId)
+    _selectedId = .init(initialValue: AppStorageContainer.shared.configId)
 
     if let configuration = configurations.first(where: { $0.id == selectedId }) {
       self.selectedConfiguration = configuration
@@ -33,7 +31,7 @@ final class ConfigurationStore: ObservableObject {
     if let newConfiguration = configurations.first(where: { $0.id == id }) {
       selectedId = id
       selectedConfiguration = newConfiguration
-      Self.appStorage.configId = id
+      AppStorageContainer.shared.configId = id
       return newConfiguration
     } else {
       return nil

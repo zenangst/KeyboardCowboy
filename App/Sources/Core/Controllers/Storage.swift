@@ -42,38 +42,40 @@ final class Storage {
   }
 
   func load() async throws -> [KeyboardCowboyConfiguration] {
-    Benchmark.start("Storage.load")
-    defer {
-      Benchmark.finish("Storage.load")
-    }
+    await Benchmark.shared.start("Storage.load")
 
     if !fileManager.fileExists(atPath: configuration.url.path) {
       if !fileManager.createFile(atPath: configuration.url.path, contents: nil) {
+        await Benchmark.shared.finish("Storage.load")
         throw StorageError.unableToFindFile
       }
     }
 
     guard let data = fileManager.contents(atPath: configuration.url.path) else {
+      await Benchmark.shared.finish("Storage.load")
       throw StorageError.unableToReadContents
     }
 
     if data.count <= 1 {
+      await Benchmark.shared.finish("Storage.load")
       throw StorageError.emptyFile
     }
 
     do {
       let result = try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
 
-      if Migration.shouldSave {
+      if await Migration.shouldSave {
          try save(result)
       }
-
+      await Benchmark.shared.finish("Storage.load")
       return result
     } catch {
       do {
         let result = try await migrateIfNeeded()
+        await Benchmark.shared.finish("Storage.load")
         return result
       } catch {
+        await Benchmark.shared.finish("Storage.load")
         // TODO: Do something proper here.
         fatalError("Unable to load contents")
       }

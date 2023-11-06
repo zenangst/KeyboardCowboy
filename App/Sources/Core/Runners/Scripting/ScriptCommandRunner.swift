@@ -1,7 +1,7 @@
 import Cocoa
 
-final class ScriptCommandRunner {
-  private struct Plugins {
+final class ScriptCommandRunner: Sendable {
+  private struct Plugins: Sendable {
     let appleScript: AppleScriptPlugin
     let shellScript: ShellScriptPlugin
 

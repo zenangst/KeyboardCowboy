@@ -1,11 +1,17 @@
 import Foundation
 import Cocoa
 
+@MainActor
 final class Benchmark {
-  static var storage = [String: Double]()
-  static var isEnabled: Bool = false
+  var isEnabled: Bool = false
 
-  static func start(_ identifier: @autoclosure () -> String) {
+  private var storage = [String: Double]()
+
+  static let shared: Benchmark = .init()
+
+  private init() {}
+
+  func start(_ identifier: @autoclosure @Sendable () -> String) {
     guard isEnabled else { return }
     if storage[identifier()] != nil {
       debugPrint("⏱ Benchmark: duplicate start")
@@ -14,7 +20,7 @@ final class Benchmark {
   }
 
   @discardableResult
-  static func finish(_ identifier: @autoclosure () -> String) -> String {
+  func finish(_ identifier: @autoclosure @Sendable () -> String) -> String {
     guard isEnabled, let startTime = storage[identifier()] else {
       return "Unknown identifier: \(identifier())"
     }

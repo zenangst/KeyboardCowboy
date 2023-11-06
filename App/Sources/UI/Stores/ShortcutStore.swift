@@ -1,6 +1,6 @@
 import Cocoa
 
-final class ShortcutStore: ObservableObject {
+final class ShortcutStore: ObservableObject, @unchecked Sendable {
   @MainActor
   @Published private(set) var shortcuts = [Shortcut]()
   private let scriptCommandRunner: ScriptCommandRunner

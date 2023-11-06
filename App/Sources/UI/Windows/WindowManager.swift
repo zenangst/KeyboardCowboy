@@ -15,12 +15,16 @@ final class WindowManager: ObservableObject {
     subscription?.cancel()
   }
 
-  func close(after stride: DispatchQueue.SchedulerTimeType.Stride, then: @escaping () -> Void = {}) {
+  func close(after stride: DispatchQueue.SchedulerTimeType.Stride, then: @escaping @MainActor @Sendable () -> Void = {}) {
     subscription = passthrough
       .debounce(for: stride, scheduler: DispatchQueue.main)
       .sink { [window] in
-        window?.close()
-        then()
+        Task {
+          await MainActor.run {
+            window?.close()
+            then()
+          }
+        }
       }
     passthrough.send()
   }

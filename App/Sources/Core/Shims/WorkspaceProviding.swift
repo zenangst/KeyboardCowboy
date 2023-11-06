@@ -2,7 +2,7 @@ import Cocoa
 
 public typealias WorkspaceCompletion = ((RunningApplication?, Error?) -> Void)
 
-public protocol WorkspaceProviding {
+public protocol WorkspaceProviding: Sendable {
   var applications: [RunningApplication] { get }
   var frontApplication: RunningApplication? { get }
 
@@ -15,7 +15,7 @@ public protocol WorkspaceProviding {
   func reveal(_ path: String)
 }
 
-extension NSWorkspace: WorkspaceProviding {
+extension NSWorkspace: WorkspaceProviding, @unchecked Sendable {
   public var applications: [RunningApplication] {
     runningApplications
   }

@@ -3,8 +3,6 @@ import InputSources
 
 @MainActor
 final class Core {
-  static private var appStorage: AppStorageStore = .init()
-
   static var config: AppPreferences {
     switch KeyboardCowboy.env {
     case .development: .designTime()
@@ -51,16 +49,16 @@ final class Core {
   lazy private(set) var applicationTriggerSelectionManager = SelectionManager<DetailViewModel.ApplicationTrigger>()
   lazy private(set) var commandSelectionManager = SelectionManager<CommandViewModel>()
 
-  lazy private(set) var configSelectionManager = SelectionManager<ConfigurationViewModel>(initialSelection: [Self.appStorage.configId]) {
-    Self.appStorage.configId = $0.first ?? ""
+  lazy private(set) var configSelectionManager = SelectionManager<ConfigurationViewModel>(initialSelection: [AppStorageContainer.shared.configId]) {
+    AppStorageContainer.shared.configId = $0.first ?? ""
   }
 
-  lazy private(set) var groupSelectionManager = SelectionManager<GroupViewModel>(initialSelection: Self.appStorage.groupIds) {
-    Self.appStorage.groupIds = $0
+  lazy private(set) var groupSelectionManager = SelectionManager<GroupViewModel>(initialSelection: AppStorageContainer.shared.groupIds) {
+    AppStorageContainer.shared.groupIds = $0
   }
 
-  lazy private(set) var contentSelectionManager = SelectionManager<ContentViewModel>(initialSelection: Self.appStorage.workflowIds) {
-    Self.appStorage.workflowIds = $0
+  lazy private(set) var contentSelectionManager = SelectionManager<ContentViewModel>(initialSelection: AppStorageContainer.shared.workflowIds) {
+    AppStorageContainer.shared.workflowIds = $0
   }
 
   // MARK: - Stores

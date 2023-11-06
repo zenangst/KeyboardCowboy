@@ -5,6 +5,7 @@ struct ContentDebounce: DebounceSnapshot {
   let groups: Set<GroupViewModel.ID>
 }
 
+@MainActor
 struct ContentListView: View {
   enum Action: Hashable {
     case duplicate(workflowIds: Set<ContentViewModel.ID>)
@@ -73,7 +74,7 @@ struct ContentListView: View {
       ScrollViewReader { proxy in
         ScrollView {
           LazyVStack(spacing: 0) {
-            ForEach(publisher.data.filter(search).lazy, id: \.id) { element in
+            ForEach(publisher.data.filter({ search($0) }).lazy, id: \.id) { element in
               ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
                               contentSelectionManager: contentSelectionManager, onAction: onAction)
               .contentShape(Rectangle())
@@ -107,7 +108,7 @@ struct ContentListView: View {
             .onMoveCommand(perform: { direction in
               if let elementID = contentSelectionManager.handle(
                 direction,
-                publisher.data.filter(search),
+                publisher.data.filter({ search($0) }),
                 proxy: proxy,
                 vertical: true) {
                 focusPublisher.publish(elementID)
@@ -125,7 +126,7 @@ struct ContentListView: View {
           }
           .onChange(of: searchTerm, perform: { newValue in
             if !searchTerm.isEmpty {
-              if let firstSelection = publisher.data.filter(search).first {
+              if let firstSelection = publisher.data.filter({ search($0) }).first {
                 contentSelectionManager.publish([firstSelection.id])
               } else {
                 contentSelectionManager.publish([])

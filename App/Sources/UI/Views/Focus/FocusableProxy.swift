@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 struct FocusableProxy<Element>: NSViewRepresentable where Element: Equatable,
                                                           Element: Hashable,
                                                           Element: Identifiable,

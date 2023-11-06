@@ -123,8 +123,8 @@ final class ContentCoordinator {
   private func render(_ groupIds: Set<GroupViewModel.ID>,
                       calculateSelections: Bool = false,
                       selectionOverrides: Set<Workflow.ID>? = nil) {
-    Benchmark.start("ContentCoordinator.render")
-    defer { Benchmark.finish("ContentCoordinator.render") }
+    Benchmark.shared.start("ContentCoordinator.render")
+    defer { Benchmark.shared.finish("ContentCoordinator.render") }
 
     var viewModels = [ContentViewModel]()
     var newSelections = Set<ContentViewModel.ID>()

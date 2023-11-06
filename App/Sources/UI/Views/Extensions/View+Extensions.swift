@@ -47,6 +47,7 @@ extension View {
   }
 }
 
+@MainActor
 struct DebugView<Content>: View where Content: View {
   @State var isHovered: Bool = false
   var file: String

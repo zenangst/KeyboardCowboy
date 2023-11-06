@@ -2,6 +2,7 @@ import Apps
 import Carbon
 import SwiftUI
 
+@MainActor
 struct NewCommandWindow: Scene {
   enum Context: Identifiable, Hashable, Codable {
     var id: String {
