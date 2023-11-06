@@ -1,8 +1,8 @@
 import SwiftUI
 
 @MainActor
-final class ViewModelPublisher<ViewModel>: ObservableObject where ViewModel: Hashable,
-                                                                  ViewModel: Identifiable {
+final class ViewModelPublisher<ViewModel>: ObservableObject, Sendable where ViewModel: Hashable,
+                                                                            ViewModel: Identifiable {
   @Published var data: ViewModel
 
   init(_ data: ViewModel) {
