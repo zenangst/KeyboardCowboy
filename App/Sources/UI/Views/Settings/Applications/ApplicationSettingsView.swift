@@ -4,7 +4,7 @@ import Bonzai
 
 struct ApplicationSettingsView: View {
   @EnvironmentObject var openPanel: OpenPanelController
-  @AppStorage("additionalApplicationPaths", store: AppStorageStore.store) var additionalApplicationPaths = [String]()
+  @AppStorage("additionalApplicationPaths", store: AppStorageContainer.store) var additionalApplicationPaths = [String]()
 
   @State private var isPresentingPopover: Bool = false
 

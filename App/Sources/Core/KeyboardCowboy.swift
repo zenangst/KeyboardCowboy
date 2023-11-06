@@ -14,7 +14,6 @@ struct KeyboardCowboy: App {
   static let env: AppEnvironment = .production
 #endif
 
-  static private var appStorage: AppStorageStore = .init()
   @Namespace var namespace
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
@@ -31,8 +30,13 @@ struct KeyboardCowboy: App {
     contentStore = core.contentStore
     self.core = core
 
-    Inject.animation = .spring()
-    Benchmark.isEnabled = launchArguments.isEnabled(.benchmark)
+    Task {
+      await MainActor.run {
+        Inject.animation = .spring()
+        Benchmark.shared.isEnabled = launchArguments.isEnabled(.benchmark)
+      }
+    }
+
     if launchArguments.isEnabled(.injection) { _ = Inject.load }
   }
 

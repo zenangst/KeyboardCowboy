@@ -2,7 +2,7 @@ import AXEssibility
 import Cocoa
 import Foundation
 
-final class ShellScriptPlugin {
+final class ShellScriptPlugin: @unchecked Sendable {
   enum ShellScriptPluginError: Error {
     case noData
   }

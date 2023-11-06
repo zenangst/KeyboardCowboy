@@ -137,8 +137,8 @@ final class SidebarCoordinator {
   }
 
   private func render(_ workflowGroups: [WorkflowGroup]) {
-    Benchmark.start("SidebarCoordinator.render")
-    defer { Benchmark.finish("SidebarCoordinator.render") }
+    Benchmark.shared.start("SidebarCoordinator.render")
+    defer { Benchmark.shared.finish("SidebarCoordinator.render") }
 
     var groups = [GroupViewModel]()
     groups.reserveCapacity(workflowGroups.count)

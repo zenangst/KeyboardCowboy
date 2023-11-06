@@ -40,7 +40,11 @@ enum MetaDataMigrator: String, CodingKey {
   case notification
 
   static func migrate(_ decoder: Decoder) throws -> Command.MetaData {
-    Migration.shouldSave = true
+    Task {
+      await MainActor.run {
+        Migration.shouldSave = true
+      }
+    }
     // Try and migrate from the previous data structure.
     let container = try decoder.container(keyedBy: Command.MetaData.CodingKeys.self)
     let id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString

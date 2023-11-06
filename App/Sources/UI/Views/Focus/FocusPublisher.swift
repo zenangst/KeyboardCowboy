@@ -26,6 +26,7 @@ final class FocusPublisherDebouncer<Element> where Element: Identifiable {
   }
 }
 
+@MainActor
 final class FocusPublisher<Element>: ObservableObject where Element: Equatable,
                                                             Element: Hashable,
                                                             Element: Identifiable,

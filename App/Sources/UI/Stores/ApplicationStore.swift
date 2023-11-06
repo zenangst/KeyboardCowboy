@@ -2,9 +2,8 @@ import Apps
 import Combine
 import Cocoa
 
-final class ApplicationStore: ObservableObject {
-  static var domain: String = "ApplicationStore"
-  static var appStorage: AppStorageStore = .init()
+final class ApplicationStore: ObservableObject, @unchecked Sendable {
+  static let domain: String = "ApplicationStore"
 
   private var fileWatchers = [FileWatcher]()
   private var passthrough = PassthroughSubject<Void, Never>()
@@ -21,7 +20,7 @@ final class ApplicationStore: ObservableObject {
       .debounce(for: 1.0, scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         guard let self else { return }
-        Task { await self.reload() }
+        Task { await self.reload(AppStorageContainer.shared.additionalApplicationPaths) }
       }
   }
 
@@ -42,8 +41,9 @@ final class ApplicationStore: ObservableObject {
   }
 
   func load() async {
-    Benchmark.start("ApplicationController.load")
+    await Benchmark.shared.start("ApplicationController.load")
     let decoder = JSONDecoder()
+    let additionalPaths = AppStorageContainer.shared.additionalApplicationPaths
     if let newApplications: [Application] = try? AppCache.load(Self.domain, name: "applications.json", decoder: decoder) {
       do {
         var applicationDictionary = [String: Application]()
@@ -60,24 +60,24 @@ final class ApplicationStore: ObservableObject {
         }
 
         Task.detached { [weak self] in
-          await self?.reload()
+          await self?.reload(additionalPaths)
         }
       }
     } else {
-      await reload()
+      await reload(additionalPaths)
     }
-    Benchmark.finish("ApplicationController.load")
+    await Benchmark.shared.finish("ApplicationController.load")
   }
 
   // MARK: - Private methods
 
-  private func reload() async {
-    Benchmark.start("ApplicationController.reload")
-    let additionalDirectories = Self.appStorage.additionalApplicationPaths.map {
+  private func reload(_ additionalPaths: [String]) async {
+    await Benchmark.shared.start("ApplicationController.reload")
+    let additionalDirectories = additionalPaths.map {
       URL(filePath: $0)
     }
     let newApplications = await ApplicationController.load(additionalDirectories)
-    Benchmark.finish("ApplicationController.reload")
+    await Benchmark.shared.finish("ApplicationController.reload")
 
     if applications != newApplications {
       var applicationDictionary = [String: Application]()

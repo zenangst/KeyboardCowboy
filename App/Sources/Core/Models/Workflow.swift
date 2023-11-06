@@ -25,7 +25,9 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
           let keyboardShortcutTrigger = try container.decode(KeyboardShortcutTrigger.self, forKey: .keyboardShortcuts)
           self = .keyboardShortcuts(keyboardShortcutTrigger)
         } catch {
-          Migration.shouldSave = true
+          Task {
+            await MainActor.run { Migration.shouldSave = true }
+          }
           let keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
           self = .keyboardShortcuts(.init(shortcuts: keyboardShortcuts))
         }

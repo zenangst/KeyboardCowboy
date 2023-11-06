@@ -6,6 +6,7 @@ public enum OpenPanelAction {
   case selectFolder(handler: (String) -> Void)
 }
 
+@MainActor
 final class OpenPanelController: NSObject, ObservableObject, NSOpenSavePanelDelegate {
   @Published var state: String = ""
   var fileExtension: String?

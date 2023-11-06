@@ -1,7 +1,6 @@
 import SwiftUI
 
 final class GroupStore: ObservableObject {
-  private static var appStorage: AppStorageStore = .init()
   @MainActor
   @Published var groups = [WorkflowGroup]()
 

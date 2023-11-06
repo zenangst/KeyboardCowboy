@@ -10,7 +10,6 @@ final class ContentStore: ObservableObject {
     case initialized
   }
 
-  static var appStorage: AppStorageStore = .init()
   @Published private(set) var state: State = .loading
   @Published private(set) var preferences: AppPreferences
 
@@ -36,7 +35,7 @@ final class ContentStore: ObservableObject {
        shortcutStore: ShortcutStore,
        scriptCommandRunner: ScriptCommandRunner = .init(workspace: .shared),
        workspace: NSWorkspace = .shared) {
-    self.configurationId = Self.appStorage.configId
+    self.configurationId = AppStorageContainer.shared.configId
     self.applicationStore = applicationStore
     self.shortcutStore = shortcutStore
     self.groupStore = groupStore
@@ -49,7 +48,7 @@ final class ContentStore: ObservableObject {
     guard KeyboardCowboy.env != .previews else { return }
 
     Task {
-      Benchmark.start("ContentStore.init")
+      Benchmark.shared.start("ContentStore.init")
       await applicationStore.load()
       shortcutStore.index()
       let configurations: [KeyboardCowboyConfiguration]
@@ -72,7 +71,7 @@ final class ContentStore: ObservableObject {
         }
       }
 
-      Benchmark.finish("ContentStore.init")
+      Benchmark.shared.finish("ContentStore.init")
     }
   }
 

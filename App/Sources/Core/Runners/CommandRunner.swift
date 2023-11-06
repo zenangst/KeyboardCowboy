@@ -9,7 +9,7 @@ protocol CommandRunning {
   func concurrentRun(_ commands: [Command])
 }
 
-final class CommandRunner: CommandRunning {
+final class CommandRunner: CommandRunning, @unchecked Sendable {
   struct Runners {
     let application: ApplicationCommandRunner
     let keyboard: KeyboardCommandRunner
@@ -22,20 +22,9 @@ final class CommandRunner: CommandRunning {
     let window: WindowCommandRunner
   }
 
-  var machPort: MachPortEventController? {
-    didSet {
-      runners.keyboard.machPort = machPort
-      runners.system.machPort = machPort
-      if let machPort {
-        runners.system.subscribe(to: machPort.$flagsChanged)
-        runners.window.subscribe(to: machPort.$event)
-        subscribe(to: machPort.$event)
-      }
-    }
-  }
-
   private let missionControl: MissionControlPlugin
   private let workspace: WorkspaceProviding
+  private var machPort: MachPortEventController?
   private var serialTask: Task<Void, Error>?
   private var concurrentTask: Task<Void, Error>?
   private var subscription: AnyCancellable?
@@ -72,7 +61,9 @@ final class CommandRunner: CommandRunning {
   }
 
   func reveal(_ commands: [Command]) {
-    missionControl.dismissIfActive()
+    Task {
+      await missionControl.dismissIfActive()
+    }
     for command in commands {
       switch command {
       case .application(let applicationCommand):
@@ -102,11 +93,11 @@ final class CommandRunner: CommandRunning {
 
   func serialRun(_ commands: [Command]) {
     let snapshot = UserSpace.shared.snapshot()
-    missionControl.dismissIfActive()
     serialTask?.cancel()
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
       do {
+        await missionControl.dismissIfActive()
         for command in commands {
           try Task.checkCancellation()
           do {
@@ -122,10 +113,10 @@ final class CommandRunner: CommandRunning {
 
   func concurrentRun(_ commands: [Command]) {
     let snapshot = UserSpace.shared.snapshot()
-    missionControl.dismissIfActive()
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
+      await missionControl.dismissIfActive()
       for command in commands {
         do {
           try Task.checkCancellation()
@@ -208,6 +199,20 @@ final class CommandRunner: CommandRunning {
       throw error
     }
   }
+
+  @MainActor
+  func setMachPort(_ machPort: MachPortEventController?) {
+    self.machPort = machPort
+    runners.keyboard.machPort = machPort
+    runners.system.machPort = machPort
+    if let machPort {
+      runners.system.subscribe(to: machPort.$flagsChanged)
+      runners.window.subscribe(to: machPort.$event)
+      subscribe(to: machPort.$event)
+    }
+  }
+
+  // MARK: Private methods
 
   private func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
     subscription = publisher

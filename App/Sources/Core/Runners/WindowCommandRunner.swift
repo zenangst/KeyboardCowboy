@@ -9,6 +9,7 @@ enum WindowCommandRunnerError: Error {
   case unabelToResolveWindowFrame
 }
 
+@MainActor
 final class WindowCommandRunner {
   private var lastKeyCode: Int64?
   private var shouldCycle: Bool = false
@@ -22,6 +23,8 @@ final class WindowCommandRunner {
       task?.cancel()
     }
   }
+
+  nonisolated init() {}
 
   func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
     subscription = publisher
@@ -246,7 +249,7 @@ final class WindowCommandRunner {
                                       currentScreen: NSScreen, mainDisplay: NSScreen,
                                       curve: InterpolationCurve = .easeInOut,
                                       constrainedToScreen: Bool = false, duration: TimeInterval,
-                                      onUpdate: @MainActor @escaping (CGRect) -> Void) {
+                                      onUpdate: @MainActor @escaping @Sendable (CGRect) -> Void) {
     let dockSize = getDockSize(mainDisplay)
     let dockPosition = getDockPosition(mainDisplay)
     let currenScreenFrame = currentScreen.frame
@@ -303,24 +306,24 @@ final class WindowCommandRunner {
 
             switch curve {
             case .easeIn:
-              easedProgress = Self.easeIn(progress)
+              easedProgress = await Self.easeIn(progress)
             case .easeInOut:
-              easedProgress = Self.easeInOut(progress)
+              easedProgress = await Self.easeInOut(progress)
             case .spring:
-              easedProgress = Self.spring(progress)
+              easedProgress = await Self.spring(progress)
             case .linear:
               easedProgress = progress
             }
 
-            let interpolatedOrigin = CGPoint(x: Self.interpolate(from: oldFrame.origin.x, to: newFrame.origin.x, progress: easedProgress),
-                                             y: Self.interpolate(from: oldFrame.origin.y, to: newFrame.origin.y, progress: easedProgress))
-            let interpolatedSize = CGSize(width: Self.interpolate(from: oldFrame.size.width, to: newFrame.size.width, progress: easedProgress),
-                                          height: Self.interpolate(from: oldFrame.size.height, to: newFrame.size.height, progress: easedProgress))
+            let interpolatedOrigin = CGPoint(x: await Self.interpolate(from: oldFrame.origin.x, to: newFrame.origin.x, progress: easedProgress),
+                                             y: await Self.interpolate(from: oldFrame.origin.y, to: newFrame.origin.y, progress: easedProgress))
+            let interpolatedSize = CGSize(width: await Self.interpolate(from: oldFrame.size.width, to: newFrame.size.width, progress: easedProgress),
+                                          height: await Self.interpolate(from: oldFrame.size.height, to: newFrame.size.height, progress: easedProgress))
             var interpolatedFrame = CGRect(origin: interpolatedOrigin, size: interpolatedSize)
             let delay = (duration / TimeInterval(numberOfFrames)) * TimeInterval(frameIndex)
 
             if constrainedToScreen {
-              Self.constrainToMax(
+              await Self.constrainToMax(
                 &interpolatedFrame,
                 minSize: minSize,
                 currenScreenFrame: currenScreenFrame,

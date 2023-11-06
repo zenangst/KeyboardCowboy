@@ -2,6 +2,7 @@ import Carbon
 import SwiftUI
 import Bonzai
 
+@MainActor
 struct NewCommandView: View {
   enum Kind: String, CaseIterable, Hashable, Identifiable {
     var id: String { self.rawValue }
@@ -185,7 +186,7 @@ struct NewCommandView: View {
         Spacer()
         Button(action: onDismiss, label: { Text("Cancel") })
           .buttonStyle(.zen(.init(color: .systemRed, grayscaleEffect: .constant(true))))
-        Button(action: onSubmit, label: { Text("Save") })
+        Button(action: { onSubmit() }, label: { Text("Save") })
           .buttonStyle(.positive)
           .keyboardShortcut(.defaultAction)
       }
@@ -195,7 +196,7 @@ struct NewCommandView: View {
     .background(Color(.textBackgroundColor))
   }
 
-  @ViewBuilder
+  @ViewBuilder @MainActor
   private func selectedView(_ selection: Kind) -> some View {
     switch selection {
     case .application:

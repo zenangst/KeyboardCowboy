@@ -74,7 +74,7 @@ final class KeyboardCowboyEngine {
       machPortCoordinator.subscribe(to: newMachPortController.$event)
       machPortCoordinator.subscribe(to: newMachPortController.$flagsChanged)
       machPortCoordinator.machPort = newMachPortController
-      commandRunner.machPort = newMachPortController
+      commandRunner.setMachPort(newMachPortController)
       machPortController = newMachPortController
       keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
     } catch let error {
