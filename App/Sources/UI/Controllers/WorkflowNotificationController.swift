@@ -2,14 +2,13 @@ import AppKit
 import Combine
 import SwiftUI
 
+@MainActor
 final class WorkflowNotificationController: ObservableObject {
   static let shared = WorkflowNotificationController()
   private static let emptyModel = WorkflowNotificationViewModel(
     id: UUID().uuidString,
     keyboardShortcuts: []
   )
-
-  private var subscription: AnyCancellable?
 
   lazy var windowController: NSWindowController = {
     let content = WorkflowNotificationView(publisher: publisher)
@@ -18,13 +17,12 @@ final class WorkflowNotificationController: ObservableObject {
     return windowController
   }()
 
-  @MainActor
   private let publisher: WorkflowNotificationPublisher = .init(WorkflowNotificationController.emptyModel)
 
   private init() { }
 
   func post(_ notification: WorkflowNotificationViewModel) {
-    Task { @MainActor in
+    Task { @MainActor [publisher, windowController] in
       withAnimation(WorkflowNotificationView.animation) {
         publisher.publish(notification)
       }
