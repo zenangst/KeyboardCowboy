@@ -5,9 +5,13 @@ import InputSources
 final class Core {
   static private var appStorage: AppStorageStore = .init()
 
-  static let config: AppPreferences = KeyboardCowboy.env == .production
-  ? !isRunningPreview ? .user() : .designTime()
-  : .designTime()
+  static var config: AppPreferences {
+    switch KeyboardCowboy.env {
+    case .development: .designTime()
+    case .previews: .designTime()
+    case .production: .user()
+    }
+  }
 
   // MARK: - Coordinators
 
