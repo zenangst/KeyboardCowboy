@@ -49,7 +49,6 @@ final class ShellScriptPlugin {
           environment["FILENAME"] = (url.lastPathComponent as NSString).deletingPathExtension
           environment["EXTENSION"] = (url.lastPathComponent as NSString).pathExtension
         }
-
       }
     }
 
