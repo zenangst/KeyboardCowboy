@@ -93,11 +93,12 @@ For more information about [tuist](https://tuist.io), refer to the projects READ
 Create a new `.env` file in the root folder.
 Add the following contents to the `.env`-file.
 
-```
+```fish
 APP_NAME=Keyboard Cowboy
 APP_SCHEME=Keyboard-Cowboy
 APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy
 TEAM_ID=XXXXXXXXXX
+PACKAGE_DEVELOPMENT=false
 ```
 
 #### Generating an Xcode project

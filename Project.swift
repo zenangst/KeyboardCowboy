@@ -133,6 +133,7 @@ let project = Project(
     FileElement(stringLiteral: "ci_scripts"),
     FileElement(stringLiteral: "Fixtures"),
     FileElement(stringLiteral: "Project.swift"),
+    FileElement(stringLiteral: "README.md"),
     FileElement(stringLiteral: "Tuist/Dependencies.swift"),
     FileElement(stringLiteral: "appcast.xml"),
     FileElement(stringLiteral: "gh-pages"),
