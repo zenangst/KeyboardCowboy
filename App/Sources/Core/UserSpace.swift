@@ -39,7 +39,7 @@ final class UserSpace {
           interpolatedString = interpolatedString
             .replacingOccurrences(of: "$CURRENT_WORKING_DIRECTORY", with: cwd)
             .replacingOccurrences(of: "$DIRECTORY", with: (directory as NSString).deletingLastPathComponent)
-            .replacingOccurrences(of: "$FILEPATH", with: components.path)
+            .replacingOccurrences(of: "$FILEPATH", with: components.path.replacingOccurrences(of: "%20", with: " "))
             .replacingOccurrences(of: "$FILENAME", with: (url.lastPathComponent as NSString).deletingPathExtension)
             .replacingOccurrences(of: "$FILE", with: lastPathComponent as String)
             .replacingOccurrences(of: "$EXTENSION", with: (url.lastPathComponent as NSString).pathExtension)
@@ -65,7 +65,7 @@ final class UserSpace {
           environment["CURRENT_WORKING_DIRECTORY"] = cwd
           environment["DIRECTORY"] = (directory as NSString).deletingLastPathComponent
           environment["FILE"] = url.lastPathComponent
-          environment["FILEPATH"] = components.path
+          environment["FILEPATH"] = components.path.replacingOccurrences(of: "%20", with: " ")
           environment["FILENAME"] = (url.lastPathComponent as NSString).deletingPathExtension
           environment["EXTENSION"] = (url.lastPathComponent as NSString).pathExtension
         }
