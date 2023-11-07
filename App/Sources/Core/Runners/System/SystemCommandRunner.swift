@@ -129,8 +129,6 @@ final class SystemCommandRunner: @unchecked Sendable {
           axWindow?.performAction(.raise)
         }
       case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
-        guard frontMostApplicationWindows.count > 1 else { return }
-
         if case .moveFocusToNextWindowFront = command.kind {
           frontMostIndex += 1
           if frontMostIndex >= frontMostApplicationWindows.count {
