@@ -12,46 +12,24 @@ final class ShellScriptPlugin: @unchecked Sendable {
     self.fileManager = fileManager
   }
 
-  func executeScript(_ source: String) throws -> String? {
+  func executeScript(_ source: String, environment: [String: String]) throws -> String? {
     let url = try createTmpDirectory()
     let data = source.data(using: .utf8)
     _ = fileManager.createFile(atPath: url.path, contents: data, attributes: nil)
-    let output = try executeScript(at: url.path)
+    let output = try executeScript(at: url.path, environment: environment)
 
     try fileManager.removeItem(atPath: url.path)
 
     return output
   }
 
-  func executeScript(at path: String) throws -> String? {
-    var environment: [String: String] = ProcessInfo.processInfo.environment
-    environment["TERM"] = "xterm-256color"
-
+  func executeScript(at path: String, environment: [String: String]) throws -> String? {
     let filePath = path.sanitizedPath
     let command = (filePath as NSString).lastPathComponent
     let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
     let (process, pipe, errorPipe) = createProcess()
 
     process.arguments = ["-i", "-l", command]
-
-    if let frontmostApplication = NSWorkspace.shared.frontmostApplication {
-      let app = AppAccessibilityElement(frontmostApplication.processIdentifier)
-      if let focusedWindow = try? app.focusedWindow(),
-         let documentPath = focusedWindow.document {
-        let url = URL(filePath: documentPath)
-
-        if let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-          let directory = (components.path as NSString)
-            .deletingLastPathComponent
-            .replacingOccurrences(of: "%20", with: " ")
-          environment["DIRECTORY"] = directory
-          environment["FILE"] = url.lastPathComponent
-          environment["FILENAME"] = (url.lastPathComponent as NSString).deletingPathExtension
-          environment["EXTENSION"] = (url.lastPathComponent as NSString).pathExtension
-        }
-      }
-    }
-
     process.environment = environment
     process.currentDirectoryURL = url
 

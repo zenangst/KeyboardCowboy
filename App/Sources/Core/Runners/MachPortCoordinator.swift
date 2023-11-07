@@ -179,7 +179,7 @@ final class MachPortCoordinator {
           notifications.notifyKeyboardCommand(workflow, command: command)
         }
 
-        try? keyboardCommandRunner.run(command,
+        try? keyboardCommandRunner.run(command.keyboardShortcuts,
                                        type: machPortEvent.type,
                                        originalEvent: machPortEvent.event,
                                        with: machPortEvent.eventSource)

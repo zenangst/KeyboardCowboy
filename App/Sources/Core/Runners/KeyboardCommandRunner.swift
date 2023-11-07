@@ -22,7 +22,7 @@ final class KeyboardCommandRunner {
     store.virtualKey(for: string, modifiers: modifiers, matchDisplayValue: matchDisplayValue)
   }
 
-  func run(_ command: KeyboardCommand,
+  func run(_ keyboardShortcuts: [KeyShortcut],
            type: CGEventType,
            originalEvent: CGEvent?,
            with eventSource: CGEventSource?) throws {
@@ -30,7 +30,7 @@ final class KeyboardCommandRunner {
       throw KeyboardCommandRunnerError.failedToResolveMachPortController
     }
 
-    for keyboardShortcut in command.keyboardShortcuts {
+    for keyboardShortcut in keyboardShortcuts {
       let key = try resolveKey(for: keyboardShortcut.key)
       var flags = CGEventFlags()
       keyboardShortcut.modifiers.forEach { flags.insert($0.cgModifierFlags) }

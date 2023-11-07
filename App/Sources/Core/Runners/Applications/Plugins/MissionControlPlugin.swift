@@ -22,7 +22,7 @@ final class MissionControlPlugin {
     }.isEmpty
 
     if missionControlIsActive {
-      try? keyboard.run(.init(keyboardShortcut: .init(key: "⎋")), type: .keyDown, originalEvent: nil, with: nil)
+      try? keyboard.run([.init(key: "⎋")], type: .keyDown, originalEvent: nil, with: nil)
     }
   }
 }

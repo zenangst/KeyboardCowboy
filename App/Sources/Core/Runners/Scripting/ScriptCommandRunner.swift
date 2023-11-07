@@ -17,7 +17,7 @@ final class ScriptCommandRunner: Sendable {
     self.plugins = Plugins(workspace: workspace)
   }
 
-  func run(_ command: ScriptCommand) async throws -> String? {
+  func run(_ command: ScriptCommand, environment: [String: String]) async throws -> String? {
     var result: String?
 
     switch (command.kind, command.source) {
@@ -26,9 +26,9 @@ final class ScriptCommandRunner: Sendable {
     case (.appleScript, .inline(let script)):
       result = try await plugins.appleScript.execute(script, withId: command.id)
     case (.shellScript, .path(let source)):
-      result = try plugins.shellScript.executeScript(at: source)
+      result = try plugins.shellScript.executeScript(at: source, environment: environment)
     case (.shellScript, .inline(let script)):
-      result = try plugins.shellScript.executeScript(script)
+      result = try plugins.shellScript.executeScript(script, environment: environment)
     }
 
     return result

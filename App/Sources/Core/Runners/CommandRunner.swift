@@ -82,7 +82,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           let shellScript = ScriptCommand(name: "Reveal \(shortcut.shortcutIdentifier)",
                                           kind: .shellScript, source: .inline(source), notification: false)
 
-          _ = try await runners.script.run(shellScript)
+          _ = try await runners.script.run(shellScript, environment: [:])
         }
       case .builtIn, .keyboard, .type,
           .systemCommand, .menuBar, .windowManagement:
@@ -145,11 +145,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         }
         output = command.name
       case .keyboard(let keyboardCommand):
-        try runners.keyboard.run(keyboardCommand,
+        try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
                                  type: .keyDown,
                                  originalEvent: nil,
                                  with: eventSource)
-        try runners.keyboard.run(keyboardCommand,
+        try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
                                  type: .keyUp,
                                  originalEvent: nil,
                                  with: eventSource)
@@ -159,10 +159,14 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         try await runners.menubar.execute(menuBarCommand)
         output = command.name
       case .open(let openCommand):
-        try await runners.open.run(openCommand, snapshot: snapshot)
+        let path = snapshot.interpolateUserSpaceVariables(openCommand.path)
+        try await runners.open.run(path, application: openCommand.application)
         output = command.name
       case .script(let scriptCommand):
-        let result = try await self.runners.script.run(scriptCommand)
+        let result = try await self.runners.script.run(
+          scriptCommand,
+          environment: snapshot.terminalEnvironment()
+        )
         if let result = result {
           let trimmedResult = result.trimmingCharacters(in: .newlines)
           output = command.name + " " + trimmedResult
@@ -178,8 +182,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           output = command.name
         }
       case .type(let typeCommand):
-        let input = snapshot.replaceSelectedText(typeCommand.input)
-        try await runners.type.run(input, mode: typeCommand.mode)
+        try await runners.type.run(
+          snapshot.interpolateUserSpaceVariables(typeCommand.input),
+          mode: typeCommand.mode
+        )
         output = command.name
       case .systemCommand(let systemCommand):
         try await runners.system.run(systemCommand)

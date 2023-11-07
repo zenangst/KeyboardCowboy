@@ -1,3 +1,4 @@
+import Apps
 import AXEssibility
 import Cocoa
 import Foundation
@@ -21,44 +22,26 @@ final class OpenCommandRunner {
     self.workspace = workspace
   }
 
-  func run(_ command: OpenCommand, snapshot: UserSpace.Snapshot) async throws {
-    var interpolatedPath = snapshot.replaceSelectedText(command.path)
-
-    if let frontmostApplication = NSWorkspace.shared.frontmostApplication {
-      let app = AppAccessibilityElement(frontmostApplication.processIdentifier)
-      if let focusedWindow = try? app.focusedWindow(),
-         let documentPath = focusedWindow.document {
-        let url = URL(filePath: documentPath)
-
-        if let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-          let directory = (components.path as NSString)
-            .deletingLastPathComponent
-            .replacingOccurrences(of: "%20", with: " ")
-          interpolatedPath = interpolatedPath
-            .replacingOccurrences(of: "$DIRECTORY", with: directory)
-            .replacingOccurrences(of: "$FILE", with: url.lastPathComponent)
-            .replacingOccurrences(of: "$FILENAME", with: (url.lastPathComponent as NSString).deletingPathExtension)
-            .replacingOccurrences(of: "$EXTENSION", with: (url.lastPathComponent as NSString).pathExtension)
-        }
-      }
-    }
-
+  func run(_ path: String, application: Application?) async throws {
     do {
-      if plugins.finderFolder.validate(command) {
-        try await plugins.finderFolder.execute(interpolatedPath)
-      } else if command.isUrl {
-        try await plugins.swapTab.execute(interpolatedPath, application: command.application)
+      if plugins.finderFolder.validate(application?.bundleIdentifier) {
+        try await plugins.finderFolder.execute(path)
+      } else if path.isUrl {
+        try await plugins.swapTab.execute(path,
+                                          appName: application?.displayName ?? "Safari",
+                                          appPath: application?.path,
+                                          bundleIdentifier: application?.bundleIdentifier)
       } else {
-        try await plugins.open.execute(interpolatedPath, application: command.application)
+        try await plugins.open.execute(path, application: application)
       }
     } catch {
-      let url = URL(fileURLWithPath: command.path)
+      let url = URL(fileURLWithPath: path)
       let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
       // TODO: Check if this is what we want.
-      if command.application?.bundleName == "Finder", isDirectory == true {
-        try await plugins.finderFolder.execute(interpolatedPath)
+      if application?.bundleName == "Finder", isDirectory == true {
+        try await plugins.finderFolder.execute(path)
       } else {
-        try await plugins.open.execute(interpolatedPath, application: command.application)
+        try await plugins.open.execute(path, application: application)
       }
     }
   }
@@ -78,5 +61,17 @@ extension String {
     var path = (self as NSString).expandingTildeInPath
     path = path.replacingOccurrences(of: "", with: "\\ ")
     return path
+  }
+
+  var isUrl: Bool {
+    if let url = URL(string: self) {
+      if url.host == nil || url.isFileURL {
+        return false
+      } else {
+        return true
+      }
+    } else {
+      return false
+    }
   }
 }

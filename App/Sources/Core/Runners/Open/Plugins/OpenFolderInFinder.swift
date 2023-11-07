@@ -1,3 +1,4 @@
+import Apps
 import Cocoa
 
 final class OpenFolderInFinder {
@@ -10,8 +11,8 @@ final class OpenFolderInFinder {
     self.workspace = workspace
   }
 
-  func validate(_ command: OpenCommand) -> Bool {
-    command.application?.bundleIdentifier.lowercased() == finderBundleIdentifier ||
+  func validate(_ bundleIdentifier: String?) -> Bool {
+    bundleIdentifier?.lowercased() == finderBundleIdentifier ||
     workspace.frontApplication?.bundleIdentifier?.lowercased() == finderBundleIdentifier
   }
 
@@ -27,6 +28,6 @@ final class OpenFolderInFinder {
                                source: .inline(source),
                                notification: false)
     try Task.checkCancellation()
-    _ = try await commandRunner.run(script)
+    _ = try await commandRunner.run(script, environment: [:])
   }
 }

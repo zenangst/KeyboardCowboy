@@ -14,7 +14,7 @@ final class ShortcutStore: ObservableObject, @unchecked Sendable {
                                     source: .inline("shortcuts list"), notification: false)
 
     Task {
-      guard let result = try await scriptCommandRunner.run(shellScript) else {
+      guard let result = try await scriptCommandRunner.run(shellScript, environment: [:]) else {
         return
       }
 

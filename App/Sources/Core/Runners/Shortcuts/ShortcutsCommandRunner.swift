@@ -15,6 +15,6 @@ final class ShortcutsCommandRunner {
     let shellScript = ScriptCommand(
       id: "ShortcutCommand.\(command.shortcutIdentifier)",
       name: command.name, kind: .shellScript, source: .inline(source), notification: false)
-    return try await commandRunner.run(shellScript)
+    return try await commandRunner.run(shellScript, environment: [:])
   }
 }

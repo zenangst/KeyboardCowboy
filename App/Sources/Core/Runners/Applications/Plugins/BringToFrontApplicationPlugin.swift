@@ -20,7 +20,13 @@ final class BringToFrontApplicationPlugin {
 
     try Task.checkCancellation()
     _ = try await commandRunner.run(
-      ScriptCommand(name: "BringToFrontApplicationPlugin", kind: .appleScript, source: .inline(source), notification: false)
+      ScriptCommand(
+        name: "BringToFrontApplicationPlugin",
+        kind: .appleScript,
+        source: .inline(source),
+        notification: false
+      ),
+      environment: [:]
     )
   }
 }

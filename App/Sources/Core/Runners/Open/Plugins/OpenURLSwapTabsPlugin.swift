@@ -23,9 +23,9 @@ final class OpenURLSwapTabsPlugin {
   /// - Parameters:
   ///   - command: The open command to execute.
   /// - Throws: An error if the URL cannot be opened.
-  func execute(_ path: String, application: Application?) async throws {
+  func execute(_ path: String, appName: String, appPath: String?, bundleIdentifier: String?) async throws {
     // Get the bundle identifier of the target application, default to Safari if not provided
-    let bundleIdentifier = application?.bundleIdentifier ?? "com.apple.Safari"
+    let bundleIdentifier = bundleIdentifier ?? "com.apple.Safari"
 
     // Check if the target application is already running
     if let runningApplication = NSWorkspace.shared.runningApplications
@@ -49,8 +49,6 @@ final class OpenURLSwapTabsPlugin {
       }
 
       if !success {
-        let appName = application?.displayName ?? "Safari"
-
         // Create an AppleScript to search for the URL in tabs
         //
         // This AppleScript code opens a specific URL in a specific application by swapping tabs.
@@ -82,15 +80,15 @@ final class OpenURLSwapTabsPlugin {
         let scriptCommand = ScriptCommand(name: UUID().uuidString, kind: .appleScript, source: .inline(source), notification: false)
 
         // Run the script command and check the result
-        if try await commandRunner.run(scriptCommand) == "-1" {
+        if try await commandRunner.run(scriptCommand, environment: [:]) == "-1" {
           throw OpenURLSwapToPluginError.couldNotFindOpenUrl
         }
       }
     } else if let url = URL(string: path) {
       // If the target application is not running, open the URL directly
       let configuration = NSWorkspace.OpenConfiguration()
-      if let application = application {
-        try await NSWorkspace.shared.open([url], withApplicationAt: URL(filePath: application.path),
+      if let appPath {
+        try await NSWorkspace.shared.open([url], withApplicationAt: URL(filePath: appPath),
                                           configuration: configuration)
       } else {
         NSWorkspace.shared.open(url)
