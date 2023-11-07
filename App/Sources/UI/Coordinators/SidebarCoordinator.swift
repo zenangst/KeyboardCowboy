@@ -69,7 +69,7 @@ final class SidebarCoordinator {
         selectionManager.publish([])
       }
       render(store.groups)
-    case .deleteConfiguraiton:
+    case .deleteConfiguration:
       if let firstGroup = store.groups.first {
         selectionManager.publish([firstGroup.id])
         selectionManager.selectedColor = Color(hex: firstGroup.color)
