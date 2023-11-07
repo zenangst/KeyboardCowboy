@@ -12,8 +12,7 @@ final class OpenFolderInFinder {
   }
 
   func validate(_ bundleIdentifier: String?) -> Bool {
-    bundleIdentifier?.lowercased() == finderBundleIdentifier ||
-    workspace.frontApplication?.bundleIdentifier?.lowercased() == finderBundleIdentifier
+    bundleIdentifier?.lowercased() == finderBundleIdentifier
   }
 
   func execute(_ path: String) async throws {
