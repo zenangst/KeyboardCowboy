@@ -16,7 +16,6 @@ let envPath = URL(fileURLWithPath: String(#filePath))
   .absoluteString
   .replacingOccurrences(of: "file://", with: "")
   .appending(".env")
-
 let env = EnvHelper(envPath)
 
 let project = Project(
@@ -24,19 +23,7 @@ let project = Project(
   options: Project.Options.options(
     textSettings: .textSettings(indentWidth: 2,
                                 tabWidth: 2)),
-  packages: [
-    .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
-    .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
-    .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.0.8"),
-    .package(url: "https://github.com/zenangst/Bonzai.git", .revision("3cc38ad3fa42dea6d87f57306c1fac550c539b8f")),
-    .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.0"),
-    .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
-    .package(url: "https://github.com/zenangst/InputSources.git", from: "1.0.1"),
-    .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.0.5"),
-    .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.1"),
-    .package(url: "https://github.com/zenangst/MachPort.git", from: "3.0.1"),
-    .package(url: "https://github.com/zenangst/Windows.git", from: "1.0.0"),
-  ],
+  packages: PackageResolver.packages(env),
   settings: Settings.settings(configurations: [
     .debug(name: "Debug", xcconfig: "\(xcconfig("Debug"))"),
     .release(name: "Release", xcconfig: "\(xcconfig("Release"))")
@@ -151,3 +138,39 @@ let project = Project(
     FileElement(stringLiteral: "gh-pages"),
   ]
 )
+
+public enum PackageResolver {
+  public static func packages(_ env: EnvHelper) -> [Package] {
+    let packages: [Package]
+    if env["PACKAGE_DEVELOPMENT"] == "true" {
+      packages = [
+        .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
+        .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
+        .package(path: "../AXEssibility"),
+        .package(path: "../Bonzai"),
+        .package(path: "../Apps"),
+        .package(path: "../Dock"),
+        .package(path: "../InputSources"),
+        .package(path: "../KeyCodes"),
+        .package(path: "../LaunchArguments"),
+        .package(path: "../MachPort"),
+        .package(path: "../Windows"),
+      ]
+    } else {
+      packages = [
+        .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
+        .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
+        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.0.8"),
+        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("3cc38ad3fa42dea6d87f57306c1fac550c539b8f")),
+        .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.0"),
+        .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
+        .package(url: "https://github.com/zenangst/InputSources.git", from: "1.0.1"),
+        .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.0.5"),
+        .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.1"),
+        .package(url: "https://github.com/zenangst/MachPort.git", from: "3.0.1"),
+        .package(url: "https://github.com/zenangst/Windows.git", from: "1.0.0"),
+      ]
+    }
+    return packages
+  }
+}
