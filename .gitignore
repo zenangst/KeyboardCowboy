@@ -21,3 +21,4 @@ Build/*.xcarchive
 Build/Releases/*
 ResultBundle.xcresult
 Sparkle/*
+.package.resolved
