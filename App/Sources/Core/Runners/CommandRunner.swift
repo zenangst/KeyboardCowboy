@@ -161,7 +161,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       case .open(let openCommand):
         let path = snapshot.interpolateUserSpaceVariables(openCommand.path)
         try await runners.open.run(path, application: openCommand.application)
-        output = command.name
+        output = path
       case .script(let scriptCommand):
         let result = try await self.runners.script.run(
           scriptCommand,

@@ -173,7 +173,8 @@ final class DetailCommandActionReducer {
               return
             }
             let command = ApplicationCommand(application: shortcutsApp)
-            try await commandRunner.run(.application(command), snapshot: .init(documentPath: nil, selectedText: ""))
+            try await commandRunner.run(.application(command), 
+                                        snapshot: .init())
           }
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
