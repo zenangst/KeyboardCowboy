@@ -35,7 +35,7 @@ final class ContentCoordinator {
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .refresh, .openScene, .addConfiguration, .updateConfiguration,
-        .moveGroups, .removeGroups, .deleteConfiguraiton:
+        .moveGroups, .removeGroups, .deleteConfiguration:
       // NOOP
       break
     case .moveWorkflows, .copyWorkflows:

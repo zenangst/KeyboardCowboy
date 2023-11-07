@@ -75,7 +75,6 @@ struct KeyboardCowboy: App {
     .windowResizability(.contentSize)
     .windowToolbarStyle(.unified)
 
-
     WindowGroup(id: KeyboardCowboy.permissionsSettingsWindowIdentifier) {
       PermissionsSettings()
     }

@@ -6,7 +6,7 @@ struct SidebarView: View {
     case openScene(AppScene)
     case addConfiguration(name: String)
     case updateConfiguration(name: String)
-    case deleteConfiguraiton(id: ConfigurationViewModel.ID)
+    case deleteConfiguration(id: ConfigurationViewModel.ID)
     case selectConfiguration(ConfigurationViewModel.ID)
     case selectGroups(Set<GroupViewModel.ID>)
     case moveGroups(source: IndexSet, destination: Int)
@@ -38,7 +38,7 @@ struct SidebarView: View {
     SidebarConfigurationView(configSelectionManager) { action in
       switch action {
       case .deleteConfiguration(let id):
-        onAction(.deleteConfiguraiton(id: id))
+        onAction(.deleteConfiguration(id: id))
       case .updateName(let newName):
         onAction(.updateConfiguration(name: newName))
       case .addConfiguration(let name):

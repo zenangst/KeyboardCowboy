@@ -12,7 +12,7 @@ final class NotificationWindow<Content>: NSPanel where Content: View {
     self.manager = WindowManager()
     let contentRect = NSScreen.main?.frame ?? .init(origin: .zero, size: .init(width: 200, height: 200))
     super.init(contentRect: contentRect, styleMask: [
-      .borderless, .nonactivatingPanel, .fullSizeContentView
+      .borderless, .nonactivatingPanel
     ], backing: .buffered, defer: false)
 
     self.animationBehavior = animationBehavior
@@ -25,6 +25,7 @@ final class NotificationWindow<Content>: NSPanel where Content: View {
     self.becomesKeyOnlyIfNeeded = true
     self.backgroundColor = .clear
     self.acceptsMouseMovedEvents = false
+    self.hasShadow = false
 
     self.manager.window = self
 
@@ -36,6 +37,13 @@ final class NotificationWindow<Content>: NSPanel where Content: View {
     self.contentViewController = NSHostingController(rootView: rootView)
 
     setFrame(contentRect, display: false)
+
+    NotificationCenter.default.addObserver(self, selector: #selector(screenChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
+  }
+
+  @objc func screenChanged() {
+    guard let screenFrame = NSScreen.main?.frame else { return }
+    self.setFrame(screenFrame, display: true)
   }
 }
 

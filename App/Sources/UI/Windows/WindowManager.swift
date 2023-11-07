@@ -18,12 +18,9 @@ final class WindowManager: ObservableObject {
   func close(after stride: DispatchQueue.SchedulerTimeType.Stride, then: @escaping @MainActor @Sendable () -> Void = {}) {
     subscription = passthrough
       .debounce(for: stride, scheduler: DispatchQueue.main)
-      .sink { [window] in
+      .sink {
         Task {
-          await MainActor.run {
-            window?.close()
-            then()
-          }
+          await then()
         }
       }
     passthrough.send()

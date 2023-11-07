@@ -8,7 +8,7 @@ final class BezelNotificationController {
 
   lazy var windowController: NSWindowController = {
     let content = BezelNotificationView(publisher: publisher)
-    let window = NotificationWindow(animationBehavior: .alertPanel, content: content)
+    let window = NotificationWindow(animationBehavior: .none, content: content)
     let windowController = NSWindowController(window: window)
     return windowController
   }()

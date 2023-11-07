@@ -45,7 +45,7 @@ final class ConfigurationCoordinator {
       contentStore.configurationStore.update(modifiedConfiguration)
       render(selectedConfiguration: modifiedConfiguration)
       selectionManager.selections = [modifiedConfiguration.id]
-    case .deleteConfiguraiton(let id):
+    case .deleteConfiguration(let id):
       // Fix the bug when deleting configurations (they are out-of-sync)
       assert(contentStore.configurationStore.selectedConfiguration.id == id)
       contentStore.configurationStore.remove(contentStore.configurationStore.selectedConfiguration)
