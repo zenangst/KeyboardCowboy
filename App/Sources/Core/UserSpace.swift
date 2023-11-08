@@ -1,4 +1,5 @@
 import AXEssibility
+import Apps
 import ScriptingBridge
 import Cocoa
 import Foundation
@@ -88,30 +89,14 @@ final class UserSpace {
     if let frontmostApplication = try? frontmostApplication() {
       if let documentPathFromAX = try? self.documentPath(for: frontmostApplication) {
         documentPath = documentPathFromAX
-      } else if let bundleIdentifier = frontmostApplication.bundleIdentifier,
-                let application: ApplicationWithSelection = SBApplication(bundleIdentifier: bundleIdentifier) {
+      } else if let bundleIdentifier = frontmostApplication.bundleIdentifier {
         // Only invoke this if the user isn't dragging using the mouse.
-
         if !MouseMonitor.shared.isDraggingUsingTheMouse {
-          if let items = application.selection?.get() as? [SBObject] {
-            if items.isEmpty, let windows = application.windows?.get() as? [SBObject] {
-              // Check for location of the first open Finder window
-              for ref in windows {
-                let url = (ref as WindowObject).target?.URL
-                documentPath = url
-                break
-              }
-            } else {
-              // There is at least one item in the selection
-              for ref in items {
-                let item = ref as FileObject
-                if let urlString = item.URL {
-                  if documentPath == nil { documentPath = urlString }
-                  selections.append(urlString)
-                }
-              }
-            }
-          }
+          ScriptingBridgeResolver.resolve(
+            bundleIdentifier,
+            firstUrl: &documentPath,
+            selections: &selections
+          )
         }
       }
 
@@ -149,23 +134,3 @@ final class UserSpace {
       .selectedText() ?? ""
   }
 }
-
-@objc protocol ApplicationWithSelection {
-  @objc optional var selection: SBElementArray { get }
-  @objc optional var windows: SBElementArray { get }
-}
-
-@objc protocol WindowObject {
-  @objc optional var target: FileObject { get }
-  @objc optional var name: String { get }
-  @objc optional var index: Int { get }
-}
-
-@objc protocol FileObject {
-  @objc optional var name: String { get }
-  @objc optional var URL: String { get }
-}
-
-extension SBApplication: ApplicationWithSelection {}
-extension SBObject: FileObject {}
-extension SBObject: WindowObject {}
