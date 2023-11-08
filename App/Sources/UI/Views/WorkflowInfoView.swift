@@ -27,6 +27,8 @@ struct WorkflowInfoView: View {
     HStack(spacing: 0) {
       VStack {
         TextField("Workflow name", text: $publisher.data.name)
+          .frame(height: 41)
+          .fixedSize(horizontal: false, vertical: true)
           .focused(focus, equals: .detail(.name))
           .onCommand(#selector(NSTextField.insertTab(_:)), perform: onInsertTab)
           .onCommand(#selector(NSTextField.insertBacktab(_:)), perform: {
@@ -51,6 +53,7 @@ struct WorkflowInfo_Previews: PreviewProvider {
     WorkflowInfoView($focus,
                      publisher: .init(DesignTime.detail.info),
                      onInsertTab: { }) { _ in }
+      .environmentObject(SelectionManager<CommandViewModel>())
       .padding()
   }
 }
