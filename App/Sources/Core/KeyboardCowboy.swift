@@ -94,7 +94,10 @@ struct KeyboardCowboy: App {
             configSelectionManager: core.configSelectionManager,
             contentSelectionManager: core.contentSelectionManager,
             groupsSelectionManager: core.groupSelectionManager,
-            keyboardShortcutSelectionManager: core.keyboardShortcutSelectionManager
+            keyboardShortcutSelectionManager: core.keyboardShortcutSelectionManager,
+            triggerPublisher: core.detailCoordinator.triggerPublisher,
+            infoPublisher: core.detailCoordinator.infoPublisher,
+            commandPublisher: core.detailCoordinator.commandsPublisher
           ) { action, undoManager in
 
             let oldConfiguration = core.configurationStore.selectedConfiguration

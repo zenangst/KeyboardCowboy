@@ -26,9 +26,10 @@ struct SingleDetailView: View {
   }
   var focus: FocusState<AppFocus?>.Binding
   @Environment(\.openWindow) var openWindow
-  @EnvironmentObject var triggerPublisher: TriggerPublisher
-  @EnvironmentObject var infoPublisher: InfoPublisher
-  @EnvironmentObject var commandPublisher: CommandsPublisher
+  private let triggerPublisher: TriggerPublisher
+  private let infoPublisher: InfoPublisher
+  private let commandPublisher: CommandsPublisher
+  
   @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
@@ -40,11 +41,17 @@ struct SingleDetailView: View {
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
+       triggerPublisher: TriggerPublisher,
+       infoPublisher: InfoPublisher,
+       commandPublisher: CommandsPublisher,
        onAction: @escaping (Action) -> Void) {
     self.focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
+    self.triggerPublisher = triggerPublisher
+    self.infoPublisher = infoPublisher
+    self.commandPublisher = commandPublisher
     self.onAction = onAction
   }
 
@@ -121,7 +128,10 @@ struct SingleDetailView_Previews: PreviewProvider {
     SingleDetailView($focus,
                      applicationTriggerSelectionManager: .init(),
                      commandSelectionManager: .init(),
-                     keyboardShortcutSelectionManager: .init()) { _ in }
+                     keyboardShortcutSelectionManager: .init(),
+                     triggerPublisher: DesignTime.triggerPublisher,
+                     infoPublisher: DesignTime.infoPublisher,
+                     commandPublisher: DesignTime.commandsPublisher) { _ in }
       .designTime()
       .frame(height: 900)
   }

@@ -36,6 +36,9 @@ struct ContainerView: View {
   private let groupsSelectionManager: SelectionManager<GroupViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let publisher: ContentPublisher
+  private let triggerPublisher: TriggerPublisher
+  private let infoPublisher: InfoPublisher
+  private let commandPublisher: CommandsPublisher
 
   private var contentFocusPublisher = FocusPublisher<ContentViewModel>()
 
@@ -47,6 +50,9 @@ struct ContainerView: View {
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupsSelectionManager: SelectionManager<GroupViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
+       triggerPublisher: TriggerPublisher,
+       infoPublisher: InfoPublisher,
+       commandPublisher: CommandsPublisher,
        onAction: @escaping (Action, UndoManager?) -> Void) {
     self.focus = focus
     self.publisher = publisher
@@ -56,6 +62,9 @@ struct ContainerView: View {
     self.contentSelectionManager = contentSelectionManager
     self.groupsSelectionManager = groupsSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
+    self.triggerPublisher = triggerPublisher
+    self.infoPublisher = infoPublisher
+    self.commandPublisher = commandPublisher
     self.onAction = onAction
   }
 
@@ -95,6 +104,9 @@ struct ContainerView: View {
                    applicationTriggerSelectionManager: applicationTriggerSelectionManager,
                    commandSelectionManager: commandSelectionManager,
                    keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+                   triggerPublisher: triggerPublisher,
+                   infoPublisher: infoPublisher,
+                   commandPublisher: commandPublisher,
                    onAction: { onAction(.detail($0), undoManager) })
         .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
           .background(Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all))
@@ -131,7 +143,11 @@ struct ContainerView_Previews: PreviewProvider {
       configSelectionManager: .init(),
       contentSelectionManager: .init(),
       groupsSelectionManager: .init(),
-      keyboardShortcutSelectionManager: .init()) { _, _ in }
+      keyboardShortcutSelectionManager: .init(),
+      triggerPublisher: DesignTime.triggerPublisher,
+      infoPublisher: DesignTime.infoPublisher,
+      commandPublisher: DesignTime.commandsPublisher
+    ) { _, _ in }
       .designTime()
       .frame(height: 800)
   }
