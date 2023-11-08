@@ -79,6 +79,7 @@ final class UserSpace {
 
   private init() {}
 
+  @MainActor
   func snapshot() -> Snapshot {
     var selections = [String]()
     var documentPath: String?
@@ -89,21 +90,25 @@ final class UserSpace {
         documentPath = documentPathFromAX
       } else if let bundleIdentifier = frontmostApplication.bundleIdentifier,
                 let application: ApplicationWithSelection = SBApplication(bundleIdentifier: bundleIdentifier) {
-        if let items = application.selection?.get() as? [SBObject] {
-          if items.isEmpty, let windows = application.windows?.get() as? [SBObject] {
-            // Check for location of the first open Finder window
-            for ref in windows {
-              let url = (ref as WindowObject).target?.URL
-              documentPath = url
-              break
-            }
-          } else {
-            // There is at least one item in the selection
-            for ref in items {
-              let item = ref as FileObject
-              if let urlString = item.URL {
-                if documentPath == nil { documentPath = urlString }
-                selections.append(urlString)
+        // Only invoke this if the user isn't dragging using the mouse.
+
+        if !MouseMonitor.shared.isDraggingUsingTheMouse {
+          if let items = application.selection?.get() as? [SBObject] {
+            if items.isEmpty, let windows = application.windows?.get() as? [SBObject] {
+              // Check for location of the first open Finder window
+              for ref in windows {
+                let url = (ref as WindowObject).target?.URL
+                documentPath = url
+                break
+              }
+            } else {
+              // There is at least one item in the selection
+              for ref in items {
+                let item = ref as FileObject
+                if let urlString = item.URL {
+                  if documentPath == nil { documentPath = urlString }
+                  selections.append(urlString)
+                }
               }
             }
           }

@@ -58,6 +58,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       window: WindowCommandRunner()
     )
     self.workspace = workspace
+
+    Task { await MouseMonitor.shared.startMonitor() }
   }
 
   func reveal(_ commands: [Command]) {
@@ -92,12 +94,12 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   func serialRun(_ commands: [Command]) {
-    let snapshot = UserSpace.shared.snapshot()
     serialTask?.cancel()
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
       do {
         await missionControl.dismissIfActive()
+        let snapshot = await UserSpace.shared.snapshot()
         for command in commands {
           try Task.checkCancellation()
           do {
@@ -112,11 +114,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   func concurrentRun(_ commands: [Command]) {
-    let snapshot = UserSpace.shared.snapshot()
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
       await missionControl.dismissIfActive()
+      let snapshot = await UserSpace.shared.snapshot()
       for command in commands {
         do {
           try Task.checkCancellation()
