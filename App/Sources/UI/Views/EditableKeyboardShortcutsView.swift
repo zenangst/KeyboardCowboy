@@ -45,26 +45,27 @@ struct EditableKeyboardShortcutsView: View {
                 keyboardShortcuts: $keyboardShortcuts,
                 selectionManager: selectionManager
               )
-                .contextMenu {
-                  Text(keyboardShortcut.wrappedValue.validationValue)
-                  Divider()
-                  Button("Re-record") {
-                    replacing = keyboardShortcut.id
-                    record()
-                  }
-                  Button("Remove") {
-                    if let index = keyboardShortcuts.firstIndex(where: { $0.id == keyboardShortcut.id }) {
-                      _ = withAnimation(animation) {
-                        keyboardShortcuts.remove(at: index)
-                      }
+              .contextMenu {
+                Text(keyboardShortcut.wrappedValue.validationValue)
+                Divider()
+                Button("Change Keyboard Shortcut") { rerecord(keyboardShortcut.id) }
+                Button("Remove") {
+                  if let index = keyboardShortcuts.firstIndex(where: { $0.id == keyboardShortcut.id }) {
+                    _ = withAnimation(animation) {
+                      keyboardShortcuts.remove(at: index)
                     }
                   }
                 }
-                .onTapGesture {
-                  selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
-                  focusPublisher.publish(keyboardShortcut.id)
-                }
-                .id(keyboardShortcut.id)
+              }
+              .onTapGesture {
+                selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
+                focusPublisher.publish(keyboardShortcut.id)
+              }
+              .simultaneousGesture(
+                TapGesture(count: 2)
+                  .onEnded { _ in rerecord(keyboardShortcut.id) }
+              )
+              .id(keyboardShortcut.id)
             }
             .focused($isFocused)
             .onChange(of: isFocused, perform: { newValue in
@@ -145,6 +146,11 @@ struct EditableKeyboardShortcutsView: View {
         break
       }
     })
+  }
+
+  private func rerecord(_ id: KeyShortcut.ID) {
+    replacing = id
+    record()
   }
 
   @ViewBuilder
