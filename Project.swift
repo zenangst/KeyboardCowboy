@@ -117,7 +117,7 @@ let project = Project(
         arguments:
             .init(environmentVariables: [
               "SOURCE_ROOT": .init(value: "$(SRCROOT)", isEnabled: true),
-              "APP_ENVIRONMENT_OVERRIDE": .init(value: "production", isEnabled: false),
+              "APP_ENVIRONMENT_OVERRIDE": .init(value: "development", isEnabled: true),
             ], launchArguments: [
               LaunchArgument(name: "-benchmark", isEnabled: false),
               LaunchArgument(name: "-debugEditing", isEnabled: false),

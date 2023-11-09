@@ -14,7 +14,7 @@ struct KeyboardCowboy: App {
        let env = AppEnvironment(rawValue: override) {
       return env
     } else {
-      return isRunningPreview ? .previews : .development
+      return isRunningPreview ? .previews : .production
     }
   }
 #else
