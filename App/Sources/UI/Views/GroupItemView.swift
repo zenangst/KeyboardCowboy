@@ -43,7 +43,8 @@ struct GroupItemView: View {
     .padding(.vertical, 4)
     .padding(.horizontal, 8)
     .background(
-      FocusView(focusPublisher, element: Binding.readonly(group),
+      FocusView(focusPublisher,
+                element: Binding.readonly(group),
                 isTargeted: $isTargeted,
                 selectionManager: selectionManager,
                 cornerRadius: 4, style: .list)

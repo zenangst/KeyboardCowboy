@@ -7,6 +7,7 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
+  @EnvironmentObject var contentSelectionManager: SelectionManager<ContentViewModel>
   @EnvironmentObject var selection: SelectionManager<CommandViewModel>
   @ObservedObject private var publisher: InfoPublisher
   var focus: FocusState<AppFocus?>.Binding
@@ -32,7 +33,8 @@ struct WorkflowInfoView: View {
           .focused(focus, equals: .detail(.name))
           .onCommand(#selector(NSTextField.insertTab(_:)), perform: onInsertTab)
           .onCommand(#selector(NSTextField.insertBacktab(_:)), perform: {
-            focus.wrappedValue = .workflows
+            let first = contentSelectionManager.selections.first ?? ""
+            focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
           })
           .textFieldStyle(.large(color: .custom(selection.selectedColor),
                                  backgroundColor: Color(nsColor: .windowBackgroundColor),

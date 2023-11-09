@@ -21,6 +21,7 @@ struct GroupsView: View {
   @EnvironmentObject private var contentPublisher: ContentPublisher
 
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
 
   private var focusPublisher = FocusPublisher<GroupViewModel>()
   private var focus: FocusState<AppFocus?>.Binding
@@ -34,9 +35,11 @@ struct GroupsView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
        selectionManager: SelectionManager<GroupViewModel>,
+       contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (Action) -> Void) {
     self.focus = focus
     _selectionManager = .init(initialValue: selectionManager)
+    self.contentSelectionManager = contentSelectionManager
     self.onAction = onAction
     self.namespace = namespace
     self.debounceSelectionManager = .init(.init(groups: selectionManager.selections),
@@ -51,7 +54,9 @@ struct GroupsView: View {
     GroupsListView(focus,
                    namespace: namespace,
                    focusPublisher: focusPublisher,
-                   selectionManager: selectionManager, onAction: onAction)
+                   selectionManager: selectionManager, 
+                   contentSelectionManager: contentSelectionManager,
+                   onAction: onAction)
     .focused(focus, equals: .groups)
   }
 }
@@ -62,6 +67,7 @@ struct GroupsView_Provider: PreviewProvider {
   static var previews: some View {
     GroupsView($focus, namespace: namespace,
                selectionManager: .init(),
+               contentSelectionManager: .init(),
                onAction: { _ in })
       .designTime()
   }
