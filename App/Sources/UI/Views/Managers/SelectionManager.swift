@@ -80,9 +80,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
       newSelections = onTap(element)
     }
     store(newSelections)
-    if newSelections != selections {
-      selections = newSelections
-    }
+    selections = newSelections
   }
 
   // MARK: Private methods
