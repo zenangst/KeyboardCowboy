@@ -96,7 +96,8 @@ struct ContentListView: View {
               focus.wrappedValue = .detail(.name)
             })
             .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-              focus.wrappedValue = .groups
+              let id = groupSelectionManager.lastSelection ?? groupSelectionManager.selections.first ?? ""
+              focus.wrappedValue = .group(id)
             })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
               contentSelectionManager.publish(Set(publisher.data.map(\.id)))
