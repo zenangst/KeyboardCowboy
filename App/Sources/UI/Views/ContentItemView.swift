@@ -1,21 +1,25 @@
 import SwiftUI
 
+@MainActor
 struct ContentItemView: View {
   @Environment(\.isFocused) private var isFocused
-  @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
   @State var isHovered: Bool = false
   @State var isTargeted: Bool = false
   private let publisher: ContentPublisher
   private let workflow: ContentViewModel
+  private let onFocusChange: (Bool) -> Void
   private let onAction: (ContentListView.Action) -> Void
 
   init(workflow: ContentViewModel,
        publisher: ContentPublisher,
        contentSelectionManager: SelectionManager<ContentViewModel>,
+       onFocusChange: @escaping (Bool) -> Void,
        onAction: @escaping (ContentListView.Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.publisher = publisher
+    self.onFocusChange = onFocusChange
     self.onAction = onAction
   }
 
@@ -61,9 +65,7 @@ struct ContentItemView: View {
     .contentShape(Rectangle())
     .padding(4)
     .background(
-      contentSelectionManager.selectedColor
-        .opacity(isFocused ? 0.5 : contentSelectionManager.selections.contains(workflow.id) ? 0.2 : 0)
-        .cornerRadius(4.0)
+      ContentItemBackgroundView(contentSelectionManager: contentSelectionManager, id: workflow.id)
     )
     .draggable(getDraggable())
     .dropDestination(for: String.self) { items, location in
@@ -79,9 +81,28 @@ struct ContentItemView: View {
     } isTargeted: { newValue in
       isTargeted = newValue
     }
+    .onChange(of: isFocused) { newValue in
+      onFocusChange(newValue)
+    }
   }
 
   func getDraggable() -> String {
     return workflow.draggablePayload(prefix: "W|", selections: contentSelectionManager.selections)
+  }
+}
+
+struct ContentItemBackgroundView: View {
+  @Environment(\.isFocused) var isFocused
+  @ObservedObject var contentSelectionManager: SelectionManager<ContentViewModel>
+  let id: ContentViewModel.ID
+
+  var body: some View {
+    contentSelectionManager.selectedColor
+      .opacity(isFocused
+               ? 0.5
+               : contentSelectionManager.selections.contains(id)
+               ? 0.2
+               : 0)
+      .cornerRadius(4.0)
   }
 }

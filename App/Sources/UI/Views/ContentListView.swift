@@ -27,7 +27,7 @@ struct ContentListView: View {
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
 
-  @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let groupSelectionManager: SelectionManager<GroupViewModel>
 
   @State var searchTerm: String = ""
@@ -39,7 +39,7 @@ struct ContentListView: View {
        groupSelectionManager: SelectionManager<GroupViewModel>,
        focusPublisher: FocusPublisher<ContentViewModel>,
        onAction: @escaping (Action) -> Void) {
-    _contentSelectionManager = .init(initialValue: contentSelectionManager)
+    self.contentSelectionManager = contentSelectionManager
     self.groupSelectionManager = groupSelectionManager
     self.focusPublisher = focusPublisher
     self.focus = focus
@@ -76,24 +76,31 @@ struct ContentListView: View {
           LazyVStack(spacing: 0) {
             ForEach(publisher.data.filter({ search($0) }), id: \.id) { element in
               ZStack {
-                ContentItemView(workflow: element, publisher: publisher,
-                                contentSelectionManager: contentSelectionManager, onAction: onAction)
-                .onTapGesture {
-                  contentSelectionManager.handleOnTap(publisher.data, element: element)
-                }
+                ContentItemView(
+                  workflow: element,
+                  publisher: publisher,
+                  contentSelectionManager: contentSelectionManager,
+                  onFocusChange: { newValue in
+                    guard newValue else { return }
+                    contentSelectionManager.handleOnTap(publisher.data, element: element)
+                    debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
+                                                           groups: groupSelectionManager.selections))
+                  },
+                  onAction: onAction
+                )
                 .contentShape(Rectangle())
                 .contextMenu(menuItems: {
                   contextualMenu(element.id)
                 })
               }
-              .onAppear {
-                if contentSelectionManager.selections.contains(element.id) {
-                  focus.wrappedValue = .workflow(element.id)
-                }
-              }
               .focusable(true)
               .focused(focus, equals: .workflow(element.id))
               .focusEffectDisabled_shim()
+              .onAppear {
+                if case .workflow = focus.wrappedValue, contentSelectionManager.selections.contains(element.id) {
+                  focus.wrappedValue = .workflow(element.id)
+                }
+              }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .detail(.name)
@@ -134,18 +141,6 @@ struct ContentListView: View {
             }
           })
           .padding(8)
-          .onChange(of: contentSelectionManager.selections, perform: { newValue in
-            debounceSelectionManager.process(.init(workflows: newValue, groups: groupSelectionManager.selections))
-          })
-          .onAppear {
-            if let firstSelection = contentSelectionManager.selections.first {
-              // We need to wait before we tell the proxy to scroll to the first selection.
-              DispatchQueue.main.async {
-                focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? firstSelection)
-                proxy.scrollTo(contentSelectionManager.lastSelection ?? firstSelection)
-              }
-            }
-          }
           .toolbar {
             ToolbarItemGroup(placement: .navigation) {
               Button(action: {
