@@ -9,7 +9,6 @@ struct WorkflowCommandListView: View {
   @Binding var isPrimary: Bool
   private let workflowId: String
   private var namespace: Namespace.ID
-  private var focusPublisher = FocusPublisher<CommandViewModel>()
   private let triggerPublisher: TriggerPublisher
   private let publisher: CommandsPublisher
   private let scrollViewProxy: ScrollViewProxy?

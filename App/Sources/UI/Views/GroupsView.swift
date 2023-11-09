@@ -23,7 +23,6 @@ struct GroupsView: View {
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
   private let contentSelectionManager: SelectionManager<ContentViewModel>
 
-  private var focusPublisher = FocusPublisher<GroupViewModel>()
   private var focus: FocusState<AppFocus?>.Binding
 
   @State private var dropDestination: Int?
@@ -53,7 +52,6 @@ struct GroupsView: View {
   var body: some View {
     GroupsListView(focus,
                    namespace: namespace,
-                   focusPublisher: focusPublisher,
                    selectionManager: selectionManager, 
                    contentSelectionManager: contentSelectionManager,
                    onAction: onAction)

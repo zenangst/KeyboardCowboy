@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct ScriptCommandView: View {
   enum Action {
@@ -63,7 +63,7 @@ struct ScriptCommandView: View {
         
         switch model.source {
         case .inline:
-          ZenTextEditor(color: .custom(selection.selectedColor),
+          ZenTextEditor(color: ZenColorPublisher.shared.color,
                         text: $text,
                         placeholder: "Script goes here…",
                         font: Font.system(.body, design: .monospaced))

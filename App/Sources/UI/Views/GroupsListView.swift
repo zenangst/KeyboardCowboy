@@ -17,7 +17,6 @@ struct GroupsListView: View {
 
   @FocusState var isFocused: Bool
   private var focus: FocusState<AppFocus?>.Binding
-  private var focusPublisher: FocusPublisher<GroupViewModel>
   private let namespace: Namespace.ID
   private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
   private let moveManager: MoveManager<GroupViewModel> = .init()
@@ -31,13 +30,11 @@ struct GroupsListView: View {
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
-       focusPublisher: FocusPublisher<GroupViewModel>,
        selectionManager: SelectionManager<GroupViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (GroupsView.Action) -> Void) {
     self.focus = focus
     self.namespace = namespace
-    self.focusPublisher = focusPublisher
     self.selectionManager = selectionManager
     self.contentSelectionManager = contentSelectionManager
     self.onAction = onAction
@@ -139,7 +136,6 @@ struct GroupsListView_Previews: PreviewProvider {
   static var previews: some View {
     GroupsListView($focus,
                    namespace: namespace,
-                   focusPublisher: .init(),
                    selectionManager: .init(),
                    contentSelectionManager: .init(),
                    onAction: { _ in })

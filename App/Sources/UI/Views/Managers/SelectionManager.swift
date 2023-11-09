@@ -9,7 +9,6 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   typealias StoreType = (Set<T.ID>) -> Void
   private(set) var lastSelection: T.ID?
   @Published var selections: Set<T.ID>
-  @Published var selectedColor: Color = .accentColor
 
   private let store: StoreType
 
@@ -122,9 +121,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   }
 
   private func onTap(_ element: T) -> Set<T.ID> {
-    if lastSelection != element.id {
-      lastSelection = element.id
-    }
+    lastSelection = element.id
     return [element.id]
   }
 
@@ -144,7 +141,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   private func onShiftTap(_ data: [T], elementID: T.ID, selections: Set<T.ID>) -> Set<T.ID> {
     var newSelections = selections
 
-    if newSelections.contains(elementID) {
+    if newSelections.contains(elementID) && newSelections.count > 1 {
       newSelections.remove(elementID)
     } else {
       newSelections.insert(elementID)

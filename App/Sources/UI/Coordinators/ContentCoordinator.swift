@@ -1,3 +1,4 @@
+import Bonzai
 import Combine
 import SwiftUI
 
@@ -47,7 +48,6 @@ final class ContentCoordinator {
          let firstGroup = store.group(withId: id) {
         let group = SidebarMapper.map(firstGroup, applicationStore: applicationStore)
         groupPublisher.publish(group)
-        contentSelectionManager.selectedColor = Color(hex: firstGroup.color)
       }
 
       let shouldRemoveLastSelection = !contentPublisher.data.isEmpty
@@ -75,10 +75,8 @@ final class ContentCoordinator {
     switch context {
     case .add(let workflowGroup):
       render([workflowGroup.id])
-      contentSelectionManager.selectedColor = Color(hex: workflowGroup.color)
     case .edit(let workflowGroup):
       let workflowGroup = SidebarMapper.map(workflowGroup, applicationStore: applicationStore)
-      contentSelectionManager.selectedColor = Color(hex: workflowGroup.color)
       groupPublisher.publish(workflowGroup)
       render([workflowGroup.id])
     }

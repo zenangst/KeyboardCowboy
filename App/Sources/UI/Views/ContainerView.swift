@@ -3,6 +3,7 @@ import SwiftUI
 enum AppFocus: Hashable {
   case groups
   case group(GroupViewModel.ID)
+  case workflows
   case workflow(ContentViewModel.ID)
   case detail(Detail)
   case search
@@ -10,8 +11,12 @@ enum AppFocus: Hashable {
   enum Detail: Hashable {
     case name
     case applicationTriggers
+    case applicationTrigger(ApplicationTrigger.ID)
     case keyboardShortcuts
+    case keyboardShortcut(KeyShortcut.ID)
     case commands
+    case command(Command.ID)
+    case commandShortcut(KeyShortcut.ID)
   }
 }
 
@@ -40,8 +45,6 @@ struct ContainerView: View {
   private let triggerPublisher: TriggerPublisher
   private let infoPublisher: InfoPublisher
   private let commandPublisher: CommandsPublisher
-
-  private var contentFocusPublisher = FocusPublisher<ContentViewModel>()
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        publisher: ContentPublisher,

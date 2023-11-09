@@ -1,22 +1,19 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct WorkflowApplicationTriggerItemView: View {
   @Binding var element: DetailViewModel.ApplicationTrigger
   @Binding private var data: [DetailViewModel.ApplicationTrigger]
   @State var isTargeted: Bool = false
-  private let focusPublisher: FocusPublisher<DetailViewModel.ApplicationTrigger>
   private let selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let onAction: (WorkflowApplicationTriggerView.Action) -> Void
 
   init(_ element: Binding<DetailViewModel.ApplicationTrigger>,
        data: Binding<[DetailViewModel.ApplicationTrigger]>,
-       focusPublisher: FocusPublisher<DetailViewModel.ApplicationTrigger>,
        selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        onAction: @escaping (WorkflowApplicationTriggerView.Action) -> Void) {
     _element = element
     _data = data
-    self.focusPublisher = focusPublisher
     self.selectionManager = selectionManager
     self.onAction = onAction
   }
@@ -74,12 +71,7 @@ struct WorkflowApplicationTriggerItemView: View {
     .cornerRadius(8)
     .compositingGroup()
     .shadow(radius: 2)
-    .background(
-      FocusView(focusPublisher, element: $element,
-                isTargeted: $isTargeted,
-                selectionManager: selectionManager,
-                cornerRadius: 8, style: .focusRing)
-    )
+    .overlay(BorderedOverlayView(cornerRadius: 8))
     .draggable(element.draggablePayload(prefix: "WAT|", selections: selectionManager.selections))
     .dropDestination(for: String.self) { items, location in
       guard let payload = items.draggablePayload(prefix: "WAT|"),

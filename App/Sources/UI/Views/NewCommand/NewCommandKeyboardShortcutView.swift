@@ -4,7 +4,10 @@ struct NewCommandKeyboardShortcutView: View {
   enum CurrentState: Hashable {
     case recording
   }
-
+  enum Focus: Hashable {
+    case keyboardShortcut(KeyShortcut.ID)
+  }
+  @FocusState var focus: Focus?
   private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#keyboard-shortcuts-commands")!
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
 
@@ -31,7 +34,12 @@ struct NewCommandKeyboardShortcutView: View {
         .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
 
-      EditableKeyboardShortcutsView($keyboardShortcuts, selectionManager: .init(), onTab: { _ in })
+      EditableKeyboardShortcutsView<Focus>(
+        $focus,
+        focusBinding: { .keyboardShortcut($0) },
+        keyboardShortcuts: $keyboardShortcuts,
+        selectionManager: .init(),
+        onTab: { _ in })
         .overlay(NewCommandValidationView($validation))
         .frame(minHeight: 48, maxHeight: 48)
         .background(

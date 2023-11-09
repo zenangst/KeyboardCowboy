@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct GroupItemView: View {
@@ -37,7 +38,7 @@ struct GroupItemView: View {
     .padding(.vertical, 4)
     .padding(.horizontal, 8)
     .contentShape(Rectangle())
-    .background(FillBackgroundView(selectionManager: selectionManager, id: group.id))
+    .background(FillBackgroundView(isSelected: .readonly(selectionManager.selections.contains(group.id))))
     .draggable(group.draggablePayload(prefix: "WG|", selections: selectionManager.selections))
     .dropDestination(for: String.self, action: { items, location in
       if let payload = items.draggablePayload(prefix: "WG|"),

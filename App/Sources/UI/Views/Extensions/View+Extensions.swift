@@ -2,26 +2,6 @@ import SwiftUI
 
 extension View {
   @ViewBuilder
-  func focusEffectDisabled_shim() -> some View {
-    if #available(macOS 14.0, *) {
-      self.focusEffectDisabled()
-    } else {
-      self
-    }
-  }
-
-  @ViewBuilder
-  func focusable(_ focus: FocusState<AppFocus?>.Binding, as value: AppFocus, onFocus: @escaping () -> Void) -> some View {
-    ZStack {
-      self
-        .onFocus(onFocus)
-    }
-    .focusable(true)
-    .focused(focus, equals: value)
-    .focusEffectDisabled_shim()
-  }
-
-  @ViewBuilder
   func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
     transform(self)
   }
@@ -36,7 +16,6 @@ extension View {
   func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
     if condition { transform(self) } else { self }
   }
-
 
   @ViewBuilder
   func debugEdit(_ file: StaticString = #file) -> some View {

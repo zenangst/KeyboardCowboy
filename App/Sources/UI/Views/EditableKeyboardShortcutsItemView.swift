@@ -1,8 +1,8 @@
+import Bonzai
 import SwiftUI
 
 struct EditableKeyboardShortcutsItemView: View {
   @State var isTargeted: Bool = false
-  let focusPublisher: FocusPublisher<KeyShortcut>
   let keyboardShortcut: Binding<KeyShortcut>
   @Binding var keyboardShortcuts: [KeyShortcut]
   let selectionManager: SelectionManager<KeyShortcut>
@@ -24,11 +24,7 @@ struct EditableKeyboardShortcutsItemView: View {
     }
     .contentShape(Rectangle())
     .padding(4)
-    .background(
-      FocusView(focusPublisher, element: keyboardShortcut,
-                isTargeted: $isTargeted,
-                selectionManager: selectionManager, cornerRadius: 4, style: .focusRing)
-    )
+    .overlay(BorderedOverlayView(cornerRadius: 4))
     .background(
       RoundedRectangle(cornerRadius: 6, style: .continuous)
         .stroke(Color(.disabledControlTextColor))
@@ -54,7 +50,6 @@ struct EditableKeyboardShortcutsItemView: View {
 struct EditableKeyboardShortcutsItemView_Previews: PreviewProvider {
     static var previews: some View {
       EditableKeyboardShortcutsItemView(
-        focusPublisher: .init(),
         keyboardShortcut: .constant(.init(key: UUID().uuidString, lhs: true)),
         keyboardShortcuts: .constant([]),
         selectionManager: .init())

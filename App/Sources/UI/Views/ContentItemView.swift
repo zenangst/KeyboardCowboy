@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 @MainActor
@@ -60,7 +61,7 @@ struct ContentItemView: View {
       }
     }
     .padding(4)
-    .background(FillBackgroundView(selectionManager: contentSelectionManager, id: workflow.id))
+    .background(FillBackgroundView(isSelected: .readonly(contentSelectionManager.selections.contains(workflow.id))))
     .draggable(getDraggable())
     .dropDestination(for: String.self) { items, location in
       guard let payload = items.draggablePayload(prefix: "W|"),
