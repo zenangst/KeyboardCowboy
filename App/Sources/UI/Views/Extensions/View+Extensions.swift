@@ -11,6 +11,17 @@ extension View {
   }
 
   @ViewBuilder
+  func focusable(_ focus: FocusState<AppFocus?>.Binding, as value: AppFocus, onFocus: @escaping () -> Void) -> some View {
+    ZStack {
+      self
+        .onFocus(onFocus)
+    }
+    .focusable(true)
+    .focused(focus, equals: value)
+    .focusEffectDisabled_shim()
+  }
+
+  @ViewBuilder
   func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
     transform(self)
   }

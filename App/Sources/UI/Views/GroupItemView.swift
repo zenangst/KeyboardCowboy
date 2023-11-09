@@ -4,20 +4,14 @@ struct GroupItemView: View {
   @EnvironmentObject var groupsPublisher: GroupsPublisher
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
 
-  private let proxy: ScrollViewProxy
-  private let focusPublisher: FocusPublisher<GroupViewModel>
   private let group: GroupViewModel
   private let onAction: (GroupsView.Action) -> Void
   @State var isTargeted: Bool = false
 
   init(_ group: GroupViewModel,
-       proxy: ScrollViewProxy,
-       focusPublisher: FocusPublisher<GroupViewModel>,
        selectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (GroupsView.Action) -> Void) {
     self.group = group
-    self.proxy = proxy
-    self.focusPublisher = focusPublisher
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
   }
@@ -42,13 +36,8 @@ struct GroupItemView: View {
     }
     .padding(.vertical, 4)
     .padding(.horizontal, 8)
-    .background(
-      FocusView(focusPublisher,
-                element: Binding.readonly(group),
-                isTargeted: $isTargeted,
-                selectionManager: selectionManager,
-                cornerRadius: 4, style: .list)
-    )
+    .contentShape(Rectangle())
+    .background(FillBackgroundView(selectionManager: selectionManager, id: group.id))
     .draggable(group.draggablePayload(prefix: "WG|", selections: selectionManager.selections))
     .dropDestination(for: String.self, action: { items, location in
       if let payload = items.draggablePayload(prefix: "WG|"),

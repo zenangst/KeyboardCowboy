@@ -2,6 +2,7 @@ import SwiftUI
 
 enum AppFocus: Hashable {
   case groups
+  case group(GroupViewModel.ID)
   case workflow(ContentViewModel.ID)
   case detail(Detail)
   case search
@@ -84,7 +85,6 @@ struct ContainerView: View {
         ContentListView(focus,
                         contentSelectionManager: contentSelectionManager,
                         groupSelectionManager: groupsSelectionManager,
-                        focusPublisher: contentFocusPublisher,
                         onAction: {
           onAction(.content($0), undoManager)
 

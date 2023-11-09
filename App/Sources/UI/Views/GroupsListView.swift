@@ -56,31 +56,22 @@ struct GroupsListView: View {
         } else {
           LazyVStack(spacing: 0) {
             ForEach(publisher.data.lazy, id: \.id) { group in
-              GroupItemView(group,
-                            proxy: proxy,
-                            focusPublisher: focusPublisher,
-                            selectionManager: selectionManager,
-                            onAction: onAction)
-                .contentShape(Rectangle())
-                .overlay(content: { confirmDeleteView(group) })
-                .contextMenu(menuItems: {
-                  contextualMenu(for: group, onAction: onAction)
-                })
-                .onTapGesture {
-                  selectionManager.handleOnTap(publisher.data, element: group)
-                  focusPublisher.publish(group.id)
-                }
-            }
-            .onChange(of: isFocused, perform: { newValue in
-              guard newValue else { return }
-
-              guard let lastSelection = selectionManager.lastSelection else { return }
-
-              withAnimation {
-                proxy.scrollTo(lastSelection)
+              GroupItemView(
+                group,
+                selectionManager: selectionManager,
+                onAction: onAction
+              )
+              .contentShape(Rectangle())
+              .overlay(content: { confirmDeleteView(group) })
+              .contextMenu(menuItems: {
+                contextualMenu(for: group, onAction: onAction)
+              })
+              .focusable(focus, as: .group(group.id)) {
+                selectionManager.handleOnTap(publisher.data, element: group)
+                confirmDelete = nil
+                debounceSelectionManager.process(.init(groups: selectionManager.selections))
               }
-            })
-            .focused($isFocused)
+            }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               let first = contentSelectionManager.selections.first ?? ""
               focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
@@ -95,7 +86,7 @@ struct GroupsListView: View {
                 publisher.data,
                 proxy: proxy,
                 vertical: true) {
-                focusPublisher.publish(elementID)
+                focus.wrappedValue = .group(elementID)
               }
             })
             .onDeleteCommand {
@@ -103,18 +94,6 @@ struct GroupsListView: View {
             }
           }
           .padding(.horizontal, 8)
-          .onReceive(selectionManager.$selections, perform: { newValue in
-            confirmDelete = nil
-            debounceSelectionManager.process(.init(groups: newValue))
-          })
-        }
-      }
-      .onAppear {
-        if let firstSelection = selectionManager.selections.first {
-          // We need to wait before we tell the proxy to scroll to the first selection.
-          DispatchQueue.main.async {
-            proxy.scrollTo(firstSelection)
-          }
         }
       }
     }
