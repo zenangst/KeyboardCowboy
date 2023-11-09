@@ -17,7 +17,7 @@ struct ContentListView: View {
     case addWorkflow(workflowId: Workflow.ID)
   }
 
-  @FocusState var isFocused: Bool
+  @Environment(\.resetFocus) var resetFocus
   private var focus: FocusState<AppFocus?>.Binding
   private let debounceSelectionManager: DebounceSelectionManager<ContentDebounce>
   private var focusPublisher: FocusPublisher<ContentViewModel>
@@ -74,28 +74,27 @@ struct ContentListView: View {
       ScrollViewReader { proxy in
         ScrollView {
           LazyVStack(spacing: 0) {
-            ForEach(publisher.data.filter({ search($0) }).lazy, id: \.id) { element in
-              ContentItemView(element, focusPublisher: focusPublisher, publisher: publisher,
-                              contentSelectionManager: contentSelectionManager, onAction: onAction)
-              .contentShape(Rectangle())
-              .onTapGesture {
-                contentSelectionManager.handleOnTap(publisher.data, element: element)
-                focusPublisher.publish(element.id)
+            ForEach(publisher.data.filter({ search($0) }), id: \.id) { element in
+              ZStack {
+                ContentItemView(workflow: element, publisher: publisher,
+                                contentSelectionManager: contentSelectionManager, onAction: onAction)
+                .onTapGesture {
+                  contentSelectionManager.handleOnTap(publisher.data, element: element)
+                }
+                .contentShape(Rectangle())
+                .contextMenu(menuItems: {
+                  contextualMenu(element.id)
+                })
               }
-              .contextMenu(menuItems: {
-                contextualMenu(element.id)
-              })
+              .onAppear {
+                if contentSelectionManager.selections.contains(element.id) {
+                  focus.wrappedValue = .workflow(element.id)
+                }
+              }
+              .focusable(true, interactions: .edit)
+              .focused(focus, equals: .workflow(element.id))
+              .focusEffectDisabled()
             }
-            .focused($isFocused)
-            .onChange(of: isFocused, perform: { newValue in
-              guard newValue else { return }
-
-              guard let lastSelection = contentSelectionManager.lastSelection else { return }
-
-              withAnimation {
-                proxy.scrollTo(lastSelection)
-              }
-            })
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .detail(.name)
             })
@@ -111,7 +110,7 @@ struct ContentListView: View {
                 publisher.data.filter({ search($0) }),
                 proxy: proxy,
                 vertical: true) {
-                focusPublisher.publish(elementID)
+                focus.wrappedValue = .workflow(elementID)
               }
             })
             .onDeleteCommand {
@@ -124,6 +123,7 @@ struct ContentListView: View {
               }
             }
           }
+          .focusScope(namespace)
           .onChange(of: searchTerm, perform: { newValue in
             if !searchTerm.isEmpty {
               if let firstSelection = publisher.data.filter({ search($0) }).first {
@@ -141,7 +141,8 @@ struct ContentListView: View {
             if let firstSelection = contentSelectionManager.selections.first {
               // We need to wait before we tell the proxy to scroll to the first selection.
               DispatchQueue.main.async {
-                proxy.scrollTo(firstSelection)
+                focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? firstSelection)
+                proxy.scrollTo(contentSelectionManager.lastSelection ?? firstSelection)
               }
             }
           }

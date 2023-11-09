@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentItemView: View {
-  private var focusPublisher: FocusPublisher<ContentViewModel>
+  @Environment(\.isFocused) private var isFocused
   @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
   @State var isHovered: Bool = false
   @State var isTargeted: Bool = false
@@ -9,14 +9,12 @@ struct ContentItemView: View {
   private let workflow: ContentViewModel
   private let onAction: (ContentListView.Action) -> Void
 
-  init(_ workflow: ContentViewModel,
-       focusPublisher: FocusPublisher<ContentViewModel>,
+  init(workflow: ContentViewModel,
        publisher: ContentPublisher,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (ContentListView.Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
-    self.focusPublisher = focusPublisher
     self.publisher = publisher
     self.onAction = onAction
   }
@@ -63,10 +61,9 @@ struct ContentItemView: View {
     .contentShape(Rectangle())
     .padding(4)
     .background(
-      FocusView(focusPublisher, element: Binding.readonly(workflow),
-                isTargeted: $isTargeted,
-                selectionManager: contentSelectionManager,
-                cornerRadius: 4, style: .list)
+      contentSelectionManager.selectedColor
+        .opacity(isFocused ? 0.5 : contentSelectionManager.selections.contains(workflow.id) ? 0.2 : 0)
+        .cornerRadius(4.0)
     )
     .draggable(getDraggable())
     .dropDestination(for: String.self) { items, location in

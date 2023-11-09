@@ -42,7 +42,9 @@ struct ContentListFilterView: View {
             searchTerm = ""
           })
           .onSubmit {
-            focus.wrappedValue = .workflows
+            if let first = contentSelectionManager.selections.first {
+              focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
+            }
           }
           .frame(height: 24)
         if !searchTerm.isEmpty {

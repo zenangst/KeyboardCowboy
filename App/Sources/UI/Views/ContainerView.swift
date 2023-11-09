@@ -2,7 +2,7 @@ import SwiftUI
 
 enum AppFocus: Hashable {
   case groups
-  case workflows
+  case workflow(ContentViewModel.ID)
   case detail(Detail)
   case search
 
@@ -74,7 +74,9 @@ struct ContainerView: View {
       sidebar: {
         SidebarView(focus,
                     configSelectionManager: configSelectionManager,
-                    groupSelectionManager: groupsSelectionManager) { onAction(.sidebar($0), undoManager) }
+                    groupSelectionManager: groupsSelectionManager,
+                    contentSelectionManager: contentSelectionManager
+        ) { onAction(.sidebar($0), undoManager) }
           .frame(minWidth: 180, maxWidth: .infinity, alignment: .leading)
           .labelStyle(SidebarLabelStyle())
       },
@@ -90,11 +92,11 @@ struct ContainerView: View {
             Task { @MainActor in focus.wrappedValue = .detail(.name) }
           }
         })
-        .focused(focus, equals: .workflows)
         .onAppear {
           if !publisher.data.isEmpty {
             DispatchQueue.main.async {
-              focus.wrappedValue = .workflows
+              let first = contentSelectionManager.selections.first ?? ""
+              focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
             }
           }
         }

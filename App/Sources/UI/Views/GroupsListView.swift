@@ -23,6 +23,7 @@ struct GroupsListView: View {
   private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (GroupsView.Action) -> Void
   private let selectionManager: SelectionManager<GroupViewModel>
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
 
   @EnvironmentObject private var publisher: GroupsPublisher
 
@@ -32,11 +33,13 @@ struct GroupsListView: View {
        namespace: Namespace.ID,
        focusPublisher: FocusPublisher<GroupViewModel>,
        selectionManager: SelectionManager<GroupViewModel>,
+       contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (GroupsView.Action) -> Void) {
     self.focus = focus
     self.namespace = namespace
     self.focusPublisher = focusPublisher
     self.selectionManager = selectionManager
+    self.contentSelectionManager = contentSelectionManager
     self.onAction = onAction
     self.debounceSelectionManager = .init(.init(groups: selectionManager.selections),
                                           milliseconds: 100,
@@ -79,7 +82,8 @@ struct GroupsListView: View {
             })
             .focused($isFocused)
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-              focus.wrappedValue = .workflows
+              let first = contentSelectionManager.selections.first ?? ""
+              focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
             })
             .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: { })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
@@ -158,6 +162,7 @@ struct GroupsListView_Previews: PreviewProvider {
                    namespace: namespace,
                    focusPublisher: .init(),
                    selectionManager: .init(),
+                   contentSelectionManager: .init(),
                    onAction: { _ in })
     .designTime()
   }
