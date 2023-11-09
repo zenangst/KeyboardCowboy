@@ -52,6 +52,7 @@ final class UserSpace {
     func terminalEnvironment() -> [String: String] {
       var environment = ProcessInfo.processInfo.environment
       environment["TERM"] = "xterm-256color"
+      environment["SELECTED_TEXT"] = selectedText
 
       if let filePath = documentPath {
         let url = URL(filePath: filePath)
@@ -129,8 +130,10 @@ final class UserSpace {
   }
 
   private func selectedText(for runningApplication: NSRunningApplication) throws -> String {
-    try currentApplication(for: runningApplication)
-      .focusedUIElement()
-      .selectedText() ?? ""
+    let app = try currentApplication(for: runningApplication)
+    let focusedElement = try app.focusedUIElement()
+    let selectedText = focusedElement.selectedText()
+
+    return selectedText ?? ""
   }
 }
