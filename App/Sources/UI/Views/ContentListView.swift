@@ -17,10 +17,8 @@ struct ContentListView: View {
     case addWorkflow(workflowId: Workflow.ID)
   }
 
-  @Environment(\.resetFocus) var resetFocus
   private var focus: FocusState<AppFocus?>.Binding
   private let debounceSelectionManager: DebounceSelectionManager<ContentDebounce>
-  private var focusPublisher: FocusPublisher<ContentViewModel>
 
   @Namespace var namespace
 
@@ -37,11 +35,9 @@ struct ContentListView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupSelectionManager: SelectionManager<GroupViewModel>,
-       focusPublisher: FocusPublisher<ContentViewModel>,
        onAction: @escaping (Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.groupSelectionManager = groupSelectionManager
-    self.focusPublisher = focusPublisher
     self.focus = focus
     self.onAction = onAction
     let initialDebounce = ContentDebounce(workflows: contentSelectionManager.selections,
@@ -75,27 +71,21 @@ struct ContentListView: View {
         ScrollView {
           LazyVStack(spacing: 0) {
             ForEach(publisher.data.filter({ search($0) }), id: \.id) { element in
-              ZStack {
-                ContentItemView(
-                  workflow: element,
-                  publisher: publisher,
-                  contentSelectionManager: contentSelectionManager,
-                  onFocusChange: { newValue in
-                    guard newValue else { return }
-                    contentSelectionManager.handleOnTap(publisher.data, element: element)
-                    debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
-                                                           groups: groupSelectionManager.selections))
-                  },
-                  onAction: onAction
-                )
-                .contentShape(Rectangle())
-                .contextMenu(menuItems: {
-                  contextualMenu(element.id)
-                })
+              ContentItemView(
+                workflow: element,
+                publisher: publisher,
+                contentSelectionManager: contentSelectionManager,
+                onAction: onAction
+              )
+              .contentShape(Rectangle())
+              .contextMenu(menuItems: {
+                contextualMenu(element.id)
+              })
+              .focusable(focus, as: .workflow(element.id)) {
+                contentSelectionManager.handleOnTap(publisher.data, element: element)
+                debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
+                                                       groups: groupSelectionManager.selections))
               }
-              .focusable(true)
-              .focused(focus, equals: .workflow(element.id))
-              .focusEffectDisabled_shim()
               .onAppear {
                 if case .workflow = focus.wrappedValue, contentSelectionManager.selections.contains(element.id) {
                   focus.wrappedValue = .workflow(element.id)
@@ -199,8 +189,11 @@ struct ContentListView: View {
 struct ContentListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContentListView($focus, contentSelectionManager: .init(), groupSelectionManager: .init(),
-                    focusPublisher: .init()) { _ in }
+    ContentListView(
+      $focus,
+      contentSelectionManager: .init(),
+      groupSelectionManager: .init()
+    ) { _ in }
       .designTime()
   }
 }

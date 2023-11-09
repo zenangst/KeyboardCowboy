@@ -8,18 +8,15 @@ struct ContentItemView: View {
   @State var isTargeted: Bool = false
   private let publisher: ContentPublisher
   private let workflow: ContentViewModel
-  private let onFocusChange: (Bool) -> Void
   private let onAction: (ContentListView.Action) -> Void
 
   init(workflow: ContentViewModel,
        publisher: ContentPublisher,
        contentSelectionManager: SelectionManager<ContentViewModel>,
-       onFocusChange: @escaping (Bool) -> Void,
        onAction: @escaping (ContentListView.Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.publisher = publisher
-    self.onFocusChange = onFocusChange
     self.onAction = onAction
   }
 
@@ -62,11 +59,8 @@ struct ContentItemView: View {
           .frame(minWidth: 32, alignment: .trailing)
       }
     }
-    .contentShape(Rectangle())
     .padding(4)
-    .background(
-      ContentItemBackgroundView(contentSelectionManager: contentSelectionManager, id: workflow.id)
-    )
+    .background(FillBackgroundView(selectionManager: contentSelectionManager, id: workflow.id))
     .draggable(getDraggable())
     .dropDestination(for: String.self) { items, location in
       guard let payload = items.draggablePayload(prefix: "W|"),
@@ -81,28 +75,9 @@ struct ContentItemView: View {
     } isTargeted: { newValue in
       isTargeted = newValue
     }
-    .onChange(of: isFocused) { newValue in
-      onFocusChange(newValue)
-    }
   }
 
   func getDraggable() -> String {
     return workflow.draggablePayload(prefix: "W|", selections: contentSelectionManager.selections)
-  }
-}
-
-struct ContentItemBackgroundView: View {
-  @Environment(\.isFocused) var isFocused
-  @ObservedObject var contentSelectionManager: SelectionManager<ContentViewModel>
-  let id: ContentViewModel.ID
-
-  var body: some View {
-    contentSelectionManager.selectedColor
-      .opacity(isFocused
-               ? 0.5
-               : contentSelectionManager.selections.contains(id)
-               ? 0.2
-               : 0)
-      .cornerRadius(4.0)
   }
 }
