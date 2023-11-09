@@ -91,9 +91,9 @@ struct ContentListView: View {
                   focus.wrappedValue = .workflow(element.id)
                 }
               }
-              .focusable(true, interactions: .edit)
+              .focusable(true)
               .focused(focus, equals: .workflow(element.id))
-              .focusEffectDisabled()
+              .focusEffectDisabled_shim()
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               focus.wrappedValue = .detail(.name)
