@@ -1,3 +1,4 @@
+import Bonzai
 import Combine
 import SwiftUI
 
@@ -39,11 +40,11 @@ final class SidebarCoordinator {
     case .add(let group):
       groupId = group.id
       store.add(group)
-      selectionManager.selectedColor = Color(hex: group.color)
+      ZenColorPublisher.shared.publish(.custom(Color(hex: group.color)))
     case .edit(let group):
       groupId = group.id
       store.updateGroups([group])
-      selectionManager.selectedColor = Color(hex: group.color)
+      ZenColorPublisher.shared.publish(.custom(Color(hex: group.color)))
     }
     selectionManager.publish([groupId])
     if storeWasEmpty {
@@ -64,7 +65,7 @@ final class SidebarCoordinator {
     case .selectConfiguration(let id):
       if let firstGroup = store.groups.first(where: { $0.id == id }) {
         selectionManager.publish([firstGroup.id])
-        selectionManager.selectedColor = Color(hex: firstGroup.color)
+        ZenColorPublisher.shared.publish(.custom(Color(hex: firstGroup.color)))
       } else {
         selectionManager.publish([])
       }
@@ -72,7 +73,7 @@ final class SidebarCoordinator {
     case .deleteConfiguration:
       if let firstGroup = store.groups.first {
         selectionManager.publish([firstGroup.id])
-        selectionManager.selectedColor = Color(hex: firstGroup.color)
+        ZenColorPublisher.shared.publish(.custom(Color(hex: firstGroup.color)))
       } else {
         selectionManager.publish([])
       }
@@ -80,9 +81,9 @@ final class SidebarCoordinator {
     case .selectGroups(let ids):
       if ids.count == 1, let id = ids.first, let group = store.group(withId: id) {
         let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)!
-        selectionManager.selectedColor = Color(nsColor: nsColor)
+        ZenColorPublisher.shared.publish(.custom(Color(nsColor: nsColor)))
       } else {
-        selectionManager.selectedColor = Color.accentColor
+        ZenColorPublisher.shared.publish(.accentColor)
       }
     case .addConfiguration:
       render(store.groups)

@@ -1,13 +1,12 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
-struct EditableKeyboardShortcutsView: View {
+struct EditableKeyboardShortcutsView<T: Hashable>: View {
   enum CurrentState: Hashable {
     case recording
   }
 
-  @FocusState var isFocused: Bool
-
+  private let focus: FocusState<T?>.Binding
   @Environment(\.controlActiveState) var controlActiveState
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
   @Binding var keyboardShortcuts: [KeyShortcut]
@@ -18,17 +17,21 @@ struct EditableKeyboardShortcutsView: View {
 
   private let placeholderId = "keyboard_shortcut_placeholder_id"
   private let animation: Animation = .easeOut(duration: 0.2)
-  private let focusPublisher = FocusPublisher<KeyShortcut>()
   private let selectionManager: SelectionManager<KeyShortcut>
+  private let focusBinding: (KeyShortcut.ID) -> T
 
   var onTab: (Bool) -> Void
 
-  init(_ keyboardShortcuts: Binding<[KeyShortcut]>,
+  init(_ focus: FocusState<T?>.Binding,
+       focusBinding: @escaping (KeyShortcut.ID) -> T,
+       keyboardShortcuts: Binding<[KeyShortcut]>,
        state: CurrentState? = nil,
        selectionManager: SelectionManager<KeyShortcut>,
        onTab: @escaping (Bool) -> Void) {
     _keyboardShortcuts = keyboardShortcuts
     _state = .init(initialValue: state)
+    self.focus = focus
+    self.focusBinding = focusBinding
     self.onTab = onTab
     self.selectionManager = selectionManager
   }
@@ -40,11 +43,11 @@ struct EditableKeyboardShortcutsView: View {
           LazyHStack {
             ForEach($keyboardShortcuts) { keyboardShortcut in
               EditableKeyboardShortcutsItemView(
-                focusPublisher: focusPublisher,
                 keyboardShortcut: keyboardShortcut,
                 keyboardShortcuts: $keyboardShortcuts,
                 selectionManager: selectionManager
               )
+              .contentShape(Rectangle())
               .contextMenu {
                 Text(keyboardShortcut.wrappedValue.validationValue)
                 Divider()
@@ -57,26 +60,15 @@ struct EditableKeyboardShortcutsView: View {
                   }
                 }
               }
-              .onTapGesture {
+              .focusable(focus, as: focusBinding(keyboardShortcut.wrappedValue.id), onFocus: {
                 selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
-                focusPublisher.publish(keyboardShortcut.id)
-              }
+              })
               .simultaneousGesture(
                 TapGesture(count: 2)
                   .onEnded { _ in rerecord(keyboardShortcut.id) }
               )
               .id(keyboardShortcut.id)
             }
-            .focused($isFocused)
-            .onChange(of: isFocused, perform: { newValue in
-              guard newValue else { return }
-
-              guard let lastSelection = selectionManager.lastSelection else { return }
-
-              withAnimation {
-                proxy.scrollTo(lastSelection)
-              }
-            })
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               onTab(true)
             })
@@ -92,7 +84,7 @@ struct EditableKeyboardShortcutsView: View {
                 keyboardShortcuts,
                 proxy: proxy,
                 vertical: false) {
-                focusPublisher.publish(elementID)
+                focus.wrappedValue = focusBinding(elementID)
               }
             })
             .onDeleteCommand {
@@ -191,7 +183,6 @@ struct EditableKeyboardShortcutsView: View {
 
   private func addButtonAction(_ proxy: ScrollViewProxy) {
     let keyShortcut = KeyShortcut(id: placeholderId, key: "Recording ...", lhs: true)
-    focusPublisher.publish(keyShortcut.id)
     selectionManager.selections = [keyShortcut.id]
     state = .recording
     recorderStore.mode = .record
@@ -232,11 +223,12 @@ struct EditableKeyboardShortcutsView: View {
 }
 
 struct EditableKeyboardShortcutsView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
     EditableKeyboardShortcutsView(
-      .constant([
-
-      ]),
+      $focus,
+      focusBinding: { .detail(.keyboardShortcut($0)) },
+      keyboardShortcuts: .constant([ ]),
       state: .recording,
       selectionManager: SelectionManager<KeyShortcut>.init(),
       onTab: { _ in })

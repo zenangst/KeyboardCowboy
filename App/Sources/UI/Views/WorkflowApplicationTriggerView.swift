@@ -13,7 +13,6 @@ struct WorkflowApplicationTriggerView: View {
   @State private var selection: String = UUID().uuidString
 
   @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
-  private var focusPublisher = FocusPublisher<DetailViewModel.ApplicationTrigger>()
 
   private var focus: FocusState<AppFocus?>.Binding
   private let onAction: (Action) -> Void
@@ -61,12 +60,11 @@ struct WorkflowApplicationTriggerView: View {
       LazyVStack(spacing: 4) {
         ForEach($data.lazy, id: \.id) { element in
           WorkflowApplicationTriggerItemView(element, data: $data,
-                                             focusPublisher: focusPublisher,
                                              selectionManager: selectionManager,
                                              onAction: onAction)
-          .onTapGesture {
+          .contentShape(Rectangle())
+          .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
             selectionManager.handleOnTap(data, element: element.wrappedValue)
-            focusPublisher.publish(element.id)
           }
         }
         .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
@@ -77,7 +75,7 @@ struct WorkflowApplicationTriggerView: View {
         })
         .onMoveCommand(perform: { direction in
           if let elementID = selectionManager.handle(direction, data, proxy: nil) {
-            focusPublisher.publish(elementID)
+            focus.wrappedValue = .detail(.applicationTrigger(elementID))
           }
         })
         .onDeleteCommand {

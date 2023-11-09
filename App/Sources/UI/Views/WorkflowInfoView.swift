@@ -1,5 +1,6 @@
-import SwiftUI
 import Bonzai
+import Carbon
+import SwiftUI
 
 struct WorkflowInfoView: View {
   enum Action {
@@ -10,6 +11,7 @@ struct WorkflowInfoView: View {
   @EnvironmentObject var contentSelectionManager: SelectionManager<ContentViewModel>
   @EnvironmentObject var selection: SelectionManager<CommandViewModel>
   @ObservedObject private var publisher: InfoPublisher
+  @State var monitor: Any?
   var focus: FocusState<AppFocus?>.Binding
   private let onInsertTab: () -> Void
   private var onAction: (Action) -> Void
@@ -26,24 +28,43 @@ struct WorkflowInfoView: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      VStack {
-        TextField("Workflow name", text: $publisher.data.name)
-          .frame(height: 41)
-          .fixedSize(horizontal: false, vertical: true)
-          .focused(focus, equals: .detail(.name))
-          .onCommand(#selector(NSTextField.insertTab(_:)), perform: onInsertTab)
-          .onCommand(#selector(NSTextField.insertBacktab(_:)), perform: {
-            let first = contentSelectionManager.selections.first ?? ""
-            focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
-          })
-          .textFieldStyle(.large(color: .custom(selection.selectedColor),
-                                 backgroundColor: Color(nsColor: .windowBackgroundColor),
-                                 glow: true))
-          .onChange(of: publisher.data.name) { onAction(.updateName(name: $0)) }
-      }
+      TextField("Workflow name", text: $publisher.data.name)
+        .frame(height: 41)
+        .fixedSize(horizontal: false, vertical: true)
+        .focused(focus, equals: .detail(.name))
+        .textFieldStyle(.large(color: ZenColorPublisher.shared.color,
+                               backgroundColor: Color(nsColor: .windowBackgroundColor),
+                               glow: true))
+        .onChange(of: publisher.data.name) { onAction(.updateName(name: $0)) }
+        .onChange(of: focus.wrappedValue, perform: { value in
+          if case .detail(.name) = value {
+            if let oldMonitor = monitor { NSEvent.removeMonitor(oldMonitor) }
+
+            monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
+              if event.keyCode == kVK_Tab {
+                if event.modifierFlags.contains(.shift) {
+                  focus.wrappedValue = .workflow(publisher.data.id)
+                } else {
+                  onInsertTab()
+                }
+                return nil
+              }
+              return event
+            }
+          } else if let monitor {
+            NSEvent.removeMonitor(monitor)
+            self.monitor = nil
+          }
+        })
 
       Spacer()
       ZenToggle("", config: .init(color: .systemGreen), isOn: $publisher.data.isEnabled) { onAction(.setIsEnabled(isEnabled: $0))
+      }
+    }
+    .onDisappear {
+      if let monitor {
+        NSEvent.removeMonitor(monitor)
+        self.monitor = nil
       }
     }
   }

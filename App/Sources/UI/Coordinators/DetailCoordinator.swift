@@ -47,14 +47,6 @@ final class DetailCoordinator {
     enableInjection(self, selector: #selector(injected(_:)))
   }
 
-  func handle(_ context: EditWorkflowGroupWindow.Context) {
-    switch context {
-    case .add(let workflowGroup), .edit(let workflowGroup):
-      contentSelectionManager.selectedColor = Color(hex: workflowGroup.color)
-      commandSelectionManager.selectedColor = Color(hex: workflowGroup.color)
-    }
-  }
-
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .addConfiguration:
@@ -76,11 +68,6 @@ final class DetailCoordinator {
       if let firstId = ids.first,
          let group = groupStore.group(withId: firstId) {
         var workflowIds = Set<ContentViewModel.ID>()
-
-        let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black) ?? .controlAccentColor
-        applicationTriggerSelectionManager.selectedColor = Color(nsColor: nsColor)
-        keyboardShortcutSelectionManager.selectedColor = Color(nsColor: nsColor)
-        commandSelectionManager.selectedColor = Color(nsColor: nsColor)
 
         let matches = group.workflows.filter { contentSelectionManager.selections.contains($0.id) }
           .map(\.id)
@@ -255,7 +242,6 @@ final class DetailCoordinator {
       .filter { groupIds.contains($0.id) }
       .flatMap(\.workflows)
       .filter { ids.contains($0.id) }
-
     let viewModels: [DetailViewModel] = mapper.map(workflows)
     let state: DetailViewState
 

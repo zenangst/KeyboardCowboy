@@ -23,14 +23,14 @@ struct ContentListFilterView: View {
               : "line.3.horizontal.decrease.circle.fill")
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .foregroundColor(contentSelectionManager.selectedColor)
+        .foregroundColor(Color(nsColor:ZenColorPublisher.shared.color.nsColor))
         .frame(width: 12)
         .padding(.leading, 8)
         TextField("Filter", text: $searchTerm)
           .textFieldStyle(
             .zen(.init(
               calm: true,
-              color: .custom(contentSelectionManager.selectedColor),
+              color: ZenColorPublisher.shared.color,
               backgroundColor: Color(nsColor: .clear),
               font: .caption2,
               unfocusedOpacity: 0

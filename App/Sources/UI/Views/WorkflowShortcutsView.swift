@@ -2,8 +2,8 @@ import SwiftUI
 import Bonzai
 
 struct WorkflowShortcutsView: View {
-  var focus: FocusState<AppFocus?>.Binding
   @Binding private var data: [KeyShortcut]
+  private var focus: FocusState<AppFocus?>.Binding
   private let onUpdate: ([KeyShortcut]) -> Void
   private let selectionManager: SelectionManager<KeyShortcut>
 
@@ -17,7 +17,11 @@ struct WorkflowShortcutsView: View {
   }
 
   var body: some View {
-    EditableKeyboardShortcutsView($data, selectionManager: selectionManager, onTab: {
+    EditableKeyboardShortcutsView<AppFocus>(focus,
+                                            focusBinding: { .detail(.keyboardShortcut($0)) },
+                                            keyboardShortcuts: $data,
+                                            selectionManager: selectionManager,
+                                            onTab: {
       if $0 {
         focus.wrappedValue = .detail(.commands)
       } else {

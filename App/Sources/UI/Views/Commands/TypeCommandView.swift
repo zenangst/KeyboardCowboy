@@ -38,7 +38,7 @@ struct TypeCommandView: View {
         }
       }, content: { metaData in
         ZenTextEditor(
-          color: .custom(selection.selectedColor),
+          color: ZenColorPublisher.shared.color,
           text: $model.input,
           placeholder: "Enter text...", onCommandReturnKey: nil)
           .onChange(of: model.input) { debounce.send($0) }

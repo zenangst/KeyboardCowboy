@@ -10,7 +10,6 @@ struct WorkflowCommandListScrollView: View {
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
   @State private var dropOverlayIsVisible: Bool = false
   @State private var dropUrls = Set<URL>()
-  private var focusPublisher = FocusPublisher<CommandViewModel>()
   private let scrollViewProxy: ScrollViewProxy?
   private let onAction: (SingleDetailView.Action) -> Void
   private let focus: FocusState<AppFocus?>.Binding
@@ -39,14 +38,16 @@ struct WorkflowCommandListScrollView: View {
     ScrollView {
       LazyVStack(spacing: 0) {
         ForEach(publisher.data.commands.lazy, id: \.id) { command in
-          CommandView(Binding.readonly(command),
-                      publisher: publisher,
-                      focusPublisher: focusPublisher,
-                      selectionManager: selectionManager,
-                      workflowId: workflowId,
-                      onCommandAction: onAction, onAction: { action in
+          CommandView(
+            focus,
+            command: Binding.readonly(command),
+            publisher: publisher,
+            selectionManager: selectionManager,
+            workflowId: workflowId,
+            onCommandAction: onAction, onAction: { action in
             onAction(.commandView(workflowId: workflowId, action: action))
           })
+          .contentShape(Rectangle())
           .contextMenu(menuItems: {
             WorkflowCommandListContextMenuView(
               command,
@@ -56,12 +57,10 @@ struct WorkflowCommandListScrollView: View {
               onAction: onAction
             )
           })
-          .onTapGesture {
+          .focusable(focus, as: .detail(.command(command.id))) {
             selectionManager.handleOnTap(publisher.data.commands, element: command)
-            focusPublisher.publish(command.id)
           }
         }
-        .focused($isFocused)
         .onChange(of: isFocused, perform: { newValue in
           guard newValue else { return }
 
@@ -91,7 +90,7 @@ struct WorkflowCommandListScrollView: View {
         .onMoveCommand(perform: { direction in
           if let elementID = selectionManager.handle(direction, publisher.data.commands,
                                                      proxy: scrollViewProxy) {
-            focusPublisher.publish(elementID)
+            focus.wrappedValue = .detail(.command(elementID))
           }
         })
         .onDeleteCommand {

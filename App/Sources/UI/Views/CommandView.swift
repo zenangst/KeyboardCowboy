@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct CommandView: View {
@@ -24,42 +25,39 @@ struct CommandView: View {
   @Environment(\.openWindow) var openWindow
   @Environment(\.controlActiveState) var controlActiveState
 
+  private var focus: FocusState<AppFocus?>.Binding
+
   private let workflowId: String
   private let publisher: CommandsPublisher
   private let selectionManager: SelectionManager<CommandViewModel>
-  private let focusPublisher: FocusPublisher<CommandViewModel>
   @State var isTargeted: Bool = false
   @Binding private var command: CommandViewModel
+
   private let onCommandAction: (SingleDetailView.Action) -> Void
   private let onAction: (Action) -> Void
 
-  init(_ command: Binding<CommandViewModel>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       command: Binding<CommandViewModel>,
        publisher: CommandsPublisher,
-       focusPublisher: FocusPublisher<CommandViewModel>,
        selectionManager: SelectionManager<CommandViewModel>,
        workflowId: String,
        onCommandAction: @escaping (SingleDetailView.Action) -> Void,
        onAction: @escaping (Action) -> Void) {
     _command = command
+    self.focus = focus
     self.publisher = publisher
     self.selectionManager = selectionManager
-    self.focusPublisher = focusPublisher
     self.workflowId = workflowId
     self.onCommandAction = onCommandAction
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandResolverView($command, workflowId: workflowId, onAction: onAction)
+    CommandResolverView(focus, command: $command, workflowId: workflowId, onAction: onAction)
       .onChange(of: command.meta.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
       })
-      .background(
-        FocusView(focusPublisher, element: $command,
-                  isTargeted: $isTargeted,
-                  selectionManager: selectionManager, cornerRadius: 8,
-                  style: .focusRing)
-      )
+      .overlay(BorderedOverlayView(cornerRadius: 8))
       .background(
         Color(.windowBackgroundColor).cornerRadius(8)
           .drawingGroup()
@@ -111,13 +109,16 @@ struct CommandView: View {
 struct CommandResolverView: View {
   @Environment(\.openWindow) var openWindow
   @Binding private var command: CommandViewModel
+  private var focus: FocusState<AppFocus?>.Binding
   private let workflowId: DetailViewModel.ID
   private let onAction: (CommandView.Action) -> Void
 
-  init(_ command: Binding<CommandViewModel>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       command: Binding<CommandViewModel>,
        workflowId: String,
        onAction: @escaping (CommandView.Action) -> Void) {
     _command = command
+    self.focus = focus
     self.workflowId = workflowId
     self.onAction = onAction
   }
@@ -172,7 +173,7 @@ struct CommandResolverView: View {
           }
         }
     case .keyboard(let model):
-      KeyboardCommandView(command.meta, model: model) { action in
+      KeyboardCommandView(focus, metaData: command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)

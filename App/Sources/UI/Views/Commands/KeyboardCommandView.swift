@@ -7,16 +7,20 @@ struct KeyboardCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
+  private let focus: FocusState<AppFocus?>.Binding
+  @StateObject var keyboardSelection = SelectionManager<KeyShortcut>()
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.KeyboardModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.KeyboardModel,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
+    self.focus = focus
     self.onAction = onAction
     self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
       onAction(.updateName(newName: newName))
@@ -45,9 +49,11 @@ struct KeyboardCommandView: View {
               .onChange(of: metaData.name, perform: { debounce.send($0) })
               .frame(maxWidth: .infinity)
           }
-          EditableKeyboardShortcutsView($model.keys,
-                                        selectionManager: .init(),
-                                        onTab: { _ in })
+          EditableKeyboardShortcutsView<AppFocus>(focus,
+                                                  focusBinding: { .detail(.commandShortcut($0)) },
+                                                  keyboardShortcuts: $model.keys,
+                                                  selectionManager: keyboardSelection,
+                                                  onTab: { _ in })
           .font(.caption)
           .frame(height: 40)
           .onChange(of: model.keys) { newValue in
@@ -63,10 +69,11 @@ struct KeyboardCommandView: View {
 }
 
 struct RebindingCommandView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static let recorderStore = KeyShortcutRecorderStore()
   static let command = DesignTime.rebindingCommand
   static var previews: some View {
-    KeyboardCommandView(command.model.meta, model: command.kind) { _ in }
+    KeyboardCommandView($focus, metaData: command.model.meta, model: command.kind) { _ in }
       .designTime()
       .environmentObject(recorderStore)
       .frame(maxHeight: 120)
