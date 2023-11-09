@@ -8,15 +8,15 @@ final class ActivateApplicationPlugin {
     case failedToActivate
   }
 
-  private let workspace: WorkspaceProviding
+  private let userSpace: UserSpace
 
-  init(workspace: WorkspaceProviding) {
-    self.workspace = workspace
+  init(userSpace: UserSpace = .shared) {
+    self.userSpace = userSpace
   }
 
   /// Activate an application using its bundle identifier.
   ///
-  /// Activation is done by filtering an match inside `NSWorkspace`'s `.runningApplications`.
+  /// Activation is done by filtering an match inside `UserSpace`'s `.runningApplications`.
   /// The first element that matches the bundle identifier will be used to activate the
   /// application by simply calling `activate` on the `NSRunningApplication`.
   /// `activate` is called with the options `.activateIgnoringOtherApps`
@@ -28,23 +28,23 @@ final class ActivateApplicationPlugin {
   ///           If `.activate` should fail, then another error will be thrown: `.failedToActivate`
   func execute(_ command: ApplicationCommand) async throws {
     guard
-      let runningApplication = workspace
-        .applications
+      let runningApplication = UserSpace.shared
+        .runningApplications
         .first(where:
-                { $0.bundleIdentifier?.lowercased() == command.application.bundleIdentifier.lowercased() }
+                { $0.bundleIdentifier.lowercased() == command.application.bundleIdentifier.lowercased() }
         ) else {
       throw ActivateApplicationPlugin.failedToFindRunningApplication
     }
 
     var options: NSApplication.ActivationOptions = .activateIgnoringOtherApps
 
-    if workspace.frontApplication?.bundleIdentifier?.lowercased() == command.application.bundleIdentifier.lowercased() {
+    if userSpace.frontMostApplication.bundleIdentifier.lowercased() == command.application.bundleIdentifier.lowercased() {
       options.insert(.activateAllWindows)
     }
 
     try Task.checkCancellation()
 
-    if !runningApplication.activate(options: options) {
+    if !runningApplication.ref.activate(options: options) {
       throw ActivateApplicationPlugin.failedToActivate
     }
   }

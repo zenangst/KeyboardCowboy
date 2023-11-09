@@ -21,7 +21,7 @@ final class SystemCommandRunner: @unchecked Sendable {
   private var frontMostApplicationWindows: [WindowAccessibilityElement] = .init()
   private var frontMostIndex: Int = 0
 
-  private var frontmostApplication: RunningApplication = NSRunningApplication.current
+  private var frontmostApplication: UserSpace.Application = .current
   private var interactive: Bool = false
 
   private let applicationStore: ApplicationStore
@@ -32,7 +32,7 @@ final class SystemCommandRunner: @unchecked Sendable {
     self.workspace = workspace
   }
 
-  func subscribe(to publisher: Published<RunningApplication?>.Publisher) {
+  func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     frontmostApplicationSubscription = publisher
       .compactMap { $0 }
       .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
@@ -164,7 +164,7 @@ final class SystemCommandRunner: @unchecked Sendable {
     return windowModels
   }
 
-  private func index(_ runningApplication: RunningApplication) {
+  private func index(_ runningApplication: UserSpace.Application) {
     let windowModels = getWindows()
     indexAllApplicationsInSpace(windowModels)
     indexVisibleApplications(windowModels)
@@ -203,8 +203,8 @@ final class SystemCommandRunner: @unchecked Sendable {
     visibleApplicationWindows = windowModels
   }
 
-  private func indexFrontmost(_ frontMostApplication: RunningApplication) {
-    let pid = frontmostApplication.processIdentifier
+  private func indexFrontmost(_ frontMostApplication: UserSpace.Application) {
+    let pid = frontmostApplication.ref.processIdentifier
     let element = AppAccessibilityElement(pid)
     do {
       frontMostApplicationWindows = try element.windows()

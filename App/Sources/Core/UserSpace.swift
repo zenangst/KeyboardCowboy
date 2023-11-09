@@ -1,5 +1,6 @@
 import AXEssibility
 import Apps
+import Combine
 import ScriptingBridge
 import Cocoa
 import Foundation
@@ -11,6 +12,12 @@ enum UserSpaceError: Error {
 }
 
 final class UserSpace {
+  struct Application {
+    let ref: NSRunningApplication
+    let bundleIdentifier: String
+
+    static let current: Application = .init(ref: .current, bundleIdentifier: Bundle.main.bundleIdentifier!)
+  }
   struct Snapshot {
     let documentPath: String?
     let selectedText: String
@@ -79,7 +86,30 @@ final class UserSpace {
 
   static let shared = UserSpace()
 
-  private init() {}
+  @Published private(set) var frontMostApplication: Application = .current
+  @Published private(set) var runningApplications: [Application] = [Application.current]
+  private var frontmostApplicationSubscription: AnyCancellable?
+  private var runningApplicationsSubscription: AnyCancellable?
+
+  private init(workspace: NSWorkspace = .shared) {
+    frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
+      .compactMap { $0 }
+      .sink { [weak self] application in
+        guard let bundleIdentifier = application.bundleIdentifier else { return }
+        self?.frontMostApplication = Application(ref: application, bundleIdentifier: bundleIdentifier)
+      }
+    runningApplicationsSubscription = workspace.publisher(for: \.runningApplications)
+      .sink { [weak self] applications in
+        let newApplications = applications.compactMap {
+          if let bundleIdentifier = $0.bundleIdentifier {
+            Application(ref: $0, bundleIdentifier: bundleIdentifier)
+          } else {
+            nil
+          }
+        }
+        self?.runningApplications = newApplications
+      }
+  }
 
   @MainActor
   func snapshot() -> Snapshot {

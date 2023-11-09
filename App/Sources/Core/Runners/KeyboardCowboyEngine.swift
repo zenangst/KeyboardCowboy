@@ -98,8 +98,7 @@ final class KeyboardCowboyEngine {
   // MARK: Private methods
 
   private func subscribe(to workspace: NSWorkspace) {
-    frontmostApplicationSubscription = workspace
-      .publisher(for: \.frontmostApplication)
+    frontmostApplicationSubscription = UserSpace.shared.$frontMostApplication
       .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
       .compactMap { $0 }
       .sink { [weak self] application in
@@ -108,13 +107,13 @@ final class KeyboardCowboyEngine {
 
     guard KeyboardCowboy.env() == .production else { return }
 
-    applicationTriggerController.subscribe(to: workspacePublisher.$frontmostApplication)
-    applicationTriggerController.subscribe(to: workspacePublisher.$runningApplications)
+    applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
+    applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
-    commandRunner.runners.system.subscribe(to: workspacePublisher.$frontmostApplication)
+    commandRunner.runners.system.subscribe(to: UserSpace.shared.$frontMostApplication)
   }
 
-  private func reload(with application: NSRunningApplication) {
+  private func reload(with application: UserSpace.Application) {
     guard KeyboardCowboy.env() == .production else { return }
 
     if contentStore.preferences.hideFromDock {

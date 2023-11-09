@@ -19,7 +19,7 @@ final class ApplicationCommandRunner {
     self.windowListStore = windowListStore
     self.workspace = workspace
     self.plugins = Plugins(
-      activate: ActivateApplicationPlugin(workspace: workspace),
+      activate: ActivateApplicationPlugin(),
       bringToFront: BringToFrontApplicationPlugin(scriptCommandRunner),
       close: CloseApplicationPlugin(workspace: workspace),
       launch: LaunchApplicationPlugin(workspace: workspace)

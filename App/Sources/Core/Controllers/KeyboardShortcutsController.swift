@@ -19,12 +19,12 @@ struct PartialMatch {
 final class KeyboardShortcutsController {
   private var cache = [String: KeyboardShortcutResult]()
 
-  func lookup(_ keyboardShortcut: KeyShortcut, partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
-    if let bundleIdentifier = NSWorkspace.shared.frontApplication?.bundleIdentifier {
-      let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: partialMatch.rawValue)
-      if let result = cache[scopedKey] {
-        return result
-      }
+  func lookup(_ keyboardShortcut: KeyShortcut, 
+              bundleIdentifier: String,
+              partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
+    let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: partialMatch.rawValue)
+    if let result = cache[scopedKey] {
+      return result
     }
     let globalKey = createKey(keyboardShortcut, bundleIdentifier: "*", previousKey: partialMatch.rawValue)
     let result = cache[globalKey]

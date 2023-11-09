@@ -15,15 +15,13 @@ final class ApplicationTriggerController {
     self.commandRunner = commandRunner
   }
 
-  func subscribe(to publisher: Published<[RunningApplication]>.Publisher) {
+  func subscribe(to publisher: Published<[UserSpace.Application]>.Publisher) {
     runningApplicationsSubscription = publisher
-      .map { $0.compactMap { $0.bundleIdentifier } }
-      .sink { [weak self] in self?.process($0) }
+      .sink { [weak self] in self?.process($0.map { $0.bundleIdentifier }) }
   }
 
-  func subscribe(to publisher: Published<RunningApplication?>.Publisher) {
+  func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     frontmostApplicationSubscription = publisher
-      .compactMap { $0 }
       .sink { [weak self] in self?.process($0) }
   }
 
@@ -62,9 +60,8 @@ final class ApplicationTriggerController {
     }
   }
 
-  private func process(_ frontMostApplication: RunningApplication) {
-    guard let bundleIdentifier = frontMostApplication.bundleIdentifier,
-          let workflows = self.activateActions[bundleIdentifier] else { return }
+  private func process(_ frontMostApplication: UserSpace.Application) {
+    guard let workflows = self.activateActions[frontMostApplication.bundleIdentifier] else { return }
 
     for workflow in workflows {
       runCommands(in: workflow)

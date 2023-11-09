@@ -147,10 +147,18 @@ final class MachPortCoordinator {
     )
 
     // Found a match
-    var result = keyboardShortcutsController.lookup(keyboardShortcut, partialMatch: previousPartialMatch)
+    var result = keyboardShortcutsController.lookup(
+      keyboardShortcut,
+      bundleIdentifier: UserSpace.shared.frontMostApplication.bundleIdentifier,
+      partialMatch: previousPartialMatch
+    )
     if result == nil {
       let keyboardShortcut = KeyShortcut(key: displayValue.uppercased(), lhs: machPortEvent.lhs, modifiers: modifiers)
-      result = keyboardShortcutsController.lookup(keyboardShortcut, partialMatch: previousPartialMatch)
+      result = keyboardShortcutsController.lookup(
+        keyboardShortcut,
+        bundleIdentifier: UserSpace.shared.frontMostApplication.bundleIdentifier,
+        partialMatch: previousPartialMatch
+      )
     }
 
     switch result {

@@ -21,6 +21,15 @@ final class WorkflowNotificationController: ObservableObject {
 
   private init() { }
 
+  func reset() {
+    Task { @MainActor in
+      WorkflowNotificationController.shared.post(.init(id: UUID().uuidString,
+                                                       matches: [],
+                                                       glow: false,
+                                                       keyboardShortcuts: []))
+    }
+  }
+
   func post(_ notification: WorkflowNotificationViewModel) {
     Task { @MainActor [publisher, windowController] in
       withAnimation(WorkflowNotificationView.animation) {

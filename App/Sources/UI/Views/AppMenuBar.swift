@@ -64,7 +64,7 @@ struct AppMenuBar: Scene {
         .onAppear(perform: { onAction(.onAppear) })
         .onReceive(pub, perform: { output in
           onAction(.openMainWindow)
-          NSRunningApplication.current.activate(options: .activateAllWindows)
+          UserSpace.Application.current.ref.activate(options: .activateAllWindows)
         })
     }
     .onChange(of: scenePhase) { newValue in
