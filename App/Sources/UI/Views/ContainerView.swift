@@ -1,9 +1,7 @@
 import SwiftUI
 
 enum AppFocus: Hashable {
-  case groups
   case group(GroupViewModel.ID)
-  case workflows
   case workflow(ContentViewModel.ID)
   case detail(Detail)
   case search
@@ -131,9 +129,6 @@ struct ContainerView: View {
       })
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)
-    .onAppear {
-      focus.wrappedValue = .groups
-    }
   }
 }
 

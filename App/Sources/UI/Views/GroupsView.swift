@@ -55,7 +55,6 @@ struct GroupsView: View {
                    selectionManager: selectionManager, 
                    contentSelectionManager: contentSelectionManager,
                    onAction: onAction)
-    .focused(focus, equals: .groups)
   }
 }
 

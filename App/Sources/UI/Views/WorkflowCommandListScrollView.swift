@@ -81,9 +81,6 @@ struct WorkflowCommandListScrollView: View {
             focus.wrappedValue = .detail(.name)
           }
         })
-        .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-          focus.wrappedValue = .groups
-        })
         .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
           selectionManager.selections = Set(publisher.data.commands.map(\.id))
         })
