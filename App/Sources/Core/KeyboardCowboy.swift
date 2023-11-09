@@ -9,9 +9,16 @@ import InputSources
 @main
 struct KeyboardCowboy: App {
 #if DEBUG
-  static let env: AppEnvironment = isRunningPreview ? .previews : .development
+  static func env() -> AppEnvironment {
+    if let override = ProcessInfo.processInfo.environment["APP_ENVIRONMENT_OVERRIDE"],
+       let env = AppEnvironment(rawValue: override) {
+      return env
+    } else {
+      return isRunningPreview ? .previews : .development
+    }
+  }
 #else
-  static let env: AppEnvironment = .production
+  static func env() -> AppEnvironment { .production }
 #endif
 
   @Namespace var namespace
@@ -45,7 +52,7 @@ struct KeyboardCowboy: App {
       guard !launchArguments.isEnabled(.runningUnitTests) else { return }
       switch action {
       case .onAppear:
-        if KeyboardCowboy.env == .development {
+        if KeyboardCowboy.env() == .development {
           handleScene(.mainWindow)
         } else {
           if !AXIsProcessTrustedWithOptions(nil) {
@@ -239,7 +246,7 @@ struct KeyboardCowboy: App {
   }
 
   private func handleScene(_ scene: AppScene) {
-    guard KeyboardCowboy.env != .previews else { return }
+    guard KeyboardCowboy.env() != .previews else { return }
     switch scene {
     case .permissions:
       openWindow(id: KeyboardCowboy.permissionsWindowIdentifier)

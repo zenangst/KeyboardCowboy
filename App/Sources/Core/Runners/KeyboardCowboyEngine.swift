@@ -46,7 +46,7 @@ final class KeyboardCowboyEngine {
     self.workspacePublisher = WorkspacePublisher(workspace)
     self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
 
-    guard KeyboardCowboy.env != .previews else { return }
+    guard KeyboardCowboy.env() != .previews else { return }
 
     guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 
@@ -106,7 +106,7 @@ final class KeyboardCowboyEngine {
         self?.reload(with: application)
       }
 
-    guard KeyboardCowboy.env == .production else { return }
+    guard KeyboardCowboy.env() == .production else { return }
 
     applicationTriggerController.subscribe(to: workspacePublisher.$frontmostApplication)
     applicationTriggerController.subscribe(to: workspacePublisher.$runningApplications)
@@ -115,7 +115,7 @@ final class KeyboardCowboyEngine {
   }
 
   private func reload(with application: NSRunningApplication) {
-    guard KeyboardCowboy.env == .production else { return }
+    guard KeyboardCowboy.env() == .production else { return }
 
     if contentStore.preferences.hideFromDock {
       let newPolicy: NSApplication.ActivationPolicy

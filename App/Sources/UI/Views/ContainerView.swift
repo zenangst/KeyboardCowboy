@@ -111,7 +111,7 @@ struct ContainerView: View {
         .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
           .background(Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all))
           .overlay(alignment: .topTrailing, content: {
-            if KeyboardCowboy.env != .production {
+            if KeyboardCowboy.env() != .production {
               Rectangle()
                 .fill(Gradient(colors: [
                   Color(.systemYellow),

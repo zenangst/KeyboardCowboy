@@ -4,7 +4,7 @@ import InputSources
 @MainActor
 final class Core {
   static var config: AppPreferences {
-    switch KeyboardCowboy.env {
+    switch KeyboardCowboy.env() {
     case .development: .designTime()
     case .previews: .designTime()
     case .production: .user()

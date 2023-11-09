@@ -101,7 +101,7 @@ let project = Project(
       testAction: .targets(
         ["UnitTests"],
         arguments: .init(environmentVariables: [
-          "SOURCE_ROOT": "$(SRCROOT)"
+          "SOURCE_ROOT": .init(value: "$(SRCROOT)", isEnabled: true),
         ], launchArguments: [
           LaunchArgument(name: "-running-unit-tests", isEnabled: true)
         ]),
@@ -116,7 +116,8 @@ let project = Project(
         executable: "Keyboard-Cowboy",
         arguments:
             .init(environmentVariables: [
-              "SOURCE_ROOT": "$(SRCROOT)"
+              "SOURCE_ROOT": .init(value: "$(SRCROOT)", isEnabled: true),
+              "APP_ENVIRONMENT_OVERRIDE": .init(value: "production", isEnabled: false),
             ], launchArguments: [
               LaunchArgument(name: "-benchmark", isEnabled: false),
               LaunchArgument(name: "-debugEditing", isEnabled: false),

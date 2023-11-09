@@ -51,6 +51,7 @@ final class ConfigurationStore: ObservableObject, @unchecked Sendable {
     configurations.removeAll(where: { $0.id == configuration.id })
   }
 
+  @MainActor
   func update(_ configuration: KeyboardCowboyConfiguration) {
     guard let index = configurations.firstIndex(where: { $0.id == configuration.id }) else {
       return
@@ -61,7 +62,7 @@ final class ConfigurationStore: ObservableObject, @unchecked Sendable {
     guard newConfigurations[index] != configuration else { return }
 
     newConfigurations[index] = configuration
-    if KeyboardCowboy.env == .production {
+    if KeyboardCowboy.env() == .production {
       select(configuration)
     }
     self.configurations = newConfigurations

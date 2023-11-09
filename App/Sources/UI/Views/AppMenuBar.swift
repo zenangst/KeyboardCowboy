@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 struct AppMenuBar: Scene {
   enum Action {
     case onAppear
@@ -10,7 +11,7 @@ struct AppMenuBar: Scene {
   @Environment(\.scenePhase) private var scenePhase
 
   private var applicationName: String {
-    switch KeyboardCowboy.env {
+    switch KeyboardCowboy.env() {
     case .previews:
       return "Keyboard Cowboy (designTime)"
     case .production:
@@ -69,7 +70,7 @@ struct AppMenuBar: Scene {
     .onChange(of: scenePhase) { newValue in
       switch newValue {
       case .active:
-        guard KeyboardCowboy.env == .production else { return }
+        guard KeyboardCowboy.env() == .production else { return }
         KeyboardCowboy.activate()
       case .inactive, .background:
         break
@@ -84,7 +85,7 @@ private struct _MenubarIcon: View {
   var body: some View {
     if launchArguments.isEnabled(.runningUnitTests) {
       Image(systemName: "testtube.2")
-    } else if KeyboardCowboy.env == .production {
+    } else if KeyboardCowboy.env() == .production {
       Image(systemName: "command")
     } else {
       Image(systemName: "hammer.circle")

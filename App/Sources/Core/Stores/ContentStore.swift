@@ -45,7 +45,7 @@ final class ContentStore: ObservableObject {
     self.storage = Storage(preferences.storageConfiguration)
     self.recorderStore = recorderStore
 
-    guard KeyboardCowboy.env != .previews else { return }
+    guard KeyboardCowboy.env() != .previews else { return }
 
     Task {
       Benchmark.shared.start("ContentStore.init")
