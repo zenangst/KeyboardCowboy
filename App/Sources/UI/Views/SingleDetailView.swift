@@ -26,10 +26,10 @@ struct SingleDetailView: View {
   }
   var focus: FocusState<AppFocus?>.Binding
   @Environment(\.openWindow) var openWindow
-  private let triggerPublisher: TriggerPublisher
-  private let infoPublisher: InfoPublisher
-  private let commandPublisher: CommandsPublisher
-  
+  @EnvironmentObject var triggerPublisher: TriggerPublisher
+  @EnvironmentObject var infoPublisher: InfoPublisher
+  @EnvironmentObject var commandPublisher: CommandsPublisher
+
   @State var overlayOpacity: CGFloat = 0
   private let onAction: (Action) -> Void
 
@@ -49,9 +49,6 @@ struct SingleDetailView: View {
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
-    self.triggerPublisher = triggerPublisher
-    self.infoPublisher = infoPublisher
-    self.commandPublisher = commandPublisher
     self.onAction = onAction
   }
 
