@@ -2,6 +2,15 @@ import SwiftUI
 
 extension View {
   @ViewBuilder
+  func focusEffectDisabled_shim() -> some View {
+    if #available(macOS 14.0, *) {
+      self.focusEffectDisabled()
+    } else {
+      self
+    }
+  }
+
+  @ViewBuilder
   func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
     transform(self)
   }
