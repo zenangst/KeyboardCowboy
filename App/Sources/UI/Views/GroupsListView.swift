@@ -15,7 +15,6 @@ struct GroupsListView: View {
     }
   }
 
-  @FocusState var isFocused: Bool
   private var focus: FocusState<AppFocus?>.Binding
   private let namespace: Namespace.ID
   private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
@@ -39,7 +38,7 @@ struct GroupsListView: View {
     self.contentSelectionManager = contentSelectionManager
     self.onAction = onAction
     self.debounceSelectionManager = .init(.init(groups: selectionManager.selections),
-                                          milliseconds: 100,
+                                          milliseconds: 150,
                                           onUpdate: { snapshot in
       onAction(.selectGroups(snapshot.groups))
     })
