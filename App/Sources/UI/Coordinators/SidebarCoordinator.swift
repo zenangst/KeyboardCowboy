@@ -7,19 +7,16 @@ final class SidebarCoordinator {
   private var subscription: AnyCancellable?
 
   private let applicationStore: ApplicationStore
-  private let configSelectionManager: SelectionManager<ConfigurationViewModel>
   private let selectionManager: SelectionManager<GroupViewModel>
   private let store: GroupStore
 
   let publisher = GroupsPublisher()
 
   init(_ store: GroupStore, applicationStore: ApplicationStore,
-       configSelectionManager: SelectionManager<ConfigurationViewModel>,
        groupSelectionManager: SelectionManager<GroupViewModel>
   ) {
     self.applicationStore = applicationStore
     self.store = store
-    self.configSelectionManager = configSelectionManager
     self.selectionManager = groupSelectionManager
 
     // Initial load

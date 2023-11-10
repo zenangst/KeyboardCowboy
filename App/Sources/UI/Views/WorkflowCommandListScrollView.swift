@@ -14,8 +14,6 @@ struct WorkflowCommandListScrollView: View {
   private let onAction: (SingleDetailView.Action) -> Void
   private let focus: FocusState<AppFocus?>.Binding
 
-  @FocusState var isFocused: Bool
-
   init(_ focus: FocusState<AppFocus?>.Binding,
        publisher: CommandsPublisher,
        triggerPublisher: TriggerPublisher,
@@ -61,15 +59,6 @@ struct WorkflowCommandListScrollView: View {
             selectionManager.handleOnTap(publisher.data.commands, element: command)
           }
         }
-        .onChange(of: isFocused, perform: { newValue in
-          guard newValue else { return }
-
-          guard let lastSelection = selectionManager.lastSelection else { return }
-
-          withAnimation {
-            scrollViewProxy?.scrollTo(lastSelection)
-          }
-        })
         .padding(.vertical, 5)
         .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
           switch triggerPublisher.data {

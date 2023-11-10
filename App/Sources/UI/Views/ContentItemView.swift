@@ -3,7 +3,6 @@ import SwiftUI
 
 @MainActor
 struct ContentItemView: View {
-  @Environment(\.isFocused) private var isFocused
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   @State var isHovered: Bool = false
   @State var isTargeted: Bool = false

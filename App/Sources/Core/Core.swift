@@ -21,7 +21,6 @@ final class Core {
   lazy private(set) var sidebarCoordinator = SidebarCoordinator(
     groupStore,
     applicationStore: ApplicationStore.shared,
-    configSelectionManager: configSelectionManager,
     groupSelectionManager: groupSelectionManager)
 
   lazy private(set) var contentCoordinator = ContentCoordinator(

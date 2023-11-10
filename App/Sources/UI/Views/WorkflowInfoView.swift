@@ -8,8 +8,6 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
-  @EnvironmentObject var contentSelectionManager: SelectionManager<ContentViewModel>
-  @EnvironmentObject var selection: SelectionManager<CommandViewModel>
   @ObservedObject private var publisher: InfoPublisher
   @State var monitor: Any?
   var focus: FocusState<AppFocus?>.Binding
@@ -76,7 +74,6 @@ struct WorkflowInfo_Previews: PreviewProvider {
     WorkflowInfoView($focus,
                      publisher: .init(DesignTime.detail.info),
                      onInsertTab: { }) { _ in }
-      .environmentObject(SelectionManager<CommandViewModel>())
       .padding()
   }
 }
