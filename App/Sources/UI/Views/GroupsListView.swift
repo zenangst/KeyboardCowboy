@@ -90,6 +90,9 @@ struct GroupsListView: View {
               confirmDelete = .multiple(ids: Array(selectionManager.selections))
             }
           }
+          .onAppear {
+            focus.wrappedValue = .group(selectionManager.lastSelection ?? "")
+          }
           .padding(.horizontal, 8)
         }
       }

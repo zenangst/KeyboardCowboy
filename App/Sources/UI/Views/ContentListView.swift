@@ -118,6 +118,11 @@ struct ContentListView: View {
                 }
               } else {
                 onAction(.removeWorkflows(contentSelectionManager.selections))
+                if let first = contentSelectionManager.selections.first {
+                  let index = max(publisher.data.firstIndex(where: { $0.id == first }) ?? 0, 0)
+                  let newId = publisher.data[index].id
+                  focus.wrappedValue = .workflow(newId)
+                }
               }
             }
           }
