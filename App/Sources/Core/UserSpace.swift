@@ -111,6 +111,16 @@ final class UserSpace {
       }
   }
 
+  #if DEBUG
+  func injectRunningApplications(_ runningApplications: [Application]) {
+    self.runningApplications = runningApplications
+  }
+
+  func injectFrontmostApplication(_ frontmostApplication: Application) {
+    self.frontMostApplication = frontmostApplication
+  }
+  #endif
+
   @MainActor
   func snapshot() -> Snapshot {
     var selections = [String]()
