@@ -66,6 +66,8 @@ struct GroupsListView: View {
                 selectionManager.handleOnTap(publisher.data, element: group)
                 confirmDelete = nil
                 debounceSelectionManager.process(.init(groups: selectionManager.selections))
+                guard let first = contentSelectionManager.selections.first else { return }
+                focus.wrappedValue = .workflow(first)
               }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
@@ -90,7 +92,10 @@ struct GroupsListView: View {
             }
           }
           .onAppear {
-            focus.wrappedValue = .group(selectionManager.lastSelection ?? "")
+            DispatchQueue.main.async {
+              let match = selectionManager.lastSelection ?? selectionManager.selections.first ?? ""
+              proxy.scrollTo(match)
+            }
           }
           .padding(.horizontal, 8)
         }

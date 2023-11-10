@@ -23,8 +23,7 @@ final class SidebarCoordinator {
     // Configurations are loaded asynchronously, so we need to wait for them to be loaded
     subscription = store.$groups
       .sink { [weak self] groups in
-        self?.render(groups)
-        self?.subscription = nil
+        self?.initialLoad(groups)
       }
 
     enableInjection(self, selector: #selector(injected(_:)))
@@ -126,6 +125,14 @@ final class SidebarCoordinator {
   }
 
   // MARK: Private methods
+
+  func initialLoad(_ groups: [WorkflowGroup]) {
+    if let match = groups.first(where: { $0.id == selectionManager.lastSelection }) {
+      ZenColorPublisher.shared.publish(.custom(Color(hex: match.color)))
+    }
+    render(groups)
+    subscription = nil
+  }
 
   @objc private func injected(_ notification: Notification) {
     guard didInject(self, notification: notification) else { return }

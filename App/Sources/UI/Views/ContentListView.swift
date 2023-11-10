@@ -126,6 +126,12 @@ struct ContentListView: View {
               }
             }
           }
+          .onAppear {
+            DispatchQueue.main.async {
+              let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
+              proxy.scrollTo(match)
+            }
+          }
           .focusScope(namespace)
           .onChange(of: searchTerm, perform: { newValue in
             if !searchTerm.isEmpty {
