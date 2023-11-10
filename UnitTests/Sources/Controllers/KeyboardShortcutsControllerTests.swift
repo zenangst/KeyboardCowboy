@@ -25,7 +25,7 @@ final class KeyboardShortcutsControllerTests: XCTestCase {
                                keyShortcut: KeyShortcut,
                                offset: inout Int,
                                partial: PartialMatch = .init(rawValue: ".")) -> Bool {
-    let result = controller.lookup(keyShortcut, partialMatch: partial)
+    let result = controller.lookup(keyShortcut, bundleIdentifier: "", partialMatch: partial)
 
     switch result {
     case .exact:
