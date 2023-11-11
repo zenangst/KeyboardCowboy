@@ -76,7 +76,7 @@ final class SystemCommandRunner: @unchecked Sendable {
   }
 
   func run(_ command: SystemCommand) async throws {
-    Task { @MainActor in
+    try await MainActor.run {
       switch command.kind {
       case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
            .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:
@@ -125,9 +125,7 @@ final class SystemCommandRunner: @unchecked Sendable {
         }
 
         let axWindow = try app.windows().first(where: { $0.id == windowId })
-        _ = await MainActor.run {
-          axWindow?.performAction(.raise)
-        }
+        axWindow?.performAction(.raise)
       case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
         guard !frontMostApplicationWindows.isEmpty else { return }
         if case .moveFocusToNextWindowFront = command.kind {
@@ -143,9 +141,7 @@ final class SystemCommandRunner: @unchecked Sendable {
         }
 
         let window = frontMostApplicationWindows[frontMostIndex]
-        _ = await MainActor.run {
-          window.performAction(.raise)
-        }
+        window.performAction(.raise)
       case .showDesktop:
         Dock.run(.showDesktop)
       case .applicationWindows:
