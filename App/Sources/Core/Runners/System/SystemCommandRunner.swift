@@ -78,6 +78,7 @@ final class SystemCommandRunner: @unchecked Sendable {
 
   func run(_ command: SystemCommand, applicationRunner: ApplicationCommandRunner, userSpace: UserSpace) async throws {
     let previousApplication = userSpace.previousApplication
+    let frontApplication = userSpace.frontMostApplication
     try await MainActor.run {
       switch command.kind {
       case .activateLastApplication:
@@ -133,7 +134,12 @@ final class SystemCommandRunner: @unchecked Sendable {
         let axWindow = try app.windows().first(where: { $0.id == windowId })
         axWindow?.performAction(.raise)
       case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
-        guard !frontMostApplicationWindows.isEmpty else { return }
+        guard !frontMostApplicationWindows.isEmpty else {
+          CustomSystemRoutine(rawValue: frontApplication.bundleIdentifier)?
+            .routine(frontmostApplication)
+            .run(command.kind)
+          return
+        }
         if case .moveFocusToNextWindowFront = command.kind {
           frontMostIndex += 1
           if frontMostIndex >= frontMostApplicationWindows.count {
