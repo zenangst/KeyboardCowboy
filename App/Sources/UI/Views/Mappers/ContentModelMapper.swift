@@ -176,28 +176,11 @@ private extension Array where Element == Command {
                )
         )
       case .systemCommand(let command):
-        let path: String
-        switch command.kind {
-        case .applicationWindows:
-          path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-        case .moveFocusToNextWindowFront:
-          path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-        case .moveFocusToPreviousWindowFront:
-          path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-        case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
-          path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-        case .moveFocusToPreviousWindow, .moveFocusToPreviousWindowGlobal:
-          path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-        case .missionControl:
-          path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-        case .showDesktop:
-          path = "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
-        }
         images.append(
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .icon(.init(bundleIdentifier: path, path: path)))
+            kind: .icon(.init(bundleIdentifier: command.kind.iconPath, path: command.kind.iconPath)))
         )
       case .windowManagement(let command):
         let path: String = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"

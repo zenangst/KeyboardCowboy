@@ -1,3 +1,4 @@
+import Apps
 import AXEssibility
 import Cocoa
 import Combine
@@ -75,9 +76,14 @@ final class SystemCommandRunner: @unchecked Sendable {
       return false
   }
 
-  func run(_ command: SystemCommand) async throws {
+  func run(_ command: SystemCommand, applicationRunner: ApplicationCommandRunner, userSpace: UserSpace) async throws {
+    let previousApplication = userSpace.previousApplication
     try await MainActor.run {
       switch command.kind {
+      case .activateLastApplication:
+        Task {
+          try await applicationRunner.run(.init(application: previousApplication.asApplication()))
+        }
       case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
            .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:
         let collection = command.kind == .moveFocusToNextWindowGlobal ||
@@ -209,5 +215,13 @@ final class SystemCommandRunner: @unchecked Sendable {
           ($0.frame?.size.height ?? 0) > 20
         })
     } catch { }
+  }
+}
+
+fileprivate extension UserSpace.Application {
+  func asApplication() -> Application {
+    Application(bundleIdentifier: bundleIdentifier,
+                bundleName: name,
+                path: path)
   }
 }

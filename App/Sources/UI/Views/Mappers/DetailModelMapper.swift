@@ -137,25 +137,7 @@ private extension Command {
     case .type:
       return nil
     case .systemCommand(let command):
-      let path: String
-      switch command.kind {
-      case .applicationWindows:
-        path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToNextWindowFront, .moveFocusToNextWindowGlobal:
-        path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToPreviousWindowFront, .moveFocusToPreviousWindowGlobal:
-        path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToNextWindow:
-        path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToPreviousWindow:
-        path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .missionControl:
-        path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-      case .showDesktop:
-        path = "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
-      }
-
-      return .init(bundleIdentifier: path, path: path)
+      return .init(bundleIdentifier: command.kind.iconPath, path: command.kind.iconPath)
     case .windowManagement:
       let path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
       return .init(bundleIdentifier: path, path: path)

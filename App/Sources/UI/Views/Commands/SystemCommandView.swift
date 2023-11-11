@@ -24,7 +24,8 @@ struct SystemCommandView: View {
         Rectangle()
           .fill(Color(.controlAccentColor).opacity(0.375))
           .cornerRadius(8, antialiased: false)
-        IconView(icon: model.kind.icon, size: .init(width: 32, height: 32))
+        IconView(icon: Icon(bundleIdentifier: model.kind.iconPath,
+                            path: model.kind.iconPath), size: .init(width: 32, height: 32))
           .allowsHitTesting(false)
       }
     }, content: { command in
@@ -52,28 +53,6 @@ struct SystemCommandView: View {
   }
 }
 
-extension SystemCommand.Kind {
-  var icon: Icon {
-    let path: String
-    switch self {
-    case .applicationWindows:
-      path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-    case .moveFocusToNextWindowFront:
-      path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-    case .moveFocusToPreviousWindowFront:
-      path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-    case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
-      path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-    case .moveFocusToPreviousWindow, .moveFocusToPreviousWindowGlobal:
-      path = "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-    case .missionControl:
-      path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-    case .showDesktop:
-      path = "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
-    }
-    return Icon(bundleIdentifier: path, path: path)
-  }
-}
 
 struct SystemCommandView_Previews: PreviewProvider {
   static let command = DesignTime.systemCommand

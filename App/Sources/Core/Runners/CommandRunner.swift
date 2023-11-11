@@ -190,7 +190,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         )
         output = command.name
       case .systemCommand(let systemCommand):
-        try await runners.system.run(systemCommand)
+        try await runners.system.run(
+          systemCommand,
+          applicationRunner: runners.application,
+          userSpace: UserSpace.shared
+        )
         output = command.name
       case .windowManagement(let windowCommand):
         try await runners.window.run(windowCommand)

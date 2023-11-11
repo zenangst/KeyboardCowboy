@@ -12,11 +12,13 @@ enum UserSpaceError: Error {
 }
 
 final class UserSpace {
-  struct Application {
+  struct Application: @unchecked Sendable {
     let ref: NSRunningApplication
     let bundleIdentifier: String
+    let name: String
+    let path: String
 
-    static let current: Application = .init(ref: .current, bundleIdentifier: Bundle.main.bundleIdentifier!)
+    static let current: Application = NSRunningApplication.currentAsApplication()
   }
   struct Snapshot {
     let documentPath: String?
@@ -87,6 +89,7 @@ final class UserSpace {
   static let shared = UserSpace()
 
   @Published private(set) var frontMostApplication: Application = .current
+  @Published private(set) var previousApplication: Application = .current
   @Published private(set) var runningApplications: [Application] = [Application.current]
   private var frontmostApplicationSubscription: AnyCancellable?
   private var runningApplicationsSubscription: AnyCancellable?
@@ -94,20 +97,16 @@ final class UserSpace {
   private init(workspace: NSWorkspace = .shared) {
     frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
       .compactMap { $0 }
-      .sink { [weak self] application in
-        guard let bundleIdentifier = application.bundleIdentifier else { return }
-        self?.frontMostApplication = Application(ref: application, bundleIdentifier: bundleIdentifier)
+      .sink { [weak self] runningApplication in
+        guard let self, let newApplication = runningApplication.asApplication() else { return }
+        previousApplication = frontMostApplication
+        frontMostApplication = newApplication
       }
     runningApplicationsSubscription = workspace.publisher(for: \.runningApplications)
       .sink { [weak self] applications in
-        let newApplications = applications.compactMap {
-          if let bundleIdentifier = $0.bundleIdentifier {
-            Application(ref: $0, bundleIdentifier: bundleIdentifier)
-          } else {
-            nil
-          }
-        }
-        self?.runningApplications = newApplications
+        guard let self else { return }
+        let newApplications = applications.compactMap { $0.asApplication() }
+        runningApplications = newApplications
       }
   }
 
@@ -175,5 +174,31 @@ final class UserSpace {
     let selectedText = focusedElement.selectedText()
 
     return selectedText ?? ""
+  }
+}
+
+fileprivate extension NSRunningApplication {
+  static func currentAsApplication() -> UserSpace.Application {
+    .init(
+      ref: .current,
+      bundleIdentifier: Bundle.main.bundleIdentifier!,
+      name: Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "",
+      path: Bundle.main.bundlePath
+    )
+  }
+
+  func asApplication() -> UserSpace.Application? {
+    if let bundleIdentifier = bundleIdentifier,
+       let name = localizedName,
+       let path = bundleURL?.path() {
+          UserSpace.Application(
+            ref: self,
+            bundleIdentifier: bundleIdentifier,
+            name: name,
+            path: path
+          )
+    } else {
+      nil
+    }
   }
 }

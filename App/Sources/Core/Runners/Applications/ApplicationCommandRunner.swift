@@ -1,6 +1,6 @@
 import Cocoa
 
-final class ApplicationCommandRunner {
+final class ApplicationCommandRunner: @unchecked Sendable {
   private struct Plugins {
     let activate: ActivateApplicationPlugin
     let bringToFront: BringToFrontApplicationPlugin

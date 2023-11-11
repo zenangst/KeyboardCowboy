@@ -6,27 +6,51 @@ struct SystemCommand: MetaDataProviding {
 
     var displayValue: String {
       switch self {
+      case .activateLastApplication:
+        return "Activate Last Application"
       case .applicationWindows:
-        return "Application windows"
+        return "Application Windows"
       case .missionControl:
         return "Mission Control"
       case .showDesktop:
         return "Show Desktop"
       case .moveFocusToNextWindowGlobal:
-        return "Move focus to next window (all windows)"
+        return "Move Focus to Next Window (All Windows)"
       case .moveFocusToPreviousWindowGlobal:
-        return "Move focus to previous window (all windows)"
+        return "Move Focus to Previous window (All Windows)"
       case .moveFocusToNextWindow:
-        return "Move focus to next window"
+        return "Move Focus to Next Window"
       case .moveFocusToPreviousWindow:
-        return "Move focus to previous window"
+        return "Move Focus to Previous Window"
       case .moveFocusToNextWindowFront:
-        return "Move focus to next window of active application"
+        return "Move Focus to Next Window of Active Application"
       case .moveFocusToPreviousWindowFront:
-        return "Move focus to previous window of active application"
+        return "Move Focus to Previous Window of Active Application"
       }
     }
 
+    var iconPath: String {
+      switch self {
+      case .activateLastApplication:
+        "/System/Library/CoreServices/Family.app"
+      case .applicationWindows:
+        "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToNextWindowFront:
+        "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToPreviousWindowFront:
+        "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
+        "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToPreviousWindow, .moveFocusToPreviousWindowGlobal:
+        "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .missionControl:
+        "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+      case .showDesktop:
+        "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
+      }
+    }
+
+    case activateLastApplication
     case applicationWindows
     case moveFocusToNextWindowFront
     case moveFocusToPreviousWindowFront
