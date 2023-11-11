@@ -46,11 +46,8 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     let bundleIdentifier = command.application.bundleIdentifier
     let bundleName = command.application.bundleName
 
-    if await KeyboardCowboy.bundleIdentifier == bundleIdentifier {
-      await MainActor.run {
-        NotificationCenter.default.post(Notification(name: Notification.Name("OpenMainWindow")))
-      }
-      return
+    if let customRoutine = CustomApplicationRoutine(rawValue: bundleIdentifier)?.routine() {
+      if await customRoutine.run() { return }
     }
 
     let isBackgroundOrElectron = command.modifiers.contains(.background) || command.application.metadata.isElectron
