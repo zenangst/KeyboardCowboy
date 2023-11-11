@@ -39,7 +39,7 @@ struct NewCommandView: View {
   @State private var selection: Kind
   @State private var validation: NewCommandValidation
   @State private var title: String
-  @State private var hasEdited: Bool = false
+  @StateObject private var edited = Edited()
   private let onDismiss: () -> Void
   private let onSave: (NewCommandPayload, String) -> Void
   @FocusState var focused: Kind?
@@ -76,10 +76,10 @@ struct NewCommandView: View {
                   .frame(width: 1)
               })
             .frame(maxWidth: 235)
-          detail(title: $title)
+          detailView
         }
       } else {
-        detail(title: $title)
+        detailView
           .toolbar(content: {
             ToolbarItem(id: UUID().uuidString) {
               Spacer()
@@ -150,11 +150,28 @@ struct NewCommandView: View {
     Color(.textBackgroundColor)
   }
 
-  private func detail(title: Binding<String>) -> some View {
+  private var detailView: some View {
     VStack(spacing: 0) {
-      TextField("", text: title, onEditingChanged: { value in
-        hasEdited = true
+      TextField("", text: $title)
+      .onReceive(NSEventController.shared.$upKeyEvent.compactMap { $0 }, perform: { event in
+        // Mark the content as edited if any of these key codes match.
+        // When it is marked as edited by the user, then we shouldn't change it
+        // when the user picks another application.
+        let validKeyCodes: Set<Int> = [
+          kVK_Delete, kVK_Space, kVK_ForwardDelete
+        ]
+        if validKeyCodes.contains(Int(event.keyCode)) {
+          edited.state = true
+        }
       })
+      .overlay {
+        // This invisible button captures the return key with the command modifier attached. If the validation passes, the user will create a new command.
+        Button("", action: {
+          onSubmit()
+        })
+          .opacity(0.0)
+          .keyboardShortcut(.return, modifiers: [.command])
+      }
       .frame(maxWidth: 420)
       .font(.system(.body, design: .rounded,weight: .semibold))
       .allowsTightening(true)
@@ -165,8 +182,8 @@ struct NewCommandView: View {
       .multilineTextAlignment(.center)
       .fixedSize(horizontal: true, vertical: false)
       .onChange(of: payload, perform: { newValue in
-        guard !hasEdited else { return }
-        title.wrappedValue = newValue.title
+        guard !edited.state else { return }
+        $title.wrappedValue = newValue.title
       })
 
       selectedView(selection)
@@ -224,11 +241,11 @@ struct NewCommandView: View {
                              kind: kind,
                              value: value,
                              scriptExtension: scriptExtension,
-                             validation: $validation)
+                             validation: $validation) { onSave($0, $title.wrappedValue) }
       } else {
         NewCommandScriptView($payload, kind: .file, value: "",
                              scriptExtension: .shellScript,
-                             validation: $validation)
+                             validation: $validation) { onSave($0, $title.wrappedValue) }
       }
     case .type:
       NewCommandTypeView($payload, validation: $validation) {
@@ -270,4 +287,8 @@ struct NewCommandView_Previews: PreviewProvider {
       onSave: { _, _ in })
     .designTime()
   }
+}
+
+fileprivate final class Edited: ObservableObject {
+  @Published var state = false
 }

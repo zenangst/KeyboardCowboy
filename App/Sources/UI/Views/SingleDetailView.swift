@@ -53,8 +53,6 @@ struct SingleDetailView: View {
   }
 
   var body: some View {
-    let shouldShowCommandList = triggerPublisher.data != .empty ||
-                               !commandPublisher.data.commands.isEmpty
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
           WorkflowInfoView(focus, publisher: infoPublisher, 
@@ -111,7 +109,6 @@ struct SingleDetailView: View {
         onAction: { action in
           onAction(action)
         })
-      .opacity(shouldShowCommandList ? 1 : 0)
     }
     .labelStyle(HeaderLabelStyle())
     .focusScope(namespace)

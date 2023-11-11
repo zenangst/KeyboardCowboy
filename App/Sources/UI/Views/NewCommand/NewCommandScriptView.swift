@@ -33,17 +33,20 @@ struct NewCommandScriptView: View {
   @State private var value: String
   @Binding private var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
+  private let onSubmit: (NewCommandPayload) -> Void
 
   init(_ payload: Binding<NewCommandPayload>,
        kind: Kind,
        value: String,
        scriptExtension: ScriptExtension,
-       validation: Binding<NewCommandValidation>) {
+       validation: Binding<NewCommandValidation>,
+       onSubmit: @escaping (NewCommandPayload) -> Void) {
     _kind = .init(initialValue: kind)
     _scriptExtension = .init(initialValue: scriptExtension)
     _value = .init(initialValue: value)
     _payload = payload
     _validation = validation
+    self.onSubmit = onSubmit
   }
 
   var body: some View {
@@ -70,7 +73,10 @@ struct NewCommandScriptView: View {
 
         Menu(content: {
           ForEach(Kind.allCases) { kind in
-            Button(action: { self.kind = kind }, label: {
+            Button(action: {
+              self.kind = kind
+              self.payload = .script(value: value, kind: kind, scriptExtension: scriptExtension)
+            }, label: {
               Text(kind.rawValue)
             })
           }
@@ -95,7 +101,11 @@ struct NewCommandScriptView: View {
         .overlay(NewCommandValidationView($validation))
       case .source:
         VStack {
-          NewCommandScriptSourceView($scriptExtension, text: value) { newString in
+          NewCommandScriptSourceView($scriptExtension, text: value, onSubmit: {
+            if case .valid = validation {
+              onSubmit(payload)
+            }
+          }) { newString in
             value = newString
             validation = updateAndValidatePayload()
           }
@@ -171,18 +181,26 @@ struct NewCommandFileSelectorView: View {
 struct NewCommandScriptSourceView: View {
   @State var text: String = ""
   @Binding private var kind: NewCommandScriptView.ScriptExtension
+  private let onSubmit: () -> Void
   private let onChange: (String) -> Void
 
   init(_ kind: Binding<NewCommandScriptView.ScriptExtension>,
        text: String,
+       onSubmit: @escaping () -> Void,
        onChange: @escaping (String) -> Void) {
     _text = .init(initialValue: text)
     _kind = kind
     self.onChange = onChange
+    self.onSubmit = onSubmit
   }
 
   var body: some View {
-    ZenTextEditor(text: $text, placeholder: "Script goes here…", font: Font.system(.body, design: .monospaced))
+    ZenTextEditor(
+      text: $text,
+      placeholder: "Script goes here…",
+      font: Font.system(.body, design: .monospaced),
+      onCommandReturnKey: onSubmit
+    )
       .onChange(of: text, perform: onChange)
   }
 }

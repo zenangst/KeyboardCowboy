@@ -13,14 +13,14 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     controller.subscribe(to: ctx.userSpace
       .$runningApplications)
 
-    ctx.userSpace.injectFrontmostApplication(.init(ref: .current, bundleIdentifier: "com.apple.calendar"))
+    ctx.userSpace.injectFrontmostApplication(.init(ref: .current, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: ""))
 
     // Run command when Finder becomes the frontmost application
     ctx.runner.concurrentRunHandler = { newCommand in
       XCTAssertEqual(ctx.command, newCommand.first!)
     }
 
-    ctx.userSpace.injectFrontmostApplication(.init(ref: .current, bundleIdentifier: "com.apple.finder"))
+    ctx.userSpace.injectFrontmostApplication(.init(ref: .current, bundleIdentifier: "com.apple.finder", name: "Finder", path: ""))
   }
 
   func testApplicationTriggerController_launched() {
@@ -36,10 +36,10 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     }
 
     ctx.userSpace.injectRunningApplications([
-      .init(ref: .current, bundleIdentifier: "com.apple.finder")
+      .init(ref: .current, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")
     ])
     ctx.userSpace.injectRunningApplications([
-      .init(ref: .current, bundleIdentifier: "com.apple.calendar")
+      .init(ref: .current, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: "")
     ])
   }
 
@@ -57,7 +57,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
       XCTAssertEqual(ctx.command, newCommand.first!)
     }
 
-    ctx.userSpace.injectRunningApplications([UserSpace.Application(ref: NSRunningApplication.current, bundleIdentifier: "com.apple.finder")])
+    ctx.userSpace.injectRunningApplications([UserSpace.Application(ref: NSRunningApplication.current, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")])
     ctx.userSpace.injectRunningApplications([])
   }
 
