@@ -1,10 +1,11 @@
 enum CustomSystemRoutine: String {
   case finder = "com.apple.finder"
+  case xcode = "com.apple.dt.Xcode"
 
   func routine(_ application: UserSpace.Application) -> SystemRoutine {
     switch self {
-    case .finder:
-      return FinderSystemRoutine(application: application)
+    case .finder, .xcode:
+      return OpenApplicationWithNoWindowsSystemRoutine(application: application)
     }
   }
 }

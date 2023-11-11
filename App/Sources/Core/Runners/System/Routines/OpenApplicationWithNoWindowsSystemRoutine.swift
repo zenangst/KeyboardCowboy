@@ -1,7 +1,7 @@
 import Cocoa
 
-/// Handle `.moveFocusToNextWindowFront` `.moveFocusToPreviousWindowFront` when Finder has no open windows.
-final class FinderSystemRoutine: SystemRoutine {
+/// Handle `.moveFocusToNextWindowFront` `.moveFocusToPreviousWindowFront` for apps with no windows.
+final class OpenApplicationWithNoWindowsSystemRoutine: SystemRoutine {
   let application: UserSpace.Application
 
   init(application: UserSpace.Application) {
@@ -11,7 +11,7 @@ final class FinderSystemRoutine: SystemRoutine {
   func run(_ kind: SystemCommand.Kind) {
     switch kind {
     case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
-      // Invoke the `openApplication` so that Finder opens a new window at its default location.
+      // Invoke the `openApplication` so that application opens a new window.
       let configuration = NSWorkspace.OpenConfiguration()
       configuration.activates = true
       let _ = NSWorkspace.shared.openApplication(
