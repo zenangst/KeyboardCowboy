@@ -62,7 +62,7 @@ struct SingleDetailView: View {
             case .keyboardShortcuts:
               focus = .detail(.keyboardShortcuts)
             case .empty:
-              focus = .detail(.name)
+              focus = .detail(.addAppTrigger)
             }
           }, onAction: { action in
             switch action {

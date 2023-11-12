@@ -67,7 +67,7 @@ struct WorkflowCommandListScrollView: View {
           case .keyboardShortcuts:
             focus = .detail(.keyboardShortcuts)
           case .empty:
-            focus = .detail(.name)
+            focus = .detail(.addAppTrigger)
           }
         })
         .onCommand(#selector(NSResponder.selectAll(_:)), perform: {

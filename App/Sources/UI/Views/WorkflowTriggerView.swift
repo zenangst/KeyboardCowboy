@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct WorkflowTriggerView: View {
   enum Action {
@@ -24,7 +24,12 @@ struct WorkflowTriggerView: View {
   var body: some View {
     VStack {
       HStack {
-        Button(action: { onAction(.addApplication) }, label: {
+        FocusableButton(
+          _focus,
+          identity: .detail(.addAppTrigger),
+          variant: .zen(.init(color: .systemBlue, grayscaleEffect: $isGrayscale)),
+          action: { onAction(.addApplication) }
+        ) {
           HStack(spacing: 8) {
             Image(systemName: "app.dashed")
               .resizable()
@@ -35,12 +40,24 @@ struct WorkflowTriggerView: View {
           }
           .padding(6)
           .frame(maxWidth: .infinity)
+        }
+        .onMoveCommand(perform: { direction in
+          switch direction {
+          case .right:
+            focus = .detail(.addKeyboardTrigger)
+          default:
+            break
+          }
         })
-        .buttonStyle(.zen(.init(color: .systemBlue, grayscaleEffect: $isGrayscale)))
 
         Spacer()
 
-        Button(action: { onAction(.addKeyboardShortcut) }, label: {
+        FocusableButton(
+          _focus,
+          identity: .detail(.addKeyboardTrigger),
+          variant: .zen(.init(color: .systemCyan, grayscaleEffect: $isGrayscale)),
+          action: { onAction(.addKeyboardShortcut) }
+        ) {
           HStack(spacing: 8) {
             Image(systemName: "command")
               .resizable()
@@ -51,9 +68,22 @@ struct WorkflowTriggerView: View {
           }
           .padding(6)
           .frame(maxWidth: .infinity)
+        }
+        .onMoveCommand(perform: { direction in
+          switch direction {
+          case .left:
+            focus = .detail(.addAppTrigger)
+          default:
+            break
+          }
         })
-        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: $isGrayscale)))
       }
+      .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+        focus = .detail(.commands)
+      })
+      .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
+        focus = .detail(.name)
+      })
       .frame(maxWidth: .infinity)
       .padding(8)
       .background(Color(.gridColor))
