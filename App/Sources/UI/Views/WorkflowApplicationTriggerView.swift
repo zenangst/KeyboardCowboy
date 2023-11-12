@@ -13,14 +13,17 @@ struct WorkflowApplicationTriggerView: View {
   @State private var data: [DetailViewModel.ApplicationTrigger]
   @State private var selection: String = UUID().uuidString
   private let onAction: (Action) -> Void
+  private var onTab: () -> Void
 
   init(_ focus: FocusState<AppFocus?>,
        data: [DetailViewModel.ApplicationTrigger],
        selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
+       onTab: @escaping () -> Void,
        onAction: @escaping (Action) -> Void) {
     _focus = focus
     _data = .init(initialValue: data)
     self.selectionManager = selectionManager
+    self.onTab = onTab
     self.onAction = onAction
   }
 
@@ -41,7 +44,7 @@ struct WorkflowApplicationTriggerView: View {
             })
           }
         } label: {
-         Text("Add application")
+         Text("Add Application")
         }
         .menuStyle(.zen(.init(color: data.isEmpty ? .systemGreen : .systemBlue,
                               grayscaleEffect: Binding<Bool>.readonly(!data.isEmpty),
@@ -49,10 +52,12 @@ struct WorkflowApplicationTriggerView: View {
                               padding: .init(horizontal: .large, vertical: .large))))
       }
       .padding(6)
+      .frame(minHeight: 44)
       .background(
         RoundedRectangle(cornerRadius: 8)
           .fill(Color(.textBackgroundColor).opacity(0.65))
       )
+      .viewDebugger()
 
       LazyVStack(spacing: 4) {
         ForEach($data.lazy, id: \.id) { element in
@@ -65,7 +70,7 @@ struct WorkflowApplicationTriggerView: View {
           }
         }
         .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-          focus = .detail(.commands)
+          onTab()
         })
         .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
           selectionManager.selections = Set(data.map(\.id))
@@ -98,6 +103,7 @@ struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
               contexts: []),
       ],
       selectionManager: SelectionManager(),
+      onTab: { },
       onAction: { _ in }
     )
     .environmentObject(ApplicationStore.shared)

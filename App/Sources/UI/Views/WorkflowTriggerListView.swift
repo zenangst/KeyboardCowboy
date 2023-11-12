@@ -9,6 +9,7 @@ struct WorkflowTriggerListView: View {
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let onAction: (SingleDetailView.Action) -> Void
+  private let onTab: () -> Void
   private let workflowId: String
 
   init(_ focus: FocusState<AppFocus?>,
@@ -16,11 +17,13 @@ struct WorkflowTriggerListView: View {
        publisher: TriggerPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
+       onTab: @escaping () -> Void,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     _focus = focus
     self.publisher = publisher
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
+    self.onTab = onTab
     self.onAction = onAction
     self.workflowId = workflowId
   }
@@ -29,8 +32,14 @@ struct WorkflowTriggerListView: View {
     Group {
       switch publisher.data {
       case .keyboardShortcuts(let trigger):
-       KeyboardTriggerView(namespace: namespace, workflowId: workflowId, focus: _focus, trigger: trigger,
-                           keyboardShortcutSelectionManager: keyboardShortcutSelectionManager, onAction: onAction)
+        KeyboardTriggerView(
+          namespace: namespace,
+          workflowId: workflowId,
+          focus: _focus,
+          trigger: trigger,
+          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+          onAction: onAction
+        )
       case .applications(let triggers):
         HStack {
           Label("Application Trigger", image: "")
@@ -46,7 +55,8 @@ struct WorkflowTriggerListView: View {
         }
         .padding([.leading, .trailing], 8)
         WorkflowApplicationTriggerView(_focus, data: triggers,
-                                       selectionManager: applicationTriggerSelectionManager) { action in
+                                       selectionManager: applicationTriggerSelectionManager,
+        onTab: onTab) { action in
           onAction(.applicationTrigger(workflowId: workflowId, action: action))
         }
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
@@ -71,7 +81,7 @@ struct WorkflowTriggerListView_Previews: PreviewProvider {
       WorkflowTriggerListView(_focus, workflowId: UUID().uuidString,
                               publisher: .init(DesignTime.detail.trigger),
                               applicationTriggerSelectionManager: .init(),
-                              keyboardShortcutSelectionManager: .init()) { _ in }
+                              keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
     }
       .designTime()
       .padding()

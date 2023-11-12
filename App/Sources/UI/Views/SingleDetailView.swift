@@ -75,12 +75,20 @@ struct SingleDetailView: View {
           .environmentObject(commandSelectionManager)
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
-          WorkflowTriggerListView(_focus,
-                                  workflowId: infoPublisher.data.id,
-                                  publisher: triggerPublisher,
-                                  applicationTriggerSelectionManager: applicationTriggerSelectionManager,
-                                  keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
-                                  onAction: onAction)
+          WorkflowTriggerListView(
+            _focus,
+            workflowId: infoPublisher.data.id,
+            publisher: triggerPublisher,
+            applicationTriggerSelectionManager: applicationTriggerSelectionManager,
+            keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+            onTab: { 
+              if commandPublisher.data.commands.isEmpty {
+                focus = .detail(.addCommand)
+              } else {
+                focus = .detail(.commands)
+              }
+            },
+            onAction: onAction)
           .id(infoPublisher.data.id)
         }
         .padding([.top, .leading, .trailing])

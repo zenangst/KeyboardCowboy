@@ -38,7 +38,8 @@ struct WorkflowCommandListView: View {
   @ViewBuilder
   var body: some View {
     if publisher.data.commands.isEmpty {
-      WorkflowCommandEmptyListView(namespace: namespace,
+      WorkflowCommandEmptyListView(_focus,
+                                   namespace: namespace,
                                    workflowId: publisher.data.id,
                                    isPrimary: $isPrimary,
                                    onAction: onAction)

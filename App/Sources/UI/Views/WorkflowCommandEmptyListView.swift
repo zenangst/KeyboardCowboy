@@ -2,17 +2,19 @@ import SwiftUI
 import Bonzai
 
 struct WorkflowCommandEmptyListView: View {
+  @FocusState private var focus: AppFocus?
   @Environment(\.openWindow) var openWindow
-
   private let namespace: Namespace.ID
   private let workflowId: String
   private let isPrimary: Binding<Bool>
   private let onAction: (SingleDetailView.Action) -> Void
 
-  init(namespace: Namespace.ID, 
+  init(_ focus: FocusState<AppFocus?>,
+       namespace: Namespace.ID,
        workflowId: String,
        isPrimary: Binding<Bool>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
+    _focus = focus
     self.isPrimary = isPrimary
     self.workflowId = workflowId
     self.namespace = namespace
@@ -21,9 +23,16 @@ struct WorkflowCommandEmptyListView: View {
 
   var body: some View {
     VStack {
-      Button(action: {
-        openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflowId))
-      }) {
+      FocusableButton(
+        _focus,
+        identity: .detail(.addCommand),
+        variant: .zen(.init(color: .systemGreen,
+                            focusEffect: .constant(true),
+                            grayscaleEffect: .readonly(!isPrimary.wrappedValue),
+                            hoverEffect: .readonly(!isPrimary.wrappedValue))),
+        action: { openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflowId)) }
+      )
+         {
         HStack {
           Image(systemName: "plus.app")
             .resizable()
@@ -37,11 +46,8 @@ struct WorkflowCommandEmptyListView: View {
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
       }
-      .buttonStyle(.zen(.init(color: .systemGreen,
-                              grayscaleEffect: .readonly(!isPrimary.wrappedValue),
-                              hoverEffect: .readonly(!isPrimary.wrappedValue))))
-      .fixedSize()
-      .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
+         .fixedSize()
+         .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
     }
     .padding()
     .dropDestination(for: DropItem.self) { items, location in
@@ -71,9 +77,15 @@ struct WorkflowCommandEmptyListView: View {
 }
 
 struct WorkflowCommandEmptyListView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   @Namespace static var namespace
   static var previews: some View {
-    WorkflowCommandEmptyListView(namespace: namespace, workflowId: UUID().uuidString, isPrimary: .constant(true)) { _ in }
+    WorkflowCommandEmptyListView(
+      _focus,
+      namespace: namespace,
+      workflowId: UUID().uuidString,
+      isPrimary: .constant(true)
+    ) { _ in }
       .designTime()
   }
 }
