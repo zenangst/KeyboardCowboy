@@ -25,15 +25,15 @@ struct CommandView: View {
   @Binding private var command: CommandViewModel
   @Environment(\.controlActiveState) private var controlActiveState
   @Environment(\.openWindow) private var openWindow
-  @FocusState private var focus: AppFocus?
   @State private var isTargeted: Bool = false
   private let publisher: CommandsPublisher
   private let selectionManager: SelectionManager<CommandViewModel>
   private let workflowId: String
   private let onCommandAction: (SingleDetailView.Action) -> Void
   private let onAction: (Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        command: Binding<CommandViewModel>,
        publisher: CommandsPublisher,
        selectionManager: SelectionManager<CommandViewModel>,
@@ -41,7 +41,7 @@ struct CommandView: View {
        onCommandAction: @escaping (SingleDetailView.Action) -> Void,
        onAction: @escaping (Action) -> Void) {
     _command = command
-    _focus = focus
+    self.focus = focus
     self.publisher = publisher
     self.selectionManager = selectionManager
     self.workflowId = workflowId
@@ -50,7 +50,7 @@ struct CommandView: View {
   }
 
   var body: some View {
-    CommandResolverView(_focus, command: $command, workflowId: workflowId, onAction: onAction)
+    CommandResolverView(focus, command: $command, workflowId: workflowId, onAction: onAction)
       .onChange(of: command.meta.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
       })
@@ -106,16 +106,16 @@ struct CommandView: View {
 struct CommandResolverView: View {
   @Environment(\.openWindow) var openWindow
   @Binding private var command: CommandViewModel
-  @FocusState private var focus: AppFocus?
   private let workflowId: DetailViewModel.ID
   private let onAction: (CommandView.Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        command: Binding<CommandViewModel>,
        workflowId: String,
        onAction: @escaping (CommandView.Action) -> Void) {
     _command = command
-    _focus = focus
+    self.focus = focus
     self.workflowId = workflowId
     self.onAction = onAction
   }
@@ -170,7 +170,7 @@ struct CommandResolverView: View {
           }
         }
     case .keyboard(let model):
-      KeyboardCommandView(_focus, metaData: command.meta, model: model) { action in
+      KeyboardCommandView(focus, metaData: command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)

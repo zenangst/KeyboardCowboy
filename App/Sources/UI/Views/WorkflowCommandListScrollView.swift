@@ -3,7 +3,6 @@ import SwiftUI
 struct WorkflowCommandListScrollView: View {
   @Environment(\.openWindow) private var openWindow
   @EnvironmentObject private var applicationStore: ApplicationStore
-  @FocusState private var focus: AppFocus?
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
   @State private var dropOverlayIsVisible: Bool = false
   @State private var dropUrls = Set<URL>()
@@ -12,9 +11,10 @@ struct WorkflowCommandListScrollView: View {
   private let scrollViewProxy: ScrollViewProxy?
   private let triggerPublisher: TriggerPublisher
   private let workflowId: String
+  private var focus: FocusState<AppFocus?>.Binding
   private var namespace: Namespace.ID
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        publisher: CommandsPublisher,
        triggerPublisher: TriggerPublisher,
        namespace: Namespace.ID,
@@ -22,7 +22,7 @@ struct WorkflowCommandListScrollView: View {
        selectionManager: SelectionManager<CommandViewModel>,
        scrollViewProxy: ScrollViewProxy? = nil,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     self.publisher = publisher
     self.triggerPublisher = triggerPublisher
     self.workflowId = workflowId
@@ -37,7 +37,7 @@ struct WorkflowCommandListScrollView: View {
       LazyVStack(spacing: 0) {
         ForEach(publisher.data.commands.lazy, id: \.id) { command in
           CommandView(
-            _focus,
+            focus,
             command: Binding.readonly(command),
             publisher: publisher,
             selectionManager: selectionManager,
@@ -55,7 +55,7 @@ struct WorkflowCommandListScrollView: View {
               onAction: onAction
             )
           })
-          .focusable($focus, as: .detail(.command(command.id))) {
+          .focusable(focus, as: .detail(.command(command.id))) {
             selectionManager.handleOnTap(publisher.data.commands, element: command)
           }
         }
@@ -63,11 +63,11 @@ struct WorkflowCommandListScrollView: View {
         .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
           switch triggerPublisher.data {
           case .applications:
-            focus = .detail(.applicationTriggers)
+            focus.wrappedValue = .detail(.applicationTriggers)
           case .keyboardShortcuts:
-            focus = .detail(.keyboardShortcuts)
+            focus.wrappedValue = .detail(.keyboardShortcuts)
           case .empty:
-            focus = .detail(.addAppTrigger)
+            focus.wrappedValue = .detail(.addAppTrigger)
           }
         })
         .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
@@ -76,7 +76,7 @@ struct WorkflowCommandListScrollView: View {
         .onMoveCommand(perform: { direction in
           if let elementID = selectionManager.handle(direction, publisher.data.commands,
                                                      proxy: scrollViewProxy) {
-            focus = .detail(.command(elementID))
+            focus.wrappedValue = .detail(.command(elementID))
           }
         })
         .onDeleteCommand {
@@ -91,7 +91,7 @@ struct WorkflowCommandListScrollView: View {
       }
       .padding(.horizontal)
       .padding(.vertical, 8)
-      .focused($focus, equals: .detail(.commands))
+      .focused(focus, equals: .detail(.commands))
       .matchedGeometryEffect(id: "command-list", in: namespace)
     }
   }

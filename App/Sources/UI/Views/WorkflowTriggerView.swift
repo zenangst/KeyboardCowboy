@@ -9,15 +9,15 @@ struct WorkflowTriggerView: View {
   }
 
   @Binding private var isGrayscale: Bool
-  @FocusState private var focus: AppFocus?
   private let onAction: (Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        isGrayscale: Binding<Bool>,
        onAction: @escaping (Action) -> Void
   ) {
     _isGrayscale = isGrayscale
-    _focus = focus
+    self.focus = focus
     self.onAction = onAction
   }
 
@@ -25,7 +25,7 @@ struct WorkflowTriggerView: View {
     VStack {
       HStack {
         FocusableButton(
-          _focus,
+          focus,
           identity: .detail(.addAppTrigger),
           variant: .zen(.init(color: .systemBlue, grayscaleEffect: $isGrayscale)),
           action: { onAction(.addApplication) }
@@ -44,7 +44,7 @@ struct WorkflowTriggerView: View {
         .onMoveCommand(perform: { direction in
           switch direction {
           case .right:
-            focus = .detail(.addKeyboardTrigger)
+            focus.wrappedValue = .detail(.addKeyboardTrigger)
           default:
             break
           }
@@ -53,7 +53,7 @@ struct WorkflowTriggerView: View {
         Spacer()
 
         FocusableButton(
-          _focus,
+          focus,
           identity: .detail(.addKeyboardTrigger),
           variant: .zen(.init(color: .systemCyan, grayscaleEffect: $isGrayscale)),
           action: { onAction(.addKeyboardShortcut) }
@@ -72,17 +72,17 @@ struct WorkflowTriggerView: View {
         .onMoveCommand(perform: { direction in
           switch direction {
           case .left:
-            focus = .detail(.addAppTrigger)
+            focus.wrappedValue = .detail(.addAppTrigger)
           default:
             break
           }
         })
       }
       .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-        focus = .detail(.commands)
+        focus.wrappedValue = .detail(.commands)
       })
       .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-        focus = .detail(.name)
+        focus.wrappedValue = .detail(.name)
       })
       .frame(maxWidth: .infinity)
       .padding(8)
@@ -96,6 +96,6 @@ struct WorkflowTriggerView: View {
 struct WorkflowTriggerView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowTriggerView(_focus, isGrayscale: .constant(true), onAction: { _ in })
+    WorkflowTriggerView($focus, isGrayscale: .constant(true), onAction: { _ in })
   }
 }

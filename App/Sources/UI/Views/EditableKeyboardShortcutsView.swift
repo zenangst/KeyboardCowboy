@@ -6,7 +6,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     case recording
   }
 
-  @FocusState private var focus: T?
+  private var focus: FocusState<T?>.Binding
   @Environment(\.controlActiveState) private var controlActiveState
   @EnvironmentObject private var recorderStore: KeyShortcutRecorderStore
   @Binding private var keyboardShortcuts: [KeyShortcut]
@@ -20,13 +20,13 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   private let placeholderId = "keyboard_shortcut_placeholder_id"
   private let selectionManager: SelectionManager<KeyShortcut>
 
-  init(_ focus: FocusState<T?>,
+  init(_ focus: FocusState<T?>.Binding,
        focusBinding: @escaping (KeyShortcut.ID) -> T,
        keyboardShortcuts: Binding<[KeyShortcut]>,
        state: CurrentState? = nil,
        selectionManager: SelectionManager<KeyShortcut>,
        onTab: @escaping (Bool) -> Void) {
-    _focus = focus
+    self.focus = focus
     _keyboardShortcuts = keyboardShortcuts
     _state = .init(initialValue: state)
     self.focusBinding = focusBinding
@@ -58,7 +58,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                   }
                 }
               }
-              .focusable($focus, as: focusBinding(keyboardShortcut.wrappedValue.id), onFocus: {
+              .focusable(focus, as: focusBinding(keyboardShortcut.wrappedValue.id), onFocus: {
                 selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
               })
               .simultaneousGesture(
@@ -82,7 +82,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                 keyboardShortcuts,
                 proxy: proxy,
                 vertical: false) {
-                focus = focusBinding(elementID)
+                focus.wrappedValue = focusBinding(elementID)
               }
             })
             .onDeleteCommand {
@@ -224,7 +224,7 @@ struct EditableKeyboardShortcutsView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     EditableKeyboardShortcutsView(
-      _focus,
+      $focus,
       focusBinding: { .detail(.keyboardShortcut($0)) },
       keyboardShortcuts: .constant([ ]),
       state: .recording,

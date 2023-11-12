@@ -8,19 +8,19 @@ struct WorkflowApplicationTriggerView: View {
   }
 
   @EnvironmentObject private var applicationStore: ApplicationStore
-  @FocusState private var focus: AppFocus?
   @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   @State private var data: [DetailViewModel.ApplicationTrigger]
   @State private var selection: String = UUID().uuidString
   private let onAction: (Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
   private var onTab: () -> Void
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        data: [DetailViewModel.ApplicationTrigger],
        selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        onTab: @escaping () -> Void,
        onAction: @escaping (Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     _data = .init(initialValue: data)
     self.selectionManager = selectionManager
     self.onTab = onTab
@@ -65,7 +65,7 @@ struct WorkflowApplicationTriggerView: View {
                                              selectionManager: selectionManager,
                                              onAction: onAction)
           .contentShape(Rectangle())
-          .focusable($focus, as: .detail(.applicationTrigger(element.id))) {
+          .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
             selectionManager.handleOnTap(data, element: element.wrappedValue)
           }
         }
@@ -77,7 +77,7 @@ struct WorkflowApplicationTriggerView: View {
         })
         .onMoveCommand(perform: { direction in
           if let elementID = selectionManager.handle(direction, data, proxy: nil) {
-            focus = .detail(.applicationTrigger(elementID))
+            focus.wrappedValue = .detail(.applicationTrigger(elementID))
           }
         })
         .onDeleteCommand {
@@ -87,7 +87,7 @@ struct WorkflowApplicationTriggerView: View {
           }
         }
       }
-      .focused($focus, equals: .detail(.applicationTriggers))
+      .focused(focus, equals: .detail(.applicationTriggers))
     }
     .padding(.horizontal, 8)
   }
@@ -97,7 +97,7 @@ struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     WorkflowApplicationTriggerView(
-      _focus,
+      $focus,
       data: [
         .init(id: "1", name: "Application 1", application: .finder(),
               contexts: []),

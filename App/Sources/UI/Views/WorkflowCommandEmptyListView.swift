@@ -2,19 +2,19 @@ import SwiftUI
 import Bonzai
 
 struct WorkflowCommandEmptyListView: View {
-  @FocusState private var focus: AppFocus?
   @Environment(\.openWindow) var openWindow
   private let namespace: Namespace.ID
   private let workflowId: String
   private let isPrimary: Binding<Bool>
   private let onAction: (SingleDetailView.Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
        workflowId: String,
        isPrimary: Binding<Bool>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     self.isPrimary = isPrimary
     self.workflowId = workflowId
     self.namespace = namespace
@@ -24,7 +24,7 @@ struct WorkflowCommandEmptyListView: View {
   var body: some View {
     VStack {
       FocusableButton(
-        _focus,
+        focus,
         identity: .detail(.addCommand),
         variant: .zen(.init(color: .systemGreen,
                             focusEffect: .constant(true),
@@ -81,7 +81,7 @@ struct WorkflowCommandEmptyListView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
     WorkflowCommandEmptyListView(
-      _focus,
+      $focus,
       namespace: namespace,
       workflowId: UUID().uuidString,
       isPrimary: .constant(true)

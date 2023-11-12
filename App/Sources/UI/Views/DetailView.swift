@@ -6,16 +6,16 @@ struct DetailView: View {
   }
 
   @EnvironmentObject var statePublisher: DetailStatePublisher
-  @FocusState private var focus: AppFocus?
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandPublisher: CommandsPublisher
   private let commandSelectionManager: SelectionManager<CommandViewModel>
   private let infoPublisher: InfoPublisher
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let triggerPublisher: TriggerPublisher
+  private var focus: FocusState<AppFocus?>.Binding
   private var onAction: (DetailView.Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
@@ -23,7 +23,7 @@ struct DetailView: View {
        infoPublisher: InfoPublisher,
        commandPublisher: CommandsPublisher,
        onAction: @escaping (DetailView.Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     self.onAction = onAction
     self.commandSelectionManager = commandSelectionManager
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
@@ -42,7 +42,7 @@ struct DetailView: View {
         .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
     case .single:
       SingleDetailView(
-        _focus,
+        focus,
         applicationTriggerSelectionManager: applicationTriggerSelectionManager,
         commandSelectionManager: commandSelectionManager,
         keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
@@ -64,7 +64,7 @@ struct DetailView: View {
 struct DetailView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    DetailView(_focus, applicationTriggerSelectionManager: .init(),
+    DetailView($focus, applicationTriggerSelectionManager: .init(),
                commandSelectionManager: .init(),
                keyboardShortcutSelectionManager: .init(),
                triggerPublisher: DesignTime.triggerPublisher,

@@ -17,7 +17,6 @@ struct GroupsView: View {
 
   @EnvironmentObject private var contentPublisher: ContentPublisher
   @EnvironmentObject private var publisher: GroupsPublisher
-  @FocusState private var focus: AppFocus?
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
   @State private var dropDestination: Int?
   private let contentSelectionManager: SelectionManager<ContentViewModel>
@@ -25,13 +24,14 @@ struct GroupsView: View {
   private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (Action) -> Void
   private let namespace: Namespace.ID
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
        selectionManager: SelectionManager<GroupViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     _selectionManager = .init(initialValue: selectionManager)
     self.contentSelectionManager = contentSelectionManager
     self.onAction = onAction
@@ -45,7 +45,7 @@ struct GroupsView: View {
 
   @ViewBuilder
   var body: some View {
-    GroupsListView(_focus,
+    GroupsListView(focus,
                    namespace: namespace,
                    selectionManager: selectionManager, 
                    contentSelectionManager: contentSelectionManager,
@@ -57,7 +57,7 @@ struct GroupsView_Provider: PreviewProvider {
   @Namespace static var namespace
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    GroupsView(_focus, namespace: namespace,
+    GroupsView($focus, namespace: namespace,
                selectionManager: .init(),
                contentSelectionManager: .init(),
                onAction: { _ in })

@@ -19,7 +19,7 @@ struct ContentListView: View {
 
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
-  @FocusState private var focus: AppFocus?
+  private var focus: FocusState<AppFocus?>.Binding
   @Namespace private var namespace
   @State private var searchTerm: String = ""
   private let contentSelectionManager: SelectionManager<ContentViewModel>
@@ -27,11 +27,11 @@ struct ContentListView: View {
   private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupSelectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     self.contentSelectionManager = contentSelectionManager
     self.groupSelectionManager = groupSelectionManager
     self.onAction = onAction
@@ -59,7 +59,7 @@ struct ContentListView: View {
       ContentHeaderView(groupSelectionManager: groupSelectionManager,
                         namespace: namespace,
                         onAction: onAction)
-      ContentListFilterView(_focus,
+      ContentListFilterView(focus,
                             contentSelectionManager: contentSelectionManager,
                             searchTerm: $searchTerm)
       ScrollViewReader { proxy in
@@ -76,23 +76,23 @@ struct ContentListView: View {
               .contextMenu(menuItems: {
                 contextualMenu(element.id)
               })
-              .focusable($focus, as: .workflow(element.id)) {
+              .focusable(focus, as: .workflow(element.id)) {
                 contentSelectionManager.handleOnTap(publisher.data, element: element)
                 debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
                                                        groups: groupSelectionManager.selections))
               }
               .onAppear {
-                if case .workflow = focus, contentSelectionManager.selections.contains(element.id) {
-                  focus = .workflow(element.id)
+                if case .workflow = focus.wrappedValue, contentSelectionManager.selections.contains(element.id) {
+                  focus.wrappedValue = .workflow(element.id)
                 }
               }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-              focus = .detail(.name)
+              focus.wrappedValue = .detail(.name)
             })
             .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
               let id = groupSelectionManager.lastSelection ?? groupSelectionManager.selections.first ?? ""
-              focus = .group(id)
+              focus.wrappedValue = .group(id)
             })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
               contentSelectionManager.publish(Set(publisher.data.map(\.id)))
@@ -103,7 +103,7 @@ struct ContentListView: View {
                 publisher.data.filter({ search($0) }),
                 proxy: proxy,
                 vertical: true) {
-                focus = .workflow(elementID)
+                focus.wrappedValue = .workflow(elementID)
               }
             })
             .onDeleteCommand {
@@ -116,7 +116,7 @@ struct ContentListView: View {
                 if let first = contentSelectionManager.selections.first {
                   let index = max(publisher.data.firstIndex(where: { $0.id == first }) ?? 0, 0)
                   let newId = publisher.data[index].id
-                  focus = .workflow(newId)
+                  focus.wrappedValue = .workflow(newId)
                 }
               }
             }
@@ -174,7 +174,7 @@ struct ContentListView: View {
       }
 
       if contentSelectionManager.selections.count == 1 {
-        focus = .detail(.name)
+        focus.wrappedValue = .detail(.name)
       }
     })
     Menu("Move to") {
@@ -197,7 +197,7 @@ struct ContentListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     ContentListView(
-      _focus,
+      $focus,
       contentSelectionManager: .init(),
       groupSelectionManager: .init()
     ) { _ in }

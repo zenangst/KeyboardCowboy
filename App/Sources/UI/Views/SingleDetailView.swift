@@ -29,14 +29,14 @@ struct SingleDetailView: View {
   @EnvironmentObject private var commandPublisher: CommandsPublisher
   @EnvironmentObject private var infoPublisher: InfoPublisher
   @EnvironmentObject private var triggerPublisher: TriggerPublisher
-  @FocusState private var focus: AppFocus?
   @State private var overlayOpacity: CGFloat = 0
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandSelectionManager: SelectionManager<CommandViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let onAction: (Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
@@ -44,7 +44,7 @@ struct SingleDetailView: View {
        infoPublisher: InfoPublisher,
        commandPublisher: CommandsPublisher,
        onAction: @escaping (Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
@@ -54,15 +54,15 @@ struct SingleDetailView: View {
   var body: some View {
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
-          WorkflowInfoView(_focus, publisher: infoPublisher,
+          WorkflowInfoView(focus, publisher: infoPublisher,
                            onInsertTab: {
             switch triggerPublisher.data {
             case .applications:
-              focus = .detail(.applicationTriggers)
+              focus.wrappedValue = .detail(.applicationTriggers)
             case .keyboardShortcuts:
-              focus = .detail(.keyboardShortcuts)
+              focus.wrappedValue = .detail(.keyboardShortcuts)
             case .empty:
-              focus = .detail(.addAppTrigger)
+              focus.wrappedValue = .detail(.addAppTrigger)
             }
           }, onAction: { action in
             switch action {
@@ -76,16 +76,16 @@ struct SingleDetailView: View {
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
           WorkflowTriggerListView(
-            _focus,
+            focus,
             workflowId: infoPublisher.data.id,
             publisher: triggerPublisher,
             applicationTriggerSelectionManager: applicationTriggerSelectionManager,
             keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
             onTab: { 
               if commandPublisher.data.commands.isEmpty {
-                focus = .detail(.addCommand)
+                focus.wrappedValue = .detail(.addCommand)
               } else {
-                focus = .detail(.commands)
+                focus.wrappedValue = .detail(.commands)
               }
             },
             onAction: onAction)
@@ -99,7 +99,7 @@ struct SingleDetailView: View {
         })
 
       WorkflowCommandListView(
-        _focus,
+        focus,
         namespace: namespace,
         workflowId: infoPublisher.data.id,
         isPrimary: Binding<Bool>.init(get: {
@@ -126,7 +126,7 @@ struct SingleDetailView: View {
 struct SingleDetailView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    SingleDetailView(_focus,
+    SingleDetailView($focus,
                      applicationTriggerSelectionManager: .init(),
                      commandSelectionManager: .init(),
                      keyboardShortcutSelectionManager: .init(),

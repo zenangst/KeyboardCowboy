@@ -94,7 +94,7 @@ struct KeyboardCowboy: App {
         switch core.contentStore.state {
         case .initialized:
           ContainerView(
-            _focus,
+            $focus,
             publisher: core.contentCoordinator.contentPublisher,
             applicationTriggerSelectionManager: core.applicationTriggerSelectionManager,
             commandSelectionManager: core.commandSelectionManager,

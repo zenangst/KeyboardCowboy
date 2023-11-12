@@ -33,7 +33,7 @@ struct NewCommandKeyboardShortcutView: View {
       }
 
       EditableKeyboardShortcutsView<Focus>(
-        _focus,
+        $focus,
         focusBinding: { .keyboardShortcut($0) },
         keyboardShortcuts: $keyboardShortcuts,
         selectionManager: .init(),

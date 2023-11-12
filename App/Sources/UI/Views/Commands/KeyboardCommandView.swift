@@ -7,18 +7,18 @@ struct KeyboardCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @FocusState private var focus: AppFocus?
   @StateObject var keyboardSelection = SelectionManager<KeyShortcut>()
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.KeyboardModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.KeyboardModel,
        onAction: @escaping (Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.onAction = onAction
@@ -49,7 +49,7 @@ struct KeyboardCommandView: View {
               .onChange(of: metaData.name, perform: { debounce.send($0) })
               .frame(maxWidth: .infinity)
           }
-          EditableKeyboardShortcutsView<AppFocus>(_focus,
+          EditableKeyboardShortcutsView<AppFocus>(focus,
                                                   focusBinding: { .detail(.commandShortcut($0)) },
                                                   keyboardShortcuts: $model.keys,
                                                   selectionManager: keyboardSelection,
@@ -73,7 +73,7 @@ struct RebindingCommandView_Previews: PreviewProvider {
   static let recorderStore = KeyShortcutRecorderStore()
   static let command = DesignTime.rebindingCommand
   static var previews: some View {
-    KeyboardCommandView(_focus, metaData: command.model.meta, model: command.kind) { _ in }
+    KeyboardCommandView($focus, metaData: command.model.meta, model: command.kind) { _ in }
       .designTime()
       .environmentObject(recorderStore)
       .frame(maxHeight: 120)

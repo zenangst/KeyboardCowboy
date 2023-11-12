@@ -16,19 +16,19 @@ struct SidebarView: View {
   }
 
   @EnvironmentObject private var publisher: GroupsPublisher
-  @FocusState private var focus: AppFocus?
   @Namespace private var namespace
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
+  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>,
+  init(_ focus: FocusState<AppFocus?>.Binding,
        configSelectionManager: SelectionManager<ConfigurationViewModel>,
        groupSelectionManager: SelectionManager<GroupViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (Action) -> Void) {
-    _focus = focus
+    self.focus = focus
     self.configSelectionManager = configSelectionManager
     self.groupSelectionManager = groupSelectionManager
     self.contentSelectionManager = contentSelectionManager
@@ -56,7 +56,7 @@ struct SidebarView: View {
       .padding(.top, 6)
       .padding(.horizontal, 12)
 
-    GroupsView(_focus, namespace: namespace,
+    GroupsView(focus, namespace: namespace,
                selectionManager: groupSelectionManager,
                contentSelectionManager: contentSelectionManager) { action in
       switch action {
@@ -85,7 +85,7 @@ struct SidebarView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     SidebarView(
-      _focus,
+      $focus,
       configSelectionManager: .init(),
       groupSelectionManager: .init(),
       contentSelectionManager: .init()

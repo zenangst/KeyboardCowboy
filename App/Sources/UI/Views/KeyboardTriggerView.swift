@@ -3,7 +3,6 @@ import SwiftUI
 import Bonzai
 
 struct KeyboardTriggerView: View {
-  @FocusState private var focus: AppFocus?
   @State private var holdDurationText = ""
   @State private var passthrough: Bool
   @State private var trigger: DetailViewModel.KeyboardTrigger
@@ -11,16 +10,17 @@ struct KeyboardTriggerView: View {
   private let namespace: Namespace.ID
   private let onAction: (SingleDetailView.Action) -> Void
   private let workflowId: String
+  private var focus: FocusState<AppFocus?>.Binding
 
   init(namespace: Namespace.ID,
        workflowId: String,
-       focus: FocusState<AppFocus?>,
+       focus: FocusState<AppFocus?>.Binding,
        trigger: DetailViewModel.KeyboardTrigger,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.namespace = namespace
     self.workflowId = workflowId
-    _focus = focus
+    self.focus = focus
     _trigger = .init(initialValue: trigger)
 
     if let holdDuration = trigger.holdDuration {
@@ -47,7 +47,7 @@ struct KeyboardTriggerView: View {
         .buttonStyle(.calm(color: .systemRed, padding: .medium))
       }
 
-      WorkflowShortcutsView(_focus, data: $trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
+      WorkflowShortcutsView(focus, data: $trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
         onAction(.updateKeyboardShortcuts(workflowId: workflowId,
                                           passthrough: passthrough,
                                           holdDuration: Double(holdDurationText),
@@ -83,7 +83,7 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
   static var previews: some View {
     KeyboardTriggerView(namespace: namespace,
                         workflowId: UUID().uuidString,
-                        focus: _focus,
+                        focus: $focus,
                         trigger: .init(passthrough: false, shortcuts: [
                           .empty()
                         ]),
