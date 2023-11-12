@@ -3,32 +3,33 @@ import SwiftUI
 import Bonzai
 
 struct KeyboardTriggerView: View {
-  private let namespace: Namespace.ID
-  private let workflowId: String
-  private let onAction: (SingleDetailView.Action) -> Void
-  @State private var trigger: DetailViewModel.KeyboardTrigger
-  private let focus: FocusState<AppFocus?>.Binding
-  private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
-
+  @FocusState private var focus: AppFocus?
   @State private var holdDurationText = ""
   @State private var passthrough: Bool
+  @State private var trigger: DetailViewModel.KeyboardTrigger
+  private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
+  private let namespace: Namespace.ID
+  private let onAction: (SingleDetailView.Action) -> Void
+  private let workflowId: String
 
   init(namespace: Namespace.ID,
        workflowId: String,
-       focus: FocusState<AppFocus?>.Binding,
+       focus: FocusState<AppFocus?>,
        trigger: DetailViewModel.KeyboardTrigger,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     self.namespace = namespace
     self.workflowId = workflowId
-    self.focus = focus
+    _focus = focus
     _trigger = .init(initialValue: trigger)
-    self.onAction = onAction
-    self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
+
     if let holdDuration = trigger.holdDuration {
       _holdDurationText = .init(initialValue: String(Int(holdDuration)))
     }
     _passthrough = .init(initialValue: trigger.passthrough)
+
+    self.onAction = onAction
+    self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
   }
 
   var body: some View {
@@ -46,7 +47,7 @@ struct KeyboardTriggerView: View {
         .buttonStyle(.calm(color: .systemRed, padding: .medium))
       }
 
-      WorkflowShortcutsView(focus, data: $trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
+      WorkflowShortcutsView(_focus, data: $trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
         onAction(.updateKeyboardShortcuts(workflowId: workflowId,
                                           passthrough: passthrough,
                                           holdDuration: Double(holdDurationText),
@@ -82,7 +83,7 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
   static var previews: some View {
     KeyboardTriggerView(namespace: namespace,
                         workflowId: UUID().uuidString,
-                        focus: $focus,
+                        focus: _focus,
                         trigger: .init(passthrough: false, shortcuts: [
                           .empty()
                         ]),

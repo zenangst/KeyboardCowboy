@@ -24,20 +24,19 @@ struct SingleDetailView: View {
                                  keyboardShortcuts: [KeyShortcut])
     case updateName(workflowId: Workflow.ID, name: String)
   }
-  var focus: FocusState<AppFocus?>.Binding
-  @Environment(\.openWindow) var openWindow
-  @EnvironmentObject var triggerPublisher: TriggerPublisher
-  @EnvironmentObject var infoPublisher: InfoPublisher
-  @EnvironmentObject var commandPublisher: CommandsPublisher
 
-  @State var overlayOpacity: CGFloat = 0
-  private let onAction: (Action) -> Void
-
+  @Environment(\.openWindow) private var openWindow
+  @EnvironmentObject private var commandPublisher: CommandsPublisher
+  @EnvironmentObject private var infoPublisher: InfoPublisher
+  @EnvironmentObject private var triggerPublisher: TriggerPublisher
+  @FocusState private var focus: AppFocus?
+  @State private var overlayOpacity: CGFloat = 0
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandSelectionManager: SelectionManager<CommandViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
+  private let onAction: (Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
@@ -45,7 +44,7 @@ struct SingleDetailView: View {
        infoPublisher: InfoPublisher,
        commandPublisher: CommandsPublisher,
        onAction: @escaping (Action) -> Void) {
-    self.focus = focus
+    _focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
@@ -55,15 +54,15 @@ struct SingleDetailView: View {
   var body: some View {
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
-          WorkflowInfoView(focus, publisher: infoPublisher, 
+          WorkflowInfoView(_focus, publisher: infoPublisher,
                            onInsertTab: {
             switch triggerPublisher.data {
             case .applications:
-              focus.wrappedValue = .detail(.applicationTriggers)
+              focus = .detail(.applicationTriggers)
             case .keyboardShortcuts:
-              focus.wrappedValue = .detail(.keyboardShortcuts)
+              focus = .detail(.keyboardShortcuts)
             case .empty:
-              focus.wrappedValue = .detail(.name)
+              focus = .detail(.name)
             }
           }, onAction: { action in
             switch action {
@@ -76,7 +75,7 @@ struct SingleDetailView: View {
           .environmentObject(commandSelectionManager)
           .padding(.horizontal, 4)
           .padding(.vertical, 12)
-          WorkflowTriggerListView(focus,
+          WorkflowTriggerListView(_focus,
                                   workflowId: infoPublisher.data.id,
                                   publisher: triggerPublisher,
                                   applicationTriggerSelectionManager: applicationTriggerSelectionManager,
@@ -92,7 +91,7 @@ struct SingleDetailView: View {
         })
 
       WorkflowCommandListView(
-        focus,
+        _focus,
         namespace: namespace,
         workflowId: infoPublisher.data.id,
         isPrimary: Binding<Bool>.init(get: {
@@ -119,7 +118,7 @@ struct SingleDetailView: View {
 struct SingleDetailView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    SingleDetailView($focus,
+    SingleDetailView(_focus,
                      applicationTriggerSelectionManager: .init(),
                      commandSelectionManager: .init(),
                      keyboardShortcutSelectionManager: .init(),

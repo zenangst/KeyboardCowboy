@@ -3,29 +3,29 @@ import Bonzai
 
 struct WorkflowShortcutsView: View {
   @Binding private var data: [KeyShortcut]
-  private var focus: FocusState<AppFocus?>.Binding
+  @FocusState private var focus: AppFocus?
   private let onUpdate: ([KeyShortcut]) -> Void
   private let selectionManager: SelectionManager<KeyShortcut>
 
-  init(_ focus: FocusState<AppFocus?>.Binding, data: Binding<[KeyShortcut]>,
+  init(_ focus: FocusState<AppFocus?>, data: Binding<[KeyShortcut]>,
        selectionManager: SelectionManager<KeyShortcut>,
        onUpdate: @escaping ([KeyShortcut]) -> Void) {
-    self.focus = focus
-    self.selectionManager = selectionManager
     _data = data
+    _focus = focus
     self.onUpdate = onUpdate
+    self.selectionManager = selectionManager
   }
 
   var body: some View {
-    EditableKeyboardShortcutsView<AppFocus>(focus,
+    EditableKeyboardShortcutsView<AppFocus>(_focus,
                                             focusBinding: { .detail(.keyboardShortcut($0)) },
                                             keyboardShortcuts: $data,
                                             selectionManager: selectionManager,
                                             onTab: {
       if $0 {
-        focus.wrappedValue = .detail(.commands)
+        focus = .detail(.commands)
       } else {
-        focus.wrappedValue = .detail(.name)
+        focus = .detail(.name)
       }
     })
       .frame(minHeight: 48, maxHeight: 48)
@@ -37,14 +37,14 @@ struct WorkflowShortcutsView: View {
       .onChange(of: data, perform: { newValue in
         onUpdate(newValue)
       })
-      .focused(focus, equals: .detail(.keyboardShortcuts))
+      .focused($focus, equals: .detail(.keyboardShortcuts))
   }
 }
 
 struct WorkflowShortcutsView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowShortcutsView($focus,
+    WorkflowShortcutsView(_focus,
                           data: .constant([]),
                           selectionManager: .init(),
                           onUpdate: {

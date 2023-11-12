@@ -2,15 +2,15 @@ import SwiftUI
 import Bonzai
 
 struct ContentListFilterView: View {
+  @Binding private var searchTerm: String
   @EnvironmentObject private var publisher: ContentPublisher
-  private var focus: FocusState<AppFocus?>.Binding
+  @FocusState private var focus: AppFocus?
   private var contentSelectionManager: SelectionManager<ContentViewModel>
-  @Binding var searchTerm: String
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        searchTerm: Binding<String>) {
-    self.focus = focus
+    _focus = focus
     self.contentSelectionManager = contentSelectionManager
     self._searchTerm = searchTerm
   }
@@ -37,13 +37,13 @@ struct ContentListFilterView: View {
               )
             )
           )
-          .focused(focus, equals: .search)
+          .focused($focus, equals: .search)
           .onExitCommand(perform: {
             searchTerm = ""
           })
           .onSubmit {
             if let first = contentSelectionManager.selections.first {
-              focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
+              focus = .workflow(contentSelectionManager.lastSelection ?? first)
             }
           }
           .frame(height: 24)
@@ -64,7 +64,7 @@ struct ContentListFilterView: View {
 struct ContentListFilterView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContentListFilterView($focus, 
+    ContentListFilterView(_focus, 
                           contentSelectionManager: SelectionManager<ContentViewModel>(),
                           searchTerm: .constant("test"))
     .designTime()

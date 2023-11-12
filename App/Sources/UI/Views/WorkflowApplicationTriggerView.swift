@@ -7,23 +7,20 @@ struct WorkflowApplicationTriggerView: View {
     case updateApplicationTriggerContext(DetailViewModel.ApplicationTrigger)
   }
 
-  @EnvironmentObject var applicationStore: ApplicationStore
-
+  @EnvironmentObject private var applicationStore: ApplicationStore
+  @FocusState private var focus: AppFocus?
+  @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   @State private var data: [DetailViewModel.ApplicationTrigger]
   @State private var selection: String = UUID().uuidString
-
-  @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
-
-  private var focus: FocusState<AppFocus?>.Binding
   private let onAction: (Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        data: [DetailViewModel.ApplicationTrigger],
        selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        onAction: @escaping (Action) -> Void) {
-    self.focus = focus
-    self.selectionManager = selectionManager
+    _focus = focus
     _data = .init(initialValue: data)
+    self.selectionManager = selectionManager
     self.onAction = onAction
   }
 
@@ -63,19 +60,19 @@ struct WorkflowApplicationTriggerView: View {
                                              selectionManager: selectionManager,
                                              onAction: onAction)
           .contentShape(Rectangle())
-          .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
+          .focusable($focus, as: .detail(.applicationTrigger(element.id))) {
             selectionManager.handleOnTap(data, element: element.wrappedValue)
           }
         }
         .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-          focus.wrappedValue = .detail(.commands)
+          focus = .detail(.commands)
         })
         .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
           selectionManager.selections = Set(data.map(\.id))
         })
         .onMoveCommand(perform: { direction in
           if let elementID = selectionManager.handle(direction, data, proxy: nil) {
-            focus.wrappedValue = .detail(.applicationTrigger(elementID))
+            focus = .detail(.applicationTrigger(elementID))
           }
         })
         .onDeleteCommand {
@@ -85,7 +82,7 @@ struct WorkflowApplicationTriggerView: View {
           }
         }
       }
-      .focused(focus, equals: .detail(.applicationTriggers))
+      .focused($focus, equals: .detail(.applicationTriggers))
     }
     .padding(.horizontal, 8)
   }
@@ -95,7 +92,7 @@ struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     WorkflowApplicationTriggerView(
-      $focus,
+      _focus,
       data: [
         .init(id: "1", name: "Application 1", application: .finder(),
               contexts: []),

@@ -15,24 +15,22 @@ struct GroupsListView: View {
     }
   }
 
-  private var focus: FocusState<AppFocus?>.Binding
-  private let namespace: Namespace.ID
+  @EnvironmentObject private var publisher: GroupsPublisher
+  @FocusState private var focus: AppFocus?
+  @State private var confirmDelete: Confirm?
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
   private let moveManager: MoveManager<GroupViewModel> = .init()
+  private let namespace: Namespace.ID
   private let onAction: (GroupsView.Action) -> Void
   private let selectionManager: SelectionManager<GroupViewModel>
-  private let contentSelectionManager: SelectionManager<ContentViewModel>
 
-  @EnvironmentObject private var publisher: GroupsPublisher
-
-  @State private var confirmDelete: Confirm?
-
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        namespace: Namespace.ID,
        selectionManager: SelectionManager<GroupViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (GroupsView.Action) -> Void) {
-    self.focus = focus
+    _focus = focus
     self.namespace = namespace
     self.selectionManager = selectionManager
     self.contentSelectionManager = contentSelectionManager
@@ -62,17 +60,17 @@ struct GroupsListView: View {
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
               })
-              .focusable(focus, as: .group(group.id)) {
+              .focusable($focus, as: .group(group.id)) {
                 selectionManager.handleOnTap(publisher.data, element: group)
                 confirmDelete = nil
                 debounceSelectionManager.process(.init(groups: selectionManager.selections))
                 guard let first = contentSelectionManager.selections.first else { return }
-                focus.wrappedValue = .workflow(first)
+                focus = .workflow(first)
               }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               let first = contentSelectionManager.selections.first ?? ""
-              focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
+              focus = .workflow(contentSelectionManager.lastSelection ?? first)
             })
             .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: { })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
@@ -84,7 +82,7 @@ struct GroupsListView: View {
                 publisher.data,
                 proxy: proxy,
                 vertical: true) {
-                focus.wrappedValue = .group(elementID)
+                focus = .group(elementID)
               }
             })
             .onDeleteCommand {
@@ -141,7 +139,7 @@ struct GroupsListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   @Namespace static var namespace
   static var previews: some View {
-    GroupsListView($focus,
+    GroupsListView(_focus,
                    namespace: namespace,
                    selectionManager: .init(),
                    contentSelectionManager: .init(),

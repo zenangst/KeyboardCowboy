@@ -7,20 +7,20 @@ struct KeyboardCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  private let focus: FocusState<AppFocus?>.Binding
+  @FocusState private var focus: AppFocus?
   @StateObject var keyboardSelection = SelectionManager<KeyShortcut>()
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.KeyboardModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.KeyboardModel,
        onAction: @escaping (Action) -> Void) {
+    _focus = focus
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
-    self.focus = focus
     self.onAction = onAction
     self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
       onAction(.updateName(newName: newName))
@@ -49,7 +49,7 @@ struct KeyboardCommandView: View {
               .onChange(of: metaData.name, perform: { debounce.send($0) })
               .frame(maxWidth: .infinity)
           }
-          EditableKeyboardShortcutsView<AppFocus>(focus,
+          EditableKeyboardShortcutsView<AppFocus>(_focus,
                                                   focusBinding: { .detail(.commandShortcut($0)) },
                                                   keyboardShortcuts: $model.keys,
                                                   selectionManager: keyboardSelection,
@@ -73,7 +73,7 @@ struct RebindingCommandView_Previews: PreviewProvider {
   static let recorderStore = KeyShortcutRecorderStore()
   static let command = DesignTime.rebindingCommand
   static var previews: some View {
-    KeyboardCommandView($focus, metaData: command.model.meta, model: command.kind) { _ in }
+    KeyboardCommandView(_focus, metaData: command.model.meta, model: command.kind) { _ in }
       .designTime()
       .environmentObject(recorderStore)
       .frame(maxHeight: 120)

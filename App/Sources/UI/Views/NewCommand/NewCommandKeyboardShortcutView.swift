@@ -7,16 +7,14 @@ struct NewCommandKeyboardShortcutView: View {
   enum Focus: Hashable {
     case keyboardShortcut(KeyShortcut.ID)
   }
-  @FocusState var focus: Focus?
-  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#keyboard-shortcuts-commands")!
+  @Binding private var payload: NewCommandPayload
+  @Binding private var validation: NewCommandValidation
   @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
-
-  @Binding var payload: NewCommandPayload
-  @Binding var validation: NewCommandValidation
-
-  @State var keyboardShortcuts = [KeyShortcut]()
-  @State var isGlowing: Bool = false
-  @State var state: CurrentState? = nil
+  @FocusState private var focus: Focus?
+  @State private var isGlowing: Bool = false
+  @State private var keyboardShortcuts = [KeyShortcut]()
+  @State private var state: CurrentState? = nil
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#keyboard-shortcuts-commands")!
 
   init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
@@ -35,7 +33,7 @@ struct NewCommandKeyboardShortcutView: View {
       }
 
       EditableKeyboardShortcutsView<Focus>(
-        $focus,
+        _focus,
         focusBinding: { .keyboardShortcut($0) },
         keyboardShortcuts: $keyboardShortcuts,
         selectionManager: .init(),

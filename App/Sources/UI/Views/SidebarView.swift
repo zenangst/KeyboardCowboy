@@ -15,20 +15,20 @@ struct SidebarView: View {
     case copyWorkflows(workflowIds: Set<ContentViewModel.ID>, groupId: GroupViewModel.ID)
   }
 
-  @Namespace var namespace
   @EnvironmentObject private var publisher: GroupsPublisher
+  @FocusState private var focus: AppFocus?
+  @Namespace private var namespace
   private let configSelectionManager: SelectionManager<ConfigurationViewModel>
-  private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let contentSelectionManager: SelectionManager<ContentViewModel>
+  private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
-  private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        configSelectionManager: SelectionManager<ConfigurationViewModel>,
        groupSelectionManager: SelectionManager<GroupViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (Action) -> Void) {
-    self.focus = focus
+    _focus = focus
     self.configSelectionManager = configSelectionManager
     self.groupSelectionManager = groupSelectionManager
     self.contentSelectionManager = contentSelectionManager
@@ -56,7 +56,7 @@ struct SidebarView: View {
       .padding(.top, 6)
       .padding(.horizontal, 12)
 
-    GroupsView(focus, namespace: namespace, 
+    GroupsView(_focus, namespace: namespace,
                selectionManager: groupSelectionManager,
                contentSelectionManager: contentSelectionManager) { action in
       switch action {
@@ -74,7 +74,7 @@ struct SidebarView: View {
         onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
       }
     }
-    SidebarAddGroupButtonView(isVisible: Binding<Bool>.readonly(!publisher.data.isEmpty),
+    SidebarAddGroupButtonView(isVisible: .readonly(!publisher.data.isEmpty),
                               namespace: namespace, onAction: {
       onAction(.openScene(.addGroup))
     })
@@ -85,7 +85,7 @@ struct SidebarView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     SidebarView(
-      $focus,
+      _focus,
       configSelectionManager: .init(),
       groupSelectionManager: .init(),
       contentSelectionManager: .init()

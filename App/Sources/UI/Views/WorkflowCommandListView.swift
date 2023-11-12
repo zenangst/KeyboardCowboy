@@ -4,18 +4,18 @@ import UniformTypeIdentifiers
 struct WorkflowCommandListView: View {
   static let animation: Animation = .spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)
 
-  @Environment(\.openWindow) var openWindow
+  @Binding private var isPrimary: Bool
+  @Environment(\.openWindow) private var openWindow
+  @FocusState private var focus: AppFocus?
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
-  @Binding var isPrimary: Bool
-  private let workflowId: String
-  private var namespace: Namespace.ID
-  private let triggerPublisher: TriggerPublisher
+  private let onAction: (SingleDetailView.Action) -> Void
   private let publisher: CommandsPublisher
   private let scrollViewProxy: ScrollViewProxy?
-  private let onAction: (SingleDetailView.Action) -> Void
-  private let focus: FocusState<AppFocus?>.Binding
+  private let triggerPublisher: TriggerPublisher
+  private let workflowId: String
+  private var namespace: Namespace.ID
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        namespace: Namespace.ID,
        workflowId: String,
        isPrimary: Binding<Bool>,
@@ -25,7 +25,7 @@ struct WorkflowCommandListView: View {
        scrollViewProxy: ScrollViewProxy? = nil,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
     _isPrimary = isPrimary
-    self.focus = focus
+    _focus = focus
     self.publisher = publisher
     self.triggerPublisher = triggerPublisher
     self.workflowId = workflowId
@@ -44,7 +44,7 @@ struct WorkflowCommandListView: View {
                                    onAction: onAction)
     } else {
       WorkflowCommandListHeaderView(namespace: namespace, workflowId: workflowId, onAction: onAction)
-      WorkflowCommandListScrollView(focus,
+      WorkflowCommandListScrollView(_focus,
                                     publisher: publisher,
                                     triggerPublisher: triggerPublisher,
                                     namespace: namespace,
@@ -60,7 +60,7 @@ struct WorkflowCommandListView_Previews: PreviewProvider {
   @Namespace static var namespace
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowCommandListView($focus,
+    WorkflowCommandListView(_focus,
                             namespace: namespace,
                             workflowId: "workflowId",
                             isPrimary: .constant(true),

@@ -6,31 +6,29 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     case recording
   }
 
-  private let focus: FocusState<T?>.Binding
-  @Environment(\.controlActiveState) var controlActiveState
-  @EnvironmentObject var recorderStore: KeyShortcutRecorderStore
-  @Binding var keyboardShortcuts: [KeyShortcut]
-  @State var state: CurrentState? = nil
-  @State var isGlowing: Bool = false
-  @State var replacing: KeyShortcut.ID?
-  @State var selectedColor: Color = .accentColor
-
-  private let placeholderId = "keyboard_shortcut_placeholder_id"
+  @FocusState private var focus: T?
+  @Environment(\.controlActiveState) private var controlActiveState
+  @EnvironmentObject private var recorderStore: KeyShortcutRecorderStore
+  @Binding private var keyboardShortcuts: [KeyShortcut]
+  @State private var state: CurrentState? = nil
+  @State private var isGlowing: Bool = false
+  @State private var replacing: KeyShortcut.ID?
+  @State private var selectedColor: Color = .accentColor
   private let animation: Animation = .easeOut(duration: 0.2)
-  private let selectionManager: SelectionManager<KeyShortcut>
   private let focusBinding: (KeyShortcut.ID) -> T
+  private let onTab: (Bool) -> Void
+  private let placeholderId = "keyboard_shortcut_placeholder_id"
+  private let selectionManager: SelectionManager<KeyShortcut>
 
-  var onTab: (Bool) -> Void
-
-  init(_ focus: FocusState<T?>.Binding,
+  init(_ focus: FocusState<T?>,
        focusBinding: @escaping (KeyShortcut.ID) -> T,
        keyboardShortcuts: Binding<[KeyShortcut]>,
        state: CurrentState? = nil,
        selectionManager: SelectionManager<KeyShortcut>,
        onTab: @escaping (Bool) -> Void) {
+    _focus = focus
     _keyboardShortcuts = keyboardShortcuts
     _state = .init(initialValue: state)
-    self.focus = focus
     self.focusBinding = focusBinding
     self.onTab = onTab
     self.selectionManager = selectionManager
@@ -60,7 +58,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                   }
                 }
               }
-              .focusable(focus, as: focusBinding(keyboardShortcut.wrappedValue.id), onFocus: {
+              .focusable($focus, as: focusBinding(keyboardShortcut.wrappedValue.id), onFocus: {
                 selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
               })
               .simultaneousGesture(
@@ -84,7 +82,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                 keyboardShortcuts,
                 proxy: proxy,
                 vertical: false) {
-                focus.wrappedValue = focusBinding(elementID)
+                focus = focusBinding(elementID)
               }
             })
             .onDeleteCommand {
@@ -226,7 +224,7 @@ struct EditableKeyboardShortcutsView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     EditableKeyboardShortcutsView(
-      $focus,
+      _focus,
       focusBinding: { .detail(.keyboardShortcut($0)) },
       keyboardShortcuts: .constant([ ]),
       state: .recording,

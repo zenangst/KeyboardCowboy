@@ -8,9 +8,16 @@ struct WorkflowTriggerView: View {
     case removeKeyboardShortcut
   }
 
+  @Binding private var isGrayscale: Bool
+  @FocusState private var focus: AppFocus?
   private let onAction: (Action) -> Void
 
-  init(onAction: @escaping (Action) -> Void) {
+  init(_ focus: FocusState<AppFocus?>,
+       isGrayscale: Binding<Bool>,
+       onAction: @escaping (Action) -> Void
+  ) {
+    _isGrayscale = isGrayscale
+    _focus = focus
     self.onAction = onAction
   }
 
@@ -29,7 +36,7 @@ struct WorkflowTriggerView: View {
           .padding(6)
           .frame(maxWidth: .infinity)
         })
-        .buttonStyle(.zen(.init(color: .systemBlue, grayscaleEffect: .constant(true))))
+        .buttonStyle(.zen(.init(color: .systemBlue, grayscaleEffect: $isGrayscale)))
 
         Spacer()
 
@@ -45,7 +52,7 @@ struct WorkflowTriggerView: View {
           .padding(6)
           .frame(maxWidth: .infinity)
         })
-        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
+        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: $isGrayscale)))
       }
       .frame(maxWidth: .infinity)
       .padding(8)
@@ -57,7 +64,8 @@ struct WorkflowTriggerView: View {
 }
 
 struct WorkflowTriggerView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowTriggerView(onAction: { _ in })
+    WorkflowTriggerView(_focus, isGrayscale: .constant(true), onAction: { _ in })
   }
 }

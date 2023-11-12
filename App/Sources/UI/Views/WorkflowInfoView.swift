@@ -8,17 +8,17 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
+  @FocusState private var focus: AppFocus?
   @ObservedObject private var publisher: InfoPublisher
-  @State var monitor: Any?
-  var focus: FocusState<AppFocus?>.Binding
+  @State private var monitor: Any?
   private let onInsertTab: () -> Void
   private var onAction: (Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>.Binding, 
+  init(_ focus: FocusState<AppFocus?>, 
        publisher: InfoPublisher,
        onInsertTab: @escaping () -> Void,
        onAction: @escaping (Action) -> Void) {
-    self.focus = focus
+    _focus = focus
     self.publisher = publisher
     self.onInsertTab = onInsertTab
     self.onAction = onAction
@@ -29,19 +29,19 @@ struct WorkflowInfoView: View {
       TextField("Workflow name", text: $publisher.data.name)
         .frame(height: 41)
         .fixedSize(horizontal: false, vertical: true)
-        .focused(focus, equals: .detail(.name))
+        .focused($focus, equals: .detail(.name))
         .textFieldStyle(.large(color: ZenColorPublisher.shared.color,
                                backgroundColor: Color(nsColor: .windowBackgroundColor),
                                glow: true))
         .onChange(of: publisher.data.name) { onAction(.updateName(name: $0)) }
-        .onChange(of: focus.wrappedValue, perform: { value in
+        .onChange(of: focus, perform: { value in
           if case .detail(.name) = value {
             if let oldMonitor = monitor { NSEvent.removeMonitor(oldMonitor) }
 
             monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
               if event.keyCode == kVK_Tab {
                 if event.modifierFlags.contains(.shift) {
-                  focus.wrappedValue = .workflow(publisher.data.id)
+                  focus = .workflow(publisher.data.id)
                 } else {
                   onInsertTab()
                 }
@@ -71,7 +71,7 @@ struct WorkflowInfoView: View {
 struct WorkflowInfo_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowInfoView($focus,
+    WorkflowInfoView(_focus,
                      publisher: .init(DesignTime.detail.info),
                      onInsertTab: { }) { _ in }
       .padding()

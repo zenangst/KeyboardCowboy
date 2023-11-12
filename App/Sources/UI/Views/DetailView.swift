@@ -5,18 +5,17 @@ struct DetailView: View {
     case singleDetailView(SingleDetailView.Action)
   }
 
-  var focus: FocusState<AppFocus?>.Binding
   @EnvironmentObject var statePublisher: DetailStatePublisher
-  private var onAction: (DetailView.Action) -> Void
-
+  @FocusState private var focus: AppFocus?
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
+  private let commandPublisher: CommandsPublisher
   private let commandSelectionManager: SelectionManager<CommandViewModel>
+  private let infoPublisher: InfoPublisher
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let triggerPublisher: TriggerPublisher
-  private let infoPublisher: InfoPublisher
-  private let commandPublisher: CommandsPublisher
+  private var onAction: (DetailView.Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
@@ -24,7 +23,7 @@ struct DetailView: View {
        infoPublisher: InfoPublisher,
        commandPublisher: CommandsPublisher,
        onAction: @escaping (DetailView.Action) -> Void) {
-    self.focus = focus
+    _focus = focus
     self.onAction = onAction
     self.commandSelectionManager = commandSelectionManager
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
@@ -43,7 +42,7 @@ struct DetailView: View {
         .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
     case .single:
       SingleDetailView(
-        focus,
+        _focus,
         applicationTriggerSelectionManager: applicationTriggerSelectionManager,
         commandSelectionManager: commandSelectionManager,
         keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
@@ -65,7 +64,7 @@ struct DetailView: View {
 struct DetailView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    DetailView($focus, applicationTriggerSelectionManager: .init(),
+    DetailView(_focus, applicationTriggerSelectionManager: .init(),
                commandSelectionManager: .init(),
                keyboardShortcutSelectionManager: .init(),
                triggerPublisher: DesignTime.triggerPublisher,

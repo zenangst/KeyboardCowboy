@@ -3,24 +3,21 @@ import SwiftUI
 import Bonzai
 
 struct WorkflowTriggerListView: View {
-  @Namespace var namespace
-
-  private let workflowId: String
+  @FocusState private var focus: AppFocus?
+  @Namespace private var namespace
   @ObservedObject private var publisher: TriggerPublisher
-  private let onAction: (SingleDetailView.Action) -> Void
-
-  var focus: FocusState<AppFocus?>.Binding
-
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
+  private let onAction: (SingleDetailView.Action) -> Void
+  private let workflowId: String
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ focus: FocusState<AppFocus?>,
        workflowId: String,
        publisher: TriggerPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        onAction: @escaping (SingleDetailView.Action) -> Void) {
-    self.focus = focus
+    _focus = focus
     self.publisher = publisher
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
@@ -32,7 +29,7 @@ struct WorkflowTriggerListView: View {
     Group {
       switch publisher.data {
       case .keyboardShortcuts(let trigger):
-       KeyboardTriggerView(namespace: namespace, workflowId: workflowId, focus: focus, trigger: trigger,
+       KeyboardTriggerView(namespace: namespace, workflowId: workflowId, focus: _focus, trigger: trigger,
                            keyboardShortcutSelectionManager: keyboardShortcutSelectionManager, onAction: onAction)
       case .applications(let triggers):
         HStack {
@@ -48,7 +45,7 @@ struct WorkflowTriggerListView: View {
           .buttonStyle(.calm(color: .systemRed, padding: .medium))
         }
         .padding([.leading, .trailing], 8)
-        WorkflowApplicationTriggerView(focus, data: triggers,
+        WorkflowApplicationTriggerView(_focus, data: triggers,
                                        selectionManager: applicationTriggerSelectionManager) { action in
           onAction(.applicationTrigger(workflowId: workflowId, action: action))
         }
@@ -56,7 +53,8 @@ struct WorkflowTriggerListView: View {
       case .empty:
         Label("Add Trigger", image: "")
           .padding([.leading, .trailing], 8)
-        WorkflowTriggerView(onAction: { action in
+        WorkflowTriggerView(_focus, isGrayscale: .readonly(publisher.data != .empty),
+                            onAction: { action in
           onAction(.trigger(workflowId: workflowId, action: action))
         })
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
@@ -70,7 +68,7 @@ struct WorkflowTriggerListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     VStack {
-      WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
+      WorkflowTriggerListView(_focus, workflowId: UUID().uuidString,
                               publisher: .init(DesignTime.detail.trigger),
                               applicationTriggerSelectionManager: .init(),
                               keyboardShortcutSelectionManager: .init()) { _ in }
