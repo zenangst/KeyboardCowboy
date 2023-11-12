@@ -250,7 +250,17 @@ final class DetailCoordinator {
     } else if let viewModel = viewModels.first {
       state = .single
 
-      withAnimation(animation) {
+      // Only use `withAnimation` if `animation` is not `nil` to
+      // prevent the application from crashing when performing certain updates.
+      if let animation {
+        withAnimation(animation) {
+          infoPublisher.publish(viewModel.info)
+          triggerPublisher.publish(viewModel.trigger)
+          commandsPublisher.publish(.init(id: viewModel.id,
+                                          commands: viewModel.commandsInfo.commands,
+                                          execution: viewModel.commandsInfo.execution))
+        }
+      } else {
         infoPublisher.publish(viewModel.info)
         triggerPublisher.publish(viewModel.trigger)
         commandsPublisher.publish(.init(id: viewModel.id,
