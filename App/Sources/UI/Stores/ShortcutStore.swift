@@ -1,35 +1,31 @@
 import Cocoa
+import Combine
 
 final class ShortcutStore: ObservableObject, @unchecked Sendable {
   @MainActor
   @Published private(set) var shortcuts = [Shortcut]()
   private let scriptCommandRunner: ScriptCommandRunner
+  private var subscription: AnyCancellable?
 
   init(_ scriptCommandRunner: ScriptCommandRunner) {
     self.scriptCommandRunner = scriptCommandRunner
   }
 
-  func index() {
-    let shellScript = ScriptCommand(name: "List shortcuts", kind: .shellScript,
-                                    source: .inline("shortcuts list"), notification: false)
-
-    Task {
-      guard let result = try await scriptCommandRunner.run(shellScript, environment: [:]) else {
-        return
-      }
-
-      let lines = result.split(separator: "\n").compactMap(String.init)
-      var shortcuts = [Shortcut]()
-      for line in lines {
-        if !shortcuts.contains(where: { $0.name == line }) {
-          shortcuts.append(Shortcut(name: line))
+  func subscribe(to application: Published<UserSpace.Application>.Publisher) {
+    subscription = application
+      .filter { $0.bundleIdentifier == "com.apple.shortcuts" }
+      .sink { [weak self] application in
+        guard let self else { return }
+        Task {
+          await self.index()
         }
       }
-      let newShortcuts = shortcuts.sorted(by: { $0.name < $1.name })
+  }
 
-      await MainActor.run {
-        self.shortcuts = newShortcuts
-      }
+  func index() async {
+    guard let newShortcuts = try? SBShortcuts.getShortcuts() else { return }
+    await MainActor.run {
+      self.shortcuts = newShortcuts
     }
   }
 }

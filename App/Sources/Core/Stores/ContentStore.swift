@@ -50,7 +50,7 @@ final class ContentStore: ObservableObject {
     Task {
       Benchmark.shared.start("ContentStore.init")
       await applicationStore.load()
-      shortcutStore.index()
+      await shortcutStore.index()
       let configurations: [KeyboardCowboyConfiguration]
 
       do {
@@ -106,6 +106,7 @@ final class ContentStore: ObservableObject {
     use(configurationStore.selectedConfiguration)
     storage.subscribe(to: configurationStore.$configurations)
     subscribe(to: groupStore.$groups)
+    shortcutStore.subscribe(to: UserSpace.shared.$frontMostApplication)
     state = .initialized
   }
 
