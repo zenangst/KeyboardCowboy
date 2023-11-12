@@ -39,6 +39,7 @@ struct NewCommandView: View {
   @State private var selection: Kind
   @State private var validation: NewCommandValidation
   @State private var title: String
+  @State private var saveButtonColor: ZenColor = .systemGreen
   @StateObject private var edited = Edited()
   private let onDismiss: () -> Void
   private let onSave: (NewCommandPayload, String) -> Void
@@ -185,6 +186,14 @@ struct NewCommandView: View {
         guard !edited.state else { return }
         $title.wrappedValue = newValue.title
       })
+      .onChange(of: validation) { newValue in
+        switch newValue {
+        case .invalid:
+          saveButtonColor = .systemRed
+        case .unknown, .needsValidation, .valid:
+          saveButtonColor = .systemGreen
+        }
+      }
 
       selectedView(selection)
         .padding()
@@ -204,7 +213,7 @@ struct NewCommandView: View {
         Button(action: onDismiss, label: { Text("Cancel") })
           .buttonStyle(.zen(.init(color: .systemRed, grayscaleEffect: .constant(true))))
         Button(action: { onSubmit() }, label: { Text("Save") })
-          .buttonStyle(.positive)
+          .buttonStyle(.zen(.init(color: saveButtonColor, hoverEffect: .constant(false))))
           .keyboardShortcut(.defaultAction)
       }
       .padding()
