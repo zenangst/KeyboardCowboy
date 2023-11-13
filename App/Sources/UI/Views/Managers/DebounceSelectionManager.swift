@@ -20,7 +20,7 @@ final class DebounceSelectionManager<Snapshot: DebounceSnapshot> {
   }
 
   func process(_ snapshot: Snapshot) {
-    if NSEventController.shared.repeatingKeyDown {
+    if LocalEventMonitor.shared.repeatingKeyDown {
       subject.send(snapshot)
     } else {
       onUpdate(snapshot)

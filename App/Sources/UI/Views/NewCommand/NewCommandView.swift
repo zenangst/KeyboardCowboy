@@ -154,7 +154,9 @@ struct NewCommandView: View {
   private var detailView: some View {
     VStack(spacing: 0) {
       TextField("", text: $title)
-      .onReceive(NSEventController.shared.$upKeyEvent.compactMap { $0 }, perform: { event in
+      .onReceive(LocalEventMonitor.shared.$event
+        .compactMap { $0 }
+        .filter({ $0.type == .keyUp }), perform: { event in
         // Mark the content as edited if any of these key codes match.
         // When it is marked as edited by the user, then we shouldn't change it
         // when the user picks another application.

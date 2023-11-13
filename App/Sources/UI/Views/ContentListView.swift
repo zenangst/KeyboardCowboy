@@ -1,3 +1,4 @@
+import Carbon
 import SwiftUI
 
 struct ContentDebounce: DebounceSnapshot {
@@ -18,7 +19,6 @@ struct ContentListView: View {
   }
 
   @FocusState var focus: LocalFocus<ContentViewModel>?
-
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
   private var appFocus: FocusState<AppFocus?>.Binding
@@ -79,9 +79,15 @@ struct ContentListView: View {
                 contextualMenu(element.id)
               })
               .focusable($focus, as: .element(element.id)) {
-                contentSelectionManager.handleOnTap(publisher.data, element: element)
-                debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
-                                                       groups: groupSelectionManager.selections))
+                if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
+                   let lastSelection = contentSelectionManager.lastSelection,
+                   let match = publisher.data.first(where: { $0.id == lastSelection }) {
+                  focus = .element(match.id)
+                } else {
+                  contentSelectionManager.handleOnTap(publisher.data, element: element)
+                  debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
+                                                         groups: groupSelectionManager.selections))
+                }
               }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {

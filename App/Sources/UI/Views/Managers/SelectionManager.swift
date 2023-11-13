@@ -1,11 +1,15 @@
 import Foundation
+import Carbon
 import Cocoa
+import Combine
 import SwiftUI
 
 @MainActor
 final class SelectionManager<T>: ObservableObject where T: Identifiable,
                                                         T: Hashable,
                                                         T: Equatable {
+  private var subscriptions: AnyCancellable?
+  private var tabIsActive: Bool = false
   typealias StoreType = (Set<T.ID>) -> Void
   private(set) var lastSelection: T.ID?
   @Published var selections: Set<T.ID>
@@ -23,6 +27,19 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
       self.selections = selections
       self.lastSelection = nil
     }
+
+    subscriptions = LocalEventMonitor.shared.$event
+      .compactMap { $0 }
+      .sink { [weak self] event in
+        guard let self else { return }
+
+        guard event.keyCode == kVK_Tab else { return }
+
+        tabIsActive = switch event.type {
+        case .keyDown: true
+        default: false
+        }
+      }
   }
 
   func removeLastSelection() {
@@ -71,9 +88,9 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   func handleOnTap(_ data: [T], element: T) {
     let copyOfSelections = selections
     var newSelections: Set<T.ID> = []
-    if NSEvent.modifierFlags.contains(.shift) {
+    if !tabIsActive && NSEvent.modifierFlags.contains(.shift) {
       newSelections = onShiftTap(data, elementID: element.id, selections: copyOfSelections)
-    } else if NSEvent.modifierFlags.contains(.command) {
+    } else if !tabIsActive && NSEvent.modifierFlags.contains(.command) {
       newSelections = onCommandTap(element, selections: copyOfSelections)
     } else {
       newSelections = onTap(element)

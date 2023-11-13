@@ -1,3 +1,4 @@
+import Carbon
 import SwiftUI
 
 struct GroupsListView: View {
@@ -16,7 +17,6 @@ struct GroupsListView: View {
   }
 
   @FocusState var focus: LocalFocus<GroupViewModel>?
-
   @EnvironmentObject private var publisher: GroupsPublisher
   @State private var confirmDelete: Confirm?
   private let contentSelectionManager: SelectionManager<ContentViewModel>
@@ -62,15 +62,21 @@ struct GroupsListView: View {
                 contextualMenu(for: group, onAction: onAction)
               })
               .focusable($focus, as: .element(group.id)) {
-                selectionManager.handleOnTap(publisher.data, element: group)
-                confirmDelete = nil
-                debounceSelectionManager.process(.init(groups: selectionManager.selections))
+                if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
+                   let lastSelection = selectionManager.lastSelection,
+                   let match = publisher.data.first(where: { $0.id == lastSelection }) {
+                  focus = .element(match.id)
+                } else {
+                  selectionManager.handleOnTap(publisher.data, element: group)
+                  confirmDelete = nil
+                  debounceSelectionManager.process(.init(groups: selectionManager.selections))
+                }
               }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               appFocus.wrappedValue = .workflows
             })
-            .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: { })
+            .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {})
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
               selectionManager.selections = Set(publisher.data.map(\.id))
             })
