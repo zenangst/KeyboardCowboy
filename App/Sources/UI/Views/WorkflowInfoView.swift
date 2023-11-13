@@ -27,8 +27,6 @@ struct WorkflowInfoView: View {
   var body: some View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $publisher.data.name)
-        .frame(height: 41)
-        .fixedSize(horizontal: false, vertical: true)
         .focused(focus, equals: .detail(.name))
         .textFieldStyle(.large(color: ZenColorPublisher.shared.color,
                                backgroundColor: Color(nsColor: .windowBackgroundColor),
@@ -41,7 +39,7 @@ struct WorkflowInfoView: View {
             monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
               if event.keyCode == kVK_Tab {
                 if event.modifierFlags.contains(.shift) {
-                  focus.wrappedValue = .workflow(publisher.data.id)
+                  focus.wrappedValue = .workflows
                 } else {
                   onInsertTab()
                 }

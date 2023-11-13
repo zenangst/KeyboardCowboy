@@ -1,26 +1,5 @@
 import SwiftUI
 
-enum AppFocus: Hashable {
-  case group(GroupViewModel.ID)
-  case workflow(ContentViewModel.ID)
-  case detail(Detail)
-  case search
-
-  enum Detail: Hashable {
-    case name
-    case addAppTrigger
-    case addKeyboardTrigger
-    case applicationTriggers
-    case applicationTrigger(ApplicationTrigger.ID)
-    case keyboardShortcuts
-    case keyboardShortcut(KeyShortcut.ID)
-    case addCommand
-    case commands
-    case command(Command.ID)
-    case commandShortcut(KeyShortcut.ID)
-  }
-}
-
 struct ContainerView: View {
   enum Action {
     case openScene(AppScene)
@@ -97,8 +76,7 @@ struct ContainerView: View {
         .onAppear {
           if !publisher.data.isEmpty {
             DispatchQueue.main.async {
-              let first = contentSelectionManager.selections.first ?? ""
-              focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
+              focus.wrappedValue = .workflows
             }
           }
         }

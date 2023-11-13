@@ -17,9 +17,11 @@ struct ContentListView: View {
     case addWorkflow(workflowId: Workflow.ID)
   }
 
+  @FocusState var focus: LocalFocus<ContentViewModel>?
+
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
-  private var focus: FocusState<AppFocus?>.Binding
+  private var appFocus: FocusState<AppFocus?>.Binding
   @Namespace private var namespace
   @State private var searchTerm: String = ""
   private let contentSelectionManager: SelectionManager<ContentViewModel>
@@ -27,11 +29,11 @@ struct ContentListView: View {
   private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ appFocus: FocusState<AppFocus?>.Binding,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        groupSelectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (Action) -> Void) {
-    self.focus = focus
+    self.appFocus = appFocus
     self.contentSelectionManager = contentSelectionManager
     self.groupSelectionManager = groupSelectionManager
     self.onAction = onAction
@@ -59,7 +61,7 @@ struct ContentListView: View {
       ContentHeaderView(groupSelectionManager: groupSelectionManager,
                         namespace: namespace,
                         onAction: onAction)
-      ContentListFilterView(focus,
+      ContentListFilterView(appFocus,
                             contentSelectionManager: contentSelectionManager,
                             searchTerm: $searchTerm)
       ScrollViewReader { proxy in
@@ -76,23 +78,17 @@ struct ContentListView: View {
               .contextMenu(menuItems: {
                 contextualMenu(element.id)
               })
-              .focusable(focus, as: .workflow(element.id)) {
+              .focusable($focus, as: .element(element.id)) {
                 contentSelectionManager.handleOnTap(publisher.data, element: element)
                 debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
                                                        groups: groupSelectionManager.selections))
               }
-              .onAppear {
-                if case .workflow = focus.wrappedValue, contentSelectionManager.selections.contains(element.id) {
-                  focus.wrappedValue = .workflow(element.id)
-                }
-              }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-              focus.wrappedValue = .detail(.name)
+              appFocus.wrappedValue = .detail(.name)
             })
             .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-              let id = groupSelectionManager.lastSelection ?? groupSelectionManager.selections.first ?? ""
-              focus.wrappedValue = .group(id)
+              appFocus.wrappedValue = .groups
             })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
               contentSelectionManager.publish(Set(publisher.data.map(\.id)))
@@ -103,7 +99,7 @@ struct ContentListView: View {
                 publisher.data.filter({ search($0) }),
                 proxy: proxy,
                 vertical: true) {
-                focus.wrappedValue = .workflow(elementID)
+                focus = .element(elementID)
               }
             })
             .onDeleteCommand {
@@ -116,7 +112,7 @@ struct ContentListView: View {
                 if let first = contentSelectionManager.selections.first {
                   let index = max(publisher.data.firstIndex(where: { $0.id == first }) ?? 0, 0)
                   let newId = publisher.data[index].id
-                  focus.wrappedValue = .workflow(newId)
+                  focus = .element(newId)
                 }
               }
             }
@@ -127,7 +123,8 @@ struct ContentListView: View {
               proxy.scrollTo(match)
             }
           }
-          .focusScope(namespace)
+          .focusSection()
+          .focused(appFocus, equals: .workflows)
           .onChange(of: searchTerm, perform: { newValue in
             if !searchTerm.isEmpty {
               if let firstSelection = publisher.data.filter({ search($0) }).first {
@@ -174,7 +171,7 @@ struct ContentListView: View {
       }
 
       if contentSelectionManager.selections.count == 1 {
-        focus.wrappedValue = .detail(.name)
+        appFocus.wrappedValue = .detail(.name)
       }
     })
     Menu("Move to") {

@@ -15,22 +15,23 @@ struct GroupsListView: View {
     }
   }
 
+  @FocusState var focus: LocalFocus<GroupViewModel>?
+
   @EnvironmentObject private var publisher: GroupsPublisher
   @State private var confirmDelete: Confirm?
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
-  private let moveManager: MoveManager<GroupViewModel> = .init()
   private let namespace: Namespace.ID
   private let onAction: (GroupsView.Action) -> Void
   private let selectionManager: SelectionManager<GroupViewModel>
-  private var focus: FocusState<AppFocus?>.Binding
+  private var appFocus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ appFocus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
        selectionManager: SelectionManager<GroupViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
        onAction: @escaping (GroupsView.Action) -> Void) {
-    self.focus = focus
+    self.appFocus = appFocus
     self.namespace = namespace
     self.selectionManager = selectionManager
     self.contentSelectionManager = contentSelectionManager
@@ -60,17 +61,14 @@ struct GroupsListView: View {
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
               })
-              .focusable(focus, as: .group(group.id)) {
+              .focusable($focus, as: .element(group.id)) {
                 selectionManager.handleOnTap(publisher.data, element: group)
                 confirmDelete = nil
                 debounceSelectionManager.process(.init(groups: selectionManager.selections))
-                guard let first = contentSelectionManager.selections.first else { return }
-                focus.wrappedValue = .workflow(first)
               }
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-              let first = contentSelectionManager.selections.first ?? ""
-              focus.wrappedValue = .workflow(contentSelectionManager.lastSelection ?? first)
+              appFocus.wrappedValue = .workflows
             })
             .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: { })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
@@ -82,7 +80,7 @@ struct GroupsListView: View {
                 publisher.data,
                 proxy: proxy,
                 vertical: true) {
-                focus.wrappedValue = .group(elementID)
+                focus = .element(elementID)
               }
             })
             .onDeleteCommand {
@@ -95,6 +93,8 @@ struct GroupsListView: View {
               proxy.scrollTo(match)
             }
           }
+          .focusSection()
+          .focused(appFocus, equals: .groups)
           .padding(.horizontal, 8)
         }
       }

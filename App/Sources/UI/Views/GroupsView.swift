@@ -21,7 +21,6 @@ struct GroupsView: View {
   @State private var dropDestination: Int?
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
-  private let moveManager: MoveManager<GroupViewModel> = .init()
   private let onAction: (Action) -> Void
   private let namespace: Namespace.ID
   private var focus: FocusState<AppFocus?>.Binding
