@@ -21,6 +21,7 @@ struct KeyboardCowboy: App {
   static func env() -> AppEnvironment { .production }
 #endif
 
+  @FocusState var focus: AppFocus?
   @Namespace var namespace
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
@@ -28,7 +29,6 @@ struct KeyboardCowboy: App {
   private let core: Core
   @ObservedObject var contentStore: ContentStore
 
-  @FocusState var focus: AppFocus?
   @Environment(\.openWindow) private var openWindow
   @Environment(\.scenePhase) private var scenePhase
 
@@ -90,87 +90,23 @@ struct KeyboardCowboy: App {
     .windowToolbarStyle(.unified)
 
     WindowGroup(id: KeyboardCowboy.mainWindowIdentifier) {
-      VStack {
-        switch core.contentStore.state {
-        case .initialized:
-          ContainerView(
-            $focus,
-            publisher: core.contentCoordinator.contentPublisher,
-            applicationTriggerSelectionManager: core.applicationTriggerSelectionManager,
-            commandSelectionManager: core.commandSelectionManager,
-            configSelectionManager: core.configSelectionManager,
-            contentSelectionManager: core.contentSelectionManager,
-            groupsSelectionManager: core.groupSelectionManager,
-            keyboardShortcutSelectionManager: core.keyboardShortcutSelectionManager,
-            triggerPublisher: core.detailCoordinator.triggerPublisher,
-            infoPublisher: core.detailCoordinator.infoPublisher,
-            commandPublisher: core.detailCoordinator.commandsPublisher
-          ) { action, undoManager in
-
-            let oldConfiguration = core.configurationStore.selectedConfiguration
-
-            switch action {
-            case .openScene(let scene):
-              handleScene(scene)
-            case .sidebar(let sidebarAction):
-              switch sidebarAction {
-              case .openScene(let scene):
-                handleScene(scene)
-              default:
-                core.configCoordinator.handle(sidebarAction)
-                core.sidebarCoordinator.handle(sidebarAction)
-                core.contentCoordinator.handle(sidebarAction)
-                core.detailCoordinator.handle(sidebarAction)
-              }
-            case .content(let contentAction):
-              core.contentCoordinator.handle(contentAction)
-              core.detailCoordinator.handle(contentAction)
-            case .detail(let detailAction):
-              core.detailCoordinator.handle(detailAction)
-              core.contentCoordinator.handle(detailAction)
-            }
-
-            undoManager?.registerUndo(withTarget: core.configurationStore, handler: { store in
-              store.update(oldConfiguration)
-              core.contentStore.use(oldConfiguration)
-              core.sidebarCoordinator.handle(.refresh)
-              core.contentCoordinator.handle(.refresh(core.groupSelectionManager.selections))
-              core.detailCoordinator.handle(.selectWorkflow(workflowIds: core.contentSelectionManager.selections,
-                                                            groupIds: core.groupSelectionManager.selections))
-            })
-          }
-          .focusScope(namespace)
-
-          .environmentObject(ApplicationStore.shared)
-          .environmentObject(core.contentStore)
-          .environmentObject(core.groupStore)
-          .environmentObject(core.shortcutStore)
-          .environmentObject(core.recorderStore)
-
-          .environmentObject(core.configCoordinator.publisher)
-          .environmentObject(core.sidebarCoordinator.publisher)
-          .environmentObject(core.contentCoordinator.contentPublisher)
-          .environmentObject(core.contentCoordinator.groupPublisher)
-          .environmentObject(core.detailCoordinator.statePublisher)
-          .environmentObject(core.detailCoordinator.infoPublisher)
-          .environmentObject(core.detailCoordinator.triggerPublisher)
-          .environmentObject(core.detailCoordinator.commandsPublisher)
-
-          .environmentObject(OpenPanelController())
-          .matchedGeometryEffect(id: "content-window", in: namespace)
-        case .loading:
-          AppLoadingView(namespace: namespace)
-            .frame(width: 560, height: 380)
-            .matchedGeometryEffect(id: "content-window", in: namespace)
-        case .noConfiguration:
-          EmptyConfigurationView(namespace) {
-            core.contentStore.handle($0)
-          }
-            .matchedGeometryEffect(id: "content-window", in: namespace)
-            .frame(width: 560, height: 380)
-            .animation(.none, value: core.contentStore.state)
-        }
-      }
+      MainWindowView($focus, core: core, onSceneAction: {
+        handleScene($0)
+      })
+      .environmentObject(ApplicationStore.shared)
+      .environmentObject(core.contentStore)
+      .environmentObject(core.groupStore)
+      .environmentObject(core.shortcutStore)
+      .environmentObject(core.recorderStore)
+      .environmentObject(core.configCoordinator.publisher)
+      .environmentObject(core.sidebarCoordinator.publisher)
+      .environmentObject(core.contentCoordinator.contentPublisher)
+      .environmentObject(core.contentCoordinator.groupPublisher)
+      .environmentObject(core.detailCoordinator.statePublisher)
+      .environmentObject(core.detailCoordinator.infoPublisher)
+      .environmentObject(core.detailCoordinator.triggerPublisher)
+      .environmentObject(core.detailCoordinator.commandsPublisher)
+      .environmentObject(OpenPanelController())
       .animation(.easeInOut, value: core.contentStore.state)
       .onAppear { NSWindow.allowsAutomaticWindowTabbing = false }
     }

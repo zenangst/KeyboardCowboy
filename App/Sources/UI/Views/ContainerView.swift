@@ -30,7 +30,6 @@ struct ContainerView: View {
   }
 
   @Environment(\.undoManager) private var undoManager
-  @Namespace private var namespace
   @ObservedObject private var navigationPublisher = NavigationPublisher()
 
   private let onAction: (Action, UndoManager?) -> Void
