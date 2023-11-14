@@ -27,7 +27,9 @@ struct WorkflowTriggerView: View {
         FocusableButton(
           focus,
           identity: .detail(.addAppTrigger),
-          variant: .zen(.init(color: .systemBlue, grayscaleEffect: $isGrayscale)),
+          variant: .zen(.init(color: .systemBlue, 
+                              focusEffect: .constant(true),
+                              grayscaleEffect: $isGrayscale)),
           action: { onAction(.addApplication) }
         ) {
           HStack(spacing: 8) {
@@ -55,8 +57,12 @@ struct WorkflowTriggerView: View {
         FocusableButton(
           focus,
           identity: .detail(.addKeyboardTrigger),
-          variant: .zen(.init(color: .systemCyan, grayscaleEffect: $isGrayscale)),
-          action: { onAction(.addKeyboardShortcut) }
+          variant: .zen(.init(color: .systemCyan,
+                              focusEffect: .constant(true),
+                              grayscaleEffect: $isGrayscale)),
+          action: {
+            onAction(.addKeyboardShortcut)
+          }
         ) {
           HStack(spacing: 8) {
             Image(systemName: "command")

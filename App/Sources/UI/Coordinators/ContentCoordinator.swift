@@ -99,7 +99,6 @@ final class ContentCoordinator {
       withAnimation {
         render([group.id], selectionOverrides: [id])
       }
-
       NotificationCenter.default.post(.newWorkflow)
     case .selectWorkflow:
       break
