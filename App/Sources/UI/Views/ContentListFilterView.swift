@@ -5,14 +5,14 @@ struct ContentListFilterView: View {
   @Binding private var searchTerm: String
   @EnvironmentObject private var publisher: ContentPublisher
   private var focus: FocusState<AppFocus?>.Binding
-  private var contentSelectionManager: SelectionManager<ContentViewModel>
+  private let onClear: () -> Void
 
   init(_ focus: FocusState<AppFocus?>.Binding,
-       contentSelectionManager: SelectionManager<ContentViewModel>,
-       searchTerm: Binding<String>) {
+       searchTerm: Binding<String>,
+       onClear: @escaping () -> Void) {
     self.focus = focus
-    self.contentSelectionManager = contentSelectionManager
     self._searchTerm = searchTerm
+    self.onClear = onClear
   }
 
   var body: some View {
@@ -40,13 +40,17 @@ struct ContentListFilterView: View {
           .focused(focus, equals: .search)
           .onExitCommand(perform: {
             searchTerm = ""
+            onClear()
           })
           .onSubmit {
             focus.wrappedValue = .workflows
           }
           .frame(height: 24)
         if !searchTerm.isEmpty {
-          Button(action: { searchTerm = "" },
+          Button(action: {
+            searchTerm = ""
+            onClear()
+          },
                  label: { Text("Clear") })
           .buttonStyle(.calm(color: .systemGray, padding: .medium))
           .font(.caption2)
@@ -62,9 +66,7 @@ struct ContentListFilterView: View {
 struct ContentListFilterView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContentListFilterView($focus, 
-                          contentSelectionManager: SelectionManager<ContentViewModel>(),
-                          searchTerm: .constant("test"))
+    ContentListFilterView($focus, searchTerm: .constant("test"), onClear: {})
     .designTime()
   }
 }

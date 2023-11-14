@@ -61,10 +61,14 @@ struct ContentListView: View {
       ContentHeaderView(groupSelectionManager: groupSelectionManager,
                         namespace: namespace,
                         onAction: onAction)
-      ContentListFilterView(appFocus,
-                            contentSelectionManager: contentSelectionManager,
-                            searchTerm: $searchTerm)
       ScrollViewReader { proxy in
+      ContentListFilterView(appFocus, searchTerm: $searchTerm) {
+        let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
+        appFocus.wrappedValue = .workflows
+        DispatchQueue.main.async {
+          proxy.scrollTo(match)
+        }
+      }
         ScrollView {
           LazyVStack(spacing: 0) {
             ForEach(publisher.data.filter({ search($0) }), id: \.id) { element in
@@ -87,6 +91,7 @@ struct ContentListView: View {
                   contentSelectionManager.handleOnTap(publisher.data, element: element)
                   debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
                                                          groups: groupSelectionManager.selections))
+                  proxy.scrollTo(element.id)
                 }
               }
             }
