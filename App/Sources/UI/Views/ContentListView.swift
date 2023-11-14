@@ -105,8 +105,21 @@ struct ContentListView: View {
                 appFocus.wrappedValue = .search
               }
             })
-            .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-              contentSelectionManager.publish(Set(publisher.data.map(\.id)))
+            .onCommand(#selector(NSResponder.selectAll(_:)),
+                       perform: {
+              let newSelections = Set(publisher.data.map(\.id))
+              contentSelectionManager.publish(newSelections)
+              if let elementID = publisher.data.first?.id,
+                 let lastSelection = contentSelectionManager.lastSelection {
+                focus = .element(elementID)
+                focus = .element(lastSelection)
+                onAction(
+                  .selectWorkflow(
+                    workflowIds: contentSelectionManager.selections,
+                    groupIds: groupSelectionManager.selections
+                  )
+                )
+              }
             })
             .onMoveCommand(perform: { direction in
               if let elementID = contentSelectionManager.handle(
