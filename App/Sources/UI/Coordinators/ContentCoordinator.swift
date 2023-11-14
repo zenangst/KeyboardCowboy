@@ -99,6 +99,8 @@ final class ContentCoordinator {
       withAnimation {
         render([group.id], selectionOverrides: [id])
       }
+
+      NotificationCenter.default.post(.newWorkflow)
     case .selectWorkflow:
       break
     case .refresh(let ids):
@@ -152,6 +154,8 @@ final class ContentCoordinator {
       }
     }
 
+    contentPublisher.publish(viewModels)
+
     if calculateSelections {
       if contentPublisher.data.isEmpty {
         if newSelections.isEmpty, let first = viewModels.first {
@@ -169,7 +173,5 @@ final class ContentCoordinator {
         contentSelectionManager.setLastSelection(first)
       }
     }
-
-    contentPublisher.publish(viewModels)
   }
 }

@@ -58,17 +58,17 @@ struct ContentListView: View {
       ContentListEmptyView(namespace, onAction: onAction)
         .fixedSize()
     } else {
-      ContentHeaderView(groupSelectionManager: groupSelectionManager,
-                        namespace: namespace,
-                        onAction: onAction)
       ScrollViewReader { proxy in
-      ContentListFilterView(appFocus, searchTerm: $searchTerm) {
-        let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
-        appFocus.wrappedValue = .workflows
-        DispatchQueue.main.async {
-          proxy.scrollTo(match)
+        ContentHeaderView(groupSelectionManager: groupSelectionManager,
+                          namespace: namespace,
+                          onAction: onAction)
+        ContentListFilterView(appFocus, searchTerm: $searchTerm) {
+          let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
+          appFocus.wrappedValue = .workflows
+          DispatchQueue.main.async {
+            proxy.scrollTo(match)
+          }
         }
-      }
         ScrollView {
           LazyVStack(spacing: 0) {
             ForEach(publisher.data.filter({ search($0) }), id: \.id) { element in
@@ -131,6 +131,9 @@ struct ContentListView: View {
                 }
               }
             }
+            Color(.clear)
+              .id("bottom")
+              .padding(.bottom, 48)
           }
           .onAppear {
             DispatchQueue.main.async {
@@ -170,6 +173,9 @@ struct ContentListView: View {
             }
           }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .newWorkflow), perform: { _ in
+          proxy.scrollTo("bottom")
+        })
       }
     }
   }
