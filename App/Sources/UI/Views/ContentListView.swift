@@ -94,7 +94,11 @@ struct ContentListView: View {
               appFocus.wrappedValue = .detail(.name)
             })
             .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
-              appFocus.wrappedValue = .groups
+              if searchTerm.isEmpty {
+                appFocus.wrappedValue = .groups
+              } else {
+                appFocus.wrappedValue = .search
+              }
             })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
               contentSelectionManager.publish(Set(publisher.data.map(\.id)))
