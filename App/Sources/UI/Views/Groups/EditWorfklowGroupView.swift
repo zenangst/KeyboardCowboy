@@ -28,6 +28,13 @@ struct EditWorfklowGroupView: View {
           .popover(item: $editIcon, arrowEdge: .bottom, content: { _ in
             EditGroupIconView(group: $group)
           })
+          .overlay(ZStack {
+            if let first = group.rule?.bundleIdentifiers.first,
+               let app = applicationStore.application(for: first) {
+              IconView(icon: Icon(app), size: .init(width: 32, height: 32))
+                .allowsHitTesting(false)
+            }
+          })
           .cornerRadius(24, antialiased: true)
         TextField("Name:", text: $group.name)
           .textFieldStyle(.large(color: .accentColor, backgroundColor: Color(.windowBackgroundColor),
@@ -57,8 +64,7 @@ struct EditWorfklowGroupView: View {
           .font(.caption)
         }.padding()
       }
-
-      Divider()
+      .roundedContainer()
 
       HStack {
         Button(role: .cancel) {
@@ -93,5 +99,6 @@ struct EditWorfklowGroupView_Previews: PreviewProvider {
       applicationStore: ApplicationStore.shared,
       group: group,
       action: { _ in })
+    .designTime()
   }
 }

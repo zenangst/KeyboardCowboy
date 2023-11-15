@@ -1,6 +1,6 @@
 import Apps
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct ApplicationSettingsView: View {
   @EnvironmentObject var openPanel: OpenPanelController
@@ -43,6 +43,7 @@ struct ApplicationSettingsView: View {
         }
         .frame(maxHeight: .infinity)
       }
+      .roundedContainer()
       .background(Color(.windowBackgroundColor))
       .layoutPriority(100)
 

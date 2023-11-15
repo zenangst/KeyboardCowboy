@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct NotificationsSettingsView: View {
   @AppStorage("Notifications.KeyboardCommands") var keyboardCommands: Bool = false
@@ -91,8 +91,8 @@ struct NotificationsSettingsView: View {
           }
       }
       .frame(maxWidth: .infinity)
-      .padding(16)
-      .background(Color(.windowBackgroundColor))
+      .padding()
+      .roundedContainer()
 
       Grid(alignment: .leading) {
         GridRow {
@@ -107,7 +107,7 @@ struct NotificationsSettingsView: View {
       .font(.caption2)
       .padding([.horizontal, .top])
     }
-    .frame(minWidth: 480, minHeight: 270, alignment: .top)
+    .frame(minWidth: 480, minHeight: 300, alignment: .top)
   }
 
   private var gradient: LinearGradient {

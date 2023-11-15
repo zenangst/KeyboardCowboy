@@ -29,6 +29,7 @@ struct PermissionsSettings: View {
       }
     }
     .padding(24)
+    .roundedContainer()
     .frame(minWidth: 480)
   }
 }
