@@ -3,13 +3,13 @@ import Cocoa
 final class WindowRunnerIncreaseWindowSize {
   private init() {}
 
-  static func calulateRect(_ originFrame: CGRect,
-                           byValue: Int,
-                           in direction: WindowCommand.Direction,
-                           padding: Int,
-                           constrainedToScreen: Bool,
-                           currentScreen: NSScreen,
-                           mainDisplay: NSScreen) -> CGRect {
+  static func calculateRect(_ originFrame: CGRect,
+                            byValue: Int,
+                            in direction: WindowCommand.Direction,
+                            padding: Int,
+                            constrainedToScreen: Bool,
+                            currentScreen: NSScreen,
+                            mainDisplay: NSScreen) -> CGRect {
     let dockSize = getDockSize(mainDisplay)
     let dockPosition = getDockPosition(mainDisplay)
     let padding = CGFloat(padding)

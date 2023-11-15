@@ -3,9 +3,9 @@ import Cocoa
 final class WindowRunnerMoveToNextDisplayRelative {
   private init() {}
 
-  static func calulateRect(_ originFrame: CGRect,
-                           currentScreen: NSScreen,
-                           mainDisplay: NSScreen) -> CGRect {
+  static func calculateRect(_ originFrame: CGRect,
+                            currentScreen: NSScreen,
+                            mainDisplay: NSScreen) -> CGRect {
     guard NSScreen.screens.count > 1 else { return originFrame }
 
     var nextScreen: NSScreen? = NSScreen.screens.first

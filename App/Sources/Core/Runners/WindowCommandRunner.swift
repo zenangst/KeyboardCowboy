@@ -63,7 +63,7 @@ final class WindowCommandRunner {
         } else {
           minSize = nil
         }
-        newFrame = WindowRunnerAnchorWindow.calulateRect(
+        newFrame = WindowRunnerAnchorWindow.calculateRect(
           originFrame,
           minSize: minSize,
           shouldCycle: shouldCycle,
@@ -85,7 +85,7 @@ final class WindowCommandRunner {
         )
         return
       case .decreaseSize(let byValue, let direction, let constrainedToScreen):
-        newFrame = WindowRunnerDecreaseWindowSize.calulateRect(
+        newFrame = WindowRunnerDecreaseWindowSize.calculateRect(
           originFrame,
           byValue: byValue,
           in: direction,
@@ -94,7 +94,7 @@ final class WindowCommandRunner {
           mainDisplay: mainDisplay
         )
       case .increaseSize(let byValue, let direction, let padding, let constrainedToScreen):
-        newFrame = WindowRunnerIncreaseWindowSize.calulateRect(
+        newFrame = WindowRunnerIncreaseWindowSize.calculateRect(
           originFrame,
           byValue: byValue,
           in: direction,
@@ -105,7 +105,7 @@ final class WindowCommandRunner {
         )
       case .move(let byValue, let direction, let padding, let constrainedToScreen):
         app.enhancedUserInterface = !isRepeatingEvent
-        newFrame = WindowRunnerMoveWindow.calulateRect(
+        newFrame = WindowRunnerMoveWindow.calculateRect(
           originFrame,
           byValue: byValue,
           in: direction,
@@ -115,7 +115,7 @@ final class WindowCommandRunner {
           mainDisplay: mainDisplay
         )
       case .fullscreen(let padding):
-        let resolvedFrame = WindowRunnerFullscreen.calulateRect(
+        let resolvedFrame = WindowRunnerFullscreen.calculateRect(
           originFrame,
           padding: padding,
           currentScreen: currentScreen,
@@ -125,8 +125,13 @@ final class WindowCommandRunner {
         let rhs = originFrame.origin.x + originFrame.origin.y + originFrame.width + originFrame.size.height
         let delta = abs(lhs - rhs)
         let limit = currentScreen.visibleFrame.height - currentScreen.frame.height - CGFloat(padding)
-        
+        // Compare the new and old width to decide whether to restore the previous frame
+        // or set a new one. This resolves a problem where fullscreen mode fails when the
+        // window is anchored to the right side of the screen.
+        let widthDelta = originFrame.size.width - resolvedFrame.size.width
+
         if delta <= abs(limit),
+           abs(widthDelta) <= delta,
            let restoreFrame = fullscreenCache[activeWindow.id] {
           newFrame = restoreFrame
         } else {
@@ -134,7 +139,7 @@ final class WindowCommandRunner {
           fullscreenCache[activeWindow.id] = originFrame
         }
       case .center:
-        let resolvedFrame = WindowRunnerCenterWindow.calulateRect(
+        let resolvedFrame = WindowRunnerCenterWindow.calculateRect(
           originFrame,
           currentScreen: currentScreen,
           mainDisplay: mainDisplay
@@ -167,13 +172,13 @@ final class WindowCommandRunner {
 
           guard let nextScreen else { return }
 
-          newFrame = WindowRunnerCenterWindow.calulateRect(
+          newFrame = WindowRunnerCenterWindow.calculateRect(
             originFrame,
             currentScreen: nextScreen,
             mainDisplay: mainDisplay
           )
         case .relative:
-          newFrame = WindowRunnerMoveToNextDisplayRelative.calulateRect(
+          newFrame = WindowRunnerMoveToNextDisplayRelative.calculateRect(
               originFrame,
               currentScreen: currentScreen,
               mainDisplay: mainDisplay

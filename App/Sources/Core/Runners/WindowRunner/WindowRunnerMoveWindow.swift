@@ -1,13 +1,13 @@
 import Cocoa
 
 final class WindowRunnerMoveWindow {
-  static func calulateRect(_ originFrame: CGRect,
-                           byValue: Int,
-                           in direction: WindowCommand.Direction,
-                           padding: Int,
-                           constrainedToScreen: Bool,
-                           currentScreen: NSScreen,
-                           mainDisplay: NSScreen) -> CGRect {
+  static func calculateRect(_ originFrame: CGRect,
+                            byValue: Int,
+                            in direction: WindowCommand.Direction,
+                            padding: Int,
+                            constrainedToScreen: Bool,
+                            currentScreen: NSScreen,
+                            mainDisplay: NSScreen) -> CGRect {
     let padding = CGFloat(padding)
     let newValue = CGFloat(byValue)
     let dockSize = getDockSize(mainDisplay)

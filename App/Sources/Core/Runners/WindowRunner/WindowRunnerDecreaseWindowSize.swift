@@ -3,12 +3,12 @@ import Cocoa
 final class WindowRunnerDecreaseWindowSize {
   private init() {}
 
-  static func calulateRect(_ originFrame: CGRect,
-                           byValue: Int,
-                           in direction: WindowCommand.Direction,
-                           constrainedToScreen: Bool,
-                           currentScreen: NSScreen,
-                           mainDisplay: NSScreen) -> CGRect {
+  static func calculateRect(_ originFrame: CGRect,
+                            byValue: Int,
+                            in direction: WindowCommand.Direction,
+                            constrainedToScreen: Bool,
+                            currentScreen: NSScreen,
+                            mainDisplay: NSScreen) -> CGRect {
     let newValue = CGFloat(byValue)
     var newFrame = originFrame
 

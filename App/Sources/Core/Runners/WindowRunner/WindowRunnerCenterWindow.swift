@@ -3,9 +3,9 @@ import Cocoa
 final class WindowRunnerCenterWindow {
   private init() {}
 
-  static func calulateRect(_ originFrame: CGRect,
-                           currentScreen: NSScreen,
-                           mainDisplay: NSScreen) -> CGRect {
+  static func calculateRect(_ originFrame: CGRect,
+                            currentScreen: NSScreen,
+                            mainDisplay: NSScreen) -> CGRect {
     let dockSize = getDockSize(currentScreen)
     let dockPosition = getDockPosition(currentScreen)
     let x: CGFloat
