@@ -18,6 +18,7 @@ final class TypeCommandRunner {
         let characterString = String(character)
         var flags = CGEventFlags()
         let keyCode: Int
+
         if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
         } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.shift], matchDisplayValue: true) {
@@ -25,6 +26,10 @@ final class TypeCommandRunner {
           flags.insert(.maskShift)
         } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.option], matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
+          flags.insert(.maskAlternate)
+        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.option, .shift], matchDisplayValue: true) {
+          keyCode = virtualKey.keyCode
+          flags.insert(.maskShift)
           flags.insert(.maskAlternate)
         } else if CharacterSet(charactersIn: characterString).isSubset(of: newLines) {
           keyCode = 36
