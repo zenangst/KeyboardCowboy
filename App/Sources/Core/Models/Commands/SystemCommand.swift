@@ -6,47 +6,29 @@ struct SystemCommand: MetaDataProviding {
 
     var displayValue: String {
       switch self {
-      case .activateLastApplication:
-        return "Activate Last Application"
-      case .applicationWindows:
-        return "Application Windows"
-      case .missionControl:
-        return "Mission Control"
-      case .showDesktop:
-        return "Show Desktop"
-      case .moveFocusToNextWindowGlobal:
-        return "Move Focus to Next Window (All Windows)"
-      case .moveFocusToPreviousWindowGlobal:
-        return "Move Focus to Previous window (All Windows)"
-      case .moveFocusToNextWindow:
-        return "Move Focus to Next Window"
-      case .moveFocusToPreviousWindow:
-        return "Move Focus to Previous Window"
-      case .moveFocusToNextWindowFront:
-        return "Move Focus to Next Window of Active Application"
-      case .moveFocusToPreviousWindowFront:
-        return "Move Focus to Previous Window of Active Application"
+      case .activateLastApplication:         "Activate Last Application"
+      case .applicationWindows:              "Application Windows"
+      case .missionControl:                  "Mission Control"
+      case .showDesktop:                     "Show Desktop"
+      case .moveFocusToNextWindowGlobal:     "Move Focus to Next Window (All Windows)"
+      case .moveFocusToPreviousWindowGlobal: "Move Focus to Previous window (All Windows)"
+      case .moveFocusToNextWindow:           "Move Focus to Next Window"
+      case .moveFocusToPreviousWindow:       "Move Focus to Previous Window"
+      case .moveFocusToNextWindowFront:      "Move Focus to Next Window of Active Application"
+      case .moveFocusToPreviousWindowFront:  "Move Focus to Previous Window of Active Application"
       }
     }
 
     var iconPath: String {
       switch self {
-      case .activateLastApplication:
-        "/System/Library/CoreServices/Family.app"
-      case .applicationWindows:
-        "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToNextWindowFront:
-        "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToPreviousWindowFront:
-        "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:
-        "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .moveFocusToPreviousWindow, .moveFocusToPreviousWindowGlobal:
-        "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .missionControl:
-        "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-      case .showDesktop:
-        "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
+      case .activateLastApplication:                                     "/System/Library/CoreServices/Family.app"
+      case .applicationWindows:                                          "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToNextWindowFront:                                  "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToPreviousWindowFront:                              "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:         "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToPreviousWindow, .moveFocusToPreviousWindowGlobal: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .missionControl:                                              "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
+      case .showDesktop:                                                 "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
       }
     }
 
