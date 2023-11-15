@@ -193,7 +193,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         try await runners.system.run(
           systemCommand,
           applicationRunner: runners.application,
-          userSpace: UserSpace.shared
+          snapshot: snapshot
         )
         output = command.name
       case .windowManagement(let windowCommand):
@@ -218,6 +218,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     runners.keyboard.machPort = machPort
     runners.system.machPort = machPort
     if let machPort {
+      WindowStore.shared.subscribe(to: machPort.$flagsChanged)
       runners.system.subscribe(to: machPort.$flagsChanged)
       runners.window.subscribe(to: machPort.$event)
       subscribe(to: machPort.$event)

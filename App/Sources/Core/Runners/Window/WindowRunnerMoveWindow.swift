@@ -1,6 +1,6 @@
 import Cocoa
 
-final class WindowRunnerMoveWindow {
+enum WindowRunnerMoveWindow {
   static func calculateRect(_ originFrame: CGRect,
                             byValue: Int,
                             in direction: WindowCommand.Direction,

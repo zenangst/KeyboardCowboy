@@ -1,8 +1,6 @@
 import Cocoa
 
-final class WindowRunnerIncreaseWindowSize {
-  private init() {}
-
+enum WindowRunnerIncreaseWindowSize {
   static func calculateRect(_ originFrame: CGRect,
                             byValue: Int,
                             in direction: WindowCommand.Direction,

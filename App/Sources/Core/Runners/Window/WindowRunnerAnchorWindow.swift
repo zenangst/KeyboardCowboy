@@ -1,8 +1,6 @@
 import Cocoa
 
-final class WindowRunnerAnchorWindow {
-  private init() {}
-
+enum WindowRunnerAnchorWindow {
   static func calculateRect(_ originFrame: CGRect,
                             minSize: CGSize?,
                             shouldCycle: Bool,

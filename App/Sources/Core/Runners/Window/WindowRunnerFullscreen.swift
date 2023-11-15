@@ -1,8 +1,6 @@
 import Cocoa
 
-final class WindowRunnerFullscreen {
-  private init() {}
-
+enum WindowRunnerFullscreen {
   static func calculateRect(_ originFrame: CGRect,
                             padding: Int,
                             currentScreen: NSScreen,

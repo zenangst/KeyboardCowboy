@@ -1,8 +1,6 @@
 import Cocoa
 
-final class WindowRunnerMoveToNextDisplayRelative {
-  private init() {}
-
+enum WindowRunnerMoveToNextDisplayRelative {
   static func calculateRect(_ originFrame: CGRect,
                             currentScreen: NSScreen,
                             mainDisplay: NSScreen) -> CGRect {

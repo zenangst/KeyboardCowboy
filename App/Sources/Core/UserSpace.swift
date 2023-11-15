@@ -22,13 +22,30 @@ final class UserSpace {
   }
   struct Snapshot {
     let documentPath: String?
+    let frontMostApplication: Application
+    let previousApplication: Application
     let selectedText: String
     let selections: [String]
+    let windows: WindowStoreSnapshot
 
-    init(documentPath: String? = nil, selectedText: String = "", selections: [String] = []) {
+    init(
+      documentPath: String? = nil,
+      frontMostApplication: Application = .current,
+      previousApplication: Application = .current,
+      selectedText: String = "",
+      selections: [String] = [],
+      windows: WindowStoreSnapshot = WindowStoreSnapshot(
+        frontMostApplicationWindows: [],
+        visibleWindowsInStage: [],
+        visibleWindowsInSpace: []
+      )
+    ) {
       self.documentPath = documentPath
+      self.frontMostApplication = frontMostApplication
+      self.previousApplication = previousApplication
       self.selectedText = selectedText
       self.selections = selections
+      self.windows = windows
     }
 
     func interpolateUserSpaceVariables(_ value: String) -> String {
@@ -146,8 +163,11 @@ final class UserSpace {
     }
 
     return Snapshot(documentPath: documentPath,
+                    frontMostApplication: frontMostApplication,
+                    previousApplication: previousApplication,
                     selectedText: selectedText,
-                    selections: selections)
+                    selections: selections,
+                    windows: WindowStore.shared.snapshot())
   }
 
   private func frontmostApplication() throws -> NSRunningApplication {
@@ -200,5 +220,13 @@ fileprivate extension NSRunningApplication {
     } else {
       nil
     }
+  }
+}
+
+extension UserSpace.Application {
+  func asApplication() -> Application {
+    Application(bundleIdentifier: bundleIdentifier,
+                bundleName: name,
+                path: path)
   }
 }

@@ -110,7 +110,7 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
-    commandRunner.runners.system.subscribe(to: UserSpace.shared.$frontMostApplication)
+    WindowStore.shared.subscribe(to: UserSpace.shared.$frontMostApplication)
   }
 
   private func reload(with application: UserSpace.Application) {
