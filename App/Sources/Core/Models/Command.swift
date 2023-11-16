@@ -76,31 +76,33 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case isEnabled = "enabled"
       case notification
     }
+
+    init(delay: Double? = nil,
+         id: String = UUID().uuidString,
+         name: String = "",
+         isEnabled: Bool = true,
+         notification: Bool = false) {
+      self.delay = delay
+      self.id = id
+      self.name = name
+      self.isEnabled = isEnabled
+      self.notification = notification
+    }
   }
 
   var meta: MetaData {
     get {
       switch self {
-      case .application(let applicationCommand):
-        return applicationCommand.meta
-      case .builtIn(let builtInCommand):
-        return builtInCommand.meta
-      case .keyboard(let keyboardCommand):
-        return keyboardCommand.meta
-      case .menuBar(let menuBarCommand):
-        return menuBarCommand.meta
-      case .open(let openCommand):
-        return openCommand.meta
-      case .shortcut(let shortcutCommand):
-        return shortcutCommand.meta
-      case .script(let scriptCommand):
-        return scriptCommand.meta
-      case .type(let typeCommand):
-        return typeCommand.meta
-      case .systemCommand(let systemCommand):
-        return systemCommand.meta
-      case .windowManagement(let windowCommand):
-        return windowCommand.meta
+      case .application(let applicationCommand): applicationCommand.meta
+      case .builtIn(let builtInCommand): builtInCommand.meta
+      case .keyboard(let keyboardCommand): keyboardCommand.meta
+      case .menuBar(let menuBarCommand): menuBarCommand.meta
+      case .open(let openCommand): openCommand.meta
+      case .shortcut(let shortcutCommand): shortcutCommand.meta
+      case .script(let scriptCommand): scriptCommand.meta
+      case .text(let textCommand): textCommand.meta
+      case .systemCommand(let systemCommand): systemCommand.meta
+      case .windowManagement(let windowCommand): windowCommand.meta
       }
     }
     set {
@@ -126,9 +128,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case .script(var scriptCommand):
         scriptCommand.meta = newValue
         self = .script(scriptCommand)
-      case .type(var typeCommand):
-        typeCommand.meta = newValue
-        self = .type(typeCommand)
+      case .text(var textCommand):
+        textCommand.meta = newValue
+        self = .text(textCommand)
       case .systemCommand(var systemCommand):
         systemCommand.meta = newValue
         self = .systemCommand(systemCommand)
@@ -146,9 +148,13 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   case open(OpenCommand)
   case shortcut(ShortcutCommand)
   case script(ScriptCommand)
-  case type(TypeCommand)
+  case text(TextCommand)
   case systemCommand(SystemCommand)
   case windowManagement(WindowCommand)
+
+  enum MigrationKeys: String, CodingKey, CaseIterable {
+    case type = "typeCommand"
+  }
 
   enum CodingKeys: String, CodingKey, CaseIterable {
     case application = "applicationCommand"
@@ -158,7 +164,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case open = "openCommand"
     case shortcut = "runShortcut"
     case script = "scriptCommand"
-    case type = "typeCommand"
+    case text = "textCommand"
     case system = "systemCommand"
     case window = "windowCommand"
   }
@@ -174,6 +180,16 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
 
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    let migration = try decoder.container(keyedBy: MigrationKeys.self)
+
+    switch migration.allKeys.first {
+    case .type:
+      if let command = try? migration.decode(TextCommand.TypeCommand.self, forKey: .type) {
+        self = .text(.init(.insertText(command)))
+        return
+      }
+    case .none: break
+    }
 
     switch container.allKeys.first {
     case .application:
@@ -197,9 +213,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .shortcut:
       let command = try container.decode(ShortcutCommand.self, forKey: .shortcut)
       self = .shortcut(command)
-    case .type:
-      let command = try container.decode(TypeCommand.self, forKey: .type)
-      self = .type(command)
+    case .text:
+      let command = try container.decode(TextCommand.self, forKey: .text)
+      self = .text(command)
     case .system:
       let command = try container.decode(SystemCommand.self, forKey: .system)
       self = .systemCommand(command)
@@ -233,8 +249,8 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       try container.encode(command, forKey: .script)
     case .shortcut(let command):
       try container.encode(command, forKey: .shortcut)
-    case .type(let command):
-      try container.encode(command, forKey: .type)
+    case .text(let command):
+      try container.encode(command, forKey: .text)
     case .systemCommand(let command):
       try container.encode(command, forKey: .system)
     case .windowManagement(let command):
@@ -251,6 +267,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
 
 extension Command {
   static func empty(_ kind: CodingKeys) -> Command {
+    let id = UUID().uuidString
     switch kind {
     case .application:
       return Command.application(ApplicationCommand.empty())
@@ -265,10 +282,24 @@ extension Command {
     case .script:
       return Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))
     case .shortcut:
-      return Command.shortcut(.init(id: UUID().uuidString, shortcutIdentifier: "",
+      return Command.shortcut(.init(id: id, shortcutIdentifier: "",
                                     name: "", isEnabled: true, notification: false))
-    case .type:
-      return Command.type(.init(name: "", mode: .instant, input: "", notification: false))
+    case .text:
+      return Command.text(
+        .init(.insertText(
+          .init(
+            "",
+            mode: .instant,
+            meta: MetaData(
+              id: id,
+              name: "",
+              isEnabled: true,
+              notification: false
+            )
+          )
+        )
+        )
+      )
     case .system:
       return Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
     case .window:
@@ -284,7 +315,7 @@ extension Command {
       keyboardCommand(id: id),
       openCommand(id: id),
       urlCommand(id: id, application: nil),
-      typeCommand(id: id),
+      textCommand(id: id),
       Command.builtIn(.init(kind: .quickRun, notification: false))
     ]
 
@@ -329,8 +360,22 @@ extension Command {
                        notification: false))
   }
 
-  static func typeCommand(id: String) -> Command {
-    Command.type(.init(id: id, name: "Type input", mode: .instant,
-                       input: "", notification: false))
+  static func textCommand(id: String) -> Command {
+    Command.text(
+      .init(
+        .insertText(
+          .init(
+            "Insert input",
+            mode: .instant,
+            meta: .init(
+              id: UUID().uuidString,
+              name: "",
+              isEnabled: true,
+              notification: false
+            )
+          )
+        )
+      )
+    )
   }
 }

@@ -174,16 +174,25 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                         Workflow(name: "Type mail signature",
                                  trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "S", modifiers: [.function, .command])])),
                                  commands: [
-                                  .type(.init(name: "Signature",
-                                              mode: .instant, input: """
-Stay hungry, stay awesome!
---------------------------
-xoxo
-\(NSFullUserName())
-"""
-                                             ))
+                                  .text(.init(.insertText(.init("""
+ Stay hungry, stay awesome!
+ --------------------------
+ xoxo
+ \(NSFullUserName())
+ """, mode: .instant, meta: .init(id: UUID().uuidString, name: "Signature", isEnabled: true, notification: false)))) )
                                  ])
                       ])
       ])
   }
 }
+
+/*
+ (name: "Signature",
+ mode: .instant, input: """
+ Stay hungry, stay awesome!
+ --------------------------
+ xoxo
+ \(NSFullUserName())
+ """
+ )
+ */

@@ -184,9 +184,14 @@ final class DetailCommandActionReducer {
         switch action {
         case .updateMode(let newMode):
           switch command {
-          case .type(var typeCommand):
-            typeCommand.mode = newMode
-            command = .type(typeCommand)
+          case .text(var typeCommand):
+            switch typeCommand.kind {
+            case .insertText(var typeCommand):
+              typeCommand.mode = newMode
+            default:
+              fatalError("Wrong command type")
+            }
+            command = .text(typeCommand)
           default:
             fatalError("Wrong command type")
           }
@@ -196,9 +201,14 @@ final class DetailCommandActionReducer {
           workflow.updateOrAddCommand(command)
         case .updateSource(let newInput):
           switch command {
-          case .type(var typeCommand):
-            typeCommand.input = newInput
-            command = .type(typeCommand)
+          case .text(var typeCommand):
+            switch typeCommand.kind {
+            case .insertText(var typeCommand):
+              typeCommand.input = newInput
+            default:
+              fatalError("Wrong command type")
+            }
+            command = .text(typeCommand)
           default:
             fatalError("Wrong command type")
           }

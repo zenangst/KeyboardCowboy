@@ -86,7 +86,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
           _ = try await runners.script.run(shellScript, environment: [:])
         }
-      case .builtIn, .keyboard, .type,
+      case .builtIn, .keyboard, .text,
           .systemCommand, .menuBar, .windowManagement:
         break
       }
@@ -183,12 +183,18 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         } else {
           output = command.name
         }
-      case .type(let typeCommand):
-        try await runners.type.run(
-          snapshot.interpolateUserSpaceVariables(typeCommand.input),
-          mode: typeCommand.mode
-        )
-        output = command.name
+      case .text(let typeCommand):
+        switch typeCommand.kind {
+        case .insertText(let typeCommand):
+          try await runners.type.run(
+            snapshot.interpolateUserSpaceVariables(typeCommand.input),
+            mode: typeCommand.mode
+          )
+          output = command.name
+        case .setFindTo(let deadEnd):
+          output = command.name
+          break
+        }
       case .systemCommand(let systemCommand):
         try await runners.system.run(
           systemCommand,

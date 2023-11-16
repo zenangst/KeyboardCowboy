@@ -26,7 +26,7 @@ struct NewCommandView: View {
     case keyboardShortcut = "Keyboard Shortcut"
     case shortcut = "Shortcut"
     case script = "Script"
-    case type = "Type"
+    case text = "Text"
     case system = "System Command"
     case windowManagement = "Window Management"
   }
@@ -258,7 +258,7 @@ struct NewCommandView: View {
                              scriptExtension: .shellScript,
                              validation: $validation) { onSave($0, $title.wrappedValue) }
       }
-    case .type:
+    case .text:
       NewCommandTypeView($payload, validation: $validation) {
         onSubmit()
       }

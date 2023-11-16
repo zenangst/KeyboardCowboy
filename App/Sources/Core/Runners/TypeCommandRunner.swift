@@ -10,7 +10,7 @@ final class TypeCommandRunner {
     self.keyboardCommandRunner = keyboardCommandRunner
   }
 
-  func run(_ input: String, mode: TypeCommand.Mode) async throws {
+  func run(_ input: String, mode: TextCommand.TypeCommand.Mode) async throws {
     switch mode {
     case .typing:
       let newLines = CharacterSet.newlines

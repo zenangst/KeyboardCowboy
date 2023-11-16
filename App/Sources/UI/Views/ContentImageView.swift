@@ -22,7 +22,7 @@ struct ContentImageView: View {
         ContentScriptImageView(source: model.source, size: size)
       case .shortcut:
         ContentShortcutImageView(size: size)
-      case .type:
+      case .text:
         ContentTypeImageView()
       case .plain, .systemCommand, .windowManagement:
         EmptyView()

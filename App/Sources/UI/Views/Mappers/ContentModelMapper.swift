@@ -168,13 +168,15 @@ private extension Array where Element == Command {
         images.append(.init(id: shortcut.id,
                             offset: convertedOffset,
                             kind: .command( .shortcut(.init(id: shortcut.id, shortcutIdentifier: shortcut.shortcutIdentifier)))))
-      case .type(let type):
-        images.append(
-          .init(id: type.id,
-                offset: convertedOffset,
-                kind: .command(.type(.init(id: type.id, mode: type.mode, input: type.input)))
-               )
-        )
+      case .text(let type):
+        // TODO: Fix this!
+        break
+//        images.append(
+//          .init(id: type.id,
+//                offset: convertedOffset,
+//                kind: .command(.text(.init(id: type.id, mode: type.mode, input: type.input)))
+//               )
+//        )
       case .systemCommand(let command):
         images.append(
           ContentViewModel.ImageModel(

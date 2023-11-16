@@ -27,7 +27,7 @@ extension Command {
         return command.name
       case .script(let command):
         return command.name
-      case .type(let command):
+      case .text(let command):
         return command.name
       case .systemCommand(let command):
         return command.name
@@ -56,9 +56,9 @@ extension Command {
       case .shortcut(var command):
         command.name = newValue
         self = .shortcut(command)
-      case .type(var command):
+      case .text(var command):
         command.name = newValue
-        self = .type(command)
+        self = .text(command)
       case .systemCommand(var command):
         command.name = newValue
         self = .systemCommand(command)
