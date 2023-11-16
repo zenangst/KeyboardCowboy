@@ -134,9 +134,13 @@ final class DetailCoordinator {
       case .shellScript:
         command = .script(.init(name: title, kind: .shellScript, source: source, notification: false))
       }
-    case .type(let text, let mode):
-      // TODO: Add support for notification toggling
-      command = .type(.init(id: resolvedCommandId, name: text, mode: mode, input: text, notification: false))
+    case .text(let textCommand):
+      switch textCommand.kind {
+      case .setFindTo(let setFindToCommand):
+        command = .text(.init(.setFindTo(setFindToCommand)))
+      case .insertText(let typeCommand):
+        command = .text(.init(.insertText(typeCommand)))
+      }
     case .shortcut(let name):
       command = .shortcut(.init(id: resolvedCommandId, shortcutIdentifier: name,
                                 name: name, isEnabled: true, notification: false))

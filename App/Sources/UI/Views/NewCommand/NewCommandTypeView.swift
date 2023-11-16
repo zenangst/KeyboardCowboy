@@ -8,7 +8,7 @@ struct NewCommandTypeView: View {
   @Binding var validation: NewCommandValidation
 
   @State private var text: String = ""
-  @State private var mode: TypeCommand.Mode = .instant
+  @State private var mode: TextCommand.TypeCommand.Mode = .instant
   private let onSubmit: () -> Void
 
   init(_ payload: Binding<NewCommandPayload>,
@@ -18,9 +18,10 @@ struct NewCommandTypeView: View {
     _validation = validation
     self.onSubmit = onSubmit
 
-    if case .type(let text, let mode) = _payload.wrappedValue {
-      _text = .init(initialValue: text)
-      _mode = .init(initialValue: mode)
+    if case .text(let model) = _payload.wrappedValue,
+       case .insertText(let textModel) = model.kind {
+      _text = .init(initialValue: textModel.input)
+      _mode = .init(initialValue: textModel.mode)
     }
   }
 
@@ -37,7 +38,7 @@ struct NewCommandTypeView: View {
       ZenTextEditor(text: $text, placeholder: "Enter text…", onCommandReturnKey: onSubmit)
 
       Menu(content: {
-        ForEach(TypeCommand.Mode.allCases) { mode in
+        ForEach(TextCommand.TypeCommand.Mode.allCases) { mode in
           Button(action: {
             self.mode = mode
             self.validation = updateAndValidatePayload()
@@ -58,7 +59,7 @@ struct NewCommandTypeView: View {
   private func updateAndValidatePayload() -> NewCommandValidation {
     guard !text.isEmpty else { return .invalid(reason: "Pick a shortcut.") }
 
-    payload = .type(text: text, mode: mode)
+    payload = .text(.init(.insertText(.init(text, mode: mode, meta: .init(name: "")))))
 
     return .valid
   }
@@ -70,8 +71,8 @@ struct NewCommandTypeView_Previews: PreviewProvider {
       workflowId: UUID().uuidString,
       commandId: nil,
       title: "New command",
-      selection: .type,
-      payload: .type(text: "Hello, world!", mode: .instant),
+      selection: .text,
+      payload: .text(.init(.insertText(.init("", mode: .instant)))),
       onDismiss: {},
       onSave: { _, _ in })
     .designTime()

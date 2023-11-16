@@ -5,7 +5,7 @@ struct TypeCommandView: View {
   enum Action {
     case updateName(newName: String)
     case updateSource(newInput: String)
-    case updateMode(newMode: TypeCommand.Mode)
+    case updateMode(newMode: TextCommand.TypeCommand.Mode)
     case commandAction(CommandContainerAction)
   }
   @EnvironmentObject var selection: SelectionManager<CommandViewModel>
@@ -51,17 +51,17 @@ struct TypeCommandView: View {
 }
 
 fileprivate struct TypeCommandModeView: View {
-  @State var mode: TypeCommand.Mode
-  private let onAction: (TypeCommand.Mode) -> Void
+  @State var mode: TextCommand.TypeCommand.Mode
+  private let onAction: (TextCommand.TypeCommand.Mode) -> Void
 
-  init(mode: TypeCommand.Mode, onAction: @escaping (TypeCommand.Mode) -> Void) {
+  init(mode: TextCommand.TypeCommand.Mode, onAction: @escaping (TextCommand.TypeCommand.Mode) -> Void) {
     _mode = .init(initialValue: mode)
     self.onAction = onAction
   }
 
   var body: some View {
     Menu(content: {
-      ForEach(TypeCommand.Mode.allCases) { mode in
+      ForEach(TextCommand.TypeCommand.Mode.allCases) { mode in
         Button(action: {
           self.mode = mode
           onAction(mode)

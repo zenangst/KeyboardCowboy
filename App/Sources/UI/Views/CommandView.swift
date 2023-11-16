@@ -191,8 +191,12 @@ struct CommandResolverView: View {
         }
       .fixedSize(horizontal: false, vertical: true)
       .frame(height: 110)
-    case .type(let model):
-      TypeCommandView(command.meta, model: model) { action in
+    case .text(let textModel):
+      switch textModel.kind {
+      case .setFindTo:
+        EmptyView()
+      case .type(let model):
+        TypeCommandView(command.meta, model: model) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
@@ -200,6 +204,7 @@ struct CommandResolverView: View {
             onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
           }
         }
+      }
     case .systemCommand(let model):
       SystemCommandView(command.meta, model: model) { action in
         switch action {

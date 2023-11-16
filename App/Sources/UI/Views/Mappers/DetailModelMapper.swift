@@ -91,8 +91,13 @@ private extension Command {
       case .inline(let source):
         kind = .script(.init(id: script.id, source: .inline(source), scriptExtension: script.kind))
       }
-    case .type(let type):
-      kind = .type(.init(id: type.id, mode: type.mode, input: type.input))
+    case .text(let text):
+      switch text.kind {
+      case .insertText(let typeCommand):
+        kind = .text(.init(kind: .type(.init(id: typeCommand.input, mode: typeCommand.mode, input: typeCommand.input))))
+      case .setFindTo(let setFindToCommand):
+        kind = .text(.init(kind: .setFindTo(.init(id: setFindToCommand.id, text: setFindToCommand.input))))
+      }
     case .systemCommand(let systemCommand):
       kind = .systemCommand(.init(id: systemCommand.id, kind: systemCommand.kind))
     case .windowManagement(let windowCommand):
@@ -134,7 +139,7 @@ private extension Command {
       return .init(bundleIdentifier: path, path: path)
     case .shortcut:
       return nil
-    case .type:
+    case .text:
       return nil
     case .systemCommand(let command):
       return .init(bundleIdentifier: command.kind.iconPath, path: command.kind.iconPath)

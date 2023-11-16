@@ -145,8 +145,13 @@ struct NewCommandWindow: Scene {
       }
 
       return .script(value: source, kind: kind, scriptExtension: scriptExtension)
-    case .type(let typeCommand):
-      return .type(text: typeCommand.input, mode: typeCommand.mode)
+    case .text(let textCommand):
+      switch textCommand.kind {
+      case .setFindTo(let setFindToCommand):
+        return .text(.init(.setFindTo(setFindToCommand)))
+      case .insertText(let typeCommand):
+        return .text(.init(.insertText(typeCommand)))
+      }
     case .systemCommand(let systemCommand):
       return .systemCommand(kind: systemCommand.kind)
     case .windowManagement(let windowCommand):
@@ -171,8 +176,8 @@ struct NewCommandWindow: Scene {
       return .shortcut
     case .script:
       return .script
-    case .type:
-      return .type
+    case .text:
+      return .text
     case .systemCommand:
       return .system
     case .windowManagement:

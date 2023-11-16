@@ -66,9 +66,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     groupPublisher: WorkGroupPublisher,
     runner: CommandRunner,
     userSpace: UserSpace) {
-    let command = Command.type(.init(name: "Type command",
-                                     mode: .instant,
-                                     input: "Hello, Finder!"))
+      let command = Command.text(.init(.insertText(.init("Type command.", mode: .instant))))
     let runner = CommandRunner(
       concurrent: { _ in fatalError("Should not be invoked yet.") },
       serial: { _ in fatalError("Should not be invoked yet.") })

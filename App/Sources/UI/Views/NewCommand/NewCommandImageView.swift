@@ -24,7 +24,7 @@ struct NewCommandImageView: View {
         image(for: "/System/Applications/Shortcuts.app")
       case .script:
         image(for: "/System/Applications/Utilities/Terminal.app")
-      case .type:
+      case .text:
         if let contents = FileManager.default.contents(atPath: "/System/Library/PrivateFrameworks/AOSUI.framework/Versions/A/Resources/pref_notes.icns"),
            let image = NSImage(data: contents) {
           Image(nsImage: image)
