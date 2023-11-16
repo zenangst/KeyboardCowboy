@@ -168,15 +168,18 @@ private extension Array where Element == Command {
         images.append(.init(id: shortcut.id,
                             offset: convertedOffset,
                             kind: .command( .shortcut(.init(id: shortcut.id, shortcutIdentifier: shortcut.shortcutIdentifier)))))
-      case .text(let type):
-        // TODO: Fix this!
-        break
-//        images.append(
-//          .init(id: type.id,
-//                offset: convertedOffset,
-//                kind: .command(.text(.init(id: type.id, mode: type.mode, input: type.input)))
-//               )
-//        )
+      case .text(let model):
+        switch model.kind {
+        case .insertText(let command):
+          images.append(
+            .init(id: command.id,
+                  offset: convertedOffset,
+                  kind: .command(.text(.init(kind: .type(.init(id: command.id, mode: command.mode, input: command.input))))))
+          )
+        case .setFindTo:
+          // TODO: Fix this!
+          break
+        }
       case .systemCommand(let command):
         images.append(
           ContentViewModel.ImageModel(
