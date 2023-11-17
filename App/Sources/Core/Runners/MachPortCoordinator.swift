@@ -191,6 +191,7 @@ final class MachPortCoordinator {
                                        type: machPortEvent.type,
                                        originalEvent: machPortEvent.event,
                                        with: machPortEvent.eventSource)
+        previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
         if case .windowManagement = $0 { return true } else { return false }
       }) {
