@@ -92,7 +92,7 @@ struct NotificationsSettingsView: View {
       }
       .frame(maxWidth: .infinity)
       .padding()
-      .roundedContainer()
+      .roundedContainer(padding: 0)
 
       Grid(alignment: .leading) {
         GridRow {
@@ -105,9 +105,9 @@ struct NotificationsSettingsView: View {
         }
       }
       .font(.caption2)
-      .padding([.horizontal, .top])
+      .padding([.horizontal])
     }
-    .frame(minWidth: 480, minHeight: 300, alignment: .top)
+    .frame(minWidth: 480, minHeight: 280, alignment: .top)
   }
 
   private var gradient: LinearGradient {

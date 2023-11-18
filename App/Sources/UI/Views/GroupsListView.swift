@@ -72,6 +72,9 @@ struct GroupsListView: View {
                   debounceSelectionManager.process(.init(groups: selectionManager.selections))
                 }
               }
+              .onTapGesture(count: 2, perform: {
+                onAction(.openScene(.editGroup(group.id)))
+              })
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               appFocus.wrappedValue = .workflows

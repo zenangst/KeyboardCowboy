@@ -28,7 +28,6 @@ struct PermissionsSettings: View {
         }
       }
     }
-    .padding(24)
     .roundedContainer()
     .frame(minWidth: 480)
   }
@@ -86,6 +85,5 @@ fileprivate struct PermissionOverviewItem: View {
 struct PermissionsOverview_Previews: PreviewProvider {
   static var previews: some View {
     PermissionsSettings()
-      .padding(.all)
   }
 }

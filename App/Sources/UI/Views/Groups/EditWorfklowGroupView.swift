@@ -48,23 +48,28 @@ struct EditWorfklowGroupView: View {
       }
 
       Divider()
-      ScrollView {
-        RuleListView(applicationStore: applicationStore,
-                     group: $group)
-        .padding()
+      VStack(spacing: 0) {
+        RuleHeaderView(applicationStore: applicationStore, group: $group)
+          .padding()
+          .background(Color(.windowBackgroundColor))
+        ScrollView {
+          RuleListView(applicationStore: applicationStore,
+                       group: $group)
+          .focusSection()
+        }
         .background(Color(.windowBackgroundColor))
-        .focusSection()
-        
-        VStack(alignment: .leading, spacing: 16) {
-          VStack(alignment: .leading) {
-            Text("Workflows in this group are only activated when the following applications are the frontmost app.")
-            Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")
+
+          VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading) {
+              Text("Workflows in this group are only activated when the following applications are the frontmost app.\n") +
+              Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .font(.caption)
           }
-          .fixedSize(horizontal: false, vertical: true)
-          .font(.caption)
-        }.padding()
+          .padding()
       }
-      .roundedContainer()
+      .roundedContainer(padding: 0)
 
       HStack {
         Button(role: .cancel) {
@@ -88,7 +93,7 @@ struct EditWorfklowGroupView: View {
       .padding()
     }
     .focusScope(namespace)
-    .frame(minWidth: 520, minHeight: 400)
+    .frame(minWidth: 540, minHeight: 400)
   }
 }
 

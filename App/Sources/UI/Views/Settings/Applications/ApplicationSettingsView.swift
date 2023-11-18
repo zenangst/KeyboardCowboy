@@ -43,7 +43,7 @@ struct ApplicationSettingsView: View {
         }
         .frame(maxHeight: .infinity)
       }
-      .roundedContainer()
+      .roundedContainer(padding: 0)
       .background(Color(.windowBackgroundColor))
       .layoutPriority(100)
 

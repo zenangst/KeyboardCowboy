@@ -3,7 +3,7 @@ import Cocoa
 import KeyCodes
 import Foundation
 
-final class TypeCommandRunner {
+final class TextCommandRunner {
   private let keyboardCommandRunner: KeyboardCommandRunner
 
   internal init(_ keyboardCommandRunner: KeyboardCommandRunner) {

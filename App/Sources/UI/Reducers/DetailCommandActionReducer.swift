@@ -180,6 +180,14 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
+      case .setFindTo(let action, _, _):
+        switch action {
+        case .updateInput(let newInput):
+          command = .text(.init(.setFindTo(.init(input: newInput, meta: command.meta))))
+        case .commandAction(let action):
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
+        }
       case .type(let action, _, _):
         switch action {
         case .updateMode(let newMode):

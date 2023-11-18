@@ -198,15 +198,7 @@ struct NewCommandView: View {
       }
 
       selectedView(selection)
-        .padding()
-        .background(
-          RoundedRectangle(cornerRadius: 8)
-            .fill(Color(.windowBackgroundColor))
-        )
-        .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.1),
-                radius: 2,
-                y: 2)
-        .padding(.horizontal)
+        .roundedContainer()
 
       Spacer()
 
@@ -226,48 +218,50 @@ struct NewCommandView: View {
 
   @ViewBuilder @MainActor
   private func selectedView(_ selection: Kind) -> some View {
-    switch selection {
-    case .application:
-      if case .application(let application, let action, let inBackground, let hideWhenRunning, let ifNotRunning) = payload {
-        NewCommandApplicationView($payload, application: application, action: action,
-                                  inBackground: inBackground, hideWhenRunning: hideWhenRunning,
-                                  ifNotRunning: ifNotRunning, validation: $validation)
-      } else {
-        NewCommandApplicationView($payload, application: nil, action: .open,
-                                  inBackground: false, hideWhenRunning: false,
-                                  ifNotRunning: false, validation: $validation)
+    VStack(alignment: .leading) {
+      switch selection {
+      case .application:
+        if case .application(let application, let action, let inBackground, let hideWhenRunning, let ifNotRunning) = payload {
+          NewCommandApplicationView($payload, application: application, action: action,
+                                    inBackground: inBackground, hideWhenRunning: hideWhenRunning,
+                                    ifNotRunning: ifNotRunning, validation: $validation)
+        } else {
+          NewCommandApplicationView($payload, application: nil, action: .open,
+                                    inBackground: false, hideWhenRunning: false,
+                                    ifNotRunning: false, validation: $validation)
+        }
+      case .url:
+        NewCommandURLView($payload, validation: $validation,
+                          onSubmitAddress: { onSave(payload, $title.wrappedValue) })
+      case .open:
+        NewCommandOpenView($payload, validation: $validation)
+      case .keyboardShortcut:
+        NewCommandKeyboardShortcutView($payload, validation: $validation)
+      case .shortcut:
+        NewCommandShortcutView($payload, validation: $validation)
+      case .script:
+        if case .script(let value, let kind, let scriptExtension) = payload {
+          NewCommandScriptView($payload,
+                               kind: kind,
+                               value: value,
+                               scriptExtension: scriptExtension,
+                               validation: $validation) { onSave($0, $title.wrappedValue) }
+        } else {
+          NewCommandScriptView($payload, kind: .file, value: "",
+                               scriptExtension: .shellScript,
+                               validation: $validation) { onSave($0, $title.wrappedValue) }
+        }
+      case .text:
+        NewCommandTextView(payload: $payload, validation: $validation, onSubmit: {
+          onSubmit()
+        })
+      case .system:
+        NewCommandSystemCommandView($payload, validation: $validation)
+      case .menuBar:
+        NewCommandMenuBarView($payload, validation: $validation)
+      case .windowManagement:
+        NewCommandWindowManagementView($payload, validation: $validation)
       }
-    case .url:
-      NewCommandURLView($payload, validation: $validation,
-                        onSubmitAddress: { onSave(payload, $title.wrappedValue) })
-    case .open:
-      NewCommandOpenView($payload, validation: $validation)
-    case .keyboardShortcut:
-      NewCommandKeyboardShortcutView($payload, validation: $validation)
-    case .shortcut:
-      NewCommandShortcutView($payload, validation: $validation)
-    case .script:
-      if case .script(let value, let kind, let scriptExtension) = payload {
-        NewCommandScriptView($payload,
-                             kind: kind,
-                             value: value,
-                             scriptExtension: scriptExtension,
-                             validation: $validation) { onSave($0, $title.wrappedValue) }
-      } else {
-        NewCommandScriptView($payload, kind: .file, value: "",
-                             scriptExtension: .shellScript,
-                             validation: $validation) { onSave($0, $title.wrappedValue) }
-      }
-    case .text:
-      NewCommandTypeView($payload, validation: $validation) {
-        onSubmit()
-      }
-    case .system:
-      NewCommandSystemCommandView($payload, validation: $validation)
-    case .menuBar:
-      NewCommandMenuBarView($payload, validation: $validation)
-    case .windowManagement:
-      NewCommandWindowManagementView($payload, validation: $validation)
     }
   }
 
@@ -288,12 +282,8 @@ struct NewCommandView_Previews: PreviewProvider {
       workflowId: UUID().uuidString,
       commandId: nil,
       title: "New command",
-      selection: .menuBar,
-      payload: .menuBar(tokens: [
-        .menuItem(name: "View"),
-        .menuItem(name: "Navigators"),
-        .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
-      ]),
+      selection: .text,
+      payload: .text(.init(.insertText(.init("Hello, world!", mode: .instant)))),
       onDismiss: {},
       onSave: { _, _ in })
     .designTime()

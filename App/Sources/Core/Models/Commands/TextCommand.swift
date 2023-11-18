@@ -32,6 +32,11 @@ struct TextCommand: MetaDataProviding {
   struct SetFindToCommand: MetaDataProviding {
     let input: String
     var meta: Command.MetaData
+
+    init(input: String, meta: Command.MetaData = .init()) {
+      self.input = input
+      self.meta = meta
+    }
   }
 
   struct TypeCommand: MetaDataProviding {

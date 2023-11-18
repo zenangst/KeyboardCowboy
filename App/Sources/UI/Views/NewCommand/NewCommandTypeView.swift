@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct NewCommandTypeView: View {
   private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#type-commands")!

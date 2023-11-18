@@ -121,7 +121,7 @@ struct NewCommandMenuBarView: View {
       .padding(8)
       .background(
         RoundedRectangle(cornerRadius: 4)
-          .fill(Color(.textBackgroundColor).opacity(0.25))
+          .fill(Color(.textBackgroundColor).opacity(0.5))
       )
     }
     .onChange(of: validation, perform: { newValue in

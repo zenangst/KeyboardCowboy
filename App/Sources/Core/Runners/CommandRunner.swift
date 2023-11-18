@@ -18,7 +18,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let script: ScriptCommandRunner
     let shortcut: ShortcutsCommandRunner
     let system: SystemCommandRunner
-    let type: TypeCommandRunner
+    let text: TextCommandRunner
     let window: WindowCommandRunner
   }
 
@@ -54,7 +54,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       script: scriptCommandRunner,
       shortcut: ShortcutsCommandRunner(scriptCommandRunner),
       system: systemCommandRunner,
-      type: TypeCommandRunner(keyboardCommandRunner),
+      text: TextCommandRunner(keyboardCommandRunner),
       window: WindowCommandRunner()
     )
     self.workspace = workspace
@@ -186,14 +186,22 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       case .text(let typeCommand):
         switch typeCommand.kind {
         case .insertText(let typeCommand):
-          try await runners.type.run(
+          try await runners.text.run(
             snapshot.interpolateUserSpaceVariables(typeCommand.input),
             mode: typeCommand.mode
           )
           output = command.name
-        case .setFindTo(let deadEnd):
+        case .setFindTo(let command):
+          let interpolatedInput = snapshot.interpolateUserSpaceVariables(command.input)
+          let findPasteboard = NSPasteboard(name: NSPasteboard.Name.find)
+          findPasteboard.declareTypes([.string], owner: nil)
+          findPasteboard.setString(interpolatedInput, forType: .string)
+
+          UserSpace.Application.current.ref.activate()
+          try await Task.sleep(for: .milliseconds(500))
+          snapshot.frontMostApplication.ref.activate()
+
           output = command.name
-          break
         }
       case .systemCommand(let systemCommand):
         try await runners.system.run(
