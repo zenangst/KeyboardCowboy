@@ -163,7 +163,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
         .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.0.8"),
-        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("99f3a39ef256ffd999bc9e4ca1fdeca6ab44a56d")),
+        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("c6eea3e588908f275f945965c348464876a3d32d")),
         .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.0"),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/InputSources.git", from: "1.0.1"),
