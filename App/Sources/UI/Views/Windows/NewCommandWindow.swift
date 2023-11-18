@@ -147,8 +147,6 @@ struct NewCommandWindow: Scene {
       return .script(value: source, kind: kind, scriptExtension: scriptExtension)
     case .text(let textCommand):
       switch textCommand.kind {
-      case .setFindTo(let setFindToCommand):
-        return .text(.init(.setFindTo(setFindToCommand)))
       case .insertText(let typeCommand):
         return .text(.init(.insertText(typeCommand)))
       }

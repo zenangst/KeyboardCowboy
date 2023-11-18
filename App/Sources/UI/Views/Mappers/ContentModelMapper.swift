@@ -176,9 +176,6 @@ private extension Array where Element == Command {
                   offset: convertedOffset,
                   kind: .command(.text(.init(kind: .type(.init(id: command.id, mode: command.mode, input: command.input))))))
           )
-        case .setFindTo:
-          // TODO: Fix this!
-          break
         }
       case .systemCommand(let command):
         images.append(

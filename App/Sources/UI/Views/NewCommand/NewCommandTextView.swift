@@ -27,15 +27,8 @@ struct NewCommandTextView: View {
       }, label: {
         Text("Insert Text…")
       })
-      Button(action: {
-        kind = .setFindTo(.init(input: ""))
-      }, label: {
-        Text("Send Find to …")
-      })
     }, label: {
       switch kind {
-      case .setFindTo:
-        Text("Send Find to …")
       case .insertText:
         Text("Insert Text")
       }
@@ -43,8 +36,6 @@ struct NewCommandTextView: View {
     .menuStyle(.regular)
 
     switch kind {
-    case .setFindTo:
-      NewCommandSetFindToView($payload, validation: $validation, onSubmit: onSubmit)
     case .insertText:
       NewCommandTypeView($payload, validation: $validation, onSubmit: onSubmit)
     }
@@ -58,7 +49,7 @@ struct NewCommandTextView_Previews: PreviewProvider {
       commandId: nil,
       title: "New command",
       selection: .text,
-      payload: .text(.init(.setFindTo(.init(input: "func")))),
+      payload: .text(.init(.insertText(.init("", mode: .instant)))),
       onDismiss: {},
       onSave: { _, _ in })
     .designTime()

@@ -17,7 +17,6 @@ struct CommandView: View {
     case open(action: OpenCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case script(action: ScriptCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case setFindTo(action: SetFindToView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case system(action: SystemCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case window(action: WindowManagementCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
@@ -193,14 +192,7 @@ struct CommandResolverView: View {
       .fixedSize(horizontal: false, vertical: true)
       .frame(height: 110)
     case .text(let textModel):
-      TextCommandView(kind: textModel.kind, metaData: command.meta, onSetFindTo: { action in
-        switch action {
-        case .commandAction(let action):
-          handleCommandContainerAction(action)
-        case .updateInput:
-          onAction(.modify(.setFindTo(action: action, workflowId: workflowId, commandId: command.id)))
-        }
-      }, onTypeAction: { action in
+      TextCommandView(kind: textModel.kind, metaData: command.meta, onTypeAction: { action in
         switch action {
         case .commandAction(let action):
           handleCommandContainerAction(action)

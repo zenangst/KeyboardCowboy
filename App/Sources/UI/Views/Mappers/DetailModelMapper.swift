@@ -95,8 +95,6 @@ private extension Command {
       switch text.kind {
       case .insertText(let typeCommand):
         kind = .text(.init(kind: .type(.init(id: typeCommand.input, mode: typeCommand.mode, input: typeCommand.input))))
-      case .setFindTo(let setFindToCommand):
-        kind = .text(.init(kind: .setFindTo(.init(id: setFindToCommand.id, text: setFindToCommand.input))))
       }
     case .systemCommand(let systemCommand):
       kind = .systemCommand(.init(id: systemCommand.id, kind: systemCommand.kind))

@@ -191,17 +191,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             mode: typeCommand.mode
           )
           output = command.name
-        case .setFindTo(let command):
-          let interpolatedInput = snapshot.interpolateUserSpaceVariables(command.input)
-          let findPasteboard = NSPasteboard(name: NSPasteboard.Name.find)
-          findPasteboard.declareTypes([.string], owner: nil)
-          findPasteboard.setString(interpolatedInput, forType: .string)
-
-          UserSpace.Application.current.ref.activate()
-          try await Task.sleep(for: .milliseconds(500))
-          snapshot.frontMostApplication.ref.activate()
-
-          output = command.name
         }
       case .systemCommand(let systemCommand):
         try await runners.system.run(

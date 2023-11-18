@@ -136,8 +136,6 @@ final class DetailCoordinator {
       }
     case .text(let textCommand):
       switch textCommand.kind {
-      case .setFindTo(let setFindToCommand):
-        command = .text(.init(.setFindTo(setFindToCommand)))
       case .insertText(let typeCommand):
         command = .text(.init(.insertText(typeCommand)))
       }
@@ -296,7 +294,6 @@ extension CommandView.Kind {
         .script(_, let workflowId, _),
         .shortcut(_, let workflowId, _),
         .type(_, let workflowId, _),
-        .setFindTo(_, let workflowId, _),
         .system(_, let workflowId, _),
         .window(_, let workflowId, _):
       return workflowId
@@ -312,7 +309,6 @@ extension CommandView.Kind {
         .shortcut(_, _, let commandId),
         .type(_, _, let commandId),
         .system(_, _, let commandId),
-        .setFindTo(_, _, let commandId),
         .window(_, _, let commandId):
       return commandId
     }

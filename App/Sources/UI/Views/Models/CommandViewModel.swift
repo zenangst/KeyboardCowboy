@@ -103,19 +103,12 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
       enum Kind: Codable, Hashable, Identifiable, Sendable {
         var id: String {
           switch self {
-          case .setFindTo(let model): model.id
           case .type(let model):      model.id
           }
         }
 
         case type(TypeModel)
-        case setFindTo(SetFindToModel)
       }
-    }
-
-    struct SetFindToModel: Codable, Hashable, Identifiable, Sendable {
-      let id: String
-      var text: String
     }
 
     struct WindowManagementModel: Codable, Hashable, Identifiable, Sendable {

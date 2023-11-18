@@ -2,7 +2,6 @@ import Foundation
 
 struct TextCommand: MetaDataProviding {
   enum Kind: Codable, Hashable {
-    case setFindTo(SetFindToCommand)
     case insertText(TypeCommand)
   }
 
@@ -10,15 +9,12 @@ struct TextCommand: MetaDataProviding {
     get {
       switch kind {
       case .insertText(let command): command.meta
-      case .setFindTo(let command): command.meta
       }
     }
     set {
       switch kind {
       case .insertText(let command):
         self = TextCommand(.insertText(TypeCommand(command.input, mode: command.mode, meta: newValue)))
-      case .setFindTo(let command):
-        self = TextCommand(.setFindTo(SetFindToCommand(input: command.input, meta: newValue)))
       }
     }
   }
@@ -27,16 +23,6 @@ struct TextCommand: MetaDataProviding {
 
   init(_ kind: Kind) {
     self.kind = kind
-  }
-
-  struct SetFindToCommand: MetaDataProviding {
-    let input: String
-    var meta: Command.MetaData
-
-    init(input: String, meta: Command.MetaData = .init()) {
-      self.input = input
-      self.meta = meta
-    }
   }
 
   struct TypeCommand: MetaDataProviding {
