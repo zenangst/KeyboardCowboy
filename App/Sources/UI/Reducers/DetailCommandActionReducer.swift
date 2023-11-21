@@ -203,8 +203,8 @@ final class DetailCommandActionReducer {
             switch typeCommand.kind {
             case .insertText(var typeCommand):
               typeCommand.input = newInput
+              command = .text(.init(.insertText(typeCommand)))
             }
-            command = .text(typeCommand)
           default:
             fatalError("Wrong command type")
           }
