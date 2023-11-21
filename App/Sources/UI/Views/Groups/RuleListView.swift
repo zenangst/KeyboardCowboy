@@ -33,7 +33,10 @@ struct RuleListView: View {
           }
         }
       } else {
-        Text("No rules applied.")
+        VStack {
+          Text("No Rules applied.")
+            .frame(maxWidth: .infinity)
+        }
       }
     }
   }
