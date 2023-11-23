@@ -5,7 +5,8 @@ struct ShortcutCommandView: View {
   enum Action {
     case updateName(newName: String)
     case updateShortcut(shortcutName: String)
-    case openShortcuts
+    case createShortcut
+    case openShortcut
     case commandAction(CommandContainerAction)
   }
 
@@ -56,8 +57,12 @@ struct ShortcutCommandView: View {
       }
     }, subContent: { command in
       HStack {
-        Button("Open Shortcuts", action: { onAction(.openShortcuts) })
-          .buttonStyle(.zen(.init(color: .systemPurple)))
+        Button("Open Shortcut", action: { onAction(.openShortcut) })
+          .buttonStyle(.zen(.init(color: .systemPurple, grayscaleEffect: .constant(true))))
+          .font(.caption)
+
+        Button("Create Shortcut", action: { onAction(.createShortcut) })
+          .buttonStyle(.zen(.init(color: .systemPurple, grayscaleEffect: .constant(true))))
           .font(.caption)
       }
     }, onAction: { onAction(.commandAction($0)) })
