@@ -21,6 +21,7 @@ struct NewCommandView: View {
 
     case application = "Application"
     case menuBar = "MenuBar Command"
+    case mouse = "Mouse Command"
     case url = "URL"
     case open = "Open"
     case keyboardShortcut = "Keyboard Shortcut"
@@ -259,6 +260,8 @@ struct NewCommandView: View {
         NewCommandSystemCommandView($payload, validation: $validation)
       case .menuBar:
         NewCommandMenuBarView($payload, validation: $validation)
+      case .mouse:
+        Text("New mouse command")
       case .windowManagement:
         NewCommandWindowManagementView($payload, validation: $validation)
       }

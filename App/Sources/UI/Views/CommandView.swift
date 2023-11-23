@@ -134,6 +134,8 @@ struct CommandResolverView: View {
       }
       .fixedSize(horizontal: false, vertical: true)
       .frame(height: 80)
+    case .mouse:
+      Text("Mouse model")
     case .open(let model):
       OpenCommandView(command.meta, model: model) { action in
           switch action {

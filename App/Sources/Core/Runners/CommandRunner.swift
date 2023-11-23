@@ -87,7 +87,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           _ = try await runners.script.run(shellScript, environment: [:])
         }
       case .builtIn, .keyboard, .text,
-          .systemCommand, .menuBar, .windowManagement:
+          .systemCommand, .menuBar, .windowManagement, .mouse:
         break
       }
     }
@@ -159,6 +159,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         output = command.name
       case .menuBar(let menuBarCommand):
         try await runners.menubar.execute(menuBarCommand)
+        output = command.name
+      case .mouse:
         output = command.name
       case .open(let openCommand):
         let path = snapshot.interpolateUserSpaceVariables(openCommand.path)
