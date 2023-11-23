@@ -24,7 +24,7 @@ struct ContentImageView: View {
         ContentShortcutImageView(size: size)
       case .text:
         ContentTypeImageView()
-      case .plain, .systemCommand, .windowManagement:
+      case .plain, .systemCommand, .windowManagement, .mouse:
         EmptyView()
       }
     }

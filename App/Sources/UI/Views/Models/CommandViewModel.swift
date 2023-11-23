@@ -45,6 +45,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     case text(TextModel)
     case systemCommand(SystemModel)
     case menuBar(MenuBarModel)
+    case mouse(MouseModel)
     case windowManagement(WindowManagementModel)
 
     struct ApplicationModel: Codable, Hashable, Identifiable, Sendable {
@@ -66,6 +67,11 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     struct KeyboardModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var keys: [KeyShortcut]
+    }
+
+    struct MouseModel: Codable, Hashable, Identifiable, Sendable {
+      let id: String
+      let kind: MouseCommand.Kind
     }
 
     struct MenuBarModel: Codable, Hashable, Identifiable, Sendable {

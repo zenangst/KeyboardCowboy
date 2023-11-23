@@ -75,6 +75,8 @@ private extension Command {
       kind =  .keyboard(.init(id: keyboardCommand.id, keys: keyboardCommand.keyboardShortcuts))
     case .menuBar(let menubarCommand):
       kind = .menuBar(.init(id: menubarCommand.id, tokens: menubarCommand.tokens))
+    case .mouse(let mouseCommand):
+      kind = .mouse(.init(id: mouseCommand.id, kind: mouseCommand.kind))
     case .open(let openCommand):
       let applications = applicationStore.applicationsToOpen(openCommand.path)
       kind = .open(.init(id: openCommand.id,
@@ -114,6 +116,9 @@ private extension Command {
                    path: command.application.path)
     case .menuBar:
       let path = "/System/Library/PreferencePanes/Appearance.prefPane"
+      return .init(bundleIdentifier: path, path: path)
+    case .mouse:
+      let path = "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns"
       return .init(bundleIdentifier: path, path: path)
     case .builtIn, .keyboard:
       return nil

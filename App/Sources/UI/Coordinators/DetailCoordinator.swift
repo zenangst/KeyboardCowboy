@@ -117,6 +117,8 @@ final class DetailCoordinator {
       return
     case .menuBar(let tokens):
       command = .menuBar(.init(id: resolvedCommandId, tokens: tokens))
+    case .mouse(let kind):
+      command = .mouse(.init(meta: .init(), kind: kind))
     case .keyboardShortcut(let keyShortcuts):
       command = .keyboard(.init(keyboardShortcuts: keyShortcuts, notification: false))
     case .script(let value, let kind, let scriptExtension):

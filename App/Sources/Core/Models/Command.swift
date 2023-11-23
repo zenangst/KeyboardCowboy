@@ -97,6 +97,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case .builtIn(let builtInCommand): builtInCommand.meta
       case .keyboard(let keyboardCommand): keyboardCommand.meta
       case .menuBar(let menuBarCommand): menuBarCommand.meta
+      case .mouse(let mouseCommand): mouseCommand.meta
       case .open(let openCommand): openCommand.meta
       case .shortcut(let shortcutCommand): shortcutCommand.meta
       case .script(let scriptCommand): scriptCommand.meta
@@ -119,6 +120,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case .menuBar(var menuBarCommand):
         menuBarCommand.meta = newValue
         self = .menuBar(menuBarCommand)
+      case .mouse(var mouseCommand):
+        mouseCommand.meta = newValue
+        self = .mouse(mouseCommand)
       case .open(var openCommand):
         openCommand.meta = newValue
         self = .open(openCommand)
@@ -144,6 +148,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   case application(ApplicationCommand)
   case builtIn(BuiltInCommand)
   case keyboard(KeyboardCommand)
+  case mouse(MouseCommand)
   case menuBar(MenuBarCommand)
   case open(OpenCommand)
   case shortcut(ShortcutCommand)
@@ -161,6 +166,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case builtIn = "builtInCommand"
     case keyboard = "keyboardCommand"
     case menuBar = "menuBarCommand"
+    case mouse = "mouseCommand"
     case open = "openCommand"
     case shortcut = "runShortcut"
     case script = "scriptCommand"
@@ -204,6 +210,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .menuBar:
       let command = try container.decode(MenuBarCommand.self, forKey: .menuBar)
       self = .menuBar(command)
+    case .mouse:
+      let command = try container.decode(MouseCommand.self, forKey: .mouse)
+      self = .mouse(command)
     case .open:
       let command = try container.decode(OpenCommand.self, forKey: .open)
       self = .open(command)
@@ -243,6 +252,8 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       try container.encode(command, forKey: .keyboard)
     case .menuBar(let command):
       try container.encode(command, forKey: .menuBar)
+    case .mouse(let command):
+      try container.encode(command, forKey: .mouse)
     case .open(let command):
       try container.encode(command, forKey: .open)
     case .script(let command):
@@ -277,6 +288,8 @@ extension Command {
       return Command.keyboard(KeyboardCommand.empty())
     case .menuBar:
       return Command.menuBar(MenuBarCommand(tokens: []))
+    case .mouse:
+      return Command.mouse(MouseCommand.empty())
     case .open:
       return Command.open(.init(path: "", notification: false))
     case .script:
