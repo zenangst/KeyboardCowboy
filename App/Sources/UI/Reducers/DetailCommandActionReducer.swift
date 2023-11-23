@@ -152,6 +152,8 @@ final class DetailCommandActionReducer {
         }
       case .shortcut(let action, _, _):
         switch action {
+        case .createShortcut:
+          try? SBShortcuts.createShortcut()
         case .updateShortcut(let shortcutName):
           command = .shortcut(
             .init(
@@ -166,16 +168,8 @@ final class DetailCommandActionReducer {
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
-        case .openShortcuts:
-          Task {
-            guard let shortcutsApp = ApplicationStore.shared.applications
-              .first(where: { $0.bundleIdentifier.lowercased() == "com.apple.shortcuts" }) else {
-              return
-            }
-            let command = ApplicationCommand(application: shortcutsApp)
-            try await commandRunner.run(.application(command), 
-                                        snapshot: .init())
-          }
+        case .openShortcut:
+          try? SBShortcuts.openShortcut(command.name)
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
