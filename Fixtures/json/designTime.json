@@ -1,38 +1,36 @@
 [
   {
-    "id" : "294FB803-71A1-4849-94A1-8D43F5134B71",
-    "name" : "Default configuration",
     "groups" : [
       {
+        "name" : "Automation",
+        "color" : "#EB5545",
         "workflows" : [
 
         ],
         "id" : "7DF42FEB-5702-4366-BCD7-2FA267CB3D1B",
-        "name" : "Automation",
-        "symbol" : "autostartstop",
-        "color" : "#EB5545"
+        "symbol" : "autostartstop"
       },
       {
-        "symbol" : "app.dashed",
+        "id" : "7B6B3743-ED08-4558-990D-AF21309F8F7F",
         "name" : "Applications",
         "workflows" : [
 
         ],
-        "color" : "#F2A23C",
-        "id" : "7B6B3743-ED08-4558-990D-AF21309F8F7F"
+        "symbol" : "app.dashed",
+        "color" : "#F2A23C"
       },
       {
-        "symbol" : "applescript",
         "id" : "B43AE15C-6C64-4BD7-84E9-12C4C39EE623",
-        "color" : "#F9D64A",
+        "name" : "AppleScripts",
         "workflows" : [
 
         ],
-        "name" : "AppleScripts"
+        "color" : "#F9D64A",
+        "symbol" : "applescript"
       },
       {
-        "name" : "Files & Folders",
         "color" : "#6BD35F",
+        "name" : "Files & Folders",
         "symbol" : "folder",
         "id" : "7F60EBF8-AB2A-4C23-AD46-E610DF7BAB0C",
         "workflows" : [
@@ -40,9 +38,9 @@
         ]
       },
       {
-        "id" : "D69E891C-21FD-456F-A121-9ED1E471B282",
-        "color" : "#3984F7",
         "name" : "Rebinding",
+        "color" : "#3984F7",
+        "id" : "D69E891C-21FD-456F-A121-9ED1E471B282",
         "workflows" : [
 
         ],
@@ -50,31 +48,33 @@
       },
       {
         "name" : "ShellScripts",
-        "color" : "#B263EA",
-        "id" : "F5FBD29B-694B-4110-9B10-ACAC4D10A60D",
-        "symbol" : "terminal",
         "workflows" : [
 
-        ]
+        ],
+        "id" : "F5FBD29B-694B-4110-9B10-ACAC4D10A60D",
+        "symbol" : "terminal",
+        "color" : "#B263EA"
       },
       {
         "workflows" : [
 
         ],
-        "symbol" : "laptopcomputer",
-        "color" : "#98989D",
         "id" : "749FB151-13A6-48D5-95DD-CA02D291A5D2",
-        "name" : "System"
+        "symbol" : "laptopcomputer",
+        "name" : "System",
+        "color" : "#98989D"
       },
       {
-        "name" : "Websites",
+        "id" : "9F862622-573B-4467-87A8-0ECF0692391E",
         "symbol" : "safari",
         "workflows" : [
 
         ],
-        "id" : "9F862622-573B-4467-87A8-0ECF0692391E",
+        "name" : "Websites",
         "color" : "#A78F6D"
       }
-    ]
+    ],
+    "id" : "294FB803-71A1-4849-94A1-8D43F5134B71",
+    "name" : "Default configuration"
   }
 ]
