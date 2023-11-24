@@ -61,7 +61,7 @@ struct CommandView: View {
       )
       .compositingGroup()
       .draggable($command.wrappedValue.draggablePayload(prefix: "WC|", selections: selectionManager.selections))
-      .dropDestination(for: DropItem.self, action: { items, location in
+      .dropDestination(DropItem.self, color: .accentColor) { items, location in
         var urls = [URL]()
         for item in items {
           switch item {
@@ -72,7 +72,7 @@ struct CommandView: View {
             }
             guard let payload = item.draggablePayload(prefix: "WC|"),
                   let (from, destination) = publisher.data.commands.moveOffsets(for: $command.wrappedValue,
-                                                                                      with: payload) else {
+                                                                                with: payload) else {
               return false
             }
             withAnimation(WorkflowCommandListView.animation) {
@@ -92,9 +92,7 @@ struct CommandView: View {
           return true
         }
         return false
-      }, isTargeted: { newValue in
-        isTargeted = newValue
-      })
+      }
       .environmentObject(selectionManager)
       .animation(.none, value: command.meta.isEnabled)
       .grayscale(command.meta.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
