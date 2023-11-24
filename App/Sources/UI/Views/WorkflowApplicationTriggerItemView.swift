@@ -71,9 +71,7 @@ struct WorkflowApplicationTriggerItemView: View {
     .cornerRadius(8)
     .compositingGroup()
     .shadow(radius: 2)
-    .overlay(BorderedOverlayView(cornerRadius: 8))
-    .draggable(element.draggablePayload(prefix: "WAT|", selections: selectionManager.selections))
-    .dropDestination(for: String.self) { items, location in
+    .dropDestination(String.self, color: .accentColor) { items, location in
       guard let payload = items.draggablePayload(prefix: "WAT|"),
             let (from, destination) = data.moveOffsets(for: element,
                                                        with: payload) else {
@@ -84,8 +82,8 @@ struct WorkflowApplicationTriggerItemView: View {
       }
       onAction(.updateApplicationTriggers(data))
       return true
-    } isTargeted: { newValue in
-      isTargeted = newValue
     }
+    .overlay(BorderedOverlayView(cornerRadius: 8))
+    .draggable(element.draggablePayload(prefix: "WAT|", selections: selectionManager.selections))
   }
 }

@@ -62,7 +62,7 @@ struct ContentItemView: View {
     .padding(4)
     .background(FillBackgroundView(isSelected: .readonly(contentSelectionManager.selections.contains(workflow.id))))
     .draggable(getDraggable())
-    .dropDestination(for: String.self) { items, location in
+    .dropDestination(String.self, color: .accentColor) { items, location in
       guard let payload = items.draggablePayload(prefix: "W|"),
             let (from, destination) = publisher.data.moveOffsets(for: workflow, with: payload) else {
         return false
@@ -72,8 +72,6 @@ struct ContentItemView: View {
       }
       onAction(.reorderWorkflows(source: from, destination: destination))
       return true
-    } isTargeted: { newValue in
-      isTargeted = newValue
     }
   }
 
