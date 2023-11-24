@@ -14,6 +14,7 @@ struct CommandView: View {
   enum Kind {
     case application(action: ApplicationCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case keyboard(action: KeyboardCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case mouse(action: MouseCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case open(action: OpenCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case script(action: ScriptCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
@@ -134,8 +135,15 @@ struct CommandResolverView: View {
       }
       .fixedSize(horizontal: false, vertical: true)
       .frame(height: 80)
-    case .mouse:
-      Text("Mouse model")
+    case .mouse(let model):
+      MouseCommandView(command.meta, model: model, onAction: { action in
+        switch action {
+        case .update:
+          onAction(.modify(.mouse(action: action, workflowId: workflowId, commandId: command.id)))
+        case .commandAction(let action):
+          handleCommandContainerAction(action)
+        }
+      })
     case .open(let model):
       OpenCommandView(command.meta, model: model) { action in
           switch action {

@@ -91,6 +91,18 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
+
+      case .mouse(let action, _, _):
+        switch action {
+        case .update(let kind):
+          if case var .mouse(mouseCommand) = command {
+            mouseCommand.kind = kind
+            workflow.updateOrAddCommand(.mouse(mouseCommand))
+          }
+        case .commandAction(let action):
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
+        }
       case .open(let action, _, _):
         switch action {
         case .updatePath(let newPath):

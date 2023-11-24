@@ -292,6 +292,7 @@ extension CommandView.Kind {
     switch self {
     case .application(_, let workflowId, _),
         .keyboard(_, let workflowId, _),
+        .mouse(_, let workflowId, _),
         .open(_, let workflowId, _),
         .script(_, let workflowId, _),
         .shortcut(_, let workflowId, _),
@@ -306,6 +307,7 @@ extension CommandView.Kind {
     switch self {
     case .application(_, _, let commandId),
         .keyboard(_, _, let commandId),
+        .mouse(_, _, let commandId),
         .open(_, _, let commandId),
         .script(_, _, let commandId),
         .shortcut(_, _, let commandId),

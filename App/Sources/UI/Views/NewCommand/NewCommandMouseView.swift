@@ -18,6 +18,13 @@ struct NewCommandMouseView: View {
     }, label: {
       Text(selection.displayValue)
     })
+    .onChange(of: selection, perform: { value in
+      payload = .mouse(kind: selection)
+    })
+    .onAppear {
+      validation = .valid
+      payload = .mouse(kind: selection)
+    }
     .menuStyle(.regular)
   }
 }
