@@ -1,4 +1,5 @@
 import ApplicationServices
+import Bonzai
 import Combine
 import Cocoa
 import SwiftUI
@@ -109,6 +110,9 @@ struct KeyboardCowboy: App {
       .environmentObject(OpenPanelController())
       .animation(.easeInOut, value: core.contentStore.state)
       .onAppear { NSWindow.allowsAutomaticWindowTabbing = false }
+      .onDisappear {
+        Task { await IconCache.shared.clearCache() }
+      }
     }
     .windowResizability(.contentSize)
     .windowStyle(.hiddenTitleBar)
