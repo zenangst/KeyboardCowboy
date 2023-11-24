@@ -10,11 +10,13 @@ import InputSources
 struct KeyboardCowboy: App {
 #if DEBUG
   static func env() -> AppEnvironment {
+    guard !isRunningPreview else { return .previews }
+
     if let override = ProcessInfo.processInfo.environment["APP_ENVIRONMENT_OVERRIDE"],
        let env = AppEnvironment(rawValue: override) {
       return env
     } else {
-      return isRunningPreview ? .previews : .production
+      return .production
     }
   }
 #else
