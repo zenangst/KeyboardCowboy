@@ -261,7 +261,7 @@ struct NewCommandView: View {
       case .menuBar:
         NewCommandMenuBarView($payload, validation: $validation)
       case .mouse:
-        Text("New mouse command")
+        NewCommandMouseView(payload: $payload, validation: $validation)
       case .windowManagement:
         NewCommandWindowManagementView($payload, validation: $validation)
       }
