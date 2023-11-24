@@ -1,7 +1,6 @@
 import AXEssibility
 import Apps
 import Combine
-import ScriptingBridge
 import Cocoa
 import Foundation
 
