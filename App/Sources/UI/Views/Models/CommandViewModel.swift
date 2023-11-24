@@ -71,7 +71,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
 
     struct MouseModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
-      let kind: MouseCommand.Kind
+      var kind: MouseCommand.Kind
     }
 
     struct MenuBarModel: Codable, Hashable, Identifiable, Sendable {
