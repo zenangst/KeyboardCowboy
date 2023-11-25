@@ -7,6 +7,13 @@ struct MouseCommand: Identifiable, Codable, MetaDataProviding {
     case rightClick(UIElement)
 
     var id: String { displayValue }
+    var element: UIElement {
+      switch self {
+      case .click(let uIElement): uIElement
+      case .doubleClick(let uIElement): uIElement
+      case .rightClick(let uIElement): uIElement
+      }
+    }
 
     var displayValue: String {
       var value: String = ""

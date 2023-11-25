@@ -14,6 +14,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let application: ApplicationCommandRunner
     let keyboard: KeyboardCommandRunner
     let menubar: MenuBarCommandRunner
+    let mouse: MouseCommandRunner
     let open: OpenCommandRunner
     let script: ScriptCommandRunner
     let shortcut: ShortcutsCommandRunner
@@ -50,6 +51,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       ),
       keyboard: keyboardCommandRunner,
       menubar: MenuBarCommandRunner(),
+      mouse: MouseCommandRunner(),
       open: OpenCommandRunner(scriptCommandRunner, workspace: workspace),
       script: scriptCommandRunner,
       shortcut: ShortcutsCommandRunner(scriptCommandRunner),
@@ -160,7 +162,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       case .menuBar(let menuBarCommand):
         try await runners.menubar.execute(menuBarCommand)
         output = command.name
-      case .mouse:
+      case .mouse(let command):
+        try await runners.mouse.run(command, snapshot: snapshot)
         output = command.name
       case .open(let openCommand):
         let path = snapshot.interpolateUserSpaceVariables(openCommand.path)
