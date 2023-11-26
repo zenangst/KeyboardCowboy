@@ -7,7 +7,7 @@ enum AXCollectionResolverError: Error {
 }
 
 enum AXCollectionResolver {
-  static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> AnyAccessibilityElement {
+  static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> CGRect {
     let sections = try parent.value(.children, as: [AXUIElement].self)
       .map(AnyAccessibilityElement.init)
     var match: AnyAccessibilityElement?
@@ -30,10 +30,10 @@ enum AXCollectionResolver {
       }
     }
 
-    guard let match else {
+    guard let match, let frame = match.frame else {
       throw AXCollectionResolverError.noResult
     }
 
-    return match
+    return frame
   }
 }
