@@ -11,6 +11,10 @@ struct MouseCommandView: View {
   @ObserveInjection var inject
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.MouseModel
+
+  @State private var xString: String = ""
+  @State private var yString: String = ""
+
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
@@ -33,20 +37,56 @@ struct MouseCommandView: View {
         }
       },
       content: { _ in
-        Menu(content: {
-          ForEach(MouseCommand.Kind.allCases) { kind in
-            Button(action: {
-              model.kind = kind
-            }, label: {
-              Text(kind.displayValue)
-            })
+        VStack(alignment: .leading) {
+          Menu(content: {
+            ForEach(MouseCommand.Kind.allCases) { kind in
+              Button(action: {
+                model.kind = kind
+              }, label: {
+                Text(kind.displayValue)
+              })
+            }
+          }, label: {
+            Text(model.kind.displayValue)
+          })
+          .onChange(of: model.kind, perform: { newValue in
+            onAction(.update(newValue))
+          })
+
+          if case .focused(let location) = model.kind.element {
+            HStack {
+              Menu(content: {
+                ForEach(MouseCommand.ClickLocation.allCases) { clickLocation in
+                  Button(action: {
+                    switch model.kind {
+                    case .click:
+                      model.kind = .click(.focused(clickLocation))
+                    case .doubleClick:
+                      model.kind = .doubleClick(.focused(clickLocation))
+                    case .rightClick:
+                      model.kind = .rightClick(.focused(clickLocation))
+                    }
+                  }, label: {
+                    Text(clickLocation.displayValue)
+                  })
+                }
+              }, label: {
+                Text(location.displayValue)
+              })
+
+              if case .custom(let x, let y) = location {
+                Group {
+                  TextField("X", text: $xString)
+                    .frame(maxWidth: 50)
+                  Text("x")
+                  TextField("Y", text: $yString)
+                    .frame(maxWidth: 50)
+                }
+                .textFieldStyle(.regular(nil))
+              }
+            }
           }
-        }, label: {
-          Text(model.kind.displayValue)
-        })
-        .onChange(of: model.kind, perform: { newValue in
-          onAction(.update(newValue))
-        })
+        }
         .menuStyle(.regular)
       },
       subContent: { _ in },

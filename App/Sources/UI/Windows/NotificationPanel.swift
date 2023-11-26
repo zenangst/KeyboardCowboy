@@ -2,7 +2,7 @@ import AppKit
 import Combine
 import SwiftUI
 
-final class NotificationWindow<Content>: NSWindow where Content: View {
+final class NotificationPanel<Content>: NSPanel where Content: View {
   private let manager: WindowManager
   override var canBecomeKey: Bool { false }
   override var canBecomeMain: Bool { false }
@@ -18,9 +18,11 @@ final class NotificationWindow<Content>: NSWindow where Content: View {
     self.animationBehavior = animationBehavior
     self.collectionBehavior.insert(.fullScreenAuxiliary)
     self.isOpaque = false
+    self.isFloatingPanel = true
     self.isMovable = false
     self.isMovableByWindowBackground = false
     self.level = .screenSaver
+    self.becomesKeyOnlyIfNeeded = true
     self.backgroundColor = .clear
     self.acceptsMouseMovedEvents = false
     self.hasShadow = false
