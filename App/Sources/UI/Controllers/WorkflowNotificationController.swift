@@ -12,7 +12,7 @@ final class WorkflowNotificationController: ObservableObject {
 
   lazy var windowController: NSWindowController = {
     let content = WorkflowNotificationView(publisher: publisher)
-    let window = NotificationWindow(animationBehavior: .utilityWindow, content: content)
+    let window = NotificationPanel(animationBehavior: .utilityWindow, content: content)
     let windowController = NSWindowController(window: window)
     return windowController
   }()

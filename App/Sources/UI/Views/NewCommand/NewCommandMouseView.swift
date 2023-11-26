@@ -4,7 +4,7 @@ import SwiftUI
 struct NewCommandMouseView: View {
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
-  @State var selection: MouseCommand.Kind = .click(.focused)
+  @State var selection: MouseCommand.Kind = .click(.focused(.center))
 
   var body: some View {
     Menu(content: {

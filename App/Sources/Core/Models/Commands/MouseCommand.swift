@@ -8,10 +8,19 @@ struct MouseCommand: Identifiable, Codable, MetaDataProviding {
 
     var id: String { displayValue }
     var element: UIElement {
-      switch self {
-      case .click(let uIElement): uIElement
-      case .doubleClick(let uIElement): uIElement
-      case .rightClick(let uIElement): uIElement
+      get {
+        switch self {
+        case .click(let uIElement): uIElement
+        case .doubleClick(let uIElement): uIElement
+        case .rightClick(let uIElement): uIElement
+        }
+      }
+      set {
+        switch self {
+        case .click: self = .click(newValue)
+        case .doubleClick: self = .doubleClick(newValue)
+        case .rightClick: self = .rightClick(newValue)
+        }
       }
     }
 
@@ -35,15 +44,73 @@ struct MouseCommand: Identifiable, Codable, MetaDataProviding {
 
     static var allCases: [Kind] {
       [
-        .click(.focused),
-        .doubleClick(.focused),
-        .rightClick(.focused),
+        .click(.focused(.center)),
+        .doubleClick(.focused(.center)),
+        .rightClick(.focused(.center)),
       ]
     }
   }
 
-  enum UIElement: Codable {
-    case focused
+  enum ClickLocation: Identifiable, Hashable, Codable {
+    var id: String { identifier }
+
+    case topLeading
+    case top
+    case topTrailing
+    case leading
+    case center
+    case trailing
+    case bottomLeading
+    case bottom
+    case bottomTrailing
+    case custom(x: Int, y: Int)
+
+    static let allCases: [ClickLocation] = [
+      .topLeading,
+      .top,
+      .topTrailing,
+      .leading,
+      .center,
+      .trailing,
+      .bottomLeading,
+      .bottom,
+      .bottomTrailing,
+      .custom(x: 0, y: 0),
+    ]
+
+    var identifier: String {
+      switch self {
+      case .topLeading: "topLeading"
+      case .top: "top"
+      case .topTrailing: "topTrailing"
+      case .leading: "leading"
+      case .center: "center"
+      case .trailing: "trailing"
+      case .bottomLeading: "bottomLeading"
+      case .bottom: "bottom"
+      case .bottomTrailing: "bottomTrailing"
+      case .custom(let x, let y): "custom:\(x)x\(y)"
+      }
+    }
+
+    var displayValue: String {
+      switch self {
+      case .topLeading: "Top Leading"
+      case .top: "Top"
+      case .topTrailing: "Top Trailing"
+      case .leading: "Leading"
+      case .center: "Center"
+      case .trailing: "Trailing"
+      case .bottomLeading: "Bottom Leading"
+      case .bottom: "Bottom"
+      case .bottomTrailing: "Bottom Trailing"
+      case .custom: "Custom"
+      }
+    }
+  }
+
+  enum UIElement: Codable, Hashable {
+    case focused(ClickLocation)
 
     var displayValue: String {
       switch self {
@@ -57,6 +124,6 @@ struct MouseCommand: Identifiable, Codable, MetaDataProviding {
   var kind: Kind
 
   static func empty() -> MouseCommand {
-    .init(meta: .init(), kind: .click(.focused))
+    .init(meta: .init(), kind: .click(.focused(.center)))
   }
 }

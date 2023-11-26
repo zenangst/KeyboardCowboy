@@ -162,7 +162,7 @@ public enum PackageResolver {
       packages = [
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
-        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.0.9"),
+        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.0.10"),
         .package(url: "https://github.com/zenangst/Bonzai.git", .revision("a4e9295287607e875c3ce271a1a46ed39cd92a1d")),
         .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.0"),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
