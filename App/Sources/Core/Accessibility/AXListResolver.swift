@@ -7,7 +7,7 @@ enum AXListResolverError: Error {
 }
 
 enum AXListResolver {
-  static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> AnyAccessibilityElement {
+  static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> CGRect {
     var match: AnyAccessibilityElement?
     let groups = try parent.value(.children, as: [AXUIElement].self)
       .map(AnyAccessibilityElement.init)
@@ -29,10 +29,10 @@ enum AXListResolver {
       }
     }
 
-    guard let match else {
+    guard let match, let frame = match.frame else {
       throw AXListResolverError.noResult
     }
 
-    return match
+    return frame
   }
 }

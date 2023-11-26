@@ -4,6 +4,10 @@ import CoreGraphics
 import Foundation
 import MachPort
 
+enum MouseCommandRunnerError: Error {
+  case unableToResolveFrame
+}
+
 class MouseCommandRunner {
   func run(_ command: MouseCommand, snapshot: UserSpace.Snapshot) async throws {
     let source = CGEventSource(stateID: .hidSystemState)
@@ -14,30 +18,32 @@ class MouseCommandRunner {
       let focusedElement = try systemElement.focusedUIElement()
       let roleDescription = try focusedElement.value(.roleDescription, as: String.self)
 
-
       guard let type = KnownAccessibilityElement(rawValue: roleDescription) else {
         print("Ignored:", roleDescription)
         return
       }
 
-      let match: AnyAccessibilityElement
-
+      let frame: CGRect
       switch type {
       case .outline:
-        match = try AXOutlineResolver.resolveFocusedElement(focusedElement)
+        frame = try AXOutlineResolver.resolveFocusedElement(focusedElement)
       case .collection:
-        match = try AXCollectionResolver.resolveFocusedElement(focusedElement)
+        frame = try AXCollectionResolver.resolveFocusedElement(focusedElement)
       case .group:
-        match = try AXGroupResolver.resolveFocusedElement(AnyAccessibilityElement(focusedElement.reference))
+        frame = try AXGroupResolver.resolveFocusedElement(AnyAccessibilityElement(focusedElement.reference))
       case .list:
-        match = try AXListResolver.resolveFocusedElement(focusedElement)
+        frame = try AXListResolver.resolveFocusedElement(focusedElement)
       case .scrollArea:
-        match = try AXScrollAreaResolver.resolveFocusedElement(focusedElement)
+        frame = try AXScrollAreaResolver.resolveFocusedElement(focusedElement)
+      case .textEntryArea:
+        frame = try AXTextEntryAreaResolver.resolveFocusedElement(focusedElement)
       default:
-        match = AnyAccessibilityElement(focusedElement.reference)
+        if let resolvedFrame = AnyAccessibilityElement(focusedElement.reference).frame {
+          frame = resolvedFrame
+        } else {
+          throw MouseCommandRunnerError.unableToResolveFrame
+        }
       }
-
-      guard let frame = match.frame else { return }
 
       var targetLocation: CGPoint
 

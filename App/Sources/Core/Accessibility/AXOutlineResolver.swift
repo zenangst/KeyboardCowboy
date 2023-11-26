@@ -7,7 +7,7 @@ enum AXOutlineResolverError: Error {
 }
 
 enum AXOutlineResolver {
-  static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> AnyAccessibilityElement {
+  static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> CGRect {
     let children = try parent.value(.children, as: [AXUIElement].self)
       .map(AnyAccessibilityElement.init)
     var match: AnyAccessibilityElement?
@@ -17,10 +17,10 @@ enum AXOutlineResolver {
       break
     }
 
-    guard let match else {
+    guard let match, let frame = match.frame else {
       throw AXOutlineResolverError.noResult
     }
 
-    return match
+    return frame
   }
 }
