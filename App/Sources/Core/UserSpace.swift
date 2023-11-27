@@ -1,8 +1,11 @@
 import AXEssibility
+import AppKit
 import Apps
-import Combine
+import Carbon
 import Cocoa
+import Combine
 import Foundation
+import MachPort
 
 enum UserSpaceError: Error {
   case unableToResolveFrontMostApplication
@@ -110,6 +113,8 @@ final class UserSpace {
   private var frontmostApplicationSubscription: AnyCancellable?
   private var runningApplicationsSubscription: AnyCancellable?
 
+  var machPort: MachPortEventController?
+
   private init(workspace: NSWorkspace = .shared) {
     frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
       .compactMap { $0 }
@@ -137,7 +142,7 @@ final class UserSpace {
   #endif
 
   @MainActor
-  func snapshot() -> Snapshot {
+  func snapshot() async -> Snapshot {
     var selections = [String]()
     var documentPath: String?
     var selectedText: String = ""
@@ -156,7 +161,7 @@ final class UserSpace {
         }
       }
 
-      if let resolvedText = try? self.selectedText(for: frontmostApplication) {
+      if let resolvedText = try? await self.selectedText() {
         selectedText = resolvedText
       }
     }
@@ -187,12 +192,35 @@ final class UserSpace {
       .document
   }
 
-  private func selectedText(for runningApplication: NSRunningApplication) throws -> String {
-    let app = try currentApplication(for: runningApplication)
-    let focusedElement = try app.focusedUIElement()
-    let selectedText = focusedElement.selectedText()
+  private func selectedText() async throws -> String {
+    let systemElement = SystemAccessibilityElement()
+    let focusedElement = try systemElement.focusedUIElement()
+    var selectedText = focusedElement.selectedText()
+    if selectedText == nil && (try? focusedElement.value(.role, as: String.self)) == "AXWebArea" {
+      selectedText = try await selectedTextFromClipboard()
+    }
 
     return selectedText ?? ""
+  }
+
+  private func selectedTextFromClipboard() async throws -> String {
+    let originalPasteboardContents = NSPasteboard.general.string(forType: .string)
+
+    try? machPort?.post(kVK_ANSI_C, type: .keyDown, flags: .maskCommand)
+    try? machPort?.post(kVK_ANSI_C, type: .keyUp, flags: .maskCommand)
+
+    try await Task.sleep(for: .seconds(0.1))
+
+    guard let selectedText = NSPasteboard.general.string(forType: .string) else {
+      throw NSError(domain: "com.zenangst.Keyboard-Cowboy.Userspace", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to read from clipboard."])
+    }
+
+    if let originalContents = originalPasteboardContents {
+      NSPasteboard.general.clearContents()
+      NSPasteboard.general.setString(originalContents, forType: .string)
+    }
+
+    return selectedText
   }
 }
 
