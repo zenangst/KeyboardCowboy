@@ -2,7 +2,6 @@ import AXEssibility
 import AppKit
 import CoreGraphics
 import Foundation
-import MachPort
 
 enum MouseCommandRunnerError: Error {
   case unableToResolveFrame
@@ -16,65 +15,56 @@ class MouseCommandRunner {
     case .focused:
       let systemElement = SystemAccessibilityElement()
       let focusedElement = try systemElement.focusedUIElement()
-      let roleDescription = try focusedElement.value(.roleDescription, as: String.self)
+      let rawRoleDescription = try focusedElement.value(.roleDescription, as: String.self)
 
-      guard let type = KnownAccessibilityElement(rawValue: roleDescription) else {
-        print("Ignored:", roleDescription)
+      guard let roleDescription = KnownAccessibilityRoleDescription(rawValue: rawRoleDescription) else {
+        #if DEBUG
+        print("Ignored:", rawRoleDescription)
+        #endif
         return
       }
 
       let frame: CGRect
-      switch type {
-      case .outline:
-        frame = try AXOutlineResolver.resolveFocusedElement(focusedElement)
-      case .collection:
-        frame = try AXCollectionResolver.resolveFocusedElement(focusedElement)
-      case .group:
-        frame = try AXGroupResolver.resolveFocusedElement(AnyAccessibilityElement(focusedElement.reference))
-      case .list:
-        frame = try AXListResolver.resolveFocusedElement(focusedElement)
-      case .scrollArea:
-        frame = try AXScrollAreaResolver.resolveFocusedElement(focusedElement)
-      case .textEntryArea:
-        frame = try AXTextEntryAreaResolver.resolveFocusedElement(focusedElement)
-      default:
-        if let resolvedFrame = AnyAccessibilityElement(focusedElement.reference).frame {
-          frame = resolvedFrame
-        } else {
-          throw MouseCommandRunnerError.unableToResolveFrame
+      if let customRoutine = CustomMouseRoutine(rawValue: snapshot.frontMostApplication.bundleIdentifier)?
+        .routine(roleDescription: roleDescription) {
+        frame = try customRoutine.run(focusedElement, kind: command.kind, roleDescription: roleDescription)
+      } else {
+        frame = switch roleDescription {
+        case .collection: try AXCollectionResolver.resolveFocusedElement(focusedElement)
+        case .editor: try AXEditorResolver.resolveFocusedElement(focusedElement)
+        case .group: try AXGroupResolver.resolveFocusedElement(AnyAccessibilityElement(focusedElement.reference))
+        case .htmlContent: try AXHTMLResolver.resolveFocusedElement(focusedElement, snapshot: snapshot)
+        case .list: try AXListResolver.resolveFocusedElement(focusedElement)
+        case .outline: try AXOutlineResolver.resolveFocusedElement(focusedElement)
+        case .scrollArea: try AXScrollAreaResolver.resolveFocusedElement(focusedElement)
+        case .table: try AXTableResolver.resolveFocusedElement(focusedElement)
+        case .textEntryArea: try AXTextEntryAreaResolver.resolveFocusedElement(focusedElement)
+        default: try AnyAccessibilityElement(focusedElement.reference).getFrame()
         }
       }
 
       var targetLocation: CGPoint
 
       if case .focused(let clickLocation) = command.kind.element {
-        switch clickLocation {
-        case .topLeading:
-          targetLocation = CGPoint(x: frame.origin.x, y: frame.origin.y)
-        case .top:
-          targetLocation = CGPoint(x: frame.midX, y: frame.origin.y)
-        case .topTrailing:
-          targetLocation = CGPoint(x: frame.maxX, y: frame.origin.y)
-        case .leading:
-          targetLocation = CGPoint(x: frame.origin.x, y: frame.midY)
-        case .center:
-          targetLocation = CGPoint(x: frame.midX, y: frame.midY)
-        case .trailing:
-          targetLocation = CGPoint(x: frame.maxX, y: frame.midY)
-        case .bottomLeading:
-          targetLocation = CGPoint(x: frame.origin.x, y: frame.maxY)
-        case .bottom:
-          targetLocation = CGPoint(x: frame.midX, y: frame.maxY)
-        case .bottomTrailing:
-          targetLocation = CGPoint(x: frame.maxX, y: frame.maxY)
-        case .custom(let x, let y):
-          targetLocation = CGPoint(x: x, y: y)
+        targetLocation = switch clickLocation {
+        case .topLeading: CGPoint(x: frame.origin.x, y: frame.origin.y)
+        case .top: CGPoint(x: frame.midX, y: frame.origin.y)
+        case .topTrailing: CGPoint(x: frame.maxX, y: frame.origin.y)
+        case .leading: CGPoint(x: frame.origin.x, y: frame.midY)
+        case .center: CGPoint(x: frame.midX, y: frame.midY)
+        case .trailing: CGPoint(x: frame.maxX, y: frame.midY)
+        case .bottomLeading: CGPoint(x: frame.origin.x, y: frame.maxY)
+        case .bottom: CGPoint(x: frame.midX, y: frame.maxY)
+        case .bottomTrailing: CGPoint(x: frame.maxX, y: frame.maxY)
+        case .custom(let x, let y): CGPoint(x: x, y: y)
         }
       } else {
         targetLocation = CGPoint(x: frame.midX, y: frame.midY)
       }
 
       targetLocation = targetLocation.applying(.init(translationX: 5, y: 5))
+
+      let currentLocation = NSEvent.mouseLocation
 
       switch command.kind {
       case .doubleClick:
@@ -84,6 +74,8 @@ class MouseCommandRunner {
       case .rightClick:
         postMouseEvent(source, eventType: .rightMouse, location: targetLocation)
       }
+
+      postMouseEvent(source, eventType: .mouseMoved, location: currentLocation)
     }
   }
 
@@ -121,11 +113,13 @@ class MouseCommandRunner {
 fileprivate enum MouseEventType {
   case leftMouse
   case rightMouse
+  case mouseMoved
 
   var downType: CGEventType {
     switch self {
     case .leftMouse: .leftMouseDown
     case .rightMouse: .rightMouseDown
+    case .mouseMoved: .mouseMoved
     }
   }
 
@@ -133,6 +127,7 @@ fileprivate enum MouseEventType {
     switch self {
     case .leftMouse: .leftMouseUp
     case .rightMouse: .rightMouseUp
+    case .mouseMoved: .mouseMoved
     }
   }
 
@@ -140,18 +135,33 @@ fileprivate enum MouseEventType {
     switch self {
     case .leftMouse: .left
     case .rightMouse: .right
+    case .mouseMoved: .left
     }
   }
 }
 
-enum KnownAccessibilityElement: String {
+enum KnownAccessibilityRoleDescription: String {
   case collection
+  case editor
+  case group
+  case htmlContent = "HTML content"
+  case image
   case list
   case outline
+  case outlineRow = "outline row"
+  case scrollArea = "scroll area"
+  case table
+  case text
   case textEntryArea = "text entry area"
   case textField = "text field"
-  case text
-  case image
-  case group
-  case scrollArea = "scroll area"
+}
+
+extension AnyAccessibilityElement {
+  func getFrame() throws -> CGRect {
+    if let frame = frame {
+      return frame
+    } else {
+      throw MouseCommandRunnerError.unableToResolveFrame
+    }
+  }
 }

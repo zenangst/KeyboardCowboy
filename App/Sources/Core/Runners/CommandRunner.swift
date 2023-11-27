@@ -225,6 +225,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     self.machPort = machPort
     runners.keyboard.machPort = machPort
     runners.system.machPort = machPort
+    UserSpace.shared.machPort = machPort
     if let machPort {
       WindowStore.shared.subscribe(to: machPort.$flagsChanged)
       runners.system.subscribe(to: machPort.$flagsChanged)
