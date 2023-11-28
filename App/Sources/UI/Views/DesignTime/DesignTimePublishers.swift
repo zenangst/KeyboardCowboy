@@ -161,6 +161,23 @@ enum DesignTime {
                   kind: .open(kind)), kind)
   }
 
+  static var mouseCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.MouseModel) {
+    let kind = CommandViewModel.Kind.MouseModel(
+      id: UUID().uuidString,
+      kind: .click(.focused(.center))
+    )
+    let path = "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns"
+    return (
+      .init(
+        meta: metadata(
+          name: "Left Click",
+          icon: .init(bundleIdentifier: path, path: path)),
+        kind: .mouse(kind)
+      ),
+      kind
+    )
+  }
+
   static var scriptCommandWithPath: (model: CommandViewModel, kind: CommandViewModel.Kind.ScriptModel) {
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
     let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .path(scriptFile), scriptExtension: .appleScript)
