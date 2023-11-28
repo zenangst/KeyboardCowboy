@@ -32,6 +32,18 @@ struct MouseCommandView: View {
         switch command.icon.wrappedValue {
         case .some(let icon):
           IconView(icon: icon, size: .init(width: 32, height: 32))
+            .overlay(alignment: .bottom) {
+              RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color(nsColor: .systemYellow))
+                .betaFeature("Mouse Commands is currently in beta. If you have any feedback, please reach out to us.") {
+                  Text("BETA")
+                    .foregroundStyle(Color.black)
+                    .font(.caption2)
+                    .frame(maxWidth: .infinity)
+                }
+                .frame(width: 26, height: 12)
+                .offset(y: 16)
+            }
         case .none:
           EmptyView()
         }
@@ -94,5 +106,14 @@ struct MouseCommandView: View {
         onAction(.commandAction(action))
       })
       .enableInjection()
+  }
+}
+
+struct MouseCommandView_Previews: PreviewProvider {
+  static let command = DesignTime.mouseCommand
+  static var previews: some View {
+    MouseCommandView(command.model.meta, model: command.kind) { _ in }
+      .designTime()
+      .frame(maxHeight: 100)
   }
 }

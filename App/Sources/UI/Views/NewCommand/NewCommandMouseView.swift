@@ -7,6 +7,24 @@ struct NewCommandMouseView: View {
   @State var selection: MouseCommand.Kind = .click(.focused(.center))
 
   var body: some View {
+    Text("Mouse Command")
+      .font(.system(.body, design: .rounded,weight: .semibold))
+      .allowsTightening(true)
+      .lineLimit(1)
+      .foregroundColor(Color.secondary)
+      .frame(height: 12)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .overlay(alignment: .trailing) {
+        RoundedRectangle(cornerRadius: 6, style: .continuous)
+          .fill(Color(nsColor: .systemYellow))
+          .betaFeature("Mouse Commands is currently in beta. If you have any feedback, please reach out to us.") {
+            Text("BETA")
+              .foregroundStyle(Color.black)
+              .font(.caption2)
+              .frame(maxWidth: .infinity)
+          }
+          .frame(width: 32)
+      }
     Menu(content: {
       ForEach(MouseCommand.Kind.allCases) { kind in
         Button(action: {
