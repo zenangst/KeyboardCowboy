@@ -133,6 +133,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   func run(_ command: Command, snapshot: UserSpace.Snapshot) async throws {
     do {
       let id = UUID().uuidString
+      if command.notification {
+        await BezelNotificationController.shared.post(
+          .init(id: id, text: " ", running: true)
+        )
+      }
       let output: String
       switch command {
       case .application(let applicationCommand):

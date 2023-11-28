@@ -4,6 +4,7 @@ import SwiftUI
 struct BezelNotificationViewModel: Identifiable, Hashable {
   var id: String
   var text: String
+  var running: Bool = false
 }
 
 @MainActor
@@ -18,29 +19,50 @@ struct BezelNotificationView: View {
   }
 
   var body: some View {
-    Text(publisher.data.text)
-      .font(.largeTitle)
-      .padding(.horizontal, 20)
-      .padding(.vertical, 16)
-      .background(backgroundView)
-      .padding(.top, show ? 38 : -32)
-      .frame(maxWidth: .infinity)
-      .onReceive(publisher.$data, perform: { _ in
-        show = true
-        manager.close(after: .seconds(2), then: {
-          show = false
-        })
+    HStack {
+      if publisher.data.running {
+        Rectangle()
+          .fill(Color.green)
+          .mask {
+            ProgressView()
+              .progressViewStyle(CircularProgressViewStyle())
+          }
+          .frame(width: 24, height: 24)
+        Text("Running…")
+          .font(.title)
+          .allowsTightening(true)
+          .opacity(0.5)
+      } else {
+        Text(publisher.data.text)
+          .font(.title)
+          .allowsTightening(true)
+      }
+    }
+    .frame(minWidth: 155)
+    .onReceive(publisher.$data, perform: { _ in
+      show = true
+      manager.close(after: .seconds(2), then: {
+        show = false
       })
-      .scaleEffect(show ? 1 : 0.2, anchor: .top)
-      .opacity(show ? 1 : 0)
-      .animation(.interactiveSpring(duration: 0.275), value: show)
+    })
+    .padding(.horizontal, 16)
+    .padding(.vertical, 16)
+    .background(backgroundView)
+    .padding(.top, (show || publisher.data.running) ? 36 : 0)
+    .frame(maxWidth: .infinity)
+    .scaleEffect((show || publisher.data.running) ? 1 : 0.01, anchor: .top)
+    .opacity((show || publisher.data.running) ? 1 : 0)
+    .animation(.smooth(duration: 0.5, extraBounce: 0.2), value: show)
+    .animation(.smooth(duration: 0.5, extraBounce: 0.2), value: publisher.data.text)
+    .padding(.bottom, 16)
       .enableInjection()
   }
 
   private var backgroundView: some View {
     Color(.black)
       .opacity(publisher.data.text.isEmpty ? 0 : 1)
-      .cornerRadius(8)
+      .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+      .cornerRadius(12)
   }
 }
 
