@@ -163,6 +163,9 @@ struct ContentListView: View {
               } else {
                 contentSelectionManager.publish([])
               }
+
+              debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
+                                                     groups: groupSelectionManager.selections))
             }
           })
           .padding(8)

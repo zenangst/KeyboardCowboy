@@ -214,7 +214,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         output = ""
       }
 
-      if command.notification, !output.isEmpty {
+      if command.notification {
         await MainActor.run {
           lastExecutedCommand = command
           BezelNotificationController.shared.post(.init(id: id, text: output))
