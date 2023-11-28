@@ -118,6 +118,21 @@ struct MouseCommand: Identifiable, Codable, MetaDataProviding {
         return "Focused Element"
       }
     }
+
+    var clickLocation: ClickLocation {
+      get {
+        switch self {
+        case .focused(let clickLocation):
+          return clickLocation
+        }
+      }
+      set {
+        switch self {
+        case .focused:
+          self = .focused(newValue)
+        }
+      }
+    }
   }
 
   var meta: Command.MetaData

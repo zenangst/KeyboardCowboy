@@ -19,17 +19,36 @@ final class XcodeMouseRoutine: MouseRoutine {
            roleDescription: KnownAccessibilityRoleDescription) throws -> CGRect {
     let elementFrame = try AXTextEntryAreaResolver.resolveFocusedElement(focusedElement)
     let frame: CGRect
-    if case .focused(let clickLocation) = kind.element,
-       case .center = clickLocation {
+    if case .center = kind.element.clickLocation {
       frame = elementFrame
     } else if let resolvedFrame = focusedElement.frame {
-      frame = CGRect(
-        origin: CGPoint(
-          x: resolvedFrame.origin.x + 8,
-          y: elementFrame.origin.y
-        ),
-        size: elementFrame.size
-      )
+      print(kind.element.clickLocation)
+      frame = switch kind.element.clickLocation {
+      case .leading:
+        CGRect(
+          origin: CGPoint(
+            x: resolvedFrame.origin.x + 8,
+            y: elementFrame.origin.y
+          ),
+          size: elementFrame.size
+        )
+      case .trailing:
+        CGRect(
+          origin: CGPoint(
+            x: resolvedFrame.maxX - 16,
+            y: elementFrame.origin.y
+          ),
+          size: elementFrame.size
+        )
+      default:
+        CGRect(
+          origin: CGPoint(
+            x: resolvedFrame.origin.x + 8,
+            y: elementFrame.origin.y
+          ),
+          size: elementFrame.size
+        )
+      }
     } else {
       throw XcodeMouseRoutineError.unableToResolveFrame
     }
