@@ -279,44 +279,30 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
 extension Command {
   static func empty(_ kind: CodingKeys) -> Command {
     let id = UUID().uuidString
-    switch kind {
+    return switch kind {
     case .application:
-      return Command.application(ApplicationCommand.empty())
+      Command.application(ApplicationCommand.empty())
     case .builtIn:
-      return Command.builtIn(.init(kind: .quickRun, notification: false))
+      Command.builtIn(.init(kind: .quickRun, notification: false))
     case .keyboard:
-      return Command.keyboard(KeyboardCommand.empty())
+      Command.keyboard(KeyboardCommand.empty())
     case .menuBar:
-      return Command.menuBar(MenuBarCommand(tokens: []))
+      Command.menuBar(MenuBarCommand(tokens: []))
     case .mouse:
-      return Command.mouse(MouseCommand.empty())
+      Command.mouse(MouseCommand.empty())
     case .open:
-      return Command.open(.init(path: "", notification: false))
+      Command.open(.init(path: "", notification: false))
     case .script:
-      return Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))
+      Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))
     case .shortcut:
-      return Command.shortcut(.init(id: id, shortcutIdentifier: "",
-                                    name: "", isEnabled: true, notification: false))
+      Command.shortcut(.init(id: id, shortcutIdentifier: "",
+                             name: "", isEnabled: true, notification: false))
     case .text:
-      return Command.text(
-        .init(.insertText(
-          .init(
-            "",
-            mode: .instant,
-            meta: MetaData(
-              id: id,
-              name: "",
-              isEnabled: true,
-              notification: false
-            )
-          )
-        )
-        )
-      )
+      Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id)))))
     case .system:
-      return Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
+      Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
     case .window:
-      return Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false, animationDuration: 0))
+      Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false, animationDuration: 0))
     }
   }
 
