@@ -74,9 +74,8 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       }
     } else {
       try await plugins.launch.execute(command)
-
       if !windowListStore.windowOwners().contains(bundleName) {
-        try await plugins.activate.execute(command)
+        try? await plugins.activate.execute(command)
       }
     }
   }
