@@ -43,7 +43,14 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
               EditableKeyboardShortcutsItemView(
                 keyboardShortcut: keyboardShortcut,
                 keyboardShortcuts: $keyboardShortcuts,
-                selectionManager: selectionManager
+                selectionManager: selectionManager,
+                onDelete: { keyboardShortcut in
+                  guard let index = keyboardShortcuts.firstIndex(of: keyboardShortcut) else { return }
+
+                  _ = withAnimation(animation) {
+                    keyboardShortcuts.remove(at: index)
+                  }
+                }
               )
               .contentShape(Rectangle())
               .contextMenu {
