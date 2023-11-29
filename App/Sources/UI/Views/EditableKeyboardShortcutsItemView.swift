@@ -1,11 +1,15 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct EditableKeyboardShortcutsItemView: View {
+  @ObserveInjection var inject
+  @State var isHovered: Bool = false
   @State var isTargeted: Bool = false
   let keyboardShortcut: Binding<KeyShortcut>
   @Binding var keyboardShortcuts: [KeyShortcut]
   let selectionManager: SelectionManager<KeyShortcut>
+  let onDelete: (KeyShortcut) -> Void
 
   var body: some View {
     HStack(spacing: 6) {
@@ -14,17 +18,32 @@ struct EditableKeyboardShortcutsItemView: View {
           key: modifier,
           alignment: keyboardShortcut.wrappedValue.lhs
           ? modifier == .shift ? .bottomLeading : .topTrailing
-          : modifier == .shift ? .bottomTrailing : .topLeading
+          : modifier == .shift ? .bottomTrailing : .topLeading,
+          glow: .constant(false)
         )
         .frame(minWidth: modifier == .command || modifier == .shift ? 44 : 32, minHeight: 32)
         .fixedSize(horizontal: true, vertical: true)
       }
-      RegularKeyIcon(letter: keyboardShortcut.wrappedValue.key, width: 32, height: 32)
+      RegularKeyIcon(letter: keyboardShortcut.wrappedValue.key, width: 32, height: 32, glow: .constant(false))
         .fixedSize(horizontal: true, vertical: true)
     }
     .contentShape(Rectangle())
     .padding(4)
     .overlay(BorderedOverlayView(cornerRadius: 4))
+    .overlay(alignment: .topTrailing, content: {
+      Button(action: {
+        onDelete(keyboardShortcut.wrappedValue)
+      }, label: {
+        Image(systemName: "xmark.circle")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 12)
+      })
+      .buttonStyle(.borderless)
+      .scaleEffect(isHovered ? 1 : 0.5)
+      .opacity(isHovered ? 1 : 0)
+      .animation(.smooth, value: isHovered)
+    })
     .background(
       RoundedRectangle(cornerRadius: 6, style: .continuous)
         .stroke(Color(.disabledControlTextColor))
@@ -44,6 +63,10 @@ struct EditableKeyboardShortcutsItemView: View {
     } isTargeted: { newValue in
       isTargeted = newValue
     }
+    .onHover(perform: { hovering in
+      isHovered = hovering
+    })
+    .enableInjection()
   }
 }
 
@@ -52,7 +75,7 @@ struct EditableKeyboardShortcutsItemView_Previews: PreviewProvider {
       EditableKeyboardShortcutsItemView(
         keyboardShortcut: .constant(.init(key: UUID().uuidString, lhs: true)),
         keyboardShortcuts: .constant([]),
-        selectionManager: .init())
+        selectionManager: .init(), onDelete: { _ in })
       .padding()
     }
 }

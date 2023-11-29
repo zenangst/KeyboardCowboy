@@ -67,7 +67,11 @@ struct CommandView: View {
         for item in items {
           switch item {
           case .text(let item):
-            if !item.hasPrefix("WC|"), let url = URL(string: item) {
+            // Don't accept dropping keyboard shortcuts.
+            if item.hasPrefix("WKS|") { return false }
+
+            if !item.hasPrefix("WC|"),
+               let url = URL(string: item) {
               urls.append(url)
               continue
             }
