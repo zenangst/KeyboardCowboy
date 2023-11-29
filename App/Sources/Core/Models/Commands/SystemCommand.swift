@@ -8,6 +8,7 @@ struct SystemCommand: MetaDataProviding {
       switch self {
       case .activateLastApplication:         "Activate Last Application"
       case .applicationWindows:              "Application Windows"
+      case .minimizeAllOpenWindows:          "Minimize All Open Windows"
       case .missionControl:                  "Mission Control"
       case .showDesktop:                     "Show Desktop"
       case .moveFocusToNextWindowGlobal:     "Move Focus to Next Window (All Windows)"
@@ -27,6 +28,7 @@ struct SystemCommand: MetaDataProviding {
       case .moveFocusToPreviousWindowFront:                              "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .moveFocusToNextWindow, .moveFocusToNextWindowGlobal:         "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .moveFocusToPreviousWindow, .moveFocusToPreviousWindowGlobal: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .minimizeAllOpenWindows:                                      "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
       case .missionControl:                                              "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
       case .showDesktop:                                                 "/System/Library/CoreServices/Dock.app/Contents/Resources/Dock.icns"
       }
@@ -34,13 +36,14 @@ struct SystemCommand: MetaDataProviding {
 
     case activateLastApplication
     case applicationWindows
+    case minimizeAllOpenWindows
+    case missionControl
     case moveFocusToNextWindowFront
     case moveFocusToPreviousWindowFront
     case moveFocusToNextWindow
     case moveFocusToPreviousWindow
     case moveFocusToNextWindowGlobal
     case moveFocusToPreviousWindowGlobal
-    case missionControl
     case showDesktop
   }
   var kind: Kind

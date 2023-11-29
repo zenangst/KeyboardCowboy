@@ -59,6 +59,9 @@ final class SystemCommandRunner: @unchecked Sendable {
           kind: command.kind,
           snapshot: snapshot
         )
+      case .minimizeAllOpenWindows:
+        guard let machPort else { return }
+        try SystemMinimizeAllWindows.run(snapshot, machPort: machPort)
       case .showDesktop:
         Dock.run(.showDesktop)
       case .applicationWindows:

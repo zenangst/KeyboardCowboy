@@ -105,12 +105,13 @@ final class KeyboardCowboyEngine {
         self?.reload(with: application)
       }
 
+    WindowStore.shared.subscribe(to: UserSpace.shared.$frontMostApplication)
+
     guard KeyboardCowboy.env() == .production else { return }
 
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
-    WindowStore.shared.subscribe(to: UserSpace.shared.$frontMostApplication)
   }
 
   private func reload(with application: UserSpace.Application) {
