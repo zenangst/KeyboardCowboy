@@ -38,7 +38,6 @@ struct BezelNotificationView: View {
           .allowsTightening(true)
       }
     }
-    .frame(minWidth: 155)
     .onReceive(publisher.$data, perform: { _ in
       show = true
       manager.close(after: .seconds(2), then: {
