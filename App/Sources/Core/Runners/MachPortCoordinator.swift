@@ -147,9 +147,11 @@ final class MachPortCoordinator {
     )
 
     // Found a match
+    let userModes = UserSpace.shared.userModes.filter(\.isEnabled)
     var result = keyboardShortcutsController.lookup(
       keyboardShortcut,
       bundleIdentifier: UserSpace.shared.frontMostApplication.bundleIdentifier,
+      userModes: userModes,
       partialMatch: previousPartialMatch
     )
     if result == nil {
@@ -157,6 +159,7 @@ final class MachPortCoordinator {
       result = keyboardShortcutsController.lookup(
         keyboardShortcut,
         bundleIdentifier: UserSpace.shared.frontMostApplication.bundleIdentifier,
+        userModes: userModes,
         partialMatch: previousPartialMatch
       )
     }

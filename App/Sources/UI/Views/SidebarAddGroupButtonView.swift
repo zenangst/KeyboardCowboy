@@ -1,7 +1,9 @@
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct SidebarAddGroupButtonView: View {
+  @ObserveInjection var inject
   @Binding private var isVisible: Bool
   private var namespace: Namespace.ID
   private var onAction: () -> Void
@@ -16,24 +18,22 @@ struct SidebarAddGroupButtonView: View {
 
   @ViewBuilder
   var body: some View {
-    if isVisible {
-      Button(action: {
-        onAction()
-      }) {
-        Image(systemName: "plus.circle")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(height: 10)
-          .padding(2)
+    Group {
+      if isVisible {
+        Button(action: { onAction() }, label: {
+          Image(systemName: "plus")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(height: 8)
+        })
+        .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true))))
+        .matchedGeometryEffect(id: "add-group-button", in: namespace)
+        .help("Add Group")
+      } else {
+        EmptyView()
       }
-      .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: .constant(true))))
-      .padding(.leading, 6)
-      .padding(.bottom, 6)
-      .matchedGeometryEffect(id: "add-group-button", in: namespace)
-      .help("Add Group")
-    } else {
-      EmptyView()
     }
+    .enableInjection()
   }
 }
 

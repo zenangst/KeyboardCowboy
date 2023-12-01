@@ -18,9 +18,13 @@ struct EditWorkflowGroupWindow: Scene {
   private let applicationStore: ApplicationStore
   private let groupStore: GroupStore
   private let onSubmit: (Context) -> Void
+  private let configurationPublisher: ConfigurationPublisher
 
-  init(_ contentStore: ContentStore, onSubmit: @escaping (Context) -> Void) {
+  init(_ contentStore: ContentStore, 
+       configurationPublisher: ConfigurationPublisher,
+       onSubmit: @escaping (Context) -> Void) {
     self.applicationStore = contentStore.applicationStore
+    self.configurationPublisher = configurationPublisher
     self.groupStore = contentStore.groupStore
     self.onSubmit = onSubmit
   }
@@ -42,6 +46,7 @@ struct EditWorkflowGroupWindow: Scene {
         KeyboardCowboy.keyWindow?.close()
         KeyboardCowboy.mainWindow?.makeKey()
       }
+      .environmentObject(configurationPublisher)
     }
     .windowResizability(.contentMinSize)
   }

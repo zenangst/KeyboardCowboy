@@ -19,7 +19,11 @@ final class ConfigurationStore: ObservableObject, @unchecked Sendable {
       self.selectedConfiguration = configuration
       self.selectedId = configuration.id
     } else {
-      let configuration = KeyboardCowboyConfiguration(name: "Default configuration", groups: [])
+      let configuration = KeyboardCowboyConfiguration(
+        name: "Default configuration",
+        userModes: [],
+        groups: []
+      )
       self.selectedConfiguration = configuration
       self.selectedId = configuration.id
       self.configurations = [configuration]

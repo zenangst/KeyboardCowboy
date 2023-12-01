@@ -14,19 +14,22 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
   var name: String
   var color: String
   var rule: Rule?
+  var userModes: [UserMode] = []
   var workflows: [Workflow]
 
   init(id: String = UUID().uuidString,
-              symbol: String = "folder",
-              name: String,
-              color: String = "#000",
-              rule: Rule? = nil,
-              workflows: [Workflow] = []) {
+       symbol: String = "folder",
+       name: String,
+       color: String = "#000",
+       rule: Rule? = nil,
+       userModes: [UserMode] = [],
+       workflows: [Workflow] = []) {
     self.id = id
     self.symbol = symbol
     self.name = name
     self.color = color
     self.rule = rule
+    self.userModes = userModes
     self.workflows = workflows
   }
 
@@ -43,6 +46,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     case symbol
     case name
     case rule
+    case userModes
     case workflows
   }
 
@@ -54,6 +58,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.color = try container.decodeIfPresent(String.self, forKey: .color) ?? "#000"
     self.name = try container.decode(String.self, forKey: .name)
     self.rule = try container.decodeIfPresent(Rule.self, forKey: .rule)
+    self.userModes = try container.decodeIfPresent([UserMode].self, forKey: .userModes) ?? []
     self.workflows = try container.decodeIfPresent([Workflow].self, forKey: .workflows) ?? []
   }
 }

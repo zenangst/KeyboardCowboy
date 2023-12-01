@@ -2,33 +2,43 @@ import Foundation
 
 struct BuiltInCommand: MetaDataProviding {
   var meta: Command.MetaData
-  
-  var name: String {
-    switch kind {
-    case .quickRun:
-      return "Open Quick Run"
-    case .repeatLastKeystroke:
-      return "Repeat last keystroke"
-    case .recordSequence:
-      return "Record sequence"
-    }
-  }
   let kind: Kind
 
-  enum Kind: String, Codable, Hashable, CaseIterable, Identifiable, Sendable {
-    public var id: String { return self.rawValue }
-    case quickRun
-    case repeatLastKeystroke
-    case recordSequence
+  enum Kind: Codable, Hashable, Identifiable, Sendable {
+    enum Action: String, Codable, Hashable, Sendable {
+      case enable
+      case disable
+      case toggle
+    }
+
+    case userMode(UserMode, Action)
+
+    var id: String {
+      switch self {
+        case .userMode(let id, let action):
+        return switch action {
+        case .enable: "enable-\(id)"
+        case .disable: "disable-\(id)"
+        case .toggle: "toggle-\(id)"
+        }
+      }
+    }
+
+    var userModeId: UserMode.ID {
+      switch self {
+        case .userMode(let model, _):
+        return model.id
+      }
+    }
 
     public var displayValue: String {
       switch self {
-      case .quickRun:
-        return "Open Quick Run dialog"
-      case .repeatLastKeystroke:
-        return "Repeat last keystroke"
-      case .recordSequence:
-        return "Record sequence"
+        case .userMode(_, let action):
+        return switch action {
+        case .enable: "Enable User Mode"
+        case .disable: "Disable User Mode"
+        case .toggle: "Toggle User Mode"
+        }
       }
     }
   }
@@ -39,8 +49,7 @@ struct BuiltInCommand: MetaDataProviding {
     case notification
   }
 
-  init(id: String = UUID().uuidString,
-              kind: Kind, notification: Bool) {
+  init(id: String = UUID().uuidString, kind: Kind, notification: Bool) {
     self.kind = kind
     self.meta = .init(id: id, name: kind.displayValue, isEnabled: true, notification: notification)
   }

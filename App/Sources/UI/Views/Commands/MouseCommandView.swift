@@ -31,19 +31,24 @@ struct MouseCommandView: View {
       icon: { command in
         switch command.icon.wrappedValue {
         case .some(let icon):
-          IconView(icon: icon, size: .init(width: 32, height: 32))
-            .overlay(alignment: .bottom) {
-              RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color(nsColor: .systemYellow))
-                .betaFeature("Mouse Commands is currently in beta. If you have any feedback, please reach out to us.") {
-                  Text("BETA")
-                    .foregroundStyle(Color.black)
-                    .font(.caption2)
-                    .frame(maxWidth: .infinity)
+          Color.accentColor.opacity(0.375)
+            .cornerRadius(8, antialiased: false)
+            .frame(width: 32, height: 32)
+            .overlay(content: {
+              IconView(icon: icon, size: .init(width: 24, height: 24))
+                .overlay(alignment: .bottom) {
+                  RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(Color(nsColor: .systemYellow))
+                    .betaFeature("Mouse Commands is currently in beta. If you have any feedback, please reach out to us.") {
+                      Text("BETA")
+                        .foregroundStyle(Color.black)
+                        .font(.caption2)
+                        .frame(maxWidth: .infinity)
+                    }
+                    .frame(width: 26, height: 12)
+                    .offset(y: 10)
                 }
-                .frame(width: 26, height: 12)
-                .offset(y: 16)
-            }
+            })
         case .none:
           EmptyView()
         }

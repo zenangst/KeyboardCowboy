@@ -12,7 +12,7 @@ final class ContentCoordinator {
 
   let groupPublisher: GroupPublisher = GroupPublisher(
     .init(id: UUID().uuidString, name: "", icon: nil,
-      color: "", symbol: "", count: 0)
+      color: "", symbol: "", userModes: [], count: 0)
   )
   let contentPublisher: ContentPublisher = ContentPublisher()
 
@@ -36,7 +36,7 @@ final class ContentCoordinator {
   func handle(_ action: SidebarView.Action) {
     switch action {
     case .refresh, .openScene, .addConfiguration, .updateConfiguration,
-        .moveGroups, .removeGroups, .deleteConfiguration:
+        .moveGroups, .removeGroups, .deleteConfiguration, .userMode:
       // NOOP
       break
     case .moveWorkflows, .copyWorkflows:

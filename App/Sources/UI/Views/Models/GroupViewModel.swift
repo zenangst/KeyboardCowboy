@@ -8,6 +8,7 @@ struct GroupViewModel: Identifiable, Hashable, Codable, Sendable, Transferable {
   let icon: Icon?
   let color: String
   let symbol: String
+  let userModes: [UserMode]
   let count: Int
 
   static var transferRepresentation: some TransferRepresentation {

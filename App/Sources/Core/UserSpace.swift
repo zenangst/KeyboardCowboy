@@ -13,7 +13,7 @@ enum UserSpaceError: Error {
   case unableToGetDocumentPath
 }
 
-final class UserSpace {
+final class UserSpace: Sendable {
   struct Application: @unchecked Sendable {
     let ref: NSRunningApplication
     let bundleIdentifier: String
@@ -25,6 +25,7 @@ final class UserSpace {
   struct Snapshot {
     let documentPath: String?
     let frontMostApplication: Application
+    let modes: [UserMode]
     let previousApplication: Application
     let selectedText: String
     let selections: [String]
@@ -33,6 +34,7 @@ final class UserSpace {
     init(
       documentPath: String? = nil,
       frontMostApplication: Application = .current,
+      modes: [UserMode] = [],
       previousApplication: Application = .current,
       selectedText: String = "",
       selections: [String] = [],
@@ -44,6 +46,7 @@ final class UserSpace {
     ) {
       self.documentPath = documentPath
       self.frontMostApplication = frontMostApplication
+      self.modes = modes
       self.previousApplication = previousApplication
       self.selectedText = selectedText
       self.selections = selections
@@ -105,12 +108,27 @@ final class UserSpace {
     }
   }
 
+  final class UserModesPublisher: ObservableObject {
+    @Published private(set) var activeModes: [UserMode] = []
+
+    init(_ activeModes: [UserMode]) {
+      self.activeModes = activeModes
+    }
+
+    func publish(_ newModes: [UserMode]) {
+      self.activeModes = newModes
+    }
+  }
+
   static let shared = UserSpace()
 
   @Published private(set) var frontMostApplication: Application = .current
   @Published private(set) var previousApplication: Application = .current
   @Published private(set) var runningApplications: [Application] = [Application.current]
+  public let userModesPublisher = UserModesPublisher([])
+  private(set) var userModes: [UserMode] = []
   private var frontmostApplicationSubscription: AnyCancellable?
+  private var configurationSubscription: AnyCancellable?
   private var runningApplicationsSubscription: AnyCancellable?
 
   var machPort: MachPortEventController?
@@ -131,7 +149,7 @@ final class UserSpace {
       }
   }
 
-  #if DEBUG
+#if DEBUG
   func injectRunningApplications(_ runningApplications: [Application]) {
     self.runningApplications = runningApplications
   }
@@ -139,7 +157,7 @@ final class UserSpace {
   func injectFrontmostApplication(_ frontmostApplication: Application) {
     self.frontMostApplication = frontmostApplication
   }
-  #endif
+#endif
 
   @MainActor
   func snapshot() async -> Snapshot {
@@ -173,6 +191,38 @@ final class UserSpace {
                     selections: selections,
                     windows: WindowStore.shared.snapshot())
   }
+
+  func subscribe(to publisher: Published<KeyboardCowboyConfiguration>.Publisher) {
+    configurationSubscription = publisher
+      .sink { [weak self] configuration in
+        guard let self = self else { return }
+        Task {
+          await MainActor.run {
+            var currentModes = configuration.userModes
+              .map { UserMode(id: $0.id, name: $0.name, isEnabled: false) }
+              .sorted(by: { $0.name < $1.name })
+            self.userModes = currentModes
+          }
+        }
+      }
+  }
+
+  @MainActor
+  func setUserModes(_ userModes: [UserMode]) {
+    self.userModes = userModes
+
+    let active = userModes.filter(\.isEnabled)
+
+    userModesPublisher.publish(active)
+
+    if active.isEmpty {
+      UserModesBezelController.shared.hide()
+    } else {
+      UserModesBezelController.shared.show()
+    }
+  }
+
+  // MARK: - Private methods
 
   private func frontmostApplication() throws -> NSRunningApplication {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
@@ -223,6 +273,7 @@ final class UserSpace {
     return selectedText
   }
 }
+
 
 fileprivate extension NSRunningApplication {
   static func currentAsApplication() -> UserSpace.Application {

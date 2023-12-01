@@ -22,6 +22,7 @@ struct NewCommandWindow: Scene {
                        _ commandId: Command.ID?,
                        _ title: String,
                        _ payload: NewCommandPayload) -> Void
+  private let configurationPublisher: ConfigurationPublisher
   private let contentStore: ContentStore
   private let defaultSelection: NewCommandView.Kind = .application
   private let defaultPayload: NewCommandPayload = .application(
@@ -32,8 +33,10 @@ struct NewCommandWindow: Scene {
     ifNotRunning: false)
 
   init(contentStore: ContentStore,
+       configurationPublisher: ConfigurationPublisher,
        onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void) {
     self.contentStore = contentStore
+    self.configurationPublisher = configurationPublisher
     self.onSave = onSave
   }
 
@@ -86,6 +89,7 @@ struct NewCommandWindow: Scene {
     .environmentObject(contentStore.recorderStore)
     .environmentObject(contentStore.shortcutStore)
     .environmentObject(contentStore.applicationStore)
+    .environmentObject(configurationPublisher)
     .environmentObject(OpenPanelController())
     .ignoresSafeArea(edges: .all)
   }

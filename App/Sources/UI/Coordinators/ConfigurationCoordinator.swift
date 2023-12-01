@@ -9,20 +9,34 @@ final class ConfigurationCoordinator {
   private let selectionManager: SelectionManager<ConfigurationViewModel>
   private let store: ConfigurationStore
 
-  let publisher: ConfigurationPublisher
+  let configurationsPublisher: ConfigurationsPublisher
+  let configurationPublisher: ConfigurationPublisher
 
   init(contentStore: ContentStore, selectionManager: SelectionManager<ConfigurationViewModel>,
        store: ConfigurationStore) {
     self.contentStore = contentStore
     self.store = store
     self.selectionManager = selectionManager
-    self.publisher = ConfigurationPublisher()
+    self.configurationsPublisher = ConfigurationsPublisher()
+    self.configurationPublisher = ConfigurationPublisher(.init(id: UUID().uuidString, name: "", selected: false))
 
     Task {
       // TODO: Should we remove this subscription and make it more explicit when configurations change?
       // Why do we do this inside of a Task?
       subscription = store.$selectedConfiguration
-        .sink { [weak self] in self?.render(selectedConfiguration: $0) }
+        .sink { [weak self] configuration in
+          guard let self else { return }
+
+          self.configurationPublisher.publish(
+            ConfigurationViewModel(
+              id: configuration.id,
+              name: configuration.name,
+              selected: true,
+              userModes: configuration.userModes
+            )
+          )
+          self.render(selectedConfiguration: configuration)
+        }
     }
   }
 
@@ -35,7 +49,12 @@ final class ConfigurationCoordinator {
         selectionManager.selections = [configuration.id]
       }
     case .addConfiguration(let name):
-      let configuration = KeyboardCowboyConfiguration(id: UUID().uuidString, name: name, groups: [])
+      let configuration = KeyboardCowboyConfiguration(
+        id: UUID().uuidString,
+        name: name,
+        userModes: [],
+        groups: []
+      )
       store.add(configuration)
       contentStore.use(configuration)
       selectionManager.selections = [configuration.id]
@@ -53,6 +72,28 @@ final class ConfigurationCoordinator {
         contentStore.use(firstConfiguration)
         render(selectedConfiguration: firstConfiguration)
       }
+    case .userMode(let action):
+      switch action {
+      case .add(let string):
+        let userMode = UserMode(id: UUID().uuidString, name: string, isEnabled: false)
+        var modifiedConfiguration = contentStore.configurationStore.selectedConfiguration
+        modifiedConfiguration.userModes.append(userMode)
+        contentStore.configurationStore.update(modifiedConfiguration)
+        contentStore.configurationStore.select(modifiedConfiguration)
+      case .delete(let string):
+        var modifiedConfiguration = contentStore.configurationStore.selectedConfiguration
+        modifiedConfiguration.userModes.removeAll(where: { $0.id == string })
+        contentStore.configurationStore.update(modifiedConfiguration)
+        contentStore.configurationStore.select(modifiedConfiguration)
+      case .rename(let id, let newName):
+        var modifiedConfiguration = contentStore.configurationStore.selectedConfiguration
+        guard let index = modifiedConfiguration.userModes.firstIndex(where: { $0.id == id }) else {
+          return
+        }
+        modifiedConfiguration.userModes[index].name = newName
+        contentStore.configurationStore.update(modifiedConfiguration)
+        contentStore.configurationStore.select(modifiedConfiguration)
+      }
     default:
       break
     }
@@ -65,7 +106,8 @@ final class ConfigurationCoordinator {
         let viewModel = ConfigurationViewModel(
           id: configuration.id,
           name: configuration.name,
-          selected: selectedConfiguration?.id == configuration.id)
+          selected: selectedConfiguration?.id == configuration.id,
+          userModes: configuration.userModes)
 
         if let selectedConfiguration, configuration.id == selectedConfiguration.id {
           selections.append(viewModel)
@@ -74,6 +116,6 @@ final class ConfigurationCoordinator {
         return viewModel
       }
 
-    publisher.publish(configurations)
+    configurationsPublisher.publish(configurations)
   }
 }

@@ -101,7 +101,8 @@ struct KeyboardCowboy: App {
       .environmentObject(core.groupStore)
       .environmentObject(core.shortcutStore)
       .environmentObject(core.recorderStore)
-      .environmentObject(core.configCoordinator.publisher)
+      .environmentObject(core.configCoordinator.configurationsPublisher)
+      .environmentObject(core.configCoordinator.configurationPublisher)
       .environmentObject(core.sidebarCoordinator.publisher)
       .environmentObject(core.contentCoordinator.contentPublisher)
       .environmentObject(core.contentCoordinator.groupPublisher)
@@ -164,7 +165,7 @@ struct KeyboardCowboy: App {
       }
     }
 
-    NewCommandWindow(contentStore: core.contentStore) { workflowId, commandId, title, payload in
+    NewCommandWindow(contentStore: core.contentStore, configurationPublisher: core.configCoordinator.configurationPublisher) { workflowId, commandId, title, payload in
       let groupIds = core.groupSelectionManager.selections
       Task {
         await core.detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
@@ -176,14 +177,14 @@ struct KeyboardCowboy: App {
     .defaultSize(.init(width: 520, height: 280))
     .defaultPosition(.center)
 
-    EditWorkflowGroupWindow(core.contentStore) { context in
+    EditWorkflowGroupWindow(core.contentStore, configurationPublisher: core.configCoordinator.configurationPublisher) { context in
       core.sidebarCoordinator.handle(context)
       core.contentCoordinator.handle(context)
     }
-      .windowResizability(.contentSize)
-      .windowStyle(.hiddenTitleBar)
-      .defaultPosition(.center)
-      .defaultSize(.init(width: 520, height: 280))
+    .windowResizability(.contentSize)
+    .windowStyle(.hiddenTitleBar)
+    .defaultPosition(.center)
+    .defaultSize(.init(width: 520, height: 280))
   }
 
   private func handleScene(_ scene: AppScene) {

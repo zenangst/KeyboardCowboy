@@ -1,10 +1,13 @@
+import Inject
 import SwiftUI
 
 struct SidebarView: View {
+  @ObserveInjection var inject
   enum Action {
     case refresh
     case openScene(AppScene)
     case addConfiguration(name: String)
+    case userMode(UserModesView.Action)
     case updateConfiguration(name: String)
     case deleteConfiguration(id: ConfigurationViewModel.ID)
     case selectConfiguration(ConfigurationViewModel.ID)
@@ -36,60 +39,72 @@ struct SidebarView: View {
   }
 
   var body: some View {
-    SidebarConfigurationHeaderView()
+    VStack(alignment: .leading, spacing: 0) {
+      SidebarConfigurationHeaderView()
+        .padding(.horizontal, 12)
+      SidebarConfigurationView(configSelectionManager) { action in
+        switch action {
+        case .deleteConfiguration(let id):
+          onAction(.deleteConfiguration(id: id))
+        case .updateName(let newName):
+          onAction(.updateConfiguration(name: newName))
+        case .addConfiguration(let name):
+          onAction(.addConfiguration(name: name))
+        case .selectConfiguration(let id):
+          onAction(.selectConfiguration(id))
+        }
+      }
+      .padding([.leading, .top, .trailing], 12)
+
+      UserModesView { action in
+        onAction(.userMode(action))
+      }.padding([.leading, .top, .trailing], 12)
+
+      HStack {
+        Label("Groups", image: "")
+        Spacer()
+        SidebarAddGroupButtonView(isVisible: .readonly(!publisher.data.isEmpty),
+                                  namespace: namespace, onAction: {
+          onAction(.openScene(.addGroup))
+        })
+      }
       .padding(.horizontal, 12)
-    SidebarConfigurationView(configSelectionManager) { action in
-      switch action {
-      case .deleteConfiguration(let id):
-        onAction(.deleteConfiguration(id: id))
-      case .updateName(let newName):
-        onAction(.updateConfiguration(name: newName))
-      case .addConfiguration(let name):
-        onAction(.addConfiguration(name: name))
-      case .selectConfiguration(let id):
-        onAction(.selectConfiguration(id))
+      .padding(.vertical, 6)
+
+      GroupsView(focus, namespace: namespace,
+                 selectionManager: groupSelectionManager,
+                 contentSelectionManager: contentSelectionManager) { action in
+        switch action {
+        case .selectGroups(let ids):
+          onAction(.selectGroups(ids))
+        case .moveGroups(let source, let destination):
+          onAction(.moveGroups(source: source, destination: destination))
+        case .removeGroups(let ids):
+          onAction(.removeGroups(ids))
+        case .openScene(let scene):
+          onAction(.openScene(scene))
+        case .moveWorkflows(let workflowIds, let groupId):
+          onAction(.moveWorkflows(workflowIds: workflowIds, groupId: groupId))
+        case .copyWorkflows(let workflowIds, let groupId):
+          onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
+        }
       }
     }
-    .padding(.horizontal, 12)
-
-    Label("Groups", image: "")
-      .padding(.top, 6)
-      .padding(.horizontal, 12)
-
-    GroupsView(focus, namespace: namespace,
-               selectionManager: groupSelectionManager,
-               contentSelectionManager: contentSelectionManager) { action in
-      switch action {
-      case .selectGroups(let ids):
-        onAction(.selectGroups(ids))
-      case .moveGroups(let source, let destination):
-        onAction(.moveGroups(source: source, destination: destination))
-      case .removeGroups(let ids):
-        onAction(.removeGroups(ids))
-      case .openScene(let scene):
-        onAction(.openScene(scene))
-      case .moveWorkflows(let workflowIds, let groupId):
-        onAction(.moveWorkflows(workflowIds: workflowIds, groupId: groupId))
-      case .copyWorkflows(let workflowIds, let groupId):
-        onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
-      }
-    }
-    SidebarAddGroupButtonView(isVisible: .readonly(!publisher.data.isEmpty),
-                              namespace: namespace, onAction: {
-      onAction(.openScene(.addGroup))
-    })
+    .enableInjection()
   }
 }
 
 struct SidebarView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    SidebarView(
-      $focus,
-      configSelectionManager: .init(),
-      groupSelectionManager: .init(),
-      contentSelectionManager: .init()
-    ) { _ in }
+    VStack(alignment: .leading) {
+      SidebarView(
+        $focus,
+        configSelectionManager: .init(),
+        groupSelectionManager: .init(),
+        contentSelectionManager: .init()
+      ) { _ in }
+    }
       .designTime()
   }
 }

@@ -1,5 +1,6 @@
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct EditWorfklowGroupView: View {
   enum Focus {
@@ -10,9 +11,11 @@ struct EditWorfklowGroupView: View {
     case cancel
   }
 
+  @ObserveInjection var inject
   @Namespace var namespace
   @FocusState var focus: Focus?
   @ObservedObject var applicationStore: ApplicationStore
+  @EnvironmentObject var publisher: ConfigurationPublisher
   @State var editIcon: WorkflowGroup?
   @State var group: WorkflowGroup
   var action: (Action) -> Void
@@ -48,17 +51,62 @@ struct EditWorfklowGroupView: View {
       }
 
       Divider()
-      VStack(spacing: 0) {
-        RuleHeaderView(applicationStore: applicationStore, group: $group)
-          .padding()
-          .background(Color(.windowBackgroundColor))
-        ScrollView {
-          RuleListView(applicationStore: applicationStore,
-                       group: $group)
-          .focusSection()
+
+      HStack(spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
+          Label.init("User Modes", image: "")
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Color(.windowBackgroundColor))
+            .labelStyle(HeaderLabelStyle())
+          
+          Menu("Add User Mode") {
+            ForEach(publisher.data.userModes) { userMode in
+              Button(action: {
+                guard !group.userModes.contains(userMode) else { return }
+                group.userModes.append(userMode)
+              }, label: {
+                Text(userMode.name)
+              })
+            }
+          }
+          .padding(.horizontal)
+          .padding(.bottom)
+          .menuStyle(.regular)
+          
+          ScrollView {
+            ForEach(group.userModes) { userMode in
+              Divider()
+              HStack {
+                Text(userMode.name)
+                Spacer()
+                Button(action: {
+                  group.userModes.removeAll(where: { $0.id == userMode.id })
+                }, label: {
+                  Image(systemName: "trash")
+                })
+                .buttonStyle(.calm(color: .systemRed, padding: .medium))
+
+              }
+              .padding(.horizontal)
+            }
+          }
         }
         .background(Color(.windowBackgroundColor))
+        .roundedContainer(padding: 0, margin: 0)
+        .padding([.top, .leading, .bottom], 16)
 
+        VStack(alignment: .leading, spacing: 0) {
+          RuleHeaderView(applicationStore: applicationStore, group: $group)
+            .padding()
+            .background(Color(.windowBackgroundColor))
+          ScrollView {
+            RuleListView(applicationStore: applicationStore,
+                         group: $group)
+            .focusSection()
+          }
+          .background(Color(.windowBackgroundColor))
+          
           VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading) {
               Text("Workflows in this group are only activated when the following applications are the frontmost app.\n") +
@@ -68,8 +116,10 @@ struct EditWorfklowGroupView: View {
             .font(.caption)
           }
           .padding()
+        }
+        .roundedContainer(padding: 0, margin: 0)
+        .padding([.top, .trailing, .bottom], 16)
       }
-      .roundedContainer(padding: 0)
 
       HStack {
         Button(role: .cancel) {
@@ -93,7 +143,8 @@ struct EditWorfklowGroupView: View {
       .padding()
     }
     .focusScope(namespace)
-    .frame(minWidth: 540, minHeight: 400)
+    .frame(minWidth: 600, minHeight: 400)
+    .enableInjection()
   }
 }
 
