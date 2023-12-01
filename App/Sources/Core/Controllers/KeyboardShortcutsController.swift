@@ -21,14 +21,45 @@ final class KeyboardShortcutsController {
 
   func lookup(_ keyboardShortcut: KeyShortcut, 
               bundleIdentifier: String,
+              userModes: [UserMode],
               partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
-    let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: partialMatch.rawValue)
-    if let result = cache[scopedKey] {
-      return result
-    }
-    let globalKey = createKey(keyboardShortcut, bundleIdentifier: "*", previousKey: partialMatch.rawValue)
-    let result = cache[globalKey]
-    return result
+    let userModeKey = userModes.filter({ $0.isEnabled == true }).dictionaryKey(true)
+    let scopedKeyWithUserMode = createKey(
+      keyboardShortcut,
+      bundleIdentifier: bundleIdentifier,
+      userModeKey: userModeKey,
+      previousKey: partialMatch.rawValue
+    )
+
+    if let result = cache[scopedKeyWithUserMode] { return result }
+
+    let scopedKey = createKey(
+      keyboardShortcut,
+      bundleIdentifier: bundleIdentifier,
+      userModeKey: "",
+      previousKey: partialMatch.rawValue
+    )
+
+    if let result = cache[scopedKey] { return result }
+
+    let globalKeyWithUserMode = createKey(
+      keyboardShortcut,
+      bundleIdentifier: "*",
+      userModeKey: userModeKey,
+      previousKey: partialMatch.rawValue
+    )
+
+
+    if let result = cache[globalKeyWithUserMode] { return result }
+
+    let globalKey = createKey(
+      keyboardShortcut,
+      bundleIdentifier: "*",
+      userModeKey: "",
+      previousKey: partialMatch.rawValue
+    )
+
+    return cache[globalKey]
   }
 
   func allMatchingPrefix(_ prefix: String, shortcutIndexPrefix: Int) -> [Workflow] {
@@ -75,13 +106,18 @@ final class KeyboardShortcutsController {
     return workflows
   }
 
-  func cache(_ groups: [WorkflowGroup]) {
+  func cache(_ groups: [WorkflowGroup]) async {
+    await Benchmark.shared.start("KeyboardShortcutsController.cache")
+
     var newCache = [String: KeyboardShortcutResult]()
-    groups.forEach { group in
-      var bundleIdentifiers: [String] = ["*"]
+    for group in groups {
+      let bundleIdentifiers: [String]
       if let rule = group.rule {
         bundleIdentifiers = rule.bundleIdentifiers
+      } else {
+        bundleIdentifiers = ["*"]
       }
+
       bundleIdentifiers.forEach { bundleIdentifier in
         group.workflows.forEach { workflow in
           guard workflow.isEnabled else { return }
@@ -91,8 +127,12 @@ final class KeyboardShortcutsController {
           var previousKey: String = "."
           var offset = 0
           trigger.shortcuts.forEach { keyboardShortcut in
-            let key = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier, previousKey: previousKey)
-            previousKey += "\(keyboardShortcut.dictionaryKey)+"
+            let userModeKey = group.userModes.dictionaryKey(true)
+            let key = createKey(keyboardShortcut,
+                                bundleIdentifier: bundleIdentifier,
+                                userModeKey: userModeKey,
+                                previousKey: previousKey)
+            previousKey += "\(keyboardShortcut.dictionaryKey())+"
 
             if offset == count {
               newCache[key] = .exact(workflow)
@@ -106,17 +146,39 @@ final class KeyboardShortcutsController {
       }
     }
     cache = newCache
+    await Benchmark.shared.finish("KeyboardShortcutsController.cache")
   }
 
   // MARK: - Private methods
 
-  private func createKey(_ keyboardShortcut: KeyShortcut, bundleIdentifier: String, previousKey: String) -> String {
-    "\(bundleIdentifier)\(previousKey)\(keyboardShortcut.dictionaryKey)"
+  private func createKey(
+    _ keyboardShortcut: KeyShortcut,
+    bundleIdentifier: String,
+    userModeKey: String,
+    previousKey: String
+  ) -> String {
+    "\(bundleIdentifier)\(previousKey)\(keyboardShortcut.dictionaryKey())\(userModeKey)"
+  }
+}
+
+private extension Array<UserMode> {
+  func dictionaryKey(_ value: Bool) -> String {
+    map { $0.dictionaryKey(value) }.joined()
+  }
+}
+
+private extension UserMode {
+  func dictionaryKey(_ value: Bool) -> String {
+    return "\(prefix())\(value ? 1 : 0))"
+  }
+
+  private func prefix() -> String {
+    return "UM:\(id):"
   }
 }
 
 private extension KeyShortcut {
-  var dictionaryKey: String {
+  func dictionaryKey() -> String {
     if modifersDisplayValue.isEmpty {
       return "[\(key):\(lhs)]"
     } else {

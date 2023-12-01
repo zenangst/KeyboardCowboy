@@ -3,6 +3,7 @@ import Foundation
 
 enum NewCommandPayload: Equatable {
   case placeholder
+  case builtIn(builtIn: BuiltInCommand)
   case script(value: String, kind: NewCommandScriptView.Kind, scriptExtension: NewCommandScriptView.ScriptExtension)
   case application(application: Application?, action: NewCommandApplicationView.ApplicationAction,
                    inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
@@ -20,48 +21,37 @@ enum NewCommandPayload: Equatable {
     switch self {
     case .placeholder:
       return "Placeholder"
+    case .builtIn(let command):
+      return command.kind.displayValue
     case .script(_, let kind, let scriptExtension):
       switch scriptExtension {
       case .appleScript:
-        switch kind {
-        case .file:
-          return "Run AppleScript"
-        case .source:
-          return "Run AppleScript"
+        return switch kind {
+        case .file: "Run AppleScript"
+        case .source: "Run AppleScript"
         }
       case .shellScript:
-        switch kind {
-        case .file:
-          return "Run Shell Script"
-        case .source:
-          return "Run Shell Script"
+        return switch kind {
+        case .file: "Run Shell Script"
+        case .source: "Run Shell Script"
         }
       }
     case .application(let application, let action, _, _, _):
-      let actionString: String
-      switch action {
-      case .open:
-        actionString = "Open"
-      case .close:
-        actionString = "Close"
-      }
-
-      if let application {
-        return "\(actionString) \(application.displayName)"
-      } else {
-        return "\(actionString) Application"
+      return switch action {
+      case .open: "Open \(application?.displayName ?? "Application")"
+      case .close: "Close \(application?.displayName ?? "Application")"
       }
     case .url(let targetUrl, let application):
-      if let application {
-        return "Open URL \(targetUrl.absoluteString) with \(application.displayName)"
+      return if let application {
+        "Open URL \(targetUrl.absoluteString) with \(application.displayName)"
       } else {
-        return "Open URL \(targetUrl.absoluteString)"
+        "Open URL \(targetUrl.absoluteString)"
       }
     case .open(let path, let application):
-      if let application {
-        return "Open \(path) with \(application.displayName)"
+      return if let application {
+        "Open \(path) with \(application.displayName)"
       } else {
-        return "Open \(path)"
+        "Open \(path)"
       }
     case .shortcut(let name):
       return "Run Shortcut '\(name)'"

@@ -6,27 +6,41 @@ import Foundation
 enum DesignTime {
   static let sourceRoot = ProcessInfo.processInfo.environment["SOURCE_ROOT"] ?? "SOURCE_ROOT"
 
-  static var configurationPublisher = ConfigurationPublisher {
+  static var configurationsPublisher = ConfigurationsPublisher {
     [
-      ConfigurationViewModel(id: UUID().uuidString, name: UUID().uuidString, selected: false),
-      ConfigurationViewModel(id: UUID().uuidString, name: UUID().uuidString, selected: false),
+      ConfigurationViewModel(
+        id: UUID().uuidString,
+        name: UUID().uuidString,
+        selected: false,
+        userModes: []
+      ),
+      ConfigurationViewModel(
+        id: UUID().uuidString,
+        name: UUID().uuidString,
+        selected: false,
+        userModes: []
+      ),
     ]
   }
+
+  static var configurationPublisher = ConfigurationPublisher(.init(id: UUID().uuidString, name: UUID().uuidString, selected: false, userModes: [
+    .init(id: UUID().uuidString, name: "Vim mode", isEnabled: false)
+  ]))
 
   static var groupsPublisher = GroupsPublisher {
     [
-      GroupViewModel(id: UUID().uuidString, name: "Automation", icon: nil, color: "#EB5545", symbol: "autostartstop", count: 24),
-      GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", count: 10),
-      GroupViewModel(id: UUID().uuidString, name: "AppleScripts", icon: nil, color: "#F9D64A", symbol: "applescript", count: 5),
-      GroupViewModel(id: UUID().uuidString, name: "Files & Folders", icon: nil, color: "#6BD35F", symbol: "folder", count: 2),
-      GroupViewModel(id: UUID().uuidString, name: "Rebinding", icon: nil, color: "#3984F7", symbol: "app.connected.to.app.below.fill", count: 0),
-      GroupViewModel(id: UUID().uuidString, name: "ShellScripts", icon: nil, color: "#B263EA", symbol: "terminal", count: 1),
-      GroupViewModel(id: UUID().uuidString, name: "System", icon: nil, color: "#98989D", symbol: "laptopcomputer", count: 50),
-      GroupViewModel(id: UUID().uuidString, name: "Websites", icon: nil, color: "#A78F6D", symbol: "safari", count: 14),
+      GroupViewModel(id: UUID().uuidString, name: "Automation", icon: nil, color: "#EB5545", symbol: "autostartstop", userModes: [], count: 24),
+      GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", userModes: [], count: 10),
+      GroupViewModel(id: UUID().uuidString, name: "AppleScripts", icon: nil, color: "#F9D64A", symbol: "applescript", userModes: [], count: 5),
+      GroupViewModel(id: UUID().uuidString, name: "Files & Folders", icon: nil, color: "#6BD35F", symbol: "folder", userModes: [], count: 2),
+      GroupViewModel(id: UUID().uuidString, name: "Rebinding", icon: nil, color: "#3984F7", symbol: "app.connected.to.app.below.fill", userModes: [], count: 0),
+      GroupViewModel(id: UUID().uuidString, name: "ShellScripts", icon: nil, color: "#B263EA", symbol: "terminal", userModes: [], count: 1),
+      GroupViewModel(id: UUID().uuidString, name: "System", icon: nil, color: "#98989D", symbol: "laptopcomputer", userModes: [], count: 50),
+      GroupViewModel(id: UUID().uuidString, name: "Websites", icon: nil, color: "#A78F6D", symbol: "safari", userModes: [], count: 14),
     ]
   }
 
-  static let groupPublisher = GroupPublisher(GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", count: 10))
+  static let groupPublisher = GroupPublisher(GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", userModes: [], count: 10))
   static let infoPublisher: InfoPublisher = .init(.init(id: "empty", name: "", isEnabled: false))
   static let triggerPublisher: TriggerPublisher = .init(.keyboardShortcuts(.init(passthrough: false, holdDuration: nil, shortcuts: [
     .init(key: "a", modifiers: [.command])
@@ -140,6 +154,13 @@ enum DesignTime {
     return (.init(meta: metadata(name: "News", icon: .init(bundleIdentifier: "com.apple.news",
                                                            path: "/System/Applications/News.app")),
                   kind: .application(kind)), kind)
+  }
+
+  static var builtInCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.BuiltInModel) {
+    let kind = CommandViewModel.Kind.BuiltInModel(id: UUID().uuidString, name: "Toggle", kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle))
+    return (.init(meta: metadata(name: "Dock", icon: .init(bundleIdentifier: "/System/Library/CoreServices/Dock.app",
+                                                           path: "/System/Library/CoreServices/Dock.app")),
+                  kind: .builtIn(kind)), kind)
   }
 
   static var menuBarCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.MenuBarModel) {

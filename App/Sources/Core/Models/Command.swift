@@ -244,28 +244,17 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
-    case .application(let command):
-      try container.encode(command, forKey: .application)
-    case .builtIn(let command):
-      try container.encode(command, forKey: .builtIn)
-    case .keyboard(let command):
-      try container.encode(command, forKey: .keyboard)
-    case .menuBar(let command):
-      try container.encode(command, forKey: .menuBar)
-    case .mouse(let command):
-      try container.encode(command, forKey: .mouse)
-    case .open(let command):
-      try container.encode(command, forKey: .open)
-    case .script(let command):
-      try container.encode(command, forKey: .script)
-    case .shortcut(let command):
-      try container.encode(command, forKey: .shortcut)
-    case .text(let command):
-      try container.encode(command, forKey: .text)
-    case .systemCommand(let command):
-      try container.encode(command, forKey: .system)
-    case .windowManagement(let command):
-      try container.encode(command, forKey: .window)
+    case .application(let command): try container.encode(command, forKey: .application)
+    case .builtIn(let command): try container.encode(command, forKey: .builtIn)
+    case .keyboard(let command): try container.encode(command, forKey: .keyboard)
+    case .menuBar(let command): try container.encode(command, forKey: .menuBar)
+    case .mouse(let command): try container.encode(command, forKey: .mouse)
+    case .open(let command): try container.encode(command, forKey: .open)
+    case .script(let command): try container.encode(command, forKey: .script)
+    case .shortcut(let command): try container.encode(command, forKey: .shortcut)
+    case .text(let command): try container.encode(command, forKey: .text)
+    case .systemCommand(let command): try container.encode(command, forKey: .system)
+    case .windowManagement(let command): try container.encode(command, forKey: .window)
     }
   }
 
@@ -280,29 +269,17 @@ extension Command {
   static func empty(_ kind: CodingKeys) -> Command {
     let id = UUID().uuidString
     return switch kind {
-    case .application:
-      Command.application(ApplicationCommand.empty())
-    case .builtIn:
-      Command.builtIn(.init(kind: .quickRun, notification: false))
-    case .keyboard:
-      Command.keyboard(KeyboardCommand.empty())
-    case .menuBar:
-      Command.menuBar(MenuBarCommand(tokens: []))
-    case .mouse:
-      Command.mouse(MouseCommand.empty())
-    case .open:
-      Command.open(.init(path: "", notification: false))
-    case .script:
-      Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))
-    case .shortcut:
-      Command.shortcut(.init(id: id, shortcutIdentifier: "",
-                             name: "", isEnabled: true, notification: false))
-    case .text:
-      Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id)))))
-    case .system:
-      Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
-    case .window:
-      Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false, animationDuration: 0))
+    case .application: Command.application(ApplicationCommand.empty())
+    case .builtIn: Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: false))
+    case .keyboard: Command.keyboard(KeyboardCommand.empty())
+    case .menuBar: Command.menuBar(MenuBarCommand(tokens: []))
+    case .mouse: Command.mouse(MouseCommand.empty())
+    case .open: Command.open(.init(path: "", notification: false))
+    case .script: Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))
+    case .shortcut: Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: false))
+    case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id)))))
+    case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
+    case .window: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false, animationDuration: 0))
     }
   }
 
@@ -315,7 +292,7 @@ extension Command {
       openCommand(id: id),
       urlCommand(id: id, application: nil),
       textCommand(id: id),
-      Command.builtIn(.init(kind: .quickRun, notification: false))
+      Command.builtIn(.init(kind: .userMode(.init(id: id, name: "", isEnabled: true), .enable), notification: false))
     ]
 
     return result

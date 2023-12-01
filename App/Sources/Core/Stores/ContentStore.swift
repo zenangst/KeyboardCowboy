@@ -47,6 +47,8 @@ final class ContentStore: ObservableObject {
 
     guard KeyboardCowboy.env() != .previews else { return }
 
+    UserSpace.shared.subscribe(to: configurationStore.$selectedConfiguration)
+
     Task {
       Benchmark.shared.start("ContentStore.init")
       await applicationStore.load()
@@ -89,7 +91,9 @@ final class ContentStore: ObservableObject {
   }
 
   func use(_ configuration: KeyboardCowboyConfiguration) {
-    keyboardShortcutsController.cache(configuration.groups)
+    Task {
+      await keyboardShortcutsController.cache(configuration.groups)
+    }
     configurationId = configuration.id
     configurationStore.select(configuration)
     groupStore.groups = configuration.groups

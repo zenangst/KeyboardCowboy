@@ -21,7 +21,6 @@ struct NewCommandView: View {
 
     case application = "Application"
     case menuBar = "MenuBar Command"
-    case mouse = "Mouse Command"
     case url = "URL"
     case open = "Open"
     case keyboardShortcut = "Keyboard Shortcut"
@@ -30,6 +29,8 @@ struct NewCommandView: View {
     case text = "Text"
     case system = "System Command"
     case windowManagement = "Window Management"
+    case mouse = "Mouse Command"
+    case builtIn = "Built-In Command"
   }
 
   private let workflowId: Workflow.ID
@@ -145,6 +146,7 @@ struct NewCommandView: View {
           .padding(.horizontal, 4)
         }
       }
+      .padding(.bottom)
     }
   }
 
@@ -264,6 +266,8 @@ struct NewCommandView: View {
         NewCommandMouseView(payload: $payload, validation: $validation)
       case .windowManagement:
         NewCommandWindowManagementView($payload, validation: $validation)
+      case .builtIn:
+        NewCommandBuiltInView($payload, validation: $validation)
       }
     }
   }

@@ -12,6 +12,7 @@ protocol CommandRunning {
 final class CommandRunner: CommandRunning, @unchecked Sendable {
   struct Runners {
     let application: ApplicationCommandRunner
+    let builtIn: BuiltInCommandRunner
     let keyboard: KeyboardCommandRunner
     let menubar: MenuBarCommandRunner
     let mouse: MouseCommandRunner
@@ -38,6 +39,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
   init(_ workspace: WorkspaceProviding = NSWorkspace.shared,
        applicationStore: ApplicationStore,
+       builtInCommandRunner: BuiltInCommandRunner,
        scriptCommandRunner: ScriptCommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner) {
     let systemCommandRunner = SystemCommandRunner(applicationStore)
@@ -49,6 +51,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         windowListStore: WindowListStore(),
         workspace: workspace
       ),
+      builtIn: builtInCommandRunner,
       keyboard: keyboardCommandRunner,
       menubar: MenuBarCommandRunner(),
       mouse: MouseCommandRunner(),
@@ -144,15 +147,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         try await runners.application.run(applicationCommand)
         output = command.name
       case .builtIn(let builtInCommand):
-        switch builtInCommand.kind {
-        case .quickRun:
-          break
-        case .recordSequence:
-          break
-        case .repeatLastKeystroke:
-          break
-        }
-        output = command.name
+        output = try await runners.builtIn.run(builtInCommand)
       case .keyboard(let keyboardCommand):
         try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
                                  type: .keyDown,

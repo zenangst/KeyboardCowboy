@@ -49,7 +49,6 @@ final class DetailCommandActionReducer {
         guard case .application(var applicationCommand) = command else {
           fatalError("Wrong command type")
         }
-
         switch action {
         case .changeApplication(let application):
           applicationCommand.application = application
@@ -79,6 +78,15 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
+      case .builtIn(let action, _, _):
+        switch action {
+        case .update(let newCommand):
+          command = .builtIn(newCommand)
+          workflow.updateOrAddCommand(command)
+        case .commandAction(let action):
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
+        }
       case .keyboard(let action, _, _):
         switch action {
         case .updateKeyboardShortcuts(let keyboardShortcuts):
@@ -91,7 +99,6 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
-
       case .mouse(let action, _, _):
         switch action {
         case .update(let kind):

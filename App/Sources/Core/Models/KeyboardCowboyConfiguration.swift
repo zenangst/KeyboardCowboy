@@ -4,16 +4,47 @@ import Foundation
 struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
   let id: String
   var name: String
+  var userModes: [UserMode]
   var groups: [WorkflowGroup]
 
-  init(id: String = UUID().uuidString, name: String, groups: [WorkflowGroup]) {
+  init(id: String = UUID().uuidString, name: String,
+       userModes: [UserMode], groups: [WorkflowGroup]) {
     self.id = id
     self.name = name
+    self.userModes = userModes
     self.groups = groups
   }
 
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(self.id, forKey: .id)
+    try container.encode(self.name, forKey: .name)
+    try container.encode(self.userModes, forKey: .userModes)
+    try container.encode(self.groups, forKey: .groups)
+  }
+
+  enum CodingKeys: CodingKey {
+    case id
+    case name
+    case userModes
+    case groups
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.id = try container.decode(String.self, forKey: .id)
+    self.name = try container.decode(String.self, forKey: .name)
+    self.userModes = try container.decodeIfPresent([UserMode].self, forKey: .userModes) ?? []
+    self.groups = try container.decode([WorkflowGroup].self, forKey: .groups)
+  }
+
   static func empty() -> KeyboardCowboyConfiguration {
-    KeyboardCowboyConfiguration(id: UUID().uuidString, name: "Untitled Configuration", groups: [])
+    KeyboardCowboyConfiguration(
+      id: UUID().uuidString,
+      name: "Untitled Configuration",
+      userModes: [],
+      groups: []
+    )
   }
 
   static func `default`() -> KeyboardCowboyConfiguration {
@@ -45,6 +76,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
 
     return KeyboardCowboyConfiguration(
       name: "Default Configuration",
+      userModes: [],
       groups: [
         WorkflowGroup(symbol: "autostartstop", name: "Automation", color: "#EB5545"),
         WorkflowGroup(symbol: "app.dashed", name: "Applications", color: "#F2A23C", workflows: [
@@ -185,14 +217,3 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
       ])
   }
 }
-
-/*
- (name: "Signature",
- mode: .instant, input: """
- Stay hungry, stay awesome!
- --------------------------
- xoxo
- \(NSFullUserName())
- """
- )
- */

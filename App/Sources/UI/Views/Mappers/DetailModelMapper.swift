@@ -69,8 +69,8 @@ private extension Command {
       kind = .application(.init(id: applicationCommand.id, action: applicationCommand.action.displayValue,
                                 inBackground: inBackground, hideWhenRunning: hideWhenRunning, ifNotRunning: ifNotRunning))
 
-    case .builtIn(_):
-      kind = .plain
+    case .builtIn(let builtInCommand):
+      kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))
     case .keyboard(let keyboardCommand):
       kind =  .keyboard(.init(id: keyboardCommand.id, keys: keyboardCommand.keyboardShortcuts))
     case .menuBar(let menubarCommand):
@@ -120,7 +120,10 @@ private extension Command {
     case .mouse:
       let path = "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns"
       return .init(bundleIdentifier: path, path: path)
-    case .builtIn, .keyboard:
+    case .builtIn:
+      let path = Bundle.main.bundleURL.path
+      return .init(bundleIdentifier: path, path: path)
+    case .keyboard:
       return nil
     case .open(let command):
       let path: String

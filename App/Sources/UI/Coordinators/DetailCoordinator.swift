@@ -52,7 +52,7 @@ final class DetailCoordinator {
     case .addConfiguration:
       render(contentSelectionManager.selections,
              groupIds: groupSelectionManager.selections)
-    case .refresh, .updateConfiguration, .openScene, .deleteConfiguration:
+    case .refresh, .updateConfiguration, .openScene, .deleteConfiguration, .userMode:
       // NOOP
       break
     case .moveWorkflows, .copyWorkflows:
@@ -115,6 +115,8 @@ final class DetailCoordinator {
     switch payload {
     case .placeholder:
       return
+    case .builtIn(let newCommand):
+      command = .builtIn(newCommand)
     case .menuBar(let tokens):
       command = .menuBar(.init(id: resolvedCommandId, tokens: tokens))
     case .mouse(let kind):
@@ -291,6 +293,7 @@ extension CommandView.Kind {
   var workflowId: DetailViewModel.ID {
     switch self {
     case .application(_, let workflowId, _),
+        .builtIn(_, let workflowId, _),
         .keyboard(_, let workflowId, _),
         .mouse(_, let workflowId, _),
         .open(_, let workflowId, _),
@@ -306,6 +309,7 @@ extension CommandView.Kind {
   var commandId: CommandViewModel.ID {
     switch self {
     case .application(_, _, let commandId),
+        .builtIn(_, _, let commandId),
         .keyboard(_, _, let commandId),
         .mouse(_, _, let commandId),
         .open(_, _, let commandId),

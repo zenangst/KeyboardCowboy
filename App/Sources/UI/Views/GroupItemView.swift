@@ -2,6 +2,7 @@ import Bonzai
 import SwiftUI
 
 struct GroupItemView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var groupsPublisher: GroupsPublisher
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
 
@@ -18,12 +19,22 @@ struct GroupItemView: View {
   }
 
   var body: some View {
-    HStack {
+    HStack(spacing: 8) {
       GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
         .frame(width: 24)
-      Text(group.name)
-        .font(.body)
-        .lineLimit(1)
+      VStack(alignment: .leading, spacing: 0) {
+        Text(group.name)
+          .font(.body)
+          .lineLimit(1)
+
+        HStack(spacing: 0) {
+          ForEach(group.userModes) { userMode in
+            Text(userMode.name)
+              .font(.caption2)
+              .foregroundColor(.secondary)
+          }
+        }
+      }
       Spacer()
       Menu(content: { contextualMenu(for: group, onAction: onAction) }) {
         Image(systemName: "ellipsis.circle")
@@ -54,6 +65,7 @@ struct GroupItemView: View {
         }
         return false
     }
+    .enableInjection()
   }
 
   @ViewBuilder

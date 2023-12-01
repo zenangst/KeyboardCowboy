@@ -131,8 +131,14 @@ private extension Array where Element == Command {
             offset: convertedOffset,
             kind: .icon(.init(bundleIdentifier: path, path: path)))
         )
-      case .builtIn:
-        continue
+      case .builtIn(let command):
+        let path = Bundle.main.bundleURL.path
+        images.append(
+          ContentViewModel.ImageModel(
+            id: command.id,
+            offset: convertedOffset,
+            kind: .icon(.init(bundleIdentifier: path, path: path)))
+        )
       case .mouse(let command):
         let path = "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns"
         images.append(

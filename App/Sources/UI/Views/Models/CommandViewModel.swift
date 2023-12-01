@@ -37,6 +37,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     var id: String { (self as (any Identifiable<String>)).id }
 
     case application(ApplicationModel)
+    case builtIn(BuiltInModel)
     case open(OpenModel)
     case keyboard(KeyboardModel)
     case script(ScriptModel)
@@ -54,6 +55,12 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
       var inBackground: Bool
       var hideWhenRunning: Bool
       var ifNotRunning: Bool
+    }
+
+    struct BuiltInModel: Codable, Hashable, Identifiable, Sendable {
+      let id: String
+      var name: String
+      var kind: BuiltInCommand.Kind
     }
 
     struct OpenModel: Codable, Hashable, Identifiable, Sendable {

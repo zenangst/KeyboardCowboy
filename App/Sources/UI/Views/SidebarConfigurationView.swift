@@ -7,7 +7,7 @@ struct SidebarConfigurationView: View {
     case updateName(name: String)
     case selectConfiguration(ConfigurationViewModel.ID)
   }
-  @EnvironmentObject private var publisher: ConfigurationPublisher
+  @EnvironmentObject private var publisher: ConfigurationsPublisher
   @ObservedObject var selectionManager: SelectionManager<ConfigurationViewModel>
   @State var configurationName: String = ""
   @State var newConfigurationPopover = false

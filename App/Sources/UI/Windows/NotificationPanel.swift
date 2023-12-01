@@ -8,15 +8,16 @@ final class NotificationPanel<Content>: NSPanel where Content: View {
   override var canBecomeMain: Bool { false }
 
   init(animationBehavior: NSWindow.AnimationBehavior,
+       styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel],
        content rootView: @autoclosure @escaping () -> Content) {
     self.manager = WindowManager()
     let contentRect = NSScreen.main?.frame ?? .init(origin: .zero, size: .init(width: 200, height: 200))
-    super.init(contentRect: contentRect, styleMask: [
-      .borderless, .nonactivatingPanel
-    ], backing: .buffered, defer: false)
+    super.init(contentRect: contentRect, styleMask: styleMask, backing: .buffered, defer: false)
 
     self.animationBehavior = animationBehavior
     self.collectionBehavior.insert(.fullScreenAuxiliary)
+    self.collectionBehavior.insert(.canJoinAllSpaces)
+    self.collectionBehavior.insert(.stationary)
     self.isOpaque = false
     self.isFloatingPanel = true
     self.isMovable = false

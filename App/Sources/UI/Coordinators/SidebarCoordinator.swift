@@ -54,10 +54,10 @@ final class SidebarCoordinator {
 
   func handle(_ action: SidebarView.Action) {
     switch action {
+    case .updateConfiguration, .openScene, .userMode:
+      break
     case .refresh:
       render(store.groups)
-    case .updateConfiguration:
-      break
     case .selectConfiguration(let id):
       if let firstGroup = store.groups.first(where: { $0.id == id }) {
         selectionManager.publish([firstGroup.id])
@@ -83,8 +83,6 @@ final class SidebarCoordinator {
       }
     case .addConfiguration:
       render(store.groups)
-    case .openScene:
-      break
     case .removeGroups(let ids):
       var newIndex = 0
       for (index, group) in store.groups.enumerated() {

@@ -93,7 +93,11 @@ final class Storage {
 
   func migrateIfNeeded() async throws -> [KeyboardCowboyConfiguration] {
     let groups: [WorkflowGroup] = try await load()
-    let configuration = KeyboardCowboyConfiguration(name: "Default configuration", groups: groups)
+    let configuration = KeyboardCowboyConfiguration(
+      name: "Default configuration",
+      userModes: [],
+      groups: groups
+    )
     return [configuration]
   }
 

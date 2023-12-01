@@ -22,6 +22,7 @@ extension WorkflowGroup {
       icon: icon,
       color: color,
       symbol: symbol,
+      userModes: userModes,
       count: workflows.count)
   }
 }

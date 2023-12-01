@@ -13,6 +13,7 @@ struct CommandView: View {
 
   enum Kind {
     case application(action: ApplicationCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case builtIn(action: BuiltInCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case keyboard(action: KeyboardCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case mouse(action: MouseCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
     case open(action: OpenCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
@@ -127,6 +128,15 @@ struct CommandResolverView: View {
     switch command.kind {
     case .plain:
       UnknownView(command: .constant(command))
+    case .builtIn(let model):
+      BuiltInCommandView(command.meta, model: model) { action in
+        switch action {
+        case .update(let newCommand):
+          onAction(.modify(.builtIn(action: .update(newCommand), workflowId: workflowId, commandId: command.id)))
+        case .commandAction(let action):
+          handleCommandContainerAction(action)
+        }
+      }
     case .menuBar(let model):
       MenuBarCommandView(command.meta, model: model) { action in
         switch action {

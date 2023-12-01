@@ -4,6 +4,7 @@ extension View {
   @MainActor
   func designTime() -> some View {
    self
+      .environmentObject(DesignTime.configurationsPublisher)
       .environmentObject(DesignTime.configurationPublisher)
       .environmentObject(DesignTime.contentPublisher)
       .environmentObject(DesignTime.detailStatePublisher)
