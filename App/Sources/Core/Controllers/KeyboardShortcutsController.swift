@@ -106,9 +106,7 @@ final class KeyboardShortcutsController {
     return workflows
   }
 
-  func cache(_ groups: [WorkflowGroup]) async {
-    await Benchmark.shared.start("KeyboardShortcutsController.cache")
-
+  func cache(_ groups: [WorkflowGroup]) {
     var newCache = [String: KeyboardShortcutResult]()
     for group in groups {
       let bundleIdentifiers: [String]
@@ -146,7 +144,6 @@ final class KeyboardShortcutsController {
       }
     }
     cache = newCache
-    await Benchmark.shared.finish("KeyboardShortcutsController.cache")
   }
 
   // MARK: - Private methods
