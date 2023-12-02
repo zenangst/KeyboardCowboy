@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct ScriptCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case updateName(newName: String)
     case updateSource(CommandViewModel.Kind.ScriptModel)
@@ -141,6 +143,7 @@ struct ScriptCommandView: View {
       .font(.caption)
     },
                          onAction: { onAction(.commandAction($0)) })
+    .enableInjection()
   }
 }
 

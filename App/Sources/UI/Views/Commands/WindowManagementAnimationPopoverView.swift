@@ -1,7 +1,9 @@
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct WindowManagementAnimationPopoverView: View {
+  @ObserveInjection var inject
   @State private var animationDuration: String
   @Binding private var windowCommand: CommandViewModel.Kind.WindowManagementModel
   @Binding private var isShown: Bool
@@ -44,6 +46,7 @@ struct WindowManagementAnimationPopoverView: View {
       .buttonStyle(.zen(ZenStyleConfiguration(color: .systemRed, grayscaleEffect: .constant(true))))
     }
     .padding(16)
+    .enableInjection()
   }
 }
 

@@ -3,12 +3,13 @@ import Inject
 import SwiftUI
 
 struct MouseCommandView: View {
+  @ObserveInjection var inject
+
   enum Action {
     case update(MouseCommand.Kind)
     case commandAction(CommandContainerAction)
   }
 
-  @ObserveInjection var inject
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.MouseModel
 
@@ -61,10 +62,12 @@ struct MouseCommandView: View {
                 model.kind = kind
               }, label: {
                 Text(kind.displayValue)
+                  .font(.subheadline)
               })
             }
           }, label: {
             Text(model.kind.displayValue)
+              .font(.subheadline)
           })
           .onChange(of: model.kind, perform: { newValue in
             onAction(.update(newValue))
@@ -85,10 +88,12 @@ struct MouseCommandView: View {
                     }
                   }, label: {
                     Text(clickLocation.displayValue)
+                      .font(.subheadline)
                   })
                 }
               }, label: {
                 Text(location.displayValue)
+                  .font(.subheadline)
               })
 
               if case .custom(let x, let y) = location {
@@ -104,7 +109,7 @@ struct MouseCommandView: View {
             }
           }
         }
-        .menuStyle(.regular)
+        .menuStyle(.zen(.init(color: .systemGray)))
       },
       subContent: { _ in },
       onAction: { action in

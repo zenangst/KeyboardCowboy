@@ -1,6 +1,8 @@
+import Inject
 import SwiftUI
 
 struct KeyboardCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case updateName(newName: String)
     case updateKeyboardShortcuts([KeyShortcut])
@@ -65,6 +67,7 @@ struct KeyboardCommandView: View {
       },
       subContent: { _ in },
       onAction: { onAction(.commandAction($0)) })
+    .enableInjection()
   }
 }
 

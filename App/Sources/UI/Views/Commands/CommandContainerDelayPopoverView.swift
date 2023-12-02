@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct CommandContainerDelayPopoverView: View {
+  @ObserveInjection var inject
   @State private var delayString: String
   @Binding private var metaData: CommandViewModel.MetaData
   @Binding private var isShown: Bool
@@ -48,6 +50,7 @@ struct CommandContainerDelayPopoverView: View {
       .buttonStyle(.zen(ZenStyleConfiguration(color: .systemRed, grayscaleEffect: .constant(true))))
     }
     .padding(16)
+    .enableInjection()
   }
 }
 

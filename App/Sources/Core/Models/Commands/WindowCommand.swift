@@ -16,43 +16,27 @@ struct WindowCommand: MetaDataProviding {
 
     func imageSystemName(increment: Bool) -> String {
       switch self {
-      case .leading:
-        return increment ? "arrow.left" : "arrow.right"
-      case .topLeading:
-        return increment ? "arrow.up.left" : "arrow.down.right"
-      case .top:
-        return increment ? "arrow.up" : "arrow.down"
-      case .topTrailing:
-        return increment ? "arrow.up.right" : "arrow.down.left"
-      case .trailing:
-        return increment ? "arrow.right" : "arrow.left"
-      case .bottomTrailing:
-        return increment ? "arrow.down.right" : "arrow.up.left"
-      case .bottom:
-        return increment ? "arrow.down" : "arrow.up"
-      case .bottomLeading:
-        return increment ? "arrow.down.left" : "arrow.up.right"
+      case .leading: increment ? "arrow.left" : "arrow.right"
+      case .topLeading: increment ? "arrow.up.left" : "arrow.down.right"
+      case .top: increment ? "arrow.up" : "arrow.down"
+      case .topTrailing: increment ? "arrow.up.right" : "arrow.down.left"
+      case .trailing: increment ? "arrow.right" : "arrow.left"
+      case .bottomTrailing: increment ? "arrow.down.right" : "arrow.up.left"
+      case .bottom: increment ? "arrow.down" : "arrow.up"
+      case .bottomLeading: increment ? "arrow.down.left" : "arrow.up.right"
       }
     }
 
     func displayValue(increment: Bool) -> String {
       switch self {
-      case .leading:
-        return increment ? "←" : "→"
-      case .topLeading:
-        return increment ? "↖" : "↘"
-      case .top:
-        return increment ? "↑" : "↓"
-      case .topTrailing:
-        return increment ? "↗" : "↙"
-      case .trailing:
-        return increment ? "→" : "←"
-      case .bottomTrailing:
-        return increment ? "↘" : "↖"
-      case .bottom:
-        return increment ? "↓" : "↑"
-      case .bottomLeading:
-        return increment ? "↙" : "↗"
+      case .leading: increment ? "←" : "→"
+      case .topLeading: increment ? "↖" : "↘"
+      case .top: increment ? "↑" : "↓"
+      case .topTrailing: increment ? "↗" : "↙"
+      case .trailing: increment ? "→" : "←"
+      case .bottomTrailing: increment ? "↘" : "↖"
+      case .bottom: increment ? "↓" : "↑"
+      case .bottomLeading: increment ? "↙" : "↗"
       }
     }
   }
@@ -60,20 +44,13 @@ struct WindowCommand: MetaDataProviding {
   enum Kind: Identifiable, Hashable, Codable {
     var id: String {
       switch self {
-      case .fullscreen:
-        return "fullscreen"
-      case .center:
-        return "center"
-      case .decreaseSize(let byValue, let direction, _):
-        return "decreaseSize:\(byValue)\(direction.rawValue)"
-      case .increaseSize(let byValue, let direction, let padding, _):
-        return "increaseSize:\(byValue)\(direction.rawValue):\(padding)"
-      case .move(let toValue, let direction, let padding , _):
-        return "move:\(toValue)\(direction.rawValue):\(padding)"
-      case .moveToNextDisplay(let mode):
-        return "moveToNextDisplay.\(mode.rawValue)"
-      case .anchor:
-        return "anchor"
+      case .fullscreen: "fullscreen"
+      case .center: "center"
+      case .decreaseSize(let byValue, let direction, _): "decreaseSize:\(byValue)\(direction.rawValue)"
+      case .increaseSize(let byValue, let direction, let padding, _): "increaseSize:\(byValue)\(direction.rawValue):\(padding)"
+      case .move(let toValue, let direction, let padding , _): "move:\(toValue)\(direction.rawValue):\(padding)"
+      case .moveToNextDisplay(let mode): "moveToNextDisplay.\(mode.rawValue)"
+      case .anchor: "anchor"
       }
     }
 
@@ -87,20 +64,25 @@ struct WindowCommand: MetaDataProviding {
 
     var displayValue: String {
       switch self {
-      case .center:
-        return "Center Window"
-      case .fullscreen:
-        return "Fullscreen"
-      case .move:
-        return "Move Window"
-      case .decreaseSize:
-        return "Shrink Window"
-      case .increaseSize:
-        return "Grow Window"
-      case .moveToNextDisplay(let mode):
-        return "Move to Next Display - \(mode.displayValue)"
-      case .anchor:
-        return "Anchor and Resize Window"
+      case .center: "Center Window"
+      case .fullscreen: "Fullscreen"
+      case .move: "Move Window"
+      case .decreaseSize: "Shrink Window"
+      case .increaseSize: "Grow Window"
+      case .moveToNextDisplay(let mode): "Move to Next Display - \(mode.displayValue)"
+      case .anchor: "Anchor and Resize Window"
+      }
+    }
+
+    var symbol: String {
+      switch self {
+      case .center: return "arrow.down.right.and.arrow.up.left"
+      case .fullscreen: return "arrow.up.left.and.arrow.down.right"
+      case .move: return "arrow.up.and.down.and.arrow.left.and.right"
+      case .decreaseSize: return "minus.magnifyingglass"
+      case .increaseSize: return "plus.magnifyingglass"
+      case .moveToNextDisplay: return "rectangle.on.rectangle"
+      case .anchor: return "pin"
       }
     }
 

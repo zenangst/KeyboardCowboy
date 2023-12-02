@@ -1,5 +1,6 @@
 import Apps
 import Bonzai
+import Inject
 import SwiftUI
 
 struct IconMenuStyle: MenuStyle {
@@ -11,6 +12,7 @@ struct IconMenuStyle: MenuStyle {
 }
 
 struct ApplicationCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case changeApplication(Application)
     case updateName(newName: String)
@@ -48,21 +50,29 @@ struct ApplicationCommandView: View {
       content: { command in
         HStack(spacing: 8) {
           Menu(content: {
-            Button("Open", action: {
+            Button(action: {
               model.action = "Open"
-              onAction(.changeApplicationAction(.open)) })
-            Button("Close", action: {
+              onAction(.changeApplicationAction(.open))
+            }, label: {
+              Image(systemName: "power")
+              Text("Open")
+                .font(.subheadline)
+            })
+
+            Button(action: {
               model.action = "Close"
-              onAction(.changeApplicationAction(.close)) })
+              onAction(.changeApplicationAction(.close))
+            }, label: {
+              Image(systemName: "poweroff")
+              Text("Close")
+                .font(.subheadline)
+            })
           }, label: {
-            HStack(spacing: 4) {
-              Text(model.action)
-                .font(.caption)
-                .fixedSize(horizontal: false, vertical: true)
-                .truncationMode(.middle)
-                .allowsTightening(true)
-            }
-            .padding(4)
+            Text(model.action)
+              .font(.subheadline)
+              .fixedSize(horizontal: false, vertical: true)
+              .truncationMode(.middle)
+              .allowsTightening(true)
           })
           .menuStyle(.zen(.init(color: .systemGray)))
           .fixedSize()
@@ -85,6 +95,7 @@ struct ApplicationCommandView: View {
       },
       onAction: { onAction(.commandAction($0)) })
     .id(metaData.id)
+    .enableInjection()
   }
 }
 

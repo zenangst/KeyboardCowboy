@@ -1,6 +1,8 @@
+import Inject
 import SwiftUI
 
 struct WindowManagementAnimationDurationView: View {
+  @ObserveInjection var inject
   @State private var animationDurationVisible: Bool = false
   @Binding private var windowCommand: CommandViewModel.Kind.WindowManagementModel
   private let onChange: (Double) -> Void
@@ -40,6 +42,7 @@ struct WindowManagementAnimationDurationView: View {
         onChange($0)
       })
     })
+    .enableInjection()
   }
 }
 

@@ -30,6 +30,13 @@ struct TextCommand: MetaDataProviding {
       var id: String { rawValue }
       case typing = "Typing"
       case instant = "Instant"
+
+      var symbol: String {
+        switch self {
+        case .typing: "keyboard"
+        case .instant: "bolt.fill"
+        }
+      }
     }
 
     var input: String
