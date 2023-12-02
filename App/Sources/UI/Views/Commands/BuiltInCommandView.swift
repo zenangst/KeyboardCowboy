@@ -7,6 +7,7 @@ struct BuiltInCommandView: View {
     case update(BuiltInCommand)
     case commandAction(CommandContainerAction)
   }
+  @ObserveInjection var inject
   @EnvironmentObject var configurationPublisher: ConfigurationPublisher
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.BuiltInModel
@@ -37,8 +38,7 @@ struct BuiltInCommandView: View {
         }
       } content: { _ in
         HStack {
-          Menu(model.name,
-               content: {
+          Menu(content: {
             Button(
               action: {
                 let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: true), .toggle)
@@ -46,7 +46,9 @@ struct BuiltInCommandView: View {
                 model.name = newKind.displayValue
                 model.kind = newKind
               },
-              label: { Text("Toggle User Mode") })
+              label: {
+                Text("Toggle User Mode").font(.subheadline)
+              })
             Button(
               action: {
                 let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: true), .enable)
@@ -54,7 +56,7 @@ struct BuiltInCommandView: View {
                 model.name = newKind.displayValue
                 model.kind = newKind
               },
-              label: { Text("Enable User Mode") })
+              label: { Text("Enable User Mode").font(.subheadline) })
             Button(
               action: {
                 let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: true), .disable)
@@ -62,9 +64,12 @@ struct BuiltInCommandView: View {
                 model.name = newKind.displayValue
                 model.kind = newKind
               },
-              label: { Text("Disable User Mode") })
+              label: { Text("Disable User Mode").font(.subheadline) })
+          }, label: {
+            Text(model.name)
+              .font(.subheadline)
           })
-            .fixedSize()
+          .fixedSize()
           Menu(content: {
             ForEach(configurationPublisher.data.userModes) { userMode in
               Button(action: {
@@ -75,10 +80,11 @@ struct BuiltInCommandView: View {
                 }
                 onAction(.update(.init(id: model.id, kind: .userMode(userMode, action), notification: true)))
                 model.kind = .userMode(userMode, action)
-              }, label: { Text(userMode.name) })
+              }, label: { Text(userMode.name).font(.subheadline) })
             }
           }, label: {
             Text(configurationPublisher.data.userModes.first(where: { model.kind.id.contains($0.id) })?.name ?? "Pick a User Mode")
+              .font(.subheadline)
           })
         }
           .menuStyle(.regular)

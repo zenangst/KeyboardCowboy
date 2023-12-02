@@ -1,8 +1,10 @@
 import Apps
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct OpenCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case updatePath(newPath: String)
     case openWith(Application?)
@@ -86,6 +88,7 @@ struct OpenCommandView: View {
       .frame(maxWidth: .infinity, alignment: .leading)
       .font(.caption)
     }, onAction: { onAction(.commandAction($0)) })
+    .enableInjection()
   }
 }
 

@@ -20,6 +20,22 @@ struct SystemCommand: MetaDataProviding {
       }
     }
 
+    var symbol: String {
+      switch self {
+      case .activateLastApplication:         "arrow.counterclockwise.circle"
+      case .applicationWindows:              "rectangle.on.rectangle"
+      case .minimizeAllOpenWindows:          "arrow.down.right.and.arrow.up.left"
+      case .missionControl:                  "square.grid.3x3"
+      case .showDesktop:                     "desktopcomputer"
+      case .moveFocusToNextWindowGlobal:     "arrow.right.circle"
+      case .moveFocusToPreviousWindowGlobal: "arrow.left.circle"
+      case .moveFocusToNextWindow:           "arrow.right.to.line.alt"
+      case .moveFocusToPreviousWindow:       "arrow.left.to.line.alt"
+      case .moveFocusToNextWindowFront:      "arrow.forward.circle"
+      case .moveFocusToPreviousWindowFront:  "arrow.backward.circle"
+      }
+    }
+
     var iconPath: String {
       switch self {
       case .activateLastApplication:                                     "/System/Library/CoreServices/Family.app"

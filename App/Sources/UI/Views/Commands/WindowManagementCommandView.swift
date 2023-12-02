@@ -1,7 +1,9 @@
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct WindowManagementCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case onUpdate(CommandViewModel.Kind.WindowManagementModel)
     case commandAction(CommandContainerAction)
@@ -135,16 +137,22 @@ struct WindowManagementCommandView: View {
       }
     },
                          content: { _ in
-      VStack(alignment: .leading) {
+      VStack(alignment: .leading, spacing: 8) {
         Menu(content: {
           ForEach(WindowCommand.Kind.allCases) { kind in
-            Button(kind.displayValue) {
+            Button(action: {
               model.kind = kind
               onAction(.onUpdate(model))
-            }
+            }, label: {
+              Image(systemName: kind.symbol)
+              Text(kind.displayValue)
+                .font(.subheadline)
+            })
           }
         }, label: {
+          Image(systemName: model.kind.symbol)
           Text(model.kind.displayValue)
+            .font(.subheadline)
         })
         .menuStyle(.regular)
 
@@ -159,10 +167,16 @@ struct WindowManagementCommandView: View {
               _ in GridItem(.fixed(24), spacing: 1)
             },
                       alignment: .center,
-                      spacing: 1,
+                      spacing: 2,
                       content: {
               ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
-                if offset == 4 { Spacer() }
+                if offset == 4 {
+                  Image(systemName: "macwindow")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(.white)
+                }
                 Button {
                   let kind: WindowCommand.Kind
                   switch model.kind {
@@ -181,6 +195,8 @@ struct WindowManagementCommandView: View {
                   onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
                 } label: {
                   Text(element.displayValue(increment: model.kind.isIncremental))
+                    .frame(width: 10, height: 14)
+                    .font(.subheadline)
                 }
                 .buttonStyle(
                   .zen(.init(color: element == direction ? .systemGreen : .systemGray))
@@ -355,6 +371,7 @@ struct WindowManagementCommandView: View {
                          onAction: {
       onAction(.commandAction($0))
     })
+    .enableInjection()
   }
 
   private func resolveAlignment(_ kind: WindowCommand.Kind) -> Alignment {

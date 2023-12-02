@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct CommandContainerDelayView: View {
+  @ObserveInjection var inject
   @State private var delayOverlay: Bool = false
   @Binding private var metaData: CommandViewModel.MetaData
   private let execution: DetailViewModel.Execution
@@ -16,36 +18,38 @@ struct CommandContainerDelayView: View {
   }
 
   var body: some View {
-    switch execution {
-    case .concurrent:
-      EmptyView()
-    case .serial:
-      Button {
-        delayOverlay = true
-      } label: {
-        HStack {
-          HStack(spacing: 4) {
-            Image(systemName: "hourglass")
-            if let delay = metaData.delay {
-              Text("\(Int(delay)) milliseconds")
-                .font(.caption)
-            } else {
-              Text("No delay")
-                .font(.caption)
+    Group {
+      switch execution {
+      case .concurrent:
+        EmptyView()
+      case .serial:
+        Button {
+          delayOverlay = true
+        } label: {
+          HStack {
+            HStack(spacing: 4) {
+              Image(systemName: "hourglass")
+              if let delay = metaData.delay {
+                Text("\(Int(delay)) milliseconds")
+                  .font(.caption)
+              } else {
+                Text("No delay")
+                  .font(.caption)
+              }
             }
+            Divider()
+              .frame(height: 6)
+            Image(systemName: "chevron.down")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 6, height: 6)
           }
-          Divider()
-            .frame(height: 6)
-          Image(systemName: "chevron.down")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 6, height: 6)
         }
+        .buttonStyle(.zen(ZenStyleConfiguration(color: .systemGray)))
+        .popover(isPresented: $delayOverlay, content: {
+          CommandContainerDelayPopoverView($metaData, isShown: $delayOverlay, onChange: onChange)
+        })
       }
-      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemGray)))
-      .popover(isPresented: $delayOverlay, content: {
-        CommandContainerDelayPopoverView($metaData, isShown: $delayOverlay, onChange: onChange)
-      })
     }
   }
 }

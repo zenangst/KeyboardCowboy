@@ -1,7 +1,9 @@
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct MenuBarCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case editCommand(CommandViewModel.Kind.MenuBarModel)
     case commandAction(CommandContainerAction)
@@ -93,6 +95,7 @@ struct MenuBarCommandView: View {
     } onAction: { action in
       onAction(.commandAction(action))
     }
+    .enableInjection()
   }
 }
 

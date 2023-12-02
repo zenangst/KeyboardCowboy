@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct SystemCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case updateKind(newKind: SystemCommand.Kind)
     case commandAction(CommandContainerAction)
@@ -32,14 +34,20 @@ struct SystemCommandView: View {
       HStack(spacing: 8) {
         Menu(content: {
           ForEach(SystemCommand.Kind.allCases) { kind in
-            Button(kind.displayValue) {
+            Button(action: {
               model.kind = kind
               onAction(.updateKind(newKind: kind))
-            }
+            }, label: {
+              Image(systemName: kind.symbol)
+              Text(kind.displayValue)
+                .font(.subheadline)
+            })
           }
         }, label: {
           HStack(spacing: 4) {
+            Image(systemName: model.kind.symbol)
             Text(model.kind.displayValue)
+              .font(.subheadline)
               .truncationMode(.middle)
               .allowsTightening(true)
           }
@@ -50,6 +58,7 @@ struct SystemCommandView: View {
     }, subContent: { _ in },
     onAction: { onAction(.commandAction($0)) })
     .id(model.id)
+    .enableInjection()
   }
 }
 

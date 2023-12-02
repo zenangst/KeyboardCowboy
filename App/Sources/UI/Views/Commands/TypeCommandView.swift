@@ -1,7 +1,9 @@
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct TypeCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case updateName(newName: String)
     case updateSource(newInput: String)
@@ -47,6 +49,7 @@ struct TypeCommandView: View {
           onAction(.updateMode(newMode: newMode))
         }
       }, onAction: { onAction(.commandAction($0)) })
+    .enableInjection()
   }
 }
 
@@ -65,11 +68,17 @@ fileprivate struct TypeCommandModeView: View {
         Button(action: {
           self.mode = mode
           onAction(mode)
-        }, label: { Text(mode.rawValue) })
+        }, label: {
+          HStack {
+            Image(systemName: mode.symbol)
+            Text(mode.rawValue).font(.subheadline)
+          }
+        })
       }
     }, label: {
+      Image(systemName: mode.symbol)
       Text(mode.rawValue)
-        .font(.caption)
+        .font(.subheadline)
     })
     .menuStyle(.regular)
     .fixedSize()

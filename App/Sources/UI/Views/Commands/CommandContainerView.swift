@@ -1,4 +1,5 @@
 import SwiftUI
+import Inject
 import Bonzai
 
 enum CommandContainerAction {
@@ -12,6 +13,7 @@ enum CommandContainerAction {
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
+  @ObserveInjection var inject
   @State private var delayString: String = ""
   @State private var delayOverlay: Bool = false
 
@@ -86,6 +88,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
       }
       CommandContainerActionView(onAction: onAction)
     }
+    .enableInjection()
   }
 }
 

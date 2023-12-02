@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct ShortcutCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case updateName(newName: String)
     case updateShortcut(shortcutName: String)
@@ -44,14 +46,20 @@ struct ShortcutCommandView: View {
         TextField("", text: $metaData.name)
           .textFieldStyle(.regular(Color(.windowBackgroundColor)))
           .onChange(of: metaData.name, perform: { debounce.send($0) })
-        Menu(model.shortcutIdentifier) {
+        Menu(content: {
           ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in
-            Button(shortcut.name, action: {
+            Button(action: {
               model.shortcutIdentifier = shortcut.name
               onAction(.updateShortcut(shortcutName: shortcut.name))
+            }, label: {
+              Text(shortcut.name)
+                .font(.subheadline)
             })
           }
-        }
+        }, label: {
+          Text(model.shortcutIdentifier)
+            .font(.subheadline)
+        })
         .menuStyle(.zen(.init(color: .systemPurple, grayscaleEffect: .constant(true))))
         .padding(.bottom, 4)
       }
@@ -66,6 +74,7 @@ struct ShortcutCommandView: View {
           .font(.caption)
       }
     }, onAction: { onAction(.commandAction($0)) })
+    .enableInjection()
   }
 }
 
