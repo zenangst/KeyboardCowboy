@@ -36,6 +36,7 @@ final class ConfigurationCoordinator {
             )
           )
           self.render(selectedConfiguration: configuration)
+          UserSpace.shared.setUserModes(configuration.userModes)
         }
     }
   }

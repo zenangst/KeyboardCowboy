@@ -103,7 +103,14 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
       do {
-        await missionControl.dismissIfActive()
+        let shouldDismissMissionControl = commands.contains(where: {
+          switch $0 {
+          case .builtIn: false
+          default: true
+          }
+        })
+
+        if shouldDismissMissionControl { await missionControl.dismissIfActive() }
         let snapshot = await UserSpace.shared.snapshot()
         for command in commands {
           try Task.checkCancellation()
@@ -122,7 +129,15 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
-      await missionControl.dismissIfActive()
+      let shouldDismissMissionControl = commands.contains(where: {
+        switch $0 {
+        case .builtIn: false
+        default: true
+        }
+      })
+
+      if shouldDismissMissionControl { await missionControl.dismissIfActive() }
+
       let snapshot = await UserSpace.shared.snapshot()
       for command in commands {
         do {
