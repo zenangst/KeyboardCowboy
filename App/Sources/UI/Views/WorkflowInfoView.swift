@@ -9,7 +9,7 @@ struct WorkflowInfoView: View {
   }
 
   @ObservedObject private var publisher: InfoPublisher
-  @State private var monitor: Any?
+
   private let onInsertTab: () -> Void
   private var onAction: (Action) -> Void
   private var focus: FocusState<AppFocus?>.Binding
@@ -32,36 +32,59 @@ struct WorkflowInfoView: View {
                                backgroundColor: Color(nsColor: .windowBackgroundColor),
                                glow: true))
         .onChange(of: publisher.data.name) { onAction(.updateName(name: $0)) }
-        .onChange(of: focus.wrappedValue, perform: { value in
-          if case .detail(.name) = value {
-            if let oldMonitor = monitor { NSEvent.removeMonitor(oldMonitor) }
-
-            monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
-              if event.keyCode == kVK_Tab {
-                if event.modifierFlags.contains(.shift) {
-                  focus.wrappedValue = .workflows
-                } else {
-                  onInsertTab()
-                }
-                return nil
-              }
-              return event
-            }
-          } else if let monitor {
-            NSEvent.removeMonitor(monitor)
-            self.monitor = nil
-          }
-        })
+        .modifier(TabModifier(focus: focus, onInsertTab: onInsertTab))
 
       Spacer()
       ZenToggle("", config: .init(color: .systemGreen), isOn: $publisher.data.isEnabled) { onAction(.setIsEnabled(isEnabled: $0))
       }
     }
-    .onDisappear {
-      if let monitor {
-        NSEvent.removeMonitor(monitor)
-        self.monitor = nil
+
+  }
+}
+
+private struct TabModifier: ViewModifier {
+  @State private var monitor: Any?
+  private var focus: FocusState<AppFocus?>.Binding
+  private let onInsertTab: () -> Void
+
+  init(focus: FocusState<AppFocus?>.Binding, onInsertTab: @escaping () -> Void) {
+    self.focus = focus
+    self.onInsertTab = onInsertTab
+  }
+
+  func body(content: Content) -> some View {
+    // This is a workaround for a bug in SwiftUI on Ventura where this method causes a recursion
+    // and will eventually crash the app.
+    if #available(macOS 14 , *) {
+      content
+      .onChange(of: focus.wrappedValue, perform: { value in
+        if case .detail(.name) = value {
+          if let oldMonitor = monitor { NSEvent.removeMonitor(oldMonitor) }
+
+          monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
+            if event.keyCode == kVK_Tab {
+              if event.modifierFlags.contains(.shift) {
+                focus.wrappedValue = .workflows
+              } else {
+                onInsertTab()
+              }
+              return nil
+            }
+            return event
+          }
+        } else if let monitor {
+          NSEvent.removeMonitor(monitor)
+          self.monitor = nil
+        }
+      })
+      .onDisappear {
+        if let monitor {
+          NSEvent.removeMonitor(monitor)
+          self.monitor = nil
+        }
       }
+    } else {
+      content
     }
   }
 }
