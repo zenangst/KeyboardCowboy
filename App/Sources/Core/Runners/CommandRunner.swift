@@ -5,8 +5,8 @@ import Combine
 import MachPort
 
 protocol CommandRunning {
-  func serialRun(_ commands: [Command])
-  func concurrentRun(_ commands: [Command])
+  func serialRun(_ commands: [Command], checkCancellation: Bool)
+  func concurrentRun(_ commands: [Command], checkCancellation: Bool)
 }
 
 final class CommandRunner: CommandRunning, @unchecked Sendable {
@@ -98,7 +98,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func serialRun(_ commands: [Command]) {
+  func serialRun(_ commands: [Command], checkCancellation: Bool) {
     serialTask?.cancel()
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
@@ -113,7 +113,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         if shouldDismissMissionControl { await missionControl.dismissIfActive() }
         let snapshot = await UserSpace.shared.snapshot()
         for command in commands {
-          try Task.checkCancellation()
+          if checkCancellation { try Task.checkCancellation() }
           do {
             try await self.run(command, snapshot: snapshot)
           } catch { }
@@ -125,7 +125,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func concurrentRun(_ commands: [Command]) {
+  func concurrentRun(_ commands: [Command], checkCancellation: Bool) {
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
@@ -141,7 +141,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       let snapshot = await UserSpace.shared.snapshot()
       for command in commands {
         do {
-          try Task.checkCancellation()
+          if checkCancellation { try Task.checkCancellation() }
           try await self.run(command, snapshot: snapshot)
         } catch { }
       }

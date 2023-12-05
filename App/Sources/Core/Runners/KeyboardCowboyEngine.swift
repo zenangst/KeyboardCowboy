@@ -82,19 +82,6 @@ final class KeyboardCowboyEngine {
     }
   }
 
-  func run(_ commands: [Command], execution: Workflow.Execution) {
-    switch execution {
-    case .concurrent:
-      commandRunner.concurrentRun(commands)
-    case .serial:
-      commandRunner.serialRun(commands)
-    }
-  }
-
-  func reveal(_ commands: [Command]) {
-    commandRunner.reveal(commands)
-  }
-
   // MARK: Private methods
 
   private func subscribe(to workspace: NSWorkspace) {
