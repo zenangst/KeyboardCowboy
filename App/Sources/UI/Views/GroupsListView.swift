@@ -67,14 +67,19 @@ struct GroupsListView: View {
                    let match = publisher.data.first(where: { $0.id == lastSelection }) {
                   focus = .element(match.id)
                 } else {
-                  selectionManager.handleOnTap(publisher.data, element: group)
-                  confirmDelete = nil
-                  debounceSelectionManager.process(.init(groups: selectionManager.selections))
+                  onTap(group)
                 }
               }
-              .onTapGesture(count: 2, perform: {
-                onAction(.openScene(.editGroup(group.id)))
-              })
+              .gesture(
+                TapGesture(count: 1)
+                  .onEnded { _ in
+                    onTap(group)
+                  }
+                  .simultaneously(with: TapGesture(count: 2)
+                    .onEnded { _ in
+                      onAction(.openScene(.editGroup(group.id)))
+                    })
+              )
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               appFocus.wrappedValue = .workflows
@@ -108,6 +113,12 @@ struct GroupsListView: View {
         }
       }
     }
+  }
+
+  private func onTap(_ element: GroupViewModel) {
+    selectionManager.handleOnTap(publisher.data, element: element)
+    confirmDelete = nil
+    debounceSelectionManager.process(.init(groups: selectionManager.selections))
   }
 
   func confirmDeleteView(_ group: GroupViewModel) -> some View {
