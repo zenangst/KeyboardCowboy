@@ -82,15 +82,16 @@ struct ContentListView: View {
               .contextMenu(menuItems: {
                 contextualMenu(element.id)
               })
+              .onTapGesture {
+                onTap(element)
+              }
               .focusable($focus, as: .element(element.id)) {
                 if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
                    let lastSelection = contentSelectionManager.lastSelection,
                    let match = publisher.data.first(where: { $0.id == lastSelection }) {
                   focus = .element(match.id)
                 } else {
-                  contentSelectionManager.handleOnTap(publisher.data, element: element)
-                  debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
-                                                         groups: groupSelectionManager.selections))
+                  onTap(element)
                   proxy.scrollTo(element.id)
                 }
               }
@@ -194,6 +195,12 @@ struct ContentListView: View {
         })
       }
     }
+  }
+
+  private func onTap(_ element: ContentViewModel) {
+    contentSelectionManager.handleOnTap(publisher.data, element: element)
+    debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
+                                           groups: groupSelectionManager.selections))
   }
 
   @ViewBuilder
