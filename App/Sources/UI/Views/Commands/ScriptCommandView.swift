@@ -84,7 +84,7 @@ struct ScriptCommandView: View {
                   .font(.caption2)
                   .frame(maxWidth: .infinity)
               }
-              .frame(width: 32)
+              .frame(width: 32, height: 24)
             Spacer()
             Text("Environment:")
             Group {
