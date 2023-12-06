@@ -71,7 +71,7 @@ struct WorkflowCommandEmptyListView: View {
       }
       return false
     }
-    .frame(maxWidth: .infinity)
+    .frame(maxWidth: .infinity, minHeight: 250, maxHeight: .infinity)
     .matchedGeometryEffect(id: "command-list", in: namespace)
   }
 }

@@ -1,4 +1,5 @@
 import Apps
+import Inject
 import SwiftUI
 
 struct WorkflowApplicationTriggerView: View {
@@ -7,6 +8,7 @@ struct WorkflowApplicationTriggerView: View {
     case updateApplicationTriggerContext(DetailViewModel.ApplicationTrigger)
   }
 
+  @ObserveInjection var inject
   @EnvironmentObject private var applicationStore: ApplicationStore
   @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   @State private var data: [DetailViewModel.ApplicationTrigger]
@@ -57,39 +59,43 @@ struct WorkflowApplicationTriggerView: View {
         RoundedRectangle(cornerRadius: 8)
           .fill(Color(.textBackgroundColor).opacity(0.65))
       )
-      .viewDebugger()
 
-      LazyVStack(spacing: 4) {
-        ForEach($data.lazy, id: \.id) { element in
-          WorkflowApplicationTriggerItemView(element, data: $data,
-                                             selectionManager: selectionManager,
-                                             onAction: onAction)
-          .contentShape(Rectangle())
-          .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
-            selectionManager.handleOnTap(data, element: element.wrappedValue)
+      if !data.isEmpty {
+        ScrollView {
+          LazyVStack(spacing: 4) {
+            ForEach($data.lazy, id: \.id) { element in
+              WorkflowApplicationTriggerItemView(element, data: $data,
+                                                 selectionManager: selectionManager,
+                                                 onAction: onAction)
+              .contentShape(Rectangle())
+              .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
+                selectionManager.handleOnTap(data, element: element.wrappedValue)
+              }
+            }
+            .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+              onTab()
+            })
+            .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+              selectionManager.selections = Set(data.map(\.id))
+            })
+            .onMoveCommand(perform: { direction in
+              if let elementID = selectionManager.handle(direction, data, proxy: nil) {
+                focus.wrappedValue = .detail(.applicationTrigger(elementID))
+              }
+            })
+            .onDeleteCommand {
+              let offsets = data.deleteOffsets(for: selectionManager.selections)
+              withAnimation {
+                data.remove(atOffsets: IndexSet(offsets))
+              }
+            }
           }
+          .focused(focus, equals: .detail(.applicationTriggers))
         }
-        .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-          onTab()
-        })
-        .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-          selectionManager.selections = Set(data.map(\.id))
-        })
-        .onMoveCommand(perform: { direction in
-          if let elementID = selectionManager.handle(direction, data, proxy: nil) {
-            focus.wrappedValue = .detail(.applicationTrigger(elementID))
-          }
-        })
-        .onDeleteCommand {
-          let offsets = data.deleteOffsets(for: selectionManager.selections)
-          withAnimation {
-            data.remove(atOffsets: IndexSet(offsets))
-          }
-        }
+        .frame(minHeight: 52, maxHeight: min(CGFloat(data.count * 52), 300) )
       }
-      .focused(focus, equals: .detail(.applicationTriggers))
     }
-    .padding(.horizontal, 8)
+    .enableInjection()
   }
 }
 
