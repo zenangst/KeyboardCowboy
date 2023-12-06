@@ -102,8 +102,9 @@ struct GroupsListView: View {
             }
           }
           .onAppear {
+            let match = selectionManager.lastSelection ?? selectionManager.selections.first ?? ""
+            focus = .element(match)
             DispatchQueue.main.async {
-              let match = selectionManager.lastSelection ?? selectionManager.selections.first ?? ""
               proxy.scrollTo(match)
             }
           }

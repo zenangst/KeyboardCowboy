@@ -22,7 +22,6 @@ final class XcodeMouseRoutine: MouseRoutine {
     if case .center = kind.element.clickLocation {
       frame = elementFrame
     } else if let resolvedFrame = focusedElement.frame {
-      print(kind.element.clickLocation)
       frame = switch kind.element.clickLocation {
       case .leading:
         CGRect(
