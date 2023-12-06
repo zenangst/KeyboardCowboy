@@ -254,7 +254,9 @@ final class UserSpace: Sendable {
   }
 
   private func selectedTextFromClipboard() async throws -> String {
-    let originalPasteboardContents = NSPasteboard.general.string(forType: .string)
+    let originalPasteboardContents = await MainActor.run {
+      NSPasteboard.general.string(forType: .string)
+    }
 
     try? machPort?.post(kVK_ANSI_C, type: .keyDown, flags: .maskCommand)
     try? machPort?.post(kVK_ANSI_C, type: .keyUp, flags: .maskCommand)
@@ -266,8 +268,10 @@ final class UserSpace: Sendable {
     }
 
     if let originalContents = originalPasteboardContents {
-      NSPasteboard.general.clearContents()
-      NSPasteboard.general.setString(originalContents, forType: .string)
+      await MainActor.run {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(originalContents, forType: .string)
+      }
     }
 
     return selectedText
