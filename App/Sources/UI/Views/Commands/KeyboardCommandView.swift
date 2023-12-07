@@ -44,7 +44,7 @@ struct KeyboardCommandView: View {
           .scaleEffect(0.8)
         }
       }, content: { command in
-        VStack {
+        VStack(spacing: 10) {
           HStack(spacing: 0) {
             TextField("", text: $metaData.name)
               .textFieldStyle(.regular(Color(.windowBackgroundColor)))
@@ -61,8 +61,7 @@ struct KeyboardCommandView: View {
           .onChange(of: model.keys) { newValue in
             onAction(.updateKeyboardShortcuts(newValue))
           }
-          .padding(.vertical, 4)
-          .background(Color(.textBackgroundColor).opacity(0.45).cornerRadius(4))
+          .roundedContainer(padding: 0, margin: 0)
         }
       },
       subContent: { _ in },

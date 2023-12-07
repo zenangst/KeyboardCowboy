@@ -1,6 +1,9 @@
+import Bonzai
+import Inject
 import SwiftUI
 
 struct NewCommandKeyboardShortcutView: View {
+  @ObserveInjection var inject
   enum CurrentState: Hashable {
     case recording
   }
@@ -40,10 +43,6 @@ struct NewCommandKeyboardShortcutView: View {
         onTab: { _ in })
         .overlay(NewCommandValidationView($validation))
         .frame(minHeight: 48, maxHeight: 48)
-        .background(
-          RoundedRectangle(cornerRadius: 4)
-            .fill(Color(.textBackgroundColor).opacity(0.25))
-        )
     }
     .onChange(of: keyboardShortcuts, perform: { newValue in
       validation = updateAndValidatePayload()
@@ -55,6 +54,7 @@ struct NewCommandKeyboardShortcutView: View {
     .onAppear {
       validation = .unknown
     }
+    .enableInjection()
   }
 
   @discardableResult

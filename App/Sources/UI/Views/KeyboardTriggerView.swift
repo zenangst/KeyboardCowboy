@@ -1,8 +1,10 @@
-import Combine
-import SwiftUI
 import Bonzai
+import Combine
+import Inject
+import SwiftUI
 
 struct KeyboardTriggerView: View {
+  @ObserveInjection var inject
   @State private var holdDurationText = ""
   @State private var passthrough: Bool
   @State private var trigger: DetailViewModel.KeyboardTrigger
@@ -33,7 +35,7 @@ struct KeyboardTriggerView: View {
   }
 
   var body: some View {
-    VStack {
+    VStack(spacing: 8) {
       HStack {
         Label("Keyboard Shortcuts Sequence", image: "")
         Spacer()
@@ -74,6 +76,7 @@ struct KeyboardTriggerView: View {
       .font(.caption2)
     }
     .padding(.horizontal, 8)
+    .enableInjection()
   }
 }
 
