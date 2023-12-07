@@ -1,8 +1,10 @@
 import Apps
 import Bonzai
+import Inject
 import SwiftUI
 
 struct ApplicationSettingsView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var openPanel: OpenPanelController
   @AppStorage("additionalApplicationPaths", store: AppStorageContainer.store) var additionalApplicationPaths = [String]()
 
@@ -18,30 +20,34 @@ struct ApplicationSettingsView: View {
       .padding([.top, .leading, .trailing], 16)
       .background(Color(.windowBackgroundColor))
 
-      ScrollView(.vertical) {
-        VStack(alignment: .leading, spacing: 0) {
-          if additionalApplicationPaths.isEmpty {
-            Text("No additional directories")
-              .frame(maxWidth: .infinity)
-          } else {
-            ForEach(additionalApplicationPaths, id: \.self) { path in
-              HStack {
-                Text(path)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                Button(action: {
-                  additionalApplicationPaths.removeAll(where: { $0 == path })
-                }, label: {
-                  Image(systemName: "trash")
-                })
-                .buttonStyle(.calm(color: .systemRed, padding: .medium))
+      Group {
+        if additionalApplicationPaths.isEmpty {
+          Text("No additional directories")
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 32)
+        } else {
+          ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: 0) {
+              ForEach(additionalApplicationPaths, id: \.self) { path in
+                HStack {
+                  Text(path)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                  Button(action: {
+                    additionalApplicationPaths.removeAll(where: { $0 == path })
+                    Task { await ApplicationStore.shared.load() }
+                  }, label: {
+                    Image(systemName: "trash")
+                  })
+                  .buttonStyle(.calm(color: .systemRed, padding: .medium))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                Divider()
               }
-              .padding(.horizontal, 16)
-              .padding(.vertical, 8)
-              Divider()
             }
+            .frame(maxHeight: .infinity)
           }
         }
-        .frame(maxHeight: .infinity)
       }
       .roundedContainer(padding: 0)
       .background(Color(.windowBackgroundColor))
@@ -61,9 +67,10 @@ struct ApplicationSettingsView: View {
         })
         Spacer()
         Button(action: {
-          openPanel.perform(.selectFolder(handler: { string in
+          openPanel.perform(.selectFolder(allowMultipleSelections: true, handler: { string in
             guard !additionalApplicationPaths.contains(string) else { return }
             additionalApplicationPaths.append(string)
+            Task { await ApplicationStore.shared.load() }
           }))
         }, label: {
           HStack(spacing: 4) {
@@ -74,6 +81,7 @@ struct ApplicationSettingsView: View {
         })
         .buttonStyle(.zen(.init(color: .systemBlue)))
         .font(.callout)
+        .frame(height: 32)
       }
       .padding(16)
     }
