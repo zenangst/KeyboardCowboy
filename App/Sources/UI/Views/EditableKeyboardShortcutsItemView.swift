@@ -28,7 +28,7 @@ struct EditableKeyboardShortcutsItemView: View {
         .fixedSize(horizontal: true, vertical: true)
     }
     .contentShape(Rectangle())
-    .padding(4)
+    .padding(2)
     .overlay(BorderedOverlayView(cornerRadius: 4))
     .overlay(alignment: .topTrailing, content: {
       Button(action: {
@@ -45,10 +45,11 @@ struct EditableKeyboardShortcutsItemView: View {
       .animation(.smooth, value: isHovered)
     })
     .background(
-      RoundedRectangle(cornerRadius: 6, style: .continuous)
-        .stroke(Color(.disabledControlTextColor))
+      RoundedRectangle(cornerRadius: 5, style: .continuous)
+        .stroke(Color(.disabledControlTextColor).opacity(0.6))
         .opacity(0.5)
     )
+    .padding(.horizontal, 2)
     .draggable(keyboardShortcut.draggablePayload(prefix: "WKS|", selections: selectionManager.selections))
     .dropDestination(for: String.self) { items, location in
       guard let payload = items.draggablePayload(prefix: "WKS|"),

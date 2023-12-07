@@ -1,7 +1,9 @@
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct WorkflowShortcutsView: View {
+  @ObserveInjection var inject
   @Binding private var data: [KeyShortcut]
   private var focus: FocusState<AppFocus?>.Binding
   private let onUpdate: ([KeyShortcut]) -> Void
@@ -29,16 +31,13 @@ struct WorkflowShortcutsView: View {
         focus.wrappedValue = .detail(.name)
       }
     })
-      .frame(minHeight: 48, maxHeight: 48)
-      .background(
-        RoundedRectangle(cornerRadius: 8)
-          .fill(Color(.textBackgroundColor).opacity(0.65))
-      )
-      .padding(.vertical, 6)
-      .onChange(of: data, perform: { newValue in
-        onUpdate(newValue)
-      })
-      .focused(focus, equals: .detail(.keyboardShortcuts))
+    .roundedContainer(padding: 2, margin: 0)
+    .frame(minHeight: 45, maxHeight: 45)
+    .onChange(of: data, perform: { newValue in
+      onUpdate(newValue)
+    })
+    .focused(focus, equals: .detail(.keyboardShortcuts))
+    .enableInjection()
   }
 }
 

@@ -1,7 +1,24 @@
 import Bonzai
+import Inject
 import SwiftUI
 
+extension AnyTransition {
+  static var keyboardTransition: AnyTransition {
+    .asymmetric(
+      insertion:
+          .scale(scale: 0.1, anchor: .bottom)
+          .combined(with: .move(edge: .bottom))
+          .combined(with: .opacity)
+      ,
+      removal:
+          .scale.combined(with: .opacity)
+    )
+  }
+}
+
+
 struct EditableKeyboardShortcutsView<T: Hashable>: View {
+  @ObserveInjection var inject
   enum CurrentState: Hashable {
     case recording
   }
@@ -38,7 +55,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     ScrollViewReader { proxy in
       HStack {
         ScrollView(.horizontal) {
-          LazyHStack {
+          LazyHStack(spacing: 0) {
             ForEach($keyboardShortcuts) { keyboardShortcut in
               EditableKeyboardShortcutsItemView(
                 keyboardShortcut: keyboardShortcut,
@@ -52,6 +69,8 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                   }
                 }
               )
+              .padding(.leading, 2)
+              .padding(.trailing, 4)
               .contentShape(Rectangle())
               .contextMenu {
                 Text(keyboardShortcut.wrappedValue.validationValue)
@@ -102,23 +121,34 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
               }
             }
           }
-          .padding(4)
         }
         Spacer()
-        Button(action: { addButtonAction(proxy) },
+        Button(action: {
+          if state == .recording {
+            reset()
+          } else {
+            addButtonAction(proxy)
+          }
+        },
                label: {
-          Image(systemName: "plus.diamond")
+          Image(systemName: state == .recording ? "stop.circle" : "record.circle.fill")
+            .symbolRenderingMode(.palette)
             .resizable()
             .aspectRatio(contentMode: .fit)
+            .foregroundStyle(
+              state == .recording ? Color(.white) : Color(.systemRed).opacity(0.8),
+              state == .recording ? Color(.systemRed) : Color(nsColor: .darkGray)
+            )
+            .animation(.smooth, value: state)
             .frame(maxWidth: 14, maxHeight: 14)
             .padding(1)
         })
-        .buttonStyle(.calm(color: .systemGreen, padding: .medium))
+        .buttonStyle(.calm(color: .systemRed, padding: .large))
         .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
         .padding(.trailing, 4)
-        .disabled(state == .recording)
       }
       .overlay(overlay(proxy))
+      .enableInjection()
     }
     .onChange(of: controlActiveState, perform: { value in
       if value != .key {
@@ -153,10 +183,11 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   @ViewBuilder
   private func overlay(_ proxy: ScrollViewProxy) -> some View {
     if state == .recording {
-      RoundedRectangle(cornerRadius: 4)
+      RoundedRectangle(cornerRadius: 7)
         .stroke(isGlowing
                 ? Color(.systemRed) .opacity(0.5)
                 : Color.clear, lineWidth: 1)
+        .padding(1)
         .animation(Animation
           .easeInOut(duration: 1.25)
           .repeatForever(autoreverses: true), value: isGlowing)
@@ -166,14 +197,16 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
       }, label: {
         HStack(spacing: 8) {
           Spacer()
-          Text("Click to record a keyboard shortcut")
+          Text("Click to Record a Keyboard Shortcut")
+            .allowsTightening(true)
+            .minimumScaleFactor(0.8)
             .lineLimit(1)
             .padding(6)
             .frame(maxWidth: .infinity)
           Spacer()
           Divider()
             .opacity(0.5)
-          Image(systemName: "plus.diamond")
+          Image(systemName: "record.circle")
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 16, height: 16)
@@ -182,7 +215,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
       })
       .buttonStyle(.positive)
       .fixedSize(horizontal: false, vertical: true)
-      .padding(6)
+      .padding(4)
     }
   }
 
@@ -192,14 +225,14 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     state = .recording
     recorderStore.mode = .record
     replacing = keyShortcut.id
-    keyboardShortcuts.append(keyShortcut)
-    withAnimation(animation) {
+    withAnimation(.smooth(duration: 0.25)) {
+      keyboardShortcuts.append(keyShortcut)
       isGlowing = true
       selectedColor = Color(.systemRed)
-      DispatchQueue.main.async {
-        withAnimation(animation) {
-          proxy.scrollTo(keyShortcut.id)
-        }
+    }
+    DispatchQueue.main.async {
+      withAnimation(animation) {
+        proxy.scrollTo(keyShortcut.id)
       }
     }
   }
@@ -221,9 +254,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     if recorderStore.mode != .intercept {
       recorderStore.mode = .intercept
     }
-    withAnimation(animation) {
-      keyboardShortcuts.removeAll(where: { $0.id == placeholderId })
-    }
+    keyboardShortcuts.removeAll(where: { $0.id == placeholderId })
   }
 }
 
