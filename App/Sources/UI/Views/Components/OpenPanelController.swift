@@ -3,7 +3,7 @@ import Cocoa
 
 public enum OpenPanelAction {
   case selectFile(type: String?, handler: (String) -> Void)
-  case selectFolder(handler: (String) -> Void)
+  case selectFolder(allowMultipleSelections: Bool, handler: (String) -> Void)
 }
 
 @MainActor
@@ -24,9 +24,10 @@ final class OpenPanelController: NSObject, ObservableObject, NSOpenSavePanelDele
       responseHandler = handler
       panel.canChooseFiles = true
       panel.canChooseDirectories = true
-    case .selectFolder(let handler):
+    case .selectFolder(let allowsMultipleSelection, let handler):
       panel.canChooseFiles = false
       panel.canChooseDirectories = true
+      panel.allowsMultipleSelection = allowsMultipleSelection
       responseHandler = handler
     }
 
@@ -35,7 +36,9 @@ final class OpenPanelController: NSObject, ObservableObject, NSOpenSavePanelDele
     guard response == .OK,
           let path = panel.url?.path else { return }
 
-    responseHandler(path)
+    panel.urls.forEach { url in
+      responseHandler(url.path)
+    }
   }
 
   // MARK: NSOpenSavePanelDelegate
