@@ -24,6 +24,8 @@ struct GroupItemView: View {
         .frame(width: 24)
       VStack(alignment: .leading, spacing: 0) {
         Text(group.name)
+          .allowsTightening(true)
+          .minimumScaleFactor(0.8)
           .font(.body)
           .lineLimit(1)
 
@@ -32,6 +34,10 @@ struct GroupItemView: View {
             Text(userMode.name)
               .font(.caption2)
               .foregroundColor(.secondary)
+              .padding(2)
+              .background(Color.accentColor)
+              .clipShape(RoundedRectangle(cornerRadius: 4))
+              .scaleEffect(0.6, anchor: .leading)
           }
         }
       }
@@ -40,7 +46,7 @@ struct GroupItemView: View {
         Image(systemName: "ellipsis.circle")
           .resizable()
           .aspectRatio(1, contentMode: .fit)
-          .frame(height: 16)
+          .frame(height: 12)
       }
       .opacity(selectionManager.selections.contains(group.id) ? 1 : 0)
       .buttonStyle(.plain)
