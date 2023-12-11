@@ -247,7 +247,9 @@ final class UserSpace: Sendable {
     let focusedElement = try systemElement.focusedUIElement()
     var selectedText = focusedElement.selectedText()
     if selectedText == nil && (try? focusedElement.value(.role, as: String.self)) == "AXWebArea" {
-      selectedText = try await selectedTextFromClipboard()
+      // MARK: Fix this
+      // It doesn't work well in Safari.
+//      selectedText = try await selectedTextFromClipboard()
     }
 
     return selectedText ?? ""

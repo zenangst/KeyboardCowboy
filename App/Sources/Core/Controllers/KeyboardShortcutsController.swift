@@ -49,7 +49,6 @@ final class KeyboardShortcutsController {
       previousKey: partialMatch.rawValue
     )
 
-
     if let result = cache[globalKeyWithUserMode] { return result }
 
     let globalKey = createKey(
