@@ -174,7 +174,7 @@ struct KeyboardCowboy: App {
         core.contentCoordinator.handle(.refresh(groupIds))
       }
     }
-    .defaultSize(.init(width: 520, height: 280))
+    .defaultSize(.init(width: 520, height: 500))
     .defaultPosition(.center)
 
     EditWorkflowGroupWindow(core.contentStore, configurationPublisher: core.configCoordinator.configurationPublisher) { context in

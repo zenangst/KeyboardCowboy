@@ -90,7 +90,7 @@ struct NewCommandView: View {
           })
       }
     }
-    .frame(minWidth: 710, minHeight: 410)
+    .frame(minWidth: 710, minHeight: 500)
   }
 
   private func sidebar() -> some View {
