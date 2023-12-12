@@ -172,14 +172,14 @@ final class UserSpace: Sendable {
 #endif
 
   @MainActor
-  func snapshot(resolvedDocumentAndSelections: Bool) async -> Snapshot {
-    Benchmark.shared.start("snapshot: \(resolvedDocumentAndSelections)")
-    defer { Benchmark.shared.stop("snapshot: \(resolvedDocumentAndSelections)") }
+  func snapshot(resolveUserEnvironment: Bool) async -> Snapshot {
+    Benchmark.shared.start("snapshot: \(resolveUserEnvironment)")
+    defer { Benchmark.shared.stop("snapshot: \(resolveUserEnvironment)") }
     var selections = [String]()
     var documentPath: String?
     var selectedText: String = ""
 
-    if resolvedDocumentAndSelections,
+    if resolveUserEnvironment,
         let frontmostApplication = try? frontmostApplication() {
       if let documentPathFromAX = try? self.documentPath(for: frontmostApplication) {
         documentPath = documentPathFromAX
