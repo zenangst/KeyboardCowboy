@@ -58,10 +58,10 @@ let project = Project(
             "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
             "CODE_SIGN_IDENTITY": "Apple Development",
             "CODE_SIGN_STYLE": "Automatic",
-            "CURRENT_PROJECT_VERSION": "386",
+            "CURRENT_PROJECT_VERSION": "392",
             "DEVELOPMENT_TEAM": env["TEAM_ID"],
             "ENABLE_HARDENED_RUNTIME": true,
-            "MARKETING_VERSION": "3.20.1",
+            "MARKETING_VERSION": "3.20.2",
             "PRODUCT_NAME": "Keyboard Cowboy"
           ],
           configurations: [
