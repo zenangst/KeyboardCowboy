@@ -198,7 +198,7 @@ extension Workflow {
 }
 
 extension Workflow {
-  func shouldResolveDocumentAndSelections() -> Bool {
+  func resolveUserEnvironment() -> Bool {
     var result: Bool = false
     let keywords = UserSpace.EnvironmentKey.allCases
       .map(\.asTextVariable)
