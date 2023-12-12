@@ -114,11 +114,11 @@ private final class CommandRunner: CommandRunning {
     self.serialRunHandler = serial
   }
 
-  func concurrentRun(_ commands: [Command], checkCancellation: Bool) {
+  func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveDocumentAndSelections: Bool) {
     concurrentRunHandler(commands)
   }
 
-  func serialRun(_ commands: [Command], checkCancellation: Bool) {
+  func serialRun(_ commands: [Command], checkCancellation: Bool, resolveDocumentAndSelections: Bool) {
     serialRunHandler(commands)
   }
 }

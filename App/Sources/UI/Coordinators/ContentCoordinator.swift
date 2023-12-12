@@ -123,7 +123,7 @@ final class ContentCoordinator {
                       calculateSelections: Bool = false,
                       selectionOverrides: Set<Workflow.ID>? = nil) {
     Benchmark.shared.start("ContentCoordinator.render")
-    defer { Benchmark.shared.finish("ContentCoordinator.render") }
+    defer { Benchmark.shared.stop("ContentCoordinator.render") }
 
     var viewModels = [ContentViewModel]()
     var newSelections = Set<ContentViewModel.ID>()

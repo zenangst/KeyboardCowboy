@@ -305,11 +305,20 @@ final class MachPortCoordinator {
       }
     }
 
+    let shouldResolveDocumentAndSelections = workflow.shouldResolveDocumentAndSelections()
     switch workflow.execution {
     case .concurrent:
-      commandRunner.concurrentRun(commands, checkCancellation: checkCancellation)
+      commandRunner.concurrentRun(
+        commands,
+        checkCancellation: checkCancellation,
+        resolveDocumentAndSelections: shouldResolveDocumentAndSelections
+      )
     case .serial:
-      commandRunner.serialRun(commands, checkCancellation: checkCancellation)
+      commandRunner.serialRun(
+        commands,
+        checkCancellation: checkCancellation,
+        resolveDocumentAndSelections: shouldResolveDocumentAndSelections
+      )
     }
   }
 

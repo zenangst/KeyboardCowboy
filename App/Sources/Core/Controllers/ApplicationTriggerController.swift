@@ -96,9 +96,17 @@ final class ApplicationTriggerController {
     let commands = workflow.commands.filter(\.isEnabled)
     switch workflow.execution {
     case .concurrent:
-      commandRunner.concurrentRun(commands, checkCancellation: true)
+      commandRunner.concurrentRun(
+        commands,
+        checkCancellation: true,
+        resolveDocumentAndSelections: workflow.shouldResolveDocumentAndSelections()
+      )
     case .serial:
-      commandRunner.serialRun(commands, checkCancellation: true)
+      commandRunner.serialRun(
+        commands,
+        checkCancellation: true,
+        resolveDocumentAndSelections: workflow.shouldResolveDocumentAndSelections()
+      )
     }
   }
 }

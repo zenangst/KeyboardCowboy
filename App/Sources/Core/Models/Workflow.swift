@@ -196,3 +196,49 @@ extension Workflow {
     ])
   }
 }
+
+extension Workflow {
+  func shouldResolveDocumentAndSelections() -> Bool {
+    var result: Bool = false
+    let keywords = UserSpace.EnvironmentKey.allCases
+      .map(\.asTextVariable)
+
+    for command in commands {
+      switch command {
+      case .application, .builtIn, .mouse, 
+           .keyboard, .menuBar, .shortcut,
+           .systemCommand, .windowManagement:
+        result = false
+      case .open(let openCommand):
+        result = openCommand.path.contains(keywords)
+      case .script(let scriptCommand):
+        switch scriptCommand.source {
+        case .path(let string):
+          result = string.contains(keywords)
+        case .inline(let string):
+          result = string.contains(keywords)
+        }
+      case .text(let textCommand):
+        switch textCommand.kind {
+        case .insertText(let typeCommand):
+          result = typeCommand.input.contains(keywords)
+        }
+      }
+      if result { break }
+    }
+
+    return result
+  }
+}
+
+private extension String {
+  func contains(_ keywords: [String]) -> Bool {
+    var result: Bool = false
+    for keyword in keywords {
+      result = self.contains(keyword)
+      if result { break }
+    }
+    return result
+  }
+}
+

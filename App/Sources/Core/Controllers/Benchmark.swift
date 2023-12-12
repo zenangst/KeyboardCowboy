@@ -20,7 +20,7 @@ final class Benchmark {
   }
 
   @discardableResult
-  func finish(_ identifier: @autoclosure @Sendable () -> String) -> String {
+  func stop(_ identifier: @autoclosure @Sendable () -> String) -> String {
     guard isEnabled, let startTime = storage[identifier()] else {
       return "Unknown identifier: \(identifier())"
     }

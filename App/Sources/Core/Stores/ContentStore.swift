@@ -73,7 +73,7 @@ final class ContentStore: ObservableObject {
         }
       }
 
-      Benchmark.shared.finish("ContentStore.init")
+      Benchmark.shared.stop("ContentStore.init")
     }
   }
 
