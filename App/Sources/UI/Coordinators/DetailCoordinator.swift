@@ -242,7 +242,7 @@ final class DetailCoordinator {
   private func render(_ ids: Set<Workflow.ID>, groupIds: Set<WorkflowGroup.ID>, animation: Animation? = nil) {
     Benchmark.shared.start("DetailCoordinator.render")
     defer {
-      Benchmark.shared.finish("DetailCoordinator.render")
+      Benchmark.shared.stop("DetailCoordinator.render")
     }
     let workflows = groupStore.groups
       .filter { groupIds.contains($0.id) }

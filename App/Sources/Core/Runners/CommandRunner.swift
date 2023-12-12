@@ -5,8 +5,8 @@ import Combine
 import MachPort
 
 protocol CommandRunning {
-  func serialRun(_ commands: [Command], checkCancellation: Bool)
-  func concurrentRun(_ commands: [Command], checkCancellation: Bool)
+  func serialRun(_ commands: [Command], checkCancellation: Bool, resolveDocumentAndSelections: Bool)
+  func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveDocumentAndSelections: Bool)
 }
 
 final class CommandRunner: CommandRunning, @unchecked Sendable {
@@ -98,7 +98,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func serialRun(_ commands: [Command], checkCancellation: Bool) {
+  func serialRun(
+    _ commands: [Command],
+    checkCancellation: Bool,
+    resolveDocumentAndSelections: Bool
+  ) {
     serialTask?.cancel()
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
@@ -111,7 +115,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         })
 
         if shouldDismissMissionControl { await missionControl.dismissIfActive() }
-        let snapshot = await UserSpace.shared.snapshot()
+        let snapshot = await UserSpace.shared.snapshot(resolvedDocumentAndSelections: resolveDocumentAndSelections)
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
@@ -125,7 +129,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func concurrentRun(_ commands: [Command], checkCancellation: Bool) {
+  func concurrentRun(
+    _ commands: [Command],
+    checkCancellation: Bool,
+    resolveDocumentAndSelections: Bool
+  ) {
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
       guard let self else { return }
@@ -138,7 +146,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
       if shouldDismissMissionControl { await missionControl.dismissIfActive() }
 
-      let snapshot = await UserSpace.shared.snapshot()
+      let snapshot = await UserSpace.shared.snapshot(resolvedDocumentAndSelections: resolveDocumentAndSelections)
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }

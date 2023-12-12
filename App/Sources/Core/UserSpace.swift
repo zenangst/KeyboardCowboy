@@ -14,6 +14,18 @@ enum UserSpaceError: Error {
 }
 
 final class UserSpace: Sendable {
+  enum EnvironmentKey: String, CaseIterable {
+    case currentWorkingDirectory = "CURRENT_WORKING_DIRECTORY"
+    case directory = "DIRECTORY"
+    case file = "FILE"
+    case filepath = "FILEPATH"
+    case filename = "FILENAME"
+    case `extension` = "EXTENSION"
+    case selectedText = "SELECTED_TEXT"
+
+    var asTextVariable: String { "$\(rawValue)" }
+  }
+
   struct Application: @unchecked Sendable {
     let ref: NSRunningApplication
     let bundleIdentifier: String
@@ -54,7 +66,7 @@ final class UserSpace: Sendable {
     }
 
     func interpolateUserSpaceVariables(_ value: String) -> String {
-      var interpolatedString = value.replacingOccurrences(of: "$SELECTED_TEXT", with: selectedText)
+      var interpolatedString = value.replacingOccurrences(of: .selectedText, with: selectedText)
 
       if let filePath = documentPath, let url = URL(string: filePath) {
         // Attempt to create URLComponents from the URL
@@ -69,12 +81,12 @@ final class UserSpace: Sendable {
               : directory
 
           interpolatedString = interpolatedString
-            .replacingOccurrences(of: "$CURRENT_WORKING_DIRECTORY", with: cwd)
-            .replacingOccurrences(of: "$DIRECTORY", with: (directory as NSString).deletingLastPathComponent)
-            .replacingOccurrences(of: "$FILEPATH", with: components.path.replacingOccurrences(of: "%20", with: " "))
-            .replacingOccurrences(of: "$FILENAME", with: (url.lastPathComponent as NSString).deletingPathExtension)
-            .replacingOccurrences(of: "$FILE", with: lastPathComponent as String)
-            .replacingOccurrences(of: "$EXTENSION", with: (url.lastPathComponent as NSString).pathExtension)
+            .replacingOccurrences(of: .currentWorkingDirectory, with: cwd)
+            .replacingOccurrences(of: .directory, with: (directory as NSString).deletingLastPathComponent)
+            .replacingOccurrences(of: .filepath, with: components.path.replacingOccurrences(of: "%20", with: " "))
+            .replacingOccurrences(of: .filename, with: (url.lastPathComponent as NSString).deletingPathExtension)
+            .replacingOccurrences(of: .file, with: lastPathComponent as String)
+            .replacingOccurrences(of: .filepath, with: (url.lastPathComponent as NSString).pathExtension)
         }
       }
       return interpolatedString
@@ -83,7 +95,7 @@ final class UserSpace: Sendable {
     func terminalEnvironment() -> [String: String] {
       var environment = ProcessInfo.processInfo.environment
       environment["TERM"] = "xterm-256color"
-      environment["SELECTED_TEXT"] = selectedText
+      environment[.selectedText] = selectedText
 
       if let filePath = documentPath {
         let url = URL(filePath: filePath)
@@ -95,12 +107,12 @@ final class UserSpace: Sendable {
           ? (directory as NSString).deletingLastPathComponent
           : directory
 
-          environment["CURRENT_WORKING_DIRECTORY"] = cwd
-          environment["DIRECTORY"] = (directory as NSString).deletingLastPathComponent
-          environment["FILE"] = url.lastPathComponent
-          environment["FILEPATH"] = components.path.replacingOccurrences(of: "%20", with: " ")
-          environment["FILENAME"] = (url.lastPathComponent as NSString).deletingPathExtension
-          environment["EXTENSION"] = (url.lastPathComponent as NSString).pathExtension
+          environment[.currentWorkingDirectory] = cwd
+          environment[.directory] = (directory as NSString).deletingLastPathComponent
+          environment[.file] = url.lastPathComponent
+          environment[.filepath] = components.path.replacingOccurrences(of: "%20", with: " ")
+          environment[.filename] = (url.lastPathComponent as NSString).deletingPathExtension
+          environment[.extension] = (url.lastPathComponent as NSString).pathExtension
         }
       }
 
@@ -160,12 +172,15 @@ final class UserSpace: Sendable {
 #endif
 
   @MainActor
-  func snapshot() async -> Snapshot {
+  func snapshot(resolvedDocumentAndSelections: Bool) async -> Snapshot {
+    Benchmark.shared.start("snapshot: \(resolvedDocumentAndSelections)")
+    defer { Benchmark.shared.stop("snapshot: \(resolvedDocumentAndSelections)") }
     var selections = [String]()
     var documentPath: String?
     var selectedText: String = ""
 
-    if let frontmostApplication = try? frontmostApplication() {
+    if resolvedDocumentAndSelections,
+        let frontmostApplication = try? frontmostApplication() {
       if let documentPathFromAX = try? self.documentPath(for: frontmostApplication) {
         documentPath = documentPathFromAX
       } else if let bundleIdentifier = frontmostApplication.bundleIdentifier {
@@ -184,12 +199,14 @@ final class UserSpace: Sendable {
       }
     }
 
+    let windows = WindowStore.shared.snapshot()
+
     return Snapshot(documentPath: documentPath,
                     frontMostApplication: frontMostApplication,
                     previousApplication: previousApplication,
                     selectedText: selectedText,
                     selections: selections,
-                    windows: WindowStore.shared.snapshot())
+                    windows: windows)
   }
 
   func subscribe(to publisher: Published<KeyboardCowboyConfiguration>.Publisher) {
@@ -198,7 +215,7 @@ final class UserSpace: Sendable {
         guard let self = self else { return }
         Task {
           await MainActor.run {
-            var currentModes = configuration.userModes
+            let currentModes = configuration.userModes
               .map { UserMode(id: $0.id, name: $0.name, isEnabled: false) }
               .sorted(by: { $0.name < $1.name })
             self.userModes = currentModes
@@ -312,5 +329,18 @@ extension UserSpace.Application {
     Application(bundleIdentifier: bundleIdentifier,
                 bundleName: name,
                 path: path)
+  }
+}
+
+private extension Dictionary<String, String> {
+  subscript(_ key: UserSpace.EnvironmentKey) -> String? {
+    get { self[key.rawValue] }
+    set { self[key.rawValue] = newValue }
+  }
+}
+
+private extension String {
+  func replacingOccurrences(of envKey: UserSpace.EnvironmentKey, with replacement: String) -> String {
+    replacingOccurrences(of: envKey.asTextVariable, with: replacement)
   }
 }

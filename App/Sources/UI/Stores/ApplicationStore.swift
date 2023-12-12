@@ -66,7 +66,7 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
     } else {
       await reload(additionalPaths)
     }
-    await Benchmark.shared.finish("ApplicationController.load")
+    await Benchmark.shared.stop("ApplicationController.load")
   }
 
   // MARK: - Private methods
@@ -77,7 +77,7 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
       URL(filePath: $0)
     }
     let newApplications = await ApplicationController.load(additionalDirectories)
-    await Benchmark.shared.finish("ApplicationController.reload")
+    await Benchmark.shared.stop("ApplicationController.reload")
 
     if applications != newApplications {
       var applicationDictionary = [String: Application]()
