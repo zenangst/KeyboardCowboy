@@ -105,6 +105,8 @@ final class MachPortCoordinator {
       }
   }
 
+  // MARK: - Private methods
+
   private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool = false) {
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
@@ -113,9 +115,9 @@ final class MachPortCoordinator {
     switch machPortEvent.type {
     case .flagsChanged:
       kind = .flagsChanged
+      return
     case .keyDown:
       kind = .keyDown
-
       if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue,
          machPortEvent.keyCode == kVK_Escape {
         if machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
@@ -124,7 +126,6 @@ final class MachPortCoordinator {
           return
         }
       }
-
     case .keyUp:
       kind = .keyUp
       workItem?.cancel()
@@ -155,13 +156,27 @@ final class MachPortCoordinator {
       partialMatch: previousPartialMatch
     )
     if result == nil {
-      let keyboardShortcut = KeyShortcut(key: displayValue.uppercased(), lhs: machPortEvent.lhs, modifiers: modifiers)
       result = keyboardShortcutsController.lookup(
-        keyboardShortcut,
+        KeyShortcut(key: displayValue.uppercased(), lhs: machPortEvent.lhs, modifiers: modifiers),
         bundleIdentifier: UserSpace.shared.frontMostApplication.bundleIdentifier,
         userModes: userModes,
         partialMatch: previousPartialMatch
       )
+
+      // Workaround for the mismatch that can occur when the user tries to type
+      // a sequence that involves conflicting positions for the modifier keys.
+      // When done in quick succession, the `flagsChanged` event will report
+      // the the first modifier keys position based on the keycode, which is
+      // not always accurate. This workaround disables left-hand-side conditions
+      // for workflows that use keyboard shortcut sequences.
+      if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue && result == nil {
+        result = keyboardShortcutsController.lookup(
+          KeyShortcut(key: displayValue, lhs: false, modifiers: modifiers),
+          bundleIdentifier: UserSpace.shared.frontMostApplication.bundleIdentifier,
+          userModes: userModes,
+          partialMatch: previousPartialMatch
+        )
+      }
     }
 
     switch result {
@@ -184,8 +199,9 @@ final class MachPortCoordinator {
         machPortEvent.result = nil
       }
 
-      if workflow.commands.filter(\.isEnabled).count == 1,
-         case .keyboard(let command) = workflow.commands.first(where: \.isEnabled) {
+      let enabledWorkflows = workflow.commands.filter(\.isEnabled)
+      if enabledWorkflows.count == 1,
+         case .keyboard(let command) = enabledWorkflows.first {
         if !isRepeatingEvent && machPortEvent.event.type == .keyDown {
           notifications.notifyKeyboardCommand(workflow, command: command)
         }
@@ -196,7 +212,7 @@ final class MachPortCoordinator {
                                        with: machPortEvent.eventSource)
         previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
-        if case .windowManagement = $0 { return true } else { return false }
+        if case .windowManagement = $0 { true } else { false }
       }) {
         guard machPortEvent.type == .keyDown else { return }
         run(workflow)
@@ -204,7 +220,7 @@ final class MachPortCoordinator {
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
       }) {
-        if machPortEvent.type == .keyDown && isRepeatingEvent {
+        if kind == .keyDown && isRepeatingEvent {
           shouldHandleKeyUp = true
           return
         }
@@ -317,7 +333,7 @@ final class MachPortCoordinator {
     }
   }
 
-  private func reset() {
+  private func reset(_ function: StaticString = #function, line: Int = #line) {
     previousPartialMatch = Self.defaultPartialMatch
     notifications.reset()
   }

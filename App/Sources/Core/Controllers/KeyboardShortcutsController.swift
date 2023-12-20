@@ -31,7 +31,9 @@ final class KeyboardShortcutsController {
       previousKey: partialMatch.rawValue
     )
 
-    if let result = cache[scopedKeyWithUserMode] { return result }
+    if let result = cache[scopedKeyWithUserMode] {
+      return result
+    }
 
     let scopedKey = createKey(
       keyboardShortcut,
@@ -40,7 +42,11 @@ final class KeyboardShortcutsController {
       previousKey: partialMatch.rawValue
     )
 
-    if let result = cache[scopedKey] { return result }
+    // If both the scope keys are identical, then there is no need
+    // to try and resolve it again if the first one failed.
+    if scopedKey != scopedKeyWithUserMode, let result = cache[scopedKey] {
+      return result
+    }
 
     let globalKeyWithUserMode = createKey(
       keyboardShortcut,
@@ -49,7 +55,9 @@ final class KeyboardShortcutsController {
       previousKey: partialMatch.rawValue
     )
 
-    if let result = cache[globalKeyWithUserMode] { return result }
+    if let result = cache[globalKeyWithUserMode] {
+      return result
+    }
 
     let globalKey = createKey(
       keyboardShortcut,
