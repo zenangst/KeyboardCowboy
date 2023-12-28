@@ -1,4 +1,5 @@
 import ApplicationServices
+import AXEssibility
 import Bonzai
 import Combine
 import Cocoa

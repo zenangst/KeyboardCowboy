@@ -228,9 +228,10 @@ final class WindowCommandRunner {
       previousValue = true
     }
 
-    let focusedWindow = try app.focusedWindow()
+    let systemElement = SystemAccessibilityElement()
+    let focusedElement = try systemElement.focusedUIElement()
 
-    guard let windowFrame = focusedWindow.frame else {
+    guard let focusedWindow = focusedElement.window, let windowFrame = focusedWindow.frame else {
       app.enhancedUserInterface = previousValue
       throw WindowCommandRunnerError.unabelToResolveWindowFrame
     }

@@ -1,6 +1,14 @@
+import AXEssibility
 import Foundation
 import CoreLocation
 import AppKit
+
+public enum PermissionsItemStatus: String {
+  case request = "Request"
+  case approved = "Approved"
+  case pending = "Pending"
+  case unknown = "Unknown"
+}
 
 final class LocationPermission: NSObject, ObservableObject, CLLocationManagerDelegate {
   enum Permission {

@@ -1,11 +1,5 @@
+import AXEssibility
 import SwiftUI
-
-enum PermissionsItemStatus: String {
-  case request = "Request"
-  case approved = "Approved"
-  case pending = "Pending"
-  case unknown = "Unknown"
-}
 
 struct PermissionsSettings: View {
   @StateObject var accessibilityPermission = AccessibilityPermission.shared
@@ -35,7 +29,7 @@ struct PermissionsSettings: View {
 
 fileprivate struct PermissionOverviewItem: View {
   @Namespace var namespace
-  @Binding var status: PermissionsItemStatus
+  @Binding var status: AccessibilityPermissionsItemStatus
 
   let icon: String
   let name: String

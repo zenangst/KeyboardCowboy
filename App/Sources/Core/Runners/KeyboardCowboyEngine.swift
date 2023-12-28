@@ -1,3 +1,4 @@
+import AXEssibility
 import Combine
 import Cocoa
 import CoreGraphics
@@ -51,7 +52,7 @@ final class KeyboardCowboyEngine {
     guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 
     if AccessibilityPermission.shared.permission != .authorized {
-      AccessibilityPermission.shared.subscribe(to: workspacePublisher.$frontmostApplication) { [weak self] in
+      AccessibilityPermission.shared.subscribe(to: NSWorkspace.shared.publisher(for: \.frontmostApplication)) { [weak self] in
         self?.setupMachPortAndSubscriptions(workspace)
       }
     } else {
