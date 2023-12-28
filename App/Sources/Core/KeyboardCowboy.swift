@@ -30,10 +30,9 @@ struct KeyboardCowboy: App {
 
   private var open: Bool = true
   private let core: Core
-  @ObservedObject var contentStore: ContentStore
+  @ObservedObject private var contentStore: ContentStore
 
   @Environment(\.openWindow) private var openWindow
-  @Environment(\.scenePhase) private var scenePhase
 
   init() {
     let core = Core()

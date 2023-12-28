@@ -1,8 +1,13 @@
-//
-//  StorageSettingsView.swift
-//  Keyboard-Cowboy
-//
-//  Created by Christoffer Winterkvist on 12/17/23.
-//
+import SwiftUI
 
-import Foundation
+struct StorageSettingsView: View {
+  var body: some View {
+    Text("Hello, world!")
+  }
+}
+
+struct StorageSettingsView_Previews: PreviewProvider {
+  static var previews: some View {
+    StorageSettingsView()
+  }
+}

@@ -11,7 +11,7 @@ enum StorageError: Error {
 }
 
 final class Storage {
-  var configuration: StorageConfiguration
+  var configuration: any StoringConfiguration
 
   private let encoder: JSONEncoder
   private let decoder: JSONDecoder
@@ -19,7 +19,7 @@ final class Storage {
 
   private var subscription: AnyCancellable?
 
-  internal init(_ configuration: StorageConfiguration,
+  internal init(_ configuration: any StoringConfiguration,
                 decoder: JSONDecoder = .init(),
                 encoder: JSONEncoder = .init(),
                 fileManager: FileManager = .init()

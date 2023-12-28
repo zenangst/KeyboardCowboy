@@ -1,15 +1,15 @@
 import Cocoa
 
 private let rootFolder = URL(fileURLWithPath: #file).pathComponents
-    .prefix(while: { $0 != "KeyboardCowboy" })
-    .joined(separator: "/")
-    .dropFirst()
+  .prefix(while: { $0 != "KeyboardCowboy" })
+  .joined(separator: "/")
+  .dropFirst()
 
 struct AppPreferences {
   var hideFromDock: Bool = true
   var hideAppOnLaunch: Bool = true
   var machportIsEnabled = true
-  var storageConfiguration: StorageConfiguration
+  var storageConfiguration: any StoringConfiguration
 
   private static func filename(for functionName: StaticString) -> String {
     "\(functionName)"
@@ -22,7 +22,7 @@ struct AppPreferences {
       hideFromDock: true,
       hideAppOnLaunch: true,
       machportIsEnabled: true,
-      storageConfiguration: .init(path: "~/", filename: ".keyboard-cowboy.json"))
+      storageConfiguration: StorageConfiguration(path: "~/", filename: ".keyboard-cowboy.json"))
   }
 
   static func development() -> AppPreferences {
@@ -30,7 +30,7 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: true,
-      storageConfiguration: .init(path: "~/", filename: ".keyboard-cowboy.json"))
+      storageConfiguration: StorageConfiguration(path: "~/", filename: ".keyboard-cowboy.json"))
   }
 
   static func emptyFile() -> AppPreferences {
@@ -38,8 +38,8 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
-                                  filename: filename(for: #function)))
+      storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
+                                                 filename: filename(for: #function)))
   }
 
   static func noConfiguration() -> AppPreferences {
@@ -47,8 +47,8 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: rootFolder.appending("//jsonKeyboardCowboy/Fixtures"),
-                                  filename: filename(for: #function)))
+      storageConfiguration: StorageConfiguration(path: rootFolder.appending("//jsonKeyboardCowboy/Fixtures"),
+                                                 filename: filename(for: #function)))
   }
 
   static func noGroups() -> AppPreferences {
@@ -56,8 +56,8 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
-                                  filename: filename(for: #function)))
+      storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
+                                                 filename: filename(for: #function)))
 
   }
 
@@ -66,8 +66,8 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: true,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
-                                  filename: filename(for: #function)))
+      storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
+                                                 filename: filename(for: #function)))
   }
 
   static func performance() -> AppPreferences {
@@ -75,8 +75,8 @@ struct AppPreferences {
       hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: .init(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
-                                  filename: filename(for: #function)))
+      storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
+                                                 filename: filename(for: #function)))
 
   }
 }

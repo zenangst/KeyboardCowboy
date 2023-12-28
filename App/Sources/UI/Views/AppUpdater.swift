@@ -1,7 +1,6 @@
 import Cocoa
 import Sparkle
 
-
 final class AppUpdater: NSObject, ObservableObject, SPUUpdaterDelegate {
   private var sparkle: SPUStandardUpdaterController!
 
