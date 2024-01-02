@@ -24,6 +24,8 @@ final class WindowCommandRunner {
     }
   }
 
+  private lazy var systemElement = SystemAccessibilityElement()
+
   nonisolated init() {}
 
   func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
@@ -228,10 +230,19 @@ final class WindowCommandRunner {
       previousValue = true
     }
 
-    let systemElement = SystemAccessibilityElement()
-    let focusedElement = try systemElement.focusedUIElement()
 
-    guard let focusedWindow = focusedElement.window, let windowFrame = focusedWindow.frame else {
+    let focusedElement: AnyFocusedAccessibilityElement
+    let focusedWindow: WindowAccessibilityElement?
+    do {
+      focusedElement = try systemElement.focusedUIElement()
+      focusedWindow = focusedElement.window
+    } catch {
+      let element = try app.focusedWindow()
+      focusedElement = AnyFocusedAccessibilityElement(element.reference)
+      focusedWindow = element
+    }
+
+    guard let focusedWindow, let windowFrame = focusedWindow.frame else {
       app.enhancedUserInterface = previousValue
       throw WindowCommandRunnerError.unabelToResolveWindowFrame
     }
