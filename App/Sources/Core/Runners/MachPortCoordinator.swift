@@ -31,7 +31,9 @@ final class MachPortCoordinator {
     case escape = 53
   }
 
-  @Published var recording: KeyShortcutRecording?
+  @Published private(set) var event: MachPortEvent?
+  @Published private(set) var flagsChanged: CGEventFlags?
+  @Published private(set) var recording: KeyShortcutRecording?
 
   var machPort: MachPortEventController? {
     didSet { keyboardCommandRunner.machPort = machPort }
@@ -80,29 +82,22 @@ final class MachPortCoordinator {
       }
   }
 
-  func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
-    machPortEventSubscription = publisher
-      .compactMap { $0 }
-      .sink { [weak self] event in
-        guard let self = self else { return }
-        switch self.mode {
-        case .intercept:
-          self.intercept(event)
-        case .record:
-          self.record(event)
-        case .disabled:
-          break
-        }
-      }
+  func receiveEvent(_ event: MachPortEvent) {
+    switch mode {
+    case .intercept:
+      intercept(event)
+    case .record:
+      record(event)
+    case .disabled:
+      break
+    }
+    self.event = event
   }
 
-  func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
-    flagsChangedSubscription = publisher
-      .compactMap { $0 }
-      .sink { [weak self] recording in
-        self?.workItem?.cancel()
-        self?.workItem = nil
-      }
+  func receiveFlagsChanged(_ flags: CGEventFlags) {
+    workItem?.cancel()
+    workItem = nil
+    self.flagsChanged = flags
   }
 
   // MARK: - Private methods

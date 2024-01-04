@@ -67,15 +67,15 @@ final class KeyboardCowboyEngine {
       let newMachPortController = try MachPortEventController(
         .privateState,
         signature: "com.zenangst.Keyboard-Cowboy",
-        autoStartMode: .commonModes)
+        autoStartMode: .commonModes,
+        onFlagsChanged: { [machPortCoordinator] in machPortCoordinator.receiveFlagsChanged($0) },
+        onEventChange: { [machPortCoordinator] in machPortCoordinator.receiveEvent($0) })
       commandRunner.eventSource = newMachPortController.eventSource
       subscribe(to: workspace)
       contentStore.recorderStore.subscribe(to: machPortCoordinator.$recording)
       machPortCoordinator.subscribe(to: contentStore.recorderStore.$mode)
-      machPortCoordinator.subscribe(to: newMachPortController.$event)
-      machPortCoordinator.subscribe(to: newMachPortController.$flagsChanged)
       machPortCoordinator.machPort = newMachPortController
-      commandRunner.setMachPort(newMachPortController)
+      commandRunner.setMachPort(newMachPortController, coordinator: machPortCoordinator)
       machPortController = newMachPortController
       keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
     } catch let error {

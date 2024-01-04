@@ -241,17 +241,15 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   @MainActor
-  func setMachPort(_ machPort: MachPortEventController?) {
+  func setMachPort(_ machPort: MachPortEventController?, coordinator: MachPortCoordinator) {
     self.machPort = machPort
     runners.keyboard.machPort = machPort
     runners.system.machPort = machPort
     UserSpace.shared.machPort = machPort
-    if let machPort {
-      WindowStore.shared.subscribe(to: machPort.$flagsChanged)
-      runners.system.subscribe(to: machPort.$flagsChanged)
-      runners.window.subscribe(to: machPort.$event)
-      subscribe(to: machPort.$event)
-    }
+    WindowStore.shared.subscribe(to: coordinator.$flagsChanged)
+    runners.system.subscribe(to: coordinator.$flagsChanged)
+    runners.window.subscribe(to: coordinator.$event)
+    subscribe(to: coordinator.$event)
   }
 
   // MARK: Private methods

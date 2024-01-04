@@ -58,7 +58,7 @@ let project = Project(
             "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
             "CODE_SIGN_IDENTITY": "Apple Development",
             "CODE_SIGN_STYLE": "Automatic",
-            "CURRENT_PROJECT_VERSION": "392",
+            "CURRENT_PROJECT_VERSION": "395",
             "DEVELOPMENT_TEAM": env["TEAM_ID"],
             "ENABLE_HARDENED_RUNTIME": true,
             "MARKETING_VERSION": "3.20.3",
@@ -169,7 +169,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/zenangst/InputSources.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.0.7"),
         .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.1"),
-        .package(url: "https://github.com/zenangst/MachPort.git", from: "3.0.2"),
+        .package(url: "https://github.com/zenangst/MachPort.git", from: "3.1.1"),
         .package(url: "https://github.com/zenangst/Windows.git", from: "1.0.0"),
       ]
     }
