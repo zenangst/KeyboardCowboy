@@ -48,7 +48,10 @@ struct EditWorkflowGroupWindow: Scene {
       }
       .environmentObject(configurationPublisher)
     }
-    .windowResizability(.contentMinSize)
+    .windowResizability(.contentSize)
+    .windowStyle(.hiddenTitleBar)
+    .defaultPosition(.center)
+    .defaultSize(.init(width: 520, height: 280))
   }
 
   private func resolve(_ context: Context?) -> WorkflowGroup {
