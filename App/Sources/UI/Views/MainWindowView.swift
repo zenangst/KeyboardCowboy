@@ -63,6 +63,12 @@ struct MainWindowView: View {
                                                         groupIds: core.groupSelectionManager.selections))
         })
       }
+      .onAppear {
+        KeyboardCowboy.activate()
+      }
+      .onDisappear {
+        KeyboardCowboy.deactivate()
+      }
     case .loading:
       AppLoadingView(namespace: namespace)
         .frame(width: 560, height: 380)

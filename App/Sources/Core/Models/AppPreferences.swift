@@ -6,7 +6,6 @@ private let rootFolder = URL(fileURLWithPath: #file).pathComponents
   .dropFirst()
 
 struct AppPreferences {
-  var hideFromDock: Bool = true
   var hideAppOnLaunch: Bool = true
   var machportIsEnabled = true
   var storageConfiguration: any StoringConfiguration
@@ -19,7 +18,6 @@ struct AppPreferences {
 
   static func user() -> AppPreferences {
     AppPreferences(
-      hideFromDock: true,
       hideAppOnLaunch: true,
       machportIsEnabled: true,
       storageConfiguration: StorageConfiguration(path: "~/", filename: ".keyboard-cowboy.json"))
@@ -27,7 +25,6 @@ struct AppPreferences {
 
   static func development() -> AppPreferences {
     AppPreferences(
-      hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: true,
       storageConfiguration: StorageConfiguration(path: "~/", filename: ".keyboard-cowboy.json"))
@@ -35,7 +32,6 @@ struct AppPreferences {
 
   static func emptyFile() -> AppPreferences {
     AppPreferences(
-      hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
       storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
@@ -44,7 +40,6 @@ struct AppPreferences {
 
   static func noConfiguration() -> AppPreferences {
     AppPreferences(
-      hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
       storageConfiguration: StorageConfiguration(path: rootFolder.appending("//jsonKeyboardCowboy/Fixtures"),
@@ -53,7 +48,6 @@ struct AppPreferences {
 
   static func noGroups() -> AppPreferences {
     AppPreferences(
-      hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
       storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
@@ -63,7 +57,6 @@ struct AppPreferences {
 
   static func designTime() -> AppPreferences {
     AppPreferences(
-      hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: true,
       storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
@@ -72,7 +65,6 @@ struct AppPreferences {
 
   static func performance() -> AppPreferences {
     AppPreferences(
-      hideFromDock: false,
       hideAppOnLaunch: false,
       machportIsEnabled: false,
       storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),

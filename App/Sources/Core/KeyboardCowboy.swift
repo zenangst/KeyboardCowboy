@@ -199,7 +199,6 @@ struct KeyboardCowboy: App {
       } else {
         openWindow(id: KeyboardCowboy.mainWindowIdentifier)
       }
-      KeyboardCowboy.activate()
     case .addGroup:
       openWindow(value: EditWorkflowGroupWindow.Context.add(WorkflowGroup.empty()))
     case .editGroup(let groupId):

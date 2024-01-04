@@ -8,8 +8,6 @@ struct AppMenuBar: Scene {
     case reveal
   }
 
-  @Environment(\.scenePhase) private var scenePhase
-
   private var applicationName: String {
     switch KeyboardCowboy.env() {
     case .previews:
@@ -66,17 +64,6 @@ struct AppMenuBar: Scene {
           onAction(.openMainWindow)
           UserSpace.Application.current.ref.activate(options: .activateAllWindows)
         })
-    }
-    .onChange(of: scenePhase) { newValue in
-      switch newValue {
-      case .active:
-        guard KeyboardCowboy.env() == .production else { return }
-        KeyboardCowboy.activate()
-      case .inactive, .background:
-        break
-      default:
-        break
-      }
     }
   }
 }
