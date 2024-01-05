@@ -19,13 +19,12 @@ struct WorkflowCommandListHeaderAddView: View {
         Image(systemName: "plus.app")
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(maxWidth: 12, maxHeight: 12)
-          .padding(2)
+          .frame(width: 12, height: 12)
+          .padding(4)
           .layoutPriority(-1)
       }
     }
     .help("Add Command")
-    .padding(.horizontal, 4)
     .buttonStyle(.zen(.init(color: .systemGreen, grayscaleEffect: .constant(true))))
     .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
   }
