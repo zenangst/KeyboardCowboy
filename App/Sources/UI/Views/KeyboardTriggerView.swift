@@ -56,7 +56,7 @@ struct KeyboardTriggerView: View {
                                           keyboardShortcuts: keyboardShortcuts))
       }
       .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
-      
+
       HStack {
         ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
           onAction(.togglePassthrough(workflowId: workflowId, newValue: newValue))

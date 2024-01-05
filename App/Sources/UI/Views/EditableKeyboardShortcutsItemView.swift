@@ -21,10 +21,10 @@ struct EditableKeyboardShortcutsItemView: View {
           : modifier == .shift ? .bottomTrailing : .topLeading,
           glow: .constant(false)
         )
-        .frame(minWidth: modifier == .command || modifier == .shift ? 44 : 32, minHeight: 32)
+        .frame(minWidth: modifier == .command || modifier == .shift ? 40 : 30, minHeight: 30)
         .fixedSize(horizontal: true, vertical: true)
       }
-      RegularKeyIcon(letter: keyboardShortcut.wrappedValue.key, width: 32, height: 32, glow: .constant(false))
+      RegularKeyIcon(letter: keyboardShortcut.wrappedValue.key, width: 30, height: 30, glow: .constant(false))
         .fixedSize(horizontal: true, vertical: true)
     }
     .contentShape(Rectangle())
