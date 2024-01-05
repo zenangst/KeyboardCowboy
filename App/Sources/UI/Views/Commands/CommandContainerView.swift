@@ -98,12 +98,12 @@ struct CommandContainerActionView: View {
   var body: some View {
     HStack(spacing: 0) {
       HStack(spacing: 0) {
-        Color.gray
-          .frame(width: 1)
-          .opacity(0.15)
         Color.black
           .frame(width: 1)
-          .opacity(0.5)
+          .opacity(0.2)
+        Color.gray
+          .frame(width: 1)
+          .opacity(0.1)
       }
       .drawingGroup()
 
@@ -122,10 +122,10 @@ struct CommandContainerActionView: View {
         VStack(spacing: 0) {
           Color.gray
             .frame(height: 1)
-            .opacity(0.15)
+            .opacity(0.1)
           Color.black
             .frame(height: 1)
-            .opacity(0.5)
+            .opacity(0.2)
         }
         .drawingGroup()
 
