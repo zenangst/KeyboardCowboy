@@ -69,5 +69,6 @@ struct WorkflowCommandListView_Previews: PreviewProvider {
                             triggerPublisher: TriggerPublisher(DesignTime.detail.trigger),
                             selectionManager: .init()) { _ in }
       .frame(height: 900)
+      .designTime()
   }
 }

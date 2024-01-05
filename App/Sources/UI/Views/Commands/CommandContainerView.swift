@@ -97,15 +97,7 @@ struct CommandContainerActionView: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      HStack(spacing: 0) {
-        Color.black
-          .frame(width: 1)
-          .opacity(0.2)
-        Color.gray
-          .frame(width: 1)
-          .opacity(0.1)
-      }
-      .drawingGroup()
+      ZenDivider(.vertical)
 
       VStack(alignment: .center, spacing: 0) {
         Button(action: { onAction(.delete) },
@@ -119,15 +111,7 @@ struct CommandContainerActionView: View {
         .frame(maxWidth: 20, maxHeight: .infinity)
         .padding(.vertical, 10)
 
-        VStack(spacing: 0) {
-          Color.gray
-            .frame(height: 1)
-            .opacity(0.1)
-          Color.black
-            .frame(height: 1)
-            .opacity(0.2)
-        }
-        .drawingGroup()
+        ZenDivider()
 
         Button(action: { onAction(.run) },
                label: {

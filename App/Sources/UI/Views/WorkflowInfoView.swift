@@ -28,14 +28,25 @@ struct WorkflowInfoView: View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $publisher.data.name)
         .focused(focus, equals: .detail(.name))
-        .textFieldStyle(.large(color: ZenColorPublisher.shared.color,
-                               backgroundColor: Color(nsColor: .windowBackgroundColor),
-                               glow: true))
+        .textFieldStyle(
+          .zen(
+            .init(
+              calm: true,
+              backgroundColor: Color(nsColor: .windowBackgroundColor),
+              font: .headline
+            )
+          )
+        )
         .onChange(of: publisher.data.name) { onAction(.updateName(name: $0)) }
         .modifier(TabModifier(focus: focus, onInsertTab: onInsertTab))
 
       Spacer()
-      ZenToggle("", config: .init(color: .systemGreen), isOn: $publisher.data.isEnabled) { onAction(.setIsEnabled(isEnabled: $0))
+      ZenToggle(
+        "",
+        config: .init(color: .systemGreen),
+        style: .medium,
+        isOn: $publisher.data.isEnabled
+      ) { onAction(.setIsEnabled(isEnabled: $0))
       }
     }
 

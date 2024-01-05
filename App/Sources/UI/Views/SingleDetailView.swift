@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 import Apps
 
@@ -73,8 +74,11 @@ struct SingleDetailView: View {
             }
           })
           .environmentObject(commandSelectionManager)
-          .padding(.horizontal, 4)
-          .padding(.vertical, 12)
+          .padding(.horizontal, 24)
+          .padding(.bottom, 6)
+
+          ZenDivider()
+
           WorkflowTriggerListView(
             focus,
             workflowId: infoPublisher.data.id,
@@ -89,10 +93,11 @@ struct SingleDetailView: View {
               }
             },
             onAction: onAction)
+          .padding(.horizontal)
           .id(infoPublisher.data.id)
         }
-        .padding([.top, .leading, .trailing])
-        .padding(.bottom, 32)
+        .padding(.top)
+        .padding(.bottom, 24)
         .background(alignment: .bottom, content: { 
           SingleDetailBackgroundView()
             .drawingGroup()

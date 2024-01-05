@@ -34,7 +34,7 @@ struct UserModesView: View {
         })
       }
 
-      FlowLayout {
+      FlowLayout(proposedViewSize: .unspecified) {
         ForEach(publisher.data.userModes) { userMode in
           FlowItem(userMode: userMode, onAction: { }, onDelete: {
             onAction(.delete(userMode.id))

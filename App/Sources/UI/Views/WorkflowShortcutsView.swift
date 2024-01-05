@@ -32,7 +32,7 @@ struct WorkflowShortcutsView: View {
       }
     })
     .roundedContainer(padding: 2, margin: 0)
-    .frame(minHeight: 45, maxHeight: 45)
+    .frame(minHeight: 42, maxHeight: 42)
     .onChange(of: data, perform: { newValue in
       onUpdate(newValue)
     })

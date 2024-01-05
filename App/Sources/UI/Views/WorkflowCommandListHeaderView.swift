@@ -33,8 +33,6 @@ struct WorkflowCommandListHeaderView: View {
         onAction(.runWorkflow(workflowId: workflowId))
       })
       .padding(.horizontal, 2)
-      .padding(.top, 3)
-      .padding(.bottom, 1)
       .menuStyle(.regular)
       .frame(maxWidth: publisher.data.execution == .concurrent ? 144 : 110,
              alignment: .leading)
