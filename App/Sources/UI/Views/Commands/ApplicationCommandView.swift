@@ -69,7 +69,7 @@ struct ApplicationCommandView: View {
             })
           }, label: {
             Text(model.action)
-              .font(.subheadline)
+              .font(.caption)
               .fixedSize(horizontal: false, vertical: true)
               .truncationMode(.middle)
               .allowsTightening(true)
