@@ -1,7 +1,7 @@
 import SwiftUI
 
 @MainActor
-struct AppMenuBar: Scene {
+struct AppMenuBarExtras: Scene {
   enum Action {
     case onAppear
     case openMainWindow
@@ -16,17 +16,6 @@ struct AppMenuBar: Scene {
       return "Keyboard Cowboy"
     case .development:
       return "Keyboard Cowboy (dev)"
-    }
-  }
-
-  enum ApplicationState {
-    case active, inactive
-
-    var iconName: String {
-      switch self {
-      case .active: return "Menubar_active"
-      case .inactive: return "Menubar_inactive"
-      }
     }
   }
 
@@ -70,7 +59,9 @@ struct AppMenuBar: Scene {
 
 private struct _MenubarIcon: View {
   var body: some View {
-    if launchArguments.isEnabled(.runningUnitTests) {
+    if isRunningPreview {
+      Image(systemName: "theatermask.and.paintbrush")
+    } else if launchArguments.isEnabled(.runningUnitTests) {
       Image(systemName: "testtube.2")
     } else if KeyboardCowboy.env() == .production {
       Image(systemName: "command")

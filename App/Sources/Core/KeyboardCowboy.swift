@@ -50,7 +50,7 @@ struct KeyboardCowboy: App {
   }
 
   var body: some Scene {
-    AppMenuBar(onAction: handleAppExtraAction(_:))
+    AppMenuBarExtras(onAction: handleAppExtraAction(_:))
     MainWindow(core, onScene: handleAppScene(_:))
 
     Settings(content: { 
@@ -79,7 +79,7 @@ struct KeyboardCowboy: App {
     }
   }
 
-  private func handleAppExtraAction(_ action: AppMenuBar.Action) {
+  private func handleAppExtraAction(_ action: AppMenuBarExtras.Action) {
     guard !launchArguments.isEnabled(.runningUnitTests) else { return }
     switch action {
     case .onAppear:
