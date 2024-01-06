@@ -91,20 +91,20 @@ struct ContainerView: View {
                    commandPublisher: commandPublisher,
                    onAction: { onAction(.detail($0), undoManager) })
         .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
-          .background(Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all))
-          .overlay(alignment: .topTrailing, content: {
-            if KeyboardCowboy.env() != .production {
-              Rectangle()
-                .fill(Gradient(colors: [
-                  Color(.systemYellow),
-                  Color(nsColor: NSColor.systemYellow.blended(withFraction: 0.3, of: NSColor.black)!)
-                ]))
-                .frame(width: 75, height: 20)
-                .rotationEffect(.degrees(45))
-                .offset(x: 30, y: -30)
-                .fixedSize()
-            }
-          })
+        .background(Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all))
+        .overlay(alignment: .topTrailing, content: {
+          if KeyboardCowboy.env() != .production {
+            Rectangle()
+              .fill(Gradient(colors: [
+                Color(.systemYellow),
+                Color(nsColor: NSColor.systemYellow.blended(withFraction: 0.3, of: NSColor.black)!)
+              ]))
+              .frame(width: 75, height: 20)
+              .rotationEffect(.degrees(45))
+              .offset(x: 30, y: -30)
+              .fixedSize()
+          }
+        })
       })
     .navigationSplitViewStyle(.balanced)
     .frame(minWidth: 850, minHeight: 400)

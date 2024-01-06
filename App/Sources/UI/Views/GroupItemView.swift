@@ -7,12 +7,12 @@ struct GroupItemView: View {
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
 
   private let group: GroupViewModel
-  private let onAction: (GroupsView.Action) -> Void
+  private let onAction: (GroupsListView.Action) -> Void
   @State var isTargeted: Bool = false
 
   init(_ group: GroupViewModel,
        selectionManager: SelectionManager<GroupViewModel>,
-       onAction: @escaping (GroupsView.Action) -> Void) {
+       onAction: @escaping (GroupsListView.Action) -> Void) {
     self.group = group
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
@@ -76,7 +76,7 @@ struct GroupItemView: View {
 
   @ViewBuilder
   private func contextualMenu(for group: GroupViewModel,
-                              onAction: @escaping (GroupsView.Action) -> Void) -> some View {
+                              onAction: @escaping (GroupsListView.Action) -> Void) -> some View {
     Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
     Divider()
     Button("Remove", action: {

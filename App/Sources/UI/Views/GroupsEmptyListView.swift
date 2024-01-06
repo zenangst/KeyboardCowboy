@@ -2,10 +2,10 @@ import SwiftUI
 import Bonzai
 
 struct GroupsEmptyListView: View {
-  private let onAction: (GroupsView.Action) -> Void
+  private let onAction: (GroupsListView.Action) -> Void
   private let namespace: Namespace.ID
 
-  init(_ namespace: Namespace.ID, onAction: @escaping (GroupsView.Action) -> Void) {
+  init(_ namespace: Namespace.ID, onAction: @escaping (GroupsListView.Action) -> Void) {
     self.namespace = namespace
     self.onAction = onAction
   }

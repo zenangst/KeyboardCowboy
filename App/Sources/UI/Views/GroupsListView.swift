@@ -1,7 +1,20 @@
 import Carbon
 import SwiftUI
 
+struct GroupDebounce: DebounceSnapshot {
+  let groups: Set<GroupViewModel.ID>
+}
+
 struct GroupsListView: View {
+  enum Action {
+    case openScene(AppScene)
+    case selectGroups(Set<GroupViewModel.ID>)
+    case moveGroups(source: IndexSet, destination: Int)
+    case moveWorkflows(workflowIds: Set<ContentViewModel.ID>, groupId: GroupViewModel.ID)
+    case copyWorkflows(workflowIds: Set<ContentViewModel.ID>, groupId: GroupViewModel.ID)
+    case removeGroups(Set<GroupViewModel.ID>)
+  }
+
   enum Confirm {
     case single(id: GroupViewModel.ID)
     case multiple(ids: [GroupViewModel.ID])
@@ -22,7 +35,7 @@ struct GroupsListView: View {
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
   private let namespace: Namespace.ID
-  private let onAction: (GroupsView.Action) -> Void
+  private let onAction: (GroupsListView.Action) -> Void
   private let selectionManager: SelectionManager<GroupViewModel>
   private var appFocus: FocusState<AppFocus?>.Binding
 
@@ -30,7 +43,7 @@ struct GroupsListView: View {
        namespace: Namespace.ID,
        selectionManager: SelectionManager<GroupViewModel>,
        contentSelectionManager: SelectionManager<ContentViewModel>,
-       onAction: @escaping (GroupsView.Action) -> Void) {
+       onAction: @escaping (GroupsListView.Action) -> Void) {
     self.appFocus = appFocus
     self.namespace = namespace
     self.selectionManager = selectionManager
@@ -147,7 +160,7 @@ struct GroupsListView: View {
 
   @ViewBuilder
   private func contextualMenu(for group: GroupViewModel,
-                              onAction: @escaping (GroupsView.Action) -> Void) -> some View {
+                              onAction: @escaping (GroupsListView.Action) -> Void) -> some View {
     Button("Edit", action: { onAction(.openScene(.editGroup(group.id))) })
     Divider()
     Button("Remove", action: {

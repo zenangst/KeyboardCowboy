@@ -71,9 +71,10 @@ struct SidebarView: View {
       .padding(.horizontal, 12)
       .padding(.vertical, 6)
 
-      GroupsView(focus, namespace: namespace,
-                 selectionManager: groupSelectionManager,
-                 contentSelectionManager: contentSelectionManager) { action in
+      GroupsListView(focus,
+                     namespace: namespace,
+                     selectionManager: groupSelectionManager,
+                     contentSelectionManager: contentSelectionManager) { action in
         switch action {
         case .selectGroups(let ids):
           onAction(.selectGroups(ids))
