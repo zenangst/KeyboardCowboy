@@ -24,7 +24,7 @@ struct WorkflowCommandListContextMenuView: View {
     ? selectionManager.selections
     : Set(arrayLiteral: command.id)
     Button("Run", action: {
-      onAction(.commandView(workflowId: workflowId, action: .run(workflowId: workflowId, commandId: command.id)))
+      onAction(.commandView(workflowId: workflowId, action: .run(payload: .init(workflowId: workflowId, commandId: command.id))))
     })
     Divider()
     Button("Duplicate", action: {
@@ -34,7 +34,7 @@ struct WorkflowCommandListContextMenuView: View {
       if !selectionManager.selections.isEmpty {
         onAction(.removeCommands(workflowId: workflowId, commandIds: commandIds))
       } else {
-        onAction(.commandView(workflowId: workflowId, action: .remove(workflowId: workflowId, commandId: command.id)))
+        onAction(.commandView(workflowId: workflowId, action: .remove(payload: .init(workflowId: workflowId, commandId: command.id))))
       }
     })
 

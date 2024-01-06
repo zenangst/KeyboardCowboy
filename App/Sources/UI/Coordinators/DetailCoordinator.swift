@@ -326,15 +326,14 @@ extension CommandView.Kind {
 extension CommandView.Action {
   var commandId: CommandViewModel.ID {
     switch self {
-    case .toggleEnabled(_, let commandId, _),
-         .toggleNotify(_, let commandId, _),
-         .changeDelay(_, let commandId, _):
-      return commandId
+    case .toggleEnabled(let payload, _),
+         .toggleNotify(let payload, _),
+         .changeDelay(let payload, _),
+         .remove(let payload),
+         .run(let payload):
+      return payload.commandId
     case .modify(let kind):
       return kind.commandId
-    case .run(_, let commandId),
-        .remove(_, let commandId):
-      return commandId
     }
   }
 }

@@ -3,28 +3,28 @@ import SwiftUI
 
 struct CommandView: View {
   enum Action {
-    case changeDelay(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID, newValue: Double?)
-    case toggleNotify(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID, newValue: Bool)
-    case toggleEnabled(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID, newValue: Bool)
+    case changeDelay(payload: CommandViewPayload, newValue: Double?)
+    case toggleNotify(payload: CommandViewPayload, newValue: Bool)
+    case toggleEnabled(payload: CommandViewPayload, newValue: Bool)
     case modify(Kind)
-    case run(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case remove(workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case run(payload: CommandViewPayload)
+    case remove(payload: CommandViewPayload)
   }
 
   enum Kind {
-    case application(action: ApplicationCommandView.Action, payload: Payload)
-    case builtIn(action: BuiltInCommandView.Action, payload: Payload)
-    case keyboard(action: KeyboardCommandView.Action, payload: Payload)
-    case mouse(action: MouseCommandView.Action, payload: Payload)
-    case open(action: OpenCommandView.Action, payload: Payload)
-    case script(action: ScriptCommandView.Action, payload: Payload)
-    case shortcut(action: ShortcutCommandView.Action, payload: Payload)
-    case type(action: TypeCommandView.Action, payload: Payload)
-    case system(action: SystemCommandView.Action, payload: Payload)
-    case window(action: WindowManagementCommandView.Action, payload: Payload)
+    case application(action: ApplicationCommandView.Action, payload: CommandViewPayload)
+    case builtIn(action: BuiltInCommandView.Action, payload: CommandViewPayload)
+    case keyboard(action: KeyboardCommandView.Action, payload: CommandViewPayload)
+    case mouse(action: MouseCommandView.Action, payload: CommandViewPayload)
+    case open(action: OpenCommandView.Action, payload: CommandViewPayload)
+    case script(action: ScriptCommandView.Action, payload: CommandViewPayload)
+    case shortcut(action: ShortcutCommandView.Action, payload: CommandViewPayload)
+    case type(action: TypeCommandView.Action, payload: CommandViewPayload)
+    case system(action: SystemCommandView.Action, payload: CommandViewPayload)
+    case window(action: WindowManagementCommandView.Action, payload: CommandViewPayload)
   }
 
-  struct Payload {
+  struct CommandViewPayload {
     let workflowId: DetailViewModel.ID
     let commandId: CommandViewModel.ID
   }
@@ -59,7 +59,7 @@ struct CommandView: View {
   var body: some View {
     CommandResolverView(focus, command: $command, workflowId: workflowId, onAction: onAction)
       .onChange(of: command.meta.isEnabled, perform: { newValue in
-        onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: newValue))
+        onAction(.toggleEnabled(payload: .init(workflowId: workflowId, commandId: command.id), newValue: newValue))
       })
       .overlay(BorderedOverlayView(cornerRadius: 8))
       .background(
@@ -130,7 +130,7 @@ struct CommandResolverView: View {
   }
 
   var body: some View {
-    let payload = CommandView.Payload(workflowId: workflowId, commandId: command.id)
+    let payload = CommandView.CommandViewPayload(workflowId: workflowId, commandId: command.id)
     switch command.kind {
     case .plain:
       UnknownView(command: .constant(command))
@@ -254,17 +254,18 @@ struct CommandResolverView: View {
   }
 
   func handleCommandContainerAction(_ action: CommandContainerAction) {
+    let payload = CommandView.CommandViewPayload(workflowId: workflowId, commandId: command.id)
     switch action {
     case .run:
-      onAction(.run(workflowId: workflowId, commandId: command.id))
+      onAction(.run(payload: payload))
     case .delete:
-      onAction(.remove(workflowId: workflowId, commandId: command.id))
+      onAction(.remove(payload: payload))
     case .toggleIsEnabled(let isEnabled):
-      onAction(.toggleEnabled(workflowId: workflowId, commandId: command.id, newValue: isEnabled))
+      onAction(.toggleEnabled(payload: payload, newValue: isEnabled))
     case .toggleNotify(let newValue):
-      onAction(.toggleNotify(workflowId: workflowId, commandId: command.id, newValue: newValue))
+      onAction(.toggleNotify(payload: payload, newValue: newValue))
     case .changeDelay(let newValue):
-      onAction(.changeDelay(workflowId: workflowId, commandId: command.id, newValue: newValue))
+      onAction(.changeDelay(payload: payload, newValue: newValue))
     }
   }
 }

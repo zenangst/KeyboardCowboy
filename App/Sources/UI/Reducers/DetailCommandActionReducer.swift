@@ -8,16 +8,16 @@ final class DetailCommandActionReducer {
     guard var command: Command = workflow.commands.first(where: { $0.id == action.commandId }) else { return }
 
     switch action {
-    case .changeDelay(_, _, let newValue):
+    case .changeDelay(_, let newValue):
       command.delay = newValue
       workflow.updateOrAddCommand(command)
-    case .toggleEnabled(_, _, let newValue):
+    case .toggleEnabled(_, let newValue):
       command.isEnabled = newValue
       workflow.updateOrAddCommand(command)
-    case .toggleNotify(_, _, let newValue):
+    case .toggleNotify(_, let newValue):
       command.notification = newValue
       workflow.updateOrAddCommand(command)
-    case .run(_, _):
+    case .run(_):
       let runCommand = command
       Task {
         do {
@@ -41,8 +41,8 @@ final class DetailCommandActionReducer {
           await alert.runModal()
         }
       }
-    case .remove(_, let commandId):
-      workflow.commands.removeAll(where: { $0.id == commandId })
+    case .remove(let payload):
+      workflow.commands.removeAll(where: { $0.id == payload.commandId })
     case .modify(let kind):
       switch kind {
       case .application(let action, _):
