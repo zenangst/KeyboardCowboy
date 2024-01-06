@@ -1,11 +1,11 @@
+import Bonzai
 import SwiftUI
 
 struct WorkflowOuputView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Label("Output:", image: "")
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel("Workflow Output")
       }
       VStack(spacing: 8) {
         HStack {

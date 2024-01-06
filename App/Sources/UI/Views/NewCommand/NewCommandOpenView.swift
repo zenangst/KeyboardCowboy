@@ -1,6 +1,6 @@
 import Apps
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct NewCommandOpenView: View {
   enum Focus {
@@ -26,8 +26,7 @@ struct NewCommandOpenView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Label(title: { Text("Open file or folder:") }, icon: { EmptyView() })
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel("Open File or Folder:")
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })

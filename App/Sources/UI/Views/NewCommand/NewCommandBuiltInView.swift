@@ -1,3 +1,4 @@
+import Bonzai
 import Inject
 import SwiftUI
 
@@ -16,9 +17,8 @@ struct NewCommandBuiltInView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Label(title: { Text("Built-In Commands") }, icon: { EmptyView() })
+      ZenLabel("Built-In Commands")
         .frame(maxWidth: .infinity, alignment: .leading)
-        .labelStyle(HeaderLabelStyle())
 
       HStack {
         Menu(content: {

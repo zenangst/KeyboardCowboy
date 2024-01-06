@@ -122,7 +122,6 @@ struct SingleDetailView: View {
           onAction(action)
         })
     }
-    .labelStyle(HeaderLabelStyle())
     .focusScope(namespace)
     .frame(maxHeight: .infinity, alignment: .top)
   }

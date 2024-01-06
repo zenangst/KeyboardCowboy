@@ -54,12 +54,11 @@ struct EditWorfklowGroupView: View {
 
       HStack(spacing: 16) {
         VStack(alignment: .leading, spacing: 0) {
-          Label.init("User Modes", image: "")
+          ZenLabel("User Modes")
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
             .background(Color(.windowBackgroundColor))
-            .labelStyle(HeaderLabelStyle())
-          
+
           Menu("Add User Mode") {
             ForEach(publisher.data.userModes) { userMode in
               Button(action: {

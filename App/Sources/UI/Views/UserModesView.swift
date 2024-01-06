@@ -16,7 +16,7 @@ struct UserModesView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Label("User Modes", image: "")
+        ZenLabel(.sidebar) { Text("User Modes") }
         Spacer()
         Button(action: { isAddingNew = true }, label: {
           Image(systemName: "plus")

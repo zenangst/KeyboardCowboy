@@ -52,8 +52,7 @@ struct NewCommandMenuBarView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Label(title: { Text("Menu Bar item:") }, icon: { EmptyView() })
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel("Menu Bar item:")
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })

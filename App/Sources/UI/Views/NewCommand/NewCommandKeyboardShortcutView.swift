@@ -27,8 +27,7 @@ struct NewCommandKeyboardShortcutView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Label(title: { Text("Keyboard Shortcut:") }, icon: { EmptyView() })
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel("Keyboard Shortcut:")
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })

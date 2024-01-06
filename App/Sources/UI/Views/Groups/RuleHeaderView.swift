@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct RuleHeaderView: View {
@@ -6,8 +7,7 @@ struct RuleHeaderView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Label("Rules", image: "")
-        .labelStyle(HeaderLabelStyle())
+      ZenLabel("Rules")
       HStack {
         Menu("Application") {
           ForEach(applicationStore.applications.lazy.filter({

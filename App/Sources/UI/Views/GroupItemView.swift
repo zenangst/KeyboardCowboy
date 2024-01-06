@@ -3,7 +3,7 @@ import SwiftUI
 
 struct GroupItemView: View {
   @ObserveInjection var inject
-  @EnvironmentObject var groupsPublisher: GroupsPublisher
+  let groupsPublisher: GroupsPublisher
   @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
 
   private let group: GroupViewModel
@@ -11,9 +11,11 @@ struct GroupItemView: View {
   @State var isTargeted: Bool = false
 
   init(_ group: GroupViewModel,
+       groupsPublisher: GroupsPublisher,
        selectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (GroupsListView.Action) -> Void) {
     self.group = group
+    self.groupsPublisher = groupsPublisher
     _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
   }

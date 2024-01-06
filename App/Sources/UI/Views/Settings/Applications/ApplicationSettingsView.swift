@@ -13,8 +13,7 @@ struct ApplicationSettingsView: View {
   var body: some View {
     VStack(spacing: 0) {
       HStack(alignment: .bottom) {
-        Label("Additional Directories", image: "")
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel(.detail, content: { Text("Additional Applications")})
         Spacer()
       }
       .padding([.top, .leading, .trailing], 16)

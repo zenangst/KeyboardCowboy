@@ -33,7 +33,8 @@ struct WorkflowInfoView: View {
             .init(
               calm: true,
               backgroundColor: Color(nsColor: .windowBackgroundColor),
-              font: .headline
+              font: .headline,
+              unfocusedOpacity: 0
             )
           )
         )

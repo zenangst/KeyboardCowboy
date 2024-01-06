@@ -51,6 +51,7 @@ struct ContainerView: View {
   }
 
   var body: some View {
+    let _ = Self._printChanges()
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
@@ -60,7 +61,6 @@ struct ContainerView: View {
                     contentSelectionManager: contentSelectionManager
         ) { onAction(.sidebar($0), undoManager) }
           .frame(minWidth: 180, maxWidth: .infinity, alignment: .leading)
-          .labelStyle(SidebarLabelStyle())
       },
       content: {
         ContentListView(focus,

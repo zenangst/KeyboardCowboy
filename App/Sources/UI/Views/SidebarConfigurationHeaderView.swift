@@ -1,8 +1,9 @@
+import Bonzai
 import SwiftUI
 
 struct SidebarConfigurationHeaderView: View {
   var body: some View {
-    Label("Configuration", image: "")
+    ZenLabel(.sidebar) { Text("Configuration") }
       .padding(.top, 6)
   }
 }

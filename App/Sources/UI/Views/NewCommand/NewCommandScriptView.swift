@@ -52,8 +52,7 @@ struct NewCommandScriptView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Label(title: { Text("Scripts:") }, icon: { EmptyView() })
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel("Scripts:")
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })

@@ -1,6 +1,6 @@
 import Apps
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct NewCommandURLView: View {
   enum Focus: String, Identifiable, Hashable {
@@ -33,8 +33,7 @@ struct NewCommandURLView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Label(title: { Text("Open URL:") }, icon: { EmptyView() })
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel("Open URL:")
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })

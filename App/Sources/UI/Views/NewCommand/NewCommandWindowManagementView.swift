@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct NewCommandWindowManagementView: View {
   @Binding var payload: NewCommandPayload
@@ -13,8 +13,7 @@ struct NewCommandWindowManagementView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Label(title: { Text("Window Management") }, icon: { EmptyView() })
-        .labelStyle(HeaderLabelStyle())
+      ZenLabel("Window Management")
 
       Menu {
         ForEach(WindowCommand.Kind.allCases) { kind in

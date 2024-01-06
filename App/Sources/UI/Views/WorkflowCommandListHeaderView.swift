@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct WorkflowCommandListHeaderView: View {
@@ -18,7 +19,7 @@ struct WorkflowCommandListHeaderView: View {
 
   var body: some View {
     HStack {
-      Label("Commands", image: "")
+      ZenLabel("Commands")
       Spacer()
       Menu(content: {
         ForEach(DetailViewModel.Execution.allCases) { execution in

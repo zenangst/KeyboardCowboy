@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct EditConfigurationView: View {
@@ -20,8 +21,7 @@ struct EditConfigurationView: View {
   var body: some View {
     VStack(alignment: .leading) {
       VStack(alignment: .leading) {
-        Label("Edit configuration", image: "")
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel(.detail) { Text("Edit configuration") }
         HStack {
           Text("Name:")
           TextField("Configuration name", text: $configuration.name)

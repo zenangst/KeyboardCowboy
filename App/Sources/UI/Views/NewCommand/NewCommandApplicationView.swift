@@ -39,8 +39,7 @@ struct NewCommandApplicationView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
-        Label(title: { Text("Open or Close Application:") }, icon: { EmptyView() })
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel("Open or Close Application:")
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })

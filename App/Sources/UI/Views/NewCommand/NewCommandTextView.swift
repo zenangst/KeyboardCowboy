@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct NewCommandTextView: View {
@@ -19,8 +20,7 @@ struct NewCommandTextView: View {
   }
 
   var body: some View {
-    Label(title: { Text("Text Command:") }, icon: { EmptyView() })
-      .labelStyle(HeaderLabelStyle())
+    ZenLabel("Text Command:")
     Menu(content: {
       Button(action: {
         kind = .insertText(.init("", mode: .instant))

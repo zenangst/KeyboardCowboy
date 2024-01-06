@@ -1,6 +1,6 @@
+import Bonzai
 import Combine
 import SwiftUI
-import Bonzai
 
 struct WorkflowTriggerListView: View {
   @Namespace private var namespace
@@ -42,7 +42,7 @@ struct WorkflowTriggerListView: View {
         )
       case .applications(let triggers):
         HStack {
-          Label("Application Trigger", image: "")
+          ZenLabel("Application Trigger")
           Spacer()
           Button(action: { onAction(.removeTrigger(workflowId: workflowId)) },
                  label: {
@@ -61,7 +61,7 @@ struct WorkflowTriggerListView: View {
         }
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .empty:
-        Label("Add Trigger", image: "")
+        ZenLabel("Add Trigger")
           .padding([.leading, .trailing], 8)
         WorkflowTriggerView(focus, isGrayscale: .readonly(publisher.data != .empty),
                             onAction: { action in

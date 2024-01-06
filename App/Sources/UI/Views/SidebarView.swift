@@ -1,3 +1,4 @@
+import Bonzai
 import Inject
 import SwiftUI
 
@@ -61,7 +62,7 @@ struct SidebarView: View {
       }.padding([.leading, .top, .trailing], 12)
 
       HStack {
-        Label("Groups", image: "")
+        ZenLabel(.sidebar) { Text("Groups") }
         Spacer()
         SidebarAddGroupButtonView(isVisible: .readonly(!publisher.data.isEmpty),
                                   namespace: namespace, onAction: {

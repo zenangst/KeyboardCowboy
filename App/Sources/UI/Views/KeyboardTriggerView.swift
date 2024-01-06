@@ -37,7 +37,7 @@ struct KeyboardTriggerView: View {
   var body: some View {
     VStack(spacing: 8) {
       HStack {
-        Label("Keyboard Shortcuts Sequence", image: "")
+        ZenLabel("Keyboard Shortcuts Sequence")
         Spacer()
         Button(action: { onAction(.removeTrigger(workflowId: workflowId)) },
                label: {

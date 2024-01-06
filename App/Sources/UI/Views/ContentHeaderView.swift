@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct ContentHeaderView: View {
@@ -17,8 +18,7 @@ struct ContentHeaderView: View {
   }
 
   var body: some View {
-    Text("Group")
-      .sidebarLabel()
+    ZenLabel("Group", style: .content)
       .padding(.leading, 8)
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.top, 6)
@@ -46,8 +46,7 @@ struct ContentHeaderView: View {
     .padding(.leading, 14)
     .id(groupPublisher.data)
 
-    Text("Workflows")
-      .sidebarLabel()
+    ZenLabel("Workflows", style: .content)
       .padding(.leading, 8)
       .frame(maxWidth: .infinity, alignment: .leading)
   }

@@ -66,6 +66,7 @@ struct GroupsListView: View {
             ForEach(publisher.data.lazy, id: \.id) { group in
               GroupItemView(
                 group,
+                groupsPublisher: publisher,
                 selectionManager: selectionManager,
                 onAction: onAction
               )

@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct NewCommandShortcutView: View {
@@ -18,8 +19,7 @@ struct NewCommandShortcutView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Label(title: { Text("Shortcut:") }, icon: { EmptyView() })
-          .labelStyle(HeaderLabelStyle())
+        ZenLabel("Shortcut:")
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })

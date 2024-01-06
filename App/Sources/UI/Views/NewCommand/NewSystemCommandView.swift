@@ -1,5 +1,5 @@
-import SwiftUI
 import Bonzai
+import SwiftUI
 
 struct NewCommandSystemCommandView: View {
   @Binding var payload: NewCommandPayload
@@ -14,8 +14,7 @@ struct NewCommandSystemCommandView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Label(title: { Text("System command:") }, icon: { EmptyView() })
-        .labelStyle(HeaderLabelStyle())
+      ZenLabel("System Command:")
       Menu {
         ForEach(SystemCommand.Kind.allCases) { kind in
           Button(kind.displayValue, action: {
