@@ -12,16 +12,21 @@ struct CommandView: View {
   }
 
   enum Kind {
-    case application(action: ApplicationCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case builtIn(action: BuiltInCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case keyboard(action: KeyboardCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case mouse(action: MouseCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case open(action: OpenCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case script(action: ScriptCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case shortcut(action: ShortcutCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case type(action: TypeCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case system(action: SystemCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
-    case window(action: WindowManagementCommandView.Action, workflowId: DetailViewModel.ID, commandId: CommandViewModel.ID)
+    case application(action: ApplicationCommandView.Action, payload: Payload)
+    case builtIn(action: BuiltInCommandView.Action, payload: Payload)
+    case keyboard(action: KeyboardCommandView.Action, payload: Payload)
+    case mouse(action: MouseCommandView.Action, payload: Payload)
+    case open(action: OpenCommandView.Action, payload: Payload)
+    case script(action: ScriptCommandView.Action, payload: Payload)
+    case shortcut(action: ShortcutCommandView.Action, payload: Payload)
+    case type(action: TypeCommandView.Action, payload: Payload)
+    case system(action: SystemCommandView.Action, payload: Payload)
+    case window(action: WindowManagementCommandView.Action, payload: Payload)
+  }
+
+  struct Payload {
+    let workflowId: DetailViewModel.ID
+    let commandId: CommandViewModel.ID
   }
 
   @Binding private var command: CommandViewModel
@@ -125,6 +130,7 @@ struct CommandResolverView: View {
   }
 
   var body: some View {
+    let payload = CommandView.Payload(workflowId: workflowId, commandId: command.id)
     switch command.kind {
     case .plain:
       UnknownView(command: .constant(command))
@@ -132,7 +138,7 @@ struct CommandResolverView: View {
       BuiltInCommandView(command.meta, model: model) { action in
         switch action {
         case .update(let newCommand):
-          onAction(.modify(.builtIn(action: .update(newCommand), workflowId: workflowId, commandId: command.id)))
+          onAction(.modify(.builtIn(action: .update(newCommand), payload: payload)))
         case .commandAction(let action):
           handleCommandContainerAction(action)
         }
@@ -153,7 +159,7 @@ struct CommandResolverView: View {
       MouseCommandView(command.meta, model: model, onAction: { action in
         switch action {
         case .update:
-          onAction(.modify(.mouse(action: action, workflowId: workflowId, commandId: command.id)))
+          onAction(.modify(.mouse(action: action, payload: payload)))
         case .commandAction(let action):
           handleCommandContainerAction(action)
         }
@@ -164,7 +170,7 @@ struct CommandResolverView: View {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
-            onAction(.modify(.open(action: action, workflowId: workflowId, commandId: command.id)))
+            onAction(.modify(.open(action: action, payload: payload)))
           }
         }
       .fixedSize(horizontal: false, vertical: true)
@@ -175,7 +181,7 @@ struct CommandResolverView: View {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
-            onAction(.modify(.application(action: action, workflowId: workflowId, commandId: command.id)))
+            onAction(.modify(.application(action: action, payload: payload)))
           }
         }
       .fixedSize(horizontal: false, vertical: true)
@@ -188,7 +194,7 @@ struct CommandResolverView: View {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
-            onAction(.modify(.script(action: action, workflowId: workflowId, commandId: command.id)))
+            onAction(.modify(.script(action: action, payload: payload)))
           }
         }
     case .keyboard(let model):
@@ -197,7 +203,7 @@ struct CommandResolverView: View {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
-            onAction(.modify(.keyboard(action: action, workflowId: workflowId, commandId: command.id)))
+            onAction(.modify(.keyboard(action: action, payload: payload)))
           }
         }
       .fixedSize(horizontal: false, vertical: true)
@@ -208,7 +214,7 @@ struct CommandResolverView: View {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           default:
-            onAction(.modify(.shortcut(action: action, workflowId: workflowId, commandId: command.id)))
+            onAction(.modify(.shortcut(action: action, payload: payload)))
           }
         }
       .fixedSize(horizontal: false, vertical: true)
@@ -219,7 +225,7 @@ struct CommandResolverView: View {
         case .commandAction(let action):
           handleCommandContainerAction(action)
         default:
-          onAction(.modify(.type(action: action, workflowId: workflowId, commandId: command.id)))
+          onAction(.modify(.type(action: action, payload: payload)))
         }
       })
     case .systemCommand(let model):
@@ -228,7 +234,7 @@ struct CommandResolverView: View {
         case .commandAction(let action):
           handleCommandContainerAction(action)
         default:
-          onAction(.modify(.system(action: action, workflowId: workflowId, commandId: command.id)))
+          onAction(.modify(.system(action: action, payload: payload)))
         }
       }
       .fixedSize(horizontal: false, vertical: true)
@@ -237,7 +243,7 @@ struct CommandResolverView: View {
       WindowManagementCommandView(command.meta, model: model) { action in
         switch action {
         case .onUpdate:
-          onAction(.modify(.window(action: action, workflowId: workflowId, commandId: command.id)))
+          onAction(.modify(.window(action: action, payload: payload)))
         case .commandAction(let commandContainerAction):
           handleCommandContainerAction(commandContainerAction)
         }

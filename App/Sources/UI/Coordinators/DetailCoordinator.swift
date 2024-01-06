@@ -292,33 +292,33 @@ final class DetailCoordinator {
 extension CommandView.Kind {
   var workflowId: DetailViewModel.ID {
     switch self {
-    case .application(_, let workflowId, _),
-        .builtIn(_, let workflowId, _),
-        .keyboard(_, let workflowId, _),
-        .mouse(_, let workflowId, _),
-        .open(_, let workflowId, _),
-        .script(_, let workflowId, _),
-        .shortcut(_, let workflowId, _),
-        .type(_, let workflowId, _),
-        .system(_, let workflowId, _),
-        .window(_, let workflowId, _):
-      return workflowId
+    case .application(_, let payload),
+        .builtIn(_, let payload),
+        .keyboard(_, let payload),
+        .mouse(_, let payload),
+        .open(_, let payload),
+        .script(_, let payload),
+        .shortcut(_, let payload),
+        .type(_, let payload),
+        .system(_, let payload),
+        .window(_, let payload):
+      return payload.workflowId
     }
   }
 
   var commandId: CommandViewModel.ID {
     switch self {
-    case .application(_, _, let commandId),
-        .builtIn(_, _, let commandId),
-        .keyboard(_, _, let commandId),
-        .mouse(_, _, let commandId),
-        .open(_, _, let commandId),
-        .script(_, _, let commandId),
-        .shortcut(_, _, let commandId),
-        .type(_, _, let commandId),
-        .system(_, _, let commandId),
-        .window(_, _, let commandId):
-      return commandId
+    case .application(_, let payload),
+        .builtIn(_, let payload),
+        .keyboard(_, let payload),
+        .mouse(_, let payload),
+        .open(_, let payload),
+        .script(_, let payload),
+        .shortcut(_, let payload),
+        .type(_, let payload),
+        .system(_, let payload),
+        .window(_, let payload):
+      return payload.commandId
     }
   }
 }

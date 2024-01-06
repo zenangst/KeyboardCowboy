@@ -45,7 +45,7 @@ final class DetailCommandActionReducer {
       workflow.commands.removeAll(where: { $0.id == commandId })
     case .modify(let kind):
       switch kind {
-      case .application(let action, _, _):
+      case .application(let action, _):
         guard case .application(var applicationCommand) = command else {
           fatalError("Wrong command type")
         }
@@ -78,7 +78,7 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
-      case .builtIn(let action, _, _):
+      case .builtIn(let action, _):
         switch action {
         case .update(let newCommand):
           command = .builtIn(newCommand)
@@ -87,7 +87,7 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
-      case .keyboard(let action, _, _):
+      case .keyboard(let action, _):
         switch action {
         case .updateKeyboardShortcuts(let keyboardShortcuts):
           command = .keyboard(.init(id: command.id, keyboardShortcuts: keyboardShortcuts, notification: command.notification))
@@ -99,7 +99,7 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
-      case .mouse(let action, _, _):
+      case .mouse(let action, _):
         switch action {
         case .update(let kind):
           if case var .mouse(mouseCommand) = command {
@@ -110,7 +110,7 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
-      case .open(let action, _, _):
+      case .open(let action, _):
         switch action {
         case .updatePath(let newPath):
           if case var .open(openCommand) = command {
@@ -139,7 +139,7 @@ final class DetailCommandActionReducer {
         case .reveal(let path):
           NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
         }
-      case .script(let action, _, _):
+      case .script(let action, _):
         switch action {
         case .updateSource(let model):
           let kind: ScriptCommand.Kind
@@ -172,7 +172,7 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
-      case .shortcut(let action, _, _):
+      case .shortcut(let action, _):
         switch action {
         case .createShortcut:
           try? SBShortcuts.createShortcut()
@@ -196,7 +196,7 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
-      case .type(let action, _, _):
+      case .type(let action, _):
         switch action {
         case .updateMode(let newMode):
           switch command {
@@ -228,7 +228,7 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
-      case .system(let action, _, _):
+      case .system(let action, _):
         switch action {
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
@@ -241,7 +241,7 @@ final class DetailCommandActionReducer {
             workflow.updateOrAddCommand(command)
           }
         }
-      case .window(let action, _, _):
+      case .window(let action, _):
         switch action {
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
