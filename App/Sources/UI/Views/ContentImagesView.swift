@@ -28,6 +28,7 @@ struct ContentImagesView: View {
         if images.count == 1 {
           ForEach(images.lazy) { image in
             ContentImageView(image: image, size: size - 2)
+              .frame(width: size, height: size)
           }
         } else if images.count > 1 {
           ForEach(images.lazy) { image in
@@ -35,6 +36,7 @@ struct ContentImagesView: View {
               .rotationEffect(.degrees(-(isHovered ? -20 * image.offset : 3.75 * image.offset)))
               .offset(.init(width: -(image.offset * (isHovered ? -8 : 1.25)),
                             height: image.offset * (isHovered ? 1.25 : 1.25)))
+              .frame(width: size, height: size)
           }
         }
       }

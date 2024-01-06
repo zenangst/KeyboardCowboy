@@ -2,9 +2,8 @@ import SwiftUI
 
 struct ContentTypeImageView: View {
     var body: some View {
-      RegularKeyIcon(letter: "(...)", width: 25, height: 25)
+      RegularKeyIcon(letter: "(...)", width: 22, height: 22)
         .fixedSize()
-        .frame(width: 24, height: 24)
     }
 }
 

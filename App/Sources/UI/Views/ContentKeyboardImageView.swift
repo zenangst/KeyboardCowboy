@@ -5,19 +5,8 @@ struct ContentKeyboardImageView: View {
   var body: some View {
     ZStack {
       ForEach(keys) { key in
-        RegularKeyIcon(letter: key.key)
+        RegularKeyIcon(letter: key.key, width: 22, height: 22)
           .fixedSize()
-          .scaleEffect(0.8)
-
-        ForEach(key.modifiers) { modifier in
-          HStack {
-            ModifierKeyIcon(key: modifier)
-              .scaleEffect(0.4, anchor: .bottomLeading)
-              .opacity(0.8)
-              .fixedSize()
-          }
-          .padding(4)
-        }
       }
     }
   }
