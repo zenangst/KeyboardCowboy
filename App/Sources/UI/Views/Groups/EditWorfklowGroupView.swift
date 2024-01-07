@@ -14,7 +14,7 @@ struct EditWorfklowGroupView: View {
   @ObserveInjection var inject
   @Namespace var namespace
   @FocusState var focus: Focus?
-  @ObservedObject var applicationStore: ApplicationStore
+  let applicationStore: ApplicationStore
   @EnvironmentObject var publisher: ConfigurationPublisher
   @State var editIcon: WorkflowGroup?
   @State var group: WorkflowGroup
@@ -23,20 +23,13 @@ struct EditWorfklowGroupView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack {
-        WorkflowGroupIconView(group: $group, size: 36)
+        WorkflowGroupIconView(applicationStore: applicationStore, group: $group, size: 36)
           .contentShape(Circle())
           .onTapGesture {
             editIcon = group
           }
           .popover(item: $editIcon, arrowEdge: .bottom, content: { _ in
             EditGroupIconView(group: $group)
-          })
-          .overlay(ZStack {
-            if let first = group.rule?.bundleIdentifiers.first,
-               let app = applicationStore.application(for: first) {
-              IconView(icon: Icon(app), size: .init(width: 32, height: 32))
-                .allowsHitTesting(false)
-            }
           })
           .cornerRadius(24, antialiased: true)
         TextField("Name:", text: $group.name)
