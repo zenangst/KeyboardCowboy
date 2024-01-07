@@ -92,7 +92,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           _ = try await runners.script.run(shellScript, environment: [:])
         }
       case .builtIn, .keyboard, .text,
-          .systemCommand, .menuBar, .windowManagement, .mouse:
+          .systemCommand, .menuBar, .windowManagement, 
+          .mouse, .uiElement:
         break
       }
     }
@@ -224,6 +225,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           snapshot: snapshot
         )
         output = command.name
+      case .uiElement(let uiElementCommand):
+        // TODO: Add new UIElement runner
+        output = ""
       case .windowManagement(let windowCommand):
         try await runners.window.run(windowCommand)
         output = ""

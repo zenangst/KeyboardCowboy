@@ -160,6 +160,8 @@ struct NewCommandWindow: Scene {
       }
     case .systemCommand(let systemCommand):
       return .systemCommand(kind: systemCommand.kind)
+    case .uiElement(let uiElementCommand):
+      return .uiElement
     case .windowManagement(let windowCommand):
       return .windowManagement(kind: windowCommand.kind)
     }
@@ -167,29 +169,18 @@ struct NewCommandWindow: Scene {
 
   private func selection(for command: Command) -> NewCommandView.Kind {
     switch command {
-    case .application:
-      return .application
-    case .builtIn:
-      // TODO: Fix this!
-      return .application
-    case .keyboard:
-      return .keyboardShortcut
-    case .menuBar:
-      return .menuBar
-    case .mouse:
-      return .mouse
-    case .open:
-      return .open
-    case .shortcut:
-      return .shortcut
-    case .script:
-      return .script
-    case .text:
-      return .text
-    case .systemCommand:
-      return .system
-    case .windowManagement:
-      return .windowManagement
+    case .application: .application
+    case .builtIn: .application // TODO: Fix this!
+    case .keyboard: .keyboardShortcut
+    case .menuBar: .menuBar
+    case .mouse: .mouse
+    case .open: .open
+    case .shortcut: .shortcut
+    case .script: .script
+    case .text: .text
+    case .systemCommand: .system
+    case .uiElement: .uiElement
+    case .windowManagement: .windowManagement
     }
   }
 

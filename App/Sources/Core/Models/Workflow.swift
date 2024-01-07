@@ -207,7 +207,7 @@ extension Workflow {
       switch command {
       case .application, .builtIn, .mouse, 
            .keyboard, .menuBar, .shortcut,
-           .systemCommand, .windowManagement:
+           .systemCommand, .uiElement, .windowManagement:
         result = false
       case .open(let openCommand):
         result = openCommand.path.contains(keywords)

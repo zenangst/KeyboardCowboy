@@ -31,6 +31,7 @@ struct NewCommandView: View {
     case windowManagement = "Window Management"
     case mouse = "Mouse Command"
     case builtIn = "Built-In Command"
+    case uiElement = "UI Element Command"
   }
 
   private let workflowId: Workflow.ID
@@ -268,6 +269,8 @@ struct NewCommandView: View {
         NewCommandWindowManagementView($payload, validation: $validation)
       case .builtIn:
         NewCommandBuiltInView($payload, validation: $validation)
+      case .uiElement:
+        Text("Add a new here")
       }
     }
   }

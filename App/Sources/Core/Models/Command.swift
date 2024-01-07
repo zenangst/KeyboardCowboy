@@ -99,10 +99,11 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case .menuBar(let menuBarCommand): menuBarCommand.meta
       case .mouse(let mouseCommand): mouseCommand.meta
       case .open(let openCommand): openCommand.meta
-      case .shortcut(let shortcutCommand): shortcutCommand.meta
       case .script(let scriptCommand): scriptCommand.meta
-      case .text(let textCommand): textCommand.meta
+      case .shortcut(let shortcutCommand): shortcutCommand.meta
       case .systemCommand(let systemCommand): systemCommand.meta
+      case .text(let textCommand): textCommand.meta
+      case .uiElement(let uiElementCommand): uiElementCommand.meta
       case .windowManagement(let windowCommand): windowCommand.meta
       }
     }
@@ -138,6 +139,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case .systemCommand(var systemCommand):
         systemCommand.meta = newValue
         self = .systemCommand(systemCommand)
+      case .uiElement(var uiElementCommand):
+        uiElementCommand.meta = newValue
+        self = .uiElement(uiElementCommand)
       case .windowManagement(var windowCommand):
         windowCommand.meta = newValue
         self = .windowManagement(windowCommand)
@@ -155,6 +159,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   case script(ScriptCommand)
   case text(TextCommand)
   case systemCommand(SystemCommand)
+  case uiElement(UIElementCommand)
   case windowManagement(WindowCommand)
 
   enum MigrationKeys: String, CodingKey, CaseIterable {
@@ -172,6 +177,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case script = "scriptCommand"
     case text = "textCommand"
     case system = "systemCommand"
+    case uiElement = "uiElementCommand"
     case window = "windowCommand"
   }
 
@@ -228,6 +234,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .system:
       let command = try container.decode(SystemCommand.self, forKey: .system)
       self = .systemCommand(command)
+    case .uiElement:
+      let command = try container.decode(UIElementCommand.self, forKey: .uiElement)
+      self = .uiElement(command)
     case .window:
       let command = try container.decode(WindowCommand.self, forKey: .window)
       self = .windowManagement(command)
@@ -254,6 +263,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .shortcut(let command): try container.encode(command, forKey: .shortcut)
     case .text(let command): try container.encode(command, forKey: .text)
     case .systemCommand(let command): try container.encode(command, forKey: .system)
+    case .uiElement(let command): try container.encode(command, forKey: .uiElement)
     case .windowManagement(let command): try container.encode(command, forKey: .window)
     }
   }
@@ -279,6 +289,7 @@ extension Command {
     case .shortcut: Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: false))
     case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id)))))
     case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
+    case .uiElement: Command.uiElement(.init(meta: .init(), kind: .any(predicate: .init(value: ""))))
     case .window: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false, animationDuration: 0))
     }
   }

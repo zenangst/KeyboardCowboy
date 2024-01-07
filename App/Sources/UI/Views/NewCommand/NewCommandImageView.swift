@@ -37,6 +37,8 @@ struct NewCommandImageView: View {
         image(for: "/System/Library/PreferencePanes/Appearance.prefPane")
       case .mouse:
         image(for: "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns")
+      case .uiElement:
+        Text("!")
       case .windowManagement:
         image(for: "/System/Applications/Mission Control.app")
       case .builtIn:

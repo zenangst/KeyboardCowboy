@@ -100,6 +100,8 @@ private extension Command {
       }
     case .systemCommand(let systemCommand):
       kind = .systemCommand(.init(id: systemCommand.id, kind: systemCommand.kind))
+    case .uiElement(let uiElementCommand):
+      kind = .uiElement
     case .windowManagement(let windowCommand):
       kind = .windowManagement(.init(id: windowCommand.id, kind: windowCommand.kind, animationDuration: windowCommand.animationDuration))
     }
@@ -149,6 +151,8 @@ private extension Command {
       return nil
     case .systemCommand(let command):
       return .init(bundleIdentifier: command.kind.iconPath, path: command.kind.iconPath)
+    case .uiElement:
+      return nil
     case .windowManagement:
       let path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
       return .init(bundleIdentifier: path, path: path)
