@@ -241,6 +241,15 @@ final class DetailCommandActionReducer {
             workflow.updateOrAddCommand(command)
           }
         }
+      case .uiElement(let action, _):
+        switch action {
+        case .commandAction(let action):
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
+        case .updateCommand(let newCommand):
+          command = .uiElement(newCommand)
+          workflow.updateOrAddCommand(command)
+        }
       case .window(let action, _):
         switch action {
         case .commandAction(let action):

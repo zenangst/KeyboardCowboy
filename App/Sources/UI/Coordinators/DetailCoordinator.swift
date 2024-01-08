@@ -303,6 +303,7 @@ extension CommandView.Kind {
         .shortcut(_, let payload),
         .type(_, let payload),
         .system(_, let payload),
+        .uiElement(_, let payload),
         .window(_, let payload):
       return payload.workflowId
     }
@@ -319,6 +320,7 @@ extension CommandView.Kind {
         .shortcut(_, let payload),
         .type(_, let payload),
         .system(_, let payload),
+        .uiElement(_, let payload),
         .window(_, let payload):
       return payload.commandId
     }

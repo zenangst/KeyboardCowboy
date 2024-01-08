@@ -21,6 +21,7 @@ struct CommandView: View {
     case shortcut(action: ShortcutCommandView.Action, payload: CommandViewPayload)
     case type(action: TypeCommandView.Action, payload: CommandViewPayload)
     case system(action: SystemCommandView.Action, payload: CommandViewPayload)
+    case uiElement(action: UIElementCommandView.Action, payload: CommandViewPayload)
     case window(action: WindowManagementCommandView.Action, payload: CommandViewPayload)
   }
 
@@ -243,8 +244,7 @@ struct CommandResolverView: View {
       UIElementCommandView(metaData: command.meta, model: model, onAction: { action in
         switch action {
         case .updateCommand(let newCommand):
-          // Implement this method.
-          break
+          onAction(.modify(.uiElement(action: .updateCommand(newCommand), payload: payload)))
         case .commandAction(let commandContainerAction):
           handleCommandContainerAction(commandContainerAction)
         }
