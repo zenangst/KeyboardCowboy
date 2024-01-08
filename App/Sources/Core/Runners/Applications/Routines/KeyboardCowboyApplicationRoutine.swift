@@ -10,6 +10,7 @@ final class KeyboardCowboyApplicationRoutine: ApplicationRoutine, Sendable {
   func run() async -> Bool {
     await MainActor.run {
       notificationCenter.post(.init(name: Notification.Name("OpenMainWindow")))
+      KeyboardCowboy.activate()
     }
     return true
   }
