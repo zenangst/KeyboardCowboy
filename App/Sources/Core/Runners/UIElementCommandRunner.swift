@@ -27,22 +27,22 @@ final class UIElementCommandRunner {
         }
 
         if predicate.properties.contains(.description),
-           predicate.compare.run(lhs: predicate.value, rhs: element.description)
+           predicate.compare.run(lhs: element.description, rhs: predicate.value)
         { return true }
 
 
         if predicate.properties.contains(.identifier),
-           predicate.compare.run(lhs: predicate.value, rhs: element.identifier)
+           predicate.compare.run(lhs: element.identifier, rhs: predicate.value)
         { return true }
 
 
         if predicate.properties.contains(.title),
-           predicate.compare.run(lhs: predicate.value, rhs: element.title)
+           predicate.compare.run(lhs: element.title, rhs: predicate.value)
         { return true }
 
 
         if predicate.properties.contains(.value),
-           predicate.compare.run(lhs: predicate.value, rhs: element.value)
+           predicate.compare.run(lhs: element.value, rhs: predicate.value)
         { return true }
 
         return false

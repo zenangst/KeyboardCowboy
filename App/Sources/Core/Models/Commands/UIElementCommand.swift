@@ -79,8 +79,8 @@ struct UIElementCommand: MetaDataProviding {
         }
       }
 
-      func run(lhs: String, rhs: String?) -> Bool {
-        guard let rhs else { return false }
+      func run(lhs: String?, rhs: String) -> Bool {
+        guard let lhs else { return false }
         switch self {
         case .equals: return lhs == rhs
         case .contains: return lhs.contains(rhs)
