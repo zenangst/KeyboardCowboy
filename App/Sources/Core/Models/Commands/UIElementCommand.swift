@@ -6,6 +6,7 @@ struct UIElementCommand: MetaDataProviding {
     case any = "*"
     case button
     case cell
+    case link
     case radioButton
     case menuButton
     case popUpButton
@@ -18,6 +19,7 @@ struct UIElementCommand: MetaDataProviding {
       case "*": .any
       case kAXButtonRole: .button
       case kAXCellRole: .cell
+      case "AXLink": .link
       case kAXRadioButtonRole: .radioButton
       case kAXMenuButtonRole: .menuButton
       case kAXPopUpButtonRole: .popUpButton
@@ -31,13 +33,14 @@ struct UIElementCommand: MetaDataProviding {
     var displayName: String {
       switch self {
       case .any: "Any"
-      case .cell: "Cell"
       case .button: "Button"
-      case .radioButton: "Radio Button"
+      case .cell: "Cell"
+      case .decrementButton: "Decrement Button"
+      case .link: "Link"
+      case .incrementButton: "Increment Button"
       case .menuButton: "Menu Button"
       case .popUpButton: "Pop Up Button"
-      case .decrementButton: "Decrement Button"
-      case .incrementButton: "Increment Button"
+      case .radioButton: "Radio Button"
       case .staticText: "Static Text"
       }
     }
@@ -47,6 +50,7 @@ struct UIElementCommand: MetaDataProviding {
       case .any: "*"
       case .button: kAXButtonRole
       case .cell: kAXCellRole
+      case .link: "AXLink"
       case .radioButton: kAXRadioButtonRole
       case .menuButton: kAXMenuButtonRole
       case .popUpButton: kAXPopUpButtonRole
