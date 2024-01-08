@@ -17,9 +17,9 @@ final class UIElementCommandRunner {
       throw UIElementCommandRunnerError.unableToFindWindow
     }
 
-    var moreThanOne = command.predicates.count > 1
+    let moreThanOne = command.predicates.count > 1
     for predicate in command.predicates {
-      var result = focusedWindow.findChild { element in
+      let result = focusedWindow.findChild { element in
         guard let element else { return false }
 
         if predicate.kind != .any {
