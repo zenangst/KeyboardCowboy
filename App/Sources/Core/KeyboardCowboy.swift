@@ -63,7 +63,9 @@ struct KeyboardCowboy: App {
     PermissionsWindow()
     PermissionsScene(onAction: handlePermissionAction(_:))
 
-    NewCommandWindow(contentStore: core.contentStore, configurationPublisher: core.configCoordinator.configurationPublisher) { workflowId, commandId, title, payload in
+    NewCommandWindow(contentStore: core.contentStore, 
+                     uiElementCaptureStore: core.uiElementCaptureStore,
+                     configurationPublisher: core.configCoordinator.configurationPublisher) { workflowId, commandId, title, payload in
       let groupIds = core.groupSelectionManager.selections
       Task {
         await core.detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,

@@ -34,6 +34,7 @@ final class MachPortCoordinator {
   @Published private(set) var event: MachPortEvent?
   @Published private(set) var flagsChanged: CGEventFlags?
   @Published private(set) var recording: KeyShortcutRecording?
+  @Published private(set) var mode: KeyboardCowboyMode
 
   var machPort: MachPortEventController? {
     didSet { keyboardCommandRunner.machPort = machPort }
@@ -45,7 +46,6 @@ final class MachPortCoordinator {
   private var keyboardCowboyModeSubscription: AnyCancellable?
   private var machPortEventSubscription: AnyCancellable?
   private var flagsChangedSubscription: AnyCancellable?
-  private var mode: KeyboardCowboyMode
   private var specialKeys: [Int] = [Int]()
 
   private var shouldHandleKeyUp: Bool = false
@@ -72,6 +72,14 @@ final class MachPortCoordinator {
     self.specialKeys = Array(store.specialKeys().keys)
   }
 
+  func captureUIElement() {
+    mode = .captureUIElement
+  }
+
+  func stopCapturingUIElement() {
+    mode = .intercept
+  }
+
   func subscribe(to publisher: Published<KeyboardCowboyMode?>.Publisher) {
     keyboardCowboyModeSubscription = publisher
       .compactMap({ $0 })
@@ -84,14 +92,16 @@ final class MachPortCoordinator {
 
   func receiveEvent(_ event: MachPortEvent) {
     switch mode {
+    case .disabled: break
+    case .captureUIElement:
+      self.event = event
     case .intercept:
       intercept(event)
-    case .record:
+      self.event = event
+    case .recordKeystroke:
       record(event)
-    case .disabled:
-      break
+      self.event = event
     }
-    self.event = event
   }
 
   func receiveFlagsChanged(_ flags: CGEventFlags) {

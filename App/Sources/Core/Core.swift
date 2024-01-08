@@ -74,15 +74,23 @@ final class Core {
     scriptCommandRunner: scriptCommandRunner)
   lazy private(set) var groupStore = GroupStore()
   lazy private(set) var keyCodeStore = KeyCodesStore(InputSourceController())
+  lazy private(set) var machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
+                                                                  commandRunner: commandRunner,
+                                                                  keyboardCommandRunner: keyboardCommandRunner,
+                                                                  keyboardShortcutsController: keyboardShortcutsController,
+                                                                  mode: .intercept)
   lazy private(set) var engine = KeyboardCowboyEngine(
     contentStore,
     commandRunner: commandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
     keyboardShortcutsController: keyboardShortcutsController,
     keyCodeStore: keyCodeStore,
+    machPortCoordinator: machPortCoordinator,
     scriptCommandRunner: scriptCommandRunner,
     shortcutStore: shortcutStore,
+    uiElementCaptureStore: uiElementCaptureStore,
     workspace: .shared)
+  lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
   lazy private(set) var recorderStore = KeyShortcutRecorderStore()
   lazy private(set) var shortcutStore = ShortcutStore(scriptCommandRunner)
 
@@ -91,9 +99,11 @@ final class Core {
     applicationStore: ApplicationStore.shared,
     builtInCommandRunner: BuiltInCommandRunner(configurationStore: configurationStore),
     scriptCommandRunner: scriptCommandRunner,
-    keyboardCommandRunner: keyboardCommandRunner
+    keyboardCommandRunner: keyboardCommandRunner,
+    uiElementCommandRunner: uiElementCommandRunner
   )
   lazy private(set) var keyboardCommandRunner = KeyboardCommandRunner(store: keyCodeStore)
+  lazy private(set) var uiElementCommandRunner = UIElementCommandRunner()
   lazy private(set) var scriptCommandRunner = ScriptCommandRunner(workspace: .shared)
 
   // MARK: - Controllers

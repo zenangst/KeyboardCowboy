@@ -187,8 +187,8 @@ final class DetailCoordinator {
                                             name: "System command",
                                             kind: kind,
                                             notification: false))
-    case .uiElement:
-      command = Command.uiElement(UIElementCommand(meta: .init(), kind: .any(predicate: .init(value: ""))))
+    case .uiElement(let predicates):
+      command = Command.uiElement(.init(predicates: predicates))
     case .windowManagement(let kind):
       command = Command.windowManagement(.init(id: UUID().uuidString,
                                                name: "Window Management Command",

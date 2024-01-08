@@ -1,5 +1,6 @@
 enum KeyboardCowboyMode {
   case intercept
-  case record
+  case recordKeystroke
+  case captureUIElement
   case disabled
 }

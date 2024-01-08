@@ -15,7 +15,7 @@ enum NewCommandPayload: Equatable {
   case systemCommand(kind: SystemCommand.Kind)
   case menuBar(tokens: [MenuBarCommand.Token])
   case mouse(kind: MouseCommand.Kind)
-  case uiElement
+  case uiElement(predicates: [UIElementCommand.Predicate])
   case windowManagement(kind: WindowCommand.Kind)
 
   var title: String {

@@ -47,7 +47,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     case systemCommand(SystemModel)
     case menuBar(MenuBarModel)
     case mouse(MouseModel)
-    case uiElement
+    case uiElement(UIElementCommand)
     case windowManagement(WindowManagementModel)
 
     struct ApplicationModel: Codable, Hashable, Identifiable, Sendable {

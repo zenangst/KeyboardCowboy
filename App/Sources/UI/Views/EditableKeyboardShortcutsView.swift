@@ -223,7 +223,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     let keyShortcut = KeyShortcut(id: placeholderId, key: "Recording ...", lhs: true)
     selectionManager.selections = [keyShortcut.id]
     state = .recording
-    recorderStore.mode = .record
+    recorderStore.mode = .recordKeystroke
     replacing = keyShortcut.id
     withAnimation(.smooth(duration: 0.25)) {
       keyboardShortcuts.append(keyShortcut)
@@ -241,7 +241,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     isGlowing = true
     withAnimation {
       state = .recording
-      recorderStore.mode = .record
+      recorderStore.mode = .recordKeystroke
       selectedColor = Color(.systemRed)
     }
   }

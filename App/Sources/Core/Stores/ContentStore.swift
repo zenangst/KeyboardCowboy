@@ -92,7 +92,7 @@ final class ContentStore: ObservableObject {
 
   func use(_ configuration: KeyboardCowboyConfiguration) {
     Task {
-      await keyboardShortcutsController.cache(configuration.groups)
+      keyboardShortcutsController.cache(configuration.groups)
     }
     configurationId = configuration.id
     configurationStore.select(configuration)

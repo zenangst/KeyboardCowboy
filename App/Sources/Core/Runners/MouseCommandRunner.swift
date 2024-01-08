@@ -64,7 +64,7 @@ class MouseCommandRunner {
 
       targetLocation = targetLocation.applying(.init(translationX: 5, y: 5))
 
-      let currentLocation = NSEvent.mouseLocation
+      guard let currentLocation = CGEvent(source: nil)?.location else { return }
 
       switch command.kind {
       case .doubleClick:
@@ -75,6 +75,7 @@ class MouseCommandRunner {
         postMouseEvent(source, eventType: .rightMouse, location: targetLocation)
       }
 
+      try await Task.sleep(for: .milliseconds(50))
       postMouseEvent(source, eventType: .mouseMoved, location: currentLocation)
     }
   }
@@ -110,7 +111,7 @@ class MouseCommandRunner {
   }
 }
 
-fileprivate enum MouseEventType {
+enum MouseEventType {
   case leftMouse
   case rightMouse
   case mouseMoved

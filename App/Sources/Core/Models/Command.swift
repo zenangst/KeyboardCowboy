@@ -289,7 +289,7 @@ extension Command {
     case .shortcut: Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: false))
     case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id)))))
     case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
-    case .uiElement: Command.uiElement(.init(meta: .init(), kind: .any(predicate: .init(value: ""))))
+    case .uiElement: Command.uiElement(.init(meta: .init(), predicates: [.init(value: "")]))
     case .window: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false, animationDuration: 0))
     }
   }

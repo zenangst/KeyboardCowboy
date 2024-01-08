@@ -58,7 +58,7 @@ let project = Project(
             "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
             "CODE_SIGN_IDENTITY": "Apple Development",
             "CODE_SIGN_STYLE": "Automatic",
-            "CURRENT_PROJECT_VERSION": "414",
+            "CURRENT_PROJECT_VERSION": "436",
             "DEVELOPMENT_TEAM": env["TEAM_ID"],
             "ENABLE_HARDENED_RUNTIME": true,
             "MARKETING_VERSION": "3.21.0",
@@ -162,7 +162,7 @@ public enum PackageResolver {
       packages = [
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
-        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.0.13"),
+        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.0.15"),
         .package(url: "https://github.com/zenangst/Bonzai.git", .revision("0e34e387dd9200cc04dfe157f26203a02b954b79")),
         .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.0"),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),

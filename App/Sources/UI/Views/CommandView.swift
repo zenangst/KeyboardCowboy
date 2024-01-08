@@ -239,8 +239,16 @@ struct CommandResolverView: View {
       }
       .fixedSize(horizontal: false, vertical: true)
       .frame(height: 80)
-    case .uiElement:
-      UnknownView(command: .constant(command))
+    case .uiElement(let model):
+      UIElementCommandView(metaData: command.meta, model: model, onAction: { action in
+        switch action {
+        case .updateCommand(let newCommand):
+          // Implement this method.
+          break
+        case .commandAction(let commandContainerAction):
+          handleCommandContainerAction(commandContainerAction)
+        }
+      })
     case .windowManagement(let model):
       WindowManagementCommandView(command.meta, model: model) { action in
         switch action {

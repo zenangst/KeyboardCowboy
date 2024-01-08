@@ -101,7 +101,7 @@ private extension Command {
     case .systemCommand(let systemCommand):
       kind = .systemCommand(.init(id: systemCommand.id, kind: systemCommand.kind))
     case .uiElement(let uiElementCommand):
-      kind = .uiElement
+      kind = .uiElement(uiElementCommand)
     case .windowManagement(let windowCommand):
       kind = .windowManagement(.init(id: windowCommand.id, kind: windowCommand.kind, animationDuration: windowCommand.animationDuration))
     }

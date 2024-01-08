@@ -24,6 +24,7 @@ struct NewCommandWindow: Scene {
                        _ payload: NewCommandPayload) -> Void
   private let configurationPublisher: ConfigurationPublisher
   private let contentStore: ContentStore
+  private let uiElementCaptureStore: UIElementCaptureStore
   private let defaultSelection: NewCommandView.Kind = .application
   private let defaultPayload: NewCommandPayload = .application(
     application: nil,
@@ -33,11 +34,13 @@ struct NewCommandWindow: Scene {
     ifNotRunning: false)
 
   init(contentStore: ContentStore,
+       uiElementCaptureStore: UIElementCaptureStore,
        configurationPublisher: ConfigurationPublisher,
        onSave: @escaping (_ workflowId: Workflow.ID, _ commandId: Command.ID?, _ title: String, _ payload: NewCommandPayload) -> Void) {
     self.contentStore = contentStore
     self.configurationPublisher = configurationPublisher
     self.onSave = onSave
+    self.uiElementCaptureStore = uiElementCaptureStore
   }
 
   var body: some Scene {
@@ -91,6 +94,7 @@ struct NewCommandWindow: Scene {
     .environmentObject(contentStore.recorderStore)
     .environmentObject(contentStore.shortcutStore)
     .environmentObject(contentStore.applicationStore)
+    .environmentObject(uiElementCaptureStore)
     .environmentObject(configurationPublisher)
     .environmentObject(OpenPanelController())
     .ignoresSafeArea(edges: .all)
@@ -160,8 +164,8 @@ struct NewCommandWindow: Scene {
       }
     case .systemCommand(let systemCommand):
       return .systemCommand(kind: systemCommand.kind)
-    case .uiElement(let uiElementCommand):
-      return .uiElement
+    case .uiElement(let model):
+      return .uiElement(predicates: model.predicates)
     case .windowManagement(let windowCommand):
       return .windowManagement(kind: windowCommand.kind)
     }

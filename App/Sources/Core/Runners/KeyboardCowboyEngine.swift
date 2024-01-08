@@ -18,6 +18,7 @@ final class KeyboardCowboyEngine {
   private let shortcutStore: ShortcutStore
   private let workspace: NSWorkspace
   private let workspacePublisher: WorkspacePublisher
+  private let uiElementCaptureStore: UIElementCaptureStore
 
   private var pendingPermissionsSubscription: AnyCancellable?
   private var frontmostApplicationSubscription: AnyCancellable?
@@ -28,20 +29,19 @@ final class KeyboardCowboyEngine {
        keyboardCommandRunner: KeyboardCommandRunner,
        keyboardShortcutsController: KeyboardShortcutsController,
        keyCodeStore: KeyCodesStore,
+       machPortCoordinator: MachPortCoordinator,
        notificationCenter: NotificationCenter = .default,
        scriptCommandRunner: ScriptCommandRunner,
        shortcutStore: ShortcutStore,
+       uiElementCaptureStore: UIElementCaptureStore,
        workspace: NSWorkspace = .shared) {
     
     self.contentStore = contentStore
     self.keyCodeStore = keyCodeStore
     self.commandRunner = commandRunner
-    self.machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
-                                                   commandRunner: commandRunner,
-                                                   keyboardCommandRunner: keyboardCommandRunner,
-                                                   keyboardShortcutsController: keyboardShortcutsController,
-                                                   mode: .intercept)
+    self.machPortCoordinator = machPortCoordinator
     self.shortcutStore = shortcutStore
+    self.uiElementCaptureStore = uiElementCaptureStore
     self.applicationTriggerController = ApplicationTriggerController(commandRunner)
     self.workspace = workspace
     self.workspacePublisher = WorkspacePublisher(workspace)
@@ -64,8 +64,16 @@ final class KeyboardCowboyEngine {
     guard !launchArguments.isEnabled(.runningUnitTests) else { return }
 
     do {
+      let leftMouseEvents: CGEventMask = (1 << CGEventType.leftMouseDown.rawValue)
+                                       | (1 << CGEventType.leftMouseUp.rawValue)
+                                       | (1 << CGEventType.leftMouseDragged.rawValue)
+      let keyboardEvents: CGEventMask = (1 << CGEventType.keyDown.rawValue)
+                                      | (1 << CGEventType.keyUp.rawValue)
+                                      | (1 << CGEventType.flagsChanged.rawValue)
+
       let newMachPortController = try MachPortEventController(
         .privateState,
+        eventsOfInterest: keyboardEvents | leftMouseEvents,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
         onFlagsChanged: { [machPortCoordinator] in machPortCoordinator.receiveFlagsChanged($0) },
@@ -78,6 +86,7 @@ final class KeyboardCowboyEngine {
       commandRunner.setMachPort(newMachPortController, coordinator: machPortCoordinator)
       machPortController = newMachPortController
       keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
+      uiElementCaptureStore.subscribe(to: machPortCoordinator)
     } catch let error {
       NSAlert(error: error).runModal()
     }

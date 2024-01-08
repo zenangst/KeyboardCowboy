@@ -21,7 +21,14 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let shortcut: ShortcutsCommandRunner
     let system: SystemCommandRunner
     let text: TextCommandRunner
+    let uiElement: UIElementCommandRunner
     let window: WindowCommandRunner
+
+    func setMachPort(_ machPort: MachPortEventController?) {
+      keyboard.machPort = machPort
+      system.machPort = machPort
+      uiElement.machPort = machPort
+    }
   }
 
   private let missionControl: MissionControlPlugin
@@ -41,7 +48,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
        applicationStore: ApplicationStore,
        builtInCommandRunner: BuiltInCommandRunner,
        scriptCommandRunner: ScriptCommandRunner,
-       keyboardCommandRunner: KeyboardCommandRunner) {
+       keyboardCommandRunner: KeyboardCommandRunner,
+       uiElementCommandRunner: UIElementCommandRunner
+  ) {
     let systemCommandRunner = SystemCommandRunner(applicationStore)
     self.missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
     self.runners = .init(
@@ -60,6 +69,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       shortcut: ShortcutsCommandRunner(scriptCommandRunner),
       system: systemCommandRunner,
       text: TextCommandRunner(keyboardCommandRunner),
+      uiElement: uiElementCommandRunner,
       window: WindowCommandRunner()
     )
     self.workspace = workspace
@@ -226,7 +236,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         )
         output = command.name
       case .uiElement(let uiElementCommand):
-        // TODO: Add new UIElement runner
+        try await runners.uiElement.run(uiElementCommand)
         output = ""
       case .windowManagement(let windowCommand):
         try await runners.window.run(windowCommand)
@@ -247,13 +257,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   @MainActor
   func setMachPort(_ machPort: MachPortEventController?, coordinator: MachPortCoordinator) {
     self.machPort = machPort
-    runners.keyboard.machPort = machPort
-    runners.system.machPort = machPort
+    runners.setMachPort(machPort)
     UserSpace.shared.machPort = machPort
     WindowStore.shared.subscribe(to: coordinator.$flagsChanged)
+    subscribe(to: coordinator.$event)
     runners.system.subscribe(to: coordinator.$flagsChanged)
     runners.window.subscribe(to: coordinator.$event)
-    subscribe(to: coordinator.$event)
+
   }
 
   // MARK: Private methods
