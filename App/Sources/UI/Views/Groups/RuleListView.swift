@@ -25,6 +25,7 @@ struct RuleListView: View {
             Spacer()
             Button(action: {
               group.rule?.bundleIdentifiers.removeAll(where: { $0 == bundleIdentifier })
+              if group.rule?.bundleIdentifiers.isEmpty == true { group.rule = nil }
             }, label: {
               Image(systemName: "trash")
             })
