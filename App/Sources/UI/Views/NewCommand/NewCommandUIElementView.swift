@@ -178,21 +178,18 @@ struct NewCommandUIElementView: View {
 
       var predicate = UIElementCommand.Predicate(value: "")
 
-      let value = element.value
-      ?? element.identifier
-      ?? element.description
-      ?? element.title
-      ?? ""
-      predicate.value = value
-
-      if element.value != nil {
+      if let elementValue = element.value, !elementValue.isEmpty {
         predicate.properties = [.value]
-      } else if element.identifier != nil {
+        predicate.value = elementValue
+      } else if let elementIdentifier = element.identifier, !elementIdentifier.isEmpty {
         predicate.properties = [.identifier]
-      } else if element.description != nil {
+        predicate.value = elementIdentifier
+      } else if let elementDescription = element.description, !elementDescription.isEmpty {
         predicate.properties = [.description]
-      } else if element.title != nil {
+        predicate.value = elementDescription
+      } else if let elementTitle = element.title, !elementTitle.isEmpty {
         predicate.properties = [.title]
+        predicate.value = elementTitle
       }
 
       if let role = element.role {
