@@ -10,9 +10,8 @@ struct UIElementCommand: MetaDataProviding {
     case radioButton
     case menuButton
     case popUpButton
-    case decrementButton
-    case incrementButton
     case staticText
+    case textArea
 
     init(_ axValue: String) {
       self = switch axValue {
@@ -23,9 +22,8 @@ struct UIElementCommand: MetaDataProviding {
       case kAXRadioButtonRole: .radioButton
       case kAXMenuButtonRole: .menuButton
       case kAXPopUpButtonRole: .popUpButton
-      case kAXDecrementButtonAttribute: .decrementButton
-      case kAXIncrementButtonAttribute: .incrementButton
       case kAXStaticTextRole: .staticText
+      case kAXTextAreaRole: .textArea
       default: .any
       }
     }
@@ -35,13 +33,12 @@ struct UIElementCommand: MetaDataProviding {
       case .any: "Any"
       case .button: "Button"
       case .cell: "Cell"
-      case .decrementButton: "Decrement Button"
       case .link: "Link"
-      case .incrementButton: "Increment Button"
       case .menuButton: "Menu Button"
       case .popUpButton: "Pop Up Button"
       case .radioButton: "Radio Button"
       case .staticText: "Static Text"
+      case .textArea: "Text Area"
       }
     }
 
@@ -54,9 +51,8 @@ struct UIElementCommand: MetaDataProviding {
       case .radioButton: kAXRadioButtonRole
       case .menuButton: kAXMenuButtonRole
       case .popUpButton: kAXPopUpButtonRole
-      case .decrementButton: kAXDecrementButtonAttribute
-      case .incrementButton: kAXIncrementButtonAttribute
       case .staticText: kAXStaticTextRole
+      case .textArea: kAXTextAreaRole
       }
     }
   }
