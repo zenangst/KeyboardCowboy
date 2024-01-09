@@ -46,7 +46,10 @@ struct NewCommandUIElementView: View {
               HStack {
                 Menu {
                   ForEach(UIElementCommand.Predicate.Compare.allCases, id: \.displayName) { compare in
-                    Button(action: { predicates[index].compare = compare },
+                    Button(action: {
+                      predicates[index].compare = compare
+                      validation = updateAndValidatePayload()
+                    },
                            label: {
                       Text(compare.displayName)
                         .font(.callout)
@@ -61,6 +64,9 @@ struct NewCommandUIElementView: View {
 
                 TextField("", text: $predicates[index].value)
                   .textFieldStyle(.regular(Color(.windowBackgroundColor)))
+                  .onChange(of: predicates[index].value, perform: { value in
+                    validation = updateAndValidatePayload()
+                  })
 
 
                 Button(action: {
@@ -68,6 +74,7 @@ struct NewCommandUIElementView: View {
                     guard index < predicates.count else { return }
                     _ = self.predicates.remove(at: index)
                   }
+                  validation = updateAndValidatePayload()
                 }, label: {
                   Image(systemName: "xmark")
                     .symbolRenderingMode(.palette)
@@ -90,7 +97,10 @@ struct NewCommandUIElementView: View {
               HStack {
                 Menu {
                   ForEach(UIElementCommand.Kind.allCases, id: \.displayName) { kind in
-                    Button(action: { predicates[index].kind = kind },
+                    Button(action: {
+                      predicates[index].kind = kind
+                      validation = updateAndValidatePayload()
+                    },
                            label: {
                       Text(kind.displayName)
                         .font(.callout)
@@ -113,6 +123,7 @@ struct NewCommandUIElementView: View {
                           } else {
                             predicates[index].properties.removeAll(where: { $0 == property })
                           }
+                          validation = updateAndValidatePayload()
                         }
                       )
                     )
