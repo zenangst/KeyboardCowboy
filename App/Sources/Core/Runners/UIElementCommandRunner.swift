@@ -19,7 +19,7 @@ final class UIElementCommandRunner {
 
     let moreThanOne = command.predicates.count > 1
     for predicate in command.predicates {
-      let result = focusedWindow.findChild { element in
+      let elementMatch = focusedWindow.findChild { element in
         guard let element else { return false }
 
         if predicate.kind != .any {
@@ -48,8 +48,13 @@ final class UIElementCommandRunner {
         return false
       }
 
-      if result?.role == kAXStaticTextRole,
-         let frame = result?.frame,
+      guard let elementMatch else { return }
+
+      let mouseBasedRoles: Set<String> = [kAXStaticTextRole, kAXCellRole]
+
+      if let role = elementMatch.role,
+         mouseBasedRoles.contains(role),
+         let frame = elementMatch.frame,
          let mousePosition = CGEvent(source: nil)?.location {
         postMouseEvent(machPort?.eventSource, eventType: .leftMouse, location: frame.origin)
         try await Task.sleep(for: .milliseconds(50))
@@ -57,7 +62,7 @@ final class UIElementCommandRunner {
         return
       }
 
-      result?.performAction(.press)
+      elementMatch.performAction(.press)
       if moreThanOne {
         try await Task.sleep(for: .milliseconds(100))
       }
