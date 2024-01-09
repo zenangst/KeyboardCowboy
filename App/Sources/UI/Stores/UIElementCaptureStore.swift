@@ -111,7 +111,7 @@ final class UIElementCaptureStore: ObservableObject {
       }
 
       let id = UUID().uuidString
-      let model: WindowBorderViewModel =  .init(id: UUID().uuidString, frame: frame)
+      let model: WindowBorderViewModel =  .init(id: id, frame: frame)
       publisher.publish([model])
       windowCoordinator.screenChanged()
       windowCoordinator.show()
