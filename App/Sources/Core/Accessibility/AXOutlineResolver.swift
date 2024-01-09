@@ -9,7 +9,7 @@ enum AXOutlineResolverError: Error {
 enum AXOutlineResolver {
   static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> CGRect {
     let children = try parent.value(.children, as: [AXUIElement].self)
-      .map(AnyAccessibilityElement.init)
+      .map { AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }
     var match: AnyAccessibilityElement?
     for child in children {
       guard (try? child.value(.selected, as: Bool.self)) == true else { continue }

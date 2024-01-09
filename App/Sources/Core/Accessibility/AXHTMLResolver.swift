@@ -22,7 +22,7 @@ enum AXHTMLResolver {
                                      breadCrumb: inout String) throws -> AnyAccessibilityElement? {
     var resolvedElement: AnyAccessibilityElement?
     let children = try element.value(.children, as: [AXUIElement].self)
-      .map(AnyAccessibilityElement.init)
+      .map { AnyAccessibilityElement($0, messagingTimeout: element.messagingTimeout) }
 
     if children.isEmpty {
       if snapshot.selectedText.isEmpty {

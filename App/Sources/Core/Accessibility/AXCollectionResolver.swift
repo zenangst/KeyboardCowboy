@@ -9,16 +9,16 @@ enum AXCollectionResolverError: Error {
 enum AXCollectionResolver {
   static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> CGRect {
     let sections = try parent.value(.children, as: [AXUIElement].self)
-      .map(AnyAccessibilityElement.init)
+      .map { AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }
     var match: AnyAccessibilityElement?
     for section in sections {
       let groups = try? section.value(.children, as: [AXUIElement].self)
-        .map(AnyAccessibilityElement.init)
+        .map { AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }
       guard let groups else { continue }
 
       for group in groups {
         let children = try? group.value(.children, as: [AXUIElement].self)
-          .map(AnyAccessibilityElement.init)
+          .map { AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }
         guard let children else { continue }
 
         for child in children {

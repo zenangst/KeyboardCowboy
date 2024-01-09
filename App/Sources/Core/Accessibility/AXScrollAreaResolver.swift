@@ -9,7 +9,7 @@ enum AXScrollAreaResolverError: Error {
 enum AXScrollAreaResolver {
   static func resolveFocusedElement(_ parent: AnyFocusedAccessibilityElement) throws -> CGRect {
     let children = try parent.value(.children, as: [AXUIElement].self)
-      .map(AnyAccessibilityElement.init)
+      .map { AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }
     var match: AnyAccessibilityElement?
 
     match = try? processElement(AnyAccessibilityElement(parent.reference))
@@ -24,7 +24,7 @@ enum AXScrollAreaResolver {
   private static func processElement(_ element: AnyAccessibilityElement) throws -> AnyAccessibilityElement? {
     var resolvedElement: AnyAccessibilityElement?
     let children = try element.value(.children, as: [AXUIElement].self)
-      .map(AnyAccessibilityElement.init)
+      .map { AnyAccessibilityElement($0, messagingTimeout: element.messagingTimeout) }
 
     if (try? element.value(.focused, as: Bool.self)) == true {
       return element

@@ -9,7 +9,7 @@ enum AXGroupResolverError: Error {
 enum AXGroupResolver {
   static func resolveFocusedElement(_ parent: AnyAccessibilityElement) throws -> CGRect {
     let children = try parent.value(.children, as: [AXUIElement].self)
-      .map(AnyAccessibilityElement.init)
+      .map { AnyAccessibilityElement($0, messagingTimeout: parent.messagingTimeout) }
     var match: AnyAccessibilityElement?
 
     for child in children {

@@ -1,4 +1,5 @@
 import ApplicationServices
+import Cocoa
 import MachPort
 import AXEssibility
 import Foundation
@@ -18,9 +19,16 @@ final class UIElementCommandRunner {
     }
 
     let moreThanOne = command.predicates.count > 1
+    let mouseBasedRoles: Set<String> = [kAXStaticTextRole, kAXCellRole]
+
     for predicate in command.predicates {
-      let elementMatch = focusedWindow.findChild { element in
+      let elementMatch = focusedWindow.findChild { element, abort in
         guard let element else { return false }
+
+        if Task.isCancelled {
+          abort = true
+          return false
+        }
 
         if predicate.kind != .any {
           guard element.role == predicate.kind.axValue else { return false }
@@ -50,7 +58,7 @@ final class UIElementCommandRunner {
 
       guard let elementMatch else { return }
 
-      let mouseBasedRoles: Set<String> = [kAXStaticTextRole, kAXCellRole]
+      try Task.checkCancellation()
 
       if let role = elementMatch.role,
          mouseBasedRoles.contains(role),
@@ -63,6 +71,7 @@ final class UIElementCommandRunner {
       }
 
       elementMatch.performAction(.press)
+
       if moreThanOne {
         try await Task.sleep(for: .milliseconds(100))
       }
