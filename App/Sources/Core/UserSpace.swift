@@ -87,6 +87,7 @@ final class UserSpace: Sendable {
             .replacingOccurrences(of: .filename, with: (url.lastPathComponent as NSString).deletingPathExtension)
             .replacingOccurrences(of: .file, with: lastPathComponent as String)
             .replacingOccurrences(of: .filepath, with: (url.lastPathComponent as NSString).pathExtension)
+            .replacingOccurrences(of: .extension, with: (url.lastPathComponent as NSString).pathExtension)
         }
       }
       return interpolatedString
