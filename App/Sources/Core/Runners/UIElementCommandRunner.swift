@@ -10,7 +10,7 @@ enum UIElementCommandRunnerError: Error {
 
 final class UIElementCommandRunner {
   var machPort: MachPortEventController?
-  let systemElement: SystemAccessibilityElement = .init(messagingTimeout: 0.25)
+  let systemElement: SystemAccessibilityElement = .init()
 
   func run(_ command: UIElementCommand) async throws {
 //    var counter = 0
@@ -20,20 +20,22 @@ final class UIElementCommandRunner {
 //    }
 
     let focusedElement = try systemElement.focusedUIElement()
-    guard let focusedWindow = focusedElement.window else {
+    guard let focusedWindow = focusedElement.window,
+          let screen = NSScreen.main else {
       throw UIElementCommandRunnerError.unableToFindWindow
     }
 
-    let mouseBasedRoles: Set<String> = [kAXStaticTextRole, kAXCellRole]
+    let handler: (UIElementCommand.Predicate, AnyAccessibilitySubject?, inout Bool) -> Bool = { predicate, subject, abort in
+      guard let subject else { return false }
 
-    let handler: (UIElementCommand.Predicate, AccessibilityElement?, inout Bool) -> Bool = { predicate, element, abort in
-//      counter += 1
-      guard let element else { return false }
+      let element = subject.element
 
       if Task.isCancelled {
         abort = true
         return false
       }
+
+//      counter += 1
 
       if predicate.kind != .any {
         guard element.role == predicate.kind.axValue else { return false }
@@ -60,11 +62,10 @@ final class UIElementCommandRunner {
       return false
     }
 
-
-    typealias PredicateType = [Int: (AccessibilityElement?, inout Bool) -> Bool]
+    typealias PredicateType = [Int: (AnyAccessibilitySubject, inout Bool) -> Bool]
     var predicates: PredicateType = command.predicates
       .enumerated()
-      .reduce(into: [Int: (AccessibilityElement?, inout Bool) -> Bool]()) { (dict, pair) in
+      .reduce(into: PredicateType()) { (dict, pair) in
         let (index, predicate) = pair
         dict[index] = {
           handler(predicate, $0, &$1)
@@ -72,33 +73,44 @@ final class UIElementCommandRunner {
       }
 
     var abort: Bool = false
-    let elementMatches = focusedWindow.findChildren(
+    let elementSubjects = focusedWindow.findChildren(
+      screen: screen,
       matchingConditions: &predicates,
       abort: &abort
     )
 
-    for (_, elementMatch) in elementMatches {
+    let mouseBasedRoles: Set<String> = [kAXStaticTextRole, kAXCellRole]
+    for (_, subject) in elementSubjects {
       try Task.checkCancellation()
-      if let role = elementMatch.role,
-         mouseBasedRoles.contains(role),
-         let frame = elementMatch.frame,
-         let mousePosition = CGEvent(source: nil)?.location {
-        postMouseEvent(machPort?.eventSource, eventType: .leftMouse, location: frame.origin)
+      if let mousePosition = CGEvent(source: nil)?.location,
+         let role = subject.element.role,
+         mouseBasedRoles.contains(role) {
+        CGEvent.performClick(
+          machPort?.eventSource,
+          eventType: .leftMouse,
+          at: subject.position
+        )
         try await Task.sleep(for: .milliseconds(50))
-        postMouseEvent(machPort?.eventSource, eventType: .mouseMoved, location: mousePosition)
+        CGEvent.restoreMousePosition(to: mousePosition)
         return
       }
-
-      elementMatch.performAction(.press)
+      subject.element.performAction(.press)
     }
   }
+}
 
-  private func postMouseEvent(
-    _ source: CGEventSource?,
-    eventType: MouseEventType,
-    clickCount: Int64 = 1,
-    location: CGPoint
-  ) {
+fileprivate extension CGEvent {
+  static func restoreMousePosition(to origin: CGPoint) {
+    let eventDown = CGEvent(mouseEventSource: nil, mouseType: .mouseMoved,
+                            mouseCursorPosition: origin, mouseButton: .left)
+    eventDown?.flags = CGEventFlags(rawValue: 0)
+    eventDown?.post(tap: .cghidEventTap)
+  }
+
+  static func performClick(_ source: CGEventSource?,
+                           eventType: MouseEventType,
+                           clickCount: Int64 = 1,
+                           at location: CGPoint) {
     let eventDown = CGEvent(
       mouseEventSource: source,
       mouseType: eventType.downType,

@@ -105,6 +105,15 @@ struct UIElementCommand: MetaDataProviding {
         case .value: "Value"
         }
       }
+
+      var axValue: String {
+        switch self {
+        case .identifier: kAXIdentifierAttribute
+        case .description: kAXDescriptionAttribute
+        case .title: kAXTitleAttribute
+        case .value: kAXValueAttribute
+        }
+      }
     }
 
     init(id: String = UUID().uuidString, value: String,
