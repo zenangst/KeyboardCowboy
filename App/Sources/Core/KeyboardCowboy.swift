@@ -26,7 +26,6 @@ struct KeyboardCowboy: App {
 #endif
 
   @FocusState var focus: AppFocus?
-  @Namespace var namespace
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   private var open: Bool = true
@@ -133,5 +132,4 @@ struct KeyboardCowboy: App {
       AccessibilityPermission.shared.requestPermission()
     }
   }
-
 }
