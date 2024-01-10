@@ -10,7 +10,7 @@ enum UIElementCommandRunnerError: Error {
 
 final class UIElementCommandRunner {
   var machPort: MachPortEventController?
-  let systemElement: SystemAccessibilityElement = .init()
+  let systemElement: SystemAccessibilityElement = .init(messagingTimeout: 0.25)
 
   func run(_ command: UIElementCommand) async throws {
 //    var counter = 0
@@ -72,7 +72,10 @@ final class UIElementCommandRunner {
       }
 
     var abort: Bool = false
-    let elementMatches = focusedWindow.findChildren(matchingConditions: &predicates, abort: &abort)
+    let elementMatches = focusedWindow.findChildren(
+      matchingConditions: &predicates,
+      abort: &abort
+    )
 
     for (_, elementMatch) in elementMatches {
       try Task.checkCancellation()
