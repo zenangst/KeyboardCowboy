@@ -52,6 +52,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
 
     struct ApplicationModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placheolder: String { "Open/Close/Switch to Application …" }
       var action: String
       var inBackground: Bool
       var hideWhenRunning: Bool
@@ -61,11 +62,13 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
     struct BuiltInModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var name: String
+      var placheolder: String { "Run Built-In Action …" }
       var kind: BuiltInCommand.Kind
     }
 
     struct OpenModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placheolder: String { "Open …" }
       var path: String
       var applicationPath: String?
       var appName: String?
@@ -74,50 +77,61 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
 
     struct KeyboardModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placeholder: String { "Invoke Keyboard Shortcut …" }
       var keys: [KeyShortcut]
     }
 
     struct MouseModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placeholder: String { "Control Mouse …" }
       var kind: MouseCommand.Kind
     }
 
     struct MenuBarModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placeholder: String { "Click MenuBar Item …" }
       var tokens: [MenuBarCommand.Token]
     }
 
     struct ScriptModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placeholder: String { "Run Script …" }
       var source: ScriptCommand.Source
       var scriptExtension: ScriptCommand.Kind
     }
 
     struct ShortcutModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placeholder: String { "Run Shortcut …" }
       var shortcutIdentifier: String
     }
 
     struct SystemModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placeholder: String { "Run System Shortcut …" }
       var kind: SystemCommand.Kind
     }
 
     struct TypeModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var mode: TextCommand.TypeCommand.Mode
+      var placeholder: String { "Type input …" }
       var input: String
     }
 
     struct TextModel: Codable, Hashable, Identifiable, Sendable {
       var id: String { kind.id }
-
+      var placeholder: String {
+        switch kind {
+        case .type(let model): model.placeholder
+        }
+      }
       let kind: Kind
 
       enum Kind: Codable, Hashable, Identifiable, Sendable {
         var id: String {
           switch self {
-          case .type(let model):      model.id
+          case .type(let model): model.id
           }
         }
 
@@ -127,6 +141,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable {
 
     struct WindowManagementModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
+      var placeholder: String { "Control Window…" }
       var kind: WindowCommand.Kind
       var animationDuration: Double
     }

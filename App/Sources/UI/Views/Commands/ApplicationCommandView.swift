@@ -28,14 +28,17 @@ struct ApplicationCommandView: View {
 
   @EnvironmentObject var applicationStore: ApplicationStore
 
+  private let iconSize: CGSize
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.ApplicationModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.onAction = onAction
+    self.iconSize = iconSize
     self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
       onAction(.updateName(newName: newName))
     }
@@ -44,8 +47,9 @@ struct ApplicationCommandView: View {
   var body: some View {
     CommandContainerView(
       $metaData,
+      placeholder: model.placheolder,
       icon: { metaData in
-        ApplicationCommandImageView(metaData.wrappedValue, onAction: onAction)
+        ApplicationCommandImageView(metaData.wrappedValue, iconSize: iconSize, onAction: onAction)
       },
       content: { command in
         HStack(spacing: 8) {
@@ -78,21 +82,22 @@ struct ApplicationCommandView: View {
           .fixedSize()
           .compositingGroup()
 
-          TextField(metaData.namePlaceholder, text: $metaData.name)
-            .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-            .onChange(of: metaData.name, perform: { debounce.send($0) })
+          ZenCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
+            onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
+          }
+          ZenCheckbox("Hide when opening", style: .small, isOn: $model.hideWhenRunning) { newValue in
+            onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
+          }
+          ZenCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
+            onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
+          }
         }
-      }, subContent: { _ in
-        ZenCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
-          onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
-        }
-        ZenCheckbox("Hide when opening", style: .small, isOn: $model.hideWhenRunning) { newValue in
-          onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
-        }
-        ZenCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
-          onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
-        }
-      },
+        .buttonStyle(.regular)
+        .lineLimit(1)
+        .allowsTightening(true)
+        .truncationMode(.tail)
+        .font(.caption)
+      }, subContent: { _ in },
       onAction: { onAction(.commandAction($0)) })
     .id(metaData.id)
     .enableInjection()
@@ -100,14 +105,18 @@ struct ApplicationCommandView: View {
 }
 
 struct ApplicationCommandImageView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
   @State private var isHovered: Bool = false
   @State private var metaData: CommandViewModel.MetaData
   private let onAction: (ApplicationCommandView.Action) -> Void
+  private let iconSize: CGSize
 
   init(_ metaData: CommandViewModel.MetaData,
+       iconSize: CGSize,
        onAction: @escaping (ApplicationCommandView.Action) -> Void) {
     _metaData = .init(initialValue: metaData)
+    self.iconSize = iconSize
     self.onAction = onAction
   }
 
@@ -124,26 +133,22 @@ struct ApplicationCommandImageView: View {
     }, label: { })
     .contentShape(Rectangle())
     .menuStyle(IconMenuStyle())
-    .overlay(
-      Color.accentColor.opacity(0.375)
-        .cornerRadius(8, antialiased: false)
-        .frame(width: 32, height: 32)
-        .overlay(content: {
-          if let icon = metaData.icon {
-            IconView(icon: icon, size: .init(width: 24, height: 24))
-              .fixedSize()
-          }
-        })
-        .allowsHitTesting(false)
-    )
+    .padding(4)
+    .overlay(content: {
+      if let icon = metaData.icon {
+        IconView(icon: icon, size: iconSize)
+          .fixedSize()
+          .allowsHitTesting(false)
+      }
+    })
+    .enableInjection()
   }
 }
 
 struct ApplicationCommandView_Previews: PreviewProvider {
   static let command = DesignTime.applicationCommand
   static var previews: some View {
-    ApplicationCommandView(command.model.meta, model: command.kind) { _ in }
+    ApplicationCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .designTime()
-      .frame(maxHeight: 80)
   }
 }

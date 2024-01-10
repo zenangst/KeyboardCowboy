@@ -12,27 +12,25 @@ struct BuiltInCommandView: View {
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.BuiltInModel
 
+  private let iconSize: CGSize
   private let onAction: (Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.BuiltInModel, onAction: @escaping (Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, 
+       model: CommandViewModel.Kind.BuiltInModel,
+       iconSize: CGSize,
+       onAction: @escaping (Action) -> Void) {
     self.metaData = metaData
     self.model = model
+    self.iconSize = iconSize
     self.onAction = onAction
   }
 
   var body: some View {
     Group {
-      CommandContainerView($metaData) { command in
+      CommandContainerView($metaData, placeholder: model.placheolder) { command in
         switch command.icon.wrappedValue {
         case .some(let icon):
-          Color.accentColor.opacity(0.375)
-            .cornerRadius(8, antialiased: false)
-            .frame(width: 32, height: 32)
-            .overlay(content: {
-              IconView(icon: icon, size: .init(width: 24, height: 24))
-                .fixedSize()
-            })
-            .allowsHitTesting(false)
+          IconView(icon: icon, size: iconSize)
         case .none:
           EmptyView()
         }
@@ -102,7 +100,14 @@ struct BuiltInCommandView: View {
 struct BuiltInCommandView_Previews: PreviewProvider {
   static let command = DesignTime.builtInCommand
   static var previews: some View {
-    BuiltInCommandView(command.model.meta, model: command.kind) { _ in }
+    BuiltInCommandView(
+      command.model.meta,
+      model: command.kind,
+      iconSize: .init(
+        width: 24,
+        height: 24
+      )
+    ) { _ in }
       .designTime()
       .frame(maxHeight: 80)
   }

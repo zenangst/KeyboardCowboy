@@ -99,17 +99,15 @@ struct NewCommandScriptView: View {
         }
         .overlay(NewCommandValidationView($validation))
       case .source:
-        VStack {
-          NewCommandScriptSourceView($scriptExtension, text: value, onSubmit: {
-            if case .valid = validation {
-              onSubmit(payload)
-            }
-          }) { newString in
-            value = newString
-            validation = updateAndValidatePayload()
+        NewCommandScriptSourceView($scriptExtension, text: value, onSubmit: {
+          if case .valid = validation {
+            onSubmit(payload)
           }
-          .overlay(NewCommandValidationView($validation))
+        }) { newString in
+          value = newString
+          validation = updateAndValidatePayload()
         }
+        .overlay(NewCommandValidationView($validation))
       }
     }
     .menuStyle(.regular)

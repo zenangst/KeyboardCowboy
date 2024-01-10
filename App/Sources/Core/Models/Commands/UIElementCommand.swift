@@ -118,6 +118,11 @@ struct UIElementCommand: MetaDataProviding {
     }
   }
 
+  var placeholder: String {
+    predicates.count > 1 
+    ? "Tap on UI Elements …"
+    : "Tap on UI Element …"
+  }
   var meta: Command.MetaData
   var predicates: [Predicate]
 

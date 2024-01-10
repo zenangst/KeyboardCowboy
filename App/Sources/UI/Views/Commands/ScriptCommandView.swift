@@ -17,14 +17,17 @@ struct ScriptCommandView: View {
   @State private var text: String
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.ScriptModel
+  private let iconSize: CGSize
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.ScriptModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
 
+    self.iconSize = iconSize
     switch model.source {
     case .inline(let source):
       _text = .init(initialValue: source)
@@ -37,32 +40,21 @@ struct ScriptCommandView: View {
 
   var body: some View {
     CommandContainerView($metaData,
+                         placeholder: model.placeholder,
                          icon: {
       command in
       ZStack {
-        Rectangle()
-          .fill(Color(.controlAccentColor).opacity(0.375))
-          .cornerRadius(8, antialiased: false)
         IconView(
           icon: .init(
             bundleIdentifier: "/System/Applications/Utilities/Script Editor.app",
             path: "/System/Applications/Utilities/Script Editor.app"
           ),
-          size: .init(width: 32, height: 32)
+          size: iconSize
         )
       }
     },
                          content: { metaData in
-      VStack {
-        HStack(spacing: 8) {
-          TextField("", text: $metaData.name)
-            .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-            .onChange(of: metaData.wrappedValue.name, perform: {
-              onAction(.updateName(newName: $0))
-            })
-          Spacer()
-        }
-        
+      VStack(alignment: .leading) {
         switch model.source {
         case .inline:
           ZenTextEditor(color: ZenColorPublisher.shared.color,
@@ -76,16 +68,6 @@ struct ScriptCommandView: View {
             .padding([.trailing, .bottom], 8)
 
           HStack(spacing: 4) {
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-              .fill(Color(nsColor: .systemYellow))
-              .betaFeature("Script environment variables only work in application that have documents.") {
-                Text("BETA")
-                  .foregroundStyle(Color.black)
-                  .font(.caption2)
-                  .frame(maxWidth: .infinity)
-              }
-              .frame(width: 32, height: 24)
-            Spacer()
             Text("Environment:")
             Group {
               Button(action: { text.append(" $DIRECTORY") },
@@ -106,12 +88,20 @@ struct ScriptCommandView: View {
           .allowsTightening(true)
           .lineLimit(1)
           .font(.caption2)
-          .frame(alignment: .leading)
-          .padding(.trailing)
+          .padding(.leading, 4)
         case .path:
           HStack {
             TextField("Path", text: $text)
-              .textFieldStyle(FileSystemTextFieldStyle())
+              .textFieldStyle(
+                .zen(
+                  .init(
+                    backgroundColor: Color.clear,
+                    font: .callout,
+                    padding: .init(horizontal: .medium, vertical: .medium),
+                    unfocusedOpacity: 0.0
+                  )
+                )
+              )
               .onChange(of: text) { newPath in
                 self.text = newPath
                 onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
@@ -127,6 +117,7 @@ struct ScriptCommandView: View {
           }
         }
       }
+      .roundedContainer(padding: 4, margin: 0)
     },
                          subContent: { _ in
       HStack {
@@ -153,10 +144,10 @@ struct ScriptCommandView_Previews: PreviewProvider {
 
   static var previews: some View {
     Group {
-      ScriptCommandView(inlineCommand.model.meta, model: inlineCommand.kind) { _ in }
+      ScriptCommandView(inlineCommand.model.meta, model: inlineCommand.kind, iconSize: .init(width: 24, height: 24)) { _ in }
         .frame(maxHeight: 120)
         .previewDisplayName("Inline")
-      ScriptCommandView(pathCommand.model.meta, model: pathCommand.kind) { _ in }
+      ScriptCommandView(pathCommand.model.meta, model: pathCommand.kind, iconSize: .init(width: 24, height: 24)) { _ in }
         .frame(maxHeight: 120)
         .previewDisplayName("Path")
     }

@@ -15,12 +15,15 @@ struct TypeCommandView: View {
   @State var model: CommandViewModel.Kind.TypeModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
+  private let iconSize: CGSize
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.TypeModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
+    self.iconSize = iconSize
     debounce = DebounceManager(for: .milliseconds(500)) { newInput in
       onAction(.updateSource(newInput: newInput))
     }
@@ -30,20 +33,17 @@ struct TypeCommandView: View {
   var body: some View {
     CommandContainerView(
       $metaData,
+      placeholder: model.placeholder,
       icon: { metaData in
-        ZStack {
-          Rectangle()
-            .fill(Color(.controlAccentColor).opacity(0.375))
-            .cornerRadius(8, antialiased: false)
-          RegularKeyIcon(letter: "(...)", width: 24, height: 24)
-            .frame(width: 16, height: 16)
-        }
+        RegularKeyIcon(letter: "...", width: iconSize.width, height: iconSize.height)
+          .fixedSize()
       }, content: { metaData in
         ZenTextEditor(
           color: ZenColorPublisher.shared.color,
           text: $model.input,
           placeholder: "Enter text...", onCommandReturnKey: nil)
           .onChange(of: model.input) { debounce.send($0) }
+          .roundedContainer(padding: 0, margin: 0)
       }, subContent: { _ in
         TypeCommandModeView(mode: model.mode) { newMode in
           onAction(.updateMode(newMode: newMode))
@@ -88,8 +88,7 @@ fileprivate struct TypeCommandModeView: View {
 struct TypeCommandView_Previews: PreviewProvider {
   static let command = DesignTime.typeCommand
   static var previews: some View {
-    TypeCommandView(command.model.meta, 
-                    model: command.kind) { _ in }
+    TypeCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .designTime()
       .frame(idealHeight: 120, maxHeight: 180)
   }

@@ -23,22 +23,14 @@ extension Command {
         } else {
           return "Open a file: \(command.path)"
         }
-      case .shortcut(let command):
-        return command.name
-      case .script(let command):
-        return command.name
-      case .text(let command):
-        return command.name
-      case .systemCommand(let command):
-        return command.name
-      case .menuBar(let command):
-        return command.name
-      case .mouse(let command):
-        return command.name
-      case .uiElement(let command):
-        return command.name
-      case .windowManagement(let command):
-        return command.name
+      case .shortcut: return ""
+      case .script: return ""
+      case .text: return ""
+      case .systemCommand: return ""
+      case .menuBar: return ""
+      case .mouse: return ""
+      case .uiElement: return ""
+      case .windowManagement: return ""
       }
     }
     set {

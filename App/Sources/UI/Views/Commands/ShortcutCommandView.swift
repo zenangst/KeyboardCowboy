@@ -16,14 +16,17 @@ struct ShortcutCommandView: View {
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.ShortcutModel
 
+  private let iconSize: CGSize
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.ShortcutModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
+    self.iconSize = iconSize
     self.onAction = onAction
     self.debounce = DebounceManager(for: .milliseconds(500), onUpdate: { value in
       onAction(.updateName(newName: value))
@@ -31,21 +34,14 @@ struct ShortcutCommandView: View {
   }
   
   var body: some View {
-    CommandContainerView($metaData, icon: { metaData in
+    CommandContainerView($metaData, placeholder: model.placeholder, icon: { metaData in
       ZStack {
-        Rectangle()
-          .fill(Color(.controlAccentColor).opacity(0.375))
-          .cornerRadius(8, antialiased: false)
-
-        IconView(icon: .init(bundleIdentifier: "/System/Applications/Shortcuts.app", 
+        IconView(icon: .init(bundleIdentifier: "/System/Applications/Shortcuts.app",
                              path: "/System/Applications/Shortcuts.app"),
-                 size: .init(width: 32, height: 32))
+                 size: iconSize)
       }
     }, content: { command in
       VStack {
-        TextField("", text: $metaData.name)
-          .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-          .onChange(of: metaData.name, perform: { debounce.send($0) })
         Menu(content: {
           ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in
             Button(action: {
@@ -81,7 +77,7 @@ struct ShortcutCommandView: View {
 struct ShortcutCommandView_Previews: PreviewProvider {
   static let command = DesignTime.shortcutCommand
   static var previews: some View {
-    ShortcutCommandView(command.model.meta, model: command.kind) { _ in }
+    ShortcutCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .frame(maxHeight: 100)
       .designTime()
   }

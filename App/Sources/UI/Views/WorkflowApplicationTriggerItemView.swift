@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct WorkflowApplicationTriggerItemView: View {
+  @ObserveInjection var inject
   @Binding var element: DetailViewModel.ApplicationTrigger
   @Binding private var data: [DetailViewModel.ApplicationTrigger]
   @State var isTargeted: Bool = false
@@ -19,10 +21,12 @@ struct WorkflowApplicationTriggerItemView: View {
   }
 
   var body: some View {
-    HStack(spacing: 0) {
-      IconView(icon: element.icon, size: .init(width: 36, height: 36))
+    HStack(spacing: 12) {
+      IconView(icon: element.icon, size: .init(width: 24, height: 24))
       VStack(alignment: .leading, spacing: 4) {
         Text(element.name)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .font(.caption)
         HStack {
           ForEach(DetailViewModel.ApplicationTrigger.Context.allCases) { context in
             ZenCheckbox(context.displayValue, style: .small, isOn: Binding<Bool>(get: {
@@ -33,21 +37,17 @@ struct WorkflowApplicationTriggerItemView: View {
               } else {
                 element.contexts.removeAll(where: { $0 == context })
               }
-
               onAction(.updateApplicationTriggerContext(element))
             })) { _ in }
               .lineLimit(1)
               .allowsTightening(true)
               .truncationMode(.tail)
               .font(.caption)
-
           }
         }
       }
-      .padding(8)
-      Spacer()
-      Divider()
-        .opacity(0.25)
+      .padding(.vertical, 8)
+      ZenDivider(.vertical)
       Button(
         action: {
           withAnimation(WorkflowCommandListView.animation) {
@@ -64,13 +64,9 @@ struct WorkflowApplicationTriggerItemView: View {
             .frame(width: 8, height: 8)
         })
       .buttonStyle(.calm(color: .systemRed, padding: .medium))
-      .padding(.horizontal, 8)
     }
     .padding(.leading, 8)
-    .background(Color(.textBackgroundColor).opacity(0.75))
-    .cornerRadius(8)
-    .compositingGroup()
-    .shadow(radius: 2)
+    .padding(.trailing, 16)
     .dropDestination(String.self, color: .accentColor) { items, location in
       guard let payload = items.draggablePayload(prefix: "WAT|"),
             let (from, destination) = data.moveOffsets(for: element,
@@ -85,5 +81,6 @@ struct WorkflowApplicationTriggerItemView: View {
     }
     .overlay(BorderedOverlayView(cornerRadius: 8))
     .draggable(element.draggablePayload(prefix: "WAT|", selections: selectionManager.selections))
+    .enableInjection()
   }
 }

@@ -8,6 +8,9 @@ final class DetailCommandActionReducer {
     guard var command: Command = workflow.commands.first(where: { $0.id == action.commandId }) else { return }
 
     switch action {
+    case .updateName(_, let newValue):
+      command.name = newValue
+      workflow.updateOrAddCommand(command)
     case .changeDelay(_, let newValue):
       command.delay = newValue
       workflow.updateOrAddCommand(command)

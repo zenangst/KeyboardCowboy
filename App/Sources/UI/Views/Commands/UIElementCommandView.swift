@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct UIElementCommandView: View {
+  @ObserveInjection var inject
   enum Action {
     case updateCommand(UIElementCommand)
     case commandAction(CommandContainerAction)
@@ -10,10 +12,18 @@ struct UIElementCommandView: View {
   @State var model: UIElementCommand
   private let debounce: DebounceManager<UIElementCommand>
   private let onAction: (Action) -> Void
+  private let iconSize: CGSize
 
-  init(metaData: CommandViewModel.MetaData, model: UIElementCommand, onAction: @escaping (Action) -> Void) {
+  private let menuStyle = ZenStyleConfiguration(color: .systemGray,
+                                                padding: .init(horizontal: .small, vertical: .small))
+
+  init(metaData: CommandViewModel.MetaData, 
+       model: UIElementCommand,
+       iconSize: CGSize,
+       onAction: @escaping (Action) -> Void) {
     self.metaData = metaData
     self.model = model
+    self.iconSize = iconSize
     self.debounce = DebounceManager(for: .milliseconds(500)) { newCommand in
       onAction(.updateCommand(newCommand))
     }
@@ -21,12 +31,17 @@ struct UIElementCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($metaData) { _ in } content: { _ in
-      VStack(alignment: .leading, spacing: 8) {
+    CommandContainerView($metaData, placeholder: model.placeholder) { _ in
+      Circle()
+        .fill(Color.red)
+        .frame(width: iconSize.width, height: iconSize.height)
+    } content: { _ in
+      VStack(alignment: .leading, spacing: 4) {
         ForEach(model.predicates.indices, id: \.self) { index in
           Grid {
             GridRow {
               Text("Value:")
+                .font(.caption)
               HStack {
                 Menu {
                   ForEach(UIElementCommand.Predicate.Compare.allCases, id: \.displayName) { compare in
@@ -41,14 +56,37 @@ struct UIElementCommandView: View {
                     .font(.caption)
                 }
                 .fixedSize()
-                .menuStyle(.regular)
+                .menuStyle(.zen(menuStyle))
 
-                TextField("", text: $model.predicates[index].value)
-                  .textFieldStyle(.regular(Color(.windowBackgroundColor)))
+                HStack {
+                  TextField("", text: $model.predicates[index].value)
+                    .textFieldStyle(
+                      .zen(
+                        .init(
+                          backgroundColor: Color(.windowBackgroundColor),
+                          font: .caption,
+                          padding: .small
+                        )
+                      )
+                    )
+                  Button { 
+                    model.predicates.remove(at: index)
+                    if model.predicates.isEmpty {
+                      onAction(.commandAction(.delete))
+                    }
+                  } label: {
+                    Image(systemName: "xmark")
+                      .resizable()
+                      .aspectRatio(contentMode: .fit)
+                      .frame(width: 8, height: 8)
+                  }
+                  .buttonStyle(.calm(color: .systemRed, padding: .medium))
+                }
               }
             }
             GridRow {
               Text("Type:")
+                .font(.caption)
               HStack {
                 Menu {
                   ForEach(UIElementCommand.Kind.allCases, id: \.displayName) { kind in
@@ -62,7 +100,7 @@ struct UIElementCommandView: View {
                   Text(model.predicates[index].kind.displayName)
                     .font(.caption)
                 }
-                .menuStyle(.regular)
+                .menuStyle(.zen(menuStyle))
 
                 ForEach(UIElementCommand.Predicate.Properties.allCases) { property in
                   HStack {
@@ -84,17 +122,15 @@ struct UIElementCommandView: View {
                       .truncationMode(.tail)
                       .allowsTightening(true)
                   }
+                  .help(property.displayName)
                 }
-
-                Button { } label: {
-                  Image(systemName: "xmark")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 8, height: 8)
-                }
-                .buttonStyle(.calm(color: .systemRed, padding: .medium))
               }
             }
+          }
+          .roundedContainer(padding: 6, margin: 0)
+
+          if index < model.predicates.count - 1 {
+            ZenDivider()
           }
         }
       }
@@ -105,7 +141,7 @@ struct UIElementCommandView: View {
     .onChange(of: model, perform: { value in
       debounce.send(value)
     })
-    .frame(maxHeight: 180)
+    .enableInjection()
   }
 }
 
@@ -119,8 +155,7 @@ struct UIElementCommandView: View {
           properties: [.identifier]
         )
       ]
-    )
-  ) { _ in
+    ), iconSize: .init(width: 24, height: 24)) { _ in
 
   }
   .designTime()

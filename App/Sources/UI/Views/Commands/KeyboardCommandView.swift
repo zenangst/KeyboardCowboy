@@ -14,16 +14,19 @@ struct KeyboardCommandView: View {
   @State private var model: CommandViewModel.Kind.KeyboardModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
+  private let iconSize: CGSize
   private var focus: FocusState<AppFocus?>.Binding
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.KeyboardModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     self.focus = focus
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.onAction = onAction
+    self.iconSize = iconSize
     self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
       onAction(.updateName(newName: newName))
     }
@@ -31,38 +34,29 @@ struct KeyboardCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      $metaData, icon: { command in
-        ZStack {
-          Rectangle()
-            .fill(Color(.systemGreen))
-            .opacity(0.2)
-            .cornerRadius(8)
-          ZStack {
-            RegularKeyIcon(letter: "")
+      $metaData, 
+      placeholder: model.placeholder,
+      icon: { command in
+        RegularKeyIcon(letter: "", width: iconSize.width, height: iconSize.height)
+          .fixedSize()
+          .overlay {
             Image(systemName: "flowchart")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: iconSize.width / 2)
           }
-          .scaleEffect(0.8)
-        }
       }, content: { command in
-        VStack(spacing: 10) {
-          HStack(spacing: 0) {
-            TextField("", text: $metaData.name)
-              .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-              .onChange(of: metaData.name, perform: { debounce.send($0) })
-              .frame(maxWidth: .infinity)
-          }
-          EditableKeyboardShortcutsView<AppFocus>(focus,
-                                                  focusBinding: { .detail(.commandShortcut($0)) },
-                                                  keyboardShortcuts: $model.keys,
-                                                  selectionManager: keyboardSelection,
-                                                  onTab: { _ in })
-          .font(.caption)
-          .frame(height: 40)
-          .onChange(of: model.keys) { newValue in
-            onAction(.updateKeyboardShortcuts(newValue))
-          }
-          .roundedContainer(padding: 0, margin: 0)
+        EditableKeyboardShortcutsView<AppFocus>(focus,
+                                                focusBinding: { .detail(.commandShortcut($0)) },
+                                                keyboardShortcuts: $model.keys,
+                                                selectionManager: keyboardSelection,
+                                                onTab: { _ in })
+        .font(.caption)
+        .frame(height: 40)
+        .onChange(of: model.keys) { newValue in
+          onAction(.updateKeyboardShortcuts(newValue))
         }
+        .roundedContainer(padding: 0, margin: 0)
       },
       subContent: { _ in },
       onAction: { onAction(.commandAction($0)) })
@@ -75,7 +69,12 @@ struct RebindingCommandView_Previews: PreviewProvider {
   static let recorderStore = KeyShortcutRecorderStore()
   static let command = DesignTime.rebindingCommand
   static var previews: some View {
-    KeyboardCommandView($focus, metaData: command.model.meta, model: command.kind) { _ in }
+    KeyboardCommandView(
+      $focus,
+      metaData: command.model.meta,
+      model: command.kind,
+      iconSize: .init(width: 24, height: 24)
+    ) { _ in }
       .designTime()
       .environmentObject(recorderStore)
       .frame(maxHeight: 120)

@@ -16,13 +16,16 @@ struct WindowManagementCommandView: View {
   @State var pixels: String
   @State var constrainToScreen: Bool
 
+  private let iconSize: CGSize
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
+    self.iconSize = iconSize
     self.onAction = onAction
 
     switch model.kind {
@@ -52,6 +55,7 @@ struct WindowManagementCommandView: View {
 
   var body: some View {
     CommandContainerView($metaData,
+                         placeholder: model.placeholder,
                          icon: {
       command in
       ZStack {
@@ -60,26 +64,22 @@ struct WindowManagementCommandView: View {
               .decreaseSize(_, let direction, _),
               .move(_, let direction, _, _),
               .anchor(let direction, _):
-          RoundedRectangle(cornerSize: .init(width: 8, height: 8))
-            .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
-            .frame(width: 32, height: 32, alignment: .center)
-            .background {
-              RoundedRectangle(cornerSize: .init(width: 8, height: 8))
-                .fill(Color(.controlAccentColor).opacity(0.375))
-                .cornerRadius(8, antialiased: false)
-            }
+          RoundedRectangle(cornerSize: .init(width: 4, height: 4))
+            .stroke(Color(.controlAccentColor).opacity(0.475), lineWidth: 1)
+            .padding(1)
             .overlay(alignment: resolveAlignment(model.kind)) {
               RoundedRectangle(cornerSize: .init(width: 4, height: 4))
                 .fill(Color.white)
-                .frame(width: 10, height: 10)
+                .frame(width: iconSize.width / 2.75,
+                       height: iconSize.height / 2.75)
                 .overlay {
                   Image(systemName: direction.imageSystemName(increment: true))
                     .resizable()
                     .foregroundStyle(Color.black)
-                    .frame(width: 6, height: 6)
+                    .frame(width: 4, height: 4)
                     .matchedGeometryEffect(id: "geometry-image-id", in: namespace)
                 }
-                .padding(4)
+                .padding(2)
             }
             .matchedGeometryEffect(id: "geometry-container-id", in: namespace)
             .compositingGroup()
@@ -89,42 +89,42 @@ struct WindowManagementCommandView: View {
             RoundedRectangle(cornerSize: .init(width: 8, height: 8))
               .fill(Color(.controlAccentColor).opacity(0.375))
               .cornerRadius(8, antialiased: false)
-              .frame(width: 32, height: 32, alignment: .center)
+              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
             RoundedRectangle(cornerSize: .init(width: 8, height: 8))
               .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
-              .frame(width: 32, height: 32, alignment: .center)
+              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
             Image(systemName: "arrow.up.backward.and.arrow.down.forward")
               .resizable()
               .aspectRatio(contentMode: .fit)
-              .frame(width: 16, height: 16)
+              .frame(width: iconSize.width / 2, height: iconSize.height / 2)
           }
         case .center:
           ZStack {
             RoundedRectangle(cornerSize: .init(width: 8, height: 8))
               .fill(Color(.controlAccentColor).opacity(0.375))
               .cornerRadius(8, antialiased: false)
-              .frame(width: 32, height: 32, alignment: .center)
+              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
             RoundedRectangle(cornerSize: .init(width: 8, height: 8))
               .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
-              .frame(width: 32, height: 32, alignment: .center)
+              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
             Image(systemName: "camera.metering.center.weighted")
               .resizable()
               .aspectRatio(contentMode: .fit)
-              .frame(width: 16, height: 16)
+              .frame(width: iconSize.width / 2, height: iconSize.height / 2)
           }
         case .moveToNextDisplay:
           ZStack {
             RoundedRectangle(cornerSize: .init(width: 8, height: 8))
               .fill(Color(.controlAccentColor).opacity(0.375))
               .cornerRadius(8, antialiased: false)
-              .frame(width: 32, height: 32, alignment: .center)
+              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
             RoundedRectangle(cornerSize: .init(width: 8, height: 8))
               .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
-              .frame(width: 32, height: 32, alignment: .center)
+              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
             Image(systemName: "display")
               .resizable()
               .aspectRatio(contentMode: .fit)
-              .frame(width: 16, height: 16)
+              .frame(width: iconSize.width / 2, height: iconSize.height / 2)
               .overlay {
                 Image(systemName: "arrow.right.circle.fill")
                   .resizable()
@@ -205,32 +205,84 @@ struct WindowManagementCommandView: View {
             })
             .fixedSize()
 
-            VStack(alignment: .leading) {
-              HStack {
+            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
                 if case .anchor = model.kind {
-                  EmptyView()
-                } else if case .decreaseSize = model.kind {
+                  GridRow {
                     EmptyView()
+                    EmptyView()
+                  }
+                } else if case .decreaseSize = model.kind {
+                  GridRow {
+                    EmptyView()
+                    EmptyView()
+                  }
                 } else {
-                  IntegerTextField(text: $pixels,
+                  GridRow {
+                    IntegerTextField(text: $pixels,
+                                     onValidChange: { newValue in
+                      guard let pixels = Int(newValue) else { return }
+                      let kind: WindowCommand.Kind
+                      switch model.kind {
+                      case .increaseSize(_, let direction, let padding, let constrainedToScreen):
+                        kind = .increaseSize(
+                          by: pixels,
+                          direction: direction,
+                          padding: padding,
+                          constrainedToScreen: constrainedToScreen
+                        )
+                      case .decreaseSize(_, let direction, let constrainedToScreen):
+                        kind = .decreaseSize(
+                          by: pixels,
+                          direction: direction,
+                          constrainedToScreen: constrainedToScreen
+                        )
+                      case .move(_, let direction, let padding, let constrainedToScreen):
+                        kind = .move(
+                          by: pixels,
+                          direction: direction,
+                          padding: padding,
+                          constrainedToScreen: constrainedToScreen
+                        )
+                      case .anchor(let position, _):
+                        kind = .anchor(position: position, padding: pixels)
+                      default:
+                        return
+                      }
+                      model.kind = kind
+                      onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                    })
+                    .textFieldStyle(
+                      .zen(.init(backgroundColor: Color(.windowBackgroundColor),
+                                 font: .caption,
+                                 padding: .init(horizontal: .small, vertical: .small)
+                                ))
+                    )
+                    .fixedSize()
+                    Text("Pixels")
+                      .font(.caption)
+                  }
+                }
+
+                GridRow {
+                  IntegerTextField(text: $padding,
                                    onValidChange: { newValue in
-                    guard let pixels = Int(newValue) else { return }
+                    guard let padding = Int(newValue) else { return }
                     let kind: WindowCommand.Kind
                     switch model.kind {
-                    case .increaseSize(_, let direction, let padding, let constrainedToScreen):
+                    case .increaseSize(let pixels, let direction, _, let constrainedToScreen):
                       kind = .increaseSize(
                         by: pixels,
                         direction: direction,
                         padding: padding,
                         constrainedToScreen: constrainedToScreen
                       )
-                    case .decreaseSize(_, let direction, let constrainedToScreen):
+                    case .decreaseSize(let pixels, let direction, let constrainedToScreen):
                       kind = .decreaseSize(
                         by: pixels,
                         direction: direction,
                         constrainedToScreen: constrainedToScreen
                       )
-                    case .move(_, let direction, let padding, let constrainedToScreen):
+                    case .move(let pixels, let direction, _, let constrainedToScreen):
                       kind = .move(
                         by: pixels,
                         direction: direction,
@@ -238,107 +290,72 @@ struct WindowManagementCommandView: View {
                         constrainedToScreen: constrainedToScreen
                       )
                     case .anchor(let position, _):
-                      kind = .anchor(position: position, padding: pixels)
+                      kind = .anchor(position: position, padding: padding)
                     default:
                       return
                     }
                     model.kind = kind
                     onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
                   })
-                  .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-                  .frame(width: 32)
+                  .textFieldStyle(
+                    .zen(.init(backgroundColor: Color(.windowBackgroundColor),
+                               font: .caption,
+                               padding: .init(horizontal: .small, vertical: .small)
+                         ))
+                  )
                   .fixedSize()
-                  Text("Pixels")
+                  Text("Padding").font(.caption)
+                }
+
+              GridRow {
+                if case .anchor = model.kind {
+                  EmptyView()
+                  EmptyView()
+                } else {
+                  ZenCheckbox(
+                    style: .small,
+                    isOn: $constrainToScreen
+                  ) { constrainedToScreen in
+                    let kind: WindowCommand.Kind
+                    switch model.kind {
+                    case .increaseSize(let pixels, let direction, let padding, _):
+                      kind = .increaseSize(
+                        by: pixels,
+                        direction: direction,
+                        padding: padding,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .decreaseSize(let pixels, let direction, _):
+                      kind = .decreaseSize(
+                        by: pixels,
+                        direction: direction,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .move(let pixels, let direction, let padding, _):
+                      kind = .move(
+                        by: pixels,
+                        direction: direction,
+                        padding: padding,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .anchor(let position, let padding):
+                      kind = .anchor(position: position, padding: padding)
+                    default:
+                      return
+                    }
+                    model.kind = kind
+                    onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                  }
+                  .font(.caption)
+                  .padding(.trailing, 4)
+                  Text("Constrain to Screen")
                     .font(.caption)
                 }
-
-                IntegerTextField(text: $padding,
-                                 onValidChange: { newValue in
-                  guard let padding = Int(newValue) else { return }
-                  let kind: WindowCommand.Kind
-                  switch model.kind {
-                  case .increaseSize(let pixels, let direction, _, let constrainedToScreen):
-                    kind = .increaseSize(
-                      by: pixels,
-                      direction: direction,
-                      padding: padding,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .decreaseSize(let pixels, let direction, let constrainedToScreen):
-                    kind = .decreaseSize(
-                      by: pixels,
-                      direction: direction,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .move(let pixels, let direction, _, let constrainedToScreen):
-                    kind = .move(
-                      by: pixels,
-                      direction: direction,
-                      padding: padding,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .anchor(let position, _):
-                    kind = .anchor(position: position, padding: padding)
-                  default:
-                    return
-                  }
-                  model.kind = kind
-                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-                })
-                .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-                .frame(width: 32)
-                .fixedSize()
-                Text("Padding")
-                  .font(.caption)
-              }
-
-              if case .anchor = model.kind {
-                EmptyView()
-              } else {
-                ZenCheckbox(
-                  "Constrain to screen bounds",
-                  style: .small,
-                  isOn: $constrainToScreen
-                ) { constrainedToScreen in
-                  let kind: WindowCommand.Kind
-                  switch model.kind {
-                  case .increaseSize(let pixels, let direction, let padding, _):
-                    kind = .increaseSize(
-                      by: pixels,
-                      direction: direction,
-                      padding: padding,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .decreaseSize(let pixels, let direction, _):
-                    kind = .decreaseSize(
-                      by: pixels,
-                      direction: direction,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .move(let pixels, let direction, let padding, _):
-                    kind = .move(
-                      by: pixels,
-                      direction: direction,
-                      padding: padding,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .anchor(let position, let padding):
-                    kind = .anchor(position: position, padding: padding)
-                  default:
-                    return
-                  }
-                  model.kind = kind
-                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-                }
-                .font(.caption)
               }
             }
-            
           }
         case .fullscreen:
-          HStack {
-            Text("Padding:")
-              .font(.caption)
+          HStack(spacing: 12) {
             IntegerTextField(text: $padding, onValidChange: { newValue in
               guard let newPadding = Int(newValue) else { return }
               let kind: WindowCommand.Kind
@@ -351,16 +368,21 @@ struct WindowManagementCommandView: View {
               model.kind = kind
               onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
             })
-            .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-            .frame(width: 32)
+            .textFieldStyle(
+              .zen(.init(backgroundColor: Color(.windowBackgroundColor),
+                         font: .caption,
+                         padding: .init(horizontal: .small, vertical: .small)
+                        ))
+            )
             .fixedSize()
+            Text("Padding")
+              .font(.caption)
           }
-          .padding(.leading, 8)
         default:
           EmptyView()
         }
-        
       }
+      .roundedContainer(padding: 4, margin: 0)
     },
                          subContent: { _ in
       WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
@@ -418,7 +440,11 @@ struct WindowManagementCommandView_Previews: PreviewProvider {
       ForEach(models, id: \.model) { container in
         WindowManagementCommandView(
           container.model.meta,
-          model: .init(id: container.model.id, kind: container.kind, animationDuration: 0)
+          model: .init(
+            id: container.model.id,
+            kind: container.kind,
+            animationDuration: 0
+          ), iconSize: .init(width: 16, height: 16)
         ) { _ in }
           .frame(maxHeight: 180)
         Divider()

@@ -1,8 +1,10 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 @MainActor
 struct ContentItemView: View {
+  @ObserveInjection var inject
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   @State var isHovered: Bool = false
   @State var isTargeted: Bool = false

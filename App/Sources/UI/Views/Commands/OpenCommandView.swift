@@ -13,14 +13,17 @@ struct OpenCommandView: View {
   }
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.OpenModel
+  private let iconSize: CGSize
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.OpenModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
+    self.iconSize = iconSize
     self.debounce = DebounceManager(for: .milliseconds(500)) { newPath in
       onAction(.updatePath(newPath: newPath))
     }
@@ -28,14 +31,14 @@ struct OpenCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($metaData, icon: { command in
+    CommandContainerView($metaData, placeholder: model.placheolder, icon: { command in
       ZStack(alignment: .bottomTrailing) {
         switch command.icon.wrappedValue {
         case .some(let icon):
-          IconView(icon: icon, size: .init(width: 32, height: 32))
+          IconView(icon: icon, size: iconSize)
           if let appPath = model.applicationPath {
             IconView(icon: .init(bundleIdentifier: appPath, path: appPath), 
-                     size: .init(width: 16, height: 16))
+                     size: iconSize.applying(.init(scaleX: 0.5, y: 0.5)))
               .shadow(radius: 3)
               .id("open-with-\(appPath)")
           }
@@ -95,7 +98,7 @@ struct OpenCommandView: View {
 struct OpenCommandView_Previews: PreviewProvider {
   static let command = DesignTime.openCommand
   static var previews: some View {
-    OpenCommandView(command.model.meta, model: command.kind) { _ in }
+    OpenCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .designTime()
       .frame(maxHeight: 80)
   }

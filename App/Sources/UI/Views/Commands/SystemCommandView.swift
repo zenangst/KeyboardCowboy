@@ -10,26 +10,23 @@ struct SystemCommandView: View {
   }
   @State var metaData: CommandViewModel.MetaData
   @Binding var model: CommandViewModel.Kind.SystemModel
+  private let iconSize: CGSize
   let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.SystemModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = Binding<CommandViewModel.Kind.SystemModel>(model)
+    self.iconSize = iconSize
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($metaData, icon: { command in
-      ZStack {
-        Rectangle()
-          .fill(Color(.controlAccentColor).opacity(0.375))
-          .cornerRadius(8, antialiased: false)
-        IconView(icon: Icon(bundleIdentifier: model.kind.iconPath,
-                            path: model.kind.iconPath), size: .init(width: 32, height: 32))
-          .allowsHitTesting(false)
-      }
+    CommandContainerView($metaData, placeholder: model.placeholder, icon: { command in
+      IconView(icon: Icon(bundleIdentifier: model.kind.iconPath,
+                          path: model.kind.iconPath), size: iconSize)
     }, content: { command in
       HStack(spacing: 8) {
         Menu(content: {
@@ -44,14 +41,11 @@ struct SystemCommandView: View {
             })
           }
         }, label: {
-          HStack(spacing: 4) {
             Image(systemName: model.kind.symbol)
             Text(model.kind.displayValue)
               .font(.subheadline)
               .truncationMode(.middle)
               .allowsTightening(true)
-          }
-          .padding(4)
         })
         .menuStyle(.regular)
       }
@@ -66,7 +60,7 @@ struct SystemCommandView: View {
 struct SystemCommandView_Previews: PreviewProvider {
   static let command = DesignTime.systemCommand
   static var previews: some View {
-    SystemCommandView(command.model.meta, model: command.kind) { _ in }
+    SystemCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .designTime()
   }
 }

@@ -11,27 +11,24 @@ struct MenuBarCommandView: View {
   @Environment(\.openWindow) private var openWindow
   @State var metaData: CommandViewModel.MetaData
   @Binding var model: CommandViewModel.Kind.MenuBarModel
+  private let iconSize: CGSize
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.MenuBarModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = Binding<CommandViewModel.Kind.MenuBarModel>(model)
+    self.iconSize = iconSize
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($metaData) { _ in
-      ZStack {
-        Rectangle()
-          .fill(Color(.controlAccentColor).opacity(0.375))
-          .cornerRadius(8, antialiased: false)
-          .frame(width: 32, height: 32)
-        IconView(icon: .init(bundleIdentifier: "/System/Library/PreferencePanes/Appearance.prefPane",
-                             path: "/System/Library/PreferencePanes/Appearance.prefPane"),
-                 size: .init(width: 28, height: 28))
-      }
+    CommandContainerView($metaData, placeholder: model.placeholder) { _ in
+      IconView(icon: .init(bundleIdentifier: "/System/Library/PreferencePanes/Appearance.prefPane",
+                           path: "/System/Library/PreferencePanes/Appearance.prefPane"),
+               size: iconSize)
     } content: { _ in
       ScrollView(.horizontal) {
         HStack(spacing: 4) {
@@ -73,15 +70,15 @@ struct MenuBarCommandView: View {
               .fill(
                 LinearGradient(colors: [
                   Color(nsColor: .windowBackgroundColor),
-                  Color(nsColor: .gridColor),
+                  Color(nsColor: .gridColor).opacity(0.5),
                 ], startPoint: .top, endPoint: .bottom)
               )
           )
-          .shadow(radius: 3)
+          .compositingGroup()
+          .shadow(radius: 2, y: 1)
           .font(.caption)
         }
         .padding(.horizontal, 2)
-        .padding(.vertical, 6)
       }
       .scrollIndicators(.hidden)
     } subContent: { _ in
@@ -102,7 +99,7 @@ struct MenuBarCommandView: View {
 struct MenuBarCommandView_Previews: PreviewProvider {
   static let command = DesignTime.menuBarCommand
   static var previews: some View {
-    MenuBarCommandView(command.model.meta, model: command.kind) { _ in }
+    MenuBarCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .designTime()
       .frame(maxHeight: 80)
   }

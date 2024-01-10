@@ -8,6 +8,7 @@ enum CommandContainerAction {
   case changeDelay(Double?)
   case toggleIsEnabled(Bool)
   case toggleNotify(Bool)
+  case updateName(newName: String)
 }
 
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
@@ -16,6 +17,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   @ObserveInjection var inject
   @State private var delayString: String = ""
   @State private var delayOverlay: Bool = false
+  private let debounce: DebounceManager<String>
+  private let placeholder: String
 
   @EnvironmentObject var publisher: CommandsPublisher
   @Binding private var metaData: CommandViewModel.MetaData
@@ -28,105 +31,111 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   private let onAction: (CommandContainerAction) -> Void
 
   init(_ metaData: Binding<CommandViewModel.MetaData>,
+       placeholder: String,
        @ViewBuilder icon: @escaping (Binding<CommandViewModel.MetaData>) -> IconContent,
        @ViewBuilder content: @escaping (Binding<CommandViewModel.MetaData>) -> Content,
        @ViewBuilder subContent: @escaping (Binding<CommandViewModel.MetaData>) -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
     _metaData = metaData
     self.icon = icon
+    self.placeholder = placeholder
     self.content = content
     self.subContent = subContent
     self.onAction = onAction
+    self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
+      onAction(.updateName(newName: newName))
+    }
   }
 
   var body: some View {
-    HStack(alignment: .center) {
-      VStack(alignment: .leading, spacing: 4) {
-        HStack(alignment: .top) {
-          icon($metaData)
-            .fixedSize()
-            .frame(maxWidth: 32, maxHeight: 32)
-
-          content($metaData)
-            .frame(maxWidth: .infinity, minHeight: 30, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
+    VStack(alignment: .leading, spacing: 4) {
+      HStack(spacing: 8) {
+        ZenToggle(config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) {
+          onAction(.toggleIsEnabled($0))
         }
-        .padding([.top, .leading], 8)
-        .padding(.bottom, 4)
 
-        HStack(spacing: 0) {
-          ZenToggle(config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) {
-            onAction(.toggleIsEnabled($0))
-          }
-          .padding(.leading, 9)
-          .padding(.trailing, 5)
-
-          HStack {
-            // Fix this bug that you can't notify when running
-            // modifying a menubar command.
-            ZenCheckbox("Notify", style: .small, isOn: $metaData.notification) {
-              onAction(.toggleNotify($0))
-            }
-
-            CommandContainerDelayView(
-              metaData: $metaData,
-              execution: publisher.data.execution,
-              onChange: { onAction(.changeDelay($0)) }
+        let textFieldPlaceholder = metaData.namePlaceholder.isEmpty
+        ? placeholder
+        : metaData.namePlaceholder
+        TextField(textFieldPlaceholder, text: $metaData.name)
+          .textFieldStyle(
+            .zen(
+              .init(
+                backgroundColor: Color.clear,
+                font: .callout,
+                padding: .init(horizontal: .zero, vertical: .zero),
+                unfocusedOpacity: 0.0
+              )
             )
+          )
+          .onChange(of: metaData.name, perform: { debounce.send($0) })
 
-            subContent($metaData)
-          }
-            .buttonStyle(.regular)
-            .lineLimit(1)
-            .allowsTightening(true)
-            .truncationMode(.tail)
-            .font(.caption)
-            .padding(.leading, 8)
-        }
-        .padding(.bottom, 8)
-        .padding(.leading, 4)
+        CommandContainerActionView(onAction: onAction)
       }
-      CommandContainerActionView(onAction: onAction)
+      .padding(.horizontal, 8)
+      .padding(.top, 6)
+
+      ZenDivider()
+
+      HStack(alignment: .top, spacing: 8) {
+        RoundedRectangle(cornerRadius: 5)
+          .fill(Color.black.opacity(0.2))
+          .frame(width: 28, height: 28)
+          .overlay { icon($metaData) }
+        content($metaData)
+          .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+          .padding([.top, .trailing], 2)
+      }
+      .padding(.leading, 6)
+      .padding(.trailing, 4)
+
+
+      HStack(spacing: 8) {
+        // Fix this bug that you can't notify when running
+        // modifying a menubar command.
+        ZenCheckbox("Notify", style: .small, isOn: $metaData.notification) {
+          onAction(.toggleNotify($0))
+        }
+
+        CommandContainerDelayView(
+          metaData: $metaData,
+          execution: publisher.data.execution,
+          onChange: { onAction(.changeDelay($0)) }
+        )
+        subContent($metaData)
+        Spacer()
+
+      }
+      .padding(.horizontal, 12)
+      .padding(.vertical, 8)
+      .buttonStyle(.regular)
+      .lineLimit(1)
+      .allowsTightening(true)
+      .truncationMode(.tail)
+      .font(.caption)
     }
+    .roundedContainer(padding: 0, margin: 1)
     .enableInjection()
   }
 }
 
 struct CommandContainerActionView: View {
+  @ObserveInjection var inject
   let onAction: (CommandContainerAction) -> Void
 
   var body: some View {
     HStack(spacing: 0) {
-      ZenDivider(.vertical)
-
-      VStack(alignment: .center, spacing: 0) {
-        Button(action: { onAction(.delete) },
-               label: {
-          Image(systemName: "xmark")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-        })
-        .help("Delete Command")
-        .buttonStyle(.calm(color: .systemRed, padding: .medium))
-        .frame(maxWidth: 20, maxHeight: .infinity)
-        .padding(.vertical, 10)
-
-        ZenDivider()
-
-        Button(action: { onAction(.run) },
-               label: {
-          Image(systemName: "play")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-        })
-        .help("Run Workflow")
-        .buttonStyle(.calm(color: .systemGreen, padding: .medium))
-        .frame(maxWidth: 20, maxHeight: .infinity)
-        .padding(.vertical, 10)
-      }
-      .frame(width: 32)
-      .offset(x: -1, y: 1)
+      Button(action: { onAction(.delete) },
+             label: {
+        Image(systemName: "xmark")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 10, height: 10)
+      })
+      .help("Delete Command")
+      .buttonStyle(.calm(color: .systemRed, padding: .medium))
     }
+    .enableInjection()
   }
 }
 
@@ -136,6 +145,7 @@ struct CommandContainerView_Previews: PreviewProvider {
   static var previews: some View {
     CommandContainerView(
       .constant(command.model.meta),
+      placeholder: "Placeholder",
       icon: { _ in
         Text("Icon")
       }, content: { _ in

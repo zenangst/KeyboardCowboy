@@ -1,4 +1,5 @@
 import Apps
+import Bonzai
 import Inject
 import SwiftUI
 
@@ -62,7 +63,7 @@ struct WorkflowApplicationTriggerView: View {
 
       if !data.isEmpty {
         ScrollView {
-          LazyVStack(spacing: 4) {
+          LazyVStack(spacing: 0) {
             ForEach($data.lazy, id: \.id) { element in
               WorkflowApplicationTriggerItemView(element, data: $data,
                                                  selectionManager: selectionManager,
@@ -71,6 +72,7 @@ struct WorkflowApplicationTriggerView: View {
               .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
                 selectionManager.handleOnTap(data, element: element.wrappedValue)
               }
+              ZenDivider()
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               onTab()
@@ -92,26 +94,28 @@ struct WorkflowApplicationTriggerView: View {
           }
           .focused(focus, equals: .detail(.applicationTriggers))
         }
-        .frame(minHeight: 52, maxHeight: min(CGFloat(data.count * 52), 300) )
+        .scrollDisabled(data.count <= 4)
+        .frame(minHeight: 48, maxHeight: min(CGFloat(data.count * 48), 300) )
+        .roundedContainer(padding: 0, margin: 0)
       }
     }
     .enableInjection()
   }
 }
 
-struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
-  @FocusState static var focus: AppFocus?
-  static var previews: some View {
-    WorkflowApplicationTriggerView(
-      $focus,
-      data: [
-        .init(id: "1", name: "Application 1", application: .finder(),
-              contexts: []),
-      ],
-      selectionManager: SelectionManager(),
-      onTab: { },
-      onAction: { _ in }
-    )
-    .environmentObject(ApplicationStore.shared)
-  }
-}
+//struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
+//  @FocusState static var focus: AppFocus?
+//  static var previews: some View {
+//    WorkflowApplicationTriggerView(
+//      $focus,
+//      data: [
+//        .init(id: "1", name: "Application 1", application: .finder(),
+//              contexts: []),
+//      ],
+//      selectionManager: SelectionManager(),
+//      onTab: { },
+//      onAction: { _ in }
+//    )
+//    .environmentObject(ApplicationStore.shared)
+//  }
+//}

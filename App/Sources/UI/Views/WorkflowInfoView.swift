@@ -1,4 +1,5 @@
 import Bonzai
+import Inject
 import Carbon
 import SwiftUI
 
@@ -8,6 +9,7 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
+  @ObserveInjection var inject
   @ObservedObject private var publisher: InfoPublisher
 
   private let onInsertTab: () -> Void
@@ -34,6 +36,7 @@ struct WorkflowInfoView: View {
               calm: true,
               backgroundColor: Color(nsColor: .windowBackgroundColor),
               font: .headline,
+              padding: .init(horizontal: .small, vertical: .small),
               unfocusedOpacity: 0
             )
           )
@@ -50,7 +53,7 @@ struct WorkflowInfoView: View {
       ) { onAction(.setIsEnabled(isEnabled: $0))
       }
     }
-
+    .enableInjection()
   }
 }
 

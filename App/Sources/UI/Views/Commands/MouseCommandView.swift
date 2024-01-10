@@ -17,45 +17,32 @@ struct MouseCommandView: View {
   @State private var yString: String = ""
 
   private let onAction: (Action) -> Void
+  private let iconSize: CGSize
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.MouseModel,
+       iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     self.metaData = metaData
     self.model = model
+    self.iconSize = iconSize
     self.onAction = onAction
   }
 
   var body: some View {
     CommandContainerView(
       $metaData,
+      placeholder: model.placeholder,
       icon: { command in
         switch command.icon.wrappedValue {
         case .some(let icon):
-          Color.accentColor.opacity(0.375)
-            .cornerRadius(8, antialiased: false)
-            .frame(width: 32, height: 32)
-            .overlay(content: {
-              IconView(icon: icon, size: .init(width: 24, height: 24))
-                .overlay(alignment: .bottom) {
-                  RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(Color(nsColor: .systemYellow))
-                    .betaFeature("Mouse Commands is currently in beta. If you have any feedback, please reach out to us.") {
-                      Text("BETA")
-                        .foregroundStyle(Color.black)
-                        .font(.caption2)
-                        .frame(maxWidth: .infinity)
-                    }
-                    .frame(width: 26, height: 12)
-                    .offset(y: 10)
-                }
-            })
+          IconView(icon: icon, size: iconSize)
         case .none:
           EmptyView()
         }
       },
       content: { _ in
-        VStack(alignment: .leading) {
+        HStack {
           Menu(content: {
             ForEach(MouseCommand.Kind.allCases) { kind in
               Button(action: {
@@ -95,8 +82,9 @@ struct MouseCommandView: View {
                 Text(location.displayValue)
                   .font(.subheadline)
               })
+              .fixedSize()
 
-              if case .custom(let x, let y) = location {
+              if case .custom = location {
                 Group {
                   TextField("X", text: $xString)
                     .frame(maxWidth: 50)
@@ -122,7 +110,7 @@ struct MouseCommandView: View {
 struct MouseCommandView_Previews: PreviewProvider {
   static let command = DesignTime.mouseCommand
   static var previews: some View {
-    MouseCommandView(command.model.meta, model: command.kind) { _ in }
+    MouseCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .designTime()
       .frame(maxHeight: 100)
   }

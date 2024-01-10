@@ -13,6 +13,8 @@ final class DetailCommandContainerActionReducer {
       command.notification = newValue
     case .changeDelay(let delay):
       command.meta.delay = delay
+    case .updateName(let name):
+      command.meta.name = name
     }
   }
 }

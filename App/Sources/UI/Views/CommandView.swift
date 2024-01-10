@@ -6,6 +6,7 @@ struct CommandView: View {
     case changeDelay(payload: CommandViewPayload, newValue: Double?)
     case toggleNotify(payload: CommandViewPayload, newValue: Bool)
     case toggleEnabled(payload: CommandViewPayload, newValue: Bool)
+    case updateName(payload: CommandViewPayload, newValue: String)
     case modify(Kind)
     case run(payload: CommandViewPayload)
     case remove(payload: CommandViewPayload)
@@ -63,10 +64,6 @@ struct CommandView: View {
         onAction(.toggleEnabled(payload: .init(workflowId: workflowId, commandId: command.id), newValue: newValue))
       })
       .overlay(BorderedOverlayView(cornerRadius: 8))
-      .background(
-        Color(.windowBackgroundColor).cornerRadius(8)
-          .drawingGroup()
-      )
       .compositingGroup()
       .draggable($command.wrappedValue.draggablePayload(prefix: "WC|", selections: selectionManager.selections))
       .dropDestination(DropItem.self, color: .accentColor) { items, location in
@@ -131,12 +128,13 @@ struct CommandResolverView: View {
   }
 
   var body: some View {
+    let iconSize = CGSize(width: 24, height: 24)
     let payload = CommandView.CommandViewPayload(workflowId: workflowId, commandId: command.id)
     switch command.kind {
     case .plain:
       UnknownView(command: .constant(command))
     case .builtIn(let model):
-      BuiltInCommandView(command.meta, model: model) { action in
+      BuiltInCommandView(command.meta, model: model, iconSize: iconSize) { action in
         switch action {
         case .update(let newCommand):
           onAction(.modify(.builtIn(action: .update(newCommand), payload: payload)))
@@ -145,7 +143,7 @@ struct CommandResolverView: View {
         }
       }
     case .menuBar(let model):
-      MenuBarCommandView(command.meta, model: model) { action in
+      MenuBarCommandView(command.meta, model: model, iconSize: iconSize) { action in
         switch action {
         case .editCommand(let command):
           openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
@@ -154,10 +152,8 @@ struct CommandResolverView: View {
           handleCommandContainerAction(action)
         }
       }
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(height: 80)
     case .mouse(let model):
-      MouseCommandView(command.meta, model: model, onAction: { action in
+      MouseCommandView(command.meta, model: model, iconSize: iconSize, onAction: { action in
         switch action {
         case .update:
           onAction(.modify(.mouse(action: action, payload: payload)))
@@ -166,7 +162,7 @@ struct CommandResolverView: View {
         }
       })
     case .open(let model):
-      OpenCommandView(command.meta, model: model) { action in
+      OpenCommandView(command.meta, model: model, iconSize: iconSize) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
@@ -174,10 +170,8 @@ struct CommandResolverView: View {
             onAction(.modify(.open(action: action, payload: payload)))
           }
         }
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(height: 80)
     case .application(let model):
-      ApplicationCommandView(command.meta, model: model) { action in
+      ApplicationCommandView(command.meta, model: model, iconSize: iconSize) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
@@ -186,9 +180,8 @@ struct CommandResolverView: View {
           }
         }
       .fixedSize(horizontal: false, vertical: true)
-      .frame(height: 80)
     case .script(let model):
-      ScriptCommandView(command.meta, model: model) { action in
+      ScriptCommandView(command.meta, model: model, iconSize: iconSize) { action in
           switch action {
           case .edit:
             return
@@ -199,7 +192,7 @@ struct CommandResolverView: View {
           }
         }
     case .keyboard(let model):
-      KeyboardCommandView(focus, metaData: command.meta, model: model) { action in
+      KeyboardCommandView(focus, metaData: command.meta, model: model, iconSize: iconSize) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
@@ -207,10 +200,8 @@ struct CommandResolverView: View {
             onAction(.modify(.keyboard(action: action, payload: payload)))
           }
         }
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(height: 124)
     case .shortcut(let model):
-      ShortcutCommandView(command.meta, model: model) { action in
+      ShortcutCommandView(command.meta, model: model, iconSize: iconSize) { action in
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
@@ -218,10 +209,8 @@ struct CommandResolverView: View {
             onAction(.modify(.shortcut(action: action, payload: payload)))
           }
         }
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(height: 110)
     case .text(let textModel):
-      TextCommandView(kind: textModel.kind, metaData: command.meta, onTypeAction: { action in
+      TextCommandView(kind: textModel.kind, metaData: command.meta, iconSize: iconSize, onTypeAction: { action in
         switch action {
         case .commandAction(let action):
           handleCommandContainerAction(action)
@@ -230,7 +219,7 @@ struct CommandResolverView: View {
         }
       })
     case .systemCommand(let model):
-      SystemCommandView(command.meta, model: model) { action in
+      SystemCommandView(command.meta, model: model, iconSize: iconSize) { action in
         switch action {
         case .commandAction(let action):
           handleCommandContainerAction(action)
@@ -238,10 +227,8 @@ struct CommandResolverView: View {
           onAction(.modify(.system(action: action, payload: payload)))
         }
       }
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(height: 80)
     case .uiElement(let model):
-      UIElementCommandView(metaData: command.meta, model: model, onAction: { action in
+      UIElementCommandView(metaData: command.meta, model: model, iconSize: iconSize, onAction: { action in
         switch action {
         case .updateCommand(let newCommand):
           onAction(.modify(.uiElement(action: .updateCommand(newCommand), payload: payload)))
@@ -250,7 +237,7 @@ struct CommandResolverView: View {
         }
       })
     case .windowManagement(let model):
-      WindowManagementCommandView(command.meta, model: model) { action in
+      WindowManagementCommandView(command.meta, model: model, iconSize: iconSize) { action in
         switch action {
         case .onUpdate:
           onAction(.modify(.window(action: action, payload: payload)))
@@ -258,8 +245,6 @@ struct CommandResolverView: View {
           handleCommandContainerAction(commandContainerAction)
         }
       }
-      .fixedSize(horizontal: false, vertical: true)
-      .frame(minHeight: 80, maxHeight: 160)
     }
   }
 
@@ -276,6 +261,8 @@ struct CommandResolverView: View {
       onAction(.toggleNotify(payload: payload, newValue: newValue))
     case .changeDelay(let newValue):
       onAction(.changeDelay(payload: payload, newValue: newValue))
+    case .updateName(let newValue):
+      onAction(.updateName(payload: payload, newValue: newValue))
     }
   }
 }

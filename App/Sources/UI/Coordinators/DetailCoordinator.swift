@@ -334,7 +334,8 @@ extension CommandView.Action {
          .toggleNotify(let payload, _),
          .changeDelay(let payload, _),
          .remove(let payload),
-         .run(let payload):
+         .run(let payload),
+         .updateName(let payload, _):
       return payload.commandId
     case .modify(let kind):
       return kind.commandId
