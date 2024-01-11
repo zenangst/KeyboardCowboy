@@ -263,7 +263,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     subscribe(to: coordinator.$event)
     runners.system.subscribe(to: coordinator.$flagsChanged)
     runners.window.subscribe(to: coordinator.$event)
-
   }
 
   // MARK: Private methods

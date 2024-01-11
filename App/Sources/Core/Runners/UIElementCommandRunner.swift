@@ -90,7 +90,7 @@ final class UIElementCommandRunner {
           eventType: .leftMouse,
           at: subject.position
         )
-        try await Task.sleep(for: .milliseconds(50))
+        try await Task.sleep(for: .milliseconds(10))
         CGEvent.restoreMousePosition(to: mousePosition)
         return
       }
