@@ -21,17 +21,14 @@ struct BezelNotificationView: View {
   var body: some View {
     HStack {
       if publisher.data.running {
-        Rectangle()
-          .fill(Color.green)
-          .mask {
-            ProgressView()
-              .progressViewStyle(CircularProgressViewStyle())
-          }
-          .frame(width: 24, height: 24)
+        ProgressView()
+          .progressViewStyle(CircularProgressViewStyle(tint: Color(.systemPink)))
+          .scaleEffect(0.75, anchor: .center)
         Text("Running…")
           .font(.title)
           .allowsTightening(true)
-          .opacity(0.5)
+          .opacity(publisher.data.running ? 0.5 : 0.25)
+          .animation(.easeInOut.repeatForever(), value: publisher.data.running)
       } else {
         Text(publisher.data.text)
           .font(.title)
@@ -50,6 +47,13 @@ struct BezelNotificationView: View {
     .padding(.top, (show || publisher.data.running) ? 36 : 0)
     .frame(maxWidth: .infinity)
     .scaleEffect((show || publisher.data.running) ? 1 : 0.01, anchor: .top)
+    .rotation3DEffect(
+      Angle(degrees: show ? 0 : 90),
+      axis: (x: 1, y: 0, z: 0),
+      anchor: .top,
+      anchorZ: 0.0,
+      perspective: 1
+    )
     .opacity((show || publisher.data.running) ? 1 : 0)
     .animation(.smooth(duration: 0.5, extraBounce: 0.2), value: show)
     .animation(.smooth(duration: 0.5, extraBounce: 0.2), value: publisher.data.text)
