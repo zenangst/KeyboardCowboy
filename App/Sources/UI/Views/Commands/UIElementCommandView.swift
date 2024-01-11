@@ -32,9 +32,8 @@ struct UIElementCommandView: View {
 
   var body: some View {
     CommandContainerView($metaData, placeholder: model.placeholder) { _ in
-      Circle()
-        .fill(Color.red)
-        .frame(width: iconSize.width, height: iconSize.height)
+      UIElementIconView()
+        .frame(width: 18, height: 18)
     } content: { _ in
       VStack(alignment: .leading, spacing: 4) {
         ForEach(model.predicates.indices, id: \.self) { index in

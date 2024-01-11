@@ -28,7 +28,7 @@ struct ContentItemBadgeOverlayView: View {
       .frame(maxWidth: 12)
       .compositingGroup()
       .shadow(color: .black.opacity(0.75), radius: 2)
-      .opacity(isHovered ? 0 : badgeOpacity)
+      .opacity(isHovered ? badgeOpacity : 0)
       .animation(.default, value: isHovered)
   }
 }

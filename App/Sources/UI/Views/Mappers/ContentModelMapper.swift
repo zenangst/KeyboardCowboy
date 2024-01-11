@@ -60,7 +60,7 @@ private extension Workflow {
       id: id,
       groupName: groupName,
       name: name,
-      images: commands.images(limit: 3),
+      images: commands.images(limit: 1),
       overlayImages: commands.overlayImages(limit: 3),
       binding: binding,
       badge: commandCount > 1 ? commandCount : 0,
@@ -198,8 +198,8 @@ private extension Array where Element == Command {
             offset: convertedOffset,
             kind: .icon(.init(bundleIdentifier: command.kind.iconPath, path: command.kind.iconPath)))
         )
-      case .uiElement:
-        break
+      case .uiElement(let command):
+        images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.uiElement(command))))
       case .windowManagement(let command):
         let path: String = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
         images.append(
