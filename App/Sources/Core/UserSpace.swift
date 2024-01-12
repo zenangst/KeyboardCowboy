@@ -323,6 +323,7 @@ extension UserSpace.Application {
   func asApplication() -> Application {
     Application(bundleIdentifier: bundleIdentifier,
                 bundleName: name,
+                displayName: name,
                 path: path)
   }
 }
