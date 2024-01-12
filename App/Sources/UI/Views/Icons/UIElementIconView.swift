@@ -2,94 +2,109 @@ import Inject
 import SwiftUI
 
 struct UIElementIconView: View {
-  let strokeColor = Color(nsColor: NSColor(red:0.88, green:0.69, blue:0.24, alpha:1.00))
-  let fillColor = Color(.systemYellow)
-  let darkColor = Color(.systemGray)
+  let size: CGFloat
 
+  @ObserveInjection var inject
   var body: some View {
-    Canvas(rendersAsynchronously: true) {
-      context,
-      size in
-      let lineWidth: CGFloat = 0.0 * size.width
+    Rectangle()
+      .fill(Color(.systemBlue))
+      .overlay {
+        Rectangle()
+          .fill(
+            LinearGradient(
+              gradient: Gradient(stops: [
+                .init(color: Color(.systemRed).opacity(0.75), location: 0.0),
+                .init(color: .clear, location: 0.75),
+              ]),
+              startPoint: .topTrailing,
+              endPoint: .bottomLeading
+            )
+          )
 
-      do {
-        let path = Path { path in
-          path.move(to: .init(x: size.width * 0.01,
-                              y: (size.width * 0.220) + lineWidth / 2))
-          path.addLine(to: .init(x: size.width * 0.365,
-                                 y: size.height * 0.460))
-          path.addLine(to: .init(x: size.width * 0.365,
-                                 y: size.height - lineWidth))
-          path.addLine(to: .init(x: size.width * 0.01,
-                                 y: size.height * 0.562))
-          path.closeSubpath()
-        }
-        context.fill(
-          path,
-          with: .linearGradient(
-            Gradient(colors: [fillColor, strokeColor.opacity(0.75)]),
-            startPoint: .init(x: size.width / 2, y: size.height / 2),
-            endPoint: .init(x: 0, y: size.height / 2)
-          ),
-          style: FillStyle()
-        )
-      }
+        Rectangle()
+          .fill(
+            LinearGradient(
+              gradient: Gradient(stops: [
+                .init(color: Color(.systemGreen), location: 0.0),
+                .init(color: .clear, location: 0.5),
+              ]),
+              startPoint: .topLeading,
+              endPoint: .bottomTrailing
+            )
+          )
 
-      do {
-        let path = Path { path in
-          path.move(to: .init(x: size.width * 0.01, y: (size.height * 0.167) - lineWidth))
-          path.addLine(to: .init(x: size.width * 0.57,
-                                 y: lineWidth))
-          path.addLine(to: .init(x: size.width - lineWidth,
-                                 y: size.height * 0.180))
-          path.addLine(to: .init(x: size.width * 0.390 - lineWidth,
-                                 y: size.height * 0.415 - lineWidth))
-          path.closeSubpath()
-        }
-        context.fill(
-          path,
-          with: .linearGradient(
-            Gradient(colors: [strokeColor.opacity(0.75), fillColor]),
-            startPoint: .init(x: 0, y: 0),
-            endPoint: .init(x: size.width / 4, y: size.height / 2)
-          ),
-          style: FillStyle()
-        )
-      }
+        Rectangle()
+          .fill(
+            LinearGradient(
+              gradient: Gradient(stops: [
+                .init(color: Color(.systemYellow).opacity(0.75), location: 0.0),
+                .init(color: .clear, location: 0.4),
+              ]),
+              startPoint: .top,
+              endPoint: .bottom
+            )
+          )
 
-      do {
-        let path = Path { path in
-          path.move(to: .init(x: size.width * 0.416 + lineWidth, y: size.height * 0.465))
-          path.addLine(to: .init(x: size.width - lineWidth / 2, y: size.height * 0.235 + lineWidth))
-          path.addLine(to: .init(x: size.width * 0.95 - lineWidth / 2, y: size.height * 0.650 + lineWidth))
-          path.addLine(to: .init(x: size.width * 0.415 + lineWidth, y: size.height - lineWidth / 2))
-          path.closeSubpath()
-        }
-        context.fill(
-          path,
-          with: .linearGradient(
-            Gradient(colors: [fillColor, strokeColor.opacity(0.75)]),
-            startPoint: .init(x: 0, y: 0),
-            endPoint: .init(x: size.width / 4, y: size.height)
-          ),
-          style: FillStyle()
-        )
+        Rectangle()
+          .fill(
+            LinearGradient(
+              gradient: Gradient(stops: [
+                .init(color: Color(.systemPink).opacity(0.4), location: 0.0),
+                .init(color: .clear, location: 1.0),
+              ]),
+              startPoint: .trailing,
+              endPoint: .leading
+            )
+          )
       }
-    }
+      .overlay {
+        Image(systemName: "viewfinder")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .opacity(0.3)
+          .padding(2)
+          .shadow(radius: 1)
+          .mask(alignment: .center, {
+            LinearGradient(stops: [
+              .init(color: .black.opacity(0.5), location: 0.2),
+              .init(color: .black.opacity(0.8), location: 0.75)
+            ], startPoint: .topLeading, endPoint: .bottomTrailing)
+          })
+
+      }
+      .overlay {
+        Image(systemName: "ellipsis.rectangle.fill")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .padding(6)
+          .shadow(radius: 1)
+          .mask(alignment: .center, {
+            LinearGradient(stops: [
+              .init(color: .black, location: 0.0),
+              .init(color: .clear, location: 1.0)
+            ], startPoint: .topLeading, endPoint: .bottomTrailing)
+
+          })
+          .opacity(0.5)
+      }
+    .compositingGroup()
+    .clipShape(RoundedRectangle(cornerRadius: 4))
+    .frame(width: size, height: size)
+    .fixedSize()
     .enableInjection()
+  }
+
+  func mask() -> LinearGradient {
+    LinearGradient(stops: [
+      .init(color: .black, location: 0.0),
+      .init(color: .clear, location: 1.0)
+    ], startPoint: .topLeading, endPoint: .bottomTrailing)
   }
 }
 
 #Preview {
-  let canvas = CGSize(width: 1024, height: 1024)
-  return UIElementIconView()
-    .frame(width: canvas.width, height: canvas.height)
-    .padding()
-}
-
-#Preview {
   let canvas = CGSize(width: 32, height: 32)
-  return UIElementIconView()
+  return UIElementIconView(size: canvas.width)
     .frame(width: canvas.width, height: canvas.height)
     .padding()
 }

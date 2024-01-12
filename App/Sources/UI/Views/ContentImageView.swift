@@ -27,8 +27,7 @@ struct ContentImageView: View {
       case .plain, .systemCommand, .windowManagement, .mouse:
         EmptyView()
       case .uiElement:
-        UIElementIconView()
-          .frame(width: 18, height: 18)
+        UIElementIconView(size: 22)
       }
     }
   }
