@@ -15,13 +15,28 @@ final class UserModesBezelController {
     return windowController
   }()
 
-  private init() { }
+  var debouncer: DebounceManager<[UserMode]>?
 
-  func show() {
-    windowController.showWindow(nil)
+  private init() { 
+    debouncer = DebounceManager { [weak self] userModes in
+      self?.publish(userModes)
+    }
+  }
+
+  func show(_ userModes: [UserMode]) {
+    debouncer?.send(userModes)
   }
 
   func hide() {
-    windowController.close()
+    debouncer?.send([])
+  }
+
+  private func publish(_ userModes: [UserMode]) {
+    if !userModes.isEmpty {
+      windowController.showWindow(nil)
+    } else {
+      windowController.close()
+    }
+    UserSpace.shared.userModesPublisher.publish(userModes)
   }
 }

@@ -231,13 +231,7 @@ final class UserSpace: Sendable {
 
     let active = userModes.filter(\.isEnabled)
 
-    userModesPublisher.publish(active)
-
-    if active.isEmpty {
-      UserModesBezelController.shared.hide()
-    } else {
-      UserModesBezelController.shared.show()
-    }
+    UserModesBezelController.shared.show(active)
   }
 
   // MARK: - Private methods

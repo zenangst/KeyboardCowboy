@@ -69,8 +69,6 @@ final class UIElementCaptureStore: ObservableObject {
   func stopCapturing() {
     coordinator?.stopCapturingUIElement()
     UserModesBezelController.shared.hide()
-    UserSpace.shared.userModesPublisher.publish([])
-    publisher.publish([])
     windowCoordinator.close()
     capturedElement = nil
   }
@@ -81,10 +79,9 @@ final class UIElementCaptureStore: ObservableObject {
     } else {
       windowCoordinator.show()
       coordinator?.captureUIElement()
-      UserSpace.shared.userModesPublisher.publish([
+      UserModesBezelController.shared.show([
         .init(id: UUID().uuidString, name: "Capturing UI Element", isEnabled: true)
       ])
-      UserModesBezelController.shared.show()
     }
   }
 
