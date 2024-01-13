@@ -231,11 +231,15 @@ final class WindowCommandRunner {
     }
 
 
-    let focusedElement: AnyFocusedAccessibilityElement
+    var focusedElement: AnyFocusedAccessibilityElement
     let focusedWindow: WindowAccessibilityElement?
     do {
       focusedElement = try systemElement.focusedUIElement()
-      focusedWindow = focusedElement.window
+      if let focusedApp = focusedElement.app {
+        focusedWindow = try focusedApp.focusedWindow()
+      } else {
+        focusedWindow = try app.focusedWindow()
+      }
     } catch {
       let element = try app.focusedWindow()
       focusedElement = AnyFocusedAccessibilityElement(element.reference)
