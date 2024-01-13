@@ -49,22 +49,26 @@ final class UIElementCommandRunner {
         }
 
         if predicate.properties.contains(.description),
-           values[ .description] as? String == predicate.value {
+           let value = values[.description] as? String,
+           predicate.compare.run(lhs: value, rhs: predicate.value){
           return true
         }
 
         if predicate.properties.contains(.identifier),
-           values[.identifier] as? String == predicate.value {
+           let value = values[.identifier] as? String,
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
 
         if predicate.properties.contains(.title),
-           values[.title] as? String == predicate.value {
+           let value = values[.title] as? String,
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
 
         if predicate.properties.contains(.value),
-           values[.value] as? String == predicate.value {
+           let value = values[.value] as? String,
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
       }
