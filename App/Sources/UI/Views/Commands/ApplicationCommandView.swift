@@ -127,7 +127,11 @@ struct ApplicationCommandImageView: View {
           onAction(.changeApplication(app))
           metaData.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
         }, label: {
-          Text(app.displayName)
+          if app.metadata.isSafariWebApp {
+            Text("\(app.displayName) (Safari Web App)")
+          } else {
+            Text(app.displayName)
+          }
         })
       }
     }, label: { })

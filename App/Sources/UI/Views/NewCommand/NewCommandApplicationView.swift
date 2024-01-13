@@ -65,7 +65,11 @@ struct NewCommandApplicationView: View {
               application = app
               validation = updateAndValidatePayload()
             }, label: {
-              Text(app.displayName)
+              if app.metadata.isSafariWebApp {
+                Text("\(app.displayName) (Safari Web App)")
+              } else {
+                Text(app.displayName)
+              }
             })
           }
         }, label: { })
