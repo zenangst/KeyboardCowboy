@@ -30,6 +30,7 @@ final class WindowStore {
   }
 
   final class State {
+    var appAccessibilityElement: AppAccessibilityElement
     var frontmostApplication: UserSpace.Application = .current
     var frontMostIndex: Int = 0
     var visibleMostIndex: Int = 0
@@ -37,6 +38,11 @@ final class WindowStore {
     var frontMostApplicationWindows: [WindowAccessibilityElement] = .init()
     var visibleWindowsInStage: [WindowModel] = .init()
     var visibleWindowsInSpace: [WindowModel] = .init()
+
+    init() {
+      let pid = UserSpace.Application.current.ref.processIdentifier
+      self.appAccessibilityElement = AppAccessibilityElement(pid)
+    }
   }
 
   private let subscriptions: Subscriptions = .init()
@@ -52,11 +58,14 @@ final class WindowStore {
       .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self, state] application in
         guard let self else { return }
+        let pid = application.ref.processIdentifier
+        state.appAccessibilityElement = AppAccessibilityElement(pid)
         state.frontmostApplication = application
         state.frontMostIndex = 0
-        self.indexFrontmost(application)
         if state.interactive == false {
           self.index(application)
+        } else {
+          self.indexFrontmost()
         }
       }
   }
@@ -96,7 +105,7 @@ final class WindowStore {
     let windowModels = getWindows()
     indexAllApplicationsInSpace(windowModels)
     indexStage(windowModels)
-    indexFrontmost(runningApplication)
+    indexFrontmost()
   }
 
   private func indexAllApplicationsInSpace(_ models: [WindowModel]) {
@@ -131,14 +140,12 @@ final class WindowStore {
     state.visibleWindowsInStage = windowModels
   }
 
-  private func indexFrontmost(_ frontMostApplication: UserSpace.Application) {
-    let pid = state.frontmostApplication.ref.processIdentifier
-    let element = AppAccessibilityElement(pid)
+  private func indexFrontmost() {
     do {
-      state.frontMostApplicationWindows = try element.windows()
+      state.frontMostApplicationWindows = try state.appAccessibilityElement.windows()
         .filter({
           $0.id > 0 &&
-          ($0.frame?.size.height ?? 0) > 20
+          ($0.size?.height ?? 0) > 20
         })
     } catch { }
   }
