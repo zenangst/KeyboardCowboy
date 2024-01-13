@@ -26,9 +26,7 @@ struct MenuBarCommandView: View {
 
   var body: some View {
     CommandContainerView($metaData, placeholder: model.placeholder) { _ in
-      IconView(icon: .init(bundleIdentifier: "/System/Library/PreferencePanes/Appearance.prefPane",
-                           path: "/System/Library/PreferencePanes/Appearance.prefPane"),
-               size: iconSize)
+      MenuIconView(size: 20)
     } content: { _ in
       ScrollView(.horizontal) {
         HStack(spacing: 4) {
@@ -101,6 +99,5 @@ struct MenuBarCommandView_Previews: PreviewProvider {
   static var previews: some View {
     MenuBarCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .designTime()
-      .frame(maxHeight: 80)
   }
 }

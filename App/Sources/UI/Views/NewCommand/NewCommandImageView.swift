@@ -4,6 +4,7 @@ import SwiftUI
 struct NewCommandImageView: View {
   let kind: NewCommandView.Kind
 
+  @ViewBuilder
   var body: some View {
     Group {
       switch kind {
@@ -34,13 +35,13 @@ struct NewCommandImageView: View {
       case .system:
         image(for: "/System")
       case .menuBar:
-        image(for: "/System/Library/PreferencePanes/Appearance.prefPane")
+        MenuIconView(size: 24)
       case .mouse:
         image(for: "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns")
       case .uiElement:
         UIElementIconView(size: 24)
       case .windowManagement:
-        image(for: "/System/Applications/Mission Control.app")
+        WindowManagementIconView(size: 24)
       case .builtIn:
         image(for: Bundle.main.bundlePath)
       }

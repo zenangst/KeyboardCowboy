@@ -58,154 +58,82 @@ struct WindowManagementCommandView: View {
                          placeholder: model.placeholder,
                          icon: {
       command in
-      ZStack {
-        switch model.kind {
-        case  .increaseSize(_, let direction, _, _),
-              .decreaseSize(_, let direction, _),
-              .move(_, let direction, _, _),
-              .anchor(let direction, _):
-          RoundedRectangle(cornerSize: .init(width: 4, height: 4))
-            .stroke(Color(.controlAccentColor).opacity(0.475), lineWidth: 1)
-            .padding(1)
-            .overlay(alignment: resolveAlignment(model.kind)) {
-              RoundedRectangle(cornerSize: .init(width: 4, height: 4))
-                .fill(Color.white)
-                .frame(width: iconSize.width / 2.75,
-                       height: iconSize.height / 2.75)
-                .overlay {
-                  Image(systemName: direction.imageSystemName(increment: true))
-                    .resizable()
-                    .foregroundStyle(Color.black)
-                    .frame(width: 4, height: 4)
-                    .matchedGeometryEffect(id: "geometry-image-id", in: namespace)
-                }
-                .padding(2)
-            }
-            .matchedGeometryEffect(id: "geometry-container-id", in: namespace)
-            .compositingGroup()
-            .animation(.easeInOut, value: model.kind)
-        case .fullscreen:
-          ZStack {
-            RoundedRectangle(cornerSize: .init(width: 8, height: 8))
-              .fill(Color(.controlAccentColor).opacity(0.375))
-              .cornerRadius(8, antialiased: false)
-              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
-            RoundedRectangle(cornerSize: .init(width: 8, height: 8))
-              .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
-              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
-            Image(systemName: "arrow.up.backward.and.arrow.down.forward")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: iconSize.width / 2, height: iconSize.height / 2)
-          }
-        case .center:
-          ZStack {
-            RoundedRectangle(cornerSize: .init(width: 8, height: 8))
-              .fill(Color(.controlAccentColor).opacity(0.375))
-              .cornerRadius(8, antialiased: false)
-              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
-            RoundedRectangle(cornerSize: .init(width: 8, height: 8))
-              .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
-              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
-            Image(systemName: "camera.metering.center.weighted")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: iconSize.width / 2, height: iconSize.height / 2)
-          }
-        case .moveToNextDisplay:
-          ZStack {
-            RoundedRectangle(cornerSize: .init(width: 8, height: 8))
-              .fill(Color(.controlAccentColor).opacity(0.375))
-              .cornerRadius(8, antialiased: false)
-              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
-            RoundedRectangle(cornerSize: .init(width: 8, height: 8))
-              .stroke(Color.white.opacity(0.4), lineWidth: 2.0)
-              .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
-            Image(systemName: "display")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: iconSize.width / 2, height: iconSize.height / 2)
-              .overlay {
-                Image(systemName: "arrow.right.circle.fill")
-                  .resizable()
-                  .aspectRatio(contentMode: .fit)
-                  .frame(width: 10, height: 10)
-                  .offset(x: 10, y: 10)
-              }
-          }
-        }
-      }
+      WindowManagementIconView(size: 20)
     },
                          content: { _ in
       VStack(alignment: .leading, spacing: 8) {
-        Menu(content: {
-          ForEach(WindowCommand.Kind.allCases) { kind in
-            Button(action: {
-              model.kind = kind
-              onAction(.onUpdate(model))
-            }, label: {
-              Image(systemName: kind.symbol)
-              Text(kind.displayValue)
-                .font(.subheadline)
-            })
-          }
-        }, label: {
-          Image(systemName: model.kind.symbol)
-          Text(model.kind.displayValue)
-            .font(.subheadline)
-        })
-        .menuStyle(.regular)
+        HStack {
+          illustrationIcon()
+          Menu(content: {
+            ForEach(WindowCommand.Kind.allCases) { kind in
+              Button(action: {
+                model.kind = kind
+                onAction(.onUpdate(model))
+              }, label: {
+                Image(systemName: kind.symbol)
+                Text(kind.displayValue)
+                  .font(.subheadline)
+              })
+            }
+          }, label: {
+            Image(systemName: model.kind.symbol)
+            Text(model.kind.displayValue)
+              .font(.subheadline)
+          })
+          .menuStyle(.regular)
+        }
 
-        switch model.kind {
-        case  .increaseSize(_, let direction, _, _),
+        HStack {
+          switch model.kind {
+          case  .increaseSize(_, let direction, _, _),
               .decreaseSize(_, let direction, _),
               .move(_, let direction, _, _),
               .anchor(let direction, _):
-          HStack(spacing: 16) {
-            let models = WindowCommand.Direction.allCases
-            LazyVGrid(columns: (0..<3).map {
-              _ in GridItem(.fixed(24), spacing: 1)
-            },
-                      alignment: .center,
-                      spacing: 2,
-                      content: {
-              ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
-                if offset == 4 {
-                  Image(systemName: "macwindow")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 12, height: 12)
-                    .foregroundColor(.white)
-                }
-                Button {
-                  let kind: WindowCommand.Kind
-                  switch model.kind {
-                  case .increaseSize(let value, _, let padding, let constrainedToScreen):
-                    kind = .increaseSize(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
-                  case .decreaseSize(let value, _, let constrainedToScreen):
-                    kind = .decreaseSize(by: value, direction: element, constrainedToScreen: constrainedToScreen)
-                  case .move(let value, _, let padding, let constrainedToScreen):
-                    kind = .move(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
-                  case .anchor(_, let padding):
-                    kind = .anchor(position: element, padding: padding)
-                  default:
-                    return
+            HStack(spacing: 16) {
+              let models = WindowCommand.Direction.allCases
+              LazyVGrid(columns: (0..<3).map {
+                _ in GridItem(.fixed(24), spacing: 1)
+              },
+                        alignment: .center,
+                        spacing: 2,
+                        content: {
+                ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
+                  if offset == 4 {
+                    Image(systemName: "macwindow")
+                      .resizable()
+                      .aspectRatio(contentMode: .fit)
+                      .frame(width: 12, height: 12)
+                      .foregroundColor(.white)
                   }
-                  model.kind = kind
-                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-                } label: {
-                  Text(element.displayValue(increment: model.kind.isIncremental))
-                    .frame(width: 10, height: 14)
-                    .font(.subheadline)
+                  Button {
+                    let kind: WindowCommand.Kind
+                    switch model.kind {
+                    case .increaseSize(let value, _, let padding, let constrainedToScreen):
+                      kind = .increaseSize(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
+                    case .decreaseSize(let value, _, let constrainedToScreen):
+                      kind = .decreaseSize(by: value, direction: element, constrainedToScreen: constrainedToScreen)
+                    case .move(let value, _, let padding, let constrainedToScreen):
+                      kind = .move(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
+                    case .anchor(_, let padding):
+                      kind = .anchor(position: element, padding: padding)
+                    default:
+                      return
+                    }
+                    model.kind = kind
+                    onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                  } label: {
+                    Text(element.displayValue(increment: model.kind.isIncremental))
+                      .frame(width: 10, height: 14)
+                      .font(.subheadline)
+                  }
+                  .buttonStyle(
+                    .zen(.init(color: element == direction ? .systemGreen : .systemGray))
+                  )
                 }
-                .buttonStyle(
-                  .zen(.init(color: element == direction ? .systemGreen : .systemGray))
-                )
-              }
-            })
-            .fixedSize()
+              })
+              .fixedSize()
 
-            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+              Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
                 if case .anchor = model.kind {
                   GridRow {
                     EmptyView()
@@ -301,85 +229,86 @@ struct WindowManagementCommandView: View {
                     .zen(.init(backgroundColor: Color(.windowBackgroundColor),
                                font: .caption,
                                padding: .init(horizontal: .small, vertical: .small)
-                         ))
+                              ))
                   )
                   .fixedSize()
                   Text("Padding").font(.caption)
                 }
 
-              GridRow {
-                if case .anchor = model.kind {
-                  EmptyView()
-                  EmptyView()
-                } else {
-                  ZenCheckbox(
-                    style: .small,
-                    isOn: $constrainToScreen
-                  ) { constrainedToScreen in
-                    let kind: WindowCommand.Kind
-                    switch model.kind {
-                    case .increaseSize(let pixels, let direction, let padding, _):
-                      kind = .increaseSize(
-                        by: pixels,
-                        direction: direction,
-                        padding: padding,
-                        constrainedToScreen: constrainedToScreen
-                      )
-                    case .decreaseSize(let pixels, let direction, _):
-                      kind = .decreaseSize(
-                        by: pixels,
-                        direction: direction,
-                        constrainedToScreen: constrainedToScreen
-                      )
-                    case .move(let pixels, let direction, let padding, _):
-                      kind = .move(
-                        by: pixels,
-                        direction: direction,
-                        padding: padding,
-                        constrainedToScreen: constrainedToScreen
-                      )
-                    case .anchor(let position, let padding):
-                      kind = .anchor(position: position, padding: padding)
-                    default:
-                      return
+                GridRow {
+                  if case .anchor = model.kind {
+                    EmptyView()
+                    EmptyView()
+                  } else {
+                    ZenCheckbox(
+                      style: .small,
+                      isOn: $constrainToScreen
+                    ) { constrainedToScreen in
+                      let kind: WindowCommand.Kind
+                      switch model.kind {
+                      case .increaseSize(let pixels, let direction, let padding, _):
+                        kind = .increaseSize(
+                          by: pixels,
+                          direction: direction,
+                          padding: padding,
+                          constrainedToScreen: constrainedToScreen
+                        )
+                      case .decreaseSize(let pixels, let direction, _):
+                        kind = .decreaseSize(
+                          by: pixels,
+                          direction: direction,
+                          constrainedToScreen: constrainedToScreen
+                        )
+                      case .move(let pixels, let direction, let padding, _):
+                        kind = .move(
+                          by: pixels,
+                          direction: direction,
+                          padding: padding,
+                          constrainedToScreen: constrainedToScreen
+                        )
+                      case .anchor(let position, let padding):
+                        kind = .anchor(position: position, padding: padding)
+                      default:
+                        return
+                      }
+                      model.kind = kind
+                      onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
                     }
-                    model.kind = kind
-                    onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-                  }
-                  .font(.caption)
-                  .padding(.trailing, 4)
-                  Text("Constrain to Screen")
                     .font(.caption)
+                    .padding(.trailing, 4)
+                    Text("Constrain to Screen")
+                      .font(.caption)
+                  }
                 }
               }
             }
+          case .fullscreen:
+            HStack(spacing: 12) {
+              IntegerTextField(text: $padding, onValidChange: { newValue in
+                guard let newPadding = Int(newValue) else { return }
+                let kind: WindowCommand.Kind
+                switch model.kind {
+                case .fullscreen:
+                  kind = .fullscreen(padding: newPadding)
+                default:
+                  return
+                }
+                model.kind = kind
+                onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+              })
+              .textFieldStyle(
+                .zen(.init(backgroundColor: Color(.windowBackgroundColor),
+                           font: .caption,
+                           padding: .init(horizontal: .small, vertical: .small)
+                          ))
+              )
+              .fixedSize()
+              Text("Padding")
+                .font(.caption)
+            }
+          default:
+            EmptyView()
           }
-        case .fullscreen:
-          HStack(spacing: 12) {
-            IntegerTextField(text: $padding, onValidChange: { newValue in
-              guard let newPadding = Int(newValue) else { return }
-              let kind: WindowCommand.Kind
-              switch model.kind {
-              case .fullscreen:
-                kind = .fullscreen(padding: newPadding)
-              default:
-                return
-              }
-              model.kind = kind
-              onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-            })
-            .textFieldStyle(
-              .zen(.init(backgroundColor: Color(.windowBackgroundColor),
-                         font: .caption,
-                         padding: .init(horizontal: .small, vertical: .small)
-                        ))
-            )
-            .fixedSize()
-            Text("Padding")
-              .font(.caption)
-          }
-        default:
-          EmptyView()
         }
       }
       .roundedContainer(padding: 4, margin: 0)
@@ -428,6 +357,73 @@ struct WindowManagementCommandView: View {
       return .center
     }
   }
+
+  func illustrationIcon() -> some View {
+    ZStack {
+      switch model.kind {
+      case  .increaseSize(_, let direction, _, _),
+          .decreaseSize(_, let direction, _),
+          .move(_, let direction, _, _),
+          .anchor(let direction, _):
+        RoundedRectangle(cornerSize: .init(width: 4, height: 4))
+          .stroke(Color(.controlAccentColor).opacity(0.475), lineWidth: 1)
+          .padding(1)
+          .overlay(alignment: resolveAlignment(model.kind)) {
+            RoundedRectangle(cornerSize: .init(width: 4, height: 4))
+              .fill(Color.white)
+              .frame(width: iconSize.width / 2.75,
+                     height: iconSize.height / 2.75)
+              .overlay {
+                Image(systemName: direction.imageSystemName(increment: true))
+                  .resizable()
+                  .foregroundStyle(Color.black)
+                  .frame(width: 4, height: 4)
+                  .matchedGeometryEffect(id: "geometry-image-id", in: namespace)
+              }
+              .padding(2)
+          }
+          .matchedGeometryEffect(id: "geometry-container-id", in: namespace)
+          .compositingGroup()
+          .animation(.easeInOut, value: model.kind)
+      case .fullscreen:
+        ZStack {
+          RoundedRectangle(cornerSize: .init(width: 4, height: 4))
+            .stroke(Color(.controlAccentColor).opacity(0.475), lineWidth: 1)
+            .frame(width: iconSize.width, height: iconSize.height, alignment: .center)
+          Image(systemName: "arrow.up.backward.and.arrow.down.forward")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: iconSize.width / 2, height: iconSize.height / 2)
+        }
+      case .center:
+        ZStack {
+          RoundedRectangle(cornerSize: .init(width: 4, height: 4))
+            .stroke(Color(.controlAccentColor).opacity(0.475), lineWidth: 1)
+          Image(systemName: "camera.metering.center.weighted")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: iconSize.width / 2, height: iconSize.height / 2)
+        }
+      case .moveToNextDisplay:
+        ZStack {
+          RoundedRectangle(cornerSize: .init(width: 4, height: 4))
+            .stroke(Color(.controlAccentColor).opacity(0.475), lineWidth: 1)
+          Image(systemName: "display")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: iconSize.width / 2, height: iconSize.height / 2)
+            .overlay {
+              Image(systemName: "arrow.right.circle.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 10, height: 10)
+                .offset(x: 10, y: 10)
+            }
+        }
+      }
+    }
+    .frame(width: 24, height: 24)
+  }
 }
 
 struct WindowManagementCommandView_Previews: PreviewProvider {
@@ -436,7 +432,7 @@ struct WindowManagementCommandView_Previews: PreviewProvider {
     .map(DesignTime.windowCommand)
 
   static var previews: some View {
-    VStack {
+    ScrollView {
       ForEach(models, id: \.model) { container in
         WindowManagementCommandView(
           container.model.meta,
@@ -444,14 +440,13 @@ struct WindowManagementCommandView_Previews: PreviewProvider {
             id: container.model.id,
             kind: container.kind,
             animationDuration: 0
-          ), iconSize: .init(width: 16, height: 16)
+          ), iconSize: .init(width: 24, height: 24)
         ) { _ in }
-          .frame(maxHeight: 180)
         Divider()
       }
     }
+    .frame(height: 1024)
     .padding()
     .designTime()
-    .previewLayout(.sizeThatFits)
   }
 }

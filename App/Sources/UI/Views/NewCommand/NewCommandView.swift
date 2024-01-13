@@ -297,6 +297,7 @@ struct NewCommandView_Previews: PreviewProvider {
       onDismiss: {},
       onSave: { _, _ in })
     .designTime()
+    .frame(height: 560)
   }
 }
 

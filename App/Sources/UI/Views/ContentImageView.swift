@@ -11,7 +11,7 @@ struct ContentImageView: View {
       ContentIconImageView(icon: icon, size: size)
     case .command(let kind):
       switch kind {
-      case .menuBar, .application, .open, .builtIn:
+      case .application, .open, .builtIn:
         EmptyView()
       case .keyboard(let model):
         ContentKeyboardImageView(keys: model.keys)
@@ -24,8 +24,12 @@ struct ContentImageView: View {
         ContentShortcutImageView(size: size)
       case .text:
         ContentTypeImageView()
-      case .plain, .systemCommand, .windowManagement, .mouse:
+      case .plain, .systemCommand, .mouse:
         EmptyView()
+      case .menuBar:
+        MenuIconView(size: 22)
+      case .windowManagement:
+        WindowManagementIconView(size: 22)
       case .uiElement:
         UIElementIconView(size: 22)
       }

@@ -124,13 +124,7 @@ private extension Array where Element == Command {
                               path: command.application.path)))
         )
       case .menuBar(let command):
-        let path = "/System/Library/PreferencePanes/Appearance.prefPane"
-        images.append(
-          ContentViewModel.ImageModel(
-            id: command.id,
-            offset: convertedOffset,
-            kind: .icon(.init(bundleIdentifier: path, path: path)))
-        )
+        images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.menuBar(.init(id: command.id, tokens: command.tokens)))))
       case .builtIn(let command):
         let path = Bundle.main.bundleURL.path
         images.append(
@@ -201,12 +195,11 @@ private extension Array where Element == Command {
       case .uiElement(let command):
         images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.uiElement(command))))
       case .windowManagement(let command):
-        let path: String = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
         images.append(
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .icon(.init(bundleIdentifier: path, path: path)))
+            kind: .command(.windowManagement(.init(id: command.id, kind: command.kind, animationDuration: command.animationDuration))))
         )
       }
     }
