@@ -25,77 +25,68 @@ final class UIElementCommandRunner {
       throw UIElementCommandRunnerError.unableToFindWindow
     }
 
-    let handler: (UIElementCommand.Predicate, AnyAccessibilitySubject?, inout Bool) -> Bool = { predicate, subject, abort in
-      guard let subject else { return false }
+    let predicates = command.predicates
+    var keys = predicates
+      .flatMap { $0.properties.map(\.axValue) }
+      .compactMap(NSAccessibility.Attribute.init(rawValue:))
+    keys.append(.role)
 
-      let element = subject.element
+    let mouseBasedRoles: Set<String> = [kAXStaticTextRole, kAXCellRole]
+    var mouseBasedRole: Bool = false
 
-      if Task.isCancelled {
-        abort = true
-        return false
-      }
-
+    let subject = focusedWindow.findChild(on: screen, keys: Set(keys), abort: {
+      let result = Task.isCancelled
+      return result
+    }) { values in
 //      counter += 1
+      for predicate in predicates {
+        guard let role = values[.role] as? String else { continue }
 
-      if predicate.kind != .any {
-        guard element.role == predicate.kind.axValue else { return false }
+        mouseBasedRole = mouseBasedRoles.contains(role)
+
+        if predicate.kind != .any {
+          guard values[.role] as? String == predicate.kind.axValue else { return false }
+        }
+
+        if predicate.properties.contains(.description),
+           values[ .description] as? String == predicate.value {
+          return true
+        }
+
+        if predicate.properties.contains(.identifier),
+           values[.identifier] as? String == predicate.value {
+          return true
+        }
+
+        if predicate.properties.contains(.title),
+           values[.title] as? String == predicate.value {
+          return true
+        }
+
+        if predicate.properties.contains(.value),
+           values[.value] as? String == predicate.value {
+          return true
+        }
       }
-
-      if predicate.properties.contains(.description),
-         predicate.compare.run(lhs: element.description, rhs: predicate.value)
-      { return true }
-
-
-      if predicate.properties.contains(.identifier),
-         predicate.compare.run(lhs: element.identifier, rhs: predicate.value)
-      { return true }
-
-      if predicate.properties.contains(.title),
-         predicate.compare.run(lhs: element.title, rhs: predicate.value)
-      { return true }
-
-
-      if predicate.properties.contains(.value),
-         predicate.compare.run(lhs: element.value, rhs: predicate.value)
-      { return true }
-
+      
       return false
     }
 
-    typealias PredicateType = [Int: (AnyAccessibilitySubject, inout Bool) -> Bool]
-    var predicates: PredicateType = command.predicates
-      .enumerated()
-      .reduce(into: PredicateType()) { (dict, pair) in
-        let (index, predicate) = pair
-        dict[index] = {
-          handler(predicate, $0, &$1)
-        }
-      }
+    guard let subject else { return }
 
-    var abort: Bool = false
-    let elementSubjects = focusedWindow.findChildren(
-      screen: screen,
-      matchingConditions: &predicates,
-      abort: &abort
-    )
-
-    let mouseBasedRoles: Set<String> = [kAXStaticTextRole, kAXCellRole]
-    for (_, subject) in elementSubjects {
-      try Task.checkCancellation()
-      if let mousePosition = CGEvent(source: nil)?.location,
-         let role = subject.element.role,
-         mouseBasedRoles.contains(role) {
-        CGEvent.performClick(
-          machPort?.eventSource,
-          eventType: .leftMouse,
-          at: subject.position
-        )
-        try await Task.sleep(for: .milliseconds(10))
-        CGEvent.restoreMousePosition(to: mousePosition)
-        return
-      }
-      subject.element.performAction(.press)
+    try Task.checkCancellation()
+    if let mousePosition = CGEvent(source: nil)?.location,
+       mouseBasedRole {
+      CGEvent.performClick(
+        machPort?.eventSource,
+        eventType: .leftMouse,
+        at: subject.position
+      )
+      try await Task.sleep(for: .milliseconds(10))
+      CGEvent.restoreMousePosition(to: mousePosition)
+      return
     }
+    subject.element.performAction(.press)
   }
 }
 
