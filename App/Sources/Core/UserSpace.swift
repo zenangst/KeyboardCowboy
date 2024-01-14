@@ -32,6 +32,7 @@ final class UserSpace: Sendable {
     let name: String
     let path: String
 
+    @MainActor
     static let current: Application = NSRunningApplication.currentAsApplication()
   }
   struct Snapshot {
@@ -150,15 +151,24 @@ final class UserSpace: Sendable {
     frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
       .compactMap { $0 }
       .sink { [weak self] runningApplication in
-        guard let self, let newApplication = runningApplication.asApplication() else { return }
-        previousApplication = frontMostApplication
-        frontMostApplication = newApplication
+        guard let self else { return }
+        Task {
+          await MainActor.run {
+            guard let newApplication = runningApplication.asApplication() else { return }
+            self.previousApplication = self.frontMostApplication
+            self.frontMostApplication = newApplication
+          }
+        }
       }
     runningApplicationsSubscription = workspace.publisher(for: \.runningApplications)
       .sink { [weak self] applications in
         guard let self else { return }
-        let newApplications = applications.compactMap { $0.asApplication() }
-        runningApplications = newApplications
+        Task {
+          await MainActor.run {
+            let newApplications = applications.compactMap { $0.asApplication() }
+            self.runningApplications = newApplications
+          }
+        }
       }
   }
 
@@ -292,30 +302,73 @@ final class UserSpace: Sendable {
   }
 }
 
+fileprivate extension UserSpace {
+  @MainActor
+  static var cache: [String: RunningApplicationCache] = [:]
+}
+
+fileprivate struct RunningApplicationCache {
+  let name: String
+  let path: String
+  let bundleIdentifier: String
+}
 
 fileprivate extension NSRunningApplication {
+  @MainActor
   static func currentAsApplication() -> UserSpace.Application {
-    .init(
+    if let entry = UserSpace.cache[Bundle.main.bundleIdentifier!] {
+      return UserSpace.Application(
+        ref: .current,
+        bundleIdentifier: Bundle.main.bundleIdentifier!,
+        name: entry.name,
+        path: entry.path
+      )
+    }
+
+    let userSpaceApplication: UserSpace.Application = .init(
       ref: .current,
       bundleIdentifier: Bundle.main.bundleIdentifier!,
       name: Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "",
       path: Bundle.main.bundlePath
     )
+
+    UserSpace.cache[userSpaceApplication.bundleIdentifier] = .init(
+      name: userSpaceApplication.name,
+      path: userSpaceApplication.path,
+      bundleIdentifier: userSpaceApplication.bundleIdentifier
+    )
+
+    return userSpaceApplication
   }
 
+  @MainActor
   func asApplication() -> UserSpace.Application? {
-    if let bundleIdentifier = bundleIdentifier,
-       let name = localizedName,
-       let path = bundleURL?.path() {
-          UserSpace.Application(
-            ref: self,
-            bundleIdentifier: bundleIdentifier,
-            name: name,
-            path: path
-          )
-    } else {
-      nil
+    if let bundleIdentifier = bundleIdentifier {
+      if let userSpaceApplication = UserSpace.cache[bundleIdentifier] {
+        return UserSpace.Application(
+          ref: self,
+          bundleIdentifier: bundleIdentifier,
+          name: userSpaceApplication.name,
+          path: userSpaceApplication.path
+        )
+      } else if let name = localizedName,
+                let path = bundleURL?.path() {
+
+        UserSpace.cache[bundleIdentifier] = .init(
+          name: name,
+          path: path,
+          bundleIdentifier: bundleIdentifier
+        )
+
+        return UserSpace.Application(
+          ref: self,
+          bundleIdentifier: bundleIdentifier,
+          name: name,
+          path: path
+        )
+      }
     }
+    return nil
   }
 }
 
