@@ -96,6 +96,11 @@ final class MachPortCoordinator {
     case .captureUIElement:
       self.event = event
     case .intercept:
+      guard event.type != .leftMouseUp &&
+            event.type != .leftMouseDown &&
+            event.type != .leftMouseDragged else {
+        return
+      }
       intercept(event)
       self.event = event
     case .recordKeystroke:
