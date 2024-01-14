@@ -3,6 +3,7 @@ import SwiftUI
 
 struct UIElementIconView: View {
   let size: CGFloat
+  @Binding var stacked: Bool
 
   @ObserveInjection var inject
   var body: some View {
@@ -91,6 +92,7 @@ struct UIElementIconView: View {
     .clipShape(RoundedRectangle(cornerRadius: 4))
     .frame(width: size, height: size)
     .fixedSize()
+    .stacked($stacked, color: Color(.systemPurple), size: size)
     .enableInjection()
   }
 
@@ -103,9 +105,19 @@ struct UIElementIconView: View {
 }
 
 #Preview {
-  let canvas = CGSize(width: 32, height: 32)
-  return UIElementIconView(size: canvas.width)
-    .frame(width: canvas.width, height: canvas.height)
-    .padding()
+  VStack {
+    HStack {
+      UIElementIconView(size: 128, stacked: .constant(false))
+     UIElementIconView(size: 64, stacked: .constant(false))
+     UIElementIconView(size: 32, stacked: .constant(false))
+    }
+
+    HStack {
+      UIElementIconView(size: 128, stacked: .constant(true))
+      UIElementIconView(size: 64, stacked: .constant(true))
+      UIElementIconView(size: 32, stacked: .constant(true))
+    }
+  }
+  .padding()
 }
 

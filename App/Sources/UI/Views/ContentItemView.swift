@@ -27,7 +27,6 @@ struct ContentItemView: View {
       ContentImagesView(images: workflow.images, size: 32)
         .background(
           Color.black.opacity(0.3).cornerRadius(8, antialiased: false)
-            .frame(maxWidth: 32)
         )
         .overlay(alignment: .bottomTrailing, content: {
           ContentItemIsDisabledOverlayView(isEnabled: workflow.isEnabled)

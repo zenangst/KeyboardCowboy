@@ -5,6 +5,7 @@ import SwiftUI
 struct WindowManagementIconView: View {
   @ObserveInjection var inject
   let size: CGFloat
+  @Binding var stacked: Bool
 
   var body: some View {
     HStack(alignment: .top, spacing: 0) {
@@ -28,6 +29,7 @@ struct WindowManagementIconView: View {
     .clipShape(RoundedRectangle(cornerRadius: 4))
     .frame(width: size, height: size)
     .fixedSize()
+    .stacked($stacked, color: Color(.systemRed), size: size)
     .enableInjection()
   }
 
@@ -35,7 +37,6 @@ struct WindowManagementIconView: View {
     Rectangle()
       .fill(Color(nsColor: NSColor(red:0.94, green:0.71, blue:0.51, alpha:1.00)))
       .overlay {
-
         LinearGradient(stops: [
           .init(color: Color.clear, location: 0.1),
           .init(color: Color(.systemYellow).opacity(0.8), location: 0.2),
@@ -158,11 +159,24 @@ struct WindowManagementIconView: View {
   }
 }
 
-#Preview {
-  HStack {
-    WindowManagementIconView(size: 128)
-    WindowManagementIconView(size: 64)
-    WindowManagementIconView(size: 32)
+struct WindowManagementIconView_Previews: PreviewProvider {
+  @State static var stacked: Bool = true
+  static var previews: some View {
+    VStack {
+      HStack {
+        WindowManagementIconView(size: 128, stacked: .constant(false))
+        WindowManagementIconView(size: 64, stacked: .constant(false))
+        WindowManagementIconView(size: 32, stacked: .constant(false))
+      }
+      HStack {
+        WindowManagementIconView(size: 128, stacked: .constant(true))
+        WindowManagementIconView(size: 64, stacked: .constant(true))
+        WindowManagementIconView(size: 32, stacked: .constant(true))
+      }
+    }
+    .onTapGesture {
+      stacked.toggle()
+    }
+    .padding()
   }
-  .padding()
 }

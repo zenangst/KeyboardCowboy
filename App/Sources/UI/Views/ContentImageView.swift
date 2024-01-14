@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentImageView: View {
   let image: ContentViewModel.ImageModel
   let size: CGFloat
+  @Binding var stacked: Bool
 
   @ViewBuilder
   var body: some View {
@@ -27,11 +28,11 @@ struct ContentImageView: View {
       case .plain, .systemCommand, .mouse:
         EmptyView()
       case .menuBar:
-        MenuIconView(size: 22)
+        MenuIconView(size: size - 8, stacked: $stacked)
       case .windowManagement:
-        WindowManagementIconView(size: 22)
+        WindowManagementIconView(size: size - 8, stacked: $stacked)
       case .uiElement:
-        UIElementIconView(size: 22)
+        UIElementIconView(size: size - 8, stacked: $stacked)
       }
     }
   }

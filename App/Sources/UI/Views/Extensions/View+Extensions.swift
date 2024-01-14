@@ -2,6 +2,21 @@ import SwiftUI
 
 extension View {
   @ViewBuilder
+  func stacked(_ stacked: Binding<Bool>, color: Color, size: CGFloat) -> some View {
+    let angle = Angle.degrees(stacked.wrappedValue ? 45 : 0)
+    let cosineOfAngle = cos(angle.radians)
+    let adjustmentFactor: CGFloat = 1.0
+    let scale = (1.0 / cosineOfAngle) * adjustmentFactor
+    self
+      .rotation3DEffect(
+        angle,
+        axis: (x: 1, y: 0, z: 0)
+      )
+      .scaleEffect(x: scale, y: 1, anchor: .center)
+      .animation(.easeInOut(duration: 3.0), value: stacked.wrappedValue)
+  }
+
+  @ViewBuilder
   func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
     transform(self)
   }
@@ -94,5 +109,34 @@ struct DebugView<Content>: View where Content: View {
       ], startPoint: .top, endPoint: .bottom)
       .padding(-16)
     )
+  }
+}
+
+struct ViewExtensions_Previews: PreviewProvider {
+  @State static var stacked: Bool = true
+  static var previews: some View {
+    VStack {
+      HStack {
+        WindowManagementIconView(size: 128, stacked: .constant(false))
+        WindowManagementIconView(size: 64, stacked: .constant(false))
+        WindowManagementIconView(size: 32, stacked: .constant(false))
+      }
+      HStack {
+        WindowManagementIconView(size: 128, stacked: .constant(true))
+        WindowManagementIconView(size: 64, stacked: .constant(true))
+        WindowManagementIconView(size: 32, stacked: .constant(true))
+      }
+
+      VStack(spacing: 0) {
+        UIElementIconView(size: 32, stacked: $stacked)
+        MenuIconView(size: 32, stacked: $stacked)
+        WindowManagementIconView(size: 32, stacked: $stacked)
+      }
+      .background()
+    }
+    .onTapGesture {
+      stacked.toggle()
+    }
+    .padding()
   }
 }

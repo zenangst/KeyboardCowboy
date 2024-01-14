@@ -27,12 +27,12 @@ struct NewCommandUIElementView: View {
         .padding(.vertical, 8)
 
         if predicates.isEmpty {
-          VStack {
+          HStack(alignment: .top) {
+            UIElementIconView(size: 24, stacked: .constant(false))
             Text("Start recording and then click on the UI Element you want to capture while holding the ⌘-Command key.")
-              .frame(maxWidth: 320)
+              .frame(maxWidth: 320, alignment: .leading)
             captureButton()
           }
-          .multilineTextAlignment(.center)
           .frame(maxWidth: .infinity)
           .padding()
           .background()

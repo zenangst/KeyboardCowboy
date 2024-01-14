@@ -15,19 +15,23 @@ struct NewCommandWindowManagementView: View {
     VStack(alignment: .leading) {
       ZenLabel("Window Management")
 
-      Menu {
-        ForEach(WindowCommand.Kind.allCases) { kind in
-          Button(action: {
-            self.selection = kind
-            validation = updateAndValidatePayload()
-          }, label: {
-            Text(kind.displayValue)
-          })
+      HStack {
+        WindowManagementIconView(size: 24, stacked: .readonly(false))
+
+        Menu {
+          ForEach(WindowCommand.Kind.allCases) { kind in
+            Button(action: {
+              self.selection = kind
+              validation = updateAndValidatePayload()
+            }, label: {
+              Text(kind.displayValue)
+            })
+          }
+        } label: {
+          Text(selection.displayValue)
         }
-      } label: {
-        Text(selection.displayValue)
+        .menuStyle(.regular)
       }
-      .menuStyle(.regular)
     }
     .onChange(of: validation) { newValue in
       guard newValue == .needsValidation else { return }

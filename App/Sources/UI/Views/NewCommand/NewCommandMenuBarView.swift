@@ -162,6 +162,8 @@ struct NewCommandMenuBarView: View {
 
   func addView() -> some View {
     HStack {
+      MenuIconView(size: 24, stacked: .constant(false))
+
       switch kind {
       case .menuItem:
         NewCommandMenuBarTokenMenuItemView(value: $menuItem, onSubmit: { onSubmit() })

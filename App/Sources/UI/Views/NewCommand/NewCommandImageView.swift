@@ -35,13 +35,13 @@ struct NewCommandImageView: View {
       case .system:
         image(for: "/System")
       case .menuBar:
-        MenuIconView(size: 24)
+        MenuIconView(size: 24, stacked: .constant(false))
       case .mouse:
         image(for: "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns")
       case .uiElement:
-        UIElementIconView(size: 24)
+        UIElementIconView(size: 24, stacked: .constant(false))
       case .windowManagement:
-        WindowManagementIconView(size: 24)
+        WindowManagementIconView(size: 24, stacked: .constant(false))
       case .builtIn:
         image(for: Bundle.main.bundlePath)
       }

@@ -60,7 +60,7 @@ private extension Workflow {
       id: id,
       groupName: groupName,
       name: name,
-      images: commands.images(limit: 3),
+      images: commands.images(limit: 1),
       overlayImages: commands.overlayImages(limit: 3),
       binding: binding,
       badge: commandCount > 1 ? commandCount : 0,
