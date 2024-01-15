@@ -4,15 +4,20 @@ import SwiftUI
 
 @MainActor
 final class UserModesBezelController {
+  @MainActor
   static let shared = UserModesBezelController()
 
-  lazy var windowController: NSWindowController = {
+  lazy var windowController: NSWindowController = NSWindowController(window: window)
+  lazy var window: NotificationPanel = {
     let content = CurrentUserModesView(publisher: UserSpace.shared.userModesPublisher)
-    let window = NotificationPanel(animationBehavior: .utilityWindow, 
-                                   styleMask: [.borderless, .nonactivatingPanel],
-                                   content: content)
-    let windowController = NSWindowController(window: window)
-    return windowController
+    return NotificationPanel(
+      animationBehavior: .utilityWindow,
+      styleMask: [
+        .borderless,
+        .nonactivatingPanel
+      ],
+      content: content
+    )
   }()
 
   var debouncer: DebounceManager<[UserMode]>?
@@ -32,9 +37,24 @@ final class UserModesBezelController {
     debouncer?.send([])
   }
 
+  // MARK: Private methods
+
   private func publish(_ userModes: [UserMode]) {
-    withAnimation {
-      UserSpace.shared.userModesPublisher.publish(userModes)
+    guard let contentView = window.contentView else { return }
+    UserSpace.shared.userModesPublisher.publish(userModes)
+    DispatchQueue.main.async {
+      self.resizeAndAlignWindow(to: contentView.fittingSize)
+    }
+  }
+
+  private func resizeAndAlignWindow(to contentSize: CGSize) {
+    if let screen = window.screen {
+      let screenVisibleFrame = screen.visibleFrame
+      let newWindowOriginX = screenVisibleFrame.maxX - contentSize.width
+      let newWindowOriginY = screenVisibleFrame.minY
+
+      let newWindowFrame = NSRect(x: newWindowOriginX, y: newWindowOriginY, width: contentSize.width, height: contentSize.height)
+      window.setFrame(newWindowFrame, display: true, animate: false)
     }
   }
 }

@@ -13,6 +13,7 @@ struct BezelNotificationView: View {
   @ObservedObject var publisher: BezelNotificationPublisher
   @EnvironmentObject var manager: WindowManager
   @State var show: Bool = false
+  @State private var workItem: DispatchWorkItem?
 
   init(publisher: BezelNotificationPublisher) {
     self.publisher = publisher
@@ -35,17 +36,22 @@ struct BezelNotificationView: View {
           .allowsTightening(true)
       }
     }
+    .animation(.smooth, value: publisher.data.text)
     .onReceive(publisher.$data, perform: { _ in
       show = true
-      manager.close(after: .seconds(2), then: {
-        show = false
-      })
+      let workItem = DispatchWorkItem {
+        withAnimation(.easeInOut(duration: 0.5)) {
+          show = false
+        }
+      }
+      self.workItem?.cancel()
+      self.workItem = workItem
+      DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: workItem)
     })
     .padding(.horizontal, 16)
     .padding(.vertical, 16)
     .background(backgroundView)
-    .padding(.top, (show || publisher.data.running) ? 36 : 0)
-    .frame(maxWidth: .infinity)
+    .padding(.top, (show || publisher.data.running) ? 24 : 0)
     .scaleEffect((show || publisher.data.running) ? 1 : 0.01, anchor: .top)
     .rotation3DEffect(
       Angle(degrees: show ? 0 : 90),
@@ -66,6 +72,7 @@ struct BezelNotificationView: View {
       .opacity(publisher.data.text.isEmpty ? 0 : 1)
       .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
       .cornerRadius(12)
+      .padding(8)
   }
 }
 

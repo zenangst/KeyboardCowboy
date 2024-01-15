@@ -26,6 +26,7 @@ final class NotificationPanel<Content>: NSPanel where Content: View {
     self.becomesKeyOnlyIfNeeded = true
     self.backgroundColor = .clear
     self.acceptsMouseMovedEvents = false
+    self.ignoresMouseEvents = true
     self.hasShadow = false
 
     self.manager.window = self
@@ -35,15 +36,7 @@ final class NotificationPanel<Content>: NSPanel where Content: View {
       .ignoresSafeArea()
 
     self.contentViewController = NSHostingController(rootView: rootView)
-
     setFrame(contentRect, display: false)
-
-    NotificationCenter.default.addObserver(self, selector: #selector(screenChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
-  }
-
-  @objc func screenChanged() {
-    guard let screenFrame = NSScreen.main?.frame else { return }
-    self.setFrame(screenFrame, display: true)
   }
 }
 

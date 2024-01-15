@@ -8,20 +8,13 @@ struct CurrentUserModesView: View {
   static var animation: Animation = .smooth(duration: 0.2)
 
   var body: some View {
-    VStack {
-      Spacer()
-      HStack {
-        Spacer()
-        ForEach(publisher.activeModes) { mode in
-          Button(action: {}, label: {
-            Text(mode.name)
-              .font(.caption)
-          })
-          .buttonStyle(.zen(ZenStyleConfiguration(hoverEffect: .constant(false))))
-          .transition(AnyTransition.moveAndFade.animation(Self.animation))
-        }
-      }
-      .padding(4)
+    ForEach(publisher.activeModes) { mode in
+      Button(action: {}, label: {
+        Text(mode.name)
+          .font(.caption)
+      })
+      .buttonStyle(.zen(ZenStyleConfiguration(hoverEffect: .constant(false))))
+      .transition(AnyTransition.moveAndFade.animation(Self.animation))
     }
     .padding(4)
     .enableInjection()

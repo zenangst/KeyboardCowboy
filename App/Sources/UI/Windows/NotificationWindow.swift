@@ -32,15 +32,7 @@ final class NotificationWindow<Content>: NSWindow where Content: View {
       .ignoresSafeArea()
 
     self.contentViewController = NSHostingController(rootView: rootView)
-
     setFrame(contentRect, display: false)
-
-    NotificationCenter.default.addObserver(self, selector: #selector(screenChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
-  }
-
-  @objc func screenChanged() {
-    guard let screenFrame = NSScreen.main?.frame else { return }
-    self.setFrame(screenFrame, display: true)
   }
 }
 

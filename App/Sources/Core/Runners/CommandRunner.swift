@@ -145,8 +145,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   ) {
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
-      guard let self else { return
-      }
+      guard let self else { return }
       let shouldDismissMissionControl = commands.contains(where: {
         switch $0 {
         case .builtIn: false
