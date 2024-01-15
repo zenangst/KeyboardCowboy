@@ -64,16 +64,13 @@ final class KeyboardCowboyEngine {
     guard !launchArguments.isEnabled(.runningUnitTests) else { return }
 
     do {
-      let leftMouseEvents: CGEventMask = (1 << CGEventType.leftMouseDown.rawValue)
-                                       | (1 << CGEventType.leftMouseUp.rawValue)
-                                       | (1 << CGEventType.leftMouseDragged.rawValue)
       let keyboardEvents: CGEventMask = (1 << CGEventType.keyDown.rawValue)
                                       | (1 << CGEventType.keyUp.rawValue)
                                       | (1 << CGEventType.flagsChanged.rawValue)
 
       let newMachPortController = try MachPortEventController(
         .privateState,
-        eventsOfInterest: keyboardEvents | leftMouseEvents,
+        eventsOfInterest: keyboardEvents,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
         onFlagsChanged: { [machPortCoordinator] in machPortCoordinator.receiveFlagsChanged($0) },

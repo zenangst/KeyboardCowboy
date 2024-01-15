@@ -16,26 +16,17 @@ final class UIElementCaptureStore: ObservableObject {
   @Published var isCapturing: Bool = false
   @Published var capturedElement: UIElementCaptureItem?
   private var modeSubscription: AnyCancellable?
-  private var eventSubscription: AnyCancellable?
-  private var flagsSubscription: AnyCancellable?
 
+  private var machPortController: MachPortEventController?
   private var coordinator: MachPortCoordinator?
   private var flags: CGEventFlags?
 
   #if DEBUG
   init(isCapturing: Bool = false,
        capturedElement: UIElementCaptureItem? = nil,
-       modeSubscription: AnyCancellable? = nil,
-       eventSubscription: AnyCancellable? = nil,
-       flagsSubscription: AnyCancellable? = nil,
-       coordinator: MachPortCoordinator? = nil,
        flags: CGEventFlags? = nil) {
     self.isCapturing = isCapturing
     self.capturedElement = capturedElement
-    self.modeSubscription = modeSubscription
-    self.eventSubscription = eventSubscription
-    self.flagsSubscription = flagsSubscription
-    self.coordinator = coordinator
     self.flags = flags
   }
   #endif
@@ -49,19 +40,29 @@ final class UIElementCaptureStore: ObservableObject {
         switch mode {
         case .captureUIElement:
           isCapturing = true
-          eventSubscription = coordinator.$event
-            .dropFirst()
-            .compactMap { $0 }
-            .sink { [weak self] event in
-              self?.handle(event)
-            }
-          flagsSubscription = coordinator.$flagsChanged
-            .sink { [weak self] flags in
+          let leftMouseEvents: CGEventMask = (1 << CGEventType.leftMouseDown.rawValue)
+          | (1 << CGEventType.leftMouseUp.rawValue)
+          | (1 << CGEventType.leftMouseDragged.rawValue)
+          let keyboardEvents: CGEventMask = (1 << CGEventType.keyDown.rawValue)
+          | (1 << CGEventType.keyUp.rawValue)
+          | (1 << CGEventType.flagsChanged.rawValue)
+
+          let newMachPortController = try? MachPortEventController(
+            .privateState,
+            eventsOfInterest: keyboardEvents | leftMouseEvents,
+            signature: "com.zenangst.Keyboard-Cowboy",
+            autoStartMode: .commonModes,
+            onFlagsChanged: { [weak self] flags in
               self?.flags = flags
-            }
+            },
+            onEventChange: { [weak self] event in
+              self?.handle(event)
+            })
+          machPortController = newMachPortController
         default:
           isCapturing = false
-          eventSubscription = nil
+          machPortController?.stop(mode: .commonModes)
+          machPortController = nil
         }
       }
   }
