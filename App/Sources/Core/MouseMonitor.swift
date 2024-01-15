@@ -9,16 +9,12 @@ final class MouseMonitor {
   private init() { }
 
   func startMonitor() {
-    monitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseUp, .leftMouseDragged]) { [weak self] event in
+    monitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseUp, .leftMouseDown]) { [weak self] event in
       guard let self = self else { return }
 
-      switch event.type {
-      case .leftMouseUp:
-        self.isDraggingUsingTheMouse = false
-      case .leftMouseDragged:
-        self.isDraggingUsingTheMouse = true
-      default:
-        break
+      self.isDraggingUsingTheMouse = switch event.type {
+      case .leftMouseDown: true
+      default: false
       }
     }
   }
@@ -27,5 +23,6 @@ final class MouseMonitor {
     guard let monitor = monitor else { return }
     NSEvent.removeMonitor(monitor)
     self.monitor = nil
+    self.isDraggingUsingTheMouse = false
   }
 }
