@@ -8,15 +8,12 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     let launch: LaunchApplicationPlugin
   }
 
-  private let windowListStore: WindowListStoring
   private let workspace: WorkspaceProviding
   private let plugins: Plugins
 
   init(scriptCommandRunner: ScriptCommandRunner,
        keyboard: KeyboardCommandRunner,
-       windowListStore: WindowListStoring,
        workspace: WorkspaceProviding) {
-    self.windowListStore = windowListStore
     self.workspace = workspace
     self.plugins = Plugins(
       activate: ActivateApplicationPlugin(),
@@ -64,7 +61,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     if isFrontMostApplication {
       do {
         try await plugins.activate.execute(command)
-        if !windowListStore.windowOwners().contains(bundleName) {
+        if !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
           try await plugins.launch.execute(command)
         } else {
           try await plugins.bringToFront.execute()
@@ -74,7 +71,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       }
     } else {
       try await plugins.launch.execute(command)
-      if !windowListStore.windowOwners().contains(bundleName) {
+      if !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
         try? await plugins.activate.execute(command)
       }
     }

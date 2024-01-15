@@ -57,7 +57,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       application: ApplicationCommandRunner(
         scriptCommandRunner: scriptCommandRunner,
         keyboard: keyboardCommandRunner,
-        windowListStore: WindowListStore(),
         workspace: workspace
       ),
       builtIn: builtInCommandRunner,

@@ -45,6 +45,8 @@ final class WindowStore {
     }
   }
 
+  @Published private(set) var windows: [WindowModel] = []
+
   private let subscriptions: Subscriptions = .init()
   let state: State = .init()
 
@@ -58,6 +60,7 @@ final class WindowStore {
       .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self, state] application in
         guard let self else { return }
+
         let pid = application.ref.processIdentifier
         state.appAccessibilityElement = AppAccessibilityElement(pid)
         state.frontmostApplication = application
@@ -96,15 +99,16 @@ final class WindowStore {
   // MARK: - Private methods
 
   private func getWindows() -> [WindowModel] {
-    let options: CGWindowListOption = [.optionOnScreenOnly, .optionIncludingWindow, .excludeDesktopElements]
+    let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
     let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
     return windowModels
   }
 
   private func index(_ runningApplication: UserSpace.Application) {
-    let windowModels = getWindows()
-    indexAllApplicationsInSpace(windowModels)
-    indexStage(windowModels)
+    let windows = getWindows()
+    self.windows = windows
+    indexAllApplicationsInSpace(windows)
+    indexStage(windows)
     indexFrontmost()
   }
 
