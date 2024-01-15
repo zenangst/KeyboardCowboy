@@ -115,6 +115,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   ) {
     serialTask?.cancel()
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
+      await Benchmark.shared.start("CommandRunner.serialRun")
       guard let self else { return }
       do {
         let shouldDismissMissionControl = commands.contains(where: {
@@ -136,6 +137,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           }
         }
       }
+      await Benchmark.shared.stop("CommandRunner.serialRun")
     }
   }
 
@@ -143,7 +145,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   ) {
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
-      guard let self else { return }
+      guard let self else { return
+      }
       let shouldDismissMissionControl = commands.contains(where: {
         switch $0 {
         case .builtIn: false

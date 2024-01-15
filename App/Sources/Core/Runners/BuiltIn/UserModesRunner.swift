@@ -12,6 +12,7 @@ final class UserModesRunner {
   }
 
   func run(_ model: UserMode, builtInCommand: BuiltInCommand, action: BuiltInCommand.Kind.Action) async throws -> String {
+    await Benchmark.shared.start("UserModesRunner")
     let output: String
     var userModes = UserSpace.shared.userModes
 
@@ -33,6 +34,8 @@ final class UserModesRunner {
     }
     userModes[index] = modifiedMode
     await UserSpace.shared.setUserModes(userModes)
+
+    await Benchmark.shared.stop("UserModesRunner")
 
     return output
   }

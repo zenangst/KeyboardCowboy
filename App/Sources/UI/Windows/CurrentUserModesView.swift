@@ -5,6 +5,7 @@ import SwiftUI
 struct CurrentUserModesView: View {
   @ObserveInjection var inject
   @ObservedObject var publisher: UserSpace.UserModesPublisher
+  static var animation: Animation = .smooth(duration: 0.2)
 
   var body: some View {
     VStack {
@@ -17,6 +18,7 @@ struct CurrentUserModesView: View {
               .font(.caption)
           })
           .buttonStyle(.zen(ZenStyleConfiguration(hoverEffect: .constant(false))))
+          .transition(AnyTransition.moveAndFade.animation(Self.animation))
         }
       }
       .padding(4)

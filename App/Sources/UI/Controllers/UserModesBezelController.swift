@@ -18,9 +18,10 @@ final class UserModesBezelController {
   var debouncer: DebounceManager<[UserMode]>?
 
   private init() { 
-    debouncer = DebounceManager { [weak self] userModes in
+    debouncer = DebounceManager(for: .milliseconds(250)) { [weak self] userModes in
       self?.publish(userModes)
     }
+    windowController.showWindow(nil)
   }
 
   func show(_ userModes: [UserMode]) {
@@ -32,11 +33,8 @@ final class UserModesBezelController {
   }
 
   private func publish(_ userModes: [UserMode]) {
-    if !userModes.isEmpty {
-      windowController.showWindow(nil)
-    } else {
-      windowController.close()
+    withAnimation {
+      UserSpace.shared.userModesPublisher.publish(userModes)
     }
-    UserSpace.shared.userModesPublisher.publish(userModes)
   }
 }
