@@ -170,7 +170,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.0.7"),
         .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/MachPort.git", from: "3.1.1"),
-        .package(url: "https://github.com/zenangst/Windows.git", from: "1.0.0"),
+        .package(url: "https://github.com/zenangst/Windows.git", from: "1.1.0"),
       ]
     }
     return packages
