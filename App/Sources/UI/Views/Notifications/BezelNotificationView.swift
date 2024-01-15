@@ -51,6 +51,7 @@ struct BezelNotificationView: View {
     .padding(.horizontal, 16)
     .padding(.vertical, 16)
     .background(backgroundView)
+    .frame(maxWidth: .infinity)
     .padding(.top, (show || publisher.data.running) ? 24 : 0)
     .scaleEffect((show || publisher.data.running) ? 1 : 0.01, anchor: .top)
     .rotation3DEffect(
@@ -64,7 +65,7 @@ struct BezelNotificationView: View {
     .animation(.smooth(duration: 0.5, extraBounce: 0.2), value: show)
     .animation(.smooth(duration: 0.5, extraBounce: 0.2), value: publisher.data.text)
     .padding(.bottom, 16)
-      .enableInjection()
+    .enableInjection()
   }
 
   private var backgroundView: some View {

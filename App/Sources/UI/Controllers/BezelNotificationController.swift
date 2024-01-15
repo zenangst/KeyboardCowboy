@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 @MainActor
@@ -13,11 +14,20 @@ final class BezelNotificationController {
   }()
 
   private lazy var publisher = BezelNotificationPublisher(.init(id: UUID().uuidString, text: ""))
+  private var subscription: AnyCancellable?
 
   private init() {
     Task { @MainActor in
-      resizeAndAlignWindow(to: .init(width: 2, height: 2))
+      resizeAndAlignWindow(to: .init(width: 2, height: 2), animate: false)
       windowController.showWindow(nil)
+
+      subscription = NotificationCenter.default
+        .publisher(for: NSApplication.didChangeScreenParametersNotification)
+        .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
+        .sink { [weak self] _ in
+          guard let self, let contentView = window.contentView else { return }
+          self.resizeAndAlignWindow(to: contentView.fittingSize, animate: false)
+        }
     }
   }
 
@@ -29,12 +39,12 @@ final class BezelNotificationController {
     }
 
     DispatchQueue.main.async {
-      self.resizeAndAlignWindow(to: contentView.fittingSize)
+      self.resizeAndAlignWindow(to: contentView.fittingSize, animate: true)
     }
   }
 
-  private func resizeAndAlignWindow(to contentSize: CGSize) {
-    guard let screen = window.screen else { return }
+  private func resizeAndAlignWindow(to contentSize: CGSize, animate: Bool) {
+    guard let screen = NSScreen.main else { return }
     let screenFrame = screen.frame
 
     // Calculate the X coordinate for center alignment
@@ -49,6 +59,7 @@ final class BezelNotificationController {
       width: contentSize.width,
       height: contentSize.height
     )
-    window.setFrame(newWindowFrame, display: true, animate: true)
+
+    window.setFrame(newWindowFrame, display: true, animate: animate)
   }
 }
