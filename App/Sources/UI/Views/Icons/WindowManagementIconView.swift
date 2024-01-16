@@ -37,50 +37,63 @@ struct WindowManagementIconView: View {
     Rectangle()
       .fill(Color(nsColor: NSColor(red:0.94, green:0.71, blue:0.51, alpha:1.00)))
       .overlay {
+        // Yellow
         LinearGradient(stops: [
           .init(color: Color.clear, location: 0.1),
-          .init(color: Color(.systemYellow).opacity(0.8), location: 0.2),
+          .init(color: Color(nsColor: NSColor(red:0.95, green:0.70, blue:0.25, alpha:1.00)), location: 0.2),
           .init(color: Color(nsColor: NSColor(red:0.94, green:0.71, blue:0.51, alpha:1.00)), location: 1.0),
         ], startPoint: .top, endPoint: .bottom)
 
-        Rectangle()
-          .fill(
-            LinearGradient(
-              gradient: Gradient(stops: [
-                .init(color: Color(nsColor: NSColor(red:0.80, green:0.93, blue:0.99, alpha:1.00)),
-                      location: 0.0),
-                .init(color: .clear, location: 0.75),
-              ]),
-              startPoint: .topTrailing,
-              endPoint: .bottomLeading
-            )
-          )
+        // Blue
+        LinearGradient(
+          gradient: Gradient(stops: [
+            .init(color: Color(nsColor: NSColor(red:0.29, green:0.64, blue:0.87, alpha:1.00)),
+                  location: 0.0),
+            .init(color: .clear, location: 0.60),
+          ]),
+          startPoint: .topTrailing,
+          endPoint: .bottomLeading)
 
-        Rectangle()
-          .fill(
-            LinearGradient(
-              gradient: Gradient(stops: [
-                .init(color: Color(.systemPink).opacity(0.4), location: 0.0),
-                .init(color: .clear, location: 1.0),
-              ]),
-              startPoint: .bottomLeading,
-              endPoint: .leading
-            )
-          )
+        LinearGradient(
+          gradient: Gradient(stops: [
+            .init(color: Color(.systemPink).opacity(0.4), location: 0.0),
+            .init(color: .clear, location: 1.0),
+          ]),
+          startPoint: .bottomLeading,
+          endPoint: .leading
+        )
 
-        Rectangle()
-          .fill(
-            LinearGradient(
-              gradient: Gradient(stops: [
-                .init(color: Color(.systemRed).opacity(0.6), location: 0.0),
-                .init(color: .clear, location: 0.25),
+        LinearGradient(
+          gradient: Gradient(stops: [
+            .init(color: Color(.systemRed), location: 0.2),
+            .init(color: .clear, location: 0.5),
+          ]),
+          startPoint: .bottomLeading,
+          endPoint: .trailing
+        )
+
+        LinearGradient(
+          gradient: Gradient(
+            stops:
+              [
+                .init(color: .clear, location: 0.0),
+                .init(color: Color(nsColor: NSColor(red:0.91, green:0.20, blue:0.45, alpha:1.00)), location: 0.25),
+                .init(color: .clear, location: 0.6),
               ]),
-              startPoint: .bottomLeading,
-              endPoint: .trailing
-            )
-          )
+          startPoint: .bottomLeading,
+          endPoint: .trailing
+        )
+
+        LinearGradient(
+          gradient: Gradient(stops: [
+            .init(color: Color(nsColor: NSColor(red:0.44, green:0.25, blue:0.51, alpha:1.00)), location: 0),
+            .init(color: .clear, location: 0.3),
+          ]),
+          startPoint: .bottomLeading,
+          endPoint: .topTrailing
+        )
       }
-      .blur(radius: 0.2)
+      .blur(radius: 1)
       .compositingGroup()
   }
 
