@@ -151,10 +151,6 @@ struct NewCommandView: View {
     }
   }
 
-  private func sidebarBackgroundView() -> some View {
-    Color(.textBackgroundColor)
-  }
-
   private var detailView: some View {
     VStack(spacing: 0) {
       TextField("", text: $title)

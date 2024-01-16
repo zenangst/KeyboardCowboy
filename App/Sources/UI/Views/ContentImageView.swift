@@ -15,10 +15,9 @@ struct ContentImageView: View {
       case .application, .open, .builtIn:
         EmptyView()
       case .keyboard(let model):
-        ContentKeyboardImageView(keys: model.keys)
-          .rotationEffect(.degrees(-(3.75 * image.offset)))
-          .offset(.init(width: -(image.offset * 1.25),
-                        height: image.offset * 1.25))
+        if let firstKey = model.keys.first {
+          KeyboardIconView(firstKey.key.uppercased(), size: size - 6)
+        }
       case .script(let model):
         ContentScriptImageView(source: model.source, size: size)
       case .shortcut:
@@ -28,11 +27,11 @@ struct ContentImageView: View {
       case .plain, .systemCommand, .mouse:
         EmptyView()
       case .menuBar:
-        MenuIconView(size: size - 8, stacked: $stacked)
+        MenuIconView(size: size - 6, stacked: $stacked)
       case .windowManagement:
-        WindowManagementIconView(size: size - 8, stacked: $stacked)
+        WindowManagementIconView(size: size - 6, stacked: $stacked)
       case .uiElement:
-        UIElementIconView(size: size - 8, stacked: $stacked)
+        UIElementIconView(size: size - 6, stacked: $stacked)
       }
     }
   }

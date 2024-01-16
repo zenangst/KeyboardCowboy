@@ -20,7 +20,7 @@ struct NewCommandImageView: View {
       case .application:
         image(for: "/Applications")
       case .keyboardShortcut:
-        ModifierKeyIcon(key: .function)
+        KeyboardIconView("fn", size: 24)
       case .shortcut:
         image(for: "/System/Applications/Shortcuts.app")
       case .script:

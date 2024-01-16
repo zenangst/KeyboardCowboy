@@ -26,7 +26,7 @@ struct WindowManagementIconView: View {
     }
     .background()
     .compositingGroup()
-    .clipShape(RoundedRectangle(cornerRadius: 4))
+    .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
     .frame(width: size, height: size)
     .fixedSize()
     .stacked($stacked, color: Color(.systemRed), size: size)
@@ -108,14 +108,6 @@ struct WindowManagementIconView: View {
                          startPoint: .top,
                          endPoint: .bottom)
         )
-        .overlay {
-          Image(systemName: "xmark")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundStyle(Color.black.opacity(0.4))
-            .shadow(color: Color(.red).opacity(0.7), radius: 1)
-            .padding(size * 0.0_4)
-        }
         .frame(height: size * 0.15)
       Circle()
         .fill(
@@ -124,14 +116,6 @@ struct WindowManagementIconView: View {
             Color(.systemYellow)
           ], startPoint: .top, endPoint: .bottom)
         )
-        .overlay {
-          Image(systemName: "minus")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundStyle(Color.black.opacity(0.4))
-            .shadow(color: Color(.white).opacity(0.7), radius: 1)
-            .padding(size * 0.0_4)
-        }
         .frame(height: size * 0.15)
       Circle()
         .fill(
@@ -140,14 +124,6 @@ struct WindowManagementIconView: View {
             Color(.systemGreen)
           ], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
-        .overlay {
-          Image(systemName: "arrow.up.left.and.arrow.down.right")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundStyle(Color.black.opacity(0.4))
-            .shadow(color: Color(.green).opacity(0.7), radius: 1)
-            .padding(size * 0.0_4)
-        }
         .frame(height: size * 0.15)
     }
     .compositingGroup()
@@ -180,11 +156,6 @@ struct WindowManagementIconView_Previews: PreviewProvider {
         WindowManagementIconView(size: 128, stacked: .constant(false))
         WindowManagementIconView(size: 64, stacked: .constant(false))
         WindowManagementIconView(size: 32, stacked: .constant(false))
-      }
-      HStack {
-        WindowManagementIconView(size: 128, stacked: .constant(true))
-        WindowManagementIconView(size: 64, stacked: .constant(true))
-        WindowManagementIconView(size: 32, stacked: .constant(true))
       }
     }
     .onTapGesture {
