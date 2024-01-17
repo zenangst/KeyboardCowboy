@@ -41,15 +41,15 @@ final class MachPortCoordinator {
   }
 
   private static let defaultPartialMatch: PartialMatch = .init(rawValue: ".")
-  private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
 
+  private var flagsChangedSubscription: AnyCancellable?
   private var keyboardCowboyModeSubscription: AnyCancellable?
   private var machPortEventSubscription: AnyCancellable?
-  private var flagsChangedSubscription: AnyCancellable?
-  private var specialKeys: [Int] = [Int]()
-
+  private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
+  private var repeatingResult: KeyboardShortcutResult?
+  private var repeatingMatch: Bool?
   private var shouldHandleKeyUp: Bool = false
-
+  private var specialKeys: [Int] = [Int]()
   private var workItem: DispatchWorkItem?
 
   private let commandRunner: CommandRunner
@@ -122,6 +122,7 @@ final class MachPortCoordinator {
 
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     let kind: Event.Kind
+
     switch machPortEvent.type {
     case .flagsChanged:
       kind = .flagsChanged
@@ -142,6 +143,25 @@ final class MachPortCoordinator {
       workItem = nil
     default:
       return
+    }
+
+    // If the event is repeating and there is an earlier result,
+    // reuse that result to avoid unnecessary lookups.
+    if isRepeatingEvent, let repeatingResult {
+      process(repeatingResult,
+              kind: kind, machPortEvent: machPortEvent,
+              isRepeatingEvent: isRepeatingEvent,
+              tryGlobals: tryGlobals)
+      return
+    // If the event is repeating and there is no earlier result,
+    // simply opt-out because we don't want to lookup the same
+    // keyboard shortcut over and over again.
+    } else if isRepeatingEvent, repeatingMatch == false {
+      return
+    // Reset the repeating result and match if the event is not repeating.
+    } else {
+      repeatingResult = nil
+      repeatingMatch = nil
     }
 
     guard let displayValue = store.displayValue(for: Int(machPortEvent.keyCode)) else {
@@ -189,6 +209,18 @@ final class MachPortCoordinator {
       }
     }
 
+    process(result,
+            kind: kind,
+            machPortEvent: machPortEvent,
+            isRepeatingEvent: isRepeatingEvent,
+            tryGlobals: tryGlobals)
+  }
+
+  private func process(_ result: KeyboardShortcutResult?, 
+                       kind: Event.Kind,
+                       machPortEvent: MachPortEvent,
+                       isRepeatingEvent: Bool,
+                       tryGlobals: Bool) {
     switch result {
     case .partialMatch(let partialMatch):
       if let workflow = partialMatch.workflow,
@@ -207,6 +239,10 @@ final class MachPortCoordinator {
         // NOOP
       } else {
         machPortEvent.result = nil
+      }
+
+      if !isRepeatingEvent {
+        repeatingResult = result
       }
 
       let enabledWorkflows = workflow.commands.filter(\.isEnabled)
@@ -264,6 +300,7 @@ final class MachPortCoordinator {
 
         if !tryGlobals {
           intercept(machPortEvent, tryGlobals: true)
+          repeatingMatch = false
         }
       }
     }
