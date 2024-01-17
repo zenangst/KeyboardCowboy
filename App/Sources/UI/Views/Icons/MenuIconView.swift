@@ -21,17 +21,27 @@ struct MenuIconView: View {
       .overlay(alignment: .top) {
         Rectangle()
           .fill(Color(.white).opacity(0.4))
-          .frame(height: size * 0.225)
+          .frame(height: size * 0.270)
           .overlay(alignment: .leading) {
-            HStack(spacing: size * 0.06) {
+            HStack(spacing: size * 0.03) {
               Image(systemName: "apple.logo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .foregroundStyle(.black)
                 .frame(height: size * 0.125)
-              Text("App")
-                .redacted(reason: .placeholder)
+              RoundedRectangle(cornerRadius: size * 0.0_3)
+                .fill(
+                  LinearGradient(stops: [
+                    .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.rollover)), location: 0),
+                    .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.pressed)), location: 0.1),
+                    .init(color: Color(nsColor: .controlAccentColor), location: 1.0),
+                  ], startPoint: .top, endPoint: .bottom)
+                )
+                .shadow(radius: 2)
+                .padding(size * 0.03)
+                .frame(width: size * 0.525)
               Text("Files")
+                .font(Font.system(size: size * 0.2))
                 .redacted(reason: .placeholder)
             }
             .font(
@@ -41,25 +51,25 @@ struct MenuIconView: View {
               )
             )
             .foregroundStyle(.black)
-            .padding(.leading, size * 0.0_7)
+            .padding(.leading, size * 0.1)
           }
       }
       .overlay(alignment: .bottomTrailing) {
         Rectangle()
           .opacity(0.8)
-          .frame(width: size * 0.8, height: size * 0.6)
+          .frame(width: size * 0.8, height: size * 0.4)
           .clipShape(TopLeadingRoundedShape(radius: size * 0.0_9))
           .overlay(alignment: .topLeading) {
             windowControls()
-              .padding(.leading, 2)
+              .padding(.leading, size * 0.075)
           }
           .compositingGroup()
           .shadow(radius: 3, y: 3)
       }
       .overlay(alignment: .bottomTrailing) {
         Rectangle()
-          .fill(Color(.controlAccentColor).opacity(0.6))
-          .frame(width: size * 0.75, height: size * 0.25)
+          .fill(Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)))
+          .frame(width: size * 0.725, height: size * 0.095)
           .clipShape(TopLeadingRoundedShape(radius: size * 0.0_5))
       }
       .background(Color(.systemGray))
@@ -82,7 +92,7 @@ struct MenuIconView: View {
                          startPoint: .top,
                          endPoint: .bottom)
         )
-        .frame(height: size * 0.125)
+        .frame(height: size * 0.1)
       Circle()
         .fill(
           LinearGradient(colors: [
@@ -91,7 +101,7 @@ struct MenuIconView: View {
           ], startPoint: .top, endPoint: .bottom)
           
         )
-        .frame(height: size * 0.125)
+        .frame(height: size * 0.1)
       Circle()
         .fill(
           LinearGradient(colors: [
@@ -99,7 +109,7 @@ struct MenuIconView: View {
             Color(.systemGreen)
           ], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
-        .frame(height: size * 0.125)
+        .frame(height: size * 0.1)
     }
     .compositingGroup()
     .shadow(radius: size * 0.0_05, y: 1)
@@ -135,11 +145,15 @@ struct TopLeadingRoundedShape: Shape {
 }
 
 #Preview {
-  VStack {
-    HStack {
+  HStack(alignment: .top, spacing: 8) {
+    MenuIconView(size: 192, stacked: .constant(false))
+    VStack(alignment: .leading, spacing: 8) {
       MenuIconView(size: 128, stacked: .constant(false))
-      MenuIconView(size: 64, stacked: .constant(false))
-      MenuIconView(size: 32, stacked: .constant(false))
+      HStack(alignment: .top, spacing: 8) {
+        MenuIconView(size: 64, stacked: .constant(false))
+        MenuIconView(size: 32, stacked: .constant(false))
+        MenuIconView(size: 16, stacked: .constant(false))
+      }
     }
   }
     .padding()

@@ -23,7 +23,7 @@ struct ContentImageView: View {
       case .shortcut:
         ContentShortcutImageView(size: size)
       case .text:
-        ContentTypeImageView()
+        TypingIconView(size: size - 6)
       case .plain, .systemCommand, .mouse:
         EmptyView()
       case .menuBar:

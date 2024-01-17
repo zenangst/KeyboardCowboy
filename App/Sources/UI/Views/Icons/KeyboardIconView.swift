@@ -52,10 +52,16 @@ struct KeyboardIconView: View {
 }
 
 #Preview {
-  HStack {
-    KeyboardIconView("H", size: 128)
-    KeyboardIconView("H", size: 64)
-    KeyboardIconView("H", size: 32)
+  HStack(alignment: .top, spacing: 8) {
+    KeyboardIconView("M", size: 192)
+    VStack(alignment: .leading, spacing: 8) {
+      KeyboardIconView("O", size: 128)
+      HStack(alignment: .top, spacing: 8) {
+        KeyboardIconView("L", size: 64)
+        KeyboardIconView("L", size: 32)
+        KeyboardIconView("Y", size: 16)
+      }
+    }
   }
   .padding()
 }

@@ -35,7 +35,7 @@ struct TypeCommandView: View {
       $metaData,
       placeholder: model.placeholder,
       icon: { metaData in
-        RegularKeyIcon(letter: "...", width: iconSize.width, height: iconSize.height)
+        TypingIconView(size: iconSize.width)
           .fixedSize()
       }, content: { metaData in
         ZenTextEditor(

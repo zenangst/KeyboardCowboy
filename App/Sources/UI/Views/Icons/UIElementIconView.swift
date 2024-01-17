@@ -46,43 +46,30 @@ struct UIElementIconView: View {
           endPoint: .leading
         )
       }
-      .overlay {
+      .overlay(alignment: .center) {
         Image(systemName: "viewfinder")
           .resizable()
           .aspectRatio(contentMode: .fit)
           .fontWeight(.light)
           .opacity(0.3)
-          .padding(2)
-          .shadow(radius: 1)
-          .mask(alignment: .center, {
-            LinearGradient(stops: [
-              .init(color: .black.opacity(0.5), location: 0.2),
-              .init(color: .black.opacity(0.8), location: 0.75)
-            ], startPoint: .topLeading, endPoint: .bottomTrailing)
-          })
-          .frame(width: size * 0.95)
           .shadow(radius: 10)
-          .rotation3DEffect(
-            .degrees(5), axis: (x: 1.0, y: 0.0, z: 0.0)
-          )
-      }
-      .overlay {
+          .frame(width: size * 0.95, height: size * 0.95)
+          .offset(x: size * 0.0125)
+
         Image(systemName: "ellipsis.rectangle.fill")
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .padding(6)
-          .shadow(radius: 1)
-          .mask(alignment: .center, {
+          .foregroundStyle(
+            .black.opacity(0.4),
             LinearGradient(stops: [
-              .init(color: .black, location: 0.5),
-              .init(color: .clear, location: 1.0)
-            ], startPoint: .top, endPoint: .bottomTrailing)
-          })
-          .opacity(0.5)
-          .frame(width: size * 0.8)
-          .rotation3DEffect(
-            .degrees(17.5), axis: (x: 1.0, y: 0.0, z: 0.0)
-          )
+              .init(color: Color(nsColor: .systemYellow.withSystemEffect(.deepPressed)), location: 0.0),
+              .init(color: Color(.systemYellow), location: 0.3),
+              .init(color: Color(.systemOrange), location: 0.6),
+              .init(color: Color(.systemRed), location: 1.0),
+            ], startPoint: .top, endPoint: .bottomTrailing))
+          .shadow(radius: 5)
+          .frame(width: size * 0.8, height: size * 0.8)
+          .offset(x: size * 0.0125)
       }
     .compositingGroup()
     .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
@@ -101,11 +88,15 @@ struct UIElementIconView: View {
 }
 
 #Preview {
-  VStack {
-    HStack {
+  HStack(alignment: .top, spacing: 8) {
+    UIElementIconView(size: 192, stacked: .constant(false))
+    VStack(alignment: .leading, spacing: 8) {
       UIElementIconView(size: 128, stacked: .constant(false))
-     UIElementIconView(size: 64, stacked: .constant(false))
-     UIElementIconView(size: 32, stacked: .constant(false))
+      HStack(alignment: .top, spacing: 8) {
+        UIElementIconView(size: 64, stacked: .constant(false))
+        UIElementIconView(size: 32, stacked: .constant(false))
+        UIElementIconView(size: 16, stacked: .constant(false))
+      }
     }
   }
   .padding()

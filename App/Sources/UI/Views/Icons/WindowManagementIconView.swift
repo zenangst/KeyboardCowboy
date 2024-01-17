@@ -151,15 +151,16 @@ struct WindowManagementIconView: View {
 struct WindowManagementIconView_Previews: PreviewProvider {
   @State static var stacked: Bool = true
   static var previews: some View {
-    VStack {
-      HStack {
+    HStack(alignment: .top, spacing: 8) {
+      WindowManagementIconView(size: 192, stacked: .constant(false))
+      VStack(alignment: .leading, spacing: 8) {
         WindowManagementIconView(size: 128, stacked: .constant(false))
-        WindowManagementIconView(size: 64, stacked: .constant(false))
-        WindowManagementIconView(size: 32, stacked: .constant(false))
+        HStack(alignment: .top, spacing: 8) {
+          WindowManagementIconView(size: 64, stacked: .constant(false))
+          WindowManagementIconView(size: 32, stacked: .constant(false))
+          WindowManagementIconView(size: 16, stacked: .constant(false))
+        }
       }
-    }
-    .onTapGesture {
-      stacked.toggle()
     }
     .padding()
   }

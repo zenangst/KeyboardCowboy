@@ -26,12 +26,7 @@ struct NewCommandImageView: View {
       case .script:
         image(for: "/System/Applications/Utilities/Terminal.app")
       case .text:
-        if let contents = FileManager.default.contents(atPath: "/System/Library/PrivateFrameworks/AOSUI.framework/Versions/A/Resources/pref_notes.icns"),
-           let image = NSImage(data: contents) {
-          Image(nsImage: image)
-            .resizable()
-            .aspectRatio(1, contentMode: .fill)
-        }
+        TypingIconView(size: 24)
       case .system:
         image(for: "/System")
       case .menuBar:
