@@ -134,13 +134,7 @@ private extension Array where Element == Command {
             kind: .icon(.init(bundleIdentifier: path, path: path)))
         )
       case .mouse(let command):
-        let path = "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns"
-        images.append(
-          ContentViewModel.ImageModel(
-            id: command.id,
-            offset: convertedOffset,
-            kind: .icon(.init(bundleIdentifier: path, path: path)))
-        )
+        images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.mouse(.init(id: command.id, kind: command.kind)))))
       case .keyboard(let keyCommand):
         if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
           images.append(.init(id: keyboardShortcut.id, offset: convertedOffset,

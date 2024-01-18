@@ -24,7 +24,9 @@ struct ContentImageView: View {
         ContentShortcutImageView(size: size)
       case .text:
         TypingIconView(size: size - 6)
-      case .plain, .systemCommand, .mouse:
+      case .mouse:
+        MouseIconView(size: size - 6)
+      case .plain, .systemCommand:
         EmptyView()
       case .menuBar:
         MenuIconView(size: size - 6, stacked: $stacked)
