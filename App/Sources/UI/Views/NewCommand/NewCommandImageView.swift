@@ -24,7 +24,7 @@ struct NewCommandImageView: View {
       case .shortcut:
         image(for: "/System/Applications/Shortcuts.app")
       case .script:
-        image(for: "/System/Applications/Utilities/Terminal.app")
+        ScriptIconView(size: 24)
       case .text:
         TypingIconView(size: 24)
       case .system:

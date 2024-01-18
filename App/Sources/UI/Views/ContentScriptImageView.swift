@@ -9,23 +9,7 @@ struct ContentScriptImageView: View {
   var body: some View {
     switch source {
     case .inline:
-      ZStack {
-        Rectangle()
-          .fill(LinearGradient(stops: [
-            .init(color: Color.accentColor.opacity(0.2), location: 0.0),
-            .init(color: .black, location: 0.2),
-            .init(color: .black, location: 1.0),
-          ], startPoint: .top, endPoint: .bottom))
-          .cornerRadius(8)
-          .scaleEffect(0.9)
-        RoundedRectangle(cornerRadius: 8)
-          .stroke(.black)
-          .scaleEffect(0.9)
-
-        Text(">_")
-          .font(Font.system(.caption, design: .monospaced))
-      }
-      .frame(width: size, height: size)
+      ScriptIconView(size: size - 6)
     case .path:
       IconView(
         icon: .init(
