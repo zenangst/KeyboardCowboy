@@ -53,6 +53,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         ZenToggle(config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) {
           onAction(.toggleIsEnabled($0))
         }
+        .offset(x: 1)
 
         let textFieldPlaceholder = metaData.namePlaceholder.isEmpty
         ? placeholder
@@ -96,6 +97,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         ZenCheckbox("Notify", style: .small, isOn: $metaData.notification) {
           onAction(.toggleNotify($0))
         }
+        .offset(x: 2)
 
         CommandContainerDelayView(
           metaData: $metaData,
