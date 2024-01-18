@@ -169,7 +169,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.1"),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/InputSources.git", from: "1.0.1"),
-        .package(url: "https://github.com/zenangst/Intercom.git", .revision("7770b453f171c68961b0d4e5dc8ed1ddf0377762")),
+        .package(url: "https://github.com/zenangst/Intercom.git", .revision("5a340e185e571d058c09ab8b8ad8716098282443")),
         .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.0.7"),
         .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/MachPort.git", from: "3.1.1"),

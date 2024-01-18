@@ -203,6 +203,8 @@ final class WindowCommandRunner {
         duration: command.animationDuration,
         onUpdate: { activeWindow.frame = $0 }
       )
+
+      intercom.send(.autoHideDockIfNeeded)
     }
   }
 
