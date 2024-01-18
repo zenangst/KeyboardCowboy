@@ -2,6 +2,7 @@ import Bonzai
 import SwiftUI
 
 struct NewCommandTextView: View {
+  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#type-commands")!
   @Binding private var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
   @State private var kind: TextCommand.Kind
@@ -20,20 +21,29 @@ struct NewCommandTextView: View {
   }
 
   var body: some View {
-    ZenLabel("Text Command:")
-    Menu(content: {
-      Button(action: {
-        kind = .insertText(.init("", mode: .instant))
+    HStack {
+      ZenLabel("Text Command:")
+      Spacer()
+      Button(action: { NSWorkspace.shared.open(wikiUrl) },
+             label: { Image(systemName: "questionmark.circle.fill") })
+      .buttonStyle(.calm(color: .systemYellow, padding: .small))
+    }
+    HStack {
+      TypingIconView(size: 24)
+      Menu(content: {
+        Button(action: {
+          kind = .insertText(.init("", mode: .instant))
+        }, label: {
+          Text("Insert Text…")
+        })
       }, label: {
-        Text("Insert Text…")
+        switch kind {
+        case .insertText:
+          Text("Insert Text")
+        }
       })
-    }, label: {
-      switch kind {
-      case .insertText:
-        Text("Insert Text")
-      }
-    })
-    .menuStyle(.regular)
+      .menuStyle(.regular)
+    }
 
     switch kind {
     case .insertText:

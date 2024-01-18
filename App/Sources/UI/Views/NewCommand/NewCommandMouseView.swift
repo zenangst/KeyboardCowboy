@@ -25,25 +25,29 @@ struct NewCommandMouseView: View {
           }
           .frame(width: 32)
       }
-    Menu(content: {
-      ForEach(MouseCommand.Kind.allCases) { kind in
-        Button(action: {
-          selection = kind
-        }, label: {
-          Text(kind.displayValue)
-        })
+
+    HStack {
+      MouseIconView(size: 24)
+      Menu(content: {
+        ForEach(MouseCommand.Kind.allCases) { kind in
+          Button(action: {
+            selection = kind
+          }, label: {
+            Text(kind.displayValue)
+          })
+        }
+      }, label: {
+        Text(selection.displayValue)
+      })
+      .onChange(of: selection, perform: { value in
+        payload = .mouse(kind: selection)
+      })
+      .onAppear {
+        validation = .valid
+        payload = .mouse(kind: selection)
       }
-    }, label: {
-      Text(selection.displayValue)
-    })
-    .onChange(of: selection, perform: { value in
-      payload = .mouse(kind: selection)
-    })
-    .onAppear {
-      validation = .valid
-      payload = .mouse(kind: selection)
+      .menuStyle(.regular)
     }
-    .menuStyle(.regular)
   }
 }
 

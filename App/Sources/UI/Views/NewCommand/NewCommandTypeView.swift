@@ -2,8 +2,6 @@ import Bonzai
 import SwiftUI
 
 struct NewCommandTypeView: View {
-  private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#type-commands")!
-
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
@@ -27,13 +25,6 @@ struct NewCommandTypeView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      HStack {
-        ZenLabel("Type text:")
-        Spacer()
-        Button(action: { NSWorkspace.shared.open(wikiUrl) },
-               label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(.calm(color: .systemYellow, padding: .small))
-      }
       ZenTextEditor(text: $text, placeholder: "Enter text…", onCommandReturnKey: onSubmit)
 
       Menu(content: {

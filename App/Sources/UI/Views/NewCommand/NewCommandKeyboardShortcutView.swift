@@ -33,15 +33,17 @@ struct NewCommandKeyboardShortcutView: View {
                label: { Image(systemName: "questionmark.circle.fill") })
         .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
-
-      EditableKeyboardShortcutsView<Focus>(
-        $focus,
-        focusBinding: { .keyboardShortcut($0) },
-        keyboardShortcuts: $keyboardShortcuts,
-        selectionManager: .init(),
-        onTab: { _ in })
+      HStack {
+        KeyboardIconView("fn", size: 32)
+        EditableKeyboardShortcutsView<Focus>(
+          $focus,
+          focusBinding: { .keyboardShortcut($0) },
+          keyboardShortcuts: $keyboardShortcuts,
+          selectionManager: .init(),
+          onTab: { _ in })
         .overlay(NewCommandValidationView($validation))
         .frame(minHeight: 48, maxHeight: 48)
+      }
     }
     .onChange(of: keyboardShortcuts, perform: { newValue in
       validation = updateAndValidatePayload()
