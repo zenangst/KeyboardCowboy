@@ -26,7 +26,7 @@ struct MenuBarCommandView: View {
 
   var body: some View {
     CommandContainerView($metaData, placeholder: model.placeholder) { _ in
-      MenuIconView(size: 20, stacked: .constant(false))
+      MenuIconView(size: iconSize.width, stacked: .constant(false))
     } content: { _ in
       ScrollView(.horizontal) {
         HStack(spacing: 4) {

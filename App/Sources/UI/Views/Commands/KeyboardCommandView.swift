@@ -37,7 +37,7 @@ struct KeyboardCommandView: View {
       $metaData, 
       placeholder: model.placeholder,
       icon: { command in
-        KeyboardIconView(size: 20)
+        KeyboardIconView(size: iconSize.width)
           .overlay {
             Image(systemName: "flowchart")
               .resizable()

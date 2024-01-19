@@ -34,12 +34,7 @@ struct MouseCommandView: View {
       $metaData,
       placeholder: model.placeholder,
       icon: { command in
-        switch command.icon.wrappedValue {
-        case .some(let icon):
-          IconView(icon: icon, size: iconSize)
-        case .none:
-          EmptyView()
-        }
+        MouseIconView(size: iconSize.width)
       },
       content: { _ in
         HStack {
