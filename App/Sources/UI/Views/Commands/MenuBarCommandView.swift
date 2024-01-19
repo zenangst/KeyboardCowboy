@@ -71,6 +71,7 @@ struct MenuBarCommandView: View {
                   Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)).opacity(0.4),
                 ], startPoint: .top, endPoint: .bottom)
               )
+              .grayscale(0.4)
           )
           .compositingGroup()
           .shadow(radius: 2, y: 1)
