@@ -53,7 +53,7 @@ struct UIElementIconView: View {
           .fontWeight(.light)
           .opacity(0.3)
           .shadow(radius: 10)
-          .frame(width: size * 0.95, height: size * 0.95)
+          .frame(width: size * 0.9, height: size * 0.9)
           .offset(x: size * 0.0125)
 
         Image(systemName: "ellipsis.rectangle.fill")
@@ -68,13 +68,13 @@ struct UIElementIconView: View {
               .init(color: Color(.systemRed), location: 1.0),
             ], startPoint: .top, endPoint: .bottomTrailing))
           .shadow(radius: 5)
-          .frame(width: size * 0.8, height: size * 0.8)
+          .frame(width: size * 0.64, height: size * 0.64)
           .offset(x: size * 0.0125)
       }
     .compositingGroup()
-    .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
     .frame(width: size, height: size)
     .fixedSize()
+    .iconShape(size)
     .stacked($stacked, color: Color(.systemPurple), size: size)
     .enableInjection()
   }

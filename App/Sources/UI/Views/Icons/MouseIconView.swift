@@ -44,7 +44,7 @@ struct MouseIconView: View {
       }
       .frame(width: size, height: size)
       .fixedSize()
-      .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
+      .iconShape(size)
   }
 }
 

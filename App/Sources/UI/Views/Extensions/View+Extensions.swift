@@ -16,6 +16,11 @@ extension View {
       .animation(.easeInOut(duration: 3.0), value: stacked.wrappedValue)
   }
 
+  func iconShape(_ size: CGFloat) -> some View {
+    self
+      .clipShape(RoundedRectangle(cornerRadius: size * 0.175))
+  }
+
   @ViewBuilder
   func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
     transform(self)

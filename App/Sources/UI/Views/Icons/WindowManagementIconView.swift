@@ -26,7 +26,7 @@ struct WindowManagementIconView: View {
     }
     .background()
     .compositingGroup()
-    .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
+    .iconShape(size)
     .frame(width: size, height: size)
     .fixedSize()
     .stacked($stacked, color: Color(.systemRed), size: size)

@@ -100,7 +100,7 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
       }
       .frame(width: size, height: size)
       .fixedSize()
-      .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
+      .iconShape(size)
   }
 
   private func color(for index: Int, total: Int) -> Color {

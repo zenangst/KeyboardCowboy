@@ -74,7 +74,7 @@ struct MenuIconView: View {
       }
       .background(Color(.systemGray))
       .compositingGroup()
-      .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
+      .iconShape(size)
       .frame(width: size, height: size, alignment: .center)
       .fixedSize()
       .stacked($stacked, color: Color(.systemBlue), size: size)
