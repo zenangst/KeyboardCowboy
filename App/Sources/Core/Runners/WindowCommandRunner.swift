@@ -120,7 +120,7 @@ final class WindowCommandRunner {
         )
       case .fullscreen(let padding):
         if intercom.isRunning() {
-          intercom.send(.snapToFullscreen)
+          intercom.send(.snapToFullscreen, userInfo: ["padding": padding])
           return
         }
 
