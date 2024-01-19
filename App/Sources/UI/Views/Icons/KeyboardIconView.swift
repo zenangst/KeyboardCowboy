@@ -7,7 +7,7 @@ struct KeyboardIconView: View {
   let size: CGFloat
   let letter: String
 
-  init(_ letter: String, size: CGFloat) {
+  init(_ letter: String = "", size: CGFloat) {
     self.size = size
     self.letter = letter
   }
@@ -35,6 +35,8 @@ struct KeyboardIconView: View {
       .overlay {
         Text(letter)
           .font(Font.system(size: size * 0.3, weight: .regular, design: .rounded))
+          .allowsTightening(true)
+          .minimumScaleFactor(0.2)
       }
       .frame(width: size, height: size)
       .fixedSize()
