@@ -67,8 +67,8 @@ struct MenuBarCommandView: View {
             RoundedRectangle(cornerRadius: 4)
               .fill(
                 LinearGradient(colors: [
-                  Color(nsColor: .windowBackgroundColor),
-                  Color(nsColor: .gridColor).opacity(0.5),
+                  Color(nsColor: .controlAccentColor).opacity(0.7),
+                  Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)).opacity(0.4),
                 ], startPoint: .top, endPoint: .bottom)
               )
           )
