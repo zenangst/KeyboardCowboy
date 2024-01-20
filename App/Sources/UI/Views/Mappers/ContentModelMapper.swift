@@ -107,7 +107,8 @@ private extension Array where Element == Command {
 
   func images(limit: Int) -> [ContentViewModel.ImageModel] {
     var images = [ContentViewModel.ImageModel]()
-    for (offset, element) in self.reversed().enumerated() where element.isEnabled {
+    var offset: Int = 0
+    for element in self.reversed() where element.isEnabled {
       // Don't render icons for commands that are not enabled.
       if !element.isEnabled { continue }
 
@@ -184,7 +185,8 @@ private extension Array where Element == Command {
           ContentViewModel.ImageModel(
             id: command.id,
             offset: convertedOffset,
-            kind: .icon(.init(bundleIdentifier: command.kind.iconPath, path: command.kind.iconPath)))
+            kind: .command(.systemCommand(.init(id: command.id, kind: command.kind))
+          ))
         )
       case .uiElement(let command):
         images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.uiElement(command))))
@@ -196,6 +198,7 @@ private extension Array where Element == Command {
             kind: .command(.windowManagement(.init(id: command.id, kind: command.kind, animationDuration: command.animationDuration))))
         )
       }
+      offset += 1
     }
 
     return images.reversed()

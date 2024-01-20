@@ -16,11 +16,6 @@ struct ContentImagesView: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 24, height: 24)
-          Image(systemName: "plus")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .fixedSize()
-            .shadow(radius: 1, y: 1)
         }
         .foregroundColor(.white)
         .compositingGroup()

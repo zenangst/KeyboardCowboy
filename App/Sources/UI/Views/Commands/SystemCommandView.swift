@@ -25,8 +25,30 @@ struct SystemCommandView: View {
 
   var body: some View {
     CommandContainerView($metaData, placeholder: model.placeholder, icon: { command in
-      IconView(icon: Icon(bundleIdentifier: model.kind.iconPath,
-                          path: model.kind.iconPath), size: iconSize)
+      switch model.kind {
+      case .activateLastApplication:
+        EmptyView()
+      case .applicationWindows:
+        EmptyView()
+      case .minimizeAllOpenWindows:
+        EmptyView()
+      case .missionControl:
+        EmptyView()
+      case .moveFocusToNextWindow:
+        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize.width - 6)
+      case .moveFocusToNextWindowFront:
+        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: iconSize.width - 6)
+      case .moveFocusToNextWindowGlobal:
+        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: iconSize.width - 6)
+      case .moveFocusToPreviousWindow:
+        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width - 6)
+      case .moveFocusToPreviousWindowFront:
+        MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: iconSize.width - 6)
+      case .moveFocusToPreviousWindowGlobal:
+        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width - 6)
+      case .showDesktop:
+        DockIconView(size: iconSize.width - 6)
+      }
     }, content: { command in
       HStack(spacing: 8) {
         Menu(content: {

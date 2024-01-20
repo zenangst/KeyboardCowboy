@@ -26,8 +26,33 @@ struct ContentImageView: View {
         TypingIconView(size: size - 6)
       case .mouse:
         MouseIconView(size: size - 6)
-      case .plain, .systemCommand:
+      case .plain:
         EmptyView()
+      case .systemCommand(let model):
+        switch model.kind {
+        case .activateLastApplication:
+          EmptyView()
+        case .applicationWindows:
+          EmptyView()
+        case .minimizeAllOpenWindows:
+          EmptyView()
+        case .missionControl:
+          EmptyView()
+        case .moveFocusToNextWindow:
+          MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size - 6)
+        case .moveFocusToNextWindowFront:
+          MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size - 6)
+        case .moveFocusToNextWindowGlobal:
+          MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size - 6)
+        case .moveFocusToPreviousWindow:
+          MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size - 6)
+        case .moveFocusToPreviousWindowFront:
+          MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size - 6)
+        case .moveFocusToPreviousWindowGlobal:
+          MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size - 6)
+        case .showDesktop:
+          DockIconView(size: size - 6)
+        }
       case .menuBar:
         MenuIconView(size: size - 6)
       case .windowManagement:
