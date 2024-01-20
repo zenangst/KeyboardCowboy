@@ -116,17 +116,9 @@ private extension Command {
     case .application(let command):
       return .init(bundleIdentifier: command.application.bundleIdentifier,
                    path: command.application.path)
-    case .menuBar:
-      let path = "/System/Library/PreferencePanes/Appearance.prefPane"
-      return .init(bundleIdentifier: path, path: path)
-    case .mouse:
-      let path = "/System/Library/Frameworks/IOBluetoothUI.framework/Versions/A/Resources/MightyMouse.icns"
-      return .init(bundleIdentifier: path, path: path)
     case .builtIn:
       let path = Bundle.main.bundleURL.path
       return .init(bundleIdentifier: path, path: path)
-    case .keyboard:
-      return nil
     case .open(let command):
       let path: String
       if command.isUrl {
@@ -145,17 +137,10 @@ private extension Command {
       }
 
       return .init(bundleIdentifier: path, path: path)
-    case .shortcut:
-      return nil
-    case .text:
-      return nil
     case .systemCommand(let command):
       return .init(bundleIdentifier: command.kind.iconPath, path: command.kind.iconPath)
-    case .uiElement:
+    default:
       return nil
-    case .windowManagement:
-      let path = "/System/Applications/Mission Control.app/Contents/Resources/AppIcon.icns"
-      return .init(bundleIdentifier: path, path: path)
     }
   }
 }
