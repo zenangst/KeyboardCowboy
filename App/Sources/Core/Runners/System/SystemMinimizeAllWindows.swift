@@ -1,3 +1,4 @@
+import AXEssibility
 import Apps
 import Foundation
 import Carbon
@@ -18,15 +19,14 @@ enum SystemMinimizeAllWindows {
         if !uniqueRunningApplications.contains(where: { $0.bundleIdentifier == bundleIdentifier }),
            let app = ApplicationStore.shared.application(for: bundleIdentifier) {
           uniqueRunningApplications.append(app)
-          let configuration = NSWorkspace.OpenConfiguration()
-          configuration.activates = true
+            let appElement = AppAccessibilityElement(runningApplication.processIdentifier)
+            var abort = false
+            let minimize = try appElement.menuBar()
+              .findChild(matching: { element, _ in
+                element?.title == "Minimize All"
+              }, abort: &abort)
 
-          let url = URL(fileURLWithPath: app.path)
-          try Task.checkCancellation()
-          try await NSWorkspace.shared.openApplication(at: url, configuration: configuration)
-          try await menuBar.execute(.init(tokens: [
-            .menuItem(name: "Window"), .menuItem(name: "Minimize All")
-          ]))
+            minimize?.performAction(.press)
         }
       }
     }
