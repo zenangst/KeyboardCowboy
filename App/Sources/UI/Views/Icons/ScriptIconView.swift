@@ -23,32 +23,41 @@ struct ScriptIconView: View {
         ], startPoint: .top, endPoint: .bottom)
       }
       .overlay(alignment: .topLeading) {
-        Text(">_")
-          .font(Font.system(size: size * 0.375, design: .monospaced))
-          .padding(.top, size * 0.05)
-          .padding(.leading, size * 0.1)
-          .foregroundColor(
-            Color(nsColor: .controlAccentColor.withSystemEffect(.deepPressed))
-          )
-          .shadow(color: .white, radius: 15, y: 5)
+        HStack(spacing: 0) {
+          Text(">")
+            .font(Font.system(size: size * 0.375, design: .monospaced))
+            .padding(.top, size * 0.05)
+            .padding(.leading, size * 0.1)
+            .foregroundColor(
+              Color(nsColor: .controlAccentColor.withSystemEffect(.rollover))
+            )
+            .shadow(color: .white, radius: 15, y: 5)
+          Text("_")
+            .font(Font.system(size: size * 0.375, design: .monospaced))
+            .padding(.top, size * 0.05)
+            .foregroundColor(
+              Color(nsColor: .controlAccentColor.withSystemEffect(.deepPressed))
+            )
+            .shadow(color: .white, radius: 10, y: 5)
+        }
       }
       .overlay {
-        RoundedRectangle(cornerRadius: size * 0.1_25)
+        RoundedRectangle(cornerRadius: size * 0.175)
           .stroke(        LinearGradient(stops: [
             .init(color: Color(.windowBackgroundColor), location: 0.0),
             .init(color: Color(.systemGray), location: 0.2),
             .init(color: Color(.windowBackgroundColor), location: 1.0),
           ], startPoint: .topLeading, endPoint: .bottomTrailing)
-                          , lineWidth: size * 0.0_3)
+                          , lineWidth: size * 0.0_5)
 
-        RoundedRectangle(cornerRadius: size * 0.105)
-          .stroke(        LinearGradient(stops: [
-            .init(color: Color(.windowBackgroundColor), location: 0.0),
-            .init(color: Color(.systemGray), location: 0.2),
-            .init(color: Color(.windowBackgroundColor), location: 1.0),
-          ], startPoint: .bottomTrailing, endPoint: .topLeading)
-                          , lineWidth: size * 0.0_175)
-          .padding(size * 0.0_24)
+//        RoundedRectangle(cornerRadius: size * 0.105)
+//          .stroke(        LinearGradient(stops: [
+//            .init(color: Color(.windowBackgroundColor), location: 0.0),
+//            .init(color: Color(.systemGray), location: 0.2),
+//            .init(color: Color(.windowBackgroundColor), location: 1.0),
+//          ], startPoint: .bottomTrailing, endPoint: .topLeading)
+//                          , lineWidth: size * 0.0_175)
+//          .padding(size * 0.0_24)
 
       }
       .frame(width: size, height: size)

@@ -58,7 +58,7 @@ struct WindowManagementCommandView: View {
                          placeholder: model.placeholder,
                          icon: {
       command in
-      WindowManagementIconView(size: iconSize.width, stacked: .constant(false))
+      WindowManagementIconView(size: iconSize.width)
     },
                          content: { _ in
       VStack(alignment: .leading, spacing: 8) {

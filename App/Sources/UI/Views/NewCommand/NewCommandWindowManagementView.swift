@@ -16,7 +16,7 @@ struct NewCommandWindowManagementView: View {
       ZenLabel("Window Management")
 
       HStack {
-        WindowManagementIconView(size: 24, stacked: .readonly(false))
+        WindowManagementIconView(size: 24)
 
         Menu {
           ForEach(WindowCommand.Kind.allCases) { kind in

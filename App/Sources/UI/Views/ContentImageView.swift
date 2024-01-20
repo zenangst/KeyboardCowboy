@@ -29,11 +29,11 @@ struct ContentImageView: View {
       case .plain, .systemCommand:
         EmptyView()
       case .menuBar:
-        MenuIconView(size: size - 6, stacked: $stacked)
+        MenuIconView(size: size - 6)
       case .windowManagement:
-        WindowManagementIconView(size: size - 6, stacked: $stacked)
+        WindowManagementIconView(size: size - 6)
       case .uiElement:
-        UIElementIconView(size: size - 6, stacked: $stacked)
+        UIElementIconView(size: size - 6)
       }
     }
   }

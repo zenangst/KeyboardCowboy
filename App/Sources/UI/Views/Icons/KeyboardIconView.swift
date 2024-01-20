@@ -41,14 +41,14 @@ struct KeyboardIconView: View {
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
-      .background(
-        Rectangle()
-          .fill(Color.black.opacity( colorScheme == .light ? 0.33 : 0.9 ))
-          .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
-          .offset(x: 0, y: size * 0.025)
-          .scaleEffect(x: 0.95)
-          .blur(radius: 1)
-      )
+//      .background(
+//        Rectangle()
+//          .fill(Color.black.opacity( colorScheme == .light ? 0.33 : 0.9 ))
+//          .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
+//          .offset(x: 0, y: size * 0.025)
+//          .scaleEffect(x: 0.95)
+//          .blur(radius: 1)
+//      )
       .enableInjection()
   }
 }

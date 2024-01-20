@@ -122,20 +122,20 @@ struct ViewExtensions_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
       HStack {
-        WindowManagementIconView(size: 128, stacked: .constant(false))
-        WindowManagementIconView(size: 64, stacked: .constant(false))
-        WindowManagementIconView(size: 32, stacked: .constant(false))
+        WindowManagementIconView(size: 128)
+        WindowManagementIconView(size: 64)
+        WindowManagementIconView(size: 32)
       }
       HStack {
-        WindowManagementIconView(size: 128, stacked: .constant(true))
-        WindowManagementIconView(size: 64, stacked: .constant(true))
-        WindowManagementIconView(size: 32, stacked: .constant(true))
+        WindowManagementIconView(size: 128)
+        WindowManagementIconView(size: 64)
+        WindowManagementIconView(size: 32)
       }
 
       VStack(spacing: 0) {
-        UIElementIconView(size: 32, stacked: $stacked)
-        MenuIconView(size: 32, stacked: $stacked)
-        WindowManagementIconView(size: 32, stacked: $stacked)
+        UIElementIconView(size: 32)
+        MenuIconView(size: 32)
+        WindowManagementIconView(size: 32)
       }
       .background()
     }

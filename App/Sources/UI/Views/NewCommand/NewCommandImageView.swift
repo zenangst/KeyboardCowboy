@@ -30,13 +30,13 @@ struct NewCommandImageView: View {
       case .system:
         image(for: "/System")
       case .menuBar:
-        MenuIconView(size: 24, stacked: .constant(false))
+        MenuIconView(size: 24)
       case .mouse:
         MouseIconView(size: 24)
       case .uiElement:
-        UIElementIconView(size: 24, stacked: .constant(false))
+        UIElementIconView(size: 24)
       case .windowManagement:
-        WindowManagementIconView(size: 24, stacked: .constant(false))
+        WindowManagementIconView(size: 24)
       case .builtIn:
         image(for: Bundle.main.bundlePath)
       }

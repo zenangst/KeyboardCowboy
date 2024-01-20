@@ -162,7 +162,7 @@ struct NewCommandMenuBarView: View {
 
   func addView() -> some View {
     HStack {
-      MenuIconView(size: 24, stacked: .constant(false))
+      MenuIconView(size: 24)
 
       switch kind {
       case .menuItem:

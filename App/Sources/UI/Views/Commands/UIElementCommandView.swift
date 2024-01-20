@@ -32,7 +32,7 @@ struct UIElementCommandView: View {
 
   var body: some View {
     CommandContainerView($metaData, placeholder: model.placeholder) { _ in
-      UIElementIconView(size: iconSize.width, stacked: .constant(false))
+      UIElementIconView(size: iconSize.width)
     } content: { _ in
       VStack(alignment: .leading, spacing: 4) {
         ForEach(model.predicates.indices, id: \.self) { index in

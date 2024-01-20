@@ -4,7 +4,6 @@ import SwiftUI
 struct MenuIconView: View {
   @ObserveInjection var inject
   let size: CGFloat
-  @Binding var stacked: Bool
 
   var body: some View {
     Rectangle()
@@ -74,10 +73,9 @@ struct MenuIconView: View {
       }
       .background(Color(.systemGray))
       .compositingGroup()
-      .iconShape(size)
       .frame(width: size, height: size, alignment: .center)
       .fixedSize()
-      .stacked($stacked, color: Color(.systemBlue), size: size)
+      .iconShape(size)
       .enableInjection()
   }
 
@@ -146,13 +144,13 @@ struct TopLeadingRoundedShape: Shape {
 
 #Preview {
   HStack(alignment: .top, spacing: 8) {
-    MenuIconView(size: 192, stacked: .constant(false))
+    MenuIconView(size: 192)
     VStack(alignment: .leading, spacing: 8) {
-      MenuIconView(size: 128, stacked: .constant(false))
+      MenuIconView(size: 128)
       HStack(alignment: .top, spacing: 8) {
-        MenuIconView(size: 64, stacked: .constant(false))
-        MenuIconView(size: 32, stacked: .constant(false))
-        MenuIconView(size: 16, stacked: .constant(false))
+        MenuIconView(size: 64)
+        MenuIconView(size: 32)
+        MenuIconView(size: 16)
       }
     }
   }

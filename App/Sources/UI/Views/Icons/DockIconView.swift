@@ -5,7 +5,7 @@ struct DockIconView: View {
 
   var body: some View {
     RoundedRectangle(cornerRadius: 4)
-      .fill(Color(.systemBlue))
+      .fill(Color(.controlAccentColor))
       .overlay {
         AngularGradient(stops: [
           .init(color: Color.clear, location: 0.0),

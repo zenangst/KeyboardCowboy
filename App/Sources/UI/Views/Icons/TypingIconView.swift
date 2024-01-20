@@ -86,9 +86,9 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
           .padding(size * 0.1)
           .background(
             LinearGradient(stops: [
-              .init(color: Color(nsColor: .systemBlue.withSystemEffect(.rollover)), location: 0),
-              .init(color: Color(nsColor: .systemBlue), location: 0.8),
-              .init(color: Color(nsColor: .systemBlue.withSystemEffect(.disabled)), location: 1.0),
+              .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.rollover)), location: 0),
+              .init(color: Color(nsColor: .controlAccentColor), location: 0.8),
+              .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)), location: 1.0),
             ], startPoint: .top, endPoint: .bottomTrailing)
               .cornerRadius(size * 0.125)
           )

@@ -5,7 +5,6 @@ import SwiftUI
 struct WindowManagementIconView: View {
   @ObserveInjection var inject
   let size: CGFloat
-  @Binding var stacked: Bool
 
   var body: some View {
     HStack(alignment: .top, spacing: 0) {
@@ -29,7 +28,6 @@ struct WindowManagementIconView: View {
     .iconShape(size)
     .frame(width: size, height: size)
     .fixedSize()
-    .stacked($stacked, color: Color(.systemRed), size: size)
     .enableInjection()
   }
 
@@ -152,13 +150,13 @@ struct WindowManagementIconView_Previews: PreviewProvider {
   @State static var stacked: Bool = true
   static var previews: some View {
     HStack(alignment: .top, spacing: 8) {
-      WindowManagementIconView(size: 192, stacked: .constant(false))
+      WindowManagementIconView(size: 192)
       VStack(alignment: .leading, spacing: 8) {
-        WindowManagementIconView(size: 128, stacked: .constant(false))
+        WindowManagementIconView(size: 128)
         HStack(alignment: .top, spacing: 8) {
-          WindowManagementIconView(size: 64, stacked: .constant(false))
-          WindowManagementIconView(size: 32, stacked: .constant(false))
-          WindowManagementIconView(size: 16, stacked: .constant(false))
+          WindowManagementIconView(size: 64)
+          WindowManagementIconView(size: 32)
+          WindowManagementIconView(size: 16)
         }
       }
     }

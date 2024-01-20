@@ -82,7 +82,7 @@ struct MoveFocusToWindowIconView: View {
       let unfocusedSize = CGSize(width: size * 0.35, height: size * 0.45)
       let unfocusedOpacity = 0.6
       let focusedSize = CGSize(width: size * 0.45, height: size * 0.6)
-      let focusedOpacity = 0.8
+      let focusedOpacity = 1.0
       windowShape(width: direction == .next ? unfocusedSize.width : focusedSize.width,
                   height: direction == .next ? unfocusedSize.height : focusedSize.height)
       .opacity(direction == .next ? unfocusedOpacity : focusedOpacity)
