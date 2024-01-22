@@ -9,9 +9,10 @@ struct IconOverview: PreviewProvider {
         KeyboardIconView("M", size: size)
         MenuIconView(size: size)
         MouseIconView(size: size)
-        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
+        MissionControlIconView(size: size)
       }
       HStack {
+        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
         ScriptIconView(size: size)
         TypingIconView(size: size)
         UIElementIconView(size: size)

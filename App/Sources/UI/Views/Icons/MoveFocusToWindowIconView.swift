@@ -98,16 +98,23 @@ struct MoveFocusToWindowIconView: View {
     Rectangle()
       .frame(width: width, height: height)
       .overlay(alignment: .topLeading) {
-        HStack(spacing: width * 0.0_240) {
-          Circle()
-            .fill(Color(.systemRed))
-          Circle()
-            .fill(Color(.systemYellow))
-          Circle()
-            .fill(Color(.systemGreen))
+        HStack(alignment: .top, spacing: 0) {
+          HStack(alignment: .top, spacing: width * 0.0_240) {
+            Circle()
+              .fill(Color(.systemRed))
+            Circle()
+              .fill(Color(.systemYellow))
+            Circle()
+              .fill(Color(.systemGreen))
+            Divider()
+              .frame(width: 1)
+          }
+          .frame(width: width * 0.3)
+          .padding([.leading, .top], width * 0.0675)
+          Rectangle()
+            .fill(.white)
+            .frame(maxWidth: .infinity)
         }
-        .frame(width: width * 0.3)
-        .padding([.leading, .top], width * 0.0675)
       }
       .iconShape(width * 0.7)
   }

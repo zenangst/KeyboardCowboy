@@ -53,11 +53,29 @@ struct MissionControlIconView: View {
     Rectangle()
       .fill(
         LinearGradient(stops: [
-          .init(color: Color(nsColor: .systemPurple.withSystemEffect(.pressed)), location: 0.0),
-          .init(color: Color(nsColor: .systemPurple.withSystemEffect(.disabled)), location: 1.0),
+          .init(color: Color(nsColor: .white), location: 0.0),
+          .init(color: Color(nsColor: .white.withSystemEffect(.disabled)), location: 1.0),
         ], startPoint: .topLeading, endPoint: .bottom)
-
       )
+      .overlay(alignment: .topLeading) {
+        HStack(alignment: .top, spacing: 0) {
+          HStack(alignment: .top, spacing: size.width * 0.0_240) {
+            Circle()
+              .fill(Color(.systemRed))
+            Circle()
+              .fill(Color(.systemYellow))
+            Circle()
+              .fill(Color(.systemGreen))
+            Divider()
+              .frame(width: 1)
+          }
+          .frame(width: size.width * 0.3)
+          .padding([.leading, .top], size.width * 0.0675)
+          Rectangle()
+            .fill(.white.opacity(0.7))
+            .frame(maxWidth: .infinity)
+        }
+      }
       .iconShape(size.width * 0.7)
       .frame(width: size.width, height: size.height)
   }
