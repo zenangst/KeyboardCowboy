@@ -29,7 +29,7 @@ struct SystemCommandView: View {
       case .activateLastApplication:
         EmptyView()
       case .applicationWindows:
-        EmptyView()
+        MissionControlIconView(size: iconSize.width - 6)
       case .minimizeAllOpenWindows:
         EmptyView()
       case .missionControl:

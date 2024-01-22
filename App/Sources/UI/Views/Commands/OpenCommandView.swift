@@ -100,6 +100,5 @@ struct OpenCommandView_Previews: PreviewProvider {
   static var previews: some View {
     OpenCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
       .designTime()
-      .frame(maxHeight: 80)
   }
 }

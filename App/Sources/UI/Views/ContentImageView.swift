@@ -33,7 +33,7 @@ struct ContentImageView: View {
         case .activateLastApplication:
           EmptyView()
         case .applicationWindows:
-          EmptyView()
+          MissionControlIconView(size: size - 6)
         case .minimizeAllOpenWindows:
           EmptyView()
         case .missionControl:
