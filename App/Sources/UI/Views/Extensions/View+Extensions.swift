@@ -18,7 +18,7 @@ extension View {
 
   func iconShape(_ size: CGFloat) -> some View {
     self
-      .clipShape(RoundedRectangle(cornerRadius: size * 0.175))
+      .clipShape(RoundedRectangle(cornerRadius: size * 0.2))
   }
 
   @ViewBuilder

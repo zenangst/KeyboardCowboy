@@ -37,7 +37,7 @@ struct ContentImageView: View {
         case .minimizeAllOpenWindows:
           EmptyView()
         case .missionControl:
-          EmptyView()
+          MissionControlIconView(size: size - 6)
         case .moveFocusToNextWindow:
           MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size - 6)
         case .moveFocusToNextWindowFront:

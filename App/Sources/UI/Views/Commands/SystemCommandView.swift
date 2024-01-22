@@ -33,7 +33,7 @@ struct SystemCommandView: View {
       case .minimizeAllOpenWindows:
         EmptyView()
       case .missionControl:
-        EmptyView()
+        MissionControlIconView(size: iconSize.width - 6)
       case .moveFocusToNextWindow:
         MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize.width - 6)
       case .moveFocusToNextWindowFront:
