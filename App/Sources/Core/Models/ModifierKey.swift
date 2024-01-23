@@ -13,7 +13,7 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
   case capsLock = "⇪"
 
   public static var allCases: [ModifierKey] {
-    return [.function, .shift, .control, .option, .command]
+    return [.function, .shift, .control, .option, .command, .capsLock]
   }
 
   public var symbol: String {
@@ -33,7 +33,7 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     case .control:          "control"
     case .option:           "option"
     case .command:          "command"
-    case .capsLock:         "caps lock"
+    case .capsLock:         ""
     }
   }
 

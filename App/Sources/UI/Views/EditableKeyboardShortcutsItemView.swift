@@ -17,11 +17,11 @@ struct EditableKeyboardShortcutsItemView: View {
         ModifierKeyIcon(
           key: modifier,
           alignment: keyboardShortcut.wrappedValue.lhs
-          ? modifier == .shift ? .bottomLeading : .topTrailing
-          : modifier == .shift ? .bottomTrailing : .topLeading,
+          ? modifier == .capsLock ? .bottomLeading : modifier == .shift ? .bottomLeading : .topTrailing
+          : modifier == .capsLock ? .bottomLeading : modifier == .shift ? .bottomTrailing : .topLeading,
           glow: .constant(false)
         )
-        .frame(minWidth: modifier == .command || modifier == .shift ? 40 : 30, minHeight: 30)
+        .frame(minWidth: modifier == .command || modifier == .shift || modifier == .capsLock ? 40 : 30, minHeight: 30)
         .fixedSize(horizontal: true, vertical: true)
       }
       RegularKeyIcon(letter: keyboardShortcut.wrappedValue.key, width: 30, height: 30, glow: .constant(false))
@@ -74,7 +74,7 @@ struct EditableKeyboardShortcutsItemView: View {
 struct EditableKeyboardShortcutsItemView_Previews: PreviewProvider {
     static var previews: some View {
       EditableKeyboardShortcutsItemView(
-        keyboardShortcut: .constant(.init(key: UUID().uuidString, lhs: true)),
+        keyboardShortcut: .constant(.init(key: "Caps Lock", lhs: true, modifiers: [.capsLock])),
         keyboardShortcuts: .constant([]),
         selectionManager: .init(), onDelete: { _ in })
       .padding()
