@@ -46,7 +46,7 @@ final class MachPortCoordinator {
   private var keyboardCowboyModeSubscription: AnyCancellable?
   private var machPortEventSubscription: AnyCancellable?
   private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
-  private var repeatingResult: (() -> Void)?
+  private var repeatingResult: ((MachPortEvent) -> Void)?
   private var repeatingMatch: Bool?
   private var shouldHandleKeyUp: Bool = false
   private var specialKeys: [Int] = [Int]()
@@ -144,6 +144,8 @@ final class MachPortCoordinator {
       kind = .keyUp
       workItem?.cancel()
       workItem = nil
+      repeatingResult = nil
+      repeatingMatch = nil
     default:
       return
     }
@@ -151,7 +153,8 @@ final class MachPortCoordinator {
     // If the event is repeating and there is an earlier result,
     // reuse that result to avoid unnecessary lookups.
     if isRepeatingEvent, let repeatingResult {
-      repeatingResult()
+      machPortEvent.result = nil
+      repeatingResult(machPortEvent)
       return
     // If the event is repeating and there is no earlier result,
     // simply opt-out because we don't want to lookup the same
@@ -168,7 +171,7 @@ final class MachPortCoordinator {
       return
     }
 
-    var modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
+    let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
       .compactMap({ ModifierKey(rawValue: $0.rawValue) })
 
     let keyboardShortcut = KeyShortcut(
@@ -243,7 +246,7 @@ final class MachPortCoordinator {
       }
 
       let enabledWorkflows = workflow.commands.filter(\.isEnabled)
-      let execution: () -> Void
+      let execution: (MachPortEvent) -> Void
 
       if enabledWorkflows.count == 1,
          case .keyboard(let command) = enabledWorkflows.first {
@@ -251,24 +254,28 @@ final class MachPortCoordinator {
           notifications.notifyKeyboardCommand(workflow, command: command)
         }
 
-        execution = { [keyboardCommandRunner] in
+        execution = { [keyboardCommandRunner] machPortEvent in
           try? keyboardCommandRunner.run(command.keyboardShortcuts,
                                          type: machPortEvent.type,
                                          originalEvent: machPortEvent.event,
                                          with: machPortEvent.eventSource)
         }
-        execution()
-        repeatingResult = execution
+        execution(machPortEvent)
+        if !isRepeatingEvent {
+          repeatingResult = execution
+        }
         previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
         if case .windowManagement = $0 { true } else { false }
       }) {
         guard machPortEvent.type == .keyDown else { return }
-        execution = { [weak self] in
+        execution = { [weak self] machPortEvent in
           self?.run(workflow)
         }
-        execution()
-        repeatingResult = execution
+          execution(machPortEvent)
+        if !isRepeatingEvent {
+          repeatingResult = execution
+        }
         previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
