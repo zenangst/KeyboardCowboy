@@ -87,9 +87,6 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
           .onTapGesture {
             isShown.toggle()
           }
-          .onTapGesture {
-            Swift.print("foo")
-          }
       })
   }
 }

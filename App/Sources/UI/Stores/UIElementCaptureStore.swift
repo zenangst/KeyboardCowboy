@@ -52,8 +52,8 @@ final class UIElementCaptureStore: ObservableObject {
             eventsOfInterest: keyboardEvents | leftMouseEvents,
             signature: "com.zenangst.Keyboard-Cowboy",
             autoStartMode: .commonModes,
-            onFlagsChanged: { [weak self] flags in
-              self?.flags = flags
+            onFlagsChanged: { [weak self] machPortEvent in
+              self?.flags = machPortEvent.event.flags
             },
             onEventChange: { [weak self] event in
               self?.handle(event)

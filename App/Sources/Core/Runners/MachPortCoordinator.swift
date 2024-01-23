@@ -51,6 +51,7 @@ final class MachPortCoordinator {
   private var shouldHandleKeyUp: Bool = false
   private var specialKeys: [Int] = [Int]()
   private var workItem: DispatchWorkItem?
+  private var capsLockDown: Bool = false
 
   private let commandRunner: CommandRunner
   private let keyboardCommandRunner: KeyboardCommandRunner
@@ -110,12 +111,14 @@ final class MachPortCoordinator {
     }
   }
 
-  func receiveFlagsChanged(_ flags: CGEventFlags) {
+  func receiveFlagsChanged(_ machPortEvent: MachPortEvent) {
+    let flags = machPortEvent.event.flags
     workItem?.cancel()
     workItem = nil
     self.flagsChanged = flags
+    self.capsLockDown = machPortEvent.keyCode == kVK_CapsLock
   }
-
+ 
   // MARK: - Private methods
 
   private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool = false) {
@@ -123,7 +126,6 @@ final class MachPortCoordinator {
 
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     let kind: Event.Kind
-
     switch machPortEvent.type {
     case .flagsChanged:
       kind = .flagsChanged
@@ -166,8 +168,9 @@ final class MachPortCoordinator {
       return
     }
 
-    let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
+    var modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
       .compactMap({ ModifierKey(rawValue: $0.rawValue) })
+
     let keyboardShortcut = KeyShortcut(
       id: UUID().uuidString,
       key: displayValue,
@@ -249,7 +252,6 @@ final class MachPortCoordinator {
         }
 
         execution = { [keyboardCommandRunner] in
-          print(#function, #line)
           try? keyboardCommandRunner.run(command.keyboardShortcuts,
                                          type: machPortEvent.type,
                                          originalEvent: machPortEvent.event,
@@ -263,7 +265,6 @@ final class MachPortCoordinator {
       }) {
         guard machPortEvent.type == .keyDown else { return }
         execution = { [weak self] in
-          print(#function, #line)
           self?.run(workflow)
         }
         execution()
@@ -303,6 +304,12 @@ final class MachPortCoordinator {
       if kind == .keyDown {
         // No match, reset the lookup key
         reset()
+
+        // Disable caps lock.
+        // TODO: Add a setting for this!
+//        var newFlags = machPortEvent.event.flags
+//        newFlags.subtract(.maskAlphaShift)
+//        machPortEvent.event.flags = newFlags
 
         if !tryGlobals {
           intercept(machPortEvent, tryGlobals: true)
