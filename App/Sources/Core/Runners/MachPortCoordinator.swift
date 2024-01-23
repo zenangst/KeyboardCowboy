@@ -46,7 +46,7 @@ final class MachPortCoordinator {
   private var keyboardCowboyModeSubscription: AnyCancellable?
   private var machPortEventSubscription: AnyCancellable?
   private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
-  private var repeatingResult: KeyboardShortcutResult?
+  private var repeatingResult: (() -> Void)?
   private var repeatingMatch: Bool?
   private var shouldHandleKeyUp: Bool = false
   private var specialKeys: [Int] = [Int]()
@@ -90,22 +90,23 @@ final class MachPortCoordinator {
       }
   }
 
-  func receiveEvent(_ event: MachPortEvent) {
+  func receiveEvent(_ machPortEvent: MachPortEvent) {
     switch mode {
     case .disabled: break
     case .captureUIElement:
-      self.event = event
+      self.event = machPortEvent
     case .intercept:
-      guard event.type != .leftMouseUp &&
-            event.type != .leftMouseDown &&
-            event.type != .leftMouseDragged else {
+      guard machPortEvent.type != .leftMouseUp &&
+            machPortEvent.type != .leftMouseDown &&
+            machPortEvent.type != .leftMouseDragged else {
         return
       }
-      intercept(event)
-      self.event = event
+
+      intercept(machPortEvent)
+      self.event = machPortEvent
     case .recordKeystroke:
-      record(event)
-      self.event = event
+      record(machPortEvent)
+      self.event = machPortEvent
     }
   }
 
@@ -148,10 +149,7 @@ final class MachPortCoordinator {
     // If the event is repeating and there is an earlier result,
     // reuse that result to avoid unnecessary lookups.
     if isRepeatingEvent, let repeatingResult {
-      process(repeatingResult,
-              kind: kind, machPortEvent: machPortEvent,
-              isRepeatingEvent: isRepeatingEvent,
-              tryGlobals: tryGlobals)
+      repeatingResult()
       return
     // If the event is repeating and there is no earlier result,
     // simply opt-out because we don't want to lookup the same
@@ -241,27 +239,35 @@ final class MachPortCoordinator {
         machPortEvent.result = nil
       }
 
-      if !isRepeatingEvent {
-        repeatingResult = result
-      }
-
       let enabledWorkflows = workflow.commands.filter(\.isEnabled)
+      let execution: () -> Void
+
       if enabledWorkflows.count == 1,
          case .keyboard(let command) = enabledWorkflows.first {
         if !isRepeatingEvent && machPortEvent.event.type == .keyDown {
           notifications.notifyKeyboardCommand(workflow, command: command)
         }
 
-        try? keyboardCommandRunner.run(command.keyboardShortcuts,
-                                       type: machPortEvent.type,
-                                       originalEvent: machPortEvent.event,
-                                       with: machPortEvent.eventSource)
+        execution = { [keyboardCommandRunner] in
+          print(#function, #line)
+          try? keyboardCommandRunner.run(command.keyboardShortcuts,
+                                         type: machPortEvent.type,
+                                         originalEvent: machPortEvent.event,
+                                         with: machPortEvent.eventSource)
+        }
+        execution()
+        repeatingResult = execution
         previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
         if case .windowManagement = $0 { true } else { false }
       }) {
         guard machPortEvent.type == .keyDown else { return }
-        run(workflow)
+        execution = { [weak self] in
+          print(#function, #line)
+          self?.run(workflow)
+        }
+        execution()
+        repeatingResult = execution
         previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
