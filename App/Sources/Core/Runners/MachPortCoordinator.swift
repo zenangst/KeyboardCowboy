@@ -46,6 +46,7 @@ final class MachPortCoordinator {
   private var keyboardCowboyModeSubscription: AnyCancellable?
   private var machPortEventSubscription: AnyCancellable?
   private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
+  private var repeatingKeyCode: Int64 = -1
   private var repeatingResult: ((MachPortEvent) -> Void)?
   private var repeatingMatch: Bool?
   private var shouldHandleKeyUp: Bool = false
@@ -152,7 +153,7 @@ final class MachPortCoordinator {
 
     // If the event is repeating and there is an earlier result,
     // reuse that result to avoid unnecessary lookups.
-    if isRepeatingEvent, let repeatingResult {
+    if isRepeatingEvent, let repeatingResult, repeatingKeyCode == machPortEvent.keyCode {
       machPortEvent.result = nil
       repeatingResult(machPortEvent)
       return
@@ -261,9 +262,8 @@ final class MachPortCoordinator {
                                          with: machPortEvent.eventSource)
         }
         execution(machPortEvent)
-        if !isRepeatingEvent {
-          repeatingResult = execution
-        }
+        repeatingResult = execution
+        repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
         if case .windowManagement = $0 { true } else { false }
@@ -272,10 +272,9 @@ final class MachPortCoordinator {
         execution = { [weak self] machPortEvent in
           self?.run(workflow)
         }
-          execution(machPortEvent)
-        if !isRepeatingEvent {
-          repeatingResult = execution
-        }
+        execution(machPortEvent)
+        repeatingResult = execution
+        repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
