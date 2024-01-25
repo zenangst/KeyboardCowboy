@@ -1,80 +1,1238 @@
 [
   {
+    "id" : "294FB803-71A1-4849-94A1-8D43F5134B71",
+    "name" : "Default configuration",
     "groups" : [
       {
-        "name" : "Automation",
         "color" : "#EB5545",
+        "symbol" : "autostartstop",
+        "name" : "Automation",
+        "userModes" : [
+
+        ],
+        "workflows" : [
+          {
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            },
+            "execution" : "concurrent",
+            "name" : "Application Command",
+            "id" : "7D01C684-2D08-4899-81A4-898451344B7E",
+            "commands" : [
+              {
+                "applicationCommand" : {
+                  "meta" : {
+                    "enabled" : true,
+                    "name" : "Open Activity Monitor",
+                    "notification" : false,
+                    "id" : "BE8F0F64-16F5-4A29-BAFA-E5DD53555313"
+                  },
+                  "modifiers" : [
+
+                  ],
+                  "action" : "open",
+                  "application" : {
+                    "bundleName" : "Activity Monitor",
+                    "metadata" : {
+                      "isElectron" : false,
+                      "isAgent" : false,
+                      "isSafariWebApp" : false
+                    },
+                    "bundleIdentifier" : "com.apple.ActivityMonitor",
+                    "path" : "\/System\/Applications\/Utilities\/Activity Monitor.app"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "shortcuts" : [
+
+                ],
+                "passthrough" : false
+              }
+            },
+            "execution" : "concurrent",
+            "commands" : [
+              {
+                "menuBarCommand" : {
+                  "tokens" : [
+                    {
+                      "menuItem" : {
+                        "name" : "File"
+                      }
+                    },
+                    {
+                      "menuItem" : {
+                        "name" : "New Window"
+                      }
+                    }
+                  ],
+                  "meta" : {
+                    "id" : "78C4EEA7-3124-483D-ABEA-43F75F342F2A",
+                    "notification" : false,
+                    "enabled" : true,
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "id" : "396A322D-56A5-4E6B-9B9F-78DB4510F597",
+            "name" : "MenuBar Command"
+          },
+          {
+            "name" : "UI Element Command",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            },
+            "execution" : "concurrent",
+            "commands" : [
+              {
+                "uiElementCommand" : {
+                  "meta" : {
+                    "notification" : false,
+                    "name" : "",
+                    "id" : "2B9B570A-2FF0-42AC-981B-412E56CC649E",
+                    "enabled" : true
+                  },
+                  "predicates" : [
+                    {
+                      "value" : "Stop Capture",
+                      "kind" : "button",
+                      "properties" : [
+                        "description"
+                      ],
+                      "id" : "58F34DB1-A24E-441F-85E8-37762A89A5CD",
+                      "compare" : {
+                        "equals" : {
+
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "id" : "C140D458-B784-461A-BEF2-C4AA7F30398B"
+          },
+          {
+            "execution" : "concurrent",
+            "commands" : [
+              {
+                "openCommand" : {
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "BB32E422-8E21-455C-8BA9-0E9145414EEE",
+                    "name" : "https:\/\/apple.com",
+                    "notification" : false
+                  },
+                  "path" : "https:\/\/apple.com"
+                }
+              }
+            ],
+            "name" : "URL Command",
+            "id" : "A5C3A4D1-1936-4085-8CE9-3A15DB9CCDAD",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "shortcuts" : [
+
+                ],
+                "passthrough" : false
+              }
+            }
+          },
+          {
+            "name" : "File & Folder Command",
+            "execution" : "concurrent",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            },
+            "commands" : [
+              {
+                "openCommand" : {
+                  "meta" : {
+                    "id" : "9695C8A9-EAF5-4515-902B-6C81BB83FFC5",
+                    "notification" : false,
+                    "name" : "~\/",
+                    "enabled" : true
+                  },
+                  "path" : "\/Users\/christofferwinterkvist"
+                }
+              }
+            ],
+            "id" : "A23C5E41-D171-4086-99E9-7C0BFDA412B3"
+          },
+          {
+            "execution" : "concurrent",
+            "name" : "Keyboard Shortcut Command",
+            "id" : "4675A1E5-2B16-411A-B1E5-C0E502F7E035",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "shortcuts" : [
+
+                ],
+                "passthrough" : false
+              }
+            },
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "47944874-880E-442A-8527-483735EB90D6",
+                      "key" : "d",
+                      "modifiers" : [
+                        "@"
+                      ],
+                      "lhs" : true
+                    }
+                  ],
+                  "meta" : {
+                    "name" : "",
+                    "id" : "1FC80C87-7BF7-498C-AD09-C544A0FDD748",
+                    "enabled" : true,
+                    "notification" : false
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "commands" : [
+              {
+                "runShortcut" : {
+                  "shortcutIdentifier" : "New Shortcut 1",
+                  "meta" : {
+                    "id" : "A2091B8D-F4F2-4FAE-AE47-3F16F99EBA03",
+                    "enabled" : true,
+                    "notification" : false,
+                    "name" : "New Shortcut 1"
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            },
+            "name" : "Shortcut Command",
+            "id" : "FAFD35F1-54C1-44DA-9110-AF5E66DB30B7"
+          },
+          {
+            "commands" : [
+              {
+                "scriptCommand" : {
+                  "meta" : {
+                    "notification" : false,
+                    "name" : "Run Shell Script",
+                    "enabled" : true,
+                    "id" : "52189E79-F43A-4F64-9013-F5B72F39E35D"
+                  },
+                  "kind" : "sh",
+                  "source" : {
+                    "inline" : {
+                      "_0" : "echo \"Hello world!\""
+                    }
+                  }
+                }
+              }
+            ],
+            "name" : "Script Command",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "shortcuts" : [
+
+                ],
+                "passthrough" : false
+              }
+            },
+            "execution" : "concurrent",
+            "id" : "05316EA0-63D5-4E2A-A349-81655BB8DE7B"
+          },
+          {
+            "name" : "Type Command",
+            "execution" : "concurrent",
+            "commands" : [
+              {
+                "textCommand" : {
+                  "kind" : {
+                    "insertText" : {
+                      "_0" : {
+                        "input" : "Hello, world!",
+                        "meta" : {
+                          "id" : "E63171B3-4E67-4A68-8625-F0B639BF8734",
+                          "enabled" : true,
+                          "name" : "",
+                          "notification" : false
+                        },
+                        "mode" : "Typing"
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "shortcuts" : [
+
+                ],
+                "passthrough" : false
+              }
+            },
+            "id" : "8082B905-34E2-49C3-B13A-6248DCC2E029"
+          },
+          {
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            },
+            "execution" : "concurrent",
+            "commands" : [
+              {
+                "systemCommand" : {
+                  "kind" : "activateLastApplication",
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "6BD76204-7B13-477B-9583-EE8212449851",
+                    "name" : "System command",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "name" : "System command",
+                    "enabled" : true,
+                    "notification" : false,
+                    "id" : "384DC0F6-DBDC-48E4-8451-CF3F1E6A7F14"
+                  },
+                  "kind" : "applicationWindows"
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "minimizeAllOpenWindows",
+                  "meta" : {
+                    "notification" : false,
+                    "enabled" : true,
+                    "id" : "8CABD46A-D189-4E64-A690-266E6EA6C685",
+                    "name" : "System command"
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "name" : "System command",
+                    "enabled" : true,
+                    "notification" : false,
+                    "id" : "60256462-4FF9-49DB-86FE-A1B0E44BE8EC"
+                  },
+                  "kind" : "missionControl"
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "moveFocusToNextWindowFront",
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "3D8A3BB9-F516-4368-9AB6-5EB213BE6BC5",
+                    "name" : "System command",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "moveFocusToPreviousWindowFront",
+                  "meta" : {
+                    "notification" : false,
+                    "enabled" : true,
+                    "name" : "System command",
+                    "id" : "E3678992-62E3-4441-B1B8-E18CC7828709"
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "moveFocusToNextWindow",
+                  "meta" : {
+                    "notification" : false,
+                    "id" : "F6C99EAD-CFFC-4327-8F93-F174D5B62B22",
+                    "enabled" : true,
+                    "name" : "System command"
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "moveFocusToPreviousWindow",
+                  "meta" : {
+                    "name" : "System command",
+                    "id" : "885069F3-E14D-4EEE-BA8C-49281E8CC116",
+                    "notification" : false,
+                    "enabled" : true
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "moveFocusToNextWindowGlobal",
+                  "meta" : {
+                    "id" : "7557B422-8FDF-444B-80C9-0C53D07A8697",
+                    "enabled" : true,
+                    "notification" : false,
+                    "name" : "System command"
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "name" : "System command",
+                    "enabled" : true,
+                    "id" : "B04F5618-5FFD-4A94-9419-27DA581D13C0",
+                    "notification" : false
+                  },
+                  "kind" : "moveFocusToPreviousWindowGlobal"
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "enabled" : true,
+                    "notification" : false,
+                    "id" : "E110A5D3-942A-43CB-9377-BC711EBB8AA5",
+                    "name" : "System command"
+                  },
+                  "kind" : "showDesktop"
+                }
+              }
+            ],
+            "name" : "System Command",
+            "id" : "7F4C381E-E243-4755-9286-3D25988D2057"
+          },
+          {
+            "commands" : [
+              {
+                "windowCommand" : {
+                  "animationDuration" : 0,
+                  "meta" : {
+                    "notification" : false,
+                    "id" : "09E70519-134B-4560-876A-6AD8BFF6D45D",
+                    "enabled" : true,
+                    "name" : "Window Management Command"
+                  },
+                  "kind" : {
+                    "center" : {
+
+                    }
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "meta" : {
+                    "name" : "Window Management Command",
+                    "enabled" : true,
+                    "notification" : false,
+                    "id" : "14DFA6C7-D17B-4D38-B314-3B1D88354F8D"
+                  },
+                  "kind" : {
+                    "fullscreen" : {
+                      "padding" : 0
+                    }
+                  },
+                  "animationDuration" : 0
+                }
+              },
+              {
+                "windowCommand" : {
+                  "animationDuration" : 0,
+                  "kind" : {
+                    "move" : {
+                      "padding" : 0,
+                      "constrainedToScreen" : false,
+                      "direction" : "trailing",
+                      "by" : 0
+                    }
+                  },
+                  "meta" : {
+                    "id" : "A7EBD17E-56DC-4EC9-B0C0-5FD6982A3FFF",
+                    "notification" : false,
+                    "enabled" : true,
+                    "name" : "Window Management Command"
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "kind" : {
+                    "decreaseSize" : {
+                      "constrainedToScreen" : false,
+                      "direction" : "bottomTrailing",
+                      "by" : 0
+                    }
+                  },
+                  "animationDuration" : 0,
+                  "meta" : {
+                    "notification" : false,
+                    "id" : "08361868-FE83-4EC7-9E3F-04AE414C4A9D",
+                    "enabled" : true,
+                    "name" : "Window Management Command"
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "animationDuration" : 0,
+                  "meta" : {
+                    "enabled" : true,
+                    "name" : "Window Management Command",
+                    "id" : "8DEE6123-9AEF-4F15-AD5B-27A9D8B59E6A",
+                    "notification" : false
+                  },
+                  "kind" : {
+                    "increaseSize" : {
+                      "constrainedToScreen" : false,
+                      "padding" : 0,
+                      "direction" : "bottomTrailing",
+                      "by" : 0
+                    }
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "meta" : {
+                    "id" : "EA9DE28D-AC5F-42CD-A08C-029D291E679A",
+                    "enabled" : true,
+                    "name" : "Window Management Command",
+                    "notification" : false
+                  },
+                  "kind" : {
+                    "moveToNextDisplay" : {
+                      "mode" : "center"
+                    }
+                  },
+                  "animationDuration" : 0
+                }
+              },
+              {
+                "windowCommand" : {
+                  "meta" : {
+                    "enabled" : true,
+                    "name" : "Window Management Command",
+                    "id" : "CCF66D2F-60A6-42FE-85CC-EEBA8A4E4596",
+                    "notification" : false
+                  },
+                  "kind" : {
+                    "moveToNextDisplay" : {
+                      "mode" : "relative"
+                    }
+                  },
+                  "animationDuration" : 0
+                }
+              },
+              {
+                "windowCommand" : {
+                  "meta" : {
+                    "id" : "0B42594C-32F2-4D01-BD0F-61428888B274",
+                    "enabled" : true,
+                    "name" : "Window Management Command",
+                    "notification" : false
+                  },
+                  "kind" : {
+                    "anchor" : {
+                      "position" : "leading",
+                      "padding" : 0
+                    }
+                  },
+                  "animationDuration" : 0
+                }
+              }
+            ],
+            "id" : "6873F92A-D604-4786-A4D1-A15CDA76EF16",
+            "name" : "Window Management Command",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            },
+            "execution" : "concurrent"
+          },
+          {
+            "execution" : "concurrent",
+            "name" : "Mouse Command",
+            "commands" : [
+              {
+                "mouseCommand" : {
+                  "meta" : {
+                    "notification" : false,
+                    "enabled" : true,
+                    "name" : "",
+                    "id" : "2B16F4E0-3A38-4CDD-B3AF-FA2BE5CE3AEE"
+                  },
+                  "kind" : {
+                    "click" : {
+                      "_0" : {
+                        "focused" : {
+                          "_0" : {
+                            "center" : {
+
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            },
+            "id" : "B26A5777-8A01-400C-82F2-3486602F9872"
+          },
+          {
+            "commands" : [
+              {
+                "builtInCommand" : {
+                  "kind" : {
+                    "userMode" : {
+                      "_0" : {
+                        "isEnabled" : false,
+                        "name" : "Test Mode",
+                        "id" : "726738E5-C4D2-46D1-9095-E3D95533995F"
+                      },
+                      "_1" : "toggle"
+                    }
+                  },
+                  "meta" : {
+                    "enabled" : true,
+                    "notification" : false,
+                    "name" : "Toggle User Mode",
+                    "id" : "9A9785CC-8DD6-4DD1-ACC6-06152EC2C332"
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "303CAB30-05D4-4C8F-8DEF-5495AAADC52A",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            },
+            "name" : "Keyboard Cowboy Command"
+          },
+          {
+            "name" : "All Commands",
+            "commands" : [
+              {
+                "applicationCommand" : {
+                  "application" : {
+                    "bundleIdentifier" : "com.apple.ActivityMonitor",
+                    "bundleName" : "Activity Monitor",
+                    "path" : "\/System\/Applications\/Utilities\/Activity Monitor.app",
+                    "metadata" : {
+                      "isSafariWebApp" : false,
+                      "isAgent" : false,
+                      "isElectron" : false
+                    }
+                  },
+                  "action" : "open",
+                  "modifiers" : [
+
+                  ],
+                  "meta" : {
+                    "id" : "2FC751B7-C336-4124-9207-7CCAFDEE5299",
+                    "notification" : false,
+                    "enabled" : true,
+                    "name" : "Open Activity Monitor"
+                  }
+                }
+              },
+              {
+                "menuBarCommand" : {
+                  "tokens" : [
+                    {
+                      "menuItem" : {
+                        "name" : "File"
+                      }
+                    },
+                    {
+                      "menuItem" : {
+                        "name" : "New Window"
+                      }
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "6A072C2E-A11D-425D-BB1D-7F9B338B9BBD",
+                    "name" : "",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "uiElementCommand" : {
+                  "meta" : {
+                    "enabled" : true,
+                    "name" : "",
+                    "notification" : false,
+                    "id" : "D85500DD-D628-4122-B1BD-19C0855E22FC"
+                  },
+                  "predicates" : [
+                    {
+                      "id" : "58F34DB1-A24E-441F-85E8-37762A89A5CD",
+                      "kind" : "button",
+                      "properties" : [
+                        "description"
+                      ],
+                      "value" : "Stop Capture",
+                      "compare" : {
+                        "equals" : {
+
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "openCommand" : {
+                  "path" : "https:\/\/apple.com",
+                  "meta" : {
+                    "enabled" : true,
+                    "notification" : false,
+                    "id" : "E78DDE3D-97DC-40F2-8AB2-FFFF7EE0D5FB",
+                    "name" : "https:\/\/apple.com"
+                  }
+                }
+              },
+              {
+                "openCommand" : {
+                  "path" : "\/Users\/christofferwinterkvist",
+                  "meta" : {
+                    "enabled" : true,
+                    "name" : "~\/",
+                    "id" : "90838D02-ECCC-4A90-920B-0D3F1E305478",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "keyboardCommand" : {
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "47944874-880E-442A-8527-483735EB90D6",
+                      "lhs" : true,
+                      "modifiers" : [
+                        "@"
+                      ],
+                      "key" : "d"
+                    }
+                  ],
+                  "meta" : {
+                    "id" : "E2A76B65-2468-432D-A186-5BDD5A0BD35C",
+                    "notification" : false,
+                    "enabled" : true,
+                    "name" : ""
+                  }
+                }
+              },
+              {
+                "runShortcut" : {
+                  "shortcutIdentifier" : "New Shortcut 1",
+                  "meta" : {
+                    "id" : "1738BA5D-1D0C-4CAF-A1C4-5D9FE2A94D94",
+                    "enabled" : true,
+                    "name" : "New Shortcut 1",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "scriptCommand" : {
+                  "kind" : "sh",
+                  "source" : {
+                    "inline" : {
+                      "_0" : "echo \"Hello world!\""
+                    }
+                  },
+                  "meta" : {
+                    "notification" : false,
+                    "name" : "Run Shell Script",
+                    "enabled" : true,
+                    "id" : "54E944F8-3CB6-486A-B90D-4EB2F1B564E4"
+                  }
+                }
+              },
+              {
+                "textCommand" : {
+                  "kind" : {
+                    "insertText" : {
+                      "_0" : {
+                        "input" : "Hello, world!",
+                        "mode" : "Typing",
+                        "meta" : {
+                          "name" : "",
+                          "enabled" : true,
+                          "id" : "A1ECB865-E7B9-4211-8C53-15CD2202419C",
+                          "notification" : false
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "activateLastApplication",
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "3282E6AE-9395-4FD3-B9A3-3F0C20735912",
+                    "notification" : false,
+                    "name" : "System command"
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "id" : "2A8EFE5F-93E9-49C9-8248-672E04ABEBBF",
+                    "enabled" : true,
+                    "name" : "System command",
+                    "notification" : false
+                  },
+                  "kind" : "applicationWindows"
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "minimizeAllOpenWindows",
+                  "meta" : {
+                    "id" : "BC6823B6-0303-4D62-AC61-11AECCBB5E88",
+                    "notification" : false,
+                    "enabled" : true,
+                    "name" : "System command"
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "name" : "System command",
+                    "id" : "13F67DE5-8BF8-4F3A-8295-8FA434E68A4A",
+                    "notification" : false,
+                    "enabled" : true
+                  },
+                  "kind" : "missionControl"
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "enabled" : true,
+                    "name" : "System command",
+                    "id" : "60C9937B-3FDB-432E-B2A1-ABCE62551BCB",
+                    "notification" : false
+                  },
+                  "kind" : "moveFocusToNextWindowFront"
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "moveFocusToPreviousWindowFront",
+                  "meta" : {
+                    "name" : "System command",
+                    "id" : "76B271EA-EA84-4B45-B48E-99578D8272A6",
+                    "enabled" : true,
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "moveFocusToNextWindow",
+                  "meta" : {
+                    "enabled" : true,
+                    "notification" : false,
+                    "id" : "E16FA7CE-C8EB-4996-A5A0-3DF883E7669F",
+                    "name" : "System command"
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "name" : "System command",
+                    "enabled" : true,
+                    "notification" : false,
+                    "id" : "256C51D0-019D-4460-BBC1-D0DC5F7BC73C"
+                  },
+                  "kind" : "moveFocusToPreviousWindow"
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "moveFocusToNextWindowGlobal",
+                  "meta" : {
+                    "id" : "AB683580-9C21-4507-ADBC-57C0DDEB83C7",
+                    "enabled" : true,
+                    "name" : "System command",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "systemCommand" : {
+                  "meta" : {
+                    "name" : "System command",
+                    "id" : "64547A69-6A5E-462E-82DC-5F803A9E6B39",
+                    "notification" : false,
+                    "enabled" : true
+                  },
+                  "kind" : "moveFocusToPreviousWindowGlobal"
+                }
+              },
+              {
+                "systemCommand" : {
+                  "kind" : "showDesktop",
+                  "meta" : {
+                    "enabled" : true,
+                    "name" : "System command",
+                    "id" : "60A62186-7BA2-48B9-A77D-C78AD127BB66",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "kind" : {
+                    "center" : {
+
+                    }
+                  },
+                  "meta" : {
+                    "notification" : false,
+                    "enabled" : true,
+                    "name" : "Window Management Command",
+                    "id" : "099A08A8-2E2B-4AF1-851E-105746903DAB"
+                  },
+                  "animationDuration" : 0
+                }
+              },
+              {
+                "windowCommand" : {
+                  "meta" : {
+                    "notification" : false,
+                    "name" : "Window Management Command",
+                    "id" : "415D0B90-BA4A-4F75-BD1D-B6DBF86F050A",
+                    "enabled" : true
+                  },
+                  "kind" : {
+                    "fullscreen" : {
+                      "padding" : 0
+                    }
+                  },
+                  "animationDuration" : 0
+                }
+              },
+              {
+                "windowCommand" : {
+                  "kind" : {
+                    "move" : {
+                      "padding" : 0,
+                      "by" : 0,
+                      "constrainedToScreen" : false,
+                      "direction" : "trailing"
+                    }
+                  },
+                  "meta" : {
+                    "notification" : false,
+                    "enabled" : true,
+                    "id" : "8A20AE1A-FEE8-44D6-9256-69C03A6FE766",
+                    "name" : "Window Management Command"
+                  },
+                  "animationDuration" : 0
+                }
+              },
+              {
+                "windowCommand" : {
+                  "animationDuration" : 0,
+                  "kind" : {
+                    "decreaseSize" : {
+                      "by" : 0,
+                      "constrainedToScreen" : false,
+                      "direction" : "bottomTrailing"
+                    }
+                  },
+                  "meta" : {
+                    "id" : "5C90DBC1-20FA-4EFF-9E73-F55DB4D7EB99",
+                    "enabled" : true,
+                    "name" : "Window Management Command",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "kind" : {
+                    "increaseSize" : {
+                      "padding" : 0,
+                      "direction" : "bottomTrailing",
+                      "constrainedToScreen" : false,
+                      "by" : 0
+                    }
+                  },
+                  "animationDuration" : 0,
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "2BD0301A-9D96-4565-8AD7-DAE1C832A5B6",
+                    "name" : "Window Management Command",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "meta" : {
+                    "name" : "Window Management Command",
+                    "enabled" : true,
+                    "id" : "90F24848-B23C-4943-BEF0-B961C7E45E43",
+                    "notification" : false
+                  },
+                  "animationDuration" : 0,
+                  "kind" : {
+                    "moveToNextDisplay" : {
+                      "mode" : "center"
+                    }
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "kind" : {
+                    "moveToNextDisplay" : {
+                      "mode" : "relative"
+                    }
+                  },
+                  "animationDuration" : 0,
+                  "meta" : {
+                    "enabled" : true,
+                    "name" : "Window Management Command",
+                    "id" : "2AB9F148-DCD7-46D9-8DE4-AA6FB8946110",
+                    "notification" : false
+                  }
+                }
+              },
+              {
+                "windowCommand" : {
+                  "kind" : {
+                    "anchor" : {
+                      "position" : "leading",
+                      "padding" : 0
+                    }
+                  },
+                  "meta" : {
+                    "id" : "3E5F635F-9BF7-49E0-A160-C04AB9061EE0",
+                    "name" : "Window Management Command",
+                    "notification" : false,
+                    "enabled" : true
+                  },
+                  "animationDuration" : 0
+                }
+              },
+              {
+                "mouseCommand" : {
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "4D36786C-FD07-4358-9F6F-E40077DB52C3",
+                    "notification" : false,
+                    "name" : ""
+                  },
+                  "kind" : {
+                    "click" : {
+                      "_0" : {
+                        "focused" : {
+                          "_0" : {
+                            "center" : {
+
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "builtInCommand" : {
+                  "meta" : {
+                    "name" : "Toggle User Mode",
+                    "id" : "BFFFD007-9495-4EB7-A581-59810C83E147",
+                    "enabled" : true,
+                    "notification" : false
+                  },
+                  "kind" : {
+                    "userMode" : {
+                      "_0" : {
+                        "id" : "726738E5-C4D2-46D1-9095-E3D95533995F",
+                        "isEnabled" : false,
+                        "name" : "Test Mode"
+                      },
+                      "_1" : "toggle"
+                    }
+                  }
+                }
+              }
+            ],
+            "id" : "6F8CBD18-6AE6-43ED-99A5-144F6DC9947B",
+            "execution" : "concurrent",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+
+                ]
+              }
+            }
+          }
+        ],
+        "id" : "7DF42FEB-5702-4366-BCD7-2FA267CB3D1B"
+      },
+      {
         "workflows" : [
 
         ],
-        "id" : "7DF42FEB-5702-4366-BCD7-2FA267CB3D1B",
-        "symbol" : "autostartstop"
-      },
-      {
         "id" : "7B6B3743-ED08-4558-990D-AF21309F8F7F",
-        "name" : "Applications",
-        "workflows" : [
+        "userModes" : [
 
         ],
+        "color" : "#F2A23C",
         "symbol" : "app.dashed",
-        "color" : "#F2A23C"
+        "name" : "Applications"
       },
       {
+        "color" : "#F9D64A",
         "id" : "B43AE15C-6C64-4BD7-84E9-12C4C39EE623",
+        "userModes" : [
+
+        ],
         "name" : "AppleScripts",
         "workflows" : [
 
         ],
-        "color" : "#F9D64A",
         "symbol" : "applescript"
       },
       {
+        "workflows" : [
+
+        ],
+        "id" : "7F60EBF8-AB2A-4C23-AD46-E610DF7BAB0C",
         "color" : "#6BD35F",
         "name" : "Files & Folders",
         "symbol" : "folder",
-        "id" : "7F60EBF8-AB2A-4C23-AD46-E610DF7BAB0C",
+        "userModes" : [
+
+        ]
+      },
+      {
+        "color" : "#3984F7",
+        "workflows" : [
+
+        ],
+        "id" : "D69E891C-21FD-456F-A121-9ED1E471B282",
+        "name" : "Rebinding",
+        "symbol" : "app.connected.to.app.below.fill",
+        "userModes" : [
+
+        ]
+      },
+      {
+        "symbol" : "terminal",
+        "name" : "ShellScripts",
+        "id" : "F5FBD29B-694B-4110-9B10-ACAC4D10A60D",
+        "color" : "#B263EA",
+        "userModes" : [
+
+        ],
         "workflows" : [
 
         ]
       },
       {
-        "name" : "Rebinding",
-        "color" : "#3984F7",
-        "id" : "D69E891C-21FD-456F-A121-9ED1E471B282",
-        "workflows" : [
-
-        ],
-        "symbol" : "app.connected.to.app.below.fill"
-      },
-      {
-        "name" : "ShellScripts",
-        "workflows" : [
-
-        ],
-        "id" : "F5FBD29B-694B-4110-9B10-ACAC4D10A60D",
-        "symbol" : "terminal",
-        "color" : "#B263EA"
-      },
-      {
-        "workflows" : [
-
-        ],
         "id" : "749FB151-13A6-48D5-95DD-CA02D291A5D2",
+        "color" : "#98989D",
         "symbol" : "laptopcomputer",
         "name" : "System",
-        "color" : "#98989D"
+        "userModes" : [
+
+        ],
+        "workflows" : [
+
+        ]
       },
       {
-        "id" : "9F862622-573B-4467-87A8-0ECF0692391E",
-        "symbol" : "safari",
+        "name" : "Websites",
+        "userModes" : [
+
+        ],
         "workflows" : [
 
         ],
-        "name" : "Websites",
+        "symbol" : "safari",
+        "id" : "9F862622-573B-4467-87A8-0ECF0692391E",
         "color" : "#A78F6D"
       }
     ],
-    "id" : "294FB803-71A1-4849-94A1-8D43F5134B71",
-    "name" : "Default configuration"
+    "userModes" : [
+      {
+        "name" : "Test Mode",
+        "isEnabled" : false,
+        "id" : "726738E5-C4D2-46D1-9095-E3D95533995F"
+      }
+    ]
   }
 ]
