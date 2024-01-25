@@ -106,7 +106,7 @@ struct ContainerView: View {
         })
       })
     .navigationSplitViewStyle(.balanced)
-    .frame(minWidth: 850, minHeight: 420)
+    .frame(minWidth: 850, minHeight: 450)
   }
 }
 
