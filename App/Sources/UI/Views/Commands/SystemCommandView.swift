@@ -27,27 +27,27 @@ struct SystemCommandView: View {
     CommandContainerView($metaData, placeholder: model.placeholder, icon: { command in
       switch model.kind {
       case .activateLastApplication:
-        EmptyView()
+        ActivateLastApplicationIconView(size: iconSize.width)
       case .applicationWindows:
-        MissionControlIconView(size: iconSize.width - 6)
+        MissionControlIconView(size: iconSize.width)
       case .minimizeAllOpenWindows:
-        EmptyView()
+        MinimizeAllIconView(size: iconSize.width)
       case .missionControl:
-        MissionControlIconView(size: iconSize.width - 6)
+        MissionControlIconView(size: iconSize.width)
       case .moveFocusToNextWindow:
-        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize.width - 6)
+        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize.width)
       case .moveFocusToNextWindowFront:
-        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: iconSize.width - 6)
+        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: iconSize.width)
       case .moveFocusToNextWindowGlobal:
-        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: iconSize.width - 6)
+        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: iconSize.width)
       case .moveFocusToPreviousWindow:
-        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width - 6)
+        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
       case .moveFocusToPreviousWindowFront:
-        MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: iconSize.width - 6)
+        MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: iconSize.width)
       case .moveFocusToPreviousWindowGlobal:
-        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width - 6)
+        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
       case .showDesktop:
-        DockIconView(size: iconSize.width - 6)
+        DockIconView(size: iconSize.width)
       }
     }, content: { command in
       HStack(spacing: 8) {

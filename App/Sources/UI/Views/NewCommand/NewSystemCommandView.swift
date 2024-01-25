@@ -15,18 +15,51 @@ struct NewCommandSystemCommandView: View {
   var body: some View {
     VStack(alignment: .leading) {
       ZenLabel("System Command:")
-      Menu {
-        ForEach(SystemCommand.Kind.allCases) { kind in
-          Button(kind.displayValue, action: {
-            self.kind = kind
-            validation = updateAndValidatePayload()
-          })
+
+      HStack {
+        switch kind {
+        case .activateLastApplication:
+          ActivateLastApplicationIconView(size: 24)
+        case .applicationWindows:
+          MissionControlIconView(size: 24)
+        case .minimizeAllOpenWindows:
+          MinimizeAllIconView(size: 24)
+        case .missionControl:
+          MissionControlIconView(size: 24)
+        case .moveFocusToNextWindow:
+          MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: 24)
+        case .moveFocusToNextWindowFront:
+          MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: 24)
+        case .moveFocusToNextWindowGlobal:
+          MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: 24)
+        case .moveFocusToPreviousWindow:
+          MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: 24)
+        case .moveFocusToPreviousWindowFront:
+          MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: 24)
+        case .moveFocusToPreviousWindowGlobal:
+          MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: 24)
+        case .showDesktop:
+          DockIconView(size: 24)
+        case .none:
+          EmptyView()
         }
-      } label: {
-        if let kind {
-          Text(kind.displayValue)
-        } else {
-          Text("Select system command")
+        Menu {
+          ForEach(SystemCommand.Kind.allCases) { kind in
+            Button {
+              self.kind = kind
+              validation = updateAndValidatePayload()
+            } label: {
+              Image(systemName: kind.symbol)
+              Text(kind.displayValue)
+            }
+          }
+        } label: {
+          if let kind {
+            Image(systemName: kind.symbol)
+            Text(kind.displayValue)
+          } else {
+            Text("Select system command")
+          }
         }
       }
       .background(NewCommandValidationView($validation))

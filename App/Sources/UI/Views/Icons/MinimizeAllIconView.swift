@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct MissionControlIconView: View {
+struct MinimizeAllIconView: View {
   let size: CGFloat
 
   var body: some View {
-    RoundedRectangle(cornerRadius: 4)
-      .fill(Color(nsColor: .systemIndigo))
+    Rectangle()
+      .fill(Color(nsColor: .systemBrown))
       .overlay {
         AngularGradient(stops: [
           .init(color: Color.clear, location: 0.0),
@@ -23,27 +23,22 @@ struct MissionControlIconView: View {
           .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
         ], startPoint: .top, endPoint: .bottom)
       }
-      .overlay(alignment: .center, content: {
-        HStack(spacing: size * 0.03) {
-          VStack(alignment: .trailing, spacing: size * 0.08) {
-            window(.init(width: size * 0.28, height: size * 0.35))
-              .opacity(0.75)
-            window(.init(width: size * 0.2, height: size * 0.25))
-              .opacity(0.2)
-          }
-          VStack(spacing: size * 0.09) {
-            window(.init(width: size * 0.3, height: size * 0.25))
-              .opacity(0.9)
-            window(.init(width: size * 0.32, height: size * 0.315))
-              .opacity(0.5)
-          }
-          VStack(alignment: .leading, spacing: size * 0.04) {
-            window(.init(width: size * 0.26, height: size * 0.35))
-              .opacity(0.7)
-          }
-        }
-        .shadow(radius: 3)
-      })
+      .overlay {
+        window(.init(width: (size * 0.85) * 0.8,
+                     height: (size * 0.75) * 0.8))
+        .offset(y: -size * 0.1)
+        .shadow(radius: 2)
+
+
+        window(.init(width: (size * 0.85) * 0.9,
+                     height: (size * 0.75) * 0.9))
+        .offset(y: -size * 0.025)
+        .shadow(radius: 2)
+
+        window(.init(width: size * 0.85, height: size * 0.75))
+          .offset(y: size * 0.05)
+          .shadow(radius: 2)
+      }
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
@@ -62,18 +57,39 @@ struct MissionControlIconView: View {
           HStack(alignment: .top, spacing: size.width * 0.0_240) {
             Circle()
               .fill(Color(.systemRed))
+              .grayscale(0.5)
             Circle()
               .fill(Color(.systemYellow))
+              .shadow(color: Color(.systemYellow), radius: 10)
+              .overlay(alignment: .center) {
+                Image(systemName: "minus")
+                  .resizable()
+                  .aspectRatio(contentMode: .fit)
+                  .fontWeight(.heavy)
+                  .foregroundStyle(Color.orange)
+                  .opacity(0.8)
+                  .frame(width: size.width * 0.06)
+              }
             Circle()
               .fill(Color(.systemGreen))
+              .grayscale(0.5)
             Divider()
               .frame(width: 1)
           }
-          .frame(width: size.width * 0.3)
+          .frame(width: size.width * 0.4)
           .padding([.leading, .top], size.width * 0.0675)
           Rectangle()
-            .fill(.white.opacity(0.7))
+            .fill(.white)
             .frame(maxWidth: .infinity)
+            .overlay {
+              Image(systemName: "arrow.down")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .fontWeight(.heavy)
+                .foregroundStyle(Color.accentColor)
+                .opacity(0.4)
+                .frame(width: size.width * 0.3)
+            }
         }
       }
       .iconShape(size.width * 0.7)
@@ -83,13 +99,13 @@ struct MissionControlIconView: View {
 
 #Preview {
   HStack(alignment: .top, spacing: 8) {
-    MissionControlIconView(size: 192)
+    MinimizeAllIconView(size: 192)
     VStack(alignment: .leading, spacing: 8) {
-      MissionControlIconView(size: 128)
+      MinimizeAllIconView(size: 128)
       HStack(alignment: .top, spacing: 8) {
-        MissionControlIconView(size: 64)
-        MissionControlIconView(size: 32)
-        MissionControlIconView(size: 16)
+        MinimizeAllIconView(size: 64)
+        MinimizeAllIconView(size: 32)
+        MinimizeAllIconView(size: 16)
       }
     }
   }

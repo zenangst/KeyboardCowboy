@@ -35,7 +35,7 @@ struct ContentImageView: View {
         case .applicationWindows:
           MissionControlIconView(size: size - 6)
         case .minimizeAllOpenWindows:
-          EmptyView()
+          MinimizeAllIconView(size: size - 6)
         case .missionControl:
           MissionControlIconView(size: size - 6)
         case .moveFocusToNextWindow:

@@ -11,12 +11,26 @@ struct IconOverview: PreviewProvider {
         MouseIconView(size: size)
         MissionControlIconView(size: size)
       }
+
       HStack {
-        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
         ScriptIconView(size: size)
         TypingIconView(size: size)
         UIElementIconView(size: size)
         WindowManagementIconView(size: size)
+        MinimizeAllIconView(size: size)
+      }
+
+      HStack {
+        ActivateLastApplicationIconView(size: size)
+        MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
+        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
+        MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
+        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
+      }
+
+      HStack {
+        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
+        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
       }
     }
     .padding()

@@ -43,15 +43,7 @@ struct ScriptCommandView: View {
                          placeholder: model.placeholder,
                          icon: {
       command in
-      ZStack {
-        IconView(
-          icon: .init(
-            bundleIdentifier: "/System/Applications/Utilities/Script Editor.app",
-            path: "/System/Applications/Utilities/Script Editor.app"
-          ),
-          size: iconSize
-        )
-      }
+      ScriptIconView(size: iconSize.width)
     },
                          content: { metaData in
       VStack(alignment: .leading) {

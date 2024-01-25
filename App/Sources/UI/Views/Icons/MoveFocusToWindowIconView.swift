@@ -16,7 +16,7 @@ struct MoveFocusToWindowIconView: View {
 
   var body: some View {
     RoundedRectangle(cornerRadius: 4)
-      .fill(Color(.systemPurple))
+      .fill(baseColor(for: scope))
       .overlay { background() }
       .overlay(content: {
         HStack(spacing: size * 0.0_140) {
@@ -28,22 +28,49 @@ struct MoveFocusToWindowIconView: View {
         }
       })
       .overlay(alignment: .bottomTrailing) {
-        RoundedRectangle(cornerRadius: 4)
-          .fill(Color(.black))
-          .frame(width: size * 0.25, height: size * 0.25)
-          .fixedSize()
-          .iconShape(size * 0.25)
-          .overlay(alignment: .top) {
-            Text("A")
-              .font(Font.system(size: size * 0.2, weight: .bold, design: .rounded))
-          }
-          .offset(x: -size * 0.0525, y: -size * 0.0525)
-          .rotation3DEffect(.degrees(45), axis: (x: 1.0, y: 0.0, z: 0.0))
-          .opacity( scope == .activeApplication ? 0.5 : 0)
+        Image(systemName: "app")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: size * 0.1)
+          .padding(size * 0.055)
+          .font(Font.system(size: size * 0.2, weight: .bold, design: .rounded))
+          .background(
+            LinearGradient(stops: [
+              .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.rollover)), location: 0),
+              .init(color: Color(nsColor: .controlAccentColor), location: 0.8),
+              .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)), location: 1.0),
+            ], startPoint: .top, endPoint: .bottomTrailing)
+            .cornerRadius(size * 0.125)
+          )
+          .padding([.bottom, .trailing], size * 0.055)
+          .opacity( scope == .activeApplication ? 1 : 0)
       }
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
+  }
+
+  private func baseColor(for scope: Scope) -> Color {
+    switch scope {
+    case .activeApplication:
+      if direction == .next {
+        Color(.systemBlue)
+      } else {
+        Color(nsColor: .systemBlue.withSystemEffect(.disabled))
+      }
+    case .visibleWindows:
+      if direction == .next {
+        Color(.systemGreen)
+      } else {
+        Color(.systemGreen.withSystemEffect(.disabled))
+      }
+    case .allWindows:
+      if direction == .next {
+        Color(.systemOrange)
+      } else {
+        Color(nsColor: .systemOrange.withSystemEffect(.disabled))
+      }
+    }
   }
 
   @ViewBuilder
