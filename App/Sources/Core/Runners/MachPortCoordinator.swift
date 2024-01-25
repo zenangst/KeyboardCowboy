@@ -8,22 +8,6 @@ import KeyCodes
 import os
 
 final class MachPortCoordinator {
-  struct Event: Equatable {
-    enum Kind {
-      case flagsChanged
-      case keyUp
-      case keyDown
-    }
-
-    let keyboardShortcut: KeyShortcut
-    let kind: Kind
-
-    init(_ keyboardShortcut: KeyShortcut, kind: Kind) {
-      self.keyboardShortcut = keyboardShortcut
-      self.kind = kind
-    }
-  }
-
   enum RestrictedKeyCode: Int, CaseIterable {
     case backspace = 117
     case delete = 51
@@ -114,10 +98,13 @@ final class MachPortCoordinator {
 
   func receiveFlagsChanged(_ machPortEvent: MachPortEvent) {
     let flags = machPortEvent.event.flags
-    workItem?.cancel()
-    workItem = nil
+    self.workItem?.cancel()
+    self.workItem = nil
     self.flagsChanged = flags
     self.capsLockDown = machPortEvent.keyCode == kVK_CapsLock
+    self.repeatingResult = nil
+    self.repeatingMatch = nil
+    self.repeatingKeyCode = -1
   }
  
   // MARK: - Private methods
@@ -126,13 +113,8 @@ final class MachPortCoordinator {
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
-    let kind: Event.Kind
     switch machPortEvent.type {
-    case .flagsChanged:
-      kind = .flagsChanged
-      return
     case .keyDown:
-      kind = .keyDown
       if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue,
          machPortEvent.keyCode == kVK_Escape {
         if machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
@@ -142,7 +124,6 @@ final class MachPortCoordinator {
         }
       }
     case .keyUp:
-      kind = .keyUp
       workItem?.cancel()
       workItem = nil
       repeatingResult = nil
@@ -166,6 +147,7 @@ final class MachPortCoordinator {
     } else {
       repeatingResult = nil
       repeatingMatch = nil
+      repeatingKeyCode = -1
     }
 
     guard let displayValue = store.displayValue(for: Int(machPortEvent.keyCode)) else {
@@ -215,14 +197,12 @@ final class MachPortCoordinator {
     }
 
     process(result,
-            kind: kind,
             machPortEvent: machPortEvent,
             isRepeatingEvent: isRepeatingEvent,
             tryGlobals: tryGlobals)
   }
 
   private func process(_ result: KeyboardShortcutResult?, 
-                       kind: Event.Kind,
                        machPortEvent: MachPortEvent,
                        isRepeatingEvent: Bool,
                        tryGlobals: Bool) {
@@ -235,7 +215,7 @@ final class MachPortCoordinator {
         machPortEvent.result = nil
       }
 
-      if kind == .keyDown {
+      if machPortEvent.type == .keyDown {
         notifications.notifyBundles(partialMatch)
         previousPartialMatch = partialMatch
       }
@@ -279,7 +259,7 @@ final class MachPortCoordinator {
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
       }) {
-        if kind == .keyDown && isRepeatingEvent {
+        if machPortEvent.type == .keyDown && isRepeatingEvent {
           shouldHandleKeyUp = true
           return
         }
@@ -297,7 +277,7 @@ final class MachPortCoordinator {
         } else {
           run(workflow)
         }
-      } else if kind == .keyDown, !isRepeatingEvent {
+      } else if machPortEvent.type == .keyDown, !isRepeatingEvent {
         if let delay = shouldSchedule(workflow) {
           workItem = schedule(workflow, after: delay)
         } else {
@@ -307,7 +287,7 @@ final class MachPortCoordinator {
         previousPartialMatch = Self.defaultPartialMatch
       }
     case .none:
-      if kind == .keyDown {
+      if machPortEvent.type == .keyDown {
         // No match, reset the lookup key
         reset()
 
