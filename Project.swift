@@ -139,6 +139,7 @@ let project = Project(
     FileElement(stringLiteral: "Tuist/Dependencies.swift"),
     FileElement(stringLiteral: "appcast.xml"),
     FileElement(stringLiteral: "gh-pages"),
+    FileElement(stringLiteral: "_RELEASE_NOTES.md"),
   ]
 )
 
@@ -164,15 +165,15 @@ public enum PackageResolver {
       packages = [
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
-        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.0.16"),
+        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.1.0"),
         .package(url: "https://github.com/zenangst/Bonzai.git", .revision("5d574f9ccbe762677446b96cdd4edf8e7fe3ae5d")),
         .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.1"),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/InputSources.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/Intercom.git", .revision("5a340e185e571d058c09ab8b8ad8716098282443")),
-        .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.0.7"),
+        .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.1.0"),
         .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.1"),
-        .package(url: "https://github.com/zenangst/MachPort.git", from: "3.1.1"),
+        .package(url: "https://github.com/zenangst/MachPort.git", from: "4.0.0"),
         .package(url: "https://github.com/zenangst/Windows.git", from: "1.1.0"),
       ]
     }
