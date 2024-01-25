@@ -257,6 +257,7 @@ struct NewCommandUIElementView: View {
   }
 }
 
+#if DEBUG
 #Preview("Empty") {
   NewCommandUIElementView(.readonly(.uiElement(predicates: [])), validation: .readonly(.needsValidation))
     .padding()
@@ -278,3 +279,4 @@ struct NewCommandUIElementView: View {
       )
     )
 }
+#endif
