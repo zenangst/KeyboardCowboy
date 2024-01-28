@@ -62,21 +62,6 @@ struct ContentItemView: View {
     }
     .padding(4)
     .background(FillBackgroundView(isSelected: .readonly(contentSelectionManager.selections.contains(workflow.id))))
-    .draggable(getDraggable())
-    .dropDestination(String.self, color: .accentColor) { items, location in
-      guard let payload = items.draggablePayload(prefix: "W|"),
-            let (from, destination) = publisher.data.moveOffsets(for: workflow, with: payload) else {
-        return false
-      }
-      withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-        publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
-      }
-      onAction(.reorderWorkflows(source: from, destination: destination))
-      return true
-    }
-  }
-
-  func getDraggable() -> String {
-    return workflow.draggablePayload(prefix: "W|", selections: contentSelectionManager.selections)
+    .draggable(workflow)
   }
 }

@@ -1,9 +1,12 @@
 import Bonzai
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct ContentViewModel: Identifiable, Hashable, Codable,
                           Sendable, Transferable {
+  static var transferRepresentation: some TransferRepresentation {
+    CodableRepresentation(contentType: .workflow)
+  }
+
   let id: String
   let groupName: String?
   let name: String
@@ -39,15 +42,5 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
       case command(CommandViewModel.Kind)
       case icon(Icon)
     }
-  }
-
-  static var transferRepresentation: some TransferRepresentation {
-    CodableRepresentation(contentType: .workflow)
-  }
-}
-
-extension UTType {
-  static var workflow: UTType {
-    UTType(exportedAs: "com.zenangst.Keyboard-Cowboy.Workflow", conformingTo: .data)
   }
 }

@@ -90,6 +90,9 @@ final class DetailCoordinator {
     switch action {
     case .refresh, .moveWorkflowsToGroup, .reorderWorkflows, .duplicate:
       return
+    case .moveCommandsToWorkflow(_, let workflowId, _):
+      guard let groupId = groupSelectionManager.selections.first else { return }
+      render([workflowId], groupIds: [groupId])
     case .selectWorkflow(let workflowIds, let groupIds):
       render(workflowIds, groupIds: groupIds)
     case .removeWorkflows:

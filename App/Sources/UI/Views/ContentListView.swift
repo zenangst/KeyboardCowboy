@@ -12,6 +12,7 @@ struct ContentListView: View {
     case duplicate(workflowIds: Set<ContentViewModel.ID>)
     case refresh(_ groupIds: Set<WorkflowGroup.ID>)
     case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: Set<ContentViewModel.ID>)
+    case moveCommandsToWorkflow(_ workflowId: ContentViewModel.ID, fromWorkflowId: ContentViewModel.ID, commands: Set<CommandViewModel.ID>)
     case selectWorkflow(workflowIds: Set<ContentViewModel.ID>, groupIds: Set<WorkflowGroup.ID>)
     case removeWorkflows(Set<ContentViewModel.ID>)
     case reorderWorkflows(source: IndexSet, destination: Int)
@@ -79,6 +80,32 @@ struct ContentListView: View {
                 onAction: onAction
               )
               .contentShape(Rectangle())
+              .dropDestination(ContentListDropItem.self, color: .accentColor, onDrop: { items, location in
+                for item in items {
+                  switch item {
+                  case .workflow:
+                    let ids = Array(contentSelectionManager.selections)
+                    guard let (from, destination) = publisher.data.moveOffsets(for: element, with: ids) else { return false }
+
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+                      publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
+                    }
+
+                    onAction(.reorderWorkflows(source: from, destination: destination))
+                  case .command(let command):
+                    guard let fromId = contentSelectionManager.selections.first else {
+                      return false
+                    }
+
+                    onAction(.moveCommandsToWorkflow(
+                      element.id,
+                      fromWorkflowId: fromId,
+                      commands: [command.id]))
+                  }
+                }
+
+                return true
+              })
               .contextMenu(menuItems: {
                 contextualMenu(element.id)
               })

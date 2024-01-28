@@ -69,6 +69,21 @@ struct WorkflowApplicationTriggerView: View {
                                                  selectionManager: selectionManager,
                                                  onAction: onAction)
               .contentShape(Rectangle())
+              .dropDestination(DetailViewModel.ApplicationTrigger.self, color: .accentColor, onDrop: { items, location in
+
+                let ids = Array(selectionManager.selections)
+                guard let (from, destination) = data.moveOffsets(for: element.wrappedValue, with: ids) else {
+                  return false
+                }
+
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+                  data.move(fromOffsets: IndexSet(from), toOffset: destination)
+                }
+
+                onAction(.updateApplicationTriggers(data))
+
+                return false
+              })
               .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
                 selectionManager.handleOnTap(data, element: element.wrappedValue)
               }

@@ -20,19 +20,21 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-  <key>CFBundleDocumentTypes</key>
-  <array>
-    <dict>
-      <key>CFBundleTypeRole</key>
-      <string>Editor</string>
-      <key>LSItemContentTypes</key>
-      <array>
-        <string>com.zenangst.Keyboard-Cowboy.DraggableView</string>
-        <string>com.zenangst.Keyboard-Cowboy.WorkflowGroup</string>
-        <string>com.zenangst.Keyboard-Cowboy.Workflow</string>
-      </array>
-    </dict>
-  </array>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.zenangst.Keyboard-Cowboy.Group</string>
+				<string>com.zenangst.Keyboard-Cowboy.Workflows</string>
+				<string>com.zenangst.Keyboard-Cowboy.Command</string>
+				<string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
+        <string>com.zenangst.Keyboard-Cowboy.ApplicationTrigger</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -41,10 +43,10 @@
 	<true/>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Needs permission to Apple Events in order to run Apple Scripts</string>
-  <key>NSBluetoothAlwaysUsageDescription</key>
-  <string>Needs permission to access Bluetooth peripheral information in order to execute contextual commands.</string>
-  <key>NSBluetoothPeripheralUsageDescription</key>
-  <string>Needs permission to access Bluetooth peripheral information in order to execute contextual commands.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Needs permission to access Bluetooth peripheral information in order to execute contextual commands.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Needs permission to access Bluetooth peripheral information in order to execute contextual commands.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2019 zenangst. All rights reserved.</string>
 	<key>NSPrincipalClass</key>
@@ -62,14 +64,14 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>com.public.data</string>
+				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>DraggableView</string>
+			<string>Group</string>
 			<key>UTTypeIcons</key>
 			<dict/>
 			<key>UTTypeIdentifier</key>
-			<string>com.zenangst.Keyboard-Cowboy.DraggableView</string>
+			<string>com.zenangst.Keyboard-Cowboy.Group</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -79,14 +81,14 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>com.public.data</string>
+				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>WorkflowGroup</string>
+			<string>Workflows</string>
 			<key>UTTypeIcons</key>
 			<dict/>
 			<key>UTTypeIdentifier</key>
-			<string>com.zenangst.Keyboard-Cowboy.WorkflowGroup</string>
+			<string>com.zenangst.Keyboard-Cowboy.Workflows</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -96,14 +98,48 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>com.public.data</string>
+				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Workflow</string>
+			<string>Command</string>
 			<key>UTTypeIcons</key>
 			<dict/>
 			<key>UTTypeIdentifier</key>
-			<string>com.zenangst.Keyboard-Cowboy.Workflow</string>
+			<string>com.zenangst.Keyboard-Cowboy.Command</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array/>
+			</dict>
+		</dict>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.apple.package</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>KeyboardShortcut</string>
+      <key>UTTypeIcons</key>
+      <dict/>
+      <key>UTTypeIdentifier</key>
+      <string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array/>
+      </dict>
+    </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.package</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>ApplicationTrigger</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.zenangst.Keyboard-Cowboy.ApplicationTrigger</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -116,42 +152,70 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>com.public.data</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>DraggableView</string>
-			<key>UTTypeIcons</key>
-			<dict/>
-			<key>UTTypeIdentifier</key>
-			<string>com.zenangst.Keyboard-Cowboy.DraggableView</string>
-			<key>UTTypeTagSpecification</key>
-			<dict/>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>com.public.data</string>
+				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>WorkflowGroup</string>
 			<key>UTTypeIcons</key>
 			<dict/>
 			<key>UTTypeIdentifier</key>
-			<string>com.zenangst.Keyboard-Cowboy.WorkflowGroup</string>
+			<string>com.zenangst.Keyboard-Cowboy.Group</string>
 			<key>UTTypeTagSpecification</key>
 			<dict/>
 		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>com.public.data</string>
+				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Workflow</string>
 			<key>UTTypeIcons</key>
 			<dict/>
 			<key>UTTypeIdentifier</key>
-			<string>com.zenangst.Keyboard-Cowboy.Workflow</string>
+			<string>com.zenangst.Keyboard-Cowboy.Workflows</string>
+			<key>UTTypeTagSpecification</key>
+			<dict/>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.package</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Command</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.zenangst.Keyboard-Cowboy.Command</string>
+			<key>UTTypeTagSpecification</key>
+			<dict/>
+		</dict>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>com.apple.package</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>KeyboardShortcut</string>
+      <key>UTTypeIcons</key>
+      <dict/>
+      <key>UTTypeIdentifier</key>
+      <string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
+      <key>UTTypeTagSpecification</key>
+      <dict/>
+    </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.package</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>ApplicationTrigger</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.zenangst.Keyboard-Cowboy.ApplicationTrigger</string>
 			<key>UTTypeTagSpecification</key>
 			<dict/>
 		</dict>

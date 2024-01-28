@@ -408,7 +408,7 @@ final class MachPortCoordinator {
   }
 }
 
-public enum KeyShortcutRecording: Hashable {
+enum KeyShortcutRecording: Hashable {
   case valid(KeyShortcut)
   case delete(KeyShortcut)
   case cancel(KeyShortcut)

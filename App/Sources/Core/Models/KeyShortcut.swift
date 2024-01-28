@@ -1,16 +1,21 @@
 import Foundation
+import SwiftUI
 
 /// Keyboard shortcut is a data-structure that directly
 /// translates into a keyboard shortcut. This is
 /// used to match if a certain `Workflow` is eligiable
 /// to be invoked.
-public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable {
-  public let id: String
-  public let key: String
-  public let lhs: Bool
-  public let modifiers: [ModifierKey]
+struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transferable {
+  static var transferRepresentation: some TransferRepresentation {
+    CodableRepresentation(contentType: .keyboardShortcut)
+  }
 
-  public var modifersDisplayValue: String {
+  let id: String
+  let key: String
+  let lhs: Bool
+  let modifiers: [ModifierKey]
+
+  var modifersDisplayValue: String {
     let modifiers = self.modifiers.map(\.pretty)
     return modifiers.joined()
   }
@@ -22,11 +27,11 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     case lhs
   }
 
-  public var validationValue: String {
+  var validationValue: String {
     return "\(modifersDisplayValue)\(key)"
   }
 
-  public var stringValue: String {
+  var stringValue: String {
     var input: String = modifiers
       .sorted(by: { $0.rawValue > $1.rawValue })
       .compactMap({ $0.rawValue.lowercased() }).joined()
@@ -34,7 +39,7 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     return input
   }
 
-  public init(id: String = UUID().uuidString,
+  init(id: String = UUID().uuidString,
               key: String,
               lhs: Bool = true,
               modifiers: [ModifierKey] = []) {
@@ -44,7 +49,7 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
     self.modifiers = modifiers
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
@@ -56,9 +61,7 @@ public struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable 
   func copy() -> Self {
     KeyShortcut(key: key, lhs: lhs, modifiers: modifiers)
   }
-}
 
-public extension KeyShortcut {
   static func empty(id: String = UUID().uuidString) -> KeyShortcut {
     KeyShortcut(id: id, key: "", lhs: true)
   }

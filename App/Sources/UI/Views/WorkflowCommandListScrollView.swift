@@ -4,8 +4,6 @@ struct WorkflowCommandListScrollView: View {
   @Environment(\.openWindow) private var openWindow
   @EnvironmentObject private var applicationStore: ApplicationStore
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
-  @State private var dropOverlayIsVisible: Bool = false
-  @State private var dropUrls = Set<URL>()
   private let onAction: (SingleDetailView.Action) -> Void
   private let publisher: CommandsPublisher
   private let scrollViewProxy: ScrollViewProxy?
@@ -44,6 +42,34 @@ struct WorkflowCommandListScrollView: View {
             workflowId: workflowId,
             onCommandAction: onAction, onAction: { action in
             onAction(.commandView(workflowId: workflowId, action: action))
+          })
+          .dropDestination(CommandListDropItem.self, color: .accentColor, onDrop: { items, location in
+            var urls = [URL]()
+            for item in items {
+              switch item {
+              case .command:
+                let ids = Array(selectionManager.selections)
+                guard let (from, destination) = publisher.data.commands.moveOffsets(
+                  for: command,
+                  with: ids
+                ) else {
+                  return false
+                }
+
+                withAnimation(WorkflowCommandListView.animation) {
+                  publisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
+                }
+
+                onAction(.moveCommand(workflowId: workflowId, indexSet: from, toOffset: destination))
+              case .url(let url):
+                urls.append(url)
+              }
+            }
+
+            if !urls.isEmpty {
+              onAction(.dropUrls(workflowId: workflowId, urls: urls))
+            }
+            return true
           })
           .contentShape(Rectangle())
           .contextMenu(menuItems: {

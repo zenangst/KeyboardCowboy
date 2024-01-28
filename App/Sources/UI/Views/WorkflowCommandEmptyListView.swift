@@ -50,27 +50,22 @@ struct WorkflowCommandEmptyListView: View {
          .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
     }
     .padding()
-    .dropDestination(for: DropItem.self) { items, location in
+    .dropDestination(CommandListDropItem.self, color: .accentColor, onDrop: { items, location in
       var urls = [URL]()
       for item in items {
         switch item {
-        case .text(let text):
-          if let url = URL(string: text) {
-            urls.append(url)
-          }
+        case .command: break
         case .url(let url):
           urls.append(url)
-        case .none:
-          continue
         }
       }
 
       if !urls.isEmpty {
         onAction(.dropUrls(workflowId: workflowId, urls: urls))
-        return true
       }
-      return false
-    }
+
+      return true
+    })
     .frame(maxWidth: .infinity, minHeight: 250, maxHeight: .infinity)
     .matchedGeometryEffect(id: "command-list", in: namespace)
   }

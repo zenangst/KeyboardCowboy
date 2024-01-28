@@ -50,20 +50,6 @@ struct EditableKeyboardShortcutsItemView: View {
         .opacity(0.5)
     )
     .padding(.horizontal, 2)
-    .draggable(keyboardShortcut.draggablePayload(prefix: "WKS|", selections: selectionManager.selections))
-    .dropDestination(for: String.self) { items, location in
-      guard let payload = items.draggablePayload(prefix: "WKS|"),
-            let (from, destination) = keyboardShortcuts.moveOffsets(for: keyboardShortcut.wrappedValue,
-                                                                    with: payload) else {
-        return false
-      }
-      withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-        keyboardShortcuts.move(fromOffsets: IndexSet(from), toOffset: destination)
-      }
-      return true
-    } isTargeted: { newValue in
-      isTargeted = newValue
-    }
     .onHover(perform: { hovering in
       isHovered = hovering
     })

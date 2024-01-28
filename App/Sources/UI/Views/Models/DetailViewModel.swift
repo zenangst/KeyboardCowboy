@@ -59,7 +59,11 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     case empty
   }
 
-  struct ApplicationTrigger: Codable, Hashable, Identifiable, Equatable {
+  struct ApplicationTrigger: Codable, Hashable, Identifiable, Equatable, Transferable {
+    static var transferRepresentation: some TransferRepresentation {
+      CodableRepresentation(contentType: .applicationTrigger)
+    }
+
     var id: String
     var name: String
     var application: Application
