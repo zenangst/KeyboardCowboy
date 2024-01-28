@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -5,6 +6,7 @@ struct WorkflowCommandListView: View {
   static let animation: Animation = .spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)
 
   @Binding private var isPrimary: Bool
+  @State var isTargeted: Bool = false
   @Environment(\.openWindow) private var openWindow
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
   private let onAction: (SingleDetailView.Action) -> Void

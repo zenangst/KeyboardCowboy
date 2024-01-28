@@ -1,8 +1,13 @@
 import Apps
 import Bonzai
+import CoreTransferable
 import Foundation
 
-struct CommandViewModel: Codable, Hashable, Identifiable {
+struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
+  static var transferRepresentation: some TransferRepresentation {
+    CodableRepresentation(contentType: .command)
+  }
+
   struct MetaData: Identifiable, Codable, Hashable, Sendable {
     var id: String
     var delay: Double?

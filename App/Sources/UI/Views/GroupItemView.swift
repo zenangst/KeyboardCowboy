@@ -58,21 +58,7 @@ struct GroupItemView: View {
     .padding(.horizontal, 8)
     .contentShape(Rectangle())
     .background(FillBackgroundView(isSelected: .readonly(selectionManager.selections.contains(group.id))))
-    .draggable(group.draggablePayload(prefix: "WG|", selections: selectionManager.selections))
-    .dropDestination(String.self, color: .accentColor) { items, location in
-      if let payload = items.draggablePayload(prefix: "WG|"),
-           let (from, destination) = groupsPublisher.data.moveOffsets(for: group, with: payload) {
-          withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-            groupsPublisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
-          }
-
-          onAction(.moveGroups(source: from, destination: destination))
-          return true
-        } else if let payload = items.draggablePayload(prefix: "W|") {
-          onAction(.moveWorkflows(workflowIds: Set(payload), groupId: group.id))
-        }
-        return false
-    }
+    .draggable(group)
     .enableInjection()
   }
 

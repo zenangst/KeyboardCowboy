@@ -1,23 +1,5 @@
 import Foundation
 
-extension String {
-  func draggablePayload(prefix: String) -> [String]? {
-    var copy = self
-    if copy.hasPrefix(prefix) {
-      copy.removeFirst(prefix.count)
-      return copy.split(separator: ",").map(String.init)
-    } else {
-      return nil
-    }
-  }
-}
-
-extension Collection where Element == String {
-  func draggablePayload(prefix: String) -> [String]? {
-    first?.draggablePayload(prefix: prefix)
-  }
-}
-
 extension RandomAccessCollection where Element: Identifiable, Index == Int {
   func deleteOffsets(for ids: Set<Element.ID>) -> Array<Int> {
     enumerated()

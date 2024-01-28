@@ -59,7 +59,7 @@ struct ContainerView: View {
                     groupSelectionManager: groupsSelectionManager,
                     contentSelectionManager: contentSelectionManager
         ) { onAction(.sidebar($0), undoManager) }
-          .frame(minWidth: 180, maxWidth: .infinity, alignment: .leading)
+          .navigationSplitViewColumnWidth(ideal: 250)
       },
       content: {
         ContentListView(focus,
@@ -79,6 +79,7 @@ struct ContainerView: View {
             }
           }
         }
+        .navigationSplitViewColumnWidth(min: 180, ideal: 250)
       },
       detail: {
         DetailView(focus,

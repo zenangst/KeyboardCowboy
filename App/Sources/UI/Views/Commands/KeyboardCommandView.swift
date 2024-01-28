@@ -45,13 +45,13 @@ struct KeyboardCommandView: View {
               .frame(width: iconSize.width / 2)
           }
       }, content: { command in
-        EditableKeyboardShortcutsView<AppFocus>(focus,
-                                                focusBinding: { .detail(.commandShortcut($0)) },
-                                                keyboardShortcuts: $model.keys,
-                                                selectionManager: keyboardSelection,
-                                                onTab: { _ in })
+        EditableKeyboardShortcutsView<AppFocus>(
+          focus,
+          focusBinding: { .detail(.commandShortcut($0)) },
+          keyboardShortcuts: $model.keys,
+          selectionManager: keyboardSelection,
+          onTab: { _ in })
         .font(.caption)
-        .frame(height: 40)
         .onChange(of: model.keys) { newValue in
           onAction(.updateKeyboardShortcuts(newValue))
         }

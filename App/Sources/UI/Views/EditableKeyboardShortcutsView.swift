@@ -69,9 +69,22 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                   }
                 }
               )
+              .draggable(keyboardShortcut.wrappedValue)
               .padding(.leading, 2)
               .padding(.trailing, 4)
               .contentShape(Rectangle())
+              .dropDestination(KeyShortcut.self, alignment: .horizontal, color: .accentColor, onDrop: { items, location in
+                let ids = Array(selectionManager.selections)
+                guard let (from, destination) = keyboardShortcuts.moveOffsets(for: keyboardShortcut.wrappedValue, with: ids) else {
+                  return false
+                }
+
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+                  keyboardShortcuts.move(fromOffsets: IndexSet(from), toOffset: destination)
+                }
+
+                return true
+              })
               .contextMenu {
                 Text(keyboardShortcut.wrappedValue.validationValue)
                 Divider()

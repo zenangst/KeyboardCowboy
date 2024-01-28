@@ -29,6 +29,23 @@ final class ContentViewActionReducer {
       if let updatedGroup = groupStore.group(withId: group.id) {
         group = updatedGroup
       }
+    case .moveCommandsToWorkflow(let toWorkflow, let fromWorkflow, let commandIds):
+      guard let oldIndex = group.workflows.firstIndex(where: { $0.id == fromWorkflow }),
+            let newIndex = group.workflows.firstIndex(where: { $0.id == toWorkflow  }) else {
+        return
+      }
+
+      var oldWorkflow = group.workflows[oldIndex]
+      var newWorkflow = group.workflows[newIndex]
+
+      let commands = oldWorkflow.commands
+        .filter({ commandIds.contains($0.id) })
+      oldWorkflow.commands.removeAll(where: { commandIds.contains($0.id) })
+      newWorkflow.commands.append(contentsOf: commands)
+
+
+      group.workflows[oldIndex] = oldWorkflow
+      group.workflows[newIndex] = newWorkflow
     case .addWorkflow(let workflowId):
       let workflow = Workflow.empty(id: workflowId)
       group.workflows.append(workflow)

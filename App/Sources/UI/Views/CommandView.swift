@@ -65,43 +65,7 @@ struct CommandView: View {
       })
       .overlay(BorderedOverlayView(cornerRadius: 8))
       .compositingGroup()
-      .draggable($command.wrappedValue.draggablePayload(prefix: "WC|", selections: selectionManager.selections))
-      .dropDestination(DropItem.self, color: .accentColor) { items, location in
-        var urls = [URL]()
-        for item in items {
-          switch item {
-          case .text(let item):
-            // Don't accept dropping keyboard shortcuts.
-            if item.hasPrefix("WKS|") { return false }
-
-            if !item.hasPrefix("WC|"),
-               let url = URL(string: item) {
-              urls.append(url)
-              continue
-            }
-            guard let payload = item.draggablePayload(prefix: "WC|"),
-                  let (from, destination) = publisher.data.commands.moveOffsets(for: $command.wrappedValue,
-                                                                                with: payload) else {
-              return false
-            }
-            withAnimation(WorkflowCommandListView.animation) {
-              publisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
-            }
-            onCommandAction(.moveCommand(workflowId: workflowId, indexSet: from, toOffset: destination))
-            return true
-          case .url(let url):
-            urls.append(url)
-          case .none:
-            return false
-          }
-        }
-
-        if !urls.isEmpty {
-          onCommandAction(.dropUrls(workflowId: workflowId, urls: urls))
-          return true
-        }
-        return false
-      }
+      .draggable($command.wrappedValue)
       .environmentObject(selectionManager)
       .animation(.none, value: command.meta.isEnabled)
       .grayscale(command.meta.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)

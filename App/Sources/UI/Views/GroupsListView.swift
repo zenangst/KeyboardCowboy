@@ -71,6 +71,26 @@ struct GroupsListView: View {
                 onAction: onAction
               )
               .contentShape(Rectangle())
+              .dropDestination(SidebarListDropItem.self, color: .accentColor, onDrop: { items, location in
+                for item in items {
+                  switch item {
+                  case .group:
+                    let ids = Array(selectionManager.selections)
+                    guard let (from, destination) = publisher.data.moveOffsets(for: group, with: ids) else {
+                      return false
+                    }
+
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
+                      publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
+                    }
+
+                    onAction(.moveGroups(source: from, destination: destination))
+                  case .workflow:
+                    onAction(.moveWorkflows(workflowIds: contentSelectionManager.selections, groupId: group.id))
+                  }
+                }
+                return true
+              })
               .overlay(content: { confirmDeleteView(group) })
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)

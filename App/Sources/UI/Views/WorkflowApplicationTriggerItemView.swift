@@ -67,20 +67,9 @@ struct WorkflowApplicationTriggerItemView: View {
     }
     .padding(.leading, 8)
     .padding(.trailing, 16)
-    .dropDestination(String.self, color: .accentColor) { items, location in
-      guard let payload = items.draggablePayload(prefix: "WAT|"),
-            let (from, destination) = data.moveOffsets(for: element,
-                                                       with: payload) else {
-        return false
-      }
-      withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-        data.move(fromOffsets: IndexSet(from), toOffset: destination)
-      }
-      onAction(.updateApplicationTriggers(data))
-      return true
-    }
     .overlay(BorderedOverlayView(cornerRadius: 8))
-    .draggable(element.draggablePayload(prefix: "WAT|", selections: selectionManager.selections))
+    .contentShape(Rectangle())
+    .draggable(element)
     .enableInjection()
   }
 }
