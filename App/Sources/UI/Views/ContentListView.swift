@@ -109,9 +109,6 @@ struct ContentListView: View {
               .contextMenu(menuItems: {
                 contextualMenu(element.id)
               })
-              .onTapGesture {
-                onTap(element)
-              }
               .focusable($focus, as: .element(element.id)) {
                 if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
                    let lastSelection = contentSelectionManager.lastSelection,
