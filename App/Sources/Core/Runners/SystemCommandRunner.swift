@@ -11,9 +11,9 @@ final class SystemCommandRunner: @unchecked Sendable {
   var machPort: MachPortEventController?
 
   private let applicationStore: ApplicationStore
-  private var flagsChangedSubscription: AnyCancellable?
   private let workspace: WorkspaceProviding
 
+  private var flagsChangedSubscription: AnyCancellable?
   private var frontMostIndex: Int = 0
   private var visibleMostIndex: Int = 0
 
@@ -72,4 +72,3 @@ final class SystemCommandRunner: @unchecked Sendable {
     }
   }
 }
-

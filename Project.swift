@@ -59,10 +59,10 @@ let project = Project(
             "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
             "CODE_SIGN_IDENTITY": "Apple Development",
             "CODE_SIGN_STYLE": "Automatic",
-            "CURRENT_PROJECT_VERSION": "436",
+            "CURRENT_PROJECT_VERSION": "442",
             "DEVELOPMENT_TEAM": env["TEAM_ID"],
             "ENABLE_HARDENED_RUNTIME": true,
-            "MARKETING_VERSION": "3.21.0",
+            "MARKETING_VERSION": "3.21.1",
             "PRODUCT_NAME": "Keyboard Cowboy"
           ],
           configurations: [
@@ -166,7 +166,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
         .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.1.0"),
-        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("5d574f9ccbe762677446b96cdd4edf8e7fe3ae5d")),
+        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("cd94e615fa183c82395a783881c211c26255ad40")),
         .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.1"),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/InputSources.git", from: "1.0.1"),

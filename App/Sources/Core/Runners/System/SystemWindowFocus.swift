@@ -9,9 +9,9 @@ enum SystemWindowFocus {
                   snapshot: WindowStoreSnapshot, applicationStore: ApplicationStore,
                   workspace: WorkspaceProviding) throws {
     let collection = kind == .moveFocusToNextWindowGlobal ||
-    kind == .moveFocusToPreviousWindowGlobal
-    ? snapshot.visibleWindowsInSpace
-    : snapshot.visibleWindowsInStage
+                     kind == .moveFocusToPreviousWindowGlobal
+                     ? snapshot.visibleWindowsInSpace
+                     : snapshot.visibleWindowsInStage
 
     let collectionCount = collection.count
 

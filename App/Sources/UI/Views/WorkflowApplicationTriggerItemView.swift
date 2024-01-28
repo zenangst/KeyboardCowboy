@@ -67,7 +67,7 @@ struct WorkflowApplicationTriggerItemView: View {
     }
     .padding(.leading, 8)
     .padding(.trailing, 16)
-    .overlay(BorderedOverlayView(cornerRadius: 8))
+    .overlay(BorderedOverlayView(.readonly(selectionManager.selections.contains(element.id)), cornerRadius: 8))
     .contentShape(Rectangle())
     .draggable(element)
     .enableInjection()
