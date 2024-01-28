@@ -29,7 +29,7 @@ struct EditableKeyboardShortcutsItemView: View {
     }
     .contentShape(Rectangle())
     .padding(2)
-    .overlay(BorderedOverlayView(cornerRadius: 4))
+    .overlay(BorderedOverlayView(.readonly(selectionManager.selections.contains(keyboardShortcut.wrappedValue.id)), cornerRadius: 8))
     .overlay(alignment: .topTrailing, content: {
       Button(action: {
         onDelete(keyboardShortcut.wrappedValue)

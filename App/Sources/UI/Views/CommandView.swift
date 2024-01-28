@@ -63,7 +63,7 @@ struct CommandView: View {
       .onChange(of: command.meta.isEnabled, perform: { newValue in
         onAction(.toggleEnabled(payload: .init(workflowId: workflowId, commandId: command.id), newValue: newValue))
       })
-      .overlay(BorderedOverlayView(cornerRadius: 8))
+      .overlay(BorderedOverlayView(.readonly(selectionManager.selections.contains(command.id)), cornerRadius: 8))
       .compositingGroup()
       .draggable($command.wrappedValue)
       .environmentObject(selectionManager)
