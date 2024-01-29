@@ -11,6 +11,7 @@ struct WorkflowCommandListScrollView: View {
   private let workflowId: String
   private var focus: FocusState<AppFocus?>.Binding
   private var namespace: Namespace.ID
+  @State private var dropKind: TargetedKind = .reorder
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        publisher: CommandsPublisher,
@@ -43,7 +44,10 @@ struct WorkflowCommandListScrollView: View {
             onCommandAction: onAction, onAction: { action in
             onAction(.commandView(workflowId: workflowId, action: action))
           })
-          .dropDestination(CommandListDropItem.self, color: .accentColor, onDrop: { items, location in
+          .dropDestination(CommandListDropItem.self,
+                           color: .accentColor,
+                           kind: $dropKind,
+                           onDrop: { items, location in
             var urls = [URL]()
             for item in items {
               switch item {
@@ -57,7 +61,7 @@ struct WorkflowCommandListScrollView: View {
                 }
 
                 withAnimation(WorkflowCommandListView.animation) {
-                  publisher.data.commands.move(fromOffsets: IndexSet(from), toOffset: destination)
+                  publisher.data.commands.move(fromOffsets: from, toOffset: destination)
                 }
 
                 onAction(.moveCommand(workflowId: workflowId, indexSet: from, toOffset: destination))

@@ -101,6 +101,8 @@ final class DetailCommandActionReducer {
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
+        case .editCommand:
+          break // NOOP
         }
       case .mouse(let action, _):
         switch action {

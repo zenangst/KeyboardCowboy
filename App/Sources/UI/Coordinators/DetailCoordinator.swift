@@ -125,7 +125,7 @@ final class DetailCoordinator {
     case .mouse(let kind):
       command = .mouse(.init(meta: .init(), kind: kind))
     case .keyboardShortcut(let keyShortcuts):
-      command = .keyboard(.init(keyboardShortcuts: keyShortcuts, notification: false))
+      command = .keyboard(.init(id: resolvedCommandId, keyboardShortcuts: keyShortcuts, notification: false))
     case .script(let value, let kind, let scriptExtension):
       let source: ScriptCommand.Source
       switch kind {

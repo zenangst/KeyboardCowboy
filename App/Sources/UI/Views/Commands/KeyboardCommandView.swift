@@ -4,6 +4,7 @@ import SwiftUI
 struct KeyboardCommandView: View {
   @ObserveInjection var inject
   enum Action {
+    case editCommand(CommandViewModel.Kind.KeyboardModel)
     case updateName(newName: String)
     case updateKeyboardShortcuts([KeyShortcut])
     case commandAction(CommandContainerAction)
@@ -11,7 +12,7 @@ struct KeyboardCommandView: View {
 
   @StateObject var keyboardSelection = SelectionManager<KeyShortcut>()
   @State private var metaData: CommandViewModel.MetaData
-  @State private var model: CommandViewModel.Kind.KeyboardModel
+  @Binding private var model: CommandViewModel.Kind.KeyboardModel
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
   private let iconSize: CGSize
@@ -24,7 +25,7 @@ struct KeyboardCommandView: View {
        onAction: @escaping (Action) -> Void) {
     self.focus = focus
     _metaData = .init(initialValue: metaData)
-    _model = .init(initialValue: model)
+    _model = Binding<CommandViewModel.Kind.KeyboardModel>(model)
     self.onAction = onAction
     self.iconSize = iconSize
     self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
@@ -49,6 +50,7 @@ struct KeyboardCommandView: View {
           focus,
           focusBinding: { .detail(.commandShortcut($0)) },
           keyboardShortcuts: $model.keys,
+          draggableEnabled: false,
           selectionManager: keyboardSelection,
           onTab: { _ in })
         .font(.caption)
@@ -57,7 +59,15 @@ struct KeyboardCommandView: View {
         }
         .roundedContainer(padding: 0, margin: 0)
       },
-      subContent: { _ in },
+      subContent: { _ in
+        Button {
+          onAction(.editCommand(model))
+        } label: {
+          Text("Edit")
+            .font(.caption)
+        }
+        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
+      },
       onAction: { onAction(.commandAction($0)) })
     .enableInjection()
   }

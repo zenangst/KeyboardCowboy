@@ -101,7 +101,8 @@ private struct TargetedDropView<T: Transferable>: View {
           onDrop: onDrop
         )
       case .drop:
-        EmptyView()
+        Rectangle()
+          .fill(color.opacity(0.3))
       }
     })
   }

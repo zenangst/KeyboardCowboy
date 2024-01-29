@@ -126,8 +126,8 @@ struct NewCommandWindow: Scene {
       return .menuBar(tokens: command.tokens)
     case .mouse(let command):
       return .mouse(kind: command.kind)
-    case .keyboard:
-      return .placeholder
+    case .keyboard(let command):
+      return .keyboardShortcut(command.keyboardShortcuts)
     case .open(let openCommand):
       return .open(path: openCommand.path, application: openCommand.application)
     case .shortcut(let shortcutCommand):

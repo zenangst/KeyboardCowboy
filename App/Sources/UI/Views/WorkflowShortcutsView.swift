@@ -23,6 +23,7 @@ struct WorkflowShortcutsView: View {
     EditableKeyboardShortcutsView<AppFocus>(focus,
                                             focusBinding: { .detail(.keyboardShortcut($0)) },
                                             keyboardShortcuts: $data,
+                                            draggableEnabled: true,
                                             selectionManager: selectionManager,
                                             onTab: {
       if $0 {
