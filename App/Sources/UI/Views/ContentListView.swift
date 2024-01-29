@@ -26,7 +26,7 @@ struct ContentListView: View {
   @Namespace private var namespace
   @State private var searchTerm: String = ""
   private let contentSelectionManager: SelectionManager<ContentViewModel>
-  private let debounceSelectionManager: DebounceSelectionManager<ContentDebounce>
+  private let debounce: DebounceController<ContentDebounce>
   private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
 
@@ -40,7 +40,7 @@ struct ContentListView: View {
     self.onAction = onAction
     let initialDebounce = ContentDebounce(workflows: contentSelectionManager.selections,
                                           groups: groupSelectionManager.selections)
-    self.debounceSelectionManager = .init(initialDebounce, milliseconds: 100, onUpdate: { snapshot in
+    self.debounce = .init(initialDebounce, milliseconds: 100, onUpdate: { snapshot in
       onAction(.selectWorkflow(workflowIds: snapshot.workflows, groupIds: snapshot.groups))
     })
   }
@@ -63,13 +63,17 @@ struct ContentListView: View {
         ContentHeaderView(groupSelectionManager: groupSelectionManager,
                           namespace: namespace,
                           onAction: onAction)
-        ContentListFilterView(appFocus, searchTerm: $searchTerm) {
+        ContentListFilterView(appFocus, onClear: {
           let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
           appFocus.wrappedValue = .workflows
           DispatchQueue.main.async {
             proxy.scrollTo(match)
           }
-        }
+        }, onChange: { newValue in
+          withAnimation(.smooth(duration: 0.2)) {
+            searchTerm = newValue
+          }
+        })
         ScrollView {
           LazyVStack(spacing: 0) {
             ForEach(publisher.data.filter({ search($0) }), id: \.id) { element in
@@ -179,7 +183,6 @@ struct ContentListView: View {
               proxy.scrollTo(match)
             }
           }
-          .focusSection()
           .focused(appFocus, equals: .workflows)
           .onChange(of: searchTerm, perform: { newValue in
             if !searchTerm.isEmpty {
@@ -189,7 +192,7 @@ struct ContentListView: View {
                 contentSelectionManager.publish([])
               }
 
-              debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
+              debounce.process(.init(workflows: contentSelectionManager.selections,
                                                      groups: groupSelectionManager.selections))
             }
           })
@@ -223,7 +226,7 @@ struct ContentListView: View {
 
   private func onTap(_ element: ContentViewModel) {
     contentSelectionManager.handleOnTap(publisher.data, element: element)
-    debounceSelectionManager.process(.init(workflows: contentSelectionManager.selections,
+    debounce.process(.init(workflows: contentSelectionManager.selections,
                                            groups: groupSelectionManager.selections))
   }
 

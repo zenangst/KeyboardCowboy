@@ -7,12 +7,14 @@ import SwiftUI
 @MainActor
 final class SelectionManager<T>: ObservableObject where T: Identifiable,
                                                         T: Hashable,
-                                                        T: Equatable {
+                                                        T: Equatable,
+                                                        T.ID == String {
   private var subscriptions: AnyCancellable?
   private var tabIsActive: Bool = false
   typealias StoreType = (Set<T.ID>) -> Void
   private(set) var lastSelection: T.ID?
   @Published var selections: Set<T.ID>
+  @Published var initialSelection: String?
 
   private let store: StoreType
 
@@ -27,6 +29,8 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
       self.selections = selections
       self.lastSelection = nil
     }
+
+    self.initialSelection = lastSelection ?? selections.first
 
     subscriptions = LocalEventMonitor.shared.$event
       .compactMap { $0 }

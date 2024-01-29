@@ -2,17 +2,20 @@ import SwiftUI
 import Bonzai
 
 struct ContentListFilterView: View {
-  @Binding private var searchTerm: String
+  @State private var searchTerm: String = ""
   @EnvironmentObject private var publisher: ContentPublisher
+  private let debounce: DebounceController<String>
   private var focus: FocusState<AppFocus?>.Binding
   private let onClear: () -> Void
 
   init(_ focus: FocusState<AppFocus?>.Binding,
-       searchTerm: Binding<String>,
-       onClear: @escaping () -> Void) {
+       onClear: @escaping () -> Void,
+       onChange: @escaping (String) -> Void) {
     self.focus = focus
-    self._searchTerm = searchTerm
     self.onClear = onClear
+    self.debounce = DebounceController("", kind: .keyDown, milliseconds: 150, onUpdate: { snapshot in
+      onChange(snapshot)
+    })
   }
 
   var body: some View {
@@ -46,6 +49,9 @@ struct ContentListFilterView: View {
             focus.wrappedValue = .workflows
           }
           .frame(height: 24)
+          .onChange(of: searchTerm, perform: { value in
+            debounce.process(value)
+          })
         if !searchTerm.isEmpty {
           Button(action: {
             searchTerm = ""
@@ -66,7 +72,7 @@ struct ContentListFilterView: View {
 struct ContentListFilterView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContentListFilterView($focus, searchTerm: .constant("test"), onClear: {})
+    ContentListFilterView($focus, onClear: {}) { _ in }
     .designTime()
   }
 }

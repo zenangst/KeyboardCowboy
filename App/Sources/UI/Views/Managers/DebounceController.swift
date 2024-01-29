@@ -2,16 +2,24 @@ import Combine
 import Foundation
 
 protocol DebounceSnapshot: Equatable { }
+extension String: DebounceSnapshot { }
 
-final class DebounceSelectionManager<Snapshot: DebounceSnapshot> {
+final class DebounceController<Snapshot: DebounceSnapshot> {
+  enum Kind {
+    case keyRepeat
+    case keyDown
+  }
+
   private var subscription: AnyCancellable?
+  private let kind: Kind
   private let subject = PassthroughSubject<Snapshot, Never>()
   private let onUpdate: (Snapshot) -> Void
   @Published var snapshot: Snapshot
 
-  init(_ initialValue: Snapshot, milliseconds: Int, onUpdate: @escaping (Snapshot) -> Void) {
+  init(_ initialValue: Snapshot, kind: Kind = .keyRepeat, milliseconds: Int, onUpdate: @escaping (Snapshot) -> Void) {
     self._snapshot = .init(initialValue: initialValue)
     self.onUpdate = onUpdate
+    self.kind = kind
     self.subscription = subject
       .debounce(for: .milliseconds(milliseconds), scheduler: DispatchQueue.main)
       .sink {
@@ -20,10 +28,17 @@ final class DebounceSelectionManager<Snapshot: DebounceSnapshot> {
   }
 
   func process(_ snapshot: Snapshot) {
-    if LocalEventMonitor.shared.repeatingKeyDown {
+    switch kind {
+    case .keyDown:
       subject.send(snapshot)
-    } else {
-      onUpdate(snapshot)
+      return
+    case .keyRepeat:
+      if LocalEventMonitor.shared.repeatingKeyDown {
+        subject.send(snapshot)
+        return
+      }
     }
+
+    onUpdate(snapshot)
   }
 }

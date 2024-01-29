@@ -16,8 +16,6 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
           .fill(Color(.systemRed).opacity(0.25))
           .frame(width: size * 0.01)
           .padding(.leading, size * 0.05)
-
-
       }
       .overlay(alignment: .topLeading) {
         VStack(spacing: size * 0.0_76) {

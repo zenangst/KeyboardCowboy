@@ -33,7 +33,7 @@ struct GroupsListView: View {
   @EnvironmentObject private var publisher: GroupsPublisher
   @State private var confirmDelete: Confirm?
   private let contentSelectionManager: SelectionManager<ContentViewModel>
-  private let debounceSelectionManager: DebounceSelectionManager<GroupDebounce>
+  private let debounce: DebounceController<GroupDebounce>
   private let namespace: Namespace.ID
   private let onAction: (GroupsListView.Action) -> Void
   private let selectionManager: SelectionManager<GroupViewModel>
@@ -49,7 +49,7 @@ struct GroupsListView: View {
     self.selectionManager = selectionManager
     self.contentSelectionManager = contentSelectionManager
     self.onAction = onAction
-    self.debounceSelectionManager = .init(.init(groups: selectionManager.selections),
+    self.debounce = .init(.init(groups: selectionManager.selections),
                                           milliseconds: 150,
                                           onUpdate: { snapshot in
       onAction(.selectGroups(snapshot.groups))
@@ -136,13 +136,12 @@ struct GroupsListView: View {
             }
           }
           .onAppear {
-            let match = selectionManager.lastSelection ?? selectionManager.selections.first ?? ""
-            focus = .element(match)
+            guard let initialSelection = selectionManager.initialSelection else { return }
+            focus = .element(initialSelection)
             DispatchQueue.main.async {
-              proxy.scrollTo(match)
+              proxy.scrollTo(initialSelection)
             }
           }
-          .focusSection()
           .focused(appFocus, equals: .groups)
           .padding(.horizontal, 8)
         }
@@ -153,7 +152,7 @@ struct GroupsListView: View {
   private func onTap(_ element: GroupViewModel) {
     selectionManager.handleOnTap(publisher.data, element: element)
     confirmDelete = nil
-    debounceSelectionManager.process(.init(groups: selectionManager.selections))
+    debounce.process(.init(groups: selectionManager.selections))
   }
 
   func confirmDeleteView(_ group: GroupViewModel) -> some View {
