@@ -111,7 +111,6 @@ struct CommandResolverView: View {
         switch action {
         case .editCommand(let command):
           openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
-          break
         case .commandAction(let action):
           handleCommandContainerAction(action)
         }
@@ -160,6 +159,8 @@ struct CommandResolverView: View {
           switch action {
           case .commandAction(let action):
             handleCommandContainerAction(action)
+          case .editCommand(let command):
+            openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
           default:
             onAction(.modify(.keyboard(action: action, payload: payload)))
           }

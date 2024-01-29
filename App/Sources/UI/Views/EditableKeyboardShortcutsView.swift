@@ -32,6 +32,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   @State private var replacing: KeyShortcut.ID?
   @State private var selectedColor: Color = .accentColor
   private let animation: Animation = .easeOut(duration: 0.2)
+  private let draggableEnabled: Bool
   private let focusBinding: (KeyShortcut.ID) -> T
   private let onTab: (Bool) -> Void
   private let placeholderId = "keyboard_shortcut_placeholder_id"
@@ -40,10 +41,12 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   init(_ focus: FocusState<T?>.Binding,
        focusBinding: @escaping (KeyShortcut.ID) -> T,
        keyboardShortcuts: Binding<[KeyShortcut]>,
+       draggableEnabled: Bool,
        state: CurrentState? = nil,
        selectionManager: SelectionManager<KeyShortcut>,
        onTab: @escaping (Bool) -> Void) {
     self.focus = focus
+    self.draggableEnabled = draggableEnabled
     _keyboardShortcuts = keyboardShortcuts
     _state = .init(initialValue: state)
     self.focusBinding = focusBinding
@@ -69,7 +72,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                   }
                 }
               )
-              .draggable(keyboardShortcut.wrappedValue)
+              .modifier(DraggableToggle(isEnabled: draggableEnabled, model: keyboardShortcut.wrappedValue))
               .padding(.leading, 2)
               .padding(.trailing, 4)
               .contentShape(Rectangle())
@@ -271,6 +274,20 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   }
 }
 
+private struct DraggableToggle<T: Transferable>: ViewModifier {
+  let isEnabled: Bool
+  let model: T
+
+  func body(content: Content) -> some View {
+    if isEnabled {
+      content
+        .draggable(model)
+    } else {
+      content
+    }
+  }
+}
+
 struct EditableKeyboardShortcutsView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
@@ -278,6 +295,7 @@ struct EditableKeyboardShortcutsView_Previews: PreviewProvider {
       $focus,
       focusBinding: { .detail(.keyboardShortcut($0)) },
       keyboardShortcuts: .constant([ ]),
+      draggableEnabled: false,
       state: .recording,
       selectionManager: SelectionManager<KeyShortcut>.init(),
       onTab: { _ in })
