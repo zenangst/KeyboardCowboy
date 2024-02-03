@@ -165,15 +165,15 @@ public enum PackageResolver {
       packages = [
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
-        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.1.0"),
+        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.1.1"),
         .package(url: "https://github.com/zenangst/Bonzai.git", .revision("cd94e615fa183c82395a783881c211c26255ad40")),
-        .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.1"),
+        .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.2"),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/InputSources.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/Intercom.git", .revision("5a340e185e571d058c09ab8b8ad8716098282443")),
         .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.1.0"),
         .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.1"),
-        .package(url: "https://github.com/zenangst/MachPort.git", from: "4.0.0"),
+        .package(url: "https://github.com/zenangst/MachPort.git", from: "4.1.0"),
         .package(url: "https://github.com/zenangst/Windows.git", from: "1.1.0"),
       ]
     }

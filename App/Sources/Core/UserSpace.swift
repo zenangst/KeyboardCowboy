@@ -267,7 +267,7 @@ final class UserSpace: Sendable {
   private func selectedText() async throws -> String {
     let systemElement = SystemAccessibilityElement()
     let focusedElement = try systemElement.focusedUIElement()
-    var selectedText = focusedElement.selectedText()
+    let selectedText = focusedElement.selectedText()
     if selectedText == nil && (try? focusedElement.value(.role, as: String.self)) == "AXWebArea" {
       // MARK: Fix this
       // It doesn't work well in Safari.
