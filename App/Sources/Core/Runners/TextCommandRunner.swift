@@ -42,24 +42,10 @@ final class TextCommandRunner {
         try keyboardCommandRunner.machPort?.post(keyCode, type: .keyDown, flags: flags)
       }
     case .instant:
-      let originalPasteboardContents = await MainActor.run {
-        NSPasteboard.general.string(forType: .string)
-      }
-
       let pasteboard = NSPasteboard.general
       pasteboard.clearContents()
       pasteboard.setString(input, forType: .string)
-
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
-
-      try await Task.sleep(for: .seconds(0.1))
-
-      if let originalContents = originalPasteboardContents {
-        await MainActor.run {
-          NSPasteboard.general.clearContents()
-          NSPasteboard.general.setString(originalContents, forType: .string)
-        }
-      }
     }
   }
 }

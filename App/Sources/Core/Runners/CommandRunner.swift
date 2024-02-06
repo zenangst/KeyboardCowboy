@@ -113,7 +113,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     checkCancellation: Bool,
     resolveUserEnvironment: Bool
   ) {
-    serialTask?.cancel()
+    let originalPasteboardContents: String? = commands.shouldRestorePasteboard
+    ? NSPasteboard.general.string(forType: .string)
+    : nil
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       await Benchmark.shared.start("CommandRunner.serialRun")
       guard let self else { return }
@@ -136,6 +138,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             try await Task.sleep(for: .milliseconds(delay))
           }
         }
+        if let originalPasteboardContents {
+          try await Task.sleep(for: .seconds(0.1))
+          await MainActor.run {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(originalPasteboardContents, forType: .string)
+          }
+        }
       }
       await Benchmark.shared.stop("CommandRunner.serialRun")
     }
@@ -143,8 +152,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
   func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool
   ) {
+    let originalPasteboardContents: String? = commands.shouldRestorePasteboard
+                                            ? NSPasteboard.general.string(forType: .string)
+                                            : nil
     concurrentTask?.cancel()
-    concurrentTask = Task.detached(priority: .userInitiated) { [weak self] in
+    concurrentTask = Task.detached(priority: .userInitiated) { [weak self, originalPasteboardContents] in
       guard let self else { return }
       let shouldDismissMissionControl = commands.contains(where: {
         switch $0 {
@@ -161,6 +173,14 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           if checkCancellation { try Task.checkCancellation() }
           try await self.run(command, snapshot: snapshot)
         } catch { }
+      }
+
+      if let originalPasteboardContents {
+        try await Task.sleep(for: .seconds(0.1))
+        await MainActor.run {
+          NSPasteboard.general.clearContents()
+          NSPasteboard.general.setString(originalPasteboardContents, forType: .string)
+        }
       }
     }
   }
@@ -283,5 +303,25 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         self?.concurrentTask?.cancel()
         self?.serialTask?.cancel()
       }
+  }
+}
+
+extension Collection where Element == Command {
+  var shouldRestorePasteboard: Bool {
+    contains(where: { command in
+      if case .text(let textCommand) = command,
+         case .insertText(let typeCommand) = textCommand.kind {
+        switch typeCommand.mode {
+        case .instant:
+          return true
+        case .typing:
+          return false
+        }
+        return false
+      } else {
+        return false
+      }
+      return false
+    })
   }
 }
