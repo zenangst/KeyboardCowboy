@@ -37,7 +37,7 @@ extension View {
     if condition { transform(self) } else { self }
   }
 
-  @ViewBuilder
+  @MainActor @ViewBuilder
   func debugEdit(_ file: StaticString = #file) -> some View {
     if launchArguments.isEnabled(.debugEditing) {
       DebugView(file: "\(file)", content: { self })

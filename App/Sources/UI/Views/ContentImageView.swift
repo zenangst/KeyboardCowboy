@@ -31,7 +31,7 @@ struct ContentImageView: View {
       case .systemCommand(let model):
         switch model.kind {
         case .activateLastApplication:
-          EmptyView()
+          ActivateLastApplicationIconView(size: size - 6)
         case .applicationWindows:
           MissionControlIconView(size: size - 6)
         case .minimizeAllOpenWindows:

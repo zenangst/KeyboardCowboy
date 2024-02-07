@@ -44,19 +44,17 @@ final class UserSpace: Sendable {
     let selections: [String]
     let windows: WindowStoreSnapshot
 
-    init(
-      documentPath: String? = nil,
-      frontMostApplication: Application = .current,
-      modes: [UserMode] = [],
-      previousApplication: Application = .current,
-      selectedText: String = "",
-      selections: [String] = [],
-      windows: WindowStoreSnapshot = WindowStoreSnapshot(
-        frontMostApplicationWindows: [],
-        visibleWindowsInStage: [],
-        visibleWindowsInSpace: []
-      )
-    ) {
+    init(documentPath: String? = nil,
+         frontMostApplication: Application,
+         modes: [UserMode] = [],
+         previousApplication: Application,
+         selectedText: String = "",
+         selections: [String] = [],
+         windows: WindowStoreSnapshot = WindowStoreSnapshot(
+          frontMostApplicationWindows: [],
+          visibleWindowsInStage: [],
+          visibleWindowsInSpace: []
+         )) {
       self.documentPath = documentPath
       self.frontMostApplication = frontMostApplication
       self.modes = modes
