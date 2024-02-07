@@ -245,9 +245,7 @@ final class MachPortCoordinator {
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
-      } else if workflow.commands.allSatisfy({
-        if case .windowManagement = $0 { true } else { false }
-      }) {
+      } else if workflow.commands.isValidForRepeat {
         guard machPortEvent.type == .keyDown else { return }
         execution = { [weak self] machPortEvent in
           self?.run(workflow)
@@ -412,4 +410,15 @@ enum KeyShortcutRecording: Hashable {
   case valid(KeyShortcut)
   case delete(KeyShortcut)
   case cancel(KeyShortcut)
+}
+
+private extension Collection where Element == Command {
+  var isValidForRepeat: Bool {
+    allSatisfy { element in
+      switch element {
+      case .keyboard, .menuBar, .windowManagement: true
+      default:                                     false
+      }
+    }
+  }
 }
