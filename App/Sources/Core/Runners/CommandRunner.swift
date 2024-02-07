@@ -5,8 +5,10 @@ import Combine
 import MachPort
 
 protocol CommandRunning {
-  func serialRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool)
-  func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool)
+  func serialRun(_ commands: [Command], checkCancellation: Bool,
+                 resolveUserEnvironment: Bool, repeatingEvent: Bool)
+  func concurrentRun(_ commands: [Command], checkCancellation: Bool,
+                     resolveUserEnvironment: Bool, repeatingEvent: Bool)
 }
 
 final class CommandRunner: CommandRunning, @unchecked Sendable {
@@ -108,11 +110,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func serialRun(
-    _ commands: [Command],
-    checkCancellation: Bool,
-    resolveUserEnvironment: Bool
-  ) {
+  func serialRun(_ commands: [Command],
+                 checkCancellation: Bool,
+                 resolveUserEnvironment: Bool,
+                 repeatingEvent: Bool) {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
     ? NSPasteboard.general.string(forType: .string)
     : nil
@@ -132,7 +133,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
-            try await self.run(command, snapshot: snapshot)
+            try await self.run(command, snapshot: snapshot, repeatingEvent: repeatingEvent)
           } catch { }
           if let delay = command.delay {
             try await Task.sleep(for: .milliseconds(delay))
@@ -150,8 +151,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool
-  ) {
+  func concurrentRun(_ commands: [Command], checkCancellation: Bool,
+                     resolveUserEnvironment: Bool, repeatingEvent: Bool) {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
                                             ? NSPasteboard.general.string(forType: .string)
                                             : nil
@@ -171,7 +172,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }
-          try await self.run(command, snapshot: snapshot)
+          try await self.run(command, snapshot: snapshot, repeatingEvent: repeatingEvent)
         } catch { }
       }
 
@@ -185,7 +186,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func run(_ command: Command, snapshot: UserSpace.Snapshot) async throws {
+  func run(_ command: Command, snapshot: UserSpace.Snapshot, repeatingEvent: Bool) async throws {
     do {
       let id = UUID().uuidString
       if command.notification {
@@ -212,7 +213,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         try await Task.sleep(for: .milliseconds(1))
         output = command.name
       case .menuBar(let menuBarCommand):
-        try await runners.menubar.execute(menuBarCommand)
+        try await runners.menubar.execute(menuBarCommand, repeatingEvent: repeatingEvent)
         output = command.name
       case .mouse(let command):
         try await runners.mouse.run(command, snapshot: snapshot)
@@ -317,11 +318,9 @@ extension Collection where Element == Command {
         case .typing:
           return false
         }
-        return false
       } else {
         return false
       }
-      return false
     })
   }
 }

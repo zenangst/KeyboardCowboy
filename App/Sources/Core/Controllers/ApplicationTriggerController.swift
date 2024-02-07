@@ -99,13 +99,15 @@ final class ApplicationTriggerController {
       commandRunner.concurrentRun(
         commands,
         checkCancellation: true,
-        resolveUserEnvironment: workflow.resolveUserEnvironment()
+        resolveUserEnvironment: workflow.resolveUserEnvironment(),
+        repeatingEvent: false
       )
     case .serial:
       commandRunner.serialRun(
         commands,
         checkCancellation: true,
-        resolveUserEnvironment: workflow.resolveUserEnvironment()
+        resolveUserEnvironment: workflow.resolveUserEnvironment(),
+        repeatingEvent: false
       )
     }
   }

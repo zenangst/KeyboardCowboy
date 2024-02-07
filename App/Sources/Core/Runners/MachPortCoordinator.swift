@@ -31,7 +31,7 @@ final class MachPortCoordinator {
   private var machPortEventSubscription: AnyCancellable?
   private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
   private var repeatingKeyCode: Int64 = -1
-  private var repeatingResult: ((MachPortEvent) -> Void)?
+  private var repeatingResult: ((MachPortEvent, Bool) -> Void)?
   private var repeatingMatch: Bool?
   private var shouldHandleKeyUp: Bool = false
   private var specialKeys: [Int] = [Int]()
@@ -136,7 +136,7 @@ final class MachPortCoordinator {
     // reuse that result to avoid unnecessary lookups.
     if isRepeatingEvent, let repeatingResult, repeatingKeyCode == machPortEvent.keyCode {
       machPortEvent.result = nil
-      repeatingResult(machPortEvent)
+      repeatingResult(machPortEvent, true)
       return
     // If the event is repeating and there is no earlier result,
     // simply opt-out because we don't want to lookup the same
@@ -227,7 +227,7 @@ final class MachPortCoordinator {
       }
 
       let enabledWorkflows = workflow.commands.filter(\.isEnabled)
-      let execution: (MachPortEvent) -> Void
+      let execution: (MachPortEvent, Bool) -> Void
 
       if enabledWorkflows.count == 1,
          case .keyboard(let command) = enabledWorkflows.first {
@@ -235,22 +235,22 @@ final class MachPortCoordinator {
           notifications.notifyKeyboardCommand(workflow, command: command)
         }
 
-        execution = { [keyboardCommandRunner] machPortEvent in
+        execution = { [keyboardCommandRunner] machPortEvent, _ in
           try? keyboardCommandRunner.run(command.keyboardShortcuts,
                                          type: machPortEvent.type,
                                          originalEvent: machPortEvent.event,
                                          with: machPortEvent.eventSource)
         }
-        execution(machPortEvent)
+        execution(machPortEvent, isRepeatingEvent)
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.isValidForRepeat {
         guard machPortEvent.type == .keyDown else { return }
-        execution = { [weak self] machPortEvent in
-          self?.run(workflow)
+        execution = { [weak self] machPortEvent, repeatingEvent in
+          self?.run(workflow, repeatingEvent: repeatingEvent)
         }
-        execution(machPortEvent)
+        execution(machPortEvent, isRepeatingEvent)
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
@@ -273,13 +273,13 @@ final class MachPortCoordinator {
         if let delay = shouldSchedule(workflow) {
           workItem = schedule(workflow, after: delay)
         } else {
-          run(workflow)
+          run(workflow, repeatingEvent: false)
         }
       } else if machPortEvent.type == .keyDown, !isRepeatingEvent {
         if let delay = shouldSchedule(workflow) {
           workItem = schedule(workflow, after: delay)
         } else {
-          run(workflow)
+          run(workflow, repeatingEvent: false)
         }
 
         previousPartialMatch = Self.defaultPartialMatch
@@ -346,7 +346,7 @@ final class MachPortCoordinator {
     }
   }
 
-  private func run(_ workflow: Workflow) {
+  private func run(_ workflow: Workflow, repeatingEvent: Bool) {
     notifications.notifyRunningWorkflow(workflow)
     let commands = workflow.commands.filter(\.isEnabled)
 
@@ -369,11 +369,12 @@ final class MachPortCoordinator {
     switch workflow.execution {
     case .concurrent:
       commandRunner.concurrentRun(commands, checkCancellation: checkCancellation,
-                                  resolveUserEnvironment: resolveUserEnvironment
-      )
+                                  resolveUserEnvironment: resolveUserEnvironment,
+                                  repeatingEvent: repeatingEvent)
     case .serial:
       commandRunner.serialRun(commands, checkCancellation: checkCancellation, 
-                              resolveUserEnvironment: resolveUserEnvironment)
+                              resolveUserEnvironment: resolveUserEnvironment,
+                              repeatingEvent: repeatingEvent)
     }
   }
 
@@ -388,7 +389,7 @@ final class MachPortCoordinator {
 
       guard self.workItem?.isCancelled != true else { return }
 
-      self.run(workflow)
+      self.run(workflow, repeatingEvent: false)
     }
     DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
     return workItem

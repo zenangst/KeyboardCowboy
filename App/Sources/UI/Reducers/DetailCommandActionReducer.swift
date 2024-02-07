@@ -24,7 +24,9 @@ final class DetailCommandActionReducer {
       let runCommand = command
       Task {
         do {
-          try await commandRunner.run(runCommand, snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
+          try await commandRunner.run(runCommand, 
+                                      snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+                                      repeatingEvent: false)
         } catch let error as KeyboardCommandRunnerError {
           let alert = await NSAlert(error: error)
           await alert.runModal()
@@ -166,7 +168,8 @@ final class DetailCommandActionReducer {
             let path = (source as NSString).expandingTildeInPath
             try await commandRunner.run(
               .open(.init(path: path)),
-              snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false)
+              snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+              repeatingEvent: false
             )
           }
         case .reveal(let path):

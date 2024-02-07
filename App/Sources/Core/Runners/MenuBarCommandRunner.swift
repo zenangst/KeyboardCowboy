@@ -9,9 +9,19 @@ enum MenuBarCommandRunnerError: Error {
 
 @MainActor
 final class MenuBarCommandRunner {
+
+  private var previousMatch: MenuBarItemAccessibilityElement?
+
   nonisolated init() { }
 
-  func execute(_ command: MenuBarCommand) async throws {
+  func execute(_ command: MenuBarCommand, repeatingEvent: Bool) async throws {
+    if repeatingEvent, let previousMatch {
+      previousMatch.performAction(.pick)
+      return
+    } else {
+      previousMatch = nil
+    }
+
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
       throw MenuBarCommandRunnerError.failedToFindFrontmostApplication
     }
@@ -22,6 +32,10 @@ final class MenuBarCommandRunner {
     let match = try recursiveSearch(command.tokens, items: menuItems)
 
     match.performAction(.pick)
+
+    if repeatingEvent {
+      previousMatch = match
+    }
   }
 
   private func recursiveSearch(_ tokens: [MenuBarCommand.Token],
