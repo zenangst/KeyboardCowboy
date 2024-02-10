@@ -104,7 +104,7 @@ final class Core {
   // MARK: - Runners
   lazy private(set) var commandRunner = CommandRunner(
     applicationStore: ApplicationStore.shared,
-    builtInCommandRunner: BuiltInCommandRunner(configurationStore: configurationStore),
+    builtInCommandRunner: BuiltInCommandRunner(configurationStore: configurationStore, macroRunner: macroRunner),
     scriptCommandRunner: scriptCommandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
     uiElementCommandRunner: uiElementCommandRunner
@@ -112,6 +112,7 @@ final class Core {
   lazy private(set) var keyboardCommandRunner = KeyboardCommandRunner(store: keyCodeStore)
   lazy private(set) var uiElementCommandRunner = UIElementCommandRunner()
   lazy private(set) var scriptCommandRunner = ScriptCommandRunner(workspace: .shared)
+  lazy private(set) var macroRunner = MacroRunner(coordinator: macroCoordinator)
 
   // MARK: - Controllers
 
