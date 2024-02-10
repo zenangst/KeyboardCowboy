@@ -59,7 +59,8 @@ struct NewCommandBuiltInView: View {
   @discardableResult
   private func updateAndValidatePayload() -> NewCommandValidation {
     let newKind: BuiltInCommand.Kind = switch kindSelection {
-      case .userMode(_, let action): .userMode(userModeSelection, action)
+    case .macro(let action): .macro(action)
+    case .userMode(_, let action): .userMode(userModeSelection, action)
     }
 
     payload = .builtIn(builtIn: .init(kind: newKind, notification: false))

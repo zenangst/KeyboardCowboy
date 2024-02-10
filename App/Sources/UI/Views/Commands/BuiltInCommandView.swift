@@ -72,12 +72,11 @@ struct BuiltInCommandView: View {
             ForEach(configurationPublisher.data.userModes) { userMode in
               Button(action: {
                 let action: BuiltInCommand.Kind.Action
-                switch model.kind {
-                   case .userMode(_, let resolvedAction):
+                if case .userMode(_, let resolvedAction) = model.kind {
                   action = resolvedAction
+                  onAction(.update(.init(id: model.id, kind: .userMode(userMode, action), notification: true)))
+                  model.kind = .userMode(userMode, action)
                 }
-                onAction(.update(.init(id: model.id, kind: .userMode(userMode, action), notification: true)))
-                model.kind = .userMode(userMode, action)
               }, label: { Text(userMode.name).font(.subheadline) })
             }
           }, label: {
