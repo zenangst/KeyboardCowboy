@@ -1,5 +1,6 @@
 import Apps
 import Foundation
+import MachPort
 import SwiftUI
 
 enum DetailViewActionReducerResult {
@@ -143,27 +144,29 @@ final class DetailViewActionReducer {
           }
         }
       case .updateExecution(_, let execution):
-        switch execution {
-        case .concurrent:
-          workflow.execution = .concurrent
-        case .serial:
-          workflow.execution = .serial
-        }
+          switch execution {
+            case .concurrent:
+              workflow.execution = .concurrent
+            case .serial:
+              workflow.execution = .serial
+          }
       case .runWorkflow:
+        guard let machPortEvent = MachPortEvent.empty() else { return .none }
+
         let commands = workflow.commands.filter(\.isEnabled)
         switch workflow.execution {
         case .concurrent:
           commandRunner.concurrentRun(
-            commands,
-            checkCancellation: true,
-            resolveUserEnvironment: true,
+            commands, checkCancellation: true,
+            resolveUserEnvironment: true, shortcut: .empty(),
+            machPortEvent: machPortEvent,
             repeatingEvent: false
           )
         case .serial:
           commandRunner.serialRun(
-            commands,
-            checkCancellation: true,
-            resolveUserEnvironment: true,
+            commands, checkCancellation: true,
+            resolveUserEnvironment: true, shortcut: .empty(),
+            machPortEvent: machPortEvent,
             repeatingEvent: false
           )
         }

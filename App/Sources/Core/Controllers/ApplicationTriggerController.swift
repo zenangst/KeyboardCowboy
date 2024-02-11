@@ -1,5 +1,6 @@
 import Combine
 import Cocoa
+import MachPort
 
 final class ApplicationTriggerController {
   private let commandRunner: CommandRunning
@@ -94,12 +95,15 @@ final class ApplicationTriggerController {
 
   private func runCommands(in workflow: Workflow) {
     let commands = workflow.commands.filter(\.isEnabled)
+    guard let machPortEvent = MachPortEvent.empty() else { return }
     switch workflow.execution {
     case .concurrent:
       commandRunner.concurrentRun(
         commands,
         checkCancellation: true,
         resolveUserEnvironment: workflow.resolveUserEnvironment(),
+        shortcut: .empty(),
+        machPortEvent: machPortEvent,
         repeatingEvent: false
       )
     case .serial:
@@ -107,6 +111,8 @@ final class ApplicationTriggerController {
         commands,
         checkCancellation: true,
         resolveUserEnvironment: workflow.resolveUserEnvironment(),
+        shortcut: .empty(),
+        machPortEvent: machPortEvent,
         repeatingEvent: false
       )
     }

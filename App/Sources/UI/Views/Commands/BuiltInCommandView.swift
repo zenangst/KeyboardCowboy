@@ -37,6 +37,33 @@ struct BuiltInCommandView: View {
       } content: { _ in
         HStack {
           Menu(content: {
+            Button(action: {
+              let newKind: BuiltInCommand.Kind = .macro(.record)
+              onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+              model.name = newKind.displayValue
+              model.kind = newKind
+            }, label: {
+              Text("Record Macro").font(.subheadline)
+            })
+
+            Button(action: {
+              let newKind: BuiltInCommand.Kind = .macro(.remove)
+              onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+              model.name = newKind.displayValue
+              model.kind = newKind
+            }, label: {
+              Text("Remove Macro").font(.subheadline)
+            })
+
+            Button(action: {
+              let newKind: BuiltInCommand.Kind = .macro(.list)
+              onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+              model.name = newKind.displayValue
+              model.kind = newKind
+            }, label: {
+              Text("List Macros").font(.subheadline)
+            })
+
             Button(
               action: {
                 let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: true), .toggle)
@@ -68,21 +95,28 @@ struct BuiltInCommandView: View {
               .font(.subheadline)
           })
           .fixedSize()
-          Menu(content: {
-            ForEach(configurationPublisher.data.userModes) { userMode in
-              Button(action: {
-                let action: BuiltInCommand.Kind.Action
-                if case .userMode(_, let resolvedAction) = model.kind {
-                  action = resolvedAction
-                  onAction(.update(.init(id: model.id, kind: .userMode(userMode, action), notification: true)))
-                  model.kind = .userMode(userMode, action)
+
+          switch model.kind {
+            case .macro(let macroAction):
+              EmptyView()
+            case .userMode(let userMode, let action):
+              Menu(content: {
+                ForEach(configurationPublisher.data.userModes) { userMode in
+                  Button(action: {
+                    let action: BuiltInCommand.Kind.Action
+                    if case .userMode(_, let resolvedAction) = model.kind {
+                      action = resolvedAction
+                      onAction(.update(.init(id: model.id, kind: .userMode(userMode, action), notification: true)))
+                      model.kind = .userMode(userMode, action)
+                    }
+                  }, label: { Text(userMode.name).font(.subheadline) })
                 }
-              }, label: { Text(userMode.name).font(.subheadline) })
-            }
-          }, label: {
-            Text(configurationPublisher.data.userModes.first(where: { model.kind.id.contains($0.id) })?.name ?? "Pick a User Mode")
-              .font(.subheadline)
-          })
+              }, label: {
+                Text(configurationPublisher.data.userModes.first(where: { model.kind.id.contains($0.id) })?.name ?? "Pick a User Mode")
+                  .font(.subheadline)
+              })
+          }
+
         }
           .menuStyle(.regular)
       } subContent: { _ in

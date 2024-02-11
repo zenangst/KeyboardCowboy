@@ -79,7 +79,6 @@ final class Core {
                                                         store: keyCodeStore, notifications: notifications)
   lazy private(set) var notifications = MachPortUINotifications(keyboardShortcutsController: keyboardShortcutsController)
   lazy private(set) var machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
-                                                                  commandRunner: commandRunner,
                                                                   keyboardCommandRunner: keyboardCommandRunner,
                                                                   keyboardShortcutsController: keyboardShortcutsController,
                                                                   macroCoordinator: macroCoordinator,

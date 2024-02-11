@@ -9,4 +9,18 @@ struct MacroAction: Identifiable, Codable, Hashable, Sendable  {
     case record
     case remove
   }
+
+  init(id: String, kind: Kind) {
+    self.id = id
+    self.kind = kind
+  }
+
+  init(_ kind: Kind, id: String = UUID().uuidString) {
+    self.id = id
+    self.kind = kind
+  }
+
+  static var list: MacroAction { MacroAction(.list) }
+  static var record: MacroAction { MacroAction(.record) }
+  static var remove: MacroAction { MacroAction(.remove) }
 }

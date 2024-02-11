@@ -2,6 +2,7 @@
 import XCTest
 import Combine
 import Cocoa
+import MachPort
 
 final class ApplicationTriggerControllerTests: XCTestCase {
   func testApplicationTriggerController_frontMost() {
@@ -114,11 +115,11 @@ private final class CommandRunner: CommandRunning {
     self.serialRunHandler = serial
   }
 
-  func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool) {
+  func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool, shortcut: KeyShortcut, machPortEvent: MachPortEvent, repeatingEvent: Bool) {
     concurrentRunHandler(commands)
   }
 
-  func serialRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool) {
+  func serialRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool, shortcut: KeyShortcut, machPortEvent: MachPortEvent, repeatingEvent: Bool) {
     serialRunHandler(commands)
   }
 }

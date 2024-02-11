@@ -6,9 +6,12 @@ import MachPort
 
 protocol CommandRunning {
   func serialRun(_ commands: [Command], checkCancellation: Bool,
-                 resolveUserEnvironment: Bool, repeatingEvent: Bool)
+                 resolveUserEnvironment: Bool, shortcut: KeyShortcut, machPortEvent: MachPortEvent,
+                 repeatingEvent: Bool)
   func concurrentRun(_ commands: [Command], checkCancellation: Bool,
-                     resolveUserEnvironment: Bool, repeatingEvent: Bool)
+                     resolveUserEnvironment: Bool, 
+                     shortcut: KeyShortcut, machPortEvent: MachPortEvent,
+                     repeatingEvent: Bool)
 }
 
 final class CommandRunner: CommandRunning, @unchecked Sendable {
@@ -110,9 +113,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func serialRun(_ commands: [Command],
-                 checkCancellation: Bool,
-                 resolveUserEnvironment: Bool,
+  func serialRun(_ commands: [Command], checkCancellation: Bool,
+                 resolveUserEnvironment: Bool, 
+                 shortcut: KeyShortcut, machPortEvent: MachPortEvent,
                  repeatingEvent: Bool) {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
     ? NSPasteboard.general.string(forType: .string)
@@ -133,7 +136,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
-            try await self.run(command, snapshot: snapshot, repeatingEvent: repeatingEvent)
+            try await self.run(command, snapshot: snapshot, shortcut: shortcut, 
+                               machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
           } catch { }
           if let delay = command.delay {
             try await Task.sleep(for: .milliseconds(delay))
@@ -152,7 +156,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   func concurrentRun(_ commands: [Command], checkCancellation: Bool,
-                     resolveUserEnvironment: Bool, repeatingEvent: Bool) {
+                     resolveUserEnvironment: Bool, 
+                     shortcut: KeyShortcut, machPortEvent: MachPortEvent,
+                     repeatingEvent: Bool) {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
                                             ? NSPasteboard.general.string(forType: .string)
                                             : nil
@@ -161,8 +167,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       guard let self else { return }
       let shouldDismissMissionControl = commands.contains(where: {
         switch $0 {
-        case .builtIn: false
-        default: true
+        case .builtIn: false default: true
         }
       })
 
@@ -172,7 +177,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }
-          try await self.run(command, snapshot: snapshot, repeatingEvent: repeatingEvent)
+          try await self.run(command, snapshot: snapshot, shortcut: shortcut,
+                             machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
         } catch { }
       }
 
@@ -186,7 +192,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func run(_ command: Command, snapshot: UserSpace.Snapshot, repeatingEvent: Bool) async throws {
+  func run(_ command: Command, snapshot: UserSpace.Snapshot, 
+           shortcut: KeyShortcut, 
+           machPortEvent: MachPortEvent,
+           repeatingEvent: Bool) async throws {
     do {
       let id = UUID().uuidString
       if command.notification {
@@ -200,7 +209,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         try await runners.application.run(applicationCommand)
         output = command.name
       case .builtIn(let builtInCommand):
-        output = try await runners.builtIn.run(builtInCommand)
+          output = try await runners.builtIn.run(
+            builtInCommand,
+            shortcut: shortcut,
+            machPortEvent: machPortEvent
+          )
       case .keyboard(let keyboardCommand):
         try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
                                  type: .keyDown,
