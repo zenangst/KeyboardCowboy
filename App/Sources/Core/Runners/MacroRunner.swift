@@ -19,7 +19,7 @@ final class MacroRunner {
       case .record:
         if let newMacroKey = coordinator.newMacroKey {
           coordinator.state = .idle
-          output = "Recorded Macro for \(newMacroKey.modifersDisplayValue) \(newMacroKey.key)"
+          output = "Recorded Macro for \(newMacroKey.original.modifersDisplayValue) \(newMacroKey.uppercase.key)"
         } else {
           coordinator.state = .recording
           output = "Choose Macro key..."
