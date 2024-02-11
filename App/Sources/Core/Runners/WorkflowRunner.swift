@@ -15,6 +15,7 @@ final class WorkflowRunner {
   }
 
   func run(_ workflow: Workflow, for shortcut: KeyShortcut,
+           executionOverride: Workflow.Execution? = nil,
            machPortEvent: MachPortEvent, repeatingEvent: Bool) {
     notifications.notifyRunningWorkflow(workflow)
     let commands = workflow.commands.filter(\.isEnabled)
@@ -35,7 +36,7 @@ final class WorkflowRunner {
     }
 
     let resolveUserEnvironment = workflow.resolveUserEnvironment()
-    switch workflow.execution {
+    switch executionOverride ?? workflow.execution {
     case .concurrent:
       commandRunner.concurrentRun(commands, checkCancellation: checkCancellation,
                                   resolveUserEnvironment: resolveUserEnvironment,
