@@ -161,7 +161,7 @@ final class MachPortCoordinator {
 
     // If there is a match, then run the workflow
     let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
-    if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
+    if readyToRunMacro, let macro = macroCoordinator.match(keyboardShortcut) {
       if machPortEvent.type == .keyUp {
         for element in macro {
           switch element {
@@ -176,6 +176,11 @@ final class MachPortCoordinator {
       }
 
       machPortEvent.result = nil
+      return
+    } else if macroCoordinator.state == .removing {
+      if machPortEvent.type == .keyDown {
+        macroCoordinator.remove(keyboardShortcut, machPortEvent: machPortEvent)
+      }
       return
     }
 
