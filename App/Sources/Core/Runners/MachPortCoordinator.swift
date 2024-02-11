@@ -240,9 +240,30 @@ final class MachPortCoordinator {
         machPortEvent.result = nil
       }
 
+      let enabledCommands = workflow.commands.filter(\.isEnabled)
       let execution: (MachPortEvent, Bool) -> Void
 
-      if workflow.commands.isValidForRepeat {
+      // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
+      if enabledCommands.count == 1,
+         case .keyboard(let command) = enabledCommands.first {
+        if !isRepeatingEvent && machPortEvent.event.type == .keyDown {
+          notifications.notifyKeyboardCommand(workflow, command: command)
+        }
+
+        execution = { [keyboardCommandRunner] machPortEvent, _ in
+          try? keyboardCommandRunner.run(command.keyboardShortcuts,
+                                         type: machPortEvent.type,
+                                         originalEvent: machPortEvent.event,
+                                         with: machPortEvent.eventSource)
+        }
+        execution(machPortEvent, isRepeatingEvent)
+        repeatingResult = execution
+        repeatingKeyCode = machPortEvent.keyCode
+        previousPartialMatch = Self.defaultPartialMatch
+        if macroCoordinator.state == .recording {
+          macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
+        }
+      } else if workflow.commands.isValidForRepeat {
         guard machPortEvent.type == .keyDown else { return }
         execution = { [workflowRunner] machPortEvent, repeatingEvent in
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
