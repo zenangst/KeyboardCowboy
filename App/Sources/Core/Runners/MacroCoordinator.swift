@@ -9,6 +9,7 @@ enum MacroKind {
 final class MacroCoordinator {
   enum State {
     case recording
+    case removing
     case idle
   }
 
@@ -31,6 +32,12 @@ final class MacroCoordinator {
   private let bezelId = "com.apple.zenangst.Keyboard-Cowboy.macros"
   private let userSpace = UserSpace.shared
 
+  func match(_ shortcut: KeyShortcut) -> [MacroKind]? {
+    let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
+                            machPortKeyId: shortcut.machPortKeyId)
+    return macros[macroKey]
+  }
+
   func record(_ shortcut: KeyShortcut,
               kind: MacroKind,
               machPortEvent: MachPortEvent) {
@@ -41,9 +48,8 @@ final class MacroCoordinator {
         macros[recordingKey]?.append(kind)
       }
     } else {
-      let machPortKeyId = shortcut.key + shortcut.modifersDisplayValue + ":" + (shortcut.lhs ? "true" : "false")
       let recordingKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
-                                  machPortKeyId: machPortKeyId)
+                                  machPortKeyId: shortcut.machPortKeyId)
       self.newMacroKey = shortcut
       macros[recordingKey] = nil
       self.recordingKey = recordingKey
@@ -54,10 +60,18 @@ final class MacroCoordinator {
     }
   }
 
-  func match(_ shortcut: MachPortKeyboardShortcut) -> [MacroKind]? {
+  func remove(_ shortcut: KeyShortcut, machPortEvent: MachPortEvent) {
     let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
-                            machPortKeyId: shortcut.id)
-    return macros[macroKey]
+                            machPortKeyId: shortcut.machPortKeyId)
+    if macros[macroKey] != nil {
+      macros[macroKey] = nil
+      Task { @MainActor [bezelId] in
+        BezelNotificationController.shared.post(.init(id: bezelId, text: "Removed Macro for \(shortcut.modifersDisplayValue) \(shortcut.key)"))
+      }
+    }
+
+    state = .idle
+    machPortEvent.result = nil
   }
 }
 
@@ -73,5 +87,11 @@ struct MacroRecordKey {
   func matches(_ shortcut: MachPortKeyboardShortcut) -> Bool {
     shortcut.original.key == key &&
     Set(shortcut.original.modifiers) == Set(modifiers)
+  }
+}
+
+private extension KeyShortcut {
+  var machPortKeyId: String {
+    key + modifersDisplayValue + ":" + (lhs ? "true" : "false")
   }
 }

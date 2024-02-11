@@ -25,6 +25,7 @@ final class MacroRunner {
           output = "Choose Macro key..."
         }
       case .remove:
+        coordinator.state = .removing
         output = "Remove Macro key..."
     }
 
