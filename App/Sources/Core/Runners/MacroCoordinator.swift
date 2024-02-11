@@ -35,10 +35,36 @@ final class MacroCoordinator {
   func match(_ shortcut: MachPortKeyboardShortcut) -> [MacroKind]? {
     let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
                             machPortKeyId: shortcut.id)
-    return macros[macroKey]
+    if let macro = macros[macroKey] {
+      Task { @MainActor [bezelId] in
+        BezelNotificationController.shared.post(.init(id: bezelId, text: "Running Macro for \(shortcut.original.modifersDisplayValue) \(shortcut.uppercase.key)"))
+      }
+      return macro
+    }
+
+    return nil
   }
 
   func record(_ shortcut: MachPortKeyboardShortcut, kind: MacroKind, machPortEvent: MachPortEvent) {
+    guard state == .recording else { return }
+
+    if case .workflow(let workflow) = kind {
+      // Should never record macro related commands.
+      let isValid = workflow.commands.contains(where: {
+        switch $0 {
+        case .builtIn(let command):
+          switch command.kind {
+          case .macro: false
+          default: true
+          }
+        default:
+          true
+        }
+      })
+
+      if !isValid { return }
+    }
+
     if let recordingKey, let newMacroKey {
       if shortcut.id == newMacroKey.id {
         machPortEvent.result = nil

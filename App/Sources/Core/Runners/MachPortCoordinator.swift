@@ -170,6 +170,7 @@ final class MachPortCoordinator {
               try? machPort?.post(Int(machPortEvent.keyCode), type: .keyUp, flags: machPortEvent.event.flags)
             case .workflow(let workflow):
               workflowRunner.run(workflow, for: keyboardShortcut,
+                                 executionOverride: .serial,
                                  machPortEvent: machPortEvent, repeatingEvent: false)
           }
         }
@@ -256,15 +257,19 @@ final class MachPortCoordinator {
                                          originalEvent: machPortEvent.event,
                                          with: machPortEvent.eventSource)
         }
+        if machPortEvent.type == .keyDown, macroCoordinator.state == .recording {
+          macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
+        }
         execution(machPortEvent, isRepeatingEvent)
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
+
+      } else if workflow.commands.isValidForRepeat {
+        guard machPortEvent.type == .keyDown else { return }
         if macroCoordinator.state == .recording {
           macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
         }
-      } else if workflow.commands.isValidForRepeat {
-        guard machPortEvent.type == .keyDown else { return }
         execution = { [workflowRunner] machPortEvent, repeatingEvent in
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
         }
@@ -273,9 +278,6 @@ final class MachPortCoordinator {
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
 
-        if macroCoordinator.state == .recording {
-          macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
-        }
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
       }) {
@@ -292,17 +294,27 @@ final class MachPortCoordinator {
           }
         }
 
+        if macroCoordinator.state == .recording && machPortEvent.type == .keyDown {
+          macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
+        }
+
         if let delay = shouldSchedule(workflow) {
           workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
         }
+
       } else if machPortEvent.type == .keyDown, !isRepeatingEvent {
+        if macroCoordinator.state == .recording {
+          macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
+        }
+
         if let delay = shouldSchedule(workflow) {
           workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
         }
+
 
         previousPartialMatch = Self.defaultPartialMatch
       }
