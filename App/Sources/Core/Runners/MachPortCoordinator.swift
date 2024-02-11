@@ -117,22 +117,22 @@ final class MachPortCoordinator {
 
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     switch machPortEvent.type {
-    case .keyDown:
-      if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue,
-         machPortEvent.keyCode == kVK_Escape {
-        if machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
-          machPortEvent.result = nil
-          reset()
-          return
+      case .keyDown:
+        if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue,
+           machPortEvent.keyCode == kVK_Escape {
+          if machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
+            machPortEvent.result = nil
+            reset()
+            return
+          }
         }
-      }
-    case .keyUp:
-      workItem?.cancel()
-      workItem = nil
-      repeatingResult = nil
-      repeatingMatch = nil
-    default:
-      return
+      case .keyUp:
+        workItem?.cancel()
+        workItem = nil
+        repeatingResult = nil
+        repeatingMatch = nil
+      default:
+        return
     }
 
     // If the event is repeating and there is an earlier result,
@@ -141,12 +141,12 @@ final class MachPortCoordinator {
       machPortEvent.result = nil
       repeatingResult(machPortEvent, true)
       return
-    // If the event is repeating and there is no earlier result,
-    // simply opt-out because we don't want to lookup the same
-    // keyboard shortcut over and over again.
+      // If the event is repeating and there is no earlier result,
+      // simply opt-out because we don't want to lookup the same
+      // keyboard shortcut over and over again.
     } else if isRepeatingEvent, repeatingMatch == false {
       return
-    // Reset the repeating result and match if the event is not repeating.
+      // Reset the repeating result and match if the event is not repeating.
     } else {
       repeatingResult = nil
       repeatingMatch = nil
@@ -159,29 +159,27 @@ final class MachPortCoordinator {
 
     var keyboardShortcut: KeyShortcut = shortcut.original
 
-    // If there is a match, then run the workflow
-    let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
-    if readyToRunMacro, let macro = macroCoordinator.match(keyboardShortcut) {
-      if machPortEvent.type == .keyUp {
+    if machPortEvent.type == .keyDown {
+      // If there is a match, then run the workflow
+      let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
+      if readyToRunMacro, let macro = macroCoordinator.match(keyboardShortcut) {
         for element in macro {
           switch element {
-          case .event(let machPortEvent):
-            try? machPort?.post(Int(machPortEvent.keyCode), type: .keyDown, flags: machPortEvent.event.flags)
-            try? machPort?.post(Int(machPortEvent.keyCode), type: .keyUp, flags: machPortEvent.event.flags)
-          case .workflow(let workflow):
+            case .event(let machPortEvent):
+              try? machPort?.post(Int(machPortEvent.keyCode), type: .keyDown, flags: machPortEvent.event.flags)
+              try? machPort?.post(Int(machPortEvent.keyCode), type: .keyUp, flags: machPortEvent.event.flags)
+            case .workflow(let workflow):
               workflowRunner.run(workflow, for: keyboardShortcut,
                                  machPortEvent: machPortEvent, repeatingEvent: false)
           }
         }
-      }
 
-      machPortEvent.result = nil
-      return
-    } else if macroCoordinator.state == .removing {
-      if machPortEvent.type == .keyDown {
+        machPortEvent.result = nil
+        return
+      } else if macroCoordinator.state == .removing {
         macroCoordinator.remove(keyboardShortcut, machPortEvent: machPortEvent)
+        return
       }
-      return
     }
 
     let bundleIdentifier = UserSpace.shared.frontMostApplication.bundleIdentifier
@@ -255,8 +253,7 @@ final class MachPortCoordinator {
         previousPartialMatch = Self.defaultPartialMatch
 
         if macroCoordinator.state == .recording {
-          macroCoordinator.record(shortcut, kind: .workflow(workflow),
-                                  machPortEvent: machPortEvent)
+          macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
         }
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
