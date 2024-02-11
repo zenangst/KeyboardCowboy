@@ -42,6 +42,15 @@ final class MacroCoordinator {
               kind: MacroKind,
               machPortEvent: MachPortEvent) {
     if let recordingKey {
+      if shortcut.machPortKeyId == recordingKey.machPortKeyId {
+        machPortEvent.result = nil
+        state = .idle
+        Task { @MainActor [bezelId] in
+          BezelNotificationController.shared.post(.init(id: bezelId, text: "Recorded Macro for \(shortcut.modifersDisplayValue) \(shortcut.key)"))
+        }
+        return
+      }
+
       if macros[recordingKey] == nil {
         macros[recordingKey] = [kind]
       } else {
