@@ -23,7 +23,7 @@ final class MacroCoordinator {
   }
   var machPort: MachPortEventController?
 
-  private(set) var newMacroKey: KeyShortcut?
+  private(set) var newMacroKey: MachPortKeyboardShortcut?
   private(set) var recordingKey: MacroKey?
 
   private var currentBundleIdentifier: String = Bundle.main.bundleIdentifier!
@@ -32,21 +32,19 @@ final class MacroCoordinator {
   private let bezelId = "com.apple.zenangst.Keyboard-Cowboy.macros"
   private let userSpace = UserSpace.shared
 
-  func match(_ shortcut: KeyShortcut) -> [MacroKind]? {
+  func match(_ shortcut: MachPortKeyboardShortcut) -> [MacroKind]? {
     let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
-                            machPortKeyId: shortcut.machPortKeyId)
+                            machPortKeyId: shortcut.id)
     return macros[macroKey]
   }
 
-  func record(_ shortcut: KeyShortcut,
-              kind: MacroKind,
-              machPortEvent: MachPortEvent) {
-    if let recordingKey {
-      if shortcut.machPortKeyId == recordingKey.machPortKeyId {
+  func record(_ shortcut: MachPortKeyboardShortcut, kind: MacroKind, machPortEvent: MachPortEvent) {
+    if let recordingKey, let newMacroKey {
+      if shortcut.id == newMacroKey.id {
         machPortEvent.result = nil
         state = .idle
         Task { @MainActor [bezelId] in
-          BezelNotificationController.shared.post(.init(id: bezelId, text: "Recorded Macro for \(shortcut.modifersDisplayValue) \(shortcut.key)"))
+          BezelNotificationController.shared.post(.init(id: bezelId, text: "Recorded Macro for \(shortcut.original.modifersDisplayValue) \(shortcut.uppercase.key)"))
         }
         return
       }
@@ -58,24 +56,24 @@ final class MacroCoordinator {
       }
     } else {
       let recordingKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
-                                  machPortKeyId: shortcut.machPortKeyId)
-      self.newMacroKey = shortcut
+                                  machPortKeyId: shortcut.id)
       macros[recordingKey] = nil
+      self.newMacroKey = shortcut
       self.recordingKey = recordingKey
       Task { @MainActor [bezelId] in
-        BezelNotificationController.shared.post(.init(id: bezelId, text: "Recording Macro for \(shortcut.modifersDisplayValue) \(shortcut.key)"))
+        BezelNotificationController.shared.post(.init(id: bezelId, text: "Recording Macro for \(shortcut.original.modifersDisplayValue) \(shortcut.uppercase.key)"))
       }
       machPortEvent.result = nil
     }
   }
 
-  func remove(_ shortcut: KeyShortcut, machPortEvent: MachPortEvent) {
+  func remove(_ shortcut: MachPortKeyboardShortcut, machPortEvent: MachPortEvent) {
     let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
-                            machPortKeyId: shortcut.machPortKeyId)
+                            machPortKeyId: shortcut.id)
     if macros[macroKey] != nil {
       macros[macroKey] = nil
       Task { @MainActor [bezelId] in
-        BezelNotificationController.shared.post(.init(id: bezelId, text: "Removed Macro for \(shortcut.modifersDisplayValue) \(shortcut.key)"))
+        BezelNotificationController.shared.post(.init(id: bezelId, text: "Removed Macro for \(shortcut.original.modifersDisplayValue) \(shortcut.uppercase.key)"))
       }
     }
 
@@ -87,16 +85,6 @@ final class MacroCoordinator {
 struct MacroKey: Hashable {
   let bundleIdentifier: String
   let machPortKeyId: String
-}
-
-struct MacroRecordKey {
-  let key: String
-  let modifiers: [ModifierKey]
-
-  func matches(_ shortcut: MachPortKeyboardShortcut) -> Bool {
-    shortcut.original.key == key &&
-    Set(shortcut.original.modifiers) == Set(modifiers)
-  }
 }
 
 private extension KeyShortcut {

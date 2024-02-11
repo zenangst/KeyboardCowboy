@@ -101,13 +101,13 @@ final class MachPortCoordinator {
 
   func receiveFlagsChanged(_ machPortEvent: MachPortEvent) {
     let flags = machPortEvent.event.flags
-    self.workItem?.cancel()
-    self.workItem = nil
-    self.flagsChanged = flags
-    self.capsLockDown = machPortEvent.keyCode == kVK_CapsLock
-    self.repeatingResult = nil
-    self.repeatingMatch = nil
-    self.repeatingKeyCode = -1
+    workItem?.cancel()
+    workItem = nil
+    flagsChanged = flags
+    capsLockDown = machPortEvent.keyCode == kVK_CapsLock
+    repeatingResult = nil
+    repeatingMatch = nil
+    repeatingKeyCode = -1
   }
  
   // MARK: - Private methods
@@ -162,7 +162,7 @@ final class MachPortCoordinator {
     if machPortEvent.type == .keyDown {
       // If there is a match, then run the workflow
       let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
-      if readyToRunMacro, let macro = macroCoordinator.match(keyboardShortcut) {
+      if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
         for element in macro {
           switch element {
             case .event(let machPortEvent):
@@ -177,7 +177,7 @@ final class MachPortCoordinator {
         machPortEvent.result = nil
         return
       } else if macroCoordinator.state == .removing {
-        macroCoordinator.remove(keyboardShortcut, machPortEvent: machPortEvent)
+        macroCoordinator.remove(shortcut, machPortEvent: machPortEvent)
         return
       }
     }
@@ -208,7 +208,7 @@ final class MachPortCoordinator {
 
     process(result,
             machPortEvent: machPortEvent,
-            shortcut: keyboardShortcut,
+            shortcut: shortcut,
             isRepeatingEvent: isRepeatingEvent,
             tryGlobals: tryGlobals, 
             runningMacro: runningMacro)
@@ -216,7 +216,7 @@ final class MachPortCoordinator {
 
   private func process(_ result: KeyboardShortcutResult?, 
                        machPortEvent: MachPortEvent,
-                       shortcut: KeyShortcut,
+                       shortcut: MachPortKeyboardShortcut,
                        isRepeatingEvent: Bool,
                        tryGlobals: Bool,
                        runningMacro: Bool) {
@@ -245,7 +245,7 @@ final class MachPortCoordinator {
       if workflow.commands.isValidForRepeat {
         guard machPortEvent.type == .keyDown else { return }
         execution = { [workflowRunner] machPortEvent, repeatingEvent in
-          workflowRunner.run(workflow, for: shortcut, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
+          workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
         }
         execution(machPortEvent, isRepeatingEvent)
         repeatingResult = execution
@@ -272,15 +272,15 @@ final class MachPortCoordinator {
         }
 
         if let delay = shouldSchedule(workflow) {
-          workItem = schedule(workflow, for: shortcut, machPortEvent: machPortEvent, after: delay)
+          workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
-          workflowRunner.run(workflow, for: shortcut, machPortEvent: machPortEvent, repeatingEvent: false)
+          workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
         }
       } else if machPortEvent.type == .keyDown, !isRepeatingEvent {
         if let delay = shouldSchedule(workflow) {
-          workItem = schedule(workflow, for: shortcut, machPortEvent: machPortEvent, after: delay)
+          workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
-          workflowRunner.run(workflow, for: shortcut, machPortEvent: machPortEvent, repeatingEvent: false)
+          workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
         }
 
         previousPartialMatch = Self.defaultPartialMatch
