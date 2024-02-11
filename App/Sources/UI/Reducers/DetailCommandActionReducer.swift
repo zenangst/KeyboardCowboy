@@ -1,5 +1,6 @@
 import Foundation
 import Cocoa
+import MachPort
 
 final class DetailCommandActionReducer {
   static func reduce(_ action: CommandView.Action,
@@ -24,8 +25,11 @@ final class DetailCommandActionReducer {
       let runCommand = command
       Task {
         do {
-          try await commandRunner.run(runCommand, 
+          guard let machPortEvent = MachPortEvent.empty() else { return }
+          try await commandRunner.run(runCommand,
                                       snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+                                      shortcut: .empty(),
+                                      machPortEvent: machPortEvent,
                                       repeatingEvent: false)
         } catch let error as KeyboardCommandRunnerError {
           let alert = await NSAlert(error: error)
@@ -150,11 +154,9 @@ final class DetailCommandActionReducer {
         switch action {
         case .updateSource(let model):
           let kind: ScriptCommand.Kind
-          switch model.scriptExtension {
-          case .appleScript:
-            kind = .appleScript
-          case .shellScript:
-            kind = .shellScript
+          kind = switch model.scriptExtension {
+          case .appleScript: .appleScript
+          case .shellScript: .shellScript
           }
           command = .script(.init(id: command.id,
                                   name: command.name, kind: kind, source: model.source,
@@ -165,10 +167,13 @@ final class DetailCommandActionReducer {
           workflow.updateOrAddCommand(command)
         case .open(let source):
           Task {
+            guard let machPortEvent = MachPortEvent.empty() else { return }
             let path = (source as NSString).expandingTildeInPath
             try await commandRunner.run(
               .open(.init(path: path)),
               snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+              shortcut: .empty(),
+              machPortEvent: machPortEvent,
               repeatingEvent: false
             )
           }

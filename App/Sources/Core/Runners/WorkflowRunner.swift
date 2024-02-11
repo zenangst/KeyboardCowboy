@@ -1,5 +1,6 @@
 import Carbon
 import Foundation
+import MachPort
 
 final class WorkflowRunner {
   private let commandRunner: CommandRunner
@@ -13,7 +14,8 @@ final class WorkflowRunner {
     self.notifications = notifications
   }
 
-  func run(_ workflow: Workflow, repeatingEvent: Bool) {
+  func run(_ workflow: Workflow, for shortcut: KeyShortcut,
+           machPortEvent: MachPortEvent, repeatingEvent: Bool) {
     notifications.notifyRunningWorkflow(workflow)
     let commands = workflow.commands.filter(\.isEnabled)
 
@@ -37,10 +39,12 @@ final class WorkflowRunner {
     case .concurrent:
       commandRunner.concurrentRun(commands, checkCancellation: checkCancellation,
                                   resolveUserEnvironment: resolveUserEnvironment,
+                                  shortcut: shortcut, machPortEvent: machPortEvent,
                                   repeatingEvent: repeatingEvent)
     case .serial:
       commandRunner.serialRun(commands, checkCancellation: checkCancellation,
                               resolveUserEnvironment: resolveUserEnvironment,
+                              shortcut: shortcut, machPortEvent: machPortEvent,
                               repeatingEvent: repeatingEvent)
     }
   }
