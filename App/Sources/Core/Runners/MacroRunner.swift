@@ -14,8 +14,6 @@ final class MacroRunner {
            machPortEvent: MachPortEvent) async -> String {
     let output: String
     switch macroAction.kind {
-      case .list:
-        output = "List Macros"
       case .record:
         if let newMacroKey = coordinator.newMacroKey {
           coordinator.state = .idle

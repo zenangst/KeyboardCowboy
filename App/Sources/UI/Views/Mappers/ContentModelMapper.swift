@@ -127,13 +127,23 @@ private extension Array where Element == Command {
       case .menuBar(let command):
         images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.menuBar(.init(id: command.id, tokens: command.tokens)))))
       case .builtIn(let command):
-        let path = Bundle.main.bundleURL.path
-        images.append(
-          ContentViewModel.ImageModel(
-            id: command.id,
-            offset: convertedOffset,
-            kind: .icon(.init(bundleIdentifier: path, path: path)))
-        )
+        switch command.kind {
+        case .macro(let action):
+          switch action.kind {
+          case .record:
+            images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.builtIn(.init(id: command.id, name: command.name, kind: .macro(.record))))))
+          case .remove:
+            images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.builtIn(.init(id: command.id, name: command.name, kind: .macro(.remove))))))
+          }
+        case .userMode:
+          let path = Bundle.main.bundleURL.path
+          images.append(
+            ContentViewModel.ImageModel(
+              id: command.id,
+              offset: convertedOffset,
+              kind: .icon(.init(bundleIdentifier: path, path: path)))
+          )
+        }
       case .mouse(let command):
         images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.mouse(.init(id: command.id, kind: command.kind)))))
       case .keyboard(let keyCommand):

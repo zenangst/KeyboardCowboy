@@ -18,8 +18,18 @@ struct NewCommandBuiltInView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        let path = Bundle.main.bundleURL.path
-        IconView(icon: .init(bundleIdentifier: path, path: path), size: CGSize(width: 24, height: 24))
+        switch kindSelection {
+        case .macro(let macroAction):
+          switch macroAction.kind {
+          case .record:
+            MacroIconView(.record, size: 24)
+          case .remove:
+            MacroIconView(.remove, size: 24)
+          }
+        case .userMode:
+          let path = Bundle.main.bundleURL.path
+          IconView(icon: .init(bundleIdentifier: path, path: path), size: CGSize(width: 24, height: 24))
+        }
 
         VStack {
           ZenLabel("Built-In Commands")
@@ -32,14 +42,10 @@ struct NewCommandBuiltInView: View {
                    label: { Text("Record Macros") })
             Button(action: { kindSelection = .macro(.remove) },
                    label: { Text("Remove Macros") })
-            Button(action: { kindSelection = .macro(.list) },
-                   label: { Text("List Macros") })
           } label: {
             switch kindSelection {
               case .macro(let action):
                 switch action.kind {
-                  case .list:
-                    Text("List Macros")
                   case .record:
                     Text("Record Macro")
                   case .remove:

@@ -12,8 +12,20 @@ struct ContentImageView: View {
       ContentIconImageView(icon: icon, size: size)
     case .command(let kind):
       switch kind {
-      case .application, .open, .builtIn:
+      case .application, .open:
         EmptyView()
+      case .builtIn(let model):
+        switch model.kind {
+        case .macro(let action):
+          switch action.kind {
+          case .record:
+            MacroIconView(.record, size: size - 6)
+          case .remove:
+            MacroIconView(.remove, size: size - 6)
+          }
+        case .userMode:
+          EmptyView()
+        }
       case .keyboard(let model):
         if let firstKey = model.keys.first {
           KeyboardIconView(firstKey.key.uppercased(), size: size - 6)

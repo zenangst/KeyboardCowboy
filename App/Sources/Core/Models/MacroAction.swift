@@ -5,7 +5,6 @@ struct MacroAction: Identifiable, Codable, Hashable, Sendable  {
   let kind: Kind
 
   enum Kind: Codable {
-    case list
     case record
     case remove
   }
@@ -20,7 +19,6 @@ struct MacroAction: Identifiable, Codable, Hashable, Sendable  {
     self.kind = kind
   }
 
-  static var list: MacroAction { MacroAction(.list) }
   static var record: MacroAction { MacroAction(.record) }
   static var remove: MacroAction { MacroAction(.remove) }
 }

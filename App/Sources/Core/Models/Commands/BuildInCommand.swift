@@ -40,7 +40,6 @@ struct BuiltInCommand: MetaDataProviding {
       switch self {
         case .macro(let action):
           switch action.kind {
-            case .list: "List Macros"
             case .remove: "Remove Macro"
             case .record: "Record Macro"
           }
