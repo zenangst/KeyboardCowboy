@@ -22,13 +22,15 @@ struct IconOverview: PreviewProvider {
 
       HStack {
         ActivateLastApplicationIconView(size: size)
+        MacroIconView(.record, size: size)
+        MacroIconView(.remove, size: size)
         MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
         MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
-        MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
-        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
       }
 
       HStack {
+        MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
+        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
         MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
         MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
       }

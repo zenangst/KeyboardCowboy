@@ -28,12 +28,20 @@ struct BuiltInCommandView: View {
   var body: some View {
     Group {
       CommandContainerView($metaData, placeholder: model.placheolder) { command in
-        switch command.icon.wrappedValue {
-        case .some(let icon):
-          IconView(icon: icon, size: iconSize)
-        case .none:
-          EmptyView()
+
+        switch model.kind {
+        case .macro(let macroAction):
+          switch macroAction.kind {
+          case .record: MacroIconView(.record, size: iconSize.width)
+          case .remove: MacroIconView(.remove, size: iconSize.width)
+          }
+        case .userMode:
+          switch command.icon.wrappedValue {
+          case .some(let icon): IconView(icon: icon, size: iconSize)
+          case .none: EmptyView()
+          }
         }
+
       } content: { _ in
         HStack {
           Menu(content: {
@@ -53,15 +61,6 @@ struct BuiltInCommandView: View {
               model.kind = newKind
             }, label: {
               Text("Remove Macro").font(.subheadline)
-            })
-
-            Button(action: {
-              let newKind: BuiltInCommand.Kind = .macro(.list)
-              onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
-              model.name = newKind.displayValue
-              model.kind = newKind
-            }, label: {
-              Text("List Macros").font(.subheadline)
             })
 
             Button(
