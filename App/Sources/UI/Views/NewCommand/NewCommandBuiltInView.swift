@@ -17,6 +17,8 @@ struct NewCommandBuiltInView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
+      ZenLabel("Built-In Commands")
+        .frame(maxWidth: .infinity, alignment: .leading)
       HStack {
         switch kindSelection {
         case .macro(let macroAction):
@@ -32,8 +34,6 @@ struct NewCommandBuiltInView: View {
         }
 
         VStack {
-          ZenLabel("Built-In Commands")
-            .frame(maxWidth: .infinity, alignment: .leading)
 
           Menu {
             Button(action: { kindSelection = .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle) },
