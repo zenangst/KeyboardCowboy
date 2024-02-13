@@ -2,8 +2,14 @@ import Bonzai
 import SwiftUI
 
 struct Release3_22_0: View {
+  enum ButtonAction {
+    case wiki
+    case done
+  }
+
   let size: CGFloat = 128
-  let action: () -> Void
+  let action: (ButtonAction) -> Void
+
   var body: some View {
     VStack(spacing: 8) {
       HStack(spacing: 16) {
@@ -85,11 +91,9 @@ struct Release3_22_0: View {
             Circle()
               .frame(width: 24, height: 24)
           }
-
           Link("@bforpc", destination: URL(string: "https://github.com/bforpc")!)
           Text("for supporting the project ❤️")
         }
-
       }
       .frame(width: 380)
       .roundedContainer(margin: 0)
@@ -97,14 +101,10 @@ struct Release3_22_0: View {
       .padding(.horizontal, 16)
 
       HStack(spacing: 8) {
-        Button(action: action, label: {
-          Text("About Macros")
-        })
+        Button(action: { action(.done) }, label: { Text("About Macros") })
         .buttonStyle(.zen(.init(color: .systemCyan, hoverEffect: .constant(false))))
 
-        Button(action: action, label: {
-          Text("Got it!")
-        })
+        Button(action: { action(.done) }, label: { Text("Got it!") })
         .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
       }
       .padding(.top, 8)
@@ -117,7 +117,7 @@ struct Release3_22_0: View {
 
 struct Release3_22_0_Previews: PreviewProvider {
   static var previews: some View {
-    Release3_22_0 {}
+    Release3_22_0 { _ in }
     .previewDisplayName("Release 3.22.0")
   }
 }

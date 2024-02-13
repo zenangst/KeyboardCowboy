@@ -4,6 +4,7 @@ extension KeyboardCowboy {
   static let mainWindowIdentifier = "MainWindow"
   static let permissionsSettingsWindowIdentifier = "PermissionsSettingsWindow"
   static let permissionsWindowIdentifier = "PermissionsWindow"
+  static let releaseNotesWindowIdentifier = "ReleaseNotesWindow"
 
   static var bundleIdentifier: String { Bundle.main.bundleIdentifier! }
 

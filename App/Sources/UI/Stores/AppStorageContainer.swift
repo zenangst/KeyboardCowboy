@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-final class AppStorageContainer {
+final class AppStorageContainer: @unchecked Sendable {
   #if DEBUG
   static let store = UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.debug")
   #else
@@ -16,4 +16,5 @@ final class AppStorageContainer {
   @AppStorage("selectedGroupIds", store: store) var groupIds = Set<String>()
   @AppStorage("selectedWorkflowIds", store: store) var workflowIds = Set<String>()
   @AppStorage("additionalApplicationPaths", store: store) var additionalApplicationPaths = [String]()
+  @AppStorage("ReleaseNotes") var releaseNotes: String = ""
 }
