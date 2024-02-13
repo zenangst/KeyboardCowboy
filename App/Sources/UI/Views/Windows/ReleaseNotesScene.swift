@@ -12,15 +12,12 @@ struct ReleaseNotesScene: Scene {
         case .done:
           break
         case .wiki:
-          NSWorkspace.shared.open(
-            URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#macros")!,
-            configuration: NSWorkspace.OpenConfiguration()
-          )
+          NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#macros")!)
         }
         NSApplication.shared.keyWindow?.close()
       }
       .onDisappear {
-        
+        AppStorageContainer.shared.releaseNotes = KeyboardCowboy.marektingVersion
       }
     }
     .windowResizability(.contentSize)
