@@ -6,23 +6,8 @@ struct DockIconView: View {
   var body: some View {
     RoundedRectangle(cornerRadius: 4)
       .fill(Color(.controlAccentColor))
-      .overlay {
-        AngularGradient(stops: [
-          .init(color: Color.clear, location: 0.0),
-          .init(color: Color.white.opacity(0.2), location: 0.2),
-          .init(color: Color.clear, location: 1.0),
-        ], center: .bottomLeading)
-
-        LinearGradient(stops: [
-          .init(color: Color.white.opacity(0.2), location: 0),
-          .init(color: Color.clear, location: 0.3),
-        ], startPoint: .top, endPoint: .bottom)
-
-        LinearGradient(stops: [
-          .init(color: Color.clear, location: 0.8),
-          .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
-      }
+      .overlay { iconOverlay() }
+      .overlay { iconBorder(size) }
       .overlay(alignment: .top) {
         Rectangle()
           .opacity(0.6)

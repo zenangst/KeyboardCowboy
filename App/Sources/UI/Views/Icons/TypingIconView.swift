@@ -11,6 +11,8 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
   var body: some View {
     Rectangle()
       .fill(.white)
+      .overlay { iconOverlay().opacity(0.5) }
+      .overlay { iconBorder(size) }
       .overlay(alignment: .leading) {
         Rectangle()
           .fill(Color(.systemRed).opacity(0.25))

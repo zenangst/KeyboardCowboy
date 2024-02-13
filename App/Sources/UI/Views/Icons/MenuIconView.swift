@@ -17,6 +17,8 @@ struct MenuIconView: View {
           endPoint: .bottom
         )
       )
+      .overlay { iconOverlay().opacity(0.65) }
+      .overlay { iconBorder(size) }
       .overlay(alignment: .top) {
         Rectangle()
           .fill(Color(.white).opacity(0.4))

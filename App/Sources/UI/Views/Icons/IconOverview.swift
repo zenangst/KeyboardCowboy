@@ -10,14 +10,16 @@ struct IconOverview: PreviewProvider {
         MenuIconView(size: size)
         MouseIconView(size: size)
         MissionControlIconView(size: size)
+        ScriptIconView(size: size)
       }
 
       HStack {
-        ScriptIconView(size: size)
         TypingIconView(size: size)
         UIElementIconView(size: size)
         WindowManagementIconView(size: size)
         MinimizeAllIconView(size: size)
+        BugFixIconView(size: size)
+        ImprovementIconView(size: size)
       }
 
       HStack {
@@ -26,10 +28,10 @@ struct IconOverview: PreviewProvider {
         MacroIconView(.remove, size: size)
         MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
         MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
+        MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
       }
 
       HStack {
-        MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
         MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
         MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
         MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)

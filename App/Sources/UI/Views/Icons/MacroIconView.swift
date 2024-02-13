@@ -19,7 +19,8 @@ struct MacroIconView: View {
                       : .systemYellow)
     Rectangle()
       .fill(color)
-      .overlay { overlay() }
+      .overlay { iconOverlay().opacity(0.25) }
+      .overlay { iconBorder(size) }
       .overlay(alignment: .center) {
         backgroundShape(color: color)
           .scaleEffect(0.8)

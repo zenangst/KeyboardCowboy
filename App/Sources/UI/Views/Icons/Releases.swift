@@ -70,15 +70,50 @@ struct Release3_22_0: View {
         .padding(.top, 8)
 
       VStack(alignment: .leading, spacing: 16) {
-        HStack(spacing: 12) {
-          MacroIconView(.record, size: 32)
-          Text("Macros: Make Every Keystroke Count!")
-            .font(Font.system(.title2, design: .rounded, weight: .bold))
+        ScrollView(.vertical) {
+          VStack(spacing: 6) {
+            HStack(spacing: 12) {
+              MacroIconView(.record, size: 32)
+              Text("Macros: Make Every Keystroke Count!")
+                .font(Font.system(.title2, design: .rounded, weight: .bold))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Text("Rev up your routine with Macros — where doing less isn't just more; it's epic. Say hello to keyboard wizardry that conjures up workflows in the blink of an eye.")
+              .fixedSize(horizontal: false, vertical: true)
+            Text("With Macros, you're not just efficient, you're effortlessly epic!")
+
+            Divider()
+              .padding(.vertical, 8)
+
+            Text("Other changes")
+              .font(Font.system(.headline, weight: .bold))
+              .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(alignment: .leading, spacing: 12) {
+              HStack(spacing: 12) {
+                BugFixIconView(size: 24)
+                Text("Banishes the ghosted icons — they're all back with a vengeance!")
+              }
+
+              HStack(alignment: .top, spacing: 12) {
+                ImprovementIconView(size: 24)
+                VStack(spacing: 12) {
+                  Text("Keyboard-, Menubar- & Window Management Commands now work better with repeating events")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                  Text("Icons revamped – a subtle glow-up for your visual pleasure!")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+              }
+            }
+            .font(Font.system(.caption2, design: .rounded))
+            .frame(maxWidth: .infinity, alignment: .leading)
+          }
         }
-        Text("Rev up your routine with Macros — where doing less isn't just more; it's epic. Say hello to keyboard wizardry that conjures up workflows in the blink of an eye.")
-          .fixedSize(horizontal: false, vertical: true)
-        Text("With Macros, you're not just efficient, you're effortlessly epic!")
+        .frame(minHeight: 220)
+
         Divider()
+
         HStack(spacing: 4) {
           Text("Special thanks to")
           AsyncImage.init(url: URL(string: "https://avatars.githubusercontent.com/u/5180591?v=4")) { image in

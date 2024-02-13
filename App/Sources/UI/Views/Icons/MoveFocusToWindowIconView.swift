@@ -18,6 +18,7 @@ struct MoveFocusToWindowIconView: View {
     RoundedRectangle(cornerRadius: 4)
       .fill(baseColor(for: scope))
       .overlay { background() }
+      .overlay { iconBorder(size) }
       .overlay(content: {
         HStack(spacing: size * 0.0_140) {
           if scope == .allWindows {

@@ -6,23 +6,8 @@ struct MinimizeAllIconView: View {
   var body: some View {
     Rectangle()
       .fill(Color(nsColor: .systemBrown))
-      .overlay {
-        AngularGradient(stops: [
-          .init(color: Color.clear, location: 0.0),
-          .init(color: Color.white.opacity(0.2), location: 0.2),
-          .init(color: Color.clear, location: 1.0),
-        ], center: .bottomLeading)
-
-        LinearGradient(stops: [
-          .init(color: Color.white.opacity(0.2), location: 0),
-          .init(color: Color.clear, location: 0.3),
-        ], startPoint: .top, endPoint: .bottom)
-
-        LinearGradient(stops: [
-          .init(color: Color.clear, location: 0.8),
-          .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
-      }
+      .overlay { iconOverlay() }
+      .overlay { iconBorder(size) }
       .overlay {
         window(.init(width: (size * 0.85) * 0.8,
                      height: (size * 0.75) * 0.8))
