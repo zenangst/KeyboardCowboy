@@ -146,10 +146,15 @@ final class WindowStore {
 
   private func indexFrontmost() {
     do {
+      let forbiddenSubroles = [
+        NSAccessibility.Subrole.systemDialog.rawValue,
+        NSAccessibility.Subrole.dialog.rawValue
+      ]
       state.frontMostApplicationWindows = try state.appAccessibilityElement.windows()
         .filter({
           $0.id > 0 &&
-          ($0.size?.height ?? 0) > 20
+          ($0.size?.height ?? 0) > 20 &&
+          !forbiddenSubroles.contains($0.subrole ?? "")
         })
     } catch { }
   }
