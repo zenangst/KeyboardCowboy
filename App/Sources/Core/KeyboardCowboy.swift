@@ -61,6 +61,7 @@ struct KeyboardCowboy: App {
 
     PermissionsWindow()
     PermissionsScene(onAction: handlePermissionAction(_:))
+    ReleaseNotesScene()
 
     NewCommandWindow(contentStore: core.contentStore, 
                      uiElementCaptureStore: core.uiElementCaptureStore,
@@ -91,6 +92,11 @@ struct KeyboardCowboy: App {
           handleAppScene(.permissions)
           return
         }
+
+        if AppStorageContainer.shared.releaseNotes < KeyboardCowboy.marektingVersion {
+          openWindow(id: KeyboardCowboy.releaseNotesWindowIdentifier)
+        }
+
       }
     case .openMainWindow:
       handleAppScene(.mainWindow)
@@ -131,5 +137,11 @@ struct KeyboardCowboy: App {
       openWindow(id: KeyboardCowboy.permissionsSettingsWindowIdentifier)
       AccessibilityPermission.shared.requestPermission()
     }
+  }
+}
+
+private extension String {
+  static func < (lhs: String, rhs: String) -> Bool {
+    return lhs.compare(rhs, options: .numeric) == .orderedAscending
   }
 }
