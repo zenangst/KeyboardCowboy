@@ -23,6 +23,7 @@ struct WindowManagementIconView: View {
       window()
         .frame(width: size * 0.182)
     }
+    .overlay { iconBorder(size) }
     .background()
     .compositingGroup()
     .iconShape(size)

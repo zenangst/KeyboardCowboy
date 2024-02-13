@@ -45,6 +45,8 @@ struct UIElementIconView: View {
           endPoint: .leading
         )
       }
+      .overlay { iconOverlay() }
+      .overlay { iconBorder(size) }
       .overlay(alignment: .center) {
         Image(systemName: "viewfinder")
           .resizable()

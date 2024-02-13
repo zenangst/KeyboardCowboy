@@ -5,23 +5,9 @@ struct MouseIconView: View {
   var body: some View {
     Rectangle()
       .fill(Color(.systemGreen))
+      .overlay { iconOverlay().opacity(0.65) }
+      .overlay { iconBorder(size) }
       .overlay {
-        AngularGradient(stops: [
-          .init(color: Color.clear, location: 0.0),
-          .init(color: Color.white.opacity(0.2), location: 0.2),
-          .init(color: Color.clear, location: 1.0),
-        ], center: .bottomLeading)
-
-        LinearGradient(stops: [
-          .init(color: Color.white.opacity(0.2), location: 0),
-          .init(color: Color.clear, location: 0.3),
-        ], startPoint: .top, endPoint: .bottom)
-
-        LinearGradient(stops: [
-          .init(color: Color.clear, location: 0.8),
-          .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
-
         Capsule()
           .fill(Color(.white))
           .frame(width: size * 0.45, height: size * 0.8)

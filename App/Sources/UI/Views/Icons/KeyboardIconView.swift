@@ -15,6 +15,7 @@ struct KeyboardIconView: View {
   var body: some View {
     Rectangle()
       .fill(Color(.textBackgroundColor))
+      .overlay { iconOverlay().opacity(0.2) }
       .overlay {
         AngularGradient(stops: [
           .init(color: Color.clear, location: 0.0),
@@ -32,6 +33,7 @@ struct KeyboardIconView: View {
           .init(color: Color(.windowBackgroundColor), location: 1.0),
         ], startPoint: .top, endPoint: .bottom)
       }
+      .overlay { iconBorder(size).opacity(0.5) }
       .overlay {
         Text(letter)
           .font(Font.system(size: size * 0.3, weight: .regular, design: .rounded))
