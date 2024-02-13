@@ -98,7 +98,7 @@ struct Release3_22_0: View {
               HStack(alignment: .top, spacing: 12) {
                 ImprovementIconView(size: 24)
                 VStack(spacing: 12) {
-                  Text("Keyboard-, Menubar- & Window Management Commands now work better with repeating events")
+                  Text("Smooth Operator: Your Keyboard, Menu, and Window Commands now nail those encores like a pro!")
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                   Text("Window-hopping within your go-to app just got a snappy upgrade—slick, reliable, and ready to roll!")
