@@ -101,6 +101,9 @@ struct Release3_22_0: View {
                   Text("Keyboard-, Menubar- & Window Management Commands now work better with repeating events")
                     .frame(maxWidth: .infinity, alignment: .leading)
 
+                  Text("Window-hopping within your go-to app just got a snappy upgrade—slick, reliable, and ready to roll!")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                   Text("Icons revamped – a subtle glow-up for your visual pleasure!")
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
