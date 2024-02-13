@@ -5,6 +5,7 @@ struct MainWindow: Scene {
   private let core: Core
   @FocusState var focus: AppFocus?
 
+  @Environment(\.openWindow) private var openWindow
   private let onScene: (AppScene) -> Void
 
   init(_ core: Core, onScene: @escaping (AppScene) -> Void) {
@@ -43,6 +44,7 @@ struct MainWindow: Scene {
     .commands {
       CommandGroup(after: .appSettings) {
         AppMenu()
+        Button { openWindow(id: KeyboardCowboy.releaseNotesWindowIdentifier) } label: { Text("What's new?") }
       }
       CommandGroup(replacing: .newItem) {
         FileMenu(
