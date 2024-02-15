@@ -29,7 +29,7 @@ jobs:
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
           brew install tuist
-          tuist fetch
+          tuist install
           tuist generate -n
       - name: Run tests
         uses: sersoft-gmbh/xcodebuild-action@v2
