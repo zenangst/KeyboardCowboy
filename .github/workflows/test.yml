@@ -20,13 +20,6 @@ jobs:
           swift package --version
       - name: Checkout
         uses: actions/checkout@main
-      - name: misu
-        run: |
-          curl https://mise.jdx.dev/install.sh | sh
-          echo "$HOME/.local/share/mise/bin" >> $GITHUB_PATH
-          echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
-          echo "eval \"$($(command -v mise) activate bash)\"" >> ~/.bashrc
-          misu doctor
       - name: Install & Run tuist
         run: |
           touch .env
@@ -35,6 +28,7 @@ jobs:
           echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
+          brew install tuist
           tuist fetch
           tuist generate -n
       - name: Run tests
