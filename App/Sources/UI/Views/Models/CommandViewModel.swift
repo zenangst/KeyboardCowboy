@@ -95,7 +95,14 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     struct MenuBarModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var placeholder: String { "Click MenuBar Item …" }
+      var application: Application?
       var tokens: [MenuBarCommand.Token]
+
+      init(id: String, application: Application? = nil, tokens: [MenuBarCommand.Token]) {
+        self.id = id
+        self.application = application
+        self.tokens = tokens
+      }
     }
 
     struct ScriptModel: Codable, Hashable, Identifiable, Sendable {

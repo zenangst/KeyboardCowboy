@@ -1,3 +1,4 @@
+import Apps
 import Foundation
 
 struct MenuBarCommand: MetaDataProviding {
@@ -16,12 +17,16 @@ struct MenuBarCommand: MetaDataProviding {
   }
 
   let tokens: [Token]
+  var application: Application?
   var meta: Command.MetaData
 
-  init(id: String = UUID().uuidString, name: String = "",
+  init(id: String = UUID().uuidString, 
+       name: String = "",
+       application: Application?,
        tokens: [Token],
        isEnabled: Bool = true,
        notification: Bool = false) {
+    self.application = application
     self.tokens = tokens
     self.meta = Command.MetaData(id: id, name: name,
                                  isEnabled: isEnabled,
@@ -38,5 +43,6 @@ struct MenuBarCommand: MetaDataProviding {
     }
 
     self.tokens = try container.decode([Token].self, forKey: .tokens)
+    self.application = try container.decodeIfPresent(Application.self, forKey: .application)
   }
 }

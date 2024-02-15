@@ -74,7 +74,7 @@ private extension Command {
     case .keyboard(let keyboardCommand):
       kind =  .keyboard(.init(id: keyboardCommand.id, keys: keyboardCommand.keyboardShortcuts))
     case .menuBar(let menubarCommand):
-      kind = .menuBar(.init(id: menubarCommand.id, tokens: menubarCommand.tokens))
+      kind = .menuBar(.init(id: menubarCommand.id, application: menubarCommand.application, tokens: menubarCommand.tokens))
     case .mouse(let mouseCommand):
       kind = .mouse(.init(id: mouseCommand.id, kind: mouseCommand.kind))
     case .open(let openCommand):

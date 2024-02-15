@@ -282,7 +282,7 @@ extension Command {
     case .application: Command.application(ApplicationCommand.empty())
     case .builtIn: Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: false))
     case .keyboard: Command.keyboard(KeyboardCommand.empty())
-    case .menuBar: Command.menuBar(MenuBarCommand(tokens: []))
+    case .menuBar: Command.menuBar(MenuBarCommand(application: nil, tokens: []))
     case .mouse: Command.mouse(MouseCommand.empty())
     case .open: Command.open(.init(path: "", notification: false))
     case .script: Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))

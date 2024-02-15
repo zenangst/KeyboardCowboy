@@ -123,7 +123,7 @@ struct NewCommandWindow: Scene {
     case .builtIn:
       return .placeholder
     case .menuBar(let command):
-      return .menuBar(tokens: command.tokens)
+      return .menuBar(tokens: command.tokens, application: command.application)
     case .mouse(let command):
       return .mouse(kind: command.kind)
     case .keyboard(let command):

@@ -120,8 +120,8 @@ final class DetailCoordinator {
       return
     case .builtIn(let newCommand):
       command = .builtIn(newCommand)
-    case .menuBar(let tokens):
-      command = .menuBar(.init(id: resolvedCommandId, tokens: tokens))
+    case .menuBar(let tokens, let application):
+      command = .menuBar(.init(id: resolvedCommandId, application: application, tokens: tokens))
     case .mouse(let kind):
       command = .mouse(.init(meta: .init(), kind: kind))
     case .keyboardShortcut(let keyShortcuts):
