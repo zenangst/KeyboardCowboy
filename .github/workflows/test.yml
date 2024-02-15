@@ -20,7 +20,11 @@ jobs:
           swift package --version
       - name: Checkout
         uses: actions/checkout@main
-      - name: Install and run tuist
+      - name: Install misu
+        run: |
+          curl https://mise.run | sh
+          misu install
+      - name: Run tuist
         run: |
           touch .env
           echo "APP_NAME=Keyboard Cowboy" >> .env
@@ -28,8 +32,6 @@ jobs:
           echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
-          curl https://mise.run | sh
-          mise install
           tuist fetch
           tuist generate -n
       - name: Run tests
