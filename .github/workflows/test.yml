@@ -25,6 +25,7 @@ jobs:
           curl https://mise.jdx.dev/install.sh | sh
           echo "$HOME/.local/share/mise/bin" >> $GITHUB_PATH
           echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
+          misu doctor
       - name: Install & Run tuist
         run: |
           touch .env
