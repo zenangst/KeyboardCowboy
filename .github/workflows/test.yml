@@ -29,7 +29,7 @@ jobs:
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
           curl https://mise.run | sh
-          export PATH="$HOME/.local/share/mise/shims:$PATH"
+          mise install
           tuist fetch
           tuist generate -n
       - name: Run tests
