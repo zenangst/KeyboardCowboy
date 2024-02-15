@@ -28,6 +28,7 @@ jobs:
           echo -e "APP_BUNDLE_IDENTIFIER=com.zenangst.Keyboard-Cowboy" >> .env
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
+          curl https://mise.run | sh
           brew install tuist
           tuist fetch
           tuist generate -n
