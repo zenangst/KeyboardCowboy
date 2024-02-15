@@ -69,7 +69,9 @@ final class WorkflowTests: XCTestCase {
   func testResolveUserEnvironmentForMenuBarCommands() {
     let workflow = Workflow(
       name: "Menu bar",
-      commands: [.menuBar(.init(tokens: [.menuItem(name: "Test")]))]
+      commands: [.menuBar(
+        .init(application: nil, tokens: [.menuItem(name: "Test")])
+      )]
     )
     let shouldResolve = workflow.resolveUserEnvironment()
     XCTAssertFalse(shouldResolve, "Menu bar command workflows should not resolve user environment.")
