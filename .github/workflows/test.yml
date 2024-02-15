@@ -21,7 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
       - name: misu
-        uses: jdx/mise-action@v2.0.2
+        run: |
+        curl https://mise.jdx.dev/install.sh | sh
+        echo "$HOME/.local/share/mise/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
       - name: Install & Run tuist
         run: |
           touch .env
