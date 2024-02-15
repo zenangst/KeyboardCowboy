@@ -23,7 +23,9 @@ jobs:
       - name: Install misu
         run: |
           curl https://mise.run | sh
+          export PATH="$HOME/.local/bin:$PATH"
           misu install
+          eval "$(mise activate bash --shims)"
       - name: Run tuist
         run: |
           touch .env
