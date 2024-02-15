@@ -31,7 +31,7 @@ struct WorkflowNotificationMatchesView: View {
                 ForEach(trigger.shortcuts) { shortcut in
                   WorkflowNotificationKeyView(keyShortcut: shortcut, glow: .constant(false))
                 }
-              case .application, .none:
+              case .application, .none, .snippet:
                 EmptyView()
               }
             }

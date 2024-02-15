@@ -62,6 +62,8 @@ struct SingleDetailView: View {
               focus.wrappedValue = .detail(.applicationTriggers)
             case .keyboardShortcuts:
               focus.wrappedValue = .detail(.keyboardShortcuts)
+            case .snippet:
+              focus.wrappedValue = .detail(.addAppTrigger)
             case .empty:
               focus.wrappedValue = .detail(.addAppTrigger)
             }
@@ -111,6 +113,7 @@ struct SingleDetailView: View {
           switch triggerPublisher.data {
           case .applications(let array): !array.isEmpty
           case .keyboardShortcuts(let keyboardTrigger): !keyboardTrigger.shortcuts.isEmpty
+          case .snippet: false
           case .empty: false
           }
         }, set: { _ in }),
