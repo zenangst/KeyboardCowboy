@@ -60,6 +60,8 @@ struct WorkflowTriggerListView: View {
           onAction(.applicationTrigger(workflowId: workflowId, action: action))
         }
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
+      case .snippet:
+        ZenLabel("Add snippet")
       case .empty:
         ZenLabel("Add Trigger")
           .padding([.leading, .trailing], 8)

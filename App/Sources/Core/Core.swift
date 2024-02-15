@@ -94,6 +94,7 @@ final class Core {
     machPortCoordinator: machPortCoordinator,
     scriptCommandRunner: scriptCommandRunner,
     shortcutStore: shortcutStore,
+    snippetController: snippetController,
     uiElementCaptureStore: uiElementCaptureStore,
     workspace: .shared)
   lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
@@ -112,6 +113,11 @@ final class Core {
   lazy private(set) var uiElementCommandRunner = UIElementCommandRunner()
   lazy private(set) var scriptCommandRunner = ScriptCommandRunner(workspace: .shared)
   lazy private(set) var macroRunner = MacroRunner(coordinator: macroCoordinator)
+  lazy private(set) var snippetController = SnippetController(
+    commandRunner: commandRunner,
+    keyboardShortcutsController: keyboardShortcutsController,
+    store: keyCodeStore
+  )
 
   // MARK: - Controllers
 

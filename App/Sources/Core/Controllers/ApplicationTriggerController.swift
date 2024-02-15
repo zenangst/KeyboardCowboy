@@ -55,8 +55,8 @@ final class ApplicationTriggerController {
             self.activateActions[trigger.application.bundleIdentifier, default: []].append(workflow)
           }
         }
-      case .keyboardShortcuts, .none:
-        break
+      case .keyboardShortcuts, .snippet, .none:
+        return
       }
     }
   }

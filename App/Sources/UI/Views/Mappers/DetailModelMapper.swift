@@ -149,27 +149,29 @@ extension Workflow.Trigger {
   func asViewModel() -> DetailViewModel.Trigger {
     switch self {
     case .application(let triggers):
-      return .applications(
-        triggers.map { trigger in
-          DetailViewModel.ApplicationTrigger(id: trigger.id,
-                                             name: trigger.application.displayName,
-                                             application: trigger.application,
-                                             contexts: trigger.contexts.map {
-            switch $0 {
-            case .closed:
-              return .closed
-            case .frontMost:
-              return .frontMost
-            case .launched:
-              return .launched
-            }
-          })
-        }
-      )
+        .applications(
+          triggers.map { trigger in
+            DetailViewModel.ApplicationTrigger(id: trigger.id,
+                                               name: trigger.application.displayName,
+                                               application: trigger.application,
+                                               contexts: trigger.contexts.map {
+              switch $0 {
+              case .closed:
+                return .closed
+              case .frontMost:
+                return .frontMost
+              case .launched:
+                return .launched
+              }
+            })
+          }
+        )
     case .keyboardShortcuts(let trigger):
-      return .keyboardShortcuts(.init(passthrough: trigger.passthrough, 
-                                      holdDuration: trigger.holdDuration,
-                                      shortcuts: trigger.shortcuts))
+        .keyboardShortcuts(.init(passthrough: trigger.passthrough,
+                                 holdDuration: trigger.holdDuration,
+                                 shortcuts: trigger.shortcuts))
+    case .snippet(let trigger):
+        .snippet(.init(id: trigger.id, text: trigger.text))
     }
   }
 }

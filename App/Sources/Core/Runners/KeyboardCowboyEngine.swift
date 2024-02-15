@@ -15,6 +15,7 @@ final class KeyboardCowboyEngine {
   private let keyCodeStore: KeyCodesStore
   private let machPortCoordinator: MachPortCoordinator
   private let notificationCenterPublisher: NotificationCenterPublisher
+  private let snippetController: SnippetController
   private let shortcutStore: ShortcutStore
   private let workspace: NSWorkspace
   private let workspacePublisher: WorkspacePublisher
@@ -33,6 +34,7 @@ final class KeyboardCowboyEngine {
        notificationCenter: NotificationCenter = .default,
        scriptCommandRunner: ScriptCommandRunner,
        shortcutStore: ShortcutStore,
+       snippetController: SnippetController,
        uiElementCaptureStore: UIElementCaptureStore,
        workspace: NSWorkspace = .shared) {
     
@@ -43,6 +45,7 @@ final class KeyboardCowboyEngine {
     self.shortcutStore = shortcutStore
     self.uiElementCaptureStore = uiElementCaptureStore
     self.applicationTriggerController = ApplicationTriggerController(commandRunner)
+    self.snippetController = snippetController
     self.workspace = workspace
     self.workspacePublisher = WorkspacePublisher(workspace)
     self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
@@ -84,6 +87,7 @@ final class KeyboardCowboyEngine {
       machPortController = newMachPortController
       keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
       uiElementCaptureStore.subscribe(to: machPortCoordinator)
+      snippetController.subscribe(to: machPortCoordinator.$event)
     } catch let error {
       NSAlert(error: error).runModal()
     }
@@ -99,5 +103,7 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
+
+    snippetController.subscribe(to: contentStore.groupStore.$groups)
   }
 }

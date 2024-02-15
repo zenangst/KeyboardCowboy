@@ -8,10 +8,12 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   enum Trigger: Hashable, Equatable, Codable, Sendable {
     case application([ApplicationTrigger])
     case keyboardShortcuts(KeyboardShortcutTrigger)
+    case snippet(SnippetTrigger)
 
     enum CodingKeys: String, CodingKey {
       case application
       case keyboardShortcuts
+      case snippet
     }
 
     init(from decoder: Decoder) throws {
@@ -31,6 +33,9 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
           let keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
           self = .keyboardShortcuts(.init(shortcuts: keyboardShortcuts))
         }
+      case .snippet:
+        let snippetTrigger = try container.decode(SnippetTrigger.self, forKey: .snippet)
+        self = .snippet(snippetTrigger)
       case .none:
         throw DecodingError.dataCorrupted(
           DecodingError.Context(
@@ -48,6 +53,8 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         try container.encode(trigger, forKey: .application)
       case .keyboardShortcuts(let keyboardShortcuts):
         try container.encode(keyboardShortcuts, forKey: .keyboardShortcuts)
+      case .snippet(let trigger):
+        try container.encode(trigger, forKey: .snippet)
       }
     }
 
@@ -103,6 +110,8 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       clone.trigger = .application(array.map { $0.copy() })
     case .keyboardShortcuts(let keyboardShortcutTrigger):
       clone.trigger = .keyboardShortcuts(keyboardShortcutTrigger.copy())
+    case .snippet(let trigger):
+      clone.trigger = .snippet(trigger)
     case .none:
       break
     }
@@ -165,10 +174,9 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
 extension Workflow.Trigger {
   var isPassthrough: Bool {
     switch self {
-    case .application:
-      return false
-    case .keyboardShortcuts(let trigger):
-      return trigger.passthrough
+    case .application: false
+    case .snippet: true
+    case .keyboardShortcuts(let trigger): trigger.passthrough
     }
   }
 }
