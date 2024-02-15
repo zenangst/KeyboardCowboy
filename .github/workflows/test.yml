@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
       - name: Install & Run tuist
-        uses: jdx/mise-action@v1
+        uses: jdx/mise-action@v2.0.2
         run: |
           touch .env
           echo "APP_NAME=Keyboard Cowboy" >> .env
