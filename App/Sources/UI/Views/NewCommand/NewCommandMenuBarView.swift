@@ -1,5 +1,6 @@
-import SwiftUI
+import Apps
 import Bonzai
+import SwiftUI
 
 @MainActor
 struct NewCommandMenuBarView: View {
@@ -24,6 +25,7 @@ struct NewCommandMenuBarView: View {
   @Namespace var namespace
   @FocusState var focus: Focus?
   @Environment(\.resetFocus) var resetFocus
+  @EnvironmentObject var applicationStore: ApplicationStore
 
   @Binding private var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
@@ -33,6 +35,7 @@ struct NewCommandMenuBarView: View {
 
   @State private var menuItem: String = ""
   @State private var menuItems: (String, String) = ("","")
+  @State private var application: Application?
 
   init(_ payload: Binding<NewCommandPayload>,
        validation: Binding<NewCommandValidation>,
@@ -41,8 +44,9 @@ struct NewCommandMenuBarView: View {
     _validation = validation
     _kind = .init(initialValue: kind)
 
-    if case .menuBar(let tokens) = payload.wrappedValue {
+    if case .menuBar(let tokens, let application) = payload.wrappedValue {
       _tokens = .init(initialValue: tokens.map(TokenContainer.init))
+      _application = .init(initialValue: application)
     } else {
       _tokens = .init(initialValue: [])
     }
@@ -58,8 +62,29 @@ struct NewCommandMenuBarView: View {
                label: { Image(systemName: "questionmark.circle.fill") })
         .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
-
       VStack {
+        Menu {
+          Button(action: {
+            application = nil
+            updateAndValidatePayload()
+          },
+                 label: { Text("Front Most Application") })
+          Divider()
+          ForEach(applicationStore.applications) { application in
+            Button(action: {
+              self.application = application
+              updateAndValidatePayload() },
+                   label: { Text(application.displayName) })
+          }
+        } label: {
+          if let application {
+            Text(application.displayName)
+          } else {
+            Text("Front Most Application")
+          }
+        }
+        .menuStyle(.zen(.init()))
+
         ScrollView {
           ForEach(tokens) { container in
             HStack {
@@ -106,9 +131,7 @@ struct NewCommandMenuBarView: View {
             )
             .padding(1)
           }
-          .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .overlay {
+          .frame(maxWidth: .infinity, alignment: .topLeading)
           overlay()
         }
         if !tokens.isEmpty {
@@ -117,10 +140,11 @@ struct NewCommandMenuBarView: View {
             .matchedGeometryEffect(id: "add-buttons", in: namespace)
         }
       }
-      .padding(8)
+      .padding(16)
       .background(
-        RoundedRectangle(cornerRadius: 4)
-          .fill(Color(.textBackgroundColor).opacity(0.5))
+        RoundedRectangle(cornerRadius: 8)
+          .fill(Color(.textBackgroundColor)
+            .opacity(0.5))
       )
     }
     .onChange(of: validation, perform: { newValue in
@@ -142,7 +166,7 @@ struct NewCommandMenuBarView: View {
   private func updateAndValidatePayload() -> NewCommandValidation {
     guard !tokens.isEmpty else { return .invalid(reason: "You need to add at least one menu item.") }
 
-    payload = .menuBar(tokens: tokens.map { $0.token })
+    payload = .menuBar(tokens: tokens.map { $0.token }, application: application)
 
     return .valid
   }
@@ -151,6 +175,7 @@ struct NewCommandMenuBarView: View {
   func overlay() -> some View {
     if tokens.isEmpty {
     VStack {
+      Divider()
       Text("Enter the exact name of the menu command you want to add.")
         .font(.caption)
         .allowsHitTesting(false)
@@ -278,7 +303,7 @@ struct NewCommandMenuBarView_Previews: PreviewProvider {
           .menuItem(name: "View"),
           .menuItem(name: "Navigators"),
           .menuItems(name: "Show Navigator", fallbackName: "Hide Navigator")
-        ]),
+        ], application: nil),
         onDismiss: {},
         onSave: { _, _ in })
       .previewDisplayName("With instructions")

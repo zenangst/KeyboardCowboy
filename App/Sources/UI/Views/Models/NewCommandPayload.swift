@@ -13,7 +13,7 @@ enum NewCommandPayload: Equatable {
   case keyboardShortcut([KeyShortcut])
   case text(TextCommand)
   case systemCommand(kind: SystemCommand.Kind)
-  case menuBar(tokens: [MenuBarCommand.Token])
+  case menuBar(tokens: [MenuBarCommand.Token], application: Application?)
   case mouse(kind: MouseCommand.Kind)
   case uiElement(predicates: [UIElementCommand.Predicate])
   case windowManagement(kind: WindowCommand.Kind)

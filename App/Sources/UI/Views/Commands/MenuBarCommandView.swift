@@ -30,6 +30,30 @@ struct MenuBarCommandView: View {
     } content: { _ in
       ScrollView(.horizontal) {
         HStack(spacing: 4) {
+          if let application = model.application {
+            Text(application.displayName)
+              .lineLimit(1)
+              .fixedSize(horizontal: true, vertical: true)
+              .padding(4)
+              .background(
+                RoundedRectangle(cornerRadius: 4)
+                  .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+              )
+              .background(
+                RoundedRectangle(cornerRadius: 4)
+                  .fill(
+                    LinearGradient(colors: [
+                      Color(nsColor: .systemBlue).opacity(0.7),
+                      Color(nsColor: .systemBlue.withSystemEffect(.disabled)).opacity(0.4),
+                    ], startPoint: .top, endPoint: .bottom)
+                  )
+                  .grayscale(0.4)
+              )
+              .compositingGroup()
+              .shadow(radius: 2, y: 1)
+              .font(.caption)
+          }
+
           ForEach(model.tokens) { token in
             switch token {
             case .menuItem(let name):
