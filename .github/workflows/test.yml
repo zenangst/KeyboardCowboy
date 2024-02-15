@@ -29,7 +29,6 @@ jobs:
           echo -e "TEAM_ID=XXXXXXXXXX" >> .env
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
           curl https://mise.run | sh
-          brew install tuist
           echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
           tuist fetch
           tuist generate -n
