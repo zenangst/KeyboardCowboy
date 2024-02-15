@@ -22,8 +22,15 @@ struct PermissionsSettings: View {
         }
       }
     }
+    .onChange(of: accessibilityPermission.permission, perform: { newValue in
+      if newValue == .authorized {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+          NSApplication.shared.keyWindow?.close()
+        }
+      }
+    })
     .roundedContainer()
-    .frame(minWidth: 480)
+    .frame(minWidth: 480, maxWidth: 480)
   }
 }
 
