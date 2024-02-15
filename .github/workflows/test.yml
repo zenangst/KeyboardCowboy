@@ -30,6 +30,7 @@ jobs:
           echo -e "PACKAGE_DEVELOPMENT=false" >> .env
           curl https://mise.run | sh
           echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
+          source ~/.bashrc
           tuist fetch
           tuist generate -n
       - name: Run tests
