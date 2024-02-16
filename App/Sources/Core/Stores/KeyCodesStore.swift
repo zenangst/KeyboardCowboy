@@ -50,8 +50,8 @@ final class KeyCodesStore {
                                         matchDisplayValue: matchDisplayValue)?.keyCode
   }
 
-  func displayValue(for keyCode: Int) -> String? {
-    virtualKeyContainer?.valueForKeyCode(keyCode, modifier: nil)?.displayValue
+  func displayValue(for keyCode: Int, modifier: VirtualModifierKey? = nil) -> String? {
+    virtualKeyContainer?.valueForKeyCode(keyCode, modifier: modifier)?.displayValue
   }
 
   // MARK: Private methods

@@ -39,10 +39,8 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
     return input
   }
 
-  init(id: String = UUID().uuidString,
-              key: String,
-              lhs: Bool = true,
-              modifiers: [ModifierKey] = []) {
+  init(id: String = UUID().uuidString, key: String,
+       lhs: Bool = true, modifiers: [ModifierKey] = []) {
     self.id = id
     self.key = key
     self.lhs = lhs

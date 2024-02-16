@@ -16,6 +16,7 @@ final class MachPortCoordinator {
   }
 
   @Published private(set) var event: MachPortEvent?
+  @Published private(set) var coordinatorEvent: MachPortEvent?
   @Published private(set) var flagsChanged: CGEventFlags?
   @Published private(set) var recording: KeyShortcutRecording?
   @Published private(set) var mode: KeyboardCowboyMode
@@ -269,7 +270,9 @@ final class MachPortCoordinator {
           notifications.notifyKeyboardCommand(workflow, command: command)
         }
 
-        execution = { [keyboardCommandRunner] machPortEvent, _ in
+        execution = { [weak self, keyboardCommandRunner] machPortEvent, _ in
+          guard let self else { return }
+          self.coordinatorEvent = machPortEvent
           try? keyboardCommandRunner.run(command.keyboardShortcuts,
                                          type: machPortEvent.type,
                                          originalEvent: machPortEvent.event,
@@ -282,13 +285,14 @@ final class MachPortCoordinator {
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
-
       } else if workflow.commands.isValidForRepeat {
         guard machPortEvent.type == .keyDown else { return }
         if macroCoordinator.state == .recording {
           macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
         }
-        execution = { [workflowRunner] machPortEvent, repeatingEvent in
+        execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
+          guard let self else { return }
+          self.coordinatorEvent = machPortEvent
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
         }
         execution(machPortEvent, isRepeatingEvent)
@@ -307,6 +311,7 @@ final class MachPortCoordinator {
         if machPortEvent.type == .keyUp {
           if shouldHandleKeyUp {
             shouldHandleKeyUp = false
+            coordinatorEvent = machPortEvent
           } else {
             return
           }
@@ -333,7 +338,6 @@ final class MachPortCoordinator {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
         }
 
-
         previousPartialMatch = Self.defaultPartialMatch
       }
     case .none:
@@ -351,6 +355,7 @@ final class MachPortCoordinator {
           intercept(machPortEvent, tryGlobals: true, runningMacro: runningMacro)
           repeatingMatch = false
         } else {
+          coordinatorEvent = machPortEvent
           if macroCoordinator.state == .recording {
             macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
           }
