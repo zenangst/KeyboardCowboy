@@ -1,19 +1,22 @@
+import Carbon
 import Combine
 import Foundation
+import KeyCodes
 import MachPort
 
 final class SnippetController: @unchecked Sendable {
   private var currentSnippet: String = ""
+  private var machPortEventSubscription: AnyCancellable?
   private var snippets: Set<String> = []
   private var snippetsStorage = [String: [Workflow]]()
   private var timeout: Timer?
-  private var machPortEventSubscription: AnyCancellable?
   private var workflowGroupsSubscription: AnyCancellable?
 
   private let commandRunner: CommandRunning
+  private let customCharSet: CharacterSet
   private let keyboardShortcutsController: KeyboardShortcutsController
-  private let store: KeyCodesStore
   private let specialKeys: [Int]
+  private let store: KeyCodesStore
 
   init(commandRunner: CommandRunning,
        keyboardShortcutsController: KeyboardShortcutsController,
@@ -22,6 +25,10 @@ final class SnippetController: @unchecked Sendable {
     self.keyboardShortcutsController = keyboardShortcutsController
     self.store = store
     self.specialKeys = Array(store.specialKeys().keys)
+
+    var customCharSet = CharacterSet.alphanumerics
+    customCharSet.insert(charactersIn: "ÉéÅåÄäÖöÆæØøÜü")
+    self.customCharSet = customCharSet
   }
 
   func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
@@ -42,15 +49,35 @@ final class SnippetController: @unchecked Sendable {
 
   private func receiveMachPortEvent(_ machPortEvent: MachPortEvent) {
     guard machPortEvent.type == .keyUp else { return }
-    guard let shortcut = MachPortKeyboardShortcut(machPortEvent, specialKeys: specialKeys, store: store) else {
+
+    let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
+    let keyCode = Int(machPortEvent.keyCode)
+    let forbiddenKeys = [kVK_Escape, kVK_Space]
+
+    if forbiddenKeys.contains(keyCode) {
+      currentSnippet = ""
+      timeout?.invalidate()
       return
     }
-    let keyboardShortcut: KeyShortcut = shortcut.original
 
-    currentSnippet = currentSnippet + keyboardShortcut.key
+    // Figure out which modifier to apply to get the correct display value.
+    var modifier: VirtualModifierKey?
+    if modifiers == [.shift] {
+      modifier = .shift
+    } else if modifiers == [.option] {
+      modifier = .option
+    } else if modifiers == [.control] {
+      modifier = .control
+    }
+
+    guard let displayValue = store.displayValue(for: keyCode, modifier: modifier) else {
+      return
+    }
+
+    currentSnippet = currentSnippet + displayValue
 
     timeout?.invalidate()
-    timeout = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false, block: { [weak self] timer in
+    timeout = Timer.scheduledTimer(withTimeInterval: 0.75, repeats: false, block: { [weak self] timer in
       guard let self else { return }
       currentSnippet = ""
       timer.invalidate()
@@ -58,9 +85,12 @@ final class SnippetController: @unchecked Sendable {
 
     if snippets.contains(currentSnippet) {
       guard let workflows = snippetsStorage[currentSnippet] else { return }
-      for workflow in workflows {
-        runCommands(in: workflow)
-      }
+
+      // Clean up snippet before running command
+
+//      for workflow in workflows {
+//        runCommands(in: workflow)
+//      }
       currentSnippet = ""
       timeout?.invalidate()
     }
