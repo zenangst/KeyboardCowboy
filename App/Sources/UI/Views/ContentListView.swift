@@ -110,6 +110,9 @@ struct ContentListView: View {
 
                 return true
               })
+              .modifier(LegacyOnTapFix(onTap: {
+                onTap(element)
+              }))
               .contextMenu(menuItems: {
                 contextualMenu(element.id)
               })
@@ -258,6 +261,20 @@ struct ContentListView: View {
     Button("Delete", action: {
       onAction(.removeWorkflows(contentSelectionManager.selections))
     })
+  }
+}
+
+struct LegacyOnTapFix: ViewModifier {
+  let onTap: () -> Void
+
+  @ViewBuilder
+  func body(content: Content) -> some View {
+    if #available(macOS 14.0, *) {
+      content
+    } else {
+      content
+        .onTapGesture(perform: onTap)
+    }
   }
 }
 
