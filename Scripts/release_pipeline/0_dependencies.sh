@@ -2,5 +2,5 @@
 
 # Fetch external dependencies
 echo "🗃 Resolving dependencies"
-tuist fetch
+tuist install
 tuist generate -n
