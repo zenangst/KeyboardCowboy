@@ -25,7 +25,8 @@ final class KeyboardCommandRunner: @unchecked Sendable {
   @discardableResult
   func run(_ keyboardShortcuts: [KeyShortcut],
            type: CGEventType,
-           originalEvent: CGEvent?,
+           originalEvent: CGEvent? = nil,
+           isRepeating: Bool = false,
            with eventSource: CGEventSource?) throws -> [CGEvent] {
     guard let machPort else {
       throw KeyboardCommandRunnerError.failedToResolveMachPortController
@@ -50,8 +51,11 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           if let originalEvent {
             let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
             newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: originalKeyboardEventAutorepeat)
+          } else if isRepeating {
+            newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: 1)
           }
         }
+
         events.append(newEvent)
       } catch let error {
         throw error
