@@ -35,10 +35,11 @@ struct WorkflowTriggerView: View {
                               grayscaleEffect: $isGrayscale)),
           action: { onAction(.addApplication) }
         ) {
-          HStack(spacing: 8) {
-            Image(systemName: "app.dashed")
+          HStack(spacing: 6) {
+            Image(systemName: "appclip")
               .resizable()
               .aspectRatio(contentMode: .fit)
+              .foregroundColor(Color(nsColor: .systemBlue.withSystemEffect(.deepPressed)))
               .frame(width: 12)
             Text("Application")
               .lineLimit(1)
@@ -65,10 +66,11 @@ struct WorkflowTriggerView: View {
             onAction(.addKeyboardShortcut)
           }
         ) {
-          HStack(spacing: 8) {
-            Image(systemName: "command")
+          HStack(spacing: 6) {
+            Image(systemName: "command.square.fill")
               .resizable()
               .aspectRatio(contentMode: .fit)
+              .foregroundColor(Color(nsColor: .systemIndigo.withSystemEffect(.deepPressed)))
               .frame(width: 12)
             Text("Keyboard Shortcut")
               .lineLimit(1)
@@ -86,6 +88,8 @@ struct WorkflowTriggerView: View {
           }
         })
 
+        
+
         FocusableButton(
           focus,
           identity: .detail(.addSnippetTrigger),
@@ -94,10 +98,13 @@ struct WorkflowTriggerView: View {
                               grayscaleEffect: $isGrayscale)),
           action: { onAction(.addSnippet) }
         ) {
-          HStack(spacing: 8) {
+
+          
+          HStack(spacing: 6) {
             Image(systemName: "heart.text.square.fill")
               .resizable()
               .aspectRatio(contentMode: .fit)
+              .foregroundColor(Color(nsColor: .systemPurple.withSystemEffect(.deepPressed)))
               .frame(width: 12)
             Text("Snippet")
               .lineLimit(1)

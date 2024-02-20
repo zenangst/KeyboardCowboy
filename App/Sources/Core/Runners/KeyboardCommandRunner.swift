@@ -22,6 +22,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
     store.virtualKey(for: string, modifiers: modifiers, matchDisplayValue: matchDisplayValue)
   }
 
+  @discardableResult
   func run(_ keyboardShortcuts: [KeyShortcut],
            type: CGEventType,
            originalEvent: CGEvent?,

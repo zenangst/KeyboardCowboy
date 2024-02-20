@@ -120,6 +120,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
     ? NSPasteboard.general.string(forType: .string)
     : nil
+
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       await Benchmark.shared.start("CommandRunner.serialRun")
       guard let self else { return }
@@ -143,11 +144,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             try await Task.sleep(for: .milliseconds(delay))
           }
         }
-        if let originalPasteboardContents {
-          try await Task.sleep(for: .seconds(0.1))
-          await MainActor.run {
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(originalPasteboardContents, forType: .string)
+        if commands.shouldRestorePasteboard {
+          try await Task.sleep(for: .seconds(0.2))
+          await MainActor.run { [originalPasteboardContents] in
+            if let originalPasteboardContents {
+              NSPasteboard.general.clearContents()
+              NSPasteboard.general.setString(originalPasteboardContents, forType: .string)
+            }
           }
         }
       }
@@ -184,9 +187,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
       if commands.shouldRestorePasteboard {
         try await Task.sleep(for: .seconds(0.2))
-        await MainActor.run {
-          NSPasteboard.general.clearContents()
+        await MainActor.run { [originalPasteboardContents] in
           if let originalPasteboardContents {
+            NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(originalPasteboardContents, forType: .string)
           }
         }
