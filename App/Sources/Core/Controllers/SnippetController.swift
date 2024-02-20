@@ -93,7 +93,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
     currentSnippet = currentSnippet + displayValue
 
     timeout?.invalidate()
-    timeout = Timer.scheduledTimer(withTimeInterval: 0.75, repeats: false, block: { [weak self] timer in
+    timeout = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] timer in
       guard let self else { return }
       Task { @MainActor in
         self.currentSnippet = ""
