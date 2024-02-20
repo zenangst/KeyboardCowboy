@@ -182,11 +182,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         } catch { }
       }
 
-      if let originalPasteboardContents {
-        try await Task.sleep(for: .seconds(0.1))
+      if commands.shouldRestorePasteboard {
+        try await Task.sleep(for: .seconds(0.2))
         await MainActor.run {
           NSPasteboard.general.clearContents()
-          NSPasteboard.general.setString(originalPasteboardContents, forType: .string)
+          if let originalPasteboardContents {
+            NSPasteboard.general.setString(originalPasteboardContents, forType: .string)
+          }
         }
       }
     }

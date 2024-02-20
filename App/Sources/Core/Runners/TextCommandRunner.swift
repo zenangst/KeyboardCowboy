@@ -45,7 +45,9 @@ final class TextCommandRunner {
       let pasteboard = NSPasteboard.general
       pasteboard.clearContents()
       pasteboard.setString(input, forType: .string)
+      try await Task.sleep(for: .milliseconds(1))
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
+      try await Task.sleep(for: .milliseconds(1))
     }
   }
 }
