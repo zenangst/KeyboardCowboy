@@ -16,7 +16,7 @@ final class MachPortCoordinator {
   }
 
   @Published private(set) var event: MachPortEvent?
-  @Published private(set) var coordinatorEvent: MachPortEvent?
+  @Published private(set) var coordinatorEvent: CGEvent?
   @Published private(set) var flagsChanged: CGEventFlags?
   @Published private(set) var recording: KeyShortcutRecording?
   @Published private(set) var mode: KeyboardCowboyMode
@@ -272,11 +272,15 @@ final class MachPortCoordinator {
 
         execution = { [weak self, keyboardCommandRunner] machPortEvent, _ in
           guard let self else { return }
-          self.coordinatorEvent = machPortEvent
-          try? keyboardCommandRunner.run(command.keyboardShortcuts,
-                                         type: machPortEvent.type,
-                                         originalEvent: machPortEvent.event,
-                                         with: machPortEvent.eventSource)
+          guard let newEvents = try? keyboardCommandRunner.run(command.keyboardShortcuts,
+                                                               type: machPortEvent.type,
+                                                               originalEvent: machPortEvent.event,
+                                                               with: machPortEvent.eventSource) else {
+            return
+          }
+          for newEvent in newEvents {
+            self.coordinatorEvent = newEvent
+          }
         }
         if machPortEvent.type == .keyDown, macroCoordinator.state == .recording {
           macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
@@ -292,7 +296,7 @@ final class MachPortCoordinator {
         }
         execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
           guard let self else { return }
-          self.coordinatorEvent = machPortEvent
+          self.coordinatorEvent = machPortEvent.event
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
         }
         execution(machPortEvent, isRepeatingEvent)
@@ -311,7 +315,7 @@ final class MachPortCoordinator {
         if machPortEvent.type == .keyUp {
           if shouldHandleKeyUp {
             shouldHandleKeyUp = false
-            coordinatorEvent = machPortEvent
+            coordinatorEvent = machPortEvent.event
           } else {
             return
           }
@@ -355,7 +359,7 @@ final class MachPortCoordinator {
           intercept(machPortEvent, tryGlobals: true, runningMacro: runningMacro)
           repeatingMatch = false
         } else {
-          coordinatorEvent = machPortEvent
+          coordinatorEvent = machPortEvent.event
           if macroCoordinator.state == .recording {
             macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
           }
