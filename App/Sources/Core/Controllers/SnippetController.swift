@@ -4,8 +4,8 @@ import Foundation
 import KeyCodes
 import MachPort
 
-final class SnippetController: @unchecked Sendable {
-  static var isEnabled: Bool = true
+final class SnippetController: @unchecked Sendable, ObservableObject {
+  var isEnabled: Bool = true
 
   private var currentSnippet: String = ""
   private var machPortEventSubscription: AnyCancellable?
@@ -53,10 +53,7 @@ final class SnippetController: @unchecked Sendable {
   // MARK: Private methods
 
   private func receiveCGEvent(_ event: CGEvent) {
-    guard Self.isEnabled && !snippets.isEmpty else { return }
-    guard event.type == .keyDown else { return }
-
-    let modifiers = VirtualModifierKey.fromCGEvent(event, specialKeys: specialKeys)
+    guard isEnabled && !snippets.isEmpty, event.type == .keyDown else { return }
     let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
     let forbiddenKeys = [kVK_Escape, kVK_Space, kVK_Delete]
 
@@ -65,6 +62,8 @@ final class SnippetController: @unchecked Sendable {
       timeout?.invalidate()
       return
     }
+
+    let modifiers = VirtualModifierKey.fromCGEvent(event, specialKeys: specialKeys)
 
     // Figure out which modifier to apply to get the correct display value.
     var modifier: VirtualModifierKey?
@@ -90,18 +89,26 @@ final class SnippetController: @unchecked Sendable {
     })
 
     if snippets.contains(currentSnippet) {
-      guard let workflows = snippetsStorage[currentSnippet] else { return }
+      guard let workflows = snippetsStorage[currentSnippet],
+            let machPortEvent = MachPortEvent.empty() else { return }
 
       // Clean up snippet before running command
-
       if let key = VirtualSpecialKey.keys[kVK_Delete] {
         for _ in 0..<currentSnippet.count {
-          try? keyboardCommandRunner.run([.init(key: key)], type: .keyDown, originalEvent: nil, with: nil)
+          _ = try? keyboardCommandRunner.run([.init(key: key)], type: .keyDown, originalEvent: nil, with: nil)
+          _ = try? keyboardCommandRunner.run([.init(key: key)], type: .keyUp, originalEvent: nil, with: nil)
         }
       }
 
       for workflow in workflows {
-        runCommands(in: workflow)
+        commandRunner.serialRun(
+          workflow.commands,
+          checkCancellation: false,
+          resolveUserEnvironment: true,
+          shortcut: .empty(),
+          machPortEvent: machPortEvent,
+          repeatingEvent: false
+        )
       }
 
       currentSnippet = ""

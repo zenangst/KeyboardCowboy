@@ -32,6 +32,7 @@ struct MainWindow: Scene {
       .environmentObject(core.detailCoordinator.infoPublisher)
       .environmentObject(core.detailCoordinator.triggerPublisher)
       .environmentObject(core.detailCoordinator.commandsPublisher)
+      .environmentObject(core.snippetController)
       .environmentObject(OpenPanelController())
       .animation(.easeInOut, value: core.contentStore.state)
       .onAppear { NSWindow.allowsAutomaticWindowTabbing = false }

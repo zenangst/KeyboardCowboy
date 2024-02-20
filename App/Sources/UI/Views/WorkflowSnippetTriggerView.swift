@@ -3,6 +3,7 @@ import Inject
 import SwiftUI
 
 struct WorkflowSnippetTriggerView: View {
+  @EnvironmentObject var snippetController: SnippetController
   @ObserveInjection var inject
   @State var snippet: DetailViewModel.SnippetTrigger
 
@@ -20,7 +21,7 @@ struct WorkflowSnippetTriggerView: View {
       placeholder: "Snippet trigger",
       font: Font.system(.body, design: .monospaced),
       onFocusChange: { newValue in
-        SnippetController.isEnabled = !newValue
+        snippetController.isEnabled = !newValue
       }, onCommandReturnKey: { onUpdate(snippet) }
     )
     .onChange(of: snippet.text, perform: { value in
