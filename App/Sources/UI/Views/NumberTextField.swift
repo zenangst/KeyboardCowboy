@@ -1,6 +1,7 @@
+import Foundation
 import SwiftUI
 
-struct IntegerTextField: View {
+struct NumberTextField: View {
   @Binding var text: String
 
   private let onValidChange: (String) -> Void
@@ -11,10 +12,10 @@ struct IntegerTextField: View {
   }
 
   var body: some View {
-    TextField("", text: Binding<String>(get: {
-      text
-    }, set: { newValue in
-      if newValue.contains(where: { !$0.isNumber }) {
+    TextField("", text: Binding<String>(get: { text }, set: { newValue in
+      let chars = CharacterSet(charactersIn: "0123456789.,")
+      newValue.unicodeScalars.forEach { char in
+        guard !chars.contains(char) else { return }
         return
       }
       text = newValue

@@ -26,7 +26,7 @@ struct KeyboardTriggerView: View {
     _trigger = .init(initialValue: trigger)
 
     if let holdDuration = trigger.holdDuration {
-      _holdDurationText = .init(initialValue: String(Int(holdDuration)))
+      _holdDurationText = .init(initialValue: String(Double(holdDuration)))
     }
     _passthrough = .init(initialValue: trigger.passthrough)
 
@@ -65,7 +65,7 @@ struct KeyboardTriggerView: View {
         Spacer()
         if trigger.shortcuts.count == 1 {
           Text("Hold for")
-          IntegerTextField(text: $holdDurationText) {
+          NumberTextField(text: $holdDurationText) {
             onAction(.updateHoldDuration(workflowId: workflowId, holdDuration: Double($0)))
           }
           .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.1, of: .black)!), font: .caption)))

@@ -146,8 +146,7 @@ struct WindowManagementCommandView: View {
                   }
                 } else {
                   GridRow {
-                    IntegerTextField(text: $pixels,
-                                     onValidChange: { newValue in
+                    NumberTextField(text: $pixels, onValidChange: { newValue in
                       guard let pixels = Int(newValue) else { return }
                       let kind: WindowCommand.Kind
                       switch model.kind {
@@ -192,7 +191,7 @@ struct WindowManagementCommandView: View {
                 }
 
                 GridRow {
-                  IntegerTextField(text: $padding,
+                  NumberTextField(text: $padding,
                                    onValidChange: { newValue in
                     guard let padding = Int(newValue) else { return }
                     let kind: WindowCommand.Kind
@@ -284,7 +283,7 @@ struct WindowManagementCommandView: View {
             }
           case .fullscreen:
             HStack(spacing: 12) {
-              IntegerTextField(text: $padding, onValidChange: { newValue in
+              NumberTextField(text: $padding, onValidChange: { newValue in
                 guard let newPadding = Int(newValue) else { return }
                 let kind: WindowCommand.Kind
                 switch model.kind {
