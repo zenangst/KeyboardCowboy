@@ -47,10 +47,10 @@ let mainAppTarget = Target.target(
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
         "CODE_SIGN_IDENTITY": "Apple Development",
         "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "535",
+        "CURRENT_PROJECT_VERSION": "544",
         "DEVELOPMENT_TEAM": env["TEAM_ID"],
         "ENABLE_HARDENED_RUNTIME": true,
-        "MARKETING_VERSION": "3.22.1",
+        "MARKETING_VERSION": "3.22.2",
         "PRODUCT_NAME": "Keyboard Cowboy"
       ],
       configurations: [
@@ -179,7 +179,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/zenangst/Intercom.git", .revision("5a340e185e571d058c09ab8b8ad8716098282443")),
         .package(url: "https://github.com/zenangst/KeyCodes.git", from: "4.1.0"),
         .package(url: "https://github.com/zenangst/LaunchArguments.git", from: "1.0.1"),
-        .package(url: "https://github.com/zenangst/MachPort.git", from: "4.1.1"),
+        .package(url: "https://github.com/zenangst/MachPort.git", from: "4.1.2"),
         .package(url: "https://github.com/zenangst/Windows.git", from: "1.1.0"),
       ]
     }

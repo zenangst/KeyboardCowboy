@@ -7,7 +7,7 @@ struct ReleaseNotesScene: Scene {
 
   var body: some Scene {
     WindowGroup(id: KeyboardCowboy.releaseNotesWindowIdentifier) {
-      Release3_22_1 { action in
+      Release3_22_2 { action in
         switch action {
         case .done:
           NSApplication.shared.keyWindow?.close()
