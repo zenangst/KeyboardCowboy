@@ -95,7 +95,6 @@ final class SnippetController: @unchecked Sendable {
       if let key = VirtualSpecialKey.keys[kVK_Delete] {
         for _ in 0..<currentSnippet.count {
           try? keyboardCommandRunner.run([.init(key: key)], type: .keyDown, originalEvent: nil, with: nil)
-
         }
       }
 
