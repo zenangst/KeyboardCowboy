@@ -42,22 +42,22 @@ final class SnippetController: @unchecked Sendable {
     }
   }
 
-  func subscribe(to publisher: Published<MachPortEvent?>.Publisher) {
+  func subscribe(to publisher: Published<CGEvent?>.Publisher) {
     machPortEventSubscription = publisher
       .compactMap { $0 }
       .sink { [weak self] machPortEvent in
-      self?.receiveMachPortEvent(machPortEvent)
+      self?.receiveCGEvent(machPortEvent)
     }
   }
 
   // MARK: Private methods
 
-  private func receiveMachPortEvent(_ machPortEvent: MachPortEvent) {
+  private func receiveCGEvent(_ event: CGEvent) {
     guard Self.isEnabled && !snippets.isEmpty else { return }
-    guard machPortEvent.type == .keyUp else { return }
+    guard event.type == .keyDown else { return }
 
-    let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
-    let keyCode = Int(machPortEvent.keyCode)
+    let modifiers = VirtualModifierKey.fromCGEvent(event, specialKeys: specialKeys)
+    let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
     let forbiddenKeys = [kVK_Escape, kVK_Space, kVK_Delete]
 
     if forbiddenKeys.contains(keyCode) {

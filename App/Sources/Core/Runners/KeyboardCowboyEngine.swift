@@ -87,7 +87,7 @@ final class KeyboardCowboyEngine {
       machPortController = newMachPortController
       keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
       uiElementCaptureStore.subscribe(to: machPortCoordinator)
-      snippetController.subscribe(to: machPortCoordinator.$event)
+      snippetController.subscribe(to: machPortCoordinator.$coordinatorEvent)
     } catch let error {
       NSAlert(error: error).runModal()
     }
@@ -105,6 +105,5 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
-
   }
 }
