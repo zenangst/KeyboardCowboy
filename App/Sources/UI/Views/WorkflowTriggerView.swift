@@ -1,13 +1,16 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct WorkflowTriggerView: View {
   enum Action {
     case addApplication
     case addKeyboardShortcut
+    case addSnippet
     case removeKeyboardShortcut
   }
 
+  @ObserveInjection var inject
   @Binding private var isGrayscale: Bool
   private let onAction: (Action) -> Void
   private var focus: FocusState<AppFocus?>.Binding
@@ -47,17 +50,15 @@ struct WorkflowTriggerView: View {
           switch direction {
           case .right:
             focus.wrappedValue = .detail(.addKeyboardTrigger)
-          default:
-            break
+          default: break
           }
         })
 
-        Spacer()
 
         FocusableButton(
           focus,
           identity: .detail(.addKeyboardTrigger),
-          variant: .zen(.init(color: .systemCyan,
+          variant: .zen(.init(color: .systemIndigo,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
           action: {
@@ -79,8 +80,36 @@ struct WorkflowTriggerView: View {
           switch direction {
           case .left:
             focus.wrappedValue = .detail(.addAppTrigger)
-          default:
-            break
+          case .right:
+            focus.wrappedValue = .detail(.addSnippetTrigger)
+          default: break
+          }
+        })
+
+        FocusableButton(
+          focus,
+          identity: .detail(.addSnippetTrigger),
+          variant: .zen(.init(color: .systemPurple,
+                              focusEffect: .constant(true),
+                              grayscaleEffect: $isGrayscale)),
+          action: { onAction(.addSnippet) }
+        ) {
+          HStack(spacing: 8) {
+            Image(systemName: "heart.text.square.fill")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 12)
+            Text("Snippet")
+              .lineLimit(1)
+          }
+          .padding(6)
+          .frame(maxWidth: .infinity)
+        }
+        .onMoveCommand(perform: { direction in
+          switch direction {
+          case .left:
+            focus.wrappedValue = .detail(.addKeyboardTrigger)
+          default: break
           }
         })
       }
@@ -96,6 +125,7 @@ struct WorkflowTriggerView: View {
       .cornerRadius(8)
     }
     .buttonStyle(.regular)
+    .enableInjection()
   }
 }
 

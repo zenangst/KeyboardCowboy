@@ -118,19 +118,19 @@ struct WorkflowApplicationTriggerView: View {
   }
 }
 
-//struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
-//  @FocusState static var focus: AppFocus?
-//  static var previews: some View {
-//    WorkflowApplicationTriggerView(
-//      $focus,
-//      data: [
-//        .init(id: "1", name: "Application 1", application: .finder(),
-//              contexts: []),
-//      ],
-//      selectionManager: SelectionManager(),
-//      onTab: { },
-//      onAction: { _ in }
-//    )
-//    .environmentObject(ApplicationStore.shared)
-//  }
-//}
+struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
+  @FocusState static var focus: AppFocus?
+  static var previews: some View {
+    WorkflowApplicationTriggerView(
+      $focus,
+      data: [
+        .init(id: "1", name: "Application 1", application: .finder(),
+              contexts: []),
+      ],
+      selectionManager: SelectionManager(),
+      onTab: { },
+      onAction: { _ in }
+    )
+    .environmentObject(ApplicationStore.shared)
+  }
+}

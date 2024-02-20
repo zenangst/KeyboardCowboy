@@ -1,8 +1,10 @@
 import Bonzai
 import Combine
+import Inject
 import SwiftUI
 
 struct WorkflowTriggerListView: View {
+  @ObserveInjection var inject
   @Namespace private var namespace
   @ObservedObject private var publisher: TriggerPublisher
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
@@ -60,8 +62,22 @@ struct WorkflowTriggerListView: View {
           onAction(.applicationTrigger(workflowId: workflowId, action: action))
         }
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
-      case .snippet:
-        ZenLabel("Add snippet")
+      case .snippet(let trigger):
+        HStack {
+          ZenLabel("Add Snippet")
+          Spacer()
+          Button(action: { onAction(.removeTrigger(workflowId: workflowId)) },
+                 label: {
+            Image(systemName: "xmark")
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 10, height: 10)
+          })
+          .buttonStyle(.calm(color: .systemRed, padding: .medium))
+        }
+        WorkflowSnippetTriggerView(trigger) { snippet in
+          onAction(.updateSnippet(workflowId: workflowId, snippet: snippet))
+        }
       case .empty:
         ZenLabel("Add Trigger")
           .padding([.leading, .trailing], 8)
@@ -73,6 +89,7 @@ struct WorkflowTriggerListView: View {
       }
     }
     .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: publisher.data)
+    .enableInjection()
   }
 }
 

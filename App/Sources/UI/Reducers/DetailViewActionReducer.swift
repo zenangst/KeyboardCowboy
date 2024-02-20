@@ -56,6 +56,8 @@ final class DetailViewActionReducer {
             shortcuts: keyboardShortcuts
           )
         )
+      case .updateSnippet(_, let trigger):
+        workflow.trigger = .snippet(.init(id: trigger.id, text: trigger.text))
       case .updateHoldDuration(_, let holdDuration):
         guard case .keyboardShortcuts(var trigger) = workflow.trigger else {
           return .none
@@ -80,6 +82,8 @@ final class DetailViewActionReducer {
         switch action {
         case .addKeyboardShortcut:
           workflow.trigger = .keyboardShortcuts(.init(shortcuts: []))
+        case .addSnippet:
+          workflow.trigger = .snippet(.init(id: UUID().uuidString, text: ""))
         case .removeKeyboardShortcut:
           workflow.trigger = nil
         case .addApplication:

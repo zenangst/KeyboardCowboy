@@ -24,6 +24,7 @@ struct SingleDetailView: View {
                                  holdDuration: Double?,
                                  keyboardShortcuts: [KeyShortcut])
     case updateName(workflowId: Workflow.ID, name: String)
+    case updateSnippet(workflowId: Workflow.ID, snippet: DetailViewModel.SnippetTrigger)
   }
 
   @Environment(\.openWindow) private var openWindow
