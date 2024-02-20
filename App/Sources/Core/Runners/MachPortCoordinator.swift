@@ -163,15 +163,31 @@ final class MachPortCoordinator {
       // If there is a match, then run the workflow
       let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
       if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
-        for element in macro {
-          switch element {
+        let keyboardShortcutCopy: KeyShortcut = keyboardShortcut
+        Task { @MainActor [machPort, workflowRunner, keyboardCommandRunner] in
+          for element in macro {
+            switch element {
             case .event(let machPortEvent):
               try? machPort?.post(Int(machPortEvent.keyCode), type: .keyDown, flags: machPortEvent.event.flags)
-              try? machPort?.post(Int(machPortEvent.keyCode), type: .keyUp, flags: machPortEvent.event.flags)
+              try machPort?.post(Int(machPortEvent.keyCode), type: .keyUp, flags: machPortEvent.event.flags)
             case .workflow(let workflow):
-              workflowRunner.run(workflow, for: keyboardShortcut,
-                                 executionOverride: .serial,
-                                 machPortEvent: machPortEvent, repeatingEvent: false)
+              if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
+                for command in workflow.commands {
+                  if case .keyboard(let command) = command {
+                    try? keyboardCommandRunner.run(command.keyboardShortcuts,
+                                                   type: machPortEvent.type,
+                                                   originalEvent: machPortEvent.event,
+                                                   with: machPortEvent.eventSource)
+                  }
+                }
+
+              } else {
+                workflowRunner.run(workflow, for: keyboardShortcutCopy,
+                                   executionOverride: .serial,
+                                   machPortEvent: machPortEvent, repeatingEvent: false)
+                try await Task.sleep(for: .milliseconds(5))
+              }
+            }
           }
         }
 
@@ -225,7 +241,9 @@ final class MachPortCoordinator {
     case .partialMatch(let partialMatch):
       if let workflow = partialMatch.workflow,
          workflow.trigger?.isPassthrough == true {
-        // NOOP
+        if macroCoordinator.state == .recording && machPortEvent.type == .keyDown {
+          macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
+        }
       } else {
         machPortEvent.result = nil
       }

@@ -2,7 +2,7 @@ import Carbon
 import Foundation
 import MachPort
 
-final class WorkflowRunner {
+final class WorkflowRunner: @unchecked Sendable {
   private let commandRunner: CommandRunner
   private let store: KeyCodesStore
   private let notifications: MachPortUINotifications

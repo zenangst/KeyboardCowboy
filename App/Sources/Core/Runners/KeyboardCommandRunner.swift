@@ -10,7 +10,7 @@ enum KeyboardCommandRunnerError: Error {
   case failedToCreateEvent
 }
 
-final class KeyboardCommandRunner {
+final class KeyboardCommandRunner: @unchecked Sendable {
   var machPort: MachPortEventController?
   let store: KeyCodesStore
 
