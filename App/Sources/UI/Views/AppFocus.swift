@@ -10,6 +10,7 @@ enum AppFocus: Hashable {
     case name
     case addAppTrigger
     case addKeyboardTrigger
+    case addSnippetTrigger
     case applicationTriggers
     case applicationTrigger(ApplicationTrigger.ID)
     case keyboardShortcuts
