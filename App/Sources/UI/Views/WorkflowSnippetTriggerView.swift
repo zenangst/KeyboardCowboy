@@ -19,7 +19,9 @@ struct WorkflowSnippetTriggerView: View {
       text: $snippet.text,
       placeholder: "Snippet trigger",
       font: Font.system(.body, design: .monospaced),
-      onCommandReturnKey: { onUpdate(snippet) }
+      onFocusChange: { newValue in
+        SnippetController.isEnabled = !newValue
+      }, onCommandReturnKey: { onUpdate(snippet) }
     )
     .onChange(of: snippet.text, perform: { value in
       onUpdate(snippet)

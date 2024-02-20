@@ -5,6 +5,8 @@ import KeyCodes
 import MachPort
 
 final class SnippetController: @unchecked Sendable {
+  static var isEnabled: Bool = true
+
   private var currentSnippet: String = ""
   private var machPortEventSubscription: AnyCancellable?
   private var snippets: Set<String> = []
@@ -51,7 +53,7 @@ final class SnippetController: @unchecked Sendable {
   // MARK: Private methods
 
   private func receiveMachPortEvent(_ machPortEvent: MachPortEvent) {
-    guard !snippets.isEmpty else { return }
+    guard Self.isEnabled && !snippets.isEmpty else { return }
     guard machPortEvent.type == .keyUp else { return }
 
     let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
@@ -118,11 +120,14 @@ final class SnippetController: @unchecked Sendable {
         if let trigger = workflow.trigger {
             switch trigger {
             case .snippet(let trigger):
+              guard !trigger.text.isEmpty else { return }
+
               if let existingWorkflows = snippetsStorage[trigger.text] {
                 snippetsStorage[trigger.text] = existingWorkflows + [workflow]
               } else {
                 snippetsStorage[trigger.text] = [workflow]
               }
+
               snippets.insert(trigger.text)
             default: break
             }
