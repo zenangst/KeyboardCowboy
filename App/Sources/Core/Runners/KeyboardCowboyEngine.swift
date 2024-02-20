@@ -98,12 +98,13 @@ final class KeyboardCowboyEngine {
   private func subscribe(to workspace: NSWorkspace) {
     WindowStore.shared.subscribe(to: UserSpace.shared.$frontMostApplication)
 
+    snippetController.subscribe(to: contentStore.groupStore.$groups)
+
     guard KeyboardCowboy.env() == .production else { return }
 
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
 
-    snippetController.subscribe(to: contentStore.groupStore.$groups)
   }
 }

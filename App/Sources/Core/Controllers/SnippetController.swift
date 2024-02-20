@@ -15,13 +15,16 @@ final class SnippetController: @unchecked Sendable {
   private let commandRunner: CommandRunning
   private let customCharSet: CharacterSet
   private let keyboardShortcutsController: KeyboardShortcutsController
+  private let keyboardCommandRunner: KeyboardCommandRunner
   private let specialKeys: [Int]
   private let store: KeyCodesStore
 
   init(commandRunner: CommandRunning,
+       keyboardCommandRunner: KeyboardCommandRunner,
        keyboardShortcutsController: KeyboardShortcutsController,
        store: KeyCodesStore) {
     self.commandRunner = commandRunner
+    self.keyboardCommandRunner = keyboardCommandRunner
     self.keyboardShortcutsController = keyboardShortcutsController
     self.store = store
     self.specialKeys = Array(store.specialKeys().keys)
@@ -48,11 +51,12 @@ final class SnippetController: @unchecked Sendable {
   // MARK: Private methods
 
   private func receiveMachPortEvent(_ machPortEvent: MachPortEvent) {
+    guard !snippets.isEmpty else { return }
     guard machPortEvent.type == .keyUp else { return }
 
     let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
     let keyCode = Int(machPortEvent.keyCode)
-    let forbiddenKeys = [kVK_Escape, kVK_Space]
+    let forbiddenKeys = [kVK_Escape, kVK_Space, kVK_Delete]
 
     if forbiddenKeys.contains(keyCode) {
       currentSnippet = ""
@@ -88,9 +92,17 @@ final class SnippetController: @unchecked Sendable {
 
       // Clean up snippet before running command
 
-//      for workflow in workflows {
-//        runCommands(in: workflow)
-//      }
+      if let key = VirtualSpecialKey.keys[kVK_Delete] {
+        for _ in 0..<currentSnippet.count {
+          try? keyboardCommandRunner.run([.init(key: key)], type: .keyDown, originalEvent: nil, with: nil)
+
+        }
+      }
+
+      for workflow in workflows {
+        runCommands(in: workflow)
+      }
+
       currentSnippet = ""
       timeout?.invalidate()
     }
