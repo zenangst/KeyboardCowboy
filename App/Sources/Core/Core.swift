@@ -115,6 +115,7 @@ final class Core {
   lazy private(set) var macroRunner = MacroRunner(coordinator: macroCoordinator)
   lazy private(set) var snippetController = SnippetController(
     commandRunner: commandRunner,
+    keyboardCommandRunner: keyboardCommandRunner,
     keyboardShortcutsController: keyboardShortcutsController,
     store: keyCodeStore
   )
