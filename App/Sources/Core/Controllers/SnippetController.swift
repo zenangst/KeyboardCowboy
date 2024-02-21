@@ -172,7 +172,6 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
         }
       }
     }
-
   }
 
   private func runCommands(in workflow: Workflow) {
