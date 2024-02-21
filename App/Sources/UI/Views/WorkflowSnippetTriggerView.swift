@@ -24,6 +24,9 @@ struct WorkflowSnippetTriggerView: View {
         snippetController.isEnabled = !newValue
       }, onCommandReturnKey: { onUpdate(snippet) }
     )
+    .onDisappear(perform: {
+        snippetController.isEnabled = true
+    })
     .onChange(of: snippet.text, perform: { value in
       onUpdate(snippet)
     })
