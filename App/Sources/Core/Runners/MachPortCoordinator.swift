@@ -329,8 +329,9 @@ final class MachPortCoordinator {
           workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
+          reset()
+          previousPartialMatch = Self.defaultPartialMatch
         }
-
       } else if machPortEvent.type == .keyDown, !isRepeatingEvent {
         if macroCoordinator.state == .recording {
           macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
@@ -340,6 +341,7 @@ final class MachPortCoordinator {
           workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
+          reset()
         }
 
         previousPartialMatch = Self.defaultPartialMatch
@@ -423,6 +425,8 @@ final class MachPortCoordinator {
       guard self.workItem?.isCancelled != true else { return }
 
       workflowRunner.run(workflow, for: shortcut, machPortEvent: machPortEvent, repeatingEvent: false)
+      reset()
+      previousPartialMatch = Self.defaultPartialMatch
     }
     DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
     return workItem
