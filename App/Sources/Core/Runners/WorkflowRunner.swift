@@ -7,6 +7,8 @@ final class WorkflowRunner: @unchecked Sendable {
   private let store: KeyCodesStore
   private let notifications: MachPortUINotifications
 
+  private var workItem: DispatchWorkItem?
+
   init(commandRunner: CommandRunner, store: KeyCodesStore, 
        notifications: MachPortUINotifications) {
     self.commandRunner = commandRunner
@@ -48,5 +50,11 @@ final class WorkflowRunner: @unchecked Sendable {
                               shortcut: shortcut, machPortEvent: machPortEvent,
                               repeatingEvent: repeatingEvent)
     }
+
+    workItem?.cancel()
+    workItem = DispatchWorkItem { [notifications] in
+      notifications.reset()
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem!)
   }
 }

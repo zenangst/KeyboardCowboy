@@ -8,7 +8,7 @@ struct SingleDetailBackgroundView: View {
 
   var body: some View {
     let shouldShowCommandList = triggerPublisher.data != .empty ||
-    !commandsPublisher.data.commands.isEmpty
+                               !commandsPublisher.data.commands.isEmpty
 
     Rectangle()
       .fill(

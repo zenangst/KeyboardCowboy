@@ -64,7 +64,7 @@ public struct RegularKeyIcon: View {
     VStack {
       ForEach(letters) { letter in
         Text(letter.string)
-          .font(Font.system(size: height * 0.3, weight: .regular, design: .rounded))
+          .font(Font.system(size: height * 0.3, weight: .bold, design: .rounded))
           .foregroundColor(.clear)
           .padding([.leading, .trailing], height * 0.3)
           .overlay(
@@ -74,7 +74,7 @@ public struct RegularKeyIcon: View {
                                 : Color(.textColor).opacity(0.66))
               .mask(
                 Text(letter.string)
-                  .font(Font.system(size: height * 0.3, weight: .regular, design: .rounded))
+                  .font(Font.system(size: height * 0.3, weight: .bold, design: .rounded))
               )
           )
           .compositingGroup()

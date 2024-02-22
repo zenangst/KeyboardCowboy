@@ -21,6 +21,8 @@ final class UIElementCaptureStore: ObservableObject {
   private var coordinator: MachPortCoordinator?
   private var flags: CGEventFlags?
 
+  private var restore: [Int32: Bool] = [:]
+
   #if DEBUG
   init(isCapturing: Bool = false,
        capturedElement: UIElementCaptureItem? = nil,
@@ -72,6 +74,9 @@ final class UIElementCaptureStore: ObservableObject {
     UserModesBezelController.shared.hide()
     windowCoordinator.close()
     capturedElement = nil
+
+    for (pid, value) in restore { AppAccessibilityElement(pid).enhancedUserInterface = value }
+    restore.removeAll()
   }
 
   func toggleCapture() {
@@ -102,34 +107,54 @@ final class UIElementCaptureStore: ObservableObject {
       let deltaY = machPortEvent.event.getDoubleValueField(.mouseEventDeltaY)
       mouseLocation.x -= deltaX
       mouseLocation.y -= deltaY
-      let systemElement = SystemAccessibilityElement()
-      guard let element = systemElement.element(at: mouseLocation, as: AnyAccessibilityElement.self),
-            let frame = element.frame else {
-        return
-      }
 
-      let id = UUID().uuidString
-      let model: WindowBorderViewModel =  .init(id: id, frame: frame)
-      publisher.publish([model])
-      windowCoordinator.screenChanged()
-      windowCoordinator.show()
+      Task { @MainActor in
+        let systemElement = SystemAccessibilityElement()
+        guard let app = systemElement.element(at: mouseLocation, as: AppAccessibilityElement.self)?.app
+        else { return }
 
-      DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [publisher] in
-        withAnimation {
-          publisher.data.remove(model)
+
+        var enhancedUserInterface = false
+        if let pid = app.pid, let appValue = app.enhancedUserInterface {
+          app.enhancedUserInterface = true
+          enhancedUserInterface = appValue
+          AXUIElementSetAttributeValue(app.reference, "AXManualAccessibility" as CFString, true as CFTypeRef)
+          if restore[pid] == nil {
+            restore[pid] = enhancedUserInterface
+          }
         }
+
+        try await Task.sleep(for: .milliseconds(100))
+
+        guard let element = systemElement.element(at: mouseLocation, as: AnyAccessibilityElement.self),
+              let frame = element.frame else {
+          app.enhancedUserInterface = enhancedUserInterface
+          return
+        }
+
+        let id = UUID().uuidString
+        let model: WindowBorderViewModel =  .init(id: id, frame: frame)
+        publisher.publish([model])
+        windowCoordinator.screenChanged()
+        windowCoordinator.show()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [publisher] in
+          withAnimation {
+            publisher.data.remove(model)
+          }
+        }
+
+        let capturedElement = UIElementCaptureItem(
+          description: element.description,
+          identifier: element.identifier,
+          title: element.title,
+          value: element.value,
+          role: element.role
+        )
+        self.capturedElement = capturedElement
+
+        NSApp.activate(ignoringOtherApps: true)
       }
-
-      let capturedElement = UIElementCaptureItem(
-        description: element.description,
-        identifier: element.identifier,
-        title: element.title,
-        value: element.value,
-        role: element.role
-      )
-      self.capturedElement = capturedElement
-
-      NSApp.activate(ignoringOtherApps: true)
     }
   }
 

@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 extension AnyTransition {
@@ -39,13 +40,26 @@ struct WorkflowNotificationMatchesView: View {
             .transition(AnyTransition.moveAndFade.animation(Self.animation))
           }
         }
-        .padding()
       }
       .frame(maxHeight: .infinity)
-      .background(
-        Color(nsColor: .windowBackgroundColor).opacity(0.8).cornerRadius(8)
-      )
+      .roundedContainer(padding: 8, margin: 0)
       .scrollIndicators(.hidden)
     }
+  }
+}
+
+struct WorkflowNotificationMatchesView_Previews: PreviewProvider {
+  static let publisher: WorkflowNotificationPublisher = .init(
+    .init(
+      id: UUID().uuidString,
+      matches: [
+        .empty()
+      ],
+      glow: false,
+      keyboardShortcuts: []
+    )
+  )
+  static var previews: some View {
+    WorkflowNotificationMatchesView(publisher: publisher)
   }
 }
