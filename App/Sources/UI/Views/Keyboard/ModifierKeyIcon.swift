@@ -63,7 +63,7 @@ struct ModifierKeyIcon: View {
         }
 
         Text(key.writtenValue)
-          .font(Font.system(size: proxy.size.height * 0.23, weight: .regular, design: .rounded))
+          .font(Font.system(size: proxy.size.height * 0.23, weight: .bold, design: .rounded))
           .frame(height: proxy.size.height, alignment: .bottom)
           .offset(y: -proxy.size.width * 0.065)
       }

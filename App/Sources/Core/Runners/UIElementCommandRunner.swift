@@ -12,12 +12,26 @@ final class UIElementCommandRunner {
   var machPort: MachPortEventController?
   let systemElement: SystemAccessibilityElement = .init()
 
+  private var restore: [Int32: Bool] = [:]
+
   func run(_ command: UIElementCommand) async throws {
 //    var counter = 0
 //    let start = CACurrentMediaTime()
 //    defer {
 //      print("⏱️ UIElementCommandRunner.run(\(counter)): \(CACurrentMediaTime() - start)")
 //    }
+
+    if let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier {
+      let app = AppAccessibilityElement(pid)
+      if let appEnhancedUserInterface = app.enhancedUserInterface {
+        app.enhancedUserInterface = true
+        if restore[pid] == nil {
+          restore[pid] = appEnhancedUserInterface
+        }
+      }
+      _ = AXUIElementSetAttributeValue(app.reference, "AXManualAccessibility" as CFString, true as CFTypeRef)
+      try await Task.sleep(for: .milliseconds(75))
+    }
 
     let focusedElement = try systemElement.focusedUIElement()
     guard let focusedWindow = focusedElement.window,
@@ -76,9 +90,17 @@ final class UIElementCommandRunner {
       return false
     }
 
-    guard let subject else { return }
+    defer {
+      restoreEnhancedUserInterface()
+    }
+
+    guard let subject else {
+
+      return
+    }
 
     try Task.checkCancellation()
+
     if let mousePosition = CGEvent(source: nil)?.location,
        mouseBasedRole {
       CGEvent.performClick(
@@ -91,6 +113,11 @@ final class UIElementCommandRunner {
       return
     }
     subject.element.performAction(.press)
+  }
+
+  private func restoreEnhancedUserInterface() {
+    for (pid, value) in restore { AppAccessibilityElement(pid).enhancedUserInterface = value }
+    restore.removeAll()
   }
 }
 

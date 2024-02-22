@@ -45,18 +45,16 @@ struct WorkflowNotificationView: View {
   var body: some View {
     NotificationView(notificationPlacement.alignment) {
       WorkflowNotificationMatchesView(publisher: publisher)
-        .frame(maxWidth: 250, maxHeight: 250, alignment: notificationPlacement.alignment)
+        .frame(maxWidth: 250, maxHeight: 500, alignment: notificationPlacement.alignment)
+        .fixedSize(horizontal: false, vertical: true)
       HStack {
         ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
-          WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: Binding<Bool>(get: {
-            publisher.data.glow
-          }, set: { _ in }))
+          WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: .readonly(false))
           .transition(AnyTransition.moveAndFade.animation(Self.animation))
         }
 
         if let workflow = publisher.data.workflow {
           Text(workflow.name)
-            .textStyle(.zen)
             .allowsTightening(true)
             .minimumScaleFactor(0.8)
             .bold()
@@ -68,8 +66,9 @@ struct WorkflowNotificationView: View {
             .transition(AnyTransition.moveAndFade.animation(Self.animation))
         }
       }
-      .padding(4)
+      .roundedContainer(padding: 6, margin: 0)
     }
+    .padding(4)
     .onReceive(publisher.$data, perform: { newValue in
       guard let screen = NSScreen.main else { return }
 
@@ -103,15 +102,14 @@ struct WorkflowNotificationKeyView: View {
           : modifier == .shift ? .bottomTrailing : .topLeading,
           glow: $glow
         )
-        .frame(minWidth: modifier == .command || modifier == .shift ? 44 : 32, minHeight: 32)
+        .frame(minWidth: modifier == .command || modifier == .shift ? 40 : 28, minHeight: 28)
         .fixedSize(horizontal: true, vertical: true)
       }
-      RegularKeyIcon(letter: keyShortcut.key, width: 32, height: 32, glow: $glow)
+      RegularKeyIcon(letter: keyShortcut.key, width: 28, height: 28, glow: $glow)
         .fixedSize(horizontal: true, vertical: true)
     }
   }
 }
-
 
 struct WorkflowNotificationView_Previews: PreviewProvider {
   static let emptyModel = WorkflowNotificationViewModel(

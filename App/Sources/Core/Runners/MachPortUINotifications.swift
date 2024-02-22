@@ -50,6 +50,7 @@ final class MachPortUINotifications {
        case .keyboardShortcuts(let trigger) = workflow.trigger {
       let shortcuts = Array(trigger.shortcuts.prefix(prefix))
       let matches = keyboardShortcutsController.allMatchingPrefix(match.rawValue, shortcutIndexPrefix: prefix)
+        .sorted(by: { $0.name < $1.name })
 
       Task { @MainActor in
         WorkflowNotificationController.shared.post(.init(id: workflow.id,

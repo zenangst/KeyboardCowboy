@@ -169,16 +169,19 @@ final class MachPortCoordinator {
           for element in macro {
             switch element {
             case .event(let machPortEvent):
-              try? machPort?.post(Int(machPortEvent.keyCode), type: .keyDown, flags: machPortEvent.event.flags)
+              try machPort?.post(Int(machPortEvent.keyCode), type: .keyDown, flags: machPortEvent.event.flags)
               try machPort?.post(Int(machPortEvent.keyCode), type: .keyUp, flags: machPortEvent.event.flags)
             case .workflow(let workflow):
               if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
                 for command in workflow.commands {
                   if case .keyboard(let command) = command {
-                    try? keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                   type: machPortEvent.type,
-                                                   originalEvent: machPortEvent.event,
-                                                   with: machPortEvent.eventSource)
+                    let types: [CGEventType] = [.keyDown, .keyUp]
+                    for type in types {
+                      _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
+                                                        type: type,
+                                                        originalEvent: machPortEvent.event,
+                                                        with: machPortEvent.eventSource)
+                    }
                   }
                 }
 
@@ -278,6 +281,7 @@ final class MachPortCoordinator {
                                                                with: machPortEvent.eventSource) else {
             return
           }
+
           for newEvent in newEvents {
             self.coordinatorEvent = newEvent
           }
