@@ -116,6 +116,10 @@ final class UIElementCaptureStore: ObservableObject {
 
         var enhancedUserInterface = false
         if let pid = app.pid, let appValue = app.enhancedUserInterface {
+          let runningApplication = NSRunningApplication(processIdentifier: pid)
+          runningApplication?.activate()
+          try await Task.sleep(for: .milliseconds(100))
+
           app.enhancedUserInterface = true
           enhancedUserInterface = appValue
           AXUIElementSetAttributeValue(app.reference, "AXManualAccessibility" as CFString, true as CFTypeRef)
