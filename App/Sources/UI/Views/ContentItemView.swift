@@ -54,10 +54,24 @@ struct ContentItemView: View {
       if let binding = workflow.binding {
         KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
           .fixedSize()
-          .font(.caption)
+          .font(.footnote)
           .lineLimit(1)
           .allowsTightening(true)
           .frame(minWidth: 32, alignment: .trailing)
+      } else if let snippet = workflow.snippet {
+        HStack(spacing: 1) {
+          Text(snippet)
+            .font(.footnote)
+          SnippetIconView(size: 12)
+        }
+        .lineLimit(1)
+        .allowsTightening(true)
+        .truncationMode(.tail)
+        .padding(1)
+        .overlay(
+          RoundedRectangle(cornerRadius: 4)
+            .stroke(Color(.separatorColor), lineWidth: 1)
+        )
       }
     }
     .padding(4)

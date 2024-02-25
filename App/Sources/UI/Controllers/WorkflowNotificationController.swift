@@ -31,6 +31,8 @@ final class WorkflowNotificationController: ObservableObject {
   }
 
   func post(_ notification: WorkflowNotificationViewModel) {
+    guard notification != publisher.data else { return }
+
     Task { @MainActor [publisher, windowController] in
       withAnimation(WorkflowNotificationView.animation) {
         publisher.publish(notification)

@@ -54,7 +54,7 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
       .overlay(alignment: .center) {
         FlowLayout(
           itemSpacing: size * 0.0_16,
-          padding: size * 0.0_2,
+          lineSpacing: size * 0.0_2,
           minSize: .init(width: size, height: size)
         ) {
           ForEach(Array(zip(text.indices, text)), id: \.0) { index, element in

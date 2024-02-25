@@ -25,6 +25,7 @@ struct ActivateLastApplicationIconView: View {
               .offset(x: -size * 0.015, y: -size * 0.015)
           }
         }
+        .shadow(color: Color(nsColor: .systemPink.blended(withFraction: 0.4, of: .black)!), radius: 2, y: 1)
       }
       .frame(width: size, height: size)
       .fixedSize()

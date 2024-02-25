@@ -13,6 +13,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
   let images: [ImageModel]
   let overlayImages: [ImageModel]
   let binding: String?
+  let snippet: String?
   let badge: Int
   let badgeOpacity: Double
   let isEnabled: Bool
@@ -20,7 +21,9 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
   internal init(id: String, groupName: String? = nil, name: String,
                 images: [ContentViewModel.ImageModel],
                 overlayImages: [ContentViewModel.ImageModel],
-                binding: String? = nil, badge: Int,
+                binding: String? = nil, 
+                snippet: String? = nil,
+                badge: Int,
                 badgeOpacity: Double, isEnabled: Bool) {
     self.id = id
     self.groupName = groupName
@@ -30,6 +33,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
     self.binding = binding
     self.badge = badge
     self.badgeOpacity = badgeOpacity
+    self.snippet = snippet
     self.isEnabled = isEnabled
   }
 

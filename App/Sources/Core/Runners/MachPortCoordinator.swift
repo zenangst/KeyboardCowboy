@@ -333,7 +333,6 @@ final class MachPortCoordinator {
           workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
-          reset()
           previousPartialMatch = Self.defaultPartialMatch
         }
       } else if machPortEvent.type == .keyDown, !isRepeatingEvent {
@@ -345,7 +344,6 @@ final class MachPortCoordinator {
           workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
-          reset()
         }
 
         previousPartialMatch = Self.defaultPartialMatch
