@@ -63,22 +63,26 @@ struct WorkflowTriggerListView: View {
         }
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .snippet(let trigger):
-        HStack {
-          ZenLabel("Add Snippet")
-          Spacer()
-          Button(action: { onAction(.removeTrigger(workflowId: workflowId)) },
-                 label: {
-            Image(systemName: "xmark")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 10, height: 10)
-          })
-          .buttonStyle(.calm(color: .systemRed, padding: .medium))
+        Group {
+          HStack {
+            ZenLabel("Add Snippet")
+            Spacer()
+            Button(action: { onAction(.removeTrigger(workflowId: workflowId)) },
+                   label: {
+              Image(systemName: "xmark")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 10, height: 10)
+            })
+            .buttonStyle(.calm(color: .systemRed, padding: .medium))
+          }
+          .padding(.horizontal, 8)
+          WorkflowSnippetTriggerView(trigger) { snippet in
+            onAction(.updateSnippet(workflowId: workflowId, snippet: snippet))
+          }
+          .padding(.horizontal, 8)
+          .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
         }
-        WorkflowSnippetTriggerView(trigger) { snippet in
-          onAction(.updateSnippet(workflowId: workflowId, snippet: snippet))
-        }
-        .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .empty:
         ZenLabel("Add Trigger")
           .padding([.leading, .trailing], 8)

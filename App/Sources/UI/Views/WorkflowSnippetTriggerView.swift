@@ -16,14 +16,17 @@ struct WorkflowSnippetTriggerView: View {
   }
 
   var body: some View {
-    ZenTextEditor(
-      text: $snippet.text,
-      placeholder: "Snippet trigger",
-      font: Font.system(.body, design: .monospaced),
-      onFocusChange: { newValue in
-        snippetController.isEnabled = !newValue
-      }, onCommandReturnKey: { onUpdate(snippet) }
-    )
+    HStack(spacing: 4) {
+      SnippetIconView(size: 24)
+      ZenTextEditor(
+        text: $snippet.text,
+        placeholder: "Snippet trigger",
+        font: Font.system(.body, design: .monospaced),
+        onFocusChange: { newValue in
+          snippetController.isEnabled = !newValue
+        }, onCommandReturnKey: { onUpdate(snippet) }
+      )
+    }
     .onDisappear(perform: {
         snippetController.isEnabled = true
     })

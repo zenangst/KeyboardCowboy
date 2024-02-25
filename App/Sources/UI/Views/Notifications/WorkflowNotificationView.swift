@@ -48,6 +48,10 @@ struct WorkflowNotificationView: View {
         .frame(maxWidth: 250, maxHeight: 500, alignment: notificationPlacement.alignment)
         .fixedSize(horizontal: false, vertical: true)
       HStack {
+        if let workflow = publisher.data.workflow {
+          workflow.iconView(24)
+        }
+
         ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
           WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: .readonly(false))
           .transition(AnyTransition.moveAndFade.animation(Self.animation))
@@ -143,5 +147,80 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
     WorkflowNotificationView(publisher: publisher)
       .environmentObject(WindowManager())
       .padding(64)
+  }
+}
+
+private extension Workflow {
+  @ViewBuilder
+  func iconView(_ size: CGFloat) -> some View {
+    let enabledCommands = commands.filter(\.isEnabled)
+    if enabledCommands.count == 1, let command = enabledCommands.first {
+      command.iconView(size)
+    } else {
+      EmptyView()
+    }
+  }
+}
+
+private extension Command {
+  @ViewBuilder
+  func iconView(_ size: CGFloat) -> some View {
+    switch self {
+    case .mouse:
+      MouseIconView(size: size)
+    case .systemCommand(let systemCommand):
+      switch systemCommand.kind {
+      case .activateLastApplication:
+        ActivateLastApplicationIconView(size: size)
+      case .applicationWindows:
+        MissionControlIconView(size: size)
+      case .minimizeAllOpenWindows:
+        MinimizeAllIconView(size: size)
+      case .moveFocusToNextWindow:
+        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
+      case .moveFocusToNextWindowFront:
+        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
+      case .moveFocusToNextWindowGlobal:
+        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
+      case .moveFocusToPreviousWindow:
+        MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
+      case .moveFocusToPreviousWindowFront:
+        MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
+      case .moveFocusToPreviousWindowGlobal:
+        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
+      case .showDesktop:
+        DockIconView(size: size)
+      case .missionControl:
+        MissionControlIconView(size: size)
+      }
+    case .menuBar:
+      MenuIconView(size: size)
+    case .windowManagement:
+      WindowManagementIconView(size: size)
+    case .uiElement:
+      UIElementIconView(size: size)
+    case .application(let command):
+      IconView(
+        icon: .init(command.application),
+        size: .init(width: 32, height: 32)
+      )
+      .id(command.id)
+    case .builtIn(let command):
+      switch command.kind {
+      case .macro(let action):
+        switch action {
+        case .record:
+          MacroIconView(.record, size: size)
+        case .remove:
+          MacroIconView(.remove, size: size)
+        default:
+          EmptyView()
+        }
+      default:
+        EmptyView()
+      }
+    default:
+      EmptyView()
+    }
   }
 }

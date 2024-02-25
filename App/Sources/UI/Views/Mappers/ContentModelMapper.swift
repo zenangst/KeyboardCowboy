@@ -50,10 +50,24 @@ private extension Workflow {
   func asViewModel(_ groupName: String?) -> ContentViewModel {
     let commandCount = commands.count
     let binding: String?
-    if let trigger, let triggerBinding = trigger.binding {
-      binding = triggerBinding
+    let snippet: String?
+
+    if let trigger  {
+      switch trigger {
+      case .application(let array):
+        binding = nil
+        snippet = nil
+      case .keyboardShortcuts(let keyboardShortcutTrigger):
+        binding = trigger.binding
+        snippet = nil
+      case .snippet(let snippetTrigger):
+        binding = nil
+        snippet = snippetTrigger.text
+      }
+
     } else {
       binding = nil
+      snippet = nil
     }
 
     return ContentViewModel(
@@ -63,6 +77,7 @@ private extension Workflow {
       images: commands.images(limit: 1),
       overlayImages: commands.overlayImages(limit: 3),
       binding: binding,
+      snippet: snippet,
       badge: commandCount > 1 ? commandCount : 0,
       badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
       isEnabled: isEnabled)
