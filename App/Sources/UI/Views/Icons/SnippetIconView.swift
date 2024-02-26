@@ -22,7 +22,7 @@ struct SnippetIconView: View {
           .init(color: Color(nsColor: .systemPink.blended(withFraction: 0.2, of: .white)!), location: 1.0),
         ], startPoint: .topLeading, endPoint: .bottom)
         .mask {
-          Text("{}")
+          Image(systemName: "ellipsis.curlybraces")
             .font(Font.system(size: size * 0.6, weight: .bold, design: .monospaced))
         }
         .shadow(color: Color(nsColor: .systemPink.blended(withFraction: 0.4, of: .black)!), radius: 2, y: 1)

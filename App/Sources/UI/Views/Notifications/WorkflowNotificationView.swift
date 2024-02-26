@@ -150,77 +150,83 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
   }
 }
 
-private extension Workflow {
+extension Workflow {
   @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
     let enabledCommands = commands.filter(\.isEnabled)
     if enabledCommands.count == 1, let command = enabledCommands.first {
       command.iconView(size)
     } else {
-      EmptyView()
+      PlaceholderIconView(size: size)
     }
   }
 }
 
-private extension Command {
+struct PlaceholderIconView: View {
+  let size: CGFloat
+
+  var body: some View {
+    Rectangle()
+      .fill(Color(.controlAccentColor).opacity(0.25))
+      .overlay { iconBorder(size) }
+      .frame(width: size, height: size)
+      .fixedSize()
+      .iconShape(size)
+  }
+}
+
+extension Command {
+  func placeholderView(_ size: CGFloat) -> some View {
+    PlaceholderIconView(size: size)
+  }
+
   @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
     switch self {
+    case .builtIn(let builtInCommand):
+      switch builtInCommand.kind {
+      case .macro(let action):
+        switch action.kind {
+        case .record: MacroIconView(.record, size: size)
+        case .remove: MacroIconView(.remove, size: size)
+        }
+      case .userMode: UserModeIconView(size: size)
+      }
     case .mouse:
       MouseIconView(size: size)
     case .systemCommand(let systemCommand):
       switch systemCommand.kind {
       case .activateLastApplication:
         ActivateLastApplicationIconView(size: size)
-      case .applicationWindows:
-        MissionControlIconView(size: size)
-      case .minimizeAllOpenWindows:
-        MinimizeAllIconView(size: size)
-      case .moveFocusToNextWindow:
-        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
-      case .moveFocusToNextWindowFront:
-        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
-      case .moveFocusToNextWindowGlobal:
-        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
-      case .moveFocusToPreviousWindow:
-        MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
-      case .moveFocusToPreviousWindowFront:
-        MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
-      case .moveFocusToPreviousWindowGlobal:
-        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
-      case .showDesktop:
-        DockIconView(size: size)
-      case .missionControl:
-        MissionControlIconView(size: size)
+      case .applicationWindows:              MissionControlIconView(size: size)
+      case .minimizeAllOpenWindows:          MinimizeAllIconView(size: size)
+      case .moveFocusToNextWindow:           MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
+      case .moveFocusToNextWindowFront:      MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
+      case .moveFocusToNextWindowGlobal:     MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
+      case .moveFocusToPreviousWindow:       MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
+      case .moveFocusToPreviousWindowFront:  MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
+      case .moveFocusToPreviousWindowGlobal: MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
+      case .showDesktop:                     DockIconView(size: size)
+      case .missionControl:                  MissionControlIconView(size: size)
       }
-    case .menuBar:
-      MenuIconView(size: size)
-    case .windowManagement:
-      WindowManagementIconView(size: size)
-    case .uiElement:
-      UIElementIconView(size: size)
+    case .menuBar: MenuIconView(size: size)
+    case .windowManagement: WindowManagementIconView(size: size)
+    case .uiElement: UIElementIconView(size: size)
     case .application(let command):
       IconView(
         icon: .init(command.application),
         size: .init(width: 32, height: 32)
       )
+      .frame(width: size, height: size)
+      .fixedSize()
+      .iconShape(size)
       .id(command.id)
-    case .builtIn(let command):
+    case .text(let command):
       switch command.kind {
-      case .macro(let action):
-        switch action {
-        case .record:
-          MacroIconView(.record, size: size)
-        case .remove:
-          MacroIconView(.remove, size: size)
-        default:
-          EmptyView()
-        }
-      default:
-        EmptyView()
+      case .insertText: TypingIconView(size: size)
       }
     default:
-      EmptyView()
+      placeholderView(size)
     }
   }
 }
