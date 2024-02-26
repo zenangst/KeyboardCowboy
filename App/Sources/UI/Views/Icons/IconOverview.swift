@@ -3,8 +3,9 @@ import SwiftUI
 
 struct IconOverview: PreviewProvider {
   static let size: CGFloat = 96
+  static let spacing: CGFloat = 16
   static var previews: some View {
-    FlowLayout(itemSpacing: 8, lineSpacing: 8) {
+    FlowLayout(itemSpacing: spacing, lineSpacing: spacing) {
       WindowManagementIconView(size: size)
       MenuIconView(size: size)
       MinimizeAllIconView(size: size)
@@ -19,16 +20,17 @@ struct IconOverview: PreviewProvider {
       MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
       MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
       DockIconView(size: size)
-      MissionControlIconView(size: size)
       MacroIconView(.record, size: size)
       MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
+      MissionControlIconView(size: size)
       MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
+      UserModeIconView(size: size)
       ScriptIconView(size: size)
       KeyboardIconView("M", size: size)
       ImprovementIconView(size: size)
     }
-    .frame(maxWidth: 96 * 4 + 8 * 4)
-    .padding(16)
+    .frame(maxWidth: size * 5 + spacing * 5)
+    .padding(spacing)
     .background(Color(.windowBackgroundColor))
     .previewLayout(.sizeThatFits)
   }

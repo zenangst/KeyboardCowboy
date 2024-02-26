@@ -24,6 +24,7 @@ struct WorkflowNotificationMatchesView: View {
         LazyVStack(alignment: .trailing) {
           ForEach(publisher.data.matches, id: \.id) { workflow in
             HStack {
+              workflow.iconView(24)
               Text(workflow.name)
                 .font(.caption)
               Spacer()

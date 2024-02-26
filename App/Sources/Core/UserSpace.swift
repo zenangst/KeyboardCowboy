@@ -22,6 +22,7 @@ final class UserSpace: Sendable {
     case filename = "FILENAME"
     case `extension` = "EXTENSION"
     case selectedText = "SELECTED_TEXT"
+    case pasteboard = "PASTEBOARD"
 
     var asTextVariable: String { "$\(rawValue)" }
   }
@@ -87,8 +88,14 @@ final class UserSpace: Sendable {
             .replacingOccurrences(of: .file, with: lastPathComponent as String)
             .replacingOccurrences(of: .filepath, with: (url.lastPathComponent as NSString).pathExtension)
             .replacingOccurrences(of: .extension, with: (url.lastPathComponent as NSString).pathExtension)
+
         }
       }
+
+      if let pasteboard = NSPasteboard.general.string(forType: .string) {
+        interpolatedString = interpolatedString.replacingOccurrences(of: .pasteboard, with: pasteboard)
+      }
+
       return interpolatedString
     }
 
@@ -113,9 +120,14 @@ final class UserSpace: Sendable {
           environment[.filepath] = components.path.replacingOccurrences(of: "%20", with: " ")
           environment[.filename] = (url.lastPathComponent as NSString).deletingPathExtension
           environment[.extension] = (url.lastPathComponent as NSString).pathExtension
+
         }
       }
 
+      if let pasteboard = NSPasteboard.general.string(forType: .string) {
+        environment[.pasteboard] = pasteboard
+      }
+      
       return environment
     }
   }
@@ -280,8 +292,8 @@ final class UserSpace: Sendable {
       NSPasteboard.general.string(forType: .string)
     }
 
-    try? machPort?.post(kVK_ANSI_C, type: .keyDown, flags: .maskCommand)
-    try? machPort?.post(kVK_ANSI_C, type: .keyUp, flags: .maskCommand)
+    _ = try? machPort?.post(kVK_ANSI_C, type: .keyDown, flags: .maskCommand)
+    _ = try? machPort?.post(kVK_ANSI_C, type: .keyUp, flags: .maskCommand)
 
     try await Task.sleep(for: .seconds(0.1))
 
