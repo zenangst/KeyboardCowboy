@@ -16,9 +16,14 @@ final class WorkflowRunner: @unchecked Sendable {
     self.notifications = notifications
   }
 
+  func cancelWorkItem() {
+    workItem?.cancel()
+  }
+
   func run(_ workflow: Workflow, for shortcut: KeyShortcut,
            executionOverride: Workflow.Execution? = nil,
            machPortEvent: MachPortEvent, repeatingEvent: Bool) {
+    workItem?.cancel()
     notifications.notifyRunningWorkflow(workflow)
     let commands = workflow.commands.filter(\.isEnabled)
 
@@ -51,7 +56,6 @@ final class WorkflowRunner: @unchecked Sendable {
                               repeatingEvent: repeatingEvent)
     }
 
-    workItem?.cancel()
     workItem = DispatchWorkItem { [notifications] in
       notifications.reset()
     }

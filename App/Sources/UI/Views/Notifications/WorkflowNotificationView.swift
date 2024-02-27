@@ -44,8 +44,13 @@ struct WorkflowNotificationView: View {
 
   var body: some View {
     NotificationView(notificationPlacement.alignment) {
+      let maxHeight = NSScreen.main?.visibleFrame.height ?? 700
       WorkflowNotificationMatchesView(publisher: publisher)
-        .frame(maxWidth: 250, maxHeight: 500, alignment: notificationPlacement.alignment)
+        .frame(
+          maxWidth: 250,
+          maxHeight: maxHeight - 64,
+          alignment: notificationPlacement.alignment
+        )
         .fixedSize(horizontal: false, vertical: true)
       HStack {
         if let workflow = publisher.data.workflow {
@@ -151,13 +156,18 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
 }
 
 extension Workflow {
-  @ViewBuilder
+  @MainActor @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
-    let enabledCommands = commands.filter(\.isEnabled)
-    if enabledCommands.count == 1, let command = enabledCommands.first {
-      command.iconView(size)
-    } else {
-      PlaceholderIconView(size: size)
+    let enabledCommands = Array(commands.filter(\.isEnabled).prefix(3).reversed())
+    ZStack {
+      ForEach(Array(zip(enabledCommands.indices, enabledCommands)), id: \.1.id) { offset, command in
+        let realtiveOffset = CGFloat(enabledCommands.count) - CGFloat(offset)
+        command.iconView(size)
+          .fixedSize()
+          .scaleEffect(1 - realtiveOffset * 0.1)
+          .offset(y: -realtiveOffset * 2.0)
+          .id(command.id)
+      }
     }
   }
 }
@@ -180,7 +190,7 @@ extension Command {
     PlaceholderIconView(size: size)
   }
 
-  @ViewBuilder
+  @MainActor @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
     switch self {
     case .builtIn(let builtInCommand):
@@ -225,6 +235,9 @@ extension Command {
       switch command.kind {
       case .insertText: TypingIconView(size: size)
       }
+    case .keyboard(let model):
+      let letters = model.keyboardShortcuts.map(\.key).joined()
+      KeyboardIconView(letters, size: size)
     default:
       placeholderView(size)
     }
