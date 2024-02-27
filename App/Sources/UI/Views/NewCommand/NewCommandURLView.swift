@@ -51,7 +51,6 @@ struct NewCommandURLView: View {
         Text("://")
           .font(.largeTitle)
           .opacity(0.5)
-          .frame(height: .infinity)
         TextField("address", text: $address)
           .onSubmit {
             if case .valid = updateAndValidatePayload() {
