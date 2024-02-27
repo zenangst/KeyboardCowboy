@@ -25,6 +25,7 @@ struct WorkflowShortcutsView: View {
                                             keyboardShortcuts: $data,
                                             draggableEnabled: true,
                                             selectionManager: selectionManager,
+                                            recordOnAppearIfEmpty: true,
                                             onTab: {
       if $0 {
         focus.wrappedValue = .detail(.commands)

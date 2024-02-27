@@ -166,8 +166,6 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
               }
             default: break
             }
-          } else {
-            runCommands(in: workflow)
           }
         }
       }
