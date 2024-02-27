@@ -47,10 +47,13 @@ struct EditWorfklowGroupView: View {
 
       HStack(spacing: 16) {
         VStack(alignment: .leading, spacing: 0) {
-          ZenLabel("User Modes")
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            .background(Color(.windowBackgroundColor))
+          HStack {
+            UserModeIconView(size: 24)
+            ZenLabel("User Modes")
+          }
+          .padding(8)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .background(Color(.windowBackgroundColor))
 
           Menu("Add User Mode") {
             ForEach(publisher.data.userModes) { userMode in
@@ -62,8 +65,7 @@ struct EditWorfklowGroupView: View {
               })
             }
           }
-          .padding(.horizontal)
-          .padding(.bottom)
+          .padding([.leading, .trailing, .bottom], 8)
           .menuStyle(.regular)
           
           ScrollView {
@@ -90,7 +92,7 @@ struct EditWorfklowGroupView: View {
 
         VStack(alignment: .leading, spacing: 0) {
           RuleHeaderView(applicationStore: applicationStore, group: $group)
-            .padding()
+            .padding(8)
             .background(Color(.windowBackgroundColor))
           ScrollView {
             RuleListView(applicationStore: applicationStore,

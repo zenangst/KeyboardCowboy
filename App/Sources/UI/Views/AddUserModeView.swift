@@ -9,7 +9,9 @@ struct AddUserModeView: View {
   var body: some View {
     Group {
       HStack {
+        UserModeIconView(size: 24)
         TextField("User Mode Name", text: $name)
+          .textFieldStyle(.regular(nil))
           .onSubmit {
             action(name)
           }

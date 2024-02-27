@@ -14,20 +14,25 @@ struct MacroIconView: View {
   }
 
   var body: some View {
-    let color = Color(kind == .record 
+    let color: NSColor = kind == .record
                       ? .systemCyan
-                      : .systemYellow)
+                      : .systemYellow
     Rectangle()
-      .fill(color)
-      .overlay { iconOverlay().opacity(0.25) }
+      .fill(LinearGradient(
+        stops: [
+          .init(color: Color(nsColor: color), location: 0.1),
+          .init(color: Color(nsColor: color.withSystemEffect(.disabled)), location: 1.0)
+        ],
+        startPoint: .top,
+        endPoint: .bottom))
       .overlay { iconBorder(size) }
       .overlay(alignment: .center) {
-        backgroundShape(color: color)
+        backgroundShape(color: Color(nsColor: color))
           .scaleEffect(0.8)
           .rotation3DEffect(.degrees(30), axis: (x: 1.0, y: 0.0, z: 0.0))
           .offset(y: -size * 0.225)
 
-        backgroundShape(color: color)
+        backgroundShape(color: Color(nsColor: color))
           .scaleEffect(0.9)
           .rotation3DEffect(.degrees(15), axis: (x: 1.0, y: 0.0, z: 0.0))
           .offset(y: -size * 0.125)
@@ -35,7 +40,7 @@ struct MacroIconView: View {
         Text("MACRO")
           .frame(minWidth: size * 0.9, minHeight: size * 0.4)
           .font(Font.system(size: size * 0.225, weight: .heavy, design: .rounded))
-          .foregroundColor(color)
+          .foregroundColor(Color(nsColor: color))
           .allowsTightening(true)
           .padding(size * 0.02)
           .overlay {

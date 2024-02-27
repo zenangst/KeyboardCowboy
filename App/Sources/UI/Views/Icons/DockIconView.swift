@@ -26,21 +26,29 @@ struct DockIconView: View {
           let iconSize = size * 0.125
           Rectangle()
             .iconShape(size * 0.1)
+            .overlay { iconOverlay().opacity(0.5) }
+            .overlay { iconBorder(size * 0.1) }
             .frame(width: iconSize, height: iconSize)
             .offset(y: -size * 0.075)
 
           Rectangle()
             .iconShape(size * 0.1)
+            .overlay { iconOverlay().opacity(0.5) }
+            .overlay { iconBorder(size * 0.1) }
             .frame(width: iconSize, height: iconSize)
             .offset(y: -size * 0.075)
 
           Rectangle()
             .iconShape(size * 0.1)
+            .overlay { iconOverlay().opacity(0.5) }
+            .overlay { iconBorder(size * 0.1) }
             .frame(width: iconSize, height: iconSize)
             .offset(y: -size * 0.075)
 
           Rectangle()
             .iconShape(size * 0.1)
+            .overlay { iconOverlay().opacity(0.5) }
+            .overlay { iconBorder(size * 0.1) }
             .frame(width: iconSize, height: iconSize)
             .offset(y: -size * 0.075)
         }
