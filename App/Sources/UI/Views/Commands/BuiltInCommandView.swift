@@ -96,9 +96,9 @@ struct BuiltInCommandView: View {
           .fixedSize()
 
           switch model.kind {
-            case .macro(let macroAction):
+            case .macro:
               EmptyView()
-            case .userMode(let userMode, let action):
+            case .userMode:
               Menu(content: {
                 ForEach(configurationPublisher.data.userModes) { userMode in
                   Button(action: {
