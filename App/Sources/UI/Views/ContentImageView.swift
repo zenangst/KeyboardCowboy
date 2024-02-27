@@ -24,7 +24,7 @@ struct ContentImageView: View {
             MacroIconView(.remove, size: size - 6)
           }
         case .userMode:
-          EmptyView()
+          UserModeIconView(size: size - 6)
         }
       case .keyboard(let model):
         if let firstKey = model.keys.first {
