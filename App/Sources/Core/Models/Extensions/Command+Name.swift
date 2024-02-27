@@ -46,8 +46,9 @@ extension Command {
       case .application(var command):
         command.name = newValue
         self = .application(command)
-      case .builtIn:
-        break
+      case .builtIn(var command):
+        command.name = newValue
+        self = .builtIn(command)
       case .keyboard(var command):
         command.name = newValue
         self = .keyboard(command)
