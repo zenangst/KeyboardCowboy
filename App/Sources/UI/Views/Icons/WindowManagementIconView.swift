@@ -15,10 +15,12 @@ struct WindowManagementIconView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .background(sidebarBackground())
 
-      Divider()
-        .background(Color(.systemGray))
-      Divider()
-        .background(Color.white)
+      Rectangle()
+        .fill(Color(.systemGray))
+        .frame(width: size * 0.0125)
+      Rectangle()
+        .fill(Color.white)
+        .frame(width: size * 0.0125)
 
       window()
         .frame(width: size * 0.182)
@@ -136,10 +138,12 @@ struct WindowManagementIconView: View {
     VStack(spacing: 0) {
       Rectangle()
         .frame(height: size * 0.30)
-      Divider()
-        .background(Color.white)
-      Divider()
-        .background(Color(.systemGray))
+      Rectangle()
+        .fill(Color(.white))
+        .frame(height: size * 0.0125)
+      Rectangle()
+        .fill(Color(.systemGray))
+        .frame(height: size * 0.0125)
       Rectangle()
         .fill(Color(.systemGray).opacity(0.4))
     }
