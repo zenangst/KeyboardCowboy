@@ -119,14 +119,14 @@ final class MachPortCoordinator {
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     switch machPortEvent.type {
       case .keyDown:
-        if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue,
-           machPortEvent.keyCode == kVK_Escape {
-          if machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
-            machPortEvent.result = nil
-            reset()
-            return
-          }
+      if machPortEvent.keyCode == kVK_Escape {
+        notifications.reset()
+        if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
+          machPortEvent.result = nil
+          reset()
+          return
         }
+      }
       case .keyUp:
         workItem?.cancel()
         workItem = nil
@@ -254,6 +254,7 @@ final class MachPortCoordinator {
 
       if machPortEvent.type == .keyDown {
         notifications.notifyBundles(partialMatch)
+        workflowRunner.cancelWorkItem()
         previousPartialMatch = partialMatch
       }
     case .exact(let workflow):
@@ -282,7 +283,6 @@ final class MachPortCoordinator {
             return
           }
 
-          notifications.reset()
           for newEvent in newEvents {
             self.coordinatorEvent = newEvent
           }
@@ -294,6 +294,7 @@ final class MachPortCoordinator {
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
+        notifications.reset()
       } else if workflow.commands.isValidForRepeat {
         guard machPortEvent.type == .keyDown else { return }
         if macroCoordinator.state == .recording {
