@@ -7,11 +7,8 @@ struct IconOverview: PreviewProvider {
   static var previews: some View {
     FlowLayout(itemSpacing: spacing, lineSpacing: spacing) {
       WindowManagementIconView(size: size)
-      MenuIconView(size: size)
-      MinimizeAllIconView(size: size)
       ActivateLastApplicationIconView(size: size)
       SnippetIconView(size: size)
-      MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
       MacroIconView(.remove, size: size)
       UIElementIconView(size: size)
@@ -24,7 +21,11 @@ struct IconOverview: PreviewProvider {
       MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
       MissionControlIconView(size: size)
       MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
+      GenericAppIconView(size: size)
+      MenuIconView(size: size)
+      MinimizeAllIconView(size: size)
       UserModeIconView(size: size)
+      MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
       ScriptIconView(size: size)
       KeyboardIconView("M", size: size)
       ImprovementIconView(size: size)

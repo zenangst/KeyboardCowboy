@@ -58,9 +58,12 @@ struct MissionControlIconView: View {
           .padding([.leading, .top], size.width * 0.0675)
           Rectangle()
             .fill(.white.opacity(0.7))
+            .overlay { iconOverlay().opacity(0.5) }
             .frame(maxWidth: .infinity)
         }
       }
+      .overlay { iconOverlay().opacity(0.5) }
+      .overlay { iconBorder(size.width * 0.7) }
       .iconShape(size.width * 0.7)
       .frame(width: size.width, height: size.height)
   }

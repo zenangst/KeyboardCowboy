@@ -119,12 +119,15 @@ struct MoveFocusToWindowIconView: View {
                   height: direction == .next ? focusedSize.height : unfocusedSize.height)
       .opacity(direction == .next ? focusedOpacity : unfocusedOpacity)
       .grayscale(direction == .next ? 0 : 1)
+      .shadow(radius: 4, y: 2)
     }
   }
 
   private func windowShape(width: CGFloat, height: CGFloat) -> some View {
     Rectangle()
       .frame(width: width, height: height)
+      .overlay { iconOverlay().opacity(0.5) }
+      .overlay { iconBorder(width * 0.7) }
       .overlay(alignment: .topLeading) {
         HStack(alignment: .top, spacing: 0) {
           HStack(alignment: .top, spacing: width * 0.0_240) {
@@ -142,6 +145,7 @@ struct MoveFocusToWindowIconView: View {
           Rectangle()
             .fill(.white)
             .frame(maxWidth: .infinity)
+            .overlay { iconOverlay().opacity(0.5) }
         }
       }
       .iconShape(width * 0.7)

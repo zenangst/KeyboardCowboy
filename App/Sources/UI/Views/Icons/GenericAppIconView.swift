@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct GenericAppIconView: View {
+  @ObserveInjection var inject
   let size: CGFloat
   var body: some View {
     Rectangle()
@@ -18,38 +20,38 @@ struct GenericAppIconView: View {
       .overlay { iconBorder(size) }
       .overlay {
         LinearGradient(stops: [
-          .init(color: Color(nsColor: .white), location: 0.2),
-          .init(color: Color(nsColor: .systemBlue.blended(withFraction: 0.1, of: .white)!), location: 1.0),
+          .init(color: Color(nsColor: .systemCyan.blended(withFraction: 0.2, of: .white)!), location: 0.2),
+          .init(color: Color(nsColor: .systemBlue), location: 1.0),
         ], startPoint: .topLeading, endPoint: .bottom)
         .mask {
-          Image(systemName: "app.dashed")
-            .font(Font.system(size: size * 1.1, weight: .thin, design: .rounded))
+          Image(systemName: "app.fill")
+            .font(Font.system(size: size * 0.9, weight: .thin, design: .rounded))
+            .mask {
+              Image(systemName: "app.dashed")
+                .font(Font.system(size: size * 0.9, weight: .thin, design: .rounded))
 
+              Image(systemName: "pencil.and.scribble")
+                .font(Font.system(size: size * 0.52, weight: .regular, design: .rounded))
+                .rotationEffect(.degrees(-19))
+                .offset(x: -size * 0.230, y: size * 0.0_86)
 
-          Image(systemName: "applepencil.gen1")
-            .font(Font.system(size: size * 0.65, weight: .bold, design: .rounded))
-            .rotationEffect(.degrees(-22))
-            .offset(x: -size * 0.17)
-            .opacity(0.75)
+              Image(systemName: "pencil")
+                .font(Font.system(size: size * 0.50, weight: .regular, design: .rounded))
+                .rotationEffect(.degrees(45))
+                .offset(y: size * 0.07)
 
-          Image(systemName: "paintbrush.pointed.fill")
-            .font(Font.system(size: size * 0.6, weight: .ultraLight, design: .rounded))
-            .rotationEffect(.degrees(-70))
-            .offset(x: size * 0.18, y: size * 0.025)
-            .opacity(0.75)
-
-          Image(systemName: "ruler.fill")
-            .resizable()
-            .font(Font.system(size: size * 0.4, weight: .ultraLight, design: .rounded))
-            .frame(width: size * 0.65, height: size * 0.175)
-            .offset(y: size * 0.05)
-            .opacity(0.92)
+              Image(systemName: "applepencil.gen1")
+                .font(Font.system(size: size * 0.50, weight: .regular, design: .rounded))
+                .rotationEffect(.degrees(-68))
+                .offset(x: size * 0.10)
+            }
         }
         .shadow(color: Color(nsColor: .systemBlue.blended(withFraction: 0.4, of: .black)!), radius: 2, y: 1)
       }
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
+      .enableInjection()
   }
 }
 

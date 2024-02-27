@@ -37,6 +37,7 @@ struct MinimizeAllIconView: View {
           .init(color: Color(nsColor: .white.withSystemEffect(.disabled)), location: 1.0),
         ], startPoint: .topLeading, endPoint: .bottom)
       )
+      .overlay { iconOverlay().opacity(0.5) }
       .overlay(alignment: .topLeading) {
         HStack(alignment: .top, spacing: 0) {
           HStack(alignment: .top, spacing: size.width * 0.0_240) {
@@ -75,10 +76,12 @@ struct MinimizeAllIconView: View {
                 .opacity(0.4)
                 .frame(width: size.width * 0.3)
             }
+            .overlay { iconOverlay().opacity(0.5) }
         }
       }
       .iconShape(size.width * 0.7)
       .frame(width: size.width, height: size.height)
+      .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
   }
 }
 
