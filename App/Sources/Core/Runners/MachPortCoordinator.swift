@@ -282,6 +282,7 @@ final class MachPortCoordinator {
             return
           }
 
+          notifications.reset()
           for newEvent in newEvents {
             self.coordinatorEvent = newEvent
           }
