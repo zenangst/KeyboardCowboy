@@ -118,9 +118,7 @@ struct BuiltInCommandView: View {
 
         }
           .menuStyle(.regular)
-      } subContent: { _ in
-
-      } onAction: {
+      } subContent: { _ in } onAction: {
         onAction(.commandAction($0))
       }
 

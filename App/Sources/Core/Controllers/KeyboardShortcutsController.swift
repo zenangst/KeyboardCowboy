@@ -23,48 +23,34 @@ final class KeyboardShortcutsController {
               bundleIdentifier: String,
               userModes: [UserMode],
               partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
-    let userModeKey = userModes.filter({ $0.isEnabled == true }).dictionaryKey(true)
-    let scopedKeyWithUserMode = createKey(
-      keyboardShortcut,
-      bundleIdentifier: bundleIdentifier,
-      userModeKey: userModeKey,
-      previousKey: partialMatch.rawValue
-    )
+    if !userModes.isEmpty {
+      for userMode in userModes {
+        let userModeKey = userMode.dictionaryKey(true)
+        let scopedKeyWithUserMode = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier,
+                                              userModeKey: userModeKey, previousKey: partialMatch.rawValue)
 
-    if let result = cache[scopedKeyWithUserMode] {
+        if let result = cache[scopedKeyWithUserMode] {
+          return result
+        }
+
+        let globalKeyWithUserMode = createKey(keyboardShortcut, bundleIdentifier: "*",
+                                              userModeKey: userModeKey, previousKey: partialMatch.rawValue)
+
+        if let result = cache[globalKeyWithUserMode] {
+          return result
+        }
+      }
+    }
+
+    let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier,
+                              userModeKey: "", previousKey: partialMatch.rawValue)
+
+    if let result = cache[scopedKey] {
       return result
     }
 
-    let scopedKey = createKey(
-      keyboardShortcut,
-      bundleIdentifier: bundleIdentifier,
-      userModeKey: "",
-      previousKey: partialMatch.rawValue
-    )
-
-    // If both the scope keys are identical, then there is no need
-    // to try and resolve it again if the first one failed.
-    if scopedKey != scopedKeyWithUserMode, let result = cache[scopedKey] {
-      return result
-    }
-
-    let globalKeyWithUserMode = createKey(
-      keyboardShortcut,
-      bundleIdentifier: "*",
-      userModeKey: userModeKey,
-      previousKey: partialMatch.rawValue
-    )
-
-    if let result = cache[globalKeyWithUserMode] {
-      return result
-    }
-
-    let globalKey = createKey(
-      keyboardShortcut,
-      bundleIdentifier: "*",
-      userModeKey: "",
-      previousKey: partialMatch.rawValue
-    )
+    let globalKey = createKey(keyboardShortcut, bundleIdentifier: "*", 
+                              userModeKey: "", previousKey: partialMatch.rawValue)
 
     return cache[globalKey]
   }
@@ -132,17 +118,40 @@ final class KeyboardShortcutsController {
           var previousKey: String = "."
           var offset = 0
           trigger.shortcuts.forEach { keyboardShortcut in
-            let userModeKey = group.userModes.dictionaryKey(true)
-            let key = createKey(keyboardShortcut,
-                                bundleIdentifier: bundleIdentifier,
-                                userModeKey: userModeKey,
-                                previousKey: previousKey)
-            previousKey += "\(keyboardShortcut.dictionaryKey())+"
 
-            if offset == count {
-              newCache[key] = .exact(workflow)
+            if group.userModes.isEmpty {
+              let key = createKey(keyboardShortcut,
+                                  bundleIdentifier: bundleIdentifier,
+                                  userModeKey: "",
+                                  previousKey: previousKey)
+              previousKey += "\(keyboardShortcut.dictionaryKey())+"
+
+              if offset == count {
+                newCache[key] = .exact(workflow)
+              } else {
+                newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
+              }
             } else {
-              newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
+              // Only set the previous key once per iteration, otherwise
+              // the depth will increase for each iteration over user modes.
+              var didSetPreviousKey: Bool = false
+              for userMode in group.userModes {
+                let userModeKey = userMode.dictionaryKey(true)
+                let key = createKey(keyboardShortcut,
+                                    bundleIdentifier: bundleIdentifier,
+                                    userModeKey: userModeKey,
+                                    previousKey: previousKey)
+                if !didSetPreviousKey {
+                  previousKey += "\(keyboardShortcut.dictionaryKey())+"
+                  didSetPreviousKey = true
+                }
+
+                if offset == count {
+                  newCache[key] = .exact(workflow)
+                } else {
+                  newCache[key] = .partialMatch(.init(rawValue: previousKey, workflow: workflow))
+                }
+              }
             }
 
             offset += 1
