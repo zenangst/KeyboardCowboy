@@ -36,10 +36,7 @@ struct BuiltInCommandView: View {
           case .remove: MacroIconView(.remove, size: iconSize.width)
           }
         case .userMode:
-          switch command.icon.wrappedValue {
-          case .some(let icon): IconView(icon: icon, size: iconSize)
-          case .none: EmptyView()
-          }
+          UserModeIconView(size: iconSize.width)
         }
 
       } content: { _ in
@@ -90,7 +87,7 @@ struct BuiltInCommandView: View {
               },
               label: { Text("Disable User Mode").font(.subheadline) })
           }, label: {
-            Text(model.name)
+            Text(model.kind.displayValue)
               .font(.subheadline)
           })
           .fixedSize()
