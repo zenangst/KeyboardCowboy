@@ -146,18 +146,19 @@ private extension Array where Element == Command {
         case .macro(let action):
           switch action.kind {
           case .record:
-            images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.builtIn(.init(id: command.id, name: command.name, kind: .macro(.record))))))
+            images.append(.init(id: command.id, offset: convertedOffset, 
+                                kind: .command(.builtIn(.init(id: command.id, name: command.name, 
+                                                              kind: .macro(.record))))))
           case .remove:
-            images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.builtIn(.init(id: command.id, name: command.name, kind: .macro(.remove))))))
+            images.append(.init(id: command.id, offset: convertedOffset,
+                                kind: .command(.builtIn(.init(id: command.id, name: command.name, 
+                                                              kind: .macro(.remove))))))
           }
         case .userMode:
-          let path = Bundle.main.bundleURL.path
-          images.append(
-            ContentViewModel.ImageModel(
-              id: command.id,
-              offset: convertedOffset,
-              kind: .icon(.init(bundleIdentifier: path, path: path)))
-          )
+          images.append(.init(id: command.id, offset: convertedOffset, 
+                              kind: .command(.builtIn(.init(id: command.id, name: command.name, 
+                                                            kind: .userMode(UserMode(id: command.id, name: command.name, 
+                                                                                     isEnabled: command.isEnabled), .toggle))))))
         }
       case .mouse(let command):
         images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.mouse(.init(id: command.id, kind: command.kind)))))
