@@ -45,37 +45,39 @@ struct WorkflowNotificationView: View {
   var body: some View {
     NotificationView(notificationPlacement.alignment) {
       let maxHeight = NSScreen.main?.visibleFrame.height ?? 700
-      WorkflowNotificationMatchesView(publisher: publisher)
-        .frame(
-          maxWidth: 250,
-          maxHeight: maxHeight - 64,
-          alignment: notificationPlacement.alignment
-        )
-        .fixedSize(horizontal: false, vertical: true)
-      HStack {
-        if let workflow = publisher.data.workflow {
-          workflow.iconView(24)
-        }
+      VStack(alignment: .trailing) {
+        WorkflowNotificationMatchesView(publisher: publisher)
+          .frame(
+            maxWidth: 250,
+            maxHeight: maxHeight - 64,
+            alignment: notificationPlacement.alignment
+          )
+          .fixedSize(horizontal: false, vertical: true)
+        HStack {
+          if let workflow = publisher.data.workflow {
+            workflow.iconView(24)
+          }
 
-        ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
-          WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: .readonly(false))
-          .transition(AnyTransition.moveAndFade.animation(Self.animation))
-        }
+          ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
+            WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: .readonly(false))
+              .transition(AnyTransition.moveAndFade.animation(Self.animation))
+          }
 
-        if let workflow = publisher.data.workflow {
-          Text(workflow.name)
-            .allowsTightening(true)
-            .minimumScaleFactor(0.8)
-            .bold()
-            .font(.footnote)
-            .lineLimit(1)
-            .padding(4)
-            .background(Color(nsColor: .windowBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .transition(AnyTransition.moveAndFade.animation(Self.animation))
+          if let workflow = publisher.data.workflow {
+            Text(workflow.name)
+              .allowsTightening(true)
+              .minimumScaleFactor(0.8)
+              .bold()
+              .font(.footnote)
+              .lineLimit(1)
+              .padding(4)
+              .background(Color(nsColor: .windowBackgroundColor))
+              .clipShape(RoundedRectangle(cornerRadius: 8))
+              .transition(AnyTransition.moveAndFade.animation(Self.animation))
+          }
         }
+        .roundedContainer(padding: 6, margin: 0)
       }
-      .roundedContainer(padding: 6, margin: 0)
     }
     .padding(4)
     .onReceive(publisher.$data, perform: { newValue in
@@ -222,6 +224,13 @@ extension Command {
     case .menuBar: MenuIconView(size: size)
     case .windowManagement: WindowManagementIconView(size: size)
     case .uiElement: UIElementIconView(size: size)
+    case .script(let command):
+      switch command.kind {
+      case .shellScript:
+        ScriptIconView(size: size)
+      case .appleScript:
+        placeholderView(size)
+      }
     case .application(let command):
       IconView(
         icon: .init(command.application),
