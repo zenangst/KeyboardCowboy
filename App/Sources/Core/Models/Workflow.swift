@@ -111,7 +111,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     case .keyboardShortcuts(let keyboardShortcutTrigger):
       clone.trigger = .keyboardShortcuts(keyboardShortcutTrigger.copy())
     case .snippet(let trigger):
-      clone.trigger = .snippet(trigger)
+      clone.trigger = .snippet(trigger.copy())
     case .none:
       break
     }
