@@ -62,9 +62,14 @@ struct MainWindow: Scene {
             core.contentCoordinator.handle(action)
             core.detailCoordinator.handle(action)
             focus = .detail(.name)
+          },
+          onNewCommand: { id in
+            onScene(.addCommand(id))
           }
         )
         .environmentObject(core.contentStore.groupStore)
+        .environmentObject(core.detailCoordinator.statePublisher)
+        .environmentObject(core.detailCoordinator.infoPublisher)
       }
 
       CommandGroup(replacing: .toolbar) {

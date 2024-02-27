@@ -125,6 +125,8 @@ struct KeyboardCowboy: App {
       } else {
         assertionFailure("Unable to find workflow group")
       }
+    case .addCommand(let workflowId):
+      openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflowId))
     }
   }
 

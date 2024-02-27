@@ -7,7 +7,6 @@ struct WorkflowCommandListView: View {
 
   @Binding private var isPrimary: Bool
   @State var isTargeted: Bool = false
-  @Environment(\.openWindow) private var openWindow
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
   private let onAction: (SingleDetailView.Action) -> Void
   private let publisher: CommandsPublisher
