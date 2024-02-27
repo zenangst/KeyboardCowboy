@@ -32,6 +32,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   @State private var replacing: KeyShortcut.ID?
   @State private var selectedColor: Color = .accentColor
   private let animation: Animation = .easeOut(duration: 0.2)
+  private let recordOnAppearIfEmpty: Bool
   private let draggableEnabled: Bool
   private let focusBinding: (KeyShortcut.ID) -> T
   private let onTab: (Bool) -> Void
@@ -44,6 +45,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
        draggableEnabled: Bool,
        state: CurrentState? = nil,
        selectionManager: SelectionManager<KeyShortcut>,
+       recordOnAppearIfEmpty: Bool = false,
        onTab: @escaping (Bool) -> Void) {
     self.focus = focus
     self.draggableEnabled = draggableEnabled
@@ -52,6 +54,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     self.focusBinding = focusBinding
     self.onTab = onTab
     self.selectionManager = selectionManager
+    self.recordOnAppearIfEmpty = recordOnAppearIfEmpty
   }
 
   var body: some View {
@@ -164,7 +167,11 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
         .padding(.trailing, 4)
       }
       .overlay(overlay(proxy))
-      .enableInjection()
+      .onAppear {
+        guard recordOnAppearIfEmpty, keyboardShortcuts.isEmpty else { return }
+
+        addButtonAction(proxy)
+      }
     }
     .onChange(of: controlActiveState, perform: { value in
       if value != .key {
@@ -189,6 +196,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
         break
       }
     })
+    .enableInjection()
   }
 
   private func rerecord(_ id: KeyShortcut.ID) {
@@ -246,6 +254,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
       isGlowing = true
       selectedColor = Color(.systemRed)
     }
+
     DispatchQueue.main.async {
       withAnimation(animation) {
         proxy.scrollTo(keyShortcut.id)
