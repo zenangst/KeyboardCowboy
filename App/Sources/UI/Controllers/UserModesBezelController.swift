@@ -7,10 +7,14 @@ final class UserModesBezelController {
   @MainActor
   static let shared = UserModesBezelController()
 
-  lazy var windowController: NSWindowController = NSWindowController(window: window)
-  lazy var window: NotificationPanel = {
+  private var windowController: NSWindowController
+  private var window: NotificationPanel<CurrentUserModesView>
+  private var debouncer: DebounceManager<[UserMode]>?
+  private var subscription: AnyCancellable?
+
+  private init() { 
     let content = CurrentUserModesView(publisher: UserSpace.shared.userModesPublisher)
-    return NotificationPanel(
+    let window =  NotificationPanel(
       animationBehavior: .utilityWindow,
       styleMask: [
         .borderless,
@@ -18,12 +22,10 @@ final class UserModesBezelController {
       ],
       content: content
     )
-  }()
 
-  private var debouncer: DebounceManager<[UserMode]>?
-  private var subscription: AnyCancellable?
+    self.window = window
+    self.windowController = NSWindowController(window: window)
 
-  private init() { 
     debouncer = DebounceManager(for: .milliseconds(250)) { [weak self] userModes in
       self?.publish(userModes)
     }
