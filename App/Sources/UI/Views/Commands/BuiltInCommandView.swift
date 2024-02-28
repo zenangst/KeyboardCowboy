@@ -48,6 +48,7 @@ struct BuiltInCommandView: View {
               model.name = newKind.displayValue
               model.kind = newKind
             }, label: {
+              Image(systemName: "record.circle")
               Text("Record Macro").font(.subheadline)
             })
 
@@ -57,6 +58,7 @@ struct BuiltInCommandView: View {
               model.name = newKind.displayValue
               model.kind = newKind
             }, label: {
+              Image(systemName: "minus.circle.fill")
               Text("Remove Macro").font(.subheadline)
             })
 
@@ -68,6 +70,7 @@ struct BuiltInCommandView: View {
                 model.kind = newKind
               },
               label: {
+                Image(systemName: "togglepower")
                 Text("Toggle User Mode").font(.subheadline)
               })
             Button(
@@ -77,7 +80,10 @@ struct BuiltInCommandView: View {
                 model.name = newKind.displayValue
                 model.kind = newKind
               },
-              label: { Text("Enable User Mode").font(.subheadline) })
+              label: {
+                Image(systemName: "lightswitch.on")
+                Text("Enable User Mode").font(.subheadline)
+              })
             Button(
               action: {
                 let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: true), .disable)
@@ -85,7 +91,10 @@ struct BuiltInCommandView: View {
                 model.name = newKind.displayValue
                 model.kind = newKind
               },
-              label: { Text("Disable User Mode").font(.subheadline) })
+              label: {
+                Image(systemName: "lightswitch.off")
+                Text("Disable User Mode").font(.subheadline)
+              })
           }, label: {
             Text(model.kind.displayValue)
               .font(.subheadline)
