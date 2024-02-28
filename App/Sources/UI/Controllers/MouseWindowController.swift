@@ -9,15 +9,18 @@ final class MouseModel: ObservableObject {
 final class MouseWindowController {
   static let shared = MouseWindowController()
 
-  lazy var model: MouseModel = MouseModel()
-  lazy var windowController: NSWindowController = {
+  private var model: MouseModel
+  private var windowController: NSWindowController
+
+  init() {
+    let model = MouseModel()
     let window = NotificationWindow(
       animationBehavior: .none,
-      content: MouseView(model: self.model)
+      content: MouseView(model: model)
     )
-    let windowController = NSWindowController(window: window)
-    return windowController
-  }()
+    self.model = model
+    self.windowController = NSWindowController(window: window)
+  }
 
   func post(_ rect: CGRect) {
     model.rect = rect
