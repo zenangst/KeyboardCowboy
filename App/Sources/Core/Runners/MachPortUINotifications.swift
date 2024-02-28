@@ -18,9 +18,12 @@ final class MachPortUINotifications {
     shouldReset = true
     if case .keyboardShortcuts(let trigger) = workflow.trigger {
       Task { @MainActor in
-        WorkflowNotificationController.shared.post(.init(id: workflow.id,
-                                                         workflow: workflow,
-                                                         keyboardShortcuts: trigger.shortcuts))
+        WorkflowNotificationController.shared.post(
+          WorkflowNotificationViewModel(
+            id: workflow.id,
+            workflow: workflow,
+            keyboardShortcuts: trigger.shortcuts),
+          scheduleDismiss: true)
       }
     }
   }
@@ -35,14 +38,18 @@ final class MachPortUINotifications {
         keyboardShortcuts.append(.init(id: "spacer", key: "="))
         keyboardShortcuts.append(contentsOf: command.keyboardShortcuts)
       }
-      WorkflowNotificationController.shared.post(.init(id: workflow.id,
-                                                       workflow: nil,
-                                                       keyboardShortcuts: keyboardShortcuts))
+      WorkflowNotificationController.shared.post(
+        WorkflowNotificationViewModel(
+          id: workflow.id,
+          workflow: nil,
+          keyboardShortcuts: keyboardShortcuts),
+        scheduleDismiss: true)
     }
   }
 
   func notifyBundles(_ match: PartialMatch) {
     guard notificationBundles else { return }
+
     shouldReset = true
     let splits = match.rawValue.split(separator: "+")
     let prefix = splits.count - 1
@@ -55,10 +62,14 @@ final class MachPortUINotifications {
         .sorted(by: { $0.name < $1.name })
 
       Task { @MainActor in
-        WorkflowNotificationController.shared.post(.init(id: workflow.id,
-                                                         matches: sortedMatches,
-                                                         glow: true,
-                                                         keyboardShortcuts: shortcuts))
+        WorkflowNotificationController.shared.cancelReset()
+        WorkflowNotificationController.shared.post(
+          WorkflowNotificationViewModel(
+            id: workflow.id,
+            matches: sortedMatches,
+            glow: true,
+            keyboardShortcuts: shortcuts), 
+          scheduleDismiss: false)
       }
     }
   }
@@ -67,10 +78,15 @@ final class MachPortUINotifications {
     guard shouldReset else { return }
     shouldReset = false
     Task { @MainActor in
-      WorkflowNotificationController.shared.post(.init(id: UUID().uuidString,
-                                                       matches: [],
-                                                       glow: false,
-                                                       keyboardShortcuts: []))
+      WorkflowNotificationController.shared.post(
+        WorkflowNotificationViewModel(
+          id: UUID().uuidString,
+          matches: [],
+          glow: false,
+          keyboardShortcuts: []
+        ),
+        scheduleDismiss: false
+      )
     }
   }
 

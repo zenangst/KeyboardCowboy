@@ -10,6 +10,8 @@ final class WorkflowNotificationController: ObservableObject {
     keyboardShortcuts: []
   )
 
+  private var workItem: DispatchWorkItem?
+
   lazy var windowController: NSWindowController = {
     let content = WorkflowNotificationView(publisher: publisher)
     let window = NotificationPanel(animationBehavior: .utilityWindow, content: content)
@@ -21,17 +23,26 @@ final class WorkflowNotificationController: ObservableObject {
 
   private init() { }
 
+  func cancelReset() {
+    workItem?.cancel()
+  }
+
   func reset() {
+    workItem?.cancel()
     Task { @MainActor in
-      WorkflowNotificationController.shared.post(.init(id: UUID().uuidString,
-                                                       matches: [],
-                                                       glow: false,
-                                                       keyboardShortcuts: []))
+      WorkflowNotificationController.shared.post(
+        WorkflowNotificationViewModel(
+          id: UUID().uuidString,
+          matches: [],
+          glow: false,
+          keyboardShortcuts: []), scheduleDismiss: false)
     }
   }
 
-  func post(_ notification: WorkflowNotificationViewModel) {
+  func post(_ notification: WorkflowNotificationViewModel, scheduleDismiss: Bool) {
     guard notification != publisher.data else { return }
+
+    workItem?.cancel()
 
     Task { @MainActor [publisher, windowController] in
       withAnimation(WorkflowNotificationView.animation) {
@@ -39,5 +50,12 @@ final class WorkflowNotificationController: ObservableObject {
       }
       windowController.showWindow(nil)
     }
+
+    guard scheduleDismiss else { return }
+
+    workItem = DispatchWorkItem { [weak self] in
+      self?.reset()
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem!)
   }
 }
