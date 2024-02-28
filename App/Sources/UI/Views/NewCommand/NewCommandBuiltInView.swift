@@ -84,10 +84,21 @@ struct NewCommandBuiltInView: View {
 
   func userMode() -> some View {
     HStack {
+      UserModeIconView(size: 24)
+
       Menu(content: {
-        Button(action: { kindSelection = .userMode(userModeSelection, .toggle) }, label: { Text("Toggle") })
-        Button(action: { kindSelection = .userMode(userModeSelection, .enable) }, label: { Text("Enable") })
-        Button(action: { kindSelection = .userMode(userModeSelection, .disable) }, label: { Text("Disable") })
+        Button(action: { kindSelection = .userMode(userModeSelection, .toggle) }, label: {
+          Image(systemName: "togglepower")
+          Text("Toggle")
+        })
+        Button(action: { kindSelection = .userMode(userModeSelection, .enable) }, label: {
+          Image(systemName: "lightswitch.on")
+          Text("Enable")
+        })
+        Button(action: { kindSelection = .userMode(userModeSelection, .disable) }, label: {
+          Image(systemName: "lightswitch.off")
+          Text("Disable")
+        })
       }, label: {
         Text(kindSelection.displayValue)
       })
