@@ -97,7 +97,7 @@ struct WorkflowCommandListScrollView: View {
           case .keyboardShortcuts:
             focus.wrappedValue = .detail(.keyboardShortcuts)
           case .snippet:
-            focus.wrappedValue = .detail(.addAppTrigger)
+            focus.wrappedValue = .detail(.addSnippetTrigger)
           case .empty:
             focus.wrappedValue = .detail(.addAppTrigger)
           }

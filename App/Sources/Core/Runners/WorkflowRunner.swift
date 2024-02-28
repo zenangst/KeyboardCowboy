@@ -7,7 +7,7 @@ final class WorkflowRunner: @unchecked Sendable {
   private let store: KeyCodesStore
   private let notifications: MachPortUINotifications
 
-  private var workItem: DispatchWorkItem?
+
 
   init(commandRunner: CommandRunner, store: KeyCodesStore, 
        notifications: MachPortUINotifications) {
@@ -16,14 +16,9 @@ final class WorkflowRunner: @unchecked Sendable {
     self.notifications = notifications
   }
 
-  func cancelWorkItem() {
-    workItem?.cancel()
-  }
-
   func run(_ workflow: Workflow, for shortcut: KeyShortcut,
            executionOverride: Workflow.Execution? = nil,
            machPortEvent: MachPortEvent, repeatingEvent: Bool) {
-    workItem?.cancel()
     notifications.notifyRunningWorkflow(workflow)
     let commands = workflow.commands.filter(\.isEnabled)
 
@@ -55,10 +50,5 @@ final class WorkflowRunner: @unchecked Sendable {
                               shortcut: shortcut, machPortEvent: machPortEvent,
                               repeatingEvent: repeatingEvent)
     }
-
-    workItem = DispatchWorkItem { [notifications] in
-      notifications.reset()
-    }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem!)
   }
 }

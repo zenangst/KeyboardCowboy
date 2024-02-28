@@ -254,7 +254,6 @@ final class MachPortCoordinator {
 
       if machPortEvent.type == .keyDown {
         notifications.notifyBundles(partialMatch)
-        workflowRunner.cancelWorkItem()
         previousPartialMatch = partialMatch
       }
     case .exact(let workflow):
