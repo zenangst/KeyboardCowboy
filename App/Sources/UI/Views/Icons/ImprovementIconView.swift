@@ -15,8 +15,9 @@ struct ImprovementIconView: View {
       .overlay { iconBorder(size) }
       .overlay {
         LinearGradient(stops: [
-          .init(color: Color(.systemYellow), location: 0),
-          .init(color: Color.orange, location: 1)
+          .init(color: Color(.systemYellow), location: 0.25),
+          .init(color: Color.orange, location: 0.75),
+          .init(color: Color(.systemRed), location: 1)
         ], startPoint: .top, endPoint: .bottom)
         .mask {
           VStack(alignment: .leading, spacing: 0) {
@@ -34,7 +35,6 @@ struct ImprovementIconView: View {
           }
         }
         .padding(size * 0.05)
-        .shadow(color: Color(.systemYellow), radius: 3, y: 1)
       }
       .iconShape(size)
       .frame(width: size, height: size)

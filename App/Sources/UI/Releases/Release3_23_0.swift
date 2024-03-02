@@ -104,6 +104,16 @@ struct Release3_23_0: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
               }
+
+              HStack(alignment: .top, spacing: 12) {
+                UIImprovementIconView(size: 24)
+                VStack(spacing: 12) {
+                  Text("The User Modes have been move to the bottom of the sidebar")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+              }
+
+              
             }
             .font(Font.system(.caption2, design: .rounded))
             .frame(maxWidth: .infinity, alignment: .leading)
