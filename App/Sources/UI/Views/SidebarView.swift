@@ -57,10 +57,6 @@ struct SidebarView: View {
       }
       .padding([.leading, .top, .trailing], 12)
 
-      UserModesView { action in
-        onAction(.userMode(action))
-      }.padding([.leading, .top, .trailing], 12)
-
       HStack {
         ZenLabel(.sidebar) { Text("Groups") }
         Spacer()
@@ -91,6 +87,12 @@ struct SidebarView: View {
           onAction(.copyWorkflows(workflowIds: workflowIds, groupId: groupId))
         }
       }
+
+      UserModesView { action in
+        onAction(.userMode(action))
+      }
+      .padding(.horizontal, 12)
+      .padding(.vertical, 4)
     }
     .enableInjection()
   }
