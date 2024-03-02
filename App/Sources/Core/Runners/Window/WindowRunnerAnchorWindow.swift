@@ -14,11 +14,11 @@ enum WindowRunnerAnchorWindow {
 
     let maxWidth = round(currentScreen.frame.width / 1.5) - paddingOffset * 1.5
     let midWidth = round(currentScreen.frame.width / 2) - paddingOffset * 1.5
-    let minWidth = round(currentScreen.frame.width / 3) - paddingOffset * 1.5
+    let minWidth = maxWidth - round((currentScreen.frame.width - (paddingOffset / 2)) / 3)
 
     let maxHeight = round(currentScreen.frame.height / 1.5) - paddingOffset * 1.5
     let midHeight = round(currentScreen.frame.height / 2) - paddingOffset * 1.5
-    let minHeight = round(currentScreen.frame.height / 3) - paddingOffset * 1.5
+    let minHeight = maxHeight - round((currentScreen.frame.height - (paddingOffset / 2)) / 3)
 
     var width: CGFloat
     var height: CGFloat
