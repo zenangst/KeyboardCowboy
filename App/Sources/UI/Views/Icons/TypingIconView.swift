@@ -2,10 +2,17 @@ import Bonzai
 import SwiftUI
 
 struct TypingIconView: View {
-  let text = """
-Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The round pegs in the square holes. The ones who see things differently.
-""".split(separator: " ").map(String.init)
-  let highlights: [Int] = [3,4, 6, 8, 10, 22, 23]
+  let contents: [TextContent] = [
+    TextContent(text: "Here’s to the crazy ones.", highlightedWords: [3, 4]),
+    TextContent(text: "The misfits. The rebels.", highlightedWords: [1, 3]),
+    TextContent(text: "The troublemakers.", highlightedWords: [1]),
+    TextContent(text: "The round pegs in the", highlightedWords: [2]),
+    TextContent(text: "square holes.", highlightedWords: [1, 2]),
+    TextContent(text: "The ones", highlightedWords: [0]),
+    TextContent(text: "who see", highlightedWords: [0]),
+    TextContent(text: "things", highlightedWords: []),
+    TextContent(text: "differently.", highlightedWords: [0]),
+  ]
   let size: CGFloat
 
   var body: some View {
@@ -48,30 +55,38 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
           Rectangle()
             .fill(Color(.black).opacity(0.25))
             .frame(height: 1)
+
+          Rectangle()
+            .fill(Color(.black).opacity(0.25))
+            .frame(height: 1)
+
+          Rectangle()
+            .fill(Color(.black).opacity(0.25))
+            .frame(height: 1)
         }
         .padding(.top, size * 0.11)
       }
-      .overlay(alignment: .center) {
-        FlowLayout(
-          itemSpacing: size * 0.0_16,
-          lineSpacing: size * 0.0_2,
-          minSize: .init(width: size, height: size)
-        ) {
-          ForEach(Array(zip(text.indices, text)), id: \.0) { index, element in
-            Text(element)
-              .foregroundStyle(Color.black)
-              .font(.system(size: size * 0.0_67))
-              .fontDesign(.rounded)
-              .overlay {
-                RoundedRectangle(cornerRadius: size * 0.0_25)
-                  .fill(color(for: index, total: text.count))
-                  .padding(.vertical, size * 0.0_11)
+      .overlay(alignment: .topLeading) {
+        VStack(alignment: .leading, spacing: size * 0.005) {
+          ForEach(contents, id: \.words) { content in
+            HStack(spacing: size * 0.0_1) {
+              ForEach(Array(zip(content.words.indices, content.words)), id: \.1) { offset, word in
+                Text(word)
+                  .overlay {
+                    RoundedRectangle(cornerRadius: size * 0.0_25)
+                      .fill(color(for: offset, highlights: content.highlightedWords))
+                      .padding(.vertical, size * 0.0_11)
+                  }
               }
-              .compositingGroup()
-              .padding(.top, 0.6)
+            }
+            .allowsTightening(true)
+            .foregroundStyle(Color.black)
+            .font(.system(size: size * 0.0_67))
+            .fontDesign(.rounded)
+            .compositingGroup()
           }
         }
-        .padding(.leading, size * 0.05)
+        .padding([.top, .leading], size * 0.11)
       }
       .overlay(alignment: .bottomTrailing) {
         Image(systemName: "character.cursor.ibeam")
@@ -103,7 +118,7 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
       .iconShape(size)
   }
 
-  private func color(for index: Int, total: Int) -> Color {
+  private func color(for index: Int, highlights: [Int]) -> Color {
     highlights.contains(index)
     ? Color(.systemYellow).opacity(0.4) // Color(nsColor: .controlAccentColor.withSystemEffect(.disabled))
     : Color.clear
@@ -124,4 +139,16 @@ Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The roun
   }
   .padding()
 
+}
+
+struct TextContent {
+  let words: [String]
+  let highlightedWords: [Int]
+
+  init(text: String, highlightedWords: [Int]) {
+    self.words = text
+      .split(separator: " ")
+      .map(String.init)
+    self.highlightedWords = highlightedWords
+  }
 }
