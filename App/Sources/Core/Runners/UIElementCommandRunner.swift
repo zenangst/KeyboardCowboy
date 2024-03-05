@@ -15,26 +15,29 @@ final class UIElementCommandRunner {
   private var restore: [Int32: Bool] = [:]
 
   func run(_ command: UIElementCommand) async throws {
-//    var counter = 0
-//    let start = CACurrentMediaTime()
-//    defer {
-//      print("⏱️ UIElementCommandRunner.run(\(counter)): \(CACurrentMediaTime() - start)")
-//    }
+    guard let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier else { return }
+    //    var counter = 0
+    //    let start = CACurrentMediaTime()
+    //    defer {
+    //      print("⏱️ UIElementCommandRunner.run(\(counter)): \(CACurrentMediaTime() - start)")
+    //    }
 
-    if let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier {
-      let app = AppAccessibilityElement(pid)
-      if let appEnhancedUserInterface = app.enhancedUserInterface {
-        app.enhancedUserInterface = true
-        if restore[pid] == nil {
-          restore[pid] = appEnhancedUserInterface
-        }
-      }
-      _ = AXUIElementSetAttributeValue(app.reference, "AXManualAccessibility" as CFString, true as CFTypeRef)
-      try await Task.sleep(for: .milliseconds(75))
+    let app = AppAccessibilityElement(pid)
+    if let appEnhancedUserInterface = app.enhancedUserInterface {
+      app.enhancedUserInterface = true
+      if restore[pid] == nil { restore[pid] = appEnhancedUserInterface }
+    }
+    _ = AXUIElementSetAttributeValue(app.reference, "AXManualAccessibility" as CFString, true as CFTypeRef)
+    try await Task.sleep(for: .milliseconds(75))
+
+    let focusedWindow: WindowAccessibilityElement?
+    do {
+      focusedWindow = try systemElement.focusedUIElement().window
+    } catch {
+      focusedWindow = try app.focusedWindow()
     }
 
-    let focusedElement = try systemElement.focusedUIElement()
-    guard let focusedWindow = focusedElement.window,
+    guard let focusedWindow = focusedWindow,
           let screen = NSScreen.main else {
       throw UIElementCommandRunnerError.unableToFindWindow
     }
