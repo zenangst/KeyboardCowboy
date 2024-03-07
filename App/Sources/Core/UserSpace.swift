@@ -362,9 +362,9 @@ fileprivate extension NSRunningApplication {
           path: userSpaceApplication.path
         )
       } else if let name = localizedName,
-                let path = bundleURL?.path() {
+                let path = bundleURL?.path().removingPercentEncoding {
 
-        UserSpace.cache[bundleIdentifier] = .init(
+        UserSpace.cache[bundleIdentifier] = RunningApplicationCache(
           name: name,
           path: path,
           bundleIdentifier: bundleIdentifier
