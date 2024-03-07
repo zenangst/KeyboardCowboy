@@ -243,7 +243,7 @@ final class WindowCommandRunner {
     var focusedElement: AnyFocusedAccessibilityElement
     let focusedWindow: WindowAccessibilityElement?
     do {
-      focusedElement = try systemElement.focusedUIElement()
+      focusedElement = try systemElement.focusedUIElement(0.00275)
       if let focusedApp = focusedElement.app {
         focusedWindow = try focusedApp.focusedWindow()
       } else {

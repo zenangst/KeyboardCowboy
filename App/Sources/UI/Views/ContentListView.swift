@@ -178,7 +178,7 @@ struct ContentListView: View {
             }
             Color(.clear)
               .id("bottom")
-              .padding(.bottom, 48)
+              .padding(.bottom, 24)
           }
           .onAppear {
             DispatchQueue.main.async {

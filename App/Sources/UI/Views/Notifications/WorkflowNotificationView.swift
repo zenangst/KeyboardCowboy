@@ -56,6 +56,7 @@ struct WorkflowNotificationView: View {
         HStack {
           if let workflow = publisher.data.workflow {
             workflow.iconView(24)
+              .drawingGroup()
           }
 
           ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
@@ -236,10 +237,7 @@ extension Command {
         icon: .init(command.application),
         size: .init(width: 32, height: 32)
       )
-      .frame(width: size, height: size)
-      .fixedSize()
       .iconShape(size)
-      .id(command.id)
     case .text(let command):
       switch command.kind {
       case .insertText: TypingIconView(size: size)

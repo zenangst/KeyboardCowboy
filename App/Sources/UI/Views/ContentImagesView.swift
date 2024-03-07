@@ -23,8 +23,9 @@ struct ContentImagesView: View {
         .frame(width: size, height: size)
       } else {
         ZStack(alignment: .center) {
-          ForEach(Array(zip(images.indices, images)), id: \.1.id) { index, image in
+          ForEach(images) { image in
             ContentImageView(image: image, size: size, stacked: $stacked)
+              .drawingGroup()
           }
         }
         .frame(width: size, height: size)
