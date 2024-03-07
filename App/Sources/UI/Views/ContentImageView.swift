@@ -1,3 +1,4 @@
+import Bonzai
 import SwiftUI
 
 struct ContentImageView: View {
@@ -9,7 +10,7 @@ struct ContentImageView: View {
   var body: some View {
     switch image.kind {
     case .icon(let icon):
-      ContentIconImageView(icon: icon, size: size)
+      IconView(icon: icon, size: .init(width: size, height: size))
     case .command(let kind):
       switch kind {
       case .application, .open:
