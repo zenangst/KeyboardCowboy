@@ -169,6 +169,8 @@ final class MachPortCoordinator {
           for element in macro {
             switch element {
             case .event(let machPortEvent):
+              if machPortEvent.keyCode == kVK_Return { try await Task.sleep(for: .milliseconds(250)) }
+
               try machPort?.post(Int(machPortEvent.keyCode), type: .keyDown, flags: machPortEvent.event.flags)
               try machPort?.post(Int(machPortEvent.keyCode), type: .keyUp, flags: machPortEvent.event.flags)
             case .workflow(let workflow):
@@ -184,12 +186,11 @@ final class MachPortCoordinator {
                     }
                   }
                 }
-
               } else {
                 workflowRunner.run(workflow, for: keyboardShortcutCopy,
                                    executionOverride: .serial,
                                    machPortEvent: machPortEvent, repeatingEvent: false)
-                try await Task.sleep(for: .milliseconds(5))
+                try await Task.sleep(for: .milliseconds(175))
               }
             }
           }
