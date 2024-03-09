@@ -45,6 +45,19 @@ struct KeyboardCommand: MetaDataProviding {
 
     self.keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
   }
+
+  func copy() -> KeyboardCommand {
+    KeyboardCommand(id: UUID().uuidString,
+                    name: meta.name,
+                    keyboardShortcuts: keyboardShortcuts.copy(),
+                    notification: meta.notification)
+  }
+}
+
+extension Collection where Element == KeyShortcut {
+  func copy() -> [KeyShortcut] {
+    map { $0.copy() }
+  }
 }
 
 extension KeyboardCommand {

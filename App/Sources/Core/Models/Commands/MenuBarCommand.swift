@@ -45,4 +45,12 @@ struct MenuBarCommand: MetaDataProviding {
     self.tokens = try container.decode([Token].self, forKey: .tokens)
     self.application = try container.decodeIfPresent(Application.self, forKey: .application)
   }
+
+  func copy() -> MenuBarCommand {
+    MenuBarCommand(id: UUID().uuidString,
+                   name: meta.name,
+                   application: application,
+                   tokens: tokens,
+                   notification: meta.notification)
+  }
 }

@@ -166,7 +166,6 @@ extension Workflow {
       ForEach(Array(zip(enabledCommands.indices, enabledCommands)), id: \.1.id) { offset, command in
         let realtiveOffset = CGFloat(enabledCommands.count) - CGFloat(offset)
         command.iconView(size)
-          .fixedSize()
           .scaleEffect(1 - realtiveOffset * 0.1)
           .offset(y: -realtiveOffset * 2.0)
           .id(command.id)
@@ -190,7 +189,7 @@ struct PlaceholderIconView: View {
 
 extension Command {
   func placeholderView(_ size: CGFloat) -> some View {
-    PlaceholderIconView(size: size)
+    PlaceholderIconView(size: 32)
   }
 
   @MainActor @ViewBuilder
@@ -245,6 +244,17 @@ extension Command {
     case .keyboard(let model):
       let letters = model.keyboardShortcuts.map(\.key).joined()
       KeyboardIconView(letters, size: size)
+    case .open(let command):
+      if let application = command.application {
+        IconView(
+          icon: .init(application),
+          size: .init(width: 32, height: 32)
+        )
+        .iconShape(size)
+
+      } else {
+        placeholderView(size)
+      }
     default:
       placeholderView(size)
     }

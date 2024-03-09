@@ -199,4 +199,14 @@ struct WindowCommand: MetaDataProviding {
     self.animationDuration = try container.decodeIfPresent(Double.self, forKey: .animationDuration) ?? 0
     self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
+
+  func copy() -> WindowCommand {
+    return WindowCommand(
+      id: UUID().uuidString,
+      name: meta.name,
+      kind: kind,
+      notification: meta.notification,
+      animationDuration: animationDuration
+    )
+  }
 }

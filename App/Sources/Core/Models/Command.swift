@@ -88,6 +88,14 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       self.isEnabled = isEnabled
       self.notification = notification
     }
+
+    func copy() -> MetaData {
+      MetaData(delay: self.delay,
+               id: UUID().uuidString,
+               name: self.name,
+               isEnabled: self.isEnabled,
+               notification: self.notification)
+    }
   }
 
   var meta: MetaData {
@@ -270,7 +278,34 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
 
   func copy(appendCopyToName: Bool = true) -> Self {
     var clone = self
-    clone.id = UUID().uuidString
+
+    switch self {
+    case .application(let applicationCommand):
+      clone = .application(applicationCommand.copy())
+    case .builtIn(let builtInCommand):
+      clone = .builtIn(builtInCommand.copy())
+    case .keyboard(let keyboardCommand):
+      clone = .keyboard(keyboardCommand.copy())
+    case .mouse(let mouseCommand):
+      clone = .mouse(mouseCommand.copy())
+    case .menuBar(let menuBarCommand):
+      clone = .menuBar(menuBarCommand.copy())
+    case .open(let openCommand):
+      clone = .open(openCommand.copy())
+    case .shortcut(let shortcutCommand):
+      clone = .shortcut(shortcutCommand.copy())
+    case .script(let scriptCommand):
+      clone = .script(scriptCommand.copy())
+    case .text(let textCommand):
+      clone = .text(textCommand.copy())
+    case .systemCommand(let systemCommand):
+      clone = .systemCommand(systemCommand.copy())
+    case .uiElement(let uIElementCommand):
+      clone = .uiElement(uIElementCommand.copy())
+    case .windowManagement(let windowCommand):
+      clone = .windowManagement(windowCommand.copy())
+    }
+
     return clone
   }
 }

@@ -61,4 +61,12 @@ struct ScriptCommand: MetaDataProviding {
       self.meta = Command.MetaData(id: id, name: name, isEnabled: isEnabled, notification: false)
     }
   }
+
+  func copy() -> ScriptCommand {
+    ScriptCommand(id: UUID().uuidString,
+                  name: meta.name,
+                  kind: kind,
+                  source: source,
+                  notification: meta.notification)
+  }
 }

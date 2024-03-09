@@ -73,4 +73,8 @@ struct BuiltInCommand: MetaDataProviding {
     }
     self.kind = try container.decode(BuiltInCommand.Kind.self, forKey: .kind)
   }
+
+  func copy() -> BuiltInCommand {
+    BuiltInCommand(id: UUID().uuidString, kind: kind, notification: meta.notification)
+  }
 }
