@@ -79,4 +79,11 @@ struct SystemCommand: MetaDataProviding {
       self.meta = try MetaDataMigrator.migrate(decoder)
     }
   }
+
+  func copy() -> SystemCommand {
+    SystemCommand(id: UUID().uuidString,
+                   name: meta.name,
+                   kind: kind,
+                   notification: meta.notification)
+  }
 }

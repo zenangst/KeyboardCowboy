@@ -58,6 +58,15 @@ struct ApplicationCommand: MetaDataProviding {
       self.meta = try MetaDataMigrator.migrate(decoder)
     }
   }
+
+  func copy() -> ApplicationCommand {
+    ApplicationCommand(id: UUID().uuidString,
+                       name: meta.name,
+                       action: action,
+                       application: application,
+                       modifiers: Array(modifiers),
+                       notification: meta.notification)
+  }
 }
 
 extension ApplicationCommand {

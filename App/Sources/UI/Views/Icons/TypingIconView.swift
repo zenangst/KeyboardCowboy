@@ -68,13 +68,13 @@ struct TypingIconView: View {
       }
       .overlay(alignment: .topLeading) {
         VStack(alignment: .leading, spacing: size * 0.005) {
-          ForEach(contents, id: \.words) { content in
+          ForEach(contents) { content in
             HStack(spacing: size * 0.0_1) {
-              ForEach(Array(zip(content.words.indices, content.words)), id: \.1) { offset, word in
-                Text(word)
+              ForEach(content.words) { word in
+                Text(word.content)
                   .overlay {
                     RoundedRectangle(cornerRadius: size * 0.0_25)
-                      .fill(color(for: offset, highlights: content.highlightedWords))
+                      .fill(color(for: word.offset, highlights: content.highlightedWords))
                       .padding(.vertical, size * 0.0_11)
                   }
               }
@@ -141,14 +141,32 @@ struct TypingIconView: View {
 
 }
 
-struct TextContent {
-  let words: [String]
+struct TextContent: Identifiable {
+  let id: String
+  let words: [Word]
   let highlightedWords: [Int]
 
   init(text: String, highlightedWords: [Int]) {
+    self.id = UUID().uuidString
     self.words = text
       .split(separator: " ")
-      .map(String.init)
+      .enumerated()
+      .map { offset, element in
+        Word(String(element), offset: offset)
+      }
+
     self.highlightedWords = highlightedWords
+  }
+
+  struct Word: Identifiable {
+    let id: String
+    let offset: Int
+    let content: String
+
+    init(_ content: String, offset: Int) {
+      self.id = UUID().uuidString
+      self.offset = offset
+      self.content = content
+    }
   }
 }

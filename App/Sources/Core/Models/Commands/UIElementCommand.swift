@@ -125,6 +125,10 @@ struct UIElementCommand: MetaDataProviding {
       self.properties = properties
       self.kind = kind
     }
+
+    func copy() -> Predicate {
+      Predicate(value: value, compare: compare, kind: kind, properties: properties)
+    }
   }
 
   var placeholder: String {
@@ -138,5 +142,15 @@ struct UIElementCommand: MetaDataProviding {
   init(meta: Command.MetaData = .init(), predicates: [Predicate]) {
     self.meta = meta
     self.predicates = predicates
+  }
+
+  func copy() -> UIElementCommand {
+    UIElementCommand(meta: meta.copy(), predicates: predicates.copy())
+  }
+}
+
+extension Collection where Element == UIElementCommand.Predicate {
+  func copy() -> [UIElementCommand.Predicate] {
+    map { $0.copy() }
   }
 }

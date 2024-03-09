@@ -46,6 +46,14 @@ struct OpenCommand: MetaDataProviding {
       self.meta = try MetaDataMigrator.migrate(decoder)
     }
   }
+
+  func copy() -> OpenCommand {
+    OpenCommand(id: UUID().uuidString,
+                name: meta.name,
+                application: application,
+                path: path,
+                notification: meta.notification)
+  }
 }
 
 extension OpenCommand {

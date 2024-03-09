@@ -3,6 +3,12 @@ import Foundation
 struct TextCommand: MetaDataProviding {
   enum Kind: Codable, Hashable {
     case insertText(TypeCommand)
+
+    func copy() -> Self {
+      switch self {
+      case .insertText(let command): .insertText(command.copy())
+      }
+    }
   }
 
   var meta: Command.MetaData {
@@ -60,5 +66,13 @@ struct TextCommand: MetaDataProviding {
         self.meta = try MetaDataMigrator.migrate(decoder)
       }
     }
+
+    func copy() -> TypeCommand {
+      TypeCommand(input, mode: mode, meta: meta.copy())
+    }
+  }
+
+  func copy() -> TextCommand {
+    TextCommand(kind.copy())
   }
 }

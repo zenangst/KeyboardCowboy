@@ -20,6 +20,14 @@ struct ShortcutCommand: MetaDataProviding {
     }
   }
 
+  func copy() -> ShortcutCommand {
+    ShortcutCommand(id: UUID().uuidString,
+                    shortcutIdentifier: shortcutIdentifier,
+                    name: meta.name,
+                    isEnabled: meta.isEnabled,
+                    notification: meta.notification)
+  }
+
   static func empty() -> ShortcutCommand {
     ShortcutCommand(id: UUID().uuidString,
                     shortcutIdentifier: "Shortcut", name: "Shortcut",
