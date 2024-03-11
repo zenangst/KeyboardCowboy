@@ -27,6 +27,7 @@ struct KeyBackgroundView: View {
           .init(color: Color(.windowBackgroundColor), location: 1.0),
         ], startPoint: .top, endPoint: .bottom)
       }
+      .drawingGroup(opaque: true)
       .iconShape(height * 0.8)
   }
 }

@@ -25,8 +25,10 @@ struct BugFixIconView: View {
         .frame(width: size * 0.6)
         .shadow(radius: 2)
       }
-      .iconShape(size)
       .frame(width: size, height: size)
+      .fixedSize()
+      .drawingGroup(opaque: true)
+      .iconShape(size)
   }
 }
 

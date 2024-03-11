@@ -4,7 +4,6 @@ import SwiftUI
 struct UIElementIconView: View {
   let size: CGFloat
 
-  @ObserveInjection var inject
   var body: some View {
     Rectangle()
       .fill(Color(.systemBlue))
@@ -75,8 +74,8 @@ struct UIElementIconView: View {
     .compositingGroup()
     .frame(width: size, height: size)
     .fixedSize()
+    .drawingGroup(opaque: true)
     .iconShape(size)
-    .enableInjection()
   }
 
   func mask() -> LinearGradient {
