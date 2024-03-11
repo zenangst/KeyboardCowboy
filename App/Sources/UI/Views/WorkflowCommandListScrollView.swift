@@ -46,7 +46,7 @@ struct WorkflowCommandListScrollView: View {
           })
           .dropDestination(CommandListDropItem.self,
                            color: .accentColor,
-                           kind: $dropKind,
+                           kind: dropKind,
                            onDrop: { items, location in
             var urls = [URL]()
             for item in items {
