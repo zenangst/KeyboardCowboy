@@ -13,7 +13,7 @@ struct ShortcutCommandView: View {
   }
 
   @EnvironmentObject var shortcutStore: ShortcutStore
-  @State var metaData: CommandViewModel.MetaData
+  private let metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.ShortcutModel
 
   private let iconSize: CGSize
@@ -24,8 +24,8 @@ struct ShortcutCommandView: View {
        model: CommandViewModel.Kind.ShortcutModel,
        iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
-    _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
+    self.metaData = metaData
     self.iconSize = iconSize
     self.onAction = onAction
     self.debounce = DebounceManager(for: .milliseconds(500), onUpdate: { value in
@@ -34,7 +34,7 @@ struct ShortcutCommandView: View {
   }
   
   var body: some View {
-    CommandContainerView($metaData, placeholder: model.placeholder, icon: { metaData in
+    CommandContainerView(metaData, placeholder: model.placeholder, icon: { metaData in
       ZStack {
         IconView(icon: .init(bundleIdentifier: "/System/Applications/Shortcuts.app",
                              path: "/System/Applications/Shortcuts.app"),

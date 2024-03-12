@@ -16,7 +16,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
                                                                           SubContent: View {
   private let placeholder: String
 
-  @Binding private var metaData: CommandViewModel.MetaData
+  @State private var metaData: CommandViewModel.MetaData
   @ViewBuilder
   private let icon: (Binding<CommandViewModel.MetaData>) -> IconContent
   @ViewBuilder
@@ -25,13 +25,13 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   private let subContent: (Binding<CommandViewModel.MetaData>) -> SubContent
   private let onAction: (CommandContainerAction) -> Void
 
-  init(_ metaData: Binding<CommandViewModel.MetaData>,
+  init(_ metaData: CommandViewModel.MetaData,
        placeholder: String,
        @ViewBuilder icon: @escaping (Binding<CommandViewModel.MetaData>) -> IconContent,
        @ViewBuilder content: @escaping (Binding<CommandViewModel.MetaData>) -> Content,
        @ViewBuilder subContent: @escaping (Binding<CommandViewModel.MetaData>) -> SubContent,
        onAction: @escaping (CommandContainerAction) -> Void) {
-    _metaData = metaData
+    _metaData = .init(initialValue: metaData)
     self.icon = icon
     self.placeholder = placeholder
     self.content = content
@@ -192,7 +192,7 @@ struct CommandContainerView_Previews: PreviewProvider {
 
   static var previews: some View {
     CommandContainerView(
-      .constant(command.model.meta),
+      command.model.meta,
       placeholder: "Placeholder",
       icon: { _ in
         Text("Icon")

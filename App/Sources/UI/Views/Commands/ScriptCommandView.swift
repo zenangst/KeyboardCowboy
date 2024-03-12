@@ -12,7 +12,7 @@ struct ScriptCommandView: View {
     case edit
     case commandAction(CommandContainerAction)
   }
-  @State private var metaData: CommandViewModel.MetaData
+  private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.ScriptModel
   private let iconSize: CGSize
   private let onAction: (Action) -> Void
@@ -21,19 +21,20 @@ struct ScriptCommandView: View {
        model: CommandViewModel.Kind.ScriptModel,
        iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
-    _metaData = .init(initialValue: metaData)
+    self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($metaData,
-                         placeholder: model.placeholder,
-                         icon: { _ in ScriptIconView(size: iconSize.width) },
-                         content: { _ in ScriptCommandContentView(model, onAction: onAction) },
-                         subContent: { _ in ScriptCommandSubContentView(model: model, onAction: onAction) },
-                         onAction: { onAction(.commandAction($0)) })
+    CommandContainerView(
+      metaData,
+      placeholder: model.placeholder,
+      icon: { _ in ScriptIconView(size: iconSize.width) },
+      content: { _ in ScriptCommandContentView(model, onAction: onAction) },
+      subContent: { _ in ScriptCommandSubContentView(model: model, onAction: onAction) },
+      onAction: { onAction(.commandAction($0)) })
   }
 }
 

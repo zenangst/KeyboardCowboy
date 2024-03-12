@@ -27,7 +27,7 @@ struct WindowManagementCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      .readonly(metaData),
+      metaData,
       placeholder: model.placeholder,
       icon: { _ in WindowManagementIconView(size: iconSize.width) },
       content: { _ in WindowManagementCommandInternalView(metaData, model: model,

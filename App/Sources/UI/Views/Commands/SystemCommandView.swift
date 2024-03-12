@@ -8,23 +8,24 @@ struct SystemCommandView: View {
     case updateKind(newKind: SystemCommand.Kind)
     case commandAction(CommandContainerAction)
   }
-  @State var metaData: CommandViewModel.MetaData
+
   @Binding var model: CommandViewModel.Kind.SystemModel
+  private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
-  let onAction: (Action) -> Void
+  private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.SystemModel,
        iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
-    _metaData = .init(initialValue: metaData)
     _model = Binding<CommandViewModel.Kind.SystemModel>(model)
+    self.metaData = metaData
     self.iconSize = iconSize
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($metaData, placeholder: model.placeholder, icon: { command in
+    CommandContainerView(metaData, placeholder: model.placeholder, icon: { command in
       switch model.kind {
       case .activateLastApplication:
         ActivateLastApplicationIconView(size: iconSize.width)

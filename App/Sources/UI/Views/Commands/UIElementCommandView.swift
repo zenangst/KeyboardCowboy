@@ -8,8 +8,8 @@ struct UIElementCommandView: View {
     case updateCommand(UIElementCommand)
     case commandAction(CommandContainerAction)
   }
-  @State var metaData: CommandViewModel.MetaData
   @State var model: UIElementCommand
+  private let metaData: CommandViewModel.MetaData
   private let debounce: DebounceManager<UIElementCommand>
   private let onAction: (Action) -> Void
   private let iconSize: CGSize
@@ -31,7 +31,7 @@ struct UIElementCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($metaData, placeholder: model.placeholder) { _ in
+    CommandContainerView(metaData, placeholder: model.placeholder) { _ in
       UIElementIconView(size: iconSize.width)
     } content: { _ in
       VStack(alignment: .leading, spacing: 4) {

@@ -41,7 +41,7 @@ struct KeyboardCommandView: View {
 
 struct KeyboardCommandInternalView: View {
   @StateObject private var keyboardSelection = SelectionManager<KeyShortcut>()
-  @State private var metaData: CommandViewModel.MetaData
+  private let metaData: CommandViewModel.MetaData
   @Binding private var model: CommandViewModel.Kind.KeyboardModel
   private let debounce: DebounceManager<String>
   private let onAction: (KeyboardCommandView.Action) -> Void
@@ -54,7 +54,7 @@ struct KeyboardCommandInternalView: View {
        iconSize: CGSize,
        onAction: @escaping (KeyboardCommandView.Action) -> Void) {
     self.focus = focus
-    _metaData = .init(initialValue: metaData)
+    self.metaData = metaData
     _model = Binding<CommandViewModel.Kind.KeyboardModel>(model)
     self.onAction = onAction
     self.iconSize = iconSize
@@ -65,7 +65,7 @@ struct KeyboardCommandInternalView: View {
 
   var body: some View {
     CommandContainerView(
-      $metaData, 
+      metaData,
       placeholder: model.placeholder,
       icon: { command in
         KeyboardIconView(size: iconSize.width)

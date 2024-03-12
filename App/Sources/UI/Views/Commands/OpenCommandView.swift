@@ -11,8 +11,8 @@ struct OpenCommandView: View {
     case commandAction(CommandContainerAction)
     case reveal(path: String)
   }
-  @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.OpenModel
+  private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
   private let debounce: DebounceManager<String>
   private let onAction: (Action) -> Void
@@ -21,8 +21,8 @@ struct OpenCommandView: View {
        model: CommandViewModel.Kind.OpenModel,
        iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
-    _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
+    self.metaData = metaData
     self.iconSize = iconSize
     self.debounce = DebounceManager(for: .milliseconds(500)) { newPath in
       onAction(.updatePath(newPath: newPath))
@@ -31,7 +31,7 @@ struct OpenCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($metaData, placeholder: model.placheolder, icon: { command in
+    CommandContainerView(metaData, placeholder: model.placheolder, icon: { command in
       ZStack(alignment: .bottomTrailing) {
         switch command.icon.wrappedValue {
         case .some(let icon):

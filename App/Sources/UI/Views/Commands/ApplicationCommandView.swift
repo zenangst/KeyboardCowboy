@@ -27,7 +27,7 @@ struct ApplicationCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      .readonly(metaData),
+      metaData,
       placeholder: model.placheolder,
       icon: { _ in
         ApplicationCommandImageView(metaData, iconSize: iconSize, onAction: onAction)

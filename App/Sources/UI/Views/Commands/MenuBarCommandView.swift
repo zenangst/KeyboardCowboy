@@ -30,8 +30,8 @@ struct MenuBarCommandView: View {
 }
 
 struct MenuBarCommandInternalView: View {
-  @State var metaData: CommandViewModel.MetaData
   @Binding var model: CommandViewModel.Kind.MenuBarModel
+  private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
   private let onAction: (MenuBarCommandView.Action) -> Void
 
@@ -39,14 +39,14 @@ struct MenuBarCommandInternalView: View {
        model: CommandViewModel.Kind.MenuBarModel,
        iconSize: CGSize,
        onAction: @escaping (MenuBarCommandView.Action) -> Void) {
-    _metaData = .init(initialValue: metaData)
     _model = Binding<CommandViewModel.Kind.MenuBarModel>(model)
+    self.metaData = metaData
     self.iconSize = iconSize
     self.onAction = onAction
   }
 
   var body: some View {
-    CommandContainerView($metaData, placeholder: model.placeholder) { _ in
+    CommandContainerView(metaData, placeholder: model.placeholder) { _ in
       MenuIconView(size: iconSize.width)
     } content: { _ in
       MenuBarCommandContentView(model)

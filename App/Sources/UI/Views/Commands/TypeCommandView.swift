@@ -10,7 +10,7 @@ struct TypeCommandView: View {
     case updateMode(newMode: TextCommand.TypeCommand.Mode)
     case commandAction(CommandContainerAction)
   }
-  @State var metaData: CommandViewModel.MetaData
+  private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.TypeModel
   private let onAction: (Action) -> Void
   private let iconSize: CGSize
@@ -19,7 +19,7 @@ struct TypeCommandView: View {
        model: CommandViewModel.Kind.TypeModel,
        iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
-    _metaData = .init(initialValue: metaData)
+    self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
     self.onAction = onAction
@@ -27,7 +27,7 @@ struct TypeCommandView: View {
 
   var body: some View {
     CommandContainerView(
-      $metaData,
+      metaData,
       placeholder: model.placeholder,
       icon: { metaData in
         TypingIconView(size: iconSize.width)

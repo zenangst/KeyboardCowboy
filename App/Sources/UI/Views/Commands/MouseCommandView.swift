@@ -31,7 +31,7 @@ struct MouseCommandView: View {
 }
 
 struct MouseCommandInternalView: View {
-  @State var metaData: CommandViewModel.MetaData
+  let metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.MouseModel
 
   private let onAction: (MouseCommandView.Action) -> Void
@@ -49,7 +49,7 @@ struct MouseCommandInternalView: View {
 
   var body: some View {
     CommandContainerView(
-      $metaData,
+      metaData,
       placeholder: model.placeholder,
       icon: { command in
         MouseIconView(size: iconSize.width)

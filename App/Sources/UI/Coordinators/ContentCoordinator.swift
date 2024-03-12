@@ -116,35 +116,18 @@ final class ContentCoordinator {
       switch action {
       case .applicationTrigger:
         render(groupSelectionManager.selections, calculateSelections: false)
-      case .commandView:
-        break
-      case .dropUrls:
+      case .commandView(_, let action):
+        switch action {
+        case .changeDelay, .toggleNotify, .run: break
+        case .toggleEnabled, .updateName, .modify, .remove:
+          render(groupSelectionManager.selections, calculateSelections: false)
+        }
+      case .dropUrls, .duplicate, .moveCommand, .removeCommands,
+          .removeTrigger, .setIsEnabled, .updateKeyboardShortcuts,
+          .updateName, .updateSnippet:
         render(groupSelectionManager.selections, calculateSelections: false)
-      case .duplicate:
-        render(groupSelectionManager.selections, calculateSelections: false)
-      case .moveCommand:
-        render(groupSelectionManager.selections, calculateSelections: false)
-      case .removeCommands:
-        render(groupSelectionManager.selections, calculateSelections: false)
-      case .removeTrigger:
-        render(groupSelectionManager.selections, calculateSelections: false)
-      case .togglePassthrough:
-        break
-      case .runWorkflow:
-        break
-      case .setIsEnabled:
-        render(groupSelectionManager.selections, calculateSelections: false)
-      case .trigger:
-        break
-      case .updateExecution:
-        break
-      case .updateHoldDuration:
-        break
-      case .updateKeyboardShortcuts:
-        render(groupSelectionManager.selections, calculateSelections: false)
-      case .updateName:
-        render(groupSelectionManager.selections, calculateSelections: false)
-      case .updateSnippet:
+      case .togglePassthrough, .runWorkflow, .trigger,
+           .updateExecution, .updateHoldDuration:
         break
       }
     }

@@ -7,9 +7,8 @@ struct BuiltInCommandView: View {
     case update(BuiltInCommand)
     case commandAction(CommandContainerAction)
   }
-  @EnvironmentObject var configurationPublisher: ConfigurationPublisher
-  @State private var metaData: CommandViewModel.MetaData
 
+  private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.BuiltInModel
   private let iconSize: CGSize
   private let onAction: (Action) -> Void
@@ -25,7 +24,7 @@ struct BuiltInCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($metaData, placeholder: model.placheolder) { command in
+    CommandContainerView(metaData, placeholder: model.placheolder) { command in
       BuiltInIconView(model.kind, iconSize: iconSize)
     } content: { _ in
       BuiltInCommandContentView(model, onAction: onAction)
