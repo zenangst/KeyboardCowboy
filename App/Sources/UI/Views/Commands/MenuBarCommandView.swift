@@ -49,92 +49,101 @@ struct MenuBarCommandInternalView: View {
     CommandContainerView($metaData, placeholder: model.placeholder) { _ in
       MenuIconView(size: iconSize.width)
     } content: { _ in
-      ScrollView(.horizontal) {
-        HStack(spacing: 4) {
-          if let application = model.application {
-            Text(application.displayName)
-              .lineLimit(1)
-              .fixedSize(horizontal: true, vertical: true)
-              .padding(4)
-              .background(
-                RoundedRectangle(cornerRadius: 4)
-                  .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
-              )
-              .background(
-                RoundedRectangle(cornerRadius: 4)
-                  .fill(
-                    LinearGradient(colors: [
-                      Color(nsColor: .systemBlue).opacity(0.7),
-                      Color(nsColor: .systemBlue.withSystemEffect(.disabled)).opacity(0.4),
-                    ], startPoint: .top, endPoint: .bottom)
-                  )
-                  .grayscale(0.4)
-              )
-              .compositingGroup()
-              .shadow(radius: 2, y: 1)
-              .font(.caption)
-          }
-
-          ForEach(model.tokens) { token in
-            switch token {
-            case .menuItem(let name):
-              HStack(spacing: 0) {
-                Text(name)
-                  .lineLimit(1)
-                  .fixedSize(horizontal: true, vertical: true)
-                if token != model.tokens.last {
-                  Text("❯")
-                    .padding(.leading, 4)
-                }
-              }
-            case .menuItems(let lhs, let rhs):
-              HStack(spacing: 0) {
-                Text(lhs).bold()
-                  .lineLimit(1)
-                  .fixedSize(horizontal: true, vertical: true)
-                Text(" or ")
-                Text(rhs).bold()
-                  .lineLimit(1)
-                  .fixedSize(horizontal: true, vertical: true)
-                if token != model.tokens.last {
-                  Text("❯")
-                    .padding(.leading, 4)
-                }
-              }
-            }
-          }
-          .padding(4)
-          .background(
-            RoundedRectangle(cornerRadius: 4)
-              .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
-          )
-          .background(
-            RoundedRectangle(cornerRadius: 4)
-              .fill(
-                LinearGradient(colors: [
-                  Color(nsColor: .controlAccentColor).opacity(0.7),
-                  Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)).opacity(0.4),
-                ], startPoint: .top, endPoint: .bottom)
-              )
-              .grayscale(0.4)
-          )
-          .compositingGroup()
-          .shadow(radius: 2, y: 1)
-          .font(.caption)
-        }
-        .padding(.horizontal, 2)
-      }
-      .scrollIndicators(.hidden)
+      MenuBarCommandContentView(model)
     } subContent: { _ in
-      Button {
-        onAction(.editCommand(model))
-      } label: {
+      Button { onAction(.editCommand(model)) } label: { 
         Text("Edit")
           .font(.caption)
       }
       .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
     } onAction: { action in
       onAction(.commandAction(action))
+    }
+  }
+}
+
+private struct MenuBarCommandContentView: View {
+  private let model: CommandViewModel.Kind.MenuBarModel
+
+  init(_ model: CommandViewModel.Kind.MenuBarModel) {
+    self.model = model
+  }
+
+  var body: some View {
+    ScrollView(.horizontal) {
+      HStack(spacing: 4) {
+        if let application = model.application {
+          Text(application.displayName)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: true)
+            .padding(4)
+            .background(
+              RoundedRectangle(cornerRadius: 4)
+                .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+            )
+            .background(
+              RoundedRectangle(cornerRadius: 4)
+                .fill(
+                  LinearGradient(colors: [
+                    Color(nsColor: .systemBlue).opacity(0.7),
+                    Color(nsColor: .systemBlue.withSystemEffect(.disabled)).opacity(0.4),
+                  ], startPoint: .top, endPoint: .bottom)
+                )
+                .grayscale(0.4)
+            )
+            .compositingGroup()
+            .shadow(radius: 2, y: 1)
+            .font(.caption)
+        }
+
+        ForEach(model.tokens) { token in
+          switch token {
+          case .menuItem(let name):
+            HStack(spacing: 0) {
+              Text(name)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: true)
+              if token != model.tokens.last {
+                Text("❯")
+                  .padding(.leading, 4)
+              }
+            }
+          case .menuItems(let lhs, let rhs):
+            HStack(spacing: 0) {
+              Text(lhs).bold()
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: true)
+              Text(" or ")
+              Text(rhs).bold()
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: true)
+              if token != model.tokens.last {
+                Text("❯")
+                  .padding(.leading, 4)
+              }
+            }
+          }
+        }
+        .padding(4)
+        .background(
+          RoundedRectangle(cornerRadius: 4)
+            .stroke(Color(nsColor: .shadowColor).opacity(0.2), lineWidth: 1)
+        )
+        .background(
+          RoundedRectangle(cornerRadius: 4)
+            .fill(
+              LinearGradient(colors: [
+                Color(nsColor: .controlAccentColor).opacity(0.7),
+                Color(nsColor: .controlAccentColor.withSystemEffect(.disabled)).opacity(0.4),
+              ], startPoint: .top, endPoint: .bottom)
+            )
+            .grayscale(0.4)
+        )
+        .compositingGroup()
+        .shadow(radius: 2, y: 1)
+        .font(.caption)
+      }
+      .padding(.horizontal, 2)
     }
   }
 }

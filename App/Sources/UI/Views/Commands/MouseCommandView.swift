@@ -33,8 +33,6 @@ struct MouseCommandView: View {
 struct MouseCommandInternalView: View {
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.MouseModel
-  @State private var xString: String = ""
-  @State private var yString: String = ""
 
   private let onAction: (MouseCommandView.Action) -> Void
   private let iconSize: CGSize
@@ -57,67 +55,84 @@ struct MouseCommandInternalView: View {
         MouseIconView(size: iconSize.width)
       },
       content: { _ in
-        HStack {
-          Menu(content: {
-            ForEach(MouseCommand.Kind.allCases) { kind in
-              Button(action: {
-                model.kind = kind
-              }, label: {
-                Text(kind.displayValue)
-                  .font(.subheadline)
-              })
-            }
-          }, label: {
-            Text(model.kind.displayValue)
-              .font(.subheadline)
-          })
-          .onChange(of: model.kind, perform: { newValue in
-            onAction(.update(newValue))
-          })
-
-          if case .focused(let location) = model.kind.element {
-            HStack {
-              Menu(content: {
-                ForEach(MouseCommand.ClickLocation.allCases) { clickLocation in
-                  Button(action: {
-                    switch model.kind {
-                    case .click:
-                      model.kind = .click(.focused(clickLocation))
-                    case .doubleClick:
-                      model.kind = .doubleClick(.focused(clickLocation))
-                    case .rightClick:
-                      model.kind = .rightClick(.focused(clickLocation))
-                    }
-                  }, label: {
-                    Text(clickLocation.displayValue)
-                      .font(.subheadline)
-                  })
-                }
-              }, label: {
-                Text(location.displayValue)
-                  .font(.subheadline)
-              })
-              .fixedSize()
-
-              if case .custom = location {
-                Group {
-                  TextField("X", text: $xString)
-                    .frame(maxWidth: 50)
-                  Text("x")
-                  TextField("Y", text: $yString)
-                    .frame(maxWidth: 50)
-                }
-                .textFieldStyle(.regular(nil))
-              }
-            }
-          }
-        }
-        .menuStyle(.zen(.init(color: .systemGray)))
+        MouseCommandContentView(model: $model, onAction: onAction)
       },
       subContent: { _ in },
       onAction: { action in
         onAction(.commandAction(action))
       })
+  }
+}
+
+struct MouseCommandContentView: View {
+  @State private var xString: String = ""
+  @State private var yString: String = ""
+  @Binding private var model: CommandViewModel.Kind.MouseModel
+  private let onAction: (MouseCommandView.Action) -> Void
+
+  init(model: Binding<CommandViewModel.Kind.MouseModel>,
+       onAction: @escaping (MouseCommandView.Action) -> Void) {
+    _model = model
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    HStack {
+      Menu(content: {
+        ForEach(MouseCommand.Kind.allCases) { kind in
+          Button(action: {
+            model.kind = kind
+          }, label: {
+            Text(kind.displayValue)
+              .font(.subheadline)
+          })
+        }
+      }, label: {
+        Text(model.kind.displayValue)
+          .font(.subheadline)
+      })
+      .onChange(of: model.kind, perform: { newValue in
+        onAction(.update(newValue))
+      })
+
+      if case .focused(let location) = model.kind.element {
+        HStack {
+          Menu(content: {
+            ForEach(MouseCommand.ClickLocation.allCases) { clickLocation in
+              Button(action: {
+                switch model.kind {
+                case .click:
+                  model.kind = .click(.focused(clickLocation))
+                case .doubleClick:
+                  model.kind = .doubleClick(.focused(clickLocation))
+                case .rightClick:
+                  model.kind = .rightClick(.focused(clickLocation))
+                }
+              }, label: {
+                Text(clickLocation.displayValue)
+                  .font(.subheadline)
+              })
+            }
+          }, label: {
+            Text(location.displayValue)
+              .font(.subheadline)
+          })
+          .fixedSize()
+
+          if case .custom = location {
+            Group {
+              TextField("X", text: $xString)
+                .frame(maxWidth: 50)
+              Text("x")
+              TextField("Y", text: $yString)
+                .frame(maxWidth: 50)
+            }
+            .textFieldStyle(.regular(nil))
+          }
+        }
+      }
+    }
+    .menuStyle(.zen(.init(color: .systemGray)))
   }
 }
 

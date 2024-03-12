@@ -3,12 +3,48 @@ import Inject
 import SwiftUI
 
 struct WindowManagementCommandView: View {
-  @ObserveInjection var inject
   enum Action {
     case onUpdate(CommandViewModel.Kind.WindowManagementModel)
     case commandAction(CommandContainerAction)
   }
 
+  @State private var model: CommandViewModel.Kind.WindowManagementModel
+
+  private let metaData: CommandViewModel.MetaData
+  private let iconSize: CGSize
+  private let onAction: (WindowManagementCommandView.Action) -> Void
+
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.WindowManagementModel,
+       iconSize: CGSize,
+       onAction: @escaping (WindowManagementCommandView.Action) -> Void
+  ) {
+    _model = .init(initialValue: model)
+    self.metaData = metaData
+    self.iconSize = iconSize
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    CommandContainerView(
+      .readonly(metaData),
+      placeholder: model.placeholder,
+      icon: { _ in WindowManagementIconView(size: iconSize.width) },
+      content: { _ in WindowManagementCommandInternalView(metaData, model: model,
+                                                          iconSize: iconSize, onAction: onAction) },
+      subContent: { _ in
+        WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
+          model.animationDuration = newDuration
+          onAction(.onUpdate(.init(id: metaData.id, kind: model.kind, animationDuration: newDuration)))
+        }
+      },
+      onAction: {
+        onAction(.commandAction($0))
+      })
+  }
+}
+
+struct WindowManagementCommandInternalView: View {
   @Namespace var namespace
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.WindowManagementModel
@@ -17,12 +53,12 @@ struct WindowManagementCommandView: View {
   @State var constrainToScreen: Bool
 
   private let iconSize: CGSize
-  private let onAction: (Action) -> Void
+  private let onAction: (WindowManagementCommandView.Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
        iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+       onAction: @escaping (WindowManagementCommandView.Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.iconSize = iconSize
@@ -54,162 +90,109 @@ struct WindowManagementCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView($metaData,
-                         placeholder: model.placeholder,
-                         icon: {
-      command in
-      WindowManagementIconView(size: iconSize.width)
-    },
-                         content: { _ in
-      VStack(alignment: .leading, spacing: 8) {
-        HStack {
-          illustrationIcon()
-          Menu(content: {
-            ForEach(WindowCommand.Kind.allCases) { kind in
-              Button(action: {
-                model.kind = kind
-                onAction(.onUpdate(model))
-              }, label: {
-                Image(systemName: kind.symbol)
-                Text(kind.displayValue)
-                  .font(.subheadline)
-              })
-            }
-          }, label: {
-            Image(systemName: model.kind.symbol)
-            Text(model.kind.displayValue)
-              .font(.subheadline)
-          })
-          .menuStyle(.regular)
-        }
+    VStack(alignment: .leading, spacing: 8) {
+      HStack {
+        illustrationIcon()
+        Menu(content: {
+          ForEach(WindowCommand.Kind.allCases) { kind in
+            Button(action: {
+              model.kind = kind
+              onAction(.onUpdate(model))
+            }, label: {
+              Image(systemName: kind.symbol)
+              Text(kind.displayValue)
+                .font(.subheadline)
+            })
+          }
+        }, label: {
+          Image(systemName: model.kind.symbol)
+          Text(model.kind.displayValue)
+            .font(.subheadline)
+        })
+        .menuStyle(.regular)
+      }
 
-        HStack {
-          switch model.kind {
-          case  .increaseSize(_, let direction, _, _),
-              .decreaseSize(_, let direction, _),
-              .move(_, let direction, _, _),
-              .anchor(let direction, _):
-            HStack(spacing: 16) {
-              let models = WindowCommand.Direction.allCases
-              LazyVGrid(columns: (0..<3).map {
-                _ in GridItem(.fixed(24), spacing: 1)
-              },
-                        alignment: .center,
-                        spacing: 2,
-                        content: {
-                ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
-                  if offset == 4 {
-                    Image(systemName: "macwindow")
-                      .resizable()
-                      .aspectRatio(contentMode: .fit)
-                      .frame(width: 12, height: 12)
-                      .foregroundColor(.white)
-                  }
-                  Button {
-                    let kind: WindowCommand.Kind
-                    switch model.kind {
-                    case .increaseSize(let value, _, let padding, let constrainedToScreen):
-                      kind = .increaseSize(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
-                    case .decreaseSize(let value, _, let constrainedToScreen):
-                      kind = .decreaseSize(by: value, direction: element, constrainedToScreen: constrainedToScreen)
-                    case .move(let value, _, let padding, let constrainedToScreen):
-                      kind = .move(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
-                    case .anchor(_, let padding):
-                      kind = .anchor(position: element, padding: padding)
-                    default:
-                      return
-                    }
-                    model.kind = kind
-                    onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-                  } label: {
-                    Text(element.displayValue(increment: model.kind.isIncremental))
-                      .frame(width: 10, height: 14)
-                      .font(.subheadline)
-                  }
-                  .buttonStyle(
-                    .zen(.init(color: element == direction ? .systemGreen : .systemGray))
-                  )
+      HStack {
+        switch model.kind {
+        case  .increaseSize(_, let direction, _, _),
+            .decreaseSize(_, let direction, _),
+            .move(_, let direction, _, _),
+            .anchor(let direction, _):
+          HStack(spacing: 16) {
+            let models = WindowCommand.Direction.allCases
+            LazyVGrid(columns: (0..<3).map {
+              _ in GridItem(.fixed(24), spacing: 1)
+            },
+                      alignment: .center,
+                      spacing: 2,
+                      content: {
+              ForEach(Array(zip(models.indices, models)), id: \.1.id) { offset, element in
+                if offset == 4 {
+                  Image(systemName: "macwindow")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(.white)
                 }
-              })
-              .fixedSize()
-
-              Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
-                if case .anchor = model.kind {
-                  GridRow {
-                    EmptyView()
-                    EmptyView()
+                Button {
+                  let kind: WindowCommand.Kind
+                  switch model.kind {
+                  case .increaseSize(let value, _, let padding, let constrainedToScreen):
+                    kind = .increaseSize(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
+                  case .decreaseSize(let value, _, let constrainedToScreen):
+                    kind = .decreaseSize(by: value, direction: element, constrainedToScreen: constrainedToScreen)
+                  case .move(let value, _, let padding, let constrainedToScreen):
+                    kind = .move(by: value, direction: element, padding: padding, constrainedToScreen: constrainedToScreen)
+                  case .anchor(_, let padding):
+                    kind = .anchor(position: element, padding: padding)
+                  default:
+                    return
                   }
-                } else if case .decreaseSize = model.kind {
-                  GridRow {
-                    EmptyView()
-                    EmptyView()
-                  }
-                } else {
-                  GridRow {
-                    NumberTextField(text: $pixels, onValidChange: { newValue in
-                      guard let pixels = Int(newValue) else { return }
-                      let kind: WindowCommand.Kind
-                      switch model.kind {
-                      case .increaseSize(_, let direction, let padding, let constrainedToScreen):
-                        kind = .increaseSize(
-                          by: pixels,
-                          direction: direction,
-                          padding: padding,
-                          constrainedToScreen: constrainedToScreen
-                        )
-                      case .decreaseSize(_, let direction, let constrainedToScreen):
-                        kind = .decreaseSize(
-                          by: pixels,
-                          direction: direction,
-                          constrainedToScreen: constrainedToScreen
-                        )
-                      case .move(_, let direction, let padding, let constrainedToScreen):
-                        kind = .move(
-                          by: pixels,
-                          direction: direction,
-                          padding: padding,
-                          constrainedToScreen: constrainedToScreen
-                        )
-                      case .anchor(let position, _):
-                        kind = .anchor(position: position, padding: pixels)
-                      default:
-                        return
-                      }
-                      model.kind = kind
-                      onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-                    })
-                    .textFieldStyle(
-                      .zen(.init(backgroundColor: Color(.windowBackgroundColor),
-                                 font: .caption,
-                                 padding: .init(horizontal: .small, vertical: .small)
-                                ))
-                    )
-                    .fixedSize()
-                    Text("Pixels")
-                      .font(.caption)
-                  }
+                  model.kind = kind
+                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                } label: {
+                  Text(element.displayValue(increment: model.kind.isIncremental))
+                    .frame(width: 10, height: 14)
+                    .font(.subheadline)
                 }
+                .buttonStyle(
+                  .zen(.init(color: element == direction ? .systemGreen : .systemGray))
+                )
+              }
+            })
+            .fixedSize()
 
+            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+              if case .anchor = model.kind {
                 GridRow {
-                  NumberTextField(text: $padding,
-                                   onValidChange: { newValue in
-                    guard let padding = Int(newValue) else { return }
+                  EmptyView()
+                  EmptyView()
+                }
+              } else if case .decreaseSize = model.kind {
+                GridRow {
+                  EmptyView()
+                  EmptyView()
+                }
+              } else {
+                GridRow {
+                  NumberTextField(text: $pixels, onValidChange: { newValue in
+                    guard let pixels = Int(newValue) else { return }
                     let kind: WindowCommand.Kind
                     switch model.kind {
-                    case .increaseSize(let pixels, let direction, _, let constrainedToScreen):
+                    case .increaseSize(_, let direction, let padding, let constrainedToScreen):
                       kind = .increaseSize(
                         by: pixels,
                         direction: direction,
                         padding: padding,
                         constrainedToScreen: constrainedToScreen
                       )
-                    case .decreaseSize(let pixels, let direction, let constrainedToScreen):
+                    case .decreaseSize(_, let direction, let constrainedToScreen):
                       kind = .decreaseSize(
                         by: pixels,
                         direction: direction,
                         constrainedToScreen: constrainedToScreen
                       )
-                    case .move(let pixels, let direction, _, let constrainedToScreen):
+                    case .move(_, let direction, let padding, let constrainedToScreen):
                       kind = .move(
                         by: pixels,
                         direction: direction,
@@ -217,7 +200,7 @@ struct WindowManagementCommandView: View {
                         constrainedToScreen: constrainedToScreen
                       )
                     case .anchor(let position, _):
-                      kind = .anchor(position: position, padding: padding)
+                      kind = .anchor(position: position, padding: pixels)
                     default:
                       return
                     }
@@ -231,97 +214,132 @@ struct WindowManagementCommandView: View {
                               ))
                   )
                   .fixedSize()
-                  Text("Padding").font(.caption)
-                }
-
-                GridRow {
-                  if case .anchor = model.kind {
-                    EmptyView()
-                    EmptyView()
-                  } else {
-                    ZenCheckbox(
-                      style: .small,
-                      isOn: $constrainToScreen
-                    ) { constrainedToScreen in
-                      let kind: WindowCommand.Kind
-                      switch model.kind {
-                      case .increaseSize(let pixels, let direction, let padding, _):
-                        kind = .increaseSize(
-                          by: pixels,
-                          direction: direction,
-                          padding: padding,
-                          constrainedToScreen: constrainedToScreen
-                        )
-                      case .decreaseSize(let pixels, let direction, _):
-                        kind = .decreaseSize(
-                          by: pixels,
-                          direction: direction,
-                          constrainedToScreen: constrainedToScreen
-                        )
-                      case .move(let pixels, let direction, let padding, _):
-                        kind = .move(
-                          by: pixels,
-                          direction: direction,
-                          padding: padding,
-                          constrainedToScreen: constrainedToScreen
-                        )
-                      case .anchor(let position, let padding):
-                        kind = .anchor(position: position, padding: padding)
-                      default:
-                        return
-                      }
-                      model.kind = kind
-                      onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-                    }
+                  Text("Pixels")
                     .font(.caption)
-                    .padding(.trailing, 4)
-                    Text("Constrain to Screen")
-                      .font(.caption)
+                }
+              }
+
+              GridRow {
+                NumberTextField(text: $padding,
+                                onValidChange: { newValue in
+                  guard let padding = Int(newValue) else { return }
+                  let kind: WindowCommand.Kind
+                  switch model.kind {
+                  case .increaseSize(let pixels, let direction, _, let constrainedToScreen):
+                    kind = .increaseSize(
+                      by: pixels,
+                      direction: direction,
+                      padding: padding,
+                      constrainedToScreen: constrainedToScreen
+                    )
+                  case .decreaseSize(let pixels, let direction, let constrainedToScreen):
+                    kind = .decreaseSize(
+                      by: pixels,
+                      direction: direction,
+                      constrainedToScreen: constrainedToScreen
+                    )
+                  case .move(let pixels, let direction, _, let constrainedToScreen):
+                    kind = .move(
+                      by: pixels,
+                      direction: direction,
+                      padding: padding,
+                      constrainedToScreen: constrainedToScreen
+                    )
+                  case .anchor(let position, _):
+                    kind = .anchor(position: position, padding: padding)
+                  default:
+                    return
                   }
+                  model.kind = kind
+                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                })
+                .textFieldStyle(
+                  .zen(.init(backgroundColor: Color(.windowBackgroundColor),
+                             font: .caption,
+                             padding: .init(horizontal: .small, vertical: .small)
+                            ))
+                )
+                .fixedSize()
+                Text("Padding").font(.caption)
+              }
+
+              GridRow {
+                if case .anchor = model.kind {
+                  EmptyView()
+                  EmptyView()
+                } else {
+                  ZenCheckbox(
+                    style: .small,
+                    isOn: $constrainToScreen
+                  ) { constrainedToScreen in
+                    let kind: WindowCommand.Kind
+                    switch model.kind {
+                    case .increaseSize(let pixels, let direction, let padding, _):
+                      kind = .increaseSize(
+                        by: pixels,
+                        direction: direction,
+                        padding: padding,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .decreaseSize(let pixels, let direction, _):
+                      kind = .decreaseSize(
+                        by: pixels,
+                        direction: direction,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .move(let pixels, let direction, let padding, _):
+                      kind = .move(
+                        by: pixels,
+                        direction: direction,
+                        padding: padding,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .anchor(let position, let padding):
+                      kind = .anchor(position: position, padding: padding)
+                    default:
+                      return
+                    }
+                    model.kind = kind
+                    onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                  }
+                  .font(.caption)
+                  .padding(.trailing, 4)
+                  Text("Constrain to Screen")
+                    .font(.caption)
                 }
               }
             }
-          case .fullscreen:
-            HStack(spacing: 12) {
-              NumberTextField(text: $padding, onValidChange: { newValue in
-                guard let newPadding = Int(newValue) else { return }
-                let kind: WindowCommand.Kind
-                switch model.kind {
-                case .fullscreen:
-                  kind = .fullscreen(padding: newPadding)
-                default:
-                  return
-                }
-                model.kind = kind
-                onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
-              })
-              .textFieldStyle(
-                .zen(.init(backgroundColor: Color(.windowBackgroundColor),
-                           font: .caption,
-                           padding: .init(horizontal: .small, vertical: .small)
-                          ))
-              )
-              .fixedSize()
-              Text("Padding")
-                .font(.caption)
-            }
-          default:
-            EmptyView()
           }
+        case .fullscreen:
+          HStack(spacing: 12) {
+            NumberTextField(text: $padding, onValidChange: { newValue in
+              guard let newPadding = Int(newValue) else { return }
+              let kind: WindowCommand.Kind
+              switch model.kind {
+              case .fullscreen:
+                kind = .fullscreen(padding: newPadding)
+              default:
+                return
+              }
+              model.kind = kind
+              onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+            })
+            .textFieldStyle(
+              .zen(.init(backgroundColor: Color(.windowBackgroundColor),
+                         font: .caption,
+                         padding: .init(horizontal: .small, vertical: .small)
+                        ))
+            )
+            .fixedSize()
+            Text("Padding")
+              .font(.caption)
+          }
+        default:
+          EmptyView()
         }
       }
-      .roundedContainer(padding: 4, margin: 0)
-    },
-                         subContent: { _ in
-      WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
-        model.animationDuration = newDuration
-        onAction(.onUpdate(.init(id: metaData.id, kind: model.kind, animationDuration: newDuration)))
-      }
-    },
-                         onAction: {
-      onAction(.commandAction($0))
-    })
-    .enableInjection()
+    }
+    .roundedContainer(padding: 4, margin: 0)
   }
 
   private func resolveAlignment(_ kind: WindowCommand.Kind) -> Alignment {

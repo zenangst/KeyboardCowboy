@@ -11,19 +11,19 @@ struct MissionControlIconView: View {
       .overlay(alignment: .center, content: {
         HStack(spacing: size * 0.03) {
           VStack(alignment: .trailing, spacing: size * 0.08) {
-            window(.init(width: size * 0.28, height: size * 0.35))
+            MissionControlWindowView(.init(width: size * 0.28, height: size * 0.35))
               .opacity(0.75)
-            window(.init(width: size * 0.2, height: size * 0.25))
+            MissionControlWindowView(.init(width: size * 0.2, height: size * 0.25))
               .opacity(0.2)
           }
           VStack(spacing: size * 0.09) {
-            window(.init(width: size * 0.3, height: size * 0.25))
+            MissionControlWindowView(.init(width: size * 0.3, height: size * 0.25))
               .opacity(0.9)
-            window(.init(width: size * 0.32, height: size * 0.315))
+            MissionControlWindowView(.init(width: size * 0.32, height: size * 0.315))
               .opacity(0.5)
           }
           VStack(alignment: .leading, spacing: size * 0.04) {
-            window(.init(width: size * 0.26, height: size * 0.35))
+            MissionControlWindowView(.init(width: size * 0.26, height: size * 0.35))
               .opacity(0.7)
           }
         }
@@ -33,8 +33,16 @@ struct MissionControlIconView: View {
       .fixedSize()
       .iconShape(size)
   }
+}
 
-  func window(_ size: CGSize) -> some View {
+fileprivate struct MissionControlWindowView: View {
+  private let size: CGSize
+
+  init(_ size: CGSize) {
+    self.size = size
+  }
+
+  var body: some View {
     Rectangle()
       .fill(
         LinearGradient(stops: [
@@ -66,6 +74,7 @@ struct MissionControlIconView: View {
       .overlay { iconBorder(size.width * 0.7) }
       .iconShape(size.width * 0.7)
       .frame(width: size.width, height: size.height)
+
   }
 }
 

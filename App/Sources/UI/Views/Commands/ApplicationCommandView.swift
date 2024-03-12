@@ -26,11 +26,19 @@ struct ApplicationCommandView: View {
   }
 
   var body: some View {
-    ApplicationCommandInternalView(
-      metaData,
-      model: model,
-      iconSize: iconSize,
-      onAction: onAction
+    CommandContainerView(
+      .readonly(metaData),
+      placeholder: model.placheolder,
+      icon: { _ in
+        ApplicationCommandImageView(metaData, iconSize: iconSize, onAction: onAction)
+      },
+      content: { _ in
+        ApplicationCommandInternalView(metaData, model: model, iconSize: iconSize, onAction: onAction)
+      },
+      subContent: { _ in EmptyView() },
+      onAction: { action in
+        onAction(.commandAction(action))
+      }
     )
   }
 }
@@ -57,61 +65,51 @@ private struct ApplicationCommandInternalView: View {
   }
 
   var body: some View {
-    CommandContainerView(
-      $metaData,
-      placeholder: model.placheolder,
-      icon: { metaData in
-        ApplicationCommandImageView(metaData.wrappedValue, iconSize: iconSize, onAction: onAction)
-      },
-      content: { command in
-        HStack(spacing: 8) {
-          Menu(content: {
-            Button(action: {
-              model.action = "Open"
-              onAction(.changeApplicationAction(.open))
-            }, label: {
-              Image(systemName: "power")
-              Text("Open")
-                .font(.subheadline)
-            })
+    HStack(spacing: 8) {
+      Menu(content: {
+        Button(action: {
+          model.action = "Open"
+          onAction(.changeApplicationAction(.open))
+        }, label: {
+          Image(systemName: "power")
+          Text("Open")
+            .font(.subheadline)
+        })
 
-            Button(action: {
-              model.action = "Close"
-              onAction(.changeApplicationAction(.close))
-            }, label: {
-              Image(systemName: "poweroff")
-              Text("Close")
-                .font(.subheadline)
-            })
-          }, label: {
-            Text(model.action)
-              .font(.caption)
-              .fixedSize(horizontal: false, vertical: true)
-              .truncationMode(.middle)
-              .allowsTightening(true)
-          })
-          .menuStyle(.zen(.init(color: .systemGray)))
-          .fixedSize()
-          .compositingGroup()
+        Button(action: {
+          model.action = "Close"
+          onAction(.changeApplicationAction(.close))
+        }, label: {
+          Image(systemName: "poweroff")
+          Text("Close")
+            .font(.subheadline)
+        })
+      }, label: {
+        Text(model.action)
+          .font(.caption)
+          .fixedSize(horizontal: false, vertical: true)
+          .truncationMode(.middle)
+          .allowsTightening(true)
+      })
+      .menuStyle(.zen(.init(color: .systemGray)))
+      .fixedSize()
+      .compositingGroup()
 
-          ZenCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
-            onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
-          }
-          ZenCheckbox("Hide when opening", style: .small, isOn: $model.hideWhenRunning) { newValue in
-            onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
-          }
-          ZenCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
-            onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
-          }
-        }
-        .buttonStyle(.regular)
-        .lineLimit(1)
-        .allowsTightening(true)
-        .truncationMode(.tail)
-        .font(.caption)
-      }, subContent: { _ in },
-      onAction: { onAction(.commandAction($0)) })
-    .id(metaData.id)
+      ZenCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
+        onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
+      }
+      ZenCheckbox("Hide when opening", style: .small, isOn: $model.hideWhenRunning) { newValue in
+        onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
+      }
+      ZenCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
+        onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
+      }
+    }
+    .buttonStyle(.regular)
+    .lineLimit(1)
+    .allowsTightening(true)
+    .truncationMode(.tail)
+    .font(.caption)
   }
 }
 

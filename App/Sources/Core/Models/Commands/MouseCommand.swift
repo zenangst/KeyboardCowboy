@@ -51,7 +51,7 @@ struct MouseCommand: Identifiable, Codable, MetaDataProviding {
     }
   }
 
-  enum ClickLocation: Identifiable, Hashable, Codable {
+  enum ClickLocation: Identifiable, Hashable, Codable, Equatable {
     var id: String { identifier }
 
     case topLeading
@@ -109,7 +109,7 @@ struct MouseCommand: Identifiable, Codable, MetaDataProviding {
     }
   }
 
-  enum UIElement: Codable, Hashable {
+  enum UIElement: Codable, Hashable, Equatable {
     case focused(ClickLocation)
 
     var displayValue: String {

@@ -10,10 +10,8 @@ struct TypeCommandView: View {
     case updateMode(newMode: TextCommand.TypeCommand.Mode)
     case commandAction(CommandContainerAction)
   }
-  @EnvironmentObject var selection: SelectionManager<CommandViewModel>
   @State var metaData: CommandViewModel.MetaData
-  @State var model: CommandViewModel.Kind.TypeModel
-  private let debounce: DebounceManager<String>
+  private let model: CommandViewModel.Kind.TypeModel
   private let onAction: (Action) -> Void
   private let iconSize: CGSize
 
@@ -22,11 +20,8 @@ struct TypeCommandView: View {
        iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
     _metaData = .init(initialValue: metaData)
-    _model = .init(initialValue: model)
+    self.model = model
     self.iconSize = iconSize
-    debounce = DebounceManager(for: .milliseconds(500)) { newInput in
-      onAction(.updateSource(newInput: newInput))
-    }
     self.onAction = onAction
   }
 
@@ -36,20 +31,37 @@ struct TypeCommandView: View {
       placeholder: model.placeholder,
       icon: { metaData in
         TypingIconView(size: iconSize.width)
-          .fixedSize()
       }, content: { metaData in
-        ZenTextEditor(
-          color: ZenColorPublisher.shared.color,
-          text: $model.input,
-          placeholder: "Enter text...", onCommandReturnKey: nil)
-          .onChange(of: model.input) { debounce.send($0) }
-          .roundedContainer(padding: 0, margin: 0)
+        TypeCommandContentView(model, onAction: onAction)
       }, subContent: { _ in
         TypeCommandModeView(mode: model.mode) { newMode in
           onAction(.updateMode(newMode: newMode))
         }
       }, onAction: { onAction(.commandAction($0)) })
     .enableInjection()
+  }
+}
+
+private struct TypeCommandContentView: View {
+  @State var model: CommandViewModel.Kind.TypeModel
+  private let onAction: (TypeCommandView.Action) -> Void
+  private let debounce: DebounceManager<String>
+
+  init(_ model: CommandViewModel.Kind.TypeModel, onAction: @escaping (TypeCommandView.Action) -> Void) {
+    self.model = model
+    self.onAction = onAction
+    debounce = DebounceManager(for: .milliseconds(500)) { newInput in
+      onAction(.updateSource(newInput: newInput))
+    }
+  }
+
+  var body: some View {
+    ZenTextEditor(
+      color: ZenColorPublisher.shared.color,
+      text: $model.input,
+      placeholder: "Enter text...", onCommandReturnKey: nil)
+    .onChange(of: model.input) { debounce.send($0) }
+    .roundedContainer(padding: 0, margin: 0)
   }
 }
 

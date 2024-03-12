@@ -78,36 +78,20 @@ struct MoveFocusToWindowIconView: View {
   private func baseColor(for scope: Scope) -> Color {
     switch scope {
     case .activeApplication:
-      if direction == .next {
-        Color(.systemBlue)
-      } else {
-        Color(nsColor: .systemBlue.withSystemEffect(.disabled))
-      }
+      Color(direction == .next ? .systemBlue   : .systemBlue.withSystemEffect(.disabled))
     case .visibleWindows:
-      if direction == .next {
-        Color(.systemGreen)
-      } else {
-        Color(.systemGreen.withSystemEffect(.disabled))
-      }
+      Color(direction == .next ? .systemGreen  : .systemGreen.withSystemEffect(.disabled))
     case .allWindows:
-      if direction == .next {
-        Color(.systemOrange)
-      } else {
-        Color(nsColor: .systemOrange.withSystemEffect(.disabled))
-      }
+      Color(direction == .next ? .systemOrange : .systemOrange.withSystemEffect(.disabled))
     }
-  }
-
-  @ViewBuilder
-  private func background() -> some View {
   }
 
   private func stageManager() -> some View {
     VStack(spacing: size * 0.0_340) {
-      windowShape(width: size * 0.15, height: size * 0.15)
-      windowShape(width: size * 0.15, height: size * 0.15)
-      windowShape(width: size * 0.15, height: size * 0.15)
-      windowShape(width: size * 0.15, height: size * 0.15)
+      MoveFocusToWindowShapeView(width: size * 0.15, height: size * 0.15)
+      MoveFocusToWindowShapeView(width: size * 0.15, height: size * 0.15)
+      MoveFocusToWindowShapeView(width: size * 0.15, height: size * 0.15)
+      MoveFocusToWindowShapeView(width: size * 0.15, height: size * 0.15)
     }
     .grayscale(1)
     .opacity(0.25)
@@ -120,19 +104,29 @@ struct MoveFocusToWindowIconView: View {
       let unfocusedOpacity = 0.6
       let focusedSize = CGSize(width: size * 0.45, height: size * 0.6)
       let focusedOpacity = 1.0
-      windowShape(width: direction == .next ? unfocusedSize.width : focusedSize.width,
+      MoveFocusToWindowShapeView(width: direction == .next ? unfocusedSize.width : focusedSize.width,
                   height: direction == .next ? unfocusedSize.height : focusedSize.height)
       .opacity(direction == .next ? unfocusedOpacity : focusedOpacity)
       .grayscale(direction == .next ? 1 : 0)
-      windowShape(width: direction == .next ? focusedSize.width : unfocusedSize.width,
+      MoveFocusToWindowShapeView(width: direction == .next ? focusedSize.width : unfocusedSize.width,
                   height: direction == .next ? focusedSize.height : unfocusedSize.height)
       .opacity(direction == .next ? focusedOpacity : unfocusedOpacity)
       .grayscale(direction == .next ? 0 : 1)
       .shadow(radius: 4, y: 2)
     }
   }
+}
 
-  private func windowShape(width: CGFloat, height: CGFloat) -> some View {
+private struct MoveFocusToWindowShapeView: View {
+  private let width: CGFloat
+  private let height: CGFloat
+
+  init(width: CGFloat, height: CGFloat) {
+    self.width = width
+    self.height = height
+  }
+
+  var body: some View {
     Rectangle()
       .frame(width: width, height: height)
       .overlay { iconOverlay().opacity(0.5) }
@@ -161,7 +155,7 @@ struct MoveFocusToWindowIconView: View {
   }
 }
 
-struct MoveFocusToWindowIconBackgroundView: View {
+private struct MoveFocusToWindowIconBackgroundView: View {
   var body: some View {
     AngularGradient(stops: [
       .init(color: Color.clear, location: 0.0),
