@@ -18,6 +18,7 @@ struct NewCommandKeyboardShortcutView: View {
   @State private var keyboardShortcuts: [KeyShortcut]
   @State private var state: CurrentState? = nil
   private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#keyboard-shortcuts-commands")!
+  private let selectionManager: SelectionManager<KeyShortcut> = .init()
 
   init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
@@ -47,8 +48,11 @@ struct NewCommandKeyboardShortcutView: View {
           mode: .inlineEdit,
           keyboardShortcuts: $keyboardShortcuts,
           draggableEnabled: true,
-          selectionManager: .init(),
+          selectionManager: selectionManager,
           onTab: { _ in })
+        .onChange(of: keyboardShortcuts, perform: { newValue in
+          keyboardShortcuts = newValue
+        })
         .roundedContainer(padding: 2, margin: 0)
         .overlay(NewCommandValidationView($validation))
         .frame(minHeight: 48, maxHeight: 48)

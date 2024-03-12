@@ -4,6 +4,7 @@ import SwiftUI
 
 struct EditableKeyboardShortcutsItemView: View {
   enum Feature {
+    case record
     case remove
   }
 

@@ -28,7 +28,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
 
     var features: Set<EditableKeyboardShortcutsItemView.Feature> {
       switch self {
-      case .inlineEdit: [.remove]
+      case .inlineEdit: [.remove, .record]
       case .externalEdit: []
       }
     }
@@ -95,7 +95,12 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
               .padding(.trailing, 4)
               .contentShape(Rectangle())
               .dropDestination(KeyShortcut.self, alignment: .horizontal, color: .accentColor, onDrop: { items, location in
-                let ids = Array(selectionManager.selections)
+                let ids: [KeyShortcut.ID] = if selectionManager.selections.isEmpty {
+                  items.map(\.id)
+                } else {
+                  Array(selectionManager.selections)
+                }
+
                 guard let (from, destination) = keyboardShortcuts.moveOffsets(for: keyboardShortcut.wrappedValue, with: ids) else {
                   return false
                 }
@@ -107,16 +112,19 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                 return true
               })
               .contextMenu {
-                Text(keyboardShortcut.wrappedValue.validationValue)
-                Divider()
-                Button("Change Keyboard Shortcut") { handleEdit(keyboardShortcut.id) }
-                Button("Remove") {
-                  if let index = keyboardShortcuts.firstIndex(where: { $0.id == keyboardShortcut.id }) {
-                    _ = withAnimation(animation) {
-                      keyboardShortcuts.remove(at: index)
+                Group {
+                  Text(keyboardShortcut.wrappedValue.validationValue)
+                  Divider()
+                  Button("Change Keyboard Shortcut") { handleEdit(keyboardShortcut.id) }
+                  Button("Remove") {
+                    if let index = keyboardShortcuts.firstIndex(where: { $0.id == keyboardShortcut.id }) {
+                      _ = withAnimation(animation) {
+                        keyboardShortcuts.remove(at: index)
+                      }
                     }
                   }
                 }
+                .opacity(mode.features.contains(.record) ? 1 : 0)
               }
               .focusable(focus, as: focusBinding(keyboardShortcut.wrappedValue.id), onFocus: {
                 selectionManager.handleOnTap(keyboardShortcuts, element: keyboardShortcut.wrappedValue)
@@ -180,6 +188,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
         .buttonStyle(.calm(color: .systemRed, padding: .large))
         .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
         .padding(.trailing, 4)
+        .opacity(mode.features.contains(.record) ? 1 : 0)
       }
       .overlay(overlay(proxy))
       .onAppear {
