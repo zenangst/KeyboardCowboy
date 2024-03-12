@@ -40,6 +40,7 @@ struct DetailView: View {
       DetailEmptyView()
         .allowsHitTesting(false)
         .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
+        .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
     case .single:
       SingleDetailView(
         focus,
@@ -52,11 +53,27 @@ struct DetailView: View {
         onAction: {
           onAction(.singleDetailView($0))
         })
+      .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
+      .background(Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all))
+      .overlay(alignment: .topTrailing, content: {
+        if KeyboardCowboy.env() != .production {
+          Rectangle()
+            .fill(Gradient(colors: [
+              Color(.systemYellow),
+              Color(nsColor: NSColor.systemYellow.blended(withFraction: 0.3, of: NSColor.black)!)
+            ]))
+            .frame(width: 75, height: 20)
+            .rotationEffect(.degrees(45))
+            .offset(x: 30, y: -30)
+            .fixedSize()
+        }
+      })
       .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
     case .multiple(let viewModels):
       let limit = 5
       let count = viewModels.count
       MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
+        .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
     }
   }
 }
