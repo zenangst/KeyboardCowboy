@@ -79,14 +79,14 @@ struct KeyboardCommandInternalView: View {
         EditableKeyboardShortcutsView<AppFocus>(
           focus,
           focusBinding: { .detail(.commandShortcut($0)) },
+          mode: .externalEdit({
+            onAction(.editCommand(model))
+          }),
           keyboardShortcuts: $model.keys,
           draggableEnabled: false,
           selectionManager: keyboardSelection,
           onTab: { _ in })
         .font(.caption)
-        .onChange(of: model.keys) { newValue in
-          onAction(.updateKeyboardShortcuts(newValue))
-        }
         .roundedContainer(padding: 0, margin: 0)
       },
       subContent: { _ in

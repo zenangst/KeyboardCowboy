@@ -3,23 +3,34 @@ import Inject
 import SwiftUI
 
 struct EditableKeyboardShortcutsItemView: View {
-  private let keyboardShortcut: Binding<KeyShortcut>
+  enum Feature {
+    case remove
+  }
+
   @Binding private var keyboardShortcuts: [KeyShortcut]
+
+  private let features: Set<Feature>
+  private let keyboardShortcut: Binding<KeyShortcut>
   private let selectionManager: SelectionManager<KeyShortcut>
   private let onDelete: (KeyShortcut) -> Void
 
-  init(keyboardShortcut: Binding<KeyShortcut>, keyboardShortcuts: Binding<[KeyShortcut]>,
-       selectionManager: SelectionManager<KeyShortcut>, onDelete: @escaping (KeyShortcut) -> Void) {
+  init(keyboardShortcut: Binding<KeyShortcut>,
+       keyboardShortcuts: Binding<[KeyShortcut]>,
+       features: Set<Feature>,
+       selectionManager: SelectionManager<KeyShortcut>,
+       onDelete: @escaping (KeyShortcut) -> Void) {
     _keyboardShortcuts = keyboardShortcuts
     self.keyboardShortcut = keyboardShortcut
     self.selectionManager = selectionManager
     self.onDelete = onDelete
+    self.features = features
   }
 
   var body: some View {
     EditableKeyboardShortcutsItemInternalView(
-      keyboardShortcut: keyboardShortcut,
       keyboardShortcuts: $keyboardShortcuts,
+      keyboardShortcut: keyboardShortcut,
+      features: features,
       selectionManager: selectionManager,
       onDelete: onDelete
     )
@@ -27,12 +38,25 @@ struct EditableKeyboardShortcutsItemView: View {
 }
 
 private struct EditableKeyboardShortcutsItemInternalView: View {
-  @State var isHovered: Bool = false
-  @State var isTargeted: Bool = false
-  let keyboardShortcut: Binding<KeyShortcut>
-  @Binding var keyboardShortcuts: [KeyShortcut]
-  let selectionManager: SelectionManager<KeyShortcut>
-  let onDelete: (KeyShortcut) -> Void
+  @Binding private var keyboardShortcuts: [KeyShortcut]
+
+  @State private var isHovered: Bool = false
+  @State private var isTargeted: Bool = false
+
+  private let features: Set<EditableKeyboardShortcutsItemView.Feature>
+  private let keyboardShortcut: Binding<KeyShortcut>
+  private let selectionManager: SelectionManager<KeyShortcut>
+  private let onDelete: (KeyShortcut) -> Void
+
+  init(keyboardShortcuts: Binding<[KeyShortcut]>, keyboardShortcut: Binding<KeyShortcut>,
+       features: Set<EditableKeyboardShortcutsItemView.Feature>,
+       selectionManager: SelectionManager<KeyShortcut>, onDelete: @escaping (KeyShortcut) -> Void) {
+    _keyboardShortcuts = keyboardShortcuts
+    self.features = features
+    self.keyboardShortcut = keyboardShortcut
+    self.selectionManager = selectionManager
+    self.onDelete = onDelete
+  }
 
   var body: some View {
     HStack(spacing: 6) {
@@ -64,7 +88,7 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
       })
       .buttonStyle(.borderless)
       .scaleEffect(isHovered ? 1 : 0.5)
-      .opacity(isHovered ? 1 : 0)
+      .opacity(isHovered && features.contains(.remove) ? 1 : 0)
       .animation(.smooth, value: isHovered)
     })
     .background(
@@ -84,6 +108,7 @@ struct EditableKeyboardShortcutsItemView_Previews: PreviewProvider {
       EditableKeyboardShortcutsItemView(
         keyboardShortcut: .constant(.init(key: "Caps Lock", lhs: true, modifiers: [.capsLock])),
         keyboardShortcuts: .constant([]),
+        features: [.remove],
         selectionManager: .init(), onDelete: { _ in })
       .padding()
     }

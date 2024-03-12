@@ -22,6 +22,7 @@ struct WorkflowShortcutsView: View {
   var body: some View {
     EditableKeyboardShortcutsView<AppFocus>(focus,
                                             focusBinding: { .detail(.keyboardShortcut($0)) },
+                                            mode: .inlineEdit,
                                             keyboardShortcuts: $data,
                                             draggableEnabled: true,
                                             selectionManager: selectionManager,

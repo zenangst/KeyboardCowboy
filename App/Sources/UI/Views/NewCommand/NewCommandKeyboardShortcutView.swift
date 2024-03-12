@@ -44,6 +44,7 @@ struct NewCommandKeyboardShortcutView: View {
         EditableKeyboardShortcutsView<Focus>(
           $focus,
           focusBinding: { .keyboardShortcut($0) },
+          mode: .inlineEdit,
           keyboardShortcuts: $keyboardShortcuts,
           draggableEnabled: true,
           selectionManager: .init(),
