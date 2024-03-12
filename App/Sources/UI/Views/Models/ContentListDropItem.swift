@@ -1,7 +1,7 @@
 import CoreTransferable
 import Foundation
 
-enum ContentListDropItem: Codable, Transferable {
+enum ContentListDropItem: Codable, Transferable, Equatable {
   case workflow(ContentViewModel)
   case command(CommandViewModel)
 

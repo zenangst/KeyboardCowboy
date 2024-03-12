@@ -2,7 +2,7 @@ import Bonzai
 import SwiftUI
 
 struct ContentViewModel: Identifiable, Hashable, Codable,
-                          Sendable, Transferable {
+                         Sendable, Transferable {
   static var transferRepresentation: some TransferRepresentation {
     CodableRepresentation(contentType: .workflow)
   }

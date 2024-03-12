@@ -2,7 +2,7 @@ import SwiftUI
 
 extension View {
   @ViewBuilder
-  func dropDestination<T: Transferable>(_ type: T.Type,
+  func dropDestination<T: Transferable & Equatable>(_ type: T.Type,
                                         alignment: TargetedAlignment = .vertical,
                                         color: Color, kind: TargetedKind = .reorder,
                                         onDrop: @escaping ([T], CGPoint) -> Bool) -> some View {
@@ -19,17 +19,24 @@ extension View {
   }
 }
 
-enum TargetedAlignment {
+enum TargetedAlignment: Equatable {
   case vertical
   case horizontal
 }
 
-enum TargetedKind {
+enum TargetedKind: Equatable {
   case reorder
   case drop
 }
 
-private struct TargetedDropView<T: Transferable>: View {
+private struct TargetedDropView<T: Transferable & Equatable>: View, Equatable {
+  static func == (lhs: TargetedDropView<T>, rhs: TargetedDropView<T>) -> Bool {
+    lhs.kind == rhs.kind &&
+    lhs.alignment == rhs.alignment && 
+    lhs.type == rhs.type &&
+    lhs.color == rhs.color
+  }
+
   private let kind: TargetedKind
   private let alignment: TargetedAlignment
   private let type: T.Type

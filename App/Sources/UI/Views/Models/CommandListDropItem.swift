@@ -1,7 +1,7 @@
 import CoreTransferable
 import Foundation
 
-enum CommandListDropItem: Transferable {
+enum CommandListDropItem: Transferable, Equatable {
   case command(CommandViewModel)
   case url(URL)
 
