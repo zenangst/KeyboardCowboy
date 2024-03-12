@@ -10,22 +10,30 @@ struct MoveFocusToWindowIconView: View {
     case visibleWindows
     case allWindows
   }
-  let direction: Direction
-  let scope: Scope
-  let size: CGFloat
+  private let direction: Direction
+  private let scope: Scope
+  private let size: CGFloat
+
+  init(direction: Direction, scope: Scope, size: CGFloat) {
+    self.direction = direction
+    self.scope = scope
+    self.size = size
+  }
 
   var body: some View {
     RoundedRectangle(cornerRadius: 4)
       .fill(baseColor(for: scope))
-      .overlay { background() }
+      .overlay { MoveFocusToWindowIconBackgroundView() }
       .overlay { iconBorder(size) }
       .overlay(content: {
-        HStack(spacing: size * 0.0_140) {
-          if scope == .allWindows {
-            stageManager()
-          }
+        ZStack(alignment: .leading) {
+          stageManager()
+            .opacity(scope == .allWindows ? 1 : 0)
           windows()
-            .offset(y: scope == .activeApplication ? -size * 0.075 : 0)
+            .offset(
+              x: windowsXOffset(for: scope),
+              y: windowsYOffset(for: scope))
+            .frame(maxWidth: .infinity)
         }
       })
       .overlay(alignment: .bottomTrailing) {
@@ -50,6 +58,21 @@ struct MoveFocusToWindowIconView: View {
       .fixedSize()
       .drawingGroup(opaque: true)
       .iconShape(size)
+
+  }
+
+  func windowsXOffset(for scope: Scope) -> CGFloat {
+    switch scope {
+    case .activeApplication, .visibleWindows: 0
+    case .allWindows: size * 0.075
+    }
+  }
+
+  func windowsYOffset(for scope: Scope) -> CGFloat {
+    switch scope {
+    case .activeApplication: -size * 0.075
+    case .visibleWindows, .allWindows: 0
+    }
   }
 
   private func baseColor(for scope: Scope) -> Color {
@@ -77,21 +100,6 @@ struct MoveFocusToWindowIconView: View {
 
   @ViewBuilder
   private func background() -> some View {
-    AngularGradient(stops: [
-      .init(color: Color.clear, location: 0.0),
-      .init(color: Color.white.opacity(0.2), location: 0.2),
-      .init(color: Color.clear, location: 1.0),
-    ], center: .bottomLeading)
-
-    LinearGradient(stops: [
-      .init(color: Color.white.opacity(0.2), location: 0),
-      .init(color: Color.clear, location: 0.3),
-    ], startPoint: .top, endPoint: .bottom)
-
-    LinearGradient(stops: [
-      .init(color: Color.clear, location: 0.8),
-      .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
-    ], startPoint: .top, endPoint: .bottom)
   }
 
   private func stageManager() -> some View {
@@ -150,6 +158,26 @@ struct MoveFocusToWindowIconView: View {
         }
       }
       .iconShape(width * 0.7)
+  }
+}
+
+struct MoveFocusToWindowIconBackgroundView: View {
+  var body: some View {
+    AngularGradient(stops: [
+      .init(color: Color.clear, location: 0.0),
+      .init(color: Color.white.opacity(0.2), location: 0.2),
+      .init(color: Color.clear, location: 1.0),
+    ], center: .bottomLeading)
+
+    LinearGradient(stops: [
+      .init(color: Color.white.opacity(0.2), location: 0),
+      .init(color: Color.clear, location: 0.3),
+    ], startPoint: .top, endPoint: .bottom)
+
+    LinearGradient(stops: [
+      .init(color: Color.clear, location: 0.8),
+      .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
+    ], startPoint: .top, endPoint: .bottom)
   }
 }
 
