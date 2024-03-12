@@ -107,7 +107,7 @@ struct GroupsListView: View {
               .gesture(
                 TapGesture(count: 1)
                   .onEnded { _ in
-                    onTap(group)
+                    focus = .element(group.id)
                   }
                   .simultaneously(with: TapGesture(count: 2)
                     .onEnded { _ in
