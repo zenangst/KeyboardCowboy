@@ -112,8 +112,41 @@ final class ContentCoordinator {
 
   func handle(_ action: DetailView.Action) {
     switch action {
-    case .singleDetailView:
-      render(groupSelectionManager.selections, calculateSelections: false)
+    case .singleDetailView(let action):
+      switch action {
+      case .applicationTrigger:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .commandView:
+        break
+      case .dropUrls:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .duplicate:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .moveCommand:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .removeCommands:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .removeTrigger:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .togglePassthrough:
+        break
+      case .runWorkflow:
+        break
+      case .setIsEnabled:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .trigger:
+        break
+      case .updateExecution:
+        break
+      case .updateHoldDuration:
+        break
+      case .updateKeyboardShortcuts:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .updateName:
+        render(groupSelectionManager.selections, calculateSelections: false)
+      case .updateSnippet:
+        break
+      }
     }
   }
 
