@@ -54,13 +54,6 @@ struct BezelNotificationView: View {
     .frame(maxWidth: .infinity)
     .padding(.top, (show || publisher.data.running) ? 24 : 0)
     .scaleEffect((show || publisher.data.running) ? 1 : 0.01, anchor: .top)
-    .rotation3DEffect(
-      Angle(degrees: show ? 0 : 90),
-      axis: (x: 1, y: 0, z: 0),
-      anchor: .top,
-      anchorZ: 0.0,
-      perspective: 1
-    )
     .opacity((show || publisher.data.running) ? 1 : 0)
     .animation(.smooth(duration: 0.5, extraBounce: 0.2), value: show)
     .animation(.smooth(duration: 0.5, extraBounce: 0.2), value: publisher.data.text)

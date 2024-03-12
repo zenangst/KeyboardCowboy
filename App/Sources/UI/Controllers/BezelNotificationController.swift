@@ -18,7 +18,7 @@ final class BezelNotificationController {
 
   private init() {
     Task { @MainActor in
-      resizeAndAlignWindow(to: .init(width: 2, height: 2), animate: false)
+      resizeAndAlignWindow(animate: false)
       windowController.showWindow(nil)
 
       subscription = NotificationCenter.default
@@ -26,7 +26,7 @@ final class BezelNotificationController {
         .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
         .sink { [weak self] _ in
           guard let self, let contentView = window.contentView else { return }
-          self.resizeAndAlignWindow(to: contentView.fittingSize, animate: false)
+          self.resizeAndAlignWindow(animate: false)
         }
     }
   }
@@ -39,13 +39,15 @@ final class BezelNotificationController {
     }
 
     DispatchQueue.main.async {
-      self.resizeAndAlignWindow(to: contentView.fittingSize, animate: true)
+      self.resizeAndAlignWindow(animate: true)
     }
   }
 
-  private func resizeAndAlignWindow(to contentSize: CGSize, animate: Bool) {
-    guard let screen = NSScreen.main else { return }
+  private func resizeAndAlignWindow(animate: Bool) {
+    guard let screen = NSScreen.main,
+          let contentView = window.contentView else { return }
     let screenFrame = screen.frame
+    let contentSize = contentView.intrinsicContentSize
 
     // Calculate the X coordinate for center alignment
     let newWindowOriginX = (screenFrame.width - contentSize.width) / 2.0 + screenFrame.minX
