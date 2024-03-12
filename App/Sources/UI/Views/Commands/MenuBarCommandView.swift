@@ -3,21 +3,42 @@ import Inject
 import SwiftUI
 
 struct MenuBarCommandView: View {
-  @ObserveInjection var inject
   enum Action {
     case editCommand(CommandViewModel.Kind.MenuBarModel)
     case commandAction(CommandContainerAction)
   }
-  @Environment(\.openWindow) private var openWindow
-  @State var metaData: CommandViewModel.MetaData
-  @Binding var model: CommandViewModel.Kind.MenuBarModel
+
+  private let model: CommandViewModel.Kind.MenuBarModel
+  private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
   private let onAction: (Action) -> Void
+
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.MenuBarModel,
        iconSize: CGSize,
        onAction: @escaping (Action) -> Void) {
+    self.model = model
+    self.metaData = metaData
+    self.iconSize = iconSize
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    MenuBarCommandInternalView(metaData, model: model, iconSize: iconSize, onAction: onAction)
+  }
+}
+
+struct MenuBarCommandInternalView: View {
+  @State var metaData: CommandViewModel.MetaData
+  @Binding var model: CommandViewModel.Kind.MenuBarModel
+  private let iconSize: CGSize
+  private let onAction: (MenuBarCommandView.Action) -> Void
+
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.MenuBarModel,
+       iconSize: CGSize,
+       onAction: @escaping (MenuBarCommandView.Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = Binding<CommandViewModel.Kind.MenuBarModel>(model)
     self.iconSize = iconSize
@@ -115,7 +136,6 @@ struct MenuBarCommandView: View {
     } onAction: { action in
       onAction(.commandAction(action))
     }
-    .enableInjection()
   }
 }
 

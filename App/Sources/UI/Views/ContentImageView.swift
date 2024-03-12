@@ -28,9 +28,8 @@ struct ContentImageView: View {
           UserModeIconView(size: size - 6)
         }
       case .keyboard(let model):
-        if let firstKey = model.keys.first {
-          KeyboardIconView(firstKey.key.uppercased(), size: size - 6)
-        }
+        KeyboardIconView(model.keys.first?.key.uppercased() ?? "", size: size - 6)
+          .opacity(model.keys.first != nil ? 1 : 0)
       case .script(let model):
         ContentScriptImageView(source: model.source, size: size)
       case .shortcut:

@@ -33,8 +33,6 @@ struct CommandView: View {
 
   @Binding private var command: CommandViewModel
   @Environment(\.controlActiveState) private var controlActiveState
-  @Environment(\.openWindow) private var openWindow
-  @State private var isTargeted: Bool = false
   private let publisher: CommandsPublisher
   private let selectionManager: SelectionManager<CommandViewModel>
   private let workflowId: String

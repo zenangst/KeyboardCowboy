@@ -2,13 +2,37 @@ import Bonzai
 import SwiftUI
 
 struct GroupItemView: View {
-  @ObserveInjection var inject
-  let groupsPublisher: GroupsPublisher
-  @ObservedObject var selectionManager: SelectionManager<GroupViewModel>
-
+  private let groupsPublisher: GroupsPublisher
   private let group: GroupViewModel
   private let onAction: (GroupsListView.Action) -> Void
-  @State var isTargeted: Bool = false
+  private let selectionManager: SelectionManager<GroupViewModel>
+
+  init(_ group: GroupViewModel,
+       groupsPublisher: GroupsPublisher,
+       selectionManager: SelectionManager<GroupViewModel>,
+       onAction: @escaping (GroupsListView.Action) -> Void) {
+    self.group = group
+    self.groupsPublisher = groupsPublisher
+    self.selectionManager = selectionManager
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    GroupItemInternalView(
+      group,
+      groupsPublisher: groupsPublisher,
+      selectionManager: selectionManager,
+      onAction: onAction
+    )
+  }
+}
+
+private struct GroupItemInternalView: View {
+  @ObservedObject private var selectionManager: SelectionManager<GroupViewModel>
+  @State private var isTargeted: Bool = false
+  private let group: GroupViewModel
+  private let groupsPublisher: GroupsPublisher
+  private let onAction: (GroupsListView.Action) -> Void
 
   init(_ group: GroupViewModel,
        groupsPublisher: GroupsPublisher,
@@ -59,7 +83,6 @@ struct GroupItemView: View {
     .contentShape(Rectangle())
     .background(FillBackgroundView(isSelected: .readonly(selectionManager.selections.contains(group.id))))
     .draggable(group)
-    .enableInjection()
   }
 
   @ViewBuilder

@@ -180,11 +180,9 @@ struct ContentListView: View {
               .id("bottom")
               .padding(.bottom, 24)
           }
-          .onAppear {
-            DispatchQueue.main.async {
-              let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
-              proxy.scrollTo(match)
-            }
+          .task { @MainActor in
+            let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
+            proxy.scrollTo(match)
           }
           .focused(appFocus, equals: .workflows)
           .onChange(of: searchTerm, perform: { newValue in
@@ -196,7 +194,7 @@ struct ContentListView: View {
               }
 
               debounce.process(.init(workflows: contentSelectionManager.selections,
-                                                     groups: groupSelectionManager.selections))
+                                     groups: groupSelectionManager.selections))
             }
           })
           .padding(8)

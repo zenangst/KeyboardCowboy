@@ -3,7 +3,30 @@ import Inject
 import SwiftUI
 
 struct EditableKeyboardShortcutsItemView: View {
-  @ObserveInjection var inject
+  private let keyboardShortcut: Binding<KeyShortcut>
+  @Binding private var keyboardShortcuts: [KeyShortcut]
+  private let selectionManager: SelectionManager<KeyShortcut>
+  private let onDelete: (KeyShortcut) -> Void
+
+  init(keyboardShortcut: Binding<KeyShortcut>, keyboardShortcuts: Binding<[KeyShortcut]>,
+       selectionManager: SelectionManager<KeyShortcut>, onDelete: @escaping (KeyShortcut) -> Void) {
+    _keyboardShortcuts = keyboardShortcuts
+    self.keyboardShortcut = keyboardShortcut
+    self.selectionManager = selectionManager
+    self.onDelete = onDelete
+  }
+
+  var body: some View {
+    EditableKeyboardShortcutsItemInternalView(
+      keyboardShortcut: keyboardShortcut,
+      keyboardShortcuts: $keyboardShortcuts,
+      selectionManager: selectionManager,
+      onDelete: onDelete
+    )
+  }
+}
+
+private struct EditableKeyboardShortcutsItemInternalView: View {
   @State var isHovered: Bool = false
   @State var isTargeted: Bool = false
   let keyboardShortcut: Binding<KeyShortcut>
@@ -53,7 +76,6 @@ struct EditableKeyboardShortcutsItemView: View {
     .onHover(perform: { hovering in
       isHovered = hovering
     })
-    .enableInjection()
   }
 }
 

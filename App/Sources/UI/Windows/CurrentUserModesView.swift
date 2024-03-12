@@ -3,7 +3,6 @@ import Inject
 import SwiftUI
 
 struct CurrentUserModesView: View {
-  @ObserveInjection var inject
   @ObservedObject var publisher: UserSpace.UserModesPublisher
   static var animation: Animation = .smooth(duration: 0.2)
 
@@ -17,7 +16,6 @@ struct CurrentUserModesView: View {
       .transition(AnyTransition.moveAndFade.animation(Self.animation))
     }
     .padding(4)
-    .enableInjection()
   }
 }
 

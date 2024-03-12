@@ -14,7 +14,6 @@ enum CommandContainerAction {
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
-  @ObserveInjection var inject
   @State private var delayString: String = ""
   @State private var delayOverlay: Bool = false
   private let debounce: DebounceManager<String>
@@ -117,12 +116,10 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
       .font(.caption)
     }
     .roundedContainer(padding: 0, margin: 1)
-    .enableInjection()
   }
 }
 
 struct CommandContainerActionView: View {
-  @ObserveInjection var inject
   let onAction: (CommandContainerAction) -> Void
 
   var body: some View {
@@ -137,7 +134,6 @@ struct CommandContainerActionView: View {
       .help("Delete Command")
       .buttonStyle(.calm(color: .systemRed, padding: .medium))
     }
-    .enableInjection()
   }
 }
 

@@ -8,16 +8,15 @@ struct ContentItemIsDisabledOverlayView: View {
   }
 
   var body: some View {
-    if !isEnabled {
-      ZStack {
-        Circle()
-          .fill(Color.white)
-          .frame(width: 14, height: 14)
-        Image(systemName: "pause.circle.fill")
-          .resizable()
-          .foregroundStyle(Color.accentColor)
-          .frame(width: 12, height: 12)
-      }
+    ZStack {
+      Circle()
+        .fill(Color.white)
+        .frame(width: 14, height: 14)
+      Image(systemName: "pause.circle.fill")
+        .resizable()
+        .foregroundStyle(Color.accentColor)
+        .frame(width: 12, height: 12)
     }
+    .opacity(!isEnabled ? 1 : 0)
   }
 }

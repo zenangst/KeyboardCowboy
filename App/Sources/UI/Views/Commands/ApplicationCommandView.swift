@@ -3,16 +3,7 @@ import Bonzai
 import Inject
 import SwiftUI
 
-struct IconMenuStyle: MenuStyle {
-  func makeBody(configuration: Configuration) -> some View {
-    Menu(configuration)
-      .menuStyle(.borderlessButton)
-      .menuIndicator(.hidden)
-  }
-}
-
 struct ApplicationCommandView: View {
-  @ObserveInjection var inject
   enum Action {
     case changeApplication(Application)
     case updateName(newName: String)
@@ -21,20 +12,41 @@ struct ApplicationCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
+  private let metaData: CommandViewModel.MetaData
+  private let model: CommandViewModel.Kind.ApplicationModel
+  private let iconSize: CGSize
+  private let onAction: (ApplicationCommandView.Action) -> Void
+
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.ApplicationModel, 
+       iconSize: CGSize, onAction: @escaping (ApplicationCommandView.Action) -> Void) {
+    self.metaData = metaData
+    self.model = model
+    self.iconSize = iconSize
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    ApplicationCommandInternalView(
+      metaData,
+      model: model,
+      iconSize: iconSize,
+      onAction: onAction
+    )
+  }
+}
+
+private struct ApplicationCommandInternalView: View {
+  @EnvironmentObject private var applicationStore: ApplicationStore
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.ApplicationModel
-
   private let debounce: DebounceManager<String>
-
-  @EnvironmentObject var applicationStore: ApplicationStore
-
   private let iconSize: CGSize
-  private let onAction: (Action) -> Void
+  private let onAction: (ApplicationCommandView.Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.ApplicationModel,
        iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+       onAction: @escaping (ApplicationCommandView.Action) -> Void) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.onAction = onAction
@@ -100,12 +112,10 @@ struct ApplicationCommandView: View {
       }, subContent: { _ in },
       onAction: { onAction(.commandAction($0)) })
     .id(metaData.id)
-    .enableInjection()
   }
 }
 
 struct ApplicationCommandImageView: View {
-  @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
   @State private var isHovered: Bool = false
   @State private var metaData: CommandViewModel.MetaData
@@ -127,11 +137,10 @@ struct ApplicationCommandImageView: View {
           onAction(.changeApplication(app))
           metaData.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
         }, label: {
-          if app.metadata.isSafariWebApp {
-            Text("\(app.displayName) (Safari Web App)")
-          } else {
-            Text(app.displayName)
-          }
+          let text = app.metadata.isSafariWebApp
+          ? "\(app.displayName) (Safari Web App)"
+          : app.displayName
+          Text(text)
         })
       }
     }, label: { })
@@ -139,20 +148,30 @@ struct ApplicationCommandImageView: View {
     .menuStyle(IconMenuStyle())
     .padding(4)
     .overlay(content: {
-      if let icon = metaData.icon {
-        IconView(icon: icon, size: iconSize)
-          .fixedSize()
-          .allowsHitTesting(false)
-      }
+      IconView(icon: metaData.icon, size: iconSize)
+        .fixedSize()
+        .allowsHitTesting(false)
+        .opacity(metaData.icon != nil ? 1 : 0)
     })
-    .enableInjection()
+  }
+}
+
+struct IconMenuStyle: MenuStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    Menu(configuration)
+      .menuStyle(.borderlessButton)
+      .menuIndicator(.hidden)
   }
 }
 
 struct ApplicationCommandView_Previews: PreviewProvider {
   static let command = DesignTime.applicationCommand
   static var previews: some View {
-    ApplicationCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+    ApplicationCommandView(
+      command.model.meta,
+      model: command.kind,
+      iconSize: .init(width: 24, height: 24)
+    ) { _ in }
       .designTime()
   }
 }

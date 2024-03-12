@@ -2,7 +2,6 @@ import Inject
 import SwiftUI
 
 struct MenuIconView: View {
-  @ObserveInjection var inject
   let size: CGFloat
 
   var body: some View {
@@ -20,40 +19,7 @@ struct MenuIconView: View {
       .overlay { iconOverlay().opacity(0.65) }
       .overlay { iconBorder(size) }
       .overlay(alignment: .top) {
-        Rectangle()
-          .fill(Color(.white).opacity(0.4))
-          .frame(height: size * 0.270)
-          .overlay(alignment: .leading) {
-            HStack(spacing: size * 0.03) {
-              Image(systemName: "apple.logo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundStyle(.black)
-                .frame(height: size * 0.125)
-              RoundedRectangle(cornerRadius: size * 0.0_3)
-                .fill(
-                  LinearGradient(stops: [
-                    .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.rollover)), location: 0),
-                    .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.pressed)), location: 0.1),
-                    .init(color: Color(nsColor: .controlAccentColor), location: 1.0),
-                  ], startPoint: .top, endPoint: .bottom)
-                )
-                .shadow(radius: 2)
-                .padding(size * 0.03)
-                .frame(width: size * 0.525)
-              Text("Files")
-                .font(Font.system(size: size * 0.2))
-                .redacted(reason: .placeholder)
-            }
-            .font(
-              Font.system(
-                size: size * 0.125,
-                design: .rounded
-              )
-            )
-            .foregroundStyle(.black)
-            .padding(.leading, size * 0.1)
-          }
+        MenuIconMenuBarView(size: size)
       }
       .overlay(alignment: .bottomTrailing) {
         Rectangle()
@@ -61,7 +27,7 @@ struct MenuIconView: View {
           .frame(width: size * 0.8, height: size * 0.4)
           .clipShape(TopLeadingRoundedShape(radius: size * 0.0_9))
           .overlay(alignment: .topLeading) {
-            windowControls()
+            MenuBarIconWindowControls(size: size)
               .padding(.leading, size * 0.075)
           }
           .compositingGroup()
@@ -78,10 +44,52 @@ struct MenuIconView: View {
       .frame(width: size, height: size, alignment: .center)
       .fixedSize()
       .iconShape(size)
-      .enableInjection()
   }
+}
 
-  func windowControls() -> some View {
+private struct MenuIconMenuBarView: View {
+  let size: CGFloat
+  var body: some View {
+    Rectangle()
+      .fill(Color(.white).opacity(0.4))
+      .frame(height: size * 0.270)
+      .overlay(alignment: .leading) {
+        HStack(spacing: size * 0.03) {
+          Image(systemName: "apple.logo")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundStyle(.black)
+            .frame(height: size * 0.125)
+          RoundedRectangle(cornerRadius: size * 0.0_3)
+            .fill(
+              LinearGradient(stops: [
+                .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.rollover)), location: 0),
+                .init(color: Color(nsColor: .controlAccentColor.withSystemEffect(.pressed)), location: 0.1),
+                .init(color: Color(nsColor: .controlAccentColor), location: 1.0),
+              ], startPoint: .top, endPoint: .bottom)
+            )
+            .shadow(radius: 2)
+            .padding(size * 0.03)
+            .frame(width: size * 0.525)
+          Text("Files")
+            .font(Font.system(size: size * 0.2))
+            .redacted(reason: .placeholder)
+        }
+        .font(
+          Font.system(
+            size: size * 0.125,
+            design: .rounded
+          )
+        )
+        .foregroundStyle(.black)
+        .padding(.leading, size * 0.1)
+      }
+  }
+}
+
+private struct MenuBarIconWindowControls: View {
+  let size: CGFloat
+  var body: some View {
     HStack(spacing: size * 0.0_55) {
       Circle()
         .fill(
@@ -99,7 +107,6 @@ struct MenuIconView: View {
             Color(nsColor: NSColor(red:1.00, green:0.98, blue:0.37, alpha:1.00)),
             Color(.systemYellow)
           ], startPoint: .top, endPoint: .bottom)
-          
         )
         .frame(height: size * 0.1)
       Circle()
@@ -116,6 +123,7 @@ struct MenuIconView: View {
     .fontWeight(.bold)
     .padding([.top, .leading, .trailing], size * 0.0_5)
     .frame(height: size * 0.25)
+    .fixedSize()
   }
 }
 

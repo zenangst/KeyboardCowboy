@@ -18,7 +18,6 @@ extension AnyTransition {
 
 
 struct EditableKeyboardShortcutsView<T: Hashable>: View {
-  @ObserveInjection var inject
   enum CurrentState: Hashable {
     case recording
   }
@@ -196,7 +195,6 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
         break
       }
     })
-    .enableInjection()
   }
 
   private func rerecord(_ id: KeyShortcut.ID) {
@@ -206,7 +204,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
 
   @ViewBuilder
   private func overlay(_ proxy: ScrollViewProxy) -> some View {
-    if state == .recording {
+    ZStack {
       RoundedRectangle(cornerRadius: 7)
         .stroke(isGlowing
                 ? Color(.systemRed) .opacity(0.5)
@@ -215,7 +213,8 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
         .animation(Animation
           .easeInOut(duration: 1.25)
           .repeatForever(autoreverses: true), value: isGlowing)
-    } else if keyboardShortcuts.isEmpty {
+        .opacity(state == .recording ? 1 : 0)
+
       Button(action: {
         addButtonAction(proxy)
       }, label: {
@@ -240,6 +239,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
       .buttonStyle(.positive)
       .fixedSize(horizontal: false, vertical: true)
       .padding(4)
+      .opacity(keyboardShortcuts.isEmpty ? 1 : 0)
     }
   }
 
@@ -287,6 +287,7 @@ private struct DraggableToggle<T: Transferable>: ViewModifier {
   let isEnabled: Bool
   let model: T
 
+  @ViewBuilder
   func body(content: Content) -> some View {
     if isEnabled {
       content

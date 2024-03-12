@@ -18,22 +18,16 @@ struct SidebarAddGroupButtonView: View {
 
   @ViewBuilder
   var body: some View {
-    Group {
-      if isVisible {
-        Button(action: { onAction() }, label: {
-          Image(systemName: "plus")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(height: 8)
-        })
-        .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true))))
-        .matchedGeometryEffect(id: "add-group-button", in: namespace)
-        .help("Add Group")
-      } else {
-        EmptyView()
-      }
-    }
-    .enableInjection()
+    Button(action: { onAction() }, label: {
+      Image(systemName: "plus")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(height: 8)
+    })
+    .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true))))
+    .matchedGeometryEffect(id: "add-group-button", in: namespace)
+    .help("Add Group")
+    .opacity(isVisible ? 1 : 0)
   }
 }
 

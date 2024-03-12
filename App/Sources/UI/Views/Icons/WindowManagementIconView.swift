@@ -3,17 +3,16 @@ import Inject
 import SwiftUI
 
 struct WindowManagementIconView: View {
-  @ObserveInjection var inject
   let size: CGFloat
 
   var body: some View {
     HStack(alignment: .top, spacing: 0) {
       VStack {
-        windowControls()
+        WindowManagementIconWindowControlsView(size: size)
         Spacer()
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(sidebarBackground())
+      .background(WindowManagementIconBackgroundView())
 
       Rectangle()
         .fill(Color(.systemGray))
@@ -22,7 +21,7 @@ struct WindowManagementIconView: View {
         .fill(Color.white)
         .frame(width: size * 0.0125)
 
-      window()
+      WindowManagementIconWindowView(size: size)
         .frame(width: size * 0.182)
     }
     .overlay { iconBorder(size) }
@@ -31,10 +30,11 @@ struct WindowManagementIconView: View {
     .iconShape(size)
     .frame(width: size, height: size)
     .fixedSize()
-    .enableInjection()
   }
+}
 
-  func sidebarBackground() -> some View {
+private struct WindowManagementIconBackgroundView: View {
+  var body: some View {
     Rectangle()
       .fill(Color(nsColor: NSColor(red:0.94, green:0.71, blue:0.51, alpha:1.00)))
       .overlay {
@@ -97,8 +97,11 @@ struct WindowManagementIconView: View {
       .blur(radius: 1)
       .compositingGroup()
   }
+}
 
-  func windowControls() -> some View {
+private struct WindowManagementIconWindowControlsView: View {
+  let size: CGFloat
+  var body: some View {
     HStack(spacing: size * 0.0_55) {
       Circle()
         .fill(
@@ -133,8 +136,11 @@ struct WindowManagementIconView: View {
     .padding([.top, .leading, .trailing], size * 0.0_5)
     .frame(height: size * 0.25)
   }
+}
 
-  func window() -> some View {
+private struct WindowManagementIconWindowView: View {
+  let size: CGFloat
+  var body: some View {
     VStack(spacing: 0) {
       Rectangle()
         .frame(height: size * 0.30)

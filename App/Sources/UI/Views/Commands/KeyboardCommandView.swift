@@ -1,8 +1,8 @@
 import Inject
 import SwiftUI
 
+
 struct KeyboardCommandView: View {
-  @ObserveInjection var inject
   enum Action {
     case editCommand(CommandViewModel.Kind.KeyboardModel)
     case updateName(newName: String)
@@ -10,11 +10,41 @@ struct KeyboardCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
-  @StateObject var keyboardSelection = SelectionManager<KeyShortcut>()
+  private let focus: FocusState<AppFocus?>.Binding
+  private let iconSize: CGSize
+  private let metaData: CommandViewModel.MetaData
+  private let model: CommandViewModel.Kind.KeyboardModel
+  private let onAction: (KeyboardCommandView.Action) -> Void
+
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.KeyboardModel,
+       iconSize: CGSize,
+       onAction: @escaping (Action) -> Void) {
+    self.focus = focus
+    self.metaData = metaData
+    self.model = model
+    self.iconSize = iconSize
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    KeyboardCommandInternalView(
+      focus,
+      metaData: metaData,
+      model: model,
+      iconSize: iconSize,
+      onAction: onAction
+    )
+  }
+}
+
+struct KeyboardCommandInternalView: View {
+  @StateObject private var keyboardSelection = SelectionManager<KeyShortcut>()
   @State private var metaData: CommandViewModel.MetaData
   @Binding private var model: CommandViewModel.Kind.KeyboardModel
   private let debounce: DebounceManager<String>
-  private let onAction: (Action) -> Void
+  private let onAction: (KeyboardCommandView.Action) -> Void
   private let iconSize: CGSize
   private var focus: FocusState<AppFocus?>.Binding
 
@@ -22,7 +52,7 @@ struct KeyboardCommandView: View {
        metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.KeyboardModel,
        iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+       onAction: @escaping (KeyboardCommandView.Action) -> Void) {
     self.focus = focus
     _metaData = .init(initialValue: metaData)
     _model = Binding<CommandViewModel.Kind.KeyboardModel>(model)
@@ -69,7 +99,6 @@ struct KeyboardCommandView: View {
         .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
       },
       onAction: { onAction(.commandAction($0)) })
-    .enableInjection()
   }
 }
 

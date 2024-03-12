@@ -3,26 +3,46 @@ import Inject
 import SwiftUI
 
 struct MouseCommandView: View {
-  @ObserveInjection var inject
-
   enum Action {
     case update(MouseCommand.Kind)
     case commandAction(CommandContainerAction)
   }
 
+  private let iconSize: CGSize
+  private let metaData: CommandViewModel.MetaData
+  private let model: CommandViewModel.Kind.MouseModel
+  private let onAction: (MouseCommandView.Action) -> Void
+  private let xString: String = ""
+  private let yString: String = ""
+
+  init(_ metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.MouseModel,
+       iconSize: CGSize,
+       onAction: @escaping (MouseCommandView.Action) -> Void) {
+    self.metaData = metaData
+    self.model = model
+    self.iconSize = iconSize
+    self.onAction = onAction
+  }
+
+  var body: some View {
+    MouseCommandInternalView(metaData, model: model, iconSize: iconSize, onAction: onAction)
+  }
+}
+
+struct MouseCommandInternalView: View {
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.MouseModel
-
   @State private var xString: String = ""
   @State private var yString: String = ""
 
-  private let onAction: (Action) -> Void
+  private let onAction: (MouseCommandView.Action) -> Void
   private let iconSize: CGSize
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.MouseModel,
        iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+       onAction: @escaping (MouseCommandView.Action) -> Void) {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
@@ -98,7 +118,6 @@ struct MouseCommandView: View {
       onAction: { action in
         onAction(.commandAction(action))
       })
-      .enableInjection()
   }
 }
 

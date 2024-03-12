@@ -9,28 +9,21 @@ struct ContentImagesView: View {
 
   @ViewBuilder
   var body: some View {
-    Group {
-      if images.isEmpty {
-        ZStack(alignment: .center) {
-          Image(systemName: "app.dashed")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 24, height: 24)
-        }
+    ZStack(alignment: .center) {
+      Image(systemName: "app.dashed")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 24, height: 24)
         .foregroundColor(.white)
         .compositingGroup()
-        .opacity(0.5)
-        .frame(width: size, height: size)
-      } else {
-        ZStack(alignment: .center) {
-          ForEach(images) { image in
-            ContentImageView(image: image, size: size, stacked: $stacked)
-              .drawingGroup()
-          }
+        .opacity(images.isEmpty ? 0.5 : 0)
+
+        ForEach(images) { image in
+          ContentImageView(image: image, size: size, stacked: $stacked)
+            .drawingGroup()
         }
-        .frame(width: size, height: size)
-      }
     }
+    .frame(width: size, height: size)
     .enableInjection()
   }
 }

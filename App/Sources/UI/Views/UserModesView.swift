@@ -50,7 +50,6 @@ struct UserModesView: View {
 }
 
 struct FlowItem: View {
-  @ObserveInjection var inject
   @State var isHovered: Bool = false
   @State var areYouSure: Bool = false
   @State var rename: Bool = false
@@ -137,7 +136,6 @@ struct FlowItem: View {
       .buttonStyle(.regular)
       .font(.caption)
     })
-    .enableInjection()
   }
 }
 
