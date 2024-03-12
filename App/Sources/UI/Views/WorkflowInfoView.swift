@@ -11,6 +11,7 @@ struct WorkflowInfoView: View {
 
   @ObserveInjection var inject
   @ObservedObject private var publisher: InfoPublisher
+  @State var name: String
 
   private let onInsertTab: () -> Void
   private var onAction: (Action) -> Void
@@ -21,6 +22,7 @@ struct WorkflowInfoView: View {
        onInsertTab: @escaping () -> Void,
        onAction: @escaping (Action) -> Void) {
     self.focus = focus
+    _name = .init(initialValue: publisher.data.name)
     self.publisher = publisher
     self.onInsertTab = onInsertTab
     self.onAction = onAction
@@ -28,7 +30,7 @@ struct WorkflowInfoView: View {
 
   var body: some View {
     HStack(spacing: 0) {
-      TextField("Workflow name", text: $publisher.data.name)
+      TextField("Workflow name", text: $name)
         .focused(focus, equals: .detail(.name))
         .textFieldStyle(
           .zen(
@@ -41,7 +43,7 @@ struct WorkflowInfoView: View {
             )
           )
         )
-        .onChange(of: publisher.data.name) { onAction(.updateName(name: $0)) }
+        .onChange(of: name) { onAction(.updateName(name: $0)) }
         .modifier(TabModifier(focus: focus, onInsertTab: onInsertTab))
 
       Spacer()
