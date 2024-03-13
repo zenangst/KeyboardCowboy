@@ -43,7 +43,13 @@ struct WorkflowInfoView: View {
             )
           )
         )
-        .onChange(of: name) { onAction(.updateName(name: $0)) }
+        .onChange(of: publisher.data.name, perform: { value in
+          name = value
+        })
+        .onChange(of: name) {
+          guard $0 != publisher.data.name else { return }
+          onAction(.updateName(name: $0))
+        }
         .modifier(TabModifier(focus: focus, onInsertTab: onInsertTab))
 
       Spacer()
