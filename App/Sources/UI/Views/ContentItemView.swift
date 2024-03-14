@@ -29,9 +29,9 @@ struct ContentItemView: View {
 }
 
 private struct ContentItemInternalView: View {
-  private let contentSelectionManager: SelectionManager<ContentViewModel>
   @State private var isHovered: Bool = false
-  @State private var isTargeted: Bool = false
+
+  private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let publisher: ContentPublisher
   private let workflow: ContentViewModel
   private let onAction: (ContentListView.Action) -> Void

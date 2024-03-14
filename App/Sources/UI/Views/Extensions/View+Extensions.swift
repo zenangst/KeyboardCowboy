@@ -22,39 +22,8 @@ extension View {
   }
 
   @ViewBuilder
-  func iconOverlay() -> some View {
-    AngularGradient(stops: [
-      .init(color: Color.clear, location: 0.0),
-      .init(color: Color.white.opacity(0.2), location: 0.2),
-      .init(color: Color.clear, location: 1.0),
-    ], center: .bottomLeading)
-
-    LinearGradient(stops: [
-      .init(color: Color.white.opacity(0.2), location: 0),
-      .init(color: Color.clear, location: 0.3),
-    ], startPoint: .top, endPoint: .bottom)
-
-    LinearGradient(stops: [
-      .init(color: Color.clear, location: 0.8),
-      .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
-    ], startPoint: .top, endPoint: .bottom)
-
-    LinearGradient(stops: [
-      .init(color: Color.clear, location: 0.8),
-      .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
-    ], startPoint: .top, endPoint: .bottom)
-  }
-
-  func iconBorder(_ size: CGFloat) -> some View {
-    LinearGradient(stops: [
-      .init(color: Color(.white).opacity(0.15), location: 0.25),
-      .init(color: Color(.black).opacity(0.25), location: 1.0),
-    ], startPoint: .top, endPoint: .bottom)
-    .mask {
-      RoundedRectangle(cornerRadius: size * 0.2)
-        .stroke(lineWidth: size * 0.025)
-    }
-  }
+  func iconOverlay() -> some View { IconOverlayView() }
+  func iconBorder(_ size: CGFloat) -> some View { IconBorderView(size) }
 
   @ViewBuilder
   func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
@@ -98,6 +67,50 @@ extension View {
     self
       .modifier(GeometryPreferenceKeyView<FramePreferenceKey>(space: space, transform: { $0.frame(in: space) }))
       .onPreferenceChange(FramePreferenceKey.self, perform: perform)
+  }
+}
+
+private struct IconBorderView: View {
+  let size: CGFloat
+
+  init(_ size: CGFloat) {
+    self.size = size
+  }
+
+  var body: some View {
+    LinearGradient(stops: [
+      .init(color: Color(.white).opacity(0.15), location: 0.25),
+      .init(color: Color(.black).opacity(0.25), location: 1.0),
+    ], startPoint: .top, endPoint: .bottom)
+    .mask {
+      RoundedRectangle(cornerRadius: size * 0.2)
+        .stroke(lineWidth: size * 0.025)
+    }
+  }
+}
+
+private struct IconOverlayView: View {
+  var body: some View {
+    AngularGradient(stops: [
+      .init(color: Color.clear, location: 0.0),
+      .init(color: Color.white.opacity(0.2), location: 0.2),
+      .init(color: Color.clear, location: 1.0),
+    ], center: .bottomLeading)
+
+    LinearGradient(stops: [
+      .init(color: Color.white.opacity(0.2), location: 0),
+      .init(color: Color.clear, location: 0.3),
+    ], startPoint: .top, endPoint: .bottom)
+
+    LinearGradient(stops: [
+      .init(color: Color.clear, location: 0.8),
+      .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
+    ], startPoint: .top, endPoint: .bottom)
+
+    LinearGradient(stops: [
+      .init(color: Color.clear, location: 0.8),
+      .init(color: Color(.windowBackgroundColor).opacity(0.3), location: 1.0),
+    ], startPoint: .top, endPoint: .bottom)
   }
 }
 
