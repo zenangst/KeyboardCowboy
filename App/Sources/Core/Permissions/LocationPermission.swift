@@ -10,7 +10,7 @@ public enum PermissionsItemStatus: String {
   case unknown = "Unknown"
 }
 
-final class LocationPermission: NSObject, ObservableObject, CLLocationManagerDelegate {
+final class LocationPermission: NSObject, ObservableObject, CLLocationManagerDelegate, @unchecked Sendable {
   enum Permission {
     case authorizedAlways
     case notDetermined

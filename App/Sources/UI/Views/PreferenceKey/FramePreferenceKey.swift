@@ -1,5 +1,6 @@
 import SwiftUI
-struct FramePreferenceKey: PreferenceKey {
+
+struct FramePreferenceKey: PreferenceKey, Sendable {
     typealias Value = CGRect
     static var defaultValue = CGRect.zero
 

@@ -6,7 +6,7 @@ enum WifiInfoError: Error {
   case needsPermissions
 }
 
-final class WifiInfo: CWEventDelegate {
+final class WifiInfo: CWEventDelegate, @unchecked Sendable {
   struct Model: Equatable {
     let ssid: String
 

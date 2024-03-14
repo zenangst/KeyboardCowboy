@@ -1,6 +1,6 @@
 import LaunchArguments
 
-enum LaunchArgument: String, LaunchArgumentType {
+enum LaunchArgument: String, LaunchArgumentType, Sendable {
   case benchmark = "-benchmark"
   case debugEditing = "-debugEditing"
   case injection = "-injection"

@@ -10,7 +10,7 @@ enum StorageError: Error {
   case emptyFile
 }
 
-final class Storage {
+final class Storage: @unchecked Sendable {
   var configuration: any StoringConfiguration
 
   private let encoder: JSONEncoder

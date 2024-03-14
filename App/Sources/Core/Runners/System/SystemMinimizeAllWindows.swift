@@ -9,7 +9,6 @@ enum SystemMinimizeAllWindows {
   static func run(_ snapshot: UserSpace.Snapshot, 
                   machPort: MachPortEventController) throws {
     Task {
-      let menuBar = MenuBarCommandRunner()
       var uniqueRunningApplications: [Application] = []
       for window in snapshot.windows.visibleWindowsInSpace {
         guard let runningApplication = NSWorkspace.shared.runningApplications

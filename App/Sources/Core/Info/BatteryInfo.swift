@@ -1,7 +1,7 @@
 import IOKit.ps
 import Foundation
 
-final class BatteryInfo {
+final class BatteryInfo: @unchecked Sendable {
   struct Model: Equatable {
     let acPowered: Bool?
     let currentCapacity: Float

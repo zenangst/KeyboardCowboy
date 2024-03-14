@@ -21,7 +21,7 @@ struct WindowStoreSnapshot: @unchecked Sendable {
   }
 }
 
-final class WindowStore {
+final class WindowStore: @unchecked Sendable {
   final class Subscriptions {
     var flagsChange: AnyCancellable?
     var passthrough = PassthroughSubject<Void, Never>()
@@ -29,9 +29,9 @@ final class WindowStore {
     var frontMostApplication: AnyCancellable?
   }
 
-  final class State {
+  final class State: Sendable {
     var appAccessibilityElement: AppAccessibilityElement
-    var frontmostApplication: UserSpace.Application = .current
+    var frontmostApplication: UserSpace.Application
     var frontMostIndex: Int = 0
     var visibleMostIndex: Int = 0
     var interactive: Bool = false
@@ -39,20 +39,26 @@ final class WindowStore {
     var visibleWindowsInStage: [WindowModel] = .init()
     var visibleWindowsInSpace: [WindowModel] = .init()
 
+    @MainActor
     init() {
       let pid = UserSpace.Application.current.ref.processIdentifier
       self.appAccessibilityElement = AppAccessibilityElement(pid)
+      self.frontmostApplication = .current
     }
   }
 
   @Published private(set) var windows: [WindowModel] = []
 
   private let subscriptions: Subscriptions = .init()
-  let state: State = .init()
+  let state: State
 
+  @MainActor
   static let shared: WindowStore = .init()
 
-  private init() { }
+  @MainActor
+  private init() {
+    self.state = State()
+  }
 
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     subscriptions.frontMostApplication = publisher

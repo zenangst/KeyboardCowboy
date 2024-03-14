@@ -1,6 +1,6 @@
 import Foundation
 
-protocol StoringConfiguration: Hashable {
+protocol StoringConfiguration: Hashable, Sendable {
   var url: URL { get }
 }
 

@@ -19,7 +19,7 @@ final class MissionControlPlugin {
     } != nil
 
     if missionControlIsActive {
-      try? keyboard.run([.init(key: "⎋")], type: .keyDown, originalEvent: nil, with: nil)
+      _ = try? keyboard.run([.init(key: "⎋")], type: .keyDown, originalEvent: nil, with: nil)
     }
   }
 }

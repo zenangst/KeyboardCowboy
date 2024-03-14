@@ -54,10 +54,10 @@ private extension Workflow {
 
     if let trigger  {
       switch trigger {
-      case .application(let array):
+      case .application:
         binding = nil
         snippet = nil
-      case .keyboardShortcuts(let keyboardShortcutTrigger):
+      case .keyboardShortcuts:
         binding = trigger.binding
         snippet = nil
       case .snippet(let snippetTrigger):
