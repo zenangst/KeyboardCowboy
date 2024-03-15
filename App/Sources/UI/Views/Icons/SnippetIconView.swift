@@ -5,25 +5,13 @@ struct SnippetIconView: View {
 
   var body: some View {
     Rectangle()
-      .fill(SnippetIconGradientView())
+      .fill(Color(.textBackgroundColor))
       .overlay { iconOverlay().opacity(0.25) }
       .overlay { iconBorder(size) }
       .overlay { SnippetIconIllustrationView(size) }
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
-  }
-}
-
-private struct SnippetIconGradientView: ShapeStyle {
-  var body: some ShapeStyle {
-    LinearGradient(
-      stops: [
-        .init(color: Color(nsColor: .systemPink), location: 0.1),
-        .init(color: Color(nsColor: .systemPink.withSystemEffect(.disabled)), location: 1.0)
-      ],
-      startPoint: .top,
-      endPoint: .bottom)
   }
 }
 
