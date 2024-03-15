@@ -111,6 +111,7 @@ struct ContentListView: View {
                 return true
               })
               .modifier(LegacyOnTapFix(onTap: {
+                focus = .element(element.id)
                 onTap(element)
               }))
               .contextMenu(menuItems: {

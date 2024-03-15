@@ -92,6 +92,10 @@ struct GroupsListView: View {
                 return true
               })
               .overlay(content: { confirmDeleteView(group) })
+              .modifier(LegacyOnTapFix(onTap: {
+                focus = .element(group.id)
+                onTap(group)
+              }))
               .contextMenu(menuItems: {
                 contextualMenu(for: group, onAction: onAction)
               })
