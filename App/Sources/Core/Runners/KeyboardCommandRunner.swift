@@ -24,7 +24,6 @@ final class KeyboardCommandRunner: @unchecked Sendable {
 
   @discardableResult
   func run(_ keyboardShortcuts: [KeyShortcut],
-           type: CGEventType,
            originalEvent: CGEvent? = nil,
            isRepeating: Bool = false,
            with eventSource: CGEventSource?) throws -> [CGEvent] {
@@ -47,7 +46,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           flags.insert(.maskNumericPad)
         }
 
-        let newEvent = try machPort.post(key, type: type, flags: flags) { newEvent in
+        let configureEvent: (CGEvent) -> Void = { newEvent in
           if let originalEvent {
             let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
             newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: originalKeyboardEventAutorepeat)
@@ -56,7 +55,11 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           }
         }
 
-        events.append(newEvent)
+        let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
+        let keyUp = try machPort.post(key, type: .keyUp, flags: flags, configure: configureEvent)
+
+        events.append(keyDown)
+        events.append(keyUp)
       } catch let error {
         throw error
       }

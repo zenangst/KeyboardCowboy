@@ -116,8 +116,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
       // Clean up snippet before running command
       if let key = VirtualSpecialKey.keys[kVK_Delete] {
         for _ in 0..<currentSnippet.count {
-          _ = try? keyboardCommandRunner.run([.init(key: key)], type: .keyDown, with: nil)
-          _ = try? keyboardCommandRunner.run([.init(key: key)], type: .keyUp, with: nil)
+          _ = try? keyboardCommandRunner.run([.init(key: key)], with: nil)
         }
         try await Task.sleep(for: .milliseconds(10))
       }

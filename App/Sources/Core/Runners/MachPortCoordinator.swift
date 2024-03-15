@@ -177,13 +177,9 @@ final class MachPortCoordinator {
               if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
                 for command in workflow.commands {
                   if case .keyboard(let command) = command {
-                    let types: [CGEventType] = [.keyDown, .keyUp]
-                    for type in types {
-                      _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                        type: type,
-                                                        originalEvent: machPortEvent.event,
-                                                        with: machPortEvent.eventSource)
-                    }
+                    _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
+                                                      originalEvent: machPortEvent.event,
+                                                      with: machPortEvent.eventSource)
                   }
                 }
               } else {
@@ -280,7 +276,6 @@ final class MachPortCoordinator {
         execution = { [weak self, keyboardCommandRunner] machPortEvent, _ in
           guard let self else { return }
           guard let newEvents = try? keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                               type: machPortEvent.type,
                                                                originalEvent: machPortEvent.event,
                                                                with: machPortEvent.eventSource) else {
             return

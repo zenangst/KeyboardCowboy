@@ -221,11 +221,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           )
       case .keyboard(let keyboardCommand):
         try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
-                                 type: .keyDown,
-                                 originalEvent: nil,
-                                 with: eventSource)
-        try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
-                                 type: .keyUp,
                                  originalEvent: nil,
                                  with: eventSource)
         try await Task.sleep(for: .milliseconds(1))
