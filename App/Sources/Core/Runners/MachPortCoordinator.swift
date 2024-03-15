@@ -132,13 +132,6 @@ final class MachPortCoordinator {
         workItem = nil
         repeatingResult = nil
         repeatingMatch = nil
-
-      // Handle keyboard sequences that include a keyboard shortcut chain.
-      if let workflow = previousPartialMatch.workflow,
-         case .keyboardShortcuts(let trigger) = workflow.trigger,
-         trigger.shortcuts.count > 1 {
-        return
-      }
       default:
         return
     }
@@ -277,7 +270,10 @@ final class MachPortCoordinator {
       // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
       if enabledCommands.count == 1,
          case .keyboard(let command) = enabledCommands.first {
-        if !isRepeatingEvent && machPortEvent.event.type == .keyDown {
+
+        guard machPortEvent.event.type == .keyDown else { return }
+
+        if !isRepeatingEvent {
           notifications.notifyKeyboardCommand(workflow, command: command)
         }
 
@@ -294,9 +290,11 @@ final class MachPortCoordinator {
             self.coordinatorEvent = newEvent
           }
         }
-        if machPortEvent.type == .keyDown, macroCoordinator.state == .recording {
+
+        if macroCoordinator.state == .recording {
           macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
         }
+
         execution(machPortEvent, isRepeatingEvent)
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
