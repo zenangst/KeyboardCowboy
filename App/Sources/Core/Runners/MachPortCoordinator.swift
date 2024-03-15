@@ -132,6 +132,13 @@ final class MachPortCoordinator {
         workItem = nil
         repeatingResult = nil
         repeatingMatch = nil
+
+      // Handle keyboard sequences that include a keyboard shortcut chain.
+      if let workflow = previousPartialMatch.workflow,
+         case .keyboardShortcuts(let trigger) = workflow.trigger,
+         trigger.shortcuts.count > 1 {
+        return
+      }
       default:
         return
     }
@@ -232,7 +239,7 @@ final class MachPortCoordinator {
             machPortEvent: machPortEvent,
             shortcut: shortcut,
             isRepeatingEvent: isRepeatingEvent,
-            tryGlobals: tryGlobals, 
+            tryGlobals: tryGlobals,
             runningMacro: runningMacro)
   }
 
