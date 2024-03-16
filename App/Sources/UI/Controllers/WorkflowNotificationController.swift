@@ -30,12 +30,13 @@ final class WorkflowNotificationController: ObservableObject {
   func reset() {
     workItem?.cancel()
     Task { @MainActor in
-      WorkflowNotificationController.shared.post(
-        WorkflowNotificationViewModel(
-          id: UUID().uuidString,
-          matches: [],
-          glow: false,
-          keyboardShortcuts: []), scheduleDismiss: false)
+      let emptyModel = WorkflowNotificationViewModel(
+        id: UUID().uuidString,
+        matches: [],
+        glow: false,
+        keyboardShortcuts: [])
+      publisher.publish(emptyModel)
+      windowController.window?.close()
     }
   }
 
