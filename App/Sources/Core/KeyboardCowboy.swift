@@ -37,6 +37,7 @@ struct KeyboardCowboy: App {
     let core = Core()
     contentStore = core.contentStore
     self.core = core
+    self.appDelegate.core = core
 
     Task {
       await MainActor.run {
