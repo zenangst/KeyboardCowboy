@@ -14,7 +14,10 @@ final class MachPortUINotifications {
   }
 
   func notifyRunningWorkflow(_ workflow: Workflow) {
-    guard notificationRunningWorkflows else { return }
+    guard notificationRunningWorkflows else {
+      reset()
+      return
+    }
     shouldReset = true
     if case .keyboardShortcuts(let trigger) = workflow.trigger {
       Task { @MainActor in
@@ -29,7 +32,10 @@ final class MachPortUINotifications {
   }
 
   func notifyKeyboardCommand(_ workflow: Workflow, command: KeyboardCommand) {
-    guard notificationKeyboardCommands else { return }
+    guard notificationKeyboardCommands else {
+      reset()
+      return
+    }
     shouldReset = true
     Task { @MainActor in
       var keyboardShortcuts = [KeyShortcut]()
