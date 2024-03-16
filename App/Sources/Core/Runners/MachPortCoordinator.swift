@@ -131,6 +131,7 @@ final class MachPortCoordinator {
       if machPortEvent.type == .keyUp, let repeatingResult {
         repeatingResult(machPortEvent, false)
         machPortEvent.result = nil
+        notifications.reset()
         break
       }
       workItem?.cancel()
