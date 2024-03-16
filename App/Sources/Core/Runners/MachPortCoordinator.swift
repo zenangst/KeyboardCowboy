@@ -306,7 +306,7 @@ final class MachPortCoordinator {
           macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
         }
         execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
-          guard let self else { return }
+          guard let self, machPortEvent.type != .keyUp else { return }
           self.coordinatorEvent = machPortEvent.event
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
         }
@@ -314,7 +314,6 @@ final class MachPortCoordinator {
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
-
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
       }) {
