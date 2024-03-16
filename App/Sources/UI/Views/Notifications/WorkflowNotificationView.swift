@@ -78,6 +78,7 @@ struct WorkflowNotificationView: View {
           }
         }
         .roundedContainer(padding: 6, margin: 0)
+        .opacity(!publisher.data.keyboardShortcuts.isEmpty ? 1 : 0)
       }
     }
     .padding(4)
