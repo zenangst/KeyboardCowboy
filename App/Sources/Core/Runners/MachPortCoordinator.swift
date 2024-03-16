@@ -127,13 +127,18 @@ final class MachPortCoordinator {
           return
         }
       }
-      case .keyUp:
-        workItem?.cancel()
-        workItem = nil
-        repeatingResult = nil
-        repeatingMatch = nil
-      default:
-        return
+    case .keyUp:
+      if machPortEvent.type == .keyUp, let repeatingResult {
+        repeatingResult(machPortEvent, false)
+        machPortEvent.result = nil
+        break
+      }
+      workItem?.cancel()
+      workItem = nil
+      repeatingResult = nil
+      repeatingMatch = nil
+    default:
+      return
     }
 
     // If the event is repeating and there is an earlier result,

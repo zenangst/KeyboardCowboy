@@ -31,6 +31,8 @@ final class KeyboardCommandRunner: @unchecked Sendable {
       throw KeyboardCommandRunnerError.failedToResolveMachPortController
     }
 
+    let isRepeat = originalEvent?.getIntegerValueField(.keyboardEventAutorepeat) == 1
+
     var events = [CGEvent]()
     for keyboardShortcut in keyboardShortcuts {
       let key = try resolveKey(for: keyboardShortcut.key)
@@ -55,11 +57,18 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           }
         }
 
-        let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
-        let keyUp = try machPort.post(key, type: .keyUp, flags: flags, configure: configureEvent)
+        let shouldPostKeyDown = originalEvent == nil || originalEvent?.type == .keyDown
+        let shouldPostKeyUp = originalEvent == nil   || !isRepeat || originalEvent?.type == .keyUp
 
-        events.append(keyDown)
-        events.append(keyUp)
+        if shouldPostKeyDown {
+          let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
+          events.append(keyDown)
+        }
+
+        if shouldPostKeyUp {
+          let keyUp = try machPort.post(key, type: .keyUp, flags: flags, configure: configureEvent)
+          events.append(keyUp)
+        }
       } catch let error {
         throw error
       }
