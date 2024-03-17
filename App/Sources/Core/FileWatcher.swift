@@ -15,7 +15,8 @@ final class FileWatcher {
 
     let handle = open(fileURL.path, O_EVTONLY)
     let eventMask: DispatchSource.FileSystemEvent = [
-      .delete, .write, .extend, .attrib, .link, .rename, .revoke
+      .delete, .write, .extend, .attrib, 
+      .link, .rename, .revoke
     ]
     let fileSystemMonitor = DispatchSource.makeFileSystemObjectSource(
       fileDescriptor: handle,

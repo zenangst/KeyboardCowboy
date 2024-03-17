@@ -76,13 +76,13 @@ struct WindowCommand: MetaDataProviding {
 
     var symbol: String {
       switch self {
-      case .center: return "arrow.down.right.and.arrow.up.left"
-      case .fullscreen: return "arrow.up.left.and.arrow.down.right"
-      case .move: return "arrow.up.and.down.and.arrow.left.and.right"
-      case .decreaseSize: return "minus.magnifyingglass"
-      case .increaseSize: return "plus.magnifyingglass"
-      case .moveToNextDisplay: return "rectangle.on.rectangle"
-      case .anchor: return "pin"
+      case .center: "arrow.down.right.and.arrow.up.left"
+      case .fullscreen: "arrow.up.left.and.arrow.down.right"
+      case .move: "arrow.up.and.down.and.arrow.left.and.right"
+      case .decreaseSize: "minus.magnifyingglass"
+      case .increaseSize: "plus.magnifyingglass"
+      case .moveToNextDisplay: "rectangle.on.rectangle"
+      case .anchor: "pin"
       }
     }
 

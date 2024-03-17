@@ -212,6 +212,7 @@ final class MachPortCoordinator {
     var result = keyboardShortcutsController.lookup(shortcut.original, bundleIdentifier: bundleIdentifier,
                                                     userModes: userModes, partialMatch: previousPartialMatch
     )
+
     if result == nil {
       result = keyboardShortcutsController.lookup(shortcut.uppercase, bundleIdentifier: bundleIdentifier,
                                                   userModes: userModes, partialMatch: previousPartialMatch)
