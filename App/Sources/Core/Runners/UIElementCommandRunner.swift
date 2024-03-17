@@ -14,7 +14,7 @@ final class UIElementCommandRunner {
 
   private var restore: [Int32: Bool] = [:]
 
-  func run(_ command: UIElementCommand) async throws {
+  func run(_ command: UIElementCommand, checkCancellation: Bool) async throws {
     guard let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier else { return }
     //    var counter = 0
     //    let start = CACurrentMediaTime()
@@ -52,8 +52,7 @@ final class UIElementCommandRunner {
     var mouseBasedRole: Bool = false
 
     let subject = focusedWindow.findChild(on: screen, keys: Set(keys), abort: {
-      let result = Task.isCancelled
-      return result
+      checkCancellation ? Task.isCancelled : false
     }) { values in
 //      counter += 1
       for predicate in predicates {
@@ -102,7 +101,7 @@ final class UIElementCommandRunner {
       return
     }
 
-    try Task.checkCancellation()
+    if checkCancellation { try Task.checkCancellation() }
 
     if let mousePosition = CGEvent(source: nil)?.location,
        mouseBasedRole {

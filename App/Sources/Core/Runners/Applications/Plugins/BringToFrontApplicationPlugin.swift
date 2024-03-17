@@ -10,7 +10,7 @@ final class BringToFrontApplicationPlugin {
     self.commandRunner = commandRunner
   }
 
-  func execute() async throws {
+  func execute(checkCancellation: Bool) async throws {
     let source = """
         tell application "System Events"
           set frontmostProcess to first process where it is frontmost
@@ -18,7 +18,8 @@ final class BringToFrontApplicationPlugin {
         end tell
         """
 
-    try Task.checkCancellation()
+    if checkCancellation { try Task.checkCancellation() }
+    
     _ = try await commandRunner.run(
       ScriptCommand(
         name: "BringToFrontApplicationPlugin",
@@ -26,7 +27,8 @@ final class BringToFrontApplicationPlugin {
         source: .inline(source),
         notification: false
       ),
-      environment: [:]
+      environment: [:],
+      checkCancellation: checkCancellation
     )
   }
 }

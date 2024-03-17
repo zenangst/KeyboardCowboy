@@ -30,6 +30,7 @@ final class DetailCommandActionReducer {
                                       snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
                                       shortcut: .empty(),
                                       machPortEvent: machPortEvent,
+                                      checkCancellation: false,
                                       repeatingEvent: false)
         } catch let error as KeyboardCommandRunnerError {
           let alert = await NSAlert(error: error)
@@ -174,6 +175,7 @@ final class DetailCommandActionReducer {
               snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
               shortcut: .empty(),
               machPortEvent: machPortEvent,
+              checkCancellation: false,
               repeatingEvent: false
             )
           }

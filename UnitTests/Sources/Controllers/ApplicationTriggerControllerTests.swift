@@ -65,10 +65,10 @@ final class ApplicationTriggerControllerTests: XCTestCase {
   private func context(_ triggerContext: ApplicationTrigger.Context) -> (
     command: Command,
     groupPublisher: WorkGroupPublisher,
-    runner: CommandRunner,
+    runner: WorkflowRunner,
     userSpace: UserSpace) {
       let command = Command.text(.init(.insertText(.init("Type command.", mode: .instant))))
-    let runner = CommandRunner(
+    let runner = WorkflowRunner(
       concurrent: { _ in fatalError("Should not be invoked yet.") },
       serial: { _ in fatalError("Should not be invoked yet.") })
 
@@ -105,7 +105,7 @@ private final class WorkGroupPublisher {
   }
 }
 
-private final class CommandRunner: CommandRunning {
+private final class WorkflowRunner: WorkflowRunning {
   var concurrentRunHandler: ([Command]) -> Void
   var serialRunHandler: ([Command]) -> Void
 
@@ -115,12 +115,22 @@ private final class CommandRunner: CommandRunning {
     self.serialRunHandler = serial
   }
 
-  func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool, shortcut: KeyShortcut, machPortEvent: MachPortEvent, repeatingEvent: Bool) {
-    concurrentRunHandler(commands)
+  func runCommands(in workflow: Keyboard_Cowboy.Workflow) {
+    switch workflow.execution {
+    case .concurrent:
+      concurrentRunHandler(workflow.commands)
+    case .serial:
+      serialRunHandler(workflow.commands)
+    }
   }
 
-  func serialRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool, shortcut: KeyShortcut, machPortEvent: MachPortEvent, repeatingEvent: Bool) {
-    serialRunHandler(commands)
+  func run(_ workflow: Keyboard_Cowboy.Workflow, for shortcut: Keyboard_Cowboy.KeyShortcut, executionOverride: Keyboard_Cowboy.Workflow.Execution?, machPortEvent: MachPort.MachPortEvent, repeatingEvent: Bool) {
+    switch executionOverride ?? workflow.execution {
+    case .concurrent:
+      concurrentRunHandler(workflow.commands)
+    case .serial:
+      serialRunHandler(workflow.commands)
+    }
   }
 }
 

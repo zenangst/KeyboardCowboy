@@ -96,6 +96,7 @@ final class Core {
     shortcutStore: shortcutStore,
     snippetController: snippetController,
     uiElementCaptureStore: uiElementCaptureStore,
+    workflowRunner: workflowRunner,
     workspace: .shared)
   lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
   lazy private(set) var recorderStore = KeyShortcutRecorderStore()

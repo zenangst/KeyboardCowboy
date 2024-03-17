@@ -15,7 +15,7 @@ final class OpenFolderInFinder {
     bundleIdentifier?.lowercased() == finderBundleIdentifier
   }
 
-  func execute(_ path: String) async throws {
+  func execute(_ path: String, checkCancellation: Bool) async throws {
     let url = OpenURLParser().parse(path)
     let source = """
       tell application "Finder"
@@ -26,7 +26,9 @@ final class OpenFolderInFinder {
                                kind: .appleScript,
                                source: .inline(source),
                                notification: false)
-    try Task.checkCancellation()
-    _ = try await commandRunner.run(script, environment: [:])
+
+    if checkCancellation { try Task.checkCancellation() }
+    
+    _ = try await commandRunner.run(script, environment: [:], checkCancellation: checkCancellation)
   }
 }

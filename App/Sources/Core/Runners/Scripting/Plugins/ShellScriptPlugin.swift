@@ -12,18 +12,19 @@ final class ShellScriptPlugin: @unchecked Sendable {
     self.fileManager = fileManager
   }
 
-  func executeScript(_ source: String, environment: [String: String]) throws -> String? {
+  func executeScript(_ source: String, environment: [String: String], checkCancellation: Bool) throws -> String? {
     let url = try createTmpDirectory()
     let data = source.data(using: .utf8)
     _ = fileManager.createFile(atPath: url.path, contents: data, attributes: nil)
-    let output = try executeScript(at: url.path, environment: environment)
+    let output = try executeScript(at: url.path, environment: environment,
+                                   checkCancellation: checkCancellation)
 
     try fileManager.removeItem(atPath: url.path)
 
     return output
   }
 
-  func executeScript(at path: String, environment: [String: String]) throws -> String? {
+  func executeScript(at path: String, environment: [String: String], checkCancellation: Bool) throws -> String? {
     let filePath = path.sanitizedPath
     let command = (filePath as NSString).lastPathComponent
     let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
@@ -33,7 +34,7 @@ final class ShellScriptPlugin: @unchecked Sendable {
     process.environment = environment
     process.currentDirectoryURL = url
 
-    try Task.checkCancellation()
+    if checkCancellation { try Task.checkCancellation() }
 
     try process.run()
 

@@ -3,7 +3,7 @@ import Cocoa
 import MachPort
 
 final class ApplicationTriggerController {
-  private let commandRunner: CommandRunning
+  private let workflowRunner: WorkflowRunning
   private var activateActions = [String: [Workflow]]()
   private var bundleIdentifiers = [String]()
   private var closeActions = [String: [Workflow]]()
@@ -12,8 +12,8 @@ final class ApplicationTriggerController {
   private var runningApplicationsSubscription: AnyCancellable?
   private var workflowGroupsSubscription: AnyCancellable?
 
-  init(_ commandRunner: CommandRunning) {
-    self.commandRunner = commandRunner
+  init(_ workflowRunner: WorkflowRunning) {
+    self.workflowRunner = workflowRunner
   }
 
   func subscribe(to publisher: Published<[UserSpace.Application]>.Publisher) {
@@ -64,9 +64,7 @@ final class ApplicationTriggerController {
   private func process(_ frontMostApplication: UserSpace.Application) {
     guard let workflows = self.activateActions[frontMostApplication.bundleIdentifier] else { return }
 
-    for workflow in workflows {
-      runCommands(in: workflow)
-    }
+    workflows.forEach(workflowRunner.runCommands(in:))
   }
 
   private func process(_ bundleIdentifiers: [String]) {
@@ -88,33 +86,9 @@ final class ApplicationTriggerController {
       }
     }
 
-    workflows.forEach { runCommands(in: $0) }
+    workflows.forEach(workflowRunner.runCommands(in:))
 
     self.bundleIdentifiers = bundleIdentifiers
   }
 
-  private func runCommands(in workflow: Workflow) {
-    let commands = workflow.commands.filter(\.isEnabled)
-    guard let machPortEvent = MachPortEvent.empty() else { return }
-    switch workflow.execution {
-    case .concurrent:
-      commandRunner.concurrentRun(
-        commands,
-        checkCancellation: true,
-        resolveUserEnvironment: workflow.resolveUserEnvironment(),
-        shortcut: .empty(),
-        machPortEvent: machPortEvent,
-        repeatingEvent: false
-      )
-    case .serial:
-      commandRunner.serialRun(
-        commands,
-        checkCancellation: true,
-        resolveUserEnvironment: workflow.resolveUserEnvironment(),
-        shortcut: .empty(),
-        machPortEvent: machPortEvent,
-        repeatingEvent: false
-      )
-    }
-  }
 }

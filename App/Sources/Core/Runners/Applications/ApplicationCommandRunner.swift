@@ -11,9 +11,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
   private let workspace: WorkspaceProviding
   private let plugins: Plugins
 
-  init(scriptCommandRunner: ScriptCommandRunner,
-       keyboard: KeyboardCommandRunner,
-       workspace: WorkspaceProviding) {
+  init(scriptCommandRunner: ScriptCommandRunner, keyboard: KeyboardCommandRunner, workspace: WorkspaceProviding) {
     self.workspace = workspace
     self.plugins = Plugins(
       activate: ActivateApplicationPlugin(),
@@ -23,7 +21,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     )
   }
 
-  func run(_ command: ApplicationCommand) async throws {
+  func run(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
     if command.modifiers.contains(.onlyIfNotRunning) {
       let bundleIdentifiers = self.workspace.applications.compactMap(\.bundleIdentifier)
       if bundleIdentifiers.contains(command.application.bundleIdentifier) {
@@ -33,13 +31,13 @@ final class ApplicationCommandRunner: @unchecked Sendable {
 
     switch command.action {
     case .open:
-      try await openApplication(command: command)
+      try await openApplication(command: command, checkCancellation: checkCancellation)
     case .close:
-      try plugins.close.execute(command)
+      try plugins.close.execute(command, checkCancellation: checkCancellation)
     }
   }
 
-  private func openApplication(command: ApplicationCommand) async throws {
+  private func openApplication(command: ApplicationCommand, checkCancellation: Bool) async throws {
     let bundleIdentifier = command.application.bundleIdentifier
     let bundleName = command.application.bundleName
 
@@ -50,29 +48,29 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     let isBackgroundOrElectron = command.modifiers.contains(.background) || command.application.metadata.isElectron
 
     if isBackgroundOrElectron {
-      try await plugins.launch.execute(command)
+      try await plugins.launch.execute(command, checkCancellation: checkCancellation)
       return
     }
 
-    try Task.checkCancellation()
+    if checkCancellation { try Task.checkCancellation() }
 
     let isFrontMostApplication = bundleIdentifier == workspace.frontApplication?.bundleIdentifier
 
     if isFrontMostApplication {
       do {
-        try await plugins.activate.execute(command)
-        if !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
-          try await plugins.launch.execute(command)
+        try await plugins.activate.execute(command, checkCancellation: checkCancellation)
+        if await !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
+          try await plugins.launch.execute(command, checkCancellation: checkCancellation)
         } else {
-          try await plugins.bringToFront.execute()
+          try await plugins.bringToFront.execute(checkCancellation: checkCancellation)
         }
       } catch {
-        try await plugins.bringToFront.execute()
+        try await plugins.bringToFront.execute(checkCancellation: checkCancellation)
       }
     } else {
-      try await plugins.launch.execute(command)
-      if !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
-        try? await plugins.activate.execute(command)
+      try await plugins.launch.execute(command, checkCancellation: checkCancellation)
+      if await !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
+        try? await plugins.activate.execute(command, checkCancellation: checkCancellation)
       }
     }
   }

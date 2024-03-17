@@ -11,14 +11,14 @@ final class CloseApplicationPlugin {
     self.workspace = workspace
   }
 
-  func execute(_ command: ApplicationCommand) throws {
+  func execute(_ command: ApplicationCommand, checkCancellation: Bool) throws {
     guard let runningApplication = workspace.applications.first(where: {
       command.application.bundleIdentifier == $0.bundleIdentifier
     }) else {
       return
     }
 
-    try Task.checkCancellation()
+    if checkCancellation { try Task.checkCancellation() }
 
     if !runningApplication.terminate() {
       throw CloseApplicationPluginError.unableToTermineApplication

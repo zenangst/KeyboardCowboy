@@ -22,15 +22,16 @@ final class OpenCommandRunner {
     self.workspace = workspace
   }
 
-  func run(_ path: String, application: Application?) async throws {
+  func run(_ path: String, checkCancellation: Bool, application: Application?) async throws {
     do {
       if plugins.finderFolder.validate(application?.bundleIdentifier) {
-        try await plugins.finderFolder.execute(path)
+        try await plugins.finderFolder.execute(path, checkCancellation: checkCancellation)
       } else if path.isUrl {
         try await plugins.swapTab.execute(path,
                                           appName: application?.displayName ?? "Safari",
                                           appPath: application?.path,
-                                          bundleIdentifier: application?.bundleIdentifier)
+                                          bundleIdentifier: application?.bundleIdentifier,
+                                          checkCancellation: checkCancellation)
       } else {
         try await plugins.open.execute(path, application: application)
       }
@@ -39,7 +40,7 @@ final class OpenCommandRunner {
       let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory ?? false
       // TODO: Check if this is what we want.
       if application?.bundleName == "Finder", isDirectory == true {
-        try await plugins.finderFolder.execute(path)
+        try await plugins.finderFolder.execute(path, checkCancellation: checkCancellation)
       } else {
         try await plugins.open.execute(path, application: application)
       }

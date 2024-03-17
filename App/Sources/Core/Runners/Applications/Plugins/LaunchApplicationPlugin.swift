@@ -7,13 +7,13 @@ final class LaunchApplicationPlugin {
     self.workspace = workspace
   }
 
-  func execute(_ command: ApplicationCommand) async throws {
+  func execute(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
     let configuration = NSWorkspace.OpenConfiguration()
     configuration.activates = !command.modifiers.contains(.background)
     configuration.hides = command.modifiers.contains(.hidden)
 
     let url = URL(fileURLWithPath: command.application.path)
-    try Task.checkCancellation()
+    if checkCancellation { try Task.checkCancellation() }
     do {
       _ = try await workspace.openApplication(at: url, configuration: configuration)
     } catch {

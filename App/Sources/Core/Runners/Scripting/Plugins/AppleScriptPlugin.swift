@@ -40,7 +40,7 @@ final class AppleScriptPlugin: @unchecked Sendable {
       }
   }
 
-  func executeScript(at path: String, withId key: String) async throws -> String? {
+  func executeScript(at path: String, withId key: String, checkCancellation: Bool) async throws -> String? {
     if let cachedAppleScript = await cache.get(key) {
       return cachedAppleScript.executeAndReturnError(nil).stringValue
     }
@@ -53,13 +53,13 @@ final class AppleScriptPlugin: @unchecked Sendable {
       throw AppleScriptPluginError.failedToCreateScriptAtURL(url)
     }
 
-    try Task.checkCancellation()
+    if checkCancellation { try Task.checkCancellation() }
     let descriptor = try self.execute(appleScript)
     await cache.set(appleScript, for: key)
     return descriptor.stringValue
   }
 
-  func execute(_ source: String, withId id: String) async throws -> String? {
+  func execute(_ source: String, withId id: String, checkCancellation: Bool) async throws -> String? {
     if let cachedAppleScript = await cache.get(id) {
       do {
         try Task.checkCancellation()
@@ -74,7 +74,7 @@ final class AppleScriptPlugin: @unchecked Sendable {
     }
 
     do {
-      try Task.checkCancellation()
+      if checkCancellation { try Task.checkCancellation() }
       let descriptor = try self.execute(appleScript)
       await cache.set(appleScript, for: id)
       return descriptor.stringValue

@@ -35,14 +35,15 @@ final class SystemCommandRunner: @unchecked Sendable {
       }
   }
 
-  func run(_ command: SystemCommand, applicationRunner: ApplicationCommandRunner, 
-           snapshot: UserSpace.Snapshot) async throws {
+  func run(_ command: SystemCommand, applicationRunner: ApplicationCommandRunner,
+           checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws {
     try await MainActor.run {
       switch command.kind {
       case .activateLastApplication:
         Task {
           let previousApplication = snapshot.previousApplication
-          try await applicationRunner.run(.init(application: previousApplication.asApplication()))
+          try await applicationRunner.run(.init(application: previousApplication.asApplication()),
+                                          checkCancellation: checkCancellation)
         }
       case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
            .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:

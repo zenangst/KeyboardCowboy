@@ -103,7 +103,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           let shellScript = ScriptCommand(name: "Reveal \(shortcut.shortcutIdentifier)",
                                           kind: .shellScript, source: .inline(source), notification: false)
 
-          _ = try await runners.script.run(shellScript, environment: [:])
+          _ = try await runners.script.run(shellScript, environment: [:], checkCancellation: false)
         }
       case .builtIn, .keyboard, .text,
           .systemCommand, .menuBar, .windowManagement, 
@@ -138,7 +138,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           if checkCancellation { try Task.checkCancellation() }
           do {
             try await self.run(command, snapshot: snapshot, shortcut: shortcut, 
-                               machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
+                               machPortEvent: machPortEvent, 
+                               checkCancellation: checkCancellation,
+                               repeatingEvent: repeatingEvent)
           } catch { }
           if let delay = command.delay {
             try await Task.sleep(for: .milliseconds(delay))
@@ -181,7 +183,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         do {
           if checkCancellation { try Task.checkCancellation() }
           try await self.run(command, snapshot: snapshot, shortcut: shortcut,
-                             machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
+                             machPortEvent: machPortEvent, checkCancellation: checkCancellation,
+                             repeatingEvent: repeatingEvent)
         } catch { }
       }
 
@@ -198,8 +201,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   func run(_ command: Command, snapshot: UserSpace.Snapshot, 
-           shortcut: KeyShortcut, 
-           machPortEvent: MachPortEvent,
+           shortcut: KeyShortcut, machPortEvent: MachPortEvent,
+           checkCancellation: Bool,
            repeatingEvent: Bool) async throws {
     do {
       let id = UUID().uuidString
@@ -211,7 +214,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       let output: String
       switch command {
       case .application(let applicationCommand):
-        try await runners.application.run(applicationCommand)
+        try await runners.application.run(applicationCommand, checkCancellation: checkCancellation)
         output = command.name
       case .builtIn(let builtInCommand):
           output = try await runners.builtIn.run(
@@ -233,12 +236,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         output = command.name
       case .open(let openCommand):
         let path = snapshot.interpolateUserSpaceVariables(openCommand.path)
-        try await runners.open.run(path, application: openCommand.application)
+        try await runners.open.run(path, checkCancellation: checkCancellation, application: openCommand.application)
         output = path
       case .script(let scriptCommand):
         let result = try await self.runners.script.run(
           scriptCommand,
-          environment: snapshot.terminalEnvironment()
+          environment: snapshot.terminalEnvironment(),
+          checkCancellation: checkCancellation
         )
         if let result = result {
           let trimmedResult = result.trimmingCharacters(in: .newlines)
@@ -247,7 +251,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           output = command.name
         }
       case .shortcut(let shortcutCommand):
-        let result = try await runners.shortcut.run(shortcutCommand)
+        let result = try await runners.shortcut.run(shortcutCommand, checkCancellation: checkCancellation)
         if let result = result {
           let trimmedResult = result.trimmingCharacters(in: .newlines)
           output = command.name + " " + trimmedResult
@@ -265,13 +269,12 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         }
       case .systemCommand(let systemCommand):
         try await runners.system.run(
-          systemCommand,
-          applicationRunner: runners.application,
-          snapshot: snapshot
+          systemCommand, applicationRunner: runners.application,
+          checkCancellation: checkCancellation, snapshot: snapshot
         )
         output = command.name
       case .uiElement(let uiElementCommand):
-        try await runners.uiElement.run(uiElementCommand)
+        try await runners.uiElement.run(uiElementCommand, checkCancellation: checkCancellation)
         output = ""
       case .windowManagement(let windowCommand):
         try await runners.window.run(windowCommand)

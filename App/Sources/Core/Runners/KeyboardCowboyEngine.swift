@@ -20,6 +20,7 @@ final class KeyboardCowboyEngine {
   private let workspace: NSWorkspace
   private let workspacePublisher: WorkspacePublisher
   private let uiElementCaptureStore: UIElementCaptureStore
+  private let workflowRunner: WorkflowRunning
 
   private var pendingPermissionsSubscription: AnyCancellable?
   private var frontmostApplicationSubscription: AnyCancellable?
@@ -36,6 +37,7 @@ final class KeyboardCowboyEngine {
        shortcutStore: ShortcutStore,
        snippetController: SnippetController,
        uiElementCaptureStore: UIElementCaptureStore,
+       workflowRunner: WorkflowRunning,
        workspace: NSWorkspace = .shared) {
     
     self.contentStore = contentStore
@@ -44,9 +46,10 @@ final class KeyboardCowboyEngine {
     self.machPortCoordinator = machPortCoordinator
     self.shortcutStore = shortcutStore
     self.uiElementCaptureStore = uiElementCaptureStore
-    self.applicationTriggerController = ApplicationTriggerController(commandRunner)
+    self.applicationTriggerController = ApplicationTriggerController(workflowRunner)
     self.snippetController = snippetController
     self.workspace = workspace
+    self.workflowRunner = workflowRunner
     self.workspacePublisher = WorkspacePublisher(workspace)
     self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
 

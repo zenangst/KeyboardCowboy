@@ -2,18 +2,50 @@ import Carbon
 import Foundation
 import MachPort
 
-final class WorkflowRunner: @unchecked Sendable {
+protocol WorkflowRunning {
+  func runCommands(in workflow: Workflow)
+
+  func run(_ workflow: Workflow, for shortcut: KeyShortcut,
+           executionOverride: Workflow.Execution?,
+           machPortEvent: MachPortEvent, repeatingEvent: Bool)
+}
+
+final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
   private let commandRunner: CommandRunner
   private let store: KeyCodesStore
   private let notifications: MachPortUINotifications
-
-
 
   init(commandRunner: CommandRunner, store: KeyCodesStore, 
        notifications: MachPortUINotifications) {
     self.commandRunner = commandRunner
     self.store = store
     self.notifications = notifications
+  }
+
+  func runCommands(in workflow: Workflow) {
+    let commands = workflow.commands.filter(\.isEnabled)
+    guard let machPortEvent = MachPortEvent.empty() else { return }
+
+    switch workflow.execution {
+    case .concurrent:
+      commandRunner.concurrentRun(
+        commands,
+        checkCancellation: false,
+        resolveUserEnvironment: workflow.resolveUserEnvironment(),
+        shortcut: .empty(),
+        machPortEvent: machPortEvent,
+        repeatingEvent: false
+      )
+    case .serial:
+      commandRunner.serialRun(
+        commands,
+        checkCancellation: true,
+        resolveUserEnvironment: workflow.resolveUserEnvironment(),
+        shortcut: .empty(),
+        machPortEvent: machPortEvent,
+        repeatingEvent: false
+      )
+    }
   }
 
   func run(_ workflow: Workflow, for shortcut: KeyShortcut,
