@@ -170,31 +170,6 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
       }
     }
   }
-
-  private func runCommands(in workflow: Workflow) {
-    let commands = workflow.commands.filter(\.isEnabled)
-    guard let machPortEvent = MachPortEvent.empty() else { return }
-    switch workflow.execution {
-    case .concurrent:
-      commandRunner.concurrentRun(
-        commands,
-        checkCancellation: true,
-        resolveUserEnvironment: workflow.resolveUserEnvironment(),
-        shortcut: .empty(),
-        machPortEvent: machPortEvent,
-        repeatingEvent: false
-      )
-    case .serial:
-      commandRunner.serialRun(
-        commands,
-        checkCancellation: true,
-        resolveUserEnvironment: workflow.resolveUserEnvironment(),
-        shortcut: .empty(),
-        machPortEvent: machPortEvent,
-        repeatingEvent: false
-      )
-    }
-  }
 }
 
 extension CGEvent: @unchecked Sendable {}
