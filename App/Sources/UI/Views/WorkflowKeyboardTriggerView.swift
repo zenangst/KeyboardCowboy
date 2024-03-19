@@ -54,7 +54,7 @@ struct WorkflowKeyboardTriggerView: View {
           NumberTextField(text: $holdDurationText) {
             onAction(.updateHoldDuration(workflowId: workflowId, holdDuration: Double($0)))
           }
-          .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.1, of: .black)!), font: .caption)))
+          .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .controlColor).opacity(0.5), font: .caption, padding: .small)))
           .frame(maxWidth: 32)
           Text("seconds")
         }

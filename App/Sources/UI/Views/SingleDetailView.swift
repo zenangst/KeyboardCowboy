@@ -134,14 +134,21 @@ struct SingleDetailView: View {
 struct SingleDetailView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    SingleDetailView($focus,
-                     applicationTriggerSelectionManager: .init(),
-                     commandSelectionManager: .init(),
-                     keyboardShortcutSelectionManager: .init(),
-                     triggerPublisher: DesignTime.triggerPublisher,
-                     infoPublisher: DesignTime.infoPublisher,
-                     commandPublisher: DesignTime.commandsPublisher) { _ in }
-      .designTime()
-      .frame(height: 900)
+    let colorSchemes: [ColorScheme] = [.dark, .light]
+    HStack(spacing: 0) {
+      ForEach(colorSchemes, id: \.self) { colorScheme in
+        SingleDetailView($focus,
+                         applicationTriggerSelectionManager: .init(),
+                         commandSelectionManager: .init(),
+                         keyboardShortcutSelectionManager: .init(),
+                         triggerPublisher: DesignTime.triggerPublisher,
+                         infoPublisher: DesignTime.infoPublisher,
+                         commandPublisher: DesignTime.commandsPublisher) { _ in }
+          .background()
+          .environment(\.colorScheme, colorScheme)
+      }
+    }
+    .designTime()
+    .frame(height: 900)
   }
 }
