@@ -55,12 +55,8 @@ struct WorkflowApplicationTriggerView: View {
                               hoverEffect: Binding<Bool>.readonly(!data.isEmpty),
                               padding: .init(horizontal: .large, vertical: .large))))
       }
-      .padding(6)
+      .roundedContainer(padding: 6, margin: 0)
       .frame(minHeight: 44)
-      .background(
-        RoundedRectangle(cornerRadius: 8)
-          .fill(Color(.textBackgroundColor).opacity(0.65))
-      )
 
       if !data.isEmpty {
         ScrollView {
