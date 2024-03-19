@@ -40,7 +40,7 @@ struct ScriptCommandView: View {
 
 private struct ScriptCommandContentView: View {
   @EnvironmentObject var openPanel: OpenPanelController
-  @State private var text: String
+  private let text: String
   private let model: CommandViewModel.Kind.ScriptModel
   private let onAction: (ScriptCommandView.Action) -> Void
 
@@ -48,80 +48,112 @@ private struct ScriptCommandContentView: View {
        onAction: @escaping (ScriptCommandView.Action) -> Void) {
     self.model = model
     self.onAction = onAction
-
-    switch model.source {
-    case .inline(let source):
-      _text = .init(initialValue: source)
-    case .path(let source):
-      _text = .init(initialValue: source)
+    self.text = switch model.source {
+    case .inline(let source): source
+    case .path(let source): source
     }
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
-      switch model.source {
-      case .inline:
-        ZenTextEditor(color: ZenColorPublisher.shared.color,
-                      text: $text,
-                      placeholder: "Script goes here…",
-                      font: Font.system(.body, design: .monospaced))
-        .onChange(of: text, perform: { newValue in
-          onAction(.updateSource(.init(id: model.id, source: .inline(newValue),
-                                       scriptExtension: model.scriptExtension)))
-        })
-        .padding([.trailing, .bottom], 8)
-
-        HStack(spacing: 4) {
-          Text("Environment:")
-          Group {
-            Button(action: { text.append(" $DIRECTORY") },
-                   label: { Text("$DIRECTORY") })
-            .help("$DIRECTORY: The current directory")
-            Button(action: { text.append(" $FILE") },
-                   label: { Text("$FILE") })
-            .help("$FILE: The current file")
-            Button(action: { text.append(" $FILENAME") },
-                   label: { Text("$FILENAME") })
-            .help("$FILENAME: The current filename")
-            Button(action: { text.append(" $EXTENSION") },
-                   label: { Text("$EXTENSION") })
-            .help("$EXTENSION: The current file extension")
-          }
-          .buttonStyle(.zen(ZenStyleConfiguration(color: .black)))
-        }
-        .allowsTightening(true)
-        .lineLimit(1)
-        .font(.caption2)
-        .padding(.leading, 4)
-      case .path:
-        HStack {
-          TextField("Path", text: $text)
-            .textFieldStyle(
-              .zen(
-                .init(
-                  backgroundColor: Color.clear,
-                  font: .callout,
-                  padding: .init(horizontal: .medium, vertical: .medium),
-                  unfocusedOpacity: 0.0
-                )
-              )
-            )
-            .onChange(of: text) { newPath in
-              self.text = newPath
-              onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
-            }
-          Button("Browse", action: {
-            openPanel.perform(.selectFile(type: model.scriptExtension.rawValue, handler: { newPath in
-              self.text = newPath
-              onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
-            }))
-          })
-          .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: .constant(true))))
-          .font(.caption)
-        }
+    ZStack {
+      ScriptCommandInlineView(text: text) { newValue in
+        onAction(.updateSource(.init(id: model.id, source: .inline(newValue),
+                                     scriptExtension: model.scriptExtension)))
       }
+      .opacity(model.source.isInline ? 1 : 0)
+      .frame(height: model.source.isInline ? nil : 0)
+      ScriptCommandPathView(text, onBrowse: {
+        openPanel.perform(.selectFile(type: model.scriptExtension.rawValue, handler: { newPath in
+          onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
+        }))
+      }, onUpdate: { newPath in
+        onAction(.updateSource(.init(id: model.id, source: .path(newPath), scriptExtension: model.scriptExtension)))
+      })
+      .opacity(model.source.isInline ? 0 : 1)
+      .frame(height: model.source.isInline ? 0 : nil)
     }
     .roundedContainer(padding: 4, margin: 0)
+  }
+}
+
+private struct ScriptCommandInlineView: View {
+  @State private var text: String
+  private let onChange: (String) -> Void
+
+  init(text: String, onChange: @escaping (String) -> Void) {
+    self.text = text
+    self.onChange = onChange
+  }
+
+  var body: some View {
+    VStack(alignment: .leading) {
+      ZenTextEditor(color: ZenColorPublisher.shared.color,
+                    text: $text,
+                    placeholder: "Script goes here…",
+                    font: Font.system(.body, design: .monospaced))
+      .onChange(of: text, perform: onChange)
+      .padding([.trailing, .bottom], 8)
+      
+      HStack(spacing: 4) {
+        Text("Environment:")
+        Group {
+          Button(action: { text.append(" $DIRECTORY") },
+                 label: { Text("$DIRECTORY") })
+          .help("$DIRECTORY: The current directory")
+          Button(action: { text.append(" $FILE") },
+                 label: { Text("$FILE") })
+          .help("$FILE: The current file")
+          Button(action: { text.append(" $FILENAME") },
+                 label: { Text("$FILENAME") })
+          .help("$FILENAME: The current filename")
+          Button(action: { text.append(" $EXTENSION") },
+                 label: { Text("$EXTENSION") })
+          .help("$EXTENSION: The current file extension")
+        }
+        .buttonStyle(.zen(ZenStyleConfiguration(color: .black)))
+      }
+      .allowsTightening(true)
+      .lineLimit(1)
+      .font(.caption2)
+      .padding(.leading, 4)
+    }
+  }
+}
+
+private struct ScriptCommandPathView: View {
+  @State private var text: String
+  private let onBrowse: () -> Void
+  private let onUpdate: (String) -> Void
+
+  init(_ text: String,
+       onBrowse: @escaping () -> Void,
+       onUpdate: @escaping (String) -> Void) {
+    _text = .init(initialValue: text)
+    self.onBrowse = onBrowse
+    self.onUpdate = onUpdate
+  }
+
+  var body: some View {
+    HStack {
+      TextField("Path", text: $text)
+        .textFieldStyle(
+          .zen(
+            .init(
+              backgroundColor: Color.clear,
+              font: .callout,
+              padding: .init(horizontal: .medium, vertical: .medium),
+              unfocusedOpacity: 0.0
+            )
+          )
+        )
+        .onChange(of: text) { newPath in
+          self.text = newPath
+          onUpdate(newPath)
+        }
+      Button("Browse", action: onBrowse)
+      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: .constant(true))))
+      .font(.caption)
+    }
   }
 }
 
@@ -147,6 +179,15 @@ private struct ScriptCommandSubContentView: View {
       }
     }
     .font(.caption)
+  }
+}
+
+fileprivate extension ScriptCommand.Source {
+  var isInline: Bool {
+    switch self {
+    case .path: false
+    case .inline: true
+    }
   }
 }
 

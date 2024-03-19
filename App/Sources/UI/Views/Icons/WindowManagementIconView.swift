@@ -14,12 +14,14 @@ struct WindowManagementIconView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .background(WindowManagementIconBackgroundView())
 
+      let rectangleWidth = size * 0.0125
+
       Rectangle()
         .fill(Color(.systemGray))
-        .frame(width: size * 0.0125)
+        .frame(width: rectangleWidth)
       Rectangle()
         .fill(Color.white)
-        .frame(width: size * 0.0125)
+        .frame(width: rectangleWidth)
 
       WindowManagementIconWindowView(size: size)
         .frame(width: size * 0.182)
@@ -96,6 +98,7 @@ private struct WindowManagementIconBackgroundView: View {
       }
       .blur(radius: 1)
       .compositingGroup()
+      .drawingGroup()
   }
 }
 
@@ -103,6 +106,8 @@ private struct WindowManagementIconWindowControlsView: View {
   let size: CGFloat
   var body: some View {
     HStack(spacing: size * 0.0_55) {
+      let circleHeight = size * 0.15
+
       Circle()
         .fill(
           LinearGradient(stops: [
@@ -112,7 +117,7 @@ private struct WindowManagementIconWindowControlsView: View {
                          startPoint: .top,
                          endPoint: .bottom)
         )
-        .frame(height: size * 0.15)
+        .frame(height: circleHeight)
       Circle()
         .fill(
           LinearGradient(colors: [
@@ -120,7 +125,7 @@ private struct WindowManagementIconWindowControlsView: View {
             Color(.systemYellow)
           ], startPoint: .top, endPoint: .bottom)
         )
-        .frame(height: size * 0.15)
+        .frame(height: circleHeight)
       Circle()
         .fill(
           LinearGradient(colors: [
@@ -128,13 +133,14 @@ private struct WindowManagementIconWindowControlsView: View {
             Color(.systemGreen)
           ], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
-        .frame(height: size * 0.15)
+        .frame(height: circleHeight)
     }
     .compositingGroup()
     .shadow(radius: size * 0.0_05, y: 1)
     .fontWeight(.bold)
     .padding([.top, .leading, .trailing], size * 0.0_5)
     .frame(height: size * 0.25)
+    .drawingGroup()
   }
 }
 

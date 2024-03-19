@@ -29,7 +29,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
        placeholder: String,
        @ViewBuilder icon: @escaping (Binding<CommandViewModel.MetaData>) -> IconContent,
        @ViewBuilder content: @escaping (Binding<CommandViewModel.MetaData>) -> Content,
-       @ViewBuilder subContent: @escaping (Binding<CommandViewModel.MetaData>) -> SubContent,
+       @ViewBuilder subContent: @escaping (Binding<CommandViewModel.MetaData>) -> SubContent = { _ in EmptyView() },
        onAction: @escaping (CommandContainerAction) -> Void) {
     _metaData = .init(initialValue: metaData)
     self.icon = icon

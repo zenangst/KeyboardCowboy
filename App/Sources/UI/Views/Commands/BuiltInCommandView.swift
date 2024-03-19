@@ -24,11 +24,11 @@ struct BuiltInCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placheolder) { command in
+    CommandContainerView(metaData, placeholder: model.placheolder) { _ in
       BuiltInIconView(model.kind, iconSize: iconSize)
     } content: { _ in
       BuiltInCommandContentView(model, onAction: onAction)
-    } subContent: { _ in } onAction: {
+    } onAction: {
       onAction(.commandAction($0))
     }
   }

@@ -14,7 +14,7 @@ struct OpenCommandView: View {
   @State var model: CommandViewModel.Kind.OpenModel
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
-  private let debounce: DebounceManager<String>
+
   private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
@@ -24,74 +24,130 @@ struct OpenCommandView: View {
     _model = .init(initialValue: model)
     self.metaData = metaData
     self.iconSize = iconSize
-    self.debounce = DebounceManager(for: .milliseconds(500)) { newPath in
-      onAction(.updatePath(newPath: newPath))
-    }
     self.onAction = onAction
   }
 
   var body: some View {
     CommandContainerView(metaData, placeholder: model.placheolder, icon: { command in
-      ZStack(alignment: .bottomTrailing) {
-        switch command.icon.wrappedValue {
-        case .some(let icon):
-          IconView(icon: icon, size: iconSize)
-          if let appPath = model.applicationPath {
-            IconView(icon: .init(bundleIdentifier: appPath, path: appPath), 
-                     size: iconSize.applying(.init(scaleX: 0.5, y: 0.5)))
-              .shadow(radius: 3)
-              .id("open-with-\(appPath)")
-          }
-        case .none:
-          EmptyView()
-        }
-      }
+      OpenCommandHeaderView(command, model: model, iconSize: iconSize)
     }, content: { command in
-      HStack(spacing: 2) {
-        TextField("", text: $model.path)
-          .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-          .onChange(of: model.path, perform: { debounce.send($0) })
-          .frame(maxWidth: .infinity)
-
-        if !model.applications.isEmpty {
-          Menu(content: {
-            ForEach(model.applications) { app in
-              Button(app.displayName, action: {
-                model.appName = app.displayName
-                model.applicationPath = app.path
-                onAction(.openWith(app))
-              })
-            }
-            Divider()
-            Button("Default", action: {
-              model.appName = nil
-              model.applicationPath = nil
-              onAction(.openWith(nil))
-            })
-          }, label: {
-            Text(model.appName ?? "Default")
-              .font(.caption)
-              .truncationMode(.middle)
-              .lineLimit(1)
-              .allowsTightening(true)
-              .padding(4)
-          })
-          .menuStyle(.zen(.init(color: .systemGray, grayscaleEffect: .constant(false))))
-          .menuIndicator(model.applications.isEmpty ? .hidden : .visible)
-          .fixedSize(horizontal: true, vertical: false)
-        }
+      OpenCommandContextView(command: command, model: $model) { app in
+        onAction(.openWith(app))
+      } onUpdatePath: { newPath in
+        onAction(.updatePath(newPath: newPath))
       }
     }, subContent: { command in
-      HStack {
-        if model.path.hasPrefix("http") == false {
-          Button("Reveal", action: { onAction(.reveal(path: model.path)) })
-            .buttonStyle(.zen(.init(color: .systemBlue)))
-        }
+      OpenCommandSubContentView(model: $model) {
+        onAction(.reveal(path: model.path))
       }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .font(.caption)
     }, onAction: { onAction(.commandAction($0)) })
     .enableInjection()
+  }
+}
+
+private struct OpenCommandHeaderView: View {
+  private var command: Binding<CommandViewModel.MetaData>
+  private let model: CommandViewModel.Kind.OpenModel
+  private let iconSize: CGSize
+
+  init(_ command: Binding<CommandViewModel.MetaData>, model: CommandViewModel.Kind.OpenModel, iconSize: CGSize) {
+    self.command = command
+    self.model = model
+    self.iconSize = iconSize
+  }
+
+  var body: some View {
+    ZStack(alignment: .bottomTrailing) {
+      switch command.icon.wrappedValue {
+      case .some(let icon):
+        IconView(icon: icon, size: iconSize)
+        if let appPath = model.applicationPath {
+          IconView(icon: .init(bundleIdentifier: appPath, path: appPath),
+                   size: iconSize.applying(.init(scaleX: 0.5, y: 0.5)))
+          .shadow(radius: 3)
+          .id("open-with-\(appPath)")
+        }
+      case .none:
+        EmptyView()
+      }
+    }
+  }
+}
+
+private struct OpenCommandContextView: View {
+  @Binding private var model: CommandViewModel.Kind.OpenModel
+  private var command: Binding<CommandViewModel.MetaData>
+  private let debounce: DebounceManager<String>
+
+  private let onUpdatePath: (String) -> Void
+  private let onUpdateOpenWith: (Application?) -> Void
+
+  init(command: Binding<CommandViewModel.MetaData>, model: Binding<CommandViewModel.Kind.OpenModel>, 
+       onUpdateOpenWith: @escaping (Application?) -> Void,
+       onUpdatePath: @escaping (String) -> Void) {
+    _model = model
+    self.command = command
+    self.onUpdatePath = onUpdatePath
+    self.onUpdateOpenWith = onUpdateOpenWith
+    self.debounce = DebounceManager(for: .milliseconds(500), onUpdate: onUpdatePath)
+  }
+
+  var body: some View {
+    HStack(spacing: 2) {
+      TextField("", text: $model.path)
+        .textFieldStyle(.regular(Color(.windowBackgroundColor)))
+        .onChange(of: model.path, perform: { debounce.send($0) })
+        .frame(maxWidth: .infinity)
+
+      Menu(content: {
+        ForEach(model.applications) { app in
+          Button(app.displayName, action: {
+            model.appName = app.displayName
+            model.applicationPath = app.path
+            onUpdateOpenWith(app)
+          })
+        }
+        Divider()
+        Button("Default", action: {
+          model.appName = nil
+          model.applicationPath = nil
+          onUpdateOpenWith(nil)
+        })
+      }, label: {
+        Text(model.appName ?? "Default")
+          .font(.caption)
+          .truncationMode(.middle)
+          .lineLimit(1)
+          .allowsTightening(true)
+          .padding(4)
+      })
+      .menuStyle(.zen(.init(color: .systemGray, grayscaleEffect: .constant(false))))
+      .menuIndicator(model.applications.isEmpty ? .hidden : .visible)
+      .fixedSize(horizontal: true, vertical: false)
+      .opacity(!model.applications.isEmpty ? 1 : 0)
+      .frame(width: model.applications.isEmpty ? 0 : nil)
+    }
+  }
+}
+
+private struct OpenCommandSubContentView: View {
+  @Binding var model: CommandViewModel.Kind.OpenModel
+  private let onReveal: () -> Void
+
+  init(model: Binding<CommandViewModel.Kind.OpenModel>, onReveal: @escaping () -> Void) {
+    _model = model
+    self.onReveal = onReveal
+  }
+
+  var body: some View {
+    HStack {
+      if model.path.hasPrefix("http") == false {
+        Button("Reveal", action: onReveal)
+          .buttonStyle(.zen(.init(color: .systemBlue)))
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .font(.caption)
   }
 }
 

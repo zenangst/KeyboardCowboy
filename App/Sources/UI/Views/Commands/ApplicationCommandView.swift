@@ -29,13 +29,9 @@ struct ApplicationCommandView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placheolder,
-      icon: { _ in
-        ApplicationCommandImageView(metaData, iconSize: iconSize, onAction: onAction)
-      },
-      content: { _ in
-        ApplicationCommandInternalView(metaData, model: model, iconSize: iconSize, onAction: onAction)
-      },
-      subContent: { _ in EmptyView() },
+      icon: { _ in ApplicationCommandImageView(metaData, iconSize: iconSize, onAction: onAction) },
+      content: { _ in ApplicationCommandInternalView(metaData, model: model,
+                                                     iconSize: iconSize, onAction: onAction) },
       onAction: { action in
         onAction(.commandAction(action))
       }

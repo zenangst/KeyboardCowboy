@@ -40,9 +40,8 @@ struct KeyboardCommandView: View {
 }
 
 struct KeyboardCommandInternalView: View {
-  @StateObject private var keyboardSelection = SelectionManager<KeyShortcut>()
-  private let metaData: CommandViewModel.MetaData
   @Binding private var model: CommandViewModel.Kind.KeyboardModel
+  private let metaData: CommandViewModel.MetaData
   private let debounce: DebounceManager<String>
   private let onAction: (KeyboardCommandView.Action) -> Void
   private let iconSize: CGSize
@@ -67,38 +66,66 @@ struct KeyboardCommandInternalView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { command in
-        KeyboardIconView(size: iconSize.width)
-          .overlay {
-            Image(systemName: "flowchart")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: iconSize.width / 2)
-          }
-      }, content: { command in
-        EditableKeyboardShortcutsView<AppFocus>(
-          focus,
-          focusBinding: { .detail(.commandShortcut($0)) },
-          mode: .externalEdit({
-            onAction(.editCommand(model))
-          }),
-          keyboardShortcuts: $model.keys,
-          draggableEnabled: false,
-          selectionManager: keyboardSelection,
-          onTab: { _ in })
-        .font(.caption)
-        .roundedContainer(padding: 0, margin: 0)
-      },
-      subContent: { _ in
-        Button {
-          onAction(.editCommand(model))
-        } label: {
-          Text("Edit")
-            .font(.caption)
-        }
-        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
-      },
+      icon: { _ in KeyboardCommandIconView(iconSize: iconSize) },
+      content: { _ in KeyboardCommandContentView(model: $model, focus: focus) { onAction(.editCommand(model)) } },
+      subContent: { _ in KeyboardCommandSubContentView { onAction(.editCommand(model)) } },
       onAction: { onAction(.commandAction($0)) })
+  }
+}
+
+private struct KeyboardCommandIconView: View {
+  let iconSize: CGSize
+
+  var body: some View {
+    KeyboardIconView(size: iconSize.width)
+      .overlay {
+        Image(systemName: "flowchart")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: iconSize.width / 2)
+      }
+  }
+}
+
+private struct KeyboardCommandContentView: View {
+  @StateObject private var keyboardSelection = SelectionManager<KeyShortcut>()
+  @Binding private var model: CommandViewModel.Kind.KeyboardModel
+  private let focus: FocusState<AppFocus?>.Binding
+  private let onEdit: () -> Void
+
+  init(model: Binding<CommandViewModel.Kind.KeyboardModel>,
+       focus: FocusState<AppFocus?>.Binding,
+       onEdit: @escaping () -> Void) {
+    _model = model
+    self.focus = focus
+    self.onEdit = onEdit
+  }
+
+  var body: some View {
+    EditableKeyboardShortcutsView<AppFocus>(
+      focus,
+      focusBinding: { .detail(.commandShortcut($0)) },
+      mode: .externalEdit(onEdit),
+      keyboardShortcuts: $model.keys,
+      draggableEnabled: false,
+      selectionManager: keyboardSelection,
+      onTab: { _ in })
+    .font(.caption)
+    .roundedContainer(padding: 0, margin: 0)
+  }
+}
+
+private struct KeyboardCommandSubContentView: View {
+  private let onEdit: () -> Void
+
+  init(onEdit: @escaping () -> Void) {
+    self.onEdit = onEdit
+  }
+
+  var body: some View {
+    Button(action: onEdit) { Text("Edit") }
+    .font(.caption)
+    .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
   }
 }
 

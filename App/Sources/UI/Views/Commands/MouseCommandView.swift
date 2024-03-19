@@ -51,12 +51,8 @@ struct MouseCommandInternalView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { command in
-        MouseIconView(size: iconSize.width)
-      },
-      content: { _ in
-        MouseCommandContentView(model: $model, onAction: onAction)
-      },
+      icon: { _ in MouseIconView(size: iconSize.width) },
+      content: { _ in MouseCommandContentView(model: $model, onAction: onAction) },
       subContent: { _ in },
       onAction: { action in
         onAction(.commandAction(action))

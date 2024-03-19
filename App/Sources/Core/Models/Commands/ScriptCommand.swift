@@ -6,7 +6,7 @@ struct ScriptCommand: MetaDataProviding {
     case shellScript = "sh"
   }
 
-  enum Source: Hashable, Codable, Sendable {
+  enum Source: Hashable, Codable, Sendable, Equatable {
     case path(String)
     case inline(String)
   }

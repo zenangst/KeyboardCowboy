@@ -25,60 +25,91 @@ struct SystemCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placeholder, icon: { command in
-      switch model.kind {
-      case .activateLastApplication:
-        ActivateLastApplicationIconView(size: iconSize.width)
-      case .applicationWindows:
-        MissionControlIconView(size: iconSize.width)
-      case .minimizeAllOpenWindows:
-        MinimizeAllIconView(size: iconSize.width)
-      case .missionControl:
-        MissionControlIconView(size: iconSize.width)
-      case .moveFocusToNextWindow:
-        MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize.width)
-      case .moveFocusToNextWindowFront:
-        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: iconSize.width)
-      case .moveFocusToNextWindowGlobal:
-        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: iconSize.width)
-      case .moveFocusToPreviousWindow:
-        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
-      case .moveFocusToPreviousWindowFront:
-        MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: iconSize.width)
-      case .moveFocusToPreviousWindowGlobal:
-        MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
-      case .showDesktop:
-        DockIconView(size: iconSize.width)
+    CommandContainerView(
+      metaData,
+      placeholder: model.placeholder,
+      icon: { _ in SystemCommandIconView(model.kind, iconSize: iconSize)
+    }, content: { _ in
+      SystemCommandContentView(model: $model) { kind in
+        onAction(.updateKind(newKind: kind))
       }
-    }, content: { command in
-      HStack(spacing: 8) {
-        Menu(content: {
-          ForEach(SystemCommand.Kind.allCases) { kind in
-            Button(action: {
-              model.kind = kind
-              onAction(.updateKind(newKind: kind))
-            }, label: {
-              Image(systemName: kind.symbol)
-              Text(kind.displayValue)
-                .font(.subheadline)
-            })
-          }
-        }, label: {
-            Image(systemName: model.kind.symbol)
-            Text(model.kind.displayValue)
-              .font(.subheadline)
-              .truncationMode(.middle)
-              .allowsTightening(true)
-        })
-        .menuStyle(.regular)
-      }
-    }, subContent: { _ in },
+    },
     onAction: { onAction(.commandAction($0)) })
     .id(model.id)
     .enableInjection()
   }
 }
 
+private struct SystemCommandIconView: View {
+  let kind: SystemCommand.Kind
+  let iconSize: CGSize
+
+  init(_ kind: SystemCommand.Kind, iconSize: CGSize) {
+    self.kind = kind
+    self.iconSize = iconSize
+  }
+
+  var body: some View {
+    switch kind {
+    case .activateLastApplication:
+      ActivateLastApplicationIconView(size: iconSize.width)
+    case .applicationWindows:
+      MissionControlIconView(size: iconSize.width)
+    case .minimizeAllOpenWindows:
+      MinimizeAllIconView(size: iconSize.width)
+    case .missionControl:
+      MissionControlIconView(size: iconSize.width)
+    case .moveFocusToNextWindow:
+      MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize.width)
+    case .moveFocusToNextWindowFront:
+      MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: iconSize.width)
+    case .moveFocusToNextWindowGlobal:
+      MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: iconSize.width)
+    case .moveFocusToPreviousWindow:
+      MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
+    case .moveFocusToPreviousWindowFront:
+      MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: iconSize.width)
+    case .moveFocusToPreviousWindowGlobal:
+      MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
+    case .showDesktop:
+      DockIconView(size: iconSize.width)
+    }
+  }
+}
+
+private struct SystemCommandContentView: View {
+  @Binding var model: CommandViewModel.Kind.SystemModel
+  let onUpdate: (SystemCommand.Kind) -> Void
+
+  init(model: Binding<CommandViewModel.Kind.SystemModel>, onUpdate: @escaping (SystemCommand.Kind) -> Void) {
+    _model = model
+    self.onUpdate = onUpdate
+  }
+
+  var body: some View {
+    HStack(spacing: 8) {
+      Menu(content: {
+        ForEach(SystemCommand.Kind.allCases) { kind in
+          Button(action: {
+            model.kind = kind
+            onUpdate(kind)
+          }, label: {
+            Image(systemName: kind.symbol)
+            Text(kind.displayValue)
+              .font(.subheadline)
+          })
+        }
+      }, label: {
+        Image(systemName: model.kind.symbol)
+        Text(model.kind.displayValue)
+          .font(.subheadline)
+          .truncationMode(.middle)
+          .allowsTightening(true)
+      })
+      .menuStyle(.regular)
+    }
+  }
+}
 
 struct SystemCommandView_Previews: PreviewProvider {
   static let command = DesignTime.systemCommand
