@@ -52,6 +52,8 @@ struct WorkflowTriggerView: View {
           }
         })
 
+        ZenDivider(.vertical)
+          .frame(height: 24)
 
         FocusableButton(
           focus,
@@ -82,6 +84,9 @@ struct WorkflowTriggerView: View {
           default: break
           }
         })
+
+        ZenDivider(.vertical)
+          .frame(height: 24)
 
         FocusableButton(
           focus,
@@ -117,9 +122,7 @@ struct WorkflowTriggerView: View {
         focus.wrappedValue = .detail(.name)
       })
       .frame(maxWidth: .infinity)
-      .padding(8)
-      .background(Color(.gridColor))
-      .cornerRadius(8)
+      .roundedContainer(padding: 8, margin: 0)
     }
     .buttonStyle(.regular)
     .enableInjection()
