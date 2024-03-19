@@ -30,21 +30,18 @@ struct WorkflowTriggerView: View {
         FocusableButton(
           focus,
           identity: .detail(.addAppTrigger),
-          variant: .zen(.init(color: .systemBlue, 
+          variant: .zen(.init(calm: true,
+                              color: .systemBlue,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
           action: { onAction(.addApplication) }
         ) {
           HStack(spacing: 6) {
-            Image(systemName: "appclip")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .foregroundColor(Color(nsColor: .systemBlue.withSystemEffect(.deepPressed)))
-              .frame(width: 12)
+            GenericAppIconView(size: 20)
             Text("Application")
+              .font(.caption)
               .lineLimit(1)
           }
-          .padding(6)
           .frame(maxWidth: .infinity)
         }
         .onMoveCommand(perform: { direction in
@@ -59,7 +56,8 @@ struct WorkflowTriggerView: View {
         FocusableButton(
           focus,
           identity: .detail(.addKeyboardTrigger),
-          variant: .zen(.init(color: .systemIndigo,
+          variant: .zen(.init(calm: true,
+                              color: .systemIndigo,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
           action: {
@@ -67,15 +65,12 @@ struct WorkflowTriggerView: View {
           }
         ) {
           HStack(spacing: 6) {
-            Image(systemName: "command.square.fill")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .foregroundColor(Color(nsColor: .systemIndigo.withSystemEffect(.deepPressed)))
-              .frame(width: 12)
+            KeyboardIconView("M", size: 20)
             Text("Keyboard Shortcut")
+              .allowsTightening(true)
               .lineLimit(1)
+              .font(.caption)
           }
-          .padding(6)
           .frame(maxWidth: .infinity)
         }
         .onMoveCommand(perform: { direction in
@@ -88,12 +83,11 @@ struct WorkflowTriggerView: View {
           }
         })
 
-        
-
         FocusableButton(
           focus,
           identity: .detail(.addSnippetTrigger),
-          variant: .zen(.init(color: .systemPurple,
+          variant: .zen(.init(calm: true,
+                              color: .systemPurple,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
           action: { onAction(.addSnippet) }
@@ -101,15 +95,11 @@ struct WorkflowTriggerView: View {
 
           
           HStack(spacing: 6) {
-            Image(systemName: "heart.text.square.fill")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .foregroundColor(Color(nsColor: .systemPurple.withSystemEffect(.deepPressed)))
-              .frame(width: 12)
+            SnippetIconView(size: 20)
             Text("Snippet")
+              .font(.caption)
               .lineLimit(1)
           }
-          .padding(6)
           .frame(maxWidth: .infinity)
         }
         .onMoveCommand(perform: { direction in

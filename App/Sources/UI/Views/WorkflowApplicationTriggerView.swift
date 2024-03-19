@@ -33,6 +33,7 @@ struct WorkflowApplicationTriggerView: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
+        GenericAppIconView(size: 28)
         Menu {
           ForEach(applicationStore.applications.lazy, id: \.path) { application in
             Button(action: {

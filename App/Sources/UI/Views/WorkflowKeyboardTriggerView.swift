@@ -3,7 +3,7 @@ import Combine
 import Inject
 import SwiftUI
 
-struct KeyboardTriggerView: View {
+struct WorkflowKeyboardTriggerView: View {
   @ObserveInjection var inject
   @State private var holdDurationText = ""
   @State private var passthrough: Bool
@@ -36,26 +36,12 @@ struct KeyboardTriggerView: View {
 
   var body: some View {
     VStack(spacing: 8) {
-      HStack {
-        ZenLabel("Keyboard Shortcuts Sequence")
-        Spacer()
-        Button(action: { onAction(.removeTrigger(workflowId: workflowId)) },
-               label: {
-          Image(systemName: "xmark")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 10, height: 10)
-        })
-        .buttonStyle(.calm(color: .systemRed, padding: .medium))
-      }
-
       WorkflowShortcutsView(focus, data: $trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
         onAction(.updateKeyboardShortcuts(workflowId: workflowId,
                                           passthrough: passthrough,
                                           holdDuration: Double(holdDurationText),
                                           keyboardShortcuts: keyboardShortcuts))
       }
-      .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
 
       HStack {
         ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
@@ -84,7 +70,7 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
   @Namespace static var namespace
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    KeyboardTriggerView(namespace: namespace,
+    WorkflowKeyboardTriggerView(namespace: namespace,
                         workflowId: UUID().uuidString,
                         focus: $focus,
                         trigger: .init(passthrough: false, shortcuts: [
