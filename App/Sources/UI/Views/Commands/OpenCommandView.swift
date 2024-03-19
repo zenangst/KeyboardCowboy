@@ -31,7 +31,7 @@ struct OpenCommandView: View {
     CommandContainerView(metaData, placeholder: model.placheolder, icon: { command in
       OpenCommandHeaderView(command, model: model, iconSize: iconSize)
     }, content: { command in
-      OpenCommandContextView(command: command, model: $model) { app in
+      OpenCommandContentView(command: command, model: $model) { app in
         onAction(.openWith(app))
       } onUpdatePath: { newPath in
         onAction(.updatePath(newPath: newPath))
@@ -74,7 +74,7 @@ private struct OpenCommandHeaderView: View {
   }
 }
 
-private struct OpenCommandContextView: View {
+private struct OpenCommandContentView: View {
   @Binding private var model: CommandViewModel.Kind.OpenModel
   private var command: Binding<CommandViewModel.MetaData>
   private let debounce: DebounceManager<String>
@@ -100,7 +100,7 @@ private struct OpenCommandContextView: View {
         .frame(maxWidth: .infinity)
 
       Menu(content: {
-        ForEach(model.applications) { app in
+        ForEach(model.applications.lazy) { app in
           Button(app.displayName, action: {
             model.appName = app.displayName
             model.applicationPath = app.path
