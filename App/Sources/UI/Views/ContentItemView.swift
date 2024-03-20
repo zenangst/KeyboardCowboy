@@ -30,6 +30,7 @@ struct ContentItemView: View {
 
 private struct ContentItemInternalView: View {
   @State private var isHovered: Bool = false
+  @State private var isSelected: Bool = false
 
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let publisher: ContentPublisher
@@ -78,8 +79,26 @@ private struct ContentItemInternalView: View {
       ContentItemAccessoryView(workflow: workflow)
     }
     .padding(4)
-    .background(FillBackgroundView(isSelected: .readonly(contentSelectionManager.selections.contains(workflow.id))))
+    .background(ContentItemBackgroundView(workflow.id, contentSelectionManager: contentSelectionManager))
     .draggable(workflow)
+  }
+}
+
+private struct ContentItemBackgroundView: View {
+  private let workflowId: ContentViewModel.ID
+  @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
+  @State private var isSelected: Bool = false
+
+  init(_ workflowId: ContentViewModel.ID, contentSelectionManager: SelectionManager<ContentViewModel>) {
+    self.workflowId = workflowId
+    self.contentSelectionManager = contentSelectionManager
+  }
+
+  var body: some View {
+    FillBackgroundView(isSelected: $isSelected)
+    .onChange(of: contentSelectionManager.selections, perform: { _ in
+      isSelected = contentSelectionManager.selections.contains(workflowId)
+    })
   }
 }
 
