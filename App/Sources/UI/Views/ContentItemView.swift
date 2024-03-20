@@ -87,11 +87,12 @@ private struct ContentItemInternalView: View {
 private struct ContentItemBackgroundView: View {
   private let workflowId: ContentViewModel.ID
   @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
-  @State private var isSelected: Bool = false
+  @State private var isSelected: Bool
 
   init(_ workflowId: ContentViewModel.ID, contentSelectionManager: SelectionManager<ContentViewModel>) {
     self.workflowId = workflowId
     self.contentSelectionManager = contentSelectionManager
+    self.isSelected = contentSelectionManager.selections.contains(workflowId)
   }
 
   var body: some View {
