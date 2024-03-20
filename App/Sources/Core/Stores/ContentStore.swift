@@ -4,7 +4,7 @@ import SwiftUI
 
 @MainActor
 final class ContentStore: ObservableObject {
-  enum State {
+  enum State: Equatable {
     case loading
     case noConfiguration
     case initialized
