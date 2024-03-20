@@ -7,13 +7,18 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
     CodableRepresentation(contentType: .workflow)
   }
 
+  enum Trigger: Hashable, Codable {
+    case application(String)
+    case keyboard(String)
+    case snippet(String)
+  }
+
   let id: String
   let groupName: String?
   let name: String
   let images: [ImageModel]
   let overlayImages: [ImageModel]
-  let binding: String?
-  let snippet: String?
+  let trigger: Trigger?
   let badge: Int
   let badgeOpacity: Double
   let isEnabled: Bool
@@ -21,8 +26,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
   internal init(id: String, groupName: String? = nil, name: String,
                 images: [ContentViewModel.ImageModel],
                 overlayImages: [ContentViewModel.ImageModel],
-                binding: String? = nil, 
-                snippet: String? = nil,
+                trigger: Trigger? = nil,
                 badge: Int,
                 badgeOpacity: Double, isEnabled: Bool) {
     self.id = id
@@ -30,10 +34,9 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
     self.name = name
     self.images = images
     self.overlayImages = overlayImages
-    self.binding = binding
     self.badge = badge
     self.badgeOpacity = badgeOpacity
-    self.snippet = snippet
+    self.trigger = trigger
     self.isEnabled = isEnabled
   }
 

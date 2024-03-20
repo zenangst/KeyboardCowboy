@@ -108,14 +108,17 @@ private struct ContentItemAccessoryView: View {
 
   @ViewBuilder
   var body: some View {
-    if let binding = workflow.binding {
+    switch workflow.trigger {
+    case .application(let application):
+      GenericAppIconView(size: 16)
+    case .keyboard(let binding):
       KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
         .fixedSize()
         .font(.footnote)
         .lineLimit(1)
         .allowsTightening(true)
         .frame(minWidth: 32, alignment: .trailing)
-    } else if let snippet = workflow.snippet {
+    case .snippet(let snippet):
       HStack(spacing: 1) {
         Text(snippet)
           .font(.footnote)
@@ -129,6 +132,8 @@ private struct ContentItemAccessoryView: View {
         RoundedRectangle(cornerRadius: 4)
           .stroke(Color(.separatorColor), lineWidth: 1)
       )
+    case .none:
+      EmptyView()
     }
   }
 }

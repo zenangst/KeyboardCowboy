@@ -52,22 +52,12 @@ private extension Workflow {
     let binding: String?
     let snippet: String?
 
-    if let trigger  {
-      switch trigger {
-      case .application:
-        binding = nil
-        snippet = nil
-      case .keyboardShortcuts:
-        binding = trigger.binding
-        snippet = nil
-      case .snippet(let snippetTrigger):
-        binding = nil
-        snippet = snippetTrigger.text
-      }
-
-    } else {
-      binding = nil
-      snippet = nil
+    let viewModelTrigger: ContentViewModel.Trigger?
+    viewModelTrigger = switch trigger {
+    case .application: .application("foo")
+    case .keyboardShortcuts(let trigger): .keyboard(trigger.shortcuts.binding ?? "")
+    case .snippet(let snippetTrigger): .snippet(snippetTrigger.text)
+    case .none: nil
     }
 
     return ContentViewModel(
@@ -76,8 +66,7 @@ private extension Workflow {
       name: name,
       images: commands.images(limit: 1),
       overlayImages: commands.overlayImages(limit: 3),
-      binding: binding,
-      snippet: snippet,
+      trigger: viewModelTrigger,
       badge: commandCount > 1 ? commandCount : 0,
       badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
       isEnabled: isEnabled)
