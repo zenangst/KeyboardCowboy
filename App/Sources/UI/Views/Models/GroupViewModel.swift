@@ -13,5 +13,4 @@ struct GroupViewModel: Identifiable, Hashable, Codable, Sendable, Transferable {
   let symbol: String
   let userModes: [UserMode]
   let count: Int
-
 }

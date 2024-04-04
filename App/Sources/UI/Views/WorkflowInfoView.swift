@@ -50,11 +50,8 @@ struct WorkflowInfoView: View {
           guard $0 != publisher.data.name else { return }
           onAction(.updateName(name: $0))
         }
-        .modifier(TabModifier(focus: focus, onInsertTab: onInsertTab))
-
       Spacer()
       ZenToggle(
-        "",
         config: .init(color: .systemGreen),
         style: .medium,
         isOn: $publisher.data.isEnabled
@@ -62,53 +59,6 @@ struct WorkflowInfoView: View {
       }
     }
     .enableInjection()
-  }
-}
-
-private struct TabModifier: ViewModifier {
-  @State private var monitor: Any?
-  private var focus: FocusState<AppFocus?>.Binding
-  private let onInsertTab: () -> Void
-
-  init(focus: FocusState<AppFocus?>.Binding, onInsertTab: @escaping () -> Void) {
-    self.focus = focus
-    self.onInsertTab = onInsertTab
-  }
-
-  func body(content: Content) -> some View {
-    // This is a workaround for a bug in SwiftUI on Ventura where this method causes a recursion
-    // and will eventually crash the app.
-    if #available(macOS 14 , *) {
-      content
-      .onChange(of: focus.wrappedValue, perform: { value in
-        if case .detail(.name) = value {
-          if let oldMonitor = monitor { NSEvent.removeMonitor(oldMonitor) }
-
-          monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
-            if event.keyCode == kVK_Tab {
-              if event.modifierFlags.contains(.shift) {
-                focus.wrappedValue = .workflows
-              } else {
-                onInsertTab()
-              }
-              return nil
-            }
-            return event
-          }
-        } else if let monitor {
-          NSEvent.removeMonitor(monitor)
-          self.monitor = nil
-        }
-      })
-      .onDisappear {
-        if let monitor {
-          NSEvent.removeMonitor(monitor)
-          self.monitor = nil
-        }
-      }
-    } else {
-      content
-    }
   }
 }
 

@@ -58,8 +58,7 @@ struct MainWindowView: View {
         core.contentStore.use(oldConfiguration)
         core.sidebarCoordinator.handle(.refresh)
         core.contentCoordinator.handle(.refresh(core.groupSelectionManager.selections))
-        core.detailCoordinator.handle(.selectWorkflow(workflowIds: core.contentSelectionManager.selections,
-                                                      groupIds: core.groupSelectionManager.selections))
+        core.detailCoordinator.handle(.selectWorkflow(workflowIds: core.contentSelectionManager.selections))
       })
     }
     .onAppear {
@@ -68,5 +67,21 @@ struct MainWindowView: View {
     .onDisappear {
       KeyboardCowboy.deactivate()
     }
+    .environmentObject(ApplicationStore.shared)
+    .environmentObject(core.contentStore)
+    .environmentObject(core.groupStore)
+    .environmentObject(core.shortcutStore)
+    .environmentObject(core.recorderStore)
+    .environmentObject(core.configCoordinator.configurationsPublisher)
+    .environmentObject(core.configCoordinator.configurationPublisher)
+    .environmentObject(core.sidebarCoordinator.publisher)
+    .environmentObject(core.contentCoordinator.contentPublisher)
+    .environmentObject(core.contentCoordinator.groupPublisher)
+    .environmentObject(core.detailCoordinator.statePublisher)
+    .environmentObject(core.detailCoordinator.infoPublisher)
+    .environmentObject(core.detailCoordinator.triggerPublisher)
+    .environmentObject(core.detailCoordinator.commandsPublisher)
+    .environmentObject(core.snippetController)
+    .environmentObject(OpenPanelController())
   }
 }

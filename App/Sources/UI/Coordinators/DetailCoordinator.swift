@@ -93,8 +93,8 @@ final class DetailCoordinator {
     case .moveCommandsToWorkflow(_, let workflowId, _):
       guard let groupId = groupSelectionManager.selections.first else { return }
       render([workflowId], groupIds: [groupId])
-    case .selectWorkflow(let workflowIds, let groupIds):
-      render(workflowIds, groupIds: groupIds)
+    case .selectWorkflow(let workflowIds):
+      render(workflowIds, groupIds: groupSelectionManager.selections)
     case .removeWorkflows:
       guard let first = groupSelectionManager.selections.first,
             let group = groupStore.group(withId: first) else {
@@ -252,8 +252,9 @@ final class DetailCoordinator {
     let workflows = groupStore.groups
       .filter { groupIds.contains($0.id) }
       .flatMap(\.workflows)
+    let matches = workflows
       .filter { ids.contains($0.id) }
-    let viewModels: [DetailViewModel] = mapper.map(workflows)
+    let viewModels: [DetailViewModel] = mapper.map(matches)
     let state: DetailViewState
 
     if viewModels.count > 1 {

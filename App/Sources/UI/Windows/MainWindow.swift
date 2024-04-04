@@ -18,22 +18,6 @@ struct MainWindow: Scene {
       MainWindowView($focus, core: core, onSceneAction: {
         onScene($0)
       })
-      .environmentObject(ApplicationStore.shared)
-      .environmentObject(core.contentStore)
-      .environmentObject(core.groupStore)
-      .environmentObject(core.shortcutStore)
-      .environmentObject(core.recorderStore)
-      .environmentObject(core.configCoordinator.configurationsPublisher)
-      .environmentObject(core.configCoordinator.configurationPublisher)
-      .environmentObject(core.sidebarCoordinator.publisher)
-      .environmentObject(core.contentCoordinator.contentPublisher)
-      .environmentObject(core.contentCoordinator.groupPublisher)
-      .environmentObject(core.detailCoordinator.statePublisher)
-      .environmentObject(core.detailCoordinator.infoPublisher)
-      .environmentObject(core.detailCoordinator.triggerPublisher)
-      .environmentObject(core.detailCoordinator.commandsPublisher)
-      .environmentObject(core.snippetController)
-      .environmentObject(OpenPanelController())
       .animation(.easeInOut, value: core.contentStore.state)
       .onAppear { NSWindow.allowsAutomaticWindowTabbing = false }
     }

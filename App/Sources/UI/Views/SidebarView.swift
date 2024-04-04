@@ -1,9 +1,7 @@
 import Bonzai
-import Inject
 import SwiftUI
 
 struct SidebarView: View {
-  @ObserveInjection var inject
   enum Action {
     case refresh
     case openScene(AppScene)
@@ -57,14 +55,9 @@ struct SidebarView: View {
       }
       .padding([.leading, .top, .trailing], 12)
 
-      HStack {
-        ZenLabel(.sidebar) { Text("Groups") }
-        Spacer()
-        SidebarAddGroupButtonView(isVisible: .readonly(!publisher.data.isEmpty),
-                                  namespace: namespace, onAction: {
-          onAction(.openScene(.addGroup))
-        })
-      }
+      GroupsHeaderView(namespace, 
+                       isVisible: .readonly(!publisher.data.isEmpty),
+                       onAddGroup: { onAction(.openScene(.addGroup)) })
       .padding(.horizontal, 12)
       .padding(.vertical, 6)
 
@@ -94,7 +87,29 @@ struct SidebarView: View {
       .padding(.horizontal, 12)
       .padding(.vertical, 4)
     }
-    .enableInjection()
+  }
+}
+
+private struct GroupsHeaderView: View {
+  private let namespace: Namespace.ID
+  @Binding private var isVisible: Bool
+  private let onAddGroup: () -> Void
+
+  init(_ namespace: Namespace.ID, isVisible: Binding<Bool>, onAddGroup: @escaping () -> Void) {
+    _isVisible = isVisible
+    self.namespace = namespace
+    self.onAddGroup = onAddGroup
+  }
+
+  var body: some View {
+    HStack {
+      ZenLabel(.sidebar) { Text("Groups") }
+      Spacer()
+      if isVisible {
+      SidebarAddGroupButtonView(isVisible: $isVisible,
+                                namespace: namespace, onAction: onAddGroup)
+      }
+    }
   }
 }
 

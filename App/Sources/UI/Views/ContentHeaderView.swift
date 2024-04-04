@@ -2,17 +2,17 @@ import Bonzai
 import SwiftUI
 
 struct ContentHeaderView: View {
-  @ObservedObject private var groupSelectionManager: SelectionManager<GroupViewModel>
   @EnvironmentObject private var contentPublisher: ContentPublisher
   @EnvironmentObject private var groupPublisher: GroupPublisher
 
+  @Binding private var showAddButton: Bool
   private let namespace: Namespace.ID
   private let onAction: (ContentListView.Action) -> Void
 
-  init(groupSelectionManager: SelectionManager<GroupViewModel>,
-       namespace: Namespace.ID,
+  init(namespace: Namespace.ID, 
+       showAddButton: Binding<Bool>,
        onAction: @escaping (ContentListView.Action) -> Void) {
-    self.groupSelectionManager = groupSelectionManager
+    _showAddButton = showAddButton
     self.namespace = namespace
     self.onAction = onAction
   }
@@ -38,9 +38,10 @@ struct ContentHeaderView: View {
       }
       .frame(maxWidth: .infinity, alignment: .leading)
 
-      ContentAddWorkflowHeaderView(namespace, onAction: {
-        onAction(.addWorkflow(workflowId: UUID().uuidString))
-      })
+      ContentAddWorkflowHeaderView(
+        namespace,
+        isVisible: $showAddButton,
+        onAction: { onAction(.addWorkflow(workflowId: UUID().uuidString)) })
     }
     .padding(.bottom, 4)
     .padding(.leading, 14)

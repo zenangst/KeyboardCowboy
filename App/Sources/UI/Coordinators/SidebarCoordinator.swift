@@ -89,7 +89,9 @@ final class SidebarCoordinator {
         if ids.contains(group.id) { newIndex = index }
       }
 
-      ids.forEach { selectionManager.selections.remove($0) }
+      var modifiedSelections = selectionManager.selections
+      ids.forEach { modifiedSelections.remove($0) }
+      selectionManager.publish(modifiedSelections)
       store.removeGroups(with: ids)
 
       if store.groups.isEmpty {
@@ -171,9 +173,5 @@ final class SidebarCoordinator {
     }
 
     publisher.publish(groups)
-
-    if let newSelections, selectionManager.selections != newSelections {
-      selectionManager.selections = newSelections
-    }
   }
 }

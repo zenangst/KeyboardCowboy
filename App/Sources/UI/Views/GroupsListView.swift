@@ -50,8 +50,8 @@ struct GroupsListView: View {
     self.contentSelectionManager = contentSelectionManager
     self.onAction = onAction
     self.debounce = .init(.init(groups: selectionManager.selections),
-                                          milliseconds: 150,
-                                          onUpdate: { snapshot in
+                          milliseconds: 150,
+                          onUpdate: { snapshot in
       onAction(.selectGroups(snapshot.groups))
     })
   }
@@ -60,16 +60,12 @@ struct GroupsListView: View {
     ScrollViewReader { proxy in
       ScrollView {
         if publisher.data.isEmpty {
-          GroupsEmptyListView(namespace, onAction: onAction)
+          GroupsEmptyListView(namespace, isVisible: .readonly(publisher.data.isEmpty), onAction: onAction)
         } else {
           LazyVStack(spacing: 0) {
             ForEach(publisher.data.lazy, id: \.id) { group in
-              GroupItemView(
-                group,
-                groupsPublisher: publisher,
-                selectionManager: selectionManager,
-                onAction: onAction
-              )
+              GroupItemView(group, selectionManager: selectionManager,
+                            onAction: onAction)
               .contentShape(Rectangle())
               .dropDestination(SidebarListDropItem.self, color: .accentColor, onDrop: { items, location in
                 for item in items {
@@ -106,6 +102,7 @@ struct GroupsListView: View {
                   focus = .element(match.id)
                 } else {
                   onTap(group)
+                  proxy.scrollTo(group.id)
                 }
               }
               .gesture(
@@ -124,7 +121,7 @@ struct GroupsListView: View {
             })
             .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {})
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-              selectionManager.selections = Set(publisher.data.map(\.id))
+              selectionManager.publish(Set(publisher.data.map(\.id)))
             })
             .onMoveCommand(perform: { direction in
               if let elementID = selectionManager.handle(
@@ -142,12 +139,12 @@ struct GroupsListView: View {
           .onAppear {
             guard let initialSelection = selectionManager.initialSelection else { return }
             focus = .element(initialSelection)
-            DispatchQueue.main.async {
-              proxy.scrollTo(initialSelection)
-            }
+            proxy.scrollTo(initialSelection)
           }
           .focused(appFocus, equals: .groups)
           .padding(.horizontal, 8)
+          .opacity(!publisher.data.isEmpty ? 1 : 0)
+          .frame(height: !publisher.data.isEmpty ? nil : 0)
         }
       }
     }

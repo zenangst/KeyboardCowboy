@@ -47,7 +47,7 @@ final class ConfigurationCoordinator {
       if let configuration = store.selectConfiguration(withId: id) {
         contentStore.use(configuration)
         render(selectedConfiguration: configuration)
-        selectionManager.selections = [configuration.id]
+        selectionManager.publish([configuration.id])
       }
     case .addConfiguration(let name):
       let configuration = KeyboardCowboyConfiguration(
@@ -58,13 +58,13 @@ final class ConfigurationCoordinator {
       )
       store.add(configuration)
       contentStore.use(configuration)
-      selectionManager.selections = [configuration.id]
+      selectionManager.publish([configuration.id])
     case .updateConfiguration(let newName):
       var modifiedConfiguration = contentStore.configurationStore.selectedConfiguration
       modifiedConfiguration.name = newName
       contentStore.configurationStore.update(modifiedConfiguration)
       render(selectedConfiguration: modifiedConfiguration)
-      selectionManager.selections = [modifiedConfiguration.id]
+      selectionManager.publish([modifiedConfiguration.id])
     case .deleteConfiguration(let id):
       // Fix the bug when deleting configurations (they are out-of-sync)
       assert(contentStore.configurationStore.selectedConfiguration.id == id)

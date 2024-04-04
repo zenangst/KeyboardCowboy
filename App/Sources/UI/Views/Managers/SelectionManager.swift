@@ -13,7 +13,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
   private var tabIsActive: Bool = false
   typealias StoreType = (Set<T.ID>) -> Void
   private(set) var lastSelection: T.ID?
-  @Published var selections: Set<T.ID>
+  @Published private(set) var selections: Set<T.ID>
   @Published var initialSelection: String?
 
   private let store: StoreType

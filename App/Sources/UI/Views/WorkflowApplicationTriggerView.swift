@@ -90,7 +90,7 @@ struct WorkflowApplicationTriggerView: View {
               onTab()
             })
             .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-              selectionManager.selections = Set(data.map(\.id))
+              selectionManager.publish(Set(data.map(\.id)))
             })
             .onMoveCommand(perform: { direction in
               if let elementID = selectionManager.handle(direction, data, proxy: nil) {

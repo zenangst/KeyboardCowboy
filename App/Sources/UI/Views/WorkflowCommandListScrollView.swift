@@ -103,7 +103,7 @@ struct WorkflowCommandListScrollView: View {
           }
         })
         .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-          selectionManager.selections = Set(publisher.data.commands.map(\.id))
+          selectionManager.publish(Set(publisher.data.commands.map(\.id)))
         })
         .onMoveCommand(perform: { direction in
           if let elementID = selectionManager.handle(direction, publisher.data.commands,

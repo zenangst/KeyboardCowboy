@@ -57,65 +57,56 @@ struct ContainerView: View {
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
-        Group {
-          SidebarView(focus,
-                      configSelectionManager: configSelectionManager,
-                      groupSelectionManager: groupsSelectionManager,
-                      contentSelectionManager: contentSelectionManager,
-                      onAction: { onAction(.sidebar($0), undoManager) })
-            .onChange(of: contentState, perform: { _ in
-              guard let workflowId = contentSelectionManager.lastSelection,
-                 let groupId = groupsSelectionManager.lastSelection else { return }
-              onAction(.sidebar(.selectGroups([groupId])), undoManager)
-            })
-            .opacity(contentState == .initialized ? 1 : 0)
-            .frame(height: contentState == .initialized ? nil : 0)
-
-          Text("Loading...")
-            .opacity(contentState == .loading ? 1 : 0)
-            .frame(height: contentState == .loading ? nil : 0)
-        }
-        .navigationSplitViewColumnWidth(ideal: 250)
+          SidebarView(
+            focus,
+            configSelectionManager: configSelectionManager,
+            groupSelectionManager: groupsSelectionManager,
+            contentSelectionManager: contentSelectionManager,
+            onAction: { onAction(.sidebar($0), undoManager) })
+          .onChange(of: contentState, perform: { newValue in
+            guard newValue == .initialized else { return }
+            guard let groupId = groupsSelectionManager.lastSelection else { return }
+            onAction(.sidebar(.selectGroups([groupId])), undoManager)
+          })
+          .opacity(contentState == .initialized ? 1 : 0)
+          .frame(height: contentState == .initialized ? nil : 0)
+          .navigationSplitViewColumnWidth(ideal: 250)
       },
       content: {
-        Group {
-          ContentListView(focus,
-                          contentSelectionManager: contentSelectionManager,
-                          groupSelectionManager: groupsSelectionManager,
-                          onAction: {
+        ContentListView(
+          focus,
+          groupId: groupsSelectionManager.lastSelection ?? groupsSelectionManager.selections.first ?? "empty",
+          contentSelectionManager: contentSelectionManager,
+          onAction: {
             onAction(.content($0), undoManager)
 
             if case .addWorkflow = $0 {
               Task { @MainActor in focus.wrappedValue = .detail(.name) }
             }
           })
-          .onAppear {
-            if !publisher.data.isEmpty {
-              DispatchQueue.main.async {
-                focus.wrappedValue = .workflows
-              }
-            }
-          }
-          .opacity(contentState == .initialized ? 1 : 0)
-        }
+        .opacity(contentState == .initialized ? 1 : 0)
         .navigationSplitViewColumnWidth(min: 180, ideal: 250)
       },
       detail: {
-        Group {
-          DetailView(focus,
-                     applicationTriggerSelectionManager: applicationTriggerSelectionManager,
-                     commandSelectionManager: commandSelectionManager,
-                     keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
-                     triggerPublisher: triggerPublisher,
-                     infoPublisher: infoPublisher,
-                     commandPublisher: commandPublisher,
-                     onAction: { onAction(.detail($0), undoManager) })
-          .opacity(contentState == .initialized ? 1 : 0)
-        }
+        DetailView(
+          focus,
+          applicationTriggerSelectionManager: applicationTriggerSelectionManager,
+          commandSelectionManager: commandSelectionManager,
+          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+          triggerPublisher: triggerPublisher,
+          infoPublisher: infoPublisher,
+          commandPublisher: commandPublisher,
+          onAction: { onAction(.detail($0), undoManager) })
+        .opacity(contentState == .initialized ? 1 : 0)
         .frame(minHeight: 400)
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
       })
     .navigationSplitViewStyle(.balanced)
+  }
+
+  func focusOnWorkflows(_ data: [ContentViewModel]) {
+    guard contentState == .initialized, !data.isEmpty else { return }
+    focus.wrappedValue = .workflows
   }
 }
 

@@ -151,7 +151,7 @@ final class ContentCoordinator {
       if groupIds.contains(group.id) {
         for wOffset in group.workflows.indices {
           let workflow = group.workflows[wOffset]
-          let viewModel = mapper.map(workflow)
+          let viewModel = mapper.map(workflow, groupId: group.id)
 
           if wOffset == 0 {
             firstViewModel = viewModel

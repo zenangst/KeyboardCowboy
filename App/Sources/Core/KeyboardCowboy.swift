@@ -71,7 +71,7 @@ struct KeyboardCowboy: App {
       Task {
         await core.detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
                                                                title: title, commandId: commandId)
-        core.contentCoordinator.handle(.selectWorkflow(workflowIds: [workflowId], groupIds: groupIds))
+        core.contentCoordinator.handle(.selectWorkflow(workflowIds: [workflowId]))
         core.contentCoordinator.handle(.refresh(groupIds))
       }
     }

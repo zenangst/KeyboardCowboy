@@ -88,7 +88,7 @@ struct SingleDetailView: View {
             publisher: triggerPublisher,
             applicationTriggerSelectionManager: applicationTriggerSelectionManager,
             keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
-            onTab: { 
+            onTab: {
               if commandPublisher.data.commands.isEmpty {
                 focus.wrappedValue = .detail(.addCommand)
               } else {

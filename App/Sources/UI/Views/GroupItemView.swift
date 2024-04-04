@@ -2,17 +2,14 @@ import Bonzai
 import SwiftUI
 
 struct GroupItemView: View {
-  private let groupsPublisher: GroupsPublisher
   private let group: GroupViewModel
   private let onAction: (GroupsListView.Action) -> Void
   private let selectionManager: SelectionManager<GroupViewModel>
 
   init(_ group: GroupViewModel,
-       groupsPublisher: GroupsPublisher,
        selectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (GroupsListView.Action) -> Void) {
     self.group = group
-    self.groupsPublisher = groupsPublisher
     self.selectionManager = selectionManager
     self.onAction = onAction
   }
@@ -20,7 +17,6 @@ struct GroupItemView: View {
   var body: some View {
     GroupItemInternalView(
       group,
-      groupsPublisher: groupsPublisher,
       selectionManager: selectionManager,
       onAction: onAction
     )
@@ -28,19 +24,16 @@ struct GroupItemView: View {
 }
 
 private struct GroupItemInternalView: View {
-  @ObservedObject private var selectionManager: SelectionManager<GroupViewModel>
   @State private var isTargeted: Bool = false
+  private let selectionManager: SelectionManager<GroupViewModel>
   private let group: GroupViewModel
-  private let groupsPublisher: GroupsPublisher
   private let onAction: (GroupsListView.Action) -> Void
 
   init(_ group: GroupViewModel,
-       groupsPublisher: GroupsPublisher,
        selectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (GroupsListView.Action) -> Void) {
+    self.selectionManager = selectionManager
     self.group = group
-    self.groupsPublisher = groupsPublisher
-    _selectionManager = .init(initialValue: selectionManager)
     self.onAction = onAction
   }
 
@@ -81,7 +74,7 @@ private struct GroupItemInternalView: View {
     .padding(.vertical, 4)
     .padding(.horizontal, 8)
     .contentShape(Rectangle())
-    .background(FillBackgroundView(isSelected: .readonly(selectionManager.selections.contains(group.id))))
+    .background(ItemBackgroundView(group.id, selectionManager: selectionManager))
     .draggable(group)
   }
 
@@ -95,3 +88,5 @@ private struct GroupItemInternalView: View {
     })
   }
 }
+
+

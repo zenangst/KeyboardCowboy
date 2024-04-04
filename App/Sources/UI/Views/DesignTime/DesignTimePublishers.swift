@@ -53,84 +53,83 @@ enum DesignTime {
 
   static var contentPublisher = ContentPublisher {
     [
-      ContentViewModel(id: UUID().uuidString, name: "Application Trigger", images: [], overlayImages: [], badge: 0, badgeOpacity: 0, isEnabled: true),
-
-      ContentViewModel(id: UUID().uuidString, name: "Open News", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Application Trigger", images: [], overlayImages: [], badge: 0, badgeOpacity: 0, isEnabled: true),
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open News", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/News.app", path: "/System/Applications/News.app")))
       ], overlayImages: [], trigger: .keyboard("ƒSpace"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Podcast", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Podcast", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Podcasts.app", path: "/System/Applications/Podcasts.app")))
       ], overlayImages: [], trigger: .keyboard("ƒU"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Music", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Music", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Music.app", path: "/System/Applications/Music.app")))
       ], overlayImages: [], trigger: .keyboard("ƒY"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Home", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Home", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Home.app", path: "/System/Applications/Home.app")))
       ], overlayImages: [], trigger: .keyboard("ƒH"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Twitterific", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Twitterific", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Twitterrific.app", path: "/Applications/Twitterrific.app")))
       ], overlayImages: [], trigger: .keyboard("ƒT"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open System Settings", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open System Settings", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/System Settings.app", path: "/System/Applications/System Settings.app")))
       ], overlayImages: [], trigger: .keyboard("ƒ."), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Contacts", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Contacts", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Contacts.app", path: "/System/Applications/Contacts.app")))
       ], overlayImages: [], trigger: .keyboard("ƒA"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Terminal", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Terminal", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Utilities/Terminal.app", path: "/System/Applications/Utilities/Terminal.app")))
       ], overlayImages: [], trigger: .keyboard("ƒ§"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Discord", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Discord", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Discord.app", path: "/Applications/Discord.app")))
       ], overlayImages: [], trigger: .keyboard("ƒD"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Preview", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Preview", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Preview.app", path: "/System/Applications/Preview.app")))
       ], overlayImages: [], trigger: .keyboard("ƒP"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Teams", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Teams", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Microsoft Teams.app", path: "/Applications/Microsoft Teams.app")))
       ], overlayImages: [], trigger: .keyboard("ƒG"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Slack", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Slack", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Slack.app", path: "/Applications/Slack.app")))
       ], overlayImages: [], trigger: .keyboard("ƒV"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Find My", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Find My", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/FindMy.app", path: "/System/Applications/FindMy.app")))
       ], overlayImages: [], trigger: .keyboard("ƒB"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Messages", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Messages", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Messages.app", path: "/System/Applications/Messages.app")))
       ], overlayImages: [], trigger: .keyboard("ƒD"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Mail", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Mail", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Mail.app", path: "/System/Applications/Mail.app")))
       ], overlayImages: [], trigger: .keyboard("ƒM"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Calendar", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Calendar", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Calendar.app", path: "/System/Applications/Calendar.app")))
       ], overlayImages: [], trigger: .keyboard("ƒC"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Reminders", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Reminders", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Reminders.app", path: "/System/Applications/Reminders.app")))
       ], overlayImages: [], trigger: .keyboard("ƒR"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Notes", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Notes", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Notes.app", path: "/System/Applications/Notes.app")))
       ], overlayImages: [], trigger: .keyboard("ƒN"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Finder", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Finder", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Library/CoreServices/Finder.app", path: "/System/Library/CoreServices/Finder.app")))
       ], overlayImages: [], trigger: .keyboard("ƒF"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Photos", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Photos", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Photos.app", path: "/System/Applications/Photos.app")))
       ], overlayImages: [], trigger: .keyboard("ƒI"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Stocks", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Stocks", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Stocks.app", path: "/System/Applications/Stocks.app")))
       ], overlayImages: [], trigger: .keyboard("ƒS"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Keyboard Cowboy", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Keyboard Cowboy", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/Applications/Keyboard Cowboy.app", path: "/Applications/Keyboard Cowboy.app")))
       ], overlayImages: [], trigger: .keyboard("⌥ƒ0"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Numbers", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Numbers", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Numbers.app", path: "/System/Applications/Numbers.app")))
       ], overlayImages: [], trigger: .keyboard("⌥ƒN"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Pages", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Pages", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Pages.app", path: "/System/Applications/Pages.app")))
       ], overlayImages: [], trigger: .keyboard("⌥ƒP"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Keynote", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Keynote", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Keynote.app", path: "/System/Applications/Keynote.app")))
       ], overlayImages: [], trigger: .keyboard("⌥ƒK"), badge: 0, badgeOpacity: 0, isEnabled: true),
-      ContentViewModel(id: UUID().uuidString, name: "Open Quick Run", images: [
+      ContentViewModel(id: UUID().uuidString, groupId: UUID().uuidString, name: "Open Quick Run", images: [
         ContentViewModel.ImageModel(id: UUID().uuidString, offset: 0, kind: .icon(.init(bundleIdentifier: "/System/Applications/Stocks.app", path: "/System/Applications/Stocks.app")))
       ], overlayImages: [], trigger: .keyboard("ƒK"), badge: 0, badgeOpacity: 0, isEnabled: true),
     ]

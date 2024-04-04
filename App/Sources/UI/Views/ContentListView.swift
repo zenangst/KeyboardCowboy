@@ -3,7 +3,6 @@ import SwiftUI
 
 struct ContentDebounce: DebounceSnapshot {
   let workflows: Set<ContentViewModel.ID>
-  let groups: Set<GroupViewModel.ID>
 }
 
 @MainActor
@@ -13,7 +12,7 @@ struct ContentListView: View {
     case refresh(_ groupIds: Set<WorkflowGroup.ID>)
     case moveWorkflowsToGroup(_ groupId: WorkflowGroup.ID, workflows: Set<ContentViewModel.ID>)
     case moveCommandsToWorkflow(_ workflowId: ContentViewModel.ID, fromWorkflowId: ContentViewModel.ID, commands: Set<CommandViewModel.ID>)
-    case selectWorkflow(workflowIds: Set<ContentViewModel.ID>, groupIds: Set<WorkflowGroup.ID>)
+    case selectWorkflow(workflowIds: Set<ContentViewModel.ID>)
     case removeWorkflows(Set<ContentViewModel.ID>)
     case reorderWorkflows(source: IndexSet, destination: Int)
     case addWorkflow(workflowId: Workflow.ID)
@@ -22,61 +21,66 @@ struct ContentListView: View {
   @FocusState var focus: LocalFocus<ContentViewModel>?
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
-  private var appFocus: FocusState<AppFocus?>.Binding
   @Namespace private var namespace
   @State private var searchTerm: String = ""
+
+  private let appFocus: FocusState<AppFocus?>.Binding
   private let contentSelectionManager: SelectionManager<ContentViewModel>
+  private let groupId: String
   private let debounce: DebounceController<ContentDebounce>
-  private let groupSelectionManager: SelectionManager<GroupViewModel>
   private let onAction: (Action) -> Void
 
-  init(_ appFocus: FocusState<AppFocus?>.Binding,
+  init(_ appFocus: FocusState<AppFocus?>.Binding, groupId: String,
        contentSelectionManager: SelectionManager<ContentViewModel>,
-       groupSelectionManager: SelectionManager<GroupViewModel>,
        onAction: @escaping (Action) -> Void) {
     self.appFocus = appFocus
     self.contentSelectionManager = contentSelectionManager
-    self.groupSelectionManager = groupSelectionManager
+    self.groupId = groupId
     self.onAction = onAction
-    let initialDebounce = ContentDebounce(workflows: contentSelectionManager.selections,
-                                          groups: groupSelectionManager.selections)
-    self.debounce = .init(initialDebounce, milliseconds: 100, onUpdate: { snapshot in
-      onAction(.selectWorkflow(workflowIds: snapshot.workflows, groupIds: snapshot.groups))
+    let initialDebounce = ContentDebounce(workflows: contentSelectionManager.selections)
+    self.debounce = .init(initialDebounce, milliseconds: 150, onUpdate: { snapshot in
+      onAction(.selectWorkflow(workflowIds: snapshot.workflows))
     })
   }
 
   private func search(_ workflow: ContentViewModel) -> Bool {
     guard !searchTerm.isEmpty else { return true }
-    if workflow.name.lowercased().contains(searchTerm.lowercased()) {
-      return true
-    }
-    return false
+    return workflow.name.lowercased().contains(searchTerm.lowercased())
   }
 
   @ViewBuilder
   var body: some View {
-    if groupsPublisher.data.isEmpty || publisher.data.isEmpty {
-      ContentListEmptyView(namespace, onAction: onAction)
-        .fixedSize()
-    } else {
-      ScrollViewReader { proxy in
-        ContentHeaderView(groupSelectionManager: groupSelectionManager,
-                          namespace: namespace,
-                          onAction: onAction)
-        ContentListFilterView(appFocus, onClear: {
-          let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
-          appFocus.wrappedValue = .workflows
-          DispatchQueue.main.async {
-            proxy.scrollTo(match)
-          }
-        }, onChange: { newValue in
-          withAnimation(.smooth(duration: 0.2)) {
-            searchTerm = newValue
-          }
-        })
-        ScrollView {
+    ScrollViewReader { proxy in
+      ContentHeaderView(namespace: namespace,
+                        showAddButton: .readonly(!publisher.data.isEmpty),
+                        onAction: onAction)
+
+      ContentListFilterView(appFocus, onClear: {
+        let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
+        appFocus.wrappedValue = .workflows
+        DispatchQueue.main.async {
+          proxy.scrollTo(match)
+        }
+      }, onChange: { newValue in
+        withAnimation(.smooth(duration: 0.2)) {
+          searchTerm = newValue
+        }
+      })
+
+      if groupsPublisher.data.isEmpty {
+        Text("Add a group before adding a workflow.")
+          .frame(maxWidth: .infinity)
+          .padding()
+          .multilineTextAlignment(.center)
+          .foregroundColor(Color(.systemGray))
+      }
+
+      ScrollView {
+        if publisher.data.isEmpty {
+          ContentListEmptyView(namespace, onAction: onAction)
+        } else {
           LazyVStack(spacing: 0) {
-            ForEach(publisher.data.filter({ search($0) }), id: \.id) { element in
+            ForEach(publisher.data.lazy.filter({ search($0) }), id: \.id) { element in
               ContentItemView(
                 workflow: element,
                 publisher: publisher,
@@ -146,12 +150,6 @@ struct ContentListView: View {
                  let lastSelection = contentSelectionManager.lastSelection {
                 focus = .element(elementID)
                 focus = .element(lastSelection)
-                onAction(
-                  .selectWorkflow(
-                    workflowIds: contentSelectionManager.selections,
-                    groupIds: groupSelectionManager.selections
-                  )
-                )
               }
             })
             .onMoveCommand(perform: { direction in
@@ -181,9 +179,10 @@ struct ContentListView: View {
               .id("bottom")
               .padding(.bottom, 24)
           }
-          .task { @MainActor in
-            let match = contentSelectionManager.lastSelection ?? contentSelectionManager.selections.first ?? ""
-            proxy.scrollTo(match)
+          .onAppear {
+            guard let initialSelection = contentSelectionManager.initialSelection else { return }
+            focus = .element(initialSelection)
+            proxy.scrollTo(initialSelection)
           }
           .focused(appFocus, equals: .workflows)
           .onChange(of: searchTerm, perform: { newValue in
@@ -194,8 +193,7 @@ struct ContentListView: View {
                 contentSelectionManager.publish([])
               }
 
-              debounce.process(.init(workflows: contentSelectionManager.selections,
-                                     groups: groupSelectionManager.selections))
+              debounce.process(.init(workflows: contentSelectionManager.selections))
             }
           })
           .padding(8)
@@ -218,18 +216,17 @@ struct ContentListView: View {
               .help("Add workflow")
             }
           }
+          .onReceive(NotificationCenter.default.publisher(for: .newWorkflow), perform: { _ in
+            proxy.scrollTo("bottom")
+          })
         }
-        .onReceive(NotificationCenter.default.publisher(for: .newWorkflow), perform: { _ in
-          proxy.scrollTo("bottom")
-        })
       }
     }
   }
 
   private func onTap(_ element: ContentViewModel) {
     contentSelectionManager.handleOnTap(publisher.data, element: element)
-    debounce.process(.init(workflows: contentSelectionManager.selections,
-                                           groups: groupSelectionManager.selections))
+    debounce.process(.init(workflows: contentSelectionManager.selections))
   }
 
   @ViewBuilder
@@ -239,7 +236,7 @@ struct ContentListView: View {
         onAction(.duplicate(workflowIds: contentSelectionManager.selections))
       } else {
         onAction(.duplicate(workflowIds: [selectedId]))
-        contentSelectionManager.selections = [selectedId]
+        contentSelectionManager.publish([selectedId])
         contentSelectionManager.setLastSelection(selectedId)
       }
 
@@ -250,7 +247,7 @@ struct ContentListView: View {
     Menu("Move to") {
       // Show only other groups than the current one.
       // TODO: This is a bottle-neck for performance
-//      .filter({ !groupSelectionManager.selections.contains($0.id) })) { group in
+      //      .filter({ !groupSelectionManager.selections.contains($0.id) })) { group in
       ForEach(groupsPublisher.data, id: \.self) { group in
         Button(group.name) {
           onAction(.moveWorkflowsToGroup(group.id, workflows: contentSelectionManager.selections))
@@ -280,11 +277,8 @@ struct LegacyOnTapFix: ViewModifier {
 struct ContentListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContentListView(
-      $focus,
-      contentSelectionManager: .init(),
-      groupSelectionManager: .init()
-    ) { _ in }
+    ContentListView($focus, groupId: UUID().uuidString,
+                    contentSelectionManager: .init()) { _ in }
       .designTime()
   }
 }

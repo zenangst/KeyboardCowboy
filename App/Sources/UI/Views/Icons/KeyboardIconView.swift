@@ -1,8 +1,6 @@
-import Inject
 import SwiftUI
 
 struct KeyboardIconView: View {
-  @ObserveInjection var inject
   @Environment(\.colorScheme) var colorScheme
   let size: CGFloat
   let letter: String
@@ -52,7 +50,6 @@ struct KeyboardIconView: View {
 //          .scaleEffect(x: 0.95)
 //          .blur(radius: 1)
 //      )
-      .enableInjection()
   }
 }
 

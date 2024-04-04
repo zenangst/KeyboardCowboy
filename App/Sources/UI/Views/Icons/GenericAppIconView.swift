@@ -3,7 +3,6 @@ import Inject
 import SwiftUI
 
 struct GenericAppIconView: View {
-  @ObserveInjection var inject
   let size: CGFloat
   var body: some View {
     Rectangle()
@@ -52,7 +51,6 @@ struct GenericAppIconView: View {
       .fixedSize()
       .drawingGroup(opaque: true)
       .iconShape(size)
-      .enableInjection()
   }
 }
 

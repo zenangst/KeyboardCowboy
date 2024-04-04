@@ -2,17 +2,17 @@ import Bonzai
 import Foundation
 
 final class ContentModelMapper {
-  func map(_ workflow: Workflow) -> ContentViewModel {
-    workflow.asViewModel(nil)
+  func map(_ workflow: Workflow, groupId: String) -> ContentViewModel {
+    workflow.asViewModel(nil, groupId: groupId)
   }
 }
 
 private extension Array where Element == Workflow {
-  func asViewModels(_ groupName: String?) -> [ContentViewModel] {
+  func asViewModels(_ groupName: String?, groupId: String) -> [ContentViewModel] {
     var viewModels = [ContentViewModel]()
     viewModels.reserveCapacity(self.count)
     for (offset, model) in self.enumerated() {
-      viewModels.append(model.asViewModel(offset == 0 ? groupName : nil))
+      viewModels.append(model.asViewModel(offset == 0 ? groupName : nil, groupId: groupId))
     }
     return viewModels
   }
@@ -47,11 +47,8 @@ private extension String {
 }
 
 private extension Workflow {
-  func asViewModel(_ groupName: String?) -> ContentViewModel {
+  func asViewModel(_ groupName: String?, groupId: String) -> ContentViewModel {
     let commandCount = commands.count
-    let binding: String?
-    let snippet: String?
-
     let viewModelTrigger: ContentViewModel.Trigger?
     viewModelTrigger = switch trigger {
     case .application: .application("foo")
@@ -62,6 +59,7 @@ private extension Workflow {
 
     return ContentViewModel(
       id: id,
+      groupId: groupId,
       groupName: groupName,
       name: name,
       images: commands.images(limit: 1),

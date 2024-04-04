@@ -1,5 +1,4 @@
 import Bonzai
-import Inject
 import SwiftUI
 
 struct ContentItemView: View {
@@ -79,26 +78,28 @@ private struct ContentItemInternalView: View {
       ContentItemAccessoryView(workflow: workflow)
     }
     .padding(4)
-    .background(ContentItemBackgroundView(workflow.id, contentSelectionManager: contentSelectionManager))
+    .background(ItemBackgroundView(workflow.id, selectionManager: contentSelectionManager))
     .draggable(workflow)
   }
 }
 
-private struct ContentItemBackgroundView: View {
-  private let workflowId: ContentViewModel.ID
-  @ObservedObject private var contentSelectionManager: SelectionManager<ContentViewModel>
+struct ItemBackgroundView<T: Hashable & Identifiable>: View where T.ID == String {
+  private let id: T.ID
+  @ObservedObject private var selectionManager: SelectionManager<T>
   @State private var isSelected: Bool
 
-  init(_ workflowId: ContentViewModel.ID, contentSelectionManager: SelectionManager<ContentViewModel>) {
-    self.workflowId = workflowId
-    self.contentSelectionManager = contentSelectionManager
-    self.isSelected = contentSelectionManager.selections.contains(workflowId)
+  init(_ id: T.ID, selectionManager: SelectionManager<T>) {
+    self.id = id
+    self.selectionManager = selectionManager
+    self.isSelected = selectionManager.selections.contains(id)
   }
 
   var body: some View {
     FillBackgroundView(isSelected: $isSelected)
-    .onChange(of: contentSelectionManager.selections, perform: { _ in
-      isSelected = contentSelectionManager.selections.contains(workflowId)
+    .onChange(of: selectionManager.selections, perform: { selections in
+      let newIsSelected = selections.contains(id)
+      guard newIsSelected != isSelected else { return }
+      isSelected = newIsSelected
     })
   }
 }

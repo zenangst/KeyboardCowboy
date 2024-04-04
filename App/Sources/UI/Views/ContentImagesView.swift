@@ -1,8 +1,6 @@
-import Inject
 import SwiftUI
 
 struct ContentImagesView: View {
-  @ObserveInjection var inject
   let images: [ContentViewModel.ImageModel]
   let size: CGFloat
   @State var stacked: Bool = false
@@ -24,6 +22,5 @@ struct ContentImagesView: View {
         }
     }
     .frame(width: size, height: size)
-    .enableInjection()
   }
 }
