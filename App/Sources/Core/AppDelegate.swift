@@ -1,13 +1,22 @@
 import AXEssibility
 import Cocoa
+import Combine
 import SwiftUI
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
+  private var subscription: AnyCancellable?
   private var didLaunch: Bool = false
   var core: Core?
 
+  // MARK: NSApplicationDelegate
+
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     NSApp.appearance = NSAppearance(named: .darkAqua)
+
+    subscription = NSApp.publisher(for: \.windows)
+      .sink { [weak self] windows in
+        windows.mainWindow()?.delegate = self
+      }
   }
 
   func applicationDidBecomeActive(_ notification: Notification) {
@@ -21,5 +30,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     NotificationCenter.default.post(.init(name: Notification.Name("OpenMainWindow")))
     KeyboardCowboy.activate()
+  }
+
+  func applicationWillTerminate(_ notification: Notification) {
+    guard let mainWindow = NSApp.windows.mainWindow() else { return }
+    UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
+  }
+
+  // MARK: NSWindowDelegate
+
+  func windowShouldClose(_ sender: NSWindow) -> Bool {
+    if let mainWindow = NSApp.windows.mainWindow() {
+      UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
+    }
+    return true
+  }
+}
+
+fileprivate extension Array<NSWindow> {
+  @MainActor
+  func mainWindow() -> NSWindow? {
+    first(where: {
+      $0.identifier?.rawValue.contains(KeyboardCowboy.mainWindowIdentifier) == true
+    })
   }
 }
