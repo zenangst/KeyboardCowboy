@@ -86,21 +86,16 @@ private struct ContentItemInternalView: View {
 struct ItemBackgroundView<T: Hashable & Identifiable>: View where T.ID == String {
   private let id: T.ID
   @ObservedObject private var selectionManager: SelectionManager<T>
-  @State private var isSelected: Bool
 
   init(_ id: T.ID, selectionManager: SelectionManager<T>) {
     self.id = id
     self.selectionManager = selectionManager
-    self.isSelected = selectionManager.selections.contains(id)
   }
 
   var body: some View {
-    FillBackgroundView(isSelected: $isSelected)
-    .onChange(of: selectionManager.selections, perform: { selections in
-      let newIsSelected = selections.contains(id)
-      guard newIsSelected != isSelected else { return }
-      isSelected = newIsSelected
-    })
+    FillBackgroundView(
+      isSelected: Binding<Bool>.readonly(selectionManager.selections.contains(id))
+    )
   }
 }
 
@@ -110,7 +105,7 @@ private struct ContentItemAccessoryView: View {
   @ViewBuilder
   var body: some View {
     switch workflow.trigger {
-    case .application(let application):
+    case .application:
       GenericAppIconView(size: 16)
     case .keyboard(let binding):
       KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
