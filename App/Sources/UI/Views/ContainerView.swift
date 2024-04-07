@@ -57,20 +57,20 @@ struct ContainerView: View {
     NavigationSplitView(
       columnVisibility: $navigationPublisher.columnVisibility,
       sidebar: {
-          SidebarView(
-            focus,
-            configSelectionManager: configSelectionManager,
-            groupSelectionManager: groupsSelectionManager,
-            contentSelectionManager: contentSelectionManager,
-            onAction: { onAction(.sidebar($0), undoManager) })
-          .onChange(of: contentState, perform: { newValue in
-            guard newValue == .initialized else { return }
-            guard let groupId = groupsSelectionManager.lastSelection else { return }
-            onAction(.sidebar(.selectGroups([groupId])), undoManager)
-          })
-          .opacity(contentState == .initialized ? 1 : 0)
-          .frame(height: contentState == .initialized ? nil : 0)
-          .navigationSplitViewColumnWidth(ideal: 250)
+        SidebarView(
+          focus,
+          configSelectionManager: configSelectionManager,
+          groupSelectionManager: groupsSelectionManager,
+          contentSelectionManager: contentSelectionManager,
+          onAction: { onAction(.sidebar($0), undoManager) })
+        .onChange(of: contentState, perform: { newValue in
+          guard newValue == .initialized else { return }
+          guard let groupId = groupsSelectionManager.lastSelection else { return }
+          onAction(.sidebar(.selectGroups([groupId])), undoManager)
+        })
+        .opacity(contentState == .initialized ? 1 : 0)
+        .frame(height: contentState == .initialized ? nil : 0)
+        .navigationSplitViewColumnWidth(ideal: 250)
       },
       content: {
         ContentListView(
@@ -102,11 +102,6 @@ struct ContainerView: View {
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
       })
     .navigationSplitViewStyle(.balanced)
-  }
-
-  func focusOnWorkflows(_ data: [ContentViewModel]) {
-    guard contentState == .initialized, !data.isEmpty else { return }
-    focus.wrappedValue = .workflows
   }
 }
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SidebarConfigurationView: View {
+struct ConfigurationView: View {
   enum Action {
     case addConfiguration(name: String)
     case deleteConfiguration(id: ConfigurationViewModel.ID)
@@ -88,7 +88,7 @@ struct SidebarConfigurationView: View {
 
 struct SidebarConfigurationView_Previews: PreviewProvider {
   static var previews: some View {
-    SidebarConfigurationView(.init()) { _ in }
+    ConfigurationView(.init()) { _ in }
       .designTime()
       .padding()
   }

@@ -1,7 +1,7 @@
 import Bonzai
 import SwiftUI
 
-struct SidebarConfigurationHeaderView: View {
+struct ConfigurationHeaderView: View {
   var body: some View {
     ZenLabel(.sidebar) { Text("Configuration") }
       .padding(.top, 6)
@@ -10,6 +10,6 @@ struct SidebarConfigurationHeaderView: View {
 
 struct ConfigurationHeaderView_Previews: PreviewProvider {
   static var previews: some View {
-    SidebarConfigurationHeaderView()
+    ConfigurationHeaderView()
   }
 }
