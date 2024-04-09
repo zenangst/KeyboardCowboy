@@ -23,7 +23,7 @@ struct ContentListView: View {
       case shortcut = "shortcut"
       case text = "text"
       case systemCommand = "system"
-      case menuBar = "menu"
+      case menuBar = "menubar"
       case mouse = "mouse"
       case uiElement = "ui"
       case windowManagement = "window"
@@ -69,7 +69,8 @@ struct ContentListView: View {
   private func search(_ workflow: ContentViewModel) -> Bool {
     guard !searchTerm.isEmpty else { return true }
 
-    let searchTerms = searchTerm.lowercased().split(separator: " ")
+    var freetext = searchTerm.lowercased()
+    let searchTerms = freetext.split(separator: " ")
     var match: Match = .unmatched
 
     for searchTerm in searchTerms {
@@ -77,26 +78,34 @@ struct ContentListView: View {
       case .application(let app):
         match = app.lowercased().contains(searchTerm) ? .typeMatch(.application) : .unmatched
       case .keyboard(let string):
-        if searchTerm.contains("function") || searchTerm.contains("fn") {
+        if searchTerm.contains("function") {
           match = string.lowercased().contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
+          freetext = freetext.replacingFirstOccurrence(of: "function ", with: "")
+        } else if searchTerm.contains("function") {
+          match = string.lowercased().contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
+          freetext = freetext.replacingFirstOccurrence(of: "fn ", with: "")
         } else if searchTerm.contains("command") {
           match = string.lowercased().contains(ModifierKey.command.pretty) ? .typeMatch(.keyboard) : .unmatched
+          freetext = freetext.replacingFirstOccurrence(of: "command ", with: "")
         } else if searchTerm.contains("shift") {
           match = string.lowercased().contains(ModifierKey.shift.pretty) ? .typeMatch(.keyboard) : .unmatched
+          freetext = freetext.replacingFirstOccurrence(of: "shift ", with: "")
         } else if searchTerm.contains("option") {
           match = string.lowercased().contains(ModifierKey.option.pretty) ? .typeMatch(.keyboard) : .unmatched
+          freetext = freetext.replacingFirstOccurrence(of: "option ", with: "")
         } else if searchTerm.contains("control") {
           match = string.lowercased().contains(ModifierKey.control.pretty) ? .typeMatch(.keyboard) : .unmatched
+          freetext = freetext.replacingFirstOccurrence(of: "control ", with: "")
         } else {
           match = string.lowercased().contains(searchTerm) ? .typeMatch(.keyboard) : .unmatched
         }
       case .snippet(let snippet):
         if snippet.lowercased().contains(searchTerm) {
           match = .typeMatch(.snippet)
-        } else if searchTerm.contains("snippet") {
+        } else if searchTerm.contains("snippet ") {
           match = .typeMatch(.snippet)
         }
-      default: break
+      default: continue
       }
 
       for image in workflow.images {
@@ -104,6 +113,7 @@ struct ContentListView: View {
         case .command(let kind):
           if searchTerm.contains(kind.match.rawValue) {
             match = .typeMatch(kind.match)
+            freetext = freetext.replacingFirstOccurrence(of: kind.match.rawValue + " ", with: "")
           }
         case .icon(let icon):
           if searchTerm.contains("app") && icon.path.contains("app") {
@@ -113,7 +123,7 @@ struct ContentListView: View {
         }
       }
 
-      if workflow.name.lowercased().contains(searchTerm) {
+      if workflow.name.lowercased().contains(freetext) {
         return true
       }
     }
@@ -386,5 +396,15 @@ fileprivate extension CommandViewModel.Kind {
     case .uiElement: .uiElement
     case .windowManagement: .windowManagement
     }
+  }
+}
+
+fileprivate extension String {
+  func replacingFirstOccurrence(of target: String, with replacement: String) -> String {
+    guard let range = self.range(of: target) else {
+      return self
+    }
+
+    return self.replacingCharacters(in: range, with: replacement)
   }
 }
