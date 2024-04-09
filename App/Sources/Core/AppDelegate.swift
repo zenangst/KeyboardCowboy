@@ -45,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     if let mainWindow = NSApp.windows.mainWindow() {
       UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
     }
+    KeyboardCowboy.deactivate()
     return true
   }
 }
