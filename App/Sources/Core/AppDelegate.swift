@@ -13,9 +13,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     NSApp.appearance = NSAppearance(named: .darkAqua)
 
-    subscription = NSApp.publisher(for: \.windows)
-      .sink { [weak self] windows in
-        windows.mainWindow()?.delegate = self
+    // TODO: Fix this!
+    subscription = NSApp.publisher(for: \.mainWindow)
+      .sink { [weak self] _ in
+        guard let self, let mainWindow = NSApp.windows.mainWindow() else { return }
+        mainWindow.delegate = self
       }
   }
 
