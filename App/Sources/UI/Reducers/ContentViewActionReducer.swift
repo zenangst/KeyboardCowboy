@@ -2,7 +2,7 @@ import Foundation
 
 final class ContentViewActionReducer {
   @MainActor
-  static func reduce(_ action: ContentListView.Action,
+  static func reduce(_ action: ContentView.Action,
                      groupStore: GroupStore,
                      selectionManager: SelectionManager<ContentViewModel>,
                      group: inout WorkflowGroup) {

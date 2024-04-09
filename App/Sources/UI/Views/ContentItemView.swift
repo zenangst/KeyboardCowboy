@@ -5,12 +5,12 @@ struct ContentItemView: View {
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let publisher: ContentPublisher
   private let workflow: ContentViewModel
-  private let onAction: (ContentListView.Action) -> Void
+  private let onAction: (ContentView.Action) -> Void
 
   init(workflow: ContentViewModel,
        publisher: ContentPublisher,
        contentSelectionManager: SelectionManager<ContentViewModel>,
-       onAction: @escaping (ContentListView.Action) -> Void) {
+       onAction: @escaping (ContentView.Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.publisher = publisher
@@ -34,12 +34,12 @@ private struct ContentItemInternalView: View {
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let publisher: ContentPublisher
   private let workflow: ContentViewModel
-  private let onAction: (ContentListView.Action) -> Void
+  private let onAction: (ContentView.Action) -> Void
 
   init(workflow: ContentViewModel,
        publisher: ContentPublisher,
        contentSelectionManager: SelectionManager<ContentViewModel>,
-       onAction: @escaping (ContentListView.Action) -> Void) {
+       onAction: @escaping (ContentView.Action) -> Void) {
     self.contentSelectionManager = contentSelectionManager
     self.workflow = workflow
     self.publisher = publisher

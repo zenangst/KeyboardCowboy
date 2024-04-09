@@ -4,7 +4,7 @@ struct ContainerView: View {
   enum Action {
     case openScene(AppScene)
     case sidebar(SidebarView.Action)
-    case content(ContentListView.Action)
+    case content(ContentView.Action)
     case detail(DetailView.Action)
   }
 
@@ -73,7 +73,7 @@ struct ContainerView: View {
         .navigationSplitViewColumnWidth(ideal: 250)
       },
       content: {
-        ContentListView(
+        ContentView(
           focus,
           groupId: groupsSelectionManager.lastSelection ?? groupsSelectionManager.selections.first ?? "empty",
           contentSelectionManager: contentSelectionManager,

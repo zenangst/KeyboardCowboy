@@ -5,9 +5,9 @@ struct ContentListEmptyView: View {
   @EnvironmentObject private var publisher: ContentPublisher
 
   private let namespace: Namespace.ID
-  private let onAction: (ContentListView.Action) -> Void
+  private let onAction: (ContentView.Action) -> Void
 
-  init(_ namespace: Namespace.ID, onAction: @escaping (ContentListView.Action) -> Void) {
+  init(_ namespace: Namespace.ID, onAction: @escaping (ContentView.Action) -> Void) {
     self.namespace = namespace
     self.onAction = onAction
   }

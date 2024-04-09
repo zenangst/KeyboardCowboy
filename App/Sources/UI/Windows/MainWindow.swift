@@ -39,7 +39,7 @@ struct MainWindow: Scene {
           },
           onNewGroup: { onScene(.addGroup) },
           onNewWorkflow: {
-            let action = ContentListView.Action.addWorkflow(workflowId: UUID().uuidString)
+            let action = ContentView.Action.addWorkflow(workflowId: UUID().uuidString)
             core.contentCoordinator.handle(action)
             core.detailCoordinator.handle(action)
             focus = .detail(.name)

@@ -7,11 +7,11 @@ struct ContentHeaderView: View {
 
   @Binding private var showAddButton: Bool
   private let namespace: Namespace.ID
-  private let onAction: (ContentListView.Action) -> Void
+  private let onAction: (ContentView.Action) -> Void
 
   init(namespace: Namespace.ID, 
        showAddButton: Binding<Bool>,
-       onAction: @escaping (ContentListView.Action) -> Void) {
+       onAction: @escaping (ContentView.Action) -> Void) {
     _showAddButton = showAddButton
     self.namespace = namespace
     self.onAction = onAction

@@ -6,7 +6,7 @@ struct ContentDebounce: DebounceSnapshot {
 }
 
 @MainActor
-struct ContentListView: View {
+struct ContentView: View {
   enum Match {
     case unmatched
     case typeMatch(Kind)
@@ -373,14 +373,14 @@ struct LegacyOnTapFix: ViewModifier {
 struct ContentListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    ContentListView($focus, groupId: UUID().uuidString,
+    ContentView($focus, groupId: UUID().uuidString,
                     contentSelectionManager: .init()) { _ in }
       .designTime()
   }
 }
 
 fileprivate extension CommandViewModel.Kind {
-  var match: ContentListView.Match.Kind {
+  var match: ContentView.Match.Kind {
     switch self {
     case .application: .application
     case .builtIn: .builtIn

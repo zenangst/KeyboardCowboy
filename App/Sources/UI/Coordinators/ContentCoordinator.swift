@@ -82,7 +82,7 @@ final class ContentCoordinator {
     }
   }
 
-  func handle(_ action: ContentListView.Action) {
+  func handle(_ action: ContentView.Action) {
     // TODO: We should get rid of this guard.
     guard let id = groupSelectionManager.selections.first,
           var group = store.group(withId: id) else { return }
