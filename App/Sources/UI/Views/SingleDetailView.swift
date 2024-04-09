@@ -97,6 +97,7 @@ struct SingleDetailView: View {
             },
             onAction: onAction)
           .padding(.horizontal)
+          .padding(.bottom, 8)
           .id(infoPublisher.data.id)
         }
         .padding(.top)
