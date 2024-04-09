@@ -154,6 +154,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
           if let trigger = workflow.trigger {
             switch trigger {
             case .snippet(let trigger):
+              guard !workflow.commands.isEmpty else { continue }
               guard !trigger.text.isEmpty else { return }
 
               let key = bundleIdentifier + "." + trigger.text

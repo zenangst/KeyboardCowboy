@@ -115,7 +115,7 @@ struct SingleDetailView: View {
           switch triggerPublisher.data {
           case .applications(let array): !array.isEmpty
           case .keyboardShortcuts(let keyboardTrigger): !keyboardTrigger.shortcuts.isEmpty
-          case .snippet: false
+          case .snippet(let snippet): !snippet.text.isEmpty
           case .empty: false
           }
         }, set: { _ in }),
