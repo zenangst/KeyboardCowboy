@@ -7,6 +7,29 @@ struct ContentDebounce: DebounceSnapshot {
 
 @MainActor
 struct ContentListView: View {
+  enum Match {
+    case unmatched
+    case typeMatch(Kind)
+    case match
+
+    enum Kind: String, CaseIterable {
+      case application = "app"
+      case builtIn = "builtIn"
+      case open = "open"
+      case keyboard = "keyboard"
+      case script = "script"
+      case plain = "plain"
+      case snippet = "snippet"
+      case shortcut = "shortcut"
+      case text = "text"
+      case systemCommand = "system"
+      case menuBar = "menu"
+      case mouse = "mouse"
+      case uiElement = "ui"
+      case windowManagement = "window"
+    }
+  }
+
   enum Action: Hashable {
     case duplicate(workflowIds: Set<ContentViewModel.ID>)
     case refresh(_ groupIds: Set<WorkflowGroup.ID>)
@@ -45,7 +68,61 @@ struct ContentListView: View {
 
   private func search(_ workflow: ContentViewModel) -> Bool {
     guard !searchTerm.isEmpty else { return true }
-    return workflow.name.lowercased().contains(searchTerm.lowercased())
+
+    let searchTerms = searchTerm.lowercased().split(separator: " ")
+    var match: Match = .unmatched
+
+    for searchTerm in searchTerms {
+      switch workflow.trigger {
+      case .application(let app):
+        match = app.lowercased().contains(searchTerm) ? .typeMatch(.application) : .unmatched
+      case .keyboard(let string):
+        if searchTerm.contains("function") || searchTerm.contains("fn") {
+          match = string.lowercased().contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
+        } else if searchTerm.contains("command") {
+          match = string.lowercased().contains(ModifierKey.command.pretty) ? .typeMatch(.keyboard) : .unmatched
+        } else if searchTerm.contains("shift") {
+          match = string.lowercased().contains(ModifierKey.shift.pretty) ? .typeMatch(.keyboard) : .unmatched
+        } else if searchTerm.contains("option") {
+          match = string.lowercased().contains(ModifierKey.option.pretty) ? .typeMatch(.keyboard) : .unmatched
+        } else if searchTerm.contains("control") {
+          match = string.lowercased().contains(ModifierKey.control.pretty) ? .typeMatch(.keyboard) : .unmatched
+        } else {
+          match = string.lowercased().contains(searchTerm) ? .typeMatch(.keyboard) : .unmatched
+        }
+      case .snippet(let snippet):
+        if snippet.lowercased().contains(searchTerm) {
+          match = .typeMatch(.snippet)
+        } else if searchTerm.contains("snippet") {
+          match = .typeMatch(.snippet)
+        }
+      default: break
+      }
+
+      for image in workflow.images {
+        switch image.kind {
+        case .command(let kind):
+          if searchTerm.contains(kind.match.rawValue) {
+            match = .typeMatch(kind.match)
+          }
+        case .icon(let icon):
+          if searchTerm.contains("app") && icon.path.contains("app") {
+            match = .typeMatch(.application)
+            break
+          }
+        }
+      }
+
+      if workflow.name.lowercased().contains(searchTerm) {
+        return true
+      }
+    }
+
+    return switch match {
+    case .unmatched: false
+    case .typeMatch: searchTerms.count == 1 ? true : false
+    case .match: true
+    }
   }
 
   @ViewBuilder
@@ -80,7 +157,8 @@ struct ContentListView: View {
           ContentListEmptyView(namespace, onAction: onAction)
         } else {
           LazyVStack(spacing: 0) {
-            ForEach(publisher.data.lazy.filter({ search($0) }), id: \.id) { element in
+            let items = publisher.data.filter({ search($0) })
+            ForEach(items.lazy, id: \.id) { element in
               ContentItemView(
                 workflow: element,
                 publisher: publisher,
@@ -175,9 +253,17 @@ struct ContentListView: View {
                 }
               }
             }
+
+            Text("Results: \(items.count)")
+              .font(.caption)
+              .opacity(!searchTerm.isEmpty ? 1 : 0)
+              .padding(.vertical, 8)
+              .frame(height: searchTerm.isEmpty ? 0 : nil)
+
             Color(.clear)
               .id("bottom")
               .padding(.bottom, 24)
+
           }
           .onAppear {
             guard let initialSelection = contentSelectionManager.initialSelection else { return }
@@ -280,5 +366,25 @@ struct ContentListView_Previews: PreviewProvider {
     ContentListView($focus, groupId: UUID().uuidString,
                     contentSelectionManager: .init()) { _ in }
       .designTime()
+  }
+}
+
+fileprivate extension CommandViewModel.Kind {
+  var match: ContentListView.Match.Kind {
+    switch self {
+    case .application: .application
+    case .builtIn: .builtIn
+    case .open: .open
+    case .keyboard: .keyboard
+    case .script: .script
+    case .plain: .plain
+    case .shortcut: .shortcut
+    case .text: .text
+    case .systemCommand: .systemCommand
+    case .menuBar: .menuBar
+    case .mouse: .mouse
+    case .uiElement: .uiElement
+    case .windowManagement: .windowManagement
+    }
   }
 }
