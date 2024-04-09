@@ -29,11 +29,13 @@ private struct GroupIconOverlayView: View {
         .contrast(1.2)
         .saturation(1.2)
         .mask {
-          Image(systemName: symbol)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 14, height: 14)
-            .opacity(!symbol.isEmpty ?  1 : 0)
+          if !symbol.isEmpty {
+            Image(systemName: symbol)
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 14, height: 14)
+              .opacity(!symbol.isEmpty ?  1 : 0)
+          }
         }
         .compositingGroup()
         .shadow(color: Color(nsColor: .textColor).opacity(0.1), radius: 0, y: -0.5)
