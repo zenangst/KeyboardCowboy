@@ -7,17 +7,18 @@ enum AppFocus: Hashable {
   case search
 
   enum Detail: Hashable {
-    case name
     case addAppTrigger
+    case addCommand
     case addKeyboardTrigger
     case addSnippetTrigger
-    case applicationTriggers
     case applicationTrigger(ApplicationTrigger.ID)
-    case keyboardShortcuts
-    case keyboardShortcut(KeyShortcut.ID)
-    case addCommand
-    case commands
+    case applicationTriggers
     case command(Command.ID)
     case commandShortcut(KeyShortcut.ID)
+    case commands
+    case keyboardShortcut(KeyShortcut.ID)
+    case keyboardShortcuts
+    case name
+    case snippet
   }
 }

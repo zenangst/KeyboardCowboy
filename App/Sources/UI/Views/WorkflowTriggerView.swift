@@ -95,7 +95,10 @@ struct WorkflowTriggerView: View {
                               color: .systemPurple,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
-          action: { onAction(.addSnippet) }
+          action: {
+            onAction(.addSnippet)
+            focus.wrappedValue = .detail(.snippet)
+          }
         ) {
 
           

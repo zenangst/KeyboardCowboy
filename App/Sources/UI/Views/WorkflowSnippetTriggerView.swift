@@ -3,15 +3,17 @@ import Inject
 import SwiftUI
 
 struct WorkflowSnippetTriggerView: View {
-  @EnvironmentObject var snippetController: SnippetController
-  @ObserveInjection var inject
+  private var focus: FocusState<AppFocus?>.Binding
+  @EnvironmentObject private var snippetController: SnippetController
   @State var snippet: DetailViewModel.SnippetTrigger
 
   let onUpdate: (DetailViewModel.SnippetTrigger) -> Void
 
-  init(_ snippet: DetailViewModel.SnippetTrigger,
+  init(_ focus: FocusState<AppFocus?>.Binding,
+       snippet: DetailViewModel.SnippetTrigger,
        onUpdate: @escaping (DetailViewModel.SnippetTrigger) -> Void) {
     _snippet = .init(initialValue: snippet)
+    self.focus = focus
     self.onUpdate = onUpdate
   }
 
@@ -26,6 +28,7 @@ struct WorkflowSnippetTriggerView: View {
           snippetController.isEnabled = !newValue
         }, onCommandReturnKey: { onUpdate(snippet) }
       )
+      .focused(focus, equals: .detail(.snippet))
     }
     .onDisappear(perform: {
         snippetController.isEnabled = true
@@ -35,14 +38,13 @@ struct WorkflowSnippetTriggerView: View {
     })
     .fixedSize(horizontal: false, vertical: true)
     .roundedContainer(padding: 8, margin: 0)
-    .enableInjection()
   }
 }
 
 struct WorkflowSnippetTriggerView_Previews: PreviewProvider {
-    static var previews: some View {
-      WorkflowSnippetTriggerView(
-        .init(id: UUID().uuidString, text: "hello world")
-      )  { _ in }
-    }
+  @FocusState static var focus: AppFocus?
+  static let snippet: DetailViewModel.SnippetTrigger = .init(id: UUID().uuidString, text: "hello world")
+  static var previews: some View {
+    WorkflowSnippetTriggerView($focus, snippet: snippet)  { _ in }
+  }
 }

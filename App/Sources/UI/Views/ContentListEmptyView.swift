@@ -42,6 +42,7 @@ struct ContentListEmptyView: View {
           .font(.footnote)
           .padding(.top, 8)
       }
+      .padding(.top, publisher.data.isEmpty ? 48 : 0)
       .frame(height: publisher.data.isEmpty ? nil : 0)
       .opacity(publisher.data.isEmpty ? 1 : 0)
     }
