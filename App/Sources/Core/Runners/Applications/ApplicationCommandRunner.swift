@@ -79,6 +79,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       return
     }
 
+    UserSpace.shared.frontMostApplication.ref.activate()
     _ = runningApplication.hide()
   }
 }

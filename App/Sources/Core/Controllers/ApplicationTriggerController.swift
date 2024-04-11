@@ -105,5 +105,4 @@ final class ApplicationTriggerController {
 
     self.bundleIdentifiers = bundleIdentifiers
   }
-
 }
