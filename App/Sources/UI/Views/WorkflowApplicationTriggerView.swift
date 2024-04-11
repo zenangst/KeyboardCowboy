@@ -59,8 +59,10 @@ struct WorkflowApplicationTriggerView: View {
       .frame(minHeight: 44)
 
       if !data.isEmpty {
+        let count = data.count
         ScrollView {
           LazyVStack(spacing: 0) {
+            let lastID = $data.lazy.last?.id
             ForEach($data.lazy, id: \.id) { element in
               WorkflowApplicationTriggerItemView(element, data: $data,
                                                  selectionManager: selectionManager,
@@ -84,7 +86,11 @@ struct WorkflowApplicationTriggerView: View {
               .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
                 selectionManager.handleOnTap(data, element: element.wrappedValue)
               }
+
+              let notLastItem = element.id != lastID
               ZenDivider()
+                .opacity(notLastItem ? 1 : 0)
+                .frame(height: notLastItem ? nil : 0)
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               onTab()
@@ -106,12 +112,20 @@ struct WorkflowApplicationTriggerView: View {
           }
           .focused(focus, equals: .detail(.applicationTriggers))
         }
-        .scrollDisabled(data.count <= 4)
-        .frame(minHeight: 48, maxHeight: min(CGFloat(data.count * 48), 300) )
-        .roundedContainer(padding: 0, margin: 0)
+        .scrollDisabled(count <= 4)
+        .frame(minHeight: 46, maxHeight: maxHeight(count))
+        .roundedContainer(12, padding: 2, margin: 0)
       }
     }
     .enableInjection()
+  }
+
+  private func maxHeight(_ count: Int) -> CGFloat {
+    if count > 1 {
+      return min(CGFloat(count * 48), 300)
+    } else {
+      return 46 // Max size without the `ZenDivider`
+    }
   }
 }
 
@@ -129,5 +143,6 @@ struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
       onAction: { _ in }
     )
     .environmentObject(ApplicationStore.shared)
+    .padding()
   }
 }
