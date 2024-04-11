@@ -16,7 +16,7 @@ final class ContentViewActionReducerTests: XCTestCase {
     XCTAssertEqual(subject.original, subject.copy)
 
     // Nothing should happen because `.selectWorkflow` is no-op.
-    ContentViewActionReducer.reduce(.selectWorkflow(workflowIds: [], groupIds: []), groupStore: ctx.store,
+    ContentViewActionReducer.reduce(.selectWorkflow(workflowIds: []), groupStore: ctx.store,
                                     selectionManager: ctx.selector,
                                     group: &subject.original)
 
