@@ -78,16 +78,14 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
     enum Context: String, Hashable, Codable, CaseIterable, Identifiable {
       public var id: String { rawValue }
 
-      case closed, launched, frontMost
+      case closed, launched, frontMost, resignFrontMost
 
       public var displayValue: String {
         switch self {
-        case .launched:
-          return "Launched"
-        case .closed:
-          return "Closed"
-        case .frontMost:
-          return "When in front most"
+        case .launched:  "Launched"
+        case .closed:    "Closed"
+        case .frontMost: "When in front most"
+        case .resignFrontMost: "When resigns front most"
         }
       }
     }

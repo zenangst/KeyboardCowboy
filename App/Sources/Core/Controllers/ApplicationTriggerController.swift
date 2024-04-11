@@ -11,6 +11,9 @@ final class ApplicationTriggerController {
   private var openActions = [String: [Workflow]]()
   private var runningApplicationsSubscription: AnyCancellable?
   private var workflowGroupsSubscription: AnyCancellable?
+  private var hideActions = [String: [Workflow]]()
+
+  private var previousApplication: UserSpace.Application?
 
   init(_ workflowRunner: WorkflowRunning) {
     self.workflowRunner = workflowRunner
@@ -23,7 +26,9 @@ final class ApplicationTriggerController {
 
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     frontmostApplicationSubscription = publisher
-      .sink { [weak self] in self?.process($0) }
+      .sink { [weak self] in
+        self?.process($0)
+      }
   }
 
   func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
@@ -54,6 +59,10 @@ final class ApplicationTriggerController {
           if trigger.contexts.contains(.frontMost) {
             self.activateActions[trigger.application.bundleIdentifier, default: []].append(workflow)
           }
+
+          if trigger.contexts.contains(.resignFrontMost) {
+            self.hideActions[trigger.application.bundleIdentifier, default: []].append(workflow)
+          }
         }
       case .keyboardShortcuts, .snippet, .none:
         return
@@ -62,9 +71,15 @@ final class ApplicationTriggerController {
   }
 
   private func process(_ frontMostApplication: UserSpace.Application) {
-    guard let workflows = self.activateActions[frontMostApplication.bundleIdentifier] else { return }
+    if let workflows = self.activateActions[frontMostApplication.bundleIdentifier] {
+      workflows.forEach(workflowRunner.runCommands(in:))
+    }
 
-    workflows.forEach(workflowRunner.runCommands(in:))
+    if let previousApplication, let workflows = self.hideActions[previousApplication.bundleIdentifier] {
+      workflows.forEach(workflowRunner.runCommands(in:))
+    }
+
+    previousApplication = frontMostApplication
   }
 
   private func process(_ bundleIdentifiers: [String]) {

@@ -22,11 +22,12 @@ struct ApplicationCommand: MetaDataProviding {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {
-      case .open: return "Open"
-      case .close: return "Close"
+      case .open:  "Open"
+      case .close: "Close"
+      case .hide:  "Hide"
       }
     }
-    case open, close
+    case open, close, hide
   }
 
   var application: Application

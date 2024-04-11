@@ -30,14 +30,13 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     }
 
     switch command.action {
-    case .open:
-      try await openApplication(command: command, checkCancellation: checkCancellation)
-    case .close:
-      try plugins.close.execute(command, checkCancellation: checkCancellation)
+    case .open:  try await openApplication(command, checkCancellation: checkCancellation)
+    case .close: try plugins.close.execute(command, checkCancellation: checkCancellation)
+    case .hide:  try await hideApplication(command)
     }
   }
 
-  private func openApplication(command: ApplicationCommand, checkCancellation: Bool) async throws {
+  private func openApplication(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
     let bundleIdentifier = command.application.bundleIdentifier
     let bundleName = command.application.bundleName
 
@@ -73,5 +72,13 @@ final class ApplicationCommandRunner: @unchecked Sendable {
         try? await plugins.activate.execute(command, checkCancellation: checkCancellation)
       }
     }
+  }
+
+  private func hideApplication(_ command: ApplicationCommand) async throws {
+    guard let runningApplication = self.workspace.applications.first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }) else {
+      return
+    }
+
+    _ = runningApplication.hide()
   }
 }

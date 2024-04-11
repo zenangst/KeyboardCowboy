@@ -103,12 +103,10 @@ struct NewCommandWindow: Scene {
   private func payload(for command: Command) -> NewCommandPayload {
     switch command {
     case .application(let applicationCommand):
-      let action: NewCommandApplicationView.ApplicationAction
-      switch applicationCommand.action {
-      case .open:
-        action = .open
-      case .close:
-        action = .close
+      let action: NewCommandApplicationView.ApplicationAction = switch applicationCommand.action {
+      case .open:  .open
+      case .close: .close
+      case .hide:  .hide
       }
 
       let inBackground = applicationCommand.modifiers.contains(.background)

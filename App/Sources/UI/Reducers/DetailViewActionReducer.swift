@@ -115,6 +115,12 @@ final class DetailViewActionReducer {
                 contexts.remove(.launched)
               }
 
+              if viewModelTrigger.contexts.contains(.resignFrontMost) {
+                contexts.insert(.resignFrontMost)
+              } else {
+                contexts.remove(.resignFrontMost)
+              }
+
               return ApplicationTrigger(id: viewModelTrigger.id,
                                         application: viewModelTrigger.application,
                                         contexts: Array(contexts))
@@ -141,6 +147,12 @@ final class DetailViewActionReducer {
               newTrigger.contexts.insert(.launched)
             } else {
               newTrigger.contexts.remove(.launched)
+            }
+
+            if viewModelTrigger.contexts.contains(.resignFrontMost) {
+              newTrigger.contexts.insert(.resignFrontMost)
+            } else {
+              newTrigger.contexts.remove(.resignFrontMost)
             }
 
             previousTriggers[index] = newTrigger

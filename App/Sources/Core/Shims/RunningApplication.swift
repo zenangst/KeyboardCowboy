@@ -6,6 +6,7 @@ public protocol RunningApplication {
 
   func activate(options: NSApplication.ActivationOptions) -> Bool
   func terminate() -> Bool
+  func hide() -> Bool
 }
 
 extension NSRunningApplication: RunningApplication {}

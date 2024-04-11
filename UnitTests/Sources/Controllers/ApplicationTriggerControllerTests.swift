@@ -95,6 +95,7 @@ private struct RunningApplicationMock: RunningApplication {
   var processIdentifier: pid_t = pid_t()
   func activate(options: NSApplication.ActivationOptions) -> Bool { false }
   func terminate() -> Bool { false }
+  func hide() -> Bool { false }
 }
 
 private final class WorkGroupPublisher {
