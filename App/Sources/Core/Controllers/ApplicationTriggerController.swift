@@ -2,7 +2,7 @@ import Combine
 import Cocoa
 import MachPort
 
-final class ApplicationTriggerController: @unchecked Sendable {
+final class ApplicationTriggerController: @unchecked Sendable, ApplicationCommandRunnerDelegate {
   private let workflowRunner: WorkflowRunning
   private var activateActions = [String: [Workflow]]()
   private var bundleIdentifiers = [String]()
@@ -103,5 +103,19 @@ final class ApplicationTriggerController: @unchecked Sendable {
     workflows.forEach(workflowRunner.runCommands(in:))
 
     self.bundleIdentifiers = bundleIdentifiers
+  }
+
+  // MARK: ApplicationCommandRunnerDelegate
+
+  func applicationCommandRunnerWillRunApplicationCommand(_ command: ApplicationCommand) {
+    switch command.action {
+    case .open:
+      if let previousApplication, let workflows = self.hideActions[previousApplication.bundleIdentifier] {
+        workflows.forEach(workflowRunner.runCommands(in:))
+      }
+    default:
+      break
+    }
+
   }
 }

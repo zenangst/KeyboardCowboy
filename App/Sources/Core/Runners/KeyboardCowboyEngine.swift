@@ -55,6 +55,8 @@ final class KeyboardCowboyEngine {
 
     guard KeyboardCowboy.env() != .previews else { return }
 
+    commandRunner.runners.application.delegate = applicationTriggerController
+
     guard !launchArguments.isEnabled(.disableMachPorts) else { return }
 
     if AccessibilityPermission.shared.permission != .authorized {

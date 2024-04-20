@@ -1,5 +1,9 @@
 import Cocoa
 
+protocol ApplicationCommandRunnerDelegate: AnyObject {
+  func applicationCommandRunnerWillRunApplicationCommand(_ command: ApplicationCommand)
+}
+
 final class ApplicationCommandRunner: @unchecked Sendable {
   private struct Plugins {
     let activate: ActivateApplicationPlugin
@@ -7,6 +11,8 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     let close: CloseApplicationPlugin
     let launch: LaunchApplicationPlugin
   }
+
+  var delegate: ApplicationCommandRunnerDelegate?
 
   private let workspace: WorkspaceProviding
   private let plugins: Plugins
@@ -25,6 +31,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
   }
 
   func run(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
+    delegate?.applicationCommandRunnerWillRunApplicationCommand(command)
     if command.modifiers.contains(.onlyIfNotRunning) {
       let bundleIdentifiers = self.workspace.applications.compactMap(\.bundleIdentifier)
       if bundleIdentifiers.contains(command.application.bundleIdentifier) {
@@ -82,7 +89,9 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       return
     }
 
+
     UserSpace.shared.frontMostApplication.ref.activate()
+    guard !runningApplication.isHidden else { return }
     _ = runningApplication.hide()
   }
 }
