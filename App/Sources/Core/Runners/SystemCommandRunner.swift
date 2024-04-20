@@ -17,7 +17,7 @@ final class SystemCommandRunner: @unchecked Sendable {
   private var frontMostIndex: Int = 0
   private var visibleMostIndex: Int = 0
 
-  init(_ applicationStore: ApplicationStore, workspace: WorkspaceProviding = NSWorkspace.shared) {
+  init(_ applicationStore: ApplicationStore = .shared, workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.applicationStore = applicationStore
     self.workspace = workspace
   }

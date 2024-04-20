@@ -114,8 +114,10 @@ final class Core {
     ),
     scriptCommandRunner: scriptCommandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
+    systemCommandRunner: systemCommandRunner,
     uiElementCommandRunner: uiElementCommandRunner
   )
+  lazy private(set) var systemCommandRunner = SystemCommandRunner()
   lazy private(set) var keyboardCommandRunner = KeyboardCommandRunner(store: keyCodeStore)
   lazy private(set) var uiElementCommandRunner = UIElementCommandRunner()
   lazy private(set) var scriptCommandRunner = ScriptCommandRunner(workspace: .shared)

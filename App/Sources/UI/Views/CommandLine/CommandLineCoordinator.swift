@@ -13,7 +13,10 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
   @Published var selection: Int = 0
 
-  nonisolated(unsafe) static private(set) var shared: CommandLineCoordinator = .init()
+  @MainActor
+  static private(set) var shared: CommandLineCoordinator = .init()
+
+  private let applicationRunner: ApplicationCommandRunner
 
   @MainActor
   lazy var windowController: NSWindowController = {
@@ -28,7 +31,13 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
   private var subscription: AnyCancellable?
   private var task: Task<Void, Error>?
 
+  @MainActor
   private override init() {
+    self.applicationRunner = ApplicationCommandRunner(
+      scriptCommandRunner: .init(),
+      keyboard: .init(store: KeyCodesStore(InputSourceController())),
+      workspace: NSWorkspace.shared
+    )
     super.init()
     subscription = $input
       .throttle(for: 0.2, scheduler: DispatchQueue.main, latest: true)
@@ -67,16 +76,13 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
         let result = data.results[selection]
         switch result {
         case .app(let application):
-          try? await ApplicationCommandRunner(
-            scriptCommandRunner: .init(),
-            keyboard: .init(store: KeyCodesStore(InputSourceController())),
-            workspace: NSWorkspace.shared
-          )
-          .run(.init(application: application), checkCancellation: false)
+          try? await applicationRunner
+            .run(.init(application: application), 
+                 checkCancellation: false)
         default: break
         }
       case .url:
-        if case .url(var url) = data.results[selection] {
+        if case .url(let url) = data.results[selection] {
           var urlString = url.absoluteString
 
           if !urlString.contains("://") {
@@ -126,6 +132,11 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
   func windowDidResignKey(_ notification: Notification) {
     windowController.close()
+
+    let frontMostOwningMenubarApplication = NSWorkspace.shared.runningApplications
+      .first(where: { $0.ownsMenuBar })
+
+    frontMostOwningMenubarApplication?.activate()
   }
 
   // MARK: Private methods

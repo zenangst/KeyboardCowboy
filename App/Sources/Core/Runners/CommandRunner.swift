@@ -55,9 +55,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
        builtInCommandRunner: BuiltInCommandRunner,
        scriptCommandRunner: ScriptCommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
+       systemCommandRunner: SystemCommandRunner,
        uiElementCommandRunner: UIElementCommandRunner
   ) {
-    let systemCommandRunner = SystemCommandRunner(applicationStore)
     self.missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
     self.runners = .init(
       application: ApplicationCommandRunner(

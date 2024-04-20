@@ -12,9 +12,9 @@ final class ApplicationCommandRunner: @unchecked Sendable {
   private let plugins: Plugins
 
   @MainActor
-  init(scriptCommandRunner: ScriptCommandRunner,
+  init(scriptCommandRunner: ScriptCommandRunner = .init(),
        keyboard: KeyboardCommandRunner,
-       workspace: WorkspaceProviding) {
+       workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.workspace = workspace
     self.plugins = Plugins(
       activate: ActivateApplicationPlugin(),
