@@ -52,10 +52,15 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
   }
 
   @MainActor
-  func show(_ action: CommandLineAction) -> String {
+  func show(_ action: CommandLineAction) async -> String {
     if windowController.window?.isVisible == true {
       windowController.close()
       return ""
+    }
+
+    let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: true)
+    if !snapshot.selectedText.isEmpty {
+      input = snapshot.selectedText
     }
 
     windowController.showWindow(nil)
