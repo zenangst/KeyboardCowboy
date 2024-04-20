@@ -29,6 +29,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
       return
     }
 
+    let commandLineWindow = NSApp.windows.first(where: { $0.identifier?.rawValue == "CommandLineWindow" })
+
+    if commandLineWindow?.isVisible == true { return }
+
     NotificationCenter.default.post(.init(name: Notification.Name("OpenMainWindow")))
     KeyboardCowboy.activate()
   }

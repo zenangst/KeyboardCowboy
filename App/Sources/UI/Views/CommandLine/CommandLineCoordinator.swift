@@ -17,12 +17,11 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
   @MainActor
   lazy var windowController: NSWindowController = {
-    let window = CommandLineWindow(.init(width: 200, height: 200),
-                                   rootView: CommandLineView(coordinator: CommandLineCoordinator.shared))
+    let window = CommandLineWindow(.init(width: 200, height: 200), rootView: CommandLineView(coordinator: CommandLineCoordinator.shared))
     window.eventDelegate = self
-    return NSWindowController(
-      window: window
-    )
+    let windowController = NSWindowController(window: window)
+    windowController.windowFrameAutosaveName = "CommandLineWindow"
+    return windowController
   }()
 
   private let applicationStore = ApplicationStore.shared
@@ -70,11 +69,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
         case .app(let application):
           try? await ApplicationCommandRunner(
             scriptCommandRunner: .init(),
-            keyboard: .init(
-              store: KeyCodesStore(
-                InputSourceController()
-              )
-            ),
+            keyboard: .init(store: KeyCodesStore(InputSourceController())),
             workspace: NSWorkspace.shared
           )
           .run(.init(application: application), checkCancellation: false)
@@ -82,13 +77,15 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
         }
       case .url:
         if case .url(var url) = data.results[selection] {
-          break
-//          var components = URLComponents(string: url.absoluteString)
-//          if components?.host == nil {
-//            components?.host = "https"
-//          }
-//          guard let newUrl = components?.url else { return }
-//          NSWorkspace.shared.open(newUrl)
+          var urlString = url.absoluteString
+
+          if !urlString.contains("://") {
+            urlString = "https://" + urlString
+          }
+
+          guard let newUrl = URL(string: urlString) else { return }
+
+          NSWorkspace.shared.open(newUrl)
         }
       case .none:
         break
@@ -149,14 +146,19 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
       return
     }
 
-    if let url = URL(string: newInput) {
-      Task { @MainActor in
-        data.kind = .url
-        withAnimation(.smooth(duration: 0.1)) {
-          data.results = [.url(url)]
+    if let components = URLComponents(string: newInput),
+       let url = components.url {
+
+      let split = newInput.split(separator: ".")
+      if split.count > 1 && !newInput.contains(".app") {
+        Task { @MainActor in
+          data.kind = .url
+          withAnimation(.smooth(duration: 0.1)) {
+            data.results = [.url(url)]
+          }
         }
+        return
       }
-      return
     }
 
     task = Task(priority: .high) {

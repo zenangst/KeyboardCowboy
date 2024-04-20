@@ -11,18 +11,17 @@ final class CommandLineWindow: NSWindow {
   var localMonitor: Any?
 
   init<Content>(_ minSize: CGSize, rootView: Content) where Content: View {
-    super.init(
-      contentRect: .init(origin: .zero, size: minSize),
-      styleMask: [
+    let styleMask: StyleMask = [
         .fullSizeContentView,
         .resizable,
         .borderless,
         .nonactivatingPanel,
         .unifiedTitleAndToolbar
-      ],
-      backing: .buffered,
-      defer: true
-    ) 
+      ]
+    
+    super.init(contentRect: .init(origin: .zero, size: minSize),
+               styleMask: styleMask, backing: .buffered, defer: true)
+
     self.minSize = minSize
     self.hasShadow = true
     self.level = .modalPanel
@@ -31,6 +30,7 @@ final class CommandLineWindow: NSWindow {
     self.isMovableByWindowBackground = true
     self.acceptsMouseMovedEvents = true
     self.contentViewController = NSHostingController(rootView: rootView)
+    self.identifier = .init("CommandLineWindow")
 
     self.localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp], handler: { [weak self] event in
       guard let self, isVisible else { return event }
@@ -39,7 +39,6 @@ final class CommandLineWindow: NSWindow {
       }
       return event
     })
-
   }
 
   override var canBecomeKey: Bool { true }

@@ -128,7 +128,7 @@ private struct CommandLineResultListView: View {
 private struct CommandLineApplicationView: View {
   let app: Application
   var body: some View {
-    HStack(spacing: 4) {
+    HStack(spacing: 10) {
       IconView(icon: .init(app), size: .init(width: 32, height: 32))
       VStack(alignment: .leading, spacing: 0) {
         Text(app.displayName)
@@ -146,9 +146,13 @@ private struct CommandLineApplicationView: View {
 private struct CommandLineURLView: View {
   let url: URL
   var body: some View {
-    Text(url.absoluteString)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .bold()
+    HStack(spacing: 10) {
+      IconView(icon: .init(.safari()), size: .init(width: 32, height: 32))
+      Text(url.absoluteString)
+        .bold()
+        .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+    }
+    .padding(4)
   }
 }
 
@@ -171,7 +175,7 @@ private struct CommandLineImageView: View {
       case .keyboard:
         KeyboardIconView(">_", size: 24)
       case .url:
-        IconView(icon: .init(.safari()), size: .init(width: 24, height: 24))
+        IconView(icon: .init(.safari()), size: .init(width: 32, height: 32))
       case .none:
         EmptyView()
       }
