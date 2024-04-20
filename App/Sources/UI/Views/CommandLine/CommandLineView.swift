@@ -10,6 +10,7 @@ struct CommandLineViewModel: Equatable {
     case keyboard
     case app
     case url
+    case fallback
   }
 
   enum Result: Hashable, Equatable, Identifiable {
@@ -17,11 +18,42 @@ struct CommandLineViewModel: Equatable {
       switch self {
       case .app(let app): app.id
       case .url(let url): url.absoluteString
+      case .search(let search): search.id
       }
     }
 
     case app(Application)
     case url(URL)
+    case search(Search)
+
+    enum Search: Hashable, Equatable, Identifiable {
+      var id: String {
+        switch self {
+        case .google(let string): string
+        case .finder(let string): string
+        case .github(let string): string
+        case .imdb(let string): string
+        }
+      }
+
+      case google(String)
+      case finder(String)
+      case github(String)
+      case imdb(String)
+
+      var string: String {
+        switch self {
+        case .google(let string):
+          "Google '\(string)'"
+        case .imdb(let string):
+          "Search IMDb for '\(string)'"
+        case .github(let string):
+          "Search GitHub for '\(string)'"
+        case .finder(let string):
+          "Search for '\(string)'"
+        }
+      }
+    }
   }
 }
 
@@ -108,6 +140,8 @@ private struct CommandLineResultListView: View {
                 CommandLineApplicationView(app: app)
               case .url(let url):
                 CommandLineURLView(url: url)
+              case .search(let search):
+                CommandLineSearchView(search: search)
               }
             }
             .background(
@@ -157,6 +191,25 @@ private struct CommandLineURLView: View {
   }
 }
 
+private struct CommandLineSearchView: View {
+  let search: CommandLineViewModel.Result.Search
+  var body: some View {
+    HStack(spacing: 10) {
+      switch search {
+      case .finder:
+        IconView(icon: .init(.finder()), size: .init(width: 32, height: 32))
+      default:
+        IconView(icon: .init(.safari()), size: .init(width: 32, height: 32))
+      }
+      Text("Search for \(search.string)")
+        .bold()
+        .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+    }
+    .padding(4)
+  }
+}
+
+
 private struct CommandLineImageView: View {
   let data: CommandLineViewModel
 
@@ -177,6 +230,8 @@ private struct CommandLineImageView: View {
         KeyboardIconView(">_", size: 24)
       case .url:
         IconView(icon: .init(.safari()), size: .init(width: 32, height: 32))
+      case .fallback:
+        EmptyView()
       case .none:
         EmptyView()
       }

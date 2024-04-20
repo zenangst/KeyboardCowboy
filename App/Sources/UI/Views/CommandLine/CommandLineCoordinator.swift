@@ -75,6 +75,24 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
     Task {
       let _ = try? await task?.value
       switch data.kind {
+      case .fallback:
+        if case .search(let kind) = data.results[selection] {
+          switch kind {
+          case .finder(let search): break
+          case .imdb(let string):
+            if let url = URL(string: "https://www.imdb.com/find/?q=\(string)") {
+              NSWorkspace.shared.open(url)
+            }
+          case .github(let string):
+            if let url = URL(string: "https://github.com/search?q=\(string)") {
+              NSWorkspace.shared.open(url)
+            }
+          case .google(let string):
+            if let url = URL(string: "https://www.google.com/search?q=\(string)") {
+              NSWorkspace.shared.open(url)
+            }
+          }
+        }
       case .keyboard:
         break
       case .app:
@@ -188,17 +206,30 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
       try Task.checkCancellation()
 
-      let results = matches.map {
+      var results = matches.map {
         CommandLineViewModel.Result.app($0)
       }
 
       try Task.checkCancellation()
 
+      let kind: CommandLineViewModel.Kind
+
+      if results.isEmpty {
+        results.append(.search(.google(newInput)))
+        results.append(.search(.github(newInput)))
+        results.append(.search(.imdb(newInput)))
+        kind = .fallback
+      } else {
+        kind = .app
+      }
+
+      let finalResults = results
+
       await MainActor.run {
         withAnimation(.smooth(duration: 0.1)) {
-          data.results = results
+          data.results = finalResults
         }
-        data.kind = .app
+        data.kind = kind
       }
     }
   }
