@@ -46,10 +46,11 @@ struct CommandLineView: View {
     }
     .background(
       LinearGradient(stops: [
-        .init(color: Color(nsColor: .windowBackgroundColor), location: 0),
-        .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.5, of: .black)!), location: 1)
+        .init(color: Color.clear, location: 0),
+        .init(color: Color(nsColor: .controlAccentColor.blended(withFraction: 0.8, of: .black)!).opacity(0.7), location: 1)
       ], startPoint: .top, endPoint: .bottom)
     )
+    .background(.ultraThickMaterial)
     .mask {
       RoundedRectangle(cornerRadius: 8)
     }
