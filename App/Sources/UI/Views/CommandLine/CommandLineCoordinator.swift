@@ -76,22 +76,9 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
       let _ = try? await task?.value
       switch data.kind {
       case .fallback:
-        if case .search(let kind) = data.results[selection] {
-          switch kind {
-          case .finder(let search): break
-          case .imdb(let string):
-            if let url = URL(string: "https://www.imdb.com/find/?q=\(string)") {
-              NSWorkspace.shared.open(url)
-            }
-          case .github(let string):
-            if let url = URL(string: "https://github.com/search?q=\(string)") {
-              NSWorkspace.shared.open(url)
-            }
-          case .google(let string):
-            if let url = URL(string: "https://www.google.com/search?q=\(string)") {
-              NSWorkspace.shared.open(url)
-            }
-          }
+        if case .search(let kind) = data.results[selection],
+           let url = URL(string: "\(kind.prefix)\(kind.searchString)") {
+          NSWorkspace.shared.open(url)
         }
       case .keyboard:
         break
@@ -215,9 +202,24 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
       let kind: CommandLineViewModel.Kind
 
       if results.isEmpty {
-        results.append(.search(.google(newInput)))
-        results.append(.search(.github(newInput)))
-        results.append(.search(.imdb(newInput)))
+        results.append(
+          .search(
+            .init(id: "Google", name: "Google", text: "Google '\(newInput)'",
+                  prefix: "https://www.google.com/search?q=", searchString: newInput)
+          )
+        )
+        results.append(
+          .search(
+            .init(id: "GitHub", name: "GitHub", text: "Seach GitHub for '\(newInput)'",
+                  prefix: "https://www.github.com/search?q=", searchString: newInput)
+          )
+        )
+        results.append(
+          .search(
+            .init(id: "iMDB", name: "iMDB", text: "Seach iMDB for '\(newInput)'",
+                  prefix: "https://www.imdb.com/find/?q=", searchString: newInput)
+          )
+        )
         kind = .fallback
       } else {
         kind = .app

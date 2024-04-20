@@ -26,33 +26,12 @@ struct CommandLineViewModel: Equatable {
     case url(URL)
     case search(Search)
 
-    enum Search: Hashable, Equatable, Identifiable {
-      var id: String {
-        switch self {
-        case .google(let string): string
-        case .finder(let string): string
-        case .github(let string): string
-        case .imdb(let string): string
-        }
-      }
-
-      case google(String)
-      case finder(String)
-      case github(String)
-      case imdb(String)
-
-      var string: String {
-        switch self {
-        case .google(let string):
-          "Google '\(string)'"
-        case .imdb(let string):
-          "Search IMDb for '\(string)'"
-        case .github(let string):
-          "Search GitHub for '\(string)'"
-        case .finder(let string):
-          "Search for '\(string)'"
-        }
-      }
+    struct Search: Hashable, Equatable, Identifiable {
+      let id: String
+      let name: String
+      let text: String
+      let prefix: String
+      let searchString: String
     }
   }
 }
@@ -133,20 +112,24 @@ private struct CommandLineResultListView: View {
     ScrollViewReader { proxy in
       ScrollView(.vertical) {
         LazyVStack(spacing: 4) {
-          ForEach(Array(zip(data.results.indices, data.results)), id: \.1) { offset, result in
+          ForEach(Array(zip(data.results.indices, data.results)), id: \.1.id) { offset, result in
             Group {
               switch result {
               case .app(let app):
                 CommandLineApplicationView(app: app)
+                  .id(app.id)
               case .url(let url):
                 CommandLineURLView(url: url)
+                  .id(url.absoluteString)
               case .search(let search):
                 CommandLineSearchView(search: search)
+                  .id(result.id)
               }
             }
             .background(
               RoundedRectangle(cornerRadius: 8)
                 .fill(Color.accentColor)
+                .shadow(radius: 4)
                 .opacity(selection == offset ? 0.25 : 0)
             )
             .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
@@ -154,7 +137,7 @@ private struct CommandLineResultListView: View {
         }
       }
       .onChange(of: selection, perform: { value in
-        proxy.scrollTo(data.results[selection])
+        proxy.scrollTo(data.results[value].id)
       })
     }
   }
@@ -172,6 +155,7 @@ private struct CommandLineApplicationView: View {
         Text(app.path)
           .font(.caption2)
           .opacity(0.6)
+          .lineLimit(1)
       }
     }
     .padding(4)
@@ -195,13 +179,11 @@ private struct CommandLineSearchView: View {
   let search: CommandLineViewModel.Result.Search
   var body: some View {
     HStack(spacing: 10) {
-      switch search {
-      case .finder:
-        IconView(icon: .init(.finder()), size: .init(width: 32, height: 32))
-      default:
-        IconView(icon: .init(.safari()), size: .init(width: 32, height: 32))
-      }
-      Text("Search for \(search.string)")
+      Image(systemName: "magnifyingglass")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 16, height: 16)
+      Text(search.text)
         .bold()
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
     }
