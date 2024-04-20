@@ -87,6 +87,7 @@ final class Core {
                                                                   workflowRunner: workflowRunner)
   lazy private(set) var engine = KeyboardCowboyEngine(
     contentStore,
+    applicationTriggerController: applicationTriggerController,
     commandRunner: commandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
     keyboardShortcutsController: keyboardShortcutsController,
@@ -101,11 +102,16 @@ final class Core {
   lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
   lazy private(set) var recorderStore = KeyShortcutRecorderStore()
   lazy private(set) var shortcutStore = ShortcutStore(scriptCommandRunner)
+  lazy private(set) var commandLine = CommandLineCoordinator.shared
 
   // MARK: - Runners
   lazy private(set) var commandRunner = CommandRunner(
     applicationStore: ApplicationStore.shared,
-    builtInCommandRunner: BuiltInCommandRunner(configurationStore: configurationStore, macroRunner: macroRunner),
+    builtInCommandRunner: BuiltInCommandRunner(
+      commandLine: commandLine,
+      configurationStore: configurationStore,
+      macroRunner: macroRunner
+    ),
     scriptCommandRunner: scriptCommandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
     uiElementCommandRunner: uiElementCommandRunner
@@ -120,6 +126,8 @@ final class Core {
     keyboardShortcutsController: keyboardShortcutsController,
     store: keyCodeStore
   )
+
+  lazy private(set) var applicationTriggerController = ApplicationTriggerController(workflowRunner)
 
   // MARK: - Controllers
 

@@ -13,7 +13,7 @@ final class ScriptCommandRunner: Sendable {
 
   private let plugins: Plugins
 
-  init(workspace: NSWorkspace) {
+  init(workspace: NSWorkspace = .shared) {
     self.plugins = Plugins(workspace: workspace)
   }
 

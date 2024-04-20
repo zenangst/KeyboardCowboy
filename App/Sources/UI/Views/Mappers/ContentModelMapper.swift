@@ -146,6 +146,10 @@ private extension Array where Element == Command {
                               kind: .command(.builtIn(.init(id: command.id, name: command.name, 
                                                             kind: .userMode(UserMode(id: command.id, name: command.name, 
                                                                                      isEnabled: command.isEnabled), .toggle))))))
+        case .commandLine(let action):
+            images.append(.init(id: command.id, offset: convertedOffset,
+                                kind: .command(.builtIn(.init(id: command.id, name: command.name,
+                                                              kind: .commandLine(action))))))
         }
       case .mouse(let command):
         images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.mouse(.init(id: command.id, kind: command.kind)))))

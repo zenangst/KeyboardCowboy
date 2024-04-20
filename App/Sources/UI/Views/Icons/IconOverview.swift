@@ -11,6 +11,8 @@ struct IconOverview: PreviewProvider {
       SnippetIconView(size: size)
       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
       MacroIconView(.remove, size: size)
+      CommandLineIconView(size: size)
+      UserModeIconView(size: size)
       UIElementIconView(size: size)
       MouseIconView(size: size)
       BugFixIconView(size: size)
@@ -30,6 +32,7 @@ struct IconOverview: PreviewProvider {
       ScriptIconView(size: size)
       KeyboardIconView("M", size: size)
       ImprovementIconView(size: size)
+      TypingIconView(size: size)
     }
     .frame(maxWidth: size * 5 + spacing * 5)
     .padding(spacing)

@@ -11,7 +11,10 @@ final class ApplicationCommandRunner: @unchecked Sendable {
   private let workspace: WorkspaceProviding
   private let plugins: Plugins
 
-  init(scriptCommandRunner: ScriptCommandRunner, keyboard: KeyboardCommandRunner, workspace: WorkspaceProviding) {
+  @MainActor
+  init(scriptCommandRunner: ScriptCommandRunner,
+       keyboard: KeyboardCommandRunner,
+       workspace: WorkspaceProviding) {
     self.workspace = workspace
     self.plugins = Plugins(
       activate: ActivateApplicationPlugin(),

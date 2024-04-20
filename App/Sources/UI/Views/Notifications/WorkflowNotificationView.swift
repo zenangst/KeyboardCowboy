@@ -196,68 +196,69 @@ extension Command {
   @MainActor @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
     switch self {
-    case .builtIn(let builtInCommand):
-      switch builtInCommand.kind {
-      case .macro(let action):
-        switch action.kind {
-        case .record: MacroIconView(.record, size: size)
-        case .remove: MacroIconView(.remove, size: size)
+      case .builtIn(let builtInCommand):
+        switch builtInCommand.kind {
+          case .macro(let action):
+            switch action.kind {
+              case .record: MacroIconView(.record, size: size)
+              case .remove: MacroIconView(.remove, size: size)
+            }
+          case .userMode: UserModeIconView(size: size)
+          case .commandLine: CommandLineIconView(size: size)
         }
-      case .userMode: UserModeIconView(size: size)
-      }
-    case .mouse:
-      MouseIconView(size: size)
-    case .systemCommand(let systemCommand):
-      switch systemCommand.kind {
-      case .activateLastApplication:
-        ActivateLastApplicationIconView(size: size)
-      case .applicationWindows:              MissionControlIconView(size: size)
-      case .minimizeAllOpenWindows:          MinimizeAllIconView(size: size)
-      case .moveFocusToNextWindow:           MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
-      case .moveFocusToNextWindowFront:      MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
-      case .moveFocusToNextWindowGlobal:     MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
-      case .moveFocusToPreviousWindow:       MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
-      case .moveFocusToPreviousWindowFront:  MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
-      case .moveFocusToPreviousWindowGlobal: MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
-      case .showDesktop:                     DockIconView(size: size)
-      case .missionControl:                  MissionControlIconView(size: size)
-      }
-    case .menuBar: MenuIconView(size: size)
-    case .windowManagement: WindowManagementIconView(size: size)
-    case .uiElement: UIElementIconView(size: size)
-    case .script(let command):
-      switch command.kind {
-      case .shellScript:
-        ScriptIconView(size: size)
-      case .appleScript:
-        placeholderView(size)
-      }
-    case .application(let command):
-      IconView(
-        icon: .init(command.application),
-        size: .init(width: 32, height: 32)
-      )
-      .iconShape(size)
-    case .text(let command):
-      switch command.kind {
-      case .insertText: TypingIconView(size: size)
-      }
-    case .keyboard(let model):
-      let letters = model.keyboardShortcuts.map(\.key).joined()
-      KeyboardIconView(letters, size: size)
-    case .open(let command):
-      if let application = command.application {
+      case .mouse:
+        MouseIconView(size: size)
+      case .systemCommand(let systemCommand):
+        switch systemCommand.kind {
+          case .activateLastApplication:
+            ActivateLastApplicationIconView(size: size)
+          case .applicationWindows:              MissionControlIconView(size: size)
+          case .minimizeAllOpenWindows:          MinimizeAllIconView(size: size)
+          case .moveFocusToNextWindow:           MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
+          case .moveFocusToNextWindowFront:      MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
+          case .moveFocusToNextWindowGlobal:     MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
+          case .moveFocusToPreviousWindow:       MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
+          case .moveFocusToPreviousWindowFront:  MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
+          case .moveFocusToPreviousWindowGlobal: MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
+          case .showDesktop:                     DockIconView(size: size)
+          case .missionControl:                  MissionControlIconView(size: size)
+        }
+      case .menuBar: MenuIconView(size: size)
+      case .windowManagement: WindowManagementIconView(size: size)
+      case .uiElement: UIElementIconView(size: size)
+      case .script(let command):
+        switch command.kind {
+          case .shellScript:
+            ScriptIconView(size: size)
+          case .appleScript:
+            placeholderView(size)
+        }
+      case .application(let command):
         IconView(
-          icon: .init(application),
+          icon: .init(command.application),
           size: .init(width: 32, height: 32)
         )
         .iconShape(size)
+      case .text(let command):
+        switch command.kind {
+          case .insertText: TypingIconView(size: size)
+        }
+      case .keyboard(let model):
+        let letters = model.keyboardShortcuts.map(\.key).joined()
+        KeyboardIconView(letters, size: size)
+      case .open(let command):
+        if let application = command.application {
+          IconView(
+            icon: .init(application),
+            size: .init(width: 32, height: 32)
+          )
+          .iconShape(size)
 
-      } else {
+        } else {
+          placeholderView(size)
+        }
+      default:
         placeholderView(size)
-      }
-    default:
-      placeholderView(size)
     }
   }
 }

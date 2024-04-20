@@ -13,26 +13,26 @@ struct BuiltInCommand: MetaDataProviding {
 
     case macro(MacroAction)
     case userMode(UserMode, Action)
+    case commandLine(CommandLineAction)
 
     var id: String {
       switch self {
-        case .macro(let macro):
-          return macro.id
+        case .macro(let macro): macro.id
       case .userMode(let id, let action):
-        return switch action {
+        switch action {
           case .enable: "enable-\(id)"
           case .disable: "disable-\(id)"
           case .toggle: "toggle-\(id)"
         }
+      case .commandLine(let action): "commandLine-\(action.id)"
       }
     }
 
     var userModeId: UserMode.ID {
       switch self {
-        case .macro(let action):
-          return action.id
-        case .userMode(let model, _):
-          return model.id
+      case .macro(let action): action.id
+      case .userMode(let model, _): model.id
+      case .commandLine(let action): action.id
       }
     }
 
@@ -49,6 +49,8 @@ struct BuiltInCommand: MetaDataProviding {
             case .disable: "Disable User Mode"
             case .toggle: "Toggle User Mode"
           }
+      case .commandLine:
+        "Open Command Line"
       }
     }
   }

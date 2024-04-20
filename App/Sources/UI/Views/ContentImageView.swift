@@ -26,6 +26,8 @@ struct ContentImageView: View {
           }
         case .userMode:
           UserModeIconView(size: size - 6)
+        case .commandLine:
+          CommandLineIconView(size: size - 6)
         }
       case .keyboard(let model):
         KeyboardIconView(model.keys.first?.key.uppercased() ?? "", size: size - 6)

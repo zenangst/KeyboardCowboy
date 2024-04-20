@@ -21,16 +21,18 @@ struct NewCommandBuiltInView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
       HStack {
         switch kindSelection {
-        case .macro(let macroAction):
-          switch macroAction.kind {
-          case .record:
-            MacroIconView(.record, size: 24)
-          case .remove:
-            MacroIconView(.remove, size: 24)
-          }
-        case .userMode:
-          let path = Bundle.main.bundleURL.path
-          IconView(icon: .init(bundleIdentifier: path, path: path), size: CGSize(width: 24, height: 24))
+          case .macro(let macroAction):
+            switch macroAction.kind {
+              case .record:
+                MacroIconView(.record, size: 24)
+              case .remove:
+                MacroIconView(.remove, size: 24)
+            }
+          case .userMode:
+            let path = Bundle.main.bundleURL.path
+            IconView(icon: .init(bundleIdentifier: path, path: path), size: CGSize(width: 24, height: 24))
+          case .commandLine:
+            CommandLineIconView(size: 24)
         }
 
         VStack {
@@ -38,6 +40,8 @@ struct NewCommandBuiltInView: View {
           Menu {
             Button(action: { kindSelection = .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle) },
                    label: { Text("User Mode") })
+            Button(action: { kindSelection = .commandLine(.argument(contents: "")) },
+                   label: { Text("Open Command Line") })
             Button(action: { kindSelection = .macro(.record) },
                    label: { Text("Record Macros") })
             Button(action: { kindSelection = .macro(.remove) },
@@ -53,13 +57,15 @@ struct NewCommandBuiltInView: View {
                 }
               case .userMode:
                 Text("User Mode")
+              case .commandLine:
+                Text("Open Command Line")
             }
           }
         }
       }
 
       switch kindSelection {
-        case .macro:
+        case .macro, .commandLine:
           EmptyView()
         case .userMode:
           userMode()
@@ -119,12 +125,15 @@ struct NewCommandBuiltInView: View {
     let validation: Bool
     let newKind: BuiltInCommand.Kind
     switch kindSelection {
-    case .macro(let action):
-      validation = true
-      newKind = .macro(action)
-    case .userMode(_, let action):
-      validation = !userModeSelection.name.isEmpty
-      newKind = .userMode(userModeSelection, action)
+      case .macro(let action):
+        validation = true
+        newKind = .macro(action)
+      case .userMode(_, let action):
+        validation = !userModeSelection.name.isEmpty
+        newKind = .userMode(userModeSelection, action)
+      case .commandLine(let action):
+        validation = true
+        newKind = .commandLine(action)
     }
 
     payload = .builtIn(builtIn: .init(kind: newKind, notification: false))

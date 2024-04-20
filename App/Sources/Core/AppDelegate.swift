@@ -24,7 +24,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
   func applicationDidBecomeActive(_ notification: Notification) {
     guard core?.contentStore.state == .initialized,
           AccessibilityPermission.shared.viewModel == .approved  else { return }
-
     guard didLaunch else {
       didLaunch = true
       return

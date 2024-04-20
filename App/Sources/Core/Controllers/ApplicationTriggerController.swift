@@ -2,7 +2,7 @@ import Combine
 import Cocoa
 import MachPort
 
-final class ApplicationTriggerController {
+final class ApplicationTriggerController: @unchecked Sendable {
   private let workflowRunner: WorkflowRunning
   private var activateActions = [String: [Workflow]]()
   private var bundleIdentifiers = [String]()
@@ -12,7 +12,6 @@ final class ApplicationTriggerController {
   private var runningApplicationsSubscription: AnyCancellable?
   private var workflowGroupsSubscription: AnyCancellable?
   private var hideActions = [String: [Workflow]]()
-
   private var previousApplication: UserSpace.Application?
 
   init(_ workflowRunner: WorkflowRunning) {

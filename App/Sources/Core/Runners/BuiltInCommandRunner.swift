@@ -2,11 +2,14 @@ import Foundation
 import MachPort
 
 final class BuiltInCommandRunner {
+  let commandLine: CommandLineCoordinator
   let configurationStore: ConfigurationStore
   let macroRunner: MacroRunner
 
-  init(configurationStore: ConfigurationStore,
+  init(commandLine: CommandLineCoordinator,
+       configurationStore: ConfigurationStore,
        macroRunner: MacroRunner) {
+    self.commandLine = commandLine
     self.configurationStore = configurationStore
     self.macroRunner = macroRunner
   }
@@ -15,12 +18,14 @@ final class BuiltInCommandRunner {
            shortcut: KeyShortcut,
            machPortEvent: MachPortEvent) async throws -> String {
     return switch command.kind {
-      case .macro(let action):
-        await macroRunner
-          .run(action, shortcut: shortcut, machPortEvent: machPortEvent)
-      case .userMode(let model, let action):
-        try await UserModesRunner(configurationStore: configurationStore)
+    case .macro(let action):
+      await macroRunner
+        .run(action, shortcut: shortcut, machPortEvent: machPortEvent)
+    case .userMode(let model, let action):
+      try await UserModesRunner(configurationStore: configurationStore)
         .run(model, builtInCommand: command, action: action)
+    case .commandLine(let action):
+      await commandLine.show(action)
     }
   }
 }

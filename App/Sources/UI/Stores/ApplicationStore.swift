@@ -24,6 +24,10 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
       }
   }
 
+  func apps() -> [Application] {
+    self.applications
+  }
+
   func applicationsToOpen(_ path: String) -> [Application] {
     guard let url = URL(string: path) else { return [] }
     return NSWorkspace.shared.urlsForApplications(toOpen: url)

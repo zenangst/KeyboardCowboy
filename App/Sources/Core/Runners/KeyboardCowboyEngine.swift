@@ -26,7 +26,8 @@ final class KeyboardCowboyEngine {
   private var frontmostApplicationSubscription: AnyCancellable?
   private var machPortController: MachPortEventController?
 
-  init(_ contentStore: ContentStore,
+  init(_ contentStore: ContentStore, 
+       applicationTriggerController: ApplicationTriggerController,
        commandRunner: CommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
        keyboardShortcutsController: KeyboardShortcutsController,
@@ -39,14 +40,13 @@ final class KeyboardCowboyEngine {
        uiElementCaptureStore: UIElementCaptureStore,
        workflowRunner: WorkflowRunning,
        workspace: NSWorkspace = .shared) {
-    
     self.contentStore = contentStore
     self.keyCodeStore = keyCodeStore
     self.commandRunner = commandRunner
     self.machPortCoordinator = machPortCoordinator
     self.shortcutStore = shortcutStore
     self.uiElementCaptureStore = uiElementCaptureStore
-    self.applicationTriggerController = ApplicationTriggerController(workflowRunner)
+    self.applicationTriggerController = applicationTriggerController
     self.snippetController = snippetController
     self.workspace = workspace
     self.workflowRunner = workflowRunner

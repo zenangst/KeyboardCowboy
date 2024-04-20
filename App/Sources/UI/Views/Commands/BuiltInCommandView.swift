@@ -46,13 +46,15 @@ private struct BuiltInIconView: View {
 
   var body: some View {
     switch kind {
-    case .macro(let macroAction):
-      switch macroAction.kind {
-      case .record: MacroIconView(.record, size: iconSize.width)
-      case .remove: MacroIconView(.remove, size: iconSize.width)
-      }
-    case .userMode:
-      UserModeIconView(size: iconSize.width)
+      case .macro(let macroAction):
+        switch macroAction.kind {
+          case .record: MacroIconView(.record, size: iconSize.width)
+          case .remove: MacroIconView(.remove, size: iconSize.width)
+        }
+      case .userMode:
+        UserModeIconView(size: iconSize.width)
+      case .commandLine:
+        CommandLineIconView(size: iconSize.width)
     }
   }
 }
@@ -70,6 +72,16 @@ private struct BuiltInCommandContentView: View {
   var body: some View {
     HStack {
       Menu(content: {
+        Button(action: {
+          let newKind: BuiltInCommand.Kind = .commandLine(.argument(contents: ""))
+          onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+          model.name = newKind.displayValue
+          model.kind = newKind
+        }, label: {
+          Image(systemName: "command.square.fill")
+          Text("Open Command Line").font(.subheadline)
+        })
+
         Button(action: {
           let newKind: BuiltInCommand.Kind = .macro(.record)
           onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
@@ -130,7 +142,7 @@ private struct BuiltInCommandContentView: View {
       .fixedSize()
 
       switch model.kind {
-      case .macro:
+      case .macro, .commandLine:
         EmptyView()
       case .userMode:
         Menu(content: {
@@ -167,7 +179,6 @@ struct BuiltInCommandView_Previews: PreviewProvider {
       )
     ) { _ in }
       .designTime()
-      .frame(maxHeight: 80)
   }
 }
 

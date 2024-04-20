@@ -49,6 +49,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   var lastExecutedCommand: Command?
   var eventSource: CGEventSource?
 
+  @MainActor
   init(_ workspace: WorkspaceProviding = NSWorkspace.shared,
        applicationStore: ApplicationStore,
        builtInCommandRunner: BuiltInCommandRunner,
