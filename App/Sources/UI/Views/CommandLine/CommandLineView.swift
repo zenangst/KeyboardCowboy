@@ -75,10 +75,10 @@ private struct CommandLineInputView: View {
   private let onSubmit: () -> Void
 
   init(data: CommandLineViewModel, input: Binding<String>, onSubmit: @escaping () -> Void) {
-  _input = input
-  self.data = data
-  self.onSubmit = onSubmit
-}
+    _input = input
+    self.data = data
+    self.onSubmit = onSubmit
+  }
 
   var body: some View {
     HStack(spacing: 4) {

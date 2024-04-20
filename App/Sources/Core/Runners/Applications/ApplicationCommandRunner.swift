@@ -85,13 +85,12 @@ final class ApplicationCommandRunner: @unchecked Sendable {
   }
 
   private func hideApplication(_ command: ApplicationCommand) async throws {
-    guard let runningApplication = self.workspace.applications.first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }) else {
+    guard let runningApplication = self.workspace.applications.first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }),
+    !runningApplication.isHidden else {
       return
     }
 
-
     UserSpace.shared.frontMostApplication.ref.activate()
-    guard !runningApplication.isHidden else { return }
     _ = runningApplication.hide()
   }
 }

@@ -165,9 +165,16 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
                      resolveUserEnvironment: Bool, 
                      shortcut: KeyShortcut, machPortEvent: MachPortEvent,
                      repeatingEvent: Bool) {
+    var modifiedCheckCancellation = checkCancellation
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
                                             ? NSPasteboard.general.string(forType: .string)
                                             : nil
+
+    if commands.filter({ $0.isEnabled }).count == 1 {
+      modifiedCheckCancellation = false
+    }
+
+    let checkCancellation = modifiedCheckCancellation
     concurrentTask?.cancel()
     concurrentTask = Task.detached(priority: .userInitiated) { [weak self, originalPasteboardContents] in
       guard let self else { return }
