@@ -72,6 +72,10 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
   @MainActor
   func run() {
+    if selection >= data.results.count {
+      selection = 0
+    }
+
     Task {
       let _ = try? await task?.value
       switch data.kind {

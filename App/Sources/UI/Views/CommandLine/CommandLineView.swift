@@ -2,6 +2,21 @@ import Apps
 import Bonzai
 import SwiftUI
 
+extension AnyTransition {
+  static var commandLineTransition: AnyTransition {
+    .asymmetric(
+      insertion:
+          .scale(scale: 0.1, anchor: .top)
+          .combined(with: .opacity)
+      ,
+      removal:
+          .scale(scale: 0.1, anchor: .top)
+          .combined(with: .opacity)
+    )
+  }
+}
+
+
 struct CommandLineViewModel: Equatable {
   var kind: Kind?
   var results: [Result]
@@ -65,7 +80,7 @@ struct CommandLineView: View {
     .mask {
       RoundedRectangle(cornerRadius: 8)
     }
-    .frame(minWidth: 400)
+    .frame(minWidth: 400, minHeight: 104)
   }
 }
 
@@ -101,6 +116,7 @@ private struct CommandLineInputView: View {
 
 private struct CommandLineResultListView: View {
   @Binding private var selection: Int
+  static var animation: Animation = .smooth(duration: 0.2)
   private var data: CommandLineViewModel
 
   init(data: CommandLineViewModel, selection: Binding<Int>) {
@@ -134,10 +150,11 @@ private struct CommandLineResultListView: View {
             )
             .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
           }
+          .transition(AnyTransition.commandLineTransition.animation(Self.animation))
         }
       }
       .onChange(of: selection, perform: { value in
-        proxy.scrollTo(data.results[value].id)
+        proxy.scrollTo(data.results[value].id, anchor: .center)
       })
     }
   }
