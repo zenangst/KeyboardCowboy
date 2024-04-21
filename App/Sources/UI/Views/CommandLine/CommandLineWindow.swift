@@ -23,7 +23,7 @@ final class CommandLineWindow: NSWindow {
                styleMask: styleMask, backing: .buffered, defer: true)
 
     self.minSize = minSize
-    self.hasShadow = false
+    self.hasShadow = true
     self.level = .modalPanel
     self.backgroundColor = .clear
     self.isOpaque = false

@@ -22,34 +22,55 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
   }
 
   func applicationDidBecomeActive(_ notification: Notification) {
-    guard core?.contentStore.state == .initialized,
-          AccessibilityPermission.shared.viewModel == .approved  else { return }
     guard didLaunch else {
       didLaunch = true
       return
     }
 
+    guard core?.contentStore.state == .initialized,
+          AccessibilityPermission.shared.viewModel == .approved  else { return }
+
     let commandLineWindow = NSApp.windows.first(where: { $0.identifier?.rawValue == "CommandLineWindow" })
 
     if commandLineWindow?.isVisible == true { return }
 
-    NotificationCenter.default.post(.init(name: Notification.Name("OpenMainWindow")))
-    KeyboardCowboy.activate()
+    let mainWindow = NSApp.windows.mainWindow()
+
+    if let mainWindow, mainWindow.isVisible {
+      if let frameDescriptor = UserDefaults.standard.string(forKey: "MainWindowFrame") {
+        mainWindow.setFrame(from: frameDescriptor)
+      }
+    } else {
+      NotificationCenter.default.post(.init(name: Notification.Name("OpenMainWindow")))
+      KeyboardCowboy.activate()
+      if let frameDescriptor = UserDefaults.standard.string(forKey: "MainWindowFrame") {
+        NSApp.windows.mainWindow()?.setFrame(from: frameDescriptor)
+      }
+    }
   }
 
   func applicationWillTerminate(_ notification: Notification) {
-    guard let mainWindow = NSApp.windows.mainWindow() else { return }
-    UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
+    saveFrame()
   }
 
   // MARK: NSWindowDelegate
 
+  func windowDidResignKey(_ notification: Notification) {
+    saveFrame()
+  }
+
   func windowShouldClose(_ sender: NSWindow) -> Bool {
-    if let mainWindow = NSApp.windows.mainWindow() {
-      UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
-    }
+    saveFrame()
     KeyboardCowboy.deactivate()
     return true
+  }
+
+  // MARK: Private methods
+
+  @MainActor
+  private func saveFrame() {
+    guard let mainWindow = NSApp.windows.mainWindow() else { return }
+    UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
   }
 }
 
