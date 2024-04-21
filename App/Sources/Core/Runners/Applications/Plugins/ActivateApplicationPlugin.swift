@@ -28,7 +28,7 @@ final class ActivateApplicationPlugin {
   ///           If `.activate` should fail, then another error will be thrown: `.failedToActivate`
   func execute(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
     guard
-      let runningApplication = UserSpace.shared
+      let runningApplication = userSpace
         .runningApplications
         .first(where:
                 { $0.bundleIdentifier.lowercased() == command.application.bundleIdentifier.lowercased() }

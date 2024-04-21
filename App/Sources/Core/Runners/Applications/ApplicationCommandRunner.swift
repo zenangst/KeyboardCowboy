@@ -9,6 +9,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     let activate: ActivateApplicationPlugin
     let bringToFront: BringToFrontApplicationPlugin
     let close: CloseApplicationPlugin
+    let hide: HideApplicationPlugin
     let launch: LaunchApplicationPlugin
   }
 
@@ -26,6 +27,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       activate: ActivateApplicationPlugin(),
       bringToFront: BringToFrontApplicationPlugin(scriptCommandRunner),
       close: CloseApplicationPlugin(workspace: workspace),
+      hide: HideApplicationPlugin(workspace: workspace, userSpace: .shared),
       launch: LaunchApplicationPlugin(workspace: workspace)
     )
   }
@@ -42,9 +44,11 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     switch command.action {
     case .open:  try await openApplication(command, checkCancellation: checkCancellation)
     case .close: try plugins.close.execute(command, checkCancellation: checkCancellation)
-    case .hide:  try await hideApplication(command)
+    case .hide:  plugins.hide.execute(command)
     }
   }
+
+  // MARK: Private methods
 
   private func openApplication(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
     let bundleIdentifier = command.application.bundleIdentifier
@@ -82,15 +86,5 @@ final class ApplicationCommandRunner: @unchecked Sendable {
         try? await plugins.activate.execute(command, checkCancellation: checkCancellation)
       }
     }
-  }
-
-  private func hideApplication(_ command: ApplicationCommand) async throws {
-    guard let runningApplication = self.workspace.applications.first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }),
-    !runningApplication.isHidden else {
-      return
-    }
-
-    UserSpace.shared.frontMostApplication.ref.activate()
-    _ = runningApplication.hide()
   }
 }
