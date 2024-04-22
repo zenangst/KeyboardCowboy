@@ -24,11 +24,31 @@ final class ShellScriptPlugin: @unchecked Sendable {
     return output
   }
 
-  func executeScript(at path: String, environment: [String: String], checkCancellation: Bool) throws -> String? {
+  func executeScript(at path: String, environment: [String: String],
+                     checkCancellation: Bool) throws -> String? {
     let filePath = path.sanitizedPath
     let command = (filePath as NSString).lastPathComponent
     let url = URL(fileURLWithPath: (filePath as NSString).deletingLastPathComponent)
-    let (process, pipe, errorPipe) = createProcess()
+
+    var shell: String = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+    if let data = FileManager.default.contents(atPath: path),
+       let contents = String(data: data, encoding: .utf8) {
+      let lines = contents.split(separator: "\n")
+      if lines.count > 1 {
+        let firstLine = lines[0]
+
+        let shebang = "#!"
+        if firstLine.contains(shebang) {
+          let resolvedShell = firstLine
+            .split(separator: shebang)
+          if resolvedShell.count == 1 {
+            shell = String(resolvedShell[0])
+          }
+        }
+      }
+    }
+
+    let (process, pipe, errorPipe) = createProcess(shell: shell)
 
     process.arguments = ["-i", "-l", command]
     process.environment = environment
@@ -68,11 +88,10 @@ final class ShellScriptPlugin: @unchecked Sendable {
     return url
   }
 
-  private func createProcess() -> (Process, Pipe, Pipe) {
+  private func createProcess(shell: String) -> (Process, Pipe, Pipe) {
     let outputPipe = Pipe()
     let errorPipe = Pipe()
     let process = Process()
-    let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
 
     process.executableURL = URL(filePath: shell)
     process.standardOutput = outputPipe
