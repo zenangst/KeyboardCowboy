@@ -145,7 +145,8 @@ enum DesignTime {
       namePlaceholder: name,
       isEnabled: true,
       notification: false,
-      icon: icon)
+      icon: icon,
+      variableName: "")
   }
 
   static var applicationCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.ApplicationModel) {
@@ -202,14 +203,14 @@ enum DesignTime {
 
   static var scriptCommandWithPath: (model: CommandViewModel, kind: CommandViewModel.Kind.ScriptModel) {
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
-    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .path(scriptFile), scriptExtension: .appleScript)
+    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .path(scriptFile), scriptExtension: .appleScript, variableName: "", execution: .concurrent)
     return (.init(meta: metadata(name: "Run AppleScript.scpt",
                                  icon: .init(bundleIdentifier: scriptFile, path: scriptFile)),
                   kind: .script(kind)), kind)
   }
 
   static var scriptCommandInline: (model: CommandViewModel, kind: CommandViewModel.Kind.ScriptModel) {
-    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .inline("hello, world!"), scriptExtension: .appleScript)
+    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .inline("hello, world!"), scriptExtension: .appleScript, variableName: "", execution: .concurrent)
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
 
     return (.init(meta: metadata(name: "Left align the Dock",

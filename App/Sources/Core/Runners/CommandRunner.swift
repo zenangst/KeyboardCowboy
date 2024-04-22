@@ -135,13 +135,14 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
         if shouldDismissMissionControl { await missionControl.dismissIfActive() }
         let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: resolveUserEnvironment)
+        var runtimeDictionary = [String: String]()
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
             try await self.run(command, snapshot: snapshot, shortcut: shortcut, 
                                machPortEvent: machPortEvent, 
                                checkCancellation: checkCancellation,
-                               repeatingEvent: repeatingEvent)
+                               repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
           } catch { }
           if let delay = command.delay {
             try await Task.sleep(for: .milliseconds(delay))
@@ -187,12 +188,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       if shouldDismissMissionControl { await missionControl.dismissIfActive() }
 
       let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: resolveUserEnvironment)
+      var runtimeDictionary = [String: String]()
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }
           try await self.run(command, snapshot: snapshot, shortcut: shortcut,
                              machPortEvent: machPortEvent, checkCancellation: checkCancellation,
-                             repeatingEvent: repeatingEvent)
+                             repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
         } catch { }
       }
 
@@ -210,8 +212,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
   func run(_ command: Command, snapshot: UserSpace.Snapshot, 
            shortcut: KeyShortcut, machPortEvent: MachPortEvent,
-           checkCancellation: Bool,
-           repeatingEvent: Bool) async throws {
+           checkCancellation: Bool, repeatingEvent: Bool, 
+           runtimeDictionary: inout [String: String]) async throws {
     do {
       let id = UUID().uuidString
       if command.notification {
@@ -243,7 +245,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         try await runners.mouse.run(command, snapshot: snapshot)
         output = command.name
       case .open(let openCommand):
-        let path = snapshot.interpolateUserSpaceVariables(openCommand.path)
+        let path = snapshot.interpolateUserSpaceVariables(openCommand.path, runtimeDictionary: runtimeDictionary)
         try await runners.open.run(path, checkCancellation: checkCancellation, application: openCommand.application)
         output = path
       case .script(let scriptCommand):
@@ -252,9 +254,14 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           environment: snapshot.terminalEnvironment(),
           checkCancellation: checkCancellation
         )
+
         if let result = result {
-          let trimmedResult = result.trimmingCharacters(in: .newlines)
-          output = command.name + " " + trimmedResult
+          if scriptCommand.meta.variableName != nil {
+            output = result
+          } else {
+            let trimmedResult = result.trimmingCharacters(in: .newlines)
+            output = command.name + " " + trimmedResult
+          }
         } else {
           output = command.name
         }
@@ -270,7 +277,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         switch typeCommand.kind {
         case .insertText(let typeCommand):
           try await runners.text.run(
-            snapshot.interpolateUserSpaceVariables(typeCommand.input),
+            snapshot.interpolateUserSpaceVariables(typeCommand.input, runtimeDictionary: runtimeDictionary),
             mode: typeCommand.mode
           )
           output = command.name
@@ -287,6 +294,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       case .windowManagement(let windowCommand):
         try await runners.window.run(windowCommand)
         output = ""
+      }
+
+      if let variableName = command.meta.variableName {
+        runtimeDictionary[variableName] = output
       }
 
       if command.notification {

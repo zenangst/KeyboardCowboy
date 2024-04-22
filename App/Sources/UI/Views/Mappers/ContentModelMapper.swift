@@ -177,11 +177,16 @@ private extension Array where Element == Command {
         case .inline(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
-                              kind: .command(.script(.init(id: script.id, source: .inline(source), scriptExtension: script.kind)))))
+                              kind: .command(.script(.init(id: script.id, source: .inline(source), 
+                                                           scriptExtension: script.kind, variableName: script.meta.variableName ?? "",
+                                                           execution: .concurrent)))))
         case .path(let source):
           images.append(.init(id: script.id,
                               offset: convertedOffset,
-                              kind: .command(.script(.init(id: script.id, source: .path(source), scriptExtension: script.kind)))))
+                              kind: .command(.script(.init(id: script.id, source: .path(source), 
+                                                           scriptExtension: script.kind,
+                                                           variableName: script.meta.variableName ?? "",
+                                                           execution: .concurrent)))))
         }
 
       case .shortcut(let shortcut):

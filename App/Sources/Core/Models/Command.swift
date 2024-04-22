@@ -31,6 +31,17 @@ extension MetaDataProviding {
     set { meta.delay = newValue }
   }
 
+  var variableName: String? {
+    get { meta.variableName }
+    set { 
+      if newValue == nil || newValue?.isEmpty == true {
+        meta.variableName = nil
+      } else {
+        meta.variableName = newValue
+      }
+    }
+  }
+
 }
 
 enum MetaDataMigrator: String, CodingKey {
@@ -68,6 +79,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     public var name: String
     public var isEnabled: Bool
     public var notification: Bool
+    public var variableName: String?
 
     enum CodingKeys: String, CodingKey {
       case delay
@@ -75,18 +87,21 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case name
       case isEnabled = "enabled"
       case notification
+      case variableName
     }
 
     init(delay: Double? = nil,
          id: String = UUID().uuidString,
          name: String = "",
          isEnabled: Bool = true,
-         notification: Bool = false) {
+         notification: Bool = false,
+         variableName: String? = nil) {
       self.delay = delay
       self.id = id
       self.name = name
       self.isEnabled = isEnabled
       self.notification = notification
+      self.variableName = variableName
     }
 
     func copy() -> MetaData {

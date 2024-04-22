@@ -65,7 +65,7 @@ final class UserSpace: Sendable {
       self.windows = windows
     }
 
-    func interpolateUserSpaceVariables(_ value: String) -> String {
+    func interpolateUserSpaceVariables(_ value: String, runtimeDictionary: [String: String]) -> String {
       var interpolatedString = value.replacingOccurrences(of: .selectedText, with: selectedText)
 
       if let filePath = documentPath, let url = URL(string: filePath) {
@@ -96,6 +96,10 @@ final class UserSpace: Sendable {
         interpolatedString = interpolatedString.replacingOccurrences(of: .pasteboard, with: pasteboard)
       }
 
+
+      for (key, value) in runtimeDictionary {
+        interpolatedString = interpolatedString.replacingOccurrences(of: "$"+key, with: value)
+      }
       return interpolatedString
     }
 

@@ -20,7 +20,7 @@ struct WorkflowCommandListHeaderAddView: View {
           .resizable()
           .aspectRatio(contentMode: .fit)
           .frame(width: 12, height: 12)
-          .padding(4)
+          .padding(2)
           .layoutPriority(-1)
       }
     }

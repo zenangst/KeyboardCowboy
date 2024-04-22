@@ -28,15 +28,11 @@ struct WorkflowCommandListHeaderView: View {
           })
         }
       }, label: {
-        Image(systemName: "play.fill")
-        Text("Run \(publisher.data.execution.rawValue)")
-      }, primaryAction: {
-        onAction(.runWorkflow(workflowId: workflowId))
+        Text(publisher.data.execution.rawValue)
+          .font(.caption)
       })
-      .padding(.horizontal, 2)
-      .menuStyle(.regular)
-      .frame(maxWidth: publisher.data.execution == .concurrent ? 144 : 110,
-             alignment: .leading)
+      .menuStyle(.zen(.init(color: .systemGray, padding: .large)))
+      .fixedSize(horizontal: true, vertical: true)
       WorkflowCommandListHeaderAddView(namespace, workflowId: workflowId)
     }
     .padding(.leading, 24)

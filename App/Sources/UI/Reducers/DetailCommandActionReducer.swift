@@ -26,12 +26,14 @@ final class DetailCommandActionReducer {
       Task {
         do {
           guard let machPortEvent = MachPortEvent.empty() else { return }
+          var runtimeDictionary = [String: String]()
           try await commandRunner.run(runCommand,
                                       snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
                                       shortcut: .empty(),
                                       machPortEvent: machPortEvent,
                                       checkCancellation: false,
-                                      repeatingEvent: false)
+                                      repeatingEvent: false,
+                                      runtimeDictionary: &runtimeDictionary)
         } catch let error as KeyboardCommandRunnerError {
           let alert = await NSAlert(error: error)
           await alert.runModal()
@@ -158,9 +160,18 @@ final class DetailCommandActionReducer {
           case .appleScript: .appleScript
           case .shellScript: .shellScript
           }
+
+          let variableName: String?
+          if !model.variableName.isEmpty {
+            variableName = model.variableName
+          } else {
+            variableName = nil
+          }
+
           command = .script(.init(id: command.id,
                                   name: command.name, kind: kind, source: model.source,
-                                  notification: command.meta.notification))
+                                  notification: command.meta.notification,
+                                  variableName: variableName))
           workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
@@ -169,13 +180,15 @@ final class DetailCommandActionReducer {
           Task {
             guard let machPortEvent = MachPortEvent.empty() else { return }
             let path = (source as NSString).expandingTildeInPath
+            var runtimeDictionary = [String: String]()
             try await commandRunner.run(
               .open(.init(path: path)),
               snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
               shortcut: .empty(),
               machPortEvent: machPortEvent,
               checkCancellation: false,
-              repeatingEvent: false
+              repeatingEvent: false,
+              runtimeDictionary: &runtimeDictionary
             )
           }
         case .reveal(let path):

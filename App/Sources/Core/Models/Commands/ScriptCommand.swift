@@ -17,11 +17,13 @@ struct ScriptCommand: MetaDataProviding {
 
   init(id: String = UUID().uuidString,
        name: String, kind: Kind, source: Source,
-       isEnabled: Bool = true, notification: Bool) {
+       isEnabled: Bool = true, notification: Bool,
+       variableName: String? = nil) {
     self.kind = kind
     self.source = source
     self.meta = Command.MetaData(
-      id: id, name: name, isEnabled: true, notification: notification)
+      id: id, name: name, isEnabled: true, 
+      notification: notification, variableName: variableName)
   }
 
   init(from decoder: Decoder) throws {

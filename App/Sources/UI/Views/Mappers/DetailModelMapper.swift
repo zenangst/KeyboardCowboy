@@ -16,7 +16,7 @@ final class DetailModelMapper {
       var workflowCommands = [CommandViewModel]()
       workflowCommands.reserveCapacity(workflow.commands.count)
       for command in workflow.commands {
-        let workflowCommand = map(command)
+        let workflowCommand = map(command, execution: workflow.execution)
         workflowCommands.append(workflowCommand)
       }
 
@@ -38,9 +38,9 @@ final class DetailModelMapper {
     return viewModels
   }
 
-  func map(_ command: Command) -> CommandViewModel {
+  func map(_ command: Command, execution: Workflow.Execution) -> CommandViewModel {
     CommandViewModel(meta: command.meta.viewModel(command),
-                     kind: command.viewModel(applicationStore))
+                     kind: command.viewModel(applicationStore, execution: execution))
   }
 }
 
@@ -59,7 +59,7 @@ private extension Command.MetaData {
 }
 
 private extension Command {
-  func viewModel(_ applicationStore: ApplicationStore) -> CommandViewModel.Kind {
+  func viewModel(_ applicationStore: ApplicationStore, execution: Workflow.Execution) -> CommandViewModel.Kind {
     let kind: CommandViewModel.Kind
     switch self {
     case .application(let applicationCommand):
@@ -89,9 +89,14 @@ private extension Command {
     case .script(let script):
       switch script.source {
       case .path(let source):
-        kind = .script(.init(id: script.id, source: .path(source), scriptExtension: script.kind))
+        kind = .script(.init(id: script.id, source: .path(source), scriptExtension: script.kind,
+                             variableName: script.meta.variableName ?? "",
+                             execution: execution))
       case .inline(let source):
-        kind = .script(.init(id: script.id, source: .inline(source), scriptExtension: script.kind))
+        kind = .script(.init(id: script.id, source: .inline(source),
+                             scriptExtension: script.kind,
+                             variableName: script.meta.variableName ?? "",
+                             execution: execution))
       }
     case .text(let text):
       switch text.kind {

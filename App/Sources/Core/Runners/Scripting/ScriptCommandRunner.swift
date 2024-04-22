@@ -22,14 +22,19 @@ final class ScriptCommandRunner: Sendable {
 
     switch (command.kind, command.source) {
     case (.appleScript, .path(let path)):
-      result = try await plugins.appleScript.executeScript(at: path, withId: command.id, checkCancellation: checkCancellation)
+      result = try await plugins.appleScript.executeScript(at: path, withId: command.id, 
+                                                           checkCancellation: checkCancellation)
     case (.appleScript, .inline(let script)):
-      result = try await plugins.appleScript.execute(script, withId: command.id, checkCancellation: checkCancellation)
+      result = try await plugins.appleScript.execute(script, withId: command.id, 
+                                                     checkCancellation: checkCancellation)
     case (.shellScript, .path(let source)):
-      result = try plugins.shellScript.executeScript(at: source, environment: environment, checkCancellation: checkCancellation)
+      result = try plugins.shellScript.executeScript(at: source, environment: environment, 
+                                                     checkCancellation: checkCancellation)
     case (.shellScript, .inline(let script)):
-      result = try plugins.shellScript.executeScript(script, environment: environment, checkCancellation: checkCancellation)
+      result = try plugins.shellScript.executeScript(script, environment: environment, 
+                                                     checkCancellation: checkCancellation)
     }
+
 
     return result
   }

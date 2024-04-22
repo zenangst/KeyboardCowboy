@@ -61,7 +61,8 @@ struct CommandContainerDelayPopoverView_Previews: PreviewProvider {
     name: UUID().uuidString,
     namePlaceholder: UUID().uuidString,
     isEnabled: false,
-    notification: false
+    notification: false,
+    variableName: ""
   )
 
   static var previews: some View {

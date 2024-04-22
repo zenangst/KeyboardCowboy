@@ -16,6 +16,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     var isEnabled: Bool
     var notification: Bool
     var icon: Icon?
+    var variableName: String
 
     init(id: String = UUID().uuidString,
          delay: Double? = nil,
@@ -23,7 +24,8 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
          namePlaceholder: String,
          isEnabled: Bool = true,
          notification: Bool = false,
-         icon: Icon? = nil) {
+         icon: Icon? = nil,
+         variableName: String = "") {
       self.id = id
       self.delay = delay
       self.name = name
@@ -31,6 +33,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       self.isEnabled = isEnabled
       self.notification = notification
       self.icon = icon
+      self.variableName = variableName
     }
   }
 
@@ -110,6 +113,8 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var placeholder: String { "Run Script …" }
       var source: ScriptCommand.Source
       var scriptExtension: ScriptCommand.Kind
+      var variableName: String
+      var execution: Workflow.Execution
     }
 
     struct ShortcutModel: Codable, Hashable, Identifiable, Sendable {
