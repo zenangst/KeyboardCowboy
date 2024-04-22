@@ -93,6 +93,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
 private struct RunningApplicationMock: RunningApplication {
   var bundleIdentifier: String?
   var processIdentifier: pid_t = pid_t()
+  var isHidden: Bool { false }
   func activate(options: NSApplication.ActivationOptions) -> Bool { false }
   func terminate() -> Bool { false }
   func hide() -> Bool { false }
