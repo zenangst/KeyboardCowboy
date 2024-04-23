@@ -70,8 +70,17 @@ struct ContentView: View {
     guard !searchTerm.isEmpty else { return true }
 
     var freetext = searchTerm.lowercased()
-    let searchTerms = freetext.split(separator: " ")
+    let keywords = ["function", "fn", "command", "shift", "option", "control"]
+    let enabledKeywords: [String] = keywords.compactMap {
+      freetext = freetext.replacingFirstOccurrence(of: $0, with: "")
+      return searchTerm.contains($0) ? $0 : nil
+    }
+    let searchTerms = enabledKeywords + (freetext
+      .split(separator: " ")
+      .map(String.init))
     var match: Match = .unmatched
+
+    freetext = freetext.trimmingCharacters(in: .whitespacesAndNewlines)
 
     for searchTerm in searchTerms {
       switch workflow.trigger {
@@ -79,27 +88,23 @@ struct ContentView: View {
         match = app.lowercased().contains(searchTerm) ? .typeMatch(.application) : .unmatched
       case .keyboard(let string):
         if searchTerm.contains("function") {
-          match = string.lowercased().contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
-          freetext = freetext.replacingFirstOccurrence(of: "function ", with: "")
+          match = string.contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("function") {
-          match = string.lowercased().contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
-          freetext = freetext.replacingFirstOccurrence(of: "fn ", with: "")
+          match = string.contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("command") {
-          match = string.lowercased().contains(ModifierKey.command.pretty) ? .typeMatch(.keyboard) : .unmatched
-          freetext = freetext.replacingFirstOccurrence(of: "command ", with: "")
+          match = string.contains(ModifierKey.command.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("shift") {
-          match = string.lowercased().contains(ModifierKey.shift.pretty) ? .typeMatch(.keyboard) : .unmatched
-          freetext = freetext.replacingFirstOccurrence(of: "shift ", with: "")
+          match = string.contains(ModifierKey.shift.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("option") {
-          match = string.lowercased().contains(ModifierKey.option.pretty) ? .typeMatch(.keyboard) : .unmatched
-          freetext = freetext.replacingFirstOccurrence(of: "option ", with: "")
+          match = string.contains(ModifierKey.option.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("control") {
-          match = string.lowercased().contains(ModifierKey.control.pretty) ? .typeMatch(.keyboard) : .unmatched
-          freetext = freetext.replacingFirstOccurrence(of: "control ", with: "")
+          match = string.contains(ModifierKey.control.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else {
           match = string.lowercased().contains(searchTerm) ? .typeMatch(.keyboard) : .unmatched
         }
       case .snippet(let snippet):
+        if enabledKeywords.contains(searchTerm) { continue }
+
         if snippet.lowercased().contains(searchTerm) {
           match = .typeMatch(.snippet)
         } else if searchTerm.contains("snippet ") {
@@ -123,14 +128,21 @@ struct ContentView: View {
         }
       }
 
-      if workflow.name.lowercased().contains(freetext) {
-        return true
+      if case .unmatched = match, workflow.name.lowercased().contains(freetext) {
+        return freetext.count > 1 ? true : false
       }
+    }
+
+    var typeCheckMatches = searchTerms
+      .filter { !enabledKeywords.contains($0) }
+
+    if typeCheckMatches.isEmpty {
+      typeCheckMatches = searchTerms
     }
 
     return switch match {
     case .unmatched: false
-    case .typeMatch: searchTerms.count == 1 ? true : false
+    case .typeMatch: typeCheckMatches.count == 1 ? true : false
     case .match: true
     }
   }
