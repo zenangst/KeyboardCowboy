@@ -158,22 +158,22 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                         Workflow(name: "Vim bindings H to ←",
                                  trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "H", modifiers: [.option])])),
                                  isEnabled: false, commands: [
-                                  .keyboard(.init(keyboardShortcut: .init(key: "←")))
+                                  .keyboard(.init(name: "", isEnabled: true, keyboardShortcut: .init(key: "←")))
                                  ]),
                         Workflow(name: "Vim bindings J to ↓",
                                  trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "J", modifiers: [.option])])),
                                  isEnabled: false, commands: [
-                                  .keyboard(.init(keyboardShortcut: .init(key: "↓")))
+                                  .keyboard(.init(name: "", isEnabled: true, keyboardShortcut: .init(key: "↓")))
                                  ]),
                         Workflow(name: "Vim bindings K to ↑",
                                  trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "K", modifiers: [.option])])),
                                  isEnabled: false, commands: [
-                                  .keyboard(.init(keyboardShortcut: .init(key: "↑")))
+                                  .keyboard(.init(name: "", isEnabled: true, keyboardShortcut: .init(key: "↑")))
                                  ]),
                         Workflow(name: "Vim bindings L to →",
                                  trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "L", modifiers: [.option])])),
                                  isEnabled: false, commands: [
-                                  .keyboard(.init(keyboardShortcut: .init(key: "→")))
+                                  .keyboard(.init(name: "", isEnabled: true, keyboardShortcut: .init(key: "→")))
                                  ])
                       ]),
         WorkflowGroup(symbol: "flowchart", name: "Shortcuts", color: "#B263EA"),

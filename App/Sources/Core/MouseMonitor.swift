@@ -20,7 +20,7 @@ final class MouseMonitor {
   }
 
   func stopMonitor() {
-    guard let monitor = monitor else { return }
+    guard let monitor else { return }
     NSEvent.removeMonitor(monitor)
     self.monitor = nil
     self.isDraggingUsingTheMouse = false

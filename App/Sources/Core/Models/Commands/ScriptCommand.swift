@@ -26,6 +26,12 @@ struct ScriptCommand: MetaDataProviding {
       notification: notification, variableName: variableName)
   }
 
+  init(kind: Kind, source: Source, meta: Command.MetaData) {
+    self.kind = kind
+    self.source = source
+    self.meta = meta
+  }
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -65,10 +71,6 @@ struct ScriptCommand: MetaDataProviding {
   }
 
   func copy() -> ScriptCommand {
-    ScriptCommand(id: UUID().uuidString,
-                  name: meta.name,
-                  kind: kind,
-                  source: source,
-                  notification: meta.notification)
+    ScriptCommand(kind: self.kind, source: self.source, meta: self.meta.copy())
   }
 }

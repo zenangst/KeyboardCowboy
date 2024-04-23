@@ -7,9 +7,10 @@ struct KeyboardCommand: MetaDataProviding {
   var meta: Command.MetaData
 
   init(id: String = UUID().uuidString,
-              name: String = "",
-              keyboardShortcut: KeyShortcut,
-              notification: Bool = false) {
+       name: String,
+       isEnabled: Bool,
+       keyboardShortcut: KeyShortcut,
+       notification: Bool = false) {
     self.keyboardShortcuts = [keyboardShortcut]
     self.meta = Command.MetaData(id: id, name: name,
                                  isEnabled: true,
@@ -17,13 +18,14 @@ struct KeyboardCommand: MetaDataProviding {
   }
 
   init(id: String = UUID().uuidString,
-              name: String = "",
-              keyboardShortcuts: [KeyShortcut],
-              notification: Bool) {
+       name: String,
+       keyboardShortcuts: [KeyShortcut],
+       notification: Bool,
+       meta: Command.MetaData? = nil) {
     self.keyboardShortcuts = keyboardShortcuts
-    self.meta = Command.MetaData(id: id, name: name,
-                                 isEnabled: true,
-                                 notification: notification)
+    self.meta = meta ?? Command.MetaData(id: id, name: name,
+                                         isEnabled: true,
+                                         notification: notification)
   }
 
   enum MigrationCodingKeys: String, CodingKey {
@@ -47,10 +49,13 @@ struct KeyboardCommand: MetaDataProviding {
   }
 
   func copy() -> KeyboardCommand {
-    KeyboardCommand(id: UUID().uuidString,
-                    name: meta.name,
-                    keyboardShortcuts: keyboardShortcuts.copy(),
-                    notification: meta.notification)
+    KeyboardCommand(
+      id: UUID().uuidString,
+      name: self.name,
+      keyboardShortcuts: keyboardShortcuts.copy(),
+      notification: self.notification,
+      meta: self.meta.copy()
+    )
   }
 }
 
@@ -62,6 +67,11 @@ extension Collection where Element == KeyShortcut {
 
 extension KeyboardCommand {
   static func empty() -> KeyboardCommand {
-    KeyboardCommand(keyboardShortcut: KeyShortcut(key: "", lhs: true), notification: false)
+    KeyboardCommand(
+      name: "",
+      isEnabled: true,
+      keyboardShortcut: KeyShortcut(key: "", lhs: true),
+      notification: false
+    )
   }
 }

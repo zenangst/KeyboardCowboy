@@ -33,6 +33,12 @@ struct MenuBarCommand: MetaDataProviding {
                                  notification: notification)
   }
 
+  init(application: Application?, tokens: [Token], meta: Command.MetaData) {
+    self.application = application
+    self.tokens = tokens
+    self.meta = meta
+  }
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -47,10 +53,6 @@ struct MenuBarCommand: MetaDataProviding {
   }
 
   func copy() -> MenuBarCommand {
-    MenuBarCommand(id: UUID().uuidString,
-                   name: meta.name,
-                   application: application,
-                   tokens: tokens,
-                   notification: meta.notification)
+    MenuBarCommand(application: application, tokens: tokens, meta: meta.copy())
   }
 }

@@ -41,10 +41,17 @@ struct ApplicationCommand: MetaDataProviding {
        application: Application,
        modifiers: [Modifier] = [],
        notification: Bool = false) {
-    self.meta = Command.MetaData(id: id, name: name,
-                                 isEnabled: true, notification: notification)
+    self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
     self.application = application
     self.modifiers = Set(modifiers)
+    self.action = action
+  }
+
+  init(action: Action, application: Application,
+       meta: Command.MetaData, modifiers: [Modifier]) {
+    self.application = application
+    self.modifiers = Set(modifiers)
+    self.meta = meta
     self.action = action
   }
 
@@ -61,12 +68,12 @@ struct ApplicationCommand: MetaDataProviding {
   }
 
   func copy() -> ApplicationCommand {
-    ApplicationCommand(id: UUID().uuidString,
-                       name: meta.name,
-                       action: action,
-                       application: application,
-                       modifiers: Array(modifiers),
-                       notification: meta.notification)
+    ApplicationCommand(
+      action: self.action,
+      application: self.application,
+      meta: self.meta.copy(),
+      modifiers: Array(self.modifiers)
+    )
   }
 }
 

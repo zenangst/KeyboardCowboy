@@ -9,6 +9,11 @@ struct ShortcutCommand: MetaDataProviding {
     self.meta = Command.MetaData(id: id, name: name, isEnabled: isEnabled, notification: notification)
   }
 
+  init(shortcutIdentifier: String, meta: Command.MetaData) {
+    self.shortcutIdentifier = shortcutIdentifier
+    self.meta = meta
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.shortcutIdentifier = try container.decode(String.self, forKey: .shortcutIdentifier)
@@ -21,11 +26,7 @@ struct ShortcutCommand: MetaDataProviding {
   }
 
   func copy() -> ShortcutCommand {
-    ShortcutCommand(id: UUID().uuidString,
-                    shortcutIdentifier: shortcutIdentifier,
-                    name: meta.name,
-                    isEnabled: meta.isEnabled,
-                    notification: meta.notification)
+    ShortcutCommand(shortcutIdentifier: shortcutIdentifier, meta: meta.copy())
   }
 
   static func empty() -> ShortcutCommand {

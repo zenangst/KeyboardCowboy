@@ -109,7 +109,8 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
                id: UUID().uuidString,
                name: self.name,
                isEnabled: self.isEnabled,
-               notification: self.notification)
+               notification: self.notification,
+               variableName: self.variableName)
     }
   }
 
@@ -377,7 +378,7 @@ extension Command {
   }
 
   static func keyboardCommand(id: String) -> Command {
-    Command.keyboard(.init(id: id, keyboardShortcut: KeyShortcut.empty(), notification: false))
+    Command.keyboard(.init(id: id, name: "", isEnabled: true, keyboardShortcut: KeyShortcut.empty(), notification: false))
   }
 
   static func openCommand(id: String) -> Command {

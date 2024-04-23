@@ -101,7 +101,7 @@ final class DetailCommandActionReducer {
       case .keyboard(let action, _):
         switch action {
         case .updateKeyboardShortcuts(let keyboardShortcuts):
-          command = .keyboard(.init(id: command.id, keyboardShortcuts: keyboardShortcuts, notification: command.notification))
+          command = .keyboard(.init(id: command.id, name: "", keyboardShortcuts: keyboardShortcuts, notification: command.notification))
           workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName

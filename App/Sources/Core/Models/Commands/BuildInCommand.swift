@@ -66,6 +66,12 @@ struct BuiltInCommand: MetaDataProviding {
     self.meta = .init(id: id, name: kind.displayValue, isEnabled: true, notification: notification)
   }
 
+  init(kind: Kind, meta: Command.MetaData) {
+    self.kind = kind
+    self.meta = meta
+  }
+
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     do {
@@ -77,6 +83,6 @@ struct BuiltInCommand: MetaDataProviding {
   }
 
   func copy() -> BuiltInCommand {
-    BuiltInCommand(id: UUID().uuidString, kind: kind, notification: meta.notification)
+    BuiltInCommand(kind: self.kind, meta: self.meta.copy())
   }
 }

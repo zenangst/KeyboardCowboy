@@ -70,6 +70,11 @@ struct SystemCommand: MetaDataProviding {
     self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
   }
 
+  init(kind: Kind, meta: Command.MetaData) {
+    self.kind = kind
+    self.meta = meta
+  }
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.kind = try container.decode(Kind.self, forKey: .kind)
@@ -81,9 +86,6 @@ struct SystemCommand: MetaDataProviding {
   }
 
   func copy() -> SystemCommand {
-    SystemCommand(id: UUID().uuidString,
-                   name: meta.name,
-                   kind: kind,
-                   notification: meta.notification)
+    SystemCommand(kind: kind, meta: meta.copy())
   }
 }

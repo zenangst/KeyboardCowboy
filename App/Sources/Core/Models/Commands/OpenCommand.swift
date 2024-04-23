@@ -34,6 +34,12 @@ struct OpenCommand: MetaDataProviding {
     self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
   }
 
+  init(application: Application?, path: String, meta: Command.MetaData) {
+    self.application = application
+    self.path = path
+    self.meta = meta
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -48,11 +54,7 @@ struct OpenCommand: MetaDataProviding {
   }
 
   func copy() -> OpenCommand {
-    OpenCommand(id: UUID().uuidString,
-                name: meta.name,
-                application: application,
-                path: path,
-                notification: meta.notification)
+    OpenCommand(application: application, path: path, meta: meta.copy())
   }
 }
 

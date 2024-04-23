@@ -192,6 +192,12 @@ struct WindowCommand: MetaDataProviding {
     self.animationDuration = animationDuration
   }
 
+  init(kind: Kind, meta: Command.MetaData, animationDuration: Double) {
+    self.kind = kind
+    self.meta = meta
+    self.animationDuration = animationDuration
+  }
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -201,12 +207,6 @@ struct WindowCommand: MetaDataProviding {
   }
 
   func copy() -> WindowCommand {
-    return WindowCommand(
-      id: UUID().uuidString,
-      name: meta.name,
-      kind: kind,
-      notification: meta.notification,
-      animationDuration: animationDuration
-    )
+    WindowCommand(kind: self.kind, meta: self.meta.copy(), animationDuration: self.animationDuration)
   }
 }
