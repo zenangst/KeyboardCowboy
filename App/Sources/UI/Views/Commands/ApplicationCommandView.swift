@@ -67,18 +67,32 @@ private struct ApplicationCommandInternalView: View {
           model.action = "Open"
           onAction(.changeApplicationAction(.open))
         }, label: {
-          Image(systemName: "power")
-          Text("Open")
-            .font(.subheadline)
+          HStack {
+            Image(systemName: "power")
+            Text("Open")
+              .font(.subheadline)
+          }
         })
 
         Button(action: {
           model.action = "Close"
           onAction(.changeApplicationAction(.close))
         }, label: {
-          Image(systemName: "poweroff")
-          Text("Close")
-            .font(.subheadline)
+          HStack {
+            Image(systemName: "poweroff")
+            Text("Close")
+              .font(.subheadline)
+          }
+        })
+        Button(action: {
+          model.action = "Hide"
+          onAction(.changeApplicationAction(.hide))
+        }, label: {
+          HStack {
+            Image(systemName: "eye.slash")
+            Text("Hide")
+              .font(.subheadline)
+          }
         })
       }, label: {
         Text(model.action)

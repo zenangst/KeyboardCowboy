@@ -29,6 +29,7 @@ struct IconOverview: PreviewProvider {
       MinimizeAllIconView(size: size)
       UserModeIconView(size: size)
       MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
+      CommandLineIconView2(size: size)
       ScriptIconView(size: size)
       KeyboardIconView("M", size: size)
       ImprovementIconView(size: size)
