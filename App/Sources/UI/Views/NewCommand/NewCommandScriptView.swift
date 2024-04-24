@@ -17,10 +17,8 @@ struct NewCommandScriptView: View {
 
     var displayName: String {
       switch self {
-      case .shellScript:
-        return "Shellscript"
-      case .appleScript:
-        return "AppleScript"
+      case .shellScript: "Shellscript"
+      case .appleScript: "AppleScript"
       }
     }
   }

@@ -247,7 +247,7 @@ struct NewCommandView: View {
                                scriptExtension: scriptExtension,
                                validation: $validation) { onSave($0, $title.wrappedValue) }
         } else {
-          NewCommandScriptView($payload, kind: .file, value: "",
+          NewCommandScriptView($payload, kind: .source, value: "",
                                scriptExtension: .shellScript,
                                validation: $validation) { onSave($0, $title.wrappedValue) }
         }
