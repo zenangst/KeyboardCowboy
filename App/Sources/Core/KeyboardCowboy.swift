@@ -103,6 +103,9 @@ struct KeyboardCowboy: App {
       handleAppScene(.mainWindow)
     case .reveal:
       NSWorkspace.shared.selectFile(Bundle.main.bundlePath, inFileViewerRootedAtPath: "")
+      NSWorkspace.shared.runningApplications
+        .first(where: { $0.bundleIdentifier?.lowercased().contains("apple.finder") == true })?
+        .activate()
     }
   }
 
