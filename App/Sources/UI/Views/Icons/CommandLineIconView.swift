@@ -1,36 +1,70 @@
+import Bonzai
+import Foundation
 import SwiftUI
 
 struct CommandLineIconView: View {
   let size: CGFloat
+
   var body: some View {
     Rectangle()
       .fill(
         LinearGradient(
           stops: [
-            .init(color: Color(nsColor: .systemOrange.blended(withFraction: 0.3, of: .systemOrange)!), location: 0.1),
-            .init(color: Color(nsColor: .systemOrange.blended(withFraction: 0.6, of: .black)!), location: 1.0)
+            .init(color: Color(nsColor: .windowBackgroundColor.withSystemEffect(.disabled)), location: 0),
+            .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.4, of: .black)!), location: 1.0)
           ],
           startPoint: .top,
           endPoint: .bottom)
       )
       .overlay { iconOverlay().opacity(0.25) }
-      .overlay { iconBorder(size) }
       .overlay {
-        LinearGradient(stops: [
-          .init(color: Color(nsColor: .systemYellow.blended(withFraction: 0.5, of: .white)!), location: 0.2),
-          .init(color: Color(nsColor: .systemOrange.blended(withFraction: 0.1, of: .yellow)!), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
-        .mask {
-          Image(systemName: "command.square.fill")
-            .resizable()
-            .frame(width: size * 0.9, height: size * 0.9)
-            .mask {
-              RoundedRectangle(cornerRadius: size * 0.15)
+        VStack(spacing: size * 0.0_6) {
+          let cornerRadius = size * 0.045
+
+          RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(Color(.clear))
+            .overlay(alignment: .leading) {
+              HStack(spacing: size * 0.05) {
+                Text(">")
+                  .font(.system(size: size * 0.095, weight: .heavy, design: .monospaced))
+                  .padding(.leading, size * 0.05)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                  .fill(
+                    LinearGradient(stops: [
+                      .init(color: .white.opacity(0.7), location: 0),
+                      .init(color: .white.opacity(0.2), location: 0.8)
+                    ], startPoint: .leading, endPoint: .trailing)
+                  )
+                  .frame(width: size * 0.5, height: size * 0.05, alignment: .leading)
+              }
+              .shadow(color: Color(nsColor: .controlAccentColor.blended(withFraction: 0.5, of: .white)!),radius: 5, y: 2)
             }
-            .offset(x: size * 0.01)
+            .frame(width: size * 0.8, height: size * 0.15, alignment: .leading)
+            .roundedContainer(cornerRadius, padding: 0, margin: 0)
+
+          RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(Color(.controlAccentColor))
+            .overlay {
+              LinearGradient(stops: [
+                .init(color: Color(nsColor: .controlAccentColor), location: 0.2),
+                .init(color: Color(nsColor: .controlAccentColor.blended(withFraction: 0.5, of: .black)!), location: 1.0),
+              ], startPoint: .top, endPoint: .bottom)
+            }
+            .frame(width: size * 0.8, height: size * 0.125)
+            .roundedContainer(cornerRadius, padding: 0, margin: 0)
+
+          RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(Color(.windowBackgroundColor).opacity(0.5))
+            .frame(width: size * 0.8, height: size * 0.125)
+            .roundedContainer(cornerRadius, padding: 0, margin: 0)
+
+          RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(Color(.windowBackgroundColor).opacity(0.3))
+            .frame(width: size * 0.8, height: size * 0.125)
+            .roundedContainer(cornerRadius, padding: 0, margin: 0)
         }
-        .shadow(color: Color(nsColor: .systemOrange.blended(withFraction: 0.5, of: .black)!), radius: 2, y: 2)
       }
+      .overlay { iconBorder(size) }
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
@@ -51,4 +85,3 @@ struct CommandLineIconView: View {
   }
   .padding()
 }
-
