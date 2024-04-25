@@ -29,9 +29,14 @@ struct ApplicationCommandView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placheolder,
-      icon: { _ in ApplicationCommandImageView(metaData, iconSize: iconSize, onAction: onAction) },
-      content: { _ in ApplicationCommandInternalView(metaData, model: model,
-                                                     iconSize: iconSize, onAction: onAction) },
+      icon: { _ in
+        ApplicationCommandImageView(metaData, iconSize: iconSize, onAction: onAction)
+      },
+      content: { _ in 
+        ApplicationCommandInternalView(metaData, model: model,
+                                       iconSize: iconSize, onAction: onAction)
+        .roundedContainer(padding: 4, margin: 0)
+      },
       onAction: { action in
         onAction(.commandAction(action))
       }
@@ -105,6 +110,9 @@ private struct ApplicationCommandInternalView: View {
       .fixedSize()
       .compositingGroup()
 
+      ZenDivider(.vertical)
+        .fixedSize()
+
       ZenCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
         onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
       }
@@ -114,6 +122,7 @@ private struct ApplicationCommandInternalView: View {
       ZenCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
         onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
     .buttonStyle(.regular)
     .lineLimit(1)

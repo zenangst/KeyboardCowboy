@@ -52,7 +52,10 @@ struct MouseCommandInternalView: View {
       metaData,
       placeholder: model.placeholder,
       icon: { _ in MouseIconView(size: iconSize.width) },
-      content: { _ in MouseCommandContentView(model: $model, onAction: onAction) },
+      content: { _ in
+        MouseCommandContentView(model: $model, onAction: onAction)
+          .roundedContainer(padding: 4, margin: 0)
+      },
       subContent: { _ in },
       onAction: { action in
         onAction(.commandAction(action))

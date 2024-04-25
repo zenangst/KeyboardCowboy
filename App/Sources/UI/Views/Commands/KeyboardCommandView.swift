@@ -67,7 +67,10 @@ struct KeyboardCommandInternalView: View {
       metaData,
       placeholder: model.placeholder,
       icon: { _ in KeyboardCommandIconView(iconSize: iconSize) },
-      content: { _ in KeyboardCommandContentView(model: $model, focus: focus) { onAction(.editCommand(model)) } },
+      content: { _ in
+        KeyboardCommandContentView(model: $model, focus: focus) { onAction(.editCommand(model)) }
+          .roundedContainer(padding: 0, margin: 0)
+      },
       subContent: { _ in KeyboardCommandSubContentView { onAction(.editCommand(model)) } },
       onAction: { onAction(.commandAction($0)) })
   }
@@ -111,7 +114,6 @@ private struct KeyboardCommandContentView: View {
       selectionManager: keyboardSelection,
       onTab: { _ in })
     .font(.caption)
-    .roundedContainer(padding: 0, margin: 0)
   }
 }
 

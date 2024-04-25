@@ -30,8 +30,11 @@ struct WindowManagementCommandView: View {
       metaData,
       placeholder: model.placeholder,
       icon: { _ in WindowManagementIconView(size: iconSize.width) },
-      content: { _ in WindowManagementCommandInternalView(metaData, model: model,
-                                                          iconSize: iconSize, onAction: onAction) },
+      content: { _ in
+        WindowManagementCommandInternalView(metaData, model: model,
+                                            iconSize: iconSize, onAction: onAction)
+        .roundedContainer(padding: 4, margin: 0)
+      },
       subContent: { _ in
         WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
           model.animationDuration = newDuration
@@ -112,7 +115,6 @@ struct WindowManagementCommandInternalView: View {
         .menuStyle(.regular)
       }
 
-      HStack {
         switch model.kind {
         case  .increaseSize(_, let direction, _, _),
             .decreaseSize(_, let direction, _),
@@ -337,9 +339,7 @@ struct WindowManagementCommandInternalView: View {
         default:
           EmptyView()
         }
-      }
     }
-    .roundedContainer(padding: 4, margin: 0)
   }
 
   private func resolveAlignment(_ kind: WindowCommand.Kind) -> Alignment {

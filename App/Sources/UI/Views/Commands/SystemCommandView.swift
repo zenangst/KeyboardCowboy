@@ -33,6 +33,7 @@ struct SystemCommandView: View {
       SystemCommandContentView(model: $model) { kind in
         onAction(.updateKind(newKind: kind))
       }
+      .roundedContainer(padding: 4, margin: 0)
     },
     onAction: { onAction(.commandAction($0)) })
     .id(model.id)

@@ -33,6 +33,7 @@ struct TypeCommandView: View {
         TypingIconView(size: iconSize.width)
       }, content: { metaData in
         TypeCommandContentView(model, onAction: onAction)
+          .roundedContainer(4, padding: 0, margin: 0)
       }, subContent: { _ in
         TypeCommandModeView(mode: model.mode) { newMode in
           onAction(.updateMode(newMode: newMode))
@@ -61,7 +62,6 @@ private struct TypeCommandContentView: View {
       text: $model.input,
       placeholder: "Enter text...", onCommandReturnKey: nil)
     .onChange(of: model.input) { debounce.send($0) }
-    .roundedContainer(padding: 0, margin: 0)
   }
 }
 

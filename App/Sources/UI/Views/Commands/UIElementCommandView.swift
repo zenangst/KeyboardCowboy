@@ -125,13 +125,13 @@ struct UIElementCommandView: View {
               }
             }
           }
-          .roundedContainer(padding: 6, margin: 0)
 
           if index < model.predicates.count - 1 {
             ZenDivider()
           }
         }
       }
+      .roundedContainer(padding: 4, margin: 0)
     } subContent: { _ in
     } onAction: { action in
       onAction(.commandAction(action))

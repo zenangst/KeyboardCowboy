@@ -28,6 +28,7 @@ struct BuiltInCommandView: View {
       BuiltInIconView(model.kind, iconSize: iconSize)
     } content: { _ in
       BuiltInCommandContentView(model, onAction: onAction)
+        .roundedContainer(padding: 4, margin: 0)
     } onAction: {
       onAction(.commandAction($0))
     }
@@ -46,15 +47,15 @@ private struct BuiltInIconView: View {
 
   var body: some View {
     switch kind {
-      case .macro(let macroAction):
-        switch macroAction.kind {
-          case .record: MacroIconView(.record, size: iconSize.width)
-          case .remove: MacroIconView(.remove, size: iconSize.width)
-        }
-      case .userMode:
-        UserModeIconView(size: iconSize.width)
-      case .commandLine:
-        CommandLineIconView(size: iconSize.width)
+    case .macro(let macroAction):
+      switch macroAction.kind {
+      case .record: MacroIconView(.record, size: iconSize.width)
+      case .remove: MacroIconView(.remove, size: iconSize.width)
+      }
+    case .userMode:
+      UserModeIconView(size: iconSize.width)
+    case .commandLine:
+      CommandLineIconView(size: iconSize.width)
     }
   }
 }
@@ -141,6 +142,9 @@ private struct BuiltInCommandContentView: View {
       })
       .fixedSize()
 
+      ZenDivider(.vertical)
+        .fixedSize()
+
       switch model.kind {
       case .macro, .commandLine:
         EmptyView()
@@ -161,7 +165,6 @@ private struct BuiltInCommandContentView: View {
             .font(.subheadline)
         })
       }
-
     }
     .menuStyle(.regular)
   }

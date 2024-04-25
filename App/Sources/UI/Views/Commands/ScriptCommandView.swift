@@ -32,7 +32,10 @@ struct ScriptCommandView: View {
       metaData,
       placeholder: model.placeholder,
       icon: { _ in ScriptIconView(size: iconSize.width) },
-      content: { _ in ScriptCommandContentView(model, meta: metaData, onAction: onAction) },
+      content: { _ in
+        ScriptCommandContentView(model, meta: metaData, onAction: onAction)
+          .roundedContainer(padding: 4, margin: 0)
+      },
       subContent: { _ in ScriptCommandSubContentView(model: model, onAction: onAction) },
       onAction: { onAction(.commandAction($0)) })
   }
@@ -99,7 +102,6 @@ private struct ScriptCommandContentView: View {
       .opacity(model.source.isInline ? 0 : 1)
       .frame(height: model.source.isInline ? 0 : nil)
     }
-    .roundedContainer(padding: 4, margin: 0)
   }
 }
 

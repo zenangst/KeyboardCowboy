@@ -39,6 +39,7 @@ struct ShortcutCommandView: View {
       ShortcutCommandContentView(model: $model) { shortcut in
         onAction(.updateShortcut(shortcutName: shortcut.name))
       }
+      .roundedContainer(padding: 4, margin: 0)
     }, subContent: { command in
       ShortcutCommandSubContentView {
         onAction(.openShortcut)
@@ -93,7 +94,6 @@ private struct ShortcutCommandContentView: View {
           .font(.subheadline)
       })
       .menuStyle(.zen(.init(color: .systemPurple, grayscaleEffect: .constant(true))))
-      .padding(.bottom, 4)
     }
   }
 }
@@ -126,7 +126,6 @@ struct ShortcutCommandView_Previews: PreviewProvider {
   static let command = DesignTime.shortcutCommand
   static var previews: some View {
     ShortcutCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
-      .frame(maxHeight: 100)
       .designTime()
   }
 }

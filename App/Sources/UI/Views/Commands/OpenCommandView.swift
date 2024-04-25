@@ -36,6 +36,7 @@ struct OpenCommandView: View {
       } onUpdatePath: { newPath in
         onAction(.updatePath(newPath: newPath))
       }
+      .roundedContainer(padding: 4, margin: 0)
     }, subContent: { command in
       OpenCommandSubContentView(model: $model) {
         onAction(.reveal(path: model.path))

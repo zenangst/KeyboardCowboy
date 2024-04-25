@@ -43,6 +43,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
     VStack(alignment: .leading, spacing: 4) {
       CommandContainerHeaderView($metaData, placeholder: placeholder, onAction: onAction)
       ZenDivider()
+        .padding(.bottom, 4)
       CommandContainerContentView($metaData, icon: icon, content: content)
       CommandContainerSubContentView($metaData, content: subContent, onAction: onAction)
     }
@@ -67,11 +68,11 @@ private struct CommandContainerHeaderView: View {
   }
 
   var body: some View {
-    HStack(spacing: 8) {
+    HStack(spacing: 12) {
       ZenToggle(config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) {
         onAction(.toggleIsEnabled($0))
       }
-      .offset(x: 1)
+      .offset(x: 2)
 
       let textFieldPlaceholder = metaData.namePlaceholder.isEmpty
       ? placeholder
@@ -91,7 +92,7 @@ private struct CommandContainerHeaderView: View {
 
       CommandContainerActionView(onAction: onAction)
     }
-    .padding(.horizontal, 8)
+    .padding(.horizontal, 6)
     .padding(.top, 6)
   }
 }
@@ -113,17 +114,16 @@ private struct CommandContainerContentView<IconContent, Content>: View where Ico
   }
 
   var body: some View {
-    HStack(alignment: .top, spacing: 8) {
+    HStack(alignment: .top, spacing: 6) {
       RoundedRectangle(cornerRadius: 5)
         .fill(Color.black.opacity(0.2))
         .frame(width: 28, height: 28)
         .overlay { icon($metaData) }
+        .padding(.leading, 6)
       content($metaData)
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
-        .padding([.top, .trailing], 2)
+        .padding(.trailing, 6)
     }
-    .padding(.leading, 6)
-    .padding(.trailing, 12)
   }
 }
 

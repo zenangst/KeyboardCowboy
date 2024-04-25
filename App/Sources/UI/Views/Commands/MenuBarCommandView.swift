@@ -50,6 +50,7 @@ struct MenuBarCommandInternalView: View {
       MenuIconView(size: iconSize.width)
     } content: { _ in
       MenuBarCommandContentView(model)
+        .roundedContainer(padding: 4, margin: 0)
     } subContent: { _ in
       HStack {
         Spacer()
@@ -146,7 +147,6 @@ private struct MenuBarCommandContentView: View {
         .shadow(radius: 2, y: 1)
         .font(.caption)
       }
-      .padding(.horizontal, 2)
     }
   }
 }
