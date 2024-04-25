@@ -134,7 +134,9 @@ private struct ScriptCommandInlineView: View {
 
       ZenDivider()
       HStack(spacing: 8) {
-        EnvironmentIconView(size: 24)
+        EnvironmentIconView(size: 22)
+        ZenDivider(.vertical)
+          .fixedSize()
         ScrollView(.horizontal) {
           HStack {
             ForEach(UserSpace.EnvironmentKey.allCases, id: \.rawValue) { env in
@@ -184,7 +186,7 @@ private struct ScriptCommandPathView: View {
   }
 
   var body: some View {
-    VStack {
+    VStack(spacing: 0) {
       HStack {
         TextField("Path", text: $text)
           .textFieldStyle(
@@ -210,6 +212,8 @@ private struct ScriptCommandPathView: View {
         execution: execution,
         onVariableNameChange: onVariableNameChange
       )
+      .opacity(execution == .serial ? 1 : 0)
+      .frame(maxHeight: execution == .serial ? nil : 0)
     }
   }
 }
@@ -255,7 +259,9 @@ private struct ScriptCommandAssignToVariableView: View {
     Group {
       ZenDivider()
       HStack(spacing: 8) {
-        MagicVarsIconView(size: 24)
+        MagicVarsIconView(size: 22)
+        ZenDivider(.vertical)
+          .fixedSize()
         TextField("Assign output to variable", text: $variableName)
           .textFieldStyle(.zen(.init(font: .caption)))
           .onChange(of: variableName) { newValue in
