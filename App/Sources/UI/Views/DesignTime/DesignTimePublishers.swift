@@ -210,7 +210,7 @@ enum DesignTime {
   }
 
   static var scriptCommandInline: (model: CommandViewModel, kind: CommandViewModel.Kind.ScriptModel) {
-    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .inline("hello, world!"), scriptExtension: .appleScript, variableName: "", execution: .concurrent)
+    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .inline("hello, world!"), scriptExtension: .appleScript, variableName: "", execution: .serial)
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
 
     return (.init(meta: metadata(name: "Left align the Dock",

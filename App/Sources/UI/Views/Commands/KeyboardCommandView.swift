@@ -123,9 +123,12 @@ private struct KeyboardCommandSubContentView: View {
   }
 
   var body: some View {
-    Button(action: onEdit) { Text("Edit") }
-    .font(.caption)
-    .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
+    HStack {
+      Spacer()
+      Button(action: onEdit) { Text("Edit") }
+        .font(.caption)
+        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
+    }
   }
 }
 

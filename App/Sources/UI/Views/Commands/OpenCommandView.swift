@@ -142,6 +142,7 @@ private struct OpenCommandSubContentView: View {
   var body: some View {
     HStack {
       if model.path.hasPrefix("http") == false {
+        Spacer()
         Button("Reveal", action: onReveal)
           .buttonStyle(.zen(.init(color: .systemBlue)))
       }

@@ -25,6 +25,18 @@ final class UserSpace: Sendable {
     case pasteboard = "PASTEBOARD"
 
     var asTextVariable: String { "$\(rawValue)" }
+    var help: String {
+      switch self {
+      case .currentWorkingDirectory: "The current working directory"
+      case .directory: "The current directory"
+      case .file: "The current file"
+      case .filepath: "The path to the file"
+      case .filename: "The file name"
+      case .extension: "The file extension"
+      case .selectedText: "The current selected text"
+      case .pasteboard: "The contents of the pasteboard"
+      }
+    }
   }
 
   struct Application: @unchecked Sendable {

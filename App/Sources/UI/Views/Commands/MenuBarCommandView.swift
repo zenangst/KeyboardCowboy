@@ -51,11 +51,14 @@ struct MenuBarCommandInternalView: View {
     } content: { _ in
       MenuBarCommandContentView(model)
     } subContent: { _ in
-      Button { onAction(.editCommand(model)) } label: { 
-        Text("Edit")
-          .font(.caption)
+      HStack {
+        Spacer()
+        Button { onAction(.editCommand(model)) } label: {
+          Text("Edit")
+            .font(.caption)
+        }
+        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
       }
-      .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
     } onAction: { action in
       onAction(.commandAction(action))
     }

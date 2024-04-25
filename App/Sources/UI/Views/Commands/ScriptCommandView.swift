@@ -123,32 +123,30 @@ private struct ScriptCommandInlineView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
+    VStack(alignment: .leading, spacing: 4) {
       ZenTextEditor(color: ZenColorPublisher.shared.color,
                     text: $text,
                     placeholder: "Script goes here…",
                     font: Font.system(.body, design: .monospaced))
       .onChange(of: text, perform: onScriptChange)
-      .padding([.trailing, .bottom], 8)
-      
-      HStack(spacing: 4) {
-        Text("Environment:")
-        Group {
-          Button(action: { text.append(" $DIRECTORY") },
-                 label: { Text("$DIRECTORY") })
-          .help("$DIRECTORY: The current directory")
-          Button(action: { text.append(" $FILE") },
-                 label: { Text("$FILE") })
-          .help("$FILE: The current file")
-          Button(action: { text.append(" $FILENAME") },
-                 label: { Text("$FILENAME") })
-          .help("$FILENAME: The current filename")
-          Button(action: { text.append(" $EXTENSION") },
-                 label: { Text("$EXTENSION") })
-          .help("$EXTENSION: The current file extension")
+
+      ZenDivider()
+      HStack(spacing: 8) {
+        EnvironmentIconView(size: 24)
+        ScrollView(.horizontal) {
+          HStack {
+            ForEach(UserSpace.EnvironmentKey.allCases, id: \.rawValue) { env in
+              Button(action: { text.append(env.asTextVariable) },
+                     label: { Text(env.asTextVariable) })
+              .help("\(env.asTextVariable): \(env.help)")
+            }
+            .padding(.vertical, 4)
+          }
+          .padding(.horizontal, 4)
         }
-        .buttonStyle(.zen(ZenStyleConfiguration(color: .black)))
+        .roundedContainer(padding:0, margin: 0)
       }
+      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemGreen)))
       .allowsTightening(true)
       .lineLimit(1)
       .font(.caption2)
@@ -225,6 +223,7 @@ private struct ScriptCommandSubContentView: View {
 
   var body: some View {
     HStack {
+      Spacer()
       switch model.source {
       case .path(let source):
         Button("Open", action: { onAction(.open(path: source)) })
@@ -253,13 +252,14 @@ private struct ScriptCommandAssignToVariableView: View {
   var body: some View {
     Group {
       ZenDivider()
-      HStack {
-        Text("Assign output to:")
-        TextField("Variable Name", text: $variableName)
+      HStack(spacing: 8) {
+        MagicVarsIconView(size: 24)
+        TextField("Assign output to variable", text: $variableName)
           .textFieldStyle(.zen(.init(font: .caption)))
           .onChange(of: variableName) { newValue in
             onVariableNameChange(newValue)
           }
+          .roundedContainer(padding:0, margin: 0)
       }
       .font(.caption2)
       .padding(.leading, 4)
@@ -285,10 +285,8 @@ struct ScriptCommandView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
       ScriptCommandView(inlineCommand.model.meta, model: inlineCommand.kind, iconSize: .init(width: 24, height: 24)) { _ in }
-        .frame(maxHeight: 120)
         .previewDisplayName("Inline")
       ScriptCommandView(pathCommand.model.meta, model: pathCommand.kind, iconSize: .init(width: 24, height: 24)) { _ in }
-        .frame(maxHeight: 120)
         .previewDisplayName("Path")
     }
     .designTime()

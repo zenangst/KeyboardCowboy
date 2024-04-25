@@ -123,7 +123,7 @@ private struct CommandContainerContentView<IconContent, Content>: View where Ico
         .padding([.top, .trailing], 2)
     }
     .padding(.leading, 6)
-    .padding(.trailing, 4)
+    .padding(.trailing, 12)
   }
 }
 
@@ -156,8 +156,6 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
         onChange: { onAction(.changeDelay($0)) }
       )
       content($metaData)
-      Spacer()
-
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 8)
