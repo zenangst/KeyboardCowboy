@@ -20,7 +20,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
   @MainActor
   lazy var windowController: NSWindowController = {
-    let window = CommandLineWindow(.init(width: 200, height: 200), rootView: CommandLineView(coordinator: CommandLineCoordinator.shared))
+    let window = CommandLinePanel(.init(width: 200, height: 200), rootView: CommandLineView(coordinator: CommandLineCoordinator.shared))
     window.eventDelegate = self
     let windowController = NSWindowController(window: window)
     windowController.windowFrameAutosaveName = "CommandLineWindow"
@@ -66,7 +66,6 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
     windowController.showWindow(nil)
     windowController.window?.delegate = self
     windowController.window?.makeKeyAndOrderFront(nil)
-    KeyboardCowboy.activate(setActivationPolicy: false)
     return ""
   }
 
