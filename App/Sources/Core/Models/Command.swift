@@ -293,33 +293,19 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   }
 
   func copy(appendCopyToName: Bool = true) -> Self {
-    var clone = self
-
-    switch self {
-    case .application(let applicationCommand):
-      clone = .application(applicationCommand.copy())
-    case .builtIn(let builtInCommand):
-      clone = .builtIn(builtInCommand.copy())
-    case .keyboard(let keyboardCommand):
-      clone = .keyboard(keyboardCommand.copy())
-    case .mouse(let mouseCommand):
-      clone = .mouse(mouseCommand.copy())
-    case .menuBar(let menuBarCommand):
-      clone = .menuBar(menuBarCommand.copy())
-    case .open(let openCommand):
-      clone = .open(openCommand.copy())
-    case .shortcut(let shortcutCommand):
-      clone = .shortcut(shortcutCommand.copy())
-    case .script(let scriptCommand):
-      clone = .script(scriptCommand.copy())
-    case .text(let textCommand):
-      clone = .text(textCommand.copy())
-    case .systemCommand(let systemCommand):
-      clone = .systemCommand(systemCommand.copy())
-    case .uiElement(let uIElementCommand):
-      clone = .uiElement(uIElementCommand.copy())
-    case .windowManagement(let windowCommand):
-      clone = .windowManagement(windowCommand.copy())
+    let clone: Self = switch self {
+    case .application(let applicationCommand): .application(applicationCommand.copy())
+    case .builtIn(let builtInCommand): .builtIn(builtInCommand.copy())
+    case .keyboard(let keyboardCommand): .keyboard(keyboardCommand.copy())
+    case .mouse(let mouseCommand): .mouse(mouseCommand.copy())
+    case .menuBar(let menuBarCommand): .menuBar(menuBarCommand.copy())
+    case .open(let openCommand): .open(openCommand.copy())
+    case .shortcut(let shortcutCommand): .shortcut(shortcutCommand.copy())
+    case .script(let scriptCommand): .script(scriptCommand.copy())
+    case .text(let textCommand): .text(textCommand.copy())
+    case .systemCommand(let systemCommand): .systemCommand(systemCommand.copy())
+    case .uiElement(let uIElementCommand): .uiElement(uIElementCommand.copy())
+    case .windowManagement(let windowCommand): .windowManagement(windowCommand.copy())
     }
 
     return clone
