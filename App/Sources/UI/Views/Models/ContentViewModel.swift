@@ -7,6 +7,11 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
     CodableRepresentation(contentType: .workflow)
   }
 
+  enum Execution: String, Hashable, Codable {
+    case concurrent
+    case serial
+  }
+
   enum Trigger: Hashable, Codable {
     case application(String)
     case keyboard(String)
@@ -23,6 +28,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
   let badge: Int
   let badgeOpacity: Double
   let isEnabled: Bool
+  let execution: Execution
 
   internal init(id: String, 
                 groupId: String,
@@ -31,6 +37,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
                 images: [ContentViewModel.ImageModel],
                 overlayImages: [ContentViewModel.ImageModel],
                 trigger: Trigger? = nil,
+                execution: Execution = .concurrent,
                 badge: Int,
                 badgeOpacity: Double, isEnabled: Bool) {
     self.id = id
@@ -39,6 +46,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
     self.name = name
     self.images = images
     self.overlayImages = overlayImages
+    self.execution = execution
     self.badge = badge
     self.badgeOpacity = badgeOpacity
     self.trigger = trigger

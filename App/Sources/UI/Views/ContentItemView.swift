@@ -62,6 +62,9 @@ private struct ContentItemInternalView: View {
                                       badgeOpacity: workflow.badgeOpacity)
           .offset(x: 4, y: 0)
         })
+        .overlay(alignment: .topLeading) {
+          ContentExecutionView(execution: workflow.execution)
+        }
         .fixedSize()
         .frame(width: 32, height: 32)
         .onHover { newValue in
@@ -80,6 +83,29 @@ private struct ContentItemInternalView: View {
     .padding(4)
     .background(ItemBackgroundView(workflow.id, selectionManager: contentSelectionManager))
     .draggable(workflow)
+  }
+}
+
+private struct ContentExecutionView: View {
+  let execution: ContentViewModel.Execution
+  var body: some View {
+    Group {
+      switch execution {
+      case .concurrent:
+        EmptyView()
+      case .serial:
+        Image(systemName: "square.3.layers.3d.top.filled")
+          .resizable()
+          .background(
+            Circle()
+              .fill(Color.accentColor)
+          )
+          .compositingGroup()
+          .shadow(color: .black.opacity(0.75), radius: 2)
+      }
+    }
+    .aspectRatio(contentMode: .fit)
+    .frame(width: 12, height: 12)
   }
 }
 
@@ -132,4 +158,16 @@ private struct ContentItemAccessoryView: View {
       EmptyView()
     }
   }
+}
+
+#Preview {
+  ForEach(DesignTime.contentPublisher.data) { workflow in
+    ContentItemView(
+      workflow: workflow,
+      publisher: DesignTime.contentPublisher,
+      contentSelectionManager: SelectionManager<ContentViewModel>()
+    ) { _ in }
+  }
+
+  .designTime()
 }

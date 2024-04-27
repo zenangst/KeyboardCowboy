@@ -124,10 +124,9 @@ final class ContentCoordinator {
         }
       case .dropUrls, .duplicate, .moveCommand, .removeCommands,
           .removeTrigger, .setIsEnabled, .updateKeyboardShortcuts,
-          .updateName, .updateSnippet:
+          .updateName, .updateExecution, .updateSnippet:
         render(groupSelectionManager.selections, calculateSelections: false)
-      case .togglePassthrough, .runWorkflow, .trigger,
-           .updateExecution, .updateHoldDuration:
+      case .togglePassthrough, .runWorkflow, .trigger, .updateHoldDuration:
         break
       }
     }

@@ -57,6 +57,11 @@ private extension Workflow {
     case .none: nil
     }
 
+    let execution: ContentViewModel.Execution = switch execution {
+    case .concurrent: .concurrent
+    case .serial: .serial
+    }
+
     return ContentViewModel(
       id: id,
       groupId: groupId,
@@ -65,6 +70,7 @@ private extension Workflow {
       images: commands.images(limit: 1),
       overlayImages: commands.overlayImages(limit: 3),
       trigger: viewModelTrigger,
+      execution: execution,
       badge: commandCount > 1 ? commandCount : 0,
       badgeOpacity: commandCount > 1 ? 1.0 : 0.0,
       isEnabled: isEnabled)
