@@ -5,6 +5,7 @@ import Foundation
 final class ShellScriptPlugin: @unchecked Sendable {
   enum ShellScriptPluginError: Error {
     case noData
+    case scriptError(String)
   }
   let fileManager: FileManager
 
@@ -64,6 +65,7 @@ final class ShellScriptPlugin: @unchecked Sendable {
       output = String(data: data, encoding: .utf8) ?? ""
     } else if let errorPipe = try errorPipe.fileHandleForReading.readToEnd() {
       output = String(data: errorPipe, encoding: .utf8) ?? ""
+      throw ShellScriptPluginError.scriptError(output)
     } else {
       output = ""
     }
