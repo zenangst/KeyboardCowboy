@@ -12,13 +12,13 @@ final class CommandLinePanel: NSPanel {
 
   init<Content>(_ minSize: CGSize, rootView: Content) where Content: View {
     let styleMask: StyleMask = [
-        .fullSizeContentView,
-        .resizable,
-        .borderless,
-        .nonactivatingPanel,
-        .unifiedTitleAndToolbar
-      ]
-    
+      .fullSizeContentView,
+      .resizable,
+      .borderless,
+      .nonactivatingPanel,
+      .unifiedTitleAndToolbar
+    ]
+
     super.init(contentRect: .init(origin: .zero, size: minSize),
                styleMask: styleMask, backing: .buffered, defer: true)
 

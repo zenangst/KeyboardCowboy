@@ -4,20 +4,20 @@ import SwiftUI
 @MainActor
 final class CommandPanelViewPublisher: ObservableObject {
   @MainActor
-  @Published private(set) var state: CommandWindowView.CommandState
+  @Published private(set) var state: CommandPanelView.CommandState
 
   @MainActor
-  init(state: CommandWindowView.CommandState = .ready) {
+  init(state: CommandPanelView.CommandState = .ready) {
     self.state = state
   }
 
   @MainActor
-  func publish(_ newState: CommandWindowView.CommandState) {
+  func publish(_ newState: CommandPanelView.CommandState) {
     self.state = newState
   }
 }
 
-struct CommandWindowView: View {
+struct CommandPanelView: View {
   enum CommandState: Hashable, Equatable {
     case ready
     case running
@@ -43,7 +43,7 @@ struct CommandWindowView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      CommandWindowHeaderView(
+      CommandPanelHeaderView(
         state: publisher.state,
         name: command.name,
         action: action
@@ -52,31 +52,45 @@ struct CommandWindowView: View {
       ZenDivider()
 
       ScrollView {
-        VStack(spacing: 4) {
+        VStack(spacing: 0) {
           switch command.source {
-          case .path(let path):
-            CommandWindowPathView(path: path)
-              .padding([.top, .leading, .trailing], 12)
-          case .inline(let contents):
-            CommandWindowInlineView(contents: contents)
-              .padding([.top, .leading, .trailing], 12)
+          case .path(let source):
+            let viewModel = CommandViewModel.Kind.ScriptModel(
+              id: command.id,
+              source: .path(source),
+              scriptExtension: command.kind,
+              variableName: "",
+              execution: .concurrent
+            )
+            ScriptCommandContentView(viewModel, meta: .init(name: "Name", namePlaceholder: ""), onAction: { action in })
+              .roundedContainer(padding: 4, margin: 12)
+          case .inline(let source):
+            let viewModel = CommandViewModel.Kind.ScriptModel(
+                id: command.id,
+                source: .inline(source),
+                scriptExtension: command.kind,
+                variableName: "",
+                execution: .concurrent
+            )
+            ScriptCommandContentView(viewModel, meta: .init(name: "Name", namePlaceholder: ""), onAction: { action in })
+              .roundedContainer(padding: 4, margin: 12)
           }
 
-          CommandWindowOutputView(state: publisher.state)
+          CommandPanelOutputView(state: publisher.state)
             .frame(maxWidth: .infinity)
+            .roundedContainer(padding: 4, margin: 0)
             .padding(.horizontal, 12)
         }
       }
       .background()
     }
     .frame(minWidth: 200)
-    .roundedContainer(padding: 0, margin: 0)
   }
 
   @MainActor
-  static func preview(_ state: CommandWindowView.CommandState, command: ScriptCommand) -> some View {
+  static func preview(_ state: CommandPanelView.CommandState, command: ScriptCommand) -> some View {
     let publisher = CommandPanelViewPublisher(state: state)
-    return CommandWindowView(publisher: publisher, command: command) {
+    return CommandPanelView(publisher: publisher, command: command) {
       switch publisher.state {
       case .ready:   publisher.publish(.running)
       case .running: publisher.publish(.error("ops!"))
@@ -88,8 +102,8 @@ struct CommandWindowView: View {
   }
 }
 
-private struct CommandWindowHeaderView: View {
-  let state: CommandWindowView.CommandState
+private struct CommandPanelHeaderView: View {
+  let state: CommandPanelView.CommandState
   let name: String
   let action: () -> Void
 
@@ -111,7 +125,7 @@ private struct CommandWindowHeaderView: View {
     .roundedContainer(0, padding: 8, margin: 0)
   }
 
-  private static func buttonColor(_ state: CommandWindowView.CommandState) -> ZenColor {
+  private static func buttonColor(_ state: CommandPanelView.CommandState) -> ZenColor {
     switch state {
     case .ready: .systemGray
     case .running: .accentColor
@@ -120,7 +134,7 @@ private struct CommandWindowHeaderView: View {
     }
   }
 
-  private static func buttonText(_ state: CommandWindowView.CommandState) -> String {
+  private static func buttonText(_ state: CommandPanelView.CommandState) -> String {
     switch state {
     case .ready: "Run"
     case .running: "Cancel"
@@ -130,8 +144,8 @@ private struct CommandWindowHeaderView: View {
   }
 }
 
-private struct CommandWindowOutputView: View {
-  let state: CommandWindowView.CommandState
+private struct CommandPanelOutputView: View {
+  let state: CommandPanelView.CommandState
 
   var body: some View {
       switch state {
@@ -141,14 +155,14 @@ private struct CommandWindowOutputView: View {
         ProgressView()
           .padding()
       case .error(let contents):
-        CommandWindowErrorView(contents: contents)
+        CommandPanelErrorView(contents: contents)
       case .done(let contents):
-        CommandWindowSuccessView(contents: contents)
+        CommandPanelSuccessView(contents: contents)
       }
   }
 }
 
-private struct CommandWindowErrorView: View {
+private struct CommandPanelErrorView: View {
   let contents: String
 
   var body: some View {
@@ -177,12 +191,11 @@ private struct CommandWindowErrorView: View {
           .font(.system(.callout))
           .padding(8)
       }
-      .roundedContainer(padding: 0, margin: 4)
     }
   }
 }
 
-private struct CommandWindowSuccessView: View {
+private struct CommandPanelSuccessView: View {
   private let searchSets = [
     SearchSet(regexPattern: { _ in "\\{|\\}|\\[|\\]|\"" },
               color: Color(.controlAccentColor.withSystemEffect(.pressed))),
@@ -216,39 +229,8 @@ private struct CommandWindowSuccessView: View {
         .font(.system(.callout))
         .padding(8)
     }
-    .roundedContainer(padding: 0, margin: 4)
   }
 }
-
-private struct CommandWindowPathView: View {
-  let path: String
-  var body: some View {
-    HStack {
-      Text("Path")
-      Text(path)
-      Button(action: {}, label: { Text("Open") })
-      Button(action: {}, label: { Text("Reveal") })
-    }
-  }
-}
-
-private struct CommandWindowInlineView: View {
-  @State private var contents: String
-
-  init(contents: String) {
-    self.contents = contents
-  }
-
-  var body: some View {
-    ZenTextEditor(text: $contents, placeholder: "")
-      .fontDesign(.monospaced)
-      .frame(maxWidth: .infinity, maxHeight: 120, alignment: .leading)
-      .font(.system(.callout))
-      .padding(4)
-      .roundedContainer(padding: 0, margin: 4)
-  }
-}
-
 
 let prCommand = ScriptCommand(
   kind: .shellScript,
@@ -283,10 +265,10 @@ let prCommandWithJQResult = """
 ]
 """
 
-#Preview("gh pr ls - with JQ") { CommandWindowView.preview(.done(prCommandWithJQResult), command: prCommandWithJQ) }
-#Preview("gh pr ls") { CommandWindowView.preview(.done(prCommandResult), command: prCommand) }
-#Preview("Error") { CommandWindowView.preview(.error("Oh shit!"), command: prCommand) }
-#Preview("Ready") { CommandWindowView.preview(.ready, command: prCommand) }
+#Preview("gh pr ls - with JQ") { CommandPanelView.preview(.done(prCommandWithJQResult), command: prCommandWithJQ) }
+#Preview("gh pr ls") { CommandPanelView.preview(.done(prCommandResult), command: prCommand) }
+#Preview("Error") { CommandPanelView.preview(.error("Oh shit!"), command: prCommand) }
+#Preview("Ready") { CommandPanelView.preview(.ready, command: prCommand) }
 
 extension AttributedString {
   func linkDetector(_ originalString: String) -> AttributedString {

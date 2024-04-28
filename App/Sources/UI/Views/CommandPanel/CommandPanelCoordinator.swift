@@ -19,9 +19,9 @@ final class CommandPanelCoordinator: NSObject, ObservableObject, NSWindowDelegat
 
   @MainActor
   private func createNewWindowController(for command: ScriptCommand) -> NSWindowController {
-    let publisher = CommandWindowViewPublisher(state: .ready)
-    let runner = CommandWindowRunner(plugin: ShellScriptPlugin())
-    let view = CommandWindowView(publisher: publisher, command: command, action: { [runner, publisher] in
+    let publisher = CommandPanelViewPublisher(state: .ready)
+    let runner = CommandPanelRunner(plugin: ShellScriptPlugin())
+    let view = CommandPanelView(publisher: publisher, command: command, action: { [runner, publisher] in
       runner.run(command, for: publisher)
     })
     let window = CommandPanel(identifier: command.id, minSize: .zero, rootView: view)
@@ -46,7 +46,7 @@ final class CommandPanelCoordinator: NSObject, ObservableObject, NSWindowDelegat
   }
 }
 
-private final class CommandWindowRunner {
+private final class CommandPanelRunner {
   let plugin: ShellScriptPlugin
   var task: Task<Void, Error>?
 
@@ -55,7 +55,7 @@ private final class CommandWindowRunner {
   }
 
   @MainActor
-  func run(_ command: ScriptCommand, for publisher: CommandWindowViewPublisher) {
+  func run(_ command: ScriptCommand, for publisher: CommandPanelViewPublisher) {
     guard publisher.state == .running else {
       task?.cancel()
       publisher.publish(.ready)
@@ -81,7 +81,7 @@ private final class CommandWindowRunner {
 
         publisher.publish(.done(output ?? "No output"))
       } catch let error as ShellScriptPlugin.ShellScriptPluginError {
-        let newState: CommandWindowView.CommandState
+        let newState: CommandPanelView.CommandState
         switch error {
         case .noData:
           newState = .error(error.localizedDescription)

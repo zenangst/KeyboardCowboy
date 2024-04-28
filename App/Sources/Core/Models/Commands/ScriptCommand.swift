@@ -9,6 +9,13 @@ struct ScriptCommand: MetaDataProviding {
   enum Source: Hashable, Codable, Sendable, Equatable {
     case path(String)
     case inline(String)
+
+    var contents: String {
+      switch self {
+      case .path(let contents): contents
+      case .inline(let contents): contents
+      }
+    }
   }
 
   var kind: Kind
