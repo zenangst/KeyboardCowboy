@@ -89,7 +89,7 @@ enum MetaDataMigrator: String, CodingKey {
 enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sendable {
   enum Notification: String, Codable, CaseIterable {
     case bezel = "Bezel"
-    case commandWindow = "Command Window"
+    case commandPanel = "Command Panel"
   }
 
   struct MetaData: Identifiable, Codable, Hashable, Sendable {

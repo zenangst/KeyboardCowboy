@@ -221,7 +221,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         await BezelNotificationController.shared.post(
           .init(id: id, text: " ", running: true)
         )
-      case .commandWindow:
+      case .commandPanel:
         break // Add support for command windows
       case .none:
         break
@@ -312,7 +312,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           lastExecutedCommand = command
           BezelNotificationController.shared.post(.init(id: id, text: output))
         }
-      case .commandWindow:
+      case .commandPanel:
         break // Add support for command windows
       case .none:
         break
