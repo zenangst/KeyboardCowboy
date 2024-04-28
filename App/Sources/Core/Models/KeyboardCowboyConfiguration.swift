@@ -130,7 +130,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                                   tell application "Notes"
                                       show note "awesome note"
                                   end tell
-                                  """), notification: false))
+                                  """), notification: nil))
                                ])
                      ]),
         WorkflowGroup(symbol: "folder", name: "Files & Folders", color: "#6BD35F",
@@ -211,7 +211,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
  --------------------------
  xoxo
  \(NSFullUserName())
- """, mode: .instant, meta: .init(id: UUID().uuidString, name: "Signature", isEnabled: true, notification: false)))) )
+ """, mode: .instant, meta: .init(id: UUID().uuidString, name: "Signature", isEnabled: true, notification: nil)))) )
                                  ])
                       ])
       ])

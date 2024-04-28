@@ -7,7 +7,7 @@ enum CommandContainerAction {
   case delete
   case changeDelay(Double?)
   case toggleIsEnabled(Bool)
-  case toggleNotify(Bool)
+  case toggleNotify(Command.Notification?)
   case updateName(newName: String)
 }
 
@@ -143,19 +143,12 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
 
   var body: some View {
     HStack(spacing: 8) {
-      // Fix this bug that you can't notify when running
-      // modifying a menubar command.
-      ZenCheckbox("Notify", style: .small, isOn: $metaData.notification) {
-        onAction(.toggleNotify($0))
-      }
-      .offset(x: 2)
-
+      content($metaData)
       CommandContainerDelayView(
         metaData: $metaData,
         execution: publisher.data.execution,
         onChange: { onAction(.changeDelay($0)) }
       )
-      content($metaData)
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 8)

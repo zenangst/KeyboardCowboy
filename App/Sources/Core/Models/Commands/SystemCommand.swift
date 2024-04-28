@@ -65,7 +65,8 @@ struct SystemCommand: MetaDataProviding {
   var kind: Kind
   var meta: Command.MetaData
 
-  init(id: String = UUID().uuidString, name: String, kind: Kind, notification: Bool) {
+  init(id: String = UUID().uuidString, name: String, kind: Kind, 
+       notification: Command.Notification? = nil) {
     self.kind = kind
     self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
   }

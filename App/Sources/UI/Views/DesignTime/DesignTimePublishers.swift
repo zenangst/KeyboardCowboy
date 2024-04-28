@@ -144,7 +144,7 @@ enum DesignTime {
       name: name,
       namePlaceholder: name,
       isEnabled: true,
-      notification: false,
+      notification: nil,
       icon: icon,
       variableName: "")
   }

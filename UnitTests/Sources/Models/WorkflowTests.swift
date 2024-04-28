@@ -40,7 +40,7 @@ final class WorkflowTests: XCTestCase {
     let workflow = Workflow(
       name: "Built-in command",
       commands: [.builtIn(
-        .init(kind: .userMode(.init(id: UUID().uuidString, name: UUID().uuidString, isEnabled: true), .toggle), notification: false
+        .init(kind: .userMode(.init(id: UUID().uuidString, name: UUID().uuidString, isEnabled: true), .toggle), notification: nil
         )
       )]
     )
@@ -80,7 +80,7 @@ final class WorkflowTests: XCTestCase {
   func testResolveUserEnvironmentForShortcutCommands() {
     let workflow = Workflow(
       name: "Shortcut",
-      commands: [.shortcut(.init(id: "", shortcutIdentifier: "", name: "", isEnabled: false, notification: false))])
+      commands: [.shortcut(.init(id: "", shortcutIdentifier: "", name: "", isEnabled: false, notification: nil))])
     let shouldResolve = workflow.resolveUserEnvironment()
     XCTAssertFalse(shouldResolve, "Shortcut command workflows should not resolve user environment.")
   }
@@ -88,7 +88,7 @@ final class WorkflowTests: XCTestCase {
   func testResolveUserEnvironmentForSystemCommand() {
     let workflow = Workflow(
       name: "System",
-      commands: [.systemCommand(.init(name: "", kind: .activateLastApplication, notification: false))])
+      commands: [.systemCommand(.init(name: "", kind: .activateLastApplication, notification: nil))])
     let shouldResolve = workflow.resolveUserEnvironment()
     XCTAssertFalse(shouldResolve, "System command workflows should not resolve user environment.")
   }
@@ -96,7 +96,7 @@ final class WorkflowTests: XCTestCase {
   func testResolveUserEnvironmentForWindowManagement() {
     let workflow = Workflow(
       name: "Window management",
-      commands: [.windowManagement(.init(id: "", name: "", kind: .center, notification: false, animationDuration: 0.0))]
+      commands: [.windowManagement(.init(id: "", name: "", kind: .center, notification: nil, animationDuration: 0.0))]
     )
     let shouldResolve = workflow.resolveUserEnvironment()
     XCTAssertFalse(shouldResolve, "Window management command workflows should not resolve user environment.")
@@ -107,7 +107,7 @@ final class WorkflowTests: XCTestCase {
       // Empty open command
       let workflow = Workflow(
         name: "Open",
-        commands: [.open(.init(id: "", name: "", path: "", notification: false))]
+        commands: [.open(.init(id: "", name: "", path: "", notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Open commands with empty paths should not resolve user environment.")
@@ -117,7 +117,7 @@ final class WorkflowTests: XCTestCase {
       // With a random path
       let workflow = Workflow(
         name: "Open",
-        commands: [.open(.init(id: "", name: "", path: UUID().uuidString, notification: false))]
+        commands: [.open(.init(id: "", name: "", path: UUID().uuidString, notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Open commands with random paths that don't inclue valid env keys should not resolve document and selections.")
@@ -127,7 +127,7 @@ final class WorkflowTests: XCTestCase {
       // With an invalid env key
       let workflow = Workflow(
         name: "Open",
-        commands: [.open(.init(id: "", name: "", path: UserSpace.EnvironmentKey.directory.rawValue, notification: false))]
+        commands: [.open(.init(id: "", name: "", path: UserSpace.EnvironmentKey.directory.rawValue, notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Open commands with invalid env keys should not resolve document and selections.")
@@ -137,7 +137,7 @@ final class WorkflowTests: XCTestCase {
       // With an valid env key
       let workflow = Workflow(
         name: "Open",
-        commands: [.open(.init(id: "", name: "", path: UserSpace.EnvironmentKey.directory.asTextVariable, notification: false))]
+        commands: [.open(.init(id: "", name: "", path: UserSpace.EnvironmentKey.directory.asTextVariable, notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertTrue(shouldResolve, "Open commands with valid env keys should resolve document and selections.")
@@ -149,7 +149,7 @@ final class WorkflowTests: XCTestCase {
       // Empty apple script
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(""), notification: false))]
+        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(""), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Script commands with empty apple scripts should not resolve user environment.")
@@ -159,7 +159,7 @@ final class WorkflowTests: XCTestCase {
       // With an invalid env key
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(UserSpace.EnvironmentKey.selectedText.rawValue), notification: false))]
+        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(UserSpace.EnvironmentKey.selectedText.rawValue), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Script commands with invalid env keys should not resolve user environment.")
@@ -169,7 +169,7 @@ final class WorkflowTests: XCTestCase {
       // With an valid env key
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(UserSpace.EnvironmentKey.selectedText.asTextVariable), notification: false))]
+        commands: [.script(.init(name: "", kind: .appleScript, source: .inline(UserSpace.EnvironmentKey.selectedText.asTextVariable), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertTrue(shouldResolve, "Script commands with valid env keys should resolve user environment.")
@@ -181,7 +181,7 @@ final class WorkflowTests: XCTestCase {
       // Empty apple script
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))]
+        commands: [.script(.init(name: "", kind: .appleScript, source: .path(""), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Script commands with empty paths apple scripts should not resolve user environment.")
@@ -191,7 +191,7 @@ final class WorkflowTests: XCTestCase {
       // With an invalid env key
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .path(UserSpace.EnvironmentKey.selectedText.rawValue), notification: false))]
+        commands: [.script(.init(name: "", kind: .appleScript, source: .path(UserSpace.EnvironmentKey.selectedText.rawValue), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Script commands with invalid env keys should not resolve user environment.")
@@ -201,7 +201,7 @@ final class WorkflowTests: XCTestCase {
       // With an valid env key
       let workflow = Workflow(
         name: "Script",
-        commands: [.script(.init(name: "", kind: .appleScript, source: .path(UserSpace.EnvironmentKey.selectedText.asTextVariable), notification: false))]
+        commands: [.script(.init(name: "", kind: .appleScript, source: .path(UserSpace.EnvironmentKey.selectedText.asTextVariable), notification: nil))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertTrue(shouldResolve, "Script commands with valid env keys should resolve user environment.")

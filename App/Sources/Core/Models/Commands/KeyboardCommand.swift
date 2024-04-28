@@ -10,7 +10,7 @@ struct KeyboardCommand: MetaDataProviding {
        name: String,
        isEnabled: Bool,
        keyboardShortcut: KeyShortcut,
-       notification: Bool = false) {
+       notification: Command.Notification? = nil) {
     self.keyboardShortcuts = [keyboardShortcut]
     self.meta = Command.MetaData(id: id, name: name,
                                  isEnabled: true,
@@ -20,7 +20,7 @@ struct KeyboardCommand: MetaDataProviding {
   init(id: String = UUID().uuidString,
        name: String,
        keyboardShortcuts: [KeyShortcut],
-       notification: Bool,
+       notification: Command.Notification? = nil,
        meta: Command.MetaData? = nil) {
     self.keyboardShortcuts = keyboardShortcuts
     self.meta = meta ?? Command.MetaData(id: id, name: name,
@@ -71,7 +71,7 @@ extension KeyboardCommand {
       name: "",
       isEnabled: true,
       keyboardShortcut: KeyShortcut(key: "", lhs: true),
-      notification: false
+      notification: nil
     )
   }
 }

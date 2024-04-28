@@ -25,7 +25,7 @@ final class BringToFrontApplicationPlugin {
         name: "BringToFrontApplicationPlugin",
         kind: .appleScript,
         source: .inline(source),
-        notification: false
+        notification: nil
       ),
       environment: [:],
       checkCancellation: checkCancellation

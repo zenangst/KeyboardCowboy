@@ -40,7 +40,20 @@ struct ShortcutCommandView: View {
         onAction(.updateShortcut(shortcutName: shortcut.name))
       }
       .roundedContainer(padding: 4, margin: 0)
-    }, subContent: { command in
+    }, subContent: { metaData in
+      ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
+          if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
+        }, set: { newValue in
+          if newValue { metaData.notification.wrappedValue = .bezel }
+        })) { value in
+          if value {
+            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
+          } else {
+            onAction(.commandAction(.toggleNotify(nil)))
+          }
+        }
+        .offset(x: 1)
+
       ShortcutCommandSubContentView {
         onAction(.openShortcut)
       } onCreateShortcut: {

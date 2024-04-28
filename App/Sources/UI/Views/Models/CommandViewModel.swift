@@ -14,7 +14,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     var name: String
     var namePlaceholder: String
     var isEnabled: Bool
-    var notification: Bool
+    var notification: Command.Notification?
     var icon: Icon?
     var variableName: String
 
@@ -23,7 +23,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
          name: String,
          namePlaceholder: String,
          isEnabled: Bool = true,
-         notification: Bool = false,
+         notification: Command.Notification? = nil,
          icon: Icon? = nil,
          variableName: String = "") {
       self.id = id

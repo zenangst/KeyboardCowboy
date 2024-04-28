@@ -102,7 +102,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           shortcuts view "\(shortcut.shortcutIdentifier)"
           """
           let shellScript = ScriptCommand(name: "Reveal \(shortcut.shortcutIdentifier)",
-                                          kind: .shellScript, source: .inline(source), notification: false)
+                                          kind: .shellScript, source: .inline(source), notification: nil)
 
           _ = try await runners.script.run(shellScript, environment: [:], checkCancellation: false)
         }
@@ -216,11 +216,17 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
            runtimeDictionary: inout [String: String]) async throws {
     do {
       let id = UUID().uuidString
-      if command.notification {
+      switch command.notification {
+      case .bezel:
         await BezelNotificationController.shared.post(
           .init(id: id, text: " ", running: true)
         )
+      case .commandWindow:
+        break // Add support for command windows
+      case .none:
+        break
       }
+
       let output: String
       switch command {
       case .application(let applicationCommand):
@@ -300,11 +306,16 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         runtimeDictionary[variableName] = output
       }
 
-      if command.notification {
+      switch command.notification {
+      case .bezel:
         await MainActor.run {
           lastExecutedCommand = command
           BezelNotificationController.shared.post(.init(id: id, text: output))
         }
+      case .commandWindow:
+        break // Add support for command windows
+      case .none:
+        break
       }
     } catch {
       throw error

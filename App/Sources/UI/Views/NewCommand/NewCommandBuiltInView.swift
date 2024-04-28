@@ -83,7 +83,7 @@ struct NewCommandBuiltInView: View {
     }
     .onAppear {
       validation = .needsValidation
-      payload = .builtIn(builtIn: .init(kind: kindSelection, notification: false))
+      payload = .builtIn(builtIn: .init(kind: kindSelection, notification: nil))
     }
     .menuStyle(.regular)
   }
@@ -136,7 +136,7 @@ struct NewCommandBuiltInView: View {
         newKind = .commandLine(action)
     }
 
-    payload = .builtIn(builtIn: .init(kind: newKind, notification: false))
+    payload = .builtIn(builtIn: .init(kind: newKind, notification: nil))
 
     return validation ? .valid : .invalid(reason: "Please select a User Mode.")
   }

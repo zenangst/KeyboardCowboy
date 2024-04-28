@@ -24,7 +24,8 @@ struct ScriptCommand: MetaDataProviding {
 
   init(id: String = UUID().uuidString,
        name: String, kind: Kind, source: Source,
-       isEnabled: Bool = true, notification: Bool,
+       isEnabled: Bool = true,
+       notification: Command.Notification? = nil,
        variableName: String? = nil) {
     self.kind = kind
     self.source = source
@@ -73,7 +74,7 @@ struct ScriptCommand: MetaDataProviding {
         self.source = .inline(source)
       }
 
-      self.meta = Command.MetaData(id: id, name: name, isEnabled: isEnabled, notification: false)
+      self.meta = Command.MetaData(id: id, name: name, isEnabled: isEnabled, notification: nil)
     }
   }
 

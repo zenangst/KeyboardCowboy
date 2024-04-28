@@ -24,12 +24,26 @@ struct BuiltInCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placheolder) { _ in
+    CommandContainerView(metaData, placeholder: model.placheolder,
+                         icon: { _ in
       BuiltInIconView(model.kind, iconSize: iconSize)
-    } content: { _ in
-      BuiltInCommandContentView(model, onAction: onAction)
+    }, content: { _ in
+      BuiltInCommandContentView(model, metaData: metaData, onAction: onAction)
         .roundedContainer(padding: 4, margin: 0)
-    } onAction: {
+    }, subContent: { metaData in
+      ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
+        if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
+      }, set: { newValue in
+        if newValue { metaData.notification.wrappedValue = .bezel }
+      })) { value in
+        if value {
+          onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
+        } else {
+          onAction(.commandAction(.toggleNotify(nil)))
+        }
+      }
+      .offset(x: 1)
+    }) {
       onAction(.commandAction($0))
     }
   }
@@ -63,10 +77,14 @@ private struct BuiltInIconView: View {
 private struct BuiltInCommandContentView: View {
   @EnvironmentObject var configurationPublisher: ConfigurationPublisher
   @State private var model: CommandViewModel.Kind.BuiltInModel
+  private let metaData: CommandViewModel.MetaData
   private let onAction: (BuiltInCommandView.Action) -> Void
 
-  init(_ model: CommandViewModel.Kind.BuiltInModel, onAction: @escaping (BuiltInCommandView.Action) -> Void) {
+  init(_ model: CommandViewModel.Kind.BuiltInModel, 
+       metaData: CommandViewModel.MetaData,
+       onAction: @escaping (BuiltInCommandView.Action) -> Void) {
     self.model = model
+    self.metaData = metaData
     self.onAction = onAction
   }
 
@@ -75,7 +93,7 @@ private struct BuiltInCommandContentView: View {
       Menu(content: {
         Button(action: {
           let newKind: BuiltInCommand.Kind = .commandLine(.argument(contents: ""))
-          onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+          onAction(.update(.init(id: model.id, kind: newKind, notification: metaData.notification)))
           model.name = newKind.displayValue
           model.kind = newKind
         }, label: {
@@ -85,7 +103,7 @@ private struct BuiltInCommandContentView: View {
 
         Button(action: {
           let newKind: BuiltInCommand.Kind = .macro(.record)
-          onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+          onAction(.update(.init(id: model.id, kind: newKind, notification: metaData.notification)))
           model.name = newKind.displayValue
           model.kind = newKind
         }, label: {
@@ -95,7 +113,7 @@ private struct BuiltInCommandContentView: View {
 
         Button(action: {
           let newKind: BuiltInCommand.Kind = .macro(.remove)
-          onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+          onAction(.update(.init(id: model.id, kind: newKind, notification: metaData.notification)))
           model.name = newKind.displayValue
           model.kind = newKind
         }, label: {
@@ -105,8 +123,8 @@ private struct BuiltInCommandContentView: View {
 
         Button(
           action: {
-            let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: true), .toggle)
-            onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+            let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: metaData.isEnabled), .toggle)
+            onAction(.update(.init(id: model.id, kind: newKind, notification: metaData.notification)))
             model.name = newKind.displayValue
             model.kind = newKind
           },
@@ -116,8 +134,8 @@ private struct BuiltInCommandContentView: View {
           })
         Button(
           action: {
-            let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: true), .enable)
-            onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+            let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: metaData.isEnabled), .enable)
+            onAction(.update(.init(id: model.id, kind: newKind, notification: metaData.notification)))
             model.name = newKind.displayValue
             model.kind = newKind
           },
@@ -127,8 +145,8 @@ private struct BuiltInCommandContentView: View {
           })
         Button(
           action: {
-            let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: true), .disable)
-            onAction(.update(.init(id: model.id, kind: newKind, notification: true)))
+            let newKind: BuiltInCommand.Kind = .userMode(.init(id: model.kind.userModeId, name: model.name, isEnabled: metaData.isEnabled), .disable)
+            onAction(.update(.init(id: model.id, kind: newKind, notification: metaData.notification)))
             model.name = newKind.displayValue
             model.kind = newKind
           },
@@ -155,7 +173,7 @@ private struct BuiltInCommandContentView: View {
               let action: BuiltInCommand.Kind.Action
               if case .userMode(_, let resolvedAction) = model.kind {
                 action = resolvedAction
-                onAction(.update(.init(id: model.id, kind: .userMode(userMode, action), notification: true)))
+                onAction(.update(.init(id: model.id, kind: .userMode(userMode, action), notification: metaData.notification)))
                 model.kind = .userMode(userMode, action)
               }
             }, label: { Text(userMode.name).font(.subheadline) })

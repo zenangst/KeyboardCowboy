@@ -37,6 +37,20 @@ struct ApplicationCommandView: View {
                                        iconSize: iconSize, onAction: onAction)
         .roundedContainer(padding: 4, margin: 0)
       },
+      subContent: { metaData in
+        ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
+          if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
+        }, set: { newValue in
+          if newValue { metaData.notification.wrappedValue = .bezel }
+        })) { value in
+          if value {
+            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
+          } else {
+            onAction(.commandAction(.toggleNotify(nil)))
+          }
+        }
+        .offset(x: 1)
+      },
       onAction: { action in
         onAction(.commandAction(action))
       }

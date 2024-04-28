@@ -40,7 +40,7 @@ struct ApplicationCommand: MetaDataProviding {
        action: Action = .open,
        application: Application,
        modifiers: [Modifier] = [],
-       notification: Bool = false) {
+       notification: Command.Notification? = nil) {
     self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
     self.application = application
     self.modifiers = Set(modifiers)
@@ -81,6 +81,6 @@ extension ApplicationCommand {
   static func empty() -> ApplicationCommand {
     ApplicationCommand(action: .open,
                        application: Application(bundleIdentifier: "", bundleName: "", path: ""),
-                       notification: false)
+                       notification: nil)
   }
 }

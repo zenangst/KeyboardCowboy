@@ -29,13 +29,27 @@ struct SystemCommandView: View {
       metaData,
       placeholder: model.placeholder,
       icon: { _ in SystemCommandIconView(model.kind, iconSize: iconSize)
-    }, content: { _ in
-      SystemCommandContentView(model: $model) { kind in
-        onAction(.updateKind(newKind: kind))
-      }
-      .roundedContainer(padding: 4, margin: 0)
-    },
-    onAction: { onAction(.commandAction($0)) })
+      }, content: { _ in
+        SystemCommandContentView(model: $model) { kind in
+          onAction(.updateKind(newKind: kind))
+        }
+        .roundedContainer(padding: 4, margin: 0)
+      },
+      subContent: { metaData in
+        ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
+          if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
+        }, set: { newValue in
+          if newValue { metaData.notification.wrappedValue = .bezel }
+        })) { value in
+          if value {
+            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
+          } else {
+            onAction(.commandAction(.toggleNotify(nil)))
+          }
+        }
+        .offset(x: 1)
+      },
+      onAction: { onAction(.commandAction($0)) })
     .id(model.id)
     .enableInjection()
   }

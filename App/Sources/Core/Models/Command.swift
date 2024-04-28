@@ -16,7 +16,7 @@ extension MetaDataProviding {
     set { meta.name = newValue }
   }
 
-  var notification: Bool {
+  var notification: Command.Notification? {
     get { meta.notification }
     set { meta.notification = newValue }
   }
@@ -61,8 +61,22 @@ enum MetaDataMigrator: String, CodingKey {
     let id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     let name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
     let isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
-    let notification = try container.decodeIfPresent(Bool.self, forKey: .notification) ?? false
+    let notification: Command.Notification?
+
+    if let notificationValue = try container.decodeIfPresent(Command.Notification.self, forKey: .notification) {
+      notification = notificationValue
+    } else if let notificationBool = try container.decodeIfPresent(Bool.self, forKey: .notification) {
+      if notificationBool {
+        notification = .bezel
+      } else {
+        notification = nil
+      }
+    } else {
+      notification = nil
+    }
+
     let delay = try container.decodeIfPresent(Double.self, forKey: .delay)
+
     return Command.MetaData(delay: delay, id: id, name: name,
                             isEnabled: isEnabled, notification: notification)
   }
@@ -73,12 +87,17 @@ enum MetaDataMigrator: String, CodingKey {
 /// to store multiple command types in the same workflow.
 /// All underlying data-types are both `Codable` and `Hashable`.
 enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sendable {
+  enum Notification: String, Codable, CaseIterable {
+    case bezel = "Bezel"
+    case commandWindow = "Command Window"
+  }
+
   struct MetaData: Identifiable, Codable, Hashable, Sendable {
     public var delay: Double?
     public var id: String
     public var name: String
     public var isEnabled: Bool
-    public var notification: Bool
+    public var notification: Notification?
     public var variableName: String?
 
     enum CodingKeys: String, CodingKey {
@@ -94,7 +113,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
          id: String = UUID().uuidString,
          name: String = "",
          isEnabled: Bool = true,
-         notification: Bool = false,
+         notification: Notification? = nil,
          variableName: String? = nil) {
       self.delay = delay
       self.id = id
@@ -111,6 +130,26 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
                isEnabled: self.isEnabled,
                notification: self.notification,
                variableName: self.variableName)
+    }
+
+    init(from decoder: any Decoder) throws {
+      let container: KeyedDecodingContainer<Command.MetaData.CodingKeys> = try decoder.container(keyedBy: Command.MetaData.CodingKeys.self)
+      self.delay = try container.decodeIfPresent(Double.self, forKey: Command.MetaData.CodingKeys.delay)
+      self.id = try container.decode(String.self, forKey: Command.MetaData.CodingKeys.id)
+      self.name = try container.decode(String.self, forKey: Command.MetaData.CodingKeys.name)
+      self.isEnabled = try container.decode(Bool.self, forKey: Command.MetaData.CodingKeys.isEnabled)
+
+      if let notificationBool = try? container.decodeIfPresent(Bool.self, forKey: .notification) {
+        if notificationBool {
+          self.notification = .bezel
+        } else {
+          self.notification = nil
+        }
+      } else {
+        self.notification = try container.decodeIfPresent(Command.Notification.self, forKey: Command.MetaData.CodingKeys.notification)
+      }
+
+      self.variableName = try container.decodeIfPresent(String.self, forKey: Command.MetaData.CodingKeys.variableName)
     }
   }
 
@@ -317,17 +356,17 @@ extension Command {
     let id = UUID().uuidString
     return switch kind {
     case .application: Command.application(ApplicationCommand.empty())
-    case .builtIn: Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: false))
+    case .builtIn: Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: nil))
     case .keyboard: Command.keyboard(KeyboardCommand.empty())
     case .menuBar: Command.menuBar(MenuBarCommand(application: nil, tokens: []))
     case .mouse: Command.mouse(MouseCommand.empty())
-    case .open: Command.open(.init(path: "", notification: false))
-    case .script: Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: false))
-    case .shortcut: Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: false))
+    case .open: Command.open(.init(path: "", notification: nil))
+    case .script: Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: nil))
+    case .shortcut: Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: nil))
     case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id)))))
-    case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: false))
+    case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: nil))
     case .uiElement: Command.uiElement(.init(meta: .init(), predicates: [.init(value: "")]))
-    case .window: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: false, animationDuration: 0))
+    case .window: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: nil, animationDuration: 0))
     }
   }
 
@@ -340,31 +379,31 @@ extension Command {
       openCommand(id: id),
       urlCommand(id: id, application: nil),
       textCommand(id: id),
-      Command.builtIn(.init(kind: .userMode(.init(id: id, name: "", isEnabled: true), .enable), notification: false))
+      Command.builtIn(.init(kind: .userMode(.init(id: id, name: "", isEnabled: true), .enable), notification: nil))
     ]
 
     return result
   }
 
   static func applicationCommand(id: String) -> Command {
-    Command.application(.init(id: id, application: Application.messages(name: "Application"), notification: false))
+    Command.application(.init(id: id, application: Application.messages(name: "Application"), notification: nil))
   }
 
   static func appleScriptCommand(id: String) -> Command {
-    Command.script(.init(id: id, name: "", kind: .appleScript, source: .path(""), notification: false))
+    Command.script(.init(id: id, name: "", kind: .appleScript, source: .path(""), notification: nil))
   }
 
   static func shellScriptCommand(id: String) -> Command {
-    Command.script(.init(id: id, name: "", kind: .shellScript, source: .path(""), notification: false))
+    Command.script(.init(id: id, name: "", kind: .shellScript, source: .path(""), notification: nil))
   }
 
   static func shortcutCommand(id: String) -> Command {
     Command.shortcut(ShortcutCommand(id: id, shortcutIdentifier: "Run shortcut",
-                                     name: "Run shortcut", isEnabled: true, notification: false))
+                                     name: "Run shortcut", isEnabled: true, notification: nil))
   }
 
   static func keyboardCommand(id: String) -> Command {
-    Command.keyboard(.init(id: id, name: "", isEnabled: true, keyboardShortcut: KeyShortcut.empty(), notification: false))
+    Command.keyboard(.init(id: id, name: "", isEnabled: true, keyboardShortcut: KeyShortcut.empty(), notification: nil))
   }
 
   static func openCommand(id: String) -> Command {
@@ -374,14 +413,14 @@ extension Command {
                         bundleName: "",
                         path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
                        path: "~/Developer/Xcode.project",
-                       notification: false))
+                       notification: nil))
   }
 
   static func urlCommand(id: String, application: Application?) -> Command {
     Command.open(.init(id: id,
                        application: application,
                        path: "https://github.com",
-                       notification: false))
+                       notification: nil))
   }
 
   static func textCommand(id: String) -> Command {
@@ -395,7 +434,7 @@ extension Command {
               id: UUID().uuidString,
               name: "",
               isEnabled: true,
-              notification: false
+              notification: nil
             )
           )
         )

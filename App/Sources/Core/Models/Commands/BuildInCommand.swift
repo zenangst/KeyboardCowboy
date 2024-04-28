@@ -61,7 +61,7 @@ struct BuiltInCommand: MetaDataProviding {
     case notification
   }
 
-  init(id: String = UUID().uuidString, kind: Kind, notification: Bool) {
+  init(id: String = UUID().uuidString, kind: Kind, notification: Command.Notification?) {
     self.kind = kind
     self.meta = .init(id: id, name: kind.displayValue, isEnabled: true, notification: notification)
   }

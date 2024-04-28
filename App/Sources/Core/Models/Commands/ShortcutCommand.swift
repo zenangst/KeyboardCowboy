@@ -4,7 +4,8 @@ struct ShortcutCommand: MetaDataProviding {
   let shortcutIdentifier: String
   var meta: Command.MetaData
 
-  internal init(id: String, shortcutIdentifier: String, name: String, isEnabled: Bool, notification: Bool) {
+  internal init(id: String, shortcutIdentifier: String, name: String, isEnabled: Bool, 
+                notification: Command.Notification? = nil) {
     self.shortcutIdentifier = shortcutIdentifier
     self.meta = Command.MetaData(id: id, name: name, isEnabled: isEnabled, notification: notification)
   }
@@ -32,6 +33,6 @@ struct ShortcutCommand: MetaDataProviding {
   static func empty() -> ShortcutCommand {
     ShortcutCommand(id: UUID().uuidString,
                     shortcutIdentifier: "Shortcut", name: "Shortcut",
-                    isEnabled: true, notification: false)
+                    isEnabled: true, notification: nil)
   }
 }

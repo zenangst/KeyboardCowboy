@@ -186,7 +186,9 @@ struct WindowCommand: MetaDataProviding {
   }
 
   init(id: String = UUID().uuidString, name: String, 
-       kind: Kind, notification: Bool, animationDuration: Double) {
+       kind: Kind, 
+       notification: Command.Notification? = nil,
+       animationDuration: Double) {
     self.kind = kind
     self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
     self.animationDuration = animationDuration

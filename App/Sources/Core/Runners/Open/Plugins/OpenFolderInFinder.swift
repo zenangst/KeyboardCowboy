@@ -25,7 +25,7 @@ final class OpenFolderInFinder {
     let script = ScriptCommand(name: "Open folder in Finder: \(path)",
                                kind: .appleScript,
                                source: .inline(source),
-                               notification: false)
+                               notification: nil)
 
     if checkCancellation { try Task.checkCancellation() }
     

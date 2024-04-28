@@ -3,7 +3,7 @@ import XCTest
 
 final class CommandTests: XCTestCase {
   func testCopy() {
-    let subject = Command.application(.init(name: "Test", action: .open, application: .calendar(), modifiers: [.onlyIfNotRunning], notification: true))
+    let subject = Command.application(.init(name: "Test", action: .open, application: .calendar(), modifiers: [.onlyIfNotRunning], notification: .bezel))
     let copy = subject.copy()
 
     XCTAssertNotEqual(subject.id, copy.id)

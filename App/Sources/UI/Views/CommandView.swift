@@ -4,7 +4,7 @@ import SwiftUI
 struct CommandView: View {
   enum Action {
     case changeDelay(payload: CommandViewPayload, newValue: Double?)
-    case toggleNotify(payload: CommandViewPayload, newValue: Bool)
+    case toggleNotify(payload: CommandViewPayload, newValue: Command.Notification?)
     case toggleEnabled(payload: CommandViewPayload, newValue: Bool)
     case updateName(payload: CommandViewPayload, newValue: String)
     case modify(Kind)

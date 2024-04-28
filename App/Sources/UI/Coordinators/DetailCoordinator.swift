@@ -125,7 +125,7 @@ final class DetailCoordinator {
     case .mouse(let kind):
       command = .mouse(.init(meta: .init(), kind: kind))
     case .keyboardShortcut(let keyShortcuts):
-      command = .keyboard(.init(id: resolvedCommandId, name: "", keyboardShortcuts: keyShortcuts, notification: false))
+      command = .keyboard(.init(id: resolvedCommandId, name: "", keyboardShortcuts: keyShortcuts, notification: nil))
     case .script(let value, let kind, let scriptExtension):
       let source: ScriptCommand.Source
       switch kind {
@@ -137,9 +137,9 @@ final class DetailCoordinator {
 
       switch scriptExtension {
       case .appleScript:
-        command = .script(.init(name: title, kind: .appleScript, source: source, notification: false))
+        command = .script(.init(name: title, kind: .appleScript, source: source, notification: nil))
       case .shellScript:
-        command = .script(.init(name: title, kind: .shellScript, source: source, notification: false))
+        command = .script(.init(name: title, kind: .shellScript, source: source, notification: nil))
       }
     case .text(let textCommand):
       switch textCommand.kind {
@@ -148,7 +148,7 @@ final class DetailCoordinator {
       }
     case .shortcut(let name):
       command = .shortcut(.init(id: resolvedCommandId, shortcutIdentifier: name,
-                                name: name, isEnabled: true, notification: false))
+                                name: name, isEnabled: true, notification: nil))
     case .application(let application, let action,
                       let inBackground, let hideWhenRunning, let ifNotRunning):
       assert(application != nil)
@@ -172,29 +172,29 @@ final class DetailCoordinator {
                                           action: commandAction,
                                           application: application,
                                           modifiers: modifiers,
-                                          notification: false))
+                                          notification: nil))
     case .open(let path, let application):
       let resolvedPath = (path as NSString).expandingTildeInPath
       command = Command.open(.init(id: resolvedCommandId,
                                    name: "\(path)", application: application, path: resolvedPath,
-                                   notification: false))
+                                   notification: nil))
     case .url(let targetUrl, let application):
       let urlString = targetUrl.absoluteString
       command = Command.open(.init(id: resolvedCommandId,
                                    name: "\(urlString)", application: application, path: urlString,
-                                   notification: false))
+                                   notification: nil))
     case .systemCommand(let kind):
       command = Command.systemCommand(.init(id: UUID().uuidString,
                                             name: "System command",
                                             kind: kind,
-                                            notification: false))
+                                            notification: nil))
     case .uiElement(let predicates):
       command = Command.uiElement(.init(predicates: predicates))
     case .windowManagement(let kind):
       command = Command.windowManagement(.init(id: UUID().uuidString,
                                                name: "Window Management Command",
                                                kind: kind,
-                                               notification: false,
+                                               notification: nil,
                                                animationDuration: 0))
     }
 

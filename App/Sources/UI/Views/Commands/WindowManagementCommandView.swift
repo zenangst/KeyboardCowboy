@@ -35,10 +35,27 @@ struct WindowManagementCommandView: View {
                                             iconSize: iconSize, onAction: onAction)
         .roundedContainer(padding: 4, margin: 0)
       },
-      subContent: { _ in
-        WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
-          model.animationDuration = newDuration
-          onAction(.onUpdate(.init(id: metaData.id, kind: model.kind, animationDuration: newDuration)))
+      subContent: { metaData in
+        HStack {
+          ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
+            if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
+          }, set: { newValue in
+            if newValue { metaData.notification.wrappedValue = .bezel }
+          })) { value in
+            if value {
+              onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
+            } else {
+              onAction(.commandAction(.toggleNotify(nil)))
+            }
+          }
+          .offset(x: 1)
+
+          Spacer()
+
+          WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
+            model.animationDuration = newDuration
+            onAction(.onUpdate(.init(id: metaData.id, kind: model.kind, animationDuration: newDuration)))
+          }
         }
       },
       onAction: {

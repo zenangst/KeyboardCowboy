@@ -1,3 +1,4 @@
+import Bonzai
 import Inject
 import SwiftUI
 
@@ -71,7 +72,21 @@ struct KeyboardCommandInternalView: View {
         KeyboardCommandContentView(model: $model, focus: focus) { onAction(.editCommand(model)) }
           .roundedContainer(padding: 0, margin: 0)
       },
-      subContent: { _ in KeyboardCommandSubContentView { onAction(.editCommand(model)) } },
+      subContent: { metaData in
+        ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
+          if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
+        }, set: { newValue in
+          if newValue { metaData.notification.wrappedValue = .bezel }
+        })) { value in
+          if value {
+            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
+          } else {
+            onAction(.commandAction(.toggleNotify(nil)))
+          }
+        }
+        .offset(x: 1)
+        KeyboardCommandSubContentView { onAction(.editCommand(model)) }
+      },
       onAction: { onAction(.commandAction($0)) })
   }
 }
