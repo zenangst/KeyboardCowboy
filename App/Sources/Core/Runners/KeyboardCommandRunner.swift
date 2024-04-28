@@ -58,7 +58,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
         }
 
         let shouldPostKeyDown = originalEvent == nil || originalEvent?.type == .keyDown
-        let shouldPostKeyUp = originalEvent == nil   || !isRepeat || originalEvent?.type == .keyUp
+        let shouldPostKeyUp = originalEvent == nil   || (!isRepeat && originalEvent?.type == .keyUp)
 
         if shouldPostKeyDown {
           let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
