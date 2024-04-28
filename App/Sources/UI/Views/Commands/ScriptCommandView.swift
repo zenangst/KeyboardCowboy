@@ -41,7 +41,7 @@ struct ScriptCommandView: View {
   }
 }
 
-private struct ScriptCommandContentView: View {
+struct ScriptCommandContentView: View {
   @EnvironmentObject var openPanel: OpenPanelController
   private let text: String
   private let model: CommandViewModel.Kind.ScriptModel
