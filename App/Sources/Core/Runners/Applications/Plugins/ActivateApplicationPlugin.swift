@@ -10,6 +10,7 @@ final class ActivateApplicationPlugin {
 
   private let userSpace: UserSpace
 
+  @MainActor
   init(userSpace: UserSpace = .shared) {
     self.userSpace = userSpace
   }

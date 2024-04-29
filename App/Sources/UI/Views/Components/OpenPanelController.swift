@@ -33,8 +33,7 @@ final class OpenPanelController: NSObject, ObservableObject, NSOpenSavePanelDele
 
     let response = panel.runModal()
 
-    guard response == .OK,
-          let path = panel.url?.path else { return }
+    guard response == .OK, panel.url?.path != nil else { return }
 
     panel.urls.forEach { url in
       responseHandler(url.path)

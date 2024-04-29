@@ -1,6 +1,6 @@
 import SwiftUI
 
-final class GroupStore: ObservableObject {
+final class GroupStore: ObservableObject, @unchecked Sendable {
   @MainActor
   @Published var groups = [WorkflowGroup]()
 

@@ -4,8 +4,8 @@ final class HideApplicationPlugin {
   let workspace: WorkspaceProviding
   let userSpace: UserSpace
 
-  init(workspace: WorkspaceProviding = NSWorkspace.shared,
-       userSpace: UserSpace = .shared) {
+  @MainActor
+  init(workspace: WorkspaceProviding = NSWorkspace.shared, userSpace: UserSpace = .shared) {
     self.workspace = workspace
     self.userSpace = userSpace
   }
@@ -20,6 +20,5 @@ final class HideApplicationPlugin {
 
     userSpace.frontMostApplication.ref.activate()
     _ = runningApplication.hide()
-
   }
 }

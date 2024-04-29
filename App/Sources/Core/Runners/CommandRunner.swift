@@ -79,7 +79,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     )
     self.workspace = workspace
 
-    Task { await MouseMonitor.shared.startMonitor() }
+    Task { MouseMonitor.shared.startMonitor() }
   }
 
   func reveal(_ commands: [Command]) {

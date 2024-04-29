@@ -13,7 +13,7 @@ enum UserSpaceError: Error {
   case unableToGetDocumentPath
 }
 
-final class UserSpace: Sendable {
+final class UserSpace: @unchecked Sendable {
   enum EnvironmentKey: String, CaseIterable {
     case currentWorkingDirectory = "CURRENT_WORKING_DIRECTORY"
     case directory = "DIRECTORY"
@@ -160,11 +160,12 @@ final class UserSpace: Sendable {
     }
   }
 
+  @MainActor
   static let shared = UserSpace()
 
-  @Published private(set) var frontMostApplication: Application = .current
-  @Published private(set) var previousApplication: Application = .current
-  @Published private(set) var runningApplications: [Application] = [Application.current]
+  @Published private(set) var frontMostApplication: Application
+  @Published private(set) var previousApplication: Application
+  @Published private(set) var runningApplications: [Application]
   public let userModesPublisher = UserModesPublisher([])
   private(set) var userModes: [UserMode] = []
   private var frontmostApplicationSubscription: AnyCancellable?
@@ -173,7 +174,12 @@ final class UserSpace: Sendable {
 
   var machPort: MachPortEventController?
 
+  @MainActor
   private init(workspace: NSWorkspace = .shared) {
+    frontMostApplication = .current
+    previousApplication = .current
+    runningApplications = [Application.current]
+
     frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
       .compactMap { $0 }
       .sink { [weak self] runningApplication in

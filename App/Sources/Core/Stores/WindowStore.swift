@@ -29,7 +29,7 @@ final class WindowStore: @unchecked Sendable {
     var frontMostApplication: AnyCancellable?
   }
 
-  final class State: Sendable {
+  final class State: @unchecked Sendable {
     var appAccessibilityElement: AppAccessibilityElement
     var frontmostApplication: UserSpace.Application
     var frontMostIndex: Int = 0
