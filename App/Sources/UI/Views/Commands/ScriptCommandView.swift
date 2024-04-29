@@ -36,7 +36,9 @@ struct ScriptCommandView: View {
         ScriptCommandContentView(model, meta: metaData, onAction: onAction)
           .roundedContainer(padding: 4, margin: 0)
       },
-      subContent: { _ in ScriptCommandSubContentView(model: model, onAction: onAction) },
+      subContent: { _ in
+        ScriptCommandSubContentView(model: model, metaData: metaData, onAction: onAction)
+      },
       onAction: { onAction(.commandAction($0)) })
   }
 }
@@ -220,18 +222,43 @@ private struct ScriptCommandPathView: View {
 
 private struct ScriptCommandSubContentView: View {
   private let model: CommandViewModel.Kind.ScriptModel
+  private let metaData: CommandViewModel.MetaData
   private let onAction: (ScriptCommandView.Action) -> Void
 
-  init(model: CommandViewModel.Kind.ScriptModel, onAction: @escaping (ScriptCommandView.Action) -> Void) {
+  init(model: CommandViewModel.Kind.ScriptModel,
+       metaData: CommandViewModel.MetaData,
+       onAction: @escaping (ScriptCommandView.Action) -> Void) {
     self.model = model
+    self.metaData = metaData
     self.onAction = onAction
   }
 
   var body: some View {
     HStack {
-      Spacer()
+      Menu {
+        Button(action: { onAction(.commandAction(.toggleNotify(nil))) }, label: { Text("None") })
+        ForEach(Command.Notification.allCases) { notification in
+          Button(action: { onAction(.commandAction(.toggleNotify(notification))) },
+                 label: { Text(notification.displayValue) })
+        }
+      } label: {
+        switch metaData.notification {
+        case .bezel:
+          Text("Bezel")
+            .font(.caption)
+        case .commandPanel:
+          Text("Command Panel")
+            .font(.caption)
+        case .none:
+          Text("None")
+            .font(.caption)
+        }
+      }
+      .menuStyle(.zen(.init(color: .systemGray, padding: .large)))
+      .fixedSize()
       switch model.source {
       case .path(let source):
+        Spacer()
         Button("Open", action: { onAction(.open(path: source)) })
           .buttonStyle(.zen(ZenStyleConfiguration(color: .systemCyan, grayscaleEffect: .constant(true))))
         Button("Reveal", action: { onAction(.reveal(path: source)) })

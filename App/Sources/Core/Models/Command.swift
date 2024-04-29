@@ -87,9 +87,16 @@ enum MetaDataMigrator: String, CodingKey {
 /// to store multiple command types in the same workflow.
 /// All underlying data-types are both `Codable` and `Hashable`.
 enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sendable {
-  enum Notification: String, Codable, CaseIterable {
-    case bezel = "Bezel"
-    case commandPanel = "Command Panel"
+  enum Notification: String, Identifiable, Codable, CaseIterable {
+    var id: String { rawValue }
+    case bezel
+    case commandPanel
+    var displayValue: String {
+      switch self {
+      case .bezel: "Bezel"
+      case .commandPanel: "Command Panel"
+      }
+    }
   }
 
   struct MetaData: Identifiable, Codable, Hashable, Sendable {
@@ -146,7 +153,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
           self.notification = nil
         }
       } else {
-        self.notification = try container.decodeIfPresent(Command.Notification.self, forKey: Command.MetaData.CodingKeys.notification)
+        self.notification = try? container.decodeIfPresent(Command.Notification.self, forKey: Command.MetaData.CodingKeys.notification)
       }
 
       self.variableName = try container.decodeIfPresent(String.self, forKey: Command.MetaData.CodingKeys.variableName)
