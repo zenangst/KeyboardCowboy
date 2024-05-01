@@ -110,7 +110,6 @@ struct CommandPanelView: View {
       }
     }
     .roundedContainer(padding: 8, margin: 4)
-    .shadow(radius: 10)
     .frame(minWidth: 200, minHeight: 200)
   }
 
