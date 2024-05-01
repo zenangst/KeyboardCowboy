@@ -142,7 +142,7 @@ struct CommandResolverView: View {
         }
       .fixedSize(horizontal: false, vertical: true)
     case .script(let model):
-      ScriptCommandView(command.meta, model: model, iconSize: iconSize) { action in
+      ScriptCommandView(command.meta, model: .constant(model), iconSize: iconSize, onSubmit: {}) { action in
           switch action {
           case .edit:
             return

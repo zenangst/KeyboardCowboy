@@ -13,17 +13,20 @@ struct ScriptCommandView: View {
     case commandAction(CommandContainerAction)
   }
   private let metaData: CommandViewModel.MetaData
-  private let model: CommandViewModel.Kind.ScriptModel
+  @Binding private var model: CommandViewModel.Kind.ScriptModel
   private let iconSize: CGSize
   private let onAction: (Action) -> Void
+  private let onSubmit: () -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.ScriptModel,
+       model: Binding<CommandViewModel.Kind.ScriptModel>,
        iconSize: CGSize,
+       onSubmit: @escaping () -> Void,
        onAction: @escaping (Action) -> Void) {
+    _model = model
     self.metaData = metaData
-    self.model = model
     self.iconSize = iconSize
+    self.onSubmit = onSubmit
     self.onAction = onAction
   }
 
@@ -33,7 +36,7 @@ struct ScriptCommandView: View {
       placeholder: model.placeholder,
       icon: { _ in ScriptIconView(size: iconSize.width) },
       content: { _ in
-        ScriptCommandContentView(model, meta: metaData, onAction: onAction)
+        ScriptCommandContentView(model, meta: metaData, onSubmit: onSubmit, onAction: onAction)
           .roundedContainer(padding: 4, margin: 0)
       },
       subContent: { _ in
@@ -48,12 +51,15 @@ struct ScriptCommandContentView: View {
   private let text: String
   private let model: CommandViewModel.Kind.ScriptModel
   private let onAction: (ScriptCommandView.Action) -> Void
+  private let onSubmit: () -> Void
 
   init(_ model: CommandViewModel.Kind.ScriptModel,
        meta: CommandViewModel.MetaData,
+       onSubmit: @escaping () -> Void,
        onAction: @escaping (ScriptCommandView.Action) -> Void) {
     self.model = model
     self.onAction = onAction
+    self.onSubmit = onSubmit
     self.text = switch model.source {
     case .inline(let source): source
     case .path(let source): source
@@ -75,7 +81,7 @@ struct ScriptCommandContentView: View {
                                      scriptExtension: model.scriptExtension,
                                      variableName: model.variableName,
                                      execution: model.execution)))
-      })
+      }, onSubmit: onSubmit)
       .opacity(model.source.isInline ? 1 : 0)
       .frame(height: model.source.isInline ? nil : 0)
 
@@ -113,17 +119,20 @@ private struct ScriptCommandInlineView: View {
   private let execution: Workflow.Execution
   private let onVariableNameChange: (String) -> Void
   private let onScriptChange: (String) -> Void
+  private let onSubmit: () -> Void
 
   init(text: String,
        variableName: String,
        execution: Workflow.Execution,
        onVariableNameChange: @escaping (String) -> Void,
-       onScriptChange: @escaping (String) -> Void) {
+       onScriptChange: @escaping (String) -> Void,
+       onSubmit: @escaping () -> Void) {
     self.text = text
     self.variableName = variableName
     self.execution = execution
     self.onVariableNameChange = onVariableNameChange
     self.onScriptChange = onScriptChange
+    self.onSubmit = onSubmit
   }
 
   var body: some View {
@@ -131,7 +140,7 @@ private struct ScriptCommandInlineView: View {
       ZenTextEditor(color: ZenColorPublisher.shared.color,
                     text: $text,
                     placeholder: "Script goes here…",
-                    font: Font.system(.body, design: .monospaced))
+                    font: Font.system(.body, design: .monospaced), onCommandReturnKey: onSubmit)
       .onChange(of: text, perform: onScriptChange)
 
       ZenDivider()
@@ -319,9 +328,14 @@ struct ScriptCommandView_Previews: PreviewProvider {
 
   static var previews: some View {
     Group {
-      ScriptCommandView(inlineCommand.model.meta, model: inlineCommand.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+      ScriptCommandView(inlineCommand.model.meta,
+                        model: .constant(inlineCommand.kind),
+                        iconSize: .init(width: 24, height: 24),
+                        onSubmit: { },
+                        onAction: { _ in })
         .previewDisplayName("Inline")
-      ScriptCommandView(pathCommand.model.meta, model: pathCommand.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+      ScriptCommandView(pathCommand.model.meta, model: .constant(pathCommand.kind), iconSize: .init(width: 24, height: 24),
+                        onSubmit: {}, onAction: { _ in })
         .previewDisplayName("Path")
     }
     .designTime()

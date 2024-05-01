@@ -12,6 +12,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
   @Published var data: CommandLineViewModel = .init(kind: nil, results: [])
 
   @Published var selection: Int = 0
+  @Published var commandDown: Bool = false
 
   @MainActor
   static private(set) var shared: CommandLineCoordinator = .init()
@@ -89,9 +90,14 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
         let result = data.results[selection]
         switch result {
         case .app(let application):
-          try? await applicationRunner
-            .run(.init(application: application), 
-                 checkCancellation: false)
+          if commandDown {
+            NSWorkspace.shared.reveal(application.path)
+          } else {
+            try? await applicationRunner
+              .run(.init(application: application),
+                   checkCancellation: false)
+          }
+
         default: break
         }
       case .url:
@@ -118,7 +124,15 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
   @MainActor
   func shouldConsumeEvent(_ event: NSEvent) -> Bool {
+    commandDown = event.modifierFlags.contains(.command)
+
     switch Int(event.keyCode) {
+    case kVK_ANSI_W:
+      if event.type == .keyDown, event.modifierFlags.contains(.command) {
+        windowController.close()
+        return true
+      }
+      return false
     case kVK_Escape:
       if event.type == .keyDown {
         windowController.close()
@@ -136,6 +150,12 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
         selection = min(data.results.count - 1, newSelection)
       }
       return true
+    case kVK_Return:
+      if event.type == .keyDown, event.modifierFlags.contains(.command) {
+        run()
+        return true
+      }
+      return false
     default:
       return false
     }

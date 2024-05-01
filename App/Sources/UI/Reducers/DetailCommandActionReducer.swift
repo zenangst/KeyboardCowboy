@@ -71,9 +71,10 @@ final class DetailCommandActionReducer {
           workflow.updateOrAddCommand(command)
         case .changeApplicationAction(let action):
           applicationCommand.action = switch action { 
-          case .open:  .open
-          case .close: .close
-          case .hide:  .hide
+          case .open:   .open
+          case .close:  .close
+          case .hide:   .hide
+          case .unhide: .unhide
           }
           command = .application(applicationCommand)
           workflow.updateOrAddCommand(command)

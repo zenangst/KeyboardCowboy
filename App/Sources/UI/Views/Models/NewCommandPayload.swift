@@ -42,6 +42,7 @@ enum NewCommandPayload: Equatable {
       case .open:  "Open \(application?.displayName ?? "Application")"
       case .close: "Close \(application?.displayName ?? "Application")"
       case .hide:  "Hide \(application?.displayName ?? "Application")"
+      case .unhide:  "Unhide \(application?.displayName ?? "Application")"
       }
     case .url(let targetUrl, let application):
       return if let application {

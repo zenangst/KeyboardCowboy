@@ -1,19 +1,25 @@
+import Carbon
 import Cocoa
 import Foundation
 
 final class CommandPanelCoordinator: NSObject, ObservableObject, NSWindowDelegate {
-  private var cache = [ScriptCommand: NSWindowController]()
+  private var cache = [ScriptCommand.ID: NSWindowController]()
+
+  init(cache: [ScriptCommand.ID : NSWindowController] = [ScriptCommand.ID: NSWindowController]()) {
+    self.cache = cache
+  }
 
   @MainActor
   func run(_ command: ScriptCommand) {
-    let windowController = cache[command, default: createNewWindowController(for: command)]
+    let windowController = cache[command.id, default: createNewWindowController(for: command)]
 
     if windowController.window?.isVisible == false {
       windowController.showWindow(nil)
     }
+    windowController.window?.makeKeyAndOrderFront(nil)
 
-    if cache[command] != windowController {
-      cache[command] = windowController
+    if cache[command.id] != windowController {
+      cache[command.id] = windowController
     }
   }
 
@@ -21,32 +27,72 @@ final class CommandPanelCoordinator: NSObject, ObservableObject, NSWindowDelegat
   private func createNewWindowController(for command: ScriptCommand) -> NSWindowController {
     let publisher = CommandPanelViewPublisher(state: .ready)
     let runner = CommandPanelRunner(plugin: ShellScriptPlugin())
-    let view = CommandPanelView(publisher: publisher, command: command, action: { [runner, publisher] in
+    var command = command
+    let view = CommandPanelView(publisher: publisher, command: command,
+                                onChange: { newContents in
+      command.source = .inline(newContents)
+    }, onSubmit: { _ in
+      runner.run(command, for: publisher)
+    }, action: { [runner, publisher] in
       runner.run(command, for: publisher)
     })
-    let window = CommandPanel(identifier: command.id, minSize: .zero, rootView: view)
+    let window = CommandPanel(identifier: command.id, runner: runner, minSize: .zero, rootView: view)
+    window.eventDelegate = self
     window.delegate = self
     let windowController = NSWindowController(window: window)
+    windowController.windowFrameAutosaveName = "CommandPanel-\(command.id)"
+    runner.run(command, for: publisher)
     return windowController
   }
 
   // MARK: NSWindowDelegate
 
   func windowShouldClose(_ sender: NSWindow) -> Bool {
+    clearCache(sender)
+    return true
+  }
+
+  @MainActor
+  func clearCache(_ window: NSWindow) {
     var updatedCache = cache
-    for (script, controller) in cache {
-      if controller.window == sender {
-        updatedCache[script] = nil
+    for (scriptID, controller) in cache {
+      if controller.window == window {
+        updatedCache[scriptID] = nil
       }
     }
 
     cache = updatedCache
-
-    return true
   }
 }
 
-private final class CommandPanelRunner {
+extension CommandPanelCoordinator: CommandPanelEventDelegate {
+  // MARK: CommandPanelEventDelegate
+
+  @MainActor
+  func shouldConsumeEvent(_ event: NSEvent, for window: NSWindow, runner: CommandPanelRunner) -> Bool {
+    switch Int(event.keyCode) {
+    case kVK_ANSI_W:
+      if event.type == .keyDown, event.modifierFlags.contains(.command) {
+        runner.cancel()
+        window.close()
+        clearCache(window)
+        return true
+      }
+      return false
+    case kVK_Escape:
+      if event.type == .keyDown {
+        runner.cancel()
+        window.close()
+        clearCache(window)
+      }
+      return true
+    default:
+      return false
+    }
+  }
+}
+
+final class CommandPanelRunner {
   let plugin: ShellScriptPlugin
   var task: Task<Void, Error>?
 
@@ -54,9 +100,13 @@ private final class CommandPanelRunner {
     self.plugin = plugin
   }
 
+  func cancel() {
+    task?.cancel()
+  }
+
   @MainActor
   func run(_ command: ScriptCommand, for publisher: CommandPanelViewPublisher) {
-    guard publisher.state == .running else {
+    if publisher.state == .running {
       task?.cancel()
       publisher.publish(.ready)
       return
@@ -64,14 +114,16 @@ private final class CommandPanelRunner {
 
     self.task?.cancel()
     let task = Task { [plugin] in
+      publisher.publish(.running)
+      let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: true)
       do {
         let output: String?
         switch (command.kind, command.source) {
         case (.shellScript, .path(let source)):
-          output = try plugin.executeScript(at: source, environment: [:],
+          output = try plugin.executeScript(at: source, environment: snapshot.terminalEnvironment(),
                                             checkCancellation:  true)
         case (.shellScript, .inline(let script)):
-          output = try plugin.executeScript(script, environment: [:],
+          output = try plugin.executeScript(script, environment: snapshot.terminalEnvironment(),
                                             checkCancellation: true)
         default:
           // This shouldn't happend.

@@ -38,6 +38,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
   private let missionControl: MissionControlPlugin
   private let workspace: WorkspaceProviding
+  private let commandPanel: CommandPanelCoordinator
   private var machPort: MachPortEventController?
   private var serialTask: Task<Void, Error>?
   private var concurrentTask: Task<Void, Error>?
@@ -59,6 +60,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
        uiElementCommandRunner: UIElementCommandRunner
   ) {
     self.missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
+    self.commandPanel = CommandPanelCoordinator()
     self.runners = .init(
       application: ApplicationCommandRunner(
         scriptCommandRunner: scriptCommandRunner,
@@ -222,7 +224,16 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           .init(id: id, text: " ", running: true)
         )
       case .commandPanel:
-        break // Add support for command windows
+        switch command {
+        case .script(let scriptCommand):
+          await MainActor.run {
+            commandPanel.run(scriptCommand)
+          }
+        default:
+          assertionFailure("Not yet implemented.")
+          break
+        }
+        return
       case .none:
         break
       }

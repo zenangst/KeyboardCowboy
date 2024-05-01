@@ -27,17 +27,21 @@ struct CommandPanelView: View {
 
   @ObservedObject var publisher: CommandPanelViewPublisher
   @State var output: String = ""
-  @State var scriptContents: String
 
-  let command: ScriptCommand
+  @State var command: ScriptCommand
+  let onChange: (String) -> Void
+  let onSubmit: (ScriptCommand) -> Void
   let action: () -> Void
 
   init(publisher: CommandPanelViewPublisher,
        command: ScriptCommand,
+       onChange: @escaping (String) -> Void,
+       onSubmit: @escaping (ScriptCommand) -> Void,
        action: @escaping () -> Void) {
-    _scriptContents = .init(initialValue: command.source.contents)
-    self.publisher = publisher
     self.command = command
+    self.publisher = publisher
+    self.onChange = onChange
+    self.onSubmit = onSubmit
     self.action = action
   }
 
@@ -48,11 +52,10 @@ struct CommandPanelView: View {
         name: command.name,
         action: action
       )
-
-      ZenDivider()
+      .roundedContainer(padding: 4, margin: 4)
 
       ScrollView {
-        VStack(spacing: 0) {
+        VStack(spacing: 8) {
           switch command.source {
           case .path(let source):
             let viewModel = CommandViewModel.Kind.ScriptModel(
@@ -62,8 +65,20 @@ struct CommandPanelView: View {
               variableName: "",
               execution: .concurrent
             )
-            ScriptCommandContentView(viewModel, meta: .init(name: "Name", namePlaceholder: ""), onAction: { action in })
-              .roundedContainer(padding: 4, margin: 12)
+            ScriptCommandContentView(viewModel, meta: .init(name: "Name", namePlaceholder: ""), onSubmit: {
+              onSubmit(command)
+            }, onAction: { action in
+              switch action {
+              case .updateSource(let scriptModel):
+                switch scriptModel.source {
+                case .inline(let contents):
+                  onChange(contents)
+                default: break
+                }
+              default: break
+              }
+            })
+              .roundedContainer(padding: 4, margin: 4)
           case .inline(let source):
             let viewModel = CommandViewModel.Kind.ScriptModel(
                 id: command.id,
@@ -72,25 +87,37 @@ struct CommandPanelView: View {
                 variableName: "",
                 execution: .concurrent
             )
-            ScriptCommandContentView(viewModel, meta: .init(name: "Name", namePlaceholder: ""), onAction: { action in })
-              .roundedContainer(padding: 4, margin: 12)
+            ScriptCommandContentView(viewModel, meta: .init(name: "Name", namePlaceholder: ""), onSubmit: {
+              onSubmit(command)
+            }, onAction: { action in
+              switch action {
+              case .updateSource(let scriptModel):
+                switch scriptModel.source {
+                case .inline(let contents), .path(let contents):
+                  command.source.contents = contents
+                  onChange(contents)
+                }
+              default: break
+              }
+            })
+            .roundedContainer(padding: 4, margin: 4)
           }
 
           CommandPanelOutputView(state: publisher.state)
             .frame(maxWidth: .infinity)
-            .roundedContainer(padding: 4, margin: 0)
-            .padding(.horizontal, 12)
+            .roundedContainer(padding: 4, margin: 4)
         }
       }
-      .background()
     }
-    .frame(minWidth: 200)
+    .roundedContainer(padding: 8, margin: 4)
+    .shadow(radius: 10)
+    .frame(minWidth: 200, minHeight: 200)
   }
 
   @MainActor
   static func preview(_ state: CommandPanelView.CommandState, command: ScriptCommand) -> some View {
     let publisher = CommandPanelViewPublisher(state: state)
-    return CommandPanelView(publisher: publisher, command: command) {
+    return CommandPanelView(publisher: publisher, command: command, onChange: { _ in }, onSubmit: { _ in }) {
       switch publisher.state {
       case .ready:   publisher.publish(.running)
       case .running: publisher.publish(.error("ops!"))
@@ -122,7 +149,6 @@ private struct CommandPanelHeaderView: View {
       .fixedSize()
       .animation(.easeIn, value: state)
     }
-    .roundedContainer(0, padding: 8, margin: 0)
   }
 
   private static func buttonColor(_ state: CommandPanelView.CommandState) -> ZenColor {

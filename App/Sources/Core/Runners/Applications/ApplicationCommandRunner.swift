@@ -10,6 +10,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     let bringToFront: BringToFrontApplicationPlugin
     let close: CloseApplicationPlugin
     let hide: HideApplicationPlugin
+    let unhide: UnhideApplicationPlugin
     let launch: LaunchApplicationPlugin
   }
 
@@ -28,6 +29,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       bringToFront: BringToFrontApplicationPlugin(scriptCommandRunner),
       close: CloseApplicationPlugin(workspace: workspace),
       hide: HideApplicationPlugin(workspace: workspace, userSpace: .shared),
+      unhide: UnhideApplicationPlugin(workspace: workspace, userSpace: .shared),
       launch: LaunchApplicationPlugin(workspace: workspace)
     )
   }
@@ -45,6 +47,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     case .open:  try await openApplication(command, checkCancellation: checkCancellation)
     case .close: try plugins.close.execute(command, checkCancellation: checkCancellation)
     case .hide:  plugins.hide.execute(command)
+    case .unhide: plugins.unhide.execute(command)
     }
   }
 

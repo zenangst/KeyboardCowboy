@@ -1,6 +1,6 @@
 import Cocoa
 
-final class HideApplicationPlugin {
+final class UnhideApplicationPlugin {
   let workspace: WorkspaceProviding
   let userSpace: UserSpace
 
@@ -14,7 +14,7 @@ final class HideApplicationPlugin {
     guard let runningApplication = workspace
       .applications
       .first(where: { $0.bundleIdentifier == command.application.bundleIdentifier }),
-          !runningApplication.isHidden else {
+      runningApplication.isHidden else {
       return
     }
 
@@ -23,6 +23,6 @@ final class HideApplicationPlugin {
     }
 
     userSpace.frontMostApplication.ref.activate()
-    _ = runningApplication.hide()
+    _ = runningApplication.unhide()
   }
 }

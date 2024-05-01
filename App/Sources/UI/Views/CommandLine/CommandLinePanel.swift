@@ -16,7 +16,8 @@ final class CommandLinePanel: NSPanel {
       .resizable,
       .borderless,
       .nonactivatingPanel,
-      .unifiedTitleAndToolbar
+      .unifiedTitleAndToolbar,
+      .closable
     ]
 
     super.init(contentRect: .init(origin: .zero, size: minSize),
@@ -43,8 +44,7 @@ final class CommandLinePanel: NSPanel {
     self.standardWindowButton(.miniaturizeButton)?.isHidden = true
     self.standardWindowButton(.zoomButton)?.isHidden = true
 
-
-    self.localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp], handler: { [weak self] event in
+    self.localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged], handler: { [weak self] event in
       guard let self, isVisible else { return event }
       if let eventDelegate, eventDelegate.shouldConsumeEvent(event) == true {
         return nil

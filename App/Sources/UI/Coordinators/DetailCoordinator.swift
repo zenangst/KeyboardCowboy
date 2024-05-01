@@ -162,9 +162,10 @@ final class DetailCoordinator {
       if ifNotRunning { modifiers.append(.onlyIfNotRunning) }
 
       let commandAction: ApplicationCommand.Action = switch action {
-      case .close: .close
-      case .open:  .open
-      case .hide:  .hide
+      case .close:  .close
+      case .open:   .open
+      case .hide:   .hide
+      case .unhide: .unhide
       }
 
       command = Command.application(.init(id: resolvedCommandId,

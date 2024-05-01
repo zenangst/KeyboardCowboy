@@ -6,11 +6,11 @@ extension AnyTransition {
   static var commandLineTransition: AnyTransition {
     .asymmetric(
       insertion:
-          .scale(scale: 0.1, anchor: .top)
+          .scale(scale: 0.1, anchor: .topLeading)
           .combined(with: .opacity)
       ,
       removal:
-          .scale(scale: 0.1, anchor: .top)
+          .scale(scale: 0.1, anchor: .topLeading)
           .combined(with: .opacity)
     )
   }
@@ -67,19 +67,15 @@ struct CommandLineView: View {
       .padding(.horizontal, 8)
       ZenDivider()
         .padding(.bottom, 4)
-      CommandLineResultListView(data: coordinator.data, selection: $coordinator.selection)
+      CommandLineResultListView(data: coordinator.data, 
+                                commandDown: $coordinator.commandDown,
+                                selection: $coordinator.selection)
         .padding(.horizontal, 8)
     }
     .background(
-      LinearGradient(stops: [
-        .init(color: Color.clear, location: 0),
-        .init(color: Color(nsColor: .controlAccentColor.blended(withFraction: 0.8, of: .black)!).opacity(0.7), location: 1)
-      ], startPoint: .top, endPoint: .bottom)
+      .ultraThinMaterial,
+      in: RoundedRectangle(cornerRadius: 8, style: .continuous)
     )
-    .background(.ultraThickMaterial)
-    .mask {
-      RoundedRectangle(cornerRadius: 8)
-    }
     .frame(minWidth: 400, minHeight: 104)
   }
 }
@@ -115,12 +111,14 @@ private struct CommandLineInputView: View {
 }
 
 private struct CommandLineResultListView: View {
+  @Binding private var commandDown: Bool
   @Binding private var selection: Int
   static var animation: Animation = .smooth(duration: 0.2)
   private var data: CommandLineViewModel
 
-  init(data: CommandLineViewModel, selection: Binding<Int>) {
+  init(data: CommandLineViewModel, commandDown: Binding<Bool>, selection: Binding<Int>) {
     _selection = selection
+    _commandDown = commandDown
     self.data = data
   }
 
@@ -132,7 +130,7 @@ private struct CommandLineResultListView: View {
             Group {
               switch result {
               case .app(let app):
-                CommandLineApplicationView(app: app)
+                CommandLineApplicationView(app: app, commandDown: $commandDown)
                   .id(app.id)
               case .url(let url):
                 CommandLineURLView(url: url)
@@ -150,7 +148,6 @@ private struct CommandLineResultListView: View {
             )
             .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
           }
-          .transition(AnyTransition.commandLineTransition.animation(Self.animation))
         }
       }
       .onChange(of: selection, perform: { value in
@@ -162,6 +159,7 @@ private struct CommandLineResultListView: View {
 
 private struct CommandLineApplicationView: View {
   let app: Application
+  @Binding var commandDown: Bool
   var body: some View {
     HStack(spacing: 10) {
       IconView(icon: .init(app), size: .init(width: 32, height: 32))
@@ -171,11 +169,13 @@ private struct CommandLineApplicationView: View {
           .bold()
         Text(app.path)
           .font(.caption2)
-          .opacity(0.6)
           .lineLimit(1)
+          .opacity(commandDown ? 0.6 : 0)
+          .frame(maxHeight: commandDown ? nil : 0)
       }
     }
     .padding(4)
+    .animation(.smooth(duration: 0.2), value: commandDown)
   }
 }
 
@@ -200,6 +200,7 @@ private struct CommandLineSearchView: View {
         .resizable()
         .aspectRatio(contentMode: .fit)
         .frame(width: 16, height: 16)
+        .padding(.leading, 4)
       Text(search.text)
         .bold()
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
@@ -242,6 +243,7 @@ private struct CommandLineImageView: View {
     )
   }
 }
+
 
 #Preview {
   CommandLineView(coordinator: .shared)

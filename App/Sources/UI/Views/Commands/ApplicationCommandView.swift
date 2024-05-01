@@ -114,6 +114,16 @@ private struct ApplicationCommandInternalView: View {
               .font(.subheadline)
           }
         })
+        Button(action: {
+          model.action = "Unhide"
+          onAction(.changeApplicationAction(.unhide))
+        }, label: {
+          HStack {
+            Image(systemName: "eye")
+            Text("Unhide")
+              .font(.subheadline)
+          }
+        })
       }, label: {
         Text(model.action)
           .font(.caption)

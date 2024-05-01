@@ -11,7 +11,7 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
   private var openActions = [String: [Workflow]]()
   private var runningApplicationsSubscription: AnyCancellable?
   private var workflowGroupsSubscription: AnyCancellable?
-  private var hideActions = [String: [Workflow]]()
+  private var resignActions = [String: [Workflow]]()
   private var previousApplication: UserSpace.Application?
 
   init(_ workflowRunner: WorkflowRunning) {
@@ -60,7 +60,7 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
           }
 
           if trigger.contexts.contains(.resignFrontMost) {
-            self.hideActions[trigger.application.bundleIdentifier, default: []].append(workflow)
+            self.resignActions[trigger.application.bundleIdentifier, default: []].append(workflow)
           }
         }
       case .keyboardShortcuts, .snippet, .none:
@@ -70,14 +70,14 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
   }
 
   private func process(_ frontMostApplication: UserSpace.Application) {
+
     if let workflows = self.activateActions[frontMostApplication.bundleIdentifier] {
       workflows.forEach(workflowRunner.runCommands(in:))
     }
 
-    if let previousApplication, let workflows = self.hideActions[previousApplication.bundleIdentifier] {
+    if let previousApplication, let workflows = self.resignActions[previousApplication.bundleIdentifier] {
       workflows.forEach(workflowRunner.runCommands(in:))
     }
-
     previousApplication = frontMostApplication
   }
 
@@ -110,7 +110,7 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
   func applicationCommandRunnerWillRunApplicationCommand(_ command: ApplicationCommand) {
     switch command.action {
     case .open:
-      if let previousApplication, let workflows = self.hideActions[previousApplication.bundleIdentifier] {
+      if let previousApplication, let workflows = self.resignActions[previousApplication.bundleIdentifier] {
         workflows.forEach(workflowRunner.runCommands(in:))
       }
     default:
