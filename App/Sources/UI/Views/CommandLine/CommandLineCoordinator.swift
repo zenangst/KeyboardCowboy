@@ -11,8 +11,8 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
   @MainActor
   @Published var data: CommandLineViewModel = .init(kind: nil, results: [])
 
-  @Published var selection: Int = 0
   @Published var optionDown: Bool = false
+  @Published var selection: Int = 0
 
   @MainActor
   static private(set) var shared: CommandLineCoordinator = .init()
@@ -252,11 +252,10 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
       let finalResults = results
 
-      await MainActor.run {
-        withAnimation(.smooth(duration: 0.1)) {
-          data.results = finalResults
-        }
+      Task { @MainActor in
         data.kind = kind
+        data.results = finalResults
+        try await Task.sleep(for: .milliseconds(10))
         setSize(for: windowController)
       }
     }
@@ -267,8 +266,6 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
     guard let window = windowController.window,
           let contentView = window.contentView,
           let screen = window.screen else { return }
-
-    contentView.invalidateIntrinsicContentSize()
 
     let contentSize = contentView.intrinsicContentSize
     let maxHeight = screen.visibleFrame.height / 3
@@ -285,6 +282,8 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
     newFrame.origin.y = oldFrame.maxY - newHeight
     newFrame.size.height = newHeight
+
+    guard newFrame != oldFrame else { return }
 
     window.setFrame(newFrame, display: true)
   }

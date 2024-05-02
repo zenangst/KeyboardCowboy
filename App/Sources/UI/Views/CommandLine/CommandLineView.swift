@@ -61,7 +61,6 @@ struct CommandLineView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      let hasInput = !coordinator.input.isEmpty
       CommandLineInputView(
         data: coordinator.data,
         input: $coordinator.input,
@@ -80,10 +79,9 @@ struct CommandLineView: View {
       }
     }
     .background(
-      .ultraThinMaterial,
+      .thinMaterial,
       in: RoundedRectangle(cornerRadius: 8, style: .continuous)
     )
-    .frame(minWidth: 400, minHeight: Self.minHeight)
   }
 }
 
