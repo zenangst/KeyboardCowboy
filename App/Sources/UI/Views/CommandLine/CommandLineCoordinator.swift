@@ -12,7 +12,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
   @Published var data: CommandLineViewModel = .init(kind: nil, results: [])
 
   @Published var selection: Int = 0
-  @Published var commandDown: Bool = false
+  @Published var optionDown: Bool = false
 
   @MainActor
   static private(set) var shared: CommandLineCoordinator = .init()
@@ -90,14 +90,13 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
         let result = data.results[selection]
         switch result {
         case .app(let application):
-          if commandDown {
+          if NSEvent.modifierFlags.contains(.command) {
             NSWorkspace.shared.reveal(application.path)
           } else {
             try? await applicationRunner
               .run(.init(application: application),
                    checkCancellation: false)
           }
-
         default: break
         }
       case .url:
@@ -124,7 +123,9 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
 
   @MainActor
   func shouldConsumeEvent(_ event: NSEvent) -> Bool {
-    commandDown = event.modifierFlags.contains(.command)
+    if event.type == .flagsChanged {
+      optionDown = event.modifierFlags.contains(.option)
+    }
 
     switch Int(event.keyCode) {
     case kVK_ANSI_W:
@@ -179,6 +180,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
       Task { @MainActor in
         data.kind = .none
         data.results = []
+        setSize(for: windowController)
       }
       return
     }
@@ -255,7 +257,35 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
           data.results = finalResults
         }
         data.kind = kind
+        setSize(for: windowController)
       }
     }
+  }
+
+  @MainActor
+  private func setSize(for windowController: NSWindowController) {
+    guard let window = windowController.window,
+          let contentView = window.contentView,
+          let screen = window.screen else { return }
+
+    contentView.invalidateIntrinsicContentSize()
+
+    let contentSize = contentView.intrinsicContentSize
+    let maxHeight = screen.visibleFrame.height / 3
+    let oldFrame = window.frame
+    let newHeight: CGFloat
+
+    if input.isEmpty {
+      newHeight = CommandLineView.minHeight
+    } else {
+      newHeight = min(contentSize.height, maxHeight)
+    }
+
+    var newFrame = oldFrame
+
+    newFrame.origin.y = oldFrame.maxY - newHeight
+    newFrame.size.height = newHeight
+
+    window.setFrame(newFrame, display: true)
   }
 }
