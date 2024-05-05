@@ -37,6 +37,8 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
   // MARK: Private methods
 
   private func receive(_ groups: [WorkflowGroup]) {
+    self.activateActions.removeAll()
+    self.resignActions.removeAll()
     self.openActions.removeAll()
     self.closeActions.removeAll()
     self.activateActions.removeAll()
@@ -70,7 +72,6 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
   }
 
   private func process(_ frontMostApplication: UserSpace.Application) {
-
     if let workflows = self.activateActions[frontMostApplication.bundleIdentifier] {
       workflows.forEach(workflowRunner.runCommands(in:))
     }

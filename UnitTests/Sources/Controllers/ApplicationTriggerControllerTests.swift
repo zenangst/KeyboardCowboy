@@ -97,6 +97,7 @@ private struct RunningApplicationMock: RunningApplication {
   func activate(options: NSApplication.ActivationOptions) -> Bool { false }
   func terminate() -> Bool { false }
   func hide() -> Bool { false }
+  func unhide() -> Bool { false }
 }
 
 private final class WorkGroupPublisher {

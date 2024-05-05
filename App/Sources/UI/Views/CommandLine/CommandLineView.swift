@@ -252,7 +252,6 @@ private struct CommandLineImageView: View {
         EmptyView()
       }
     }
-    .animation(.smooth(duration: 0.2), value: data.kind)
     .frame(width: 32, height: 32)
     .background(
       Color.black.opacity(0.3).cornerRadius(8, antialiased: false)
