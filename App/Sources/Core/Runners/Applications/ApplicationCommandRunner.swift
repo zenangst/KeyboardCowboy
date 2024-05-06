@@ -43,6 +43,10 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       }
     }
 
+    if await command.application.bundleIdentifier == KeyboardCowboy.bundleIdentifier {
+      await NSApplication.shared.delegate?.applicationDidBecomeActive?(.openKeyboardCowboy)
+    }
+
     switch command.action {
     case .open:  try await openApplication(command, checkCancellation: checkCancellation)
     case .close: try plugins.close.execute(command, checkCancellation: checkCancellation)
