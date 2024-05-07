@@ -44,30 +44,54 @@ enum SystemWindowRelativeFocus {
 
       guard let activeWindow = activeWindow else { return }
 
-      let matchedWindow: WindowModel? = switch direction {
+      var matchedWindow: WindowModel?
+      switch direction {
       case .up:
-        windows
-          .filter({ $0.rect.origin.y < activeWindow.rect.origin.y })
-          .sorted(by: { $0.rect.origin.y < $1.rect.origin.y })
+        matchedWindow = windows
+          .filter({ $0.rect.maxY <= activeWindow.rect.maxY })
+          .sorted(by: { $0.rect.maxY > $1.rect.maxY })
           .first
+        if matchedWindow == nil {
+          matchedWindow = windows
+            .sorted(by: { $0.rect.maxY < $1.rect.maxY })
+            .last
+        }
       case .down:
-        windows
-          .filter({ $0.rect.origin.y > activeWindow.rect.origin.y })
-          .sorted(by: { $0.rect.origin.y > $1.rect.origin.y })
+        matchedWindow = windows
+          .filter({ $0.rect.maxY >= activeWindow.rect.maxY })
+          .sorted(by: { $0.rect.maxY < $1.rect.maxY })
           .first
+        if matchedWindow == nil {
+          matchedWindow = windows
+            .sorted(by: { $0.rect.maxY < $1.rect.maxY })
+            .first
+        }
       case .left:
-        windows
+        matchedWindow = windows
           .filter({ $0.rect.origin.x < activeWindow.rect.origin.x })
           .sorted(by: { $0.rect.origin.x > $1.rect.origin.x })
           .first
+
+        if matchedWindow == nil {
+          matchedWindow = windows
+            .sorted(by: { $0.rect.maxX < $1.rect.maxX })
+            .last
+        }
       case .right:
-        windows
+        matchedWindow = windows
           .filter({ $0.rect.origin.x > activeWindow.rect.origin.x })
           .sorted(by: { $0.rect.origin.x < $1.rect.origin.x })
           .first
+        if matchedWindow == nil {
+          matchedWindow = windows
+            .sorted(by: { $0.rect.origin.x < $1.rect.origin.x })
+            .first
+        }
       }
 
-      guard let matchedWindow else { return }
+      guard let matchedWindow else {
+        return
+      }
 
       let processIdentifier = pid_t(matchedWindow.ownerPid.rawValue)
       guard let runningApplication = NSRunningApplication(processIdentifier: processIdentifier) else { return }
