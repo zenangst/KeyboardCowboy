@@ -89,6 +89,14 @@ private struct SystemCommandIconView: View {
       MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
     case .showDesktop:
       DockIconView(size: iconSize.width)
+    case .moveFocusToNextWindowUpwards:
+      EmptyView()
+    case .moveFocusToNextWindowDownwards:
+      EmptyView()
+    case .moveFocusToNextWindowOnLeft:
+      EmptyView()
+    case .moveFocusToNextWindowOnRight:
+      EmptyView()
     }
   }
 }

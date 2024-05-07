@@ -40,6 +40,14 @@ struct NewCommandSystemCommandView: View {
           MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: 24)
         case .showDesktop:
           DockIconView(size: 24)
+        case .moveFocusToNextWindowUpwards:
+          EmptyView()
+        case .moveFocusToNextWindowDownwards:
+          EmptyView()
+        case .moveFocusToNextWindowOnLeft:
+          EmptyView()
+        case .moveFocusToNextWindowOnRight:
+          EmptyView()
         case .none:
           EmptyView()
         }

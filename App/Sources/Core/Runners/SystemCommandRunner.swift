@@ -37,7 +37,7 @@ final class SystemCommandRunner: @unchecked Sendable {
 
   func run(_ command: SystemCommand, applicationRunner: ApplicationCommandRunner,
            checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws {
-    try await MainActor.run {
+    Task { @MainActor in
       switch command.kind {
       case .activateLastApplication:
         Task {
@@ -69,6 +69,14 @@ final class SystemCommandRunner: @unchecked Sendable {
         Dock.run(.applicationWindows)
       case .missionControl:
         Dock.run(.missionControl)
+      case .moveFocusToNextWindowUpwards:
+        try await SystemWindowRelativeFocus.run(.up, snapshot: snapshot)
+      case .moveFocusToNextWindowDownwards:
+        try await SystemWindowRelativeFocus.run(.down, snapshot: snapshot)
+      case .moveFocusToNextWindowOnLeft:
+        try await SystemWindowRelativeFocus.run(.left, snapshot: snapshot)
+      case .moveFocusToNextWindowOnRight:
+        try await SystemWindowRelativeFocus.run(.right, snapshot: snapshot)
       }
     }
   }

@@ -222,6 +222,11 @@ extension Command {
           case .moveFocusToPreviousWindowGlobal: MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
           case .showDesktop:                     DockIconView(size: size)
           case .missionControl:                  MissionControlIconView(size: size)
+          case .moveFocusToNextWindowUpwards:    EmptyView()
+          case .moveFocusToNextWindowDownwards:  EmptyView()
+          case .moveFocusToNextWindowOnLeft:     EmptyView()
+          case .moveFocusToNextWindowOnRight:    EmptyView()
+
         }
       case .menuBar: MenuIconView(size: size)
       case .windowManagement: WindowManagementIconView(size: size)
