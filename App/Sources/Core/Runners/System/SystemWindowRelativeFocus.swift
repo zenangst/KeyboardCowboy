@@ -36,6 +36,12 @@ enum SystemWindowRelativeFocus {
         }
       }
 
+      // If the active window couldn't be matched, we should activate the first window in the list.
+      if activeWindow == nil {
+        activeWindow = windows.first
+        windows.removeFirst()
+      }
+
       guard let activeWindow = activeWindow else { return }
 
       let matchedWindow: WindowModel? = switch direction {
