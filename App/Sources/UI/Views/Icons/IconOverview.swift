@@ -8,9 +8,10 @@ struct IconOverview: PreviewProvider {
     FlowLayout(itemSpacing: spacing, lineSpacing: spacing) {
       WindowManagementIconView(size: size)
       ActivateLastApplicationIconView(size: size)
+      RelativeFocusIconView(.up, size: size)
       SnippetIconView(size: size)
-      MacroIconView(.remove, size: size)
       MagicVarsIconView(size: size)
+      MacroIconView(.remove, size: size)
       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
       UserModeIconView(size: size)
       UIElementIconView(size: size)
@@ -38,7 +39,7 @@ struct IconOverview: PreviewProvider {
       ErrorIconView(size: size)
       WarningIconView(size: size)
     }
-    .frame(maxWidth: size * 4 + spacing * 5)
+    .frame(maxWidth: size * 5 + spacing * 5)
     .padding(spacing)
     .background(Color(.windowBackgroundColor))
     .previewLayout(.sizeThatFits)

@@ -65,13 +65,13 @@ struct ContentImageView: View {
         case .moveFocusToPreviousWindowGlobal:
           MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size - 6)
         case .moveFocusToNextWindowUpwards:
-          EmptyView()
+          RelativeFocusIconView(.up, size: size - 6)
         case .moveFocusToNextWindowDownwards:
-          EmptyView()
+          RelativeFocusIconView(.down, size: size - 6)
         case .moveFocusToNextWindowOnLeft:
-          EmptyView()
+          RelativeFocusIconView(.left, size: size - 6)
         case .moveFocusToNextWindowOnRight:
-          EmptyView()
+          RelativeFocusIconView(.right, size: size - 6)
         case .showDesktop:
           DockIconView(size: size - 6)
         }

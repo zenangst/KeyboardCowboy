@@ -209,25 +209,24 @@ extension Command {
       case .mouse:
         MouseIconView(size: size)
       case .systemCommand(let systemCommand):
-        switch systemCommand.kind {
-          case .activateLastApplication:
-            ActivateLastApplicationIconView(size: size)
-          case .applicationWindows:              MissionControlIconView(size: size)
-          case .minimizeAllOpenWindows:          MinimizeAllIconView(size: size)
-          case .moveFocusToNextWindow:           MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
-          case .moveFocusToNextWindowFront:      MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
-          case .moveFocusToNextWindowGlobal:     MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
-          case .moveFocusToPreviousWindow:       MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
-          case .moveFocusToPreviousWindowFront:  MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
-          case .moveFocusToPreviousWindowGlobal: MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
-          case .showDesktop:                     DockIconView(size: size)
-          case .missionControl:                  MissionControlIconView(size: size)
-          case .moveFocusToNextWindowUpwards:    EmptyView()
-          case .moveFocusToNextWindowDownwards:  EmptyView()
-          case .moveFocusToNextWindowOnLeft:     EmptyView()
-          case .moveFocusToNextWindowOnRight:    EmptyView()
-
-        }
+      switch systemCommand.kind {
+      case .activateLastApplication:
+        ActivateLastApplicationIconView(size: size)
+      case .applicationWindows:              MissionControlIconView(size: size)
+      case .minimizeAllOpenWindows:          MinimizeAllIconView(size: size)
+      case .moveFocusToNextWindow:           MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
+      case .moveFocusToNextWindowFront:      MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
+      case .moveFocusToNextWindowGlobal:     MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
+      case .moveFocusToPreviousWindow:       MoveFocusToWindowIconView(direction: .previous, scope: .visibleWindows, size: size)
+      case .moveFocusToPreviousWindowFront:  MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
+      case .moveFocusToPreviousWindowGlobal: MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
+      case .showDesktop:                     DockIconView(size: size)
+      case .missionControl:                  MissionControlIconView(size: size)
+      case .moveFocusToNextWindowUpwards:    RelativeFocusIconView(.up, size: size)
+      case .moveFocusToNextWindowDownwards:  RelativeFocusIconView(.down, size: size)
+      case .moveFocusToNextWindowOnLeft:     RelativeFocusIconView(.left, size: size)
+      case .moveFocusToNextWindowOnRight:    RelativeFocusIconView(.right, size: size)
+      }
       case .menuBar: MenuIconView(size: size)
       case .windowManagement: WindowManagementIconView(size: size)
       case .uiElement: UIElementIconView(size: size)

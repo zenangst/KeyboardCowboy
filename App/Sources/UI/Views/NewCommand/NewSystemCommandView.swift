@@ -41,13 +41,13 @@ struct NewCommandSystemCommandView: View {
         case .showDesktop:
           DockIconView(size: 24)
         case .moveFocusToNextWindowUpwards:
-          EmptyView()
+          RelativeFocusIconView(.up, size: 24)
         case .moveFocusToNextWindowDownwards:
-          EmptyView()
+          RelativeFocusIconView(.down, size: 24)
         case .moveFocusToNextWindowOnLeft:
-          EmptyView()
+          RelativeFocusIconView(.left, size: 24)
         case .moveFocusToNextWindowOnRight:
-          EmptyView()
+          RelativeFocusIconView(.right, size: 24)
         case .none:
           EmptyView()
         }
