@@ -98,6 +98,8 @@ enum SystemWindowRelativeFocus {
       let appElement = AppAccessibilityElement(processIdentifier)
       let match = try appElement.windows().first(where: { $0.id == matchedWindow.id })
 
+      WindowStore.shared.disableInteractive()
+
       let activationResult = runningApplication.activate()
       if !activationResult, let bundleURL = runningApplication.bundleURL {
         NSWorkspace.shared.open(bundleURL)
