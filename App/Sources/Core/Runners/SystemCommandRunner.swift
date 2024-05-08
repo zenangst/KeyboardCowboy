@@ -70,13 +70,13 @@ final class SystemCommandRunner: @unchecked Sendable {
       case .missionControl:
         Dock.run(.missionControl)
       case .moveFocusToNextWindowUpwards:
-        try await SystemWindowRelativeFocus.run(.up, snapshot: snapshot)
+        try SystemWindowRelativeFocus.run(.up, snapshot: snapshot)
       case .moveFocusToNextWindowDownwards:
-        try await SystemWindowRelativeFocus.run(.down, snapshot: snapshot)
+        try SystemWindowRelativeFocus.run(.down, snapshot: snapshot)
       case .moveFocusToNextWindowOnLeft:
-        try await SystemWindowRelativeFocus.run(.left, snapshot: snapshot)
+        try SystemWindowRelativeFocus.run(.left, snapshot: snapshot)
       case .moveFocusToNextWindowOnRight:
-        try await SystemWindowRelativeFocus.run(.right, snapshot: snapshot)
+        try SystemWindowRelativeFocus.run(.right, snapshot: snapshot)
       }
     }
   }
