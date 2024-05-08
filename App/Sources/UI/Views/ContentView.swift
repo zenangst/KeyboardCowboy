@@ -344,9 +344,10 @@ struct ContentView: View {
         onAction(.duplicate(workflowIds: contentSelectionManager.selections))
       } else {
         onAction(.duplicate(workflowIds: [selectedId]))
-        contentSelectionManager.publish([selectedId])
-        contentSelectionManager.setLastSelection(selectedId)
       }
+
+      contentSelectionManager.publish([selectedId])
+      contentSelectionManager.setLastSelection(selectedId)
 
       if contentSelectionManager.selections.count == 1 {
         appFocus.wrappedValue = .detail(.name)
