@@ -188,11 +188,6 @@ struct WindowManagementCommandInternalView: View {
                 EmptyView()
                 EmptyView()
               }
-            } else if case .decreaseSize = model.kind {
-              GridRow {
-                EmptyView()
-                EmptyView()
-              }
             } else {
               GridRow {
                 NumberTextField(text: $pixels, onValidChange: { newValue in
