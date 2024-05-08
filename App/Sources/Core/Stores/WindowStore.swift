@@ -102,10 +102,6 @@ final class WindowStore: @unchecked Sendable {
     state.snapshot()
   }
 
-  func disableInteractive() {
-    self.state.interactive = false
-  }
-
   // MARK: - Private methods
 
   private func getWindows() -> [WindowModel] {

@@ -11,9 +11,7 @@ enum SystemWindowRelativeFocus {
 
   static func run(_ direction: Direction, snapshot: UserSpace.Snapshot) throws {
     Task { @MainActor in
-      var windows = await UserSpace.shared.snapshot(resolveUserEnvironment: false)
-        .windows
-        .visibleWindowsInStage
+      var windows = indexWindowsInStage(getWindows())
       let frontMostApplication = snapshot.frontMostApplication
       let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
       var activeWindow: WindowModel?
@@ -98,8 +96,6 @@ enum SystemWindowRelativeFocus {
       let appElement = AppAccessibilityElement(processIdentifier)
       let match = try appElement.windows().first(where: { $0.id == matchedWindow.id })
 
-      WindowStore.shared.disableInteractive()
-
       let activationResult = runningApplication.activate()
       if !activationResult, let bundleURL = runningApplication.bundleURL {
         NSWorkspace.shared.open(bundleURL)
@@ -107,5 +103,28 @@ enum SystemWindowRelativeFocus {
 
       match?.performAction(.raise)
     }
+  }
+
+  // MARK: - Private methods
+
+  private static func getWindows() -> [WindowModel] {
+    let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+    let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
+    return windowModels
+  }
+
+  private static func indexWindowsInStage(_ models: [WindowModel]) -> [WindowModel] {
+    let excluded = ["WindowManager", "Window Server"]
+    let minimumSize = CGSize(width: 300, height: 300)
+    let windows: [WindowModel] = models
+      .filter {
+        $0.id > 0 &&
+        $0.isOnScreen &&
+        $0.rect.size.width > minimumSize.width &&
+        $0.rect.size.height > minimumSize.height &&
+        !excluded.contains($0.ownerName)
+      }
+
+    return windows
   }
 }
