@@ -71,7 +71,7 @@ enum SystemWindowRelativeFocus {
 
       if matchedWindow == nil {
         matchedWindow = windows
-          .sorted(by: { $0.rect.maxX < $1.rect.maxX })
+          .sorted(by: { $0.rect.origin.x < $1.rect.origin.x })
           .last
       }
     case .right:

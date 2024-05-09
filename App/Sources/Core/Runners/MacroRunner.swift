@@ -9,9 +9,7 @@ final class MacroRunner {
     self.coordinator = coordinator
   }
 
-  func run(_ macroAction: MacroAction, 
-           shortcut: KeyShortcut,
-           machPortEvent: MachPortEvent) async -> String {
+  func run(_ macroAction: MacroAction, shortcut: KeyShortcut, machPortEvent: MachPortEvent) async -> String {
     let output: String
     switch macroAction.kind {
       case .record:
