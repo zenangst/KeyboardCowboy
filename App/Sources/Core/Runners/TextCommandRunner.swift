@@ -45,27 +45,11 @@ final class TextCommandRunner {
     case .instant:
       let pasteboard = NSPasteboard.general
       pasteboard.clearContents()
-
-      var input = input
-      let cursor = "${}"
-      let positionFromEnd: Int
-      if let range = input.range(of: cursor) {
-        positionFromEnd = input.distance(from: range.upperBound, to: input.endIndex)
-        input = input.replacingOccurrences(of: cursor, with: "")
-      } else {
-        positionFromEnd = 0
-      }
-
       pasteboard.setString(input, forType: .string)
+
       try await Task.sleep(for: .milliseconds(10))
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyUp, flags: .maskCommand)
-
-      guard positionFromEnd > 0 else { return }
-      for _ in 0..<positionFromEnd {
-        try keyboardCommandRunner.machPort?.post(kVK_LeftArrow, type: .keyDown, flags: [.maskNonCoalesced, .maskNumericPad, .maskSecondaryFn])
-        try keyboardCommandRunner.machPort?.post(kVK_LeftArrow, type: .keyUp, flags: [.maskNonCoalesced, .maskNumericPad, .maskSecondaryFn])
-      }
       try await Task.sleep(for: .milliseconds(10))
     }
   }
