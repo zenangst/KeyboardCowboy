@@ -113,18 +113,18 @@ final class CommandPanelRunner {
     }
 
     self.task?.cancel()
-    let task = Task { [plugin] in
+    let task = Task(priority: .high) { [plugin] in
       publisher.publish(.running)
       let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: true)
       do {
         let output: String?
         switch (command.kind, command.source) {
         case (.shellScript, .path(let source)):
-          output = try plugin.executeScript(at: source, environment: snapshot.terminalEnvironment(),
-                                            checkCancellation:  true)
+          output = try await plugin.executeScript(at: source, environment: snapshot.terminalEnvironment(),
+                                                  checkCancellation:  true)
         case (.shellScript, .inline(let script)):
-          output = try plugin.executeScript(script, environment: snapshot.terminalEnvironment(),
-                                            checkCancellation: true)
+          output = try await plugin.executeScript(script, environment: snapshot.terminalEnvironment(),
+                                                  checkCancellation: true)
         default:
           // This shouldn't happend.
           assertionFailure("Not supported.")
