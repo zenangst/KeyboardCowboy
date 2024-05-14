@@ -44,6 +44,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
         // the application to properly respond to arrow key events as if the
         // user used the actual arrow keys to navigate.
         let arrows = 123...126
+        flags.insert(.maskNonCoalesced)
         if arrows.contains(key) {
           flags.insert(.maskNumericPad)
         }
