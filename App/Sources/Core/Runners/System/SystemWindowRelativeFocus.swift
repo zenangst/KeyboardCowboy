@@ -44,13 +44,13 @@ enum SystemWindowRelativeFocus {
     var matchedWindow: WindowModel?
     switch direction {
     case .up:
-      matchedWindow = findAbove(activeWindow, windows: windows)
+      matchedWindow = findWindowAboveRelative(to: activeWindow, windows: windows)
     case .down:
-      matchedWindow = findBelow(activeWindow, windows: windows)
+      matchedWindow = findWindowBelowRelative(to: activeWindow, windows: windows)
     case .left:
-      matchedWindow = findLeft(activeWindow, windows: windows)
+      matchedWindow = findiWindowOnLeftRelative(to: activeWindow, windows: windows)
     case .right:
-      matchedWindow = findRight(activeWindow, windows: windows)
+      matchedWindow = findWindowOnRightRelative(to: activeWindow, windows: windows)
     }
 
     guard let matchedWindow else { return }
@@ -92,7 +92,7 @@ enum SystemWindowRelativeFocus {
     return windows
   }
 
-  private static func findLeft(_ activeWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
+  private static func findiWindowOnLeftRelative(to activeWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
     var matchedWindow: WindowModel?
     let midX = activeWindow.rect.midX
     let midY = activeWindow.rect.midY
@@ -131,7 +131,7 @@ enum SystemWindowRelativeFocus {
     return matchedWindow
   }
 
-  private static func findRight(_ activeWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
+  private static func findWindowOnRightRelative(to activeWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
     var matchedWindow: WindowModel?
     let midX = activeWindow.rect.midX
     let midY = activeWindow.rect.midY
@@ -170,7 +170,7 @@ enum SystemWindowRelativeFocus {
     return matchedWindow
   }
 
-  private static func findAbove(_ activeWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
+  private static func findWindowAboveRelative(to activeWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
     var matchedWindow: WindowModel?
     let midX = activeWindow.rect.midX
     let midY = activeWindow.rect.midY
@@ -208,7 +208,7 @@ enum SystemWindowRelativeFocus {
     return matchedWindow
   }
 
-  private static func findBelow(_ activeWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
+  private static func findWindowBelowRelative(to activeWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
     var matchedWindow: WindowModel?
     let midX = activeWindow.rect.midX
     let midY = activeWindow.rect.midY
