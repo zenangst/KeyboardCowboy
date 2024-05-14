@@ -7,7 +7,7 @@ struct UIElementIconView: View {
   var body: some View {
     Rectangle()
       .fill(Color(.systemBlue))
-      .overlay { UIElementIconGradientView(size) }
+      .overlay { UIElementIconGradientView() }
       .overlay { iconOverlay() }
       .overlay { iconBorder(size) }
       .overlay(alignment: .center) {
@@ -22,13 +22,7 @@ struct UIElementIconView: View {
   }
 }
 
-private struct UIElementIconGradientView: View {
-  private let size: CGFloat
-
-  init(_ size: CGFloat) {
-    self.size = size
-  }
-
+struct UIElementIconGradientView: View {
   var body: some View {
     LinearGradient(
       gradient: Gradient(stops: [

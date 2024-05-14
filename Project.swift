@@ -10,11 +10,12 @@ func xcconfig(_ targetName: String) -> String { "Configurations/\(targetName).xc
 func sources(_ folder: String) -> SourceFilesList { "\(folder)/Sources/**" }
 func resources(_ folder: String) -> ResourceFileElements { "\(folder)/Resources/**" }
 
-let envPath = URL(fileURLWithPath: String(#filePath))
+let rootPath = URL(fileURLWithPath: String(#filePath))
   .deletingLastPathComponent()
   .absoluteString
   .replacingOccurrences(of: "file://", with: "")
-  .appending(".env")
+let assetPath = rootPath.appending("Assets")
+let envPath = rootPath.appending(".env")
 let env = EnvHelper(envPath)
 // Main application target
 let mainAppTarget = Target.target(
@@ -47,10 +48,10 @@ let mainAppTarget = Target.target(
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
         "CODE_SIGN_IDENTITY": "Apple Development",
         "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "756",
+        "CURRENT_PROJECT_VERSION": "893",
         "DEVELOPMENT_TEAM": env["TEAM_ID"],
         "ENABLE_HARDENED_RUNTIME": true,
-        "MARKETING_VERSION": "3.23.3",
+        "MARKETING_VERSION": "3.24.0",
         "PRODUCT_NAME": "Keyboard Cowboy"
       ],
       configurations: [
@@ -106,7 +107,7 @@ let project = Project(
         [.testableTarget(target: .target(unitTestTarget.name))],
         arguments: .arguments(
           environmentVariables: [
-            "SOURCE_ROOT": .environmentVariable(value: "$(SRCROOT)", isEnabled: true)
+            "ASSET_PATH": .environmentVariable(value: assetPath, isEnabled: true)
           ],
           launchArguments: [
             .launchArgument(name: "-running-unit-tests", isEnabled: true)

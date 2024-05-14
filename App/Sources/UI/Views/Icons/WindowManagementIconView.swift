@@ -35,7 +35,7 @@ struct WindowManagementIconView: View {
   }
 }
 
-private struct WindowManagementIconBackgroundView: View {
+struct WindowManagementIconBackgroundView: View {
   var body: some View {
     Rectangle()
       .fill(Color(nsColor: NSColor(red:0.94, green:0.71, blue:0.51, alpha:1.00)))

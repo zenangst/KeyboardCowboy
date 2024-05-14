@@ -138,13 +138,13 @@ enum DesignTime {
   @MainActor
   static var detailStatePublisher = DetailStatePublisher { .single }
 
-  static func metadata(name: String, icon: Icon?) -> CommandViewModel.MetaData {
+  static func metadata(name: String, notification: Command.Notification? = nil, icon: Icon?) -> CommandViewModel.MetaData {
     CommandViewModel.MetaData(
       id: UUID().uuidString,
       name: name,
       namePlaceholder: name,
       isEnabled: true,
-      notification: nil,
+      notification: notification,
       icon: icon,
       variableName: "")
   }
@@ -153,8 +153,8 @@ enum DesignTime {
     let kind = CommandViewModel.Kind.ApplicationModel(id: UUID().uuidString, action: "Open",
                                                       inBackground: false, hideWhenRunning: false,
                                                       ifNotRunning: false)
-    return (.init(meta: metadata(name: "News", icon: .init(bundleIdentifier: "com.apple.news",
-                                                           path: "/System/Applications/News.app")),
+    return (.init(meta: metadata(name: "Xcode", icon: .init(bundleIdentifier: "com.apple.dt.Xcode",
+                                                           path: "/Applications/Xcode.app")),
                   kind: .application(kind)), kind)
   }
 
@@ -210,11 +210,13 @@ enum DesignTime {
   }
 
   static var scriptCommandInline: (model: CommandViewModel, kind: CommandViewModel.Kind.ScriptModel) {
-    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .inline("hello, world!"), scriptExtension: .appleScript, variableName: "", execution: .serial)
+    let kind = CommandViewModel.Kind.ScriptModel(id: UUID().uuidString, source: .inline("pmset -g batt | grep -o '[0-9]\\{1,3\\}%'"), scriptExtension: .shellScript, variableName: "", execution: .serial)
     let scriptFile = Self.sourceRoot.appending("/Fixtures/AppleScript.scpt")
 
-    return (.init(meta: metadata(name: "Left align the Dock",
-                                 icon: .init(bundleIdentifier: scriptFile, path: scriptFile)),
+    return (.init(meta: metadata(name: "Show Battery Percentage",
+                                 notification: .bezel,
+                                 icon: .init(bundleIdentifier: scriptFile,
+                                             path: scriptFile)),
                   kind: .script(kind)), kind)
   }
 
