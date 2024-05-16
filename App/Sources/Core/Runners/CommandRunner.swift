@@ -329,6 +329,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         break
       }
     } catch {
+      if case .bezel = command.notification {
+        await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
+      }
       throw error
     }
   }
