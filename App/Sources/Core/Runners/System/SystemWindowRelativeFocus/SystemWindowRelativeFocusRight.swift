@@ -14,13 +14,13 @@ enum SystemWindowRelativeFocusRight {
     }
 
     for window in intersectingWindows {
-      if window.rect.origin.x > currentWindow.rect.origin.x {
+      if window.rect.origin.x >= currentWindow.rect.origin.x {
         return window
       }
     }
 
     for window in sortedWindows {
-      if window.rect.origin.x > currentWindow.rect.origin.x {
+      if window.rect.origin.x >= currentWindow.rect.origin.x {
         return window
       }
     }
