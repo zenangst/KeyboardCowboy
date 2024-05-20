@@ -64,6 +64,18 @@ struct CommandLineIconView: View {
             .roundedContainer(cornerRadius, padding: 0, margin: 0)
         }
       }
+      .overlay(alignment: .topTrailing) {
+        Rectangle()
+          .fill(
+            LinearGradient(stops: [
+              .init(color: Color(.systemYellow.withSystemEffect(.rollover)), location: 0),
+              .init(color: Color(.systemYellow), location: 0.5),
+            ], startPoint: .top, endPoint: .bottom)
+          )
+          .frame(width: size * 0.7, height: size * 0.2)
+          .offset(x: size * 0.2, y: -size * 0.1)
+          .rotationEffect(.degrees(45))
+      }
       .overlay { iconBorder(size) }
       .frame(width: size, height: size)
       .fixedSize()
