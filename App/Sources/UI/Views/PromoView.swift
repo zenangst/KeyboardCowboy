@@ -130,7 +130,8 @@ private struct AutomationView: View {
   var body: some View {
     VStack(spacing: 16) {
       TriggersIconView(size: 64)
-      Text("Automation")
+      Text("Automation\nTriggers")
+        .multilineTextAlignment(.center)
     }
   }
 }
@@ -212,10 +213,7 @@ private struct UniqueModifierView: View {
 private struct PrivacyFirstView: View {
   var body: some View {
     VStack(spacing: 16) {
-      Image(systemName: "shield.lefthalf.filled")
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .frame(width: 64, height: 64)
+      PrivacyIconView(size: 64)
       Text("Privacy First")
     }
   }
@@ -257,19 +255,19 @@ private struct WindowManagementView: View {
             .init(color: Color(nsColor: .white.withSystemEffect(.disabled)), location: 1.0),
           ], startPoint: .topLeading, endPoint: .bottom)
         )
-        .overlay { iconOverlay().opacity(0.5) }
+        .overlay { iconOverlay().opacity(0.25) }
         .overlay(alignment: .topLeading) {
           HStack(alignment: .top, spacing: 0) {
             MinimizeAllWindowTrafficLightsView(size)
             Rectangle()
               .fill(.white)
               .frame(maxWidth: .infinity)
-              .overlay { iconOverlay().opacity(0.5) }
+              .overlay { iconOverlay().opacity(0.25) }
           }
         }
         .iconShape(size.width * 0.7)
         .frame(width: size.width, height: size.height)
-        .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
+        .shadow(color: .black.opacity(0.3), radius: 4, y: 2)
 
       Text("Window Mangement")
         .font(.system(size: 18, design: .rounded))
