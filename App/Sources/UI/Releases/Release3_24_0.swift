@@ -198,24 +198,25 @@ struct Release3_24_0: View {
 
         Divider()
 
-        HStack(spacing: 4) {
-          Text("Special thanks to")
-          AsyncImage.init(url: URL(string: "https://avatars.githubusercontent.com/u/4262050?v=4")) { image in
-            image
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 24, height: 24)
-              .mask { Circle() }
-          } placeholder: {
-            Circle()
-              .fill(Color(.controlAccentColor))
-              .frame(width: 24, height: 24)
-              .overlay {
-                ProgressView()
-              }
+        FlowLayout(itemSpacing: 8) {
+          Group {
+            Text("Special thanks to")
+            SponsorView(
+              imageUrl: URL(string: "https://avatars.githubusercontent.com/u/4044886?v=4")!,
+              githubHandle: "uwe-schwarz")
+            SponsorView(
+              imageUrl: URL(string: "https://avatars.githubusercontent.com/u/4262050?v=4"),
+              githubHandle: "bjrmatos")
+            SponsorView(
+              imageUrl: URL(string: "https://avatars.githubusercontent.com/u/2284279?v=4"),
+              githubHandle: "onmyway133")
+            Text("and")
+            SponsorView(
+              imageUrl: URL(string: "https://avatars.githubusercontent.com/u/1260095?v=4"),
+              githubHandle: "andreasoverland")
+            Text("for supporting the project ❤️")
           }
-          Link("@bjrmatos", destination: URL(string: "https://github.com/bjrmatos")!)
-          Text("for supporting the project ❤️")
+          .frame(minHeight: 24)
         }
       }
       .frame(width: 475)
@@ -231,6 +232,31 @@ struct Release3_24_0: View {
       .padding(.bottom, 32)
     }
     .background(Color(.windowBackgroundColor))
+  }
+}
+
+struct SponsorView: View {
+  let imageUrl: URL?
+  let githubHandle: String
+
+  var body: some View {
+    HStack(spacing: 4) {
+      AsyncImage.init(url: imageUrl) { image in
+        image
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 24, height: 24)
+          .mask { Circle() }
+      } placeholder: {
+        Circle()
+          .fill(Color(.controlAccentColor))
+          .frame(width: 24, height: 24)
+          .overlay {
+            ProgressView()
+          }
+      }
+      Link("@\(githubHandle)", destination: URL(string: "https://github.com/\(githubHandle)")!)
+    }
   }
 }
 
