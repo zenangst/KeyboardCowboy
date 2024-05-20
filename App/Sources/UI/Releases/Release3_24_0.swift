@@ -86,10 +86,72 @@ struct Release3_24_0: View {
 
             VStack(alignment: .leading, spacing: 12) {
               HStack(alignment: .top, spacing: 12) {
+                RelativeFocusIconView(.right, size: 24)
+                Group {
+                  Text("Introducing relative focus: navigate between windows like a boss! Just point the direction and let Keyboard Cowboy figure it out.")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Divider()
+              }
+            }
+
+            Spacer()
+
+            VStack(alignment: .leading, spacing: 12) {
+              HStack(alignment: .top, spacing: 12) {
+                CommandLineIconView(size: 24)
+                Group {
+                  Text("New command line feature in beta: launch and switch apps, search the web, GitHub, and IMDb. It's a bit rough, but oh so promising!")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Divider()
+              }
+            }
+
+            Spacer()
+
+            VStack(alignment: .leading, spacing: 12) {
+              HStack(alignment: .top, spacing: 12) {
+                ScriptIconView(size: 24)
+                VStack(alignment: .leading, spacing: 12) {
+                  Group {
+                    Text("Running shell scripts no longer blocks the main app. Multitasking, here we come!")
+
+                    Text("Script commands now have their own command panel, showcasing the output of their execution. Fancy, right?")
+
+                    Text("Shell scripts now support shebangs. Because why not?")
+                  }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Divider()
+              }
+            }
+
+            Spacer()
+
+
+            VStack(alignment: .leading, spacing: 12) {
+              HStack(alignment: .top, spacing: 12) {
+                MagicVarsIconView(size: 24)
+                Group {
+                  Text("Script commands can now assign their output to variables for reuse in future commands. Efficiency at its finest!")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Divider()
+              }
+            }
+
+            Spacer()
+
+
+            VStack(alignment: .leading, spacing: 12) {
+              HStack(alignment: .top, spacing: 12) {
                 BugFixIconView(size: 24)
                 VStack(spacing: 12) {
                   Group {
                     Text("Fixed a bug where application-triggered workflows were inadvertently cancelled during concurrent trigger execution.")
+
+                    Text("Squashed a bug where bezel notifications would get stuck at 'Running…' if the script failed. No more endless running!")
                   }
                   .frame(maxWidth: .infinity, alignment: .leading)
                   Divider()
@@ -97,24 +159,34 @@ struct Release3_24_0: View {
               }
             }
 
+            Spacer()
+
             VStack(alignment: .leading, spacing: 12) {
               HStack(alignment: .top, spacing: 12) {
                 KeyboardIconView("M", size: 24)
                 VStack(spacing: 12) {
-                  Text("Resolved an issue causing repeated keyboard events.")
+                  Text("Fixed a bug where application-triggered workflows were inadvertently cancelled during concurrent trigger execution. Smooth sailing now!")
                     .frame(maxWidth: .infinity, alignment: .leading)
-                  Text("Enhanced keyboard command reliability by ensuring commands are consistently sent in pairs.")
+                  Text("Enhanced keyboard command reliability by ensuring commands are consistently sent in pairs. Consistency is key!")
                     .frame(maxWidth: .infinity, alignment: .leading)
                   Divider()
                 }
               }
             }
 
+            Spacer()
+
             VStack(alignment: .leading, spacing: 12) {
               HStack(alignment: .top, spacing: 12) {
                 UIImprovementIconView(size: 24)
                 VStack(spacing: 12) {
-                  Text("Window notifications have been updated to remove the small round indicator when no bundles or notifications are present.")
+                  Group {
+                    Text("Window notifications no longer show the small round indicator when no bundles or notifications are present. Clean and clear!")
+
+                    Text("Keyboard Cowboy's main window now remembers both size and position. Talk about a sharp memory!")
+
+                    Text("Finding workflows is easier than ever with our improved filtering algorithm. Just type 'command' and watch the magic happen!")
+                  }
                     .frame(maxWidth: .infinity, alignment: .leading)
                   Divider()
                 }
@@ -165,6 +237,6 @@ struct Release3_24_0: View {
 struct Release3_24_0_Previews: PreviewProvider {
   static var previews: some View {
     Release3_24_0 { _ in }
-      .previewDisplayName("Release 3.23.2")
+      .previewDisplayName("Release 3.24.0")
   }
 }

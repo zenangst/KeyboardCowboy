@@ -16,6 +16,7 @@ struct IconOverview: PreviewProvider {
       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
       UserModeIconView(size: size)
       UIElementIconView(size: size)
+      PrivacyIconView(size: size)
       EnvironmentIconView(size: size)
       MouseIconView(size: size)
       BugFixIconView(size: size)
