@@ -107,12 +107,27 @@ struct WorkflowTriggerListView_Previews: PreviewProvider {
   static var previews: some View {
     VStack {
       WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
+                              publisher: .init(.empty),
+                              applicationTriggerSelectionManager: .init(),
+                              keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
+      Spacer()
+      WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
+                              publisher: .init(.applications([.init(id: "", name: "Finder", application: .finder(), contexts: [])])),
+                              applicationTriggerSelectionManager: .init(),
+                              keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
+      Spacer()
+      WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
+                              publisher: .init(.snippet(.init(id: "", text: "foo"))),
+                              applicationTriggerSelectionManager: .init(),
+                              keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
+      Spacer()
+      WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
                               publisher: .init(DesignTime.detail.trigger),
                               applicationTriggerSelectionManager: .init(),
                               keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
     }
       .designTime()
       .padding()
-      .frame(minHeight: 100)
+      .frame(minHeight: 500)
   }
 }

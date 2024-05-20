@@ -150,6 +150,6 @@ struct SingleDetailView_Previews: PreviewProvider {
       }
     }
     .designTime()
-    .frame(height: 900)
+    .frame(width: 900, height: 900)
   }
 }

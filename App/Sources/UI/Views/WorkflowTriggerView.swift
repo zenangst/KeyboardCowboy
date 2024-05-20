@@ -27,10 +27,15 @@ struct WorkflowTriggerView: View {
   var body: some View {
     VStack {
       HStack {
+        TriggersIconView(size: 24)
+
+        ZenDivider(.vertical)
+          .frame(height: 24)
+
         FocusableButton(
           focus,
           identity: .detail(.addAppTrigger),
-          variant: .zen(.init(calm: true,
+          variant: .zen(.init(calm: false,
                               color: .systemBlue,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
@@ -52,13 +57,10 @@ struct WorkflowTriggerView: View {
           }
         })
 
-        ZenDivider(.vertical)
-          .frame(height: 24)
-
         FocusableButton(
           focus,
           identity: .detail(.addKeyboardTrigger),
-          variant: .zen(.init(calm: true,
+          variant: .zen(.init(calm: false,
                               color: .systemIndigo,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
@@ -85,13 +87,10 @@ struct WorkflowTriggerView: View {
           }
         })
 
-        ZenDivider(.vertical)
-          .frame(height: 24)
-
         FocusableButton(
           focus,
           identity: .detail(.addSnippetTrigger),
-          variant: .zen(.init(calm: true,
+          variant: .zen(.init(calm: false,
                               color: .systemPurple,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),

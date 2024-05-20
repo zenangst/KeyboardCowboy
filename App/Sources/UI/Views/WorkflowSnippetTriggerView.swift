@@ -19,7 +19,7 @@ struct WorkflowSnippetTriggerView: View {
 
   var body: some View {
     HStack(spacing: 4) {
-      SnippetIconView(size: 24)
+      SnippetIconView(size: 28)
       ZenTextEditor(
         text: $snippet.text,
         placeholder: "Snippet trigger",
