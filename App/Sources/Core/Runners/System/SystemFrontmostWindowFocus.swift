@@ -6,25 +6,34 @@ import Windows
 
 enum SystemFrontmostWindowFocus {
   static func run(_ frontMostIndex: inout Int, kind: SystemCommand.Kind, snapshot: UserSpace.Snapshot) {
-    guard !snapshot.windows.frontMostApplicationWindows.isEmpty else {
+    var windows = snapshot.windows.frontMostApplicationWindows
+    let frontMostApplication = snapshot.frontMostApplication
+    let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
+    if let focusedWindow = try? frontMostAppElement.focusedWindow(),
+       let index = windows.firstIndex(where: { $0.id == focusedWindow.id }){
+      windows.remove(at: index)
+    }
+
+    guard !windows.isEmpty else {
       CustomSystemRoutine(rawValue: snapshot.frontMostApplication.bundleIdentifier)?
         .routine(snapshot.frontMostApplication)
         .run(kind)
       return
     }
+
     if case .moveFocusToNextWindowFront = kind {
       frontMostIndex += 1
-      if frontMostIndex >= snapshot.windows.frontMostApplicationWindows.count {
+      if frontMostIndex >= windows.count {
         frontMostIndex = 0
       }
     } else {
       frontMostIndex -= 1
       if frontMostIndex < 0 {
-        frontMostIndex = snapshot.windows.frontMostApplicationWindows.count - 1
+        frontMostIndex = windows.count - 1
       }
     }
 
-    let window = snapshot.windows.frontMostApplicationWindows[frontMostIndex]
+    let window = windows[frontMostIndex]
     window.performAction(.raise)
   }
 }
