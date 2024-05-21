@@ -23,8 +23,20 @@ final class AssetGenerator {
 
     guard let imageData = imageRep?.representation(using: .png, properties: [:]) else { return }
 
-    let path = "\(filename)_\(Int(size.width)).png"
+    let path = "\(filename).png"
     let url = URL(fileURLWithPath: assetRoot).appendingPathComponent(path)
+    let folder = (url.absoluteString as NSString)
+      .deletingLastPathComponent
+      .replacingOccurrences(of: "file:", with: "")
+    let fileManager = FileManager.default
+
+    if !fileManager.fileExists(atPath: folder) {
+      try fileManager.createDirectory(
+        atPath: folder,
+        withIntermediateDirectories: true,
+        attributes: nil
+      )
+    }
 
     try imageData.write(to: url)
   }

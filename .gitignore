@@ -22,3 +22,5 @@ Build/Releases/*
 ResultBundle.xcresult
 Sparkle/*
 .package.resolved
+Tuist/.build/workspace-state.json
+Tuist/Package.resolved

@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://github.com/zenangst/KeyboardCowboy/blob/main/Assets/bento_1024.png?raw=true" width="100%" alt="Application image" align="center" />
+<img src="https://github.com/zenangst/KeyboardCowboy/blob/main/Assets/Wiki/Home/Bento.png?raw=true" width="100%" alt="Application image" align="center" />
 </div>
 
 # Keyboard Cowboy 3
@@ -86,6 +86,6 @@ PACKAGE_DEVELOPMENT=false
 Simply run the following commands in the root folder of the repository
 
 ```fish
-tuist fetch
+tuist install 
 tuist generate
 ```
