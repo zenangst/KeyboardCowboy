@@ -88,6 +88,7 @@ final class ContentStore: ObservableObject {
     }
     setup(configurations)
     try? storage.save(configurationStore.configurations)
+    NSApplication.shared.keyWindow?.close()
   }
 
   func use(_ configuration: KeyboardCowboyConfiguration) {

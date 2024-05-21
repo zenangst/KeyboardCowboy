@@ -3,6 +3,7 @@ import Cocoa
 extension KeyboardCowboy {
   static let mainWindowIdentifier = "MainWindow"
   static let permissionsSettingsWindowIdentifier = "PermissionsSettingsWindow"
+  static let emptyConfigurationWindowIdentifier = "EmptyConfigurationWindow"
   static let permissionsWindowIdentifier = "PermissionsWindow"
   static let releaseNotesWindowIdentifier = "ReleaseNotesWindow"
 

@@ -50,7 +50,7 @@ struct KeyboardCowboy: App {
   }
 
   var body: some Scene {
-    AppMenuBarExtras(onAction: handleAppExtraAction(_:))
+    AppMenuBarExtras(contentStore: core.contentStore, onAction: handleAppExtraAction(_:))
     MainWindow(core, onScene: handleAppScene(_:))
 
     Settings(content: { 
@@ -60,6 +60,7 @@ struct KeyboardCowboy: App {
     .windowResizability(.contentSize)
     .windowToolbarStyle(.unified)
 
+    EmptyConfigurationWindow(onAction: core.contentStore.handle(_:))
     PermissionsWindow()
     PermissionsScene(onAction: handlePermissionAction(_:))
     ReleaseNotesScene()
@@ -97,8 +98,9 @@ struct KeyboardCowboy: App {
         if AppStorageContainer.shared.releaseNotes < KeyboardCowboy.marektingVersion {
           openWindow(id: KeyboardCowboy.releaseNotesWindowIdentifier)
         }
-
       }
+    case .openEmptyConfigurationWindow:
+      openWindow(id: KeyboardCowboy.emptyConfigurationWindowIdentifier)
     case .openMainWindow:
       handleAppScene(.mainWindow)
     case .reveal:
