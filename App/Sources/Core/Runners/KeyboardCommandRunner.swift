@@ -49,6 +49,12 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           flags.insert(.maskNumericPad)
         }
 
+        if keyboardShortcut.key.hasPrefix("F") {
+          flags.insert(.maskSecondaryFn)
+          // NX_DEVICELCMDKEYMASK
+          flags.insert(CGEventFlags(rawValue: 8))
+        }
+
         let configureEvent: (CGEvent) -> Void = { newEvent in
           if let originalEvent {
             let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
