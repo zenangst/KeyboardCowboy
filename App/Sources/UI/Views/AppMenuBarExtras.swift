@@ -37,7 +37,7 @@ struct AppMenuBarExtras: Scene {
       Divider()
       HelpMenu()
       Divider()
-      Text("Version: \(KeyboardCowboy.marektingVersion) (\(KeyboardCowboy.buildNumber))")
+      Text("Version: \(KeyboardCowboy.marketingVersion) (\(KeyboardCowboy.buildNumber))")
 #if DEBUG
       Button(action: { onAction(.reveal) }, label: {
         Text("Reveal")

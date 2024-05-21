@@ -9,7 +9,7 @@ extension KeyboardCowboy {
 
   static var bundleIdentifier: String { Bundle.main.bundleIdentifier! }
 
-  static var marektingVersion: String {
+  static var marketingVersion: String {
     Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
   }
 

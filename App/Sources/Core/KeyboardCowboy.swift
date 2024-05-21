@@ -95,7 +95,7 @@ struct KeyboardCowboy: App {
           return
         }
 
-        if AppStorageContainer.shared.releaseNotes < KeyboardCowboy.marektingVersion {
+        if AppStorageContainer.shared.releaseNotes < KeyboardCowboy.marketingVersion {
           openWindow(id: KeyboardCowboy.releaseNotesWindowIdentifier)
         }
       }

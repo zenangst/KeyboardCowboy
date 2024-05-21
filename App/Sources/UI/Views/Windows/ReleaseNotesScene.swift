@@ -14,7 +14,7 @@ struct ReleaseNotesScene: Scene {
         }
       }
       .onDisappear {
-        AppStorageContainer.shared.releaseNotes = KeyboardCowboy.marektingVersion
+        AppStorageContainer.shared.releaseNotes = KeyboardCowboy.marketingVersion
       }
     }
     .windowResizability(.contentSize)
