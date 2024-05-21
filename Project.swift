@@ -48,10 +48,10 @@ let mainAppTarget = Target.target(
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
         "CODE_SIGN_IDENTITY": "Apple Development",
         "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "901",
+        "CURRENT_PROJECT_VERSION": "905",
         "DEVELOPMENT_TEAM": env["TEAM_ID"],
         "ENABLE_HARDENED_RUNTIME": true,
-        "MARKETING_VERSION": "3.24.1",
+        "MARKETING_VERSION": "3.24.2",
         "PRODUCT_NAME": "Keyboard Cowboy"
       ],
       configurations: [
