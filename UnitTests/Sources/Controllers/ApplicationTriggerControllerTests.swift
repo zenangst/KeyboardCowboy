@@ -8,6 +8,12 @@ final class ApplicationTriggerControllerTests: XCTestCase {
   func testApplicationTriggerController_frontMost() {
     let ctx = context(.frontMost)
     let controller = ApplicationTriggerController(ctx.runner)
+
+    // Run command when Finder becomes the frontmost application
+    ctx.runner.concurrentRunHandler = { newCommand in
+      XCTAssertEqual(ctx.command, newCommand.first)
+    }
+
     controller.subscribe(to: ctx.groupPublisher.$groups)
     controller.subscribe(to: ctx.userSpace
       .$frontMostApplication)
@@ -16,10 +22,6 @@ final class ApplicationTriggerControllerTests: XCTestCase {
 
     ctx.userSpace.injectFrontmostApplication(.init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: ""))
 
-    // Run command when Finder becomes the frontmost application
-    ctx.runner.concurrentRunHandler = { newCommand in
-      XCTAssertEqual(ctx.command, newCommand.first)
-    }
 
     ctx.userSpace.injectFrontmostApplication(.init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.finder", name: "Finder", path: ""))
   }
@@ -27,14 +29,15 @@ final class ApplicationTriggerControllerTests: XCTestCase {
   func testApplicationTriggerController_launched() {
     let ctx = context(.launched)
     let controller = ApplicationTriggerController(ctx.runner)
-    controller.subscribe(to: ctx.groupPublisher.$groups)
-    controller.subscribe(to: ctx.userSpace.$frontMostApplication)
-    controller.subscribe(to: ctx.userSpace.$runningApplications)
 
     // Run command when Finder is launched.
     ctx.runner.concurrentRunHandler = { newCommand in
       XCTAssertEqual(ctx.command, newCommand.first)
     }
+
+    controller.subscribe(to: ctx.groupPublisher.$groups)
+    controller.subscribe(to: ctx.userSpace.$frontMostApplication)
+    controller.subscribe(to: ctx.userSpace.$runningApplications)
 
     ctx.userSpace.injectRunningApplications([
       .init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")
@@ -47,16 +50,18 @@ final class ApplicationTriggerControllerTests: XCTestCase {
   func testApplicationTriggerController_closed() {
     let ctx = context(.closed)
     let controller = ApplicationTriggerController(ctx.runner)
+
+    // Run command when Finder is closed.
+    ctx.runner.concurrentRunHandler = { newCommand in
+      XCTAssertEqual(ctx.command, newCommand.first)
+    }
+
     controller.subscribe(to: ctx.groupPublisher.$groups)
     controller.subscribe(to: ctx.userSpace
       .$frontMostApplication)
     controller.subscribe(to: ctx.userSpace
       .$runningApplications)
 
-    // Run command when Finder is closed.
-    ctx.runner.concurrentRunHandler = { newCommand in
-      XCTAssertEqual(ctx.command, newCommand.first)
-    }
 
     ctx.userSpace.injectRunningApplications([UserSpace.Application(ref: NSRunningApplication.current, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")])
     ctx.userSpace.injectRunningApplications([])
