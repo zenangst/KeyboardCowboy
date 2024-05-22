@@ -18,7 +18,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
 
     // Run command when Finder becomes the frontmost application
     ctx.runner.concurrentRunHandler = { newCommand in
-      XCTAssertEqual(ctx.command, newCommand.first!)
+      XCTAssertEqual(ctx.command, newCommand.first)
     }
 
     ctx.userSpace.injectFrontmostApplication(.init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.finder", name: "Finder", path: ""))
@@ -33,7 +33,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
 
     // Run command when Finder is launched.
     ctx.runner.concurrentRunHandler = { newCommand in
-      XCTAssertEqual(ctx.command, newCommand.first!)
+      XCTAssertEqual(ctx.command, newCommand.first)
     }
 
     ctx.userSpace.injectRunningApplications([
@@ -55,7 +55,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
 
     // Run command when Finder is closed.
     ctx.runner.concurrentRunHandler = { newCommand in
-      XCTAssertEqual(ctx.command, newCommand.first!)
+      XCTAssertEqual(ctx.command, newCommand.first)
     }
 
     ctx.userSpace.injectRunningApplications([UserSpace.Application(ref: NSRunningApplication.current, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")])
