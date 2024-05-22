@@ -103,6 +103,7 @@ final class Core {
   lazy private(set) var recorderStore = KeyShortcutRecorderStore()
   lazy private(set) var shortcutStore = ShortcutStore(scriptCommandRunner)
   lazy private(set) var commandLine = CommandLineCoordinator.shared
+  lazy private(set) var applicationActivityMonitor = ApplicationActivityMonitor.shared
 
   // MARK: - Runners
   lazy private(set) var commandRunner = CommandRunner(

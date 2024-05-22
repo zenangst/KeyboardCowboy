@@ -41,9 +41,10 @@ final class SystemCommandRunner: @unchecked Sendable {
       switch command.kind {
       case .activateLastApplication:
         Task {
-          let previousApplication = snapshot.previousApplication
-          try await applicationRunner.run(.init(application: previousApplication.asApplication()),
-                                          checkCancellation: checkCancellation)
+          if let previousApplication = ApplicationActivityMonitor.shared.previousApplication() {
+            try await applicationRunner.run(.init(application: previousApplication.asApplication()),
+                                            checkCancellation: checkCancellation)
+          }
         }
       case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
            .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:

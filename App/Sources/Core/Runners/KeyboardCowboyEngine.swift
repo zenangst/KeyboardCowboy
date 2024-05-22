@@ -110,5 +110,6 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
+    ApplicationActivityMonitor.shared.subscribe(to: UserSpace.shared.$frontMostApplication)
   }
 }
