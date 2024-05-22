@@ -22,7 +22,7 @@ final class HideApplicationPlugin {
       return
     }
 
-    userSpace.frontMostApplication.ref.activate()
+    userSpace.frontMostApplication.ref.activate(options: .activateIgnoringOtherApps)
     _ = runningApplication.hide()
   }
 }

@@ -39,14 +39,20 @@ final class UserSpace: @unchecked Sendable {
     }
   }
 
-  struct Application: @unchecked Sendable {
-    let ref: NSRunningApplication
+  struct Application: Equatable, @unchecked Sendable {
+    let ref: RunningApplication
     let bundleIdentifier: String
     let name: String
     let path: String
 
     @MainActor
-    static let current: Application = NSRunningApplication.currentAsApplication()
+    static let current: UserSpace.Application = NSRunningApplication.currentAsApplication()
+
+    static func ==(lhs: Application, rhs: Application) -> Bool {
+      lhs.bundleIdentifier == rhs.bundleIdentifier &&
+      lhs.name == rhs.name &&
+      lhs.path == rhs.path
+    }
   }
   struct Snapshot {
     let documentPath: String?
@@ -345,12 +351,12 @@ fileprivate struct RunningApplicationCache {
   let bundleIdentifier: String
 }
 
-fileprivate extension NSRunningApplication {
+extension RunningApplication {
   @MainActor
   static func currentAsApplication() -> UserSpace.Application {
     if let entry = UserSpace.cache[Bundle.main.bundleIdentifier!] {
       return UserSpace.Application(
-        ref: .current,
+        ref: Self.currentApp,
         bundleIdentifier: Bundle.main.bundleIdentifier!,
         name: entry.name,
         path: entry.path
@@ -358,7 +364,7 @@ fileprivate extension NSRunningApplication {
     }
 
     let userSpaceApplication: UserSpace.Application = .init(
-      ref: .current,
+      ref: Self.currentApp,
       bundleIdentifier: Bundle.main.bundleIdentifier!,
       name: Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "",
       path: Bundle.main.bundlePath

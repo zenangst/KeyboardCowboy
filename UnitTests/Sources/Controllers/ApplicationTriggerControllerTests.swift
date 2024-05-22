@@ -14,14 +14,14 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     controller.subscribe(to: ctx.userSpace
       .$runningApplications)
 
-    ctx.userSpace.injectFrontmostApplication(.init(ref: .current, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: ""))
+    ctx.userSpace.injectFrontmostApplication(.init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: ""))
 
     // Run command when Finder becomes the frontmost application
     ctx.runner.concurrentRunHandler = { newCommand in
       XCTAssertEqual(ctx.command, newCommand.first!)
     }
 
-    ctx.userSpace.injectFrontmostApplication(.init(ref: .current, bundleIdentifier: "com.apple.finder", name: "Finder", path: ""))
+    ctx.userSpace.injectFrontmostApplication(.init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.finder", name: "Finder", path: ""))
   }
 
   func testApplicationTriggerController_launched() {
@@ -37,10 +37,10 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     }
 
     ctx.userSpace.injectRunningApplications([
-      .init(ref: .current, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")
+      .init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.finder", name: "Finder", path: "")
     ])
     ctx.userSpace.injectRunningApplications([
-      .init(ref: .current, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: "")
+      .init(ref: RunningApplicationMock.currentApp, bundleIdentifier: "com.apple.calendar", name: "Calendar", path: "")
     ])
   }
 
@@ -88,16 +88,6 @@ final class ApplicationTriggerControllerTests: XCTestCase {
             runner,
             userSpace)
   }
-}
-
-private struct RunningApplicationMock: RunningApplication {
-  var bundleIdentifier: String?
-  var processIdentifier: pid_t = pid_t()
-  var isHidden: Bool { false }
-  func activate(options: NSApplication.ActivationOptions) -> Bool { false }
-  func terminate() -> Bool { false }
-  func hide() -> Bool { false }
-  func unhide() -> Bool { false }
 }
 
 private final class WorkGroupPublisher {

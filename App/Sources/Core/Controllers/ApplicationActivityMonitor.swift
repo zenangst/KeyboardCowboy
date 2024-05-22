@@ -4,6 +4,11 @@ import Foundation
 
 @MainActor
 final class ApplicationActivityMonitor {
+  // Used for testing.
+  internal var bundleIdentifiers: [String] {
+    storage.map { $0.bundleIdentifier }
+  }
+
   private var currentApplication: UserSpace.Application?
   private var storage: [UserSpace.Application] = []
   private var subscription: AnyCancellable?
