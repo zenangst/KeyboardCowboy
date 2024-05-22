@@ -11,14 +11,18 @@ final class SystemCommandRunner: @unchecked Sendable {
   var machPort: MachPortEventController?
 
   private let applicationStore: ApplicationStore
+  private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
   private let workspace: WorkspaceProviding
 
   private var flagsChangedSubscription: AnyCancellable?
   private var frontMostIndex: Int = 0
   private var visibleMostIndex: Int = 0
 
-  init(_ applicationStore: ApplicationStore = .shared, workspace: WorkspaceProviding = NSWorkspace.shared) {
+  init(_ applicationStore: ApplicationStore = .shared, 
+       applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
+       workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.applicationStore = applicationStore
+    self.applicationActivityMonitor = applicationActivityMonitor
     self.workspace = workspace
   }
 
@@ -41,7 +45,7 @@ final class SystemCommandRunner: @unchecked Sendable {
       switch command.kind {
       case .activateLastApplication:
         Task {
-          if let previousApplication = ApplicationActivityMonitor.shared.previousApplication() {
+          if let previousApplication = applicationActivityMonitor.previousApplication() {
             try await applicationRunner.run(.init(application: previousApplication.asApplication()),
                                             checkCancellation: checkCancellation)
           }

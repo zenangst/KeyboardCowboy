@@ -2,22 +2,29 @@ import Cocoa
 import Combine
 import Foundation
 
+protocol ActivityApplication {
+  var bundleIdentifier: String { get }
+  var isTerminated: Bool { get }
+}
+
+extension UserSpace.Application: ActivityApplication {
+  var isTerminated: Bool { ref.isTerminated }
+}
+
 @MainActor
-final class ApplicationActivityMonitor {
+final class ApplicationActivityMonitor<T: ActivityApplication> {
   // Used for testing.
   internal var bundleIdentifiers: [String] {
-    storage.map { $0.bundleIdentifier }
+    storage.compactMap { $0.bundleIdentifier }
   }
 
-  private var currentApplication: UserSpace.Application?
-  private var storage: [UserSpace.Application] = []
+  private var currentApplication: T?
+  private var storage: [T] = []
   private var subscription: AnyCancellable?
-
-  static let shared = ApplicationActivityMonitor()
 
   init() { }
 
-  func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
+  func subscribe(to publisher: Published<T>.Publisher) {
     subscription = publisher
       .sink { [weak self] application in
         guard let self else { return }
@@ -25,7 +32,7 @@ final class ApplicationActivityMonitor {
       }
   }
 
-  func previousApplication() -> UserSpace.Application? {
+  func previousApplication() -> T? {
     removeTerminatedApplications()
 
     guard !storage.isEmpty else { return nil }
@@ -36,13 +43,13 @@ final class ApplicationActivityMonitor {
 
   // MARK: Private methods
 
-  private func store(_ application: UserSpace.Application) {
+  private func store(_ application: T) {
     storage.removeAll(where: { $0.bundleIdentifier == application.bundleIdentifier })
     storage.append(application)
     removeTerminatedApplications()
   }
 
   private func removeTerminatedApplications() {
-    storage.removeAll(where: { $0.ref.isTerminated })
+    storage.removeAll(where: { $0.isTerminated })
   }
 }

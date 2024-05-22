@@ -4,27 +4,21 @@ import XCTest
 final class ApplicationActivityMonitorTests: XCTestCase {
   @MainActor
   func testPreviousApplication() {
-    let app1 = RunningApplicationMock(
+    let app1 = TestApplication(
       bundleIdentifier: "com.zenangst.app1",
-      bundleURL: URL(string: "file:///Applications/App1.app")!,
-      localizedName: "App1",
-      processIdentifier: 128
-    ).asApplication()!
-    let app2 = RunningApplicationMock(
+      isTerminated: false
+    )
+    let app2 = TestApplication(
       bundleIdentifier: "com.zenangst.app2",
-      bundleURL: URL(string: "file:///Applications/App2.app")!,
-      localizedName: "App2",
-      processIdentifier: 129
-    ).asApplication()!
-    let app3 = RunningApplicationMock(
+      isTerminated: false
+    )
+    let app3 = TestApplication(
       bundleIdentifier: "com.zenangst.app3",
-      bundleURL: URL(string: "file:///Applications/App3.app")!,
-      localizedName: "App3",
-      processIdentifier: 130
-    ).asApplication()!
+      isTerminated: false
+    )
 
-    let publisher = UserSpacePublisher(current: app1)
-    let monitor = ApplicationActivityMonitor()
+    let publisher = TestPublisher<TestApplication>(current: app1)
+    let monitor = ApplicationActivityMonitor<TestApplication>()
 
     XCTAssertNil(monitor.previousApplication())
     XCTAssertEqual(monitor.bundleIdentifiers, [])
@@ -50,14 +44,28 @@ final class ApplicationActivityMonitorTests: XCTestCase {
     XCTAssertEqual(monitor.bundleIdentifiers, [
       app2.bundleIdentifier, app1.bundleIdentifier, app3.bundleIdentifier
     ])
+
+    app3.isTerminated = true
+    publisher.current = app1
+    XCTAssertEqual(app2, monitor.previousApplication())
+    XCTAssertEqual(monitor.bundleIdentifiers, [
+      app2.bundleIdentifier, app1.bundleIdentifier
+    ])
   }
 }
 
-private class UserSpacePublisher {
-  @Published var current: UserSpace.Application
+private class TestApplication: ActivityApplication, Equatable {
+  var bundleIdentifier: String
+  var isTerminated: Bool
+  var debugDescription: String { "\(bundleIdentifier) \(isTerminated)" }
 
-  init(current: UserSpace.Application) {
-    self.current = current
+  init(bundleIdentifier: String, isTerminated: Bool) {
+    self.bundleIdentifier = bundleIdentifier
+    self.isTerminated = isTerminated
+  }
+
+  static func == (lhs: TestApplication, rhs: TestApplication) -> Bool {
+    lhs.bundleIdentifier == rhs.bundleIdentifier &&
+    lhs.isTerminated == rhs.isTerminated
   }
 }
-

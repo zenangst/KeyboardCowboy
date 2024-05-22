@@ -9,6 +9,7 @@ import os
 @MainActor
 final class KeyboardCowboyEngine {
   private let applicationTriggerController: ApplicationTriggerController
+  private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
   private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let commandRunner: CommandRunner
   private let contentStore: ContentStore
@@ -27,6 +28,7 @@ final class KeyboardCowboyEngine {
   private var machPortController: MachPortEventController?
 
   init(_ contentStore: ContentStore, 
+       applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
        applicationTriggerController: ApplicationTriggerController,
        commandRunner: CommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
@@ -40,6 +42,7 @@ final class KeyboardCowboyEngine {
        uiElementCaptureStore: UIElementCaptureStore,
        workflowRunner: WorkflowRunning,
        workspace: NSWorkspace = .shared) {
+    self.applicationActivityMonitor = applicationActivityMonitor
     self.contentStore = contentStore
     self.keyCodeStore = keyCodeStore
     self.commandRunner = commandRunner
@@ -110,6 +113,6 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
-    ApplicationActivityMonitor.shared.subscribe(to: UserSpace.shared.$frontMostApplication)
+    applicationActivityMonitor.subscribe(to: UserSpace.shared.$frontMostApplication)
   }
 }
