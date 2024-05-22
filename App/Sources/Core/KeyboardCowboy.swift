@@ -41,12 +41,12 @@ struct KeyboardCowboy: App {
 
     Task {
       await MainActor.run {
-        Inject.animation = .spring()
+        InjectConfiguration.animation = .spring()
         Benchmark.shared.isEnabled = launchArguments.isEnabled(.benchmark)
       }
     }
 
-    if launchArguments.isEnabled(.injection) { _ = Inject.load }
+    if launchArguments.isEnabled(.injection) { _ = InjectConfiguration.load }
   }
 
   var body: some Scene {

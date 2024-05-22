@@ -155,7 +155,7 @@ public enum PackageResolver {
     let packages: [Package]
     if env["PACKAGE_DEVELOPMENT"] == "true" {
       packages = [
-        .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
+        .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.5.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
         .package(path: "../AXEssibility"),
         .package(path: "../Bonzai"),
@@ -170,7 +170,7 @@ public enum PackageResolver {
       ]
     } else {
       packages = [
-        .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.1.0"),
+        .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.5.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
         .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.1.3"),
         .package(url: "https://github.com/zenangst/Bonzai.git", .revision("e8bb0b48cce45ab33de90982ce107ca5cad51c02")),
