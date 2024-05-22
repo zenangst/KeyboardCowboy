@@ -5,11 +5,18 @@ enum FileWatcherError: Error {
   case fileNotFound
 }
 
-final class FileWatcher {
-  let fileSystemMonitor: DispatchSourceFileSystemObject
+protocol FileManaging {
+  func fileExists(atPath path: String) -> Bool
+}
 
-  init(_ fileURL: URL, handler: @escaping (URL) -> Void) throws {
-    guard FileManager.default.fileExists(atPath: fileURL.path) else {
+extension FileManager: FileManaging {}
+
+final class FileWatcher {
+  private let fileSystemMonitor: DispatchSourceFileSystemObject
+
+  init(_ fileURL: URL, fileManager: FileManaging = FileManager.default,
+       handler: @escaping (URL) -> Void) throws {
+    guard fileManager.fileExists(atPath: fileURL.path) else {
       throw FileWatcherError.fileNotFound
     }
 
