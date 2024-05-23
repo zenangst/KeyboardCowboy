@@ -83,6 +83,29 @@ let unitTestTarget = Target.target(
     ])
 )
 
+let assetGeneratorTarget = Target.target(
+  name: "AssetGenerator",
+  destinations: .macOS,
+  product: .unitTests,
+  bundleId: bundleId.appending(".asset-generator"),
+  deploymentTargets: .macOS("13.0"),
+  infoPlist: .file(path: .relativeToRoot("AssetGenerator/Info.plist")),
+  sources: sources("AssetGenerator"),
+  dependencies: [
+    .target(name: "Keyboard-Cowboy")
+  ],
+  settings:
+    Settings.settings(base: [
+      "BUNDLE_LOADER": "$(TEST_HOST)",
+      "CODE_SIGN_IDENTITY": "Apple Development",
+      "CODE_SIGN_STYLE": "-",
+      "DEVELOPMENT_TEAM": env["TEAM_ID"],
+      "PRODUCT_BUNDLE_IDENTIFIER": "\(bundleId).AssetGenerator",
+      "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Keyboard Cowboy.app/Contents/MacOS/Keyboard Cowboy",
+    ])
+)
+
+
 let project = Project(
   name: "Keyboard Cowboy",
   options: Project.Options.options(
@@ -95,7 +118,8 @@ let project = Project(
   ], defaultSettings: .recommended),
   targets: [
     mainAppTarget,
-    unitTestTarget
+    unitTestTarget,
+    assetGeneratorTarget
   ],
   schemes: [
     Scheme.scheme(
@@ -107,7 +131,8 @@ let project = Project(
         [.testableTarget(target: .target(unitTestTarget.name))],
         arguments: .arguments(
           environmentVariables: [
-            "ASSET_PATH": .environmentVariable(value: assetPath, isEnabled: true)
+            "ASSET_PATH": .environmentVariable(value: assetPath, isEnabled: true),
+            "SOURCE_ROOT": .environmentVariable(value: rootPath, isEnabled: true),
           ],
           launchArguments: [
             .launchArgument(name: "-running-unit-tests", isEnabled: true)
@@ -122,8 +147,8 @@ let project = Project(
         executable: .target(mainAppTarget.name),
         arguments: .arguments(
           environmentVariables: [
-            "SOURCE_ROOT": .environmentVariable(value: "$(SRCROOT)", isEnabled: true),
-            "APP_ENVIRONMENT_OVERRIDE": .environmentVariable(value: "development", isEnabled: true)
+            "APP_ENVIRONMENT_OVERRIDE": .environmentVariable(value: "development", isEnabled: true),
+            "SOURCE_ROOT": .environmentVariable(value: rootPath, isEnabled: true),
           ],
           launchArguments: [
             .launchArgument(name: "-benchmark", isEnabled: false),
