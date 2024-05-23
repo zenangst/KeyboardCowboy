@@ -145,11 +145,16 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
                                machPortEvent: machPortEvent, 
                                checkCancellation: checkCancellation,
                                repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
-          } catch { }
+          } catch { 
+            if case .bezel = command.notification {
+              await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
+            }
+          }
           if let delay = command.delay {
             try await Task.sleep(for: .milliseconds(delay))
           }
         }
+
         if commands.shouldRestorePasteboard {
           try await Task.sleep(for: .seconds(0.2))
           await MainActor.run { [originalPasteboardContents] in
@@ -216,123 +221,117 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
            shortcut: KeyShortcut, machPortEvent: MachPortEvent,
            checkCancellation: Bool, repeatingEvent: Bool, 
            runtimeDictionary: inout [String: String]) async throws {
-    do {
-      let id = UUID().uuidString
-      switch command.notification {
-      case .bezel:
-        await BezelNotificationController.shared.post(
-          .init(id: id, text: " ", running: true)
-        )
-      case .commandPanel:
-        switch command {
-        case .script(let scriptCommand):
-          await MainActor.run {
-            commandPanel.run(scriptCommand)
-          }
-        default:
-          assertionFailure("Not yet implemented.")
-          break
+    let id = UUID().uuidString
+    switch command.notification {
+    case .bezel:
+      await BezelNotificationController.shared.post(
+        .init(id: id, text: " ", running: true)
+      )
+    case .commandPanel:
+      switch command {
+      case .script(let scriptCommand):
+        await MainActor.run {
+          commandPanel.run(scriptCommand)
         }
-        return
-      case .none:
+      default:
+        assertionFailure("Not yet implemented.")
         break
       }
+      return
+    case .none:
+      break
+    }
 
-      let output: String
-      switch command {
-      case .application(let applicationCommand):
-        try await runners.application.run(applicationCommand, checkCancellation: checkCancellation)
-        output = command.name
-      case .builtIn(let builtInCommand):
-          output = try await runners.builtIn.run(
-            builtInCommand,
-            shortcut: shortcut,
-            machPortEvent: machPortEvent
-          )
-      case .keyboard(let keyboardCommand):
-        try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
-                                 originalEvent: nil,
-                                 with: eventSource)
-        try await Task.sleep(for: .milliseconds(1))
-        output = command.name
-      case .menuBar(let menuBarCommand):
-        try await runners.menubar.execute(menuBarCommand, repeatingEvent: repeatingEvent)
-        output = command.name
-      case .mouse(let command):
-        try await runners.mouse.run(command, snapshot: snapshot)
-        output = command.name
-      case .open(let openCommand):
-        let path = snapshot.interpolateUserSpaceVariables(openCommand.path, runtimeDictionary: runtimeDictionary)
-        try await runners.open.run(path, checkCancellation: checkCancellation, application: openCommand.application)
-        output = path
-      case .script(let scriptCommand):
-        let result = try await self.runners.script.run(
-          scriptCommand,
-          environment: snapshot.terminalEnvironment(),
-          checkCancellation: checkCancellation
-        )
+    let output: String
+    switch command {
+    case .application(let applicationCommand):
+      try await runners.application.run(applicationCommand, checkCancellation: checkCancellation)
+      output = command.name
+    case .builtIn(let builtInCommand):
+      output = try await runners.builtIn.run(
+        builtInCommand,
+        shortcut: shortcut,
+        machPortEvent: machPortEvent
+      )
+    case .keyboard(let keyboardCommand):
+      try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
+                               originalEvent: nil,
+                               with: eventSource)
+      try await Task.sleep(for: .milliseconds(1))
+      output = command.name
+    case .menuBar(let menuBarCommand):
+      try await runners.menubar.execute(menuBarCommand, repeatingEvent: repeatingEvent)
+      output = command.name
+    case .mouse(let command):
+      try await runners.mouse.run(command, snapshot: snapshot)
+      output = command.name
+    case .open(let openCommand):
+      let path = snapshot.interpolateUserSpaceVariables(openCommand.path, runtimeDictionary: runtimeDictionary)
+      try await runners.open.run(path, checkCancellation: checkCancellation, application: openCommand.application)
+      output = path
+    case .script(let scriptCommand):
+      let result = try await self.runners.script.run(
+        scriptCommand,
+        environment: snapshot.terminalEnvironment(),
+        checkCancellation: checkCancellation
+      )
 
-        if let result = result {
-          if scriptCommand.meta.variableName != nil {
-            output = result
-          } else {
-            let trimmedResult = result.trimmingCharacters(in: .newlines)
-            output = command.name + " " + trimmedResult
-          }
+      if let result = result {
+        if scriptCommand.meta.variableName != nil {
+          output = result
         } else {
-          output = command.name
-        }
-      case .shortcut(let shortcutCommand):
-        let result = try await runners.shortcut.run(shortcutCommand, checkCancellation: checkCancellation)
-        if let result = result {
           let trimmedResult = result.trimmingCharacters(in: .newlines)
           output = command.name + " " + trimmedResult
-        } else {
-          output = command.name
         }
-      case .text(let typeCommand):
-        switch typeCommand.kind {
-        case .insertText(let typeCommand):
-          try await runners.text.run(
-            snapshot.interpolateUserSpaceVariables(typeCommand.input, runtimeDictionary: runtimeDictionary),
-            mode: typeCommand.mode
-          )
-          output = command.name
-        }
-      case .systemCommand(let systemCommand):
-        try await runners.system.run(
-          systemCommand, applicationRunner: runners.application,
-          checkCancellation: checkCancellation, snapshot: snapshot
+      } else {
+        output = command.name
+      }
+      print(output)
+    case .shortcut(let shortcutCommand):
+      let result = try await runners.shortcut.run(shortcutCommand, checkCancellation: checkCancellation)
+      if let result = result {
+        let trimmedResult = result.trimmingCharacters(in: .newlines)
+        output = command.name + " " + trimmedResult
+      } else {
+        output = command.name
+      }
+    case .text(let typeCommand):
+      switch typeCommand.kind {
+      case .insertText(let typeCommand):
+        try await runners.text.run(
+          snapshot.interpolateUserSpaceVariables(typeCommand.input, runtimeDictionary: runtimeDictionary),
+          mode: typeCommand.mode
         )
         output = command.name
-      case .uiElement(let uiElementCommand):
-        try await runners.uiElement.run(uiElementCommand, checkCancellation: checkCancellation)
-        output = ""
-      case .windowManagement(let windowCommand):
-        try await runners.window.run(windowCommand)
-        output = ""
       }
+    case .systemCommand(let systemCommand):
+      try await runners.system.run(
+        systemCommand, applicationRunner: runners.application,
+        checkCancellation: checkCancellation, snapshot: snapshot
+      )
+      output = command.name
+    case .uiElement(let uiElementCommand):
+      try await runners.uiElement.run(uiElementCommand, checkCancellation: checkCancellation)
+      output = ""
+    case .windowManagement(let windowCommand):
+      try await runners.window.run(windowCommand)
+      output = ""
+    }
 
-      if let variableName = command.meta.variableName {
-        runtimeDictionary[variableName] = output
-      }
+    if let variableName = command.meta.variableName {
+      runtimeDictionary[variableName] = output
+    }
 
-      switch command.notification {
-      case .bezel:
-        await MainActor.run {
-          lastExecutedCommand = command
-          BezelNotificationController.shared.post(.init(id: id, text: output))
-        }
-      case .commandPanel:
-        break // Add support for command windows
-      case .none:
-        break
+    switch command.notification {
+    case .bezel:
+      await MainActor.run {
+        lastExecutedCommand = command
+        BezelNotificationController.shared.post(.init(id: id, text: output))
       }
-    } catch {
-      if case .bezel = command.notification {
-        await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
-      }
-      throw error
+    case .commandPanel:
+      break // Add support for command windows
+    case .none:
+      break
     }
   }
 
