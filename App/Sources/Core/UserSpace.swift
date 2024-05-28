@@ -262,13 +262,11 @@ final class UserSpace: @unchecked Sendable {
     configurationSubscription = publisher
       .sink { [weak self] configuration in
         guard let self = self else { return }
-        Task {
-          await MainActor.run {
-            let currentModes = configuration.userModes
-              .map { UserMode(id: $0.id, name: $0.name, isEnabled: false) }
-              .sorted(by: { $0.name < $1.name })
-            self.userModes = currentModes
-          }
+        Task { @MainActor in
+          let currentModes = configuration.userModes
+            .map { UserMode(id: $0.id, name: $0.name, isEnabled: false) }
+            .sorted(by: { $0.name < $1.name })
+          self.userModes = currentModes
         }
       }
   }
