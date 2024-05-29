@@ -305,34 +305,32 @@ final class UserSpace: @unchecked Sendable {
   private func selectedText() async throws -> String {
     let systemElement = SystemAccessibilityElement()
     let focusedElement = try systemElement.focusedUIElement()
-    let selectedText = focusedElement.selectedText()
-    if selectedText == nil && (try? focusedElement.value(.role, as: String.self)) == "AXWebArea" {
-      // MARK: Fix this
-      // It doesn't work well in Safari.
-//      selectedText = try await selectedTextFromClipboard()
+    var selectedText = focusedElement.selectedText()
+
+    if selectedText == nil && focusedElement.role == "AXWebArea" {
+      selectedText = try await selectedTextFromClipboard()
     }
 
     return selectedText ?? ""
   }
 
   private func selectedTextFromClipboard() async throws -> String {
-    let originalPasteboardContents = await MainActor.run {
+    let originalPasteboardContents = await Task { @MainActor in
       NSPasteboard.general.string(forType: .string)
-    }
+    }.value
 
     _ = try? machPort?.post(kVK_ANSI_C, type: .keyDown, flags: .maskCommand)
     _ = try? machPort?.post(kVK_ANSI_C, type: .keyUp, flags: .maskCommand)
-
-    try await Task.sleep(for: .seconds(0.1))
 
     guard let selectedText = NSPasteboard.general.string(forType: .string) else {
       throw NSError(domain: "com.zenangst.Keyboard-Cowboy.Userspace", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to read from clipboard."])
     }
 
-    if let originalContents = originalPasteboardContents {
-      await MainActor.run {
+    if let originalPasteboardContents {
+      Task.detached { @MainActor [originalPasteboardContents] in
+        try await Task.sleep(for: .seconds(0.2))
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(originalContents, forType: .string)
+        NSPasteboard.general.setString(originalPasteboardContents, forType: .string)
       }
     }
 
