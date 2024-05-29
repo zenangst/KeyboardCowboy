@@ -39,11 +39,9 @@ struct KeyboardCowboy: App {
     self.core = core
     self.appDelegate.core = core
 
-    Task {
-      await MainActor.run {
-        InjectConfiguration.animation = .spring()
-        Benchmark.shared.isEnabled = launchArguments.isEnabled(.benchmark)
-      }
+    Task { @MainActor in
+      InjectConfiguration.animation = .spring()
+      Benchmark.shared.isEnabled = launchArguments.isEnabled(.benchmark)
     }
 
     if launchArguments.isEnabled(.injection) { _ = InjectConfiguration.load }
