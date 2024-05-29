@@ -202,7 +202,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           try await self.run(command, snapshot: snapshot, shortcut: shortcut,
                              machPortEvent: machPortEvent, checkCancellation: checkCancellation,
                              repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
-        } catch { }
+        } catch { 
+          if case .bezel = command.notification {
+            await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
+          }
+        }
       }
 
       if commands.shouldRestorePasteboard {
@@ -286,9 +290,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       } else {
         output = command.name
       }
-      print(output)
     case .shortcut(let shortcutCommand):
-      let result = try await runners.shortcut.run(shortcutCommand, checkCancellation: checkCancellation)
+      let result = try await runners.shortcut.run(shortcutCommand, 
+                                                  environment: snapshot.terminalEnvironment(),
+                                                  checkCancellation: checkCancellation)
       if let result = result {
         let trimmedResult = result.trimmingCharacters(in: .newlines)
         output = command.name + " " + trimmedResult
