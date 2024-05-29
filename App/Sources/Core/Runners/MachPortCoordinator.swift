@@ -170,33 +170,42 @@ final class MachPortCoordinator {
       let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
       if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
         let keyboardShortcutCopy: KeyShortcut = keyboardShortcut
-        Task { @MainActor [machPort, workflowRunner, keyboardCommandRunner] in
-          for element in macro {
-            switch element {
-            case .event(let machPortEvent):
-              if machPortEvent.keyCode == kVK_Return { try await Task.sleep(for: .milliseconds(250)) }
+        let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
 
-              try machPort?.post(Int(machPortEvent.keyCode), type: .keyDown, flags: machPortEvent.event.flags)
-              try machPort?.post(Int(machPortEvent.keyCode), type: .keyUp, flags: machPortEvent.event.flags)
-            case .workflow(let workflow):
-              if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
-                for command in workflow.commands {
-                  if case .keyboard(let command) = command {
-                    _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                      originalEvent: machPortEvent.event,
-                                                      with: machPortEvent.eventSource)
+        Task { [machPort, workflowRunner, keyboardCommandRunner] in
+          for _  in 0..<iterations {
+            let specialKeys: [Int] = [kVK_Return]
+
+            for element in macro {
+              switch element {
+              case .event(let machPortEvent):
+                let keyCode = Int(machPortEvent.keyCode)
+
+                if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(150)) }
+
+                try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
+                try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
+              case .workflow(let workflow):
+                if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
+                  for command in workflow.commands {
+                    if case .keyboard(let command) = command {
+                      _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
+                                                        originalEvent: nil,
+                                                        isRepeating: false,
+                                                        with: machPortEvent.eventSource)
+                    }
                   }
+                } else {
+                  workflowRunner.run(workflow, for: keyboardShortcutCopy,
+                                     executionOverride: .serial,
+                                     machPortEvent: machPortEvent, repeatingEvent: false)
                 }
-              } else {
-                workflowRunner.run(workflow, for: keyboardShortcutCopy,
-                                   executionOverride: .serial,
-                                   machPortEvent: machPortEvent, repeatingEvent: false)
-                try await Task.sleep(for: .milliseconds(175))
               }
             }
           }
         }
 
+        SnippetController.currentSnippet = ""
         machPortEvent.result = nil
         return
       } else if macroCoordinator.state == .removing {

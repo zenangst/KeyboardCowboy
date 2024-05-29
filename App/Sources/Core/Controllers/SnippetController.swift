@@ -8,6 +8,8 @@ import MachPort
 final class SnippetController: @unchecked Sendable, ObservableObject {
   var isEnabled: Bool = true
 
+  static var currentSnippet: String = ""
+
   @MainActor
   private var currentSnippet: String = ""
   private var machPortEventSubscription: AnyCancellable?
@@ -91,6 +93,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
     }
 
     currentSnippet = currentSnippet + displayValue
+    Self.currentSnippet = currentSnippet
 
     timeout?.invalidate()
     timeout = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] timer in
