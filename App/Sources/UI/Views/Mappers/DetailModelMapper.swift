@@ -66,8 +66,10 @@ private extension Command {
       let inBackground = applicationCommand.modifiers.contains(.background)
       let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
       let ifNotRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
+      let addToStage = applicationCommand.modifiers.contains(.addToStage)
       kind = .application(.init(id: applicationCommand.id, action: applicationCommand.action.displayValue,
-                                inBackground: inBackground, hideWhenRunning: hideWhenRunning, ifNotRunning: ifNotRunning))
+                                inBackground: inBackground, hideWhenRunning: hideWhenRunning, 
+                                ifNotRunning: ifNotRunning, addToStage: addToStage))
 
     case .builtIn(let builtInCommand):
       kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))

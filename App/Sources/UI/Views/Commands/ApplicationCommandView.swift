@@ -147,6 +147,9 @@ private struct ApplicationCommandInternalView: View {
       ZenCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
         onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
       }
+      ZenCheckbox("Add to Stage", style: .small, isOn: $model.addToStage) { newValue in
+        onAction(.changeApplicationModifier(modifier: .addToStage, newValue: newValue))
+      }
       .frame(maxWidth: .infinity, alignment: .leading)
     }
     .buttonStyle(.regular)

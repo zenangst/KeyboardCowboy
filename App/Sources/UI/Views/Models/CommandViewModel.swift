@@ -65,6 +65,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var inBackground: Bool
       var hideWhenRunning: Bool
       var ifNotRunning: Bool
+      var addToStage: Bool
     }
 
     struct BuiltInModel: Codable, Hashable, Identifiable, Sendable {

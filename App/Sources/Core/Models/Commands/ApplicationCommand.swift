@@ -8,14 +8,16 @@ struct ApplicationCommand: MetaDataProviding {
     public var id: String { return self.rawValue }
     public var displayValue: String {
       switch self {
-      case .background: return "Open in background"
-      case .hidden: return "Hide when opening"
-      case .onlyIfNotRunning: return "Open if not running"
+      case .background: "Open in background"
+      case .hidden: "Hide when opening"
+      case .onlyIfNotRunning: "Open if not running"
+      case .addToStage: "Add to current stage"
       }
     }
     case background
     case hidden
     case onlyIfNotRunning
+    case addToStage
   }
 
   enum Action: String, Codable, Hashable, Equatable, Sendable {
