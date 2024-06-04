@@ -190,22 +190,18 @@ final class UserSpace: @unchecked Sendable {
       .compactMap { $0 }
       .sink { [weak self] runningApplication in
         guard let self else { return }
-        Task {
-          await MainActor.run {
-            guard let newApplication = runningApplication.asApplication() else { return }
-            self.previousApplication = self.frontMostApplication
-            self.frontMostApplication = newApplication
-          }
+        Task { @MainActor in
+          guard let newApplication = runningApplication.asApplication() else { return }
+          self.previousApplication = self.frontMostApplication
+          self.frontMostApplication = newApplication
         }
       }
     runningApplicationsSubscription = workspace.publisher(for: \.runningApplications)
       .sink { [weak self] applications in
         guard let self else { return }
-        Task {
-          await MainActor.run {
-            let newApplications = applications.compactMap { $0.asApplication() }
-            self.runningApplications = newApplications
-          }
+        Task { @MainActor in
+          let newApplications = applications.compactMap { $0.asApplication() }
+          self.runningApplications = newApplications
         }
       }
   }
