@@ -137,6 +137,7 @@ final class MachPortCoordinator {
       workItem = nil
       repeatingResult = nil
       repeatingMatch = nil
+      return
     default:
       return
     }
