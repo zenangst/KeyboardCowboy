@@ -98,8 +98,11 @@ final class WindowStore: @unchecked Sendable {
       }
   }
 
-  func snapshot() -> WindowStoreSnapshot {
-    state.snapshot()
+  func snapshot(refresh: Bool = false) -> WindowStoreSnapshot {
+    if refresh {
+      index(state.frontmostApplication)
+    }
+    return state.snapshot()
   }
 
   // MARK: - Private methods

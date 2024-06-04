@@ -152,7 +152,7 @@ enum DesignTime {
   static var applicationCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.ApplicationModel) {
     let kind = CommandViewModel.Kind.ApplicationModel(id: UUID().uuidString, action: "Open",
                                                       inBackground: false, hideWhenRunning: false,
-                                                      ifNotRunning: false)
+                                                      ifNotRunning: false, addToStage: false)
     return (.init(meta: metadata(name: "Xcode", icon: .init(bundleIdentifier: "com.apple.dt.Xcode",
                                                            path: "/Applications/Xcode.app")),
                   kind: .application(kind)), kind)

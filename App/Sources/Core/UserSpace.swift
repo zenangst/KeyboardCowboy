@@ -217,7 +217,7 @@ final class UserSpace: @unchecked Sendable {
 #endif
 
   @MainActor
-  func snapshot(resolveUserEnvironment: Bool) async -> Snapshot {
+  func snapshot(resolveUserEnvironment: Bool, refreshWindows: Bool = false) async -> Snapshot {
     Benchmark.shared.start("snapshot: \(resolveUserEnvironment)")
     defer { Benchmark.shared.stop("snapshot: \(resolveUserEnvironment)") }
     var selections = [String]()
@@ -244,7 +244,7 @@ final class UserSpace: @unchecked Sendable {
       }
     }
 
-    let windows = WindowStore.shared.snapshot()
+    let windows = WindowStore.shared.snapshot(refresh: refreshWindows)
 
     return Snapshot(documentPath: documentPath,
                     frontMostApplication: frontMostApplication,

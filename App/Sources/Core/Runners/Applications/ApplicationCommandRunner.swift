@@ -84,6 +84,13 @@ final class ApplicationCommandRunner: @unchecked Sendable {
         try await plugins.bringToFront.execute(checkCancellation: checkCancellation)
       }
     } else {
+
+      if command.modifiers.contains(.addToStage) {
+        if try await AddToStagePlugin.execute(command) {
+          return
+        }
+      }
+
       try await plugins.launch.execute(command, checkCancellation: checkCancellation)
       if await !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
         try? await plugins.activate.execute(command, checkCancellation: checkCancellation)
