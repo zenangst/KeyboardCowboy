@@ -5,13 +5,14 @@ import Foundation
 import Windows
 
 enum SystemFrontmostWindowFocus {
-  static func run(_ frontMostIndex: inout Int, kind: SystemCommand.Kind, snapshot: UserSpace.Snapshot) {
-    var windows = snapshot.windows.frontMostApplicationWindows
+  static func run(kind: SystemCommand.Kind, snapshot: UserSpace.Snapshot) {
+    var frontMostIndex = 0
+    let windows = snapshot.windows.frontMostApplicationWindows
     let frontMostApplication = snapshot.frontMostApplication
     let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
     if let focusedWindow = try? frontMostAppElement.focusedWindow(),
        let index = windows.firstIndex(where: { $0.id == focusedWindow.id }){
-      windows.remove(at: index)
+      frontMostIndex = index
     }
 
     guard !windows.isEmpty else {

@@ -60,11 +60,7 @@ final class SystemCommandRunner: @unchecked Sendable {
           workspace: workspace
         )
       case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
-        SystemFrontmostWindowFocus.run(
-          &frontMostIndex,
-          kind: command.kind,
-          snapshot: snapshot
-        )
+        SystemFrontmostWindowFocus.run(kind: command.kind, snapshot: snapshot)
       case .minimizeAllOpenWindows:
         guard let machPort else { return }
         try SystemMinimizeAllWindows.run(snapshot, machPort: machPort)
