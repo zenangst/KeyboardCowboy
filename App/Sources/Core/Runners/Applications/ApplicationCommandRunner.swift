@@ -7,6 +7,7 @@ protocol ApplicationCommandRunnerDelegate: AnyObject {
 final class ApplicationCommandRunner: @unchecked Sendable {
   private struct Plugins {
     let activate: ActivateApplicationPlugin
+    let addToStage: AddToStagePlugin
     let bringToFront: BringToFrontApplicationPlugin
     let close: CloseApplicationPlugin
     let hide: HideApplicationPlugin
@@ -26,6 +27,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     self.workspace = workspace
     self.plugins = Plugins(
       activate: ActivateApplicationPlugin(),
+      addToStage: AddToStagePlugin(),
       bringToFront: BringToFrontApplicationPlugin(scriptCommandRunner),
       close: CloseApplicationPlugin(workspace: workspace),
       hide: HideApplicationPlugin(workspace: workspace, userSpace: .shared),
@@ -86,7 +88,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     } else {
 
       if command.modifiers.contains(.addToStage) {
-        if try await AddToStagePlugin.execute(command) {
+        if try await plugins.addToStage.execute(command) {
           return
         }
       }
