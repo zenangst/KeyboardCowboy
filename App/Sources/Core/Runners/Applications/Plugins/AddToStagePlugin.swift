@@ -9,54 +9,67 @@ enum AddToStagePluginError: Error {
 }
 
 final class AddToStagePlugin {
-  static func execute(_ command: ApplicationCommand) async throws -> Bool {
+  func execute(_ command: ApplicationCommand) async throws -> Bool {
     var snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
 
     // Check if the application is already running.
-    if resolveRunningApplication(command.application) == nil {
-      try await activateTargetApplication(command)
-      try await activateCurrentApplication(snapshot)
+    if Self.resolveRunningApplication(command.application) == nil {
+      try await Self.activateTargetApplication(command)
+      try await Self.activateCurrentApplication(snapshot)
 
-      // Figure out a better way to do this.
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-        Task {
-          try await AddToStagePlugin.execute(command)
+      let result = try await Task(timeout: 5) {
+        var result: Bool = false
+        while result == false {
+          if Self.resolveRunningApplication(command.application) != nil {
+            result = true
+          }
+          try await Task.sleep(for: .milliseconds(100))
         }
-      }
+        return result
+      }.value
 
-      return true
+      try await Self.activateCurrentApplication(snapshot)
+      snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
     }
 
-    guard let runningApplication = resolveRunningApplication(command.application) else {
+    guard let runningApplication = Self.resolveRunningApplication(command.application) else {
       return false
     }
 
     if runningApplication.isHidden {
-      runningApplication.unhide()
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-        Task {
-          try await AddToStagePlugin.execute(command)
+      _ = runningApplication.unhide()
+      let result = try await Task(timeout: 1) {
+        while runningApplication.isHidden {
+          try await Task.sleep(for: .milliseconds(100))
         }
-      }
-      return true
+        return true
+      }.value
+      snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
     }
 
     let app = AppAccessibilityElement(runningApplication.processIdentifier)
-    let axWindow = try app.windows().first(where: { ($0.frame?.height ?? 0) > 20 })
-    if axWindow == nil {
-      try await activateTargetApplication(command)
-      try await activateCurrentApplication(snapshot)
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-        Task {
-          try await AddToStagePlugin.execute(command)
-        }
-      }
+    var axWindow = try app.windows().first(where: { ($0.frame?.height ?? 0) > 20 })
 
-      return true
+    if axWindow == nil {
+      try await Self.activateTargetApplication(command)
+      try await Self.activateCurrentApplication(snapshot)
+      let newWindow = try await Task(timeout: 2) {
+        var window: WindowAccessibilityElement?
+        while window == nil {
+          window = try? app.windows().first(where: { ($0.frame?.height ?? 0) > 20 })
+        }
+        return window
+      }.value
+
+      guard let newWindow else { return false }
+
+      axWindow = newWindow
+      try await Self.activateCurrentApplication(snapshot)
+      try await Task.sleep(for: .seconds(1))
+      await snapshot = UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
     }
 
-    guard let axWindow,
-          var window = resolveWindow(withId: axWindow.id, snapshot: snapshot) else { return false }
+    guard let axWindow, var window = Self.resolveWindow(withId: axWindow.id, snapshot: snapshot) else { return false }
 
     let isInStage = axWindow.frame == window.rect
 
@@ -66,13 +79,13 @@ final class AddToStagePlugin {
 
     let mouseLocation = CGEvent(source: nil)?.location
     if window.rect.origin.x < 0 {
-      window = try await findWindowOnLeft(window, axWindow: axWindow, snapshot: &snapshot)
+      window = try await Self.findWindowOnLeft(window, axWindow: axWindow, snapshot: &snapshot)
     } else if window.rect.origin.x + window.rect.width > NSScreen.main!.frame.size.width {
-      window = try await findWindowOnRight(window, axWindow: axWindow, snapshot: &snapshot)
+      window = try await Self.findWindowOnRight(window, axWindow: axWindow, snapshot: &snapshot)
     }
 
-    performClick(on: window, mouseDown: .leftMouseDown,
-                 mouseUp: .leftMouseUp, withFlags: .maskShift)
+    Self.performClick(on: window, mouseDown: .leftMouseDown,
+                      mouseUp: .leftMouseUp, withFlags: .maskShift)
 
     axWindow.isMinimized = false
     axWindow.performAction(.raise)
@@ -175,8 +188,9 @@ final class AddToStagePlugin {
   }
 
   static func resolveRunningApplication(_ application: Application) -> NSRunningApplication? {
-    NSWorkspace.shared.runningApplications.first(where: { runningApplication in
-      runningApplication.bundleIdentifier == application.bundleIdentifier
+    return NSWorkspace.shared.runningApplications.first(where: { runningApplication in
+      runningApplication.bundleIdentifier == application.bundleIdentifier &&
+      runningApplication.isFinishedLaunching
     })
   }
 }
