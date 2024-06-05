@@ -14,16 +14,11 @@ final class AddToStagePlugin {
 
     // Check if the application is already running.
     if resolveRunningApplication(command.application) == nil {
-      let configuration = NSWorkspace.OpenConfiguration()
-      let url = URL(fileURLWithPath: command.application.path)
+      try await activateTargetApplication(command)
+      try await activateCurrentApplication(snapshot)
 
-      _ = try await NSWorkspace.shared.openApplication(at: url, configuration: configuration)
-
-      let frontMostUrl = URL(fileURLWithPath: snapshot.frontMostApplication.asApplication().path)
-      _ = try await NSWorkspace.shared.openApplication(at: frontMostUrl, configuration: configuration)
-      snapshot.frontMostApplication.ref.activate(options: .activateIgnoringOtherApps)
-
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+      // Figure out a better way to do this.
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
         Task {
           try await AddToStagePlugin.execute(command)
         }
@@ -38,7 +33,7 @@ final class AddToStagePlugin {
 
     if runningApplication.isHidden {
       runningApplication.unhide()
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
         Task {
           try await AddToStagePlugin.execute(command)
         }
@@ -47,10 +42,21 @@ final class AddToStagePlugin {
     }
 
     let app = AppAccessibilityElement(runningApplication.processIdentifier)
-    guard let axWindow = try app.windows().first(where: { ($0.frame?.height ?? 0) > 20 }),
-          var window = resolveWindow(withId: axWindow.id, snapshot: snapshot) else {
-      return false
+    let axWindow = try app.windows().first(where: { ($0.frame?.height ?? 0) > 20 })
+    if axWindow == nil {
+      try await activateTargetApplication(command)
+      try await activateCurrentApplication(snapshot)
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        Task {
+          try await AddToStagePlugin.execute(command)
+        }
+      }
+
+      return true
     }
+
+    guard let axWindow,
+          var window = resolveWindow(withId: axWindow.id, snapshot: snapshot) else { return false }
 
     let isInStage = axWindow.frame == window.rect
 
@@ -82,6 +88,19 @@ final class AddToStagePlugin {
     }
 
     return true
+  }
+
+  static func activateCurrentApplication(_ snapshot: UserSpace.Snapshot) async throws {
+    let configuration = NSWorkspace.OpenConfiguration()
+    let url = URL(fileURLWithPath: snapshot.frontMostApplication.asApplication().path)
+    _ = try await NSWorkspace.shared.openApplication(at: url, configuration: configuration)
+    snapshot.frontMostApplication.ref.activate(options: .activateIgnoringOtherApps)
+  }
+
+  static func activateTargetApplication(_ command: ApplicationCommand) async throws {
+    let configuration = NSWorkspace.OpenConfiguration()
+    let url = URL(fileURLWithPath: command.application.path)
+    _ = try await NSWorkspace.shared.openApplication(at: url, configuration: configuration)
   }
 
   static func performClick(on window: WindowModel, mouseDown: CGEventType, mouseUp: CGEventType, withFlags flags: CGEventFlags?) {
