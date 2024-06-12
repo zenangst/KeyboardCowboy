@@ -15,7 +15,7 @@ public protocol WorkspaceProviding: Sendable {
   func reveal(_ path: String)
 }
 
-extension NSWorkspace: WorkspaceProviding, @unchecked @retroactive Sendable {
+extension NSWorkspace: WorkspaceProviding, @unchecked Sendable {
   public var applications: [RunningApplication] {
     runningApplications
   }
