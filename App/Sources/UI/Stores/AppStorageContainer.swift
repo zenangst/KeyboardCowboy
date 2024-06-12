@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 final class AppStorageContainer: @unchecked Sendable {
   #if DEBUG
   static let store = UserDefaults(suiteName: "com.zenangst.Keyboard-Cowboy.debug")

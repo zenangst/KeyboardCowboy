@@ -8,7 +8,7 @@ enum AppleScriptPluginError: Error {
   case executionFailed(Error)
 }
 
-extension NSAppleScript: @unchecked Sendable {}
+extension NSAppleScript: @unchecked @retroactive Sendable {}
 
 actor AppleScriptCache: @unchecked Sendable {
   private var storage = [String: NSAppleScript]()

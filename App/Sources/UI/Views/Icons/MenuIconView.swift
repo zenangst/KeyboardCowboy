@@ -128,7 +128,7 @@ private struct MenuBarIconWindowControls: View {
 }
 
 struct TopLeadingRoundedShape: Shape {
-  var radius: CGFloat
+  let radius: CGFloat
 
   func path(in rect: CGRect) -> Path {
     var path = Path()

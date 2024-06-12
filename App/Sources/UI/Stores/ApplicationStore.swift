@@ -47,7 +47,7 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
   func load() async {
     await Benchmark.shared.start("ApplicationController.load")
     let decoder = JSONDecoder()
-    let additionalPaths = AppStorageContainer.shared.additionalApplicationPaths
+    let additionalPaths = await AppStorageContainer.shared.additionalApplicationPaths
     if let newApplications: [Application] = try? AppCache.load(Self.domain, name: "applications.json", decoder: decoder) {
       do {
         var applicationDictionary = [String: Application]()

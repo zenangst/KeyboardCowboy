@@ -1,7 +1,7 @@
 import Foundation
 
 extension Notification {
-  static let openKeyboardCowboy = Notification(name: .openKeyboardCowboy)
+  @MainActor static let openKeyboardCowboy = Notification(name: .openKeyboardCowboy)
 }
 
 extension Notification.Name {

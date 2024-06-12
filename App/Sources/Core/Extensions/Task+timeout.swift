@@ -1,3 +1,5 @@
+// Source: https://gist.github.com/swhitty/9be89dfe97dbb55c6ef0f916273bbb97
+
 import Foundation
 
 extension Task where Failure == Error {
