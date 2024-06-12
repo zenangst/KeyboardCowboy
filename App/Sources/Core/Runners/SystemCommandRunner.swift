@@ -10,8 +10,9 @@ import Windows
 final class SystemCommandRunner: @unchecked Sendable {
   var machPort: MachPortEventController?
 
-  private let applicationStore: ApplicationStore
   private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
+  private let applicationStore: ApplicationStore
+  private let relativeFocus: SystemWindowRelativeFocus
   private let workspace: WorkspaceProviding
 
   private var flagsChangedSubscription: AnyCancellable?
@@ -31,10 +32,13 @@ final class SystemCommandRunner: @unchecked Sendable {
       .compactMap { $0 }
       .sink { [weak self] flags in
         guard let self else { return }
-        WindowStore.shared.state.interactive = flags != CGEventFlags.maskNonCoalesced
-        if WindowStore.shared.state.interactive == false {
-          self.frontMostIndex = 0
-          self.visibleMostIndex = 0
+        Task { @MainActor in
+          WindowStore.shared.state.interactive = flags != CGEventFlags.maskNonCoalesced
+          if WindowStore.shared.state.interactive == false {
+            self.frontMostIndex = 0
+            self.visibleMostIndex = 0
+            self.relativeFocus.reset()
+          }
         }
       }
   }
@@ -71,13 +75,13 @@ final class SystemCommandRunner: @unchecked Sendable {
       case .missionControl:
         Dock.run(.missionControl)
       case .moveFocusToNextWindowUpwards:
-        try SystemWindowRelativeFocus.run(.up, snapshot: snapshot)
+        try relativeFocus.run(.up, snapshot: snapshot)
       case .moveFocusToNextWindowDownwards:
-        try SystemWindowRelativeFocus.run(.down, snapshot: snapshot)
+        try relativeFocus.run(.down, snapshot: snapshot)
       case .moveFocusToNextWindowOnLeft:
-        try SystemWindowRelativeFocus.run(.left, snapshot: snapshot)
+        try relativeFocus.run(.left, snapshot: snapshot)
       case .moveFocusToNextWindowOnRight:
-        try SystemWindowRelativeFocus.run(.right, snapshot: snapshot)
+        try relativeFocus.run(.right, snapshot: snapshot)
       }
     }
   }
