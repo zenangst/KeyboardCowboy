@@ -4,12 +4,26 @@ import AXEssibility
 import Foundation
 import Windows
 
-enum SystemWindowRelativeFocus {
+final class SystemWindowRelativeFocus {
   enum Direction {
     case up, down, left, right
   }
 
-  static func run(_ direction: Direction, snapshot: UserSpace.Snapshot) throws {
+  var consumedWindows = Set<WindowModel>()
+  var previousDirection: Direction?
+
+  init() {}
+
+  func reset() {
+    consumedWindows.removeAll()
+  }
+
+  func run(_ direction: Direction, snapshot: UserSpace.Snapshot) throws {
+    if direction != previousDirection {
+      previousDirection = direction
+      consumedWindows.removeAll()
+    }
+
     var windows = indexWindowsInStage(getWindows())
     let frontMostApplication = snapshot.frontMostApplication
     let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
@@ -25,6 +39,7 @@ enum SystemWindowRelativeFocus {
 
       if window.id == focusedWindow.id {
         activeWindow = window
+        consumedWindows.insert(window)
         windows.remove(at: offset)
         break
       }
@@ -34,6 +49,8 @@ enum SystemWindowRelativeFocus {
       activeWindow = windows.first
       windows.removeFirst()
     }
+
+    windows.removeAll(where: { consumedWindows.contains($0) })
 
     guard let activeWindow = activeWindow else { return }
 
@@ -51,6 +68,8 @@ enum SystemWindowRelativeFocus {
 
     guard let matchedWindow else { return }
 
+    consumedWindows.insert(matchedWindow)
+
     let processIdentifier = pid_t(matchedWindow.ownerPid.rawValue)
     guard let runningApplication = NSRunningApplication(processIdentifier: processIdentifier) else { return }
     let appElement = AppAccessibilityElement(processIdentifier)
@@ -64,13 +83,15 @@ enum SystemWindowRelativeFocus {
     match?.performAction(.raise)
   }
 
-  private static func getWindows() -> [WindowModel] {
+  // MARK: Private methods
+
+  private func getWindows() -> [WindowModel] {
     let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
     let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
     return windowModels
   }
 
-  private static func indexWindowsInStage(_ models: [WindowModel]) -> [WindowModel] {
+  private func indexWindowsInStage(_ models: [WindowModel]) -> [WindowModel] {
     let excluded = ["WindowManager", "Window Server"]
     let minimumSize = CGSize(width: 150, height: 150)
     let windows: [WindowModel] = models
