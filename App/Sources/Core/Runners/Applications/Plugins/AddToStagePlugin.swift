@@ -17,7 +17,7 @@ final class AddToStagePlugin {
       try await Self.activateTargetApplication(command)
       try await Self.activateCurrentApplication(snapshot)
 
-      let result = try await Task(timeout: 5) {
+      _ = try await Task(timeout: 5) {
         var result: Bool = false
         while result == false {
           if Self.resolveRunningApplication(command.application) != nil {
@@ -38,7 +38,7 @@ final class AddToStagePlugin {
 
     if runningApplication.isHidden {
       _ = runningApplication.unhide()
-      let result = try await Task(timeout: 1) {
+      _ = try await Task(timeout: 1) {
         while runningApplication.isHidden {
           try await Task.sleep(for: .milliseconds(100))
         }

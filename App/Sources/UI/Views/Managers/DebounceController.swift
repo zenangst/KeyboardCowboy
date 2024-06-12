@@ -27,7 +27,7 @@ final class DebounceController<Snapshot: DebounceSnapshot> {
       }
   }
 
-  func process(_ snapshot: Snapshot) {
+  @MainActor func process(_ snapshot: Snapshot) {
     switch kind {
     case .keyDown:
       subject.send(snapshot)

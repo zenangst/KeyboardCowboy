@@ -25,6 +25,7 @@ struct ContainerView: View {
   private let commandPublisher: CommandsPublisher
   private var focus: FocusState<AppFocus?>.Binding
 
+  @MainActor
   init(_ focus: FocusState<AppFocus?>.Binding,
        contentState: Binding<ContentStore.State>,
        publisher: ContentPublisher,

@@ -24,6 +24,7 @@ final class SystemCommandRunner: @unchecked Sendable {
        workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.applicationStore = applicationStore
     self.applicationActivityMonitor = applicationActivityMonitor
+    self.relativeFocus = SystemWindowRelativeFocus()
     self.workspace = workspace
   }
 

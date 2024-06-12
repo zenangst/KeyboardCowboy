@@ -30,7 +30,14 @@ final class MacroCoordinator {
   private var macros = [MacroKey: [MacroKind]]()
 
   private let bezelId = "com.apple.zenangst.Keyboard-Cowboy.macros"
-  private let userSpace = UserSpace.shared
+
+  @MainActor
+  private let userSpace: UserSpace
+
+  @MainActor
+  init() {
+    self.userSpace = UserSpace.shared
+  }
 
   func match(_ shortcut: MachPortKeyboardShortcut) -> [MacroKind]? {
     let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,

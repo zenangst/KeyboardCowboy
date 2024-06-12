@@ -25,7 +25,7 @@ final class BezelNotificationController {
         .publisher(for: NSApplication.didChangeScreenParametersNotification)
         .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
         .sink { [weak self] _ in
-          guard let self, let contentView = window.contentView else { return }
+          guard let self, window.contentView != nil else { return }
           self.resizeAndAlignWindow(animate: false)
         }
     }
@@ -33,7 +33,7 @@ final class BezelNotificationController {
 
   @MainActor
   func post(_ notification: BezelNotificationViewModel) {
-    guard let contentView = window.contentView else { return }
+    guard window.contentView != nil else { return }
     withAnimation(.easeOut(duration: 0.175)) {
       publisher.publish(notification)
     }
