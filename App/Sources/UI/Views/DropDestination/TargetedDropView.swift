@@ -29,8 +29,8 @@ enum TargetedKind: Equatable {
   case drop
 }
 
-private struct TargetedDropView<T: Transferable & Equatable>: View, Equatable {
-  static func == (lhs: TargetedDropView<T>, rhs: TargetedDropView<T>) -> Bool {
+private struct TargetedDropView<T: Transferable & Equatable>: View, Equatable, Sendable {
+  nonisolated static func ==(lhs: TargetedDropView<T>, rhs: TargetedDropView<T>) -> Bool {
     lhs.kind == rhs.kind &&
     lhs.alignment == rhs.alignment && 
     lhs.type == rhs.type &&

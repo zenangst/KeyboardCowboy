@@ -81,6 +81,7 @@ final class MachPortCoordinator {
       }
   }
 
+  @MainActor
   func receiveEvent(_ machPortEvent: MachPortEvent) {
     switch mode {
     case .disabled: return
@@ -113,6 +114,7 @@ final class MachPortCoordinator {
  
   // MARK: - Private methods
 
+  @MainActor
   private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool = false, runningMacro: Bool) {
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
@@ -248,7 +250,8 @@ final class MachPortCoordinator {
             runningMacro: runningMacro)
   }
 
-  private func process(_ result: KeyboardShortcutResult?, 
+  @MainActor
+  private func process(_ result: KeyboardShortcutResult?,
                        machPortEvent: MachPortEvent,
                        shortcut: MachPortKeyboardShortcut,
                        isRepeatingEvent: Bool,

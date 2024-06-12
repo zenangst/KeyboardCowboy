@@ -8,6 +8,7 @@ import MachPort
 final class SnippetController: @unchecked Sendable, ObservableObject {
   var isEnabled: Bool = true
 
+  @MainActor
   static var currentSnippet: String = ""
 
   @MainActor
@@ -176,4 +177,4 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
   }
 }
 
-extension CGEvent: @unchecked Sendable {}
+extension CGEvent: @unchecked @retroactive Sendable {}
