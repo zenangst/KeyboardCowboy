@@ -17,7 +17,7 @@ public protocol RunningApplication {
   func unhide() -> Bool
 }
 
-extension NSRunningApplication: @unchecked @retroactive Sendable, RunningApplication {
+extension NSRunningApplication: @unchecked Sendable, RunningApplication {
   public static var currentApp: RunningApplication {
     return NSRunningApplication.current
   }

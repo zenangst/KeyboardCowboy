@@ -177,4 +177,4 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
   }
 }
 
-extension CGEvent: @unchecked @retroactive Sendable {}
+extension CGEvent: @unchecked Sendable {}
