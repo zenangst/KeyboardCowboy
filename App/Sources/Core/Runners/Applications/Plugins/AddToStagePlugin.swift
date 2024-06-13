@@ -117,13 +117,12 @@ final class AddToStagePlugin {
   }
 
   static func performClick(on window: WindowModel, mouseDown: CGEventType, mouseUp: CGEventType, withFlags flags: CGEventFlags?) {
+    let x = window.rect.origin.x + 12
+    let y = window.rect.origin.y + window.rect.height / 2
     let mouseEventDown = CGEvent(
       mouseEventSource: nil,
       mouseType: mouseDown,
-      mouseCursorPosition: CGPoint(
-        x: window.rect.origin.x + window.rect.width / 2,
-        y: window.rect.origin.y + window.rect.height / 2
-      ),
+      mouseCursorPosition: CGPoint(x: x, y: y),
       mouseButton: .center
     )
     if let flags {
@@ -135,12 +134,10 @@ final class AddToStagePlugin {
     let mouseEventUp = CGEvent(
       mouseEventSource: nil,
       mouseType: mouseUp,
-      mouseCursorPosition: CGPoint(
-        x: window.rect.origin.x + window.rect.width / 2,
-        y: window.rect.origin.y + window.rect.height / 2
-      ),
+      mouseCursorPosition: CGPoint(x: x, y: y),
       mouseButton: .center
     )
+
     if let flags {
       mouseEventUp?.flags.insert(flags)
     }
