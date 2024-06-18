@@ -80,6 +80,8 @@ final class MenuBarCommandRunner {
 
   private func find(_ token: MenuBarCommand.Token, in items: [MenuBarItemAccessibilityElement]) -> MenuBarItemAccessibilityElement? {
     items.first(where: { item in
+      guard item.isEnabled == true else { return false }
+
       switch token {
       case .menuItem(let title):
         return item.title == title 
