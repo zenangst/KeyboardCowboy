@@ -3,17 +3,32 @@ import Windows
 
 enum SystemWindowRelativeFocusUp {
   static func findNextWindow(_ currentWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
-    let sortedWindows = windows.sorted { $0.rect.origin.y > $1.rect.origin.y }
-
-    let intersectingWindows = sortedWindows.filter { window in
+    let sortedWindows = windows.systemWindows.sorted {
+      $0.index < $1.index &&
+      $0.window.rect.origin.x > $1.window.rect.origin.x &&
+      $0.window.rect.origin.y > $1.window.rect.origin.y
+    }
+    let intersectingWindows = sortedWindows.filter { systemWindow in
       let currentMinX = currentWindow.rect.origin.x
       let currentMaxX = currentWindow.rect.maxX
-      let windowMinX = window.rect.origin.x
-      let windowMaxX = window.rect.maxX
-      return window.rect.origin.y < currentWindow.rect.origin.y
+      let windowMinX = systemWindow.window.rect.origin.x
+      let windowMaxX = systemWindow.window.rect.maxX
+      return systemWindow.window.rect.origin.y < currentWindow.rect.origin.y
       && windowMinX <= currentMaxX && windowMaxX >= currentMinX
     }
 
-    return intersectingWindows.first
+    for systemWindow in intersectingWindows {
+      if systemWindow.window.rect.origin.y <= currentWindow.rect.origin.y {
+        return systemWindow.window
+      }
+    }
+
+    for systemWindow in sortedWindows {
+      if systemWindow.window.rect.origin.y <= currentWindow.rect.origin.y {
+        return systemWindow.window
+      }
+    }
+
+    return nil
   }
 }
