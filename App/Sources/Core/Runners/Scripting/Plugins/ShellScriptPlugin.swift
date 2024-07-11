@@ -49,6 +49,8 @@ final class ShellScriptPlugin: @unchecked Sendable {
       }
     }
 
+    shell = shell.trimmingCharacters(in: .whitespacesAndNewlines)
+
     let (process, pipe, errorPipe) = createProcess(shell: shell)
 
     process.arguments = ["-i", "-l", command]
