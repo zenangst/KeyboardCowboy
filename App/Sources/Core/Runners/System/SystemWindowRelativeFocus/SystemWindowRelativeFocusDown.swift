@@ -29,6 +29,6 @@ enum SystemWindowRelativeFocusDown {
       }
     }
 
-    return nil
+    return currentWindow
   }
 }
