@@ -28,7 +28,7 @@ enum SystemWindowRelativeFocusLeft {
       }
     }
 
-    return nil
+    return currentWindow
   }
 }
 
