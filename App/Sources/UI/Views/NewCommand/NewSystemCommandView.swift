@@ -48,6 +48,46 @@ struct NewCommandSystemCommandView: View {
           RelativeFocusIconView(.left, size: 24)
         case .moveFocusToNextWindowOnRight:
           RelativeFocusIconView(.right, size: 24)
+        case .windowTilingLeft:
+          EmptyView()
+        case .windowTilingRight:
+          EmptyView()
+        case .windowTilingTop:
+          EmptyView()
+        case .windowTilingBottom:
+          EmptyView()
+        case .windowTilingTopLeft:
+          EmptyView()
+        case .windowTilingTopRight:
+          EmptyView()
+        case .windowTilingBottomLeft:
+          EmptyView()
+        case .windowTilingBottomRight:
+          EmptyView()
+        case .windowTilingCenter:
+          EmptyView()
+        case .windowTilingFill:
+          EmptyView()
+        case .windowTilingArrangeLeftRight:
+          EmptyView()
+        case .windowTilingArrangeRightLeft:
+          EmptyView()
+        case .windowTilingArrangeTopBottom:
+          EmptyView()
+        case .windowTilingArrangeBottomTop:
+          EmptyView()
+        case .windowTilingArrangeLeftQuarters:
+          EmptyView()
+        case .windowTilingArrangeRightQuarters:
+          EmptyView()
+        case .windowTilingArrangeTopQuarters:
+          EmptyView()
+        case .windowTilingArrangeBottomQuarters:
+          EmptyView()
+        case .windowTilingArrangeQuarters:
+          EmptyView()
+        case .windowTilingPreviousSize:
+          EmptyView()
         case .none:
           EmptyView()
         }
