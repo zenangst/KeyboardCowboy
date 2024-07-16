@@ -83,6 +83,46 @@ final class SystemCommandRunner: @unchecked Sendable {
         try relativeFocus.run(.left, snapshot: snapshot)
       case .moveFocusToNextWindowOnRight:
         try relativeFocus.run(.right, snapshot: snapshot)
+      case .windowTilingLeft:
+        try await SystemWindowTilingRunner.run(.left, snapshot: snapshot)
+      case .windowTilingRight:
+        try await SystemWindowTilingRunner.run(.right, snapshot: snapshot)
+      case .windowTilingTop:
+        try await SystemWindowTilingRunner.run(.top, snapshot: snapshot)
+      case .windowTilingBottom:
+        try await SystemWindowTilingRunner.run(.bottom, snapshot: snapshot)
+      case .windowTilingTopLeft:
+        try await SystemWindowTilingRunner.run(.topLeft, snapshot: snapshot)
+      case .windowTilingTopRight:
+        try await SystemWindowTilingRunner.run(.topRight, snapshot: snapshot)
+      case .windowTilingBottomLeft:
+        try await SystemWindowTilingRunner.run(.bottomLeft, snapshot: snapshot)
+      case .windowTilingBottomRight:
+        try await SystemWindowTilingRunner.run(.bottomRight, snapshot: snapshot)
+      case .windowTilingCenter:
+        try await SystemWindowTilingRunner.run(.center, snapshot: snapshot)
+      case .windowTilingFill:
+        try await SystemWindowTilingRunner.run(.fill, snapshot: snapshot)
+      case .windowTilingArrangeLeftRight:
+        try await SystemWindowTilingRunner.run(.arrangeLeftRight, snapshot: snapshot)
+      case .windowTilingArrangeRightLeft:
+        try await SystemWindowTilingRunner.run(.arrangeRightLeft, snapshot: snapshot)
+      case .windowTilingArrangeTopBottom:
+        try await SystemWindowTilingRunner.run(.arrangeTopBottom, snapshot: snapshot)
+      case .windowTilingArrangeBottomTop:
+        try await SystemWindowTilingRunner.run(.arrangeBottomTop, snapshot: snapshot)
+      case .windowTilingArrangeLeftQuarters:
+        try await SystemWindowTilingRunner.run(.arrangeLeftQuarters, snapshot: snapshot)
+      case .windowTilingArrangeRightQuarters:
+        try await SystemWindowTilingRunner.run(.arrangeRightQuarters, snapshot: snapshot)
+      case .windowTilingArrangeTopQuarters:
+        try await SystemWindowTilingRunner.run(.arrangeTopQuarters, snapshot: snapshot)
+      case .windowTilingArrangeBottomQuarters:
+        try await SystemWindowTilingRunner.run(.arrangeBottomQuarters, snapshot: snapshot)
+      case .windowTilingArrangeQuarters:
+        try await SystemWindowTilingRunner.run(.arrangeQuarters, snapshot: snapshot)
+      case .windowTilingPreviousSize:
+        try await SystemWindowTilingRunner.run(.previousSize, snapshot: snapshot)
       }
     }
   }
