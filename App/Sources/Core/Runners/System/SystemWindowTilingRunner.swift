@@ -232,10 +232,18 @@ final class SystemWindowTilingRunner {
         ]
       }
 
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
+      if oldWindows.count == 1 {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Center"),
+        ]
+      } else {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Fill"),
+        ]
+      }
+
       windowComparisonCount = 3
     case .arrangeRightQuarters:
       if oldWindows.count == 1 {
@@ -257,10 +265,18 @@ final class SystemWindowTilingRunner {
         ]
       }
 
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
+      if oldWindows.count == 1 {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Center"),
+        ]
+      } else {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Fill"),
+        ]
+      }
+
       windowComparisonCount = 3
     case .arrangeTopQuarters:
       if oldWindows.count == 1 {
@@ -281,10 +297,19 @@ final class SystemWindowTilingRunner {
           .menuItem(name: "Top & Quarters"),
         ]
       }
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
+
+      if oldWindows.count == 1 {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Center"),
+        ]
+      } else {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Fill"),
+        ]
+      }
+
       windowComparisonCount = 3
     case .arrangeBottomQuarters:
       if oldWindows.count == 1 {
@@ -306,10 +331,18 @@ final class SystemWindowTilingRunner {
         ]
       }
 
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
+      if oldWindows.count == 1 {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Center"),
+        ]
+      } else {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Fill"),
+        ]
+      }
+
       windowComparisonCount = 3
     case .arrangeQuarters:
       if oldWindows.count == 1 {
@@ -337,10 +370,18 @@ final class SystemWindowTilingRunner {
         ]
       }
 
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
+      if oldWindows.count == 1 {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Center"),
+        ]
+      } else {
+        optionalTokens = [
+          .menuItem(name: "Window"),
+          .menuItem(name: "Fill"),
+        ]
+      }
+
       windowComparisonCount = 4
     case .previousSize:
       initialTokens = [
@@ -377,7 +418,6 @@ final class SystemWindowTilingRunner {
         match.performAction(.pick)
       }
     }
-
   }
 
   private static func recursiveSearch(_ tokens: [MenuBarCommand.Token],

@@ -1,6 +1,7 @@
 import Cocoa
 
 protocol ApplicationCommandRunnerDelegate: AnyObject {
+  @MainActor
   func applicationCommandRunnerWillRunApplicationCommand(_ command: ApplicationCommand)
 }
 
@@ -37,7 +38,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
   }
 
   func run(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
-    delegate?.applicationCommandRunnerWillRunApplicationCommand(command)
+    await delegate?.applicationCommandRunnerWillRunApplicationCommand(command)
     if command.modifiers.contains(.onlyIfNotRunning) {
       let bundleIdentifiers = self.workspace.applications.compactMap(\.bundleIdentifier)
       if bundleIdentifiers.contains(command.application.bundleIdentifier) {
