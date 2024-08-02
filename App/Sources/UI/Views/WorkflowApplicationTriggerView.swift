@@ -35,6 +35,19 @@ struct WorkflowApplicationTriggerView: View {
       HStack {
         GenericAppIconView(size: 28)
         Menu {
+
+          Button(action: {
+            let uuid = UUID()
+            let anyApplication = Application.anyApplication()
+            withAnimation(WorkflowCommandListView.animation) {
+              data.append(.init(id: uuid.uuidString, name: anyApplication.displayName,
+                                application: anyApplication, contexts: []))
+            }
+            onAction(.updateApplicationTriggers(data))
+          }, label: {
+            Text("Any Application")
+          })
+
           ForEach(applicationStore.applications.lazy, id: \.path) { application in
             Button(action: {
               let uuid = UUID()

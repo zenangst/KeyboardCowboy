@@ -1,3 +1,4 @@
+import Apps
 import Combine
 import Cocoa
 import MachPort
@@ -91,6 +92,10 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
 
   @MainActor
   private func process(_ frontMostApplication: UserSpace.Application) {
+    if let anyAppTriggerWorkflows = self.activateActions[Application.anyAppBundleIdentifier()] {
+      runTriggerWorkflows(anyAppTriggerWorkflows)
+    }
+
     if let triggerWorkflows = self.activateActions[frontMostApplication.bundleIdentifier] {
       runTriggerWorkflows(triggerWorkflows)
     }
@@ -161,4 +166,14 @@ private struct ApplicationTriggerWorkflow {
 
   var isEnabled: Bool { workflow.isEnabled }
   var trigger: Workflow.Trigger? { workflow.trigger }
+}
+
+extension Application {
+  static func anyAppBundleIdentifier() -> String {
+    "*.*.*"
+  }
+
+  static func anyApplication() -> Application {
+    Application(bundleIdentifier: anyAppBundleIdentifier(), bundleName: "Any Application", displayName: "Any Application", path: "Any Application")
+  }
 }
