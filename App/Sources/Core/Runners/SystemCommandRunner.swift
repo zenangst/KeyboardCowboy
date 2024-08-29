@@ -123,6 +123,8 @@ final class SystemCommandRunner: @unchecked Sendable {
         try await SystemWindowTilingRunner.run(.arrangeQuarters, snapshot: snapshot)
       case .windowTilingPreviousSize:
         try await SystemWindowTilingRunner.run(.previousSize, snapshot: snapshot)
+      case .windowTilingZoom:
+        try await SystemWindowTilingRunner.run(.zoom, snapshot: snapshot)
       }
     }
   }

@@ -114,6 +114,8 @@ struct ContentImageView: View {
           EmptyView()
         case .windowTilingPreviousSize:
           EmptyView()
+        case .windowTilingZoom:
+          EmptyView()
         }
       case .menuBar:
         MenuIconView(size: size - 6)

@@ -31,6 +31,7 @@ struct SystemCommand: MetaDataProviding {
       case .windowTilingBottomRight: "Window › Move & Resize › Bottom Right"
       case .windowTilingCenter: "Window › Center"
       case .windowTilingFill: "Window › Fill"
+      case .windowTilingZoom: "Window › Zoom"
       case .windowTilingArrangeLeftRight: "Window › Move & Resize › Left & Right"
       case .windowTilingArrangeRightLeft: "Window › Move & Resize › Right & Left"
       case .windowTilingArrangeTopBottom: "Window › Move & Resize › Top & Bottom"
@@ -72,6 +73,7 @@ struct SystemCommand: MetaDataProviding {
       case .windowTilingBottomRight: "square.split.bottomrightquarter"
       case .windowTilingCenter: "square.split.diagonal.2x2.fill"
       case .windowTilingFill: "square.fill"
+      case .windowTilingZoom: "square.arrowtriangle.4.outward"
       case .windowTilingArrangeLeftRight: "rectangle.split.2x1.fill"
       case .windowTilingArrangeRightLeft: "rectangle.split.2x1.fill"
       case .windowTilingArrangeTopBottom: "rectangle.split.1x2.fill"
@@ -110,6 +112,7 @@ struct SystemCommand: MetaDataProviding {
       case .windowTilingBottomRight: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingCenter: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingFill: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .windowTilingZoom: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingArrangeLeftRight: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingArrangeRightLeft: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingArrangeTopBottom: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
@@ -148,6 +151,7 @@ struct SystemCommand: MetaDataProviding {
     case windowTilingBottomRight
     case windowTilingCenter
     case windowTilingFill
+    case windowTilingZoom
     case windowTilingArrangeLeftRight
     case windowTilingArrangeRightLeft
     case windowTilingArrangeTopBottom

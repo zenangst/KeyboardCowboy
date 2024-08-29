@@ -88,6 +88,8 @@ struct NewCommandSystemCommandView: View {
           EmptyView()
         case .windowTilingPreviousSize:
           EmptyView()
+        case .windowTilingZoom:
+          EmptyView()
         case .none:
           EmptyView()
         }

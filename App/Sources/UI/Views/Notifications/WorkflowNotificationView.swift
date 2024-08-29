@@ -266,6 +266,8 @@ extension Command {
         EmptyView()
       case .windowTilingPreviousSize:
         EmptyView()
+      case .windowTilingZoom:
+        EmptyView()
       }
       case .menuBar: MenuIconView(size: size)
       case .windowManagement: WindowManagementIconView(size: size)

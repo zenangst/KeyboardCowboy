@@ -137,6 +137,8 @@ private struct SystemCommandIconView: View {
       EmptyView()
     case .windowTilingPreviousSize:
       EmptyView()
+    case .windowTilingZoom:
+      EmptyView()
     }
   }
 }
