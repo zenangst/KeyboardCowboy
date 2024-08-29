@@ -7,7 +7,7 @@ import InputSources
 import KeyCodes
 import os
 
-final class MachPortCoordinator {
+final class MachPortCoordinator: Sendable {
   enum RestrictedKeyCode: Int, CaseIterable {
     case backspace = 117
     case delete = 51
@@ -16,12 +16,12 @@ final class MachPortCoordinator {
   }
 
   @Published private(set) var event: MachPortEvent?
-  @Published private(set) var coordinatorEvent: CGEvent?
+  @MainActor @Published private(set) var coordinatorEvent: CGEvent?
   @Published private(set) var flagsChanged: CGEventFlags?
   @Published private(set) var recording: KeyShortcutRecording?
   @Published private(set) var mode: KeyboardCowboyMode
 
-  var machPort: MachPortEventController? {
+  @MainActor var machPort: MachPortEventController? {
     didSet { keyboardCommandRunner.machPort = machPort }
   }
 
@@ -280,7 +280,7 @@ final class MachPortCoordinator {
       }
 
       let enabledCommands = workflow.commands.filter(\.isEnabled)
-      let execution: (MachPortEvent, Bool) -> Void
+      let execution: @MainActor @Sendable (MachPortEvent, Bool) -> Void
 
       // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
       if enabledCommands.count == 1,
@@ -309,7 +309,8 @@ final class MachPortCoordinator {
           macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
         }
 
-        execution(machPortEvent, isRepeatingEvent)
+        Task.detached { await execution(machPortEvent, isRepeatingEvent) }
+
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
@@ -324,7 +325,9 @@ final class MachPortCoordinator {
           self.coordinatorEvent = machPortEvent.event
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
         }
-        execution(machPortEvent, isRepeatingEvent)
+
+        Task.detached { await execution(machPortEvent, isRepeatingEvent) }
+
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
