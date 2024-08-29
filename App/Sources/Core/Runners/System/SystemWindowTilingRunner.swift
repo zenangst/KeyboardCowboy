@@ -13,6 +13,7 @@ enum WindowTiling {
   case bottomRight
   case center
   case fill
+  case zoom
   case arrangeLeftRight
   case arrangeRightLeft
   case arrangeTopBottom
@@ -26,395 +27,115 @@ enum WindowTiling {
 }
 
 final class SystemWindowTilingRunner {
+  @MainActor
+  private static var currentTask: Task<Void, any Error>?
+  private static let tilingWindowSpacingKey: String = "TiledWindowSpacing"
 
   static func run(_ tiling: WindowTiling, snapshot: UserSpace.Snapshot) async throws {
     guard let runningApplication = NSWorkspace.shared.frontmostApplication else {
       return
     }
+
+    await currentTask?.cancel()
+
     let menuItems = try AppAccessibilityElement(runningApplication.processIdentifier)
       .menuBar()
       .menuItems()
-
     let initialTokens: [MenuBarCommand.Token]
-    let optionalTokens: [MenuBarCommand.Token]
-    let windowComparisonCount: Int
-
     let oldSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
     let oldWindows = oldSnapshot.windows.visibleWindowsInStage
 
     switch tiling {
     case .left:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Left"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left")]
     case .right:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Right"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right")]
     case .top:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Top"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top")]
     case .bottom:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Bottom"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom")]
     case .topLeft:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Top Left"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top Left")]
     case .topRight:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Top Right"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top Right")]
     case .bottomLeft:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Bottom Left"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom Left")]
     case .bottomRight:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Bottom Right"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom Right")]
     case .center:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Center"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Center")]
     case .fill:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Center"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+    case .zoom:
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Zoom")]
     case .arrangeLeftRight:
       if oldWindows.count == 1 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Fill")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Fill")]
       } else {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Left & Right")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Right")]
       }
-
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 2
     case .arrangeRightLeft:
       if oldWindows.count == 1 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
       } else {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Right & Left")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Left")]
       }
-
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 2
     case .arrangeTopBottom:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Top & Bottom"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 2
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Bottom")]
     case .arrangeBottomTop:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Bottom & Top"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Fill"),
-      ]
-      windowComparisonCount = 2
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom & Top")]
     case .arrangeLeftQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
       } else if oldWindows.count == 2 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Left & Right"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Right")]
       } else {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Left & Quarters"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Quarters")]
       }
 
-      if oldWindows.count == 1 {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Center"),
-        ]
-      } else {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
-      }
-
-      windowComparisonCount = 3
     case .arrangeRightQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
       } else if oldWindows.count == 2 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Right & Left"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Left")]
       } else {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Right & Quarters")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Quarters")]
       }
-
-      if oldWindows.count == 1 {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Center"),
-        ]
-      } else {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
-      }
-
-      windowComparisonCount = 3
     case .arrangeTopQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
       } else if oldWindows.count == 2 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Top & Bottom")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Bottom")]
       } else {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Top & Quarters"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Quarters")]
       }
-
-      if oldWindows.count == 1 {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Center"),
-        ]
-      } else {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
-      }
-
-      windowComparisonCount = 3
     case .arrangeBottomQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
       } else if oldWindows.count == 2 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Bottom & Top")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom & Top")]
       } else {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Bottom & Quarters"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom & Quarters")]
       }
-
-      if oldWindows.count == 1 {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Center"),
-        ]
-      } else {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
-      }
-
-      windowComparisonCount = 3
     case .arrangeQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
       } else if oldWindows.count == 2 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Left & Right"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Right")]
       } else if oldWindows.count == 3 {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Left & Quarters"),
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Quarters")]
       } else {
-        initialTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Move & Resize"),
-          .menuItem(name: "Quarters")
-        ]
+        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Quarters")]
       }
-
-      if oldWindows.count == 1 {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Center"),
-        ]
-      } else {
-        optionalTokens = [
-          .menuItem(name: "Window"),
-          .menuItem(name: "Fill"),
-        ]
-      }
-
-      windowComparisonCount = 4
     case .previousSize:
-      initialTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Return to Previous Size"),
-      ]
-      optionalTokens = [
-        .menuItem(name: "Window"),
-        .menuItem(name: "Move & Resize"),
-        .menuItem(name: "Return to Previous Size"),
-      ]
-      windowComparisonCount = 1
+      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Return to Previous Size")]
     }
 
-    try await MainActor.run {
-      let match = try recursiveSearch(initialTokens, items: menuItems)
-      match.performAction(.pick)
-    }
-
-    try await Task.sleep(for: .milliseconds(100))
-
-    let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
-    let newWindows = newSnapshot.windows.visibleWindowsInStage.prefix(windowComparisonCount)
-
-    let oldRects = oldWindows
-      .prefix(windowComparisonCount)
-      .map { $0.rect }
-    let newRects = newWindows.map { $0.rect }
-
-    if oldRects == newRects {
-      try await MainActor.run {
-        let match = try recursiveSearch(optionalTokens, items: menuItems)
+    await MainActor.run {
+      currentTask?.cancel()
+      currentTask = Task { @MainActor in
+        try Task.checkCancellation()
+        let match = try recursiveSearch(initialTokens, items: menuItems)
         match.performAction(.pick)
       }
     }
@@ -461,3 +182,5 @@ final class SystemWindowTilingRunner {
     })
   }
 }
+
+extension UserDefaults: @unchecked @retroactive Sendable { }
