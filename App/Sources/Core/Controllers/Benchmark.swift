@@ -1,7 +1,6 @@
 import Foundation
 import Cocoa
 
-@MainActor
 final class Benchmark {
   var isEnabled: Bool = false
 
@@ -11,8 +10,8 @@ final class Benchmark {
 
   private init() {}
 
-  func start(_ identifier: @autoclosure @Sendable () -> String) {
-    guard isEnabled else { return }
+  nonisolated func start(_ identifier: @autoclosure @Sendable () -> String, forceEnable: Bool = false) {
+    guard (isEnabled || forceEnable) else { return }
     if storage[identifier()] != nil {
       debugPrint("⏱ Benchmark: duplicate start")
     }
@@ -20,8 +19,8 @@ final class Benchmark {
   }
 
   @discardableResult
-  func stop(_ identifier: @autoclosure @Sendable () -> String) -> String {
-    guard isEnabled, let startTime = storage[identifier()] else {
+  func stop(_ identifier: @autoclosure @Sendable () -> String, forceEnable: Bool = false) -> String {
+    guard (isEnabled || forceEnable), let startTime = storage[identifier()] else {
       return "Unknown identifier: \(identifier())"
     }
     Swift.print("⏱️ Benchmark(\(identifier())) = \(CACurrentMediaTime() - startTime) ")
