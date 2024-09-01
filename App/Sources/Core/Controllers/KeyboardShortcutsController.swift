@@ -90,7 +90,7 @@ final class KeyboardShortcutsController {
       guard case .keyboardShortcuts(let trigger) = workflow.trigger else {
         continue
       }
-      let shortcuts = Array(trigger.shortcuts.suffix(shortcutIndexPrefix))
+      let shortcuts = Array(trigger.shortcuts.suffix(max(trigger.shortcuts.count - shortcutIndexPrefix, 0)))
       workflows[offset].trigger = .keyboardShortcuts(.init(
         shortcuts: shortcuts
       ))
