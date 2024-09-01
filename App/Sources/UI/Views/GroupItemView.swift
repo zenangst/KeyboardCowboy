@@ -64,7 +64,7 @@ private struct GroupTextView: View {
       Text(group.name)
         .allowsTightening(true)
         .minimumScaleFactor(0.8)
-        .font(.body)
+        .font(group.userModes.isEmpty ? .body : .caption)
         .lineLimit(1)
         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -77,6 +77,7 @@ private struct GroupTextView: View {
             .background(Color.accentColor)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .scaleEffect(0.6, anchor: .leading)
+            .frame(height: 8)
         }
       }
     }
