@@ -1,7 +1,7 @@
 import Foundation
 import ProjectDescription
 
-public struct EnvHelper {
+public struct EnvHelper: Sendable {
     private let dictionary: [String: String]
 
     public subscript(key: String) -> SettingValue { SettingValue(stringLiteral: dictionary[key]!) }

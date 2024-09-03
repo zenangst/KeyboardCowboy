@@ -1,8 +1,10 @@
-import Foundation
 import AppKit
 import Carbon
 import Combine
+import DynamicNotchKit
+import Foundation
 import MachPort
+import SwiftUI
 
 protocol CommandRunning {
   func serialRun(_ commands: [Command], checkCancellation: Bool,
@@ -45,6 +47,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   private var subscription: AnyCancellable?
 
   let runners: Runners
+
+  private var notchInfo: DynamicNotchInfo = DynamicNotchInfo(title: "")
 
   @MainActor
   var lastExecutedCommand: Command?
@@ -125,7 +129,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     : nil
 
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
-      await Benchmark.shared.start("CommandRunner.serialRun")
+      Benchmark.shared.start("CommandRunner.serialRun")
       guard let self else { return }
       do {
         let shouldDismissMissionControl = commands.contains(where: {
@@ -165,7 +169,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           }
         }
       }
-      await Benchmark.shared.stop("CommandRunner.serialRun")
+      Benchmark.shared.stop("CommandRunner.serialRun")
     }
   }
 
@@ -225,12 +229,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
            shortcut: KeyShortcut, machPortEvent: MachPortEvent,
            checkCancellation: Bool, repeatingEvent: Bool, 
            runtimeDictionary: inout [String: String]) async throws {
-    let id = UUID().uuidString
+    let contentID = UUID()
     switch command.notification {
     case .bezel:
-      await BezelNotificationController.shared.post(
-        .init(id: id, text: " ", running: true)
-      )
+      await MainActor.run {
+        notchInfo.setContent(contentID: contentID, title: command.name, description: "Running...")
+        notchInfo.show(for: 10.0)
+      }
     case .commandPanel:
       switch command {
       case .script(let scriptCommand):
@@ -331,7 +336,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .bezel:
       await MainActor.run {
         lastExecutedCommand = command
-        BezelNotificationController.shared.post(.init(id: id, text: output))
+        notchInfo.setContent(contentID: contentID, title: output, description: nil)
+        notchInfo.show(for: 2.0)
       }
     case .commandPanel:
       break // Add support for command windows
