@@ -67,78 +67,42 @@ private struct SystemCommandIconView: View {
 
   var body: some View {
     switch kind {
-    case .activateLastApplication:
-      ActivateLastApplicationIconView(size: iconSize.width)
-    case .applicationWindows:
-      MissionControlIconView(size: iconSize.width)
-    case .minimizeAllOpenWindows:
-      MinimizeAllIconView(size: iconSize.width)
-    case .missionControl:
-      MissionControlIconView(size: iconSize.width)
-    case .moveFocusToNextWindow:
-      MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize.width)
-    case .moveFocusToNextWindowFront:
-      MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: iconSize.width)
-    case .moveFocusToNextWindowGlobal:
-      MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: iconSize.width)
-    case .moveFocusToPreviousWindow:
-      MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
-    case .moveFocusToPreviousWindowFront:
-      MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: iconSize.width)
-    case .moveFocusToPreviousWindowGlobal:
-      MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
-    case .showDesktop:
-      DockIconView(size: iconSize.width)
-    case .moveFocusToNextWindowUpwards:
-      RelativeFocusIconView(.up, size: iconSize.width)
-    case .moveFocusToNextWindowDownwards:
-      RelativeFocusIconView(.down, size: iconSize.width)
-    case .moveFocusToNextWindowOnLeft:
-      RelativeFocusIconView(.left, size: iconSize.width)
-    case .moveFocusToNextWindowOnRight:
-      RelativeFocusIconView(.right, size: iconSize.width)
-    case .windowTilingLeft:
-      WindowTilingIcon(kind: .left, size: iconSize.width)
-    case .windowTilingRight:
-      WindowTilingIcon(kind: .right, size: iconSize.width)
-    case .windowTilingTop:
-      WindowTilingIcon(kind: .top, size: iconSize.width)
-    case .windowTilingBottom:
-      WindowTilingIcon(kind: .bottom, size: iconSize.width)
-    case .windowTilingTopLeft:
-      WindowTilingIcon(kind: .topLeft, size: iconSize.width)
-    case .windowTilingTopRight:
-      WindowTilingIcon(kind: .topRight, size: iconSize.width)
-    case .windowTilingBottomLeft:
-      WindowTilingIcon(kind: .bottomLeft, size: iconSize.width)
-    case .windowTilingBottomRight:
-      WindowTilingIcon(kind: .bottomRight, size: iconSize.width)
-    case .windowTilingCenter:
-      WindowTilingIcon(kind: .center, size: iconSize.width)
-    case .windowTilingFill:
-      WindowTilingIcon(kind: .fill, size: iconSize.width)
-    case .windowTilingArrangeLeftRight:
-      WindowTilingIcon(kind: .arrangeLeftRight, size: iconSize.width)
-    case .windowTilingArrangeRightLeft:
-      WindowTilingIcon(kind: .arrangeLeftRight, size: iconSize.width)
-    case .windowTilingArrangeTopBottom:
-      WindowTilingIcon(kind: .arrangeTopBottom, size: iconSize.width)
-    case .windowTilingArrangeBottomTop:
-      WindowTilingIcon(kind: .arrangeBottomTop, size: iconSize.width)
-    case .windowTilingArrangeLeftQuarters:
-      WindowTilingIcon(kind: .arrangeLeftQuarters, size: iconSize.width)
-    case .windowTilingArrangeRightQuarters:
-      WindowTilingIcon(kind: .arrangeRightQuarters, size: iconSize.width)
-    case .windowTilingArrangeTopQuarters:
-      WindowTilingIcon(kind: .arrangeTopQuarters, size: iconSize.width)
-    case .windowTilingArrangeBottomQuarters:
-      WindowTilingIcon(kind: .arrangeBottomQuarters, size: iconSize.width)
-    case .windowTilingArrangeQuarters:
-      WindowTilingIcon(kind: .arrangeQuarters, size: iconSize.width)
-    case .windowTilingPreviousSize:
-      WindowTilingIcon(kind: .previousSize, size: iconSize.width)
-    case .windowTilingZoom:
-      WindowTilingIcon(kind: .zoom, size: iconSize.width)
+    case .activateLastApplication:           ActivateLastApplicationIconView(size: iconSize.width)
+    case .applicationWindows:                MissionControlIconView(size: iconSize.width)
+    case .minimizeAllOpenWindows:            MinimizeAllIconView(size: iconSize.width)
+    case .missionControl:                    MissionControlIconView(size: iconSize.width)
+    case .moveFocusToNextWindow:             MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: iconSize.width)
+    case .moveFocusToNextWindowFront:        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: iconSize.width)
+    case .moveFocusToNextWindowGlobal:       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: iconSize.width)
+    case .moveFocusToPreviousWindow:         MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
+    case .moveFocusToPreviousWindowFront:    MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: iconSize.width)
+    case .moveFocusToPreviousWindowGlobal:   MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: iconSize.width)
+    case .showDesktop:                       DockIconView(size: iconSize.width)
+    case .moveFocusToNextWindowUpwards:      RelativeFocusIconView(.up, size: iconSize.width)
+    case .moveFocusToNextWindowDownwards:    RelativeFocusIconView(.down, size: iconSize.width)
+    case .moveFocusToNextWindowOnLeft:       RelativeFocusIconView(.left, size: iconSize.width)
+    case .moveFocusToNextWindowOnRight:      RelativeFocusIconView(.right, size: iconSize.width)
+    case .windowTilingLeft:                  WindowTilingIcon(kind: .left, size: iconSize.width)
+    case .windowTilingRight:                 WindowTilingIcon(kind: .right, size: iconSize.width)
+    case .windowTilingTop:                   WindowTilingIcon(kind: .top, size: iconSize.width)
+    case .windowTilingBottom:                WindowTilingIcon(kind: .bottom, size: iconSize.width)
+    case .windowTilingTopLeft:               WindowTilingIcon(kind: .topLeft, size: iconSize.width)
+    case .windowTilingTopRight:              WindowTilingIcon(kind: .topRight, size: iconSize.width)
+    case .windowTilingBottomLeft:            WindowTilingIcon(kind: .bottomLeft, size: iconSize.width)
+    case .windowTilingBottomRight:           WindowTilingIcon(kind: .bottomRight, size: iconSize.width)
+    case .windowTilingCenter:                WindowTilingIcon(kind: .center, size: iconSize.width)
+    case .windowTilingFill:                  WindowTilingIcon(kind: .fill, size: iconSize.width)
+    case .windowTilingArrangeLeftRight:      WindowTilingIcon(kind: .arrangeLeftRight, size: iconSize.width)
+    case .windowTilingArrangeRightLeft:      WindowTilingIcon(kind: .arrangeRightLeft, size: iconSize.width)
+    case .windowTilingArrangeTopBottom:      WindowTilingIcon(kind: .arrangeTopBottom, size: iconSize.width)
+    case .windowTilingArrangeBottomTop:      WindowTilingIcon(kind: .arrangeBottomTop, size: iconSize.width)
+    case .windowTilingArrangeLeftQuarters:   WindowTilingIcon(kind: .arrangeLeftQuarters, size: iconSize.width)
+    case .windowTilingArrangeRightQuarters:  WindowTilingIcon(kind: .arrangeRightQuarters, size: iconSize.width)
+    case .windowTilingArrangeTopQuarters:    WindowTilingIcon(kind: .arrangeTopQuarters, size: iconSize.width)
+    case .windowTilingArrangeBottomQuarters: WindowTilingIcon(kind: .arrangeBottomQuarters, size: iconSize.width)
+    case .windowTilingArrangeQuarters:       WindowTilingIcon(kind: .arrangeQuarters, size: iconSize.width)
+    case .windowTilingPreviousSize:          WindowTilingIcon(kind: .previousSize, size: iconSize.width)
+    case .windowTilingZoom:                  WindowTilingIcon(kind: .zoom, size: iconSize.width)
     }
   }
 }
