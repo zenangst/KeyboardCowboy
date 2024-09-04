@@ -69,7 +69,7 @@ struct KeyboardCowboy: App {
       let groupIds = core.groupSelectionManager.selections
       Task {
         await core.detailCoordinator.addOrUpdateCommand(payload, workflowId: workflowId,
-                                                               title: title, commandId: commandId)
+                                                        title: title, commandId: commandId)
         core.contentCoordinator.handle(.selectWorkflow(workflowIds: [workflowId]))
         core.contentCoordinator.handle(.refresh(groupIds))
       }

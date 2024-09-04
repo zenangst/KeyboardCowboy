@@ -75,47 +75,47 @@ struct ContentImageView: View {
         case .showDesktop:
           DockIconView(size: size - 6)
         case .windowTilingLeft:
-          EmptyView()
+          WindowTilingIcon(kind: .left, size: size - 6)
         case .windowTilingRight:
-          EmptyView()
+          WindowTilingIcon(kind: .right, size: size - 6)
         case .windowTilingTop:
-          EmptyView()
+          WindowTilingIcon(kind: .top, size: size - 6)
         case .windowTilingBottom:
-          EmptyView()
+          WindowTilingIcon(kind: .bottom, size: size - 6)
         case .windowTilingTopLeft:
-          EmptyView()
+          WindowTilingIcon(kind: .topLeft, size: size - 6)
         case .windowTilingTopRight:
-          EmptyView()
+          WindowTilingIcon(kind: .topRight, size: size - 6)
         case .windowTilingBottomLeft:
-          EmptyView()
+          WindowTilingIcon(kind: .bottomLeft, size: size - 6)
         case .windowTilingBottomRight:
-          EmptyView()
+          WindowTilingIcon(kind: .bottomRight, size: size - 6)
         case .windowTilingCenter:
-          EmptyView()
+          WindowTilingIcon(kind: .center, size: size - 6)
         case .windowTilingFill:
-          EmptyView()
+          WindowTilingIcon(kind: .fill, size: size - 6)
         case .windowTilingArrangeLeftRight:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeLeftRight, size: size - 6)
         case .windowTilingArrangeRightLeft:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeLeftRight, size: size - 6)
         case .windowTilingArrangeTopBottom:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeTopBottom, size: size - 6)
         case .windowTilingArrangeBottomTop:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeBottomTop, size: size - 6)
         case .windowTilingArrangeLeftQuarters:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeLeftQuarters, size: size - 6)
         case .windowTilingArrangeRightQuarters:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeRightQuarters, size: size - 6)
         case .windowTilingArrangeTopQuarters:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeTopQuarters, size: size - 6)
         case .windowTilingArrangeBottomQuarters:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeBottomQuarters, size: size - 6)
         case .windowTilingArrangeQuarters:
-          EmptyView()
+          WindowTilingIcon(kind: .arrangeQuarters, size: size - 6)
         case .windowTilingPreviousSize:
-          EmptyView()
+          WindowTilingIcon(kind: .previousSize, size: size - 6)
         case .windowTilingZoom:
-          EmptyView()
+          WindowTilingIcon(kind: .zoom, size: size - 6)
         }
       case .menuBar:
         MenuIconView(size: size - 6)
