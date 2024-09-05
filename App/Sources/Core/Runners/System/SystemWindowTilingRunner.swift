@@ -38,12 +38,26 @@ final class SystemWindowTilingRunner {
 
     await currentTask?.cancel()
 
-    let menuItems = try AppAccessibilityElement(runningApplication.processIdentifier)
-      .menuBar()
-      .menuItems()
-    let initialTokens: [MenuBarCommand.Token]
     let oldSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
     let oldWindows = oldSnapshot.windows.visibleWindowsInStage
+
+    guard let nextWindow = oldWindows.first else { return }
+
+    let app: AppAccessibilityElement
+    if nextWindow.ownerPid.rawValue != runningApplication.processIdentifier {
+      let pid = pid_t(nextWindow.ownerPid.rawValue)
+      app = AppAccessibilityElement(pid)
+      let nextApp = NSRunningApplication(processIdentifier: pid)
+      nextApp?.activate(options: .activateIgnoringOtherApps)
+    } else {
+      app = AppAccessibilityElement(runningApplication.processIdentifier)
+    }
+
+    let menuItems = try app
+      .menuBar()
+      .menuItems()
+
+    let initialTokens: [MenuBarCommand.Token]
 
     switch tiling {
     case .left:
