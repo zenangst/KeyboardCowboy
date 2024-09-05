@@ -126,6 +126,7 @@ final class WindowStore: @unchecked Sendable {
     let minimumSize = CGSize(width: 48, height: 48)
     let windowModels: [WindowModel] = models
       .filter {
+        $0.ownerName != "borders" &&
         $0.alpha > 0 &&
         $0.id > 0 &&
         $0.isOnScreen &&
@@ -144,6 +145,7 @@ final class WindowStore: @unchecked Sendable {
     let minimumSize = CGSize(width: 300, height: 300)
     let windowModels: [WindowModel] = models
       .filter {
+        $0.ownerName != "borders" &&
         $0.id > 0 &&
         $0.alpha > 0 &&
         $0.isOnScreen &&
