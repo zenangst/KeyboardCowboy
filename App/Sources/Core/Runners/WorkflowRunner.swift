@@ -82,5 +82,29 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
                               shortcut: shortcut, machPortEvent: machPortEvent,
                               repeatingEvent: repeatingEvent)
     }
+
+    guard workflow.isValidForRepeatWorkflowCommand else {
+      return
+    }
+
+    if commandRunner.runners.builtIn.repeatLastWorkflowRunner.workflowRunner == nil {
+      commandRunner.runners.builtIn.repeatLastWorkflowRunner.workflowRunner = self
+    }
+
+    Task { @MainActor in
+      RepeatLastWorkflowRunner.previousWorkflow = workflow
+    }
+  }
+}
+
+private extension Workflow {
+  var isValidForRepeatWorkflowCommand: Bool {
+    commands.allSatisfy { command in
+      if case .builtIn(let builtInCommand) = command,
+         case .repeatLastWorkflow = builtInCommand.kind {
+        return false
+      }
+      return true
+    }
   }
 }

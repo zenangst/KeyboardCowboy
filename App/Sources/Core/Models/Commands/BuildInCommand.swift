@@ -11,6 +11,7 @@ struct BuiltInCommand: MetaDataProviding {
       case toggle
     }
 
+    case repeatLastWorkflow
     case macro(MacroAction)
     case userMode(UserMode, Action)
     case commandLine(CommandLineAction)
@@ -25,6 +26,8 @@ struct BuiltInCommand: MetaDataProviding {
           case .toggle: "toggle-\(id)"
         }
       case .commandLine(let action): "commandLine-\(action.id)"
+      case .repeatLastWorkflow:
+        "repeat-last-workflow"
       }
     }
 
@@ -33,6 +36,7 @@ struct BuiltInCommand: MetaDataProviding {
       case .macro(let action): action.id
       case .userMode(let model, _): model.id
       case .commandLine(let action): action.id
+      case .repeatLastWorkflow: id
       }
     }
 
@@ -40,17 +44,17 @@ struct BuiltInCommand: MetaDataProviding {
       switch self {
         case .macro(let action):
           switch action.kind {
-            case .remove: "Remove Macro"
-            case .record: "Record Macro"
+            case .remove:  "Remove Macro"
+            case .record:  "Record Macro"
           }
         case .userMode(_, let action):
           switch action {
-            case .enable: "Enable User Mode"
+            case .enable:  "Enable User Mode"
             case .disable: "Disable User Mode"
-            case .toggle: "Toggle User Mode"
+            case .toggle:  "Toggle User Mode"
           }
-      case .commandLine:
-        "Open Command Line"
+      case .commandLine:   "Open Command Line"
+      case .repeatLastWorkflow: "Repeat Last Workflow"
       }
     }
   }

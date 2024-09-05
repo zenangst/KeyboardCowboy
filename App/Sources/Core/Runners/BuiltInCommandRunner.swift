@@ -5,13 +5,16 @@ final class BuiltInCommandRunner {
   let commandLine: CommandLineCoordinator
   let configurationStore: ConfigurationStore
   let macroRunner: MacroRunner
+  let repeatLastWorkflowRunner: RepeatLastWorkflowRunner
 
   init(commandLine: CommandLineCoordinator,
        configurationStore: ConfigurationStore,
-       macroRunner: MacroRunner) {
+       macroRunner: MacroRunner,
+       repeatLastWorkflowRunner: RepeatLastWorkflowRunner) {
     self.commandLine = commandLine
     self.configurationStore = configurationStore
     self.macroRunner = macroRunner
+    self.repeatLastWorkflowRunner = repeatLastWorkflowRunner
   }
 
   func run(_ command: BuiltInCommand, 
@@ -26,6 +29,8 @@ final class BuiltInCommandRunner {
         .run(model, builtInCommand: command, action: action)
     case .commandLine(let action):
       await commandLine.show(action)
+    case .repeatLastWorkflow:
+      try await repeatLastWorkflowRunner.run()
     }
   }
 }

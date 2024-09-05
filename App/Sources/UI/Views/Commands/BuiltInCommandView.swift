@@ -71,6 +71,9 @@ private struct BuiltInIconView: View {
       UserModeIconView(size: iconSize.width)
     case .commandLine:
       CommandLineIconView(size: iconSize.width)
+    case .repeatLastWorkflow:
+#warning("Add icon here")
+      EmptyView()
     }
   }
 }
@@ -165,7 +168,7 @@ private struct BuiltInCommandContentView: View {
         .fixedSize()
 
       switch model.kind {
-      case .macro, .commandLine:
+      case .macro, .commandLine, .repeatLastWorkflow:
         EmptyView()
       case .userMode:
         Menu(content: {

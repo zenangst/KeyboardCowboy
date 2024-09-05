@@ -28,6 +28,9 @@ struct ContentImageView: View {
           UserModeIconView(size: size - 6)
         case .commandLine:
           CommandLineIconView(size: size - 6)
+        case .repeatLastWorkflow:
+          #warning("Add missing icon here.")
+          EmptyView()
         }
       case .keyboard(let model):
         KeyboardIconView(model.keys.first?.key.uppercased() ?? "", size: size - 6)

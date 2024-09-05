@@ -75,8 +75,6 @@ final class Core {
   lazy private(set) var macroCoordinator = MacroCoordinator()
   lazy private(set) var groupStore = GroupStore()
   lazy private(set) var keyCodeStore = KeyCodesStore(InputSourceController())
-  lazy private(set) var workflowRunner = WorkflowRunner(commandRunner: commandRunner,
-                                                        store: keyCodeStore, notifications: notifications)
   lazy private(set) var notifications = MachPortUINotifications(keyboardShortcutsController: keyboardShortcutsController)
   lazy private(set) var machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
                                                                   keyboardCommandRunner: keyboardCommandRunner,
@@ -107,12 +105,16 @@ final class Core {
   lazy private(set) var applicationActivityMonitor = ApplicationActivityMonitor<UserSpace.Application>()
 
   // MARK: - Runners
+  lazy private(set) var workflowRunner = WorkflowRunner(commandRunner: commandRunner,
+                                                        store: keyCodeStore, notifications: notifications)
+  lazy private(set) var repeatLastWorkflowRunner = RepeatLastWorkflowRunner()
   lazy private(set) var commandRunner = CommandRunner(
     applicationStore: ApplicationStore.shared,
     builtInCommandRunner: BuiltInCommandRunner(
       commandLine: commandLine,
       configurationStore: configurationStore,
-      macroRunner: macroRunner
+      macroRunner: macroRunner,
+      repeatLastWorkflowRunner: repeatLastWorkflowRunner
     ),
     scriptCommandRunner: scriptCommandRunner,
     keyboardCommandRunner: keyboardCommandRunner,

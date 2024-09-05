@@ -205,6 +205,7 @@ extension Command {
             }
           case .userMode: UserModeIconView(size: size)
           case .commandLine: CommandLineIconView(size: size)
+          case .repeatLastWorkflow: EmptyView()
         }
       case .mouse:
         MouseIconView(size: size)

@@ -156,6 +156,9 @@ private extension Array where Element == Command {
             images.append(.init(id: command.id, offset: convertedOffset,
                                 kind: .command(.builtIn(.init(id: command.id, name: command.name,
                                                               kind: .commandLine(action))))))
+        case .repeatLastWorkflow:
+          #warning("Add missing icon image here.")
+          continue
         }
       case .mouse(let command):
         images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.mouse(.init(id: command.id, kind: command.kind)))))
