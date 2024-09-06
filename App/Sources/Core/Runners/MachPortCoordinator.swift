@@ -31,6 +31,7 @@ final class MachPortCoordinator: Sendable {
   private var keyboardCowboyModeSubscription: AnyCancellable?
   private var machPortEventSubscription: AnyCancellable?
   private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
+  private var previousExactMatch: Workflow?
   private var repeatingKeyCode: Int64 = -1
   private var repeatingResult: ((MachPortEvent, Bool) -> Void)?
   private var repeatingMatch: Bool?
@@ -132,7 +133,14 @@ final class MachPortCoordinator: Sendable {
     case .keyUp:
       if machPortEvent.type == .keyUp, let repeatingResult {
         repeatingResult(machPortEvent, false)
-        machPortEvent.result = nil
+
+        if let previousExactMatch, previousExactMatch.trigger?.isPassthrough == true {
+          self.previousExactMatch = nil
+        } else if previousPartialMatch.workflow?.trigger?.isPassthrough == true {
+        } else {
+          machPortEvent.result = nil
+        }
+
         break
       }
       workItem?.cancel()
@@ -273,6 +281,7 @@ final class MachPortCoordinator: Sendable {
         previousPartialMatch = partialMatch
       }
     case .exact(let workflow):
+      previousExactMatch = workflow
       if workflow.trigger?.isPassthrough == true {
         // NOOP
       } else {
@@ -315,7 +324,7 @@ final class MachPortCoordinator: Sendable {
         repeatingKeyCode = machPortEvent.keyCode
         previousPartialMatch = Self.defaultPartialMatch
         notifications.reset()
-      } else if workflow.commands.isValidForRepeat {
+      } else if !workflow.commands.isEmpty && workflow.commands.isValidForRepeat {
         guard machPortEvent.type == .keyDown else { return }
         if macroCoordinator.state == .recording {
           macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
