@@ -149,7 +149,7 @@ final class UserSpace: @unchecked Sendable {
       if let pasteboard = NSPasteboard.general.string(forType: .string) {
         environment[.pasteboard] = pasteboard
       }
-      
+
       return environment
     }
   }
@@ -225,7 +225,7 @@ final class UserSpace: @unchecked Sendable {
     var selectedText: String = ""
 
     if resolveUserEnvironment,
-        let frontmostApplication = try? frontmostApplication() {
+       let frontmostApplication = try? frontmostApplication() {
       if let documentPathFromAX = try? self.documentPath(for: frontmostApplication) {
         documentPath = documentPathFromAX
       } else if let bundleIdentifier = frontmostApplication.bundleIdentifier {
@@ -315,6 +315,7 @@ final class UserSpace: @unchecked Sendable {
 
     _ = try? machPort?.post(kVK_ANSI_C, type: .keyDown, flags: .maskCommand)
     _ = try? machPort?.post(kVK_ANSI_C, type: .keyUp, flags: .maskCommand)
+    try await Task.sleep(for: .milliseconds(50))
 
     guard let selectedText = NSPasteboard.general.string(forType: .string) else {
       throw NSError(domain: "com.zenangst.Keyboard-Cowboy.Userspace", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to read from clipboard."])
