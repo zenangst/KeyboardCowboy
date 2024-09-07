@@ -11,6 +11,7 @@ final class TextCommandRunner {
   }
 
   func run(_ input: String, mode: TextCommand.TypeCommand.Mode) async throws {
+    guard !input.isEmpty .self else { return }
     switch mode {
     case .typing:
       let newLines = CharacterSet.newlines
