@@ -298,14 +298,22 @@ final class UserSpace: @unchecked Sendable {
 
   private func selectedText() async throws -> String {
     let systemElement = SystemAccessibilityElement()
-    let focusedElement = try systemElement.focusedUIElement()
-    var selectedText = focusedElement.selectedText()
+    do {
+      let focusedElement = try systemElement.focusedUIElement()
+      var selectedText = focusedElement.selectedText()
 
-    if selectedText == nil && focusedElement.role == "AXWebArea" {
-      selectedText = try await selectedTextFromClipboard()
+      let clipboardValidGroups = [
+        "AXWebArea", "AXGroup"
+      ]
+
+      if selectedText == nil && clipboardValidGroups.contains(focusedElement.role ?? "") {
+        selectedText = try await selectedTextFromClipboard()
+      }
+
+      return selectedText ?? ""
+    } catch {
+      return try await selectedTextFromClipboard()
     }
-
-    return selectedText ?? ""
   }
 
   private func selectedTextFromClipboard() async throws -> String {
