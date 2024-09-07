@@ -45,7 +45,7 @@ final class SystemWindowRelativeFocus {
       }
     }
 
-    if activeWindow == nil {
+    if activeWindow == nil, !windows.isEmpty {
       activeWindow = windows.first
       windows.removeFirst()
     }
