@@ -122,27 +122,10 @@ final class MachPortCoordinator: Sendable {
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     switch machPortEvent.type {
       case .keyDown:
-      if machPortEvent.keyCode == kVK_Escape {
-        notifications.reset()
-        if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
-          machPortEvent.result = nil
-          reset()
-          return
-        }
-      }
+      let shouldReturn = handleEscapeKeyDownEvent(machPortEvent)
+      if shouldReturn { return }
     case .keyUp:
-      if machPortEvent.type == .keyUp, let repeatingResult {
-        repeatingResult(machPortEvent, false)
-
-        if let previousExactMatch, previousExactMatch.trigger?.isPassthrough == true {
-          self.previousExactMatch = nil
-        } else if previousPartialMatch.workflow?.trigger?.isPassthrough == true {
-        } else {
-          machPortEvent.result = nil
-        }
-
-        break
-      }
+      handleKeyUp(machPortEvent)
       workItem?.cancel()
       workItem = nil
       repeatingResult = nil
@@ -152,23 +135,7 @@ final class MachPortCoordinator: Sendable {
       return
     }
 
-    // If the event is repeating and there is an earlier result,
-    // reuse that result to avoid unnecessary lookups.
-    if isRepeatingEvent, let repeatingResult, repeatingKeyCode == machPortEvent.keyCode {
-      machPortEvent.result = nil
-      repeatingResult(machPortEvent, true)
-      return
-      // If the event is repeating and there is no earlier result,
-      // simply opt-out because we don't want to lookup the same
-      // keyboard shortcut over and over again.
-    } else if isRepeatingEvent, repeatingMatch == false {
-      return
-      // Reset the repeating result and match if the event is not repeating.
-    } else {
-      repeatingResult = nil
-      repeatingMatch = nil
-      repeatingKeyCode = -1
-    }
+    if handleRepeatingKeyEvent(machPortEvent, isRepeatingEvent: isRepeatingEvent) { return }
 
     guard let shortcut = MachPortKeyboardShortcut(machPortEvent, specialKeys: specialKeys, store: store) else {
       return
@@ -176,54 +143,7 @@ final class MachPortCoordinator: Sendable {
 
     var keyboardShortcut: KeyShortcut = shortcut.original
 
-    if machPortEvent.type == .keyDown {
-      // If there is a match, then run the workflow
-      let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
-      if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
-        let keyboardShortcutCopy: KeyShortcut = keyboardShortcut
-        let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
-
-        Task { [machPort, workflowRunner, keyboardCommandRunner] in
-          for _  in 0..<iterations {
-            let specialKeys: [Int] = [kVK_Return]
-
-            for element in macro {
-              switch element {
-              case .event(let machPortEvent):
-                let keyCode = Int(machPortEvent.keyCode)
-
-                if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(150)) }
-
-                try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
-                try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
-              case .workflow(let workflow):
-                if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
-                  for command in workflow.commands {
-                    if case .keyboard(let command) = command {
-                      _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                        originalEvent: nil,
-                                                        isRepeating: false,
-                                                        with: machPortEvent.eventSource)
-                    }
-                  }
-                } else {
-                  workflowRunner.run(workflow, for: keyboardShortcutCopy,
-                                     executionOverride: .serial,
-                                     machPortEvent: machPortEvent, repeatingEvent: false)
-                }
-              }
-            }
-          }
-        }
-
-        SnippetController.currentSnippet = ""
-        machPortEvent.result = nil
-        return
-      } else if macroCoordinator.state == .removing {
-        macroCoordinator.remove(shortcut, machPortEvent: machPortEvent)
-        return
-      }
-    }
+    if handleMacroExecution(machPortEvent, shortcut: shortcut, keyboardShortcut: &keyboardShortcut) { return }
 
     let bundleIdentifier = UserSpace.shared.frontMostApplication.bundleIdentifier
 
@@ -449,6 +369,121 @@ final class MachPortCoordinator: Sendable {
   private func reset(_ function: StaticString = #function, line: Int = #line) {
     previousPartialMatch = Self.defaultPartialMatch
     notifications.reset()
+  }
+
+  
+
+  /// Handles the Escape key down event.
+  ///
+  /// - Parameter machPortEvent: The MachPortEvent representing the key event.
+  /// - Returns: A Boolean value indicating whether the execution should return early (true) or continue (false).
+  private func handleEscapeKeyDownEvent(_ machPortEvent: MachPortEvent) -> Bool {
+    if machPortEvent.keyCode == kVK_Escape {
+      notifications.reset()
+      if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
+        machPortEvent.result = nil
+        reset()
+        return true
+      }
+    }
+    return false
+  }
+
+  /// Handles the key up event.
+  ///
+  /// - Parameter machPortEvent: The MachPortEvent representing the key event.
+  private func handleKeyUp(_ machPortEvent: MachPortEvent) {
+    if let repeatingResult {
+      repeatingResult(machPortEvent, false)
+
+      if let previousExactMatch, previousExactMatch.trigger?.isPassthrough == true {
+        self.previousExactMatch = nil
+      } else if previousPartialMatch.workflow?.trigger?.isPassthrough == true {
+      } else {
+        machPortEvent.result = nil
+      }
+    }
+  }
+
+  /// Handles repeating key events.
+  ///
+  /// - Parameters:
+  ///   - machPortEvent: The MachPortEvent representing the key event.
+  ///   - isRepeatingEvent: A Boolean value indicating whether the event is a repeating event.
+  /// - Returns: A Boolean value indicating whether the execution should return early (true) or continue (false).
+  private func handleRepeatingKeyEvent(_ machPortEvent: MachPortEvent, isRepeatingEvent: Bool) -> Bool {
+    // If the event is repeating and there is an earlier result,
+    // reuse that result to avoid unnecessary lookups.
+    if isRepeatingEvent, let repeatingResult, repeatingKeyCode == machPortEvent.keyCode {
+      machPortEvent.result = nil
+      repeatingResult(machPortEvent, true)
+      return true
+      // If the event is repeating and there is no earlier result,
+      // simply opt-out because we don't want to lookup the same
+      // keyboard shortcut over and over again.
+    } else if isRepeatingEvent, repeatingMatch == false {
+      return true
+      // Reset the repeating result and match if the event is not repeating.
+    } else {
+      repeatingResult = nil
+      repeatingMatch = nil
+      repeatingKeyCode = -1
+      return false
+    }
+  }
+
+  @MainActor
+  func handleMacroExecution(_ machPortEvent: MachPortEvent, shortcut: MachPortKeyboardShortcut, keyboardShortcut: inout KeyShortcut) -> Bool {
+    if machPortEvent.type == .keyDown {
+      // If there is a match, then run the workflow
+      let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
+      if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
+        let keyboardShortcutCopy: KeyShortcut = keyboardShortcut
+        let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
+
+        Task { [machPort, workflowRunner, keyboardCommandRunner] in
+          for _  in 0..<iterations {
+            let specialKeys: [Int] = [kVK_Return]
+
+            for element in macro {
+              switch element {
+              case .event(let machPortEvent):
+                let keyCode = Int(machPortEvent.keyCode)
+
+                if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(150)) }
+
+                try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
+                try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
+              case .workflow(let workflow):
+                if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
+                  for command in workflow.commands {
+                    if case .keyboard(let command) = command {
+                      _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
+                                                        originalEvent: nil,
+                                                        isRepeating: false,
+                                                        with: machPortEvent.eventSource)
+                    }
+                  }
+                } else {
+                  workflowRunner.run(workflow, for: keyboardShortcutCopy,
+                                     executionOverride: .serial,
+                                     machPortEvent: machPortEvent, repeatingEvent: false)
+                }
+              }
+            }
+          }
+        }
+
+        SnippetController.currentSnippet = ""
+        machPortEvent.result = nil
+        return true
+      } else if macroCoordinator.state == .removing {
+        macroCoordinator.remove(shortcut, machPortEvent: machPortEvent)
+        return true
+      }
+    }
+
+    return false
   }
 
   private func schedule(_ workflow: Workflow, for shortcut: KeyShortcut, 
