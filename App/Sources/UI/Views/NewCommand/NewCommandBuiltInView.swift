@@ -20,23 +20,7 @@ struct NewCommandBuiltInView: View {
       ZenLabel("Built-In Commands")
         .frame(maxWidth: .infinity, alignment: .leading)
       HStack {
-        switch kindSelection {
-          case .macro(let macroAction):
-            switch macroAction.kind {
-              case .record:
-                MacroIconView(.record, size: 24)
-              case .remove:
-                MacroIconView(.remove, size: 24)
-            }
-          case .userMode:
-            let path = Bundle.main.bundleURL.path
-            IconView(icon: .init(bundleIdentifier: path, path: path), size: CGSize(width: 24, height: 24))
-          case .commandLine:
-            CommandLineIconView(size: 24)
-          case .repeatLastWorkflow:
-#warning("Add missing icon here.")
-            EmptyView()
-        }
+        BuiltinIconBuilder.icon(kindSelection, size: 24)
 
         VStack {
 

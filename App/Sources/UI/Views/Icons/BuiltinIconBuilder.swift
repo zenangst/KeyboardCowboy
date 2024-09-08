@@ -11,7 +11,7 @@ enum BuiltinIconBuilder {
       }
     case .userMode: UserModeIconView(size: size)
     case .commandLine: CommandLineIconView(size: size)
-    case .repeatLastWorkflow: EmptyView()
+    case .repeatLastWorkflow: RepeatLastWorkflowIconView(size: size)
     }
   }
 }
