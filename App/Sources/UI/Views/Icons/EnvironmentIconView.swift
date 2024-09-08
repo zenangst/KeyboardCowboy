@@ -43,17 +43,6 @@ struct EnvironmentIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    EnvironmentIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      EnvironmentIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        EnvironmentIconView(size: 64)
-        EnvironmentIconView(size: 32)
-        EnvironmentIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { EnvironmentIconView(size: $0) }
 }
 

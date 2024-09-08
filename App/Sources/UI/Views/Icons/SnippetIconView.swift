@@ -36,30 +36,5 @@ private struct SnippetIconIllustrationView: View {
 }
 
 #Preview {
-  VStack {
-    HStack(alignment: .top, spacing: 8) {
-      SnippetIconView(size: 192)
-      VStack(alignment: .leading, spacing: 8) {
-        SnippetIconView(size: 128)
-        HStack(alignment: .top, spacing: 8) {
-          SnippetIconView(size: 64)
-          SnippetIconView(size: 32)
-          SnippetIconView(size: 16)
-        }
-      }
-    }
-
-    HStack(alignment: .top, spacing: 8) {
-      SnippetIconView(size: 192)
-      VStack(alignment: .leading, spacing: 8) {
-        SnippetIconView(size: 128)
-        HStack(alignment: .top, spacing: 8) {
-          SnippetIconView(size: 64)
-          SnippetIconView(size: 32)
-          SnippetIconView(size: 16)
-        }
-      }
-    }
-  }
-  .padding()
+  IconPreview { SnippetIconView(size: $0) }
 }

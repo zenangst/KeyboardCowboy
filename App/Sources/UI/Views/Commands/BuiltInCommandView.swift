@@ -26,7 +26,7 @@ struct BuiltInCommandView: View {
   var body: some View {
     CommandContainerView(metaData, placeholder: model.placheolder,
                          icon: { _ in
-      BuiltInIconView(model.kind, iconSize: iconSize)
+      BuiltinIconBuilder.icon(model.kind, size: iconSize.width)
     }, content: { _ in
       BuiltInCommandContentView(model, metaData: metaData, onAction: onAction)
         .roundedContainer(padding: 4, margin: 0)
@@ -46,34 +46,6 @@ struct BuiltInCommandView: View {
       .offset(x: 1)
     }) {
       onAction(.commandAction($0))
-    }
-  }
-}
-
-
-private struct BuiltInIconView: View {
-  let kind: BuiltInCommand.Kind
-  let iconSize: CGSize
-
-  init(_ kind: BuiltInCommand.Kind, iconSize: CGSize) {
-    self.kind = kind
-    self.iconSize = iconSize
-  }
-
-  var body: some View {
-    switch kind {
-    case .macro(let macroAction):
-      switch macroAction.kind {
-      case .record: MacroIconView(.record, size: iconSize.width)
-      case .remove: MacroIconView(.remove, size: iconSize.width)
-      }
-    case .userMode:
-      UserModeIconView(size: iconSize.width)
-    case .commandLine:
-      CommandLineIconView(size: iconSize.width)
-    case .repeatLastWorkflow:
-#warning("Add icon here")
-      EmptyView()
     }
   }
 }

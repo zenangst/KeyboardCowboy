@@ -35,16 +35,5 @@ struct MouseIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    MouseIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      MouseIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        MouseIconView(size: 64)
-        MouseIconView(size: 32)
-        MouseIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { MouseIconView(size: $0) }
 }

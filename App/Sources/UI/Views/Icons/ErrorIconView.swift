@@ -34,16 +34,5 @@ struct ErrorIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    ErrorIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      ErrorIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        ErrorIconView(size: 64)
-        ErrorIconView(size: 32)
-        ErrorIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { ErrorIconView(size: $0) }
 }

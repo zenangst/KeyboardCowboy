@@ -33,17 +33,6 @@ struct UserModeIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    UserModeIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      UserModeIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        UserModeIconView(size: 64)
-        UserModeIconView(size: 32)
-        UserModeIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { UserModeIconView(size: $0) }
 }
 

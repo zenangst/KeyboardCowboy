@@ -416,106 +416,87 @@ private struct TrafficLightsView: View {
   }
 }
 
-struct PreviewContainer<Content>: View where Content: View {
-  let content: (CGFloat) -> Content
-
-  var body: some View {
-    HStack(alignment: .top, spacing: 8) {
-      content(192)
-      VStack(alignment: .leading, spacing: 8) {
-        content(128)
-        HStack(alignment: .top, spacing: 8) {
-          content(64)
-          content(32)
-          content(16)
-        }
-      }
-    }
-    .padding()
-  }
-}
-
 #Preview("Left") {
-  PreviewContainer { WindowTilingIcon(kind: .left, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .left, size: $0) }
 }
 
 #Preview("Right") {
-  PreviewContainer { WindowTilingIcon(kind: .right, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .right, size: $0) }
 }
 
 #Preview("Top") {
-  PreviewContainer { WindowTilingIcon(kind: .top, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .top, size: $0) }
 }
 
 #Preview("Bottom") {
-  PreviewContainer { WindowTilingIcon(kind: .bottom, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .bottom, size: $0) }
 }
 
 #Preview("Top Left") {
-  PreviewContainer { WindowTilingIcon(kind: .topLeft, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .topLeft, size: $0) }
 }
 
 #Preview("Top Right") {
-  PreviewContainer { WindowTilingIcon(kind: .topRight, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .topRight, size: $0) }
 }
 
 #Preview("Bottom Left") {
-  PreviewContainer { WindowTilingIcon(kind: .bottomLeft, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .bottomLeft, size: $0) }
 }
 
 #Preview("Bottom Right") {
-  PreviewContainer { WindowTilingIcon(kind: .bottomRight, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .bottomRight, size: $0) }
 }
 
 #Preview("Left & Right") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeLeftRight, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeLeftRight, size: $0) }
 }
 
 #Preview("Right & Left") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeRightLeft, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeRightLeft, size: $0) }
 }
 
 #Preview("Top & Bottom") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeTopBottom, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeTopBottom, size: $0) }
 }
 
 #Preview("Bottom & Top") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeBottomTop, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeBottomTop, size: $0) }
 }
 
 
 #Preview("Left & Quarters") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeLeftQuarters, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeLeftQuarters, size: $0) }
 }
 
 #Preview("Right & Quarters") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeRightQuarters, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeRightQuarters, size: $0) }
 }
 
 #Preview("Top & Quarters") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeTopQuarters, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeTopQuarters, size: $0) }
 }
 
 #Preview("Bottom & Quarters") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeBottomQuarters, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeBottomQuarters, size: $0) }
 }
 
 #Preview("Quarters") {
-  PreviewContainer { WindowTilingIcon(kind: .arrangeQuarters, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .arrangeQuarters, size: $0) }
 }
 
 #Preview("Center") {
-  PreviewContainer { WindowTilingIcon(kind: .center, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .center, size: $0) }
 }
 
 #Preview("Fill") {
-  PreviewContainer { WindowTilingIcon(kind: .fill, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .fill, size: $0) }
 }
 
 #Preview("Zoom") {
-  PreviewContainer { WindowTilingIcon(kind: .zoom, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .zoom, size: $0) }
 }
 
 #Preview("Previous Size") {
-  PreviewContainer { WindowTilingIcon(kind: .previousSize, size: $0) }
+  IconPreview { WindowTilingIcon(kind: .previousSize, size: $0) }
 }

@@ -84,16 +84,5 @@ struct CommandLineIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    CommandLineIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      CommandLineIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        CommandLineIconView(size: 64)
-        CommandLineIconView(size: 32)
-        CommandLineIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview(content: { CommandLineIconView(size: $0) })
 }

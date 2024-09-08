@@ -35,17 +35,6 @@ struct ActivateLastApplicationIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    ActivateLastApplicationIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      ActivateLastApplicationIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        ActivateLastApplicationIconView(size: 64)
-        ActivateLastApplicationIconView(size: 32)
-        ActivateLastApplicationIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview(content: { ActivateLastApplicationIconView(size: $0) })
 }
 

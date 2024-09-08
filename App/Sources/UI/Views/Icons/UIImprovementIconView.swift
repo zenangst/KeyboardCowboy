@@ -37,17 +37,6 @@ struct UIImprovementIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    UIImprovementIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      UIImprovementIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        UIImprovementIconView(size: 64)
-        UIImprovementIconView(size: 32)
-        UIImprovementIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { UIImprovementIconView(size: $0) }
 }
 

@@ -166,17 +166,6 @@ private struct WindowManagementIconWindowView: View {
 struct WindowManagementIconView_Previews: PreviewProvider {
   @State static var stacked: Bool = true
   static var previews: some View {
-    HStack(alignment: .top, spacing: 8) {
-      WindowManagementIconView(size: 192)
-      VStack(alignment: .leading, spacing: 8) {
-        WindowManagementIconView(size: 128)
-        HStack(alignment: .top, spacing: 8) {
-          WindowManagementIconView(size: 64)
-          WindowManagementIconView(size: 32)
-          WindowManagementIconView(size: 16)
-        }
-      }
-    }
-    .padding()
+    IconPreview { WindowManagementIconView(size: $0) }
   }
 }

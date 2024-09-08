@@ -33,17 +33,6 @@ struct BugFixIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    BugFixIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      BugFixIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        BugFixIconView(size: 64)
-        BugFixIconView(size: 32)
-        BugFixIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview(content: { BugFixIconView(size: $0) })
 }
 

@@ -117,30 +117,8 @@ struct MacroIconView: View {
 }
 
 #Preview {
-  VStack {
-    HStack(alignment: .top, spacing: 8) {
-      MacroIconView(.record, size: 192)
-      VStack(alignment: .leading, spacing: 8) {
-        MacroIconView(.record, size: 128)
-        HStack(alignment: .top, spacing: 8) {
-          MacroIconView(.record, size: 64)
-          MacroIconView(.record, size: 32)
-          MacroIconView(.record, size: 16)
-        }
-      }
-    }
-
-    HStack(alignment: .top, spacing: 8) {
-      MacroIconView(.remove, size: 192)
-      VStack(alignment: .leading, spacing: 8) {
-        MacroIconView(.remove, size: 128)
-        HStack(alignment: .top, spacing: 8) {
-          MacroIconView(.remove, size: 64)
-          MacroIconView(.remove, size: 32)
-          MacroIconView(.remove, size: 16)
-        }
-      }
-    }
+  VStack(spacing: 0) {
+    IconPreview { MacroIconView(.record, size: $0) }
+    IconPreview { MacroIconView(.remove, size: $0) }
   }
-  .padding()
 }

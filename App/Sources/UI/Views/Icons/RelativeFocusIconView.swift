@@ -116,16 +116,7 @@ private struct TrafficLightsView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    RelativeFocusIconView(.up, size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      RelativeFocusIconView(.up, size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        RelativeFocusIconView(.up, size: 64)
-        RelativeFocusIconView(.up, size: 32)
-        RelativeFocusIconView(.up, size: 16)
-      }
-    }
+  IconPreview {
+    RelativeFocusIconView(.up, size: $0)
   }
-  .padding()
 }

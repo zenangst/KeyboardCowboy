@@ -51,17 +51,6 @@ struct MagicVarsIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    MagicVarsIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      MagicVarsIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        MagicVarsIconView(size: 64)
-        MagicVarsIconView(size: 32)
-        MagicVarsIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { MagicVarsIconView(size: $0) }
 }
 

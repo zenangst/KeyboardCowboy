@@ -34,16 +34,5 @@ struct WarningIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    WarningIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      WarningIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        WarningIconView(size: 64)
-        WarningIconView(size: 32)
-        WarningIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { WarningIconView(size: $0) }
 }

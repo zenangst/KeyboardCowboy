@@ -79,16 +79,5 @@ fileprivate struct MissionControlWindowView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    MissionControlIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      MissionControlIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        MissionControlIconView(size: 64)
-        MissionControlIconView(size: 32)
-        MissionControlIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { MissionControlIconView(size: $0) }
 }

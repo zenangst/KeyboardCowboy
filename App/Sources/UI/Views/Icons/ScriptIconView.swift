@@ -34,16 +34,5 @@ struct ScriptIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    ScriptIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      ScriptIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        ScriptIconView(size: 64)
-        ScriptIconView(size: 32)
-        ScriptIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { ScriptIconView(size: $0) }
 }

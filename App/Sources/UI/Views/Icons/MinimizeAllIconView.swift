@@ -107,16 +107,5 @@ private struct MinimizeAllWindowTrafficLightsView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    MinimizeAllIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      MinimizeAllIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        MinimizeAllIconView(size: 64)
-        MinimizeAllIconView(size: 32)
-        MinimizeAllIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { MinimizeAllIconView(size: $0) }
 }

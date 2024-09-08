@@ -68,16 +68,5 @@ struct TriggersIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    TriggersIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      TriggersIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        TriggersIconView(size: 64)
-        TriggersIconView(size: 32)
-        TriggersIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { TriggersIconView(size: $0) }
 }

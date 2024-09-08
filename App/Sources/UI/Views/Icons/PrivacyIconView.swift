@@ -64,16 +64,5 @@ private struct InternalPrivayIconView: View {
 }
 
 #Preview {
-  HStack(alignment: .top, spacing: 8) {
-    PrivacyIconView(size: 192)
-    VStack(alignment: .leading, spacing: 8) {
-      PrivacyIconView(size: 128)
-      HStack(alignment: .top, spacing: 8) {
-        PrivacyIconView(size: 64)
-        PrivacyIconView(size: 32)
-        PrivacyIconView(size: 16)
-      }
-    }
-  }
-  .padding()
+  IconPreview { PrivacyIconView(size: $0) }
 }
