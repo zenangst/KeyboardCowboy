@@ -329,6 +329,10 @@ final class UserSpace: @unchecked Sendable {
       throw NSError(domain: "com.zenangst.Keyboard-Cowboy.Userspace", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to read from clipboard."])
     }
 
+    if selectedText == originalPasteboardContents {
+      return ""
+    }
+
     if let originalPasteboardContents {
       Task.detached { @MainActor [originalPasteboardContents] in
         try await Task.sleep(for: .seconds(0.2))
