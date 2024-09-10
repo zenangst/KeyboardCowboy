@@ -37,23 +37,23 @@ final class SystemWindowQuarterFocus {
       consumedWindows.removeAll()
     }
 
-    var windows = indexWindowsInStage(getWindows())
+    let initialWindows = indexWindowsInStage(getWindows())
+    var windows = initialWindows
     let frontMostApplication = snapshot.frontMostApplication
     let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
     var activeWindow: WindowModel?
 
     let focusedWindow = try? frontMostAppElement.focusedWindow()
-    var activeWindowOffset: Int? = nil
-    for (offset, window) in windows.enumerated() {
+    for window in windows {
       guard let focusedWindow else {
         activeWindow = window
-        activeWindowOffset = offset
+        consumedWindows.insert(window)
         break
       }
 
       if window.id == focusedWindow.id {
         activeWindow = window
-        activeWindowOffset = offset
+        consumedWindows.insert(window)
         break
       }
     }
@@ -62,14 +62,20 @@ final class SystemWindowQuarterFocus {
 
     let targetRect: CGRect = quarter.targetRect(on: screen, spacing: windowSpacing)
 
-    if let activeWindow, targetRect.intersects(activeWindow.rect), let activeWindowOffset {
-      consumedWindows.insert(activeWindow)
-      windows.remove(at: activeWindowOffset)
+    let quarterFilter: (WindowModel) -> Bool = {
+      targetRect.intersects($0.rect)
+    }
+    var validQuarterWindows = windows.filter(quarterFilter)
+    if validQuarterWindows.isEmpty {
+      validQuarterWindows = initialWindows.filter { quarterFilter($0) && $0 != activeWindow }
+      consumedWindows.removeAll()
     }
 
-    guard let matchedWindow = windows.first(where: { targetRect.intersects($0.rect) }) else {
+    guard let matchedWindow = validQuarterWindows.first(where: { targetRect.intersects($0.rect) }) else {
       return
     }
+
+    consumedWindows.insert(matchedWindow)
 
     let processIdentifier = pid_t(matchedWindow.ownerPid.rawValue)
     guard let runningApplication = NSRunningApplication(processIdentifier: processIdentifier) else { return }
@@ -82,8 +88,6 @@ final class SystemWindowQuarterFocus {
     }
 
     match?.performAction(.raise)
-
-    consumedWindows.removeAll()
   }
 
   // MARK: Private methods
