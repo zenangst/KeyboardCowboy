@@ -19,6 +19,12 @@ enum SystemIconBuilder {
     case .moveFocusToNextWindowDownwards:    RelativeFocusIconView(.down, size: size)
     case .moveFocusToNextWindowOnLeft:       RelativeFocusIconView(.left, size: size)
     case .moveFocusToNextWindowOnRight:      RelativeFocusIconView(.right, size: size)
+
+    case .moveFocusToNextWindowUpperLeftQuarter:      RelativeFocusIconView(.up, size: size)
+    case .moveFocusToNextWindowLowerLeftQuarter:    RelativeFocusIconView(.down, size: size)
+    case .moveFocusToNextWindowUpperRightQuarter:       RelativeFocusIconView(.left, size: size)
+    case .moveFocusToNextWindowLowerRightQuarter:      RelativeFocusIconView(.right, size: size)
+
     case .windowTilingLeft:                  WindowTilingIcon(kind: .left, size: size)
     case .windowTilingRight:                 WindowTilingIcon(kind: .right, size: size)
     case .windowTilingTop:                   WindowTilingIcon(kind: .top, size: size)

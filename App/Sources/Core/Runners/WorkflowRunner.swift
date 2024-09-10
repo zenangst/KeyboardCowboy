@@ -116,6 +116,10 @@ private extension Workflow {
             case .applicationWindows:                return false
             case .minimizeAllOpenWindows:            return false
             case .missionControl:                    return false
+            case .moveFocusToNextWindowUpperLeftQuarter: return true
+            case .moveFocusToNextWindowUpperRightQuarter: return true
+            case .moveFocusToNextWindowLowerLeftQuarter: return true
+            case .moveFocusToNextWindowLowerRightQuarter: return true
             case .moveFocusToNextWindowOnLeft:       return false
             case .moveFocusToNextWindowOnRight:      return false
             case .moveFocusToNextWindowUpwards:      return false

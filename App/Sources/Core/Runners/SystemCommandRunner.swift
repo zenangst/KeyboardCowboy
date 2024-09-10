@@ -13,6 +13,7 @@ final class SystemCommandRunner: @unchecked Sendable {
   private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
   private let applicationStore: ApplicationStore
   private let relativeFocus: SystemWindowRelativeFocus
+  private let quarterFocus: SystemWindowQuarterFocus
   private let workspace: WorkspaceProviding
 
   private var flagsChangedSubscription: AnyCancellable?
@@ -25,6 +26,7 @@ final class SystemCommandRunner: @unchecked Sendable {
     self.applicationStore = applicationStore
     self.applicationActivityMonitor = applicationActivityMonitor
     self.relativeFocus = SystemWindowRelativeFocus()
+    self.quarterFocus = SystemWindowQuarterFocus()
     self.workspace = workspace
   }
 
@@ -39,6 +41,7 @@ final class SystemCommandRunner: @unchecked Sendable {
             self.frontMostIndex = 0
             self.visibleMostIndex = 0
             self.relativeFocus.reset()
+            self.quarterFocus.reset()
           }
         }
       }
@@ -83,6 +86,14 @@ final class SystemCommandRunner: @unchecked Sendable {
         try relativeFocus.run(.left, snapshot: snapshot)
       case .moveFocusToNextWindowOnRight:
         try relativeFocus.run(.right, snapshot: snapshot)
+      case .moveFocusToNextWindowUpperLeftQuarter:
+        try quarterFocus.run(.upperLeft, snapshot: snapshot)
+      case .moveFocusToNextWindowUpperRightQuarter:
+        try quarterFocus.run(.upperRight, snapshot: snapshot)
+      case .moveFocusToNextWindowLowerLeftQuarter:
+        try quarterFocus.run(.lowerLeft, snapshot: snapshot)
+      case .moveFocusToNextWindowLowerRightQuarter:
+        try quarterFocus.run(.lowerRight, snapshot: snapshot)
       case .windowTilingLeft:
         try await SystemWindowTilingRunner.run(.left, snapshot: snapshot)
       case .windowTilingRight:

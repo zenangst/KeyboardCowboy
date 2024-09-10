@@ -2,9 +2,15 @@ import SwiftUI
 
 struct RelativeFocusIconView: View {
   enum Kind {
-    case up, down, left, right
+    case up, down, left, right,
+         upperLeft, upperRight,
+         lowerLeft, lowerRight
     var systemName: String {
       switch self {
+      case .upperLeft: "arrow.up.left"
+      case .upperRight: "arrow.up.right"
+      case .lowerLeft: "arrow.down.left"
+      case .lowerRight: "arrow.down.right"
       case .up:    "arrow.up"
       case .down:  "arrow.down"
       case .left:  "arrow.left"
@@ -115,8 +121,10 @@ private struct TrafficLightsView: View {
   }
 }
 
-#Preview {
-  IconPreview {
-    RelativeFocusIconView(.up, size: $0)
-  }
+#Preview("Up") {
+  IconPreview { RelativeFocusIconView(.up, size: $0) }
+}
+
+#Preview("Upper Left") {
+  IconPreview { RelativeFocusIconView(.upperLeft, size: $0) }
 }
