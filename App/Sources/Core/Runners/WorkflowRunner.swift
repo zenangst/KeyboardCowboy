@@ -100,11 +100,58 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
 private extension Workflow {
   var isValidForRepeatWorkflowCommand: Bool {
     commands.allSatisfy { command in
-      if case .builtIn(let builtInCommand) = command,
-         case .repeatLastWorkflow = builtInCommand.kind {
-        return false
+      switch command {
+        case .application:                           return true
+        case .builtIn:                               return false
+        case .keyboard:                              return true
+        case .mouse:                                 return true
+        case .menuBar:                               return true
+        case .open:                                  return true
+        case .shortcut:                              return true
+        case .script:                                return true
+        case .text:                                  return true
+        case .systemCommand(let systemCommand):
+          switch systemCommand.kind {
+            case .activateLastApplication:           return true
+            case .applicationWindows:                return false
+            case .minimizeAllOpenWindows:            return false
+            case .missionControl:                    return false
+            case .moveFocusToNextWindowOnLeft:       return false
+            case .moveFocusToNextWindowOnRight:      return false
+            case .moveFocusToNextWindowUpwards:      return false
+            case .moveFocusToNextWindowDownwards:    return false
+            case .moveFocusToNextWindowFront:        return false
+            case .moveFocusToPreviousWindowFront:    return false
+            case .moveFocusToNextWindow:             return false
+            case .moveFocusToPreviousWindow:         return false
+            case .moveFocusToNextWindowGlobal:       return false
+            case .moveFocusToPreviousWindowGlobal:   return false
+            case .showDesktop:                       return false
+            case .windowTilingLeft:                  return true
+            case .windowTilingRight:                 return true
+            case .windowTilingTop:                   return true
+            case .windowTilingBottom:                return true
+            case .windowTilingTopLeft:               return true
+            case .windowTilingTopRight:              return true
+            case .windowTilingBottomLeft:            return true
+            case .windowTilingBottomRight:           return true
+            case .windowTilingCenter:                return true
+            case .windowTilingFill:                  return true
+            case .windowTilingZoom:                  return true
+            case .windowTilingArrangeLeftRight:      return true
+            case .windowTilingArrangeRightLeft:      return true
+            case .windowTilingArrangeTopBottom:      return true
+            case .windowTilingArrangeBottomTop:      return true
+            case .windowTilingArrangeLeftQuarters:   return true
+            case .windowTilingArrangeRightQuarters:  return true
+            case .windowTilingArrangeTopQuarters:    return true
+            case .windowTilingArrangeBottomQuarters: return true
+            case .windowTilingArrangeQuarters:       return true
+            case .windowTilingPreviousSize:          return true
+          }
+        case .uiElement:                             return true
+        case .windowManagement:                      return false
       }
-      return true
     }
   }
 }
