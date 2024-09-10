@@ -14,11 +14,15 @@ final class SystemWindowQuarterFocus {
 
   var consumedWindows = Set<WindowModel>()
   var previousQuarter: Quarter?
+  var initialWindows = [WindowModel]()
 
-  init() {}
+  init() {
+    initialWindows = indexWindowsInStage(getWindows())
+  }
 
   func reset() {
     consumedWindows.removeAll()
+    initialWindows = indexWindowsInStage(getWindows())
   }
 
   func run(_ quarter: Quarter, snapshot: UserSpace.Snapshot) throws {
@@ -28,32 +32,30 @@ final class SystemWindowQuarterFocus {
 
     let windowSpacing: CGFloat = CGFloat(userDefaults.float(forKey: "TiledWindowSpacing"))
 
-    guard let screen = NSScreen.main else {
-      return
-    }
+    guard let screen = NSScreen.main else { return }
 
     if quarter != previousQuarter {
       previousQuarter = quarter
-      consumedWindows.removeAll()
+      reset()
     }
 
-    let initialWindows = indexWindowsInStage(getWindows())
     var windows = initialWindows
     let frontMostApplication = snapshot.frontMostApplication
     let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
     var activeWindow: WindowModel?
 
     let focusedWindow = try? frontMostAppElement.focusedWindow()
-    for window in windows {
+    for (offset, window) in windows.enumerated() {
       guard let focusedWindow else {
         activeWindow = window
-        consumedWindows.insert(window)
+        windows.remove(at: offset)
         break
       }
 
       if window.id == focusedWindow.id {
         activeWindow = window
         consumedWindows.insert(window)
+        windows.remove(at: offset)
         break
       }
     }
@@ -71,7 +73,9 @@ final class SystemWindowQuarterFocus {
       consumedWindows.removeAll()
     }
 
-    guard let matchedWindow = validQuarterWindows.first(where: { targetRect.intersects($0.rect) }) else {
+    guard let matchedWindow = validQuarterWindows.first(where: {
+      targetRect.intersects($0.rect.insetBy(dx: windowSpacing * 2, dy: windowSpacing * 2))
+    }) else {
       return
     }
 
