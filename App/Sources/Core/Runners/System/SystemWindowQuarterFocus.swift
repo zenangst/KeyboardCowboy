@@ -63,6 +63,7 @@ final class SystemWindowQuarterFocus {
     windows.removeAll(where: { consumedWindows.contains($0) })
 
     let targetRect: CGRect = quarter.targetRect(on: screen, spacing: windowSpacing)
+      .insetBy(dx: 200, dy: 100)
 
     let quarterFilter: (WindowModel) -> Bool = {
       targetRect.intersects($0.rect)
@@ -122,7 +123,7 @@ final class SystemWindowQuarterFocus {
 
 extension SystemWindowQuarterFocus.Quarter {
   func targetRect(on screen: NSScreen, spacing: CGFloat) -> CGRect {
-    let screenFrame = screen.frame
+    let screenFrame = screen.visibleFrame
     let halfWidth = (screenFrame.width / 2) - spacing
     let halfHeight = (screenFrame.height / 2) - spacing
     let spacing: CGFloat = spacing
