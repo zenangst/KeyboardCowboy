@@ -1,6 +1,7 @@
 import AXEssibility
 import Cocoa
 import Foundation
+import Windows
 
 enum WindowTiling {
   case left
@@ -27,19 +28,23 @@ enum WindowTiling {
 }
 
 final class SystemWindowTilingRunner {
-  @MainActor
-  private static var currentTask: Task<Void, any Error>?
+  nonisolated(unsafe) static var debug: Bool = false
+  @MainActor private static var currentTask: Task<Void, any Error>?
+  @MainActor private static var storage = [WindowModel.WindowNumber: TileStorage]()
   private static let tilingWindowSpacingKey: String = "TiledWindowSpacing"
 
   static func run(_ tiling: WindowTiling, snapshot: UserSpace.Snapshot) async throws {
-    guard let runningApplication = NSWorkspace.shared.frontmostApplication else {
+    guard let screen = NSScreen.main, let runningApplication = NSWorkspace.shared.frontmostApplication else {
       return
     }
+
+    let visibleScreenFrame = screen.visibleFrame
 
     await currentTask?.cancel()
 
     let oldSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
     let oldWindows = oldSnapshot.windows.visibleWindowsInStage
+      .filter { $0.rect.intersects(visibleScreenFrame) }
 
     guard let nextWindow = oldWindows.first else { return }
 
@@ -57,100 +62,286 @@ final class SystemWindowTilingRunner {
       .menuBar()
       .menuItems()
 
-    let initialTokens: [MenuBarCommand.Token]
+    let tokens: [MenuBarCommand.Token]
+    let updateSubjects: [WindowModel]
 
     switch tiling {
     case .left:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left")]
+      tokens = tiling.tokens
+      await store(.left, tokens: tokens, for: nextWindow)
+      updateSubjects = []
     case .right:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right")]
+      tokens = tiling.tokens
+      await store(.right, tokens: tokens, for: nextWindow)
+      updateSubjects = []
     case .top:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top")]
+      tokens = tiling.tokens
+      await store(.top, tokens: tokens, for: nextWindow)
+      updateSubjects = []
     case .bottom:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom")]
+      tokens = tiling.tokens
+      await store(.bottom, tokens: tokens, for: nextWindow)
+      updateSubjects = []
     case .topLeft:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top Left")]
+      tokens = tiling.tokens
+      await store(.topLeft, tokens: tokens, for: nextWindow)
+      updateSubjects = []
     case .topRight:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top Right")]
+      tokens = tiling.tokens
+      await store(.topRight, tokens: tokens, for: nextWindow)
+      updateSubjects = []
     case .bottomLeft:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom Left")]
+      tokens = tiling.tokens
+      await store(.bottomLeft, tokens: tokens, for: nextWindow)
+      updateSubjects = []
     case .bottomRight:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom Right")]
+      tokens = MenuBarCommand.Token.bottomRight()
+      await store(.bottomRight, tokens: tokens, for: nextWindow)
+      updateSubjects = []
     case .center:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Center")]
+      tokens = MenuBarCommand.Token.center()
+      await store(nil, for: nextWindow)
+      updateSubjects = []
     case .fill:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+      tokens = MenuBarCommand.Token.fill()
+      updateSubjects = []
     case .zoom:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Zoom")]
+      tokens = MenuBarCommand.Token.zoom()
+      await store(nil, for: nextWindow)
+      updateSubjects = []
     case .arrangeLeftRight:
       if oldWindows.count == 1 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Fill")]
+        tokens = MenuBarCommand.Token.fill()
       } else {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Right")]
+        tokens = MenuBarCommand.Token.leftRight()
+        await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[0])
+        await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[1])
+        for x in 0..<2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
       }
+      updateSubjects = []
     case .arrangeRightLeft:
       if oldWindows.count == 1 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+        tokens = MenuBarCommand.Token.fill()
       } else {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Left")]
+        tokens = MenuBarCommand.Token.rightLeft()
+        await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[0])
+        await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[1])
+        for x in 0...2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
       }
+      updateSubjects = []
     case .arrangeTopBottom:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Bottom")]
+      if oldWindows.count == 1 {
+        tokens = MenuBarCommand.Token.fill()
+      } else {
+        tokens = MenuBarCommand.Token.topBottom()
+        await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[0])
+        await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[1])
+        for x in 0..<2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+      }
+      updateSubjects = []
     case .arrangeBottomTop:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom & Top")]
+      if oldWindows.count == 1 {
+        tokens = MenuBarCommand.Token.fill()
+      } else {
+        tokens = MenuBarCommand.Token.bottomTop()
+        await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[0])
+        await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[1])
+        for x in 0..<2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+      }
+      updateSubjects = []
     case .arrangeLeftQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+        tokens = MenuBarCommand.Token.fill()
+        updateSubjects = []
       } else if oldWindows.count == 2 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Right")]
+        tokens = MenuBarCommand.Token.leftRight()
+        await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[0])
+        await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[1])
+        updateSubjects = []
+        for x in 0..<2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
       } else {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Quarters")]
+        tokens = tiling.tokens
+        await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[0])
+        await store(.bottomRight, tokens: MenuBarCommand.Token.bottomRight(), for: oldWindows[1])
+        await store(.topRight, tokens: MenuBarCommand.Token.topRight(), for: oldWindows[2])
+        updateSubjects = Array(oldWindows.prefix(3))
+        for x in 0..<3 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
       }
-
     case .arrangeRightQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+        tokens = MenuBarCommand.Token.fill()
+        updateSubjects = []
       } else if oldWindows.count == 2 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Left")]
+        tokens = MenuBarCommand.Token.rightLeft()
+        await store(.top, tokens: MenuBarCommand.Token.right(), for: oldWindows[0])
+        await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[1])
+        for x in 0..<2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       } else {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Quarters")]
+        tokens = tiling.tokens
+        await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[0])
+        await store(.topLeft, tokens: MenuBarCommand.Token.topLeft(), for: oldWindows[2])
+        await store(.bottomLeft, tokens: MenuBarCommand.Token.bottomLeft(), for: oldWindows[1])
+        for x in 0..<3 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeTopQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+        tokens = MenuBarCommand.Token.fill()
+        updateSubjects = []
       } else if oldWindows.count == 2 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Bottom")]
+        tokens = MenuBarCommand.Token.topBottom()
+        await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[0])
+        await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[1])
+        for x in 0..<2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       } else {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Quarters")]
+        tokens = tiling.tokens
+        await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[0])
+        await store(.bottomRight, tokens: MenuBarCommand.Token.bottomRight(), for: oldWindows[1])
+        await store(.bottomLeft, tokens: MenuBarCommand.Token.bottomLeft(), for: oldWindows[2])
+        for x in 0..<3 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeBottomQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+        tokens = MenuBarCommand.Token.fill()
+        updateSubjects = []
       } else if oldWindows.count == 2 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom & Top")]
+        tokens = MenuBarCommand.Token.bottomTop()
+        await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[0])
+        await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[1])
+        for x in 0..<2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       } else {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom & Quarters")]
+        tokens = tiling.tokens
+        await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[0])
+        await store(.topLeft, tokens: MenuBarCommand.Token.topLeft(), for: oldWindows[2])
+        await store(.topRight, tokens: MenuBarCommand.Token.topRight(), for: oldWindows[1])
+        for x in 0..<3 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeQuarters:
       if oldWindows.count == 1 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+        tokens = MenuBarCommand.Token.fill()
+        updateSubjects = []
       } else if oldWindows.count == 2 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Right")]
+        tokens = MenuBarCommand.Token.leftRight()
+        await store(.left, tokens: MenuBarCommand.Token.left(), for: nextWindow)
+        await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[1])
+        for x in 0..<2 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       } else if oldWindows.count == 3 {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Quarters")]
+        tokens = MenuBarCommand.Token.leftQuarters()
+        await store(.left, tokens: MenuBarCommand.Token.left(), for: nextWindow)
+        await store(.topRight, tokens: MenuBarCommand.Token.topRight(), for: oldWindows[1])
+        await store(.bottomRight, tokens: MenuBarCommand.Token.bottomRight(), for: oldWindows[2])
+        for x in 0..<3 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(3))
       } else {
-        initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Quarters")]
+        tokens = tiling.tokens
+        await store(.topLeft, tokens: MenuBarCommand.Token.bottomLeft(), for: nextWindow)
+        await store(.topRight, tokens: MenuBarCommand.Token.topLeft(), for: oldWindows[1])
+        await store(.bottomLeft, tokens: MenuBarCommand.Token.topRight(), for: oldWindows[2])
+        await store(.bottomRight, tokens: MenuBarCommand.Token.bottomRight(), for: oldWindows[3])
+        for x in 0..<4 { await updateStore(isFullScreen: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(4))
       }
     case .previousSize:
-      initialTokens = [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Return to Previous Size")]
+      tokens = MenuBarCommand.Token.returnPreviousSize()
+      await store(nil, for: nextWindow)
+      updateSubjects = []
     }
 
     await MainActor.run {
       currentTask?.cancel()
       currentTask = Task { @MainActor in
         try Task.checkCancellation()
-        let match = try recursiveSearch(initialTokens, items: menuItems)
+
+        let activeTokens: [MenuBarCommand.Token]
+        let currentStorage = storage[nextWindow.windowNumber]
+
+        if tiling == .fill {
+          if let currentStorage, currentStorage.isFullScreen {
+            activeTokens = currentStorage.tokens
+            if currentStorage.isFullScreen {
+              updateStore(isFullScreen: false, for: nextWindow)
+            }
+          } else {
+            activeTokens = tokens
+            updateStore(isFullScreen: tiling == .fill, for: nextWindow)
+          }
+        } else {
+          activeTokens = tokens
+        }
+
+        let match = try recursiveSearch(activeTokens, items: menuItems)
+        try Task.checkCancellation()
         match.performAction(.pick)
+
+        if !updateSubjects.isEmpty {
+          try await Task.sleep(for: .milliseconds(100))
+
+          let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
+          let newWindows = newSnapshot.windows.visibleWindowsInStage
+            .filter { $0.rect.intersects(visibleScreenFrame) }
+
+          determineTiling(for: updateSubjects, in: visibleScreenFrame, newWindows: newWindows)
+        }
+      }
+    }
+  }
+
+  @MainActor
+  private static func store(_ tiling: WindowTiling?, tokens: [MenuBarCommand.Token] = [], for window: WindowModel) {
+    guard let tiling else {
+      storage[window.windowNumber] = nil
+      return
+    }
+    storage[window.windowNumber] = TileStorage(tokens: tokens, isFullScreen: storage[window.windowNumber]?.isFullScreen ?? false)
+  }
+
+  @MainActor
+  private static func updateStore(isFullScreen: Bool, for window: WindowModel) {
+    guard let old = storage[window.windowNumber] else { return }
+    storage[window.windowNumber] = TileStorage(tokens: old.tokens, isFullScreen: isFullScreen)
+  }
+
+  @MainActor
+  private static func determineTiling(for subjects: [WindowModel],
+                                      in screenFrame: CGRect,
+                                      newWindows: [WindowModel]) {
+    guard subjects.isEmpty == false else { return }
+
+    let newWindows: [WindowModel] = Array(newWindows.prefix(subjects.count))
+    let halfWidth = screenFrame.width / 2
+    let halfHeight = screenFrame.height / 2
+
+    func determineQuarter(for rect: CGRect) -> WindowTiling {
+      let centerX = rect.midX
+      let centerY = rect.midY
+
+      if centerX < halfWidth && centerY < halfHeight {
+        return .topLeft
+      } else if centerX >= halfWidth && centerY < halfHeight {
+        return .topRight
+      } else if centerX < halfWidth && centerY >= halfHeight {
+        return .bottomLeft
+      } else {
+        return .bottomRight
+      }
+    }
+
+    for (oldWindow, newWindow) in zip(subjects, newWindows) {
+      let oldQuarter = determineQuarter(for: oldWindow.rect)
+      let newQuarter = determineQuarter(for: newWindow.rect)
+
+      if oldQuarter != newQuarter {
+        store(newQuarter, tokens: newQuarter.tokens, for: oldWindow)
+        if Self.debug { print("Window \(oldWindow.ownerName) moved from \(oldQuarter) to \(newQuarter)") }
+      } else {
+        store(oldQuarter, tokens: newQuarter.tokens, for: oldWindow)
+        if Self.debug { print("Window \(oldWindow.ownerName) stayed in \(oldQuarter)") }
       }
     }
   }
@@ -197,4 +388,124 @@ final class SystemWindowTilingRunner {
   }
 }
 
+private extension MenuBarCommand.Token {
+  static func top() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top")]
+  }
+
+  static func left() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left")]
+  }
+
+  static func right() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right")]
+  }
+
+  static func bottom() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom")]
+  }
+
+  static func topLeft() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top Left")]
+  }
+
+  static func topRight() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top Right")]
+  }
+
+  static func bottomLeft() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom Left")]
+  }
+
+  static func bottomRight() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom Right")]
+  }
+
+  static func center() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Center")]
+  }
+
+  static func fill() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+  }
+
+  static func zoom() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Fill")]
+  }
+
+  static func topBottom() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Bottom")]
+  }
+
+  static func bottomTop() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Bottom")]
+  }
+
+  static func leftRight() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Right")]
+  }
+
+  static func rightLeft() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Left")]
+  }
+
+
+  static func leftQuarters() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Left & Quarters")]
+  }
+
+  static func rightQuarters() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Right & Quarters")]
+  }
+
+  static func topQuarters() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Top & Quarters")]
+  }
+
+  static func bottomQuarters() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Bottom & Quarters")]
+  }
+
+  static func quarters() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Quarters")]
+  }
+
+  static func returnPreviousSize() -> [Self] {
+    [.menuItem(name: "Window"), .menuItem(name: "Move & Resize"), .menuItem(name: "Return to Previous Size")]
+  }
+}
+
 extension UserDefaults: @unchecked @retroactive Sendable { }
+
+fileprivate struct TileStorage {
+  let tokens: [MenuBarCommand.Token]
+  let isFullScreen: Bool
+}
+
+fileprivate extension WindowTiling {
+  var tokens: [MenuBarCommand.Token] {
+    switch self {
+    case .left: MenuBarCommand.Token.left()
+    case .right: MenuBarCommand.Token.right()
+    case .top: MenuBarCommand.Token.top()
+    case .bottom: MenuBarCommand.Token.bottom()
+    case .topLeft: MenuBarCommand.Token.topLeft()
+    case .topRight: MenuBarCommand.Token.topRight()
+    case .bottomLeft: MenuBarCommand.Token.bottomLeft()
+    case .bottomRight: MenuBarCommand.Token.bottomRight()
+    case .center: []
+    case .fill: []
+    case .zoom: []
+    case .arrangeLeftRight: MenuBarCommand.Token.leftRight()
+    case .arrangeRightLeft: MenuBarCommand.Token.rightLeft()
+    case .arrangeTopBottom: MenuBarCommand.Token.topBottom()
+    case .arrangeBottomTop: MenuBarCommand.Token.bottomTop()
+    case .arrangeLeftQuarters: MenuBarCommand.Token.leftQuarters()
+    case .arrangeRightQuarters: MenuBarCommand.Token.rightQuarters()
+    case .arrangeTopQuarters: MenuBarCommand.Token.topQuarters()
+    case .arrangeBottomQuarters: MenuBarCommand.Token.bottomQuarters()
+    case .arrangeQuarters: MenuBarCommand.Token.quarters()
+    case .previousSize: []
+    }
+  }
+}
