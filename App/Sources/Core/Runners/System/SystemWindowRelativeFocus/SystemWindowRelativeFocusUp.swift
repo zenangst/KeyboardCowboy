@@ -7,8 +7,9 @@ enum SystemWindowRelativeFocusUp {
       .sorted(by: { $0.index < $1.index })
       .sorted(by: {
         $0.window.rect.origin.x > $1.window.rect.origin.x &&
-        $0.window.rect.origin.y > $1.window.rect.origin.y
+        $0.window.rect.maxY <= $1.window.rect.maxY
       })
+
     let intersectingWindows = sortedWindows.filter { systemWindow in
       let currentMinX = currentWindow.rect.origin.x
       let currentMaxX = currentWindow.rect.maxX
