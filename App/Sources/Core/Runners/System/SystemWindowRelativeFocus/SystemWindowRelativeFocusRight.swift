@@ -3,10 +3,9 @@ import Windows
 
 enum SystemWindowRelativeFocusRight {
   static func findNextWindow(_ currentWindow: WindowModel, windows: [WindowModel]) -> WindowModel? {
-    let sortedWindows = windows.systemWindows.sorted {
-      $0.index < $1.index &&
-      $0.window.rect.origin.x > $1.window.rect.origin.x
-    }
+    let sortedWindows = windows.systemWindows
+      .sorted(by: { $0.index < $1.index })
+      .sorted(by: { $0.window.rect.origin.x < $1.window.rect.origin.x })
 
     let intersectingWindows = sortedWindows.filter { systemWindow in
       let currentMinY = currentWindow.rect.origin.y
@@ -17,13 +16,13 @@ enum SystemWindowRelativeFocusRight {
     }
 
     for systemWindow in intersectingWindows {
-      if systemWindow.window.rect.origin.x >= currentWindow.rect.origin.x {
+      if systemWindow.window.rect.origin.x > currentWindow.rect.origin.x {
         return systemWindow.window
       }
     }
 
     for systemWindow in sortedWindows {
-      if systemWindow.window.rect.origin.x >= currentWindow.rect.origin.x {
+      if systemWindow.window.rect.origin.x > currentWindow.rect.origin.x {
         return systemWindow.window
       }
     }
