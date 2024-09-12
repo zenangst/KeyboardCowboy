@@ -283,6 +283,7 @@ final class SystemWindowTilingRunner {
           }
         default:
           activeTokens = tokens
+          updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
         }
 
         let match = try recursiveSearch(activeTokens, items: menuItems)
