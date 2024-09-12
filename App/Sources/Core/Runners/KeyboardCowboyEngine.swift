@@ -22,14 +22,16 @@ final class KeyboardCowboyEngine {
   private let workspacePublisher: WorkspacePublisher
   private let uiElementCaptureStore: UIElementCaptureStore
   private let workflowRunner: WorkflowRunning
+  private let applicationWindowObserver: ApplicationWindowObserver
 
   private var pendingPermissionsSubscription: AnyCancellable?
   private var frontmostApplicationSubscription: AnyCancellable?
   private var machPortController: MachPortEventController?
 
-  init(_ contentStore: ContentStore, 
+  init(_ contentStore: ContentStore,
        applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
        applicationTriggerController: ApplicationTriggerController,
+       applicationWindowObserver: ApplicationWindowObserver,
        commandRunner: CommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
        keyboardShortcutsController: KeyboardShortcutsController,
@@ -50,6 +52,7 @@ final class KeyboardCowboyEngine {
     self.shortcutStore = shortcutStore
     self.uiElementCaptureStore = uiElementCaptureStore
     self.applicationTriggerController = applicationTriggerController
+    self.applicationWindowObserver = applicationWindowObserver
     self.snippetController = snippetController
     self.workspace = workspace
     self.workflowRunner = workflowRunner
@@ -114,5 +117,6 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
     applicationActivityMonitor.subscribe(to: UserSpace.shared.$frontMostApplication)
+    applicationWindowObserver.subscribe(to: UserSpace.shared.$frontMostApplication)
   }
 }

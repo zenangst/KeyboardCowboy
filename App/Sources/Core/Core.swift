@@ -87,6 +87,7 @@ final class Core {
     contentStore,
     applicationActivityMonitor: applicationActivityMonitor,
     applicationTriggerController: applicationTriggerController,
+    applicationWindowObserver: applicationWindowObserver,
     commandRunner: commandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
     keyboardShortcutsController: keyboardShortcutsController,
@@ -103,6 +104,7 @@ final class Core {
   lazy private(set) var shortcutStore = ShortcutStore(scriptCommandRunner)
   lazy private(set) var commandLine = CommandLineCoordinator.shared
   lazy private(set) var applicationActivityMonitor = ApplicationActivityMonitor<UserSpace.Application>()
+  lazy private(set) var applicationWindowObserver = ApplicationWindowObserver()
 
   // MARK: - Runners
   lazy private(set) var workflowRunner = WorkflowRunner(commandRunner: commandRunner,
