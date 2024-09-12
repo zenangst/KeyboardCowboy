@@ -1,7 +1,9 @@
 import AppKit
 import Apps
 import AXEssibility
+import Bonzai
 import Foundation
+import SwiftUI
 import Windows
 
 final class SystemWindowQuarterFocus {
@@ -12,9 +14,15 @@ final class SystemWindowQuarterFocus {
     case lowerRight
   }
 
+  nonisolated(unsafe) static var debug: Bool = false
+
   var consumedWindows = Set<WindowModel>()
   var previousQuarter: Quarter?
   var initialWindows = [WindowModel]()
+  @MainActor lazy var window: NSWindow = ZenWindow(
+    animationBehavior: .none,
+    content: RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor, lineWidth: 4))
+  @MainActor lazy var windowController: NSWindowController = NSWindowController(window: window)
 
   init() {
     initialWindows = indexWindowsInStage(getWindows())
@@ -25,6 +33,7 @@ final class SystemWindowQuarterFocus {
     initialWindows = indexWindowsInStage(getWindows())
   }
 
+  @MainActor
   func run(_ quarter: Quarter, snapshot: UserSpace.Snapshot) throws {
     guard let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager") else {
       return
@@ -62,8 +71,13 @@ final class SystemWindowQuarterFocus {
 
     windows.removeAll(where: { consumedWindows.contains($0) })
 
-    let targetRect: CGRect = quarter.targetRect(on: screen, spacing: windowSpacing)
-      .insetBy(dx: 200, dy: 100)
+    let targetRect: CGRect = quarter.targetRect(on: screen, widthFactor: 0.1, heightFactor: 0.175, spacing: windowSpacing)
+
+    if Self.debug {
+      let invertedRect = targetRect.invertedYCoordinate(on: screen)
+      windowController.window?.setFrame(invertedRect, display: true)
+      windowController.showWindow(nil)
+    }
 
     let quarterFilter: (WindowModel) -> Bool = {
       targetRect.intersects($0.rect)
@@ -74,9 +88,7 @@ final class SystemWindowQuarterFocus {
       consumedWindows.removeAll()
     }
 
-    guard let matchedWindow = validQuarterWindows.first(where: {
-      targetRect.intersects($0.rect.insetBy(dx: windowSpacing * 2, dy: windowSpacing * 2))
-    }) else {
+    guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) else {
       return
     }
 
@@ -122,21 +134,41 @@ final class SystemWindowQuarterFocus {
 }
 
 extension SystemWindowQuarterFocus.Quarter {
-  func targetRect(on screen: NSScreen, spacing: CGFloat) -> CGRect {
+  func targetRect(on screen: NSScreen, widthFactor: CGFloat, heightFactor: CGFloat, spacing: CGFloat) -> CGRect {
     let screenFrame = screen.visibleFrame
-    let halfWidth = (screenFrame.width / 2) - spacing
-    let halfHeight = (screenFrame.height / 2) - spacing
-    let spacing: CGFloat = spacing
+    let targetWidth = screenFrame.width * widthFactor
+    let targetHeight = screenFrame.height * heightFactor
 
     switch self {
     case .upperLeft:
-      return CGRect(x: screenFrame.minX + spacing, y: screenFrame.minY + spacing, width: halfWidth, height: halfHeight)
+      return CGRect(x: screenFrame.minX + spacing,
+                    y: screenFrame.minY + spacing,
+                    width: targetWidth,
+                    height: targetHeight)
     case .upperRight:
-      return CGRect(x: screenFrame.midX + spacing, y: screenFrame.minY + spacing, width: halfWidth, height: halfHeight)
+      return CGRect(x: screenFrame.maxX - targetWidth - spacing,
+                    y: screenFrame.minY + spacing,
+                    width: targetWidth,
+                    height: targetHeight)
     case .lowerLeft:
-      return CGRect(x: screenFrame.minX + spacing, y: screenFrame.midY + spacing, width: halfWidth, height: halfHeight)
+      return CGRect(x: screenFrame.minX + spacing,
+                    y: screenFrame.maxY - targetHeight - spacing,
+                    width: targetWidth,
+                    height: targetHeight)
     case .lowerRight:
-      return CGRect(x: screenFrame.midX + spacing, y: screenFrame.midY + spacing, width: halfWidth, height: halfHeight)
+      return CGRect(x: screenFrame.maxX - targetWidth - spacing,
+                    y: screenFrame.maxY - targetHeight - spacing,
+                    width: targetWidth,
+                    height: targetHeight)
     }
+  }
+}
+
+extension CGRect {
+  func invertedYCoordinate(on screen: NSScreen) -> CGRect {
+    let screenFrame = screen.visibleFrame
+    let invertedY = screenFrame.maxY - self.origin.y - self.height
+
+    return CGRect(x: self.origin.x, y: invertedY, width: self.width, height: self.height)
   }
 }
