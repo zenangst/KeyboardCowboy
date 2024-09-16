@@ -33,6 +33,17 @@ final class SystemWindowTilingRunner {
   @MainActor private static var storage = [WindowModel.WindowNumber: TileStorage]()
   private static let tilingWindowSpacingKey: String = "TiledWindowSpacing"
 
+  static func initialIndex() {
+    Task {
+      let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
+      for screen in NSScreen.screens {
+        let visibleScreenFrame = screen.visibleFrame
+        let newWindows = snapshot.windows.visibleWindowsInStage
+        await determineTiling(for: newWindows, in: visibleScreenFrame, newWindows: newWindows)
+      }
+    }
+  }
+
   static func run(_ tiling: WindowTiling, snapshot: UserSpace.Snapshot) async throws {
     guard let screen = NSScreen.main, let runningApplication = NSWorkspace.shared.frontmostApplication else {
       return

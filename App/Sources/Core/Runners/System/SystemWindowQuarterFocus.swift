@@ -31,6 +31,7 @@ final class SystemWindowQuarterFocus {
   func reset() {
     consumedWindows.removeAll()
     initialWindows = indexWindowsInStage(getWindows())
+    previousQuarter = nil
   }
 
   @MainActor
@@ -44,8 +45,8 @@ final class SystemWindowQuarterFocus {
     guard let screen = NSScreen.main else { return }
 
     if quarter != previousQuarter {
-      previousQuarter = quarter
       reset()
+      previousQuarter = quarter
     }
 
     var windows = initialWindows

@@ -118,5 +118,6 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
     applicationActivityMonitor.subscribe(to: UserSpace.shared.$frontMostApplication)
     applicationWindowObserver.subscribe(to: UserSpace.shared.$frontMostApplication)
+    SystemWindowTilingRunner.initialIndex()
   }
 }

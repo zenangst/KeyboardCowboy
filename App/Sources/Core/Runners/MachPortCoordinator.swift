@@ -371,8 +371,6 @@ final class MachPortCoordinator: Sendable {
     notifications.reset()
   }
 
-  
-
   /// Handles the Escape key down event.
   ///
   /// - Parameter machPortEvent: The MachPortEvent representing the key event.
