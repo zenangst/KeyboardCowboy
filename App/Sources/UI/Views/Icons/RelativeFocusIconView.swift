@@ -4,7 +4,8 @@ struct RelativeFocusIconView: View {
   enum Kind {
     case up, down, left, right,
          upperLeft, upperRight,
-         lowerLeft, lowerRight
+         lowerLeft, lowerRight,
+         center
     var systemName: String {
       switch self {
       case .upperLeft: "arrow.up.left"
@@ -15,6 +16,7 @@ struct RelativeFocusIconView: View {
       case .down:  "arrow.down"
       case .left:  "arrow.left"
       case .right: "arrow.right"
+      case .center: "rectangle.center.inset.filled"
       }
     }
   }

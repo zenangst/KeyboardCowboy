@@ -122,41 +122,49 @@ final class SystemWindowTilingRunner {
     case .arrangeLeftRight:
       if oldWindows.count == 1 {
         tokens = MenuBarCommand.Token.fill()
-      } else {
+      } else if oldWindows.count >= 2 {
         tokens = MenuBarCommand.Token.leftRight()
         await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[0])
         await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[1])
         for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+      } else {
+        return
       }
       updateSubjects = []
     case .arrangeRightLeft:
       if oldWindows.count == 1 {
         tokens = MenuBarCommand.Token.fill()
-      } else {
+      } else if oldWindows.count >= 2 {
         tokens = MenuBarCommand.Token.rightLeft()
         await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[0])
         await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[1])
         for x in 0...2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+      } else {
+        return
       }
       updateSubjects = []
     case .arrangeTopBottom:
       if oldWindows.count == 1 {
         tokens = MenuBarCommand.Token.fill()
-      } else {
+      } else if oldWindows.count >= 2 {
         tokens = MenuBarCommand.Token.topBottom()
         await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[0])
         await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[1])
         for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+      } else {
+        return
       }
       updateSubjects = []
     case .arrangeBottomTop:
       if oldWindows.count == 1 {
         tokens = MenuBarCommand.Token.fill()
-      } else {
+      } else if oldWindows.count >= 2 {
         tokens = MenuBarCommand.Token.bottomTop()
         await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[0])
         await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[1])
         for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+      } else {
+        return
       }
       updateSubjects = []
     case .arrangeLeftQuarters:
@@ -169,13 +177,15 @@ final class SystemWindowTilingRunner {
         await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[1])
         updateSubjects = []
         for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-      } else {
+      } else if oldWindows.count >= 3 {
         tokens = tiling.tokens
         await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[0])
         await store(.bottomRight, tokens: MenuBarCommand.Token.bottomRight(), for: oldWindows[1])
         await store(.topRight, tokens: MenuBarCommand.Token.topRight(), for: oldWindows[2])
         updateSubjects = Array(oldWindows[1...2])
         for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+      } else {
+        return
       }
     case .arrangeRightQuarters:
       if oldWindows.count == 1 {
@@ -187,13 +197,15 @@ final class SystemWindowTilingRunner {
         await store(.left, tokens: MenuBarCommand.Token.left(), for: oldWindows[1])
         for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = []
-      } else {
+      } else if oldWindows.count >= 3 {
         tokens = tiling.tokens
         await store(.right, tokens: MenuBarCommand.Token.right(), for: oldWindows[0])
         await store(.topLeft, tokens: MenuBarCommand.Token.topLeft(), for: oldWindows[2])
         await store(.bottomLeft, tokens: MenuBarCommand.Token.bottomLeft(), for: oldWindows[1])
         for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = Array(oldWindows[1..<3])
+      } else {
+        return
       }
     case .arrangeTopQuarters:
       if oldWindows.count == 1 {
@@ -205,13 +217,15 @@ final class SystemWindowTilingRunner {
         await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[1])
         for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = []
-      } else {
+      } else if oldWindows.count >= 3 {
         tokens = tiling.tokens
         await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[0])
         await store(.bottomRight, tokens: MenuBarCommand.Token.bottomRight(), for: oldWindows[1])
         await store(.bottomLeft, tokens: MenuBarCommand.Token.bottomLeft(), for: oldWindows[2])
         for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = Array(oldWindows[1..<3])
+      } else {
+        return
       }
     case .arrangeBottomQuarters:
       if oldWindows.count == 1 {
@@ -223,13 +237,15 @@ final class SystemWindowTilingRunner {
         await store(.top, tokens: MenuBarCommand.Token.top(), for: oldWindows[1])
         for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = []
-      } else {
+      } else if oldWindows.count >= 3 {
         tokens = tiling.tokens
         await store(.bottom, tokens: MenuBarCommand.Token.bottom(), for: oldWindows[0])
         await store(.topLeft, tokens: MenuBarCommand.Token.topLeft(), for: oldWindows[2])
         await store(.topRight, tokens: MenuBarCommand.Token.topRight(), for: oldWindows[1])
         for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = Array(oldWindows[1..<3])
+      } else {
+        return
       }
     case .arrangeQuarters:
       if oldWindows.count == 1 {
@@ -248,7 +264,7 @@ final class SystemWindowTilingRunner {
         await store(.bottomRight, tokens: MenuBarCommand.Token.bottomRight(), for: oldWindows[2])
         for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = Array(oldWindows[1..<3])
-      } else {
+      } else if oldWindows.count >= 4 {
         tokens = tiling.tokens
         await store(.topLeft, tokens: MenuBarCommand.Token.bottomLeft(), for: nextWindow)
         await store(.topRight, tokens: MenuBarCommand.Token.topLeft(), for: oldWindows[1])
@@ -256,6 +272,8 @@ final class SystemWindowTilingRunner {
         await store(.bottomRight, tokens: MenuBarCommand.Token.bottomRight(), for: oldWindows[3])
         for x in 0..<4 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = Array(oldWindows.prefix(4))
+      } else {
+        return
       }
     case .previousSize:
       tokens = MenuBarCommand.Token.returnPreviousSize()

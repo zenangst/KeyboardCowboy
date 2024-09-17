@@ -14,6 +14,7 @@ enum SystemIconBuilder {
     case .moveFocusToPreviousWindow:         MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
     case .moveFocusToPreviousWindowFront:    MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
     case .moveFocusToPreviousWindowGlobal:   MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
+    case .moveFocusToNextWindowCenter:       RelativeFocusIconView(.center, size: size)
     case .showDesktop:                       DockIconView(size: size)
     case .moveFocusToNextWindowUpwards:      RelativeFocusIconView(.up, size: size)
     case .moveFocusToNextWindowDownwards:    RelativeFocusIconView(.down, size: size)

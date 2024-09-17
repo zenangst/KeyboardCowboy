@@ -125,6 +125,7 @@ private extension Workflow {
             case .moveFocusToNextWindowUpwards:      return false
             case .moveFocusToNextWindowDownwards:    return false
             case .moveFocusToNextWindowFront:        return false
+            case .moveFocusToNextWindowCenter:       return false
             case .moveFocusToPreviousWindowFront:    return false
             case .moveFocusToNextWindow:             return false
             case .moveFocusToPreviousWindow:         return false

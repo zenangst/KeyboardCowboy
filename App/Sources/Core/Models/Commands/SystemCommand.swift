@@ -21,6 +21,7 @@ struct SystemCommand: MetaDataProviding {
       case .moveFocusToNextWindowOnLeft:     "Move Focus to Window on Left"
       case .moveFocusToNextWindowOnRight:    "Move Focus to Window on Right"
       case .moveFocusToNextWindowDownwards:  "Move Focus to Window Downwards"
+      case .moveFocusToNextWindowCenter:     "Move Focus to Window in Center"
       case .moveFocusToNextWindowUpperLeftQuarter: "Move Focus to Upper Left Quarter"
       case .moveFocusToNextWindowUpperRightQuarter: "Move Focus to Upper Right Quarter"
       case .moveFocusToNextWindowLowerLeftQuarter: "Move Focus to Lower Left Quarter"
@@ -61,6 +62,7 @@ struct SystemCommand: MetaDataProviding {
       case .moveFocusToNextWindowOnRight:    "arrow.right.circle"
       case .moveFocusToNextWindowUpwards:    "arrow.up.circle"
       case .moveFocusToNextWindowDownwards:  "arrow.down.circle"
+      case .moveFocusToNextWindowCenter:     "arrow.up.right.and.arrow.down.left"
       case .moveFocusToNextWindowGlobal:     "arrow.right.circle"
       case .moveFocusToPreviousWindowGlobal: "arrow.left.circle"
       case .moveFocusToNextWindow:           "arrow.right.to.line.alt"
@@ -110,6 +112,7 @@ struct SystemCommand: MetaDataProviding {
       case .moveFocusToNextWindowOnRight:                                "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .moveFocusToNextWindowUpwards:                                "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .moveFocusToNextWindowDownwards:                              "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .moveFocusToNextWindowCenter:                              "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .moveFocusToNextWindowUpperLeftQuarter: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .moveFocusToNextWindowUpperRightQuarter: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .moveFocusToNextWindowLowerLeftQuarter: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
@@ -150,6 +153,7 @@ struct SystemCommand: MetaDataProviding {
     case moveFocusToNextWindowUpperRightQuarter
     case moveFocusToNextWindowLowerLeftQuarter
     case moveFocusToNextWindowLowerRightQuarter
+    case moveFocusToNextWindowCenter
     case moveFocusToNextWindowFront
     case moveFocusToPreviousWindowFront
     case moveFocusToNextWindow
