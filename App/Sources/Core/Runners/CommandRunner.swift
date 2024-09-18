@@ -142,11 +142,12 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         if shouldDismissMissionControl { await missionControl.dismissIfActive() }
         let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: resolveUserEnvironment)
         var runtimeDictionary = [String: String]()
+
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
-            try await self.run(command, snapshot: snapshot, shortcut: shortcut, 
-                               machPortEvent: machPortEvent, 
+            try await self.run(command, allCommands: commands, snapshot: snapshot, shortcut: shortcut,
+                               machPortEvent: machPortEvent,
                                checkCancellation: checkCancellation,
                                repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
           } catch { 
@@ -203,7 +204,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }
-          try await self.run(command, snapshot: snapshot, shortcut: shortcut,
+          try await self.run(command, allCommands: commands, snapshot: snapshot, shortcut: shortcut,
                              machPortEvent: machPortEvent, checkCancellation: checkCancellation,
                              repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
         } catch { 
@@ -225,7 +226,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func run(_ command: Command, snapshot: UserSpace.Snapshot, 
+  func run(_ command: Command, allCommands: [Command], snapshot: UserSpace.Snapshot,
            shortcut: KeyShortcut, machPortEvent: MachPortEvent,
            checkCancellation: Bool, repeatingEvent: Bool, 
            runtimeDictionary: inout [String: String]) async throws {
@@ -316,7 +317,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       }
     case .systemCommand(let systemCommand):
       try await runners.system.run(
-        systemCommand, applicationRunner: runners.application,
+        systemCommand,
+        allCommands: allCommands,
+        applicationRunner: runners.application,
+        runtimeDictionary: runtimeDictionary,
         checkCancellation: checkCancellation, snapshot: snapshot
       )
       output = command.name

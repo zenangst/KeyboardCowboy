@@ -28,6 +28,7 @@ final class DetailCommandActionReducer {
           guard let machPortEvent = MachPortEvent.empty() else { return }
           var runtimeDictionary = [String: String]()
           try await commandRunner.run(runCommand,
+                                      allCommands: [runCommand],
                                       snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
                                       shortcut: .empty(),
                                       machPortEvent: machPortEvent,
@@ -184,6 +185,7 @@ final class DetailCommandActionReducer {
             var runtimeDictionary = [String: String]()
             try await commandRunner.run(
               .open(.init(path: path)),
+              allCommands: [],
               snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
               shortcut: .empty(),
               machPortEvent: machPortEvent,
