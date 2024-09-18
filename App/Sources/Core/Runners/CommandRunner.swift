@@ -146,7 +146,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
-            try await self.run(command, allCommands: commands, snapshot: snapshot, shortcut: shortcut,
+            try await self.run(command, workflowCommands: commands, snapshot: snapshot, shortcut: shortcut,
                                machPortEvent: machPortEvent,
                                checkCancellation: checkCancellation,
                                repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
@@ -204,7 +204,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }
-          try await self.run(command, allCommands: commands, snapshot: snapshot, shortcut: shortcut,
+          try await self.run(command, workflowCommands: commands, snapshot: snapshot, shortcut: shortcut,
                              machPortEvent: machPortEvent, checkCancellation: checkCancellation,
                              repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
         } catch { 
@@ -226,7 +226,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
-  func run(_ command: Command, allCommands: [Command], snapshot: UserSpace.Snapshot,
+  func run(_ command: Command, workflowCommands: [Command], snapshot: UserSpace.Snapshot,
            shortcut: KeyShortcut, machPortEvent: MachPortEvent,
            checkCancellation: Bool, repeatingEvent: Bool, 
            runtimeDictionary: inout [String: String]) async throws {
@@ -318,7 +318,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .systemCommand(let systemCommand):
       try await runners.system.run(
         systemCommand,
-        allCommands: allCommands,
+        workflowCommands: workflowCommands,
         applicationRunner: runners.application,
         runtimeDictionary: runtimeDictionary,
         checkCancellation: checkCancellation, snapshot: snapshot

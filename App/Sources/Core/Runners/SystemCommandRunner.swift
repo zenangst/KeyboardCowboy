@@ -50,7 +50,7 @@ final class SystemCommandRunner: @unchecked Sendable {
       }
   }
 
-  func run(_ command: SystemCommand, allCommands: [Command], applicationRunner: ApplicationCommandRunner,
+  func run(_ command: SystemCommand, workflowCommands: [Command], applicationRunner: ApplicationCommandRunner,
            runtimeDictionary: [String: String],
            checkCancellation: Bool, snapshot: UserSpace.Snapshot) async throws {
     Task { @MainActor in
@@ -63,7 +63,7 @@ final class SystemCommandRunner: @unchecked Sendable {
           }
         }
       case .hideAllApps:
-        SystemHideAllAppsRunner.run(allCommands: allCommands)
+        SystemHideAllAppsRunner.run(workflowCommands: workflowCommands)
       case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
            .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:
         try SystemWindowFocus.run(

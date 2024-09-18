@@ -1,9 +1,8 @@
 import Cocoa
 
 final class SystemHideAllAppsRunner {
-
-  static func run(allCommands: [Command]) {
-    let exceptBundleIdentifiers = allCommands.compactMap {
+  static func run(workflowCommands: [Command]) {
+    let exceptBundleIdentifiers = workflowCommands.compactMap {
       if case .application(let command) = $0, command.action == .open { return command.application.bundleIdentifier }
       return nil
     }
