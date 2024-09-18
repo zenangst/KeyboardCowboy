@@ -111,6 +111,7 @@ final class SystemWindowTilingRunner {
       updateSubjects = []
     case .center:
       tokens = MenuBarCommand.Token.center()
+      await store(.center, tokens: tokens, for: nextWindow)
       updateSubjects = []
     case .fill:
       tokens = MenuBarCommand.Token.fill()
@@ -281,16 +282,6 @@ final class SystemWindowTilingRunner {
           } else {
             activeTokens = tokens
             updateStore(isFullScreen: true, isCentered: false, for: nextWindow)
-          }
-        case .center:
-          if let currentStorage, currentStorage.isCentered {
-            activeTokens = currentStorage.tokens
-            if currentStorage.isCentered {
-              updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
-            }
-          } else {
-            activeTokens = tokens
-            updateStore(isFullScreen: false, isCentered: true, for: nextWindow)
           }
         default:
           activeTokens = tokens
