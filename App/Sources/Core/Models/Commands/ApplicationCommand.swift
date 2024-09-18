@@ -12,12 +12,14 @@ struct ApplicationCommand: MetaDataProviding {
       case .hidden: "Hide when opening"
       case .onlyIfNotRunning: "Open if not running"
       case .addToStage: "Add to current stage"
+      case .waitForAppToLaunch: "Wait for app to launch"
       }
     }
     case background
     case hidden
     case onlyIfNotRunning
     case addToStage
+    case waitForAppToLaunch
   }
 
   enum Action: String, Codable, Hashable, Equatable, Sendable {

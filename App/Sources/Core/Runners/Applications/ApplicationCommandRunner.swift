@@ -14,6 +14,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     let hide: HideApplicationPlugin
     let unhide: UnhideApplicationPlugin
     let launch: LaunchApplicationPlugin
+    let wait: WaitUntilApplicationIsRunningPlugin
   }
 
   var delegate: ApplicationCommandRunnerDelegate?
@@ -33,7 +34,8 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       close: CloseApplicationPlugin(workspace: workspace),
       hide: HideApplicationPlugin(workspace: workspace, userSpace: .shared),
       unhide: UnhideApplicationPlugin(workspace: workspace, userSpace: .shared),
-      launch: LaunchApplicationPlugin(workspace: workspace)
+      launch: LaunchApplicationPlugin(workspace: workspace),
+      wait: WaitUntilApplicationIsRunningPlugin(workspace: workspace)
     )
   }
 
@@ -68,6 +70,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
 
     if isBackgroundOrElectron {
       try await plugins.launch.execute(command, checkCancellation: checkCancellation)
+      try await plugins.wait.run(for: bundleIdentifier)
       return
     }
 
@@ -98,6 +101,10 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       if await !WindowStore.shared.windows.map(\.ownerName).contains(bundleName) {
         try? await plugins.activate.execute(command, checkCancellation: checkCancellation)
       }
+    }
+
+    if command.modifiers.contains(.waitForAppToLaunch) {
+      try await plugins.wait.run(for: bundleIdentifier)
     }
   }
 }

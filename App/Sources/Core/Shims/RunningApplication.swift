@@ -4,6 +4,7 @@ public protocol RunningApplication {
   var bundleIdentifier: String? { get }
   var bundleURL: URL? { get }
   var isHidden: Bool { get }
+  var isFinishedLaunching: Bool { get }
   var isTerminated: Bool { get }
   var localizedName: String? { get }
   var processIdentifier: pid_t { get }

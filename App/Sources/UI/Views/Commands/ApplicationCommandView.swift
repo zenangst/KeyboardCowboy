@@ -150,6 +150,9 @@ private struct ApplicationCommandInternalView: View {
       ZenCheckbox("Add to Stage", style: .small, isOn: $model.addToStage) { newValue in
         onAction(.changeApplicationModifier(modifier: .addToStage, newValue: newValue))
       }
+      ZenCheckbox("Wait for app to launch", style: .small, isOn: $model.waitForAppToLaunch) { newValue in
+        onAction(.changeApplicationModifier(modifier: .waitForAppToLaunch, newValue: newValue))
+      }
       .frame(maxWidth: .infinity, alignment: .leading)
     }
     .buttonStyle(.regular)
