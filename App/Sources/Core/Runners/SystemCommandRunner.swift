@@ -61,6 +61,8 @@ final class SystemCommandRunner: @unchecked Sendable {
                                             checkCancellation: checkCancellation)
           }
         }
+      case .hideAllApps:
+        SystemHideAllAppsRunner.run()
       case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
            .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:
         try SystemWindowFocus.run(

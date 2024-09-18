@@ -7,6 +7,8 @@ enum SystemIconBuilder {
     case .activateLastApplication:           ActivateLastApplicationIconView(size: size)
     case .applicationWindows:                MissionControlIconView(size: size)
     case .minimizeAllOpenWindows:            MinimizeAllIconView(size: size)
+#warning("Add an icon!")
+    case .hideAllApps:                       MinimizeAllIconView(size: size)
     case .missionControl:                    MissionControlIconView(size: size)
     case .moveFocusToNextWindow:             MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
     case .moveFocusToNextWindowFront:        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
