@@ -63,7 +63,7 @@ final class SystemCommandRunner: @unchecked Sendable {
           }
         }
       case .hideAllApps:
-        SystemHideAllAppsRunner.run(workflowCommands: workflowCommands)
+        await SystemHideAllAppsRunner.run(workflowCommands: workflowCommands)
       case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
            .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:
         try SystemWindowFocus.run(
