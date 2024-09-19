@@ -143,12 +143,12 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
 
   var body: some View {
     HStack(spacing: 8) {
-      content($metaData)
       CommandContainerDelayView(
         metaData: $metaData,
         execution: publisher.data.execution,
         onChange: { onAction(.changeDelay($0)) }
       )
+      content($metaData)
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 8)

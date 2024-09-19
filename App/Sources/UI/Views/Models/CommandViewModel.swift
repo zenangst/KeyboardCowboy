@@ -88,6 +88,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     struct KeyboardModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var placeholder: String { "Invoke Keyboard Shortcut …" }
+      var iterations: Int
       var keys: [KeyShortcut]
     }
 

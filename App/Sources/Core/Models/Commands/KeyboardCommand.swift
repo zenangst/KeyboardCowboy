@@ -4,14 +4,17 @@ import Foundation
 /// will be the `Combination` found in the `Workflow`.
 struct KeyboardCommand: MetaDataProviding {
   let keyboardShortcuts: [KeyShortcut]
+  var iterations: Int
   var meta: Command.MetaData
 
   init(id: String = UUID().uuidString,
        name: String,
        isEnabled: Bool,
        keyboardShortcut: KeyShortcut,
+       iterations: Int = 1,
        notification: Command.Notification? = nil) {
     self.keyboardShortcuts = [keyboardShortcut]
+    self.iterations = iterations
     self.meta = Command.MetaData(id: id, name: name,
                                  isEnabled: true,
                                  notification: notification)
@@ -20,8 +23,10 @@ struct KeyboardCommand: MetaDataProviding {
   init(id: String = UUID().uuidString,
        name: String,
        keyboardShortcuts: [KeyShortcut],
+       iterations: Int = 1,
        notification: Command.Notification? = nil,
        meta: Command.MetaData? = nil) {
+    self.iterations = iterations
     self.keyboardShortcuts = keyboardShortcuts
     self.meta = meta ?? Command.MetaData(id: id, name: name,
                                          isEnabled: true,
@@ -33,6 +38,7 @@ struct KeyboardCommand: MetaDataProviding {
     case name
     case keyboardShortcuts
     case isEnabled = "enabled"
+    case iterations
     case notification
   }
 
@@ -46,13 +52,15 @@ struct KeyboardCommand: MetaDataProviding {
     }
 
     self.keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
+    self.iterations = (try? container.decodeIfPresent(Int.self, forKey: .iterations)) ?? 1
   }
 
   func copy() -> KeyboardCommand {
     KeyboardCommand(
       id: UUID().uuidString,
       name: self.name,
-      keyboardShortcuts: keyboardShortcuts.copy(),
+      keyboardShortcuts: self.keyboardShortcuts.copy(),
+      iterations: self.iterations,
       notification: self.notification,
       meta: self.meta.copy()
     )

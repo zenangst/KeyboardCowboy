@@ -103,11 +103,25 @@ final class DetailCommandActionReducer {
       case .keyboard(let action, _):
         switch action {
         case .updateKeyboardShortcuts(let keyboardShortcuts):
-          command = .keyboard(.init(id: command.id, name: "", keyboardShortcuts: keyboardShortcuts, notification: command.notification))
+          command = .keyboard(.init(id: command.id, name: command.name, keyboardShortcuts: keyboardShortcuts, notification: command.notification))
           workflow.updateOrAddCommand(command)
         case .updateName(let newName):
           command.name = newName
           workflow.updateOrAddCommand(command)
+        case .updateIterations(let newIterations):
+          switch command {
+          case .keyboard(let keyboardCommand):
+            command = .keyboard(
+              .init(id: keyboardCommand.id,
+                    name: keyboardCommand.name,
+                    keyboardShortcuts: keyboardCommand.keyboardShortcuts,
+                    iterations: newIterations,
+                    notification: keyboardCommand.notification
+                   ))
+            workflow.updateOrAddCommand(command)
+          default:
+            break
+          }
         case .commandAction(let action):
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)

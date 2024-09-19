@@ -3,6 +3,7 @@ import Cocoa
 import Foundation
 
 class RunningApplicationMock: RunningApplication {
+  var isFinishedLaunching: Bool = true
   var bundleIdentifier: String?
   var bundleURL: URL?
   var isHidden: Bool

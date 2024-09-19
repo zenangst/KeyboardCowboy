@@ -120,7 +120,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
       // Clean up snippet before running command
       if let key = VirtualSpecialKey.keys[kVK_Delete] {
         for _ in 0..<currentSnippet.count {
-          _ = try? keyboardCommandRunner.run([.init(key: key)], with: nil)
+          _ = try? keyboardCommandRunner.run([.init(key: key)], iterations: 1, with: nil)
         }
         try await Task.sleep(for: .milliseconds(10))
       }
@@ -177,4 +177,4 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
   }
 }
 
-extension CGEvent: @unchecked Sendable {}
+extension CGEvent: @unchecked @retroactive Sendable {}

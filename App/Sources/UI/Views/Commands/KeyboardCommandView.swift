@@ -8,6 +8,7 @@ struct KeyboardCommandView: View {
     case editCommand(CommandViewModel.Kind.KeyboardModel)
     case updateName(newName: String)
     case updateKeyboardShortcuts([KeyShortcut])
+    case updateIterations(Int)
     case commandAction(CommandContainerAction)
   }
 
@@ -86,6 +87,27 @@ struct KeyboardCommandInternalView: View {
           }
         }
         .offset(x: 1)
+
+        Spacer()
+
+        Menu {
+          ForEach(1..<20, id: \.self) { iteration in
+            Button {
+              onAction(.updateIterations(iteration))
+            } label: {
+                Text("\(iteration)")
+                .underline(model.iterations == iteration)
+            }
+          }
+          .font(.caption)
+        } label: {
+          Image(systemName: "repeat")
+          Text("Iterations \(model.iterations)")
+            .font(.caption)
+        }
+        .menuStyle(.zen(.init(calm: false, color: .accentColor, grayscaleEffect: .constant(true), hoverEffect: .constant(true))))
+        .fixedSize()
+
         KeyboardCommandSubContentView { onAction(.editCommand(model)) }
       },
       onAction: { onAction(.commandAction($0)) })
@@ -142,7 +164,6 @@ private struct KeyboardCommandSubContentView: View {
 
   var body: some View {
     HStack {
-      Spacer()
       Button(action: onEdit) { Text("Edit") }
         .font(.caption)
         .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))

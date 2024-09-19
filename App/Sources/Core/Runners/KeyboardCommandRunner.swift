@@ -25,6 +25,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
   @discardableResult
   func run(_ keyboardShortcuts: [KeyShortcut],
            originalEvent: CGEvent? = nil,
+           iterations: Int,
            isRepeating: Bool = false,
            with eventSource: CGEventSource?) throws -> [CGEvent] {
     guard let machPort else {
@@ -33,53 +34,59 @@ final class KeyboardCommandRunner: @unchecked Sendable {
 
     let isRepeat = originalEvent?.getIntegerValueField(.keyboardEventAutorepeat) == 1
 
+    let iterations = max(1, iterations)
+
     var events = [CGEvent]()
-    for keyboardShortcut in keyboardShortcuts {
-      let key = try resolveKey(for: keyboardShortcut.key)
-      var flags = CGEventFlags()
-      keyboardShortcut.modifiers.forEach { flags.insert($0.cgModifierFlags) }
-      do {
-        var flags = flags
-        // In applications like Xcode, we need to set the numeric pad flag for
-        // the application to properly respond to arrow key events as if the
-        // user used the actual arrow keys to navigate.
-        let arrows = 123...126
-        flags.insert(.maskNonCoalesced)
-        if arrows.contains(key) {
-          flags.insert(.maskNumericPad)
-        }
 
-        if keyboardShortcut.key.hasPrefix("F") {
-          flags.insert(.maskSecondaryFn)
-          // NX_DEVICELCMDKEYMASK
-          flags.insert(CGEventFlags(rawValue: 8))
-        }
-
-        let configureEvent: (CGEvent) -> Void = { newEvent in
-          if let originalEvent {
-            let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
-            newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: originalKeyboardEventAutorepeat)
-          } else if isRepeating {
-            newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: 1)
+    for _ in 1...iterations {
+      for keyboardShortcut in keyboardShortcuts {
+        let key = try resolveKey(for: keyboardShortcut.key)
+        var flags = CGEventFlags()
+        keyboardShortcut.modifiers.forEach { flags.insert($0.cgModifierFlags) }
+        do {
+          var flags = flags
+          // In applications like Xcode, we need to set the numeric pad flag for
+          // the application to properly respond to arrow key events as if the
+          // user used the actual arrow keys to navigate.
+          let arrows = 123...126
+          flags.insert(.maskNonCoalesced)
+          if arrows.contains(key) {
+            flags.insert(.maskNumericPad)
           }
-        }
 
-        let shouldPostKeyDown = originalEvent == nil || originalEvent?.type == .keyDown
-        let shouldPostKeyUp = originalEvent == nil   || (!isRepeat && originalEvent?.type == .keyUp)
+          if keyboardShortcut.key.hasPrefix("F") {
+            flags.insert(.maskSecondaryFn)
+            // NX_DEVICELCMDKEYMASK
+            flags.insert(CGEventFlags(rawValue: 8))
+          }
 
-        if shouldPostKeyDown {
-          let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
-          events.append(keyDown)
-        }
+          let configureEvent: (CGEvent) -> Void = { newEvent in
+            if let originalEvent {
+              let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
+              newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: originalKeyboardEventAutorepeat)
+            } else if isRepeating {
+              newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: 1)
+            }
+          }
 
-        if shouldPostKeyUp {
-          let keyUp = try machPort.post(key, type: .keyUp, flags: flags, configure: configureEvent)
-          events.append(keyUp)
+          let shouldPostKeyDown = originalEvent == nil || originalEvent?.type == .keyDown
+          let shouldPostKeyUp = originalEvent == nil   || (!isRepeat && originalEvent?.type == .keyUp)
+
+          if shouldPostKeyDown {
+            let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
+            events.append(keyDown)
+          }
+
+          if shouldPostKeyUp {
+            let keyUp = try machPort.post(key, type: .keyUp, flags: flags, configure: configureEvent)
+            events.append(keyUp)
+          }
+        } catch let error {
+          throw error
         }
-      } catch let error {
-        throw error
       }
     }
+
     return events
   }
 

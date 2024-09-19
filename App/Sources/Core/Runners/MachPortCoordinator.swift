@@ -225,6 +225,7 @@ final class MachPortCoordinator: Sendable {
           guard let self else { return }
           guard let newEvents = try? keyboardCommandRunner.run(command.keyboardShortcuts,
                                                                originalEvent: machPortEvent.event,
+                                                               iterations: command.iterations,
                                                                with: machPortEvent.eventSource) else {
             return
           }
@@ -458,6 +459,7 @@ final class MachPortCoordinator: Sendable {
                     if case .keyboard(let command) = command {
                       _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
                                                         originalEvent: nil,
+                                                        iterations: command.iterations,
                                                         isRepeating: false,
                                                         with: machPortEvent.eventSource)
                     }

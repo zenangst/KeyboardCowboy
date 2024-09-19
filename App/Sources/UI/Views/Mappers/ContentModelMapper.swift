@@ -166,7 +166,9 @@ private extension Array where Element == Command {
       case .keyboard(let keyCommand):
         if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
           images.append(.init(id: keyboardShortcut.id, offset: convertedOffset,
-                              kind: .command(.keyboard(.init(id: keyCommand.id, keys: [keyboardShortcut])))))
+                              kind: .command(.keyboard(.init(id: keyCommand.id,
+                                                             iterations: keyCommand.iterations,
+                                                             keys: [keyboardShortcut])))))
         }
       case .open(let command):
         let path: String
