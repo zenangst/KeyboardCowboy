@@ -21,8 +21,20 @@ struct UserModeIconView: View {
           .init(color: Color(nsColor: .systemBrown.blended(withFraction: 0.1, of: .white)!), location: 1.0),
         ], startPoint: .topLeading, endPoint: .bottom)
         .mask {
+          Image(systemName: "app.dashed")
+            .resizable()
+            .font(Font.system(size: size * 0.6, weight: .thin, design: .rounded))
+        }
+        .padding(size * 0.025)
+      }
+      .overlay {
+        LinearGradient(stops: [
+          .init(color: Color(nsColor: .white), location: 0.2),
+          .init(color: Color(nsColor: .systemBrown.blended(withFraction: 0.1, of: .white)!), location: 1.0),
+        ], startPoint: .topLeading, endPoint: .bottom)
+        .mask {
           Image(systemName: "square.stack.3d.down.forward")
-            .font(Font.system(size: size * 0.6, weight: .heavy, design: .rounded))
+            .font(Font.system(size: size * 0.6, weight: .light, design: .rounded))
         }
         .shadow(color: Color(nsColor: .systemBrown.blended(withFraction: 0.4, of: .black)!), radius: 2, y: 1)
       }

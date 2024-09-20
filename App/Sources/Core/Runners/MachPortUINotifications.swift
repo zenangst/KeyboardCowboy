@@ -66,8 +66,7 @@ final class MachPortUINotifications {
 
       let sortedMatches = Array(matches)
         .sorted(by: { $0.name < $1.name })
-
-      #warning("Should we delay before showing the bundle?")
+#warning("TODO: Should we delay before showing the bundle?")
 
       Task { @MainActor in
         WorkflowNotificationController.shared.cancelReset()
