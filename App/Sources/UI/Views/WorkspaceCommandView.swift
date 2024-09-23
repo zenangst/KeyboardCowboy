@@ -24,10 +24,6 @@ struct WorkspaceCommandView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Text("Applications")
-        .font(.subheadline)
-        .padding(.leading, 8)
-
       Menu {
         ForEach(applicationStore.applications) { application in
           Button(action: {
@@ -98,7 +94,8 @@ struct WorkspaceCommandView: View {
       }
       .padding(4)
     }
-      .enableInjection()
+    .roundedContainer(padding: 4, margin: 0)
+    .enableInjection()
   }
 }
 

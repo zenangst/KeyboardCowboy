@@ -37,6 +37,7 @@ struct NewCommandWorkspaceView: View {
           Text("Add Application")
         }
         .menuStyle(.regular)
+        .padding(4)
 
         List {
           ForEach(Array(zip(selectedApps.indices, selectedApps)), id: \.0) { offset, item in
