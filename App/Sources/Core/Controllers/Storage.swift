@@ -102,7 +102,7 @@ final class Storage: @unchecked Sendable {
   }
 
   func save(_ configurations: [KeyboardCowboyConfiguration]) throws {
-    encoder.outputFormatting = .prettyPrinted
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
     do {
       let data = try encoder.encode(configurations)
       fileManager.createFile(atPath: configuration.url.path, contents: data, attributes: nil)
