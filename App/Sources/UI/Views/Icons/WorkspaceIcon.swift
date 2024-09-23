@@ -28,23 +28,19 @@ struct WorkspaceIcon: View {
       .overlay { iconBorder(size) }
       .overlay {
         let spacing = size * 0.05
-        ScrollView(.horizontal) {
-          HStack(spacing: spacing) {
-            Group {
-              Workspace(kind: .quarters, size: size)
-              Workspace(kind: .leftQuarters, size: size)
-              Workspace(kind: .fill, size: size)
-              Workspace(kind: .rightQuarters, size: size)
-            }
-            .compositingGroup()
-            .shadow(radius: 2, y: 2)
-            .frame(width: size / 1.75, height: size / 1.75)
+        HStack(spacing: spacing) {
+          Group {
+            Workspace(kind: .quarters, size: size)
+            Workspace(kind: .leftQuarters, size: size)
+            Workspace(kind: .fill, size: size)
+            Workspace(kind: .rightQuarters, size: size)
           }
-          .padding(.vertical, size * 0.2)
-          .offset(x: -size * 0.4)
+          .compositingGroup()
+          .shadow(radius: 2, y: 2)
+          .frame(width: size / 1.75, height: size / 1.75)
         }
-        .scrollDisabled(true)
-        .clipped()
+        .padding(.vertical, size * 0.2)
+        .offset(x: size * 0.3125)
       }
       .frame(width: size, height: size)
       .fixedSize()
