@@ -20,18 +20,19 @@ struct NewCommandView: View {
     }
 
     case application = "Application"
-    case menuBar = "MenuBar Command"
-    case uiElement = "UI Element Command"
+    case menuBar = "Menu Bar"
+    case uiElement = "UI Element"
     case url = "URL"
     case open = "Open"
     case keyboardShortcut = "Keyboard Shortcut"
     case shortcut = "Shortcut"
     case script = "Script"
     case text = "Text"
-    case system = "System Command"
+    case system = "System"
     case windowManagement = "Window Management"
     case mouse = "Mouse Command"
-    case builtIn = "Built-In Command"
+    case bundled = "Prebuilt"
+    case builtIn = "Built-In"
   }
 
   private let workflowId: Workflow.ID
@@ -251,22 +252,14 @@ struct NewCommandView: View {
                                scriptExtension: .shellScript,
                                validation: $validation) { onSave($0, $title.wrappedValue) }
         }
-      case .text:
-        NewCommandTextView(payload: $payload, validation: $validation, onSubmit: {
-          onSubmit()
-        })
-      case .system:
-        NewCommandSystemCommandView($payload, validation: $validation)
-      case .menuBar:
-        NewCommandMenuBarView($payload, validation: $validation)
-      case .mouse:
-        NewCommandMouseView(payload: $payload, validation: $validation)
-      case .windowManagement:
-        NewCommandWindowManagementView($payload, validation: $validation)
-      case .builtIn:
-        NewCommandBuiltInView($payload, validation: $validation)
-      case .uiElement:
-        NewCommandUIElementView($payload, validation: $validation)
+      case .text:             NewCommandTextView(payload: $payload, validation: $validation, onSubmit: onSubmit)
+      case .system:           NewCommandSystemCommandView($payload, validation: $validation)
+      case .menuBar:          NewCommandMenuBarView($payload, validation: $validation)
+      case .mouse:            NewCommandMouseView(payload: $payload, validation: $validation)
+      case .windowManagement: NewCommandWindowManagementView($payload, validation: $validation)
+      case .builtIn:          NewCommandBuiltInView($payload, validation: $validation)
+      case .uiElement:        NewCommandUIElementView($payload, validation: $validation)
+      case .bundled:          NewCommandBundledView($payload, validation: $validation)
       }
     }
   }
@@ -288,7 +281,7 @@ struct NewCommandView_Previews: PreviewProvider {
       workflowId: UUID().uuidString,
       commandId: nil,
       title: "New command",
-      selection: .text,
+      selection: .bundled,
       payload: .text(.init(.insertText(.init("Hello, world!", mode: .instant)))),
       onDismiss: {},
       onSave: { _, _ in })

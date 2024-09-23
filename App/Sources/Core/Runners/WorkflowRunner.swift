@@ -103,6 +103,7 @@ private extension Workflow {
       switch command {
         case .application:                           return true
         case .builtIn:                               return false
+        case .bundled:                               return false
         case .keyboard:                              return true
         case .mouse:                                 return true
         case .menuBar:                               return true

@@ -75,6 +75,28 @@ private extension Command {
 
     case .builtIn(let builtInCommand):
       kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))
+    case .bundled(let bundledCommand):
+      switch bundledCommand.kind {
+      case .workspace(let workspaceCommand):
+        var applications = [Application]()
+        for bundleIdentifier in workspaceCommand.bundleIdentifiers {
+          guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
+            continue
+          }
+          applications.append(match)
+        }
+
+        let model = CommandViewModel.Kind.WorkspaceModel.init(
+          applications: applications,
+          hideOtherApps: workspaceCommand.hideOtherApps)
+        kind = .bundled(
+          .init(
+            id: bundledCommand.id,
+            name: bundledCommand.name,
+            kind: .workspace(model)
+          )
+        )
+      }
     case .keyboard(let keyboardCommand):
       kind =  .keyboard(.init(id: keyboardCommand.id, iterations: keyboardCommand.iterations, keys: keyboardCommand.keyboardShortcuts))
     case .menuBar(let menubarCommand):

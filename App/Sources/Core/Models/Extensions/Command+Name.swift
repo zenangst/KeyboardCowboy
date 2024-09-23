@@ -8,6 +8,8 @@ extension Command {
         return command.name.isEmpty ? "\(command.action.displayValue) \(command.application.displayName)" : command.name
       case .builtIn(let command):
         return command.name
+      case .bundled(let command):
+        return command.name
       case .keyboard(let command):
         var keyboardShortcutString: String = ""
         command.keyboardShortcuts.forEach { keyboardShortcut in
@@ -49,6 +51,9 @@ extension Command {
       case .builtIn(var command):
         command.name = newValue
         self = .builtIn(command)
+      case .bundled(var command):
+        command.name = newValue
+        self = .bundled(command)
       case .keyboard(var command):
         command.name = newValue
         self = .keyboard(command)

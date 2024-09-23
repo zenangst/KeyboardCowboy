@@ -39,6 +39,8 @@ struct NewCommandImageView: View {
         WindowManagementIconView(size: 24)
       case .builtIn:
         image(for: Bundle.main.bundlePath)
+      case .bundled:
+        WorkspaceIcon(size: 24)
       }
     }
     .frame(width: 24, height: 24)

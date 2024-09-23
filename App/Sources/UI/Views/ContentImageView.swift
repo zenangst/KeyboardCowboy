@@ -17,6 +17,11 @@ struct ContentImageView: View {
         EmptyView()
       case .builtIn(let model):
         BuiltinIconBuilder.icon(model.kind, size: size - 6)
+      case .bundled(let model):
+        switch model.kind {
+        case .workspace:
+          WorkspaceIcon(size: size - 6)
+        }
       case .keyboard(let model):
         KeyboardIconView(model.keys.first?.key.uppercased() ?? "", size: size - 6)
           .opacity(model.keys.first != nil ? 1 : 0)

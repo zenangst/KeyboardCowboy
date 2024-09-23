@@ -165,6 +165,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       switch self {
       case .application(let applicationCommand): applicationCommand.meta
       case .builtIn(let builtInCommand): builtInCommand.meta
+      case .bundled(let bundledCommand): bundledCommand.meta
       case .keyboard(let keyboardCommand): keyboardCommand.meta
       case .menuBar(let menuBarCommand): menuBarCommand.meta
       case .mouse(let mouseCommand): mouseCommand.meta
@@ -185,6 +186,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case .builtIn(var builtInCommand):
         builtInCommand.meta = newValue
         self = .builtIn(builtInCommand)
+      case .bundled(var bundledCommand):
+        bundledCommand.meta = newValue
+        self = .bundled(bundledCommand)
       case .keyboard(var keyboardCommand):
         keyboardCommand.meta = newValue
         self = .keyboard(keyboardCommand)
@@ -221,6 +225,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
 
   case application(ApplicationCommand)
   case builtIn(BuiltInCommand)
+  case bundled(BundledCommand)
   case keyboard(KeyboardCommand)
   case mouse(MouseCommand)
   case menuBar(MenuBarCommand)
@@ -239,6 +244,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   enum CodingKeys: String, CodingKey, CaseIterable {
     case application = "applicationCommand"
     case builtIn = "builtInCommand"
+    case bundled = "bundledCommand"
     case keyboard = "keyboardCommand"
     case menuBar = "menuBarCommand"
     case mouse = "mouseCommand"
@@ -277,6 +283,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .application:
       let command = try container.decode(ApplicationCommand.self, forKey: .application)
       self = .application(command)
+    case .bundled:
+      let command = try container.decode(BundledCommand.self, forKey: .bundled)
+      self = .bundled(command)
     case .builtIn:
       let command = try container.decode(BuiltInCommand.self, forKey: .builtIn)
       self = .builtIn(command)
@@ -325,6 +334,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     switch self {
     case .application(let command): try container.encode(command, forKey: .application)
     case .builtIn(let command): try container.encode(command, forKey: .builtIn)
+    case .bundled(let command): try container.encode(command, forKey: .bundled)
     case .keyboard(let command): try container.encode(command, forKey: .keyboard)
     case .menuBar(let command): try container.encode(command, forKey: .menuBar)
     case .mouse(let command): try container.encode(command, forKey: .mouse)
@@ -342,6 +352,7 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     let clone: Self = switch self {
     case .application(let applicationCommand): .application(applicationCommand.copy())
     case .builtIn(let builtInCommand): .builtIn(builtInCommand.copy())
+    case .bundled(let bundledCommand): .bundled(bundledCommand.copy())
     case .keyboard(let keyboardCommand): .keyboard(keyboardCommand.copy())
     case .mouse(let mouseCommand): .mouse(mouseCommand.copy())
     case .menuBar(let menuBarCommand): .menuBar(menuBarCommand.copy())
@@ -364,6 +375,7 @@ extension Command {
     return switch kind {
     case .application: Command.application(ApplicationCommand.empty())
     case .builtIn: Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: nil))
+    case .bundled: Command.bundled(.init(.workspace(WorkspaceCommand(bundleIdentifiers: [], tiling: nil)), meta: Command.MetaData()))
     case .keyboard: Command.keyboard(KeyboardCommand.empty())
     case .menuBar: Command.menuBar(MenuBarCommand(application: nil, tokens: []))
     case .mouse: Command.mouse(MouseCommand.empty())

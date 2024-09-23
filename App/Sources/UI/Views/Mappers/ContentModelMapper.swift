@@ -161,6 +161,23 @@ private extension Array where Element == Command {
                               kind: .command(.builtIn(.init(id: command.id, name: command.name,
                                                             kind: .repeatLastWorkflow)))))
         }
+      case .bundled(let command):
+        switch command.kind {
+        case .workspace(let command):
+          images.append(
+            .init(
+              id: command.id,
+              offset: convertedOffset,
+              kind: .command(
+                .bundled(
+                  .init(
+                    id: command.id, name: "", kind: .workspace(.init(applications: [], hideOtherApps: false))
+                  )
+                )
+              )
+            )
+          )
+        }
       case .mouse(let command):
         images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.mouse(.init(id: command.id, kind: command.kind)))))
       case .keyboard(let keyCommand):

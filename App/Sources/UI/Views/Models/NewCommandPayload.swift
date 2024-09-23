@@ -3,6 +3,7 @@ import Foundation
 
 enum NewCommandPayload: Equatable {
   case placeholder
+  case bundled(command: BundledCommand)
   case builtIn(builtIn: BuiltInCommand)
   case script(value: String, kind: NewCommandScriptView.Kind, scriptExtension: NewCommandScriptView.ScriptExtension)
   case application(application: Application?, action: NewCommandApplicationView.ApplicationAction,
@@ -64,18 +65,13 @@ enum NewCommandPayload: Equatable {
         keyboardShortcutString.append(keyboardShortcut.stringValue)
       }
       return keyboardShortcutString
-    case .text:
-      return "Text editing"
-    case .systemCommand:
-      return "System Command"
-    case .menuBar:
-      return "MenuBar Command"
-    case .windowManagement:
-      return "Window Management Command"
-    case .mouse:
-      return "Mouse Command"
-    case .uiElement:
-      return "UI Element Command"
+    case .text:             return "Text editing"
+    case .systemCommand:    return "System Command"
+    case .menuBar:          return "MenuBar Command"
+    case .windowManagement: return "Window Management Command"
+    case .mouse:            return "Mouse Command"
+    case .uiElement:        return "UI Element Command"
+    case .bundled:          return "Bundled Command"
     }
   }
 }

@@ -214,7 +214,7 @@ extension Workflow {
     for command in commands {
       switch command {
       case .application, .builtIn, .mouse, 
-           .keyboard, .menuBar, .shortcut,
+           .keyboard, .menuBar, .shortcut, .bundled,
            .systemCommand, .uiElement, .windowManagement:
         result = false
       case .open(let openCommand):

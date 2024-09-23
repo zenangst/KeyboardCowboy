@@ -46,6 +46,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
 
     case application(ApplicationModel)
     case builtIn(BuiltInModel)
+    case bundled(BundledModel)
     case open(OpenModel)
     case keyboard(KeyboardModel)
     case script(ScriptModel)
@@ -72,8 +73,24 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     struct BuiltInModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var name: String
-      var placheolder: String { "Run Built-In Action …" }
+      var placeholder: String { "Run Built-In Action …" }
       var kind: BuiltInCommand.Kind
+    }
+
+    struct BundledModel: Codable, Hashable, Identifiable, Sendable {
+      enum Kind: Codable, Hashable, Sendable {
+        case workspace(WorkspaceModel)
+      }
+      let id: String
+      var name: String
+      var placeholder: String { "Open Bundled View …" }
+      let kind: Kind
+    }
+
+    struct WorkspaceModel: Codable, Hashable, Sendable {
+      var applications: [Application]
+      var tiling: WorkspaceCommand.Tiling?
+      var hideOtherApps: Bool
     }
 
     struct OpenModel: Codable, Hashable, Identifiable, Sendable {

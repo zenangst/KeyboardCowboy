@@ -38,6 +38,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     }
   }
 
+  private let applicationStore: ApplicationStore
   private let missionControl: MissionControlPlugin
   private let workspace: WorkspaceProviding
   private let commandPanel: CommandPanelCoordinator
@@ -63,6 +64,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
        systemCommandRunner: SystemCommandRunner,
        uiElementCommandRunner: UIElementCommandRunner
   ) {
+    self.applicationStore = applicationStore
     self.missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
     self.commandPanel = CommandPanelCoordinator()
     self.runners = .init(
@@ -114,7 +116,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         }
       case .builtIn, .keyboard, .text,
           .systemCommand, .menuBar, .windowManagement, 
-          .mouse, .uiElement:
+          .mouse, .uiElement, .bundled:
         break
       }
     }
@@ -263,6 +265,24 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         shortcut: shortcut,
         machPortEvent: machPortEvent
       )
+    case .bundled(let bundledCommand):
+      switch bundledCommand.kind {
+      case .workspace(let workspaceCommand):
+        let application = applicationStore.applications
+        let commands = workspaceCommand.commands(application)
+        for command in commands {
+          try await run(command,
+            workflowCommands: commands,
+            snapshot: snapshot,
+            shortcut: shortcut,
+            machPortEvent: machPortEvent,
+            checkCancellation: checkCancellation,
+            repeatingEvent: repeatingEvent,
+            runtimeDictionary: &runtimeDictionary
+          )
+        }
+        output = command.name
+      }
     case .keyboard(let keyboardCommand):
       try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
                                originalEvent: nil,

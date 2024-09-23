@@ -120,6 +120,8 @@ final class DetailCoordinator {
       return
     case .builtIn(let newCommand):
       command = .builtIn(newCommand)
+    case .bundled(let newCommand):
+      command = .bundled(newCommand)
     case .menuBar(let tokens, let application):
       command = .menuBar(.init(id: resolvedCommandId, application: application, tokens: tokens))
     case .mouse(let kind):
@@ -299,6 +301,7 @@ extension CommandView.Kind {
     switch self {
     case .application(_, let payload),
         .builtIn(_, let payload),
+        .bundled(_, let payload),
         .keyboard(_, let payload),
         .mouse(_, let payload),
         .open(_, let payload),
@@ -316,6 +319,7 @@ extension CommandView.Kind {
     switch self {
     case .application(_, let payload),
         .builtIn(_, let payload),
+        .bundled(_, let payload),
         .keyboard(_, let payload),
         .mouse(_, let payload),
         .open(_, let payload),

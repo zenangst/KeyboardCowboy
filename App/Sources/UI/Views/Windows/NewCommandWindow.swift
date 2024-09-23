@@ -119,7 +119,7 @@ struct NewCommandWindow: Scene {
                           inBackground: inBackground,
                           hideWhenRunning: hideWhenRunning,
                           ifNotRunning: ifNotRunning)
-    case .builtIn:
+    case .builtIn, .bundled: 
       return .placeholder
     case .menuBar(let command):
       return .menuBar(tokens: command.tokens, application: command.application)
@@ -173,7 +173,8 @@ struct NewCommandWindow: Scene {
   private func selection(for command: Command) -> NewCommandView.Kind {
     switch command {
     case .application: .application
-    case .builtIn: .application // TODO: Fix this!
+    case .builtIn: .builtIn
+    case .bundled: .bundled
     case .keyboard: .keyboardShortcut
     case .menuBar: .menuBar
     case .mouse: .mouse

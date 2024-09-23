@@ -15,6 +15,7 @@ struct CommandView: View {
   enum Kind {
     case application(action: ApplicationCommandView.Action, payload: CommandViewPayload)
     case builtIn(action: BuiltInCommandView.Action, payload: CommandViewPayload)
+    case bundled(action: BundledCommandView.Action, payload: CommandViewPayload)
     case keyboard(action: KeyboardCommandView.Action, payload: CommandViewPayload)
     case mouse(action: MouseCommandView.Action, payload: CommandViewPayload)
     case open(action: OpenCommandView.Action, payload: CommandViewPayload)
@@ -100,6 +101,15 @@ struct CommandResolverView: View {
         switch action {
         case .update(let newCommand):
           onAction(.modify(.builtIn(action: .update(newCommand), payload: payload)))
+        case .commandAction(let action):
+          handleCommandContainerAction(action)
+        }
+      }
+    case .bundled(let model):
+      BundledCommandView(command.meta, model: model, iconSize: iconSize) { action in
+        switch action {
+        case .editCommand(let kind):
+          onAction(.modify(.bundled(action: .editCommand(kind), payload: payload)))
         case .commandAction(let action):
           handleCommandContainerAction(action)
         }

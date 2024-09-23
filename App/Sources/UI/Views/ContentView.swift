@@ -15,6 +15,7 @@ struct ContentView: View {
     enum Kind: String, CaseIterable {
       case application = "app"
       case builtIn = "builtIn"
+      case bundled = "bundled"
       case open = "open"
       case keyboard = "keyboard"
       case script = "script"
@@ -397,6 +398,7 @@ fileprivate extension CommandViewModel.Kind {
     switch self {
     case .application: .application
     case .builtIn: .builtIn
+    case .bundled: .bundled
     case .open: .open
     case .keyboard: .keyboard
     case .script: .script

@@ -100,6 +100,24 @@ final class DetailCommandActionReducer {
           DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
           workflow.updateOrAddCommand(command)
         }
+      case .bundled(let action, _):
+        switch action {
+        case .editCommand(let kind):
+          switch kind {
+          case .workspace(let workspace):
+            let newWorkspaceCommand = WorkspaceCommand(
+              id: command.id,
+              bundleIdentifiers: workspace.applications.map(\.bundleIdentifier),
+              hideOtherApps: workspace.hideOtherApps,
+              tiling: workspace.tiling
+            )
+            command = .bundled(.init(.workspace(newWorkspaceCommand), meta: command.meta))
+            workflow.updateOrAddCommand(command)
+          }
+        case .commandAction(let action):
+          DetailCommandContainerActionReducer.reduce(action, command: &command, workflow: &workflow)
+          workflow.updateOrAddCommand(command)
+        }
       case .keyboard(let action, _):
         switch action {
         case .updateKeyboardShortcuts(let keyboardShortcuts):
