@@ -52,7 +52,7 @@ let mainAppTarget = Target.target(
         "CURRENT_PROJECT_VERSION": "905",
         "DEVELOPMENT_TEAM": env["TEAM_ID"],
         "ENABLE_HARDENED_RUNTIME": true,
-        "MARKETING_VERSION": "3.24.2",
+        "MARKETING_VERSION": "3.25.0",
         "PRODUCT_NAME": "Keyboard Cowboy"
       ],
       configurations: [
