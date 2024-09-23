@@ -280,6 +280,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             repeatingEvent: repeatingEvent,
             runtimeDictionary: &runtimeDictionary
           )
+
+          if let delay = command.delay, delay > 0 {
+            try await Task.sleep(for: .milliseconds(delay))
+          }
         }
         output = command.name
       }

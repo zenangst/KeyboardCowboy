@@ -19,6 +19,7 @@ final class WaitUntilApplicationIsRunningPlugin {
       }
 
       if application.isFinishedLaunching {
+        try await Task.sleep(for: .milliseconds(25))
         waiting = false
         ifDebug("done \(bundleIdentifier)")
         break

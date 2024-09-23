@@ -36,6 +36,7 @@ struct NewCommandWorkspaceView: View {
         } label: {
           Text("Add Application")
         }
+        .menuStyle(.regular)
 
         List {
           ForEach(Array(zip(selectedApps.indices, selectedApps)), id: \.0) { offset, item in
@@ -101,7 +102,8 @@ struct NewCommandWorkspaceView: View {
           }
         }
 
-      }    }
+      }
+    }
     .padding(8)
     .onAppear {
       onHideOtherAppsChange(hideOtherApps)
@@ -134,6 +136,7 @@ fileprivate extension WorkspaceCommand.Tiling {
     case .arrangeBottomQuarters: "Bottom & Quarters"
     case .arrangeQuarters: "Quarters"
     case .fill: "Fill"
+    case .center: "Center"
     }
   }
 }

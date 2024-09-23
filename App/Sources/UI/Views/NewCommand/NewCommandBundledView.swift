@@ -3,7 +3,7 @@ import SwiftUI
 
 struct NewCommandBundledView: View {
   private static var kinds: [BundledCommand.Kind] {
-    [.workspace(WorkspaceCommand(bundleIdentifiers: [], tiling: nil))]
+    [.workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil))]
   }
   private let kinds: [BundledCommand.Kind]
 

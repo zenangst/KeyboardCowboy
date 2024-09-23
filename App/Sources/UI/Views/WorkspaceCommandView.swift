@@ -4,6 +4,7 @@ import Inject
 import SwiftUI
 
 struct WorkspaceCommandView: View {
+  @EnvironmentObject private var applicationStore: ApplicationStore
   @ObserveInjection var inject
   @State private var model: CommandViewModel.Kind.WorkspaceModel
 
@@ -26,6 +27,20 @@ struct WorkspaceCommandView: View {
       Text("Applications")
         .font(.subheadline)
         .padding(.leading, 8)
+
+      Menu {
+        ForEach(applicationStore.applications) { application in
+          Button(action: {
+            model.applications.append(application)
+            onSelectedAppsChange(model.applications)
+          },
+                 label: { Text(application.displayName) })
+        }
+      } label: {
+        Text("Add Application")
+      }
+      .menuStyle(.regular)
+
       List {
         ForEach(Array(zip(model.applications.indices, model.applications)), id: \.0) { offset, application in
           HStack {
@@ -52,7 +67,7 @@ struct WorkspaceCommandView: View {
           onSelectedAppsChange(model.applications)
         }
       }
-      .frame(minHeight: 120, maxHeight: 180)
+      .frame(minHeight: 116, maxHeight: 116)
       .clipShape(RoundedRectangle(cornerRadius: 8))
 
       VStack(alignment: .leading, spacing: 8) {
@@ -70,9 +85,9 @@ struct WorkspaceCommandView: View {
           }
         } label: {
           Text(model.tiling?.name ?? "Select Tiling")
-            .font(.caption)
         }
         .menuStyle(.regular)
+
         Text("Hide Other Applications")
           .font(.subheadline)
           .frame(maxWidth: .infinity, alignment: .leading)
@@ -100,6 +115,7 @@ fileprivate extension WorkspaceCommand.Tiling {
     case .arrangeBottomQuarters: "Bottom & Quarters"
     case .arrangeQuarters: "Quarters"
     case .fill: "Fill"
+    case .center: "Center"
     }
   }
 }

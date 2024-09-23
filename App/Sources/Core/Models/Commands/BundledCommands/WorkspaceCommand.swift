@@ -1,4 +1,5 @@
 import Apps
+import Cocoa
 import Foundation
 
 struct WorkspaceCommand: Identifiable, Codable, Hashable {
@@ -13,6 +14,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     case arrangeBottomQuarters
     case arrangeQuarters
     case fill
+    case center
 
     var id: String { self.rawValue }
   }
@@ -24,7 +26,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
   init(id: String = UUID().uuidString,
        bundleIdentifiers: [String],
-       hideOtherApps: Bool = false,
+       hideOtherApps: Bool,
        tiling: Tiling?) {
     self.id = id
     self.bundleIdentifiers = bundleIdentifiers
@@ -36,21 +38,32 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     var commands = [Command]()
 
     let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(name: "Hide All Apps")))
+    let bundleIdentifiersCount = bundleIdentifiers.count
 
-    if hideOtherApps {
-      commands.append(hideAllAppsCommand)
-    }
-
-    bundleIdentifiers.forEach { bundleIdentifier in
+    bundleIdentifiers.enumerated().forEach { offset, bundleIdentifier in
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         return
+      }
+
+      let appIsRunning = NSWorkspace.shared.runningApplications.first(where: { app in
+        guard let bundleIdentifier = app.bundleIdentifier else { return false }
+        return bundleIdentifiers.contains(bundleIdentifier) == true
+      }) != nil
+
+      let delay: TimeInterval?
+      if bundleIdentifiersCount - 1 == offset {
+        delay = 50
+      } else if !appIsRunning {
+        delay = 150
+      } else {
+        delay = nil
       }
 
       commands.append(
         .application(ApplicationCommand(
           action: .open,
           application: application,
-          meta: Command.MetaData(name: "Open \(application.displayName)"),
+          meta: Command.MetaData(delay: delay, name: "Open \(application.displayName)"),
           modifiers: [.waitForAppToLaunch]
         )))
     }
@@ -66,15 +79,25 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     case .arrangeBottomQuarters: .windowTilingArrangeBottomQuarters
     case .arrangeQuarters:       .windowTilingArrangeQuarters
     case .fill:                  .windowTilingFill
+    case .center:                .windowTilingCenter
     case nil:                    nil
-    }
-
-    if let kind {
-      commands.append(.systemCommand(SystemCommand(kind: kind, meta: Command.MetaData(name: "Tiling Command"))))
     }
 
     if hideOtherApps {
       commands.append(hideAllAppsCommand)
+    }
+
+    if let kind {
+      if case .windowTilingFill = kind {
+        commands.append(.menuBar(MenuBarCommand(application: nil, tokens: [.menuItem(name: "Window"), .menuItem(name: "Fill")],
+                                                meta: Command.MetaData(name: "MenuBarCommand"))))
+      } else if case .windowTilingCenter = kind {
+        commands.append(.menuBar(MenuBarCommand(application: nil, tokens: [.menuItem(name: "Window"), .menuItem(name: "Center")],
+                                                meta: Command.MetaData(name: "MenuBarCommand"))))
+
+      } else {
+        commands.append(.systemCommand(SystemCommand(kind: kind, meta: Command.MetaData(name: "Tiling Command"))))
+      }
     }
 
     return commands

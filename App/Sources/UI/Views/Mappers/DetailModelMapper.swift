@@ -88,6 +88,7 @@ private extension Command {
 
         let model = CommandViewModel.Kind.WorkspaceModel.init(
           applications: applications,
+          tiling: workspaceCommand.tiling,
           hideOtherApps: workspaceCommand.hideOtherApps)
         kind = .bundled(
           .init(
