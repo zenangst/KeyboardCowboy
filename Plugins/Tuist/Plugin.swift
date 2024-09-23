@@ -1,3 +1,3 @@
-import ProjectDescription
+@preconcurrency import ProjectDescription
 
-let plugin = Plugin(name: "Env")
+@MainActor let plugin = Plugin(name: "Env")

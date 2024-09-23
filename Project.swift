@@ -3,7 +3,6 @@ import Foundation
 import Env
 
 // MARK: - Project
-
 let bundleId = "com.zenangst.Keyboard-Cowboy"
 
 func xcconfig(_ targetName: String) -> String { "Configurations/\(targetName).xcconfig" }
@@ -17,6 +16,9 @@ let rootPath = URL(fileURLWithPath: String(#filePath))
 let assetPath = rootPath.appending("Assets")
 let envPath = rootPath.appending(".env")
 let env = EnvHelper(envPath)
+let shell = Shell(path: rootPath)
+let buildNumber = (try? shell.run("git rev-list --count HEAD")) ?? "x.x.x"
+
 // Main application target
 let mainAppTarget = Target.target(
   name: "Keyboard-Cowboy",
@@ -49,7 +51,7 @@ let mainAppTarget = Target.target(
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
         "CODE_SIGN_IDENTITY": "Apple Development",
         "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "905",
+        "CURRENT_PROJECT_VERSION": SettingValue(stringLiteral: buildNumber),
         "DEVELOPMENT_TEAM": env["TEAM_ID"],
         "ENABLE_HARDENED_RUNTIME": true,
         "MARKETING_VERSION": "3.25.0",

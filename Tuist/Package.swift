@@ -1,7 +1,7 @@
-// swift-tools-version: 5.9
-import PackageDescription
+// swift-tools-version: 6.0
+@preconcurrency import PackageDescription
 
-let package = Package(
+@MainActor let package = Package(
   name: "PackageName",
   dependencies: []
 )
