@@ -178,6 +178,7 @@ struct ContentView: View {
 
         if publisher.data.isEmpty {
           ContentListEmptyView(namespace, onAction: onAction)
+            .frame(maxHeight: .infinity)
         } else {
           ZenList {
             let items = publisher.data.filter({ search($0) })
