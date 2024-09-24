@@ -41,6 +41,7 @@ struct BundledCommandView: View {
                                                  tiling: model.tiling,
                                                  hideOtherApps: hideOtherApps))))
         }
+        .id(metaData.id)
       }
     } onAction: { action in
       onAction(.commandAction(action))

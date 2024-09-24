@@ -63,7 +63,7 @@ struct WorkspaceCommandView: View {
           onSelectedAppsChange(model.applications)
         }
       }
-      .frame(minHeight: 116, maxHeight: 116)
+      .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 40, 148)))
       .clipShape(RoundedRectangle(cornerRadius: 8))
 
       VStack(alignment: .leading, spacing: 8) {
