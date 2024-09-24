@@ -54,11 +54,13 @@ struct MainWindowView: View {
       }
 
       undoManager?.registerUndo(withTarget: core.configurationStore, handler: { store in
-        store.update(oldConfiguration)
-        core.contentStore.use(oldConfiguration)
-        core.sidebarCoordinator.handle(.refresh)
-        core.contentCoordinator.handle(.refresh(core.groupSelectionManager.selections))
-        core.detailCoordinator.handle(.selectWorkflow(workflowIds: core.contentSelectionManager.selections))
+        Task { @MainActor in
+          store.update(oldConfiguration)
+          core.contentStore.use(oldConfiguration)
+          core.sidebarCoordinator.handle(.refresh)
+          core.contentCoordinator.handle(.refresh(core.groupSelectionManager.selections))
+          core.detailCoordinator.handle(.selectWorkflow(workflowIds: core.contentSelectionManager.selections))
+        }
       })
     }
     .onAppear {

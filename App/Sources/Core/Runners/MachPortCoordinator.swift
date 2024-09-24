@@ -7,7 +7,7 @@ import InputSources
 import KeyCodes
 import os
 
-final class MachPortCoordinator: Sendable {
+final class MachPortCoordinator: @unchecked Sendable {
   enum RestrictedKeyCode: Int, CaseIterable {
     case backspace = 117
     case delete = 51

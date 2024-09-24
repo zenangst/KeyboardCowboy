@@ -1,4 +1,4 @@
-import Cocoa
+import AppKit
 
 public protocol RunningApplication {
   var bundleIdentifier: String? { get }
@@ -18,7 +18,7 @@ public protocol RunningApplication {
   func unhide() -> Bool
 }
 
-extension NSRunningApplication: @unchecked Sendable, RunningApplication {
+extension NSRunningApplication: @unchecked @retroactive Sendable, RunningApplication {
   public static var currentApp: RunningApplication {
     return NSRunningApplication.current
   }

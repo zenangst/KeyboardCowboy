@@ -1,4 +1,4 @@
-import Cocoa
+@preconcurrency import Cocoa
 
 protocol ApplicationCommandRunnerDelegate: AnyObject {
   @MainActor

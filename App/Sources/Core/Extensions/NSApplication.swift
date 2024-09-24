@@ -1,3 +1,3 @@
 import Cocoa
 
-extension NSApplication: @unchecked Sendable { }
+extension NSApplication: @unchecked @retroactive Sendable { }

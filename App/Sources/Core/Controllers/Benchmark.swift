@@ -6,7 +6,7 @@ final class Benchmark {
 
   private var storage = [String: Double]()
 
-  static let shared: Benchmark = .init()
+  nonisolated(unsafe) static let shared: Benchmark = .init()
 
   private init() {}
 
