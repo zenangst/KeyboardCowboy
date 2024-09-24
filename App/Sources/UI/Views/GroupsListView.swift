@@ -1,3 +1,4 @@
+import Bonzai
 import Carbon
 import SwiftUI
 
@@ -58,94 +59,78 @@ struct GroupsListView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
-      ScrollView {
-        if publisher.data.isEmpty {
-          GroupsEmptyListView(namespace, isVisible: .readonly(publisher.data.isEmpty), onAction: onAction)
-        } else {
-          LazyVStack(spacing: 0) {
-            ForEach(publisher.data.lazy, id: \.id) { group in
-              GroupItemView(group, selectionManager: selectionManager,
-                            onAction: onAction)
-              .contentShape(Rectangle())
-              .dropDestination(SidebarListDropItem.self, color: .accentColor, onDrop: { items, location in
-                for item in items {
-                  switch item {
-                  case .group:
-                    let ids = Array(selectionManager.selections)
-                    guard let (from, destination) = publisher.data.moveOffsets(for: group, with: ids) else {
-                      return false
-                    }
-
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-                      publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
-                    }
-
-                    onAction(.moveGroups(source: from, destination: destination))
-                  case .workflow:
-                    onAction(.moveWorkflows(workflowIds: contentSelectionManager.selections, groupId: group.id))
-                  }
-                }
-                return true
-              })
-              .overlay(content: { confirmDeleteView(group) })
-              .modifier(LegacyOnTapFix(onTap: {
-                focus = .element(group.id)
+      if publisher.data.isEmpty {
+        GroupsEmptyListView(namespace, isVisible: .readonly(publisher.data.isEmpty), onAction: onAction)
+      } else {
+        ZenList {
+          ForEach(publisher.data.lazy, id: \.id) { group in
+            GroupItemView(group, selectionManager: selectionManager,
+                          onAction: onAction)
+            .overlay(content: { confirmDeleteView(group) })
+            .modifier(LegacyOnTapFix(onTap: {
+              focus = .element(group.id)
+              onTap(group)
+            }))
+            .contextMenu(menuItems: {
+              contextualMenu(for: group, onAction: onAction)
+            })
+            .focusable($focus, as: .element(group.id)) {
+              if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
+                 let lastSelection = selectionManager.lastSelection,
+                 let match = publisher.data.first(where: { $0.id == lastSelection }) {
+                focus = .element(match.id)
+              } else {
                 onTap(group)
-              }))
-              .contextMenu(menuItems: {
-                contextualMenu(for: group, onAction: onAction)
-              })
-              .focusable($focus, as: .element(group.id)) {
-                if let keyCode = LocalEventMonitor.shared.event?.keyCode, keyCode == kVK_Tab,
-                   let lastSelection = selectionManager.lastSelection,
-                   let match = publisher.data.first(where: { $0.id == lastSelection }) {
-                  focus = .element(match.id)
-                } else {
-                  onTap(group)
-                  proxy.scrollTo(group.id)
+                proxy.scrollTo(group.id)
+              }
+            }
+            .gesture(
+              TapGesture(count: 1)
+                .onEnded { _ in
+                  focus = .element(group.id)
                 }
-              }
-              .gesture(
-                TapGesture(count: 1)
+                .simultaneously(with: TapGesture(count: 2)
                   .onEnded { _ in
-                    focus = .element(group.id)
-                  }
-                  .simultaneously(with: TapGesture(count: 2)
-                    .onEnded { _ in
-                      onAction(.openScene(.editGroup(group.id)))
-                    })
-              )
-            }
-            .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
-              appFocus.wrappedValue = .workflows
-            })
-            .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {})
-            .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
-              selectionManager.publish(Set(publisher.data.map(\.id)))
-            })
-            .onMoveCommand(perform: { direction in
-              if let elementID = selectionManager.handle(
-                direction,
-                publisher.data,
-                proxy: proxy,
-                vertical: true) {
-                focus = .element(elementID)
-              }
-            })
-            .onDeleteCommand {
-              confirmDelete = .multiple(ids: Array(selectionManager.selections))
-            }
+                    onAction(.openScene(.editGroup(group.id)))
+                  })
+            )
           }
-          .onAppear {
-            guard let initialSelection = selectionManager.initialSelection else { return }
-            focus = .element(initialSelection)
-            proxy.scrollTo(initialSelection)
+          .dropDestination(for: GroupViewModel.self, action: { collection, destination in
+            var indexSet = IndexSet()
+            for item in collection {
+              guard let index = publisher.data.firstIndex(of: item) else { continue }
+              indexSet.insert(index)
+            }
+            onAction(.moveGroups(source: indexSet, destination: destination))
+          })
+          .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
+            appFocus.wrappedValue = .workflows
+          })
+          .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {})
+          .onCommand(#selector(NSResponder.selectAll(_:)), perform: {
+            selectionManager.publish(Set(publisher.data.map(\.id)))
+          })
+          .onMoveCommand(perform: { direction in
+            if let elementID = selectionManager.handle(
+              direction,
+              publisher.data,
+              proxy: proxy,
+              vertical: true) {
+              focus = .element(elementID)
+            }
+          })
+          .onDeleteCommand {
+            confirmDelete = .multiple(ids: Array(selectionManager.selections))
           }
-          .focused(appFocus, equals: .groups)
-          .padding(.horizontal, 8)
-          .opacity(!publisher.data.isEmpty ? 1 : 0)
-          .frame(height: !publisher.data.isEmpty ? nil : 0)
         }
+        .onAppear {
+          guard let initialSelection = selectionManager.initialSelection else { return }
+          focus = .element(initialSelection)
+          proxy.scrollTo(initialSelection)
+        }
+        .focused(appFocus, equals: .groups)
+        .opacity(!publisher.data.isEmpty ? 1 : 0)
+        .frame(height: !publisher.data.isEmpty ? nil : 0)
       }
     }
   }

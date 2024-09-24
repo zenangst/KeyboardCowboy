@@ -1,3 +1,4 @@
+import Bonzai
 import Carbon
 import SwiftUI
 
@@ -23,7 +24,7 @@ struct ContentView: View {
       case snippet = "snippet"
       case shortcut = "shortcut"
       case text = "text"
-      case systemCommand = "system"
+      case systemCommand = "system" 
       case menuBar = "menubar"
       case mouse = "mouse"
       case uiElement = "ui"
@@ -175,11 +176,10 @@ struct ContentView: View {
           .foregroundColor(Color(.systemGray))
       }
 
-      ScrollView {
         if publisher.data.isEmpty {
           ContentListEmptyView(namespace, onAction: onAction)
         } else {
-          LazyVStack(spacing: 0) {
+          ZenList {
             let items = publisher.data.filter({ search($0) })
             ForEach(items.lazy, id: \.id) { element in
               ContentItemView(
@@ -188,33 +188,6 @@ struct ContentView: View {
                 contentSelectionManager: contentSelectionManager,
                 onAction: onAction
               )
-              .contentShape(Rectangle())
-              .dropDestination(ContentListDropItem.self, color: .accentColor, onDrop: { items, location in
-                for item in items {
-                  switch item {
-                  case .workflow:
-                    let ids = Array(contentSelectionManager.selections)
-                    guard let (from, destination) = publisher.data.moveOffsets(for: element, with: ids) else { return false }
-
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
-                      publisher.data.move(fromOffsets: IndexSet(from), toOffset: destination)
-                    }
-
-                    onAction(.reorderWorkflows(source: from, destination: destination))
-                  case .command(let command):
-                    guard let fromId = contentSelectionManager.selections.first else {
-                      return false
-                    }
-
-                    onAction(.moveCommandsToWorkflow(
-                      element.id,
-                      fromWorkflowId: fromId,
-                      commands: [command.id]))
-                  }
-                }
-
-                return true
-              })
               .modifier(LegacyOnTapFix(onTap: {
                 focus = .element(element.id)
                 onTap(element)
@@ -233,6 +206,14 @@ struct ContentView: View {
                 }
               }
             }
+            .dropDestination(for: ContentViewModel.self, action: { collection, destination in
+              var indexSet = IndexSet()
+              for item in collection {
+                guard let index = publisher.data.firstIndex(of: item) else { continue }
+                indexSet.insert(index)
+              }
+              onAction(.reorderWorkflows(source: indexSet, destination: destination))
+            })
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               appFocus.wrappedValue = .detail(.name)
             })
@@ -305,7 +286,6 @@ struct ContentView: View {
               debounce.process(.init(workflows: contentSelectionManager.selections))
             }
           })
-          .padding(8)
           .toolbar {
             ToolbarItemGroup(placement: .navigation) {
               Button(action: {
@@ -329,7 +309,6 @@ struct ContentView: View {
             proxy.scrollTo("bottom")
           })
         }
-      }
     }
   }
 
