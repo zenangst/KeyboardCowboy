@@ -268,8 +268,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
       case .workspace(let workspaceCommand):
-        let application = applicationStore.applications
-        let commands = workspaceCommand.commands(application)
+        let applications = applicationStore.applications
+        let commands = workspaceCommand.commands(applications)
         for command in commands {
           try await run(command,
             workflowCommands: commands,
