@@ -1,0 +1,83 @@
+import Cocoa
+import CoreGraphics
+
+extension NSCursor {
+  enum Interpolation {
+    case spring
+    case easeIn
+    case easeOut
+    case easeInOut
+  }
+
+  nonisolated(unsafe) private static var currentWorkItem: DispatchWorkItem?
+
+  static func moveCursor(to point: CGPoint, duration: TimeInterval = 0, interpolation: Interpolation = .easeInOut) {
+    currentWorkItem?.cancel() // Cancel any ongoing animation
+    if duration > 0 {
+      let startPoint = NSEvent.mouseLocation
+      animateMouseCursor(to: point, startPoint: startPoint, duration: duration, interpolation: interpolation)
+    } else {
+      CGWarpMouseCursorPosition(point)
+    }
+  }
+
+  private static func animateMouseCursor(to targetPoint: CGPoint, startPoint: CGPoint, duration: TimeInterval, interpolation: Interpolation) {
+    let steps = 100
+    let stepDuration = duration / Double(steps)
+
+    // Define a control point for the Bézier curve
+    let controlPoint = CGPoint(x: (startPoint.x + targetPoint.x) / 2, y: min(startPoint.y, targetPoint.y) - 100)
+
+    let workItem = DispatchWorkItem {
+      for step in 0...steps {
+        let t = Double(step) / Double(steps)
+        let interpolatedT: Double
+        switch interpolation {
+        case .spring:
+          interpolatedT = springInterpolation(t)
+        case .easeIn:
+          interpolatedT = easeInInterpolation(t)
+        case .easeOut:
+          interpolatedT = easeOutInterpolation(t)
+        case .easeInOut:
+          interpolatedT = easeInOutInterpolation(t)
+        }
+
+        // Calculate the Bézier curve point
+        let newX = pow(1 - interpolatedT, 2) * startPoint.x + 2 * (1 - interpolatedT) * interpolatedT * controlPoint.x + pow(interpolatedT, 2) * targetPoint.x
+        let newY = pow(1 - interpolatedT, 2) * startPoint.y + 2 * (1 - interpolatedT) * interpolatedT * controlPoint.y + pow(interpolatedT, 2) * targetPoint.y
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(step)) {
+          if currentWorkItem?.isCancelled == false {
+            let point = CGPoint(x: newX, y: newY)
+//            CGWarpMouseCursorPosition(point)
+
+//            if targetPoint == point {
+              let mouseEvent = CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: point, mouseButton: .center)
+              mouseEvent?.post(tap: .cghidEventTap)
+//            }
+          }
+        }
+      }
+    }
+
+    currentWorkItem = workItem
+    DispatchQueue.main.async(execute: workItem)
+  }
+
+  private static func springInterpolation(_ t: Double) -> Double {
+    return 1 - pow(2.71828, -6 * t) * cos(12 * t)
+  }
+
+  private static func easeInInterpolation(_ t: Double) -> Double {
+    return t * t
+  }
+
+  private static func easeOutInterpolation(_ t: Double) -> Double {
+    return t * (2 - t)
+  }
+
+  private static func easeInOutInterpolation(_ t: Double) -> Double {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+  }
+}

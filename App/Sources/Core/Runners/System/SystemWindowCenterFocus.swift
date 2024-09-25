@@ -6,6 +6,7 @@ import SwiftUI
 
 final class SystemWindowCenterFocus: @unchecked Sendable {
   nonisolated(unsafe) static var debug: Bool = false
+  nonisolated(unsafe) static var mouseFollow: Bool = true
 
   private var consumedWindows = Set<WindowModel>()
   private var initialWindows = [WindowModel]()
@@ -102,6 +103,11 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
     }
 
     match?.performAction(.raise)
+
+    if Self.mouseFollow, let match, let frame = match.frame {
+      let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
+      NSCursor.moveCursor(to: targetPoint)
+    }
   }
 
   // MARK: Private methods

@@ -5,6 +5,8 @@ import Foundation
 import Windows
 
 final class SystemWindowRelativeFocus {
+  nonisolated(unsafe) static var mouseFollow: Bool = true
+
   enum Direction {
     case up, down, left, right
   }
@@ -81,6 +83,11 @@ final class SystemWindowRelativeFocus {
     }
 
     match?.performAction(.raise)
+
+    if Self.mouseFollow, let match, let frame = match.frame {
+      let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
+      NSCursor.moveCursor(to: targetPoint)
+    }
   }
 
   // MARK: Private methods
