@@ -33,6 +33,7 @@ struct GroupsListView: View {
   @FocusState var focus: LocalFocus<GroupViewModel>?
   @EnvironmentObject private var publisher: GroupsPublisher
   @State private var confirmDelete: Confirm?
+  @State private var reorderId: UUID = .init()
   private let contentSelectionManager: SelectionManager<ContentViewModel>
   private let debounce: DebounceController<GroupDebounce>
   private let namespace: Namespace.ID
@@ -102,6 +103,7 @@ struct GroupsListView: View {
               indexSet.insert(index)
             }
             onAction(.moveGroups(source: indexSet, destination: destination))
+            reorderId = UUID()
           })
           .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
             appFocus.wrappedValue = .workflows
@@ -122,6 +124,7 @@ struct GroupsListView: View {
           .onDeleteCommand {
             confirmDelete = .multiple(ids: Array(selectionManager.selections))
           }
+          .id(reorderId)
         }
         .onAppear {
           guard let initialSelection = selectionManager.initialSelection else { return }

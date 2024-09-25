@@ -270,6 +270,14 @@ struct ContentView: View {
               .padding(.bottom, 24)
 
           }
+          .onChange(of: contentSelectionManager.selections) { newValue in
+            let ids = Set(publisher.data.map(\.id))
+            let newIds = Set(newValue)
+            let result = ids.intersection(newIds)
+            if !result.isEmpty, let first = result.first {
+              proxy.scrollTo(first)
+            }
+          }
           .onAppear {
             guard let initialSelection = contentSelectionManager.initialSelection else { return }
             focus = .element(initialSelection)
