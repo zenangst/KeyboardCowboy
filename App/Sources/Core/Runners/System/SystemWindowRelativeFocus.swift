@@ -11,6 +11,7 @@ final class SystemWindowRelativeFocus {
     case up, down, left, right
   }
 
+  let navigation = SystemWindowRelativeFocusNavigation()
   var consumedWindows = Set<WindowModel>()
   var previousDirection: Direction?
 
@@ -20,7 +21,7 @@ final class SystemWindowRelativeFocus {
     consumedWindows.removeAll()
   }
 
-  func run(_ direction: Direction, snapshot: UserSpace.Snapshot) throws {
+  func run(_ direction: Direction, snapshot: UserSpace.Snapshot) async throws {
     if direction != previousDirection {
       previousDirection = direction
       consumedWindows.removeAll()
@@ -54,21 +55,10 @@ final class SystemWindowRelativeFocus {
 
     windows.removeAll(where: { consumedWindows.contains($0) })
 
-    guard let activeWindow = activeWindow else { return }
-
-    var matchedWindow: WindowModel?
-    switch direction {
-    case .up:
-      matchedWindow = SystemWindowRelativeFocusUp.findNextWindow(activeWindow, windows: windows)
-    case .down:
-      matchedWindow = SystemWindowRelativeFocusDown.findNextWindow(activeWindow, windows: windows)
-    case .left:
-      matchedWindow = SystemWindowRelativeFocusLeft.findNextWindow(activeWindow, windows: windows)
-    case .right:
-      matchedWindow = SystemWindowRelativeFocusRight.findNextWindow(activeWindow, windows: windows)
+    guard let activeWindow,
+          let matchedWindow = await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) else {
+      return
     }
-
-    guard let matchedWindow else { return }
 
     consumedWindows.insert(matchedWindow)
 
