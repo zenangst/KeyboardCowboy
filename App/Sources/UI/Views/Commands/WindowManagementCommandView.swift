@@ -33,7 +33,7 @@ struct WindowManagementCommandView: View {
       content: { _ in
         WindowManagementCommandInternalView(metaData, model: model,
                                             iconSize: iconSize, onAction: onAction)
-        .roundedContainer(padding: 4, margin: 0)
+        .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { metaData in
         HStack {

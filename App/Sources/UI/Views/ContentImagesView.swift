@@ -18,7 +18,6 @@ struct ContentImagesView: View {
 
         ForEach(images) { image in
           ContentImageView(image: image, size: size, stacked: $stacked)
-            .drawingGroup()
         }
     }
     .frame(width: size, height: size)
