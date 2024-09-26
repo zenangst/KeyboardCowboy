@@ -50,7 +50,7 @@ struct MenuBarCommandInternalView: View {
       MenuIconView(size: iconSize.width)
     } content: { _ in
       MenuBarCommandContentView(model)
-        .roundedContainer(padding: 4, margin: 0)
+        .roundedContainer(4, padding: 4, margin: 0)
     } subContent: { metaData in
       HStack {
         ZenCheckbox("Notify", style: .small, isOn: Binding(get: {

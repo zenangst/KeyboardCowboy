@@ -54,7 +54,6 @@ struct DetailView: View {
           onAction(.singleDetailView($0))
         })
       .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
-      .background(Color(nsColor: .textBackgroundColor).ignoresSafeArea(edges: .all))
       .overlay(alignment: .topTrailing, content: {
         if KeyboardCowboy.env() != .production {
           Rectangle()

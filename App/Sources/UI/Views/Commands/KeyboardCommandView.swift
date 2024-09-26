@@ -71,7 +71,7 @@ struct KeyboardCommandInternalView: View {
       icon: { _ in KeyboardCommandIconView(iconSize: iconSize) },
       content: { _ in
         KeyboardCommandContentView(model: $model, focus: focus) { onAction(.editCommand(model)) }
-          .roundedContainer(padding: 0, margin: 0)
+          .roundedContainer(4, padding: 2, margin: 0)
       },
       subContent: { metaData in
         ZenCheckbox("Notify", style: .small, isOn: Binding(get: {

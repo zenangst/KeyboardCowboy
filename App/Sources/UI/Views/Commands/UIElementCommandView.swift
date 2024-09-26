@@ -36,7 +36,7 @@ struct UIElementCommandView: View {
     } content: { _ in
       VStack(alignment: .leading, spacing: 4) {
         ForEach(model.predicates.indices, id: \.self) { index in
-          Grid {
+          Grid(verticalSpacing: 8) {
             GridRow {
               Text("Value:")
                 .font(.caption)
@@ -131,7 +131,7 @@ struct UIElementCommandView: View {
           }
         }
       }
-      .roundedContainer(padding: 4, margin: 0)
+      .roundedContainer(4, padding: 8, margin: 0)
     } subContent: { metaData in
       ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
           if case .bezel = metaData.notification.wrappedValue { return true } else { return false }

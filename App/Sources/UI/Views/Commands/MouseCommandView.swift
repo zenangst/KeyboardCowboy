@@ -54,7 +54,7 @@ struct MouseCommandInternalView: View {
       icon: { _ in MouseIconView(size: iconSize.width) },
       content: { _ in
         MouseCommandContentView(model: $model, onAction: onAction)
-          .roundedContainer(padding: 4, margin: 0)
+          .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { metaData in
         ZenCheckbox("Notify", style: .small, isOn: Binding(get: {

@@ -24,20 +24,26 @@ struct WorkspaceCommandView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Menu {
-        ForEach(applicationStore.applications) { application in
-          Button(action: {
-            model.applications.append(application)
-            onSelectedAppsChange(model.applications)
-          },
-                 label: { Text(application.displayName) })
+      VStack(alignment: .leading, spacing: 8) {
+        Text("Applications")
+          .font(.subheadline)
+        Menu {
+          ForEach(applicationStore.applications) { application in
+            Button(action: {
+              model.applications.append(application)
+              onSelectedAppsChange(model.applications)
+            },
+                   label: { Text(application.displayName) })
+          }
+        } label: {
+          Text("Add Application")
+            .font(.caption)
         }
-      } label: {
-        Text("Add Application")
+        .menuStyle(.regular)
       }
-      .menuStyle(.regular)
+      .padding(.horizontal, 4)
 
-      List {
+      ZenList {
         ForEach(Array(zip(model.applications.indices, model.applications)), id: \.0) { offset, application in
           HStack {
             IconView(icon: Icon(application), size: .init(width: 24, height: 24))
@@ -57,13 +63,15 @@ struct WorkspaceCommandView: View {
             }
             .buttonStyle(.zen(.init(color: .systemRed, grayscaleEffect: .constant(true))))
           }
+          .listRowSeparator(.visible)
+          .padding(.vertical, 4)
         }
         .onMove { indexSet, offset in
           model.applications.move(fromOffsets: indexSet, toOffset: offset)
           onSelectedAppsChange(model.applications)
         }
       }
-      .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 40, 148)))
+      .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 32, 148)))
       .clipShape(RoundedRectangle(cornerRadius: 8))
 
       VStack(alignment: .leading, spacing: 8) {
@@ -81,7 +89,9 @@ struct WorkspaceCommandView: View {
           }
         } label: {
           Text(model.tiling?.name ?? "Select Tiling")
+            .font(.caption)
         }
+        .fixedSize(horizontal: false, vertical: true)
         .menuStyle(.regular)
 
         Text("Hide Other Applications")
@@ -94,7 +104,7 @@ struct WorkspaceCommandView: View {
       }
       .padding(4)
     }
-    .roundedContainer(padding: 4, margin: 0)
+    .roundedContainer(4, padding: 8, margin: 0)
     .enableInjection()
   }
 }

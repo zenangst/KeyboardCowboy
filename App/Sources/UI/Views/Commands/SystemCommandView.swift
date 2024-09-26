@@ -33,7 +33,7 @@ struct SystemCommandView: View {
         SystemCommandContentView(model: $model) { kind in
           onAction(.updateKind(newKind: kind))
         }
-        .roundedContainer(padding: 4, margin: 0)
+        .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { metaData in
         ZenCheckbox("Notify", style: .small, isOn: Binding(get: {

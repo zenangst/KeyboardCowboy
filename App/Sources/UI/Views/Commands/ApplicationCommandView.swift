@@ -12,6 +12,7 @@ struct ApplicationCommandView: View {
     case commandAction(CommandContainerAction)
   }
 
+  @ObserveInjection var inject
   private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.ApplicationModel
   private let iconSize: CGSize
@@ -35,7 +36,7 @@ struct ApplicationCommandView: View {
       content: { _ in 
         ApplicationCommandInternalView(metaData, model: model,
                                        iconSize: iconSize, onAction: onAction)
-        .roundedContainer(padding: 4, margin: 0)
+        .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { metaData in
         ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
@@ -56,10 +57,12 @@ struct ApplicationCommandView: View {
         onAction(.commandAction(action))
       }
     )
+    .enableInjection()
   }
 }
 
 private struct ApplicationCommandInternalView: View {
+  @ObserveInjection var inject
   @EnvironmentObject private var applicationStore: ApplicationStore
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.ApplicationModel
@@ -81,7 +84,7 @@ private struct ApplicationCommandInternalView: View {
   }
 
   var body: some View {
-    HStack(spacing: 8) {
+    HStack(spacing: 4) {
       Menu(content: {
         Button(action: {
           model.action = "Open"
@@ -138,28 +141,54 @@ private struct ApplicationCommandInternalView: View {
       ZenDivider(.vertical)
         .fixedSize()
 
-      ZenCheckbox("In background", style: .small, isOn: $model.inBackground) { newValue in
-        onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
+      Grid(alignment: .leading, verticalSpacing: 2) {
+        GridRow {
+          HStack {
+            ZenCheckbox("", style: .small, isOn: $model.inBackground) { newValue in
+              onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
+            }
+            Text("In background")
+          }
+
+          HStack {
+            ZenCheckbox("", style: .small, isOn: $model.hideWhenRunning) { newValue in
+              onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
+            }
+            Text("Hide when opening")
+          }
+
+          HStack {
+            ZenCheckbox("", style: .small, isOn: $model.ifNotRunning) { newValue in
+              onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
+            }
+            Text("If not running")
+          }
+        }
+        GridRow {
+          HStack {
+            ZenCheckbox("", style: .small, isOn: $model.addToStage) { newValue in
+              onAction(.changeApplicationModifier(modifier: .addToStage, newValue: newValue))
+            }
+            Text("Add to Stage")
+          }
+
+          HStack {
+            ZenCheckbox("", style: .small, isOn: $model.waitForAppToLaunch) { newValue in
+              onAction(.changeApplicationModifier(modifier: .waitForAppToLaunch, newValue: newValue))
+            }
+            Text("Wait for App to Launch")
+          }
+          Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
       }
-      ZenCheckbox("Hide when opening", style: .small, isOn: $model.hideWhenRunning) { newValue in
-        onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
-      }
-      ZenCheckbox("If not running", style: .small, isOn: $model.ifNotRunning) { newValue in
-        onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
-      }
-      ZenCheckbox("Add to Stage", style: .small, isOn: $model.addToStage) { newValue in
-        onAction(.changeApplicationModifier(modifier: .addToStage, newValue: newValue))
-      }
-      ZenCheckbox("Wait for app to launch", style: .small, isOn: $model.waitForAppToLaunch) { newValue in
-        onAction(.changeApplicationModifier(modifier: .waitForAppToLaunch, newValue: newValue))
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
     }
     .buttonStyle(.regular)
     .lineLimit(1)
     .allowsTightening(true)
     .truncationMode(.tail)
     .font(.caption)
+    .enableInjection()
   }
 }
 

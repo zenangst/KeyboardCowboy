@@ -36,7 +36,7 @@ struct OpenCommandView: View {
       } onUpdatePath: { newPath in
         onAction(.updatePath(newPath: newPath))
       }
-      .roundedContainer(padding: 4, margin: 0)
+      .roundedContainer(4, padding: 4, margin: 0)
     }, subContent: { metaData in
       ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
         if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
@@ -89,6 +89,7 @@ private struct OpenCommandHeaderView: View {
 }
 
 private struct OpenCommandContentView: View {
+  @ObserveInjection var inject
   @Binding private var model: CommandViewModel.Kind.OpenModel
   private var command: Binding<CommandViewModel.MetaData>
   private let debounce: DebounceManager<String>
@@ -109,8 +110,16 @@ private struct OpenCommandContentView: View {
   var body: some View {
     HStack(spacing: 2) {
       TextField("", text: $model.path)
-        .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-        .onChange(of: model.path, perform: { debounce.send($0) })
+        .textFieldStyle(
+          .zen(
+            .init(
+              backgroundColor: Color.clear,
+              font: .callout,
+              padding: .init(horizontal: .zero, vertical: .zero),
+              unfocusedOpacity: 0.0
+            )
+          )
+        )        .onChange(of: model.path, perform: { debounce.send($0) })
         .frame(maxWidth: .infinity)
 
       Menu(content: {
@@ -141,6 +150,7 @@ private struct OpenCommandContentView: View {
       .opacity(!model.applications.isEmpty ? 1 : 0)
       .frame(width: model.applications.isEmpty ? 0 : nil)
     }
+    .enableInjection()
   }
 }
 

@@ -39,7 +39,7 @@ struct ShortcutCommandView: View {
       ShortcutCommandContentView(model: $model) { shortcut in
         onAction(.updateShortcut(shortcutName: shortcut.name))
       }
-      .roundedContainer(padding: 4, margin: 0)
+      .roundedContainer(4, padding: 4, margin: 0)
     }, subContent: { metaData in
       ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
         if case .bezel = metaData.notification.wrappedValue { return true } else { return false }

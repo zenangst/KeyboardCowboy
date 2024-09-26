@@ -1,5 +1,6 @@
 import Bonzai
 import Carbon
+import Inject
 import SwiftUI
 
 struct ContentDebounce: DebounceSnapshot {
@@ -43,6 +44,7 @@ struct ContentView: View {
     case addWorkflow(workflowId: Workflow.ID)
   }
 
+  @ObserveInjection var inject
   @FocusState var focus: LocalFocus<ContentViewModel>?
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: ContentPublisher
@@ -319,6 +321,7 @@ struct ContentView: View {
           })
         }
     }
+    .enableInjection()
   }
 
   private func onTap(_ element: ContentViewModel) {

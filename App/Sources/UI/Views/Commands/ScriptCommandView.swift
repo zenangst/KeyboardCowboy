@@ -37,7 +37,7 @@ struct ScriptCommandView: View {
       icon: { _ in ScriptIconView(size: iconSize.width) },
       content: { _ in
         ScriptCommandContentView(model, meta: metaData, onSubmit: onSubmit, onAction: onAction)
-          .roundedContainer(padding: 4, margin: 0)
+          .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { _ in
         ScriptCommandSubContentView(model: model, metaData: metaData, onAction: onAction)
@@ -144,8 +144,8 @@ private struct ScriptCommandInlineView: View {
       .onChange(of: text, perform: onScriptChange)
 
       ZenDivider()
-      HStack(spacing: 8) {
-        EnvironmentIconView(size: 22)
+      HStack(spacing: 2) {
+        EnvironmentIconView(size: 24)
         ZenDivider(.vertical)
           .fixedSize()
         ScrollView(.horizontal) {
@@ -159,7 +159,8 @@ private struct ScriptCommandInlineView: View {
           }
           .padding(.horizontal, 4)
         }
-        .roundedContainer(padding:0, margin: 0)
+        .roundedContainer(4, padding: 0, margin: 0)
+        .padding(.horizontal, 4)
       }
       .buttonStyle(.zen(ZenStyleConfiguration(color: .systemGreen)))
       .allowsTightening(true)
@@ -294,8 +295,8 @@ private struct ScriptCommandAssignToVariableView: View {
   var body: some View {
     Group {
       ZenDivider()
-      HStack(spacing: 8) {
-        MagicVarsIconView(size: 22)
+      HStack(spacing: 2) {
+        MagicVarsIconView(size: 24)
         ZenDivider(.vertical)
           .fixedSize()
         TextField("Assign output to variable", text: $variableName)
@@ -303,10 +304,11 @@ private struct ScriptCommandAssignToVariableView: View {
           .onChange(of: variableName) { newValue in
             onVariableNameChange(newValue)
           }
-          .roundedContainer(padding:0, margin: 0)
+          .roundedContainer(4, padding: 0, margin: 0)
+          .padding(.horizontal, 4)
       }
       .font(.caption2)
-      .padding(.leading, 4)
+      .padding([.leading, .bottom], 4)
     }
     .opacity(execution == .serial ? 1 : 0)
     .frame(maxHeight: execution == .serial ? nil : 0)

@@ -1,3 +1,5 @@
+import Bonzai
+import Inject
 import SwiftUI
 
 struct ContainerView: View {
@@ -8,6 +10,7 @@ struct ContainerView: View {
     case detail(DetailView.Action)
   }
 
+  @ObserveInjection var inject
   @Environment(\.undoManager) private var undoManager
   @ObservedObject private var navigationPublisher = NavigationPublisher()
   @Binding private var contentState: ContentStore.State
@@ -101,8 +104,10 @@ struct ContainerView: View {
         .opacity(contentState == .initialized ? 1 : 0)
         .frame(minHeight: 400)
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
+        .background()
       })
     .navigationSplitViewStyle(.balanced)
+    .enableInjection()
   }
 }
 

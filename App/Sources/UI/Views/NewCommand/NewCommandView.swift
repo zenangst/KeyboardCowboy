@@ -75,9 +75,16 @@ struct NewCommandView: View {
             .padding(.top, 36)
             .background(
               HStack(spacing: 0) {
-                Color(.windowBackgroundColor)
+                ZStack {
+                  ZenVisualEffectView(material: .underWindowBackground, blendingMode: .behindWindow, state: .active)
+                  LinearGradient(stops: [
+                    .init(color: Color(nsColor: .textBackgroundColor).opacity(0.4), location: 0),
+                    .init(color: Color(nsColor: .textBackgroundColor).opacity(0.8), location: 1)
+                  ], startPoint: .top, endPoint: .bottom)
+                }
+                .ignoresSafeArea()
                 Rectangle()
-                  .fill(Color.white.opacity(0.2))
+                  .fill(Color.white.opacity(0.1))
                   .frame(width: 1)
               })
             .frame(maxWidth: 235)
@@ -123,7 +130,7 @@ struct NewCommandView: View {
                     path.move(to: .init(x: size.width, y: 2))
                     path.addLine(to: .init(x: size.width - 12, y: size.height / 2))
                     path.addLine(to: .init(x: size.width, y: size.height - 2))
-                  }, with: .color(Color.white.opacity(0.2)), lineWidth: 2)
+                  }, with: .color(Color.white.opacity(0.1)), lineWidth: 2)
 
                   context.fill(Path { path in
                     path.move(to: .init(x: size.width, y: 2))

@@ -29,7 +29,7 @@ struct BuiltInCommandView: View {
       BuiltinIconBuilder.icon(model.kind, size: iconSize.width)
     }, content: { _ in
       BuiltInCommandContentView(model, metaData: metaData, onAction: onAction)
-        .roundedContainer(padding: 4, margin: 0)
+        .roundedContainer(4, padding: 4, margin: 0)
     }, subContent: { metaData in
       ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
         if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
