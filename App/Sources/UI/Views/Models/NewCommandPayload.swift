@@ -7,7 +7,7 @@ enum NewCommandPayload: Equatable {
   case builtIn(builtIn: BuiltInCommand)
   case script(value: String, kind: NewCommandScriptView.Kind, scriptExtension: NewCommandScriptView.ScriptExtension)
   case application(application: Application?, action: NewCommandApplicationView.ApplicationAction,
-                   inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool)
+                   inBackground: Bool, hideWhenRunning: Bool, ifNotRunning: Bool, waitForAppToLaunch: Bool)
   case url(targetUrl: URL, application: Application?)
   case open(path: String, application: Application?)
   case shortcut(name: String)
@@ -38,7 +38,7 @@ enum NewCommandPayload: Equatable {
         case .source: "Run Shell Script"
         }
       }
-    case .application(let application, let action, _, _, _):
+    case .application(let application, let action, _, _, _, _):
       return switch action {
       case .open:  "Open \(application?.displayName ?? "Application")"
       case .close: "Close \(application?.displayName ?? "Application")"

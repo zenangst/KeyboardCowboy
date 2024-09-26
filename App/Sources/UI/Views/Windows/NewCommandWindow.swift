@@ -31,7 +31,8 @@ struct NewCommandWindow: Scene {
     action: .open,
     inBackground: false,
     hideWhenRunning: false,
-    ifNotRunning: false)
+    ifNotRunning: false,
+    waitForAppToLaunch: false)
 
   init(contentStore: ContentStore,
        uiElementCaptureStore: UIElementCaptureStore,
@@ -113,13 +114,15 @@ struct NewCommandWindow: Scene {
       let inBackground = applicationCommand.modifiers.contains(.background)
       let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
       let ifNotRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
+      let waitForAppToLaunch = applicationCommand.modifiers.contains(.waitForAppToLaunch)
 
       return .application(application: applicationCommand.application,
                           action: action,
                           inBackground: inBackground,
                           hideWhenRunning: hideWhenRunning,
-                          ifNotRunning: ifNotRunning)
-    case .builtIn, .bundled: 
+                          ifNotRunning: ifNotRunning,
+                          waitForAppToLaunch: waitForAppToLaunch)
+    case .builtIn, .bundled:
       return .placeholder
     case .menuBar(let command):
       return .menuBar(tokens: command.tokens, application: command.application)

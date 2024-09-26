@@ -222,14 +222,16 @@ struct NewCommandView: View {
     VStack(alignment: .leading) {
       switch selection {
       case .application:
-        if case .application(let application, let action, let inBackground, let hideWhenRunning, let ifNotRunning) = payload {
+        if case .application(let application, let action, let inBackground,
+                             let hideWhenRunning, let ifNotRunning, let waitForAppToLaunch) = payload {
           NewCommandApplicationView($payload, application: application, action: action,
                                     inBackground: inBackground, hideWhenRunning: hideWhenRunning,
-                                    ifNotRunning: ifNotRunning, validation: $validation)
+                                    ifNotRunning: ifNotRunning, waitForAppToLaunch: waitForAppToLaunch, validation: $validation)
         } else {
           NewCommandApplicationView($payload, application: nil, action: .open,
                                     inBackground: false, hideWhenRunning: false,
-                                    ifNotRunning: false, validation: $validation)
+                                    ifNotRunning: false, waitForAppToLaunch: false,
+                                    validation: $validation)
         }
       case .url:
         NewCommandURLView($payload, validation: $validation,

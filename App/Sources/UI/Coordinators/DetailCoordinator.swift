@@ -152,7 +152,7 @@ final class DetailCoordinator {
       command = .shortcut(.init(id: resolvedCommandId, shortcutIdentifier: name,
                                 name: name, isEnabled: true, notification: nil))
     case .application(let application, let action,
-                      let inBackground, let hideWhenRunning, let ifNotRunning):
+                      let inBackground, let hideWhenRunning, let ifNotRunning, let waitForAppToLaunch):
       assert(application != nil)
       guard let application else {
         return
@@ -162,6 +162,7 @@ final class DetailCoordinator {
       if inBackground { modifiers.append(.background) }
       if hideWhenRunning { modifiers.append(.hidden) }
       if ifNotRunning { modifiers.append(.onlyIfNotRunning) }
+      if waitForAppToLaunch { modifiers.append(.waitForAppToLaunch) }
 
       let commandAction: ApplicationCommand.Action = switch action {
       case .close:  .close

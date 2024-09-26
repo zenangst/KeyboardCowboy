@@ -18,6 +18,7 @@ struct NewCommandApplicationView: View {
   @State private var inBackground: Bool
   @State private var hideWhenRunning: Bool
   @State private var ifNotRunning: Bool
+  @State private var waitForAppToLaunch: Bool
 
   @Binding var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
@@ -28,6 +29,7 @@ struct NewCommandApplicationView: View {
        inBackground: Bool,
        hideWhenRunning: Bool,
        ifNotRunning: Bool,
+       waitForAppToLaunch: Bool,
        validation: Binding<NewCommandValidation>) {
     _application = .init(initialValue: application)
     _action = .init(initialValue: action)
@@ -36,6 +38,7 @@ struct NewCommandApplicationView: View {
     _inBackground = .init(initialValue: inBackground)
     _hideWhenRunning = .init(initialValue: hideWhenRunning)
     _ifNotRunning = .init(initialValue: ifNotRunning)
+    _waitForAppToLaunch = .init(initialValue: waitForAppToLaunch)
   }
 
   var body: some View {
@@ -110,6 +113,9 @@ struct NewCommandApplicationView: View {
         ZenCheckbox("If not running", style: .small, isOn: $ifNotRunning) { _ in
           updateAndValidatePayload()
          }
+        ZenCheckbox("Wait for app to launch", style: .small, isOn: $waitForAppToLaunch) { _ in
+          updateAndValidatePayload()
+        }
       }
       .onChange(of: validation) { newValue in
         guard newValue == .needsValidation else { return }
@@ -129,7 +135,9 @@ struct NewCommandApplicationView: View {
     }
     payload = .application(application: application, action: action,
                            inBackground: inBackground,
-                           hideWhenRunning: hideWhenRunning, ifNotRunning: ifNotRunning)
+                           hideWhenRunning: hideWhenRunning,
+                           ifNotRunning: ifNotRunning,
+                           waitForAppToLaunch: waitForAppToLaunch)
     return .valid
   }
 }
