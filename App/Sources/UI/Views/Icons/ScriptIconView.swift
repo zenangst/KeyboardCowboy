@@ -1,12 +1,22 @@
+import Bonzai
 import SwiftUI
 
 struct ScriptIconView: View {
   let size: CGFloat
   var body: some View {
     Rectangle()
-      .fill(Color(.black))
-      .overlay { iconOverlay() }
+      .fill(Color(.clear))
+      .overlay {
+        ZStack {
+          ZenVisualEffectView(material: .underWindowBackground)
+          LinearGradient(stops: [
+            .init(color: Color.clear, location: 0.4),
+            .init(color: Color.black, location: 1),
+          ], startPoint: .top, endPoint: .bottom)
+        }
+      }
       .overlay { iconBorder(size) }
+      .overlay { iconOverlay() }
       .overlay(alignment: .topLeading) {
         HStack(spacing: 0) {
           Text(">")
@@ -28,7 +38,7 @@ struct ScriptIconView: View {
       }
       .frame(width: size, height: size)
       .fixedSize()
-      .drawingGroup(opaque: true)
+//      .drawingGroup(opaque: true)
       .iconShape(size)
   }
 }
