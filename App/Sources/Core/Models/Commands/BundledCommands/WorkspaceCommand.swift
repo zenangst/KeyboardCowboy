@@ -37,7 +37,16 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   func commands(_ applications: [Application]) -> [Command] {
     var commands = [Command]()
 
-    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(name: "Hide All Apps")))
+    let slowBundles = Set(["com.apple.dt.Xcode"])
+    let hideDelay: TimeInterval?
+
+    if slowBundles.intersection(bundleIdentifiers).count > 0 {
+      hideDelay = 100
+    } else {
+      hideDelay = nil
+    }
+
+    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: hideDelay, name: "Hide All Apps")))
     let bundleIdentifiersCount = bundleIdentifiers.count
 
     bundleIdentifiers.enumerated().forEach { offset, bundleIdentifier in
