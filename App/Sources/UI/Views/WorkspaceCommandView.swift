@@ -64,6 +64,7 @@ struct WorkspaceCommandView: View {
             .buttonStyle(.zen(.init(color: .systemRed, grayscaleEffect: .constant(true))))
           }
           .listRowSeparator(.visible)
+          .listRowInsets(EdgeInsets(top: 0, leading: -6, bottom: 0, trailing: -6))
           .padding(.vertical, 4)
         }
         .onMove { indexSet, offset in
@@ -72,34 +73,70 @@ struct WorkspaceCommandView: View {
         }
       }
       .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 32, 148)))
-      .clipShape(RoundedRectangle(cornerRadius: 8))
 
       VStack(alignment: .leading, spacing: 8) {
-        Text("Tiling")
+        Text("Window Tiling")
           .font(.subheadline)
 
-        Menu {
-          ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
-            Button {
-              model.tiling = tiling
-              onTilingChange(tiling)
+        Grid {
+          GridRow {
+            switch model.tiling {
+            case .arrangeLeftRight:
+              WindowTilingIcon(kind: .arrangeLeftRight, size: 20)
+            case .arrangeRightLeft:
+              WindowTilingIcon(kind: .arrangeRightLeft, size: 20)
+            case .arrangeTopBottom:
+              WindowTilingIcon(kind: .arrangeTopBottom, size: 20)
+            case .arrangeBottomTop:
+              WindowTilingIcon(kind: .arrangeBottomTop, size: 20)
+            case .arrangeLeftQuarters:
+              WindowTilingIcon(kind: .arrangeLeftQuarters, size: 20)
+            case .arrangeRightQuarters:
+              WindowTilingIcon(kind: .arrangeRightQuarters, size: 20)
+            case .arrangeTopQuarters:
+              WindowTilingIcon(kind: .arrangeTopQuarters, size: 20)
+            case .arrangeBottomQuarters:
+              WindowTilingIcon(kind: .arrangeBottomQuarters, size: 20)
+            case .arrangeQuarters:
+              WindowTilingIcon(kind: .arrangeQuarters, size: 20)
+            case .fill:
+              WindowTilingIcon(kind: .fill, size: 20)
+            case .center:
+              WindowTilingIcon(kind: .center, size: 20)
+            case .none:
+              RoundedRectangle(cornerRadius: 4)
+                .fill(.black)
+            }
+
+            Menu {
+              ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
+                Button {
+                  model.tiling = tiling
+                  onTilingChange(tiling)
+                } label: {
+                  Text(tiling.name)
+                }
+              }
             } label: {
-              Text(tiling.name)
+              Text(model.tiling?.name ?? "Select Tiling")
+                .font(.caption)
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .menuStyle(.zen(.init(grayscaleEffect: .constant(true), hoverEffect: .constant(true))))
+          }
+
+          GridRow {
+            HideAllIconView(size: 20)
+            HStack {
+              Text("Hide Other Applications")
+                .font(.caption)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 4)
+              ZenCheckbox(isOn: $model.hideOtherApps) { newValue in
+                onHideOtherAppsChange(newValue)
+              }
             }
           }
-        } label: {
-          Text(model.tiling?.name ?? "Select Tiling")
-            .font(.caption)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .menuStyle(.regular)
-
-        Text("Hide Other Applications")
-          .font(.subheadline)
-          .frame(maxWidth: .infinity, alignment: .leading)
-
-        ZenCheckbox(isOn: $model.hideOtherApps) { newValue in
-          onHideOtherAppsChange(newValue)
         }
       }
       .padding(4)
