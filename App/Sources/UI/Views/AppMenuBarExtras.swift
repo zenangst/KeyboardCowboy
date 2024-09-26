@@ -20,20 +20,31 @@ struct AppMenuBarExtras: Scene {
     }
   }
 
+  @ObservedObject private var machPortCoordinator: MachPortCoordinator
+
   private let contentStore: ContentStore
   private let onAction: (Action) -> Void
   private let pub = NotificationCenter.default
     .publisher(for: NSNotification.Name("OpenMainWindow"))
 
-  init(contentStore: ContentStore, onAction: @escaping (Action) -> Void) {
+  init(contentStore: ContentStore, machPortCoordinator: MachPortCoordinator, onAction: @escaping (Action) -> Void) {
     self.contentStore = contentStore
     self.onAction = onAction
+    _machPortCoordinator = .init(initialValue: machPortCoordinator)
   }
 
   var body: some Scene {
     MenuBarExtra(content: {
       Button { onAction(.openMainWindow) } label: { Text("Open \(applicationName)") }
       AppMenu()
+      Divider()
+
+      Toggle(isOn: $machPortCoordinator.keyboardCleanerEnabled, label: {
+        Image(systemName: "bubbles.and.sparkles.fill")
+        Text("Keyboard Cleaner")
+      })
+        .toggleStyle(.checkbox)
+
       Divider()
       HelpMenu()
       Divider()

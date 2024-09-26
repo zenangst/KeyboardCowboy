@@ -7,7 +7,7 @@ import InputSources
 import KeyCodes
 import os
 
-final class MachPortCoordinator: @unchecked Sendable {
+final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   enum RestrictedKeyCode: Int, CaseIterable {
     case backspace = 117
     case delete = 51
@@ -15,6 +15,7 @@ final class MachPortCoordinator: @unchecked Sendable {
     case escape = 53
   }
 
+  @Published var keyboardCleanerEnabled: Bool = false
   @Published private(set) var event: MachPortEvent?
   @MainActor @Published private(set) var coordinatorEvent: CGEvent?
   @Published private(set) var flagsChanged: CGEventFlags?
@@ -117,6 +118,16 @@ final class MachPortCoordinator: @unchecked Sendable {
 
   @MainActor
   private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool = false, runningMacro: Bool) {
+    if keyboardCleanerEnabled {
+      switch machPortEvent.type {
+      case .keyUp, .keyDown:
+        machPortEvent.result = nil
+        return
+      default:
+        return
+      }
+    }
+
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1

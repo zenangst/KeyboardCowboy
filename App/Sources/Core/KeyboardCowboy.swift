@@ -48,10 +48,11 @@ struct KeyboardCowboy: App {
   }
 
   var body: some Scene {
-    AppMenuBarExtras(contentStore: core.contentStore, onAction: handleAppExtraAction(_:))
+    AppMenuBarExtras(contentStore: core.contentStore, machPortCoordinator: core.machPortCoordinator,
+                     onAction: handleAppExtraAction(_:))
     MainWindow(core, onScene: handleAppScene(_:))
 
-    Settings(content: { 
+    Settings(content: {
       SettingsView().environmentObject(OpenPanelController())
     })
     .windowStyle(.hiddenTitleBar)
