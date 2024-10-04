@@ -87,6 +87,30 @@ struct MouseCommandContentView: View {
        onAction: @escaping (MouseCommandView.Action) -> Void) {
     _model = model
     self.onAction = onAction
+
+    switch model.wrappedValue.kind {
+    case .click(let element):
+      switch element.clickLocation {
+      case .custom(let x, let y):
+        _xString = .init(initialValue: String(x))
+        _yString = .init(initialValue: String(y))
+      default: break
+      }
+    case .doubleClick(let element):
+      switch element.clickLocation {
+      case .custom(let x, let y):
+        _xString = .init(initialValue: String(x))
+        _yString = .init(initialValue: String(y))
+      default: break
+      }
+    case .rightClick(let element):
+      switch element.clickLocation {
+      case .custom(let x, let y):
+        _xString = .init(initialValue: String(x))
+        _yString = .init(initialValue: String(y))
+      default: break
+      }
+    }
   }
 
   var body: some View {
@@ -111,18 +135,18 @@ struct MouseCommandContentView: View {
       if case .focused(let location) = model.kind.element {
         HStack {
           Menu(content: {
-            ForEach(MouseCommand.ClickLocation.allCases) { clickLocation in
+            ForEach(MouseCommand.ClickLocation.allCases) { location in
               Button(action: {
                 switch model.kind {
                 case .click:
-                  model.kind = .click(.focused(clickLocation))
+                  model.kind = .click(.focused(location))
                 case .doubleClick:
-                  model.kind = .doubleClick(.focused(clickLocation))
+                  model.kind = .doubleClick(.focused(location))
                 case .rightClick:
-                  model.kind = .rightClick(.focused(clickLocation))
+                  model.kind = .rightClick(.focused(location))
                 }
               }, label: {
-                Text(clickLocation.displayValue)
+                Text(location.displayValue)
                   .font(.subheadline)
               })
             }
