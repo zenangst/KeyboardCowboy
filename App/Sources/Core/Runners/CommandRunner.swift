@@ -285,6 +285,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             try await Task.sleep(for: .milliseconds(delay))
           }
         }
+        runners.system.resetFocusComponents()
         output = command.name
       }
     case .keyboard(let keyboardCommand):

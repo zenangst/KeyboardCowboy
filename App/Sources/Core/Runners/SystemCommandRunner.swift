@@ -32,6 +32,12 @@ final class SystemCommandRunner: @unchecked Sendable {
     self.workspace = workspace
   }
 
+  func resetFocusComponents() {
+    centerFocus.reset()
+    quarterFocus.reset()
+    relativeFocus.reset()
+  }
+
   func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
     flagsChangedSubscription = publisher
       .compactMap { $0 }
@@ -42,9 +48,7 @@ final class SystemCommandRunner: @unchecked Sendable {
           if WindowStore.shared.state.interactive == false {
             self.frontMostIndex = 0
             self.visibleMostIndex = 0
-            self.centerFocus.reset()
-            self.relativeFocus.reset()
-            self.quarterFocus.reset()
+            self.resetFocusComponents()
           }
         }
       }
@@ -104,88 +108,67 @@ final class SystemCommandRunner: @unchecked Sendable {
         try await centerFocus.run(snapshot: snapshot)
       case .windowTilingLeft:
         try await SystemWindowTilingRunner.run(.left, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingRight:
         try await SystemWindowTilingRunner.run(.right, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingTop:
         try await SystemWindowTilingRunner.run(.top, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingBottom:
         try await SystemWindowTilingRunner.run(.bottom, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingTopLeft:
         try await SystemWindowTilingRunner.run(.topLeft, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingTopRight:
         try await SystemWindowTilingRunner.run(.topRight, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingBottomLeft:
         try await SystemWindowTilingRunner.run(.bottomLeft, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingBottomRight:
         try await SystemWindowTilingRunner.run(.bottomRight, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingCenter:
         try await SystemWindowTilingRunner.run(.center, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingFill:
         try await SystemWindowTilingRunner.run(.fill, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeLeftRight:
         try await SystemWindowTilingRunner.run(.arrangeLeftRight, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeRightLeft:
         try await SystemWindowTilingRunner.run(.arrangeRightLeft, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeTopBottom:
         try await SystemWindowTilingRunner.run(.arrangeTopBottom, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeBottomTop:
         try await SystemWindowTilingRunner.run(.arrangeBottomTop, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeLeftQuarters:
         try await SystemWindowTilingRunner.run(.arrangeLeftQuarters, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeRightQuarters:
         try await SystemWindowTilingRunner.run(.arrangeRightQuarters, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeTopQuarters:
         try await SystemWindowTilingRunner.run(.arrangeTopQuarters, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeBottomQuarters:
         try await SystemWindowTilingRunner.run(.arrangeBottomQuarters, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingArrangeQuarters:
         try await SystemWindowTilingRunner.run(.arrangeQuarters, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingPreviousSize:
         try await SystemWindowTilingRunner.run(.previousSize, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       case .windowTilingZoom:
         try await SystemWindowTilingRunner.run(.zoom, snapshot: snapshot)
-        quarterFocus.reset()
-        centerFocus.reset()
+        resetFocusComponents()
       }
     }
   }
