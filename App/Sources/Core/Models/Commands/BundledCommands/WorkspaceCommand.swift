@@ -41,6 +41,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: nil, name: "Hide All Apps")))
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
+    let windows = WindowStore.shared.windows
 
     bundleIdentifiers.enumerated().forEach { offset, bundleIdentifier in
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
@@ -57,6 +58,14 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       let isLastItem = bundleIdentifiersCount - 1 == offset
 
       if hideOtherApps { commands.append(hideAllAppsCommand) }
+
+      let action: ApplicationCommand.Action
+
+      if let runningApplication, !windows.map(\.ownerPid.rawValue).contains(Int(runningApplication.processIdentifier)) {
+        action = .open
+      } else {
+        action = .unhide
+      }
 
       if isLastItem {
         commands.append(
@@ -92,9 +101,9 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       } else {
         commands.append(
           .application(ApplicationCommand(
-            action: .unhide,
+            action: action,
             application: application,
-            meta: Command.MetaData(delay: nil, name: "Unhide \(application.displayName)"),
+            meta: Command.MetaData(delay: nil, name: "Fallback open/unhide \(application.displayName)"),
             modifiers: [.waitForAppToLaunch]
           )))
       }
