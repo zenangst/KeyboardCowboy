@@ -10,7 +10,7 @@ final class WaitUntilApplicationIsRunningPlugin {
 
   func run(for bundleIdentifier: String) async throws {
     var waiting: Bool = true
-    var retries: Int = 10
+    var retries: Int = 20
     ifDebug("Waiting for \(bundleIdentifier)")
     while waiting {
       guard let application = workspace.applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
@@ -19,7 +19,7 @@ final class WaitUntilApplicationIsRunningPlugin {
       }
 
       if application.isFinishedLaunching {
-        try await Task.sleep(for: .milliseconds(25))
+        try await Task.sleep(for: .milliseconds(50))
         waiting = false
         ifDebug("done \(bundleIdentifier)")
         break

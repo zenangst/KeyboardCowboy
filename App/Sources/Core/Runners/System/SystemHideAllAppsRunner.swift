@@ -6,7 +6,7 @@ final class SystemHideAllAppsRunner {
     guard let screen = NSScreen.main else { return }
 
     let exceptBundleIdentifiers = workflowCommands.compactMap {
-      if case .application(let command) = $0, command.action == .open { return command.application.bundleIdentifier }
+      if case .application(let command) = $0, (command.action == .open || command.action == .unhide) { return command.application.bundleIdentifier }
       return nil
     }
 

@@ -34,79 +34,90 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     self.tiling = tiling
   }
 
+  @MainActor
   func commands(_ applications: [Application]) -> [Command] {
     var commands = [Command]()
 
-    let slowBundles = Set(["com.apple.dt.Xcode"])
-    let hideDelay: TimeInterval?
-
-    if slowBundles.intersection(bundleIdentifiers).count > 0 {
-      hideDelay = 100
-    } else {
-      hideDelay = nil
-    }
-
-    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: hideDelay, name: "Hide All Apps")))
+    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: nil, name: "Hide All Apps")))
     let bundleIdentifiersCount = bundleIdentifiers.count
+    let frontmostApplication = NSWorkspace.shared.frontmostApplication
 
     bundleIdentifiers.enumerated().forEach { offset, bundleIdentifier in
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         return
       }
 
-      let appIsRunning = NSWorkspace.shared.runningApplications.first(where: { app in
+      let runningApplication = NSWorkspace.shared.runningApplications.first(where: { app in
         guard let bundleIdentifier = app.bundleIdentifier else { return false }
-        return bundleIdentifiers.contains(bundleIdentifier) == true
-      }) != nil
+        return application.bundleIdentifier == bundleIdentifier
+      })
 
-      let delay: TimeInterval?
-      if bundleIdentifiersCount - 1 == offset {
-        delay = 50
+      let appIsRunning = runningApplication != nil
+      let isFrontmost = frontmostApplication?.bundleIdentifier == bundleIdentifier
+      let isLastItem = bundleIdentifiersCount - 1 == offset
+
+      if hideOtherApps { commands.append(hideAllAppsCommand) }
+
+      if isLastItem {
+        commands.append(
+          .application(ApplicationCommand(
+            action: .open,
+            application: application,
+            meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
+            modifiers: [.waitForAppToLaunch]
+          )))
+        commands.append(
+          .application(ApplicationCommand(
+            action: .open,
+            application: application,
+            meta: Command.MetaData(delay: 25, name: "Activate \(application.displayName)"),
+            modifiers: [.waitForAppToLaunch]
+          )))
+      } else if isFrontmost {
+        commands.append(
+          .application(ApplicationCommand(
+            action: .unhide,
+            application: application,
+            meta: Command.MetaData(delay: nil, name: "Unhide frontmost application \(application.displayName)"),
+            modifiers: [.waitForAppToLaunch]
+          )))
       } else if !appIsRunning {
-        delay = 150
+        commands.append(
+          .application(ApplicationCommand(
+            action: .open,
+            application: application,
+            meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
+            modifiers: [.waitForAppToLaunch]
+          )))
       } else {
-        delay = nil
+        commands.append(
+          .application(ApplicationCommand(
+            action: .unhide,
+            application: application,
+            meta: Command.MetaData(delay: nil, name: "Unhide \(application.displayName)"),
+            modifiers: [.waitForAppToLaunch]
+          )))
       }
-
-      commands.append(
-        .application(ApplicationCommand(
-          action: .open,
-          application: application,
-          meta: Command.MetaData(delay: delay, name: "Open \(application.displayName)"),
-          modifiers: [.waitForAppToLaunch]
-        )))
     }
 
-    let kind: SystemCommand.Kind? = switch tiling {
-    case .arrangeLeftRight:      .windowTilingArrangeLeftRight
-    case .arrangeRightLeft:      .windowTilingArrangeRightLeft
-    case .arrangeTopBottom:      .windowTilingArrangeTopBottom
-    case .arrangeBottomTop:      .windowTilingArrangeBottomTop
-    case .arrangeLeftQuarters:   .windowTilingArrangeLeftQuarters
-    case .arrangeRightQuarters:  .windowTilingArrangeRightQuarters
-    case .arrangeTopQuarters:    .windowTilingArrangeTopQuarters
-    case .arrangeBottomQuarters: .windowTilingArrangeBottomQuarters
-    case .arrangeQuarters:       .windowTilingArrangeQuarters
-    case .fill:                  .windowTilingFill
-    case .center:                .windowTilingCenter
-    case nil:                    nil
+
+    let tokens: [MenuBarCommand.Token] = switch tiling {
+    case .arrangeLeftRight:      MenuBarCommand.Token.leftRight()
+    case .arrangeRightLeft:      MenuBarCommand.Token.rightLeft()
+    case .arrangeTopBottom:      MenuBarCommand.Token.topBottom()
+    case .arrangeBottomTop:      MenuBarCommand.Token.bottomTop()
+    case .arrangeLeftQuarters:   MenuBarCommand.Token.leftQuarters()
+    case .arrangeRightQuarters:  MenuBarCommand.Token.rightQuarters()
+    case .arrangeTopQuarters:    MenuBarCommand.Token.topQuarters()
+    case .arrangeBottomQuarters: MenuBarCommand.Token.bottomQuarters()
+    case .arrangeQuarters:       MenuBarCommand.Token.quarters()
+    case .fill:                  MenuBarCommand.Token.fill()
+    case .center:                MenuBarCommand.Token.center()
+    case nil:                    []
     }
 
-    if hideOtherApps {
-      commands.append(hideAllAppsCommand)
-    }
-
-    if let kind {
-      if case .windowTilingFill = kind {
-        commands.append(.menuBar(MenuBarCommand(application: nil, tokens: [.menuItem(name: "Window"), .menuItem(name: "Fill")],
-                                                meta: Command.MetaData(name: "MenuBarCommand"))))
-      } else if case .windowTilingCenter = kind {
-        commands.append(.menuBar(MenuBarCommand(application: nil, tokens: [.menuItem(name: "Window"), .menuItem(name: "Center")],
-                                                meta: Command.MetaData(name: "MenuBarCommand"))))
-
-      } else {
-        commands.append(.systemCommand(SystemCommand(kind: kind, meta: Command.MetaData(name: "Tiling Command"))))
-      }
+    if !tokens.isEmpty {
+      commands.append(.menuBar(.init(application: nil, tokens: tokens, meta: Command.MetaData(name: "MenuBarCommand"))))
     }
 
     return commands
