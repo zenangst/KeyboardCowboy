@@ -6,6 +6,15 @@ private let rootFolder = URL(fileURLWithPath: #file).pathComponents
   .dropFirst()
 
 struct AppPreferences {
+  @MainActor
+  static var config: AppPreferences {
+    switch KeyboardCowboy.env() {
+    case .development: .designTime()
+    case .previews: .designTime()
+    case .production: .user()
+    }
+  }
+
   var hideAppOnLaunch: Bool = true
   var machportIsEnabled = true
   var configLocation: any ConfigurationLocatable

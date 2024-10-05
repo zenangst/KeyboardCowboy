@@ -3,13 +3,6 @@ import InputSources
 
 @MainActor
 final class Core {
-  static var config: AppPreferences {
-    switch KeyboardCowboy.env() {
-    case .development: .designTime()
-    case .previews: .designTime()
-    case .production: .user()
-    }
-  }
 
   // MARK: - Coordinators
 
@@ -64,7 +57,7 @@ final class Core {
 
   lazy private(set) var configurationStore = ConfigurationStore()
   lazy private(set) var contentStore = ContentStore(
-    Self.config,
+    AppPreferences.config,
     applicationStore: ApplicationStore.shared,
     configurationStore: configurationStore,
     groupStore: groupStore,
