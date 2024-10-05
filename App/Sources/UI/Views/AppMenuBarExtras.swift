@@ -20,17 +20,17 @@ struct AppMenuBarExtras: Scene {
     }
   }
 
-  @ObservedObject private var machPortCoordinator: MachPortCoordinator
+  @ObservedObject private var keyboardCleaner: KeyboardCleaner
 
   private let contentStore: ContentStore
   private let onAction: (Action) -> Void
   private let pub = NotificationCenter.default
     .publisher(for: NSNotification.Name("OpenMainWindow"))
 
-  init(contentStore: ContentStore, machPortCoordinator: MachPortCoordinator, onAction: @escaping (Action) -> Void) {
+  init(contentStore: ContentStore, keyboardCleaner: KeyboardCleaner, onAction: @escaping (Action) -> Void) {
     self.contentStore = contentStore
     self.onAction = onAction
-    _machPortCoordinator = .init(initialValue: machPortCoordinator)
+    _keyboardCleaner = .init(initialValue: keyboardCleaner)
   }
 
   var body: some Scene {
@@ -39,7 +39,7 @@ struct AppMenuBarExtras: Scene {
       AppMenu()
       Divider()
 
-      Toggle(isOn: $machPortCoordinator.keyboardCleanerEnabled, label: {
+      Toggle(isOn: $keyboardCleaner.isEnabled, label: {
         Image(systemName: "bubbles.and.sparkles.fill")
         Text("Keyboard Cleaner")
       })

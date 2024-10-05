@@ -72,11 +72,13 @@ final class Core {
     recorderStore: recorderStore,
     shortcutStore: shortcutStore,
     scriptCommandRunner: scriptCommandRunner)
+  lazy private(set) var keyboardCleaner = KeyboardCleaner()
   lazy private(set) var macroCoordinator = MacroCoordinator()
   lazy private(set) var groupStore = GroupStore()
   lazy private(set) var keyCodeStore = KeyCodesStore(InputSourceController())
   lazy private(set) var notifications = MachPortUINotifications(keyboardShortcutsController: keyboardShortcutsController)
   lazy private(set) var machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
+                                                                  keyboardCleaner: keyboardCleaner,
                                                                   keyboardCommandRunner: keyboardCommandRunner,
                                                                   keyboardShortcutsController: keyboardShortcutsController,
                                                                   macroCoordinator: macroCoordinator,

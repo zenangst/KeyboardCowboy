@@ -48,7 +48,7 @@ struct KeyboardCowboy: App {
   }
 
   var body: some Scene {
-    AppMenuBarExtras(contentStore: core.contentStore, machPortCoordinator: core.machPortCoordinator,
+    AppMenuBarExtras(contentStore: core.contentStore, keyboardCleaner: core.keyboardCleaner,
                      onAction: handleAppExtraAction(_:))
     MainWindow(core, onScene: handleAppScene(_:))
 

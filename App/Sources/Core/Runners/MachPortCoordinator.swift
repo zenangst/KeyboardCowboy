@@ -1,7 +1,6 @@
 import Carbon.HIToolbox
 import Cocoa
 import Combine
-import DynamicNotchKit
 import Foundation
 import MachPort
 import InputSources
@@ -16,16 +15,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     case escape = 53
   }
 
-  private var notchInfo: DynamicNotchInfo = DynamicNotchInfo(title: "")
-  @Published var keyboardCleanerEnabled: Bool = false {
-    didSet {
-      Task { @MainActor in
-        let title = keyboardCleanerEnabled ? "Keyboard Cleaner enabled" : "Keyboard Cowboy disabled"
-        notchInfo.setContent(title: title)
-        notchInfo.show(for: 5.0)
-      }
-    }
-  }
   @Published private(set) var event: MachPortEvent?
   @MainActor @Published private(set) var coordinatorEvent: CGEvent?
   @Published private(set) var flagsChanged: CGEventFlags?
@@ -51,6 +40,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private var workItem: DispatchWorkItem?
   private var capsLockDown: Bool = false
 
+  private let keyboardCleaner: KeyboardCleaner
   private let macroCoordinator: MacroCoordinator
   private let keyboardCommandRunner: KeyboardCommandRunner
   private let keyboardShortcutsController: KeyboardShortcutsController
@@ -59,12 +49,14 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private let workflowRunner: WorkflowRunner
 
   internal init(store: KeyCodesStore,
+                keyboardCleaner: KeyboardCleaner,
                 keyboardCommandRunner: KeyboardCommandRunner,
                 keyboardShortcutsController: KeyboardShortcutsController,
                 macroCoordinator: MacroCoordinator,
                 mode: KeyboardCowboyMode,
                 notifications: MachPortUINotifications,
                 workflowRunner: WorkflowRunner) {
+    self.keyboardCleaner = keyboardCleaner
     self.macroCoordinator = macroCoordinator
     self.store = store
     self.keyboardShortcutsController = keyboardShortcutsController
@@ -128,14 +120,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
   @MainActor
   private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool = false, runningMacro: Bool) {
-    if keyboardCleanerEnabled {
-      switch machPortEvent.type {
-      case .keyUp, .keyDown:
-        machPortEvent.result = nil
-        return
-      default:
-        return
-      }
+
+    if keyboardCleaner.isEnabled, keyboardCleaner.consumeEvent(machPortEvent) {
+      return
     }
 
     if launchArguments.isEnabled(.disableMachPorts) { return }
