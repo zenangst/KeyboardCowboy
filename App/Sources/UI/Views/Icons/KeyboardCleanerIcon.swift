@@ -201,8 +201,7 @@ private struct BubbleView: View {
 }
 
 #Preview {
-//  IconPreview { size in
-    KeyboardCleanerIcon(size: 192)
-    .padding(28)
-//  }
+  IconPreview { size in
+    KeyboardCleanerIcon(size: size)
+  }
 }
