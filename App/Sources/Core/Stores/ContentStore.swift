@@ -13,7 +13,7 @@ final class ContentStore: ObservableObject {
   @Published private(set) var state: State = .loading
   @Published private(set) var preferences: AppPreferences
 
-  private let storage: Storage
+  private let storage: ConfigurationStorage
   private let keyboardShortcutsController: KeyboardShortcutsController
 
   private var subscriptions = [AnyCancellable]()
@@ -42,7 +42,7 @@ final class ContentStore: ObservableObject {
     self.configurationStore = configurationStore
     self.keyboardShortcutsController = keyboardShortcutsController
     self.preferences = preferences
-    self.storage = Storage(preferences.configLocation)
+    self.storage = ConfigurationStorage(preferences.configLocation)
     self.recorderStore = recorderStore
 
     guard KeyboardCowboy.env() != .previews else { return }
@@ -58,7 +58,7 @@ final class ContentStore: ObservableObject {
       do {
         configurations = try await storage.load()
         setup(configurations)
-      } catch let error as StorageError {
+      } catch let error as ConfigurationStorageError {
         switch error {
         case .unableToFindFile:
           break

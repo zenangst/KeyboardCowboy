@@ -2,7 +2,7 @@ import Apps
 import Combine
 import Foundation
 
-enum StorageError: Error {
+enum ConfigurationStorageError: Error {
   case unableToFindFile
   case unableToCreateFile
   case unableToReadContents
@@ -10,7 +10,7 @@ enum StorageError: Error {
   case emptyFile
 }
 
-final class Storage: @unchecked Sendable {
+final class ConfigurationStorage: @unchecked Sendable {
   var configLocation: any ConfigurationLocatable
 
   private let encoder: JSONEncoder
@@ -47,18 +47,18 @@ final class Storage: @unchecked Sendable {
     if !fileManager.fileExists(atPath: configLocation.url.path) {
       if !fileManager.createFile(atPath: configLocation.url.path, contents: nil) {
         Benchmark.shared.stop("Storage.load")
-        throw StorageError.unableToFindFile
+        throw ConfigurationStorageError.unableToFindFile
       }
     }
 
     guard let data = fileManager.contents(atPath: configLocation.url.path) else {
       Benchmark.shared.stop("Storage.load")
-      throw StorageError.unableToReadContents
+      throw ConfigurationStorageError.unableToReadContents
     }
 
     if data.count <= 1 {
       Benchmark.shared.stop("Storage.load")
-      throw StorageError.emptyFile
+      throw ConfigurationStorageError.emptyFile
     }
 
     do {
@@ -85,7 +85,7 @@ final class Storage: @unchecked Sendable {
   func load() async throws -> [WorkflowGroup] {
     guard let data = fileManager.contents(atPath: configLocation.url.path),
           !data.isEmpty else {
-      throw StorageError.unableToReadContents
+      throw ConfigurationStorageError.unableToReadContents
     }
 
     return try decoder.decode([WorkflowGroup].self, from: data)
@@ -107,7 +107,7 @@ final class Storage: @unchecked Sendable {
       let data = try encoder.encode(configurations)
       fileManager.createFile(atPath: configLocation.url.path, contents: data, attributes: nil)
     } catch let error {
-      throw StorageError.unableToSaveContents(error)
+      throw ConfigurationStorageError.unableToSaveContents(error)
     }
   }
 }
