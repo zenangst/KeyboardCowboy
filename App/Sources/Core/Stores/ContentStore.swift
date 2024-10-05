@@ -42,7 +42,7 @@ final class ContentStore: ObservableObject {
     self.configurationStore = configurationStore
     self.keyboardShortcutsController = keyboardShortcutsController
     self.preferences = preferences
-    self.storage = Storage(preferences.storageConfiguration)
+    self.storage = Storage(preferences.configLocation)
     self.recorderStore = recorderStore
 
     guard KeyboardCowboy.env() != .previews else { return }

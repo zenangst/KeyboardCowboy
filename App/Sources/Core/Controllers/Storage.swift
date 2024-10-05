@@ -11,7 +11,7 @@ enum StorageError: Error {
 }
 
 final class Storage: @unchecked Sendable {
-  var configuration: any StoringConfiguration
+  var configLocation: any ConfigurationLocatable
 
   private let encoder: JSONEncoder
   private let decoder: JSONDecoder
@@ -19,12 +19,12 @@ final class Storage: @unchecked Sendable {
 
   private var subscription: AnyCancellable?
 
-  internal init(_ configuration: any StoringConfiguration,
+  internal init(_ configLocation: any ConfigurationLocatable,
                 decoder: JSONDecoder = .init(),
                 encoder: JSONEncoder = .init(),
                 fileManager: FileManager = .init()
   ) {
-    self.configuration = configuration
+    self.configLocation = configLocation
     self.encoder = encoder
     self.decoder = decoder
     self.fileManager = fileManager
@@ -44,14 +44,14 @@ final class Storage: @unchecked Sendable {
   func load() async throws -> [KeyboardCowboyConfiguration] {
     Benchmark.shared.start("Storage.load")
 
-    if !fileManager.fileExists(atPath: configuration.url.path) {
-      if !fileManager.createFile(atPath: configuration.url.path, contents: nil) {
+    if !fileManager.fileExists(atPath: configLocation.url.path) {
+      if !fileManager.createFile(atPath: configLocation.url.path, contents: nil) {
         Benchmark.shared.stop("Storage.load")
         throw StorageError.unableToFindFile
       }
     }
 
-    guard let data = fileManager.contents(atPath: configuration.url.path) else {
+    guard let data = fileManager.contents(atPath: configLocation.url.path) else {
       Benchmark.shared.stop("Storage.load")
       throw StorageError.unableToReadContents
     }
@@ -83,7 +83,7 @@ final class Storage: @unchecked Sendable {
   }
 
   func load() async throws -> [WorkflowGroup] {
-    guard let data = fileManager.contents(atPath: configuration.url.path),
+    guard let data = fileManager.contents(atPath: configLocation.url.path),
           !data.isEmpty else {
       throw StorageError.unableToReadContents
     }
@@ -105,7 +105,7 @@ final class Storage: @unchecked Sendable {
     encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
     do {
       let data = try encoder.encode(configurations)
-      fileManager.createFile(atPath: configuration.url.path, contents: data, attributes: nil)
+      fileManager.createFile(atPath: configLocation.url.path, contents: data, attributes: nil)
     } catch let error {
       throw StorageError.unableToSaveContents(error)
     }

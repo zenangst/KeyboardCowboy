@@ -1,10 +1,10 @@
 import Foundation
 
-protocol StoringConfiguration: Hashable, Sendable {
+protocol ConfigurationLocatable: Hashable, Sendable {
   var url: URL { get }
 }
 
-struct StorageConfiguration: StoringConfiguration {
+struct ConfigurationLocation: ConfigurationLocatable {
   var path: String
   var filename: String
   var url: URL {
@@ -17,6 +17,6 @@ struct StorageConfiguration: StoringConfiguration {
   }
 }
 
-struct UserStorageConfiguration: StoringConfiguration {
+struct ConfigurationUserStorage: ConfigurationLocatable {
   var url: URL
 }

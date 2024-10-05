@@ -8,7 +8,7 @@ private let rootFolder = URL(fileURLWithPath: #file).pathComponents
 struct AppPreferences {
   var hideAppOnLaunch: Bool = true
   var machportIsEnabled = true
-  var storageConfiguration: any StoringConfiguration
+  var configLocation: any ConfigurationLocatable
 
   private static func filename(for functionName: StaticString) -> String {
     "\(functionName)"
@@ -20,21 +20,21 @@ struct AppPreferences {
     AppPreferences(
       hideAppOnLaunch: true,
       machportIsEnabled: true,
-      storageConfiguration: StorageConfiguration(path: "~/", filename: ".keyboard-cowboy.json"))
+      configLocation: ConfigurationLocation(path: "~/", filename: ".keyboard-cowboy.json"))
   }
 
   static func development() -> AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,
       machportIsEnabled: true,
-      storageConfiguration: StorageConfiguration(path: "~/", filename: ".keyboard-cowboy.json"))
+      configLocation: ConfigurationLocation(path: "~/", filename: ".keyboard-cowboy.json"))
   }
 
   static func emptyFile() -> AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
+      configLocation: ConfigurationLocation(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                                  filename: filename(for: #function)))
   }
 
@@ -42,7 +42,7 @@ struct AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: StorageConfiguration(path: rootFolder.appending("//jsonKeyboardCowboy/Fixtures"),
+      configLocation: ConfigurationLocation(path: rootFolder.appending("//jsonKeyboardCowboy/Fixtures"),
                                                  filename: filename(for: #function)))
   }
 
@@ -50,7 +50,7 @@ struct AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
+      configLocation: ConfigurationLocation(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                                  filename: filename(for: #function)))
 
   }
@@ -59,7 +59,7 @@ struct AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,
       machportIsEnabled: true,
-      storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
+      configLocation: ConfigurationLocation(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                                  filename: filename(for: #function)))
   }
 
@@ -67,7 +67,7 @@ struct AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,
       machportIsEnabled: false,
-      storageConfiguration: StorageConfiguration(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
+      configLocation: ConfigurationLocation(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
                                                  filename: filename(for: #function)))
 
   }
