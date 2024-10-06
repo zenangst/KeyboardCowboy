@@ -1,10 +1,6 @@
 import Foundation
 
-protocol ConfigurationLocatable: Hashable, Sendable {
-  var url: URL { get }
-}
-
-struct ConfigurationLocation: ConfigurationLocatable {
+struct ConfigurationLocation: Equatable {
   var path: String
   var filename: String
   var url: URL {
@@ -17,6 +13,22 @@ struct ConfigurationLocation: ConfigurationLocatable {
   }
 }
 
-struct ConfigurationUserStorage: ConfigurationLocatable {
-  var url: URL
+extension ConfigurationLocation {
+  private static var jsonFixuresFolder: String { rootFolder.appending("/KeyboardCowboy/Fixtures/json") }
+
+  static var user: ConfigurationLocation {
+    ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: ".keyboard-cowboy.json")
+  }
+
+  static var legacy: ConfigurationLocation {
+    ConfigurationLocation(path: "~/", filename: ".keyboard-cowboy.json")
+  }
+
+  static var designTime: ConfigurationLocation {
+    ConfigurationLocation(path: jsonFixuresFolder, filename: "designTime.json")
+  }
+
+  static var performance: ConfigurationLocation {
+    ConfigurationLocation(path: jsonFixuresFolder, filename: "designTime.json")
+  }
 }

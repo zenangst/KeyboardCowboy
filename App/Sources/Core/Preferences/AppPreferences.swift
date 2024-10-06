@@ -1,10 +1,5 @@
 import Cocoa
 
-private let rootFolder = URL(fileURLWithPath: #file).pathComponents
-  .prefix(while: { $0 != "KeyboardCowboy" })
-  .joined(separator: "/")
-  .dropFirst()
-
 struct AppPreferences {
   @MainActor
   static var config: AppPreferences {
@@ -17,7 +12,7 @@ struct AppPreferences {
 
   var hideAppOnLaunch: Bool = true
   var machportIsEnabled = true
-  var configLocation: any ConfigurationLocatable
+  var configLocation: ConfigurationLocation
 
   private static func filename(for functionName: StaticString) -> String {
     "\(functionName)"
@@ -29,14 +24,14 @@ struct AppPreferences {
     AppPreferences(
       hideAppOnLaunch: true,
       machportIsEnabled: true,
-      configLocation: ConfigurationLocation(path: "~/", filename: ".keyboard-cowboy.json"))
+      configLocation: .user)
   }
 
   static func development() -> AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,
       machportIsEnabled: true,
-      configLocation: ConfigurationLocation(path: "~/", filename: ".keyboard-cowboy.json"))
+      configLocation: .user)
   }
 
   static func emptyFile() -> AppPreferences {
@@ -68,8 +63,7 @@ struct AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,
       machportIsEnabled: true,
-      configLocation: ConfigurationLocation(path: rootFolder.appending("/KeyboardCowboy/Fixtures/json"),
-                                                 filename: filename(for: #function)))
+      configLocation: .designTime)
   }
 
   static func performance() -> AppPreferences {

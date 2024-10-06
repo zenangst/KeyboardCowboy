@@ -11,7 +11,7 @@ enum ConfigurationStorageError: Error {
 }
 
 final class ConfigurationStorage: @unchecked Sendable {
-  var configLocation: any ConfigurationLocatable
+  var configLocation: ConfigurationLocation
 
   private let encoder: JSONEncoder
   private let decoder: JSONDecoder
@@ -19,7 +19,7 @@ final class ConfigurationStorage: @unchecked Sendable {
 
   private var subscription: AnyCancellable?
 
-  internal init(_ configLocation: any ConfigurationLocatable,
+  internal init(_ configLocation: ConfigurationLocation,
                 decoder: JSONDecoder = .init(),
                 encoder: JSONEncoder = .init(),
                 fileManager: FileManager = .init()
