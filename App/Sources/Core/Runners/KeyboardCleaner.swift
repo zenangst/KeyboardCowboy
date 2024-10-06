@@ -4,18 +4,16 @@ import MachPort
 
 @MainActor
 final class KeyboardCleaner: ObservableObject {
-  private var notchInfo: DynamicNotchInfo = DynamicNotchInfo(title: "")
+  private lazy var notchInfo = DynamicNotchInfo(iconView: KeyboardCleanerIcon(size: 24), title: "")
   @Published var isEnabled: Bool = false {
     didSet {
       let title = isEnabled ? "Keyboard Cleaner enabled" : "Keyboard Cowboy disabled"
-      notchInfo.setContent(title: title)
-      notchInfo.show(for: 5.0)
+      notchInfo.setContent(iconView: KeyboardCleanerIcon(size: 36), title: title)
+      notchInfo.show(for: isEnabled ? 5.0 : 2.0)
     }
   }
 
-  nonisolated init() {
-    
-  }
+  nonisolated init() { }
 
   func consumeEvent(_ event: MachPortEvent) -> Bool {
     switch event.type {

@@ -64,9 +64,9 @@ private struct BubbleSystemView: View {
       Color(NSColor.systemMint.blended(withFraction: 0.5, of: .white)!)
     ]
     ZStack {
-      ForEach(0..<20, id: \.self) { index in
+      ForEach(0..<10, id: \.self) { index in
         let animationDuration = Double.random(in: 1.0..<6.0)
-        BubbleView(size: size * CGFloat.random(in: 0.05..<0.2))
+        BubbleView(size: size * CGFloat.random(in: 0.25..<0.35))
           .colorMultiply(colors.randomElement() ?? .white)
           .opacity(isAnimating ? 1 : 0)
           .animation(
@@ -201,7 +201,5 @@ private struct BubbleView: View {
 }
 
 #Preview {
-  IconPreview { size in
-    KeyboardCleanerIcon(size: size)
-  }
+  KeyboardCleanerIcon(size: 48)
 }
