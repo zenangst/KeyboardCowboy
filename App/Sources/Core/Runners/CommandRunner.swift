@@ -286,6 +286,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           }
         }
         runners.system.resetFocusComponents()
+        SystemWindowTilingRunner.initialIndex()
         output = command.name
       }
     case .keyboard(let keyboardCommand):
