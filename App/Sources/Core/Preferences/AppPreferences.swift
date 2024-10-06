@@ -27,6 +27,13 @@ struct AppPreferences {
       configLocation: .user)
   }
 
+  static func legacy() -> AppPreferences {
+    AppPreferences(
+      hideAppOnLaunch: true,
+      machportIsEnabled: true,
+      configLocation: .legacy)
+  }
+
   static func development() -> AppPreferences {
     AppPreferences(
       hideAppOnLaunch: false,

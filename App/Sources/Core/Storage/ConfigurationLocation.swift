@@ -17,7 +17,7 @@ extension ConfigurationLocation {
   private static var jsonFixuresFolder: String { rootFolder.appending("/KeyboardCowboy/Fixtures/json") }
 
   static var user: ConfigurationLocation {
-    ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: ".keyboard-cowboy.json")
+    ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: "config.json")
   }
 
   static var legacy: ConfigurationLocation {

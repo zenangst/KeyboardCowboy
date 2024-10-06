@@ -25,6 +25,7 @@ final class ContentStore: ObservableObject {
 
   private var configurationId: String
   let applicationStore: ApplicationStore
+  let configMigrator: ConfigurationMigrator
 
   init(_ preferences: AppPreferences,
        applicationStore: ApplicationStore,
@@ -45,7 +46,19 @@ final class ContentStore: ObservableObject {
     self.storage = ConfigurationStorage(preferences.configLocation)
     self.recorderStore = recorderStore
 
+    let legacy = AppPreferences.legacy()
+    self.configMigrator = ConfigurationMigrator(legacyUrl: legacy.configLocation.url)
+
     guard KeyboardCowboy.env() != .previews else { return }
+
+    do {
+      if try configMigrator.configurationNeedsMigration(at: legacy.configLocation.url) == true {
+        try configMigrator.performMigration(from: legacy.configLocation.url,
+                                            to: preferences.configLocation.url)
+      }
+    } catch {
+      print("Error migrating configuration: \(error))")
+    }
 
     UserSpace.shared.subscribe(to: configurationStore.$selectedConfiguration)
 
