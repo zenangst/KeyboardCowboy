@@ -38,6 +38,9 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   func commands(_ applications: [Application]) -> [Command] {
     var commands = [Command]()
 
+    let slowBundles = Set([
+      "com.tinyspeck.slackmacgap"
+    ])
     let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: nil, name: "Hide All Apps")))
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
@@ -75,12 +78,20 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
             modifiers: [.waitForAppToLaunch]
           )))
+
+        let activationDelay: CGFloat
+        if slowBundles.contains(application.bundleIdentifier) {
+          activationDelay = 125
+        } else {
+          activationDelay = 25
+        }
+
         commands.append(
           .application(ApplicationCommand(
             action: .open,
             application: application,
-            meta: Command.MetaData(delay: 25, name: "Activate \(application.displayName)"),
-            modifiers: [.waitForAppToLaunch]
+            meta: Command.MetaData(delay: activationDelay, name: "Activate \(application.displayName)"),
+            modifiers: []
           )))
       } else if isFrontmost {
         commands.append(
