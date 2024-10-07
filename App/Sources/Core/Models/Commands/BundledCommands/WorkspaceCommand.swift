@@ -53,6 +53,8 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let runningBundles = Set(runningApplications.compactMap(\.bundleIdentifier))
     let perfectBundleMatch = runningBundles == Set(bundleIdentifiers)
 
+    if hideOtherApps && !perfectBundleMatch { commands.append(hideAllAppsCommand) }
+
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         continue
@@ -67,7 +69,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       let isFrontmost = frontmostApplication?.bundleIdentifier == bundleIdentifier
       let isLastItem = bundleIdentifiersCount - 1 == offset
 
-      if hideOtherApps && !perfectBundleMatch { commands.append(hideAllAppsCommand) }
 
       let action: ApplicationCommand.Action
 
@@ -89,9 +90,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
         let activationDelay: Double?
 
         if perfectBundleMatch {
-          continue
+          activationDelay = nil
+        } else if !perfectBundleMatch {
+          activationDelay = 200
         } else if slowBundles.contains(application.bundleIdentifier) {
-          activationDelay = 125
+          activationDelay = 225
         } else {
           activationDelay = 25
         }
@@ -116,7 +119,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
           .application(ApplicationCommand(
             action: .open,
             application: application,
-            meta: Command.MetaData(delay: nil, name: "Open \(application.displayName)"),
+            meta: Command.MetaData(delay: 250, name: "Open \(application.displayName)"),
             modifiers: [.waitForAppToLaunch]
           )))
       } else {

@@ -3,7 +3,6 @@ import Cocoa
 import Foundation
 import Windows
 
-
 final class SystemWindowTilingRunner {
   nonisolated(unsafe) static var debug: Bool = false
   @MainActor private static var currentTask: Task<Void, any Error>?
