@@ -275,6 +275,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           case .systemCommand(let systemCommand):
             switch systemCommand.kind {
             case .windowTilingArrangeLeftRight:
+              try await SystemWindowTilingRunner.run(.arrangeLeftRight, toggleFill: false, snapshot: snapshot)
+            case .windowTilingArrangeRightLeft:
               try await SystemWindowTilingRunner.run(.arrangeRightLeft, toggleFill: false, snapshot: snapshot)
             case .windowTilingArrangeTopBottom:
               try await SystemWindowTilingRunner.run(.arrangeTopBottom, toggleFill: false, snapshot: snapshot)
