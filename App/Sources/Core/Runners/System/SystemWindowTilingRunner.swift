@@ -303,6 +303,8 @@ final class SystemWindowTilingRunner {
           determineTiling(for: updateSubjects, in: visibleScreenFrame, newWindows: newWindows)
         }
       }
+
+      FocusBorder.shared.dismiss()
     }
   }
 
@@ -362,7 +364,7 @@ final class SystemWindowTilingRunner {
   }
 
   private static func recursiveSearch(_ tokens: [MenuBarCommand.Token],
-                               items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement {
+                                      items: [MenuBarItemAccessibilityElement]) throws -> MenuBarItemAccessibilityElement {
     guard let token = tokens.first else { throw MenuBarCommandRunnerError.ranOutOfTokens }
 
     var nextTokens = tokens

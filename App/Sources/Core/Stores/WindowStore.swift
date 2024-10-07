@@ -127,6 +127,7 @@ final class WindowStore: @unchecked Sendable {
     let windowModels: [WindowModel] = models
       .filter {
         $0.ownerName != "borders" &&
+        $0.ownerName != "Keyboard Cowboy" &&
         $0.alpha > 0 &&
         $0.id > 0 &&
         $0.isOnScreen &&
@@ -146,6 +147,7 @@ final class WindowStore: @unchecked Sendable {
     let windowModels: [WindowModel] = models
       .filter {
         $0.ownerName != "borders" &&
+        $0.ownerName != "Keyboard Cowboy" &&
         $0.id > 0 &&
         $0.alpha > 0 &&
         $0.isOnScreen &&

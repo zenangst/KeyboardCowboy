@@ -22,12 +22,15 @@ final class SystemWindowRelativeFocus {
   }
 
   func run(_ direction: Direction, snapshot: UserSpace.Snapshot) async throws {
+    guard let screen = NSScreen.main else { return }
+
     if direction != previousDirection {
       previousDirection = direction
       consumedWindows.removeAll()
     }
 
     var windows = indexWindowsInStage(getWindows())
+
     let frontMostApplication = snapshot.frontMostApplication
     let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
     var activeWindow: WindowModel?
@@ -74,6 +77,10 @@ final class SystemWindowRelativeFocus {
 
     match?.performAction(.raise)
 
+    var invertedFrame = matchedWindow.rect.invertedYCoordinate(on: screen)
+    invertedFrame.origin.y += abs(screen.frame.height - screen.visibleFrame.height)
+    await FocusBorder.shared.show(invertedFrame)
+
     if Self.mouseFollow, let match, let frame = match.frame {
       let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
       NSCursor.moveCursor(to: targetPoint)
@@ -95,6 +102,7 @@ final class SystemWindowRelativeFocus {
       .filter {
         $0.id > 0 &&
         $0.ownerName != "borders" &&
+        $0.ownerName != "Keyboard Cowboy" &&
         $0.isOnScreen &&
         $0.rect.size.width > minimumSize.width &&
         $0.rect.size.height > minimumSize.height &&

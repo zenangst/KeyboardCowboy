@@ -21,10 +21,10 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
   private var consumedWindows = Set<WindowModel>()
   private var previousQuarter: Quarter?
   private var initialWindows = [WindowModel]()
-  @MainActor lazy var window: NSWindow = ZenWindow(
+  @MainActor lazy var debugWindow: NSWindow = ZenWindow(
     animationBehavior: .none,
     content: RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor, lineWidth: 4))
-  @MainActor lazy var windowController: NSWindowController = NSWindowController(window: window)
+  @MainActor lazy var debugWindowController: NSWindowController = NSWindowController(window: debugWindow)
 
   init() {
     initialWindows = indexWindowsInStage(getWindows())
@@ -82,8 +82,8 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
 
     if Self.debug {
       let invertedRect = targetRect.invertedYCoordinate(on: screen)
-      windowController.window?.setFrame(invertedRect, display: true)
-      windowController.showWindow(nil)
+      debugWindowController.window?.setFrame(invertedRect, display: true)
+      debugWindowController.showWindow(nil)
     }
 
     let quarterFilter: (WindowModel) -> Bool = {
@@ -98,6 +98,10 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
     guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) else {
       return
     }
+
+    var invertedFrame = matchedWindow.rect.invertedYCoordinate(on: screen)
+    invertedFrame.origin.y += abs(screen.frame.height - screen.visibleFrame.height)
+    FocusBorder.shared.show(invertedFrame)
 
     consumedWindows.insert(matchedWindow)
 
@@ -134,6 +138,7 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
       .filter {
         $0.id > 0 &&
         $0.ownerName != "borders" &&
+        $0.ownerName != "Keyboard Cowboy" &&
         $0.isOnScreen &&
         $0.rect.size.width > minimumSize.width &&
         $0.rect.size.height > minimumSize.height &&
