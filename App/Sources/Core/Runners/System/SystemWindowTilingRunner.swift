@@ -3,29 +3,6 @@ import Cocoa
 import Foundation
 import Windows
 
-enum WindowTiling {
-  case left
-  case right
-  case top
-  case bottom
-  case topLeft
-  case topRight
-  case bottomLeft
-  case bottomRight
-  case center
-  case fill
-  case zoom
-  case arrangeLeftRight
-  case arrangeRightLeft
-  case arrangeTopBottom
-  case arrangeBottomTop
-  case arrangeLeftQuarters
-  case arrangeRightQuarters
-  case arrangeTopQuarters
-  case arrangeBottomQuarters
-  case arrangeQuarters
-  case previousSize
-}
 
 final class SystemWindowTilingRunner {
   nonisolated(unsafe) static var debug: Bool = false
@@ -44,7 +21,7 @@ final class SystemWindowTilingRunner {
     }
   }
 
-  static func run(_ tiling: WindowTiling, snapshot: UserSpace.Snapshot) async throws {
+  static func run(_ tiling: WindowTiling, toggleFill: Bool = true, snapshot: UserSpace.Snapshot) async throws {
     guard let screen = NSScreen.main, let runningApplication = NSWorkspace.shared.frontmostApplication else {
       return
     }
@@ -272,8 +249,8 @@ final class SystemWindowTilingRunner {
         let currentStorage = storage[nextWindow.windowNumber]
         var nextTiling: WindowTiling
 
-        switch activatedTiling {
-        case .fill:
+        switch (activatedTiling, toggleFill) {
+        case (.fill, true):
           if let currentStorage, currentStorage.isFullScreen {
             nextTiling = currentStorage.tiling
             if currentStorage.isFullScreen {
@@ -288,27 +265,7 @@ final class SystemWindowTilingRunner {
           updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
         }
 
-        var menuBarMatch: MenuBarItemAccessibilityElement?
-        switch nextTiling {
-        case .zoom, .fill, .center:
-          let items = menuItems.windowMenuBarItems
-          for item in items {
-            if item.identifier == nextTiling.identifier {
-              menuBarMatch = item
-              break
-            }
-          }
-        default:
-          let items = menuItems.windowMoveAndResizeItems
-          for item in items {
-            if item.identifier == nextTiling.identifier {
-              menuBarMatch = item
-              break
-            }
-          }
-        }
-
-        guard let match = menuBarMatch else { return }
+        guard let match = WindowTilingMenuItemFinder.find(nextTiling, in: menuItems) else { return }
         try Task.checkCancellation()
         match.performAction(.pick)
 
@@ -393,64 +350,4 @@ fileprivate struct TileStorage {
   let tiling: WindowTiling
   let isFullScreen: Bool
   let isCentered: Bool
-}
-
-fileprivate extension [MenuBarItemAccessibilityElement] {
-  var windowMoveAndResizeItems: [MenuBarItemAccessibilityElement] {
-    for menuItem in windowMenuBarItems {
-      if menuItem.isSubMenu, let submenu = try? menuItem.menuItems().first,
-         let menuItems = try? submenu.menuItems() {
-        for item in menuItems where item.isEnabled == true {
-          if item.identifier == WindowTiling.left.identifier {
-            return menuItems
-          }
-        }
-      }
-    }
-
-    return []
-  }
-
-  var windowMenuBarItems: [MenuBarItemAccessibilityElement] {
-    for menuItem in self {
-      if menuItem.isSubMenu,
-          let submenu = try? menuItem.menuItems().first,
-          let menuItems = try? submenu.menuItems() {
-        for item in menuItems where item.isEnabled == true {
-          if item.identifier == WindowTiling.fill.identifier {
-            return menuItems
-          }
-        }
-      }
-    }
-    return []
-  }
-}
-
-fileprivate extension WindowTiling {
-  var identifier: String {
-    return switch self {
-    case .left: "_zoomLeft:"
-    case .right: "_zoomRight:"
-    case .top: "_zoomTop:"
-    case .bottom: "_zoomBottom:"
-    case .topLeft: "_zoomTopLeft:"
-    case .topRight: "_zoomTopRight:"
-    case .bottomLeft: "_zoomBottomLeft:"
-    case .bottomRight: "_zoomBottomRight:"
-    case .center: "_zoomCenter:"
-    case .fill: "_zoomFill:"
-    case .zoom: "performZoom:"
-    case .arrangeLeftRight: "_zoomLeftAndRight:"
-    case .arrangeRightLeft: "_zoomRightAndLeft:"
-    case .arrangeTopBottom: "_zoomTopAndBottom:"
-    case .arrangeBottomTop: "_zoomBottomAndTop:"
-    case .arrangeLeftQuarters: "_zoomLeftThreeUp:"
-    case .arrangeRightQuarters: "_zoomRightThreeUp:"
-    case .arrangeTopQuarters: "_zoomTopThreeUp:"
-    case .arrangeBottomQuarters: "_zoomBottomThreeUp:"
-    case .arrangeQuarters: "_zoomQuarters:"
-    case .previousSize: "_zoomUntile:"
-    }
-  }
 }

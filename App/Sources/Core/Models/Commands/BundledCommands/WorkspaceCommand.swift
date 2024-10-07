@@ -46,9 +46,16 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
     let windows = WindowStore.shared.windows
 
-    bundleIdentifiers.enumerated().forEach { offset, bundleIdentifier in
+    let pids = windows.map(\.ownerPid.rawValue).map(Int32.init)
+    let runningApplications = NSWorkspace.shared.runningApplications.filter({
+      pids.contains($0.processIdentifier)
+    })
+    let runningBundles = Set(runningApplications.compactMap(\.bundleIdentifier))
+    let perfectBundleMatch = runningBundles == Set(bundleIdentifiers)
+
+    for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
-        return
+        continue
       }
 
       let runningApplication = NSWorkspace.shared.runningApplications.first(where: { app in
@@ -60,7 +67,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       let isFrontmost = frontmostApplication?.bundleIdentifier == bundleIdentifier
       let isLastItem = bundleIdentifiersCount - 1 == offset
 
-      if hideOtherApps { commands.append(hideAllAppsCommand) }
+      if hideOtherApps && !perfectBundleMatch { commands.append(hideAllAppsCommand) }
 
       let action: ApplicationCommand.Action
 
@@ -79,8 +86,11 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             modifiers: [.waitForAppToLaunch]
           )))
 
-        let activationDelay: CGFloat
-        if slowBundles.contains(application.bundleIdentifier) {
+        let activationDelay: Double?
+
+        if perfectBundleMatch {
+          continue
+        } else if slowBundles.contains(application.bundleIdentifier) {
           activationDelay = 125
         } else {
           activationDelay = 25
@@ -120,24 +130,25 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       }
     }
 
-
-    let tokens: [MenuBarCommand.Token] = switch tiling {
-    case .arrangeLeftRight:      MenuBarCommand.Token.leftRight()
-    case .arrangeRightLeft:      MenuBarCommand.Token.rightLeft()
-    case .arrangeTopBottom:      MenuBarCommand.Token.topBottom()
-    case .arrangeBottomTop:      MenuBarCommand.Token.bottomTop()
-    case .arrangeLeftQuarters:   MenuBarCommand.Token.leftQuarters()
-    case .arrangeRightQuarters:  MenuBarCommand.Token.rightQuarters()
-    case .arrangeTopQuarters:    MenuBarCommand.Token.topQuarters()
-    case .arrangeBottomQuarters: MenuBarCommand.Token.bottomQuarters()
-    case .arrangeQuarters:       MenuBarCommand.Token.quarters()
-    case .fill:                  MenuBarCommand.Token.fill()
-    case .center:                MenuBarCommand.Token.center()
-    case nil:                    []
+    let windowTiling: SystemCommand.Kind? = switch tiling {
+    case .arrangeLeftRight:      .windowTilingArrangeLeftRight
+    case .arrangeRightLeft:      .windowTilingArrangeLeftRight
+    case .arrangeTopBottom:      .windowTilingArrangeTopBottom
+    case .arrangeBottomTop:      .windowTilingArrangeBottomTop
+    case .arrangeLeftQuarters:   .windowTilingArrangeLeftQuarters
+    case .arrangeRightQuarters:  .windowTilingArrangeRightQuarters
+    case .arrangeTopQuarters:    .windowTilingArrangeTopQuarters
+    case .arrangeBottomQuarters: .windowTilingArrangeBottomQuarters
+    case .arrangeQuarters:       .windowTilingArrangeQuarters
+    case .fill:                  .windowTilingFill
+    case .center:                .windowTilingCenter
+    case nil:                    nil
     }
 
-    if !tokens.isEmpty {
-      commands.append(.menuBar(.init(application: nil, tokens: tokens, meta: Command.MetaData(name: "MenuBarCommand"))))
+    if let windowTiling {
+      commands.append(
+        .systemCommand(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling")))
+      )
     }
 
     return commands
