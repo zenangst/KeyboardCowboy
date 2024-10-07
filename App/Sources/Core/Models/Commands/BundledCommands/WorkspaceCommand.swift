@@ -38,9 +38,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   func commands(_ applications: [Application]) -> [Command] {
     var commands = [Command]()
 
-    let slowBundles = Set([
-      "com.tinyspeck.slackmacgap"
-    ])
+    let slowBundles = Set(["com.tinyspeck.slackmacgap"])
     let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: nil, name: "Hide All Apps")))
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
@@ -68,8 +66,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       let appIsRunning = runningApplication != nil
       let isFrontmost = frontmostApplication?.bundleIdentifier == bundleIdentifier
       let isLastItem = bundleIdentifiersCount - 1 == offset
-
-
       let action: ApplicationCommand.Action
 
       if let runningApplication, !windows.map(\.ownerPid.rawValue).contains(Int(runningApplication.processIdentifier)) {

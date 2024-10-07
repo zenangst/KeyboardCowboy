@@ -319,9 +319,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             )
           }
 
-
           if let delay = command.delay, delay > 0 {
-            try await Task.sleep(for: .milliseconds(delay))
+            try? await Task.sleep(for: .milliseconds(delay))
           }
         }
         runners.system.resetFocusComponents()
