@@ -334,9 +334,10 @@ final class SystemWindowTilingRunner {
       storage[window.windowNumber] = nil
       return
     }
-    storage[window.windowNumber] = TileStorage(tiling: tiling,
-                                               isFullScreen: storage[window.windowNumber]?.isFullScreen ?? false,
-                                               isCentered: storage[window.windowNumber]?.isCentered ?? false)
+    storage[window.windowNumber] = TileStorage(
+      tiling: tiling,
+      isFullScreen: storage[window.windowNumber]?.isFullScreen ?? false,
+      isCentered: storage[window.windowNumber]?.isCentered ?? false)
   }
 
   @MainActor
@@ -358,15 +359,17 @@ final class SystemWindowTilingRunner {
       let centerX = rect.midX
       let centerY = rect.midY
 
+      let result: WindowTiling
       if centerX < halfWidth && centerY < halfHeight {
-        return .topLeft
+        result = rect.height > halfHeight ? .left : .topLeft
       } else if centerX >= halfWidth && centerY < halfHeight {
-        return .topRight
+        result = rect.height > halfHeight ? .right :  .topRight
       } else if centerX < halfWidth && centerY >= halfHeight {
-        return .bottomLeft
+        result =  rect.height > halfHeight ? .left : .bottomLeft
       } else {
-        return .bottomRight
+        result = rect.height > halfHeight ? .right : .bottomRight
       }
+      return result
     }
 
     for (oldWindow, newWindow) in zip(subjects, newWindows) {
