@@ -39,7 +39,6 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     var commands = [Command]()
 
     let slowBundles = Set(["com.tinyspeck.slackmacgap"])
-    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: nil, name: "Hide All Apps")))
     let bundleIdentifiersCount = bundleIdentifiers.count
     let frontmostApplication = NSWorkspace.shared.frontmostApplication
     let windows = WindowStore.shared.windows
@@ -51,7 +50,14 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let runningBundles = Set(runningApplications.compactMap(\.bundleIdentifier))
     let perfectBundleMatch = runningBundles == Set(bundleIdentifiers)
 
-    if hideOtherApps && !perfectBundleMatch { commands.append(hideAllAppsCommand) }
+    let hideDelay: Double?
+    if perfectBundleMatch {
+      hideDelay = nil
+    } else {
+      hideDelay = 175
+    }
+
+    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: hideDelay, name: "Hide All Apps")))
 
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
@@ -83,12 +89,14 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             modifiers: [.waitForAppToLaunch]
           )))
 
+        if hideOtherApps && !perfectBundleMatch { commands.append(hideAllAppsCommand) }
+
         let activationDelay: Double?
 
         if perfectBundleMatch {
           activationDelay = nil
         } else if !perfectBundleMatch {
-          activationDelay = 200
+          activationDelay = hideDelay != nil ? nil : 200
         } else if slowBundles.contains(application.bundleIdentifier) {
           activationDelay = 225
         } else {
@@ -110,6 +118,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             meta: Command.MetaData(delay: nil, name: "Unhide frontmost application \(application.displayName)"),
             modifiers: [.waitForAppToLaunch]
           )))
+
       } else if !appIsRunning {
         commands.append(
           .application(ApplicationCommand(
