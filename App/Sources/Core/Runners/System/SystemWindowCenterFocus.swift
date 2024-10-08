@@ -132,7 +132,7 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
 
   private func indexWindowsInStage(_ models: [WindowModel], targetRect: CGRect) -> [WindowModel] {
     let excluded = ["WindowManager", "Window Server"]
-    let minimumSize = CGSize(width: 150, height: 150)
+    let minimumSize = CGSize(width: 300, height: 200)
     let windows: [WindowModel] = models
       .filter {
         $0.id > 0 &&

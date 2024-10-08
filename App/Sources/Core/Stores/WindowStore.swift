@@ -143,7 +143,7 @@ final class WindowStore: @unchecked Sendable {
 
   private func indexStage(_ models: [WindowModel]) {
     let excluded = ["WindowManager", "Window Server"]
-    let minimumSize = CGSize(width: 300, height: 300)
+    let minimumSize = CGSize(width: 300, height: 200)
     let windowModels: [WindowModel] = models
       .filter {
         $0.ownerName != "borders" &&
