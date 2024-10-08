@@ -72,6 +72,23 @@ struct ApplicationCommand: MetaDataProviding {
     }
   }
 
+  enum CodingKeys: CodingKey {
+    case application
+    case action
+    case modifiers
+    case meta
+  }
+
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    let sortedModifiers = self.modifiers.sorted(by: { $0.rawValue < $1.rawValue  })
+
+    try container.encode(self.application, forKey: .application)
+    try container.encode(self.action, forKey: .action)
+    try container.encode(sortedModifiers, forKey: .modifiers)
+    try container.encode(self.meta, forKey: .meta)
+  }
+
   func copy() -> ApplicationCommand {
     ApplicationCommand(
       action: self.action,
