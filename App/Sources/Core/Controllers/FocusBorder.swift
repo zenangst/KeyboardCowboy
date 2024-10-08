@@ -7,6 +7,7 @@ import SwiftUI
 final class FocusBorder {
   var isEnabled: Bool = true
   var workItem: DispatchWorkItem?
+  var previousWindow: NSWindow?
 
   static var shared: FocusBorder { .init() }
 
@@ -17,21 +18,28 @@ final class FocusBorder {
   func show(_ frame: CGRect, for duration: TimeInterval = 0.375) {
     guard isEnabled else { return }
 
-    dismiss()
-
-    let frame = frame.insetBy(dx: -3, dy: -3)
+    let frame = frame.insetBy(dx: -2, dy: -2)
     let publisher = FocusBorderPublisher()
     let window = FocusBorderPanel(
       animationBehavior: .none,
-      content: FocusBorderView(color: Color(.systemBrown), publisher: publisher))
+      content: FocusBorderView(color: .systemBrown,
+                               publisher: publisher))
+
+    dismiss()
 
     let workItem = DispatchWorkItem {
-      withAnimation(.easeOut(duration: 0.1)) {
+      let newFrame = window.frame.insetBy(dx: -2, dy: -2)
+      let duration = 0.125
+      NSAnimationContext.runAnimationGroup { context in
+        context.timingFunction =  CAMediaTimingFunction(name: .easeInEaseOut)
+        context.duration = duration
+        context.allowsImplicitAnimation = true
+        context.completionHandler = { window.close() }
+        window.contentView?.layer?.opacity = 0
+        window.animator().setFrame(newFrame, display: true, animate: true)
+      }
+      withAnimation(.snappy(duration: duration)) {
         publisher.opacity = 0
-        window.orderBack(nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-          window.close()
-        }
       }
     }
 
@@ -43,14 +51,17 @@ final class FocusBorder {
     }
 
     withAnimation(.easeIn(duration: 0.1)) {
-      publisher.opacity = 0.75
+      publisher.opacity = 0.5
     }
 
     window.orderFront(nil)
+    previousWindow = window
   }
 
   func dismiss() {
     guard let workItem else { return }
+    previousWindow?.level = .init(-1)
+    previousWindow?.orderBack(nil)
     DispatchQueue.main.async(execute: workItem)
   }
 }
@@ -62,9 +73,9 @@ final class FocusBorderPublisher: ObservableObject {
 struct FocusBorderView: View {
   @ObserveInjection var inject
   @ObservedObject private var publisher: FocusBorderPublisher
-  private let color: Color
+  private let color: NSColor
 
-  init(color: Color, publisher: FocusBorderPublisher) {
+  init(color: NSColor, publisher: FocusBorderPublisher) {
     self.color = color
     self.publisher = publisher
   }
@@ -72,8 +83,20 @@ struct FocusBorderView: View {
   var body: some View {
     ZStack {
       RoundedRectangle(cornerRadius: 12)
-        .stroke(color, lineWidth: 3)
-        .shadow(color: color, radius: 12, y: -12)
+        .fill(
+          LinearGradient(
+            gradient: Gradient(stops: [
+              .init(color: .clear, location: 0.5),
+              .init(color: Color(color).opacity(0.2), location: 1.0),
+            ]),
+            startPoint: .bottom,
+            endPoint: .top
+          )
+        )
+
+      RoundedRectangle(cornerRadius: 12)
+        .stroke(Color(color.blended(withFraction: 0.1, of: .black)!), lineWidth: 3)
+        .shadow(color: Color(color.blended(withFraction: 0.2, of: .white)!), radius: 32, y: -12)
     }
     .opacity(publisher.opacity)
     .animation(.snappy, value: publisher.opacity)

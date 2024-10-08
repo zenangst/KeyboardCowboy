@@ -49,6 +49,8 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
 
     guard let screen = NSScreen.main else { return }
 
+    FocusBorder.shared.dismiss()
+
     if quarter != previousQuarter {
       reset()
       previousQuarter = quarter

@@ -25,6 +25,8 @@ final class SystemWindowTilingRunner {
       return
     }
 
+    await FocusBorder.shared.dismiss()
+
     let visibleScreenFrame = screen.visibleFrame
 
     await currentTask?.cancel()
@@ -280,7 +282,6 @@ final class SystemWindowTilingRunner {
         }
       }
 
-      FocusBorder.shared.dismiss()
     }
   }
 

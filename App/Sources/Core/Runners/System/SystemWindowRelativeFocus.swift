@@ -24,6 +24,8 @@ final class SystemWindowRelativeFocus {
   func run(_ direction: Direction, snapshot: UserSpace.Snapshot) async throws {
     guard let screen = NSScreen.main else { return }
 
+    await FocusBorder.shared.dismiss()
+
     if direction != previousDirection {
       previousDirection = direction
       consumedWindows.removeAll()
@@ -67,6 +69,7 @@ final class SystemWindowRelativeFocus {
 
     let processIdentifier = pid_t(matchedWindow.ownerPid.rawValue)
     guard let runningApplication = NSRunningApplication(processIdentifier: processIdentifier) else { return }
+
     let appElement = AppAccessibilityElement(processIdentifier)
     let match = try appElement.windows().first(where: { $0.id == matchedWindow.id })
 

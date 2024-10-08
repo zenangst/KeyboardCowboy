@@ -86,6 +86,7 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
       consumedWindows.removeAll()
     }
 
+    FocusBorder.shared.dismiss()
     guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) else {
       return
     }
