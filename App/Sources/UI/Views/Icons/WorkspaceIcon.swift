@@ -27,20 +27,7 @@ struct WorkspaceIcon: View {
       .overlay { iconOverlay().opacity(0.65) }
       .overlay { iconBorder(size) }
       .overlay {
-        let spacing = size * 0.05
-        HStack(spacing: spacing) {
-          Group {
-            Workspace(kind: .quarters, size: size)
-            Workspace(kind: .leftQuarters, size: size)
-            Workspace(kind: .fill, size: size)
-            Workspace(kind: .rightQuarters, size: size)
-          }
-          .compositingGroup()
-          .shadow(radius: 2, y: 2)
-          .frame(width: size / 1.75, height: size / 1.75)
-        }
-        .padding(.vertical, size * 0.2)
-        .offset(x: size * 0.3125)
+        WorkspaceIconIllustration(size: size)
       }
       .frame(width: size, height: size)
       .fixedSize()
@@ -48,7 +35,27 @@ struct WorkspaceIcon: View {
   }
 }
 
-fileprivate struct Workspace: View {
+struct WorkspaceIconIllustration: View {
+  let size: CGFloat
+  var body: some View {
+    let spacing = size * 0.05
+    HStack(spacing: spacing) {
+      Group {
+        WorkspaceIllustration(kind: .quarters, size: size)
+        WorkspaceIllustration(kind: .leftQuarters, size: size)
+        WorkspaceIllustration(kind: .fill, size: size)
+        WorkspaceIllustration(kind: .rightQuarters, size: size)
+      }
+      .compositingGroup()
+      .shadow(radius: 2, y: 2)
+      .frame(width: size / 1.75, height: size / 1.75)
+    }
+    .padding(.vertical, size * 0.2)
+    .offset(x: size * 0.3125)
+  }
+}
+
+struct WorkspaceIllustration: View {
   enum Kind {
     case leftQuarters
     case quarters

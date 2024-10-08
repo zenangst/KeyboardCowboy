@@ -27,43 +27,48 @@ struct FocusOnAppIcon: View {
       }
       .overlay { iconOverlay().opacity(0.65) }
       .overlay { iconBorder(size) }
-      .overlay {
-        Group {
-          ZStack {
-            FocusOnAppIconIllustrationApp(size: size * 0.5)
-              .mask {
-                LinearGradient(stops: [
-                  .init(color: .black.opacity(0.6), location: 0),
-                  .init(color: .clear, location: 0.5)
-                ], startPoint: .top, endPoint: .bottom)
-              }
-              .offset(y: -size * 0.145)
-
-            FocusOnAppIconIllustrationApp(size: size * 0.6)
-              .mask {
-                LinearGradient(stops: [
-                  .init(color: .black.opacity(0.6), location: 0),
-                  .init(color: .clear, location: 0.5)
-                ], startPoint: .top, endPoint: .bottom)
-              }
-              .offset(y: -size * 0.055)
-            FocusOnAppIconIllustrationApp(size: size * 0.65)
-              .offset(y: size * 0.015)
-          }
-
-          Image(systemName: "moon.fill")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: size * 0.4)
-            .shadow(color: Color(.systemPurple.blended(withFraction: 0.35, of: .black)!).opacity(0.5), radius: 10, y: 6)
-        }
-        .compositingGroup()
-        .shadow(radius: 2, y: 2)
-        .frame(width: size / 1.25, height: size / 1.25)
-      }
+      .overlay { FocusOnAppIconGroupView(size: size) }
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
+  }
+}
+
+struct FocusOnAppIconGroupView: View {
+  let size: CGFloat
+  var body: some View {
+    Group {
+      ZStack {
+        FocusOnAppIconIllustrationApp(size: size * 0.5)
+          .mask {
+            LinearGradient(stops: [
+              .init(color: .black.opacity(0.6), location: 0),
+              .init(color: .clear, location: 0.5)
+            ], startPoint: .top, endPoint: .bottom)
+          }
+          .offset(y: -size * 0.145)
+
+        FocusOnAppIconIllustrationApp(size: size * 0.6)
+          .mask {
+            LinearGradient(stops: [
+              .init(color: .black.opacity(0.6), location: 0),
+              .init(color: .clear, location: 0.5)
+            ], startPoint: .top, endPoint: .bottom)
+          }
+          .offset(y: -size * 0.055)
+        FocusOnAppIconIllustrationApp(size: size * 0.65)
+          .offset(y: size * 0.015)
+      }
+
+      Image(systemName: "moon.fill")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: size * 0.4)
+        .shadow(color: Color(.systemPurple.blended(withFraction: 0.35, of: .black)!).opacity(0.5), radius: 10, y: 6)
+    }
+    .compositingGroup()
+    .shadow(radius: 2, y: 2)
+    .frame(width: size / 1.25, height: size / 1.25)
   }
 }
 

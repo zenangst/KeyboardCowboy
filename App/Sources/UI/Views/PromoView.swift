@@ -5,52 +5,87 @@ struct PromoView: View {
   private let iconSize: CGFloat = 48
   var body: some View {
     VStack(spacing: 16) {
-      HStack(alignment: .top, spacing: 16) {
+      HStack(alignment: .top) {
         VStack(alignment: .leading, spacing: 16) {
           HStack(spacing: 16) {
-              PrivacyFirstView()
-                .frame(minWidth: 128, minHeight: 128)
-                .padding(8)
-                .background()
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+            PrivacyFirstView()
+              .frame(width: 128, height: 128)
+              .padding(8)
+              .background()
+              .clipShape(RoundedRectangle(cornerRadius: 16))
 
             ActionPackedView()
-              .frame(minWidth: 128, minHeight: 128)
+              .frame(width: 256, height: 128)
               .padding(8)
               .background()
               .clipShape(RoundedRectangle(cornerRadius: 16))
 
             AutomationView()
-              .frame(minWidth: 128, minHeight: 128)
+              .frame(width: 148, height: 128)
               .padding(8)
               .background()
               .clipShape(RoundedRectangle(cornerRadius: 16))
           }
 
           HStack(spacing: 16) {
-            WindowManagementView(.init(width: 64, height: 64))
-              .frame(minWidth: 128, minHeight: 128)
-              .padding(16)
+            VStack(spacing: 16) {
+              WorkspacesPromoView()
+                .frame(width: 117, height: 117)
+                .padding(8)
+                .background(
+                  WorkspaceBackgroundView()
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
+              FocusOnAppPromoView()
+                .frame(width: 117, height: 117)
+                .padding(8)
+                .background(
+                  FocusOnAppBackground()
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
+
+            }
+            KeyboardCowboyView()
+          }
+        }
+
+        VStack(spacing: 16) {
+          ScriptRunnerView()
+            .padding(16)
+            .background()
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+
+          HStack(spacing: 0) {
+            ContextualGroupsView()
+              .padding(12)
+              .background(Color(nsColor: .controlAccentColor.blended(withFraction: 0.7, of: .black)!))
+              .clipShape(RoundedRectangle(cornerRadius: 16))
+              .frame(width: 128, height: 128)
+              .padding(8)
+            UIScriptingView()
+              .frame(width: 128, height: 128)
+              .padding(8)
+            WindowManagementView(.init(width: 56, height: 56))
+              .frame(width: 128, height: 128)
               .shadow(radius: 2)
               .background(
                 WindowManagementIconBackgroundView()
               )
               .clipShape(RoundedRectangle(cornerRadius: 16))
-            KeyboardCowboyView()
+              .padding(8)
           }
         }
-
-        ScriptRunnerView()
-          .padding(16)
-          .background()
-          .clipShape(RoundedRectangle(cornerRadius: 16))
       }
 
       HStack(spacing: 16) {
-        ContextualGroupsView()
-          .frame(minWidth: 128, minHeight: 128)
+        WindowTilingPromoView()
+          .frame(width: 200, height: 148)
           .padding(16)
-          .background(Color(nsColor: .controlAccentColor.blended(withFraction: 0.7, of: .black)!))
+          .background(
+            WindowTilingBackgroundView()
+          )
           .clipShape(RoundedRectangle(cornerRadius: 16))
 
         ApplicationLauncherView()
@@ -59,17 +94,171 @@ struct PromoView: View {
           .clipShape(RoundedRectangle(cornerRadius: 16))
 
         UniqueModifierView()
+          .frame(width: 148, height: 148)
           .padding(16)
           .background()
           .clipShape(RoundedRectangle(cornerRadius: 16))
 
-        UIScriptingView()
+        MuchMoreView()
+          .frame(width: 148, height: 148)
+          .padding(16)
+          .background()
+          .clipShape(RoundedRectangle(cornerRadius: 16))
       }
     }
     .font(.system(size: 18, design: .rounded))
-    .frame(width: 1024, height: 512)
+    .frame(width: 1024, height: 650)
     .padding(32)
     .background(.black)
+  }
+}
+
+private struct FocusOnAppPromoView: View {
+  var body: some View {
+    VStack(spacing: 16) {
+      Rectangle()
+        .fill(Color.white.opacity(0.4))
+        .overlay {
+          FocusOnAppIconGroupView(size: 72)
+        }
+        .frame(width: 72, height: 72)
+        .fixedSize()
+        .iconShape(72)
+      Text("Full App Focus")
+    }
+  }
+}
+
+private struct MuchMoreView: View {
+  var body: some View {
+    VStack {
+      HStack {
+        RepeatLastWorkflowIconView(size: 48)
+        RelativeFocusIconView(.right, size: 48)
+        HideAllIconView(size: 48)
+      }
+      HStack {
+        MouseIconView(size: 48)
+        MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: 48)
+        UserModeIconView(size: 48)
+      }
+      Text("And so much more")
+        .font(.caption)
+        .foregroundColor(.secondary)
+    }
+  }
+}
+
+private struct WorkspacesPromoView: View {
+  var body: some View {
+    VStack(spacing: 16) {
+      Rectangle()
+        .fill(Color.white.opacity(0.4))
+        .overlay {
+          WorkspaceIconIllustration(size: 72)
+        }
+        .frame(width: 72, height: 72)
+        .fixedSize()
+        .iconShape(72)
+      Text("Workspaces")
+    }
+    .padding(8)
+  }
+}
+
+private struct WindowTilingPromoView: View {
+  var body: some View {
+    VStack(spacing: 16) {
+      Rectangle()
+        .fill(Color.white.opacity(0.4))
+        .overlay {
+          WorkspaceIconIllustration(size: 96)
+        }
+        .frame(width: 96, height: 96)
+        .fixedSize()
+        .iconShape(72)
+      Text("Smarter Window Tiling")
+        .multilineTextAlignment(.center)
+    }
+    .padding(8)
+  }
+}
+
+private struct FocusOnAppBackground: View {
+  var body: some View {
+    Rectangle()
+      .fill(
+        LinearGradient(stops: [
+          .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .black)!), location: 0.0),
+          .init(color: Color(.purple), location: 0.6),
+          .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 1.0),
+        ], startPoint: .topLeading, endPoint: .bottom)
+      )
+      .overlay {
+        LinearGradient(stops: [
+          .init(color: Color(.systemTeal), location: 0.5),
+          .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 1.0),
+        ], startPoint: .topTrailing, endPoint: .bottomTrailing)
+        .opacity(0.6)
+      }
+      .overlay {
+        LinearGradient(stops: [
+          .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 0.2),
+          .init(color: Color.clear, location: 0.8),
+        ], startPoint: .topTrailing, endPoint: .bottomLeading)
+      }
+  }
+}
+
+private struct WindowTilingBackgroundView: View {
+  var body: some View {
+    Rectangle()
+      .fill(
+        LinearGradient(stops: [
+          .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 0.3),
+          .init(color: Color(.cyan), location: 0.6),
+          .init(color: Color.blue, location: 1.0),
+        ], startPoint: .topLeading, endPoint: .bottom)
+      )
+      .overlay {
+        LinearGradient(stops: [
+          .init(color: Color(.systemPurple.blended(withFraction: 0.3, of: .white)!), location: 0.5),
+          .init(color: Color.blue, location: 1.0),
+        ], startPoint: .topTrailing, endPoint: .bottomTrailing)
+        .opacity(0.6)
+      }
+      .overlay {
+        LinearGradient(stops: [
+          .init(color: Color(.systemOrange.blended(withFraction: 0.3, of: .white)!), location: 0.2),
+          .init(color: Color.clear, location: 0.8),
+        ], startPoint: .topTrailing, endPoint: .bottomLeading)
+      }
+  }
+}
+
+private struct WorkspaceBackgroundView: View {
+  var body: some View {
+    Rectangle()
+      .fill(
+        LinearGradient(stops: [
+          .init(color: Color.blue, location: 0.0),
+          .init(color: Color(.cyan), location: 0.6),
+          .init(color: Color(.systemPurple.blended(withFraction: 0.6, of: .white)!), location: 1.0),
+        ], startPoint: .topLeading, endPoint: .bottom)
+      )
+      .overlay {
+        LinearGradient(stops: [
+          .init(color: Color.blue, location: 0.5),
+          .init(color: Color(.systemTeal.blended(withFraction: 0.3, of: .white)!), location: 1.0),
+        ], startPoint: .topTrailing, endPoint: .bottomTrailing)
+        .opacity(0.6)
+      }
+      .overlay {
+        LinearGradient(stops: [
+          .init(color: Color(.systemGreen.blended(withFraction: 0.3, of: .white)!), location: 0.2),
+          .init(color: Color.clear, location: 0.8),
+        ], startPoint: .topTrailing, endPoint: .bottomLeading)
+      }
   }
 }
 
@@ -78,8 +267,7 @@ private struct ActionPackedView: View {
     VStack(spacing: 8) {
       Text("Action Packed Features")
       HStack {
-        MacroIconView(.record, size: 64)
-        SnippetIconView(size: 64)
+        RepeatLastWorkflowIconView(size: 64)
         RelativeFocusIconView(.right, size: 64)
         TypingIconView(size: 64)
         KeyboardIconView("♾️", size: 64)
@@ -92,8 +280,10 @@ private struct ActionPackedView: View {
 private struct ContextualGroupsView: View {
   var body: some View {
     VStack(spacing: 16) {
-      GenericAppIconView(size: 64)
+      GenericAppIconView(size: 48)
       Text("Per-Application Rules")
+        .multilineTextAlignment(.center)
+        .minimumScaleFactor(0.8)
     }
   }
 }
@@ -153,7 +343,7 @@ private struct ApplicationLauncherView: View {
                   onAction: {
         _ in
       })
-      .frame(minWidth: 390)
+      .frame(minWidth: 390, maxWidth: 390)
       .designTime()
 
     }
@@ -175,7 +365,7 @@ private struct ScriptRunnerView: View {
                   onAction: {
         _ in
       })
-      .frame(maxWidth: 390)
+      .frame(width: 384, height: 220)
       .designTime()
 
       Text("Script Runner")
@@ -221,21 +411,52 @@ private struct PrivacyFirstView: View {
 
 private struct KeyboardCowboyView: View {
   var body: some View {
-    HStack(spacing: 16) {
-      Image.init(.applicationIcon)
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .frame(width: 128)
-      VStack(alignment: .leading) {
-        Group {
-          Text("Keyboard")
-          Text("Cowboy")
+    VStack(alignment: .leading, spacing: 16) {
+      HStack(spacing: 0) {
+        Image.init(.applicationIcon)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 148)
+          .padding(.leading, 0)
+          .padding(.trailing, 32)
+        VStack(alignment: .leading, spacing: 16) {
+          VStack(alignment: .leading, spacing: 0) {
+            Text("Keyboard")
+            Text("Cowboy")
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .font(.system(size: 48, design: .rounded))
+
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
       }
-      .font(.system(size: 48, design: .rounded))
-      .padding(16)
+      ZenDivider()
+
+      HStack {
+        Spacer()
+        Button(action: {}) {
+          HStack {
+            Text("Version")
+            Text("3.25.0")
+              .fontWeight(.bold)
+          }
+            .font(.title)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+        }
+        .buttonStyle(.positive)
+        Spacer()
+      }
     }
+    .frame(width: 431, height: 252)
+    .padding(16)
+    .background(
+      LinearGradient(stops: [
+        .init(color: Color(.systemGray.blended(withFraction: 0.1, of: .black)!).opacity(0.8), location: 0),
+        .init(color: Color(.systemGray.blended(withFraction: 0.6, of: .black)!).opacity(0.9), location: 0.5),
+        .init(color: Color(.systemGray.blended(withFraction: 0.7, of: .black)!), location: 1.0),
+      ], startPoint: .topLeading, endPoint: .bottom)
+    )
+    .clipShape(RoundedRectangle(cornerRadius: 16))
   }
 }
 
@@ -247,7 +468,7 @@ private struct WindowManagementView: View {
   }
 
   var body: some View {
-    VStack(spacing: 16) {
+    VStack(spacing: 8) {
       Rectangle()
         .fill(
           LinearGradient(stops: [
@@ -269,9 +490,12 @@ private struct WindowManagementView: View {
         .frame(width: size.width, height: size.height)
         .shadow(color: .black.opacity(0.3), radius: 4, y: 2)
 
-      Text("Window Mangement")
-        .font(.system(size: 18, design: .rounded))
+      Text("Window Management")
+        .minimumScaleFactor(0.6)
+        .multilineTextAlignment(.center)
+        .lineLimit(2)
     }
+    .padding()
   }
 }
 
@@ -314,16 +538,14 @@ private struct MinimizeAllWindowTrafficLightsView: View {
 private struct UIScriptingView: View {
   var body: some View {
     Color(.controlAccentColor)
-      .frame(minWidth: 185, minHeight: 156)
       .overlay {
         UIElementIconGradientView()
       }
       .overlay {
         Text("UI Scripting")
-          .font(.system(size: 24, design: .rounded))
+          .font(.system(size: 18, design: .rounded))
       }
       .clipShape(RoundedRectangle(cornerRadius: 16))
-      .frame(height: 156)
   }
 }
 
