@@ -1,3 +1,4 @@
+import Apps
 import Foundation
 import Cocoa
 import MachPort
@@ -104,6 +105,20 @@ final class DetailCommandActionReducer {
         switch action {
         case .editCommand(let kind):
           switch kind {
+          case .focusOnApp(let model):
+            guard let application = model.application else {
+              assertionFailure("Application should never be nil here.")
+              return
+            }
+            let newFocusOnAppCommand = FocusOnAppCommand(
+              id: command.id,
+              bundleIdentifer: application.bundleIdentifier,
+              hideOtherApps: model.hideOtherApps,
+              tiling: model.tiling,
+              createNewWindow: model.createNewWindow
+            )
+            command = .bundled(.init(.focusOnApp(newFocusOnAppCommand), meta: command.meta))
+            workflow.updateOrAddCommand(command)
           case .workspace(let workspace):
             let newWorkspaceCommand = WorkspaceCommand(
               id: command.id,

@@ -8,42 +8,41 @@ struct ContentImageView: View {
 
   @ViewBuilder
   var body: some View {
+    let iconSize: CGFloat = size - 6
     switch image.kind {
+    case .application, .open:
+      EmptyView()
+    case .builtIn(let builtIn):
+      BuiltinIconBuilder.icon(builtIn, size: iconSize)
+    case .bundled(let bundled):
+      switch bundled {
+      case .focusOnApp:
+        FocusOnAppIcon(size: iconSize)
+      case .workspace:
+        WorkspaceIcon(size: iconSize)
+      }
+    case .keyboard(let string):
+      KeyboardIconView(string, size: iconSize)
+    case .script(let source):
+      ContentScriptImageView(source: source, size: iconSize)
+    case .plain:
+      EmptyView()
+    case .shortcut:
+      ContentShortcutImageView(size: iconSize)
+    case .text(let text):
+      TypingIconView(size: iconSize)
+    case .systemCommand(let kind):
+      SystemIconBuilder.icon(kind, size: iconSize)
+    case .menuBar:
+      MenuIconView(size: iconSize)
+    case .mouse:
+      MouseIconView(size: iconSize)
+    case .uiElement:
+      UIElementIconView(size: iconSize)
+    case .windowManagement:
+      WindowManagementIconView(size: iconSize)
     case .icon(let icon):
       IconView(icon: icon, size: .init(width: size, height: size))
-    case .command(let kind):
-      switch kind {
-      case .application, .open:
-        EmptyView()
-      case .builtIn(let model):
-        BuiltinIconBuilder.icon(model.kind, size: size - 6)
-      case .bundled(let model):
-        switch model.kind {
-        case .workspace:
-          WorkspaceIcon(size: size - 6)
-        }
-      case .keyboard(let model):
-        KeyboardIconView(model.keys.first?.key.uppercased() ?? "", size: size - 6)
-          .opacity(model.keys.first != nil ? 1 : 0)
-      case .script(let model):
-        ContentScriptImageView(source: model.source, size: size)
-      case .shortcut:
-        ContentShortcutImageView(size: size)
-      case .text:
-        TypingIconView(size: size - 6)
-      case .mouse:
-        MouseIconView(size: size - 6)
-      case .plain:
-        EmptyView()
-      case .systemCommand(let model):
-        SystemIconBuilder.icon(model.kind, size: size - 6)
-      case .menuBar:
-        MenuIconView(size: size - 6)
-      case .windowManagement:
-        WindowManagementIconView(size: size - 6)
-      case .uiElement:
-        UIElementIconView(size: size - 6)
-      }
     }
   }
 }

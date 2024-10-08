@@ -60,7 +60,6 @@ final class ConfigurationMigrator {
     }
 
     let path = (to.relativePath as NSString).deletingLastPathComponent
-    let file = (to.relativePath as NSString).lastPathComponent
 
     // Create directory if it does not exist.
     var isDirectory: ObjCBool = true

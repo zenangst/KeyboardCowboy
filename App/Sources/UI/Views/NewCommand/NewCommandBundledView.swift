@@ -1,9 +1,14 @@
+import Apps
 import Bonzai
 import SwiftUI
 
 struct NewCommandBundledView: View {
   private static var kinds: [BundledCommand.Kind] {
-    [.workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil))]
+    [
+      .workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
+      .focusOnApp(FocusOnAppCommand(bundleIdentifer: "", hideOtherApps: false,
+                                    tiling: nil, createNewWindow: true))
+    ]
   }
   private let kinds: [BundledCommand.Kind]
 
@@ -44,6 +49,41 @@ struct NewCommandBundledView: View {
       Divider()
 
       switch currentSelection {
+      case .focusOnApp(let command):
+        NewCommandFocusOnAppView { tiling in
+          currentSelection = .focusOnApp(
+            FocusOnAppCommand(bundleIdentifer: command.bundleIdentifer,
+                              hideOtherApps: command.hideOtherApps,
+                              tiling: tiling,
+                              createNewWindow: command.createNewWindow)
+          )
+          payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
+        } onSelectedAppsChange: { bundleIdentifier in
+          currentSelection = .focusOnApp(
+            FocusOnAppCommand(bundleIdentifer: bundleIdentifier,
+                              hideOtherApps: command.hideOtherApps,
+                              tiling: command.tiling,
+                              createNewWindow: command.createNewWindow)
+          )
+          payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
+        } onHideOtherAppsChange: { hideOtherApps in
+          currentSelection = .focusOnApp(
+            FocusOnAppCommand(bundleIdentifer: command.bundleIdentifer,
+                              hideOtherApps: hideOtherApps,
+                              tiling: command.tiling,
+                              createNewWindow: command.createNewWindow)
+          )
+          payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
+        } onCreateNewWindowChange: { createWindow in
+          currentSelection = .focusOnApp(
+            FocusOnAppCommand(bundleIdentifer: command.bundleIdentifer,
+                              hideOtherApps: command.hideOtherApps,
+                              tiling: command.tiling,
+                              createNewWindow: createWindow)
+          )
+          payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
+        }
+
       case .workspace(let workspaceCommand):
         NewCommandWorkspaceView { tiling in
           currentSelection = .workspace(WorkspaceCommand(
@@ -79,15 +119,18 @@ struct NewCommandBundledView: View {
 
 
 fileprivate extension BundledCommand.Kind {
+  @ViewBuilder
   var icon: some View {
     switch self {
     case .workspace: WorkspaceIcon(size: 24)
+    case .focusOnApp: FocusOnAppIcon(size: 24)
     }
   }
 
   var name: String {
     switch self {
     case .workspace: "Workspace"
+    case .focusOnApp: "Focus on Application"
     }
   }
 }

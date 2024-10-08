@@ -18,6 +18,7 @@ struct IconOverview: PreviewProvider {
       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
       WorkspaceIcon(size: size)
       WindowTilingIcon(kind: .arrangeLeftQuarters, size: size)
+      FocusOnAppIcon(size: size)
       UIElementIconView(size: size)
       PrivacyIconView(size: size)
       EnvironmentIconView(size: size)

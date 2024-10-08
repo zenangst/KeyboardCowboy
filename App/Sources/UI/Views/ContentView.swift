@@ -119,15 +119,15 @@ struct ContentView: View {
 
       for image in workflow.images {
         switch image.kind {
-        case .command(let kind):
-          if searchTerm.contains(kind.match.rawValue) {
-            match = .typeMatch(kind.match)
-            freetext = freetext.replacingFirstOccurrence(of: kind.match.rawValue + " ", with: "")
-          }
         case .icon(let icon):
           if searchTerm.contains("app") && icon.path.contains("app") {
             match = .typeMatch(.application)
             break
+          }
+        default:
+          if searchTerm.contains(image.kind.searchTerm) {
+            match = .typeMatch(image.kind.match)
+            freetext = freetext.replacingFirstOccurrence(of: image.kind.match.rawValue + " ", with: "")
           }
         }
       }
@@ -265,6 +265,7 @@ struct ContentView: View {
               .font(.caption)
               .opacity(!searchTerm.isEmpty ? 1 : 0)
               .padding(.vertical, 8)
+              .frame(maxWidth: .infinity)
               .frame(height: searchTerm.isEmpty ? 0 : nil)
 
             Color(.clear)

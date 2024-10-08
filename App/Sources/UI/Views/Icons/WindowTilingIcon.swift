@@ -70,7 +70,7 @@ private struct WindowTilingKindView: View {
           .opacity(0.0)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .right:
       HStack(spacing: 0) {
         Rectangle().fill(Color.white)
@@ -80,7 +80,7 @@ private struct WindowTilingKindView: View {
           .iconShape(size * 0.15)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .top:
       VStack(spacing: 0) {
         Rectangle().fill(Color.white)
@@ -90,7 +90,7 @@ private struct WindowTilingKindView: View {
           .opacity(0.0)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .bottom:
       VStack(spacing: 0) {
         Rectangle().fill(Color.white)
@@ -100,7 +100,7 @@ private struct WindowTilingKindView: View {
           .iconShape(size * 0.15)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .topLeft:
       VStack(spacing: 0) {
         HStack(spacing: 0) {
@@ -120,7 +120,7 @@ private struct WindowTilingKindView: View {
         }
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .topRight:
       VStack(spacing: 0) {
         HStack(spacing: 0) {
@@ -140,7 +140,7 @@ private struct WindowTilingKindView: View {
         }
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .bottomLeft:
       VStack(spacing: 0) {
         HStack(spacing: 0) {
@@ -160,7 +160,7 @@ private struct WindowTilingKindView: View {
         }
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .bottomRight:
       VStack(spacing: 0) {
         HStack(spacing: 0) {
@@ -180,22 +180,22 @@ private struct WindowTilingKindView: View {
         }
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .center:
       Rectangle().fill(Color.white)
         .iconShape(size * 0.15)
         .padding(.horizontal, size * 0.075)
         .padding(.vertical, size * 0.035)
-        .opacity(0.7)
+        .opacity(0.9)
     case .fill:
       Rectangle().fill(Color.white)
         .iconShape(size * 0.15)
         .padding(size * 0.01)
-        .opacity(0.7)
+        .opacity(0.999999999)
     case .zoom:
       Rectangle().fill(Color.white)
         .iconShape(size * 0.2)
-        .opacity(0.7)
+        .opacity(0.9)
     case .arrangeLeftRight:
       HStack(spacing: spacing) {
         Rectangle().fill(Color.white)
@@ -205,7 +205,7 @@ private struct WindowTilingKindView: View {
           .opacity(0.7)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .arrangeRightLeft:
       HStack(spacing: spacing) {
         Rectangle().fill(Color.white)
@@ -215,7 +215,7 @@ private struct WindowTilingKindView: View {
           .iconShape(size * 0.15)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .arrangeTopBottom:
       VStack(spacing: spacing) {
         Rectangle().fill(Color.white)
@@ -225,7 +225,7 @@ private struct WindowTilingKindView: View {
           .opacity(0.7)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .arrangeBottomTop:
       VStack(spacing: spacing) {
         Rectangle().fill(Color.white)
@@ -235,7 +235,7 @@ private struct WindowTilingKindView: View {
           .iconShape(size * 0.15)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .arrangeLeftQuarters:
       HStack(spacing: spacing) {
         Rectangle().fill(Color.white)
@@ -249,7 +249,7 @@ private struct WindowTilingKindView: View {
         .opacity(0.7)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .arrangeRightQuarters:
       HStack(spacing: spacing) {
         VStack(spacing: spacing) {
@@ -264,7 +264,7 @@ private struct WindowTilingKindView: View {
           .iconShape(size * 0.15)
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .arrangeTopQuarters:
       VStack(spacing: spacing) {
         HStack(spacing: spacing) {
@@ -281,7 +281,7 @@ private struct WindowTilingKindView: View {
         }
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .arrangeBottomQuarters:
       VStack(spacing: spacing) {
         HStack(spacing: spacing) {
@@ -298,7 +298,7 @@ private struct WindowTilingKindView: View {
         }
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .arrangeQuarters:
       VStack(spacing: spacing) {
         HStack(spacing: spacing) {
@@ -315,7 +315,7 @@ private struct WindowTilingKindView: View {
         }
       }
       .padding(size * 0.01)
-      .opacity(0.7)
+      .opacity(0.9)
     case .previousSize:
       Rectangle().fill(Color.white)
         .iconShape(size * 0.15)

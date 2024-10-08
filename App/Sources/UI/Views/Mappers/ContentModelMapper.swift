@@ -132,60 +132,18 @@ private extension Array where Element == Command {
             kind: .icon(.init(bundleIdentifier: command.application.bundleIdentifier,
                               path: command.application.path)))
         )
-      case .menuBar(let command):
-        images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.menuBar(.init(id: command.id, tokens: command.tokens)))))
-      case .builtIn(let command):
-        switch command.kind {
-        case .macro(let action):
-          switch action.kind {
-          case .record:
-            images.append(.init(id: command.id, offset: convertedOffset, 
-                                kind: .command(.builtIn(.init(id: command.id, name: command.name, 
-                                                              kind: .macro(.record))))))
-          case .remove:
-            images.append(.init(id: command.id, offset: convertedOffset,
-                                kind: .command(.builtIn(.init(id: command.id, name: command.name, 
-                                                              kind: .macro(.remove))))))
-          }
-        case .userMode:
-          images.append(.init(id: command.id, offset: convertedOffset, 
-                              kind: .command(.builtIn(.init(id: command.id, name: command.name, 
-                                                            kind: .userMode(UserMode(id: command.id, name: command.name, 
-                                                                                     isEnabled: command.isEnabled), .toggle))))))
-        case .commandLine(let action):
-            images.append(.init(id: command.id, offset: convertedOffset,
-                                kind: .command(.builtIn(.init(id: command.id, name: command.name,
-                                                              kind: .commandLine(action))))))
-        case .repeatLastWorkflow:
-          images.append(.init(id: command.id, offset: convertedOffset,
-                              kind: .command(.builtIn(.init(id: command.id, name: command.name,
-                                                            kind: .repeatLastWorkflow)))))
-        }
+      case .menuBar:              images.append(.menubar(element, offset: convertedOffset))
+      case .builtIn(let command): images.append(.builtIn(element, kind: command.kind, offset: convertedOffset))
       case .bundled(let command):
         switch command.kind {
-        case .workspace(let command):
-          images.append(
-            .init(
-              id: command.id,
-              offset: convertedOffset,
-              kind: .command(
-                .bundled(
-                  .init(
-                    id: command.id, name: "", kind: .workspace(.init(applications: [], hideOtherApps: false))
-                  )
-                )
-              )
-            )
-          )
+        case .focusOnApp: images.append(.bundled(element, offset: convertedOffset, kind: .focusOnApp))
+        case .workspace: images.append(.bundled(element, offset: convertedOffset, kind: .workspace))
         }
-      case .mouse(let command):
-        images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.mouse(.init(id: command.id, kind: command.kind)))))
+      case .mouse:
+        images.append(.mouse(element, offset: convertedOffset))
       case .keyboard(let keyCommand):
         if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
-          images.append(.init(id: keyboardShortcut.id, offset: convertedOffset,
-                              kind: .command(.keyboard(.init(id: keyCommand.id,
-                                                             iterations: keyCommand.iterations,
-                                                             keys: [keyboardShortcut])))))
+          images.append(.keyboard(element, string: keyboardShortcut.key, offset: convertedOffset))
         }
       case .open(let command):
         let path: String
@@ -201,53 +159,15 @@ private extension Array where Element == Command {
             offset: convertedOffset,
             kind: .icon(.init(bundleIdentifier: path, path: path)))
         )
-      case .script(let script):
-        switch script.source {
-        case .inline(let source):
-          images.append(.init(id: script.id,
-                              offset: convertedOffset,
-                              kind: .command(.script(.init(id: script.id, source: .inline(source), 
-                                                           scriptExtension: script.kind, variableName: script.meta.variableName ?? "",
-                                                           execution: .concurrent)))))
-        case .path(let source):
-          images.append(.init(id: script.id,
-                              offset: convertedOffset,
-                              kind: .command(.script(.init(id: script.id, source: .path(source), 
-                                                           scriptExtension: script.kind,
-                                                           variableName: script.meta.variableName ?? "",
-                                                           execution: .concurrent)))))
-        }
-
-      case .shortcut(let shortcut):
-        images.append(.init(id: shortcut.id,
-                            offset: convertedOffset,
-                            kind: .command( .shortcut(.init(id: shortcut.id, shortcutIdentifier: shortcut.shortcutIdentifier)))))
+      case .script(let command): images.append(.script(element, source: command.source, offset: convertedOffset))
+      case .shortcut:            images.append(.shortcut(element, offset: convertedOffset))
       case .text(let model):
         switch model.kind {
-        case .insertText(let command):
-          images.append(
-            .init(id: command.id,
-                  offset: convertedOffset,
-                  kind: .command(.text(.init(kind: .type(.init(id: command.id, mode: command.mode, input: command.input))))))
-          )
+        case .insertText: images.append(.text(element, kind: .insertText, offset: convertedOffset))
         }
-      case .systemCommand(let command):
-        images.append(
-          ContentViewModel.ImageModel(
-            id: command.id,
-            offset: convertedOffset,
-            kind: .command(.systemCommand(.init(id: command.id, kind: command.kind))
-          ))
-        )
-      case .uiElement(let command):
-        images.append(.init(id: command.id, offset: convertedOffset, kind: .command(.uiElement(command))))
-      case .windowManagement(let command):
-        images.append(
-          ContentViewModel.ImageModel(
-            id: command.id,
-            offset: convertedOffset,
-            kind: .command(.windowManagement(.init(id: command.id, kind: command.kind, animationDuration: command.animationDuration))))
-        )
+      case .systemCommand(let command): images.append(.systemCommand(element, kind: command.kind, offset: convertedOffset))
+      case .uiElement:                  images.append(.uiElement(element, offset: convertedOffset))
+      case .windowManagement:           images.append(.windowManagement(element, offset: convertedOffset))
       }
       offset += 1
     }

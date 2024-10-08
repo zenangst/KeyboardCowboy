@@ -77,6 +77,25 @@ private extension Command {
       kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
+      case .focusOnApp(let focusOnAppCommand):
+        var applications = [Application]()
+        let match = applicationStore.applications.first(where: { $0.bundleIdentifier == focusOnAppCommand.bundleIdentifer })
+
+        kind = .bundled(
+          CommandViewModel.Kind.BundledModel.init(
+            id: focusOnAppCommand.id,
+            name: bundledCommand.name,
+            kind: .focusOnApp(
+              CommandViewModel.Kind.FocusOnAppModel(
+                application: match,
+                tiling: focusOnAppCommand.tiling,
+                hideOtherApps: focusOnAppCommand.hideOtherApps,
+                createNewWindow: focusOnAppCommand.createNewWindow
+              )
+            )
+          )
+        )
+        break
       case .workspace(let workspaceCommand):
         var applications = [Application]()
         for bundleIdentifier in workspaceCommand.bundleIdentifiers {
