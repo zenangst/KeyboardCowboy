@@ -22,8 +22,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     systemWindows.insert(SystemWindowModel(window: currentWindow, index: -1), at: 0)
 
     var occupiedRects = [CGRect]()
-
     var visibleWindows = [SystemWindowModel]()
+
     for systemWindow in systemWindows {
       let intersection = systemWindow.window.rect.intersection(currentWindow.rect)
       let percentage = CGSize(width: 1 - intersection.width / systemWindow.window.rect.width,

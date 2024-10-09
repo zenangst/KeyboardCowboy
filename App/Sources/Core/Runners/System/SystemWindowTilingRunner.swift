@@ -13,7 +13,7 @@ final class SystemWindowTilingRunner {
     Task {
       let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
       for screen in NSScreen.screens {
-        let visibleScreenFrame = screen.visibleFrame
+        let visibleScreenFrame = screen.visibleFrame.mainDisplayFlipped
         let newWindows = snapshot.windows.visibleWindowsInStage
         await determineTiling(for: newWindows, in: visibleScreenFrame, newWindows: newWindows)
       }
@@ -27,7 +27,7 @@ final class SystemWindowTilingRunner {
 
     await FocusBorder.shared.dismiss()
 
-    let visibleScreenFrame = screen.visibleFrame
+    let visibleScreenFrame = screen.visibleFrame.mainDisplayFlipped
 
     await currentTask?.cancel()
 

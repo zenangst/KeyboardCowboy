@@ -166,33 +166,8 @@ final class WindowCommandRunner {
           centerCache[activeWindow.id] = originFrame
         }
       case .moveToNextDisplay(let mode):
-        switch mode {
-        case .center:
-          var nextScreen: NSScreen? = NSScreen.screens.first
-          var foundMain: Bool = false
-          for screen in NSScreen.screens {
-            if foundMain {
-              nextScreen = screen
-              break
-            } else if currentScreen == nextScreen {
-              foundMain = true
-            }
-          }
-
-          guard let nextScreen else { return }
-
-          newFrame = WindowRunnerCenterWindow.calculateRect(
-            originFrame,
-            currentScreen: nextScreen,
-            mainDisplay: mainDisplay
-          )
-        case .relative:
-          newFrame = WindowRunnerMoveToNextDisplayRelative.calculateRect(
-              originFrame,
-              currentScreen: currentScreen,
-              mainDisplay: mainDisplay
-            )
-        }
+        try WindowMoveWindowToNextDisplay.run(activeWindow, kind: mode)
+        return
       }
 
       interpolateWindowFrame(
@@ -465,8 +440,8 @@ extension NSScreen {
   var isMainDisplay: Bool { frame.origin == .zero }
   static var mainDisplay: NSScreen? { screens.first(where: { $0.isMainDisplay }) }
 
-  static func screenContaining(_ rect: CGRect) -> NSScreen? {
-    NSScreen.screens.first(where: { $0.frame.contains(rect) })
+  static func screenIntersects(_ rect: CGRect) -> NSScreen? {
+    NSScreen.screens.first(where: { $0.frame.intersects(rect) })
   }
 
   static var maxY: CGFloat {

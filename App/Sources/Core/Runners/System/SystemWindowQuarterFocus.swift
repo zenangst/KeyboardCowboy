@@ -91,6 +91,7 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
     let quarterFilter: (WindowModel) -> Bool = {
       targetRect.intersects($0.rect)
     }
+
     var validQuarterWindows = windows.filter(quarterFilter)
     if validQuarterWindows.isEmpty {
       validQuarterWindows = initialWindows.filter { quarterFilter($0) && $0 != activeWindow }
@@ -101,9 +102,7 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
       return
     }
 
-    var invertedFrame = matchedWindow.rect.invertedYCoordinate(on: screen)
-    invertedFrame.origin.y += abs(screen.frame.height - screen.visibleFrame.height)
-    FocusBorder.shared.show(invertedFrame)
+    FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
 
     consumedWindows.insert(matchedWindow)
 
@@ -154,12 +153,7 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
 
 extension SystemWindowQuarterFocus.Quarter {
   func targetRect(on screen: NSScreen, widthFactor: CGFloat, heightFactor: CGFloat, spacing: CGFloat) -> CGRect {
-    let screenFrame = CGRect(
-      x: screen.frame.origin.x,
-      y: 0,
-      width: screen.visibleFrame.width,
-      height: screen.visibleFrame.height
-    )
+    let screenFrame = screen.frame.mainDisplayFlipped
     let targetWidth = screenFrame.width * widthFactor
     let targetHeight = screenFrame.height * heightFactor
 

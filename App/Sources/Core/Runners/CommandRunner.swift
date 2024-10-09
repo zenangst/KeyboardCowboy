@@ -453,6 +453,16 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       output = ""
     case .windowManagement(let windowCommand):
       try await runners.window.run(windowCommand)
+
+      if case .moveToNextDisplay(let mode) = windowCommand.kind,
+         case .center = mode {
+        let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
+        Task.detached {
+          try await Task.sleep(for: .milliseconds(200))
+          try await SystemWindowTilingRunner.run(.center, snapshot: snapshot)
+        }
+      }
+
       output = ""
     }
 

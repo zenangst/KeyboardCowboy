@@ -80,9 +80,7 @@ final class SystemWindowRelativeFocus {
 
     match?.performAction(.raise)
 
-    var invertedFrame = matchedWindow.rect.invertedYCoordinate(on: screen)
-    invertedFrame.origin.y += abs(screen.frame.height - screen.visibleFrame.height)
-    await FocusBorder.shared.show(invertedFrame)
+    await FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
 
     if Self.mouseFollow, let match, let frame = match.frame {
       let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
