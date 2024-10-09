@@ -49,15 +49,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     })
     let runningBundles = Set(runningApplications.compactMap(\.bundleIdentifier))
     let perfectBundleMatch = runningBundles == Set(bundleIdentifiers)
-
-    let hideDelay: Double?
-    if perfectBundleMatch {
-      hideDelay = nil
-    } else {
-      hideDelay = 175
-    }
-
-    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: hideDelay, name: "Hide All Apps")))
+    let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: nil, name: "Hide All Apps")))
 
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
@@ -95,9 +87,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
 
         if perfectBundleMatch {
           activationDelay = nil
-        } else if !perfectBundleMatch {
-          activationDelay = hideDelay != nil ? nil : 200
-        } else if slowBundles.contains(application.bundleIdentifier) {
+        } else if slowBundles.contains(application.bundleIdentifier) || application.metadata.isElectron {
           activationDelay = 225
         } else {
           activationDelay = 25

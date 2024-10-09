@@ -2,7 +2,7 @@ import Cocoa
 import Windows
 
 final class SystemHideAllAppsRunner {
-  static func run(workflowCommands: [Command]) async {
+  static func run(workflowCommands: [Command]) async throws {
     guard let screen = NSScreen.main else { return }
 
     let exceptBundleIdentifiers = workflowCommands.compactMap {
@@ -32,10 +32,30 @@ final class SystemHideAllAppsRunner {
       }
       .filter { $0.activationPolicy == .regular && $0.isHidden == false }
 
-
+    var processIdentifiers = Set<Int>()
     for app in apps {
       app.hide()
-      try? await Task.sleep(for: .milliseconds(25))
+      processIdentifiers.insert(Int(app.processIdentifier))
+    }
+
+    var timeout: Int = 0
+    var waitingForWindowsToDisappear: Bool = true
+    while waitingForWindowsToDisappear {
+      if timeout >= 10 {
+        waitingForWindowsToDisappear = false
+        return
+      }
+
+      let windows = indexWindowsInStage(getWindows(), targetRect: screen.visibleFrame)
+      let windowsProcessIds = Set(windows.map(\.ownerPid.rawValue))
+
+      if windowsProcessIds.isDisjoint(with: processIdentifiers) {
+        waitingForWindowsToDisappear = false
+        return
+      }
+
+      timeout += 1
+      try await Task.sleep(for: .milliseconds(100))
     }
   }
 

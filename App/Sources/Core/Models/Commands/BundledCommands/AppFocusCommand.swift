@@ -31,7 +31,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
   }
 
   @MainActor
-  func commands(_ applications: [Application]) async -> [Command] {
+  func commands(_ applications: [Application]) async throws -> [Command] {
     var commands = [Command]()
 
     guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifer }) else {
@@ -86,7 +86,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     if numberOfAppWindows == 0 { return [] }
 
     if hideOtherApps {
-      await SystemHideAllAppsRunner.run(workflowCommands: [
+      try await SystemHideAllAppsRunner.run(workflowCommands: [
         .application(.init(action: .open, application: application, meta: Command.MetaData(delay: nil, name: "Hide All Apps"), modifiers: []))
       ])
     }
