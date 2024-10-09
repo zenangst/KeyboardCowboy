@@ -48,7 +48,7 @@ fileprivate extension [MenuBarItemAccessibilityElement] {
          let submenu = try? menuItem.menuItems().first,
          let menuItems = try? submenu.menuItems() {
         for item in menuItems where item.isEnabled == true {
-          if item.identifier == WindowTiling.fill.identifier {
+          if item.identifier == WindowTiling.center.identifier {
             return menuItems
           }
         }

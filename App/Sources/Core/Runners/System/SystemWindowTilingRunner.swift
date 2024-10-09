@@ -267,6 +267,7 @@ final class SystemWindowTilingRunner {
         }
 
         guard let match = WindowTilingMenuItemFinder.find(nextTiling, in: menuItems) else { return }
+
         try Task.checkCancellation()
         match.performAction(.pick)
 
