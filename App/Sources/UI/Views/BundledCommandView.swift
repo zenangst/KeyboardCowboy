@@ -24,22 +24,22 @@ struct BundledCommandView: View {
     CommandContainerView(metaData, placeholder: "") { _ in
       switch model.kind {
       case .workspace: WorkspaceIcon(size: iconSize.width)
-      case .focusOnApp: FocusOnAppIcon(size: iconSize.width)
+      case .appFocus: AppFocusIcon(size: iconSize.width)
       }
     } content: { _ in
       switch model.kind {
-      case .focusOnApp(let model):
-        FocusOnAppCommandView(model: model) { tiling in
-          onAction(.editCommand(.focusOnApp(.init(application: model.application, tiling: tiling,
+      case .appFocus(let model):
+        AppFocusCommandView(model: model) { tiling in
+          onAction(.editCommand(.appFocus(.init(application: model.application, tiling: tiling,
                                                   hideOtherApps: model.hideOtherApps, createNewWindow: model.createNewWindow))))
         } onSelectedAppsChange: { application in
-          onAction(.editCommand(.focusOnApp(.init(application: application, tiling: model.tiling,
+          onAction(.editCommand(.appFocus(.init(application: application, tiling: model.tiling,
                                                   hideOtherApps: model.hideOtherApps, createNewWindow: model.createNewWindow))))
         } onHideOtherAppsChange: { hideOtherApps in
-          onAction(.editCommand(.focusOnApp(.init(application: model.application, tiling: model.tiling,
+          onAction(.editCommand(.appFocus(.init(application: model.application, tiling: model.tiling,
                                                   hideOtherApps: hideOtherApps, createNewWindow: model.createNewWindow))))
         } onCreateWindowChange: { createNewWindow in
-          onAction(.editCommand(.focusOnApp(.init(application: model.application, tiling: model.tiling,
+          onAction(.editCommand(.appFocus(.init(application: model.application, tiling: model.tiling,
                                                   hideOtherApps: model.hideOtherApps, createNewWindow: createNewWindow))))
         }
       case .workspace(let model):

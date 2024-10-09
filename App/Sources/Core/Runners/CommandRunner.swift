@@ -267,7 +267,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       )
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
-      case .focusOnApp(let focusCommand):
+      case .appFocus(let focusCommand):
         let applications = applicationStore.applications
         let commands = await focusCommand.commands(applications)
         for command in commands {

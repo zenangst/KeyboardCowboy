@@ -105,19 +105,19 @@ final class DetailCommandActionReducer {
         switch action {
         case .editCommand(let kind):
           switch kind {
-          case .focusOnApp(let model):
+          case .appFocus(let model):
             guard let application = model.application else {
               assertionFailure("Application should never be nil here.")
               return
             }
-            let newFocusOnAppCommand = FocusOnAppCommand(
+            let newAppFocusCommand = AppFocusCommand(
               id: command.id,
               bundleIdentifer: application.bundleIdentifier,
               hideOtherApps: model.hideOtherApps,
               tiling: model.tiling,
               createNewWindow: model.createNewWindow
             )
-            command = .bundled(.init(.focusOnApp(newFocusOnAppCommand), meta: command.meta))
+            command = .bundled(.init(.appFocus(newAppFocusCommand), meta: command.meta))
             workflow.updateOrAddCommand(command)
           case .workspace(let workspace):
             let newWorkspaceCommand = WorkspaceCommand(

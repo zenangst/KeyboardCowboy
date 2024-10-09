@@ -117,7 +117,7 @@ struct ContentViewModel: Identifiable, Hashable, Codable,
     }
 
     enum Bundled: Hashable, Codable, Sendable {
-      case focusOnApp
+      case appFocus
       case workspace
     }
 

@@ -80,7 +80,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     struct BundledModel: Codable, Hashable, Identifiable, Sendable {
       enum Kind: Codable, Hashable, Sendable {
         case workspace(WorkspaceModel)
-        case focusOnApp(FocusOnAppModel)
+        case appFocus(AppFocusModel)
       }
       let id: String
       var name: String
@@ -94,7 +94,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var hideOtherApps: Bool
     }
 
-    struct FocusOnAppModel: Codable, Hashable, Sendable {
+    struct AppFocusModel: Codable, Hashable, Sendable {
       var placheholder: String { "Focus on App …" }
       var application: Application?
       var tiling: WorkspaceCommand.Tiling?

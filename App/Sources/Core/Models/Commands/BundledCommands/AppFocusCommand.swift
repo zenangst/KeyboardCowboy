@@ -3,7 +3,7 @@ import Apps
 import Foundation
 import Windows
 
-struct FocusOnAppCommand: Identifiable, Codable, Hashable {
+struct AppFocusCommand: Identifiable, Codable, Hashable {
   typealias Tiling = WorkspaceCommand.Tiling
   var id: String
   var bundleIdentifer: String
@@ -27,7 +27,7 @@ struct FocusOnAppCommand: Identifiable, Codable, Hashable {
     self.bundleIdentifer = try container.decode(String.self, forKey: .bundleIdentifer)
     self.hideOtherApps = try container.decode(Bool.self, forKey: .hideOtherApps)
     self.createNewWindow = try container.decodeIfPresent(Bool.self, forKey: .createNewWindow) ?? true
-    self.tiling = try container.decodeIfPresent(FocusOnAppCommand.Tiling.self, forKey: .tiling)
+    self.tiling = try container.decodeIfPresent(AppFocusCommand.Tiling.self, forKey: .tiling)
   }
 
   @MainActor
@@ -185,7 +185,7 @@ struct FocusOnAppCommand: Identifiable, Codable, Hashable {
   }
 
   func copy() -> Self {
-    FocusOnAppCommand(
+    AppFocusCommand(
       id: UUID().uuidString,
       bundleIdentifer: self.bundleIdentifer,
       hideOtherApps: self.hideOtherApps,

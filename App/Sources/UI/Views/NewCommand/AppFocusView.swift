@@ -2,11 +2,11 @@ import Apps
 import Bonzai
 import SwiftUI
 
-struct NewCommandFocusOnAppView: View {
+struct AppFocusView: View {
   typealias Tiling = WorkspaceCommand.Tiling
   @EnvironmentObject private var applicationStore: ApplicationStore
   @State private var tiling: Tiling?
-  @State private var selectedApp: FocusOnAppApplicationItem?
+  @State private var selectedApp: AppFocusApplicationItem?
   @State private var hideOtherApps = true
   @State private var createNewWindow = false
 
@@ -34,7 +34,7 @@ struct NewCommandFocusOnAppView: View {
         Menu {
           ForEach(applicationStore.applications) { application in
             Button(action: {
-              selectedApp = FocusOnAppApplicationItem(application)
+              selectedApp = AppFocusApplicationItem(application)
               onSelectedAppsChange(application.bundleIdentifier)
             },
                    label: { Text(application.displayName) })
@@ -102,7 +102,7 @@ struct NewCommandFocusOnAppView: View {
   }
 }
 
-struct FocusOnAppApplicationItem {
+struct AppFocusApplicationItem {
   let id: UUID
   let application: Application
 

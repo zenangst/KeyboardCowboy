@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FocusOnAppIcon: View {
+struct AppFocusIcon: View {
   let size: CGFloat
 
   var body: some View {
@@ -27,19 +27,19 @@ struct FocusOnAppIcon: View {
       }
       .overlay { iconOverlay().opacity(0.65) }
       .overlay { iconBorder(size) }
-      .overlay { FocusOnAppIconGroupView(size: size) }
+      .overlay { AppFocusIconGroupView(size: size) }
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
   }
 }
 
-struct FocusOnAppIconGroupView: View {
+struct AppFocusIconGroupView: View {
   let size: CGFloat
   var body: some View {
     Group {
       ZStack {
-        FocusOnAppIconIllustrationApp(size: size * 0.5)
+        AppFocusIconIllustrationApp(size: size * 0.5)
           .mask {
             LinearGradient(stops: [
               .init(color: .black.opacity(0.6), location: 0),
@@ -48,7 +48,7 @@ struct FocusOnAppIconGroupView: View {
           }
           .offset(y: -size * 0.145)
 
-        FocusOnAppIconIllustrationApp(size: size * 0.6)
+        AppFocusIconIllustrationApp(size: size * 0.6)
           .mask {
             LinearGradient(stops: [
               .init(color: .black.opacity(0.6), location: 0),
@@ -56,7 +56,7 @@ struct FocusOnAppIconGroupView: View {
             ], startPoint: .top, endPoint: .bottom)
           }
           .offset(y: -size * 0.055)
-        FocusOnAppIconIllustrationApp(size: size * 0.65)
+        AppFocusIconIllustrationApp(size: size * 0.65)
           .offset(y: size * 0.015)
       }
 
@@ -72,7 +72,7 @@ struct FocusOnAppIconGroupView: View {
   }
 }
 
-struct FocusOnAppIconIllustrationApp: View {
+struct AppFocusIconIllustrationApp: View {
   let size: CGFloat
 
   init(size: CGFloat) {
@@ -95,7 +95,7 @@ struct FocusOnAppIconIllustrationApp: View {
   }
 }
 
-struct FocusOnAppIconIllustration: View {
+struct AppFocusIconIllustration: View {
   let size: CGFloat
 
   init(size: CGFloat) {
@@ -110,5 +110,5 @@ struct FocusOnAppIconIllustration: View {
 }
 
 #Preview {
-  IconPreview { FocusOnAppIcon(size: $0) }
+  IconPreview { AppFocusIcon(size: $0) }
 }

@@ -3,10 +3,10 @@ import Bonzai
 import Inject
 import SwiftUI
 
-struct FocusOnAppCommandView: View {
+struct AppFocusCommandView: View {
   @EnvironmentObject private var applicationStore: ApplicationStore
   @ObserveInjection var inject
-  typealias Model = CommandViewModel.Kind.FocusOnAppModel
+  typealias Model = CommandViewModel.Kind.AppFocusModel
   @State private var model: Model
 
   private let onTilingChange: (WorkspaceCommand.Tiling?) -> Void

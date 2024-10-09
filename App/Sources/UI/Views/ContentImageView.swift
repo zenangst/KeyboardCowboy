@@ -16,8 +16,8 @@ struct ContentImageView: View {
       BuiltinIconBuilder.icon(builtIn, size: iconSize)
     case .bundled(let bundled):
       switch bundled {
-      case .focusOnApp:
-        FocusOnAppIcon(size: iconSize)
+      case .appFocus:
+        AppFocusIcon(size: iconSize)
       case .workspace:
         WorkspaceIcon(size: iconSize)
       }

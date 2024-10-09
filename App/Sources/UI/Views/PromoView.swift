@@ -37,11 +37,11 @@ struct PromoView: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
-              FocusOnAppPromoView()
+              AppFocusPromoView()
                 .frame(width: 117, height: 117)
                 .padding(8)
                 .background(
-                  FocusOnAppBackground()
+                  AppFocusBackground()
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
@@ -113,13 +113,13 @@ struct PromoView: View {
   }
 }
 
-private struct FocusOnAppPromoView: View {
+private struct AppFocusPromoView: View {
   var body: some View {
     VStack(spacing: 16) {
       Rectangle()
         .fill(Color.white.opacity(0.4))
         .overlay {
-          FocusOnAppIconGroupView(size: 72)
+          AppFocusIconGroupView(size: 72)
         }
         .frame(width: 72, height: 72)
         .fixedSize()
@@ -184,7 +184,7 @@ private struct WindowTilingPromoView: View {
   }
 }
 
-private struct FocusOnAppBackground: View {
+private struct AppFocusBackground: View {
   var body: some View {
     Rectangle()
       .fill(
