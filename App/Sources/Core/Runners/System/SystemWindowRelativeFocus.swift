@@ -22,8 +22,6 @@ final class SystemWindowRelativeFocus {
   }
 
   func run(_ direction: Direction, snapshot: UserSpace.Snapshot) async throws {
-    guard let screen = NSScreen.main else { return }
-
     await FocusBorder.shared.dismiss()
 
     if direction != previousDirection {

@@ -39,10 +39,12 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
       return
     }
 
+    let screenFrame = screen.visibleFrame.mainDisplayFlipped
+
     let windowSpacing: CGFloat = CGFloat(userDefaults.float(forKey: "TiledWindowSpacing"))
     // These are used to figure out if the window is using window tiling or not
-    let minX = screen.visibleFrame.minX + windowSpacing
-    let maxX = screen.visibleFrame.maxX - (windowSpacing * 2)
+    let minX = screenFrame.minX + windowSpacing
+    let maxX = screenFrame.maxX - (windowSpacing * 2)
 
     var activeWindow: WindowModel?
     var windows = initialWindows
@@ -70,7 +72,7 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
     windows.removeAll(where: { consumedWindows.contains($0) })
 
     if Self.debug {
-      let invertedRect = targetRect.invertedYCoordinate(on: screen)
+      let invertedRect = targetRect.mainDisplayFlipped
       windowController.window?.setFrame(invertedRect, display: true)
       windowController.showWindow(nil)
     }
@@ -90,10 +92,7 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
     guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) else {
       return
     }
-
-    var invertedFrame = matchedWindow.rect.invertedYCoordinate(on: screen)
-    invertedFrame.origin.y += abs(screen.frame.height - screen.visibleFrame.height)
-    FocusBorder.shared.show(invertedFrame)
+    FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
 
     consumedWindows.insert(matchedWindow)
 
@@ -118,8 +117,9 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
   // MARK: Private methods
 
   private func targetRect(on screen: NSScreen) -> CGRect {
+    let screenFrame = screen.frame.mainDisplayFlipped
     let size: CGFloat = 2
-    let origin = CGPoint(x: screen.frame.midX - size, y: screen.frame.midY - size)
+    let origin = CGPoint(x: screenFrame.midX - size, y: screenFrame.midY - size)
     let targetRect: CGRect = CGRect(origin: origin, size: CGSize(width: size, height: size))
     return targetRect
   }
