@@ -300,7 +300,12 @@ private struct ScriptCommandAssignToVariableView: View {
         ZenDivider(.vertical)
           .fixedSize()
         TextField("Assign output to variable", text: $variableName)
-          .textFieldStyle(.zen(.init(font: .caption)))
+          .textFieldStyle(.zen(.init(font: .caption, padding: ZenStyleConfiguration.Padding(horizontal: .extraLarge, vertical: .small))))
+          .overlay(alignment: .leading) {
+            Text("$")
+              .padding(.leading, 4)
+              .opacity(0.5)
+          }
           .onChange(of: variableName) { newValue in
             onVariableNameChange(newValue)
           }
