@@ -35,7 +35,6 @@ final class ScriptCommandRunner: Sendable {
                                                            checkCancellation: checkCancellation)
     }
 
-
     return result
   }
 }

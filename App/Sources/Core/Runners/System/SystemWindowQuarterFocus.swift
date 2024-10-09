@@ -154,7 +154,12 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
 
 extension SystemWindowQuarterFocus.Quarter {
   func targetRect(on screen: NSScreen, widthFactor: CGFloat, heightFactor: CGFloat, spacing: CGFloat) -> CGRect {
-    let screenFrame = screen.visibleFrame
+    let screenFrame = CGRect(
+      x: screen.frame.origin.x,
+      y: 0,
+      width: screen.visibleFrame.width,
+      height: screen.visibleFrame.height
+    )
     let targetWidth = screenFrame.width * widthFactor
     let targetHeight = screenFrame.height * heightFactor
 
