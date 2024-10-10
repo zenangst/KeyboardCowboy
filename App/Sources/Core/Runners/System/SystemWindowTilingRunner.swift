@@ -306,7 +306,7 @@ final class SystemWindowTilingRunner {
         match.performAction(.pick)
 
         if !updateSubjects.isEmpty {
-          try await Task.sleep(for: .milliseconds(100))
+          try await Task.sleep(for: .milliseconds(200))
 
           let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
           let windowNumbers = updateSubjects.map { $0.windowNumber }
@@ -371,13 +371,13 @@ final class SystemWindowTilingRunner {
     let heightTreshold: CGFloat = abs(height - halfHeight)
 
     // Check for half-screen positions
-    if widthTreshold < windowSpacing && height >= halfHeight {
+    if widthTreshold <= halfWidth && height >= halfHeight {
       if rect.minX == screenFrame.minX {
         return .left
       } else if rect.maxX == screenFrame.maxX {
         return .right
       }
-    } else if heightTreshold < windowSpacing && width >= screenFrame.width - windowSpacing * 2 {
+    } else if heightTreshold <= halfHeight && width >= screenFrame.width - windowSpacing * 2 {
       if rect.minY == screenFrame.minY {
         return .top
       } else if rect.maxY == screenFrame.maxY {
