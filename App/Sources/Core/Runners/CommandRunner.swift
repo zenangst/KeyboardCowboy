@@ -324,7 +324,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           }
         }
         runners.system.resetFocusComponents()
-        SystemWindowTilingRunner.initialIndex()
+        Task.detached {
+          try await Task.sleep(for: .milliseconds(375))
+          SystemWindowTilingRunner.initialIndex()
+        }
         output = command.name
       case .workspace(let workspaceCommand):
         let applications = applicationStore.applications
