@@ -37,7 +37,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private var repeatingMatch: Bool?
   private var shouldHandleKeyUp: Bool = false
   private var specialKeys: [Int] = [Int]()
-  private var workItem: DispatchWorkItem?
+  private var scheduledKeyCode: Int?
+  private var scheduledWorkItem: DispatchWorkItem?
   private var capsLockDown: Bool = false
 
   private let keyboardCleaner: KeyboardCleaner
@@ -107,8 +108,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
   func receiveFlagsChanged(_ machPortEvent: MachPortEvent) {
     let flags = machPortEvent.event.flags
-    workItem?.cancel()
-    workItem = nil
+    scheduledWorkItem?.cancel()
+    scheduledWorkItem = nil
     flagsChanged = flags
     capsLockDown = machPortEvent.keyCode == kVK_CapsLock
     repeatingResult = nil
@@ -130,15 +131,47 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     switch machPortEvent.type {
       case .keyDown:
+      if scheduledWorkItem != nil {
+        if Int(machPortEvent.keyCode) != scheduledKeyCode, isRepeatingEvent == false {
+          machPortEvent.result = nil
+          scheduledKeyCode = nil
+        } else {
+          machPortEvent.result = nil
+          return
+        }
+      }
+
       let shouldReturn = handleEscapeKeyDownEvent(machPortEvent)
+
       if shouldReturn { return }
     case .keyUp:
-      handleKeyUp(machPortEvent)
-      workItem?.cancel()
-      workItem = nil
-      repeatingResult = nil
-      repeatingMatch = nil
-      return
+      if scheduledWorkItem != nil {
+        scheduledWorkItem?.cancel()
+
+        if let scheduledKeyCode,
+           Self.defaultPartialMatch.rawValue == previousPartialMatch.rawValue {
+          let _ = try? machPort?.post(scheduledKeyCode, type: .keyDown, flags: machPortEvent.event.flags)
+          let _ = try? machPort?.post(scheduledKeyCode, type: .keyUp, flags: machPortEvent.event.flags)
+          scheduledWorkItem?.cancel()
+          scheduledWorkItem = nil
+          repeatingResult = nil
+          repeatingMatch = nil
+          self.scheduledKeyCode = nil
+          return
+        } else {
+          scheduledWorkItem = nil
+          scheduledKeyCode = nil
+          return
+        }
+      } else {
+        handleKeyUp(machPortEvent)
+        scheduledWorkItem?.cancel()
+        scheduledWorkItem = nil
+        repeatingResult = nil
+        repeatingMatch = nil
+        scheduledKeyCode = nil
+        return
+      }
     default:
       return
     }
@@ -195,10 +228,28 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
                        runningMacro: Bool) {
     switch result {
     case .partialMatch(let partialMatch):
-      if let workflow = partialMatch.workflow,
-         workflow.trigger?.isPassthrough == true {
-        if macroCoordinator.state == .recording && machPortEvent.type == .keyDown {
-          macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
+      if let workflow = partialMatch.workflow {
+        if case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger {
+          if previousPartialMatch.rawValue == Self.defaultPartialMatch.rawValue,
+             let holdDuration = keyboardShortcut.holdDuration, holdDuration > 0 {
+            repeatingMatch = nil
+            machPortEvent.result = nil
+            scheduledKeyCode = Int(machPortEvent.keyCode)
+            self.scheduledWorkItem?.cancel()
+            let scheduleWorkItem = DispatchWorkItem { [weak self] in
+              guard let self else { return }
+              if self.scheduledWorkItem?.isCancelled == true { return }
+              self.previousPartialMatch = partialMatch
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + holdDuration, execute: scheduleWorkItem)
+            self.scheduledWorkItem = scheduleWorkItem
+            return
+          } else if keyboardShortcut.passthrough,
+             macroCoordinator.state == .recording && machPortEvent.type == .keyDown {
+            macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
+          } else {
+            machPortEvent.result = nil
+          }
         }
       } else {
         machPortEvent.result = nil
@@ -291,7 +342,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         }
 
         if let delay = shouldSchedule(workflow) {
-          workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
+          scheduledWorkItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
           previousPartialMatch = Self.defaultPartialMatch
@@ -302,7 +353,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         }
 
         if let delay = shouldSchedule(workflow) {
-          workItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
+          scheduledWorkItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
         }
@@ -498,21 +549,21 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
                         machPortEvent: MachPortEvent, after duration: Double) -> DispatchWorkItem {
     let workItem = DispatchWorkItem { [weak self] in
       guard let self else { return }
-
-      guard self.workItem?.isCancelled != true else { return }
+      guard self.scheduledWorkItem?.isCancelled != true else { return }
 
       workflowRunner.run(workflow, for: shortcut, machPortEvent: machPortEvent, repeatingEvent: false)
       reset()
       previousPartialMatch = Self.defaultPartialMatch
+      self.scheduledWorkItem = nil
     }
+
     DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
+
     return workItem
   }
 
   private func shouldSchedule(_ workflow: Workflow) -> Double? {
-    if case .keyboardShortcuts(let trigger) = workflow.trigger,
-       trigger.shortcuts.count == 1,
-       let holdDuration = trigger.holdDuration,
+    if case .keyboardShortcuts(let trigger) = workflow.trigger, let holdDuration = trigger.holdDuration, trigger.shortcuts.count == 1,
        holdDuration > 0 {
       return holdDuration
     } else {

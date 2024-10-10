@@ -49,15 +49,19 @@ struct WorkflowKeyboardTriggerView: View {
         }
         .font(.caption)
         Spacer()
-        if trigger.shortcuts.count == 1 {
+        HStack(spacing: 0) {
           Text("Hold for")
-          NumberTextField(text: $holdDurationText) {
-            onAction(.updateHoldDuration(workflowId: workflowId, holdDuration: Double($0)))
-          }
-          .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .controlColor).opacity(0.5), font: .caption, padding: .small)))
-          .frame(maxWidth: 32)
-          Text("seconds")
+          Text(" (only applies to the initial keypress)")
+            .frame(width:  trigger.shortcuts.count == 1 ? 0 : nil,
+                   height: trigger.shortcuts.count == 1 ? 0 : nil)
+            .opacity(trigger.shortcuts.count == 1 ? 0 : 1)
         }
+        NumberTextField(text: $holdDurationText) {
+          onAction(.updateHoldDuration(workflowId: workflowId, holdDuration: Double($0)))
+        }
+        .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .controlColor).opacity(0.5), font: .caption, padding: .small)))
+        .frame(maxWidth: 32)
+        Text("seconds")
       }
       .font(.caption2)
     }
