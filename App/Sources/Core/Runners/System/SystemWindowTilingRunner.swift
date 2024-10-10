@@ -15,6 +15,7 @@ final class SystemWindowTilingRunner {
       for screen in NSScreen.screens {
         let visibleScreenFrame = screen.visibleFrame.mainDisplayFlipped
         let newWindows = snapshot.windows.visibleWindowsInStage
+          .filter({ visibleScreenFrame.contains($0.rect) })
         await determineTiling(for: newWindows, in: visibleScreenFrame, newWindows: newWindows)
       }
     }
