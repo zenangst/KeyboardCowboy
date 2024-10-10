@@ -18,6 +18,7 @@ enum WindowTiling {
   case arrangeRightQuarters
   case arrangeTopQuarters
   case arrangeBottomQuarters
+  case arrangeDynamicQuarters
   case arrangeQuarters
   case previousSize
 
@@ -42,6 +43,7 @@ enum WindowTiling {
     case .arrangeRightQuarters: "_zoomRightThreeUp:"
     case .arrangeTopQuarters: "_zoomTopThreeUp:"
     case .arrangeBottomQuarters: "_zoomBottomThreeUp:"
+    case .arrangeDynamicQuarters: "_arrangeDynamicQuarters:"
     case .arrangeQuarters: "_zoomQuarters:"
     case .previousSize: "_zoomUntile:"
     }

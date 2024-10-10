@@ -46,6 +46,7 @@ struct SystemCommand: MetaDataProviding {
       case .windowTilingArrangeRightQuarters: "Window › Move & Resize › Right & Quarters"
       case .windowTilingArrangeTopQuarters: "Window › Move & Resize › Top & Quarters"
       case .windowTilingArrangeBottomQuarters: "Window › Move & Resize › Bottom & Quarters"
+      case .windowTilingArrangeDynamicQuarters: "Window › Move & Resize › Dynamic & Quarters"
       case .windowTilingArrangeQuarters: "Window › Move & Resize › Quarters"
       case .windowTilingPreviousSize: "Window › Move & Resize › Return to Previous Size"
 
@@ -90,7 +91,7 @@ struct SystemCommand: MetaDataProviding {
       case .windowTilingArrangeRightLeft: "rectangle.split.2x1.fill"
       case .windowTilingArrangeTopBottom: "rectangle.split.1x2.fill"
       case .windowTilingArrangeBottomTop: "rectangle.split.1x2.fill"
-      case .windowTilingArrangeLeftQuarters: "uiwindow.split.2x1"
+      case .windowTilingArrangeLeftQuarters, .windowTilingArrangeDynamicQuarters: "uiwindow.split.2x1"
       case .windowTilingArrangeRightQuarters: "uiwindow.split.2x1"
       case .windowTilingArrangeTopQuarters: "uiwindow.split.2x1"
       case .windowTilingArrangeBottomQuarters: "uiwindow.split.2x1"
@@ -135,7 +136,7 @@ struct SystemCommand: MetaDataProviding {
       case .windowTilingArrangeRightLeft: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingArrangeTopBottom: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingArrangeBottomTop: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
-      case .windowTilingArrangeLeftQuarters: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
+      case .windowTilingArrangeLeftQuarters, .windowTilingArrangeDynamicQuarters: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingArrangeRightQuarters: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingArrangeTopQuarters: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
       case .windowTilingArrangeBottomQuarters: "/System/Library/CoreServices/WidgetKit Simulator.app/Contents/Resources/AppIcon.icns"
@@ -184,6 +185,7 @@ struct SystemCommand: MetaDataProviding {
     case windowTilingArrangeRightQuarters
     case windowTilingArrangeTopQuarters
     case windowTilingArrangeBottomQuarters
+    case windowTilingArrangeDynamicQuarters
     case windowTilingArrangeQuarters
     case windowTilingPreviousSize
   }

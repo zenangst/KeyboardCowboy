@@ -89,7 +89,7 @@ struct WorkspaceCommandView: View {
               WindowTilingIcon(kind: .arrangeTopBottom, size: 20)
             case .arrangeBottomTop:
               WindowTilingIcon(kind: .arrangeBottomTop, size: 20)
-            case .arrangeLeftQuarters:
+            case .arrangeLeftQuarters, .arrangeDynamicQuarters:
               WindowTilingIcon(kind: .arrangeLeftQuarters, size: 20)
             case .arrangeRightQuarters:
               WindowTilingIcon(kind: .arrangeRightQuarters, size: 20)
@@ -157,6 +157,7 @@ fileprivate extension WorkspaceCommand.Tiling {
     case .arrangeRightQuarters: "Right & Quarters"
     case .arrangeTopQuarters: "Top & Quarters"
     case .arrangeBottomQuarters: "Bottom & Quarters"
+    case .arrangeDynamicQuarters: "Dynamic & Quarters"
     case .arrangeQuarters: "Quarters"
     case .fill: "Fill"
     case .center: "Center"

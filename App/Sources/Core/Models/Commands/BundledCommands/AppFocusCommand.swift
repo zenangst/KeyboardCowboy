@@ -143,6 +143,8 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       } else {
         windowTiling = .windowTilingFill
       }
+    case .arrangeDynamicQuarters:
+      windowTiling = .windowTilingArrangeDynamicQuarters
     case .fill:
       windowTiling = .windowTilingFill
     case .center:

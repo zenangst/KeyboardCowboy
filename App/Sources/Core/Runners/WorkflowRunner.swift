@@ -122,39 +122,40 @@ private extension Workflow {
             case .moveFocusToNextWindowUpperRightQuarter: return true
             case .moveFocusToNextWindowLowerLeftQuarter: return true
             case .moveFocusToNextWindowLowerRightQuarter: return true
-            case .moveFocusToNextWindowOnLeft:       return false
-            case .moveFocusToNextWindowOnRight:      return false
-            case .moveFocusToNextWindowUpwards:      return false
-            case .moveFocusToNextWindowDownwards:    return false
-            case .moveFocusToNextWindowFront:        return false
-            case .moveFocusToNextWindowCenter:       return false
-            case .moveFocusToPreviousWindowFront:    return false
-            case .moveFocusToNextWindow:             return false
-            case .moveFocusToPreviousWindow:         return false
-            case .moveFocusToNextWindowGlobal:       return false
-            case .moveFocusToPreviousWindowGlobal:   return false
-            case .showDesktop:                       return false
-            case .windowTilingLeft:                  return true
-            case .windowTilingRight:                 return true
-            case .windowTilingTop:                   return true
-            case .windowTilingBottom:                return true
-            case .windowTilingTopLeft:               return true
-            case .windowTilingTopRight:              return true
-            case .windowTilingBottomLeft:            return true
-            case .windowTilingBottomRight:           return true
-            case .windowTilingCenter:                return true
-            case .windowTilingFill:                  return true
-            case .windowTilingZoom:                  return true
-            case .windowTilingArrangeLeftRight:      return true
-            case .windowTilingArrangeRightLeft:      return true
-            case .windowTilingArrangeTopBottom:      return true
-            case .windowTilingArrangeBottomTop:      return true
-            case .windowTilingArrangeLeftQuarters:   return true
-            case .windowTilingArrangeRightQuarters:  return true
-            case .windowTilingArrangeTopQuarters:    return true
-            case .windowTilingArrangeBottomQuarters: return true
-            case .windowTilingArrangeQuarters:       return true
-            case .windowTilingPreviousSize:          return true
+            case .moveFocusToNextWindowOnLeft:        return false
+            case .moveFocusToNextWindowOnRight:       return false
+            case .moveFocusToNextWindowUpwards:       return false
+            case .moveFocusToNextWindowDownwards:     return false
+            case .moveFocusToNextWindowFront:         return false
+            case .moveFocusToNextWindowCenter:        return false
+            case .moveFocusToPreviousWindowFront:     return false
+            case .moveFocusToNextWindow:              return false
+            case .moveFocusToPreviousWindow:          return false
+            case .moveFocusToNextWindowGlobal:        return false
+            case .moveFocusToPreviousWindowGlobal:    return false
+            case .showDesktop:                        return false
+            case .windowTilingLeft:                   return true
+            case .windowTilingRight:                  return true
+            case .windowTilingTop:                    return true
+            case .windowTilingBottom:                 return true
+            case .windowTilingTopLeft:                return true
+            case .windowTilingTopRight:               return true
+            case .windowTilingBottomLeft:             return true
+            case .windowTilingBottomRight:            return true
+            case .windowTilingCenter:                 return true
+            case .windowTilingFill:                   return true
+            case .windowTilingZoom:                   return true
+            case .windowTilingArrangeLeftRight:       return true
+            case .windowTilingArrangeRightLeft:       return true
+            case .windowTilingArrangeTopBottom:       return true
+            case .windowTilingArrangeBottomTop:       return true
+            case .windowTilingArrangeLeftQuarters:    return true
+            case .windowTilingArrangeRightQuarters:   return true
+            case .windowTilingArrangeTopQuarters:     return true
+            case .windowTilingArrangeBottomQuarters:  return true
+            case .windowTilingArrangeDynamicQuarters: return true
+            case .windowTilingArrangeQuarters:        return true
+            case .windowTilingPreviousSize:           return true
           }
         case .uiElement:                             return true
         case .windowManagement:                      return false

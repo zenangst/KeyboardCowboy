@@ -80,6 +80,8 @@ struct AppFocusCommandView: View {
               WindowTilingIcon(kind: .arrangeTopQuarters, size: 20)
             case .arrangeBottomQuarters:
               WindowTilingIcon(kind: .arrangeBottomQuarters, size: 20)
+            case .arrangeDynamicQuarters:
+              WindowTilingIcon(kind: .arrangeDynamicQuarters, size: 20)
             case .arrangeQuarters:
               WindowTilingIcon(kind: .arrangeQuarters, size: 20)
             case .fill:
@@ -153,6 +155,7 @@ fileprivate extension WorkspaceCommand.Tiling {
     case .arrangeRightQuarters: "Right & Quarters"
     case .arrangeTopQuarters: "Top & Quarters"
     case .arrangeBottomQuarters: "Bottom & Quarters"
+    case .arrangeDynamicQuarters: "Dynamic & Quarters"
     case .arrangeQuarters: "Quarters"
     case .fill: "Fill"
     case .center: "Center"

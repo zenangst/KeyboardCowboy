@@ -161,6 +161,39 @@ final class SystemWindowTilingRunner {
         updateSubjects = Array(oldWindows[1...2])
         for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
       }
+    case .arrangeDynamicQuarters:
+      let tiling: WindowTiling = calculateTiling(for: nextWindow.rect, in: visibleScreenFrame)
+      let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft]
+
+      if oldWindows.count == 1 {
+        activatedTiling = WindowTiling.fill
+        updateSubjects = []
+      } else if oldWindows.count == 2 {
+        if leftTilings.contains(tiling) {
+          activatedTiling = WindowTiling.arrangeLeftRight
+          await store(.left, for: oldWindows[0])
+          await store(.right, for: oldWindows[1])
+        } else {
+          activatedTiling = WindowTiling.arrangeRightLeft
+          await store(.right, for: oldWindows[0])
+          await store(.left, for: oldWindows[1])
+        }
+        updateSubjects = []
+        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+      } else {
+        if leftTilings.contains(tiling) {
+          await store(.left, for: oldWindows[0])
+          activatedTiling = .arrangeLeftQuarters
+        } else {
+          await store(.right, for: oldWindows[0])
+          activatedTiling = .arrangeRightQuarters
+        }
+
+        await store(.bottomRight, for: oldWindows[1])
+        await store(.topRight, for: oldWindows[2])
+        updateSubjects = Array(oldWindows[1...2])
+        for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+      }
     case .arrangeRightQuarters:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
@@ -311,49 +344,9 @@ final class SystemWindowTilingRunner {
                                       newWindows: [WindowModel]) {
     guard subjects.isEmpty == false else { return }
 
-    let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
-    let screenFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
-    let halfWidth = screenFrame.width / 2
-    let halfHeight = screenFrame.height / 2
-
-    func determineTiling(for rect: CGRect) -> WindowTiling {
-      let centerX = rect.midX
-      let centerY = rect.midY
-      let width = rect.width
-      let height = rect.height
-      let widthTreshold: CGFloat = abs(width - halfWidth)
-      let heightTreshold: CGFloat = abs(height - halfHeight)
-
-      // Check for half-screen positions
-      if widthTreshold < windowSpacing && height >= halfHeight {
-        if rect.minX == screenFrame.minX {
-          return .left
-        } else if rect.maxX == screenFrame.maxX {
-          return .right
-        }
-      } else if heightTreshold < windowSpacing && width >= screenFrame.width - windowSpacing * 2 {
-        if rect.minY == screenFrame.minY {
-          return .top
-        } else if rect.maxY == screenFrame.maxY {
-          return .bottom
-        }
-      }
-
-      // Determine quarter
-      if centerX < halfWidth && centerY < halfHeight {
-        return .topLeft
-      } else if centerX >= halfWidth && centerY < halfHeight {
-        return .topRight
-      } else if centerX < halfWidth && centerY >= halfHeight {
-        return .bottomLeft
-      } else {
-        return .bottomRight
-      }
-    }
-
     for (oldWindow, newWindow) in zip(subjects, newWindows) {
-      let oldTiling = determineTiling(for: oldWindow.rect)
-      let newTiling = determineTiling(for: newWindow.rect)
+      let oldTiling = calculateTiling(for: oldWindow.rect, in: screenFrame)
+      let newTiling = calculateTiling(for: newWindow.rect, in: screenFrame)
 
       if oldTiling != newTiling {
         store(newTiling, for: oldWindow)
@@ -362,6 +355,45 @@ final class SystemWindowTilingRunner {
         store(oldTiling, for: oldWindow)
         if Self.debug { print("Window \(oldWindow.ownerName) stayed in \(oldTiling)") }
       }
+    }
+  }
+
+  private static func calculateTiling(for rect: CGRect, in screenFrame: CGRect) -> WindowTiling {
+    let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
+    let screenFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
+    let halfWidth = screenFrame.width / 2
+    let halfHeight = screenFrame.height / 2
+    let centerX = rect.midX
+    let centerY = rect.midY
+    let width = rect.width
+    let height = rect.height
+    let widthTreshold: CGFloat = abs(width - halfWidth)
+    let heightTreshold: CGFloat = abs(height - halfHeight)
+
+    // Check for half-screen positions
+    if widthTreshold < windowSpacing && height >= halfHeight {
+      if rect.minX == screenFrame.minX {
+        return .left
+      } else if rect.maxX == screenFrame.maxX {
+        return .right
+      }
+    } else if heightTreshold < windowSpacing && width >= screenFrame.width - windowSpacing * 2 {
+      if rect.minY == screenFrame.minY {
+        return .top
+      } else if rect.maxY == screenFrame.maxY {
+        return .bottom
+      }
+    }
+
+    // Determine quarter
+    if centerX < halfWidth && centerY < halfHeight {
+      return .topLeft
+    } else if centerX >= halfWidth && centerY < halfHeight {
+      return .topRight
+    } else if centerX < halfWidth && centerY >= halfHeight {
+      return .bottomLeft
+    } else {
+      return .bottomRight
     }
   }
 }

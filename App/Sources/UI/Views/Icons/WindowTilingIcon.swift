@@ -236,7 +236,7 @@ private struct WindowTilingKindView: View {
       }
       .padding(size * 0.01)
       .opacity(0.9)
-    case .arrangeLeftQuarters:
+    case .arrangeLeftQuarters, .arrangeDynamicQuarters:
       HStack(spacing: spacing) {
         Rectangle().fill(Color.white)
           .iconShape(size * 0.15)

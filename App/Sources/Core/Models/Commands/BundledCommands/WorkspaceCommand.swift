@@ -12,6 +12,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     case arrangeRightQuarters
     case arrangeTopQuarters
     case arrangeBottomQuarters
+    case arrangeDynamicQuarters
     case arrangeQuarters
     case fill
     case center
@@ -129,18 +130,19 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     }
 
     let windowTiling: SystemCommand.Kind? = switch tiling {
-    case .arrangeLeftRight:      .windowTilingArrangeLeftRight
-    case .arrangeRightLeft:      .windowTilingArrangeLeftRight
-    case .arrangeTopBottom:      .windowTilingArrangeTopBottom
-    case .arrangeBottomTop:      .windowTilingArrangeBottomTop
-    case .arrangeLeftQuarters:   .windowTilingArrangeLeftQuarters
-    case .arrangeRightQuarters:  .windowTilingArrangeRightQuarters
-    case .arrangeTopQuarters:    .windowTilingArrangeTopQuarters
-    case .arrangeBottomQuarters: .windowTilingArrangeBottomQuarters
-    case .arrangeQuarters:       .windowTilingArrangeQuarters
-    case .fill:                  .windowTilingFill
-    case .center:                .windowTilingCenter
-    case nil:                    nil
+    case .arrangeLeftRight:       .windowTilingArrangeLeftRight
+    case .arrangeRightLeft:       .windowTilingArrangeLeftRight
+    case .arrangeTopBottom:       .windowTilingArrangeTopBottom
+    case .arrangeBottomTop:       .windowTilingArrangeBottomTop
+    case .arrangeLeftQuarters:    .windowTilingArrangeLeftQuarters
+    case .arrangeRightQuarters:   .windowTilingArrangeRightQuarters
+    case .arrangeTopQuarters:     .windowTilingArrangeTopQuarters
+    case .arrangeBottomQuarters:  .windowTilingArrangeBottomQuarters
+    case .arrangeDynamicQuarters: .windowTilingArrangeDynamicQuarters
+    case .arrangeQuarters:        .windowTilingArrangeQuarters
+    case .fill:                   .windowTilingFill
+    case .center:                 .windowTilingCenter
+    case nil:                     nil
     }
 
     if let windowTiling {

@@ -160,6 +160,9 @@ final class SystemCommandRunner: @unchecked Sendable {
       case .windowTilingArrangeBottomQuarters:
         try await SystemWindowTilingRunner.run(.arrangeBottomQuarters, snapshot: snapshot)
         resetFocusComponents()
+      case .windowTilingArrangeDynamicQuarters:
+        try await SystemWindowTilingRunner.run(.arrangeDynamicQuarters, snapshot: snapshot)
+        resetFocusComponents()
       case .windowTilingArrangeQuarters:
         try await SystemWindowTilingRunner.run(.arrangeQuarters, snapshot: snapshot)
         resetFocusComponents()

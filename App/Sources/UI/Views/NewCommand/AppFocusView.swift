@@ -123,6 +123,7 @@ fileprivate extension WorkspaceCommand.Tiling {
     case .arrangeRightQuarters: "Right & Quarters"
     case .arrangeTopQuarters: "Top & Quarters"
     case .arrangeBottomQuarters: "Bottom & Quarters"
+    case .arrangeDynamicQuarters: "Dynamic & Quarters"
     case .arrangeQuarters: "Quarters"
     case .fill: "Fill"
     case .center: "Center"
