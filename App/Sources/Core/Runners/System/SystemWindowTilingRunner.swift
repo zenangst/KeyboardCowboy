@@ -311,36 +311,56 @@ final class SystemWindowTilingRunner {
                                       newWindows: [WindowModel]) {
     guard subjects.isEmpty == false else { return }
 
+    let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
+    let screenFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
     let halfWidth = screenFrame.width / 2
     let halfHeight = screenFrame.height / 2
 
-    func determineQuarter(for rect: CGRect) -> WindowTiling {
+    func determineTiling(for rect: CGRect) -> WindowTiling {
       let centerX = rect.midX
       let centerY = rect.midY
+      let width = rect.width
+      let height = rect.height
+      let widthTreshold: CGFloat = abs(width - halfWidth)
+      let heightTreshold: CGFloat = abs(height - halfHeight)
 
-      let result: WindowTiling
-      if centerX < halfWidth && centerY < halfHeight {
-        result = rect.height > halfHeight ? .left : .topLeft
-      } else if centerX >= halfWidth && centerY < halfHeight {
-        result = rect.height > halfHeight ? .right :  .topRight
-      } else if centerX < halfWidth && centerY >= halfHeight {
-        result =  rect.height > halfHeight ? .left : .bottomLeft
-      } else {
-        result = rect.height > halfHeight ? .right : .bottomRight
+      // Check for half-screen positions
+      if widthTreshold < windowSpacing && height >= halfHeight {
+        if rect.minX == screenFrame.minX {
+          return .left
+        } else if rect.maxX == screenFrame.maxX {
+          return .right
+        }
+      } else if heightTreshold < windowSpacing && width >= screenFrame.width - windowSpacing * 2 {
+        if rect.minY == screenFrame.minY {
+          return .top
+        } else if rect.maxY == screenFrame.maxY {
+          return .bottom
+        }
       }
-      return result
+
+      // Determine quarter
+      if centerX < halfWidth && centerY < halfHeight {
+        return .topLeft
+      } else if centerX >= halfWidth && centerY < halfHeight {
+        return .topRight
+      } else if centerX < halfWidth && centerY >= halfHeight {
+        return .bottomLeft
+      } else {
+        return .bottomRight
+      }
     }
 
     for (oldWindow, newWindow) in zip(subjects, newWindows) {
-      let oldQuarter = determineQuarter(for: oldWindow.rect)
-      let newQuarter = determineQuarter(for: newWindow.rect)
+      let oldTiling = determineTiling(for: oldWindow.rect)
+      let newTiling = determineTiling(for: newWindow.rect)
 
-      if oldQuarter != newQuarter {
-        store(newQuarter, for: oldWindow)
-        if Self.debug { print("Window \(oldWindow.ownerName) moved from \(oldQuarter) to \(newQuarter)") }
+      if oldTiling != newTiling {
+        store(newTiling, for: oldWindow)
+        if Self.debug { print("Window \(oldWindow.ownerName) moved from \(oldTiling) to \(newTiling)") }
       } else {
-        store(oldQuarter, for: oldWindow)
-        if Self.debug { print("Window \(oldWindow.ownerName) stayed in \(oldQuarter)") }
+        store(oldTiling, for: oldWindow)
+        if Self.debug { print("Window \(oldWindow.ownerName) stayed in \(oldTiling)") }
       }
     }
   }
