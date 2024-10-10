@@ -39,7 +39,8 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     }
 
     let allWindows = indexWindowsInStage(getWindows())
-    var numberOfAppWindows = allWindows.filter({ $0.ownerName == application.bundleName }).count
+    var appWindows = allWindows.filter({ $0.ownerName == application.bundleName })
+    var numberOfAppWindows = appWindows.count
     var runningApplication = NSWorkspace.shared.runningApplications.first(where: {
       $0.bundleIdentifier == bundleIdentifer
     })
@@ -69,10 +70,12 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     timeout = 0
     while waitingForWindow {
       let allWindows = indexWindowsInStage(getWindows())
-      numberOfAppWindows = allWindows.filter({ Int32($0.ownerPid.rawValue) == runningApplication?.processIdentifier }).count
+      appWindows = allWindows.filter({ Int32($0.ownerPid.rawValue) == runningApplication?.processIdentifier })
+      numberOfAppWindows = appWindows.count
 
       if numberOfAppWindows > 0 {
         waitingForWindow = false
+        break
       }
 
       try? await Task.sleep(for: .milliseconds(100))
@@ -144,7 +147,21 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
         windowTiling = .windowTilingFill
       }
     case .arrangeDynamicQuarters:
-      windowTiling = .windowTilingArrangeDynamicQuarters
+      if let window = appWindows.first,
+         let screen = NSScreen.screens.first(where: { $0.visibleFrame.mainDisplayFlipped.intersects(window.rect) }) {
+        let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft]
+        let currentTiling = SystemWindowTilingRunner.calculateTiling(for: window.rect, in: screen.visibleFrame.mainDisplayFlipped)
+
+        if numberOfAppWindows >= 3 {
+          windowTiling = leftTilings.contains(currentTiling) ? .windowTilingArrangeLeftQuarters : .windowTilingArrangeRightQuarters
+        } else if numberOfAppWindows == 2 {
+          windowTiling = leftTilings.contains(currentTiling) ? .windowTilingArrangeLeftRight : .windowTilingArrangeRightLeft
+        } else {
+          windowTiling = .windowTilingFill
+        }
+      } else {
+        windowTiling = .windowTilingFill
+      }
     case .fill:
       windowTiling = .windowTilingFill
     case .center:

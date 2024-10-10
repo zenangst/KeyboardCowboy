@@ -358,7 +358,7 @@ final class SystemWindowTilingRunner {
     }
   }
 
-  private static func calculateTiling(for rect: CGRect, in screenFrame: CGRect) -> WindowTiling {
+  static func calculateTiling(for rect: CGRect, in screenFrame: CGRect) -> WindowTiling {
     let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
     let screenFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
     let halfWidth = screenFrame.width / 2
