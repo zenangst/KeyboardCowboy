@@ -11,9 +11,7 @@ final class FocusBorder {
 
   static var shared: FocusBorder { .init() }
 
-  private init() {
-
-  }
+  private init() { }
 
   func show(_ frame: CGRect, for duration: TimeInterval = 0.375) {
     guard isEnabled else { return }
@@ -22,14 +20,15 @@ final class FocusBorder {
     let publisher = FocusBorderPublisher()
     let window = FocusBorderPanel(
       animationBehavior: .none,
-      content: FocusBorderView(color: .systemBrown,
+      content: FocusBorderView(color: .controlAccentColor,
+                               frame: frame,
                                publisher: publisher))
 
     dismiss()
 
+    let duration = 0.1
     let workItem = DispatchWorkItem {
       let newFrame = window.frame.insetBy(dx: -2, dy: -2)
-      let duration = 0.125
       NSAnimationContext.runAnimationGroup { context in
         context.timingFunction =  CAMediaTimingFunction(name: .easeInEaseOut)
         context.duration = duration
@@ -40,6 +39,7 @@ final class FocusBorder {
       }
       withAnimation(.snappy(duration: duration)) {
         publisher.opacity = 0
+        publisher.displayed = false
       }
     }
 
@@ -50,8 +50,9 @@ final class FocusBorder {
       window.setFrame(frame, display: false)
     }
 
-    withAnimation(.easeIn(duration: 0.1)) {
-      publisher.opacity = 0.5
+    withAnimation(.easeIn(duration: duration)) {
+      publisher.opacity = 1.0
+      publisher.displayed = true
     }
 
     window.orderFront(nil)
@@ -67,38 +68,29 @@ final class FocusBorder {
 }
 
 final class FocusBorderPublisher: ObservableObject {
+  @Published var displayed: Bool = false
   @Published var opacity: Double = 0
 }
 
 struct FocusBorderView: View {
   @ObserveInjection var inject
   @ObservedObject private var publisher: FocusBorderPublisher
+  private let frame: CGRect
   private let color: NSColor
 
-  init(color: NSColor, publisher: FocusBorderPublisher) {
+  init(color: NSColor, frame: CGRect, publisher: FocusBorderPublisher) {
     self.color = color
+    self.frame = frame
     self.publisher = publisher
   }
 
   var body: some View {
     ZStack {
       RoundedRectangle(cornerRadius: 12)
-        .fill(
-          LinearGradient(
-            gradient: Gradient(stops: [
-              .init(color: .clear, location: 0.5),
-              .init(color: Color(color).opacity(0.2), location: 1.0),
-            ]),
-            startPoint: .bottom,
-            endPoint: .top
-          )
-        )
-
-      RoundedRectangle(cornerRadius: 12)
         .stroke(Color(color.blended(withFraction: 0.1, of: .black)!), lineWidth: 3)
         .shadow(color: Color(color.blended(withFraction: 0.2, of: .white)!), radius: 32, y: -12)
+        .opacity(0.3)
     }
-    .opacity(publisher.opacity)
     .animation(.snappy, value: publisher.opacity)
     .padding(1)
     .disabled(true)
