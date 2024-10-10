@@ -10,6 +10,16 @@ final class WindowMoveWindowToNextDisplay {
           let currentDisplay = NSScreen.screenIntersects(windowFrame.mainDisplayFlipped),
           let currentIndex = NSScreen.screens.firstIndex(of: currentDisplay) else { return }
 
+    if NSScreen.screens.count == 1 {
+      // Move to iPad if possible.
+      if let axApp = AppAccessibilityElement.focusedApplication(),
+         let menuItems = try? axApp.menuBar().menuItems().windowMenuBarItems,
+         let moveToIPad = menuItems.first(where: { $0.identifier == "_toggleIPad:" }) {
+        moveToIPad.performAction(.press)
+      }
+      return
+    }
+
     let displays = NSScreen.screens
     let nextIndex = (currentIndex + 1) % displays.count
     let nextDisplay = displays[nextIndex]
