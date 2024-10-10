@@ -26,7 +26,7 @@ final class WindowTilingMenuItemFinder {
   }
 }
 
-fileprivate extension [MenuBarItemAccessibilityElement] {
+extension [MenuBarItemAccessibilityElement] {
   var windowMoveAndResizeItems: [MenuBarItemAccessibilityElement] {
     for menuItem in windowMenuBarItems where menuItem.isSubMenu {
       if let submenu = try? menuItem.menuItems().first,

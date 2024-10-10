@@ -10,6 +10,7 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
 
   private var consumedWindows = Set<WindowModel>()
   private var initialWindows = [WindowModel]()
+  private var previousScreen: NSScreen?
 
   @MainActor lazy var window: NSWindow = ZenWindow(
     animationBehavior: .none,
@@ -28,12 +29,18 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
       guard let self, let screen = NSScreen.main else { return }
       let targetRect = targetRect(on: screen)
       initialWindows = indexWindowsInStage(getWindows(), targetRect: targetRect)
+      self.previousScreen = screen
     }
   }
 
   @MainActor
   func run(snapshot: UserSpace.Snapshot) async throws {
     guard let screen = NSScreen.main else { return }
+
+    if screen != previousScreen {
+      let targetRect = targetRect(on: screen)
+      initialWindows = indexWindowsInStage(getWindows(), targetRect: targetRect)
+    }
 
     guard let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager") else {
       return
