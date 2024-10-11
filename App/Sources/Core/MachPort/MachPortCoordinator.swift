@@ -8,13 +8,6 @@ import KeyCodes
 import os
 
 final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
-  enum RestrictedKeyCode: Int, CaseIterable {
-    case backspace = 117
-    case delete = 51
-    case enter = 36
-    case escape = 53
-  }
-
   @Published private(set) var event: MachPortEvent?
   @MainActor @Published private(set) var coordinatorEvent: CGEvent?
   @Published private(set) var flagsChanged: CGEventFlags?
@@ -50,6 +43,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private let notifications: MachPortUINotifications
   private let store: KeyCodesStore
   private let workflowRunner: WorkflowRunner
+  private let recordValidator: MachPortRecordValidator
 
   internal init(store: KeyCodesStore,
                 keyboardCleaner: KeyboardCleaner,
@@ -68,6 +62,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     self.mode = mode
     self.specialKeys = Array(store.specialKeys().keys)
     self.workflowRunner = workflowRunner
+    self.recordValidator = MachPortRecordValidator(store: store)
   }
 
   func captureUIElement() {
@@ -398,43 +393,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private func record(_ machPortEvent: MachPortEvent) {
     machPortEvent.result = nil
     mode = .intercept
-    recording = validate(machPortEvent, allowAllKeys: true)
-  }
-
-  private func validate(_ machPortEvent: MachPortEvent, allowAllKeys: Bool = false) -> KeyShortcutRecording {
-    let keyCode = Int(machPortEvent.keyCode)
-
-    guard let displayValue = store.displayValue(for: keyCode) else {
-      return .cancel(.empty())
-    }
-
-    let virtualModifiers = VirtualModifierKey
-      .fromCGEvent(machPortEvent.event, specialKeys: Array(store.specialKeys().keys))
-    let modifiers = virtualModifiers
-      .compactMap({ ModifierKey(rawValue: $0.rawValue) })
-    let keyboardShortcut = KeyShortcut(
-      id: UUID().uuidString,
-      key: displayValue,
-      lhs: machPortEvent.lhs,
-      modifiers: modifiers
-    )
-
-    if allowAllKeys {
-      return .valid(keyboardShortcut)
-    }
-
-    if let restrictedKeyCode = RestrictedKeyCode(rawValue: keyCode) {
-      switch restrictedKeyCode {
-      case .backspace, .delete:
-        return .delete(keyboardShortcut)
-      case .escape:
-        return .cancel(keyboardShortcut)
-      case .enter:
-        return .valid(keyboardShortcut)
-      }
-    } else {
-      return .valid(keyboardShortcut)
-    }
+    recording = recordValidator.validate(machPortEvent, allowAllKeys: true)
   }
 
   private func reset(_ function: StaticString = #function, line: Int = #line) {
@@ -583,12 +542,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   }
 }
 
-enum KeyShortcutRecording: Hashable {
-  case valid(KeyShortcut)
-  case delete(KeyShortcut)
-  case cancel(KeyShortcut)
-}
-
 private extension Collection where Element == Command {
   var isValidForRepeat: Bool {
     allSatisfy { element in
@@ -609,23 +562,3 @@ private extension Collection where Element == Command {
   }
 }
 
-struct MachPortKeyboardShortcut: Hashable, Identifiable {
-  var id: String { original.key + original.modifersDisplayValue + ":" + (original.lhs ? "true" : "false") }
-
-  let original: KeyShortcut
-  let uppercase: KeyShortcut
-  let lhsAgnostic: KeyShortcut
-
-  init?(_ machPortEvent: MachPortEvent, specialKeys: [Int], store: KeyCodesStore) {
-    guard let displayValue = store.displayValue(for: Int(machPortEvent.keyCode)) else {
-      return nil
-    }
-
-    let modifiers = VirtualModifierKey.fromCGEvent(machPortEvent.event, specialKeys: specialKeys)
-      .compactMap({ ModifierKey(rawValue: $0.rawValue) })
-
-    self.original = KeyShortcut(id: UUID().uuidString, key: displayValue, lhs: machPortEvent.lhs, modifiers: modifiers)
-    self.uppercase = KeyShortcut(key: displayValue.uppercased(), lhs: machPortEvent.lhs, modifiers: modifiers)
-    self.lhsAgnostic = KeyShortcut(key: displayValue, lhs: false, modifiers: modifiers)
-  }
-}
