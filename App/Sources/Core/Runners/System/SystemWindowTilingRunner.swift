@@ -162,7 +162,7 @@ final class SystemWindowTilingRunner {
         for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
       }
     case .arrangeDynamicQuarters:
-      let tiling: WindowTiling = calculateTiling(for: nextWindow.rect, in: visibleScreenFrame)
+      let tiling: WindowTiling = calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
       let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft]
 
       if oldWindows.count == 1 {
@@ -362,7 +362,7 @@ final class SystemWindowTilingRunner {
     }
   }
 
-  static func calculateTiling(for rect: CGRect, in screenFrame: CGRect) -> WindowTiling {
+  static func calculateTiling(for rect: CGRect, ownerName: String? = nil, in screenFrame: CGRect) -> WindowTiling {
     let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
     let screenFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
     let halfWidth = screenFrame.width / 2
@@ -373,6 +373,10 @@ final class SystemWindowTilingRunner {
     let height = rect.height
     let widthTreshold: CGFloat = abs(width - halfWidth)
     let heightTreshold: CGFloat = abs(height - halfHeight)
+    let centerRect = CGRect(
+      origin: CGPoint(x: screenFrame.midX, y: screenFrame.midY),
+      size: CGSize(width: screenFrame.width / 4, height: halfWidth / 4)
+    )
 
     // Check for half-screen positions
     if widthTreshold <= halfWidth && height >= halfHeight {
@@ -387,6 +391,10 @@ final class SystemWindowTilingRunner {
       } else if rect.maxY == screenFrame.maxY {
         return .bottom
       }
+    }
+
+    if centerRect.intersects(screenFrame) {
+      return .left
     }
 
     // Determine quarter

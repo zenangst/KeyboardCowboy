@@ -272,6 +272,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         previousPartialMatch = partialMatch
       }
     case .exact(let workflow):
+      scheduledTask = nil
+      scheduledKeyCode = nil
+      ignoredEvent = nil
       previousExactMatch = workflow
       if workflow.trigger.isPassthrough == true {
         // NOOP
