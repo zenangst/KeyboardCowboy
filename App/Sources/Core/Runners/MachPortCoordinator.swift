@@ -38,6 +38,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private var shouldHandleKeyUp: Bool = false
   private var specialKeys: [Int] = [Int]()
   private var scheduledKeyCode: Int?
+  private var scheduledTask: Task<Void, Never>?
+  private var ignoredEvent: MachPortEvent?
   private var scheduledWorkItem: DispatchWorkItem?
   private var capsLockDown: Bool = false
 
@@ -115,13 +117,13 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     repeatingResult = nil
     repeatingMatch = nil
     repeatingKeyCode = -1
+    ignoredEvent = nil
   }
  
   // MARK: - Private methods
 
   @MainActor
   private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool = false, runningMacro: Bool) {
-
     if keyboardCleaner.isEnabled, keyboardCleaner.consumeEvent(machPortEvent) {
       return
     }
@@ -131,45 +133,51 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     switch machPortEvent.type {
       case .keyDown:
-      if scheduledWorkItem != nil {
-        if Int(machPortEvent.keyCode) != scheduledKeyCode, isRepeatingEvent == false {
-          machPortEvent.result = nil
-          scheduledKeyCode = nil
-        } else {
-          machPortEvent.result = nil
+      if scheduledTask != nil, let scheduledKeyCode {
+        machPortEvent.result = nil
+        ignoredEvent = machPortEvent
+        // Avoid doing anything if the user is holding the initial ’holdFor’ button down.
+        if isRepeatingEvent && scheduledKeyCode == Int(machPortEvent.keyCode) {
           return
         }
       }
-
       let shouldReturn = handleEscapeKeyDownEvent(machPortEvent)
 
       if shouldReturn { return }
     case .keyUp:
-      if scheduledWorkItem != nil {
-        scheduledWorkItem?.cancel()
-
-        if let scheduledKeyCode,
-           Self.defaultPartialMatch.rawValue == previousPartialMatch.rawValue {
-          let _ = try? machPort?.post(scheduledKeyCode, type: .keyDown, flags: machPortEvent.event.flags)
-          let _ = try? machPort?.post(scheduledKeyCode, type: .keyUp, flags: machPortEvent.event.flags)
-          scheduledWorkItem?.cancel()
-          scheduledWorkItem = nil
-          repeatingResult = nil
-          repeatingMatch = nil
+      scheduledTask?.cancel()
+      if scheduledTask != nil {
+        if Self.defaultPartialMatch.rawValue == previousPartialMatch.rawValue, let scheduledKeyCode {
+            _ = try? machPort?.post(scheduledKeyCode, type: .keyDown, flags: machPortEvent.event.flags)
+            _ = try? machPort?.post(scheduledKeyCode, type: .keyUp, flags: machPortEvent.event.flags)
           self.scheduledKeyCode = nil
-          return
-        } else {
-          scheduledWorkItem = nil
-          scheduledKeyCode = nil
+          self.scheduledTask = nil
+          self.repeatingResult = nil
+          self.repeatingMatch = nil
           return
         }
+        ignoredEvent = nil
       } else {
+        if let scheduledKeyCode {
+          if Int(machPortEvent.keyCode) == scheduledKeyCode && previousExactMatch == nil {
+            _ = try? machPort?.post(scheduledKeyCode, type: .keyDown, flags: machPortEvent.event.flags)
+            _ = try? machPort?.post(scheduledKeyCode, type: .keyUp, flags: machPortEvent.event.flags)
+          }
+          self.scheduledKeyCode = nil
+          self.previousPartialMatch = Self.defaultPartialMatch
+          self.previousExactMatch = nil
+          return
+        } else if let ignoredEvent {
+          _ = try? machPort?.post(Int(ignoredEvent.keyCode), type: .keyDown, flags: ignoredEvent.event.flags)
+          _ = try? machPort?.post(Int(ignoredEvent.keyCode), type: .keyUp, flags: ignoredEvent.event.flags)
+          self.ignoredEvent = nil
+        }
+
         handleKeyUp(machPortEvent)
         scheduledWorkItem?.cancel()
         scheduledWorkItem = nil
         repeatingResult = nil
         repeatingMatch = nil
-        scheduledKeyCode = nil
         return
       }
     default:
@@ -229,20 +237,27 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     switch result {
     case .partialMatch(let partialMatch):
       if let workflow = partialMatch.workflow {
-        if case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger {
+        if workflow.trigger.hasHoldForDelay, case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger {
           if previousPartialMatch.rawValue == Self.defaultPartialMatch.rawValue,
-             let holdDuration = keyboardShortcut.holdDuration, holdDuration > 0 {
+            let holdDuration = keyboardShortcut.holdDuration, holdDuration > 0 {
             repeatingMatch = nil
             machPortEvent.result = nil
-            scheduledKeyCode = Int(machPortEvent.keyCode)
-            self.scheduledWorkItem?.cancel()
-            let scheduleWorkItem = DispatchWorkItem { [weak self] in
+            self.scheduledTask?.cancel()
+            self.scheduledKeyCode = Int(machPortEvent.keyCode)
+
+            let scheduledTask = Task.detached { [weak self] in
               guard let self else { return }
-              if self.scheduledWorkItem?.isCancelled == true { return }
-              self.previousPartialMatch = partialMatch
+              let seconds: Double = max(holdDuration, 0.1)
+              let milliseconds = Duration.milliseconds(Int(seconds * 1000))
+              try? await Task.sleep(for: milliseconds)
+              do {
+                try Task.checkCancellation()
+                self.previousPartialMatch = partialMatch
+              } catch {
+                self.previousExactMatch = nil
+              }
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + holdDuration, execute: scheduleWorkItem)
-            self.scheduledWorkItem = scheduleWorkItem
+            self.scheduledTask = scheduledTask
             return
           } else if keyboardShortcut.passthrough,
              macroCoordinator.state == .recording && machPortEvent.type == .keyDown {
@@ -261,7 +276,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       }
     case .exact(let workflow):
       previousExactMatch = workflow
-      if workflow.trigger?.isPassthrough == true {
+      if workflow.trigger.isPassthrough == true {
         // NOOP
       } else {
         machPortEvent.result = nil
@@ -454,9 +469,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     if let repeatingResult {
       repeatingResult(machPortEvent, false)
 
-      if let previousExactMatch, previousExactMatch.trigger?.isPassthrough == true {
+      if let previousExactMatch, previousExactMatch.trigger.isPassthrough == true {
         self.previousExactMatch = nil
-      } else if previousPartialMatch.workflow?.trigger?.isPassthrough == true {
+      } else if previousPartialMatch.workflow?.trigger.isPassthrough == true {
       } else {
         machPortEvent.result = nil
       }

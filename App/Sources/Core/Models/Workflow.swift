@@ -171,12 +171,27 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   }
 }
 
-extension Workflow.Trigger {
+extension Workflow.Trigger? {
   var isPassthrough: Bool {
     switch self {
     case .application: false
     case .snippet: true
     case .keyboardShortcuts(let trigger): trigger.passthrough
+    case .none: false
+    }
+  }
+
+  var hasHoldForDelay: Bool {
+    switch self {
+    case .none: return false
+    case .application: return false
+    case .snippet: return false
+    case .keyboardShortcuts(let trigger):
+      if let holdDurtion = trigger.holdDuration, holdDurtion > 0 {
+        return true
+      } else {
+        return false
+      }
     }
   }
 }
