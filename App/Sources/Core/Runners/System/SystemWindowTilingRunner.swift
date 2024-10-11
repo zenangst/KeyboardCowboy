@@ -58,108 +58,82 @@ final class SystemWindowTilingRunner {
     switch tiling {
     case .left:
       activatedTiling = tiling
-      await store(.left, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .right:
       activatedTiling = tiling
-      await store(.right, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .top:
       activatedTiling = tiling
-      await store(.top, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .bottom:
       activatedTiling = tiling
-      await store(.bottom, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .topLeft:
       activatedTiling = tiling
-      await store(.topLeft, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .topRight:
       activatedTiling = tiling
-      await store(.topRight, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .bottomLeft:
       activatedTiling = tiling
-      await store(.bottomLeft, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .bottomRight:
       activatedTiling = tiling
-      await store(.bottomRight, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .center:
       activatedTiling = tiling
-      await store(.center, for: nextWindow)
       updateSubjects = []
     case .fill:
       activatedTiling = tiling
       updateSubjects = []
     case .zoom:
       activatedTiling = tiling
-      await store(nil, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .previousSize:
       activatedTiling = tiling
-      await store(nil, for: nextWindow)
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .arrangeLeftRight:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
+        updateSubjects = [nextWindow]
       } else {
         activatedTiling = WindowTiling.arrangeLeftRight
-        await store(.left, for: oldWindows[0])
-        await store(.right, for: oldWindows[1])
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       }
-      updateSubjects = []
     case .arrangeRightLeft:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
+        updateSubjects = [nextWindow]
       } else {
         activatedTiling = WindowTiling.arrangeRightLeft
-        await store(.right, for: oldWindows[0])
-        await store(.left, for: oldWindows[1])
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       }
-      updateSubjects = []
     case .arrangeTopBottom:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
+        updateSubjects = [nextWindow]
       } else {
         activatedTiling = WindowTiling.arrangeTopBottom
-        await store(.top, for: oldWindows[0])
-        await store(.bottom, for: oldWindows[1])
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       }
-      updateSubjects = []
     case .arrangeBottomTop:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
+        updateSubjects = [nextWindow]
       } else {
         activatedTiling = WindowTiling.arrangeBottomTop
-        await store(.bottom, for: oldWindows[0])
-        await store(.top, for: oldWindows[1])
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       }
-      updateSubjects = []
     case .arrangeLeftQuarters:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
-        updateSubjects = []
+        updateSubjects = [nextWindow]
       } else if oldWindows.count == 2 {
         activatedTiling = WindowTiling.arrangeLeftRight
-        await store(.left, for: oldWindows[0])
-        await store(.right, for: oldWindows[1])
-        updateSubjects = []
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       } else {
         activatedTiling = tiling
-        await store(.left, for: oldWindows[0])
-        await store(.bottomRight, for: oldWindows[1])
-        await store(.topRight, for: oldWindows[2])
-        updateSubjects = Array(oldWindows[1...2])
-        for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeDynamicQuarters:
       let tiling: WindowTiling = calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
@@ -167,115 +141,71 @@ final class SystemWindowTilingRunner {
 
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
-        updateSubjects = []
+        updateSubjects = [nextWindow]
       } else if oldWindows.count == 2 {
         if leftTilings.contains(tiling) {
           activatedTiling = WindowTiling.arrangeLeftRight
-          await store(.left, for: oldWindows[0])
-          await store(.right, for: oldWindows[1])
         } else {
           activatedTiling = WindowTiling.arrangeRightLeft
-          await store(.right, for: oldWindows[0])
-          await store(.left, for: oldWindows[1])
         }
-        updateSubjects = []
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(2))
       } else {
         if let previousTiling = await storage[nextWindow.windowNumber],
            previousTiling.isFullScreen, previousTiling.tiling == .right {
-          await store(.right, for: oldWindows[0])
           activatedTiling = .arrangeRightQuarters
         } else if leftTilings.contains(tiling) {
-          await store(.left, for: oldWindows[0])
           activatedTiling = .arrangeLeftQuarters
         } else {
-          await store(.right, for: oldWindows[0])
           activatedTiling = .arrangeRightQuarters
         }
 
-        await store(.bottomRight, for: oldWindows[1])
-        await store(.topRight, for: oldWindows[2])
-        updateSubjects = Array(oldWindows[1...2])
-        for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
+        updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeRightQuarters:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
-        updateSubjects = []
+        updateSubjects = [nextWindow]
       } else if oldWindows.count == 2 {
         activatedTiling = WindowTiling.arrangeRightLeft
-        await store(.top, for: oldWindows[0])
-        await store(.left, for: oldWindows[1])
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-        updateSubjects = []
+        updateSubjects = Array(oldWindows.prefix(2))
       } else {
         activatedTiling = tiling
-        await store(.right, for: oldWindows[0])
-        await store(.topLeft, for: oldWindows[2])
-        await store(.bottomLeft, for: oldWindows[1])
-        for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-        updateSubjects = Array(oldWindows[1..<3])
+        updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeTopQuarters:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
-        updateSubjects = []
+        updateSubjects = [nextWindow]
       } else if oldWindows.count == 2 {
         activatedTiling = WindowTiling.arrangeTopBottom
-        await store(.top, for: oldWindows[0])
-        await store(.bottom, for: oldWindows[1])
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-        updateSubjects = []
+        updateSubjects = Array(oldWindows.prefix(2))
       } else {
         activatedTiling = tiling
-        await store(.top, for: oldWindows[0])
-        await store(.bottomRight, for: oldWindows[1])
-        await store(.bottomLeft, for: oldWindows[2])
-        for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-        updateSubjects = Array(oldWindows[1..<3])
+        updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeBottomQuarters:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
-        updateSubjects = []
+        updateSubjects = [nextWindow]
       } else if oldWindows.count == 2 {
         activatedTiling = WindowTiling.arrangeBottomTop
-        await store(.bottom, for: oldWindows[0])
-        await store(.top, for: oldWindows[1])
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-        updateSubjects = []
+        updateSubjects = Array(oldWindows.prefix(2))
       } else {
         activatedTiling = tiling
-        await store(.bottom, for: oldWindows[0])
-        await store(.topLeft, for: oldWindows[2])
-        await store(.topRight, for: oldWindows[1])
-        for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-        updateSubjects = Array(oldWindows[1..<3])
+        updateSubjects = Array(oldWindows.prefix(3))
       }
     case .arrangeQuarters:
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
-        updateSubjects = []
+        updateSubjects = [nextWindow]
       } else if oldWindows.count == 2 {
         activatedTiling = WindowTiling.arrangeLeftRight
-        await store(.left, for: nextWindow)
-        await store(.right, for: oldWindows[1])
-        for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-        updateSubjects = []
+        updateSubjects = Array(oldWindows.prefix(2))
       } else if oldWindows.count == 3 {
         activatedTiling = WindowTiling.arrangeLeftQuarters
-        await store(.left, for: nextWindow)
-        await store(.topRight, for: oldWindows[1])
-        await store(.bottomRight, for: oldWindows[2])
-        for x in 0..<3 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
-        updateSubjects = Array(oldWindows[1..<3])
+        updateSubjects = Array(oldWindows.prefix(3))
       } else {
         activatedTiling = tiling
-        await store(.topLeft, for: nextWindow)
-        await store(.topRight, for: oldWindows[1])
-        await store(.bottomLeft, for: oldWindows[2])
-        await store(.bottomRight, for: oldWindows[3])
-        for x in 0..<4 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
         updateSubjects = Array(oldWindows.prefix(4))
       }
     }
@@ -310,7 +240,7 @@ final class SystemWindowTilingRunner {
         match.performAction(.pick)
 
         if !updateSubjects.isEmpty {
-          try await Task.sleep(for: .milliseconds(200))
+          try await Task.sleep(for: .milliseconds(325))
 
           let newSnapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
           let windowNumbers = updateSubjects.map { $0.windowNumber }
@@ -320,7 +250,6 @@ final class SystemWindowTilingRunner {
           determineTiling(for: updateSubjects, in: visibleScreenFrame, newWindows: newWindows)
         }
       }
-
     }
   }
 
@@ -373,10 +302,15 @@ final class SystemWindowTilingRunner {
     let height = rect.height
     let widthTreshold: CGFloat = abs(width - halfWidth)
     let heightTreshold: CGFloat = abs(height - halfHeight)
-    let centerRect = CGRect(
-      origin: CGPoint(x: screenFrame.midX, y: screenFrame.midY),
-      size: CGSize(width: screenFrame.width / 4, height: halfWidth / 4)
-    )
+
+    let widthDelta = screenFrame.width - width
+    let heightDelta = screenFrame.height - height
+
+    print(widthDelta, heightDelta)
+
+    if widthDelta == 0 && heightDelta == 0 {
+      return .fill
+    }
 
     // Check for half-screen positions
     if widthTreshold <= halfWidth && height >= halfHeight {
@@ -393,7 +327,9 @@ final class SystemWindowTilingRunner {
       }
     }
 
-    if centerRect.intersects(screenFrame) {
+    // Located in the center
+    let delta = abs(centerX - screenFrame.midX)
+    if delta <= max(windowSpacing,1) {
       return .left
     }
 
