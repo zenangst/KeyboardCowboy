@@ -276,6 +276,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       scheduledKeyCode = nil
       ignoredEvent = nil
       previousExactMatch = workflow
+      previousPartialMatch = Self.defaultPartialMatch
+
       if workflow.trigger.isPassthrough == true {
         // NOOP
       } else {
@@ -317,7 +319,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
-        previousPartialMatch = Self.defaultPartialMatch
         notifications.reset()
       } else if !workflow.commands.isEmpty && workflow.commands.isValidForRepeat {
         guard machPortEvent.type == .keyDown else { return }
@@ -334,7 +335,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
         repeatingResult = execution
         repeatingKeyCode = machPortEvent.keyCode
-        previousPartialMatch = Self.defaultPartialMatch
       } else if workflow.commands.allSatisfy({
         if case .systemCommand = $0 { return true } else { return false }
       }) {
@@ -360,7 +360,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
           scheduledWorkItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
-          previousPartialMatch = Self.defaultPartialMatch
         }
       } else if machPortEvent.type == .keyDown, !isRepeatingEvent {
         if macroCoordinator.state == .recording {
@@ -372,8 +371,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         } else {
           workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
         }
-
-        previousPartialMatch = Self.defaultPartialMatch
       }
     case .none:
       if machPortEvent.type == .keyDown {
