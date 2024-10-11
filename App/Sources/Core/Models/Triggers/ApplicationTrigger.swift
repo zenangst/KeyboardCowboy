@@ -1,17 +1,27 @@
 import Apps
 import Foundation
 
-public struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
-  public var id: String
-  public var application: Application
-  public var contexts: Set<Context>
+struct ApplicationTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
+  var id: String
+  var application: Application
+  var contexts: Set<Context>
 
-  public init(id: String = UUID().uuidString,
-              application: Application,
-              contexts: [Context] = []) {
+  init(id: String = UUID().uuidString,
+       application: Application,
+       contexts: [Context] = []) {
     self.id = id
     self.application = application
     self.contexts = Set(contexts)
+  }
+
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    #warning("Make this into an extension on RawRepresentable?")
+    let sortedContexts = self.contexts.sorted(by: { $0.rawValue < $1.rawValue  })
+
+    try container.encode(self.id, forKey: .id)
+    try container.encode(self.application, forKey: .application)
+    try container.encode(sortedContexts, forKey: .contexts)
   }
 
   func copy() -> Self {
