@@ -181,7 +181,11 @@ final class SystemWindowTilingRunner {
         updateSubjects = []
         for x in 0..<2 { await updateStore(isFullScreen: false, isCentered: false, for: oldWindows[x]) }
       } else {
-        if leftTilings.contains(tiling) {
+        if let previousTiling = await storage[nextWindow.windowNumber],
+           previousTiling.isFullScreen, previousTiling.tiling == .right {
+          await store(.right, for: oldWindows[0])
+          activatedTiling = .arrangeRightQuarters
+        } else if leftTilings.contains(tiling) {
           await store(.left, for: oldWindows[0])
           activatedTiling = .arrangeLeftQuarters
         } else {
