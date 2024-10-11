@@ -240,8 +240,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         if workflow.trigger.hasHoldForDelay, case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger {
           if previousPartialMatch.rawValue == Self.defaultPartialMatch.rawValue,
             let holdDuration = keyboardShortcut.holdDuration, holdDuration > 0 {
-            repeatingMatch = nil
             machPortEvent.result = nil
+            self.repeatingMatch = nil
             self.scheduledTask?.cancel()
             self.scheduledKeyCode = Int(machPortEvent.keyCode)
 
@@ -262,11 +262,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
           } else if keyboardShortcut.passthrough,
              macroCoordinator.state == .recording && machPortEvent.type == .keyDown {
             macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
-          } else {
-            machPortEvent.result = nil
           }
         }
-      } else {
         machPortEvent.result = nil
       }
 
@@ -385,7 +382,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 //        var newFlags = machPortEvent.event.flags
 //        newFlags.subtract(.maskAlphaShift)
 //        machPortEvent.event.flags = newFlags
-
         if !tryGlobals {
           intercept(machPortEvent, tryGlobals: true, runningMacro: runningMacro)
           repeatingMatch = false
