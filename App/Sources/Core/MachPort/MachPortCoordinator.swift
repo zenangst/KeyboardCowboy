@@ -268,6 +268,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   @MainActor
   private func handleExtactMatch(_ workflow: Workflow, machPortEvent: MachPortEvent,
                                  shortcut: MachPortKeyboardShortcut, isRepeatingEvent: Bool) {
+    scheduledTask?.cancel()
     scheduledTask = nil
     scheduledKeyCode = nil
     ignoredEvent = nil
@@ -374,23 +375,23 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private func handleNoMatch(_ result: KeyboardShortcutResult?, machPortEvent: MachPortEvent,
                              shortcut: MachPortKeyboardShortcut, isRepeatingEvent: Bool,
                              tryGlobals: Bool, runningMacro: Bool) {
-    if machPortEvent.type == .keyDown {
-      // No match, reset the lookup key
-      reset()
+    guard machPortEvent.type == .keyDown else { return }
 
-      // Disable caps lock.
-      // TODO: Add a setting for this!
-      //        var newFlags = machPortEvent.event.flags
-      //        newFlags.subtract(.maskAlphaShift)
-      //        machPortEvent.event.flags = newFlags
-      if !tryGlobals {
-        intercept(machPortEvent, tryGlobals: true, runningMacro: runningMacro)
-        repeatingMatch = false
-      } else {
-        coordinatorEvent = machPortEvent.event
-        if macroCoordinator.state == .recording {
-          macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
-        }
+    // No match, reset the lookup key
+    reset()
+
+    // Disable caps lock.
+    // TODO: Add a setting for this!
+    //        var newFlags = machPortEvent.event.flags
+    //        newFlags.subtract(.maskAlphaShift)
+    //        machPortEvent.event.flags = newFlags
+    if !tryGlobals {
+      intercept(machPortEvent, tryGlobals: true, runningMacro: runningMacro)
+      repeatingMatch = false
+    } else {
+      coordinatorEvent = machPortEvent.event
+      if macroCoordinator.state == .recording {
+        macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
       }
     }
   }
@@ -467,57 +468,57 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
   @MainActor
   func handleMacroExecution(_ machPortEvent: MachPortEvent, shortcut: MachPortKeyboardShortcut, keyboardShortcut: inout KeyShortcut) -> Bool {
-    if machPortEvent.type == .keyDown {
-      // If there is a match, then run the workflow
-      let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
-      if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
-        let keyboardShortcutCopy: KeyShortcut = keyboardShortcut
-        let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
+    guard machPortEvent.type == .keyDown else { return false }
 
-        Task { [machPort, workflowRunner, keyboardCommandRunner] in
-          for _  in 0..<iterations {
-            let specialKeys: [Int] = [kVK_Return]
+    // If there is a match, then run the workflow
+    let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
+    if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
+      let keyboardShortcutCopy: KeyShortcut = keyboardShortcut
+      let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
 
-            for element in macro {
-              switch element {
-              case .event(let machPortEvent):
-                let keyCode = Int(machPortEvent.keyCode)
+      Task { [machPort, workflowRunner, keyboardCommandRunner] in
+        for _  in 0..<iterations {
+          let specialKeys: [Int] = [kVK_Return]
 
-                if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(150)) }
+          for element in macro {
+            switch element {
+            case .event(let machPortEvent):
+              let keyCode = Int(machPortEvent.keyCode)
 
-                try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
-                try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
-              case .workflow(let workflow):
-                if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
-                  for command in workflow.commands {
-                    if case .keyboard(let command) = command {
-                      _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                        originalEvent: nil,
-                                                        iterations: command.iterations,
-                                                        isRepeating: false,
-                                                        with: machPortEvent.eventSource)
-                    }
+              if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(150)) }
+
+              try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
+              try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
+            case .workflow(let workflow):
+              if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
+                for command in workflow.commands {
+                  if case .keyboard(let command) = command {
+                    _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
+                                                      originalEvent: nil,
+                                                      iterations: command.iterations,
+                                                      isRepeating: false,
+                                                      with: machPortEvent.eventSource)
                   }
-                } else {
-                  workflowRunner.run(workflow, for: keyboardShortcutCopy,
-                                     executionOverride: .serial,
-                                     machPortEvent: machPortEvent, repeatingEvent: false)
                 }
+              } else {
+                workflowRunner.run(workflow, for: keyboardShortcutCopy,
+                                   executionOverride: .serial,
+                                   machPortEvent: machPortEvent, repeatingEvent: false)
               }
             }
           }
         }
-
-        SnippetController.currentSnippet = ""
-        machPortEvent.result = nil
-        return true
-      } else if macroCoordinator.state == .removing {
-        macroCoordinator.remove(shortcut, machPortEvent: machPortEvent)
-        return true
       }
-    }
 
-    return false
+      SnippetController.currentSnippet = ""
+      machPortEvent.result = nil
+      return true
+    } else if macroCoordinator.state == .removing {
+      macroCoordinator.remove(shortcut, machPortEvent: machPortEvent)
+      return true
+    } else {
+      return false
+    }
   }
 
   private func schedule(_ workflow: Workflow, for shortcut: KeyShortcut, 
