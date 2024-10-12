@@ -137,7 +137,7 @@ final class SystemWindowTilingRunner {
       }
     case .arrangeDynamicQuarters:
       let tiling: WindowTiling = calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
-      let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft]
+      let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft, .fill]
 
       if oldWindows.count == 1 {
         activatedTiling = WindowTiling.fill
