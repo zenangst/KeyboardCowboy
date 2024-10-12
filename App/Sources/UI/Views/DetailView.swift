@@ -41,9 +41,10 @@ struct DetailView: View {
         .allowsHitTesting(false)
         .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
         .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
-    case .single:
+    case .single(let viewModel):
       SingleDetailView(
-        focus,
+        viewModel,
+        focus: focus,
         applicationTriggerSelectionManager: applicationTriggerSelectionManager,
         commandSelectionManager: commandSelectionManager,
         keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
@@ -68,6 +69,7 @@ struct DetailView: View {
         }
       })
       .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
+      .id(viewModel.id)
     case .multiple(let viewModels):
       let limit = 5
       let count = viewModels.count

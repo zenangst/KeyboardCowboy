@@ -32,13 +32,15 @@ struct SingleDetailView: View {
   @EnvironmentObject private var infoPublisher: InfoPublisher
   @EnvironmentObject private var triggerPublisher: TriggerPublisher
   @State private var overlayOpacity: CGFloat = 0
+  private let viewModel: DetailViewModel
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandSelectionManager: SelectionManager<CommandViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let onAction: (Action) -> Void
   private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
+  init(_ viewModel: DetailViewModel,
+       focus: FocusState<AppFocus?>.Binding,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
@@ -46,6 +48,7 @@ struct SingleDetailView: View {
        infoPublisher: InfoPublisher,
        commandPublisher: CommandsPublisher,
        onAction: @escaping (Action) -> Void) {
+    self.viewModel = viewModel
     self.focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
@@ -138,7 +141,8 @@ struct SingleDetailView_Previews: PreviewProvider {
     let colorSchemes: [ColorScheme] = [.dark, .light]
     HStack(spacing: 0) {
       ForEach(colorSchemes, id: \.self) { colorScheme in
-        SingleDetailView($focus,
+        SingleDetailView(DesignTime.detail,
+                         focus: $focus,
                          applicationTriggerSelectionManager: .init(),
                          commandSelectionManager: .init(),
                          keyboardShortcutSelectionManager: .init(),

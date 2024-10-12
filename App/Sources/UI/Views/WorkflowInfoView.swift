@@ -43,11 +43,9 @@ struct WorkflowInfoView: View {
             )
           )
         )
-        .onChange(of: publisher.data.name, perform: { value in
-          name = value
-        })
         .onChange(of: name) {
           guard $0 != publisher.data.name else { return }
+          publisher.data.name = $0
           onAction(.updateName(name: $0))
         }
       Spacer()

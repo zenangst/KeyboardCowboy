@@ -8,7 +8,7 @@ final class DetailCommandActionReducer {
                      commandRunner: CommandRunner,
                      workflow: inout  Workflow) {
     guard var command: Command = workflow.commands.first(where: { $0.id == action.commandId }) else { return }
-
+    
     switch action {
     case .updateName(_, let newValue):
       command.name = newValue

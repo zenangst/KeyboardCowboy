@@ -14,7 +14,7 @@ enum DetailViewState: Hashable, Identifiable, Equatable {
     }
   }
 
-  case single
+  case single(DetailViewModel)
   case multiple([DetailViewModel])
   case empty
 }

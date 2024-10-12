@@ -262,7 +262,7 @@ final class DetailCoordinator {
     if viewModels.count > 1 {
       state = .multiple(viewModels)
     } else if let viewModel = viewModels.first {
-      state = .single
+      state = .single(viewModel)
 
       // Only use `withAnimation` if `animation` is not `nil` to
       // prevent the application from crashing when performing certain updates.

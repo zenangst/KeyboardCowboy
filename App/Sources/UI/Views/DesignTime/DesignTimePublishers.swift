@@ -136,7 +136,7 @@ enum DesignTime {
   }
 
   @MainActor
-  static var detailStatePublisher = DetailStatePublisher { .single }
+  static var detailStatePublisher = DetailStatePublisher { .single(Self.detail) }
 
   static func metadata(name: String, notification: Command.Notification? = nil, icon: Icon?) -> CommandViewModel.MetaData {
     CommandViewModel.MetaData(
