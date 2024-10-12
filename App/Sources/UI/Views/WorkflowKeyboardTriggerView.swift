@@ -50,11 +50,11 @@ struct WorkflowKeyboardTriggerView: View {
         .font(.caption)
         Spacer()
         HStack(spacing: 0) {
-          Text("Hold for")
-          Text(" (only applies to the initial keypress)")
-            .frame(width:  trigger.shortcuts.count == 1 ? 0 : nil,
-                   height: trigger.shortcuts.count == 1 ? 0 : nil)
-            .opacity(trigger.shortcuts.count == 1 ? 0 : 1)
+          if trigger.shortcuts.count == 1 {
+            Text("Hold for")
+          } else {
+            Text("Become modifier after")
+          }
         }
         NumberTextField(text: $holdDurationText) {
           onAction(.updateHoldDuration(workflowId: workflowId, holdDuration: Double($0)))

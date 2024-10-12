@@ -306,8 +306,6 @@ final class SystemWindowTilingRunner {
     let widthDelta = screenFrame.width - width
     let heightDelta = screenFrame.height - height
 
-    print(widthDelta, heightDelta)
-
     if widthDelta == 0 && heightDelta == 0 {
       return .fill
     }

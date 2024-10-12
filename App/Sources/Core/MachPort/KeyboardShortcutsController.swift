@@ -6,16 +6,6 @@ enum KeyboardShortcutResult {
   case exact(Workflow)
 }
 
-struct PartialMatch {
-  let rawValue: String
-  let workflow: Workflow?
-
-  init(rawValue: String, workflow: Workflow? = nil) {
-    self.rawValue = rawValue
-    self.workflow = workflow
-  }
-}
-
 final class KeyboardShortcutsController {
   private var cache = [String: KeyboardShortcutResult]()
 
