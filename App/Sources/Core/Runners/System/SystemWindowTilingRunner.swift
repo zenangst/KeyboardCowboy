@@ -58,28 +58,36 @@ final class SystemWindowTilingRunner {
     switch tiling {
     case .left:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      await store(tiling, for: nextWindow)
+      updateSubjects = []
     case .right:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      await store(tiling, for: nextWindow)
+      updateSubjects = []
     case .top:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      await store(tiling, for: nextWindow)
+      updateSubjects = []
     case .bottom:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      await store(tiling, for: nextWindow)
+      updateSubjects = []
     case .topLeft:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      await store(tiling, for: nextWindow)
+      updateSubjects = []
     case .topRight:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      await store(tiling, for: nextWindow)
+      updateSubjects = []
     case .bottomLeft:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      await store(tiling, for: nextWindow)
+      updateSubjects = []
     case .bottomRight:
       activatedTiling = tiling
-      updateSubjects = [nextWindow]
+      await store(tiling, for: nextWindow)
+      updateSubjects = []
     case .center:
       activatedTiling = tiling
       updateSubjects = []
@@ -306,21 +314,30 @@ final class SystemWindowTilingRunner {
     let widthDelta = screenFrame.width - width
     let heightDelta = screenFrame.height - height
 
+    let isTopLeft = centerX < halfWidth && centerY < halfHeight
+    let isTopRight = centerX >= halfWidth && centerY < halfHeight
+    let isBottomLeft = centerX < halfWidth && centerY >= halfHeight
+
+    let isLeft = rect.minX == screenFrame.minX
+    let isRight = rect.maxX == screenFrame.maxX
+    let isTop = rect.minY == screenFrame.minY
+    let isBottom = rect.maxY == screenFrame.maxY
+
     if widthDelta == 0 && heightDelta == 0 {
       return .fill
     }
 
     // Check for half-screen positions
-    if widthTreshold <= halfWidth && height >= halfHeight {
-      if rect.minX == screenFrame.minX {
+    if widthTreshold <= halfWidth && heightDelta <= halfHeight / 2 {
+      if isLeft {
         return .left
-      } else if rect.maxX == screenFrame.maxX {
+      } else if isRight {
         return .right
       }
     } else if heightTreshold <= halfHeight && width >= screenFrame.width - windowSpacing * 2 {
-      if rect.minY == screenFrame.minY {
+      if isTop {
         return .top
-      } else if rect.maxY == screenFrame.maxY {
+      } else if isBottom {
         return .bottom
       }
     }
@@ -332,11 +349,11 @@ final class SystemWindowTilingRunner {
     }
 
     // Determine quarter
-    if centerX < halfWidth && centerY < halfHeight {
+    if isTopLeft {
       return .topLeft
-    } else if centerX >= halfWidth && centerY < halfHeight {
+    } else if isTopRight {
       return .topRight
-    } else if centerX < halfWidth && centerY >= halfHeight {
+    } else if isBottomLeft {
       return .bottomLeft
     } else {
       return .bottomRight
