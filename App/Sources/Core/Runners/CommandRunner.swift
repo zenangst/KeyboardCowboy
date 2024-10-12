@@ -237,7 +237,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .bezel:
       await MainActor.run {
         notchInfo.setContent(contentID: contentID, title: command.name, description: "Running...")
-        notchInfo.show(for: 10.0)
+        notchInfo.show(on: NSScreen.main ?? NSScreen.screens[0], for: 10.0)
       }
     case .commandPanel:
       switch command {
@@ -478,7 +478,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       await MainActor.run {
         lastExecutedCommand = command
         notchInfo.setContent(contentID: contentID, title: output, description: nil)
-        notchInfo.show(for: 2.0)
+        notchInfo.show(on: NSScreen.main ?? NSScreen.screens[0], for: 2.0)
       }
     case .commandPanel:
       break // Add support for command windows
