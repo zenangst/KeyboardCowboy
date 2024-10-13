@@ -53,6 +53,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     var waitingForActivation: Bool = true
     var timeout: TimeInterval = 0
     while waitingForActivation {
+      try Task.checkCancellation()
       if timeout > 10 { waitingForActivation = false }
       if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleIdentifer {
         waitingForActivation = false
@@ -69,6 +70,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
     var waitingForWindow: Bool = true
     timeout = 0
     while waitingForWindow {
+      try Task.checkCancellation()
       let allWindows = indexWindowsInStage(getWindows())
       appWindows = allWindows.filter({ Int32($0.ownerPid.rawValue) == runningApplication?.processIdentifier })
       numberOfAppWindows = appWindows.count

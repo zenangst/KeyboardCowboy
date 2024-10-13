@@ -36,7 +36,7 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
   }
 
   @MainActor
-  func commands(_ applications: [Application]) -> [Command] {
+  func commands(_ applications: [Application]) async throws -> [Command] {
     var commands = [Command]()
 
     let slowBundles = Set(["com.tinyspeck.slackmacgap"])
@@ -53,6 +53,8 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
     let hideAllAppsCommand = Command.systemCommand(SystemCommand(kind: .hideAllApps, meta: Command.MetaData(delay: nil, name: "Hide All Apps")))
 
     for (offset, bundleIdentifier) in bundleIdentifiers.enumerated() {
+      try Task.checkCancellation()
+
       guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier }) else {
         continue
       }

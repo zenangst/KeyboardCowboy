@@ -130,6 +130,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     ? NSPasteboard.general.string(forType: .string)
     : nil
 
+    if commands.shouldAutoCancelledPreviousCommands {
+      concurrentTask?.cancel()
+      serialTask?.cancel()
+    }
+
     serialTask = Task.detached(priority: .userInitiated) { [weak self] in
       Benchmark.shared.start("CommandRunner.serialRun")
       guard let self else { return }
@@ -187,6 +192,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 
     if commands.filter({ $0.isEnabled }).count == 1 {
       modifiedCheckCancellation = false
+    }
+
+    if commands.shouldAutoCancelledPreviousCommands {
+      serialTask?.cancel()
+      concurrentTask?.cancel()
     }
 
     let checkCancellation = modifiedCheckCancellation
@@ -271,6 +281,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         let applications = applicationStore.applications
         let commands = try await focusCommand.commands(applications)
         for command in commands {
+          try Task.checkCancellation()
           switch command {
           case .systemCommand(let systemCommand):
             switch systemCommand.kind {
@@ -331,8 +342,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         output = command.name
       case .workspace(let workspaceCommand):
         let applications = applicationStore.applications
-        let commands = await workspaceCommand.commands(applications)
+        let commands = try await workspaceCommand.commands(applications)
         for command in commands {
+          try Task.checkCancellation()
           switch command {
           case .systemCommand(let systemCommand):
             switch systemCommand.kind {
@@ -519,6 +531,20 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
 }
 
 extension Collection where Element == Command {
+  var shouldAutoCancelledPreviousCommands: Bool {
+    contains(where: { command in
+      switch command {
+      case .bundled(let bundledCommand):
+        switch bundledCommand.kind {
+        case .appFocus, .workspace:
+          return true
+        }
+      default:
+        return false
+      }
+    })
+  }
+
   var shouldRestorePasteboard: Bool {
     contains(where: { command in
       if case .text(let textCommand) = command,
