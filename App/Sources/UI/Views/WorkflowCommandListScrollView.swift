@@ -120,9 +120,8 @@ struct WorkflowCommandListScrollView: View {
           onAction(.removeCommands(workflowId: workflowId, commandIds: selectionManager.selections))
         }
       }
+      .padding(8)
     }
-    .padding(.horizontal)
-    .padding(.vertical, 8)
     .focused(focus, equals: .detail(.commands))
     .matchedGeometryEffect(id: "command-list", in: namespace)
   }
