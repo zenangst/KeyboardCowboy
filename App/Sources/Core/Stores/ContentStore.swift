@@ -14,7 +14,7 @@ final class ContentStore: ObservableObject {
   @Published private(set) var preferences: AppPreferences
 
   private let storage: ConfigurationStorage
-  private let keyboardShortcutsController: KeyboardShortcutsController
+  private let shortcutResolver: ShortcutResolver
 
   private var subscriptions = [AnyCancellable]()
 
@@ -31,7 +31,7 @@ final class ContentStore: ObservableObject {
        applicationStore: ApplicationStore,
        configurationStore: ConfigurationStore,
        groupStore: GroupStore,
-       keyboardShortcutsController: KeyboardShortcutsController,
+       shortcutResolver: ShortcutResolver,
        recorderStore: KeyShortcutRecorderStore,
        shortcutStore: ShortcutStore,
        scriptCommandRunner: ScriptCommandRunner = .init(workspace: .shared),
@@ -41,7 +41,7 @@ final class ContentStore: ObservableObject {
     self.shortcutStore = shortcutStore
     self.groupStore = groupStore
     self.configurationStore = configurationStore
-    self.keyboardShortcutsController = keyboardShortcutsController
+    self.shortcutResolver = shortcutResolver
     self.preferences = preferences
     self.storage = ConfigurationStorage(preferences.configLocation)
     self.recorderStore = recorderStore
@@ -106,7 +106,7 @@ final class ContentStore: ObservableObject {
 
   func use(_ configuration: KeyboardCowboyConfiguration) {
     Task {
-      keyboardShortcutsController.cache(configuration.groups)
+      shortcutResolver.cache(configuration.groups)
     }
     configurationId = configuration.id
     configurationStore.select(configuration)

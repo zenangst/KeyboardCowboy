@@ -61,7 +61,7 @@ final class Core {
     applicationStore: ApplicationStore.shared,
     configurationStore: configurationStore,
     groupStore: groupStore,
-    keyboardShortcutsController: keyboardShortcutsController,
+    shortcutResolver: shortcutResolver,
     recorderStore: recorderStore,
     shortcutStore: shortcutStore,
     scriptCommandRunner: scriptCommandRunner)
@@ -69,11 +69,11 @@ final class Core {
   lazy private(set) var macroCoordinator = MacroCoordinator()
   lazy private(set) var groupStore = GroupStore()
   lazy private(set) var keyCodeStore = KeyCodesStore(InputSourceController())
-  lazy private(set) var notifications = MachPortUINotifications(keyboardShortcutsController: keyboardShortcutsController)
+  lazy private(set) var notifications = MachPortUINotifications(shortcutResolver: shortcutResolver)
   lazy private(set) var machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
                                                                   keyboardCleaner: keyboardCleaner,
                                                                   keyboardCommandRunner: keyboardCommandRunner,
-                                                                  keyboardShortcutsController: keyboardShortcutsController,
+                                                                  shortcutResolver: shortcutResolver,
                                                                   macroCoordinator: macroCoordinator,
                                                                   mode: .intercept,
                                                                   notifications: notifications,
@@ -85,14 +85,12 @@ final class Core {
     applicationWindowObserver: applicationWindowObserver,
     commandRunner: commandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
-    keyboardShortcutsController: keyboardShortcutsController,
     keyCodeStore: keyCodeStore,
     machPortCoordinator: machPortCoordinator,
     scriptCommandRunner: scriptCommandRunner,
     shortcutStore: shortcutStore,
     snippetController: snippetController,
     uiElementCaptureStore: uiElementCaptureStore,
-    workflowRunner: workflowRunner,
     workspace: .shared)
   lazy private(set) var uiElementCaptureStore = UIElementCaptureStore()
   lazy private(set) var recorderStore = KeyShortcutRecorderStore()
@@ -126,7 +124,6 @@ final class Core {
   lazy private(set) var snippetController = SnippetController(
     commandRunner: commandRunner,
     keyboardCommandRunner: keyboardCommandRunner,
-    keyboardShortcutsController: keyboardShortcutsController,
     store: keyCodeStore
   )
 
@@ -134,7 +131,7 @@ final class Core {
 
   // MARK: - Controllers
 
-  lazy private(set) var keyboardShortcutsController = KeyboardShortcutsController()
+  lazy private(set) var shortcutResolver = ShortcutResolver()
 
   init() { }
 }

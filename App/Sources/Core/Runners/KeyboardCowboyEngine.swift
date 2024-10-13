@@ -21,7 +21,6 @@ final class KeyboardCowboyEngine {
   private let workspace: NSWorkspace
   private let workspacePublisher: WorkspacePublisher
   private let uiElementCaptureStore: UIElementCaptureStore
-  private let workflowRunner: WorkflowRunning
   private let applicationWindowObserver: ApplicationWindowObserver
 
   private var pendingPermissionsSubscription: AnyCancellable?
@@ -34,7 +33,6 @@ final class KeyboardCowboyEngine {
        applicationWindowObserver: ApplicationWindowObserver,
        commandRunner: CommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
-       keyboardShortcutsController: KeyboardShortcutsController,
        keyCodeStore: KeyCodesStore,
        machPortCoordinator: MachPortCoordinator,
        notificationCenter: NotificationCenter = .default,
@@ -42,7 +40,6 @@ final class KeyboardCowboyEngine {
        shortcutStore: ShortcutStore,
        snippetController: SnippetController,
        uiElementCaptureStore: UIElementCaptureStore,
-       workflowRunner: WorkflowRunning,
        workspace: NSWorkspace = .shared) {
     self.applicationActivityMonitor = applicationActivityMonitor
     self.contentStore = contentStore
@@ -55,7 +52,6 @@ final class KeyboardCowboyEngine {
     self.applicationWindowObserver = applicationWindowObserver
     self.snippetController = snippetController
     self.workspace = workspace
-    self.workflowRunner = workflowRunner
     self.workspacePublisher = WorkspacePublisher(workspace)
     self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
 

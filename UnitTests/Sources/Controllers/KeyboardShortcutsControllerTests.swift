@@ -3,7 +3,7 @@ import XCTest
 
 final class KeyboardShortcutsControllerTests: XCTestCase {
   func testLookupInLargeCollection() {
-    let controller = KeyboardShortcutsController()
+    let controller = ShortcutResolver()
     let groups = generateGroups(10, workflows: 50, keyboardShortcuts: 20)
 
     controller.cache(groups)
@@ -21,7 +21,7 @@ final class KeyboardShortcutsControllerTests: XCTestCase {
 
   // MARK: - Private methods
 
-  private func recursiveLookup(_ controller: KeyboardShortcutsController,
+  private func recursiveLookup(_ controller: ShortcutResolver,
                                keyShortcut: KeyShortcut,
                                offset: inout Int,
                                partial: PartialMatch = .init(rawValue: ".")) -> Bool {

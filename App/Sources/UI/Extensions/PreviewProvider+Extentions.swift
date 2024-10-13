@@ -6,7 +6,7 @@ extension PreviewProvider {
   static var contentStore: ContentStore {
     ContentStore(.designTime(), applicationStore: Self.applicationStore,
                  configurationStore: Self.configurationStore, groupStore: GroupStore(),
-                 keyboardShortcutsController: KeyboardShortcutsController(),
+                 shortcutResolver: ShortcutResolver(),
                  recorderStore: KeyShortcutRecorderStore(),
                  shortcutStore: ShortcutStore(.init(workspace: .shared)))
   }

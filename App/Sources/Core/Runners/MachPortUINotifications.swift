@@ -7,10 +7,10 @@ final class MachPortUINotifications {
   @AppStorage("Notifications.Bundles") var notificationBundles: Bool = false
 
   private var shouldReset: Bool = false
-  let keyboardShortcutsController: KeyboardShortcutsController
+  let shortcutResolver: ShortcutResolver
 
-  init(keyboardShortcutsController: KeyboardShortcutsController) {
-    self.keyboardShortcutsController = keyboardShortcutsController
+  init(shortcutResolver: ShortcutResolver) {
+    self.shortcutResolver = shortcutResolver
   }
 
   func notifyRunningWorkflow(_ workflow: Workflow) {
@@ -62,7 +62,7 @@ final class MachPortUINotifications {
     if let workflow = match.workflow,
        case .keyboardShortcuts(let trigger) = workflow.trigger {
       let shortcuts = Array(trigger.shortcuts.prefix(prefix))
-      let matches = Set(keyboardShortcutsController.allMatchingPrefix(match.rawValue, shortcutIndexPrefix: prefix))
+      let matches = Set(shortcutResolver.allMatchingPrefix(match.rawValue, shortcutIndexPrefix: prefix))
 
       let sortedMatches = Array(matches)
         .sorted(by: { $0.name < $1.name })

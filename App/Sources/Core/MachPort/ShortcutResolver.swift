@@ -6,7 +6,7 @@ enum KeyboardShortcutResult {
   case exact(Workflow)
 }
 
-final class KeyboardShortcutsController {
+final class ShortcutResolver {
   private var cache = [String: KeyboardShortcutResult]()
 
   func lookup(_ keyboardShortcut: KeyShortcut, 

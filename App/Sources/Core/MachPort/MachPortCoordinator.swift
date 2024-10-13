@@ -39,7 +39,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
   private let keyboardCleaner: KeyboardCleaner
   private let keyboardCommandRunner: KeyboardCommandRunner
-  private let keyboardShortcutsController: KeyboardShortcutsController
+  private let shortcutResolver: ShortcutResolver
   private let macroCoordinator: MacroCoordinator
   private let notifications: MachPortUINotifications
   private let scheduledMachPortCoordinator: ScheduleMachPortCoordinator
@@ -50,7 +50,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   internal init(store: KeyCodesStore,
                 keyboardCleaner: KeyboardCleaner,
                 keyboardCommandRunner: KeyboardCommandRunner,
-                keyboardShortcutsController: KeyboardShortcutsController,
+                shortcutResolver: ShortcutResolver,
                 macroCoordinator: MacroCoordinator,
                 mode: KeyboardCowboyMode,
                 notifications: MachPortUINotifications,
@@ -58,7 +58,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     self.keyboardCleaner = keyboardCleaner
     self.macroCoordinator = macroCoordinator
     self.store = store
-    self.keyboardShortcutsController = keyboardShortcutsController
+    self.shortcutResolver = shortcutResolver
     self.keyboardCommandRunner = keyboardCommandRunner
     self.notifications = notifications
     self.mode = mode
@@ -172,12 +172,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
     // Found a match
     let userModes = UserSpace.shared.userModes.filter(\.isEnabled)
-    var result = keyboardShortcutsController.lookup(shortcut.original, bundleIdentifier: bundleIdentifier,
+    var result = shortcutResolver.lookup(shortcut.original, bundleIdentifier: bundleIdentifier,
                                                     userModes: userModes, partialMatch: previousPartialMatch
     )
 
     if result == nil {
-      result = keyboardShortcutsController.lookup(shortcut.uppercase, bundleIdentifier: bundleIdentifier,
+      result = shortcutResolver.lookup(shortcut.uppercase, bundleIdentifier: bundleIdentifier,
                                                   userModes: userModes, partialMatch: previousPartialMatch)
       keyboardShortcut = shortcut.uppercase
       // Workaround for the mismatch that can occur when the user tries to type
@@ -187,7 +187,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       // not always accurate. This workaround disables left-hand-side conditions
       // for workflows that use keyboard shortcut sequences.
       if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue && result == nil {
-        result = keyboardShortcutsController.lookup(shortcut.lhsAgnostic, bundleIdentifier: bundleIdentifier,
+        result = shortcutResolver.lookup(shortcut.lhsAgnostic, bundleIdentifier: bundleIdentifier,
                                                     userModes: userModes, partialMatch: previousPartialMatch)
         keyboardShortcut = shortcut.lhsAgnostic
       }

@@ -20,18 +20,15 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
 
   private let commandRunner: CommandRunning
   private let customCharSet: CharacterSet
-  private let keyboardShortcutsController: KeyboardShortcutsController
   private let keyboardCommandRunner: KeyboardCommandRunner
   private let specialKeys: [Int]
   private let store: KeyCodesStore
 
   init(commandRunner: CommandRunning,
        keyboardCommandRunner: KeyboardCommandRunner,
-       keyboardShortcutsController: KeyboardShortcutsController,
        store: KeyCodesStore) {
     self.commandRunner = commandRunner
     self.keyboardCommandRunner = keyboardCommandRunner
-    self.keyboardShortcutsController = keyboardShortcutsController
     self.store = store
     self.specialKeys = Array(store.specialKeys().keys)
 
