@@ -206,6 +206,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     case .partialMatch(let partialMatch):
       handlePartialMatch(partialMatch, machPortEvent: machPortEvent, shortcut: shortcut)
     case .exact(let workflow):
+      previousExactMatch = workflow
+      previousPartialMatch = Self.defaultPartialMatch
       handleExtactMatch(workflow, machPortEvent: machPortEvent,
                         shortcut: shortcut, isRepeatingEvent: isRepeatingEvent)
     case .none:
@@ -252,9 +254,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   @MainActor
   private func handleExtactMatch(_ workflow: Workflow, machPortEvent: MachPortEvent,
                                  shortcut: MachPortKeyboardShortcut, isRepeatingEvent: Bool) {
-    previousExactMatch = workflow
-    previousPartialMatch = Self.defaultPartialMatch
-
     if workflow.trigger.isPassthrough == true {
       // NOOP
     } else {
@@ -456,7 +455,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       let keyboardShortcutCopy: KeyShortcut = keyboardShortcut
       let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
 
-      Task { [machPort, workflowRunner, keyboardCommandRunner] in
+      Task.detached { [machPort, workflowRunner, keyboardCommandRunner] in
         for _  in 0..<iterations {
           let specialKeys: [Int] = [kVK_Return]
 
