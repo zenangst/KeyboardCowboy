@@ -132,27 +132,19 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
     switch machPortEvent.type {
     case .keyDown:
-      switch scheduledAction {
-      case .captureKeyDown(let keyCode):
-        if keyCode == machPortKeyCode {
+      if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == machPortKeyCode {
           machPortEvent.result = nil
           return
-        }
-      case .none: break
       }
       let shouldReturn = handleEscapeKeyDownEvent(machPortEvent)
       if shouldReturn { return }
     case .keyUp:
-      switch scheduledAction {
-      case .captureKeyDown(let keyCode):
-        if keyCode == machPortKeyCode {
-          scheduledAction = nil
-          _ = try? machPort?.post(machPortKeyCode, type: .keyDown, flags: machPortEvent.event.flags)
-          _ = try? machPort?.post(machPortKeyCode, type: .keyUp, flags: machPortEvent.event.flags)
-          previousPartialMatch = Self.defaultPartialMatch
-          return
-        }
-      case .none: break
+      if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == machPortKeyCode  {
+        scheduledAction = nil
+        _ = try? machPort?.post(machPortKeyCode, type: .keyDown, flags: machPortEvent.event.flags)
+        _ = try? machPort?.post(machPortKeyCode, type: .keyUp, flags: machPortEvent.event.flags)
+        previousPartialMatch = Self.defaultPartialMatch
+        return
       }
 
       scheduledMachPortCoordinator.cancel()
