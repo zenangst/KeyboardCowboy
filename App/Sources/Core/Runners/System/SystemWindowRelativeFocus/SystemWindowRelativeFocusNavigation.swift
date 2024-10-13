@@ -12,8 +12,37 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
   nonisolated(unsafe) static var debug: Bool = false
 
+  fileprivate func rerouteDirectionIfNeeded(_ direction: inout SystemWindowRelativeFocus.Direction, frame: CGRect,
+                                            tiling: WindowTiling?, maxX: CGFloat, minY: CGFloat, maxY: CGFloat) {
+    if direction == .left && frame.origin.x < 0 {
+      if tiling == .topRight || tiling == .right {
+        direction = .down
+      } else if tiling == .bottomRight {
+        direction = .up
+      }
+    } else if direction == .right && frame.maxX > maxX {
+      if tiling == .topLeft || tiling == .left {
+        direction = .down
+      } else if tiling == .bottomLeft {
+        direction = .up
+      }
+    } else if direction == .up && frame.minY < minY {
+      if tiling == .bottom || tiling == .bottomRight {
+        direction = .left
+      } else if tiling == .bottomLeft {
+        direction = .right
+      }
+    } else if direction == .down && frame.maxY > maxY {
+      if tiling == .topLeft || tiling == .left {
+        direction = .right
+      } else {
+        direction = .left
+      }
+    }
+  }
+  
   func findNextWindow(_ currentWindow: WindowModel, windows: [WindowModel], direction: SystemWindowRelativeFocus.Direction) async -> WindowModel? {
-    let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
+    let windowSpacing = max(min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20), 1)
     var systemWindows = windows.systemWindows
       .sorted { $0.index < $1.index }
 
@@ -68,7 +97,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     case .right: currentWindow.rect.maxX + width
     }
 
-
+    var direction = direction
     var fieldOfView = CGRect(
       origin: CGPoint(x: x, y: y),
       size: CGSize(width: width, height: height)
@@ -85,7 +114,14 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     var match: SystemWindowModel?
     var constraint: (WindowModel) -> Bool
 
+    var tiling: WindowTiling?
+    if let screen = currentScreen(fieldOfView) {
+      tiling = SystemWindowTilingRunner.calculateTiling(for: currentWindow.rect, in: screen.visibleFrame.mainDisplayFlipped)
+    }
+
     while searching {
+      rerouteDirectionIfNeeded(&direction, frame: fieldOfView, tiling: tiling, maxX: maxX, minY: minY, maxY: maxY)
+
       switch direction {
       case .left:
         fieldOfView.origin.x -= windowSpacing
@@ -110,7 +146,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         Task { @MainActor in
           let invertedRect = fieldOfView.invertedYCoordinate(on: screen)
           windowController.window?.animator().setFrame(invertedRect, display: true)
-          windowController.showWindow(nil)
+          window.orderFrontRegardless()
         }
       }
 
