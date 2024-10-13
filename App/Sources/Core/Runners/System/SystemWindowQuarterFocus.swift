@@ -20,6 +20,7 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
 
   private var consumedWindows = Set<WindowModel>()
   private var previousQuarter: Quarter?
+  @MainActor
   private var initialWindows = [WindowModel]()
   @MainActor lazy var debugWindow: NSWindow = ZenWindow(
     animationBehavior: .none,

@@ -12,17 +12,20 @@ final class SystemWindowRelativeFocus {
   }
 
   let navigation = SystemWindowRelativeFocusNavigation()
+  @MainActor
   var consumedWindows = Set<WindowModel>()
   var previousDirection: Direction?
 
   init() {}
 
+  @MainActor
   func reset() {
     consumedWindows.removeAll()
   }
 
+  @MainActor
   func run(_ direction: Direction, snapshot: UserSpace.Snapshot) async throws {
-    await FocusBorder.shared.dismiss()
+    FocusBorder.shared.dismiss()
 
     if direction != previousDirection {
       previousDirection = direction
@@ -78,7 +81,7 @@ final class SystemWindowRelativeFocus {
 
     match?.performAction(.raise)
 
-    await FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
+    FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
 
     if Self.mouseFollow, let match, let frame = match.frame {
       let targetPoint = CGPoint(x: frame.midX, y: frame.midY)

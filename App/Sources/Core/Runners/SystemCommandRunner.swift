@@ -32,6 +32,7 @@ final class SystemCommandRunner: @unchecked Sendable {
     self.workspace = workspace
   }
 
+  @MainActor
   func resetFocusComponents() {
     centerFocus.reset()
     quarterFocus.reset()

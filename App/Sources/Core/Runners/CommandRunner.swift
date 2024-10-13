@@ -334,7 +334,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             try? await Task.sleep(for: .milliseconds(delay))
           }
         }
-        runners.system.resetFocusComponents()
+        await runners.system.resetFocusComponents()
         Task.detached {
           try await Task.sleep(for: .milliseconds(375))
           SystemWindowTilingRunner.initialIndex()
@@ -397,7 +397,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             try? await Task.sleep(for: .milliseconds(delay))
           }
         }
-        runners.system.resetFocusComponents()
+        await runners.system.resetFocusComponents()
         SystemWindowTilingRunner.initialIndex()
         output = command.name
       }
