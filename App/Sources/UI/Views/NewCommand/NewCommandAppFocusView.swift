@@ -1,13 +1,15 @@
 import Apps
 import Bonzai
+import Inject
 import SwiftUI
 
-struct AppFocusView: View {
+struct NewCommandAppFocusView: View {
+  @ObserveInjection var inject
   typealias Tiling = WorkspaceCommand.Tiling
   @EnvironmentObject private var applicationStore: ApplicationStore
   @State private var tiling: Tiling?
   @State private var selectedApp: AppFocusApplicationItem?
-  @State private var hideOtherApps = true
+  @State private var hideOtherApps = false
   @State private var createNewWindow = false
 
   private let onTilingChange: (Tiling?) -> Void
@@ -27,10 +29,11 @@ struct AppFocusView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
-      Text("Applications")
-        .font(.subheadline)
-      VStack(spacing: 0) {
+    VStack(alignment: .leading, spacing: 0) {
+      VStack(alignment: .leading) {
+        Text("Applications")
+          .font(.subheadline)
+
         Menu {
           ForEach(applicationStore.applications) { application in
             Button(action: {
@@ -47,58 +50,60 @@ struct AppFocusView: View {
           }
         }
         .menuStyle(.regular)
-        .padding(4)
+      }
+      .padding(4)
 
-        HStack {
-          VStack(alignment: .leading) {
-            Text("Tiling")
-              .font(.subheadline)
+      VStack(alignment: .leading) {
+        Text("Tiling")
+          .font(.subheadline)
 
-            Menu {
-              ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
-                Button {
-                  self.tiling = tiling
-                  onTilingChange(tiling)
-                } label: {
-                  Text(tiling.name)
-                }
-              }
+        Menu {
+          ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
+            Button {
+              self.tiling = tiling
+              onTilingChange(tiling)
             } label: {
-              Text(tiling?.name ?? "Select Tiling")
+              Text(tiling.name)
             }
           }
-          .frame(maxWidth: 250)
-
-          Spacer()
-            .frame(minWidth: 16, maxWidth: 32)
-
-          VStack(alignment: .leading) {
-            Text("Hide Other Applications")
-              .font(.subheadline)
-              .frame(maxWidth: .infinity, alignment: .leading)
-
-            ZenCheckbox(isOn: $hideOtherApps) { newValue in
-              onHideOtherAppsChange(newValue)
-            }
-          }
-
-          VStack(alignment: .leading) {
-            Text("Create New Window")
-              .font(.subheadline)
-              .frame(maxWidth: .infinity, alignment: .leading)
-
-            ZenCheckbox(isOn: $createNewWindow) { newValue in
-              onCreateNewWindowChange(newValue)
-            }
-          }
+        } label: {
+          Text(tiling?.name ?? "Select Tiling")
         }
       }
+      .padding(4)
+
+      VStack(alignment: .leading) {
+        Text("Settings")
+          .font(.subheadline)
+
+        HStack {
+          ZenCheckbox(isOn: $hideOtherApps) { newValue in
+            onHideOtherAppsChange(newValue)
+          }
+          Text("Hide Other Apps")
+            .font(.subheadline)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 4)
+
+        HStack {
+          ZenCheckbox(isOn: $createNewWindow) { newValue in
+            onCreateNewWindowChange(newValue)
+          }
+          Text("Create New Window")
+            .font(.subheadline)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 4)
+      }
+      .padding(4)
     }
     .padding(8)
     .onAppear {
       onHideOtherAppsChange(hideOtherApps)
       onTilingChange(tiling)
     }
+    .enableInjection()
   }
 }
 

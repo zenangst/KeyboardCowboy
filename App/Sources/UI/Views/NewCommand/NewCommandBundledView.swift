@@ -5,9 +5,9 @@ import SwiftUI
 struct NewCommandBundledView: View {
   private static var kinds: [BundledCommand.Kind] {
     [
-      .workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
       .appFocus(AppFocusCommand(bundleIdentifer: "", hideOtherApps: false,
-                                    tiling: nil, createNewWindow: true))
+                                tiling: nil, createNewWindow: true)),
+      .workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
     ]
   }
   private let kinds: [BundledCommand.Kind]
@@ -50,7 +50,7 @@ struct NewCommandBundledView: View {
 
       switch currentSelection {
       case .appFocus(let command):
-        AppFocusView { tiling in
+        NewCommandAppFocusView { tiling in
           currentSelection = .appFocus(
             AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
                               hideOtherApps: command.hideOtherApps,

@@ -1,8 +1,10 @@
 import Apps
+import Inject
 import Bonzai
 import SwiftUI
 
 struct NewCommandWorkspaceView: View {
+  @ObserveInjection var inject
   @EnvironmentObject private var applicationStore: ApplicationStore
   @State private var tiling: WorkspaceCommand.Tiling?
   @State private var selectedApps = [WorkspaceApplicationItem]()
@@ -21,9 +23,12 @@ struct NewCommandWorkspaceView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
+    VStack(alignment: .leading, spacing: 0) {
       Text("Applications")
         .font(.subheadline)
+        .padding(.horizontal, 4)
+        .padding(.bottom, 8)
+
       VStack(spacing: 0) {
         Menu {
           ForEach(applicationStore.applications) { application in
@@ -39,27 +44,30 @@ struct NewCommandWorkspaceView: View {
         .menuStyle(.regular)
         .padding(4)
 
-        List {
+        ZenList {
           ForEach(Array(zip(selectedApps.indices, selectedApps)), id: \.0) { offset, item in
-            HStack {
-              IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
-              Text(item.application.displayName)
-                .frame(maxWidth: .infinity, alignment: .leading)
-              Button {
-                if offset <= selectedApps.count - 1 {
-                  let selectedApp = selectedApps[offset]
-                  if item.application == selectedApp.application {
-                    selectedApps.remove(at: offset)
-                    onSelectedAppsChange(selectedApps)
+            VStack(spacing: 0) {
+              HStack {
+                IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
+                Text(item.application.displayName)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                Button {
+                  if offset <= selectedApps.count - 1 {
+                    let selectedApp = selectedApps[offset]
+                    if item.application == selectedApp.application {
+                      selectedApps.remove(at: offset)
+                      onSelectedAppsChange(selectedApps)
+                    }
                   }
+                } label: {
+                  Text("Remove")
+                    .font(.caption)
                 }
-              } label: {
-                Text("Remove")
-                  .font(.caption)
+                .buttonStyle(.destructive)
               }
-              .buttonStyle(.destructive)
+              .padding(4)
+              ZenDivider()
             }
-            .padding([.horizontal, .bottom], 4)
           }
           .onMove { indexSet, offset in
             selectedApps.move(fromOffsets: indexSet, toOffset: offset)
@@ -68,42 +76,42 @@ struct NewCommandWorkspaceView: View {
         }
       }
       .roundedContainer(padding: 0, margin: 0)
-      .padding(.bottom)
+      .padding([.leading, .trailing], 4)
+      .padding(.bottom, 8)
 
-      HStack {
-        VStack(alignment: .leading) {
-          Text("Tiling")
-            .font(.subheadline)
+      VStack(alignment: .leading) {
+        Text("Tiling")
+          .font(.subheadline)
 
-          Menu {
-            ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
-              Button {
-                self.tiling = tiling
-                onTilingChange(tiling)
-              } label: {
-                Text(tiling.name)
-              }
+        Menu {
+          ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
+            Button {
+              self.tiling = tiling
+              onTilingChange(tiling)
+            } label: {
+              Text(tiling.name)
             }
-          } label: {
-            Text(tiling?.name ?? "Select Tiling")
           }
+        } label: {
+          Text(tiling?.name ?? "Select Tiling")
         }
-        .frame(maxWidth: 250)
+      }
+      .frame(maxWidth: 250)
+      .padding(4)
 
-        Spacer()
-          .frame(minWidth: 16, maxWidth: 32)
-
-        VStack(alignment: .leading) {
-          Text("Hide Other Applications")
-            .font(.subheadline)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
+      VStack(alignment: .leading) {
+        Text("Settings")
+          .font(.subheadline)
+        HStack {
           ZenCheckbox(isOn: $hideOtherApps) { newValue in
             onHideOtherAppsChange(newValue)
           }
+          Text("Hide Other Applications")
+            .font(.subheadline)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-
       }
+      .padding(4)
     }
     .padding(8)
     .onAppear {
@@ -111,6 +119,7 @@ struct NewCommandWorkspaceView: View {
       onTilingChange(tiling)
       onSelectedAppsChange(selectedApps)
     }
+    .enableInjection()
   }
 }
 

@@ -29,9 +29,9 @@ struct NewCommandView: View {
     case script = "Script"
     case text = "Text"
     case system = "System"
+    case bundled = "Prebuilt"
     case windowManagement = "Window Management"
     case mouse = "Mouse Command"
-    case bundled = "Prebuilt"
     case builtIn = "Built-In"
   }
 
@@ -99,7 +99,7 @@ struct NewCommandView: View {
           })
       }
     }
-    .frame(minWidth: 710, minHeight: 500)
+    .frame(minWidth: 710, minHeight: 560)
   }
 
   private func sidebar() -> some View {

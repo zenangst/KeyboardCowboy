@@ -70,7 +70,7 @@ struct NewCommandWindow: Scene {
     .windowResizability(.contentSize)
     .windowStyle(.hiddenTitleBar)
     .defaultPosition(.topTrailing)
-    .defaultSize(.init(width: 520, height: 500))
+    .defaultSize(.init(width: 520, height: 580))
     .defaultPosition(.center)
   }
 
