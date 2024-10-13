@@ -194,7 +194,6 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       .filter {
         $0.id > 0 &&
         $0.ownerName != "borders" &&
-        $0.ownerName != "Keyboard Cowboy" &&
         $0.isOnScreen &&
         $0.rect.size.width > minimumSize.width &&
         $0.rect.size.height > minimumSize.height &&

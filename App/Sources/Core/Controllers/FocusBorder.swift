@@ -55,7 +55,7 @@ final class FocusBorder {
       publisher.displayed = true
     }
 
-    window.orderFront(nil)
+    window.orderFrontRegardless()
     previousWindow = window
   }
 
