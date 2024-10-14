@@ -118,10 +118,10 @@ private extension Workflow {
             case .hideAllApps:                       return false
             case .minimizeAllOpenWindows:            return false
             case .missionControl:                    return false
-            case .moveFocusToNextWindowUpperLeftQuarter: return true
-            case .moveFocusToNextWindowUpperRightQuarter: return true
-            case .moveFocusToNextWindowLowerLeftQuarter: return true
-            case .moveFocusToNextWindowLowerRightQuarter: return true
+            case .moveFocusToNextWindowUpperLeftQuarter: return false
+            case .moveFocusToNextWindowUpperRightQuarter: return false
+            case .moveFocusToNextWindowLowerLeftQuarter: return false
+            case .moveFocusToNextWindowLowerRightQuarter: return false
             case .moveFocusToNextWindowOnLeft:        return false
             case .moveFocusToNextWindowOnRight:       return false
             case .moveFocusToNextWindowUpwards:       return false
@@ -158,7 +158,16 @@ private extension Workflow {
             case .windowTilingPreviousSize:           return true
           }
         case .uiElement:                             return true
-        case .windowManagement:                      return false
+        case .windowManagement(let command):
+        switch command.kind {
+        case .increaseSize: return false
+        case .decreaseSize: return false
+        case .move: return false
+        case .fullscreen: return false
+        case .center: return false
+        case .moveToNextDisplay: return true
+        case .anchor: return false
+        }
       }
     }
   }
