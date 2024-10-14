@@ -14,7 +14,9 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
   fileprivate func rerouteDirectionIfNeeded(_ direction: inout SystemWindowRelativeFocus.Direction, frame: CGRect,
                                             tiling: WindowTiling?, maxX: CGFloat, minY: CGFloat, maxY: CGFloat) {
-    if direction == .left && frame.origin.x < 0 {
+    let minX = currentScreen(frame)?.visibleFrame.mainDisplayFlipped.origin.x ?? 0
+
+    if direction == .left && frame.origin.x < minX {
       if tiling == .topRight || tiling == .right {
         direction = .down
       } else if tiling == .bottomRight {
@@ -33,6 +35,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         direction = .right
       }
     } else if direction == .down && frame.maxY > maxY {
+      guard frame.minY < minY else { return }
+
       if tiling == .topLeft || tiling == .left {
         direction = .right
       } else {
