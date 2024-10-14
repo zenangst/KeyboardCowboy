@@ -19,11 +19,20 @@ final class Benchmark {
   }
 
   @discardableResult
+  func lap(_ identifier: @autoclosure @Sendable () -> String, forceEnable: Bool = false, function: StaticString = #function, line: Int = #line) -> String {
+    guard (isEnabled || forceEnable), let startTime = storage[identifier()] else {
+      return "Unknown identifier: \(identifier())"
+    }
+    Swift.print("🛎️ (\(identifier())):\(line) = \(CACurrentMediaTime() - startTime) ")
+    return "⏱ Benchmark(\(identifier())) = \(CACurrentMediaTime() - startTime) "
+  }
+
+  @discardableResult
   func stop(_ identifier: @autoclosure @Sendable () -> String, forceEnable: Bool = false) -> String {
     guard (isEnabled || forceEnable), let startTime = storage[identifier()] else {
       return "Unknown identifier: \(identifier())"
     }
-    Swift.print("⏱️ Benchmark(\(identifier())) = \(CACurrentMediaTime() - startTime) ")
+    Swift.print("⏱️ (\(identifier())) = \(CACurrentMediaTime() - startTime) ")
     storage[identifier()] = nil
     return "⏱ Benchmark(\(identifier())) = \(CACurrentMediaTime() - startTime) "
   }
