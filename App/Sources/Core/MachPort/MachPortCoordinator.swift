@@ -120,7 +120,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   // MARK: - Private methods
 
   @MainActor
-  private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool = false, runningMacro: Bool) {
+  private func intercept(_ machPortEvent: MachPortEvent, runningMacro: Bool) {
     if keyboardCleaner.isEnabled, keyboardCleaner.consumeEvent(machPortEvent) {
       return
     }
@@ -194,22 +194,24 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     }
 
     scheduledAction = nil
+
     switch result {
     case .partialMatch(let partialMatch):
-      handlePartialMatch(partialMatch, machPortEvent: machPortEvent, shortcut: shortcut)
+      handlePartialMatch(partialMatch, machPortEvent: machPortEvent,
+                         shortcut: shortcut, runningMacro: runningMacro)
     case .exact(let workflow):
       previousExactMatch = workflow
       previousPartialMatch = Self.defaultPartialMatch
       handleExtactMatch(workflow, machPortEvent: machPortEvent,
                         shortcut: shortcut, isRepeatingEvent: isRepeatingEvent)
     case .none:
-      handleNoMatch(result, machPortEvent: machPortEvent,
-                    shortcut: shortcut, isRepeatingEvent: isRepeatingEvent,
-                    tryGlobals: tryGlobals, runningMacro: runningMacro)
+      handleNoMatch(result, machPortEvent: machPortEvent, shortcut: shortcut,
+                    isRepeatingEvent: isRepeatingEvent, runningMacro: runningMacro)
     }
   }
 
-  private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent, shortcut: MachPortKeyboardShortcut) {
+  private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent,
+                                  shortcut: MachPortKeyboardShortcut, runningMacro: Bool) {
     let onTask: @Sendable (ScheduleMachPortCoordinator.ScheduledAction?) -> Void = { [weak self] action in
       guard let self else { return }
       switch action {
@@ -222,6 +224,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     }
 
     scheduledAction = nil
+
     if scheduledMachPortCoordinator.handlePartialMatchIfApplicable(partialMatch,
                                                                    machPortEvent: machPortEvent,
                                                                    onTask: onTask) {
@@ -345,7 +348,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   @MainActor
   private func handleNoMatch(_ result: KeyboardShortcutResult?, machPortEvent: MachPortEvent,
                              shortcut: MachPortKeyboardShortcut, isRepeatingEvent: Bool,
-                             tryGlobals: Bool, runningMacro: Bool) {
+                             runningMacro: Bool) {
     guard machPortEvent.type == .keyDown else { return }
 
     // No match, reset the lookup key
@@ -356,14 +359,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     //        var newFlags = machPortEvent.event.flags
     //        newFlags.subtract(.maskAlphaShift)
     //        machPortEvent.event.flags = newFlags
-    if !tryGlobals {
-      intercept(machPortEvent, tryGlobals: true, runningMacro: runningMacro)
-      repeatingMatch = false
-    } else {
-      coordinatorEvent = machPortEvent.event
-      if macroCoordinator.state == .recording {
-        macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
-      }
+
+    repeatingMatch = false
+    coordinatorEvent = machPortEvent.event
+    if macroCoordinator.state == .recording {
+      macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
     }
   }
 
