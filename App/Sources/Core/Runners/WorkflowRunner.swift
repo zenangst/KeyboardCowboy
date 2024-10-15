@@ -5,9 +5,8 @@ import MachPort
 protocol WorkflowRunning {
   func runCommands(in workflow: Workflow)
 
-  func run(_ workflow: Workflow, for shortcut: KeyShortcut,
-           executionOverride: Workflow.Execution?,
-           machPortEvent: MachPortEvent, repeatingEvent: Bool)
+  func run(_ workflow: Workflow, executionOverride: Workflow.Execution?,
+           machPortEvent: MachPortEvent, repeatingEvent: Bool) async
 }
 
 final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
@@ -32,7 +31,6 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
         commands,
         checkCancellation: false,
         resolveUserEnvironment: workflow.resolveUserEnvironment(),
-        shortcut: .empty(),
         machPortEvent: machPortEvent,
         repeatingEvent: false
       )
@@ -41,16 +39,14 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
         commands,
         checkCancellation: true,
         resolveUserEnvironment: workflow.resolveUserEnvironment(),
-        shortcut: .empty(),
         machPortEvent: machPortEvent,
         repeatingEvent: false
       )
     }
   }
 
-  func run(_ workflow: Workflow, for shortcut: KeyShortcut,
-           executionOverride: Workflow.Execution? = nil,
-           machPortEvent: MachPortEvent, repeatingEvent: Bool) {
+  func run(_ workflow: Workflow, executionOverride: Workflow.Execution? = nil,
+           machPortEvent: MachPortEvent, repeatingEvent: Bool) async {
     notifications.notifyRunningWorkflow(workflow)
     let commands = workflow.commands.filter(\.isEnabled)
 
@@ -74,13 +70,11 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
     case .concurrent:
       commandRunner.concurrentRun(commands, checkCancellation: checkCancellation,
                                   resolveUserEnvironment: resolveUserEnvironment,
-                                  shortcut: shortcut, machPortEvent: machPortEvent,
-                                  repeatingEvent: repeatingEvent)
+                                  machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
     case .serial:
       commandRunner.serialRun(commands, checkCancellation: checkCancellation,
                               resolveUserEnvironment: resolveUserEnvironment,
-                              shortcut: shortcut, machPortEvent: machPortEvent,
-                              repeatingEvent: repeatingEvent)
+                              machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
     }
 
     guard workflow.isValidForRepeatWorkflowCommand else {

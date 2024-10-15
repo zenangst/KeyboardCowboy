@@ -127,7 +127,6 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
           workflow.commands,
           checkCancellation: false,
           resolveUserEnvironment: true,
-          shortcut: .empty(),
           machPortEvent: machPortEvent,
           repeatingEvent: false
         )

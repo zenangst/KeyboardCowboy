@@ -122,7 +122,7 @@ private final class WorkflowRunner: WorkflowRunning {
     }
   }
 
-  func run(_ workflow: Keyboard_Cowboy.Workflow, for shortcut: Keyboard_Cowboy.KeyShortcut, executionOverride: Keyboard_Cowboy.Workflow.Execution?, machPortEvent: MachPort.MachPortEvent, repeatingEvent: Bool) {
+  func run(_ workflow: Keyboard_Cowboy.Workflow, executionOverride: Keyboard_Cowboy.Workflow.Execution?, machPortEvent: MachPort.MachPortEvent, repeatingEvent: Bool) {
     switch executionOverride ?? workflow.execution {
     case .concurrent:
       concurrentRunHandler(workflow.commands)

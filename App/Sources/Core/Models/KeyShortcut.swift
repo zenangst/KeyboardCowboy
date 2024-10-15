@@ -64,3 +64,31 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
     KeyShortcut(id: id, key: "", lhs: true)
   }
 }
+
+extension KeyShortcut {
+  var cgFlags: CGEventFlags {
+    var flags = CGEventFlags.maskNonCoalesced
+    modifiers.forEach { modifier in
+      switch modifier {
+      case .shift:
+        flags.insert(.maskShift)
+        flags.insert(.init(rawValue: UInt64(lhs ? NX_DEVICELSHIFTKEYMASK : NX_DEVICERSHIFTKEYMASK)))
+      case .function:
+        flags.insert(.maskSecondaryFn)
+      case .control:
+        flags.insert(.maskControl)
+        flags.insert(.init(rawValue: UInt64(lhs ? NX_DEVICELCTLKEYMASK : NX_DEVICERCTLKEYMASK)))
+      case .option:
+        flags.insert(.maskAlternate)
+        flags.insert(.init(rawValue: UInt64(lhs ? NX_DEVICELALTKEYMASK : NX_DEVICERALTKEYMASK)))
+      case .command:
+        flags.insert(.maskCommand)
+        flags.insert(.init(rawValue: UInt64(lhs ? NX_DEVICELCMDKEYMASK : NX_DEVICERCMDKEYMASK)))
+      case .capsLock:
+        flags.insert(.maskAlphaShift)
+      }
+    }
+
+    return flags
+  }
+}

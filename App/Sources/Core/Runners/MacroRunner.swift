@@ -1,21 +1,26 @@
 import Foundation
+import KeyCodes
 import MachPort
 
 final class MacroRunner {
-  private let coordinator: MacroCoordinator
   private let bezelId = "com.zenangst.Keyboard-Cowboy.MacroRunner"
+  private let coordinator: MacroCoordinator
 
   init(coordinator: MacroCoordinator) {
     self.coordinator = coordinator
   }
 
-  func run(_ macroAction: MacroAction, shortcut: KeyShortcut, machPortEvent: MachPortEvent) async -> String {
+  func run(_ macroAction: MacroAction, machPortEvent: MachPortEvent) async -> String {
     let output: String
     switch macroAction.kind {
     case .record:
-      if let newMacroKey = coordinator.newMacroKey {
+      if let recordedEvent = coordinator.recordingEvent {
         coordinator.state = .idle
-        output = "Recorded Macro for \(newMacroKey.original.modifersDisplayValue) \(newMacroKey.uppercase.key)"
+        if let keyShortcut = coordinator.keyShortcut(for: recordedEvent) {
+          output = "Recorded Macro for \(keyShortcut.modifersDisplayValue) \(keyShortcut.key)"
+        } else {
+          output = "Recorded Macro"
+        }
       } else if coordinator.state == .recording {
         coordinator.state = .idle
         output = "Macro Recording Aborted."

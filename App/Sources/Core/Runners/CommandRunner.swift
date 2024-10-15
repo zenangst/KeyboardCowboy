@@ -7,13 +7,10 @@ import MachPort
 import SwiftUI
 
 protocol CommandRunning {
-  func serialRun(_ commands: [Command], checkCancellation: Bool,
-                 resolveUserEnvironment: Bool, shortcut: KeyShortcut, machPortEvent: MachPortEvent,
-                 repeatingEvent: Bool)
-  func concurrentRun(_ commands: [Command], checkCancellation: Bool,
-                     resolveUserEnvironment: Bool, 
-                     shortcut: KeyShortcut, machPortEvent: MachPortEvent,
-                     repeatingEvent: Bool)
+  func serialRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool,
+                 machPortEvent: MachPortEvent, repeatingEvent: Bool)
+  func concurrentRun(_ commands: [Command], checkCancellation: Bool, resolveUserEnvironment: Bool,
+                     machPortEvent: MachPortEvent, repeatingEvent: Bool)
 }
 
 final class CommandRunner: CommandRunning, @unchecked Sendable {
@@ -123,8 +120,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   func serialRun(_ commands: [Command], checkCancellation: Bool,
-                 resolveUserEnvironment: Bool, 
-                 shortcut: KeyShortcut, machPortEvent: MachPortEvent,
+                 resolveUserEnvironment: Bool, machPortEvent: MachPortEvent,
                  repeatingEvent: Bool) {
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
     ? NSPasteboard.general.string(forType: .string)
@@ -153,7 +149,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         for command in commands {
           if checkCancellation { try Task.checkCancellation() }
           do {
-            try await self.run(command, workflowCommands: commands, snapshot: snapshot, shortcut: shortcut,
+            try await self.run(command, workflowCommands: commands, snapshot: snapshot,
                                machPortEvent: machPortEvent,
                                checkCancellation: checkCancellation,
                                repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
@@ -182,8 +178,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   func concurrentRun(_ commands: [Command], checkCancellation: Bool,
-                     resolveUserEnvironment: Bool, 
-                     shortcut: KeyShortcut, machPortEvent: MachPortEvent,
+                     resolveUserEnvironment: Bool, machPortEvent: MachPortEvent,
                      repeatingEvent: Bool) {
     var modifiedCheckCancellation = checkCancellation
     let originalPasteboardContents: String? = commands.shouldRestorePasteboard
@@ -216,7 +211,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       for command in commands {
         do {
           if checkCancellation { try Task.checkCancellation() }
-          try await self.run(command, workflowCommands: commands, snapshot: snapshot, shortcut: shortcut,
+          try await self.run(command, workflowCommands: commands, snapshot: snapshot,
                              machPortEvent: machPortEvent, checkCancellation: checkCancellation,
                              repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
         } catch { 
@@ -239,8 +234,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
   }
 
   func run(_ command: Command, workflowCommands: [Command], snapshot: UserSpace.Snapshot,
-           shortcut: KeyShortcut, machPortEvent: MachPortEvent,
-           checkCancellation: Bool, repeatingEvent: Bool, 
+           machPortEvent: MachPortEvent, checkCancellation: Bool, repeatingEvent: Bool,
            runtimeDictionary: inout [String: String]) async throws {
     let contentID = UUID()
     switch command.notification {
@@ -270,11 +264,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       try await runners.application.run(applicationCommand, checkCancellation: checkCancellation)
       output = command.name
     case .builtIn(let builtInCommand):
-      output = try await runners.builtIn.run(
-        builtInCommand,
-        shortcut: shortcut,
-        machPortEvent: machPortEvent
-      )
+      output = try await runners.builtIn.run(builtInCommand, machPortEvent: machPortEvent)
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
       case .appFocus(let focusCommand):
@@ -311,7 +301,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
               try await run(command,
                             workflowCommands: commands,
                             snapshot: snapshot,
-                            shortcut: shortcut,
                             machPortEvent: machPortEvent,
                             checkCancellation: checkCancellation,
                             repeatingEvent: repeatingEvent,
@@ -322,7 +311,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             try await run(command,
                           workflowCommands: commands,
                           snapshot: snapshot,
-                          shortcut: shortcut,
                           machPortEvent: machPortEvent,
                           checkCancellation: checkCancellation,
                           repeatingEvent: repeatingEvent,
@@ -374,7 +362,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
               try await run(command,
                             workflowCommands: commands,
                             snapshot: snapshot,
-                            shortcut: shortcut,
                             machPortEvent: machPortEvent,
                             checkCancellation: checkCancellation,
                             repeatingEvent: repeatingEvent,
@@ -385,7 +372,6 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
             try await run(command,
                           workflowCommands: commands,
                           snapshot: snapshot,
-                          shortcut: shortcut,
                           machPortEvent: machPortEvent,
                           checkCancellation: checkCancellation,
                           repeatingEvent: repeatingEvent,

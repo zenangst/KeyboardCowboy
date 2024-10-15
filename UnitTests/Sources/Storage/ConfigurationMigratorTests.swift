@@ -7,6 +7,8 @@ final class ConfigurationMigratorTests: XCTestCase {
     let config = ConfigurationLocation.legacy
     let migrator = ConfigurationMigrator(legacyUrl: config.url)
 
+    #warning("Update this test to not rely on the actual path.")
+
     XCTAssertTrue(try migrator.configurationNeedsMigration(at: config.url))
   }
 

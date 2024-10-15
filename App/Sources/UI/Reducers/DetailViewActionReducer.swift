@@ -173,19 +173,11 @@ final class DetailViewActionReducer {
         let commands = workflow.commands.filter(\.isEnabled)
         switch workflow.execution {
         case .concurrent:
-          commandRunner.concurrentRun(
-            commands, checkCancellation: true,
-            resolveUserEnvironment: true, shortcut: .empty(),
-            machPortEvent: machPortEvent,
-            repeatingEvent: false
-          )
+          commandRunner.concurrentRun(commands, checkCancellation: true, resolveUserEnvironment: true,
+                                      machPortEvent: machPortEvent, repeatingEvent: false)
         case .serial:
-          commandRunner.serialRun(
-            commands, checkCancellation: true,
-            resolveUserEnvironment: true, shortcut: .empty(),
-            machPortEvent: machPortEvent,
-            repeatingEvent: false
-          )
+          commandRunner.serialRun(commands, checkCancellation: true, resolveUserEnvironment: true,
+                                  machPortEvent: machPortEvent, repeatingEvent: false)
         }
         return .none
       }

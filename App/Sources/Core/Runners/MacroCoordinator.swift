@@ -1,4 +1,6 @@
+import Carbon
 import Foundation
+import KeyCodes
 import MachPort
 
 enum MacroKind {
@@ -18,16 +20,20 @@ final class MacroCoordinator {
       if newValue == .idle {
         newMacroKey = nil
         recordingKey = nil
+        recordingEvent = nil
       }
     }
   }
   var machPort: MachPortEventController?
+  var keyCodes: KeyCodesStore
 
-  private(set) var newMacroKey: MachPortKeyboardShortcut?
+  private(set) var newMacroKey: MacroKey?
   private(set) var recordingKey: MacroKey?
+  private(set) var recordingEvent: MachPortEvent?
 
   private var currentBundleIdentifier: String = Bundle.main.bundleIdentifier!
   private var macros = [MacroKey: [MacroKind]]()
+  private var task: Task<Void, any Error>?
 
   private let bezelId = "com.apple.zenangst.Keyboard-Cowboy.macros"
 
@@ -35,16 +41,23 @@ final class MacroCoordinator {
   private let userSpace: UserSpace
 
   @MainActor
-  init() {
+  init(keyCodes: KeyCodesStore) {
+    self.keyCodes = keyCodes
     self.userSpace = UserSpace.shared
   }
 
-  func match(_ shortcut: MachPortKeyboardShortcut) -> [MacroKind]? {
-    let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
-                            machPortKeyId: shortcut.id)
+  func cancel() {
+    task?.cancel()
+  }
+
+  func match(_ machPortEvent: MachPortEvent) -> [MacroKind]? {
+    let eventSignature = CGEventSignature.from(machPortEvent.event)
+    let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier, eventSignature: eventSignature)
     if let macro = macros[macroKey] {
-      Task { @MainActor [bezelId] in
-        BezelNotificationController.shared.post(.init(id: bezelId, text: "Running Macro for \(shortcut.original.modifersDisplayValue) \(shortcut.uppercase.key)"))
+      if let keyShortcut = keyShortcut(for: machPortEvent) {
+        Task { @MainActor [bezelId] in
+          BezelNotificationController.shared.post(.init(id: bezelId, text: "Running Macro for \(keyShortcut.modifersDisplayValue) \(keyShortcut.key)"))
+        }
       }
       return macro
     }
@@ -52,9 +65,67 @@ final class MacroCoordinator {
     return nil
   }
 
-  func record(_ shortcut: MachPortKeyboardShortcut, kind: MacroKind, machPortEvent: MachPortEvent) {
-    guard state == .recording else { return }
+  @MainActor
+  func handleMacroExecution(_ machPortEvent: MachPortEvent,
+                            machPort: MachPortEventController?,
+                            keyboardRunner: KeyboardCommandRunner,
+                            workflowRunner: WorkflowRunner,
+                            eventSignature: CGEventSignature) -> Bool {
+    cancel()
 
+    if state == .idle, let macro = match(machPortEvent) {
+      let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
+
+      task = Task { [machPort, workflowRunner, keyboardRunner] in
+        for _  in 0..<iterations {
+          let specialKeys: [Int] = [kVK_Return, kVK_Escape]
+
+          for element in macro {
+            try Task.checkCancellation()
+            switch element {
+            case .event(let machPortEvent):
+              let keyCode = Int(machPortEvent.keyCode)
+
+              if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(150)) }
+
+              try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
+              try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
+              try await Task.sleep(for: .milliseconds(25))
+            case .workflow(let workflow):
+              if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
+                for command in workflow.commands {
+                  try Task.checkCancellation()
+                  if case .keyboard(let command) = command {
+                    _ = try keyboardRunner.run(command.keyboardShortcuts,
+                                                      originalEvent: nil,
+                                                      iterations: command.iterations,
+                                                      isRepeating: false,
+                                                      with: machPortEvent.eventSource)
+                    try await Task.sleep(for: .milliseconds(25))
+                  }
+                }
+              } else {
+                await workflowRunner.run(workflow, executionOverride: .serial, machPortEvent: machPortEvent, repeatingEvent: false)
+                try await Task.sleep(for: .milliseconds(25))
+              }
+            }
+          }
+        }
+      }
+
+      SnippetController.currentSnippet = ""
+      machPortEvent.result = nil
+      return true
+    } else if state == .removing {
+      remove(eventSignature, machPortEvent: machPortEvent)
+      return true
+    } else {
+      return false
+    }
+  }
+
+  func record(_ eventSignature: CGEventSignature, kind: MacroKind, machPortEvent: MachPortEvent) {
+    guard state == .recording else { return }
     if case .workflow(let workflow) = kind {
       // Should never record macro related commands.
       let isValid = workflow.commands.contains(where: {
@@ -73,11 +144,12 @@ final class MacroCoordinator {
     }
 
     if let recordingKey, let newMacroKey {
-      if shortcut.id == newMacroKey.id {
+      if eventSignature == newMacroKey.eventSignature {
         machPortEvent.result = nil
         state = .idle
+        guard let recordingEvent, let keyShortcut = keyShortcut(for: recordingEvent) else { return }
         Task { @MainActor [bezelId] in
-          BezelNotificationController.shared.post(.init(id: bezelId, text: "Recorded Macro for \(shortcut.original.modifersDisplayValue) \(shortcut.uppercase.key)"))
+          BezelNotificationController.shared.post(.init(id: bezelId, text: "Recorded Macro for \(keyShortcut.modifersDisplayValue) \(keyShortcut.key)"))
         }
         return
       }
@@ -88,40 +160,52 @@ final class MacroCoordinator {
         macros[recordingKey]?.append(kind)
       }
     } else {
-      let recordingKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
-                                  machPortKeyId: shortcut.id)
+      let bundleIdentifier = userSpace.frontMostApplication.bundleIdentifier
+      let recordingKey = MacroKey(bundleIdentifier: bundleIdentifier, eventSignature: eventSignature)
+
       macros[recordingKey] = nil
-      self.newMacroKey = shortcut
+
+      self.newMacroKey = recordingKey
       self.recordingKey = recordingKey
-      Task { @MainActor [bezelId] in
-        BezelNotificationController.shared.post(.init(id: bezelId, text: "Recording Macro for \(shortcut.original.modifersDisplayValue) \(shortcut.uppercase.key)"))
+      self.recordingEvent = machPortEvent
+
+      if let keyShortcut = keyShortcut(for: machPortEvent) {
+        Task { @MainActor [bezelId] in
+          BezelNotificationController.shared.post(.init(id: bezelId, text: "Recording Macro for \(keyShortcut.modifersDisplayValue) \(keyShortcut.key)"))
+        }
       }
       machPortEvent.result = nil
     }
   }
 
-  func remove(_ shortcut: MachPortKeyboardShortcut, machPortEvent: MachPortEvent) {
+  func remove(_ eventSignature: CGEventSignature, machPortEvent: MachPortEvent) {
     let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
-                            machPortKeyId: shortcut.id)
+                            eventSignature: eventSignature)
     if macros[macroKey] != nil {
       macros[macroKey] = nil
+      guard let keyShortcut = keyShortcut(for: machPortEvent) else { return }
       Task { @MainActor [bezelId] in
-        BezelNotificationController.shared.post(.init(id: bezelId, text: "Removed Macro for \(shortcut.original.modifersDisplayValue) \(shortcut.uppercase.key)"))
+        BezelNotificationController.shared.post(.init(id: bezelId, text: "Removed Macro for \(keyShortcut.modifersDisplayValue) \(keyShortcut.key)"))
       }
     }
 
     state = .idle
     machPortEvent.result = nil
   }
+
+  func keyShortcut(for machPortEvent: MachPortEvent) -> KeyShortcut? {
+    if let key = keyCodes.displayValue(for: Int(machPortEvent.event.getIntegerValueField(.keyboardEventKeycode))) {
+      let signature = CGEventSignature.from(machPortEvent.event)
+      let keyShortcut = KeyShortcut(id: signature.id, key: key, lhs: machPortEvent.lhs,
+                                    modifiers: machPortEvent.event.modifierKeys)
+      return keyShortcut
+    }
+
+    return nil
+  }
 }
 
 struct MacroKey: Hashable {
   let bundleIdentifier: String
-  let machPortKeyId: String
-}
-
-private extension KeyShortcut {
-  var machPortKeyId: String {
-    key + modifersDisplayValue + ":" + (lhs ? "true" : "false")
-  }
+  let eventSignature: CGEventSignature
 }

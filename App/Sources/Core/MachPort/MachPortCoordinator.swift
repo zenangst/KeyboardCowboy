@@ -134,13 +134,16 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
     let machPortKeyCode = Int(machPortEvent.keyCode)
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
+    let inMacroContext = macroCoordinator.state == .recording && !isRepeatingEvent
 
     switch machPortEvent.type {
     case .keyDown:
-      if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == machPortKeyCode {
+      if case .captureKeyDown(let keyCode) = scheduledAction,
+          keyCode == machPortKeyCode {
           machPortEvent.result = nil
           return
       }
+
       let shouldReturn = handleEscapeKeyDownEvent(machPortEvent)
       if shouldReturn { return }
     case .keyUp:
@@ -163,71 +166,53 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       return
     }
 
+
     if handleRepeatingKeyEvent(machPortEvent, isRepeatingEvent: isRepeatingEvent) { return }
 
-    guard let shortcut = MachPortKeyboardShortcut(machPortEvent, specialKeys: specialKeys, store: store) else {
+    let eventSignature = CGEventSignature.from(machPortEvent.event)
+
+    if mode == .intercept,
+        macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature) {
       return
     }
 
-    var keyboardShortcut: KeyShortcut = shortcut.original
-
-    if handleMacroExecution(machPortEvent, shortcut: shortcut, keyboardShortcut: &keyboardShortcut) { return }
-
     let bundleIdentifier = UserSpace.shared.frontMostApplication.bundleIdentifier
-
-    // Found a match
     let userModes = UserSpace.shared.userModes.filter(\.isEnabled)
-    var result = shortcutResolver.lookup(shortcut.original, bundleIdentifier: bundleIdentifier,
-                                                    userModes: userModes, partialMatch: previousPartialMatch
+    let result = shortcutResolver.lookup(
+      machPortEvent,
+      bundleIdentifier: bundleIdentifier,
+      userModes: userModes,
+      partialMatch: previousPartialMatch
     )
-
-    if result == nil {
-      result = shortcutResolver.lookup(shortcut.uppercase, bundleIdentifier: bundleIdentifier,
-                                                  userModes: userModes, partialMatch: previousPartialMatch)
-      keyboardShortcut = shortcut.uppercase
-      // Workaround for the mismatch that can occur when the user tries to type
-      // a sequence that involves conflicting positions for the modifier keys.
-      // When done in quick succession, the `flagsChanged` event will report
-      // the the first modifier keys position based on the keycode, which is
-      // not always accurate. This workaround disables left-hand-side conditions
-      // for workflows that use keyboard shortcut sequences.
-      if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue && result == nil {
-        result = shortcutResolver.lookup(shortcut.lhsAgnostic, bundleIdentifier: bundleIdentifier,
-                                                    userModes: userModes, partialMatch: previousPartialMatch)
-        keyboardShortcut = shortcut.lhsAgnostic
-      }
-    }
 
     scheduledAction = nil
 
     switch result {
     case .none:
-      handleNoMatch(result, machPortEvent: machPortEvent, shortcut: shortcut,
-                    isRepeatingEvent: isRepeatingEvent, runningMacro: runningMacro)
-      if macroCoordinator.state == .recording || !isRepeatingEvent {
-        macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
+      handleNoMatch(result, machPortEvent: machPortEvent, isRepeatingEvent: isRepeatingEvent, runningMacro: runningMacro)
+      if inMacroContext {
+        macroCoordinator.record(eventSignature, kind: .event(machPortEvent), machPortEvent: machPortEvent)
       }
     case .partialMatch(let partialMatch):
-      handlePartialMatch(partialMatch, machPortEvent: machPortEvent,
-                         shortcut: shortcut, runningMacro: runningMacro)
-      if macroCoordinator.state == .recording || !isRepeatingEvent {
-        macroCoordinator.record(shortcut, kind: .event(machPortEvent), machPortEvent: machPortEvent)
-      }
+      handlePartialMatch(partialMatch, machPortEvent: machPortEvent, runningMacro: runningMacro)
     case .exact(let workflow):
       previousExactMatch = workflow
       previousPartialMatch = Self.defaultPartialMatch
-      handleExtactMatch(workflow, machPortEvent: machPortEvent,
-                        shortcut: shortcut, isRepeatingEvent: isRepeatingEvent)
-      if macroCoordinator.state == .recording || !isRepeatingEvent {
-        macroCoordinator.record(shortcut, kind: .workflow(workflow), machPortEvent: machPortEvent)
+      if inMacroContext {
+        macroCoordinator.record(eventSignature, kind: .workflow(workflow), machPortEvent: machPortEvent)
       }
+      handleExtactMatch(workflow, machPortEvent: machPortEvent, isRepeatingEvent: isRepeatingEvent)
     }
   }
 
-  private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent,
-                                  shortcut: MachPortKeyboardShortcut, runningMacro: Bool) {
+  private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent, runningMacro: Bool) {
     let onTask: @Sendable (ScheduleMachPortCoordinator.ScheduledAction?) -> Void = { [weak self] action in
       guard let self else { return }
+
+      if macroCoordinator.state == .recording {
+        macroCoordinator.record(CGEventSignature.from(machPortEvent.event), kind: .event(machPortEvent), machPortEvent: machPortEvent)
+      }
+
       switch action {
       case .captureKeyDown:
         self.previousPartialMatch = partialMatch
@@ -247,8 +232,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     } else if let workflow = partialMatch.workflow,
               case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger,
               keyboardShortcut.passthrough,
-              macroCoordinator.state == .recording && machPortEvent.type == .keyDown {
+              macroCoordinator.state == .recording {
       previousPartialMatch = partialMatch
+      macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
+                              kind: .event(machPortEvent),
+                              machPortEvent: machPortEvent)
     } else {
       machPortEvent.result = nil
       previousPartialMatch = partialMatch
@@ -258,8 +246,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   }
 
   @MainActor
-  private func handleExtactMatch(_ workflow: Workflow, machPortEvent: MachPortEvent,
-                                 shortcut: MachPortKeyboardShortcut, isRepeatingEvent: Bool) {
+  private func handleExtactMatch(_ workflow: Workflow, machPortEvent: MachPortEvent, isRepeatingEvent: Bool) {
     if workflow.trigger.isPassthrough == true {
       // NOOP
     } else {
@@ -300,7 +287,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
         guard let self, machPortEvent.type != .keyUp else { return }
         self.coordinatorEvent = machPortEvent.event
-        workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
+        Task.detached { [workflowRunner] in
+          await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
+        }
       }
 
       Task.detached { await execution(machPortEvent, isRepeatingEvent) }
@@ -309,17 +298,17 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       repeatingKeyCode = machPortEvent.keyCode
     } else if !isRepeatingEvent || workflow.commands.isValidForRepeat {
       if let delay = shouldSchedule(workflow) {
-        scheduledWorkItem = schedule(workflow, for: shortcut.original, machPortEvent: machPortEvent, after: delay)
+        scheduledWorkItem = schedule(workflow, machPortEvent: machPortEvent, after: delay)
       } else {
-        workflowRunner.run(workflow, for: shortcut.original, machPortEvent: machPortEvent, repeatingEvent: false)
+        Task.detached { [workflowRunner] in
+          await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
+        }
       }
     }
   }
 
   @MainActor
-  private func handleNoMatch(_ result: KeyboardShortcutResult?, machPortEvent: MachPortEvent,
-                             shortcut: MachPortKeyboardShortcut, isRepeatingEvent: Bool,
-                             runningMacro: Bool) {
+  private func handleNoMatch(_ result: KeyboardShortcutResult?, machPortEvent: MachPortEvent, isRepeatingEvent: Bool, runningMacro: Bool) {
     // No match, reset the lookup key
     reset()
 
@@ -403,66 +392,15 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     }
   }
 
-  @MainActor
-  func handleMacroExecution(_ machPortEvent: MachPortEvent, shortcut: MachPortKeyboardShortcut, keyboardShortcut: inout KeyShortcut) -> Bool {
-    // If there is a match, then run the workflow
-    let readyToRunMacro = mode == .intercept && macroCoordinator.state == .idle
-    if readyToRunMacro, let macro = macroCoordinator.match(shortcut) {
-      let keyboardShortcutCopy: KeyShortcut = keyboardShortcut
-      let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
-
-      Task.detached { [machPort, workflowRunner, keyboardCommandRunner] in
-        for _  in 0..<iterations {
-          let specialKeys: [Int] = [kVK_Return]
-
-          for element in macro {
-            switch element {
-            case .event(let machPortEvent):
-              let keyCode = Int(machPortEvent.keyCode)
-
-              if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(150)) }
-
-              try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
-              try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
-            case .workflow(let workflow):
-              if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
-                for command in workflow.commands {
-                  if case .keyboard(let command) = command {
-                    _ = try keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                      originalEvent: nil,
-                                                      iterations: command.iterations,
-                                                      isRepeating: false,
-                                                      with: machPortEvent.eventSource)
-                  }
-                }
-              } else {
-                workflowRunner.run(workflow, for: keyboardShortcutCopy,
-                                   executionOverride: .serial,
-                                   machPortEvent: machPortEvent, repeatingEvent: false)
-              }
-            }
-          }
-        }
-      }
-
-      SnippetController.currentSnippet = ""
-      machPortEvent.result = nil
-      return true
-    } else if macroCoordinator.state == .removing {
-      macroCoordinator.remove(shortcut, machPortEvent: machPortEvent)
-      return true
-    } else {
-      return false
-    }
-  }
-
-  private func schedule(_ workflow: Workflow, for shortcut: KeyShortcut, 
-                        machPortEvent: MachPortEvent, after duration: Double) -> DispatchWorkItem {
+  private func schedule(_ workflow: Workflow, machPortEvent: MachPortEvent, after duration: Double) -> DispatchWorkItem {
     let workItem = DispatchWorkItem { [weak self] in
       guard let self else { return }
       guard self.scheduledWorkItem?.isCancelled != true else { return }
 
-      workflowRunner.run(workflow, for: shortcut, machPortEvent: machPortEvent, repeatingEvent: false)
+      let workflowRunner = self.workflowRunner
+      Task.detached {
+        await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
+      }
       reset()
       previousPartialMatch = Self.defaultPartialMatch
       self.scheduledWorkItem = nil
@@ -502,4 +440,3 @@ private extension Collection where Element == Command {
     }
   }
 }
-

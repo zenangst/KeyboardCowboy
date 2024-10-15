@@ -1,4 +1,5 @@
 import SwiftUI
+import InputSources
 
 extension PreviewProvider {
   static var applicationStore: ApplicationStore { contentStore.applicationStore }
@@ -6,7 +7,7 @@ extension PreviewProvider {
   static var contentStore: ContentStore {
     ContentStore(.designTime(), applicationStore: Self.applicationStore,
                  configurationStore: Self.configurationStore, groupStore: GroupStore(),
-                 shortcutResolver: ShortcutResolver(),
+                 shortcutResolver: ShortcutResolver(keyCodes: KeyCodesStore(InputSourceController())),
                  recorderStore: KeyShortcutRecorderStore(),
                  shortcutStore: ShortcutStore(.init(workspace: .shared)))
   }

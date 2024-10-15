@@ -1,30 +1,56 @@
 import Foundation
 import Cocoa
+import KeyCodes
+import MachPort
 
 enum KeyboardShortcutResult {
   case partialMatch(PartialMatch)
   case exact(Workflow)
 }
 
+protocol KeycodeLocating {
+  func keyCode(for string: String, matchDisplayValue: Bool) -> Int?
+}
+
+protocol LookupToken {
+  var lhs: Bool { get }
+  var signature: CGEventSignature { get }
+}
+
+extension KeyCodesStore: KeycodeLocating { }
+
+extension MachPortEvent: LookupToken {
+  var signature: CGEventSignature { CGEventSignature.from(event) }
+}
+
 final class ShortcutResolver {
   private var cache = [String: KeyboardShortcutResult]()
 
-  func lookup(_ keyboardShortcut: KeyShortcut, 
+  let keyCodes: KeycodeLocating
+
+  init(keyCodes: KeycodeLocating) {
+    self.keyCodes = keyCodes
+  }
+
+  func lookup(_ token: LookupToken,
               bundleIdentifier: String,
               userModes: [UserMode],
               partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
+    let lhs = token.lhs
+    let eventSignature = token.signature
     if !userModes.isEmpty {
       for userMode in userModes {
         let userModeKey = userMode.dictionaryKey(true)
-        let scopedKeyWithUserMode = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier,
+        let scopedKeyWithUserMode = createKey(eventSignature: eventSignature, lhs: lhs,
+                                              bundleIdentifier: bundleIdentifier,
                                               userModeKey: userModeKey, previousKey: partialMatch.rawValue)
 
         if let result = cache[scopedKeyWithUserMode] {
           return result
         }
 
-        let globalKeyWithUserMode = createKey(keyboardShortcut, bundleIdentifier: "*",
-                                              userModeKey: userModeKey, previousKey: partialMatch.rawValue)
+        let globalKeyWithUserMode = createKey(eventSignature: eventSignature, lhs: lhs,
+                                              bundleIdentifier: "*", userModeKey: userModeKey, previousKey: partialMatch.rawValue)
 
         if let result = cache[globalKeyWithUserMode] {
           return result
@@ -32,15 +58,15 @@ final class ShortcutResolver {
       }
     }
 
-    let scopedKey = createKey(keyboardShortcut, bundleIdentifier: bundleIdentifier,
-                              userModeKey: "", previousKey: partialMatch.rawValue)
+    let scopedKey = createKey(eventSignature: eventSignature, lhs: lhs,
+                              bundleIdentifier: bundleIdentifier, userModeKey: "", previousKey: partialMatch.rawValue)
 
     if let result = cache[scopedKey] {
       return result
     }
 
-    let globalKey = createKey(keyboardShortcut, bundleIdentifier: "*", 
-                              userModeKey: "", previousKey: partialMatch.rawValue)
+    let globalKey = createKey(eventSignature: eventSignature, lhs: lhs,
+                              bundleIdentifier: "*", userModeKey: "", previousKey: partialMatch.rawValue)
 
     return cache[globalKey]
   }
@@ -109,12 +135,27 @@ final class ShortcutResolver {
           var offset = 0
           trigger.shortcuts.forEach { keyboardShortcut in
 
+            guard let keyCode = keyCodes.keyCode(for: keyboardShortcut.key, matchDisplayValue: true)
+                             ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: true)
+                             ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: false) else {
+              return
+            }
+
+            var flags = keyboardShortcut.cgFlags
+            let arrows = 123...126
+            if arrows.contains(keyCode) {
+              flags.insert(.maskNumericPad)
+            }
+
+            let eventSignature = CGEventSignature(keyCode, flags)
+
             if group.userModes.isEmpty {
-              let key = createKey(keyboardShortcut,
+              let key = createKey(eventSignature: eventSignature,
+                                  lhs: keyboardShortcut.lhs,
                                   bundleIdentifier: bundleIdentifier,
                                   userModeKey: "",
                                   previousKey: previousKey)
-              previousKey += "\(keyboardShortcut.dictionaryKey())+"
+              previousKey += "\(eventSignature.dictionaryKey(keyboardShortcut.lhs))+"
 
               if offset == count {
                 newCache[key] = .exact(workflow)
@@ -127,12 +168,13 @@ final class ShortcutResolver {
               var didSetPreviousKey: Bool = false
               for userMode in group.userModes {
                 let userModeKey = userMode.dictionaryKey(true)
-                let key = createKey(keyboardShortcut,
+                let key = createKey(eventSignature: eventSignature,
+                                    lhs: keyboardShortcut.lhs,
                                     bundleIdentifier: bundleIdentifier,
                                     userModeKey: userModeKey,
                                     previousKey: previousKey)
                 if !didSetPreviousKey {
-                  previousKey += "\(keyboardShortcut.dictionaryKey())+"
+                  previousKey += "\(eventSignature.dictionaryKey(keyboardShortcut.lhs))+"
                   didSetPreviousKey = true
                 }
 
@@ -154,13 +196,10 @@ final class ShortcutResolver {
 
   // MARK: - Private methods
 
-  private func createKey(
-    _ keyboardShortcut: KeyShortcut,
-    bundleIdentifier: String,
-    userModeKey: String,
-    previousKey: String
-  ) -> String {
-    "\(bundleIdentifier)\(previousKey)\(keyboardShortcut.dictionaryKey())\(userModeKey)"
+  private func createKey(eventSignature: CGEventSignature, lhs: Bool,
+                         bundleIdentifier: String, userModeKey: String,
+                         previousKey: String) -> String {
+    "\(bundleIdentifier)\(previousKey)\(eventSignature.dictionaryKey(lhs))\(userModeKey)"
   }
 }
 
@@ -180,12 +219,9 @@ private extension UserMode {
   }
 }
 
-private extension KeyShortcut {
-  func dictionaryKey() -> String {
-    if modifersDisplayValue.isEmpty {
-      return "[\(key):\(lhs)]"
-    } else {
-      return "[\(modifersDisplayValue)+\(key):\(lhs)]"
-    }
+private extension CGEventSignature {
+  func dictionaryKey(_ lhs: Bool) -> String {
+    return "[\(self.id):lhs:\(lhs)]"
   }
 }
+

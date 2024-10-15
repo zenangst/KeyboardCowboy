@@ -17,13 +17,10 @@ final class BuiltInCommandRunner {
     self.repeatLastWorkflowRunner = repeatLastWorkflowRunner
   }
 
-  func run(_ command: BuiltInCommand, 
-           shortcut: KeyShortcut,
-           machPortEvent: MachPortEvent) async throws -> String {
+  func run(_ command: BuiltInCommand, machPortEvent: MachPortEvent) async throws -> String {
     return switch command.kind {
     case .macro(let action):
-      await macroRunner
-        .run(action, shortcut: shortcut, machPortEvent: machPortEvent)
+      await macroRunner.run(action, machPortEvent: machPortEvent)
     case .userMode(let model, let action):
       try await UserModesRunner(configurationStore: configurationStore)
         .run(model, builtInCommand: command, action: action)
