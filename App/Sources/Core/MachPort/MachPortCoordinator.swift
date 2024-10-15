@@ -135,9 +135,15 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     let machPortKeyCode = Int(machPortEvent.keyCode)
     let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
     let inMacroContext = macroCoordinator.state == .recording && !isRepeatingEvent
+    let eventSignature = CGEventSignature.from(machPortEvent.event)
 
     switch machPortEvent.type {
     case .keyDown:
+      if mode == .intercept,
+         macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature) {
+        return
+      }
+
       if case .captureKeyDown(let keyCode) = scheduledAction,
           keyCode == machPortKeyCode {
           machPortEvent.result = nil
@@ -166,15 +172,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       return
     }
 
-
     if handleRepeatingKeyEvent(machPortEvent, isRepeatingEvent: isRepeatingEvent) { return }
-
-    let eventSignature = CGEventSignature.from(machPortEvent.event)
-
-    if mode == .intercept,
-        macroCoordinator.handleMacroExecution(machPortEvent, machPort: machPort, keyboardRunner: keyboardCommandRunner, workflowRunner: workflowRunner, eventSignature: eventSignature) {
-      return
-    }
 
     let bundleIdentifier = UserSpace.shared.frontMostApplication.bundleIdentifier
     let userModes = UserSpace.shared.userModes.filter(\.isEnabled)

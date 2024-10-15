@@ -8,11 +8,12 @@ enum MacroKind {
   case workflow(_ workflow: Workflow)
 }
 
-final class MacroCoordinator {
+final class MacroCoordinator: @unchecked Sendable {
   enum State {
     case recording
     case removing
     case idle
+    case running
   }
 
   var state: State = .idle {
@@ -74,41 +75,53 @@ final class MacroCoordinator {
     cancel()
 
     if state == .idle, let macro = match(machPortEvent) {
-      let iterations = max(Int(SnippetController.currentSnippet) ?? 1, 1)
+      let currentSnippet = Int(SnippetController.currentSnippet) ?? 1
+      let iterations = min(max(currentSnippet, 1), 10)
 
-      task = Task { [machPort, workflowRunner, keyboardRunner] in
-        for _  in 0..<iterations {
-          let specialKeys: [Int] = [kVK_Return, kVK_Escape]
+      state = .running
 
-          for element in macro {
-            try Task.checkCancellation()
-            switch element {
-            case .event(let machPortEvent):
-              let keyCode = Int(machPortEvent.keyCode)
+      task = Task.detached { @MainActor [machPort, workflowRunner, keyboardRunner, weak self] in
+        do {
+          for _  in 0..<iterations {
+            let specialKeys: [Int] = [kVK_Return, kVK_Escape]
 
-              if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(150)) }
+            for element in macro {
+              try Task.checkCancellation()
+              switch element {
+              case .event(let machPortEvent):
+                let keyCode = Int(machPortEvent.keyCode)
 
-              try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
-              try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
-              try await Task.sleep(for: .milliseconds(25))
-            case .workflow(let workflow):
-              if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
-                for command in workflow.commands {
-                  try Task.checkCancellation()
-                  if case .keyboard(let command) = command {
-                    _ = try keyboardRunner.run(command.keyboardShortcuts,
-                                                      originalEvent: nil,
-                                                      iterations: command.iterations,
-                                                      isRepeating: false,
-                                                      with: machPortEvent.eventSource)
-                    try await Task.sleep(for: .milliseconds(25))
+                if specialKeys.contains(keyCode) { try await Task.sleep(for: .milliseconds(25)) }
+
+                try machPort?.post(keyCode, type: .keyDown, flags: machPortEvent.event.flags)
+                try machPort?.post(keyCode, type: .keyUp, flags: machPortEvent.event.flags)
+                try await Task.sleep(for: .milliseconds(5))
+              case .workflow(let workflow):
+                if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
+                  for command in workflow.commands {
+                    try Task.checkCancellation()
+                    if case .keyboard(let command) = command {
+                      _ = try keyboardRunner.run(command.keyboardShortcuts,
+                                                 originalEvent: nil,
+                                                 iterations: command.iterations,
+                                                 isRepeating: false,
+                                                 with: machPortEvent.eventSource)
+                      try await Task.sleep(for: .milliseconds(5))
+                    }
                   }
+                } else {
+                  await workflowRunner.run(workflow, executionOverride: .serial, machPortEvent: machPortEvent, repeatingEvent: false)
+                  try await Task.sleep(for: .milliseconds(5))
                 }
-              } else {
-                await workflowRunner.run(workflow, executionOverride: .serial, machPortEvent: machPortEvent, repeatingEvent: false)
-                try await Task.sleep(for: .milliseconds(25))
               }
             }
+          }
+          await MainActor.run {
+            self?.state = .idle
+          }
+        } catch {
+          await MainActor.run {
+            self?.state = .idle
           }
         }
       }
