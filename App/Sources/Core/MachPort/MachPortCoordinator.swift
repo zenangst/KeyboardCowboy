@@ -210,7 +210,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       guard let self else { return }
 
       if macroCoordinator.state == .recording {
-        macroCoordinator.record(CGEventSignature.from(machPortEvent.event), kind: .event(machPortEvent), machPortEvent: machPortEvent)
+        macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
+                                kind: .event(machPortEvent),
+                                machPortEvent: machPortEvent)
       }
 
       switch action {

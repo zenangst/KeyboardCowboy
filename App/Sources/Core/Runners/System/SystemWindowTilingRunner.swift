@@ -229,8 +229,14 @@ final class SystemWindowTilingRunner {
         switch (activatedTiling, toggleFill) {
         case (.fill, true):
           if let currentStorage, currentStorage.isFullScreen {
-            nextTiling = currentStorage.tiling
-            if currentStorage.isFullScreen {
+            if currentStorage.tiling == activatedTiling {
+              nextTiling = .center
+              updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
+            } else if currentStorage.isFullScreen {
+              nextTiling = currentStorage.tiling
+              updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
+            } else {
+              nextTiling = activatedTiling
               updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
             }
           } else {
