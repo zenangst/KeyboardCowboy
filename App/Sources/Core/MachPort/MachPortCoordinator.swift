@@ -100,7 +100,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       if machPortEvent.type == .keyDown {
         Benchmark.shared.start("MachPortCoordinator.intercept", forceEnable: false)
       }
-      intercept(machPortEvent, runningMacro: false)
+      intercept(machPortEvent, tryGlobals: true, runningMacro: false)
       if machPortEvent.type == .keyDown {
         Benchmark.shared.stop("MachPortCoordinator.intercept", forceEnable: false)
       }
@@ -125,7 +125,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   // MARK: - Private methods
 
   @MainActor
-  private func intercept(_ machPortEvent: MachPortEvent, runningMacro: Bool) {
+  private func intercept(_ machPortEvent: MachPortEvent, tryGlobals: Bool, runningMacro: Bool) {
     if keyboardCleaner.isEnabled, keyboardCleaner.consumeEvent(machPortEvent) {
       return
     }
@@ -187,9 +187,15 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
     switch result {
     case .none:
+      let partialMatchCopy = previousPartialMatch
       handleNoMatch(result, machPortEvent: machPortEvent, isRepeatingEvent: isRepeatingEvent, runningMacro: runningMacro)
       if inMacroContext {
         macroCoordinator.record(eventSignature, kind: .event(machPortEvent), machPortEvent: machPortEvent)
+      }
+
+      let tryFallbackOnPartialMismatch = tryGlobals && partialMatchCopy.rawValue != previousPartialMatch.rawValue
+      if tryFallbackOnPartialMismatch {
+        intercept(machPortEvent, tryGlobals: false, runningMacro: false)
       }
     case .partialMatch(let partialMatch):
       handlePartialMatch(partialMatch, machPortEvent: machPortEvent, runningMacro: runningMacro)
