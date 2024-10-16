@@ -14,7 +14,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
   fileprivate func rerouteDirectionIfNeeded(_ direction: inout SystemWindowRelativeFocus.Direction, frame: CGRect,
                                             tiling: WindowTiling?, maxX: CGFloat, minY: CGFloat, maxY: CGFloat) {
-    let minX = currentScreen(frame)?.visibleFrame.mainDisplayFlipped.origin.x ?? 0
+    let minX = currentScreen(frame).first?.visibleFrame.mainDisplayFlipped.origin.x ?? 0
 
     if direction == .left && frame.origin.x < minX {
       if tiling == .topRight || tiling == .right {
@@ -44,18 +44,21 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
     }
   }
-  
-  func findNextWindow(_ currentWindow: WindowModel, windows: [WindowModel], direction: SystemWindowRelativeFocus.Direction) async -> WindowModel? {
+
+  func findNextWindow(_ currentWindow: RelativeWindowModel, windows: [RelativeWindowModel],
+                      direction: SystemWindowRelativeFocus.Direction,
+                      initialScreen: NSScreen = NSScreen.main!) async -> RelativeWindowModel? {
+    let initialDirection = direction
     let windowSpacing = max(min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20), 1)
     var systemWindows = windows.systemWindows
       .sorted { $0.index < $1.index }
 
     if systemWindows.isEmpty { return nil }
 
-    systemWindows.insert(SystemWindowModel(window: currentWindow, index: -1), at: 0)
+    systemWindows.insert(RelativeSystemWindowModel(index: -1, window: currentWindow), at: 0)
 
     var occupiedRects = [CGRect]()
-    var visibleWindows = [SystemWindowModel]()
+    var visibleWindows = [RelativeSystemWindowModel]()
 
     for systemWindow in systemWindows {
       let intersection = systemWindow.window.rect.intersection(currentWindow.rect)
@@ -73,41 +76,28 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
     }
 
-    let width = switch direction {
-    case .up:    currentWindow.rect.size.width / 2
-    case .down:  currentWindow.rect.size.width / 2
-    case .left:  currentWindow.rect.size.width / 4
-    case .right: currentWindow.rect.size.width / 4
-    }
-
-    let height = switch direction {
-    case .up:    currentWindow.rect.size.height / 4
-    case .down:  currentWindow.rect.size.height / 4
-    case .left:  currentWindow.rect.size.height / 4
-    case .right: currentWindow.rect.size.height / 4
-    }
+    let width = currentWindow.rect.size.width / 3
+    let height = currentWindow.rect.size.width / 3
 
     let y = switch direction {
-    case .up:    currentWindow.rect.minY
-    case .down:  currentWindow.rect.maxY
+    case .up:    currentWindow.rect.midY
+    case .down:  currentWindow.rect.midY
     case .left:  currentWindow.rect.minY
     case .right: currentWindow.rect.minY
     }
 
     let x = switch direction {
-    case .up:    currentWindow.rect.minX + width / 2
+    case .up:    currentWindow.rect.midX + width / 2
     case .down:  currentWindow.rect.midX - width / 2
-    case .left:  currentWindow.rect.minX - width
-    case .right: currentWindow.rect.maxX + width
+    case .left:  currentWindow.rect.minX - width / 2
+    case .right: currentWindow.rect.maxX + width / 2
     }
 
-    var direction = direction
-    var fieldOfView = CGRect(
+    var direction = initialDirection
+    var fieldOfViewRect = CGRect(
       origin: CGPoint(x: x, y: y),
       size: CGSize(width: width, height: height)
     )
-
-    if Self.debug { print("fieldOfView", fieldOfView) }
 
     let minX = (visibleWindows.map { $0.window.rect.minX }.min() ?? 0) + windowSpacing
     let maxX = (visibleWindows.map { $0.window.rect.maxX }.max() ?? 0) + windowSpacing
@@ -115,48 +105,44 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     let maxY = (visibleWindows.map { $0.window.rect.maxY }.max() ?? 0) + windowSpacing
 
     var searching = true
-    var match: SystemWindowModel?
-    var constraint: (WindowModel) -> Bool
+    var match: RelativeSystemWindowModel?
+    var constraint: (RelativeWindowModel) -> Bool
 
     var tiling: WindowTiling?
-    if let screen = currentScreen(fieldOfView) {
+    if let screen = currentScreen(fieldOfViewRect).first {
       tiling = SystemWindowTilingRunner.calculateTiling(for: currentWindow.rect, in: screen.visibleFrame.mainDisplayFlipped)
     }
 
     while searching {
-      rerouteDirectionIfNeeded(&direction, frame: fieldOfView, tiling: tiling, maxX: maxX, minY: minY, maxY: maxY)
+      rerouteDirectionIfNeeded(&direction, frame: fieldOfViewRect, tiling: tiling, maxX: maxX, minY: minY, maxY: maxY)
 
+      let increment: CGFloat = 1
       switch direction {
       case .left:
-        fieldOfView.origin.x -= windowSpacing
-        if fieldOfView.maxX < minX { searching = false }
+        fieldOfViewRect.origin.x -= increment
+        if fieldOfViewRect.maxX < minX - windowSpacing { searching = false }
         constraint = { abs($0.rect.origin.x - currentWindow.rect.origin.x) > windowSpacing }
       case .right:
-        fieldOfView.origin.x += windowSpacing
-        if fieldOfView.minX > maxX { searching = false }
+        fieldOfViewRect.origin.x += increment
+        if fieldOfViewRect.minX > maxX {
+          searching = false
+        }
         constraint = { abs($0.rect.origin.x - currentWindow.rect.origin.x) > windowSpacing }
       case .up:
-        fieldOfView.origin.y -= windowSpacing
-        if fieldOfView.maxY < minY { searching = false }
+        fieldOfViewRect.origin.y -= increment
+        if fieldOfViewRect.maxY < minY { searching = false }
         constraint = { abs($0.rect.origin.y - currentWindow.rect.origin.y) > windowSpacing }
       case .down:
-        fieldOfView.origin.y += windowSpacing
-        if fieldOfView.minY > maxY { searching = false }
-        constraint = { abs($0.rect.origin.y - currentWindow.rect.origin.y) > windowSpacing }
-      }
-
-      if Self.debug, let screen = currentScreen(fieldOfView) {
-        let fieldOfView = fieldOfView
-        Task { @MainActor in
-          let invertedRect = fieldOfView.invertedYCoordinate(on: screen)
-          windowController.window?.animator().setFrame(invertedRect, display: true)
-          window.orderFrontRegardless()
+        fieldOfViewRect.origin.y += increment
+        if fieldOfViewRect.minY > maxY {
+          searching = false
         }
+        constraint = { abs($0.rect.origin.y - currentWindow.rect.origin.y) > windowSpacing }
       }
 
       for visibleWindow in visibleWindows where visibleWindow.window != currentWindow {
         let constraintResult = constraint(visibleWindow.window)
-        let intersectionResult = fieldOfView.intersects(visibleWindow.window.rect)
+        let intersectionResult = fieldOfViewRect.intersects(visibleWindow.window.rect)
         if constraintResult && intersectionResult {
           match = visibleWindow
           searching = false
@@ -165,26 +151,56 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
     }
 
-    if Self.debug {
-      for window in visibleWindows {
-        print("available window (\(window.index))", window.window.ownerName, window.window.rect)
+    updateDebugWindow(fieldOfViewRect)
+
+    if let match {
+      return match.window
+    } else {
+      fieldOfViewRect.size = .init(width: initialScreen.visibleFrame.width / 2.5,
+                                   height: initialScreen.visibleFrame.height / 2.5)
+      switch initialDirection {
+      case .up: #warning("Implement this.")
+        break
+      case .down: #warning("Implement this.")
+        break
+      case .left:
+        fieldOfViewRect.origin.x = initialScreen.visibleFrame.minX - windowSpacing
+        fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
+      case .right:
+        fieldOfViewRect.origin.x = initialScreen.visibleFrame.maxX
+        fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
       }
-      print("--------------")
-      print("currentWindow", currentWindow.ownerName, currentWindow.rect)
-      print("match  (\(match?.index))", match?.window.ownerName, match?.window.rect)
-      print("--------------")
+
+      let applicableScreens = NSScreen.screens.filter( { $0.frame.intersects(fieldOfViewRect) })
+
+      if let applicableScreen = applicableScreens.first {
+        let searchAreaRect = CGRect(
+          origin: CGPoint(x: applicableScreen.visibleFrame.width / 2,
+                          y: applicableScreen.visibleFrame.height / 2),
+          size: CGSize(width: applicableScreen.visibleFrame.mainDisplayFlipped.midX - fieldOfViewRect.width / 2,
+                       height: applicableScreen.visibleFrame.mainDisplayFlipped.midY - fieldOfViewRect.height / 2)
+        )
+
+        updateDebugWindow(fieldOfViewRect)
+
+        let match = windows.first(where: { $0.rect.intersects(fieldOfViewRect) })
+        return match
+      }
+      return nil
     }
-
-    guard let match else { return nil }
-
-
-    return match.window
   }
 
-  private func currentScreen(_ rect: CGRect) -> NSScreen? {
-    let screen: NSScreen? = NSScreen.screens.first(where: { $0.visibleFrame.intersects(rect) })
+  private func updateDebugWindow(_ frame: CGRect) {
+    if Self.debug {
+      Task { @MainActor in
+        windowController.window?.animator().setFrame(frame.mainDisplayFlipped, display: true)
+        window.orderFrontRegardless()
+      }
+    }
+  }
 
-    return screen
+  private func currentScreen(_ rect: CGRect) -> [NSScreen] {
+    NSScreen.screens.filter( { $0.visibleFrame.intersects(rect) })
   }
 
   private func targetRect(on screen: NSScreen) -> CGRect {
@@ -192,5 +208,12 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     let origin = CGPoint(x: screen.frame.midX - size, y: screen.frame.midY - size)
     let targetRect: CGRect = CGRect(origin: origin, size: CGSize(width: size, height: size))
     return targetRect
+  }
+}
+
+extension Array<RelativeWindowModel> {
+  var systemWindows: [RelativeSystemWindowModel] { enumerated().reduce(into: [], { result, entry in
+    result.append(RelativeSystemWindowModel(index: entry.offset, window: entry.element))
+  })
   }
 }

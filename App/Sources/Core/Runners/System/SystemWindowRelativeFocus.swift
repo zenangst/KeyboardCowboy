@@ -13,7 +13,7 @@ final class SystemWindowRelativeFocus {
 
   let navigation = SystemWindowRelativeFocusNavigation()
   @MainActor
-  var consumedWindows = Set<WindowModel>()
+  var consumedWindows = Set<RelativeWindowModel>()
   var previousDirection: Direction?
 
   init() {}
@@ -36,7 +36,7 @@ final class SystemWindowRelativeFocus {
 
     let frontMostApplication = snapshot.frontMostApplication
     let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
-    var activeWindow: WindowModel?
+    var activeWindow: RelativeWindowModel?
 
     let focusedWindow = try? frontMostAppElement.focusedWindow()
     for (offset, window) in windows.enumerated() {
@@ -61,14 +61,16 @@ final class SystemWindowRelativeFocus {
 
     windows.removeAll(where: { consumedWindows.contains($0) })
 
-    guard let activeWindow,
-          let matchedWindow = await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) else {
-      return
+    var matchedWindow: RelativeWindowModel?
+    if let activeWindow {
+      matchedWindow = await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) ?? activeWindow
     }
+
+    guard let matchedWindow else { return }
 
     consumedWindows.insert(matchedWindow)
 
-    let processIdentifier = pid_t(matchedWindow.ownerPid.rawValue)
+    let processIdentifier = pid_t(matchedWindow.ownerPid)
     guard let runningApplication = NSRunningApplication(processIdentifier: processIdentifier) else { return }
 
     let appElement = AppAccessibilityElement(processIdentifier)
@@ -79,13 +81,13 @@ final class SystemWindowRelativeFocus {
       NSWorkspace.shared.open(bundleURL)
     }
 
-    match?.performAction(.raise)
-
-    FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
-
-    if Self.mouseFollow, let match, let frame = match.frame {
-      let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
-      NSCursor.moveCursor(to: targetPoint)
+    if let match, let frame = match.frame {
+      FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
+      match.performAction(.raise)
+      if Self.mouseFollow {
+        let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
+        NSCursor.moveCursor(to: targetPoint)
+      }
     }
   }
 
@@ -97,7 +99,7 @@ final class SystemWindowRelativeFocus {
     return windowModels
   }
 
-  private func indexWindowsInStage(_ models: [WindowModel]) -> [WindowModel] {
+  private func indexWindowsInStage(_ models: [WindowModel]) -> [RelativeWindowModel] {
     let excluded = ["WindowManager", "Window Server"]
     let minimumSize = CGSize(width: 300, height: 200)
     let windows: [WindowModel] = models
@@ -111,6 +113,26 @@ final class SystemWindowRelativeFocus {
         !excluded.contains($0.ownerName)
       }
 
-    return windows
+    return windows.map(RelativeWindowModel.init)
   }
 }
+
+struct RelativeWindowModel: Hashable, Identifiable {
+  public let id: Int
+  public let ownerPid: Int
+  public let ownerName: String
+  public var rect: CGRect
+
+  init(_ windowModel: WindowModel) {
+    self.id = windowModel.id
+    self.ownerPid = windowModel.ownerPid.rawValue
+    self.ownerName = windowModel.ownerName
+    self.rect = windowModel.rect
+  }
+}
+
+struct RelativeSystemWindowModel {
+  public let index: Int
+  public let window: RelativeWindowModel
+}
+
