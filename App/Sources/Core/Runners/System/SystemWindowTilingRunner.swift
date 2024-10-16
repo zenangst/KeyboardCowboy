@@ -307,9 +307,9 @@ final class SystemWindowTilingRunner {
 
   static func calculateTiling(for rect: CGRect, ownerName: String? = nil, in screenFrame: CGRect) -> WindowTiling {
     let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
-    let screenFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
-    let halfWidth = screenFrame.width / 2
-    let halfHeight = screenFrame.height / 2
+    let screenInsetFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
+    let halfWidth = screenInsetFrame.width / 2
+    let halfHeight = screenInsetFrame.height / 2
     let centerX = rect.midX
     let centerY = rect.midY
     let width = rect.width
@@ -317,14 +317,23 @@ final class SystemWindowTilingRunner {
     let widthTreshold: CGFloat = abs(width - halfWidth)
     let heightTreshold: CGFloat = abs(height - halfHeight)
 
-    let widthDelta = screenFrame.width - width
-    let heightDelta = screenFrame.height - height
+    let widthDelta = screenInsetFrame.width - width
+    let heightDelta = screenInsetFrame.height - height
 
     let isTopLeft = centerX < halfWidth && centerY < halfHeight
     let isTopRight = centerX >= halfWidth && centerY < halfHeight
     let isBottomLeft = centerX < halfWidth && centerY >= halfHeight
 
-    let isLeft = rect.minX == screenFrame.minX
+    var xOffset: CGFloat = windowSpacing
+    for screen in NSScreen.screens {
+      if screen.visibleFrame.mainDisplayFlipped == screenFrame {
+        break
+      }
+      xOffset = screen.frame.maxX
+    }
+
+    let leftThreshold = rect.origin.x - xOffset
+    let isLeft = leftThreshold <= halfWidth
     let isRight = rect.maxX == screenFrame.maxX
     let isTop = rect.minY == screenFrame.minY
     let isBottom = rect.maxY == screenFrame.maxY
@@ -334,7 +343,7 @@ final class SystemWindowTilingRunner {
     }
 
     // Check for half-screen positions
-    if widthTreshold <= halfWidth && heightDelta <= halfHeight / 2 {
+    if widthTreshold <= halfWidth && leftThreshold <= halfWidth {
       if isLeft {
         return .left
       } else if isRight {
