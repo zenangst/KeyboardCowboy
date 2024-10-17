@@ -90,7 +90,7 @@ final class SystemWindowTilingRunner {
       updateSubjects = []
     case .center:
       activatedTiling = tiling
-      updateSubjects = []
+      updateSubjects = [nextWindow]
     case .fill:
       activatedTiling = tiling
       updateSubjects = []
@@ -308,21 +308,18 @@ final class SystemWindowTilingRunner {
   static func calculateTiling(for rect: CGRect, ownerName: String? = nil, in screenFrame: CGRect) -> WindowTiling {
     let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
     let screenInsetFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
-    let halfWidth = screenInsetFrame.width / 2
-    let halfHeight = screenInsetFrame.height / 2
+    let halfWidth = screenInsetFrame.width / 2 + screenFrame.origin.x
+    let halfHeight = screenInsetFrame.height / 2 + screenFrame.origin.y
     let centerX = rect.midX
     let centerY = rect.midY
     let width = rect.width
     let height = rect.height
-    let widthTreshold: CGFloat = abs(width - halfWidth)
-    let heightTreshold: CGFloat = abs(height - halfHeight)
-
-    let widthDelta = screenInsetFrame.width - width
-    let heightDelta = screenInsetFrame.height - height
-
+    let widthDelta = abs(screenInsetFrame.width - width)
+    let heightDelta = abs(screenInsetFrame.height - height)
     let isTopLeft = centerX < halfWidth && centerY < halfHeight
     let isTopRight = centerX >= halfWidth && centerY < halfHeight
     let isBottomLeft = centerX < halfWidth && centerY >= halfHeight
+    let isBottomRight = centerX >= halfWidth && centerY >= halfHeight
 
     var xOffset: CGFloat = windowSpacing
     for screen in NSScreen.screens {
@@ -333,45 +330,34 @@ final class SystemWindowTilingRunner {
     }
 
     let leftThreshold = rect.origin.x - xOffset
-    let isLeft = leftThreshold <= halfWidth
-    let isRight = rect.maxX == screenFrame.maxX
-    let isTop = rect.minY == screenFrame.minY
-    let isBottom = rect.maxY == screenFrame.maxY
+
+    let isLeft = leftThreshold <= halfWidth && rect.height >= halfHeight
+    let isRight = rect.maxX == screenFrame.maxX && rect.height >= halfHeight
+    let isTop = rect.minY == screenFrame.minY && rect.width >= halfWidth
+    let isBottom = rect.maxY == screenFrame.maxY && rect.width >= halfWidth
 
     if widthDelta == 0 && heightDelta == 0 {
       return .fill
     }
 
-    // Check for half-screen positions
-    if widthTreshold <= halfWidth && leftThreshold <= halfWidth {
-      if isLeft {
-        return .left
-      } else if isRight {
-        return .right
-      }
-    } else if heightTreshold <= halfHeight && width >= screenFrame.width - windowSpacing * 2 {
-      if isTop {
-        return .top
-      } else if isBottom {
-        return .bottom
-      }
-    }
-
-    // Located in the center
-    let delta = abs(centerX - screenFrame.midX)
-    if delta <= max(windowSpacing,1) {
+    if isLeft {
       return .left
-    }
-
-    // Determine quarter
-    if isTopLeft {
+    } else if isRight {
+      return .right
+    } else if isTop {
+      return .top
+    } else if isBottom {
+      return .bottom
+    } else if isTopLeft {
       return .topLeft
     } else if isTopRight {
       return .topRight
+    } else if isBottomRight {
+      return .bottomRight
     } else if isBottomLeft {
       return .bottomLeft
     } else {
-      return .bottomRight
+      return .fill
     }
   }
 }

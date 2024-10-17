@@ -32,34 +32,27 @@ final class SystemWindowRelativeFocus {
       consumedWindows.removeAll()
     }
 
-    var windows = indexWindowsInStage(getWindows())
-
+    let windows = indexWindowsInStage(getWindows())
     let frontMostApplication = snapshot.frontMostApplication
     let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
     var activeWindow: RelativeWindowModel?
 
     let focusedWindow = try? frontMostAppElement.focusedWindow()
-    for (offset, window) in windows.enumerated() {
+    for window in windows {
       guard let focusedWindow else {
         activeWindow = window
-        windows.remove(at: offset)
         break
       }
 
       if window.id == focusedWindow.id {
         activeWindow = window
-        consumedWindows.insert(window)
-        windows.remove(at: offset)
         break
       }
     }
 
     if activeWindow == nil, !windows.isEmpty {
       activeWindow = windows.first
-      windows.removeFirst()
     }
-
-    windows.removeAll(where: { consumedWindows.contains($0) })
 
     var matchedWindow: RelativeWindowModel?
     if let activeWindow {
@@ -76,17 +69,26 @@ final class SystemWindowRelativeFocus {
     let appElement = AppAccessibilityElement(processIdentifier)
     let match = try appElement.windows().first(where: { $0.id == matchedWindow.id })
 
-    let activationResult = runningApplication.activate()
-    if !activationResult, let bundleURL = runningApplication.bundleURL {
-      NSWorkspace.shared.open(bundleURL)
-    }
-
     if let match, let frame = match.frame {
       FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
       match.performAction(.raise)
-      if Self.mouseFollow {
+
+      let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
         let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
-        NSCursor.moveCursor(to: targetPoint)
+
+      if NSScreen.screens.count > 1 {
+        let clickPoint = CGPoint(x: frame.midX, y: frame.minY)
+        let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: clickPoint, mouseButton: .left)
+        let mouseUp = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: clickPoint, mouseButton: .left)
+
+        mouseDown?.post(tap: .cghidEventTap)
+        mouseUp?.post(tap: .cghidEventTap)
+
+        for _ in 0..<4 {
+          NSCursor.moveCursor(to: Self.mouseFollow ? targetPoint : originalPoint)
+        }
+      } else {
+        NSCursor.moveCursor(to: Self.mouseFollow ? targetPoint : originalPoint)
       }
     }
   }

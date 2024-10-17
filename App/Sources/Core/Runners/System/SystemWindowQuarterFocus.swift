@@ -99,9 +99,7 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
       consumedWindows.removeAll()
     }
 
-    guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) else {
-      return
-    }
+    guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) ?? activeWindow else { return }
 
     FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
 

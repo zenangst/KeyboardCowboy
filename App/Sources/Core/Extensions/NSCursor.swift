@@ -11,10 +11,9 @@ extension NSCursor {
 
   nonisolated(unsafe) private static var currentWorkItem: DispatchWorkItem?
 
-  static func moveCursor(to point: CGPoint, duration: TimeInterval = 0, interpolation: Interpolation = .easeInOut) {
+  static func moveCursor(from startPoint: CGPoint = NSEvent.mouseLocation.mainDisplayFlipped, to point: CGPoint, duration: TimeInterval = 0, interpolation: Interpolation = .easeInOut) {
     currentWorkItem?.cancel() // Cancel any ongoing animation
     if duration > 0 {
-      let startPoint = NSEvent.mouseLocation
       animateMouseCursor(to: point, startPoint: startPoint, duration: duration, interpolation: interpolation)
     } else {
       CGWarpMouseCursorPosition(point)
@@ -50,12 +49,8 @@ extension NSCursor {
         DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(step)) {
           if currentWorkItem?.isCancelled == false {
             let point = CGPoint(x: newX, y: newY)
-//            CGWarpMouseCursorPosition(point)
-
-//            if targetPoint == point {
               let mouseEvent = CGEvent(mouseEventSource: nil, mouseType: .mouseMoved, mouseCursorPosition: point, mouseButton: .center)
               mouseEvent?.post(tap: .cghidEventTap)
-//            }
           }
         }
       }

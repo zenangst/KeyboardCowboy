@@ -96,7 +96,7 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
     }
 
     FocusBorder.shared.dismiss()
-    guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) else {
+    guard let matchedWindow = validQuarterWindows.first(where: quarterFilter) ?? activeWindow else {
       return
     }
     FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)

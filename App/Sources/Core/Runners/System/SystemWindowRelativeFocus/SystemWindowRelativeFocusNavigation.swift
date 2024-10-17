@@ -14,35 +14,80 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
   fileprivate func rerouteDirectionIfNeeded(_ direction: inout SystemWindowRelativeFocus.Direction, frame: CGRect,
                                             tiling: WindowTiling?, maxX: CGFloat, minY: CGFloat, maxY: CGFloat) {
-    let minX = currentScreen(frame).first?.visibleFrame.mainDisplayFlipped.origin.x ?? 0
-
-    if direction == .left && frame.origin.x < minX {
-      if tiling == .topRight || tiling == .right {
-        direction = .down
-      } else if tiling == .bottomRight {
-        direction = .up
+    switch tiling {
+    case .left:
+      switch direction {
+      case .up, .down:    direction = .right
+      case .right: direction = .down
+      case .left: break
       }
-    } else if direction == .right && frame.maxX > maxX {
-      if tiling == .topLeft || tiling == .left {
-        direction = .down
-      } else if tiling == .bottomLeft {
-        direction = .up
+    case .right:
+      switch direction {
+      case .up, .down:    direction = .left
+      case .left: direction = .down
+      case .right: break
       }
-    } else if direction == .up && frame.minY < minY {
-      if tiling == .bottom || tiling == .bottomRight {
-        direction = .left
-      } else if tiling == .bottomLeft {
-        direction = .right
+    case .top:
+      break
+    case .bottom:
+      break
+    case .topLeft:
+      switch direction {
+      case .down:  direction = .right
+      case .right: direction = .down
+      case .up, .left: break
       }
-    } else if direction == .down && frame.maxY > maxY {
-      guard frame.minY < minY else { return }
-
-      if tiling == .topLeft || tiling == .left {
-        direction = .right
-      } else {
-        direction = .left
+    case .topRight:
+      switch direction {
+      case .down: direction = .left
+      case .left: direction = .down
+      case .up, .right: break
       }
+    case .bottomLeft:
+      switch direction {
+      case .up:    direction = .right
+      case .right: direction = .up
+      case .down, .left: break
+      }
+    case .bottomRight:
+      switch direction {
+      case .up:    direction = .left
+      case .left:  direction = .up
+      case .right, .down:
+        break
+      }
+    default:
+      break
     }
+
+//    if direction == .left && frame.origin.x < minX {
+//      if tiling == .topRight || tiling == .right {
+//        direction = .down
+//      } else if tiling == .bottomRight {
+//        direction = .up
+//      }
+//    } else if direction == .right && frame.maxX > maxX {
+//      if tiling == .topLeft || tiling == .left {
+//        direction = .down
+//      } else if tiling == .bottomLeft {
+//        direction = .up
+//      }
+//    } else if direction == .up && frame.minY < minY {
+
+//      if tiling == .topLeft {
+//        direction = .right
+//      } else if tiling == .bottom || tiling == .bottomRight {
+//        direction = .left
+//      } else if tiling == .bottomLeft {
+//        direction = .right
+//      }
+//    } else if direction == .down && frame.maxY > maxY {
+////      if tiling == .topLeft || tiling == .left {
+////        direction = .right
+////      } else {
+////        direction = .left
+////      }
+//    }
   }
 
   func findNextWindow(_ currentWindow: RelativeWindowModel, windows: [RelativeWindowModel],
@@ -50,14 +95,12 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
                       initialScreen: NSScreen = NSScreen.main!) async -> RelativeWindowModel? {
     let initialDirection = direction
     let windowSpacing = max(min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20), 1)
-    var systemWindows = windows.systemWindows
+    let systemWindows = windows.systemWindows
       .sorted { $0.index < $1.index }
-
+    
     if systemWindows.isEmpty { return nil }
 
-    systemWindows.insert(RelativeSystemWindowModel(index: -1, window: currentWindow), at: 0)
-
-    var occupiedRects = [CGRect]()
+    var occupiedRects: [CGRect] = [currentWindow.rect]
     var visibleWindows = [RelativeSystemWindowModel]()
 
     for systemWindow in systemWindows {
@@ -65,12 +108,18 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       let percentage = CGSize(width: 1 - intersection.width / systemWindow.window.rect.width,
                               height: 1 - intersection.height / systemWindow.window.rect.height)
 
-      guard percentage != .zero else { continue }
+      guard percentage != .zero else {
+        continue
+      }
 
       if occupiedRects.first(where: {
         abs($0.origin.x - systemWindow.window.rect.origin.x) <= windowSpacing &&
         abs($0.origin.y - systemWindow.window.rect.origin.y) <= windowSpacing
       }) == nil {
+        if occupiedRects.contains(systemWindow.window.rect) {
+          continue
+        }
+
         occupiedRects.append(systemWindow.window.rect)
         visibleWindows.append(systemWindow)
       }
@@ -80,8 +129,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     let height = currentWindow.rect.size.width / 3
 
     let y = switch direction {
-    case .up:    currentWindow.rect.midY
-    case .down:  currentWindow.rect.midY
+    case .up:    currentWindow.rect.minY // .midY: Verify that doesn't break multi-monitor navigation
+    case .down:  currentWindow.rect.minY // .midY: Verify that doesn't break multi-monitor navigation
     case .left:  currentWindow.rect.minY
     case .right: currentWindow.rect.minY
     }
@@ -114,8 +163,6 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     }
 
     while searching {
-      rerouteDirectionIfNeeded(&direction, frame: fieldOfViewRect, tiling: tiling, maxX: maxX, minY: minY, maxY: maxY)
-
       let increment: CGFloat = 1
       switch direction {
       case .left:
@@ -149,6 +196,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
           break
         }
       }
+
+      rerouteDirectionIfNeeded(&direction, frame: fieldOfViewRect, tiling: tiling, maxX: maxX, minY: minY, maxY: maxY)
     }
 
     updateDebugWindow(fieldOfViewRect)
@@ -172,19 +221,20 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
 
       let applicableScreens = NSScreen.screens.filter( { $0.frame.intersects(fieldOfViewRect) })
-
-      if let applicableScreen = applicableScreens.first {
-        let searchAreaRect = CGRect(
-          origin: CGPoint(x: applicableScreen.visibleFrame.width / 2,
-                          y: applicableScreen.visibleFrame.height / 2),
-          size: CGSize(width: applicableScreen.visibleFrame.mainDisplayFlipped.midX - fieldOfViewRect.width / 2,
-                       height: applicableScreen.visibleFrame.mainDisplayFlipped.midY - fieldOfViewRect.height / 2)
-        )
-
+      if applicableScreens.first != nil {
         updateDebugWindow(fieldOfViewRect)
 
-        let match = windows.first(where: { $0.rect.intersects(fieldOfViewRect) })
-        return match
+        if let match = windows.first(where: { $0.rect.intersects(fieldOfViewRect) }) {
+          switch initialDirection {
+          case .up, .down:
+            if currentWindow.rect.origin.y == match.rect.origin.y { return nil }
+          case .left, .right:
+            if currentWindow.rect.origin.x == match.rect.origin.x { return nil }
+          }
+          return match
+        } else {
+          return nil
+        }
       }
       return nil
     }
@@ -200,7 +250,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
   }
 
   private func currentScreen(_ rect: CGRect) -> [NSScreen] {
-    NSScreen.screens.filter( { $0.visibleFrame.intersects(rect) })
+    NSScreen.screens.filter( { $0.visibleFrame.mainDisplayFlipped.intersects(rect) })
   }
 
   private func targetRect(on screen: NSScreen) -> CGRect {
