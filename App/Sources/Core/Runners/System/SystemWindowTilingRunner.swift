@@ -306,7 +306,7 @@ final class SystemWindowTilingRunner {
   }
 
   static func calculateTiling(for rect: CGRect, ownerName: String? = nil, in screenFrame: CGRect) -> WindowTiling {
-    let windowSpacing = min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20)
+    let windowSpacing = max(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
     let screenInsetFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
     let halfWidth = screenInsetFrame.width / 2 + screenFrame.origin.x
     let halfHeight = screenInsetFrame.height / 2 + screenFrame.origin.y
@@ -332,9 +332,9 @@ final class SystemWindowTilingRunner {
     let leftThreshold = rect.origin.x - xOffset
 
     let isLeft = leftThreshold <= halfWidth && rect.height >= halfHeight
-    let isRight = rect.maxX == screenFrame.maxX && rect.height >= halfHeight
+    let isRight = rect.maxX == screenFrame.maxX - windowSpacing && rect.height >= halfHeight
     let isTop = rect.minY == screenFrame.minY && rect.width >= halfWidth
-    let isBottom = rect.maxY == screenFrame.maxY && rect.width >= halfWidth
+    let isBottom = rect.maxY == screenFrame.maxY - windowSpacing && rect.width >= halfWidth
 
     if widthDelta == 0 && heightDelta == 0 {
       return .fill

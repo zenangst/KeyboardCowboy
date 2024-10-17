@@ -11,6 +11,8 @@ final class SystemWindowRelativeFocus {
     case up, down, left, right
   }
 
+  private static let debug: Bool = false
+
   let navigation = SystemWindowRelativeFocusNavigation()
   @MainActor
   var consumedWindows = Set<RelativeWindowModel>()
@@ -59,34 +61,53 @@ final class SystemWindowRelativeFocus {
       matchedWindow = await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) ?? activeWindow
     }
 
-    guard let matchedWindow else { return }
+    guard let nextWindow = matchedWindow else { return }
 
-    consumedWindows.insert(matchedWindow)
+    consumedWindows.insert(nextWindow)
 
-    let processIdentifier = pid_t(matchedWindow.ownerPid)
+    let processIdentifier = pid_t(nextWindow.ownerPid)
     let appElement = AppAccessibilityElement(processIdentifier)
-    let match = try appElement.windows().first(where: { $0.id == matchedWindow.id })
+    let match = try appElement.windows().first(where: { $0.id == nextWindow.id })
 
-    if let match, let frame = match.frame {
-      FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
+    if let match, let frame = match.frame, let previousWindow = activeWindow, nextWindow != previousWindow {
+      FocusBorder.shared.show(nextWindow.rect.mainDisplayFlipped)
       NSRunningApplication(processIdentifier: processIdentifier)?.activate()
       match.performAction(.raise)
 
       let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
       let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
-      let screen = NSScreen.screens.first(where: { $0.visibleFrame.contains(targetPoint) }) ?? NSScreen.screens[0]
-      let tiling = SystemWindowTilingRunner.calculateTiling(for: matchedWindow.rect, in: screen.visibleFrame.mainDisplayFlipped)
+      let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect) }) ?? NSScreen.screens[0]
+      let nextScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(targetPoint) }) ?? NSScreen.screens[0]
+      let previousTiling = SystemWindowTilingRunner.calculateTiling(for: previousWindow.rect, in: previousScreen.visibleFrame.mainDisplayFlipped)
+      let nextTiling = SystemWindowTilingRunner.calculateTiling(for: nextWindow.rect, in: nextScreen.visibleFrame.mainDisplayFlipped)
       let clickPoint: CGPoint
 
-      switch (direction, tiling) {
-      case (.left, .left), (.left, .topLeft), (.up, .topLeft), (.left, .fill):
-        clickPoint = CGPoint(x: frame.minX, y: frame.minY)
-      case (.right, .right), (.right, .topRight), (.up, .topRight), (.right, .fill):
-        clickPoint = CGPoint(x: frame.maxX, y: frame.minY)
-      case (.down, .bottomLeft):
+      if Self.debug {
+        print("from", previousWindow.ownerName, "to", nextWindow.ownerName, direction, previousTiling, nextTiling)
+        print("> (.\(direction), .\(previousTiling), .\(nextTiling)):")
+      }
+
+      switch(direction, previousTiling, nextTiling) {
+      case (.down, .topLeft, .left),
+           (.down, .left, .bottomLeft),
+           (.down, .bottomLeft, .left),
+           (.down, .topLeft, .bottomLeft):
         clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
-      case (.down, .bottomRight):
+      case (.down, .topRight, .right),
+           (.down, .right, .bottomRight),
+           (.down, .right, .right),
+           (.down, .bottomRight, .right),
+           (.down, .topRight, .bottomRight),
+           (.down, .left, .bottomRight),
+           (.right, .left, .bottom):
         clickPoint = CGPoint(x: frame.maxX, y: frame.maxY)
+      case (.left, .right, .topRight),
+           (.down, .right, .bottom):
+        clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
+      case (.down, .left, .bottom),
+           (.left, .bottomRight, .left),
+           (.down, .left, .left):
+        clickPoint = CGPoint(x: frame.minX, y: frame.minX)
       default:
         clickPoint = CGPoint(x: frame.midX, y: frame.minY)
       }

@@ -75,7 +75,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
                       direction: SystemWindowRelativeFocus.Direction,
                       initialScreen: NSScreen = NSScreen.main!) async -> RelativeWindowModel? {
     let initialDirection = direction
-    let windowSpacing = max(min(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 20), 1)
+    let windowSpacing = max(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
     let systemWindows = windows.systemWindows
       .sorted { $0.index < $1.index }
     
@@ -106,8 +106,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
     }
 
-    let width = max(windowSpacing, 20)
-    let height = max(windowSpacing, 20)
+    let width = max(min(1, windowSpacing), 20)
+    let height = max(min(1, windowSpacing), 20)
 
     let y = switch direction {
     case .up:    currentWindow.rect.minY // .midY: Verify that doesn't break multi-monitor navigation
@@ -144,7 +144,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     }
 
     while searching {
-      let increment: CGFloat = 1
+      let increment: CGFloat = 10
       switch direction {
       case .left:
         fieldOfViewRect.origin.x -= increment
