@@ -13,19 +13,30 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
   nonisolated(unsafe) static var debug: Bool = false
 
   fileprivate func rerouteDirectionIfNeeded(_ direction: inout SystemWindowRelativeFocus.Direction, frame: CGRect,
-                                            tiling: WindowTiling?, maxX: CGFloat, minY: CGFloat, maxY: CGFloat) {
+                                            tiling: WindowTiling?, screen: NSScreen) {
+    switch direction {
+    case .up:
+      if frame.minY >= screen.visibleFrame.minY { return }
+    case .down:
+      if frame.origin.y <= screen.visibleFrame.maxY { return }
+    case .left:
+      if frame.minX >= screen.visibleFrame.minX { return }
+    case .right:
+      if frame.maxX >= screen.visibleFrame.maxX { return }
+    }
+
     switch tiling {
     case .left:
       switch direction {
-      case .up, .down:    direction = .right
-      case .right: direction = .down
-      case .left: break
+      case .up, .down: direction = .right
+      case .right:     direction = .down
+      case .left:      break
       }
     case .right:
       switch direction {
-      case .up, .down:    direction = .left
-      case .left: direction = .down
-      case .right: break
+      case .up, .down: direction = .left
+      case .left:      direction = .down
+      case .right:     break
       }
     case .top:
       break
@@ -33,28 +44,27 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       break
     case .topLeft:
       switch direction {
-      case .down:  direction = .right
-      case .right: direction = .down
+      case .down:      direction = .right
+      case .right:     direction = .down
       case .up, .left: break
       }
     case .topRight:
       switch direction {
-      case .down: direction = .left
-      case .left: direction = .down
+      case .down:       direction = .left
+      case .left:       direction = .down
       case .up, .right: break
       }
     case .bottomLeft:
       switch direction {
-      case .up:    direction = .right
-      case .right: direction = .up
+      case .up:          direction = .right
+      case .right:       direction = .up
       case .down, .left: break
       }
     case .bottomRight:
       switch direction {
-      case .up:    direction = .left
-      case .left:  direction = .up
-      case .right, .down:
-        break
+      case .up:           direction = .left
+      case .left:         direction = .up
+      case .right, .down: break
       }
     default:
       break
@@ -96,8 +106,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
     }
 
-    let width = currentWindow.rect.size.width / 3
-    let height = currentWindow.rect.size.width / 3
+    let width = max(windowSpacing, 20)
+    let height = max(windowSpacing, 20)
 
     let y = switch direction {
     case .up:    currentWindow.rect.minY // .midY: Verify that doesn't break multi-monitor navigation
@@ -168,7 +178,11 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         }
       }
 
-      rerouteDirectionIfNeeded(&direction, frame: fieldOfViewRect, tiling: tiling, maxX: maxX, minY: minY, maxY: maxY)
+      if let screen = currentScreen(fieldOfViewRect).first {
+        rerouteDirectionIfNeeded(&direction, frame: fieldOfViewRect, tiling: tiling, screen: screen)
+      } else {
+        searching = false
+      }
     }
 
     updateDebugWindow(fieldOfViewRect)

@@ -73,20 +73,31 @@ final class SystemWindowRelativeFocus {
       match.performAction(.raise)
 
       let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
-        let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
+      let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
+      let screen = NSScreen.screens.first(where: { $0.visibleFrame.contains(targetPoint) }) ?? NSScreen.screens[0]
+      let tiling = SystemWindowTilingRunner.calculateTiling(for: matchedWindow.rect, in: screen.visibleFrame.mainDisplayFlipped)
+      let clickPoint: CGPoint
 
-      if NSScreen.screens.count > 1 {
-        let clickPoint = CGPoint(x: frame.midX, y: frame.minY)
-        let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: clickPoint, mouseButton: .left)
-        let mouseUp = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: clickPoint, mouseButton: .left)
+      switch (direction, tiling) {
+      case (.left, .left), (.left, .topLeft), (.up, .topLeft), (.left, .fill):
+        clickPoint = CGPoint(x: frame.minX, y: frame.minY)
+      case (.right, .right), (.right, .topRight), (.up, .topRight), (.right, .fill):
+        clickPoint = CGPoint(x: frame.maxX, y: frame.minY)
+      case (.down, .bottomLeft):
+        clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
+      case (.down, .bottomRight):
+        clickPoint = CGPoint(x: frame.maxX, y: frame.maxY)
+      default:
+        clickPoint = CGPoint(x: frame.midX, y: frame.minY)
+      }
 
-        mouseDown?.post(tap: .cghidEventTap)
-        mouseUp?.post(tap: .cghidEventTap)
+      let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: clickPoint, mouseButton: .left)
+      let mouseUp = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: clickPoint, mouseButton: .left)
 
-        for _ in 0..<4 {
-          NSCursor.moveCursor(to: Self.mouseFollow ? targetPoint : originalPoint)
-        }
-      } else {
+      mouseDown?.post(tap: .cghidEventTap)
+      mouseUp?.post(tap: .cghidEventTap)
+
+      for _ in 0..<4 {
         NSCursor.moveCursor(to: Self.mouseFollow ? targetPoint : originalPoint)
       }
     }
