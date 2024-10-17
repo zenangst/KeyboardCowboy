@@ -7,7 +7,7 @@ import Windows
 final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
   @MainActor lazy var window: NSWindow = ZenWindow(
     animationBehavior: .none,
-    content: RoundedRectangle(cornerRadius: 8).stroke(Color.accentColor, lineWidth: 4))
+    content: RoundedRectangle(cornerRadius: 8).stroke(Color.red, lineWidth: 4))
   @MainActor lazy var windowController: NSWindowController = NSWindowController(window: window)
 
   nonisolated(unsafe) static var debug: Bool = false
@@ -59,35 +59,6 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     default:
       break
     }
-
-//    if direction == .left && frame.origin.x < minX {
-//      if tiling == .topRight || tiling == .right {
-//        direction = .down
-//      } else if tiling == .bottomRight {
-//        direction = .up
-//      }
-//    } else if direction == .right && frame.maxX > maxX {
-//      if tiling == .topLeft || tiling == .left {
-//        direction = .down
-//      } else if tiling == .bottomLeft {
-//        direction = .up
-//      }
-//    } else if direction == .up && frame.minY < minY {
-
-//      if tiling == .topLeft {
-//        direction = .right
-//      } else if tiling == .bottom || tiling == .bottomRight {
-//        direction = .left
-//      } else if tiling == .bottomLeft {
-//        direction = .right
-//      }
-//    } else if direction == .down && frame.maxY > maxY {
-////      if tiling == .topLeft || tiling == .left {
-////        direction = .right
-////      } else {
-////        direction = .left
-////      }
-//    }
   }
 
   func findNextWindow(_ currentWindow: RelativeWindowModel, windows: [RelativeWindowModel],
@@ -221,7 +192,11 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
 
       let applicableScreens = NSScreen.screens.filter( { $0.frame.intersects(fieldOfViewRect) })
-      if applicableScreens.first != nil {
+      if let nextScreen = applicableScreens.first {
+
+        fieldOfViewRect.origin.x = nextScreen.frame.midX - fieldOfViewRect.size.width / 2
+        fieldOfViewRect.origin.y = nextScreen.frame.mainDisplayFlipped.midY - fieldOfViewRect.size.height / 2
+
         updateDebugWindow(fieldOfViewRect)
 
         if let match = windows.first(where: { $0.rect.intersects(fieldOfViewRect) }) {

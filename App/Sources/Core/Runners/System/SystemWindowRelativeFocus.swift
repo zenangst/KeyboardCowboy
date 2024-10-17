@@ -64,13 +64,12 @@ final class SystemWindowRelativeFocus {
     consumedWindows.insert(matchedWindow)
 
     let processIdentifier = pid_t(matchedWindow.ownerPid)
-    guard let runningApplication = NSRunningApplication(processIdentifier: processIdentifier) else { return }
-
     let appElement = AppAccessibilityElement(processIdentifier)
     let match = try appElement.windows().first(where: { $0.id == matchedWindow.id })
 
     if let match, let frame = match.frame {
       FocusBorder.shared.show(matchedWindow.rect.mainDisplayFlipped)
+      NSRunningApplication(processIdentifier: processIdentifier)?.activate()
       match.performAction(.raise)
 
       let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
