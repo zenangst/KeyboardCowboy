@@ -2,6 +2,7 @@ import Foundation
 
 final class WaitUntilApplicationIsRunningPlugin {
   static let debug: Bool = false
+
   let workspace: WorkspaceProviding
 
   init(workspace: WorkspaceProviding) {

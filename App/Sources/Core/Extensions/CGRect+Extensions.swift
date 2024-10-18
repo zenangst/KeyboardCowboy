@@ -7,4 +7,9 @@ extension CGRect {
       size: size
     )
   }
+
+  func delta(_ rhs: CGRect) -> CGRect {
+    CGRect(origin: origin.delta(rhs.mainDisplayFlipped.origin),
+           size: size.delta(rhs.size))
+  }
 }

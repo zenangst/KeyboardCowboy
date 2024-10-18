@@ -5,12 +5,13 @@ import SwiftUI
 import Windows
 
 final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
+  static let debug: Bool = false
+
   @MainActor lazy var window: NSWindow = ZenWindow(
     animationBehavior: .none,
     content: RoundedRectangle(cornerRadius: 8).stroke(Color.red, lineWidth: 4))
   @MainActor lazy var windowController: NSWindowController = NSWindowController(window: window)
 
-  nonisolated(unsafe) static var debug: Bool = false
 
   fileprivate func rerouteDirectionIfNeeded(_ direction: inout SystemWindowRelativeFocus.Direction, frame: CGRect,
                                             tiling: WindowTiling?, screen: NSScreen) {
@@ -22,7 +23,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     case .left:
       if frame.minX >= screen.visibleFrame.minX { return }
     case .right:
-      if frame.maxX >= screen.visibleFrame.maxX { return }
+      if frame.maxX <= screen.visibleFrame.maxX { return }
     }
 
     switch tiling {
@@ -141,7 +142,21 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     var tiling: WindowTiling?
     if let screen = currentScreen(fieldOfViewRect).first {
       tiling = SystemWindowTilingRunner.calculateTiling(for: currentWindow.rect, in: screen.visibleFrame.mainDisplayFlipped)
+
+      switch tiling {
+      case .topLeft:
+        fieldOfViewRect.origin.x = currentWindow.rect.minX + windowSpacing
+      case .topRight:
+        fieldOfViewRect.origin.x = currentWindow.rect.maxX - windowSpacing - fieldOfViewRect.width
+      default:
+        break
+      }
+      if Self.debug {
+        print("✅", tiling, "\(fieldOfViewRect.origin.x)x\(fieldOfViewRect.origin.y)")
+      }
     }
+
+    updateDebugWindow(fieldOfViewRect)
 
     while searching {
       let increment: CGFloat = 10
@@ -178,14 +193,14 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         }
       }
 
+      updateDebugWindow(fieldOfViewRect)
+
       if let screen = currentScreen(fieldOfViewRect).first {
         rerouteDirectionIfNeeded(&direction, frame: fieldOfViewRect, tiling: tiling, screen: screen)
       } else {
         searching = false
       }
     }
-
-    updateDebugWindow(fieldOfViewRect)
 
     if let match {
       return match.window

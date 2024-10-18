@@ -5,13 +5,13 @@ import Foundation
 import Windows
 
 final class SystemWindowRelativeFocus {
+  private static let debug: Bool = false
+
   nonisolated(unsafe) static var mouseFollow: Bool = true
 
   enum Direction {
     case up, down, left, right
   }
-
-  private static let debug: Bool = false
 
   let navigation = SystemWindowRelativeFocusNavigation()
   @MainActor
@@ -69,7 +69,10 @@ final class SystemWindowRelativeFocus {
     let appElement = AppAccessibilityElement(processIdentifier)
     let match = try appElement.windows().first(where: { $0.id == nextWindow.id })
 
-    if let match, let frame = match.frame, let previousWindow = activeWindow, nextWindow != previousWindow {
+    if let match,
+       let frame = match.frame,
+       let previousWindow = activeWindow,
+       nextWindow.id != previousWindow.id {
       FocusBorder.shared.show(nextWindow.rect.mainDisplayFlipped)
       NSRunningApplication(processIdentifier: processIdentifier)?.activate()
       match.performAction(.raise)
@@ -78,13 +81,17 @@ final class SystemWindowRelativeFocus {
       let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
       let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect) }) ?? NSScreen.screens[0]
       let nextScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(targetPoint) }) ?? NSScreen.screens[0]
-      let previousTiling = SystemWindowTilingRunner.calculateTiling(for: previousWindow.rect, in: previousScreen.visibleFrame.mainDisplayFlipped)
-      let nextTiling = SystemWindowTilingRunner.calculateTiling(for: nextWindow.rect, in: nextScreen.visibleFrame.mainDisplayFlipped)
+      let previousTiling = SystemWindowTilingRunner.calculateTiling(for: previousWindow.rect, ownerName: previousWindow.ownerName, in: previousScreen.visibleFrame.mainDisplayFlipped)
+      let nextTiling = SystemWindowTilingRunner.calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: nextScreen.visibleFrame.mainDisplayFlipped)
+
+      if nextTiling == .fill {
+        if previousScreen != nextScreen  { return }
+      }
+
       let clickPoint: CGPoint
 
       if Self.debug {
-        print("from", previousWindow.ownerName, "to", nextWindow.ownerName, direction, previousTiling, nextTiling)
-        print("> (.\(direction), .\(previousTiling), .\(nextTiling)):")
+        print("🔀", direction, "from", previousWindow.ownerName, "(\(previousTiling)) to", nextWindow.ownerName, "(\(nextTiling))")
       }
 
       switch(direction, previousTiling, nextTiling) {
@@ -94,12 +101,15 @@ final class SystemWindowRelativeFocus {
            (.down, .topLeft, .bottomLeft):
         clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
       case (.down, .topRight, .right),
+           (.down, .topLeft, .bottomRight),
            (.down, .right, .bottomRight),
            (.down, .right, .right),
            (.down, .bottomRight, .right),
            (.down, .topRight, .bottomRight),
            (.down, .left, .bottomRight),
-           (.right, .left, .bottom):
+           (.right, .left, .bottom),
+           (.right, .left, .right),
+           (.right, .bottomLeft, .right):
         clickPoint = CGPoint(x: frame.maxX, y: frame.maxY)
       case (.left, .right, .topRight),
            (.down, .right, .bottom):
@@ -108,8 +118,16 @@ final class SystemWindowRelativeFocus {
            (.left, .bottomRight, .left),
            (.down, .left, .left):
         clickPoint = CGPoint(x: frame.minX, y: frame.minX)
+      case (.right, .bottomLeft, .center):
+        clickPoint = CGPoint(x: frame.midX + 1.5, y: frame.midY + 1.5)
+      case (.left, .right, .center), (.left, .bottomRight, .center):
+        clickPoint = CGPoint(x: frame.midX - 1.5, y: frame.midY - 1.5)
       default:
         clickPoint = CGPoint(x: frame.midX, y: frame.minY)
+      }
+
+      if Self.debug {
+        print("🐭", clickPoint)
       }
 
       let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: clickPoint, mouseButton: .left)
