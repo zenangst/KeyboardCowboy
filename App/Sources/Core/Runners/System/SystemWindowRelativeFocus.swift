@@ -130,6 +130,15 @@ final class SystemWindowRelativeFocus {
         print("🐭", clickPoint)
       }
 
+      // Verify that the window that we are trying to mouse click
+      // is actually the match that we got from `navigation.findNextWindow`
+      let systemElement = SystemAccessibilityElement()
+      let windowId = systemElement.element(at: clickPoint, as: AnyAccessibilityElement.self)?.window?.id
+      guard match.id == windowId else {
+        NSCursor.moveCursor(to: targetPoint)
+        return
+      }
+
       let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: clickPoint, mouseButton: .left)
       let mouseUp = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: clickPoint, mouseButton: .left)
 
