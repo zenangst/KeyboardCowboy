@@ -228,7 +228,9 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
         updateDebugWindow(fieldOfViewRect)
 
-        if let match = windows.first(where: { $0.rect.intersects(fieldOfViewRect) }) {
+        if let match = windows
+          .filter({ $0 != currentWindow })
+          .first(where: { $0.rect.intersects(fieldOfViewRect) }) {
           switch initialDirection {
           case .up, .down:
             if currentWindow.rect.origin.y == match.rect.origin.y { return nil }
