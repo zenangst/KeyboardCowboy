@@ -58,7 +58,7 @@ final class SystemWindowRelativeFocus {
 
     var matchedWindow: RelativeWindowModel?
     if let activeWindow {
-      matchedWindow = await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) ?? activeWindow
+      matchedWindow = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) ?? activeWindow
     }
 
     guard let nextWindow = matchedWindow else { return }

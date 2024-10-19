@@ -74,7 +74,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
   func findNextWindow(_ currentWindow: RelativeWindowModel, windows: [RelativeWindowModel],
                       direction: SystemWindowRelativeFocus.Direction,
-                      initialScreen: NSScreen = NSScreen.main!) async -> RelativeWindowModel? {
+                      initialScreen: NSScreen = NSScreen.main!) async throws -> RelativeWindowModel? {
     let initialDirection = direction
     let windowSpacing = max(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
     let systemWindows = windows.systemWindows
@@ -121,7 +121,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     case .up:    currentWindow.rect.midX + width / 2
     case .down:  currentWindow.rect.midX - width / 2
     case .left:  currentWindow.rect.minX - width / 2
-    case .right: currentWindow.rect.maxX + width / 2
+    case .right: currentWindow.rect.midX
     }
 
     var direction = initialDirection
@@ -159,6 +159,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     updateDebugWindow(fieldOfViewRect)
 
     while searching {
+      try Task.checkCancellation()
+
       let increment: CGFloat = 10
       switch direction {
       case .left:
@@ -170,7 +172,9 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         if fieldOfViewRect.minX > maxX {
           searching = false
         }
-        constraint = { abs($0.rect.origin.x - currentWindow.rect.origin.x) > windowSpacing }
+        constraint = {
+          abs($0.rect.origin.x - currentWindow.rect.midX) > windowSpacing
+        }
       case .up:
         fieldOfViewRect.origin.y -= increment
         if fieldOfViewRect.maxY < minY { searching = false }
@@ -207,30 +211,49 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     } else {
       fieldOfViewRect.size = .init(width: initialScreen.visibleFrame.width / 2.5,
                                    height: initialScreen.visibleFrame.height / 2.5)
-      switch initialDirection {
-      case .up: #warning("Implement this.")
-        break
-      case .down: #warning("Implement this.")
-        break
-      case .left:
+
+      if NSScreen.screens.count == 1 {
         fieldOfViewRect.origin.x = initialScreen.visibleFrame.minX - windowSpacing
         fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
-      case .right:
-        fieldOfViewRect.origin.x = initialScreen.visibleFrame.maxX
-        fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
+      } else {
+        switch initialDirection {
+        case .up: #warning("Implement this.")
+          break
+        case .down: #warning("Implement this.")
+          break
+        case .left:
+          fieldOfViewRect.origin.x = initialScreen.visibleFrame.minX - windowSpacing - fieldOfViewRect.width
+          fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
+        case .right:
+          fieldOfViewRect.origin.x = initialScreen.visibleFrame.maxX + windowSpacing + fieldOfViewRect.width
+          fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
+        }
       }
 
       let applicableScreens = NSScreen.screens.filter( { $0.frame.intersects(fieldOfViewRect) })
       if let nextScreen = applicableScreens.first {
-
         fieldOfViewRect.origin.x = nextScreen.frame.midX - fieldOfViewRect.size.width / 2
         fieldOfViewRect.origin.y = nextScreen.frame.mainDisplayFlipped.midY - fieldOfViewRect.size.height / 2
 
         updateDebugWindow(fieldOfViewRect)
 
-        if let match = windows
+        if NSScreen.screens.count == 1 {
+          // Add a setting for "wrap-around" when the user hits the edge of the screen.
+          return visibleWindows
+            .filter({ $0.window != currentWindow })
+            .sorted(by: { lhs, rhs in
+              switch initialDirection {
+              case .up:    lhs.window.rect.minY > rhs.window.rect.minY
+              case .down:  lhs.window.rect.maxX < rhs.window.rect.maxY
+              case .left:  lhs.window.rect.minX > rhs.window.rect.minX
+              case .right: lhs.window.rect.maxX < rhs.window.rect.maxX
+              }
+            })
+            .first(where: { $0.window.rect.intersects(fieldOfViewRect) })?.window
+        } else if let match = windows
           .filter({ $0 != currentWindow })
           .first(where: { $0.rect.intersects(fieldOfViewRect) }) {
+
           switch initialDirection {
           case .up, .down:
             if currentWindow.rect.origin.y == match.rect.origin.y { return nil }
@@ -238,9 +261,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
             if currentWindow.rect.origin.x == match.rect.origin.x { return nil }
           }
           return match
-        } else {
-          return nil
         }
+
       }
       return nil
     }

@@ -432,15 +432,6 @@ private extension Collection where Element == Command {
     allSatisfy { element in
       switch element {
       case .keyboard, .menuBar, .windowManagement: true
-      case .systemCommand(let command):
-        switch command.kind {
-        case .moveFocusToNextWindowUpwards:   true
-        case .moveFocusToNextWindowOnLeft:    true
-        case .moveFocusToNextWindowOnRight:   true
-        case .moveFocusToNextWindowDownwards: true
-        default:
-          false
-        }
       default: false
       }
     }

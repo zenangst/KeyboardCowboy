@@ -344,13 +344,9 @@ final class SystemWindowTilingRunner {
 
     if isFill || widthDelta == 0 && heightDelta == 0 {
       return .fill
-    }
-
-    if isCenter {
+    } else if isCenter {
       return .center
-    }
-
-    if isRight {
+    } else if isRight {
       return .right
     } else if isLeft {
       return .left
