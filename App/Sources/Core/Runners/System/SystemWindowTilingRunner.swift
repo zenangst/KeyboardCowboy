@@ -55,6 +55,12 @@ final class SystemWindowTilingRunner {
     let activatedTiling: WindowTiling
     let updateSubjects: [WindowModel]
 
+    // Pre-cache window tiling for new windows.
+    if await storage[nextWindow.windowNumber] == nil {
+      let tiling = calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: visibleScreenFrame)
+      await store(tiling, for: nextWindow)
+    }
+
     switch tiling {
     case .left:
       activatedTiling = tiling
