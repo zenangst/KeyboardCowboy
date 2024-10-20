@@ -292,8 +292,8 @@ final class SystemWindowTilingRunner {
     guard subjects.isEmpty == false else { return }
 
     for (oldWindow, newWindow) in zip(subjects, newWindows) {
-      let oldTiling = calculateTiling(for: oldWindow.rect, in: screenFrame)
-      let newTiling = calculateTiling(for: newWindow.rect, in: screenFrame)
+      let oldTiling = calculateTiling(for: oldWindow.rect, ownerName: oldWindow.ownerName, in: screenFrame)
+      let newTiling = calculateTiling(for: newWindow.rect, ownerName: newWindow.ownerName, in: screenFrame)
 
       if oldTiling != newTiling {
         store(newTiling, for: oldWindow)
@@ -311,21 +311,21 @@ final class SystemWindowTilingRunner {
     let screenInsetFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
     let delta = screenInsetFrame.delta(rect)
 
-    let halfWidth = screenInsetFrame.width / 2 + screenFrame.origin.x
-    let halfHeight = screenInsetFrame.height / 2 + screenFrame.origin.y
-    let centerX = rect.midX
-    let centerY = rect.midY
-    let width = rect.width
-    let height = rect.height
-    let widthDelta = abs(screenInsetFrame.width - width)
-    let heightDelta = abs(screenInsetFrame.height - height)
-    
+    let halfWidth = Int(screenInsetFrame.width / 2 + screenFrame.origin.x)
+    let halfHeight = Int(screenInsetFrame.height / 2 + screenFrame.origin.y)
+    let centerX = Int(rect.midX)
+    let centerY = Int(rect.midY)
+    let width = Int(rect.width)
+    let height = Int(rect.height)
+    let widthDelta = abs(Int(screenInsetFrame.width) - width)
+    let heightDelta = abs(Int(screenInsetFrame.height) - height)
+
     let isTopLeft = centerX < halfWidth && centerY < halfHeight
     let isTopRight = centerX >= halfWidth && centerY < halfHeight
     let isBottomLeft = centerX < halfWidth && centerY >= halfHeight
     let isBottomRight = centerX >= halfWidth && centerY >= halfHeight
     let isFill = delta.size.inThreshold(min(windowSpacing, 1))
-    let isCenter = rect.midX == screenFrame.midX
+    let isCenter = Int(rect.midX) == Int(screenFrame.midX)
 
     var xOffset: CGFloat = windowSpacing
     for screen in NSScreen.screens {
@@ -335,12 +335,11 @@ final class SystemWindowTilingRunner {
       xOffset = screen.frame.maxX
     }
 
-    let leftThreshold = rect.origin.x - xOffset
-
-    let isLeft = leftThreshold <= halfWidth && rect.height >= halfHeight
-    let isRight = rect.maxX == screenFrame.maxX - windowSpacing && rect.height >= halfHeight
-    let isTop = rect.minY == screenFrame.minY && rect.width >= halfWidth
-    let isBottom = rect.maxY == screenFrame.maxY - windowSpacing && rect.width >= halfWidth
+    let leftThreshold = Int(rect.origin.x - xOffset)
+    let isLeft = leftThreshold <= halfWidth && height >= halfHeight
+    let isRight = rect.maxX == screenFrame.maxX - windowSpacing && height >= halfHeight
+    let isTop = rect.minY == screenFrame.minY && width >= halfWidth
+    let isBottom = rect.maxY == screenFrame.maxY - windowSpacing && width >= halfWidth
 
     if isFill || widthDelta == 0 && heightDelta == 0 {
       return .fill
