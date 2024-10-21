@@ -85,7 +85,12 @@ final class SystemWindowRelativeFocus {
       let nextTiling = SystemWindowTilingRunner.calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: nextScreen.visibleFrame.mainDisplayFlipped)
 
       if nextTiling == .fill {
-        if previousScreen != nextScreen  { return }
+        if previousScreen != nextScreen  {
+          let midPoint = CGPoint(x: frame.midX,
+                                 y: frame.midY)
+          NSCursor.moveCursor(to: midPoint)
+          return
+        }
       }
 
       let clickPoint: CGPoint
