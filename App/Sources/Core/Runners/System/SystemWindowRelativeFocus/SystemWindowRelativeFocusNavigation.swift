@@ -84,8 +84,8 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
     if systemWindows.isEmpty { return nil }
 
-    let width = max(min(1, windowSpacing), 20)
-    let height = max(min(1, windowSpacing), 20)
+    let width = max(min(1, windowSpacing), 50)
+    let height = max(min(1, windowSpacing), 50)
 
     let y = switch direction {
     case .up:    currentWindow.rect.minY - height / 2 // .midY: Verify that doesn't break multi-monitor navigation
@@ -139,7 +139,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         try await Task.sleep(for: .seconds(0.0125))
       }
 
-      let increment: CGFloat = 50
+      let increment: CGFloat = fieldOfViewRect.width
       switch direction {
       case .left:
         fieldOfViewRect.origin.x -= increment
@@ -171,6 +171,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         }
 
         constraint = {
+          $0.rect.maxY != currentWindow.rect.maxY &&
           $0.rect.origin.y > currentWindow.rect.origin.y &&
           abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
         }
