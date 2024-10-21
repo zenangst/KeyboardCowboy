@@ -1,4 +1,5 @@
 import AppKit
+import AXEssibility
 import Bonzai
 import Foundation
 import SwiftUI
@@ -6,6 +7,8 @@ import Windows
 
 final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
   static let debug: Bool = false
+
+  private lazy var systemElement = SystemAccessibilityElement()
 
   @MainActor lazy var window: NSWindow = ZenWindow(
     animationBehavior: .none,
@@ -21,9 +24,9 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     case .down:
       if frame.origin.y <= screen.visibleFrame.maxY { return }
     case .left:
-      if frame.minX >= screen.visibleFrame.minX { return }
+      if frame.minX - frame.width / 2 >= screen.visibleFrame.minX { return }
     case .right:
-      if frame.maxX <= screen.visibleFrame.maxX { return }
+      if frame.maxX + frame.width / 2 <= screen.visibleFrame.maxX { return }
     }
 
     switch tiling {
@@ -33,15 +36,13 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       case .right:     direction = .down
       case .left:      break
       }
-    case .right:
+    case .right, .bottom:
       switch direction {
       case .up, .down: direction = .left
       case .left:      direction = .down
-      case .right:     break
+      case .right:     direction = .up
       }
     case .top:
-      break
-    case .bottom:
       break
     case .topLeft:
       switch direction {
@@ -79,49 +80,25 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     let windowSpacing = max(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
     let systemWindows = windows.systemWindows
       .sorted { $0.index < $1.index }
-    
+      .filter { $0.window != currentWindow }
+
     if systemWindows.isEmpty { return nil }
-
-    var occupiedRects: [CGRect] = [currentWindow.rect]
-    var visibleWindows = [RelativeSystemWindowModel]()
-
-    for systemWindow in systemWindows {
-      let intersection = systemWindow.window.rect.intersection(currentWindow.rect)
-      let percentage = CGSize(width: 1 - intersection.width / systemWindow.window.rect.width,
-                              height: 1 - intersection.height / systemWindow.window.rect.height)
-
-      guard percentage != .zero else {
-        continue
-      }
-
-      if occupiedRects.first(where: {
-        abs($0.origin.x - systemWindow.window.rect.origin.x) <= windowSpacing &&
-        abs($0.origin.y - systemWindow.window.rect.origin.y) <= windowSpacing
-      }) == nil {
-        if occupiedRects.contains(systemWindow.window.rect) {
-          continue
-        }
-
-        occupiedRects.append(systemWindow.window.rect)
-        visibleWindows.append(systemWindow)
-      }
-    }
 
     let width = max(min(1, windowSpacing), 20)
     let height = max(min(1, windowSpacing), 20)
 
     let y = switch direction {
-    case .up:    currentWindow.rect.minY // .midY: Verify that doesn't break multi-monitor navigation
+    case .up:    currentWindow.rect.minY - height / 2 // .midY: Verify that doesn't break multi-monitor navigation
     case .down:  currentWindow.rect.minY // .midY: Verify that doesn't break multi-monitor navigation
     case .left:  currentWindow.rect.minY
     case .right: currentWindow.rect.minY
     }
 
     let x = switch direction {
-    case .up:    currentWindow.rect.midX + width / 2
-    case .down:  currentWindow.rect.midX - width / 2
-    case .left:  currentWindow.rect.minX - width / 2
-    case .right: currentWindow.rect.midX
+    case .up:    currentWindow.rect.midX + width
+    case .down:  currentWindow.rect.midX - width
+    case .left:  currentWindow.rect.minX - width
+    case .right: currentWindow.rect.maxX + width
     }
 
     var direction = initialDirection
@@ -130,16 +107,16 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       size: CGSize(width: width, height: height)
     )
 
-    let minX = (visibleWindows.map { $0.window.rect.minX }.min() ?? 0) + windowSpacing
-    let maxX = (visibleWindows.map { $0.window.rect.maxX }.max() ?? 0) + windowSpacing
-    let minY = (visibleWindows.map { $0.window.rect.minY }.min() ?? 0) + windowSpacing
-    let maxY = (visibleWindows.map { $0.window.rect.maxY }.max() ?? 0) + windowSpacing
+    let minX = (systemWindows.map { $0.window.rect.minX }.min() ?? 0) + windowSpacing
+    let maxX = (systemWindows.map { $0.window.rect.maxX }.max() ?? 0) + windowSpacing
+    let minY = (systemWindows.map { $0.window.rect.minY }.min() ?? 0) + windowSpacing
+    let maxY = (systemWindows.map { $0.window.rect.maxY }.max() ?? 0) + windowSpacing
 
     var searching = true
     var match: RelativeSystemWindowModel?
     var constraint: (RelativeWindowModel) -> Bool
-
     var tiling: WindowTiling?
+
     if let screen = currentScreen(fieldOfViewRect).first {
       tiling = SystemWindowTilingRunner.calculateTiling(for: currentWindow.rect, in: screen.visibleFrame.mainDisplayFlipped)
 
@@ -151,9 +128,6 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       default:
         break
       }
-      if Self.debug {
-        print("✅", tiling, "\(fieldOfViewRect.origin.x)x\(fieldOfViewRect.origin.y)")
-      }
     }
 
     updateDebugWindow(fieldOfViewRect)
@@ -161,39 +135,62 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     while searching {
       try Task.checkCancellation()
 
-      let increment: CGFloat = 10
+      if Self.debug {
+        try await Task.sleep(for: .seconds(0.0125))
+      }
+
+      let increment: CGFloat = 50
       switch direction {
       case .left:
         fieldOfViewRect.origin.x -= increment
         if fieldOfViewRect.maxX < minX - windowSpacing { searching = false }
-        constraint = { abs($0.rect.origin.x - currentWindow.rect.origin.x) > windowSpacing }
+        constraint = {
+          $0.rect.origin.x < currentWindow.rect.origin.x &&
+          abs($0.rect.origin.x - currentWindow.rect.origin.x) > 2
+        }
       case .right:
         fieldOfViewRect.origin.x += increment
-        if fieldOfViewRect.minX > maxX {
-          searching = false
-        }
+        if fieldOfViewRect.minX > maxX { searching = false }
         constraint = {
-          abs($0.rect.origin.x - currentWindow.rect.midX) > windowSpacing
+          $0.rect.origin.x > currentWindow.rect.origin.x &&
+          $0.rect.maxX != currentWindow.rect.maxX &&
+          abs($0.rect.origin.x - currentWindow.rect.origin.x) > 2
         }
       case .up:
         fieldOfViewRect.origin.y -= increment
         if fieldOfViewRect.maxY < minY { searching = false }
-        constraint = { abs($0.rect.origin.y - currentWindow.rect.origin.y) > windowSpacing }
+        constraint = {
+          $0.rect.origin.y != currentWindow.rect.origin.y &&
+          abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
+        }
       case .down:
         fieldOfViewRect.origin.y += increment
-        if fieldOfViewRect.minY > maxY {
+
+        if fieldOfViewRect.maxY + fieldOfViewRect.height >= maxY {
           searching = false
         }
-        constraint = { abs($0.rect.origin.y - currentWindow.rect.origin.y) > windowSpacing }
+
+        constraint = {
+          $0.rect.origin.y > currentWindow.rect.origin.y &&
+          abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
+        }
       }
 
-      for visibleWindow in visibleWindows where visibleWindow.window != currentWindow {
+      // Use accessibility to verify the location of the window.
+      let elementOrigin = CGPoint(x: fieldOfViewRect.midX, y: fieldOfViewRect.midY)
+      if let accessWindow = systemElement.element(at: elementOrigin, as: AnyAccessibilityElement.self)?.window,
+         let firstMatch = systemWindows.first(where: { $0.window.id == accessWindow.id }) {
+        return firstMatch.window
+      }
+
+      for visibleWindow in systemWindows where visibleWindow.window != currentWindow {
         let constraintResult = constraint(visibleWindow.window)
         let intersectionResult = fieldOfViewRect.intersects(visibleWindow.window.rect)
+
         if constraintResult && intersectionResult {
           match = visibleWindow
           searching = false
-          break
+          return match?.window
         }
       }
 
