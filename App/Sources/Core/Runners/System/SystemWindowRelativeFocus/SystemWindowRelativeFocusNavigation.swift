@@ -238,18 +238,19 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         updateDebugWindow(fieldOfViewRect)
 
         if NSScreen.screens.count == 1 {
+          return nil
           // Add a setting for "wrap-around" when the user hits the edge of the screen.
-          return visibleWindows
-            .filter({ $0.window != currentWindow })
-            .sorted(by: { lhs, rhs in
-              switch initialDirection {
-              case .up:    lhs.window.rect.minY > rhs.window.rect.minY
-              case .down:  lhs.window.rect.maxX < rhs.window.rect.maxY
-              case .left:  lhs.window.rect.minX > rhs.window.rect.minX
-              case .right: lhs.window.rect.maxX < rhs.window.rect.maxX
-              }
-            })
-            .first(where: { $0.window.rect.intersects(fieldOfViewRect) })?.window
+//          return visibleWindows
+//            .filter({ $0.window != currentWindow })
+//            .sorted(by: { lhs, rhs in
+//              switch initialDirection {
+//              case .up:    lhs.window.rect.minY > rhs.window.rect.minY
+//              case .down:  lhs.window.rect.maxX < rhs.window.rect.maxY
+//              case .left:  lhs.window.rect.minX > rhs.window.rect.minX
+//              case .right: lhs.window.rect.maxX < rhs.window.rect.maxX
+//              }
+//            })
+//            .first(where: { $0.window.rect.intersects(fieldOfViewRect) })?.window
         } else if let match = windows
           .filter({ $0 != currentWindow })
           .first(where: { $0.rect.intersects(fieldOfViewRect) }) {
