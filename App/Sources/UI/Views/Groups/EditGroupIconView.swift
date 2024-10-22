@@ -11,7 +11,7 @@ struct EditGroupIconView: View {
       }
       Divider()
       VStack(alignment: .leading) {
-        ZenLabel(.detail, content: { Text("Color")})
+        ZenLabel(.detail, content: { Text("Symbol")})
         SymbolPalette(group: $group, size: 32)
       }
     }

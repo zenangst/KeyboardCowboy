@@ -2,30 +2,38 @@ import SwiftUI
 
 struct SymbolPalette: View {
   private let symbols: [String] = [
-    "autostartstop",
+    "app.connected.to.app.below.fill",
     "app.dashed",
     "applescript",
-    "folder",
-    "app.connected.to.app.below.fill",
-    "flowchart",
-    "terminal",
-    "laptopcomputer",
-    "safari",
+    "aqi.medium",
     "archivebox",
-    "flame",
-    "calendar",
+    "arrow.trianglehead.turn.up.right.diamond",
+    "autostartstop",
+    "bolt",
     "book",
     "bookmark",
-    "link",
-    "pencil.tip",
-    "sparkles",
-    "cloud",
+    "calendar",
     "checkmark.seal",
+    "cloud",
+    "flame",
+    "flowchart",
+    "folder",
+    "keyboard",
+    "laptopcomputer",
+    "link",
+    "macwindow",
+    "map",
+    "message",
     "music.note",
+    "pencil.tip",
+    "rainbow",
+    "safari",
+    "sparkles",
     "star",
+    "swirl.circle.righthalf.filled",
     "tag",
-    "bolt",
-    "macwindow"
+    "terminal",
+    "touchid",
   ]
 
   var items: [GridItem] {
@@ -36,28 +44,30 @@ struct SymbolPalette: View {
   var size: CGFloat
 
   var body: some View {
-    LazyVGrid(columns: items, spacing: 10) {
-      ForEach(symbols, id: \.self) { symbol in
-        ZStack {
-          Circle()
-            .fill(Color(group.symbol == symbol ? .white : .clear))
-
-          Circle()
-            .fill(Color(.windowBackgroundColor))
-            .frame(width: size, height: size)
-            .overlay(
-              Group {
-                if !symbol.isEmpty {
-                  Image(systemName: symbol)
-                } else {
-                  EmptyView()
+    ScrollView {
+      LazyVGrid(columns: items, spacing: 10) {
+        ForEach(symbols, id: \.self) { symbol in
+          ZStack {
+            Circle()
+              .fill(Color(group.symbol == symbol ? .white : .clear))
+            
+            Circle()
+              .fill(Color(.windowBackgroundColor))
+              .frame(width: size, height: size)
+              .overlay(
+                Group {
+                  if !symbol.isEmpty {
+                    Image(systemName: symbol)
+                  } else {
+                    EmptyView()
+                  }
                 }
+              )
+              .onTapGesture {
+                group.symbol = symbol
               }
-            )
-            .onTapGesture {
-              group.symbol = symbol
-            }
-            .padding(2)
+              .padding(2)
+          }
         }
       }
     }

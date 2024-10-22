@@ -30,6 +30,7 @@ struct EditWorfklowGroupView: View {
           }
           .popover(item: $editIcon, arrowEdge: .bottom, content: { _ in
             EditGroupIconView(group: $group)
+              .frame(maxHeight: 230)
           })
           .cornerRadius(24, antialiased: true)
         TextField("Name:", text: $group.name)
