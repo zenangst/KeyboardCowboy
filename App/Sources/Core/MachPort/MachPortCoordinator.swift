@@ -152,7 +152,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       if handleEscapeKeyDownEvent(machPortEvent) { return }
     case .keyUp:
-      if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == machPortKeyCode  {
+      if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp {
+        machPortEvent.result = nil
+        Task.detached { [workflowRunner] in
+          await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
+        }
+      } else if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == machPortKeyCode  {
         scheduledAction = nil
         _ = try? machPort?.post(machPortKeyCode, type: .keyDown, flags: machPortEvent.event.flags)
         _ = try? machPort?.post(machPortKeyCode, type: .keyUp, flags: machPortEvent.event.flags)
@@ -387,6 +392,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     } else if isRepeatingEvent, repeatingMatch == false {
       return true
       // Reset the repeating result and match if the event is not repeating.
+    } else if previousExactMatch != nil, isRepeatingEvent {
+      machPortEvent.result = nil
+      return true
     } else {
       repeatingResult = nil
       repeatingMatch = nil

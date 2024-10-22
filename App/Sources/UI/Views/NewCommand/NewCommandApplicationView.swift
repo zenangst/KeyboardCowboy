@@ -8,6 +8,7 @@ struct NewCommandApplicationView: View {
     case close = "Close"
     case hide  = "Hide"
     case unhide = "Unhide"
+    case peek = "Peek"
   }
 
   private let wikiUrl = URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki/Commands#application-commands")!

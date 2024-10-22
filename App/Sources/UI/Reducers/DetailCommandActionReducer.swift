@@ -76,6 +76,7 @@ final class DetailCommandActionReducer {
           case .close:  .close
           case .hide:   .hide
           case .unhide: .unhide
+          case .peek:   .peek
           }
           command = .application(applicationCommand)
           workflow.updateOrAddCommand(command)

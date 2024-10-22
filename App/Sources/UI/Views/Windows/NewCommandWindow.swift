@@ -109,6 +109,7 @@ struct NewCommandWindow: Scene {
       case .close: .close
       case .hide:  .hide
       case .unhide: .unhide
+      case .peek: .peek
       }
 
       let inBackground = applicationCommand.modifiers.contains(.background)

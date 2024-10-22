@@ -1,4 +1,5 @@
 @preconcurrency import Cocoa
+import MachPort
 
 protocol ApplicationCommandRunnerDelegate: AnyObject {
   @MainActor
@@ -39,7 +40,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     )
   }
 
-  func run(_ command: ApplicationCommand, checkCancellation: Bool) async throws {
+  func run(_ command: ApplicationCommand, machPortEvent: MachPortEvent?, checkCancellation: Bool) async throws {
     await delegate?.applicationCommandRunnerWillRunApplicationCommand(command)
     if command.modifiers.contains(.onlyIfNotRunning) {
       let bundleIdentifiers = self.workspace.applications.compactMap(\.bundleIdentifier)
@@ -57,6 +58,14 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     case .close: try plugins.close.execute(command, checkCancellation: checkCancellation)
     case .hide:  plugins.hide.execute(command)
     case .unhide: plugins.unhide.execute(command)
+    case .peek:
+      guard let machPortEvent else { return }
+
+      if machPortEvent.type == .keyDown {
+        try await openApplication(command, checkCancellation: checkCancellation)
+      } else if machPortEvent.type == .keyUp {
+        plugins.hide.execute(command)
+      }
     }
   }
 

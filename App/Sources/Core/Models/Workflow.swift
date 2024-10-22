@@ -204,6 +204,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     let isPassthrough: Bool
     let isValidForRepeat: Bool
     let scheduleDuration: Double?
+    let shouldRunOnKeyUp: Bool
 
     init(id: String, trigger: Trigger?, execution: Execution,
          isEnabled: Bool, commands: [Command]) {
@@ -220,6 +221,13 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       } else {
         self.scheduleDuration = nil
       }
+      self.shouldRunOnKeyUp = enabledCommands.allSatisfy({ command in
+        switch command {
+        case .application(let command):
+          return command.action == .peek
+        default: return false
+        }
+      })
     }
 
     static func from(_ workflow: Workflow) -> MachPortConditions {

@@ -18,11 +18,10 @@ final class HideApplicationPlugin {
       return
     }
 
-    guard workspace.frontApplication?.bundleIdentifier != command.application.bundleIdentifier else {
-      return
+    if workspace.frontApplication?.bundleIdentifier != command.application.bundleIdentifier {
+      userSpace.frontMostApplication.ref.activate(options: .activateIgnoringOtherApps)
     }
 
-    userSpace.frontMostApplication.ref.activate(options: .activateIgnoringOtherApps)
     _ = runningApplication.hide()
   }
 }

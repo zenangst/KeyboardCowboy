@@ -169,6 +169,7 @@ final class DetailCoordinator {
       case .open:   .open
       case .hide:   .hide
       case .unhide: .unhide
+      case .peek:   .peek
       }
 
       command = Command.application(.init(id: resolvedCommandId,

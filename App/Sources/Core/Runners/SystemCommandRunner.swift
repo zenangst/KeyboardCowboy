@@ -64,6 +64,7 @@ final class SystemCommandRunner: @unchecked Sendable {
         Task {
           if let previousApplication = applicationActivityMonitor.previousApplication() {
             try await applicationRunner.run(.init(application: previousApplication.asApplication()),
+                                            machPortEvent: nil,
                                             checkCancellation: checkCancellation)
           }
         }

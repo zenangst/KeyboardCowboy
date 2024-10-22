@@ -94,7 +94,7 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
             NSWorkspace.shared.reveal(application.path)
           } else {
             try? await applicationRunner
-              .run(.init(application: application),
+              .run(.init(application: application), machPortEvent: nil,
                    checkCancellation: false)
           }
         default: break

@@ -30,9 +30,10 @@ struct ApplicationCommand: MetaDataProviding {
       case .close: "Close"
       case .hide:  "Hide"
       case .unhide: "Unhide"
+      case .peek: "Peek"
       }
     }
-    case open, close, hide, unhide
+    case open, close, hide, unhide, peek
   }
 
   var application: Application
