@@ -5,7 +5,7 @@ import SwiftUI
 
 @MainActor
 final class FocusBorder {
-  var isEnabled: Bool = true
+  var isEnabled: Bool = false
   var workItem: DispatchWorkItem?
   var previousWindow: NSWindow?
 
