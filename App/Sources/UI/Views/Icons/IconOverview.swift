@@ -17,6 +17,7 @@ struct IconOverview: PreviewProvider {
       MacroIconView(.remove, size: size)
       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
       WorkspaceIcon(size: size)
+      AppPeekIcon(size: size)
       WindowTilingIcon(kind: .arrangeLeftQuarters, size: size)
       AppFocusIcon(size: size)
       UIElementIconView(size: size)
