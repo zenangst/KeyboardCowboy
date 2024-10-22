@@ -29,7 +29,7 @@ struct ContentImageView: View {
       EmptyView()
     case .shortcut:
       ContentShortcutImageView(size: iconSize)
-    case .text(let text):
+    case .text:
       TypingIconView(size: iconSize)
     case .systemCommand(let kind):
       SystemIconBuilder.icon(kind, size: iconSize)

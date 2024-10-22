@@ -83,15 +83,6 @@ struct WorkflowNotificationView: View {
     }
     .padding(4)
     .onReceive(publisher.$data, perform: { newValue in
-      guard let screen = NSScreen.main else { return }
-
-      windowManager.window?.setFrame(
-        NSRect(origin: .zero,
-               size: screen.visibleFrame.size),
-        display: false,
-        animate: false
-      )
-
       if newValue.matches.isEmpty {
         windowManager.close(after: .seconds(1))
       } else {
@@ -196,28 +187,23 @@ extension Command {
   @MainActor @ViewBuilder
   func iconView(_ size: CGFloat) -> some View {
     switch self {
-      case .builtIn(let builtInCommand):
-        BuiltinIconBuilder.icon(builtInCommand.kind, size: size)
-      case .mouse:
-        MouseIconView(size: size)
-      case .systemCommand(let systemCommand):
-        SystemIconBuilder.icon(systemCommand.kind, size: size)
-      case .menuBar: MenuIconView(size: size)
-      case .windowManagement: WindowManagementIconView(size: size)
-      case .uiElement: UIElementIconView(size: size)
+      case .builtIn(let builtInCommand):      BuiltinIconBuilder.icon(builtInCommand.kind, size: size)
+      case .bundled(let bundled):
+      switch bundled.kind {
+      case .appFocus: AppFocusIcon(size: size)
+      case .workspace: WorkspaceIcon(size: size)
+      }
+      case .mouse:                            MouseIconView(size: size)
+      case .systemCommand(let systemCommand): SystemIconBuilder.icon(systemCommand.kind, size: size)
+      case .menuBar:                          MenuIconView(size: size)
+      case .windowManagement:                 WindowManagementIconView(size: size)
+      case .uiElement:                        UIElementIconView(size: size)
       case .script(let command):
         switch command.kind {
-          case .shellScript:
-            ScriptIconView(size: size)
-          case .appleScript:
-            placeholderView(size)
+          case .shellScript:                  ScriptIconView(size: size)
+          case .appleScript:                  ScriptIconView(size: size)
         }
-      case .application(let command):
-        IconView(
-          icon: .init(command.application),
-          size: .init(width: 32, height: 32)
-        )
-        .iconShape(size)
+      case .application(let command):         IconView(icon: Icon(command.application), size: CGSize(width: 32, height: 32)).iconShape(size)
       case .text(let command):
         switch command.kind {
           case .insertText: TypingIconView(size: size)
@@ -232,12 +218,11 @@ extension Command {
             size: .init(width: 32, height: 32)
           )
           .iconShape(size)
-
         } else {
           placeholderView(size)
         }
-      default:
-        placeholderView(size)
+    case .shortcut:
+      ContentShortcutImageView(size: size)
     }
   }
 }

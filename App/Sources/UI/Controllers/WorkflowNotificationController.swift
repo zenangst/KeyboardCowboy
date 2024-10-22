@@ -10,24 +10,32 @@ final class WorkflowNotificationController: ObservableObject {
     keyboardShortcuts: []
   )
 
+  private var subscription: AnyCancellable?
+  private var passthrough: PassthroughSubject<(WorkflowNotificationViewModel, Bool), Never> = .init()
   private var workItem: DispatchWorkItem?
+  private var windowTask: Task<Void, any Error>?
 
-  lazy var windowController: NSWindowController = {
+  lazy var window: NSWindow = {
     let content = WorkflowNotificationView(publisher: publisher)
-    let window = NotificationPanel(animationBehavior: .utilityWindow, content: content)
-    let windowController = NSWindowController(window: window)
-    return windowController
+    return NotificationPanel(animationBehavior: .utilityWindow, content: content)
   }()
 
   private let publisher: WorkflowNotificationPublisher = .init(WorkflowNotificationController.emptyModel)
 
-  private init() { }
+  private init() {
+    subscription = passthrough
+      .debounce(for: .seconds(0.05), scheduler: RunLoop.main)
+      .sink { [weak self] (notification, scheduleDismiss) in
+      self?.passthrough(notification, scheduleDismiss: scheduleDismiss)
+    }
+  }
 
   func cancelReset() {
     workItem?.cancel()
   }
 
   func reset() {
+    windowTask?.cancel()
     workItem?.cancel()
     Task { @MainActor in
       let emptyModel = WorkflowNotificationViewModel(
@@ -36,20 +44,30 @@ final class WorkflowNotificationController: ObservableObject {
         glow: false,
         keyboardShortcuts: [])
       publisher.publish(emptyModel)
-      windowController.window?.close()
+      window.close()
     }
   }
 
   func post(_ notification: WorkflowNotificationViewModel, scheduleDismiss: Bool) {
+    passthrough.send((notification, scheduleDismiss))
+  }
+
+  private func passthrough(_ notification: WorkflowNotificationViewModel, scheduleDismiss: Bool) {
     guard notification != publisher.data else { return }
 
     workItem?.cancel()
+    windowTask?.cancel()
+    windowTask = Task { @MainActor [publisher] in
+      try Task.checkCancellation()
 
-    Task { @MainActor [publisher, windowController] in
+      guard let screen = NSScreen.main else { return }
+      let windowRect = screen.visibleFrame
+
       withAnimation(WorkflowNotificationView.animation) {
+        window.setFrame(windowRect, display: true, animate: true)
+        window.orderFrontRegardless()
         publisher.publish(notification)
       }
-      windowController.showWindow(nil)
     }
 
     guard scheduleDismiss else { return }
