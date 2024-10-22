@@ -145,6 +145,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         fieldOfViewRect.origin.x -= increment
         if fieldOfViewRect.maxX < minX - windowSpacing { searching = false }
         constraint = {
+          currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.x < currentWindow.rect.origin.x &&
           abs($0.rect.origin.x - currentWindow.rect.origin.x) > 2
         }
@@ -152,6 +153,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         fieldOfViewRect.origin.x += increment
         if fieldOfViewRect.minX > maxX { searching = false }
         constraint = {
+          currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.x > currentWindow.rect.origin.x &&
           $0.rect.maxX != currentWindow.rect.maxX &&
           abs($0.rect.origin.x - currentWindow.rect.origin.x) > 2
@@ -160,6 +162,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         fieldOfViewRect.origin.y -= increment
         if fieldOfViewRect.maxY < minY { searching = false }
         constraint = {
+          currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.y != currentWindow.rect.origin.y &&
           abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
         }
@@ -171,6 +174,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         }
 
         constraint = {
+          currentWindow.rect.contains($0.rect) &&
           $0.rect.maxY != currentWindow.rect.maxY &&
           $0.rect.origin.y > currentWindow.rect.origin.y &&
           abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
@@ -207,6 +211,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     if let match {
       return match.window
     } else {
+      try Task.checkCancellation()
       fieldOfViewRect.size = .init(width: initialScreen.visibleFrame.width / 2.5,
                                    height: initialScreen.visibleFrame.height / 2.5)
 
@@ -230,6 +235,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
       let applicableScreens = NSScreen.screens.filter( { $0.frame.intersects(fieldOfViewRect) })
       if let nextScreen = applicableScreens.first {
+        try Task.checkCancellation()
         fieldOfViewRect.origin.x = nextScreen.frame.midX - fieldOfViewRect.size.width / 2
         fieldOfViewRect.origin.y = nextScreen.frame.mainDisplayFlipped.midY - fieldOfViewRect.size.height / 2
 
