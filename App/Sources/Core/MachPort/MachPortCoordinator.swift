@@ -150,8 +150,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
           return
       }
 
-      let shouldReturn = handleEscapeKeyDownEvent(machPortEvent)
-      if shouldReturn { return }
+      if handleEscapeKeyDownEvent(machPortEvent) { return }
     case .keyUp:
       if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == machPortKeyCode  {
         scheduledAction = nil
@@ -236,8 +235,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       repeatingMatch = nil
       machPortEvent.result = nil
     } else if let workflow = partialMatch.workflow,
-              case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger,
-              keyboardShortcut.passthrough,
+              workflow.machPortConditions.isPassthrough,
               macroCoordinator.state == .recording {
       previousPartialMatch = partialMatch
       macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
@@ -253,18 +251,17 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
   @MainActor
   private func handleExtactMatch(_ workflow: Workflow, machPortEvent: MachPortEvent, isRepeatingEvent: Bool) {
-    if workflow.trigger.isPassthrough == true {
+    if workflow.machPortConditions.isPassthrough == true {
       // NOOP
     } else {
       machPortEvent.result = nil
     }
 
-    let enabledCommands = workflow.commands.filter(\.isEnabled)
     let execution: @MainActor @Sendable (MachPortEvent, Bool) -> Void
 
     // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
-    if enabledCommands.count == 1,
-       case .keyboard(let command) = enabledCommands.first {
+    if workflow.machPortConditions.enabledCommandsCount == 1,
+       case .keyboard(let command) = workflow.machPortConditions.enabledCommands.first {
 
       if !isRepeatingEvent {
         notifications.notifyKeyboardCommand(workflow, command: command)
@@ -289,7 +286,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       repeatingResult = execution
       repeatingKeyCode = machPortEvent.keyCode
       notifications.reset()
-    } else if !workflow.commands.isEmpty && workflow.commands.isValidForRepeat {
+    } else if !workflow.machPortConditions.isEmpty && workflow.machPortConditions.isValidForRepeat {
       execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
         guard let self, machPortEvent.type != .keyUp else { return }
         self.coordinatorEvent = machPortEvent.event
@@ -302,8 +299,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       repeatingResult = execution
       repeatingKeyCode = machPortEvent.keyCode
-    } else if !isRepeatingEvent || workflow.commands.isValidForRepeat {
-      if let delay = shouldSchedule(workflow) {
+    } else if !isRepeatingEvent || workflow.machPortConditions.isValidForRepeat {
+      if let delay = workflow.machPortConditions.scheduleDuration {
         scheduledWorkItem = schedule(workflow, machPortEvent: machPortEvent, after: delay)
       } else {
         Task.detached { [workflowRunner] in
@@ -362,9 +359,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     if let repeatingResult {
       repeatingResult(machPortEvent, false)
 
-      if let previousExactMatch, previousExactMatch.trigger.isPassthrough == true {
+      if let previousExactMatch, previousExactMatch.machPortConditions.isPassthrough == true {
         self.previousExactMatch = nil
-      } else if previousPartialMatch.workflow?.trigger.isPassthrough == true {
+      } else if previousPartialMatch.workflow?.machPortConditions.isPassthrough == true {
       } else {
         machPortEvent.result = nil
       }
@@ -415,25 +412,5 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
 
     return workItem
-  }
-
-  private func shouldSchedule(_ workflow: Workflow) -> Double? {
-    if case .keyboardShortcuts(let trigger) = workflow.trigger, let holdDuration = trigger.holdDuration, trigger.shortcuts.count == 1,
-       holdDuration > 0 {
-      return holdDuration
-    } else {
-      return nil
-    }
-  }
-}
-
-private extension Collection where Element == Command {
-  var isValidForRepeat: Bool {
-    allSatisfy { element in
-      switch element {
-      case .keyboard, .menuBar, .windowManagement: true
-      default: false
-      }
-    }
   }
 }

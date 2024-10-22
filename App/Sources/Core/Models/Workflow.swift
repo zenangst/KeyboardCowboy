@@ -76,29 +76,37 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   }
 
   private(set) var id: String
-  var commands: [Command]
-  var trigger: Trigger?
-  var isEnabled: Bool = true
+  var commands: [Command]  { didSet { generateMachPortComponents() } }
+  var trigger: Trigger?  { didSet { generateMachPortComponents() } }
+  var isEnabled: Bool = true  { didSet { generateMachPortComponents() } }
   var name: String
-  var execution: Execution
+  var execution: Execution { didSet { generateMachPortComponents() } }
 
   var isRebinding: Bool {
     if commands.count == 1, case .keyboard = commands.first { return true }
     return false
   }
 
+  var machPortConditions: MachPortConditions
+
   init(id: String = UUID().uuidString, name: String,
        trigger: Trigger? = nil,
        execution: Execution = .concurrent,
        isEnabled: Bool = true,
-       commands: [Command] = []
-       ) {
+       commands: [Command] = []) {
     self.id = id
     self.commands = commands
     self.trigger = trigger
     self.name = name
     self.isEnabled = isEnabled
     self.execution = execution
+    self.machPortConditions = MachPortConditions(
+      id: id,
+      trigger: trigger,
+      execution: execution,
+      isEnabled: isEnabled,
+      commands: commands
+    )
   }
 
   func copy() -> Self {
@@ -135,12 +143,26 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-    self.name = try container.decode(String.self, forKey: .name)
-    self.commands = try container.decodeIfPresent([Command].self, forKey: .commands) ?? []
-    self.execution = try container.decodeIfPresent(Execution.self, forKey: .execution) ?? .concurrent
-    self.trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
-    self.isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+    let id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    let name = try container.decode(String.self, forKey: .name)
+    let commands = try container.decodeIfPresent([Command].self, forKey: .commands) ?? []
+    let execution = try container.decodeIfPresent(Execution.self, forKey: .execution) ?? .concurrent
+    let trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
+    let isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+
+    self.id = id
+    self.name = name
+    self.commands = commands
+    self.execution = execution
+    self.trigger = trigger
+    self.isEnabled = isEnabled
+    self.machPortConditions = MachPortConditions(
+      id: id,
+      trigger: trigger,
+      execution: execution,
+      isEnabled: isEnabled,
+      commands: commands
+    )
   }
 
   func encode(to encoder: Encoder) throws {
@@ -169,9 +191,61 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       commands.append(command)
     }
   }
+
+  private mutating func generateMachPortComponents() {
+    self.machPortConditions = MachPortConditions.from(self)
+  }
+
+  struct MachPortConditions: Hashable {
+    let enabledCommands: [Command]
+    let enabledCommandsCount: Int
+    let hasHoldForDelay: Bool
+    let isEmpty: Bool
+    let isPassthrough: Bool
+    let isValidForRepeat: Bool
+    let scheduleDuration: Double?
+
+    init(id: String, trigger: Trigger?, execution: Execution,
+         isEnabled: Bool, commands: [Command]) {
+      let enabledCommands = commands.filter(\.isEnabled)
+      self.enabledCommands = enabledCommands
+      self.enabledCommandsCount = enabledCommands.count
+      self.hasHoldForDelay = trigger.hasHoldForDelay
+      self.isEmpty = enabledCommands.isEmpty
+      self.isPassthrough = trigger.isPassthrough
+      self.isValidForRepeat = enabledCommands.isValidForRepeat
+      if case .keyboardShortcuts(let trigger) = trigger,
+        let holdDuration = trigger.holdDuration, trigger.shortcuts.count == 1, holdDuration > 0 {
+        self.scheduleDuration = holdDuration
+      } else {
+        self.scheduleDuration = nil
+      }
+    }
+
+    static func from(_ workflow: Workflow) -> MachPortConditions {
+      MachPortConditions(
+        id: workflow.id,
+        trigger: workflow.trigger,
+        execution: workflow.execution,
+        isEnabled: workflow.isEnabled,
+        commands: workflow.commands
+      )
+    }
+  }
 }
 
-extension Workflow.Trigger? {
+private extension Collection where Element == Command {
+  var isValidForRepeat: Bool {
+    allSatisfy { element in
+      switch element {
+      case .keyboard, .menuBar, .windowManagement: true
+      default: false
+      }
+    }
+  }
+}
+
+private extension Workflow.Trigger? {
   var isPassthrough: Bool {
     switch self {
     case .application: false

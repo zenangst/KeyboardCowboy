@@ -19,7 +19,7 @@ final class ScheduleMachPortCoordinator: @unchecked Sendable {
                                       machPortEvent: MachPortEvent,
                                       onTask: @escaping @Sendable (ScheduledAction?)  -> Void) -> Bool {
     guard let workflow = partialMatch.workflow,
-          workflow.trigger.hasHoldForDelay,
+          workflow.machPortConditions.hasHoldForDelay,
           case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger,
           partialMatch.rawValue != defaultPartialMatch.rawValue,
           let holdDuration = keyboardShortcut.holdDuration, holdDuration > 0 else {
