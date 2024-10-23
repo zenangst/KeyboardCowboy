@@ -35,33 +35,11 @@ final class SystemWindowRelativeFocus {
     }
 
     let windows = indexWindowsInStage(getWindows())
-    let frontMostApplication = snapshot.frontMostApplication
-    let frontMostAppElement = AppAccessibilityElement(frontMostApplication.ref.processIdentifier)
-    var activeWindow: RelativeWindowModel?
 
-    let focusedWindow = try? frontMostAppElement.focusedWindow()
-    for window in windows {
-      guard let focusedWindow else {
-        activeWindow = window
-        break
-      }
+    guard let activeWindow = windows.first else { return }
 
-      if window.id == focusedWindow.id {
-        activeWindow = window
-        break
-      }
-    }
-
-    if activeWindow == nil, !windows.isEmpty {
-      activeWindow = windows.first
-    }
-
-    var matchedWindow: RelativeWindowModel?
-    if let activeWindow {
-      matchedWindow = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) ?? activeWindow
-    }
-
-    guard let nextWindow = matchedWindow else { return }
+    let previousWindow = activeWindow
+    let nextWindow = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) ?? activeWindow
 
     consumedWindows.insert(nextWindow)
 
@@ -69,10 +47,7 @@ final class SystemWindowRelativeFocus {
     let appElement = AppAccessibilityElement(processIdentifier)
     let match = try appElement.windows().first(where: { $0.id == nextWindow.id })
 
-    if let match,
-       let frame = match.frame,
-       let previousWindow = activeWindow,
-       nextWindow.id != previousWindow.id {
+    if let match, let frame = match.frame, nextWindow.id != previousWindow.id {
       FocusBorder.shared.show(nextWindow.rect.mainDisplayFlipped)
       NSRunningApplication(processIdentifier: processIdentifier)?.activate()
       match.performAction(.raise)
