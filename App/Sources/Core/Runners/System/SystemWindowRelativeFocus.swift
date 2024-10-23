@@ -39,18 +39,23 @@ final class SystemWindowRelativeFocus {
     guard let activeWindow = windows.first else { return }
 
     let previousWindow = activeWindow
-    let nextWindow = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction) ?? activeWindow
+    let match = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction)
+    let nextWindow = match?.window ?? activeWindow
 
     consumedWindows.insert(nextWindow)
 
     let processIdentifier = pid_t(nextWindow.ownerPid)
-    let appElement = AppAccessibilityElement(processIdentifier)
-    let match = try appElement.windows().first(where: { $0.id == nextWindow.id })
 
-    if let match, let frame = match.frame, nextWindow.id != previousWindow.id {
+    let axWindow = match?.axWindow ?? resolveAXWindow(nextWindow)
+
+    if let axWindow, let frame = axWindow.frame {
       FocusBorder.shared.show(nextWindow.rect.mainDisplayFlipped)
-      NSRunningApplication(processIdentifier: processIdentifier)?.activate()
-      match.performAction(.raise)
+      axWindow.performAction(.raise)
+
+      if let frontmostApplication = NSWorkspace.shared.frontmostApplication,
+         let nextApp = NSRunningApplication(processIdentifier: processIdentifier) {
+        swap(from: frontmostApplication, to: nextApp)
+      }
 
       let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
       let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
@@ -102,6 +107,8 @@ final class SystemWindowRelativeFocus {
         clickPoint = CGPoint(x: frame.midX + 1.5, y: frame.midY + 1.5)
       case (.left, .right, .center), (.left, .bottomRight, .center):
         clickPoint = CGPoint(x: frame.midX - 1.5, y: frame.midY - 1.5)
+      case (.left, .right, .left):
+        clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
       default:
         clickPoint = CGPoint(x: frame.midX, y: frame.minY)
       }
@@ -114,7 +121,7 @@ final class SystemWindowRelativeFocus {
       // is actually the match that we got from `navigation.findNextWindow`
       let systemElement = SystemAccessibilityElement()
       let windowId = systemElement.element(at: clickPoint, as: AnyAccessibilityElement.self)?.window?.id
-      guard match.id == windowId else {
+      guard axWindow.id == windowId else {
         NSCursor.moveCursor(to: targetPoint)
         return
       }
@@ -132,6 +139,20 @@ final class SystemWindowRelativeFocus {
   }
 
   // MARK: Private methods
+
+  private func resolveAXWindow(_ window: RelativeWindowModel) -> WindowAccessibilityElement? {
+    try? AppAccessibilityElement(pid_t(window.ownerPid))
+      .windows()
+      .first(where: { $0.id == window.id })
+  }
+
+  private func swap(from currentApplication: NSRunningApplication, to nextApplication: NSRunningApplication) {
+    if #available(macOS 14.0, *) {
+      nextApplication.activate(from: currentApplication)
+    } else {
+      nextApplication.activate(options: [])
+    }
+  }
 
   private func getWindows() -> [WindowModel] {
     let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]

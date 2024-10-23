@@ -75,7 +75,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
   func findNextWindow(_ currentWindow: RelativeWindowModel, windows: [RelativeWindowModel],
                       direction: SystemWindowRelativeFocus.Direction,
-                      initialScreen: NSScreen = NSScreen.main!) async throws -> RelativeWindowModel? {
+                      initialScreen: NSScreen = NSScreen.main!) async throws -> RelativeWindowModelMatch? {
     let initialDirection = direction
     let windowSpacing = max(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
     let systemWindows = windows.systemWindows
@@ -114,7 +114,6 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     let maxY = (systemWindows.map { $0.window.rect.maxY }.max() ?? 0) + windowSpacing
 
     var searching = true
-    var match: RelativeSystemWindowModel?
     var constraint: (RelativeWindowModel) -> Bool = { _ in false }
     var tiling: WindowTiling?
 
@@ -136,15 +135,14 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     while searching {
       try Task.checkCancellation()
 
-      if Self.debug {
-        try await Task.sleep(for: .seconds(0.0125))
-      }
+      if Self.debug { try await Task.sleep(for: .seconds(0.0125)) }
 
       let increment: CGFloat = fieldOfViewRect.width
       switch direction {
       case .left:
         fieldOfViewRect.origin.x -= increment
         constraint = {
+          !currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.x < currentWindow.rect.origin.x &&
           abs($0.rect.origin.x - currentWindow.rect.origin.x) > 2
         }
@@ -159,6 +157,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
           break
         }
         constraint = {
+          !currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.x > currentWindow.rect.origin.x &&
           $0.rect.maxX != currentWindow.rect.maxX &&
           abs($0.rect.origin.x - currentWindow.rect.origin.x) > 2
@@ -170,6 +169,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
           break
         }
         constraint = {
+          !currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.y != currentWindow.rect.origin.y &&
           abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
         }
@@ -180,6 +180,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
           break
         }
         constraint = {
+          !currentWindow.rect.contains($0.rect) &&
           $0.rect.maxY != currentWindow.rect.maxY &&
           $0.rect.origin.y > currentWindow.rect.origin.y &&
           abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
@@ -190,14 +191,13 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       let elementOrigin = CGPoint(x: fieldOfViewRect.midX, y: fieldOfViewRect.midY)
       if let accessWindow = systemElement.element(at: elementOrigin, as: AnyAccessibilityElement.self)?.window,
          let firstMatch = systemWindows.first(where: { $0.window.id == accessWindow.id }) {
-        return firstMatch.window
+        return .init(firstMatch.window, axWindow: accessWindow)
       }
 
-      for visibleWindow in systemWindows {
-        if constraint(visibleWindow.window) && fieldOfViewRect.intersects(visibleWindow.window.rect) {
-          match = visibleWindow
+      for systemWindow in systemWindows {
+        if constraint(systemWindow.window) && fieldOfViewRect.intersects(systemWindow.window.rect) {
           searching = false
-          return match?.window
+          return .init(systemWindow.window)
         }
       }
 
@@ -210,55 +210,52 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
     }
 
-    if let match {
-      return match.window
+    try Task.checkCancellation()
+    fieldOfViewRect.size = .init(width: initialScreen.visibleFrame.width / 2.5,
+                                 height: initialScreen.visibleFrame.height / 2.5)
+
+    if NSScreen.screens.count == 1 {
+      fieldOfViewRect.origin.x = initialScreen.visibleFrame.minX - windowSpacing
+      fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
     } else {
-      try Task.checkCancellation()
-      fieldOfViewRect.size = .init(width: initialScreen.visibleFrame.width / 2.5,
-                                   height: initialScreen.visibleFrame.height / 2.5)
-
-      if NSScreen.screens.count == 1 {
-        fieldOfViewRect.origin.x = initialScreen.visibleFrame.minX - windowSpacing
+      switch initialDirection {
+      case .up: #warning("Implement this.")
+        break
+      case .down: #warning("Implement this.")
+        break
+      case .left:
+        fieldOfViewRect.origin.x = initialScreen.visibleFrame.minX - windowSpacing - fieldOfViewRect.width
         fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
-      } else {
-        switch initialDirection {
-        case .up: #warning("Implement this.")
-          break
-        case .down: #warning("Implement this.")
-          break
-        case .left:
-          fieldOfViewRect.origin.x = initialScreen.visibleFrame.minX - windowSpacing - fieldOfViewRect.width
-          fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
-        case .right:
-          fieldOfViewRect.origin.x = initialScreen.visibleFrame.maxX + windowSpacing + fieldOfViewRect.width
-          fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
-        }
+      case .right:
+        fieldOfViewRect.origin.x = initialScreen.visibleFrame.maxX + windowSpacing + fieldOfViewRect.width
+        fieldOfViewRect.origin.y = initialScreen.visibleFrame.mainDisplayFlipped.midY
       }
-
-      let applicableScreens = NSScreen.screens.filter({ $0.frame.intersects(fieldOfViewRect) })
-      if let nextScreen = applicableScreens.first {
-        fieldOfViewRect.origin.x = nextScreen.frame.midX - fieldOfViewRect.size.width / 2
-        fieldOfViewRect.origin.y = nextScreen.frame.mainDisplayFlipped.midY - fieldOfViewRect.size.height / 2
-
-        updateDebugWindow(fieldOfViewRect)
-
-        if NSScreen.screens.count == 1 {
-          return nil
-        } else if let match = windows
-          .first(where: { $0.rect.intersects(fieldOfViewRect) }) {
-
-          switch initialDirection {
-          case .up, .down:
-            if currentWindow.rect.origin.y == match.rect.origin.y { return nil }
-          case .left, .right:
-            if currentWindow.rect.origin.x == match.rect.origin.x { return nil }
-          }
-          return match
-        }
-
-      }
-      return nil
     }
+
+    let applicableScreens = NSScreen.screens.filter({ $0.frame.intersects(fieldOfViewRect) })
+    if let nextScreen = applicableScreens.first {
+      fieldOfViewRect.origin.x = nextScreen.frame.midX - fieldOfViewRect.size.width / 2
+      fieldOfViewRect.origin.y = nextScreen.frame.mainDisplayFlipped.midY - fieldOfViewRect.size.height / 2
+
+      updateDebugWindow(fieldOfViewRect)
+
+      let paddedWindowRect = currentWindow.rect.insetBy(dx: -2, dy: -2)
+
+      if let match = windows.first(where: { window in
+        window != currentWindow &&
+        !paddedWindowRect.contains(window.rect) &&
+        window.rect.intersects(fieldOfViewRect)
+      }) {
+        switch initialDirection {
+        case .up, .down:
+          if currentWindow.rect.origin.y == match.rect.origin.y { return nil }
+        case .left, .right:
+          if currentWindow.rect.origin.x == match.rect.origin.x { return nil }
+        }
+        return .init(match)
+      }
+    }
+    return nil
   }
 
   private func updateDebugWindow(_ frame: CGRect) {
@@ -286,5 +283,15 @@ extension Array<RelativeWindowModel> {
   var systemWindows: [RelativeSystemWindowModel] { enumerated().reduce(into: [], { result, entry in
     result.append(RelativeSystemWindowModel(index: entry.offset, window: entry.element))
   })
+  }
+}
+
+struct RelativeWindowModelMatch {
+  let axWindow: WindowAccessibilityElement?
+  let window: RelativeWindowModel
+
+  init(_ window: RelativeWindowModel, axWindow: WindowAccessibilityElement? = nil) {
+    self.axWindow = axWindow
+    self.window = window
   }
 }
