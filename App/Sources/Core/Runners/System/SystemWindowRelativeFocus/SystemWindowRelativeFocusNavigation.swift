@@ -188,7 +188,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         return firstMatch.window
       }
 
-      for visibleWindow in systemWindows where visibleWindow.window != currentWindow {
+      for visibleWindow in systemWindows {
         let constraintResult = constraint(visibleWindow.window)
         let intersectionResult = fieldOfViewRect.intersects(visibleWindow.window.rect)
 
@@ -235,7 +235,6 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
       let applicableScreens = NSScreen.screens.filter( { $0.frame.intersects(fieldOfViewRect) })
       if let nextScreen = applicableScreens.first {
-        try Task.checkCancellation()
         fieldOfViewRect.origin.x = nextScreen.frame.midX - fieldOfViewRect.size.width / 2
         fieldOfViewRect.origin.y = nextScreen.frame.mainDisplayFlipped.midY - fieldOfViewRect.size.height / 2
 
@@ -244,8 +243,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         if NSScreen.screens.count == 1 {
           return nil
           // Add a setting for "wrap-around" when the user hits the edge of the screen.
-//          return visibleWindows
-//            .filter({ $0.window != currentWindow })
+//          return systemWindows
 //            .sorted(by: { lhs, rhs in
 //              switch initialDirection {
 //              case .up:    lhs.window.rect.minY > rhs.window.rect.minY
@@ -256,7 +254,6 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 //            })
 //            .first(where: { $0.window.rect.intersects(fieldOfViewRect) })?.window
         } else if let match = windows
-          .filter({ $0 != currentWindow })
           .first(where: { $0.rect.intersects(fieldOfViewRect) }) {
 
           switch initialDirection {
