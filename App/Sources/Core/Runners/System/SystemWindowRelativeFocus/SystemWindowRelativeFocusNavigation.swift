@@ -87,18 +87,19 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     let width = max(min(1, windowSpacing), 50)
     let height = max(min(1, windowSpacing), 50)
 
-    let y = switch direction {
-    case .up:    currentWindow.rect.minY - height / 2 // .midY: Verify that doesn't break multi-monitor navigation
-    case .down:  currentWindow.rect.minY // .midY: Verify that doesn't break multi-monitor navigation
-    case .left:  currentWindow.rect.minY
-    case .right: currentWindow.rect.minY
-    }
+    var x = currentWindow.rect.midX
+    var y = currentWindow.rect.minY
 
-    let x = switch direction {
-    case .up:    currentWindow.rect.midX + width
-    case .down:  currentWindow.rect.midX - width
-    case .left:  currentWindow.rect.minX - width
-    case .right: currentWindow.rect.maxX + width
+    switch direction {
+    case .up:
+      y -= height / 2
+      x += width
+    case .down:
+      x -= width
+    case .left:
+      x = currentWindow.rect.minX - width
+    case .right:
+      x = currentWindow.rect.maxX + width
     }
 
     var direction = initialDirection
@@ -114,7 +115,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
     var searching = true
     var match: RelativeSystemWindowModel?
-    var constraint: (RelativeWindowModel) -> Bool
+    var constraint: (RelativeWindowModel) -> Bool = { _ in false }
     var tiling: WindowTiling?
 
     if let screen = currentScreen(fieldOfViewRect).first {
@@ -143,38 +144,42 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       switch direction {
       case .left:
         fieldOfViewRect.origin.x -= increment
-        if fieldOfViewRect.maxX < minX - windowSpacing { searching = false }
         constraint = {
-          currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.x < currentWindow.rect.origin.x &&
           abs($0.rect.origin.x - currentWindow.rect.origin.x) > 2
         }
+        if fieldOfViewRect.maxX < minX - windowSpacing {
+          searching = false
+          break
+        }
       case .right:
         fieldOfViewRect.origin.x += increment
-        if fieldOfViewRect.minX > maxX { searching = false }
+        if fieldOfViewRect.minX > maxX {
+          searching = false
+          break
+        }
         constraint = {
-          currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.x > currentWindow.rect.origin.x &&
           $0.rect.maxX != currentWindow.rect.maxX &&
           abs($0.rect.origin.x - currentWindow.rect.origin.x) > 2
         }
       case .up:
         fieldOfViewRect.origin.y -= increment
-        if fieldOfViewRect.maxY < minY { searching = false }
+        if fieldOfViewRect.maxY < minY {
+          searching = false
+          break
+        }
         constraint = {
-          currentWindow.rect.contains($0.rect) &&
           $0.rect.origin.y != currentWindow.rect.origin.y &&
           abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
         }
       case .down:
         fieldOfViewRect.origin.y += increment
-
         if fieldOfViewRect.maxY + fieldOfViewRect.height >= maxY {
           searching = false
+          break
         }
-
         constraint = {
-          currentWindow.rect.contains($0.rect) &&
           $0.rect.maxY != currentWindow.rect.maxY &&
           $0.rect.origin.y > currentWindow.rect.origin.y &&
           abs($0.rect.origin.y - currentWindow.rect.origin.y) > 2
@@ -189,10 +194,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
 
       for visibleWindow in systemWindows {
-        let constraintResult = constraint(visibleWindow.window)
-        let intersectionResult = fieldOfViewRect.intersects(visibleWindow.window.rect)
-
-        if constraintResult && intersectionResult {
+        if constraint(visibleWindow.window) && fieldOfViewRect.intersects(visibleWindow.window.rect) {
           match = visibleWindow
           searching = false
           return match?.window
@@ -233,7 +235,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
         }
       }
 
-      let applicableScreens = NSScreen.screens.filter( { $0.frame.intersects(fieldOfViewRect) })
+      let applicableScreens = NSScreen.screens.filter({ $0.frame.intersects(fieldOfViewRect) })
       if let nextScreen = applicableScreens.first {
         fieldOfViewRect.origin.x = nextScreen.frame.midX - fieldOfViewRect.size.width / 2
         fieldOfViewRect.origin.y = nextScreen.frame.mainDisplayFlipped.midY - fieldOfViewRect.size.height / 2
@@ -242,17 +244,6 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
         if NSScreen.screens.count == 1 {
           return nil
-          // Add a setting for "wrap-around" when the user hits the edge of the screen.
-//          return systemWindows
-//            .sorted(by: { lhs, rhs in
-//              switch initialDirection {
-//              case .up:    lhs.window.rect.minY > rhs.window.rect.minY
-//              case .down:  lhs.window.rect.maxX < rhs.window.rect.maxY
-//              case .left:  lhs.window.rect.minX > rhs.window.rect.minX
-//              case .right: lhs.window.rect.maxX < rhs.window.rect.maxX
-//              }
-//            })
-//            .first(where: { $0.window.rect.intersects(fieldOfViewRect) })?.window
         } else if let match = windows
           .first(where: { $0.rect.intersects(fieldOfViewRect) }) {
 
