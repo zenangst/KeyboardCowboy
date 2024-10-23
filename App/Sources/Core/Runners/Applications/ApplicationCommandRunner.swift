@@ -61,6 +61,8 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     case .peek:
       guard let machPortEvent else { return }
 
+      await PeekApplicationPlugin.set(machPortEvent)
+
       if machPortEvent.type == .keyDown {
         try await openApplication(command, checkCancellation: checkCancellation)
       } else if machPortEvent.type == .keyUp {

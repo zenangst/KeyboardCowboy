@@ -153,9 +153,18 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       if handleEscapeKeyDownEvent(machPortEvent) { return }
     case .keyUp:
       if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp {
-        machPortEvent.result = nil
-        Task.detached { [workflowRunner] in
-          await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
+        if let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent {
+          let pressDurtion = timeElapsedInSeconds(
+            start: previousKeyDownMachPortEvent.event.timestamp,
+            end: machPortEvent.event.timestamp
+          )
+          if pressDurtion < 0.75 {
+            Task.detached { [workflowRunner] in
+              await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
+            }
+          }
+          PeekApplicationPlugin.peekEvent = nil
+          return
         }
       } else if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == machPortKeyCode  {
         scheduledAction = nil
@@ -252,6 +261,13 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     }
 
     notifications.notifyBundles(partialMatch)
+  }
+
+  func timeElapsedInSeconds(start: CGEventTimestamp, end: CGEventTimestamp) -> Double {
+    var timebaseInfo = mach_timebase_info_data_t()
+    mach_timebase_info(&timebaseInfo)
+    let elapsedTicks = end - start
+    return Double(elapsedTicks) / 1_000_000_000
   }
 
   @MainActor
