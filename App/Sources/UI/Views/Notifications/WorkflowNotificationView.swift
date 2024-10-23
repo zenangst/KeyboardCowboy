@@ -56,7 +56,6 @@ struct WorkflowNotificationView: View {
         HStack {
           if let workflow = publisher.data.workflow {
             workflow.iconView(24)
-              .drawingGroup()
           }
 
           ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
