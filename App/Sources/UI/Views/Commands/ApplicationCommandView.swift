@@ -127,6 +127,16 @@ private struct ApplicationCommandInternalView: View {
               .font(.subheadline)
           }
         })
+        Button(action: {
+          model.action = "Peek"
+          onAction(.changeApplicationAction(.peek))
+        }, label: {
+          HStack {
+            Image(systemName: "eyes")
+            Text("Peek")
+              .font(.subheadline)
+          }
+        })
       }, label: {
         Text(model.action)
           .font(.caption)
