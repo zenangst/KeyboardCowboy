@@ -35,8 +35,9 @@ final class SystemWindowRelativeFocus {
     }
 
     let windows = indexWindowsInStage(getWindows())
+    let activeProcessIdentifier = Int(snapshot.frontmostApplication.ref.processIdentifier)
 
-    guard let activeWindow = windows.first else { return }
+    guard let activeWindow = windows.first(where: { $0.ownerPid == activeProcessIdentifier }) else { return }
 
     let previousWindow = activeWindow
     let match = try await navigation.findNextWindow(activeWindow, windows: windows, direction: direction)
