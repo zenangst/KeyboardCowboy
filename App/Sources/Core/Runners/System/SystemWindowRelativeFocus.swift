@@ -49,6 +49,8 @@ final class SystemWindowRelativeFocus {
     let axWindow = match?.axWindow ?? resolveAXWindow(nextWindow)
 
     if let axWindow, let frame = axWindow.frame {
+      try Task.checkCancellation()
+
       FocusBorder.shared.show(nextWindow.rect.mainDisplayFlipped)
       axWindow.performAction(.raise)
 
