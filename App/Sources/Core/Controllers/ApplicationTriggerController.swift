@@ -30,10 +30,10 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
 
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     frontmostApplicationSubscription = publisher
-      .sink { [weak self] frontMostApplication in
+      .sink { [weak self] frontmostApplication in
         guard let self else { return }
         DispatchQueue.main.async {
-          self.process(frontMostApplication)
+          self.process(frontmostApplication)
         }
       }
   }
@@ -91,19 +91,19 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
   }
 
   @MainActor
-  private func process(_ frontMostApplication: UserSpace.Application) {
+  private func process(_ frontmostApplication: UserSpace.Application) {
     if let anyAppTriggerWorkflows = self.activateActions[Application.anyAppBundleIdentifier()] {
       runTriggerWorkflows(anyAppTriggerWorkflows)
     }
 
-    if let triggerWorkflows = self.activateActions[frontMostApplication.bundleIdentifier] {
+    if let triggerWorkflows = self.activateActions[frontmostApplication.bundleIdentifier] {
       runTriggerWorkflows(triggerWorkflows)
     }
 
     if let previousApplication, let triggerWorkflows = self.resignActions[previousApplication.bundleIdentifier] {
       runTriggerWorkflows(triggerWorkflows)
     }
-    previousApplication = frontMostApplication
+    previousApplication = frontmostApplication
   }
 
   @MainActor

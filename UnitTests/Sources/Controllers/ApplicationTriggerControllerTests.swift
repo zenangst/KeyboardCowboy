@@ -5,7 +5,7 @@ import Cocoa
 import MachPort
 
 final class ApplicationTriggerControllerTests: XCTestCase {
-  func testApplicationTriggerController_frontMost() {
+  func testApplicationTriggerController_frontmost() {
     let ctx = context(.frontMost)
     let controller = ApplicationTriggerController(ctx.runner)
 
@@ -16,7 +16,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
 
     controller.subscribe(to: ctx.groupPublisher.$groups)
     controller.subscribe(to: ctx.userSpace
-      .$frontMostApplication)
+      .$frontmostApplication)
     controller.subscribe(to: ctx.userSpace
       .$runningApplications)
 
@@ -36,7 +36,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     }
 
     controller.subscribe(to: ctx.groupPublisher.$groups)
-    controller.subscribe(to: ctx.userSpace.$frontMostApplication)
+    controller.subscribe(to: ctx.userSpace.$frontmostApplication)
     controller.subscribe(to: ctx.userSpace.$runningApplications)
 
     ctx.userSpace.injectRunningApplications([
@@ -58,7 +58,7 @@ final class ApplicationTriggerControllerTests: XCTestCase {
 
     controller.subscribe(to: ctx.groupPublisher.$groups)
     controller.subscribe(to: ctx.userSpace
-      .$frontMostApplication)
+      .$frontmostApplication)
     controller.subscribe(to: ctx.userSpace
       .$runningApplications)
 

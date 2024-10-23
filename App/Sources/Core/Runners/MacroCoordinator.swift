@@ -53,7 +53,7 @@ final class MacroCoordinator: @unchecked Sendable {
 
   func match(_ machPortEvent: MachPortEvent) -> [MacroKind]? {
     let eventSignature = CGEventSignature.from(machPortEvent.event)
-    let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier, eventSignature: eventSignature)
+    let macroKey = MacroKey(bundleIdentifier: userSpace.frontmostApplication.bundleIdentifier, eventSignature: eventSignature)
     if let macro = macros[macroKey] {
       if let keyShortcut = keyShortcut(for: machPortEvent) {
         Task { @MainActor [bezelId] in
@@ -173,7 +173,7 @@ final class MacroCoordinator: @unchecked Sendable {
         macros[recordingKey]?.append(kind)
       }
     } else {
-      let bundleIdentifier = userSpace.frontMostApplication.bundleIdentifier
+      let bundleIdentifier = userSpace.frontmostApplication.bundleIdentifier
       let recordingKey = MacroKey(bundleIdentifier: bundleIdentifier, eventSignature: eventSignature)
 
       macros[recordingKey] = nil
@@ -192,7 +192,7 @@ final class MacroCoordinator: @unchecked Sendable {
   }
 
   func remove(_ eventSignature: CGEventSignature, machPortEvent: MachPortEvent) {
-    let macroKey = MacroKey(bundleIdentifier: userSpace.frontMostApplication.bundleIdentifier,
+    let macroKey = MacroKey(bundleIdentifier: userSpace.frontmostApplication.bundleIdentifier,
                             eventSignature: eventSignature)
     if macros[macroKey] != nil {
       macros[macroKey] = nil

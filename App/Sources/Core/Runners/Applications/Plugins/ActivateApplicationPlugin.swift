@@ -39,7 +39,7 @@ final class ActivateApplicationPlugin {
 
     var options: NSApplication.ActivationOptions = .activateIgnoringOtherApps
 
-    if userSpace.frontMostApplication.bundleIdentifier.lowercased() == command.application.bundleIdentifier.lowercased() {
+    if userSpace.frontmostApplication.bundleIdentifier.lowercased() == command.application.bundleIdentifier.lowercased() {
       options.insert(.activateAllWindows)
     }
 

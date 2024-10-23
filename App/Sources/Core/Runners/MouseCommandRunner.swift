@@ -25,7 +25,7 @@ class MouseCommandRunner {
       }
 
       let frame: CGRect
-      if let customRoutine = CustomMouseRoutine(rawValue: snapshot.frontMostApplication.bundleIdentifier)?
+      if let customRoutine = CustomMouseRoutine(rawValue: snapshot.frontmostApplication.bundleIdentifier)?
         .routine(roleDescription: roleDescription) {
         frame = try customRoutine.run(focusedElement, kind: command.kind, roleDescription: roleDescription)
       } else {

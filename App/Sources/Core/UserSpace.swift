@@ -56,7 +56,7 @@ final class UserSpace: @unchecked Sendable {
   }
   struct Snapshot {
     let documentPath: String?
-    let frontMostApplication: Application
+    let frontmostApplication: Application
     let modes: [UserMode]
     let previousApplication: Application
     let selectedText: String
@@ -64,18 +64,18 @@ final class UserSpace: @unchecked Sendable {
     let windows: WindowStoreSnapshot
 
     init(documentPath: String? = nil,
-         frontMostApplication: Application,
+         frontmostApplication: Application,
          modes: [UserMode] = [],
          previousApplication: Application,
          selectedText: String = "",
          selections: [String] = [],
          windows: WindowStoreSnapshot = WindowStoreSnapshot(
-          frontMostApplicationWindows: [],
+          frontmostApplicationWindows: [],
           visibleWindowsInStage: [],
           visibleWindowsInSpace: []
          )) {
       self.documentPath = documentPath
-      self.frontMostApplication = frontMostApplication
+      self.frontmostApplication = frontmostApplication
       self.modes = modes
       self.previousApplication = previousApplication
       self.selectedText = selectedText
@@ -169,7 +169,7 @@ final class UserSpace: @unchecked Sendable {
   @MainActor
   static let shared = UserSpace()
 
-  @Published private(set) var frontMostApplication: Application
+  @Published private(set) var frontmostApplication: Application
   @Published private(set) var previousApplication: Application
   @Published private(set) var runningApplications: [Application]
   public let userModesPublisher = UserModesPublisher([])
@@ -182,7 +182,7 @@ final class UserSpace: @unchecked Sendable {
 
   @MainActor
   private init(workspace: NSWorkspace = .shared) {
-    frontMostApplication = .current
+    frontmostApplication = .current
     previousApplication = .current
     runningApplications = [Application.current]
 
@@ -192,8 +192,8 @@ final class UserSpace: @unchecked Sendable {
         guard let self else { return }
         Task { @MainActor in
           guard let newApplication = runningApplication.asApplication() else { return }
-          self.previousApplication = self.frontMostApplication
-          self.frontMostApplication = newApplication
+          self.previousApplication = self.frontmostApplication
+          self.frontmostApplication = newApplication
         }
       }
     runningApplicationsSubscription = workspace.publisher(for: \.runningApplications)
@@ -212,7 +212,7 @@ final class UserSpace: @unchecked Sendable {
   }
 
   func injectFrontmostApplication(_ frontmostApplication: Application) {
-    self.frontMostApplication = frontmostApplication
+    self.frontmostApplication = frontmostApplication
   }
 #endif
 
@@ -225,7 +225,7 @@ final class UserSpace: @unchecked Sendable {
     var selectedText: String = ""
 
     if resolveUserEnvironment,
-       let frontmostApplication = try? frontmostApplication() {
+       let frontmostApplication = try? frontmostRunningApplication() {
       if let documentPathFromAX = try? self.documentPath(for: frontmostApplication) {
         documentPath = documentPathFromAX
       } else if let bundleIdentifier = frontmostApplication.bundleIdentifier {
@@ -247,7 +247,7 @@ final class UserSpace: @unchecked Sendable {
     let windows = WindowStore.shared.snapshot(refresh: refreshWindows)
 
     return Snapshot(documentPath: documentPath,
-                    frontMostApplication: frontMostApplication,
+                    frontmostApplication: frontmostApplication,
                     previousApplication: previousApplication,
                     selectedText: selectedText,
                     selections: selections,
@@ -278,7 +278,7 @@ final class UserSpace: @unchecked Sendable {
 
   // MARK: - Private methods
 
-  private func frontmostApplication() throws -> NSRunningApplication {
+  private func frontmostRunningApplication() throws -> NSRunningApplication {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
       throw WindowCommandRunnerError.unableToResolveFrontmostApplication
     }

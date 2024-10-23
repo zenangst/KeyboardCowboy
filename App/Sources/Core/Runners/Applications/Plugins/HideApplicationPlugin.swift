@@ -19,7 +19,7 @@ final class HideApplicationPlugin {
     }
 
     if workspace.frontApplication?.bundleIdentifier != command.application.bundleIdentifier {
-      userSpace.frontMostApplication.ref.activate(options: .activateIgnoringOtherApps)
+      userSpace.frontmostApplication.ref.activate(options: .activateIgnoringOtherApps)
     }
 
     _ = runningApplication.hide()

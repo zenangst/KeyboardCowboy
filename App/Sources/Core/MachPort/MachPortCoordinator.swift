@@ -178,7 +178,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
     if handleRepeatingKeyEvent(machPortEvent, isRepeatingEvent: isRepeatingEvent) { return }
 
-    let bundleIdentifier = UserSpace.shared.frontMostApplication.bundleIdentifier
+    let bundleIdentifier = UserSpace.shared.frontmostApplication.bundleIdentifier
     let userModes = UserSpace.shared.userModes.filter(\.isEnabled)
     let result = shortcutResolver.lookup(
       machPortEvent,

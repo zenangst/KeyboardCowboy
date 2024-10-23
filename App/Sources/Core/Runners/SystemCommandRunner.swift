@@ -18,7 +18,7 @@ final class SystemCommandRunner: @unchecked Sendable {
   private let workspace: WorkspaceProviding
 
   private var flagsChangedSubscription: AnyCancellable?
-  private var frontMostIndex: Int = 0
+  private var frontmostIndex: Int = 0
   private var visibleMostIndex: Int = 0
 
   init(_ applicationStore: ApplicationStore = .shared, 
@@ -47,7 +47,7 @@ final class SystemCommandRunner: @unchecked Sendable {
         Task { @MainActor in
           WindowStore.shared.state.interactive = flags != CGEventFlags.maskNonCoalesced
           if WindowStore.shared.state.interactive == false {
-            self.frontMostIndex = 0
+            self.frontmostIndex = 0
             self.visibleMostIndex = 0
             self.resetFocusComponents()
           }

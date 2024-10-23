@@ -103,17 +103,17 @@ final class KeyboardCowboyEngine {
   // MARK: Private methods
 
   private func subscribe(to workspace: NSWorkspace) {
-    WindowStore.shared.subscribe(to: UserSpace.shared.$frontMostApplication)
+    WindowStore.shared.subscribe(to: UserSpace.shared.$frontmostApplication)
 
     snippetController.subscribe(to: contentStore.groupStore.$groups)
 
     guard KeyboardCowboy.env() == .production else { return }
 
-    applicationTriggerController.subscribe(to: UserSpace.shared.$frontMostApplication)
+    applicationTriggerController.subscribe(to: UserSpace.shared.$frontmostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
-    applicationActivityMonitor.subscribe(to: UserSpace.shared.$frontMostApplication)
-//    applicationWindowObserver.subscribe(to: UserSpace.shared.$frontMostApplication)
+    applicationActivityMonitor.subscribe(to: UserSpace.shared.$frontmostApplication)
+//    applicationWindowObserver.subscribe(to: UserSpace.shared.$frontmostApplication)
     SystemWindowTilingRunner.initialIndex()
   }
 }

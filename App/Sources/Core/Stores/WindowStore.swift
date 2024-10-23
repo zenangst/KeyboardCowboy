@@ -8,14 +8,14 @@ import MachPort
 import Windows
 
 struct WindowStoreSnapshot: @unchecked Sendable {
-  let frontMostApplicationWindows: [WindowAccessibilityElement]
+  let frontmostApplicationWindows: [WindowAccessibilityElement]
   let visibleWindowsInStage: [WindowModel]
   let visibleWindowsInSpace: [WindowModel]
 
-  init(frontMostApplicationWindows: [WindowAccessibilityElement],
+  init(frontmostApplicationWindows: [WindowAccessibilityElement],
        visibleWindowsInStage: [WindowModel],
        visibleWindowsInSpace: [WindowModel]) {
-    self.frontMostApplicationWindows = frontMostApplicationWindows
+    self.frontmostApplicationWindows = frontmostApplicationWindows
     self.visibleWindowsInStage = visibleWindowsInStage
     self.visibleWindowsInSpace = visibleWindowsInSpace
   }
@@ -26,16 +26,16 @@ final class WindowStore: @unchecked Sendable {
     var flagsChange: AnyCancellable?
     var passthrough = PassthroughSubject<Void, Never>()
     var subject: AnyCancellable?
-    var frontMostApplication: AnyCancellable?
+    var frontmostApplication: AnyCancellable?
   }
 
   final class State: @unchecked Sendable {
     var appAccessibilityElement: AppAccessibilityElement
     var frontmostApplication: UserSpace.Application
-    var frontMostIndex: Int = 0
+    var frontmostIndex: Int = 0
     var visibleMostIndex: Int = 0
     var interactive: Bool = false
-    var frontMostApplicationWindows: [WindowAccessibilityElement] = .init()
+    var frontmostApplicationWindows: [WindowAccessibilityElement] = .init()
     var visibleWindowsInStage: [WindowModel] = .init()
     var visibleWindowsInSpace: [WindowModel] = .init()
 
@@ -61,7 +61,7 @@ final class WindowStore: @unchecked Sendable {
   }
 
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
-    subscriptions.frontMostApplication = publisher
+    subscriptions.frontmostApplication = publisher
       .compactMap { $0 }
       .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self, state] application in
@@ -70,7 +70,7 @@ final class WindowStore: @unchecked Sendable {
         let pid = application.ref.processIdentifier
         state.appAccessibilityElement = AppAccessibilityElement(pid)
         state.frontmostApplication = application
-        state.frontMostIndex = 0
+        state.frontmostIndex = 0
         if state.interactive == false {
           self.index(application)
         } else {
@@ -91,7 +91,7 @@ final class WindowStore: @unchecked Sendable {
       .sink { [state, subscriptions] flags in
         state.interactive = flags != CGEventFlags.maskNonCoalesced
         if state.interactive == false {
-          state.frontMostIndex = 0
+          state.frontmostIndex = 0
           state.visibleMostIndex = 0
           subscriptions.passthrough.send()
         }
@@ -163,7 +163,7 @@ final class WindowStore: @unchecked Sendable {
         NSAccessibility.Subrole.systemDialog.rawValue,
         NSAccessibility.Subrole.dialog.rawValue
       ]
-      state.frontMostApplicationWindows = try state.appAccessibilityElement.windows()
+      state.frontmostApplicationWindows = try state.appAccessibilityElement.windows()
         .filter({
           $0.id > 0 &&
           ($0.size?.height ?? 0) > 20 &&
@@ -176,7 +176,7 @@ final class WindowStore: @unchecked Sendable {
 fileprivate extension WindowStore.State {
   func snapshot() -> WindowStoreSnapshot {
     WindowStoreSnapshot(
-      frontMostApplicationWindows: frontMostApplicationWindows,
+      frontmostApplicationWindows: frontmostApplicationWindows,
       visibleWindowsInStage: visibleWindowsInStage,
       visibleWindowsInSpace: visibleWindowsInSpace
     )

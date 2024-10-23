@@ -124,7 +124,7 @@ final class ContentStore: ObservableObject {
     use(configurationStore.selectedConfiguration)
     storage.subscribe(to: configurationStore.$configurations)
     subscribe(to: groupStore.$groups)
-    shortcutStore.subscribe(to: UserSpace.shared.$frontMostApplication)
+    shortcutStore.subscribe(to: UserSpace.shared.$frontmostApplication)
     state = .initialized
   }
 
