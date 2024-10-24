@@ -79,7 +79,6 @@ struct MacroIconView: View {
           .frame(width: size * 0.25, height: size * 0.25)
           .offset(x: -size * 0.075, y: -size * 0.075)
       }
-      .drawingGroup(opaque: true)
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)

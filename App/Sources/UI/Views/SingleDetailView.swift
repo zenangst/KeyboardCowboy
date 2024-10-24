@@ -107,7 +107,6 @@ struct SingleDetailView: View {
         .padding(.bottom, 24)
         .background(alignment: .bottom, content: { 
           SingleDetailBackgroundView()
-            .drawingGroup()
         })
 
       WorkflowCommandListView(

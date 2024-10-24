@@ -98,7 +98,7 @@ struct WindowManagementIconBackgroundView: View {
       }
       .blur(radius: 1)
       .compositingGroup()
-      .drawingGroup()
+//      .drawingGroup()
   }
 }
 
@@ -140,7 +140,6 @@ private struct WindowManagementIconWindowControlsView: View {
     .fontWeight(.bold)
     .padding([.top, .leading, .trailing], size * 0.0_5)
     .frame(height: size * 0.25)
-    .drawingGroup()
   }
 }
 

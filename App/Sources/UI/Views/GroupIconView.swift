@@ -13,7 +13,6 @@ struct GroupIconView: View {
       .grayscale(controlActiveState == .key ? 0 : 0.2)
       .opacity(controlActiveState == .key ? 1 : 0.8)
       .overlay(GroupIconOverlayView(icon: icon, symbol: symbol))
-      .drawingGroup()
   }
 }
 

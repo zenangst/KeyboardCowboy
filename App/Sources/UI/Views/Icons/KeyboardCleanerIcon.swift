@@ -21,7 +21,6 @@ struct KeyboardCleanerIcon: View {
       .overlay { iconBorder(size) }
       .frame(width: size, height: size)
       .fixedSize()
-      .drawingGroup(opaque: true)
       .overlay {
         VStack(spacing: size * 0.02) {
           HStack(spacing: size * 0.02) {
