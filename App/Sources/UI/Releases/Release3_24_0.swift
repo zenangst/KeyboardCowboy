@@ -235,7 +235,7 @@ struct Release3_24_0: View {
   }
 }
 
-struct SponsorView: View {
+private struct SponsorView: View {
   let imageUrl: URL?
   let githubHandle: String
 

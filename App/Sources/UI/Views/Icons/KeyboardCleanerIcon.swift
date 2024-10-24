@@ -3,10 +3,12 @@ import SwiftUI
 
 struct KeyboardCleanerIcon: View {
   @State var isAnimating: Bool = false
+  private var animated: Bool
   private let size: CGFloat
 
-  init(size: CGFloat = 20) {
+  init(size: CGFloat = 20, animated: Bool = true) {
     self.size = size
+    self.animated = animated
   }
 
   var body: some View {
@@ -43,16 +45,19 @@ struct KeyboardCleanerIcon: View {
       }
       .iconShape(size)
       .overlay {
-        BubbleSystemView(isAnimating: $isAnimating, size: size)
+        BubbleSystemView(isAnimating: $isAnimating, animated: animated, size: size)
       }
       .onAppear {
-        isAnimating = true
+        if animated {
+          isAnimating = true
+        }
       }
   }
 }
 
 private struct BubbleSystemView: View {
   @Binding var isAnimating: Bool
+  var animated: Bool
   var size: CGFloat
 
   var body: some View {
@@ -90,6 +95,7 @@ private struct BubbleSystemView: View {
             value: isAnimating
           )
           .onAppear {
+            guard animated else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.1) {
               isAnimating = true
             }
