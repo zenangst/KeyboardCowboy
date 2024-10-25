@@ -323,10 +323,10 @@ final class SystemWindowTilingRunner {
     let widthDelta = abs(Int(screenInsetFrame.width) - width)
     let heightDelta = abs(Int(screenInsetFrame.height) - height)
 
-    let isTopLeft = centerX < halfWidth && centerY < halfHeight
-    let isTopRight = centerX >= halfWidth && centerY < halfHeight
-    let isBottomLeft = centerX < halfWidth && centerY >= halfHeight
-    let isBottomRight = centerX >= halfWidth && centerY >= halfHeight
+    let isTopLeft = centerX < halfWidth && centerY < halfHeight + Int(windowSpacing)
+    let isTopRight = centerX >= halfWidth && centerY < halfHeight + Int(windowSpacing)
+    let isBottomLeft = centerX < halfWidth && centerY > halfHeight + Int(windowSpacing)
+    let isBottomRight = centerX >= halfWidth && centerY > halfHeight + Int(windowSpacing)
     let isFill = delta.size.inThreshold(min(windowSpacing, 1))
     let isCenter = Int(rect.midX) == Int(screenFrame.midX)
 
@@ -339,23 +339,13 @@ final class SystemWindowTilingRunner {
     }
 
     let leftThreshold = Int(rect.origin.x - xOffset)
-    let isLeft = leftThreshold <= halfWidth && height >= halfHeight
-    let isRight = rect.maxX == screenFrame.maxX - windowSpacing && height >= halfHeight
-    let isTop = rect.minY == screenFrame.minY && width >= halfWidth
-    let isBottom = rect.maxY == screenFrame.maxY - windowSpacing && width >= halfWidth
+    let isLeft = rect.minY == screenFrame.minY + windowSpacing && leftThreshold <= halfWidth && height >= halfHeight
+    let isRight = rect.maxX == screenFrame.maxX - windowSpacing && height >= halfHeight + Int(windowSpacing)
+    let isTop = rect.minY == screenFrame.minY + windowSpacing && width >= halfWidth + Int(windowSpacing)
+    let isBottom = rect.maxY == screenFrame.maxY - windowSpacing && width >= halfWidth + Int(windowSpacing)
 
     if isFill || widthDelta == 0 && heightDelta == 0 {
       return .fill
-    } else if isCenter {
-      return .center
-    } else if isRight {
-      return .right
-    } else if isLeft {
-      return .left
-    } else if isTop {
-      return .top
-    } else if isBottom {
-      return .bottom
     } else if isTopLeft {
       return .topLeft
     } else if isTopRight {
@@ -364,6 +354,16 @@ final class SystemWindowTilingRunner {
       return .bottomRight
     } else if isBottomLeft {
       return .bottomLeft
+    } else if isRight {
+      return .right
+    } else if isLeft {
+      return .left
+    } else if isTop {
+      return .top
+    } else if isBottom {
+      return .bottom
+    } else if isCenter {
+      return .center
     } else {
       return .fill
     }
