@@ -1,3 +1,4 @@
+import Apps
 import SwiftUI
 import Inject
 import Bonzai
@@ -41,6 +42,7 @@ struct WorkflowNotificationView: View {
   @ObservedObject var publisher: WorkflowNotificationPublisher
   @EnvironmentObject var windowManager: WindowManager
   @AppStorage("Notifications.Placement") var notificationPlacement: NotificationPlacement = .bottomLeading
+  @Namespace var namespace
 
   var body: some View {
     NotificationView(notificationPlacement.alignment) {
@@ -48,36 +50,15 @@ struct WorkflowNotificationView: View {
       VStack(alignment: .trailing) {
         WorkflowNotificationMatchesView(publisher: publisher)
           .frame(
-            maxWidth: 250,
-            maxHeight: maxHeight - 64,
+            maxHeight: maxHeight,
             alignment: notificationPlacement.alignment
           )
           .fixedSize(horizontal: false, vertical: true)
-        HStack {
-          if let workflow = publisher.data.workflow {
-            workflow.iconView(24)
-          }
+          .clipShape(RoundedRectangle(cornerRadius: 12))
+          .padding(4)
+          .opacity(publisher.data.matches.isEmpty ? 0 : 1)
 
-          ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
-            WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: .readonly(false))
-              .transition(AnyTransition.moveAndFade.animation(Self.animation))
-          }
-
-          if let workflow = publisher.data.workflow {
-            Text(workflow.name)
-              .allowsTightening(true)
-              .minimumScaleFactor(0.8)
-              .bold()
-              .font(.footnote)
-              .lineLimit(1)
-              .padding(4)
-              .background(Color(nsColor: .windowBackgroundColor))
-              .clipShape(RoundedRectangle(cornerRadius: 8))
-              .transition(AnyTransition.moveAndFade.animation(Self.animation))
-          }
-        }
-        .roundedContainer(padding: 6, margin: 0)
-        .opacity(!publisher.data.keyboardShortcuts.isEmpty ? 1 : 0)
+          RunningWorkflowView(publisher: publisher)
       }
     }
     .padding(4)
@@ -88,6 +69,38 @@ struct WorkflowNotificationView: View {
         windowManager.cancelClose()
       }
     })
+  }
+}
+
+private struct RunningWorkflowView: View {
+  @ObservedObject var publisher: WorkflowNotificationPublisher
+  var body: some View {
+    HStack {
+      if let workflow = publisher.data.workflow {
+        workflow.iconView(24)
+      }
+
+      ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
+        WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: .readonly(false))
+          .transition(AnyTransition.moveAndFade.animation(WorkflowNotificationView.animation))
+      }
+
+      if let workflow = publisher.data.workflow {
+        Text(workflow.name)
+          .allowsTightening(true)
+          .minimumScaleFactor(0.8)
+          .bold()
+          .font(.footnote)
+          .lineLimit(1)
+          .padding(4)
+          .background(Color(nsColor: .windowBackgroundColor))
+          .clipShape(RoundedRectangle(cornerRadius: 8))
+          .transition(AnyTransition.moveAndFade.animation(WorkflowNotificationView.animation))
+      }
+    }
+    .roundedContainer(padding: 6, margin: 0)
+    .opacity(!publisher.data.keyboardShortcuts.isEmpty ? 1 : 0)
+    .frame(height: !publisher.data.keyboardShortcuts.isEmpty ? nil : 0)
   }
 }
 
@@ -130,14 +143,30 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
   static let fullModel = WorkflowNotificationViewModel(
     id: "test",
     matches: [
-      Workflow.designTime(.keyboardShortcuts(.init(shortcuts: [
-        .init(key: "a")
-      ])))
+      Workflow(
+        name: "Finder",
+        trigger: Workflow.Trigger.keyboardShortcuts(
+          KeyboardShortcutTrigger(
+            shortcuts: [
+              KeyShortcut(key: "d", lhs: true, modifiers: [.control, .option, .command]),
+              KeyShortcut(key: "f", lhs: true, modifiers: []),
+            ]
+          )
+        ),
+        commands: [
+          Command.application(
+            ApplicationCommand(
+              action: .open,
+              application: Application.finder(),
+              meta: Command.MetaData(),
+              modifiers: []
+            )
+          )
+        ]
+      )
     ],
     keyboardShortcuts: [
-      .init(id: "a", key: "a", lhs: true),
-      .init(id: "b", key: "b", lhs: true),
-      .init(id: "c", key: "c", lhs: true),
+      KeyShortcut(key: "d", lhs: true, modifiers: [.control, .option, .command]),
     ]
   )
 
@@ -155,10 +184,7 @@ extension Workflow {
     let enabledCommands = Array(commands.filter(\.isEnabled).prefix(3).reversed())
     ZStack {
       ForEach(Array(zip(enabledCommands.indices, enabledCommands)), id: \.1.id) { offset, command in
-        let realtiveOffset = CGFloat(enabledCommands.count) - CGFloat(offset)
         command.iconView(size)
-          .scaleEffect(1 - realtiveOffset * 0.1)
-          .offset(y: -realtiveOffset * 2.0)
           .id(command.id)
       }
     }
@@ -202,7 +228,7 @@ extension Command {
           case .shellScript:                  ScriptIconView(size: size)
           case .appleScript:                  ScriptIconView(size: size)
         }
-      case .application(let command):         IconView(icon: Icon(command.application), size: CGSize(width: 32, height: 32)).iconShape(size)
+      case .application(let command):         IconView(icon: Icon(command.application), size: CGSize(width: size + 6, height: size + 6))
       case .text(let command):
         switch command.kind {
           case .insertText: TypingIconView(size: size)
@@ -214,7 +240,7 @@ extension Command {
         if let application = command.application {
           IconView(
             icon: .init(application),
-            size: .init(width: 32, height: 32)
+            size: .init(width: size + 6, height: size + 6)
           )
           .iconShape(size)
         } else {
