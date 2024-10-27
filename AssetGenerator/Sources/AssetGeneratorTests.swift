@@ -52,7 +52,7 @@ final class AssetGeneratorTests: XCTestCase {
 
   @MainActor
   func test_generateWikiAssets() throws {
-    let iconSize = CGSize(width: 16, height: 16)
+    let iconSize = CGSize(width: 24, height: 24)
 
     try AssetGenerator.generate(filename: "Wiki/Home/Bento", useIntrinsicContentSize: true, size: CGSize(width: 1024, height: 768), content: PromoView())
     try AssetGenerator.generate(filename: "Wiki/Triggers/GenericAppIconView", size: iconSize, content: GenericAppIconView(size: iconSize.width))
