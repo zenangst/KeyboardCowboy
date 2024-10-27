@@ -54,7 +54,15 @@ final class AssetGeneratorTests: XCTestCase {
   func test_generateWikiAssets() throws {
     let iconSize = CGSize(width: 24, height: 24)
 
+    // Promo image
     try AssetGenerator.generate(filename: "Wiki/Home/Bento", useIntrinsicContentSize: true, size: CGSize(width: 1024, height: 768), content: PromoView())
+
+    // Icons
+    try AssetGenerator.generate(filename: "Wiki/Commands/AppFocus", size: iconSize, content: AppFocusIcon(size: iconSize.width))
+    try AssetGenerator.generate(filename: "Wiki/Commands/Workspaces", size: iconSize, content: WorkspaceIcon(size: iconSize.width))
+    try AssetGenerator.generate(filename: "Wiki/Commands/AppPeek", size: iconSize, content: AppPeekIcon(size: iconSize.width))
+    try AssetGenerator.generate(filename: "Wiki/Commands/WindowTiling", size: iconSize, content: WindowTilingIcon(kind: .arrangeLeftQuarters, size: iconSize.width))
+
     try AssetGenerator.generate(filename: "Wiki/Triggers/GenericAppIconView", size: iconSize, content: GenericAppIconView(size: iconSize.width))
     try AssetGenerator.generate(filename: "Wiki/Triggers/TriggersIconView", size: iconSize, content: TriggersIconView(size: iconSize.width))
     try AssetGenerator.generate(filename: "Wiki/Triggers/KeyboardIconView", size: iconSize, content: KeyboardIconView("M", size: iconSize.width))

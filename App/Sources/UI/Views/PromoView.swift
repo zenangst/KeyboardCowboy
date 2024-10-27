@@ -81,6 +81,7 @@ struct PromoView: View {
 
       HStack(spacing: 16) {
         WindowTilingPromoView()
+          .shadow(color: Color(.white), radius: 15, y: 2)
           .frame(width: 200, height: 148)
           .padding(16)
           .background(
@@ -169,14 +170,7 @@ private struct WorkspacesPromoView: View {
 private struct WindowTilingPromoView: View {
   var body: some View {
     VStack(spacing: 16) {
-      Rectangle()
-        .fill(Color.white.opacity(0.4))
-        .overlay {
-          WorkspaceIconIllustration(size: 96)
-        }
-        .frame(width: 96, height: 96)
-        .fixedSize()
-        .iconShape(72)
+      WindowTilingIcon(kind: .arrangeLeftQuarters, size: 96)
       Text("Smarter Window Tiling")
         .multilineTextAlignment(.center)
     }
@@ -267,10 +261,11 @@ private struct ActionPackedView: View {
     VStack(spacing: 8) {
       Text("Action Packed Features")
       HStack {
-        RepeatLastWorkflowIconView(size: 64)
-        RelativeFocusIconView(.right, size: 64)
-        TypingIconView(size: 64)
-        KeyboardIconView("♾️", size: 64)
+        RepeatLastWorkflowIconView(size: 46)
+        RelativeFocusIconView(.right, size: 46)
+        TypingIconView(size: 46)
+        KeyboardIconView("♾️", size: 46)
+        AppPeekIcon(size: 46)
       }
       .roundedContainer(margin: 0)
     }

@@ -65,7 +65,7 @@ struct WorkspaceIllustration: View {
   let kind: Kind
   let size: CGFloat
   var body: some View {
-    RoundedRectangle(cornerRadius: 8)
+    RoundedRectangle(cornerRadius: size * 0.125)
       .fill(Color.white.opacity(0.4))
       .clipShape(RoundedRectangle(cornerRadius: size * 0.125))
       .overlay {
