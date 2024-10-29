@@ -32,7 +32,7 @@ final class Benchmark {
     guard (isEnabled || forceEnable), let startTime = storage[identifier()] else {
       return "Unknown identifier: \(identifier())"
     }
-    Swift.print("⏱️ (\(identifier())) = \(CACurrentMediaTime() - startTime) ")
+    Swift.print("⏱️ (\(identifier())) = \(CACurrentMediaTime() - startTime) \n")
     storage[identifier()] = nil
     return "⏱ Benchmark(\(identifier())) = \(CACurrentMediaTime() - startTime) "
   }

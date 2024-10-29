@@ -161,7 +161,7 @@ final class ShortcutResolver {
               flags.insert(.maskSecondaryFn)
             }
 
-            let eventSignature = CGEventSignature(keyCode, flags)
+            let eventSignature = CGEventSignature(Int64(keyCode), flags)
 
             if Self.debug, workflow.name.contains("**") {
               print(workflow.name, eventSignature.id)

@@ -132,10 +132,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
     if launchArguments.isEnabled(.disableMachPorts) { return }
 
-    let machPortKeyCode = Int(machPortEvent.keyCode)
-    let isRepeatingEvent: Bool = machPortEvent.event.getIntegerValueField(.keyboardEventAutorepeat) == 1
-    let inMacroContext = macroCoordinator.state == .recording && !isRepeatingEvent
-    let eventSignature = CGEventSignature.from(machPortEvent.event)
+    let inMacroContext = macroCoordinator.state == .recording && !machPortEvent.isRepeat
+    let eventSignature = CGEventSignature.from(machPortEvent.event, keyCode: machPortEvent.keyCode)
 
     switch machPortEvent.type {
     case .keyDown:
@@ -145,7 +143,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       }
 
       if case .captureKeyDown(let keyCode) = scheduledAction,
-          keyCode == machPortKeyCode {
+          keyCode == Int(machPortEvent.keyCode) {
           machPortEvent.result = nil
           return
       }
@@ -166,8 +164,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
           PeekApplicationPlugin.peekEvent = nil
           return
         }
-      } else if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == machPortKeyCode  {
+      } else if case .captureKeyDown(let keyCode) = scheduledAction, keyCode == Int(machPortEvent.keyCode)  {
         scheduledAction = nil
+        let machPortKeyCode = Int(machPortEvent.keyCode)
         _ = try? machPort?.post(machPortKeyCode, type: .keyDown, flags: machPortEvent.event.flags)
         _ = try? machPort?.post(machPortKeyCode, type: .keyUp, flags: machPortEvent.event.flags)
         previousPartialMatch = Self.defaultPartialMatch
@@ -185,7 +184,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       return
     }
 
-    if handleRepeatingKeyEvent(machPortEvent, isRepeatingEvent: isRepeatingEvent) { return }
+    if handleRepeatingKeyEvent(machPortEvent) { return }
 
     let bundleIdentifier = UserSpace.shared.frontmostApplication.bundleIdentifier
     let userModes = UserSpace.shared.userModes.filter(\.isEnabled)
@@ -201,7 +200,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     switch result {
     case .none:
       let partialMatchCopy = previousPartialMatch
-      handleNoMatch(result, machPortEvent: machPortEvent, isRepeatingEvent: isRepeatingEvent, runningMacro: runningMacro)
+      handleNoMatch(result, machPortEvent: machPortEvent)
       if inMacroContext {
         macroCoordinator.record(eventSignature, kind: .event(machPortEvent), machPortEvent: machPortEvent)
       }
@@ -218,7 +217,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       if inMacroContext {
         macroCoordinator.record(eventSignature, kind: .workflow(workflow), machPortEvent: machPortEvent)
       }
-      handleExtactMatch(workflow, machPortEvent: machPortEvent, isRepeatingEvent: isRepeatingEvent)
+      handleExtactMatch(workflow, machPortEvent: machPortEvent)
     }
   }
 
@@ -271,10 +270,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   }
 
   @MainActor
-  private func handleExtactMatch(_ workflow: Workflow, machPortEvent: MachPortEvent, isRepeatingEvent: Bool) {
-    if workflow.machPortConditions.isPassthrough == true {
-      // NOOP
-    } else {
+  private func handleExtactMatch(_ workflow: Workflow, machPortEvent: MachPortEvent) {
+    if workflow.machPortConditions.isPassthrough != true {
       machPortEvent.result = nil
     }
 
@@ -284,7 +281,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     if workflow.machPortConditions.enabledCommandsCount == 1,
        case .keyboard(let command) = workflow.machPortConditions.enabledCommands.first {
 
-      if !isRepeatingEvent {
+      if !machPortEvent.isRepeat {
         notifications.notifyKeyboardCommand(workflow, command: command)
       }
 
@@ -302,7 +299,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         }
       }
 
-      Task.detached { await execution(machPortEvent, isRepeatingEvent) }
+      Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
 
       repeatingResult = execution
       repeatingKeyCode = machPortEvent.keyCode
@@ -316,11 +313,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         }
       }
 
-      Task.detached { await execution(machPortEvent, isRepeatingEvent) }
+      Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
 
       repeatingResult = execution
       repeatingKeyCode = machPortEvent.keyCode
-    } else if !isRepeatingEvent || workflow.machPortConditions.isValidForRepeat {
+    } else if !machPortEvent.isRepeat || workflow.machPortConditions.isValidForRepeat {
       if let delay = workflow.machPortConditions.scheduleDuration {
         scheduledWorkItem = schedule(workflow, machPortEvent: machPortEvent, after: delay)
       } else {
@@ -332,16 +329,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   }
 
   @MainActor
-  private func handleNoMatch(_ result: KeyboardShortcutResult?, machPortEvent: MachPortEvent, isRepeatingEvent: Bool, runningMacro: Bool) {
-    // No match, reset the lookup key
+  private func handleNoMatch(_ result: KeyboardShortcutResult?, machPortEvent: MachPortEvent) {
     reset()
-
-    // Disable caps lock.
-    // TODO: Add a setting for this!
-    //        var newFlags = machPortEvent.event.flags
-    //        newFlags.subtract(.maskAlphaShift)
-    //        machPortEvent.event.flags = newFlags
-
     repeatingMatch = false
     coordinatorEvent = machPortEvent.event
   }
@@ -393,22 +382,21 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   ///
   /// - Parameters:
   ///   - machPortEvent: The MachPortEvent representing the key event.
-  ///   - isRepeatingEvent: A Boolean value indicating whether the event is a repeating event.
   /// - Returns: A Boolean value indicating whether the execution should return early (true) or continue (false).
-  private func handleRepeatingKeyEvent(_ machPortEvent: MachPortEvent, isRepeatingEvent: Bool) -> Bool {
+  private func handleRepeatingKeyEvent(_ machPortEvent: MachPortEvent) -> Bool {
     // If the event is repeating and there is an earlier result,
     // reuse that result to avoid unnecessary lookups.
-    if isRepeatingEvent, let repeatingResult, repeatingKeyCode == machPortEvent.keyCode {
+    if machPortEvent.isRepeat, let repeatingResult, repeatingKeyCode == machPortEvent.keyCode {
       machPortEvent.result = nil
       repeatingResult(machPortEvent, true)
       return true
       // If the event is repeating and there is no earlier result,
       // simply opt-out because we don't want to lookup the same
       // keyboard shortcut over and over again.
-    } else if isRepeatingEvent, repeatingMatch == false {
+    } else if machPortEvent.isRepeat, repeatingMatch == false {
       return true
       // Reset the repeating result and match if the event is not repeating.
-    } else if previousExactMatch != nil, isRepeatingEvent {
+    } else if previousExactMatch != nil, machPortEvent.isRepeat {
       machPortEvent.result = nil
       return true
     } else {

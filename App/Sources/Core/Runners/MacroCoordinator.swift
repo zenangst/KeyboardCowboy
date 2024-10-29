@@ -131,6 +131,7 @@ final class MacroCoordinator: @unchecked Sendable {
       return true
     } else if state == .removing {
       remove(eventSignature, machPortEvent: machPortEvent)
+      machPortEvent.result = nil
       return true
     } else {
       return false
