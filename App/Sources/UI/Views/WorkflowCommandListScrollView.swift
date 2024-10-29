@@ -33,7 +33,7 @@ struct WorkflowCommandListScrollView: View {
   }
 
   var body: some View {
-    ZenList {
+    CompatList {
       ForEach(publisher.data.commands, id: \.id) { command in
         CommandView(
           focus,

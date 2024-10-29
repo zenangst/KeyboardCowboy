@@ -108,7 +108,6 @@ let assetGeneratorTarget = Target.target(
     ])
 )
 
-
 let project = Project(
   name: "Keyboard Cowboy",
   options: Project.Options.options(

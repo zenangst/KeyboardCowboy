@@ -182,7 +182,7 @@ struct ContentView: View {
           ContentListEmptyView(namespace, onAction: onAction)
             .frame(maxHeight: .infinity)
         } else {
-          ZenList {
+          CompatList {
             let items = publisher.data.filter({ search($0) })
             ForEach(items.lazy, id: \.id) { element in
               ContentItemView(
@@ -217,6 +217,7 @@ struct ContentView: View {
               }
               onAction(.reorderWorkflows(source: indexSet, destination: destination))
             })
+            .compatContentListPadding()
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               appFocus.wrappedValue = .detail(.name)
             })
@@ -359,20 +360,6 @@ struct ContentView: View {
     Button("Delete", action: {
       onAction(.removeWorkflows(contentSelectionManager.selections))
     })
-  }
-}
-
-struct LegacyOnTapFix: ViewModifier {
-  let onTap: () -> Void
-
-  @ViewBuilder
-  func body(content: Content) -> some View {
-    if #available(macOS 14.0, *) {
-      content
-    } else {
-      content
-        .onTapGesture(perform: onTap)
-    }
   }
 }
 

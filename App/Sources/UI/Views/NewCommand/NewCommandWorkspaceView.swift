@@ -44,7 +44,7 @@ struct NewCommandWorkspaceView: View {
         .menuStyle(.regular)
         .padding(4)
 
-        ZenList {
+        CompatList {
           ForEach(Array(zip(selectedApps.indices, selectedApps)), id: \.0) { offset, item in
             VStack(spacing: 0) {
               HStack {

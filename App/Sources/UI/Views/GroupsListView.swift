@@ -63,7 +63,7 @@ struct GroupsListView: View {
       if publisher.data.isEmpty {
         GroupsEmptyListView(namespace, isVisible: .readonly(publisher.data.isEmpty), onAction: onAction)
       } else {
-        ZenList {
+        CompatList {
           ForEach(publisher.data.lazy, id: \.id) { group in
             GroupItemView(group, selectionManager: selectionManager,
                           onAction: onAction)

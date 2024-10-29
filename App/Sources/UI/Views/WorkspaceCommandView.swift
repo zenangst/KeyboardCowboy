@@ -43,7 +43,7 @@ struct WorkspaceCommandView: View {
       }
       .padding(.horizontal, 4)
 
-      ZenList {
+      CompatList {
         ForEach(Array(zip(model.applications.indices, model.applications)), id: \.0) { offset, application in
           HStack {
             IconView(icon: Icon(application), size: .init(width: 24, height: 24))
