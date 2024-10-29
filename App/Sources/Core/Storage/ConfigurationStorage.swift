@@ -45,6 +45,12 @@ final class ConfigurationStorage: @unchecked Sendable {
     Benchmark.shared.start("Storage.load")
 
     if !fileManager.fileExists(atPath: configLocation.url.path) {
+      let folderUrl = configLocation.url.deletingLastPathComponent()
+      var isDirectory: ObjCBool = true
+      if !fileManager.fileExists(atPath: folderUrl.path, isDirectory: &isDirectory) {
+        try fileManager.createDirectory(at: folderUrl, withIntermediateDirectories: true)
+      }
+
       if !fileManager.createFile(atPath: configLocation.url.path, contents: nil) {
         Benchmark.shared.stop("Storage.load")
         throw ConfigurationStorageError.unableToFindFile
