@@ -6,24 +6,43 @@ struct BugFixIconView: View {
     Rectangle()
       .fill(
         LinearGradient(stops: [
-          .init(color: Color(nsColor: .systemGreen), location: 0.25),
-          .init(color: Color(nsColor: .systemGreen.blended(withFraction: 0.25, of: NSColor.black)!), location: 1.0),
-        ], startPoint: .top, endPoint: .bottom)
+          .init(color: Color(.systemGreen.blended(withFraction: 0.6, of: .black)!), location: 0.0),
+          .init(color: Color(.systemTeal), location: 0.6),
+          .init(color: Color(.systemGreen.blended(withFraction: 0.6, of: .white)!), location: 1.0),
+        ], startPoint: .topLeading, endPoint: .bottom)
       )
-      .overlay { iconOverlay().opacity(0.5) }
-      .overlay { iconBorder(size) }
       .overlay {
         LinearGradient(stops: [
-          .init(color: Color(nsColor: .systemGreen.blended(withFraction: 0.8, of: .white)!), location: 0.4),
-          .init(color: Color(nsColor: .systemGreen), location: 1.0),
-        ], startPoint: .topLeading, endPoint: .bottom)
-        .mask {
-          Image(systemName: "ladybug")
+          .init(color: Color(.systemGreen), location: 0.5),
+          .init(color: Color(.systemGreen.blended(withFraction: 0.2, of: .white)!), location: 1.0),
+        ], startPoint: .topTrailing, endPoint: .bottomTrailing)
+        .opacity(0.6)
+      }
+      .overlay {
+        LinearGradient(stops: [
+          .init(color: Color(.systemGreen.blended(withFraction: 0.3, of: .white)!), location: 0.2),
+          .init(color: Color.clear, location: 0.8),
+        ], startPoint: .topTrailing, endPoint: .bottomLeading)
+      }
+      .overlay { iconOverlay().opacity(0.65) }
+      .overlay { iconBorder(size) }
+      .overlay {
+        ZStack {
+          Image(systemName: "bandage.fill")
             .resizable()
             .aspectRatio(contentMode: .fit)
+            .frame(width: size * 0.6)
+            .rotationEffect(.degrees(90))
+            .offset(x: size * -0.006, y: size * 0.004)
+
+          Image(systemName: "bandage")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: size * 0.6)
         }
-        .frame(width: size * 0.6)
-        .shadow(radius: 2)
+        .compositingGroup()
+        .shadow(color: Color(.systemGreen.blended(withFraction: 0.5, of: .black)!), radius: 10, y: 10)
+        .fontWeight(.thin)
       }
       .frame(width: size, height: size)
       .fixedSize()

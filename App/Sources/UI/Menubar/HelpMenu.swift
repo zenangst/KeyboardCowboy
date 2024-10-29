@@ -4,7 +4,7 @@ struct HelpMenu: View {
   @Environment(\.openWindow) private var openWindow
 
   var body: some View {
-    Button { openWindow(id: KeyboardCowboy.releaseNotesWindowIdentifier) } label: { Text("What's new?") }
+    Button { openWindow(id: KeyboardCowboy.releaseNotesWindowIdentifier) } label: { Text("What's New?") }
 
     Button(action: {
       NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki")!)

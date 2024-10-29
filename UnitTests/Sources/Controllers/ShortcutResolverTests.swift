@@ -78,7 +78,7 @@ fileprivate struct LookupTokenMock: LookupToken {
   var lhs: Bool
   var signature: CGEventSignature
 
-  init(lhs: Bool, keyCode: Int, flags: CGEventFlags) {
+  init(lhs: Bool, keyCode: Int64, flags: CGEventFlags) {
     self.lhs = lhs
     self.signature = CGEventSignature(keyCode, flags)
   }
