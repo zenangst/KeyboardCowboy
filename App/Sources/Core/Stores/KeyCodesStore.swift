@@ -26,6 +26,7 @@ final class KeyCodesStore {
 
   internal init(_ currentInputProvider: CurrentInputSourceProviding) {
     self.currentInputProvider = currentInputProvider
+    reloadCurrentSource()
   }
 
   func subscribe(to publisher: Published<UUID?>.Publisher) {
