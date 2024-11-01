@@ -22,7 +22,7 @@ final class MainWindow: NSObject, NSWindowDelegate {
 
     let window = ZenSwiftUIWindow(styleMask: styleMask, content: content)
     window.titlebarAppearsTransparent = true
-    window.titleVisibility = .hidden
+    window.titleVisibility = .visible
     window.identifier = .init(rawValue: KeyboardCowboyApp.mainWindowIdentifier)
     window.delegate = self
     if let frameDescriptor = UserDefaults.standard.string(forKey: "MainWindowFrame") {
@@ -30,6 +30,7 @@ final class MainWindow: NSObject, NSWindowDelegate {
     } else {
       window.center()
     }
+    window.toolbarStyle = .unifiedCompact
     window.orderFrontRegardless()
     window.makeKeyAndOrderFront(nil)
     KeyboardCowboyApp.activate(setActivationPolicy: true)

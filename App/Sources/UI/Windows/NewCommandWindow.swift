@@ -62,6 +62,10 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
       }
     }
 
+    window.animationBehavior = .documentWindow
+
+    let size = window.hostingController.sizeThatFits(in: .init(width: 320, height: 240))
+    window.setFrame(NSRect(origin: .zero, size: size), display: false)
     window.titleVisibility = .hidden
     window.titlebarAppearsTransparent = true
     window.delegate = self

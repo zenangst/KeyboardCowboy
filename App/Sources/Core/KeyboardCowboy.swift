@@ -28,6 +28,7 @@ struct KeyboardCowboyApp: App {
   @FocusState var focus: AppFocus?
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
+  private let windowOpener: WindowOpener
   private let coordinator: AppExtraCoordinator
   private var open: Bool = true
   private let core: Core
@@ -37,7 +38,8 @@ struct KeyboardCowboyApp: App {
     let core = Core()
     contentStore = core.contentStore
     self.core = core
-    self.coordinator = AppExtraCoordinator(core: core)
+    self.windowOpener = WindowOpener(core: core)
+    self.coordinator = AppExtraCoordinator(core: core, windowOpener: windowOpener)
 
     Task { @MainActor in
       InjectConfiguration.animation = .spring()
@@ -48,8 +50,52 @@ struct KeyboardCowboyApp: App {
   }
 
   var body: some Scene {
-    AppMenuBarExtras(contentStore: core.contentStore, keyboardCleaner: core.keyboardCleaner,
+    AppMenuBarExtras(core: core, contentStore: core.contentStore, keyboardCleaner: core.keyboardCleaner,
                      onAction: { action in coordinator.handle(action) })
+    .commands {
+      CommandGroup(after: .appSettings) {
+        AppMenu()
+        Button {
+          windowOpener.openReleaseNotes()
+        } label: { Text("What's new?") }
+      }
+      CommandGroup(replacing: .newItem) {
+        FileMenu(
+          onNewConfiguration: {
+            let action = SidebarView.Action.addConfiguration(name: "New Configuration")
+            core.configCoordinator.handle(action)
+            core.sidebarCoordinator.handle(action)
+            core.contentCoordinator.handle(action)
+            core.detailCoordinator.handle(action)
+          },
+          onNewGroup: {
+            windowOpener.openGroup(.add(WorkflowGroup.empty()))
+          },
+          onNewWorkflow: {
+            let action = ContentView.Action.addWorkflow(workflowId: UUID().uuidString)
+            core.contentCoordinator.handle(action)
+            core.detailCoordinator.handle(action)
+            //            focus = .detail(.name)
+          },
+          onNewCommand: { id in
+            windowOpener.openNewCommandWindow(.newCommand(workflowId: id))
+          }
+        )
+        .environmentObject(core.contentStore.groupStore)
+        .environmentObject(core.detailCoordinator.statePublisher)
+        .environmentObject(core.detailCoordinator.infoPublisher)
+      }
+
+      CommandGroup(replacing: .toolbar) {
+        ViewMenu(onFilter: {
+          //          focus = .search
+        })
+      }
+
+      CommandGroup(replacing: .help) {
+        HelpMenu(onAction: coordinator.handleHelpMenu(_:))
+      }
+    }
 
     Settings { SettingsView().environmentObject(OpenPanelController()) }
     .windowStyle(.hiddenTitleBar)
