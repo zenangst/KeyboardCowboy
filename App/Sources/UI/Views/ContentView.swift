@@ -181,6 +181,7 @@ struct ContentView: View {
         if publisher.data.isEmpty {
           ContentListEmptyView(namespace, onAction: onAction)
             .frame(maxHeight: .infinity)
+            .toolbar(content: { toolbarContent() })
         } else {
           CompatList {
             let items = publisher.data.filter({ search($0) })
@@ -299,31 +300,32 @@ struct ContentView: View {
               debounce.process(.init(workflows: contentSelectionManager.selections))
             }
           })
-          .toolbar {
-            ToolbarItemGroup(placement: .navigation) {
-              Button(action: {
-                searchTerm = ""
-                onAction(.addWorkflow(workflowId: UUID().uuidString))
-              },
-                     label: {
-                Label(title: {
-                  Text("Add workflow")
-                }, icon: {
-                  Image(systemName: "rectangle.stack.badge.plus")
-                    .renderingMode(.template)
-                    .foregroundColor(Color(.systemGray))
-                })
-              })
-              .opacity(publisher.data.isEmpty ? 0 : 1)
-              .help("Add workflow")
-            }
-          }
+          .toolbar(content: { toolbarContent() })
           .onReceive(NotificationCenter.default.publisher(for: .newWorkflow), perform: { _ in
             proxy.scrollTo("bottom")
           })
         }
     }
     .enableInjection()
+  }
+
+  private func toolbarContent() -> some ToolbarContent {
+    ToolbarItemGroup(placement: .navigation) {
+      Button(action: {
+        searchTerm = ""
+        onAction(.addWorkflow(workflowId: UUID().uuidString))
+      },
+             label: {
+        Label(title: {
+          Text("Add workflow")
+        }, icon: {
+          Image(systemName: "rectangle.stack.badge.plus")
+            .renderingMode(.template)
+            .foregroundColor(Color(.systemGray))
+        })
+      })
+      .help("Add workflow")
+    }
   }
 
   private func onTap(_ element: ContentViewModel) {
