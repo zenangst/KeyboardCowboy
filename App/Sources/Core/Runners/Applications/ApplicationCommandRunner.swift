@@ -50,7 +50,10 @@ final class ApplicationCommandRunner: @unchecked Sendable {
     }
 
     if await command.application.bundleIdentifier == KeyboardCowboyApp.bundleIdentifier {
-      await NSApplication.shared.delegate?.applicationDidBecomeActive?(.openKeyboardCowboy)
+      await MainActor.run {
+        NotificationCenter.default.post(name: .openKeyboardCowboy, object: nil)
+      }
+      return
     }
 
     switch command.action {

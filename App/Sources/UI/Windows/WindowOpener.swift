@@ -7,9 +7,11 @@ final class WindowOpener: ObservableObject {
 
   init(core: Core) {
     self.core = core
+
+    NotificationCenter.default.addObserver(self, selector: #selector(openMainWindow), name: .openKeyboardCowboy, object: nil)
   }
 
-  func openMainWindow() {
+  @objc func openMainWindow() {
     MainWindow(core: core).open()
   }
 
