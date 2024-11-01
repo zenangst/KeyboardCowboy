@@ -4,7 +4,7 @@ struct PermissionsScene: Scene {
   var onAction: (PermissionsView.Action) -> Void
 
   var body: some Scene {
-    WindowGroup(id: KeyboardCowboy.permissionsWindowIdentifier) {
+    WindowGroup(id: KeyboardCowboyApp.permissionsWindowIdentifier) {
       PermissionsView(onAction: onAction)
         .toolbar(content: {
           Spacer()

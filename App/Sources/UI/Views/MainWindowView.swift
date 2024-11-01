@@ -2,22 +2,19 @@ import SwiftUI
 
 @MainActor
 struct MainWindowView: View {
+  @FocusState var focus: AppFocus?
   @Namespace var namespace
-  private var focus: FocusState<AppFocus?>.Binding
   private let core: Core
   private let onSceneAction: (AppScene) -> Void
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
-       core: Core,
-       onSceneAction: @escaping (AppScene) -> Void) {
-    self.focus = focus
+  init(core: Core, onSceneAction: @escaping (AppScene) -> Void) {
     self.core = core
     self.onSceneAction = onSceneAction
   }
 
   var body: some View {
     ContainerView(
-      focus,
+      $focus,
       contentState: .readonly(core.contentStore.state),
       publisher: core.contentCoordinator.contentPublisher,
       applicationTriggerSelectionManager: core.applicationTriggerSelectionManager,
@@ -62,12 +59,6 @@ struct MainWindowView: View {
           core.detailCoordinator.handle(.selectWorkflow(workflowIds: core.contentSelectionManager.selections))
         }
       })
-    }
-    .onAppear {
-      KeyboardCowboy.activate()
-    }
-    .onDisappear {
-      KeyboardCowboy.deactivate()
     }
     .environmentObject(ApplicationStore.shared)
     .environmentObject(core.contentStore)

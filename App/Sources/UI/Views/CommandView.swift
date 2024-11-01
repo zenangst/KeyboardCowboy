@@ -32,6 +32,8 @@ struct CommandView: View {
     let commandId: CommandViewModel.ID
   }
 
+  @EnvironmentObject var openWindow: WindowOpener
+
   @Binding private var command: CommandViewModel
   @Environment(\.controlActiveState) private var controlActiveState
   private let publisher: CommandsPublisher
@@ -74,7 +76,7 @@ struct CommandView: View {
 }
 
 struct CommandResolverView: View {
-  @Environment(\.openWindow) var openWindow
+  @EnvironmentObject var openWindow: WindowOpener
   @Binding private var command: CommandViewModel
   private let workflowId: DetailViewModel.ID
   private let onAction: (CommandView.Action) -> Void
@@ -118,7 +120,7 @@ struct CommandResolverView: View {
       MenuBarCommandView(command.meta, model: model, iconSize: iconSize) { action in
         switch action {
         case .editCommand(let command):
-          openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
+          openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: command.id))
         case .commandAction(let action):
           handleCommandContainerAction(action)
         }
@@ -168,7 +170,7 @@ struct CommandResolverView: View {
           case .commandAction(let action):
             handleCommandContainerAction(action)
           case .editCommand(let command):
-            openWindow(value: NewCommandWindow.Context.editCommand(workflowId: workflowId, commandId: command.id))
+            openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: command.id))
           default:
             onAction(.modify(.keyboard(action: action, payload: payload)))
           }

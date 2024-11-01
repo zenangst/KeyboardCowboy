@@ -3,7 +3,6 @@ import SwiftUI
 
 struct WorkflowCommandListHeaderView: View {
   @EnvironmentObject var publisher: CommandsPublisher
-  @Environment(\.openWindow) var openWindow
   private let workflowId: String
   private let namespace: Namespace.ID
 

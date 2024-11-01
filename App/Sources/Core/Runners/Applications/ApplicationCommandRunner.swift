@@ -49,7 +49,7 @@ final class ApplicationCommandRunner: @unchecked Sendable {
       }
     }
 
-    if await command.application.bundleIdentifier == KeyboardCowboy.bundleIdentifier {
+    if await command.application.bundleIdentifier == KeyboardCowboyApp.bundleIdentifier {
       await NSApplication.shared.delegate?.applicationDidBecomeActive?(.openKeyboardCowboy)
     }
 

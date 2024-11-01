@@ -1,6 +1,6 @@
 import Cocoa
 
-extension KeyboardCowboy {
+extension KeyboardCowboyApp {
   static let mainWindowIdentifier = "MainWindow"
   static let permissionsSettingsWindowIdentifier = "PermissionsSettingsWindow"
   static let emptyConfigurationWindowIdentifier = "EmptyConfigurationWindow"
@@ -18,10 +18,10 @@ extension KeyboardCowboy {
   }
 
   static var keyWindow: NSWindow? {
-    KeyboardCowboy.app.keyWindow
+    KeyboardCowboyApp.app.keyWindow
   }
   static var mainWindow: NSWindow? {
-    KeyboardCowboy.app.windows
+    KeyboardCowboyApp.app.windows
       .first(where: { $0.identifier?.rawValue.contains(mainWindowIdentifier) == true })
   }
 
@@ -30,6 +30,7 @@ extension KeyboardCowboy {
       Self.app.setActivationPolicy(.regular)
     }
     Self.app.activate(ignoringOtherApps: true)
+    NSWorkspace.shared.open(Bundle.main.bundleURL)
   }
 
   static func deactivate() {

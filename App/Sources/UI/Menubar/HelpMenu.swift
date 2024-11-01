@@ -1,27 +1,20 @@
 import SwiftUI
 
 struct HelpMenu: View {
-  @Environment(\.openWindow) private var openWindow
+  enum Action {
+    case releaseNotes, wiki, discussions, fileBug
+  }
+
+  private let onAction: (Action) -> Void
+
+  init(onAction: @escaping (Action) -> Void) {
+    self.onAction = onAction
+  }
 
   var body: some View {
-    Button { openWindow(id: KeyboardCowboy.releaseNotesWindowIdentifier) } label: { Text("What's New?") }
-
-    Button(action: {
-      NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/wiki")!)
-    }, label: {
-      Text("Wiki")
-    })
-
-    Button(action: {
-      NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/discussions")!)
-    }, label: {
-      Text("Discussions")
-    })
-
-    Button(action: {
-      NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/new")!)
-    }, label: {
-      Text("File a Bug")
-    })
+    Button { onAction(.releaseNotes) } label: { Text("What's New?") }
+    Button(action: { onAction(.wiki) }, label: { Text("Wiki") })
+    Button(action: { onAction(.discussions) }, label: { Text("Discussions") })
+    Button(action: { onAction(.fileBug) }, label: { Text("File a Bug") })
   }
 }

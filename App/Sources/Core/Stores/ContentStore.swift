@@ -49,7 +49,7 @@ final class ContentStore: ObservableObject {
     let legacy = AppPreferences.legacy()
     self.configMigrator = ConfigurationMigrator(legacyUrl: legacy.configLocation.url)
 
-    guard KeyboardCowboy.env() != .previews else { return }
+    guard KeyboardCowboyApp.env() != .previews else { return }
 
     do {
       if try configMigrator.configurationNeedsMigration(at: legacy.configLocation.url) == true {

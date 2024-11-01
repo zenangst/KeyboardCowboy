@@ -2,7 +2,7 @@ import SwiftUI
 import Bonzai
 
 struct WorkflowCommandEmptyListView: View {
-  @Environment(\.openWindow) var openWindow
+  @EnvironmentObject var openWindow: WindowOpener
   private let namespace: Namespace.ID
   private let workflowId: String
   private let isPrimary: Binding<Bool>
@@ -30,7 +30,9 @@ struct WorkflowCommandEmptyListView: View {
                             focusEffect: .constant(true),
                             grayscaleEffect: .readonly(!isPrimary.wrappedValue),
                             hoverEffect: .readonly(!isPrimary.wrappedValue))),
-        action: { openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflowId)) }
+        action: {
+          openWindow.openNewCommandWindow(.newCommand(workflowId: workflowId))
+        }
       )
          {
         HStack {

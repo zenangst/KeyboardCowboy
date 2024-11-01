@@ -2,7 +2,7 @@ import SwiftUI
 import Bonzai
 
 struct WorkflowCommandListHeaderAddView: View {
-  @Environment(\.openWindow) var openWindow
+  @EnvironmentObject var openWindow: WindowOpener
   private let namespace: Namespace.ID
   private let workflowId: String
 
@@ -13,7 +13,7 @@ struct WorkflowCommandListHeaderAddView: View {
 
   var body: some View {
     Button(action: {
-      openWindow(value: NewCommandWindow.Context.newCommand(workflowId: workflowId))
+      openWindow.openNewCommandWindow(.newCommand(workflowId: workflowId))
     }) {
       HStack(spacing: 4) {
         Image(systemName: "plus.app")

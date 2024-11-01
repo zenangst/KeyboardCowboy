@@ -6,7 +6,7 @@ struct ReleaseNotesScene: Scene {
   @Environment(\.dismiss) var dismiss
 
   var body: some Scene {
-    WindowGroup(id: KeyboardCowboy.releaseNotesWindowIdentifier) {
+    WindowGroup(id: KeyboardCowboyApp.releaseNotesWindowIdentifier) {
       Release3_25_1 { action in
         switch action {
         case .done:
@@ -14,7 +14,7 @@ struct ReleaseNotesScene: Scene {
         }
       }
       .onDisappear {
-        AppStorageContainer.shared.releaseNotes = KeyboardCowboy.marketingVersion
+        AppStorageContainer.shared.releaseNotes = KeyboardCowboyApp.marketingVersion
       }
     }
     .windowResizability(.contentSize)

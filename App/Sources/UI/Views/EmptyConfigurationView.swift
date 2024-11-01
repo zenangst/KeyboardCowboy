@@ -6,17 +6,16 @@ struct EmptyConfigurationView: View {
     case initial
   }
 
+  @Namespace var namespace
   @State var done: Bool = false
   @State var selected: Action = .initial
   private let colors = SplashColors(primaryColor: Color(.systemGreen),
                                     secondaryColor: Color(.systemBlue),
                                     backgroundColor: Color(.sRGB, red: 0.03, green: 0.11, blue: 0.25, opacity: 1.0))
-  private let namespace: Namespace.ID
   private let onAction: (Action) -> Void
   private let model = KeyboardCowboyConfiguration.default()
 
-  init(_ namespace: Namespace.ID, onAction: @escaping (Action) -> Void) {
-    self.namespace = namespace
+  init(onAction: @escaping (Action) -> Void) {
     self.onAction = onAction
   }
 
@@ -151,9 +150,8 @@ struct EmptyConfigurationBackgroundView: View {
 }
 
 struct EmptyConfigurationView_Previews: PreviewProvider {
-  @Namespace static var namespace
   static var previews: some View {
-    EmptyConfigurationView(namespace) { _ in }
+    EmptyConfigurationView { _ in }
       .previewLayout(.sizeThatFits)
   }
 }
