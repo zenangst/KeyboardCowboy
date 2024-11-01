@@ -4,10 +4,11 @@ import Bonzai
 @MainActor
 final class AppExtraCoordinator {
   private let core: Core
-  private lazy var windowOpener = WindowOpener(core: core)
+  private let windowOpener: WindowOpener
 
-  init(core: Core) {
+  init(core: Core, windowOpener: WindowOpener) {
     self.core = core
+    self.windowOpener = windowOpener
   }
 
   func handle(_ action: AppMenuBarExtras.Action) {

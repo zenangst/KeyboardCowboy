@@ -18,12 +18,15 @@ struct AppMenuBarExtras: Scene {
     }
   }
 
+  @EnvironmentObject private var openWindow: WindowOpener
   @ObservedObject private var keyboardCleaner: KeyboardCleaner
 
+  private let core: Core
   private let contentStore: ContentStore
   private let onAction: (Action) -> Void
 
-  init(contentStore: ContentStore, keyboardCleaner: KeyboardCleaner, onAction: @escaping (Action) -> Void) {
+  init(core: Core, contentStore: ContentStore, keyboardCleaner: KeyboardCleaner, onAction: @escaping (Action) -> Void) {
+    self.core = core
     self.contentStore = contentStore
     self.onAction = onAction
     _keyboardCleaner = .init(initialValue: keyboardCleaner)
@@ -65,6 +68,7 @@ struct AppMenuBarExtras: Scene {
           }
         }
     }
+    
   }
 }
 

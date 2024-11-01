@@ -37,12 +37,13 @@ struct WorkflowInfoView: View {
             .init(
               calm: true,
               backgroundColor: Color(nsColor: .windowBackgroundColor),
-              font: .headline,
+              font: .title2,
               padding: .init(horizontal: .small, vertical: .small),
               unfocusedOpacity: 0
             )
           )
         )
+        .fontWeight(.bold)
         .onChange(of: name) {
           guard $0 != publisher.data.name else { return }
           publisher.data.name = $0
