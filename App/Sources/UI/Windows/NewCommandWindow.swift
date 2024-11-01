@@ -69,7 +69,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     window.titleVisibility = .hidden
     window.titlebarAppearsTransparent = true
     window.delegate = self
-    window.orderFrontRegardless()
+    window.makeKeyAndOrderFront(nil)
     window.center()
     self.window = window
   }
