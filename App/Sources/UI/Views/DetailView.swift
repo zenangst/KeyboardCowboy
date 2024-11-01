@@ -56,17 +56,7 @@ struct DetailView: View {
         })
       .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
       .overlay(alignment: .topTrailing, content: {
-        if KeyboardCowboyApp.env() != .production {
-          Rectangle()
-            .fill(Gradient(colors: [
-              Color(.systemYellow),
-              Color(nsColor: NSColor.systemYellow.blended(withFraction: 0.3, of: NSColor.black)!)
-            ]))
-            .frame(width: 75, height: 20)
-            .rotationEffect(.degrees(45))
-            .offset(x: 30, y: -30)
-            .fixedSize()
-        }
+        DevTagView()
       })
       .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
       .id(viewModel.id)
@@ -75,6 +65,32 @@ struct DetailView: View {
       let count = viewModels.count
       MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
         .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
+    }
+  }
+}
+
+private struct DevTagView: View {
+  @ViewBuilder
+  var body: some View {
+    if KeyboardCowboyApp.env() != .production {
+      Rectangle()
+        .fill(Gradient(colors: [
+          Color(.systemYellow),
+          Color(nsColor: NSColor.systemYellow.blended(withFraction: 0.3, of: NSColor.black)!)
+        ]))
+        .frame(width: 75, height: 20)
+        .overlay {
+          Text("Develop")
+            .foregroundStyle(.black)
+            .opacity(0.25)
+            .fontWeight(.bold)
+            .font(.caption)
+            .scaleEffect(0.8)
+            .shadow(color: .white, radius: 0, y: 1)
+        }
+        .rotationEffect(.degrees(45), anchor: .trailing)
+        .offset(x: 10, y: -20)
+        .fixedSize()
     }
   }
 }
