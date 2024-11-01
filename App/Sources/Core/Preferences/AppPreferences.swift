@@ -3,7 +3,7 @@ import Cocoa
 struct AppPreferences {
   @MainActor
   static var config: AppPreferences {
-    switch KeyboardCowboy.env() {
+    switch KeyboardCowboyApp.env() {
     case .development: .designTime()
     case .previews: .designTime()
     case .production: .user()

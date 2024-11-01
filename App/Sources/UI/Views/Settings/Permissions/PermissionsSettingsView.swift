@@ -1,7 +1,7 @@
 import AXEssibility
 import SwiftUI
 
-struct PermissionsSettings: View {
+struct PermissionsSettingsView: View {
   @StateObject var accessibilityPermission = AccessibilityPermission.shared
   @StateObject var locationPermission = LocationPermission.shared
 
@@ -85,6 +85,6 @@ fileprivate struct PermissionOverviewItem: View {
 
 struct PermissionsOverview_Previews: PreviewProvider {
   static var previews: some View {
-    PermissionsSettings()
+    PermissionsSettingsView()
   }
 }

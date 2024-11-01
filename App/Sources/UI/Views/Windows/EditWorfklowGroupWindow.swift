@@ -43,8 +43,8 @@ struct EditWorkflowGroupWindow: Scene {
             onSubmit(.edit(updatedGroup))
           }
         }
-        KeyboardCowboy.keyWindow?.close()
-        KeyboardCowboy.mainWindow?.makeKey()
+        KeyboardCowboyApp.keyWindow?.close()
+        KeyboardCowboyApp.mainWindow?.makeKey()
       }
       .environmentObject(configurationPublisher)
     }

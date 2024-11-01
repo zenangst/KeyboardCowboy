@@ -27,7 +27,6 @@ struct SingleDetailView: View {
     case updateSnippet(workflowId: Workflow.ID, snippet: DetailViewModel.SnippetTrigger)
   }
 
-  @Environment(\.openWindow) private var openWindow
   @EnvironmentObject private var commandPublisher: CommandsPublisher
   @EnvironmentObject private var infoPublisher: InfoPublisher
   @EnvironmentObject private var triggerPublisher: TriggerPublisher

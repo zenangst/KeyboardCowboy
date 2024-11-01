@@ -2,7 +2,6 @@ import Bonzai
 import SwiftUI
 
 struct WorkflowCommandListScrollView: View {
-  @Environment(\.openWindow) private var openWindow
   @EnvironmentObject private var applicationStore: ApplicationStore
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
   private let onAction: (SingleDetailView.Action) -> Void

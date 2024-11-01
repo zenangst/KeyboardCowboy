@@ -72,8 +72,6 @@ struct ContainerView: View {
           guard let groupId = groupsSelectionManager.lastSelection else { return }
           onAction(.sidebar(.selectGroups([groupId])), undoManager)
         })
-        .opacity(contentState == .initialized ? 1 : 0)
-        .frame(height: contentState == .initialized ? nil : 0)
         .navigationSplitViewColumnWidth(ideal: 250)
       },
       content: {
@@ -88,7 +86,6 @@ struct ContainerView: View {
               Task { @MainActor in focus.wrappedValue = .detail(.name) }
             }
           })
-        .opacity(contentState == .initialized ? 1 : 0)
         .navigationSplitViewColumnWidth(min: 180, ideal: 250)
       },
       detail: {
@@ -101,7 +98,6 @@ struct ContainerView: View {
           infoPublisher: infoPublisher,
           commandPublisher: commandPublisher,
           onAction: { onAction(.detail($0), undoManager) })
-        .opacity(contentState == .initialized ? 1 : 0)
         .frame(minHeight: 400)
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
         .background()

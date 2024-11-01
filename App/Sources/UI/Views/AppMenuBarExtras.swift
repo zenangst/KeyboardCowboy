@@ -7,16 +7,14 @@ struct AppMenuBarExtras: Scene {
     case openMainWindow
     case openEmptyConfigurationWindow
     case reveal
+    case helpMenu(HelpMenu.Action)
   }
 
   private var applicationName: String {
-    switch KeyboardCowboy.env() {
-    case .previews:
-      return "Keyboard Cowboy (designTime)"
-    case .production:
-      return "Keyboard Cowboy"
-    case .development:
-      return "Keyboard Cowboy (dev)"
+    switch KeyboardCowboyApp.env() {
+    case .previews:    "Keyboard Cowboy (designTime)"
+    case .production:  "Keyboard Cowboy"
+    case .development: "Keyboard Cowboy (dev)"
     }
   }
 
@@ -24,8 +22,6 @@ struct AppMenuBarExtras: Scene {
 
   private let contentStore: ContentStore
   private let onAction: (Action) -> Void
-  private let pub = NotificationCenter.default
-    .publisher(for: NSNotification.Name("OpenMainWindow"))
 
   init(contentStore: ContentStore, keyboardCleaner: KeyboardCleaner, onAction: @escaping (Action) -> Void) {
     self.contentStore = contentStore
@@ -46,9 +42,9 @@ struct AppMenuBarExtras: Scene {
         .toggleStyle(.checkbox)
 
       Divider()
-      HelpMenu()
+      HelpMenu { onAction(.helpMenu($0)) }
       Divider()
-      Text("Version: \(KeyboardCowboy.marketingVersion) (\(KeyboardCowboy.buildNumber))")
+      Text("Version: \(KeyboardCowboyApp.marketingVersion) (\(KeyboardCowboyApp.buildNumber))")
 #if DEBUG
       Button(action: { onAction(.reveal) }, label: {
         Text("Reveal")
@@ -63,10 +59,6 @@ struct AppMenuBarExtras: Scene {
     }) {
       _MenubarIcon()
         .onAppear(perform: { onAction(.onAppear) })
-        .onReceive(pub, perform: { output in
-          onAction(.openMainWindow)
-          UserSpace.Application.current.ref.activate(options: .activateAllWindows)
-        })
         .onChange(of: contentStore.state) { newValue in
           if newValue == .noConfiguration {
             onAction(.openEmptyConfigurationWindow)
@@ -82,7 +74,7 @@ private struct _MenubarIcon: View {
       Image(systemName: "theatermask.and.paintbrush")
     } else if launchArguments.isEnabled(.runningUnitTests) {
       Image(systemName: "testtube.2")
-    } else if KeyboardCowboy.env() == .production {
+    } else if KeyboardCowboyApp.env() == .production {
       Image(systemName: "command")
     } else {
       Image(systemName: "hammer.circle")

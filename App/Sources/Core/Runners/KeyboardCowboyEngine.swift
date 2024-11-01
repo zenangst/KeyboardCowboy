@@ -10,7 +10,6 @@ import os
 final class KeyboardCowboyEngine {
   private let applicationTriggerController: ApplicationTriggerController
   private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
-  private let bundleIdentifier = Bundle.main.bundleIdentifier!
   private let commandRunner: CommandRunner
   private let contentStore: ContentStore
   private let keyCodeStore: KeyCodesStore
@@ -55,7 +54,7 @@ final class KeyboardCowboyEngine {
     self.workspacePublisher = WorkspacePublisher(workspace)
     self.notificationCenterPublisher = NotificationCenterPublisher(notificationCenter)
 
-    guard KeyboardCowboy.env() != .previews else { return }
+    guard KeyboardCowboyApp.env() != .previews else { return }
 
     commandRunner.runners.application.delegate = applicationTriggerController
 
@@ -107,7 +106,7 @@ final class KeyboardCowboyEngine {
 
     snippetController.subscribe(to: contentStore.groupStore.$groups)
 
-    guard KeyboardCowboy.env() == .production else { return }
+    guard KeyboardCowboyApp.env() == .production else { return }
 
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontmostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)

@@ -131,7 +131,9 @@ final class SidebarCoordinator {
       ZenColorPublisher.shared.publish(.custom(Color(hex: match.color)))
     }
     render(groups)
-    subscription = nil
+    if groups.isEmpty {
+      subscription = nil
+    }
   }
 
   @objc private func injected(_ notification: Notification) {

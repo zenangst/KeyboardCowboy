@@ -7,7 +7,7 @@ struct SettingsView: View {
         .tabItem { Label("Applications", systemImage: "appclip") }
       NotificationsSettingsView()
         .tabItem { Label("Notifications", systemImage: "app.badge") }
-      PermissionsSettings()
+      PermissionsSettingsView()
         .tabItem { Label("Permissions", systemImage: "hand.raised.circle.fill") }
     }
   }

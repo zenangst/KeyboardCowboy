@@ -8,7 +8,7 @@ import SwiftUI
 @MainActor
 final class UIElementCaptureStore: ObservableObject {
   private lazy var publisher = WindowBorderViewPublisher()
-  private lazy var windowCoordinator: WindowCoordinator<WindowBordersView> = WindowCoordinator(
+  private lazy var windowCoordinator: UIElementWindowCoordinator<WindowBordersView> = UIElementWindowCoordinator(
     .none,
     content: WindowBordersView(publisher: self.publisher)
   )
@@ -214,7 +214,7 @@ struct WindowBordersView: View {
 }
 
 @MainActor
-final class WindowCoordinator<Content> where Content: View {
+final class UIElementWindowCoordinator<Content> where Content: View {
   private let controller: NSWindowController
 
   init(_ animationBehavior: NSWindow.AnimationBehavior, content: @escaping @autoclosure () -> Content) {

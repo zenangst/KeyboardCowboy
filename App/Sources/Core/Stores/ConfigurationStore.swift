@@ -67,7 +67,7 @@ final class ConfigurationStore: ObservableObject, @unchecked Sendable {
     guard newConfigurations[index] != configuration else { return }
 
     newConfigurations[index] = configuration
-    if KeyboardCowboy.env() == .production {
+    if KeyboardCowboyApp.env() == .production {
       select(configuration)
     }
     self.configurations = newConfigurations

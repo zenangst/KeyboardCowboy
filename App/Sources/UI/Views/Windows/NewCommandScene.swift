@@ -3,7 +3,7 @@ import Carbon
 import SwiftUI
 
 @MainActor
-struct NewCommandWindow: Scene {
+struct NewCommandScene: Scene {
   enum Context: Identifiable, Hashable, Codable {
     var id: String {
       switch self {
@@ -193,8 +193,8 @@ struct NewCommandWindow: Scene {
   }
 
   private func closeWindow() {
-    KeyboardCowboy.keyWindow?.close()
-    KeyboardCowboy.mainWindow?.makeKey()
+    KeyboardCowboyApp.keyWindow?.close()
+    KeyboardCowboyApp.mainWindow?.makeKey()
   }
 }
 

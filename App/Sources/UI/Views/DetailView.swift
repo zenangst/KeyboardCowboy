@@ -56,7 +56,7 @@ struct DetailView: View {
         })
       .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
       .overlay(alignment: .topTrailing, content: {
-        if KeyboardCowboy.env() != .production {
+        if KeyboardCowboyApp.env() != .production {
           Rectangle()
             .fill(Gradient(colors: [
               Color(.systemYellow),
