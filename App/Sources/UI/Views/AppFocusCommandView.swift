@@ -90,7 +90,8 @@ struct AppFocusCommandView: View {
               WindowTilingIcon(kind: .center, size: 20)
             case .none:
               RoundedRectangle(cornerRadius: 4)
-                .fill(.black)
+                .fill(Color.accentColor.opacity(0.2))
+                .frame(width: 20)
             }
 
             Menu {
