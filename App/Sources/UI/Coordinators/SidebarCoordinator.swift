@@ -29,7 +29,7 @@ final class SidebarCoordinator {
     enableInjection(self, selector: #selector(injected(_:)))
   }
 
-  func handle(_ context: EditWorkflowGroupWindow.Context) {
+  func handle(_ context: EditWorfklowGroupView.Context) {
     let storeWasEmpty = store.groups.isEmpty
     let groupId: GroupViewModel.ID
     switch context {

@@ -71,7 +71,7 @@ final class ContentCoordinator {
     }
   }
 
-  func handle(_ context: EditWorkflowGroupWindow.Context) {
+  func handle(_ context: EditWorfklowGroupView.Context) {
     switch context {
     case .add(let workflowGroup):
       render([workflowGroup.id])

@@ -4,13 +4,26 @@ import SwiftUI
 
 @MainActor
 final class NewCommandWindow: NSObject, NSWindowDelegate {
+  enum Context: Identifiable, Hashable, Codable {
+    var id: String {
+      switch self {
+      case .newCommand(let workflowId):
+        return workflowId
+      case .editCommand(let workflowId, let commandId):
+        return workflowId + commandId
+      }
+    }
+
+    case newCommand(workflowId: Workflow.ID)
+    case editCommand(workflowId: Workflow.ID, commandId: Command.ID)
+  }
   private var window: NSWindow?
 
   private let onSave: (_ workflowId: Workflow.ID,
                        _ commandId: Command.ID?,
                        _ title: String,
                        _ payload: NewCommandPayload) -> Void
-  private let context: NewCommandScene.Context
+  private let context: NewCommandWindow.Context
   private let configurationPublisher: ConfigurationPublisher
   private let contentStore: ContentStore
   private let uiElementCaptureStore: UIElementCaptureStore
@@ -23,7 +36,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     ifNotRunning: false,
     waitForAppToLaunch: false)
 
-  init(context: NewCommandScene.Context,
+  init(context: NewCommandWindow.Context,
        contentStore: ContentStore,
        uiElementCaptureStore: UIElementCaptureStore,
        configurationPublisher: ConfigurationPublisher,

@@ -3,6 +3,18 @@ import Inject
 import SwiftUI
 
 struct EditWorfklowGroupView: View {
+  enum Context: Identifiable, Hashable, Codable {
+    var id: String {
+      switch self {
+      case .add(let group):
+        return group.id
+      case .edit(let group):
+        return group.id
+      }
+    }
+    case add(WorkflowGroup)
+    case edit(WorkflowGroup)
+  }
   enum Focus {
     case name
   }

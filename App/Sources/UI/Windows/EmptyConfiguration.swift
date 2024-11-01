@@ -20,6 +20,8 @@ final class EmptyConfiguration: NSObject, NSWindowDelegate {
       .fullSizeContentView
     ]
     let window = ZenSwiftUIWindow(styleMask: styleMask, content: content)
+    window.titleVisibility = .hidden
+    window.titlebarAppearsTransparent = true
     window.orderFrontRegardless()
     window.center()
     window.delegate = self

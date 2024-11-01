@@ -10,18 +10,26 @@ final class Permissions: NSObject, NSWindowDelegate {
   private let settings = PermissionsSettings()
 
   func open() {
-    let window = ZenSwiftUIWindow(contentRect: .zero, styleMask: [.titled, .closable]) {
+    let styleMask: NSWindow.StyleMask = [.titled, .closable, .miniaturizable,
+                                         .resizable, .fullSizeContentView]
+    let window = ZenSwiftUIWindow(contentRect: .zero, styleMask: styleMask) {
       PermissionsView(onAction: handle)
         .toolbar(content: {
-          Spacer()
           Text("Keyboard Cowboy: Permissions")
-          Spacer()
         })
         .frame(width: 640, height: 560)
     }
-    self.window = window
+    let size = window.hostingController.sizeThatFits(in: .init(width: 320, height: 240))
+    window.setFrame(NSRect(origin: .zero, size: size), display: false)
+
+    window.delegate = self
+    window.animationBehavior = .alertPanel
+    window.titleVisibility = .hidden
+    window.titlebarAppearsTransparent = true
     window.center()
-    window.orderFrontRegardless()
+    window.makeKeyAndOrderFront(nil)
+
+    self.window = window
   }
 
   private func handle(_ action: PermissionsView.Action) {
