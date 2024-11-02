@@ -7,14 +7,10 @@ enum NewCommandValidation: Identifiable, Equatable {
 
   var rawValue: String {
     switch self {
-    case .valid:
-      return "valid"
-    case .needsValidation:
-      return "needsValidation"
-    case .unknown:
-      return "unknown"
-    case .invalid:
-      return "invalid"
+    case .valid: "valid"
+    case .needsValidation: "needsValidation"
+    case .unknown: "unknown"
+    case .invalid: "invalid"
     }
   }
 
