@@ -45,21 +45,19 @@ struct WorkflowNotificationView: View {
   @Namespace var namespace
 
   var body: some View {
-    NotificationView(notificationPlacement.alignment) {
+    VStack(alignment: getHorizontalAlignment(notificationPlacement)) {
       let maxHeight = NSScreen.main?.visibleFrame.height ?? 700
-      VStack(alignment: .trailing) {
-        WorkflowNotificationMatchesView(publisher: publisher)
-          .frame(
-            maxHeight: maxHeight,
-            alignment: notificationPlacement.alignment
-          )
-          .fixedSize(horizontal: false, vertical: true)
-          .clipShape(RoundedRectangle(cornerRadius: 12))
-          .padding(4)
-          .opacity(publisher.data.matches.isEmpty ? 0 : 1)
+      WorkflowNotificationMatchesView(publisher: publisher)
+        .frame(
+          maxHeight: maxHeight,
+          alignment: notificationPlacement.alignment
+        )
+        .fixedSize(horizontal: false, vertical: true)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(4)
+        .opacity(publisher.data.matches.isEmpty ? 0 : 1)
 
-          RunningWorkflowView(publisher: publisher)
-      }
+      RunningWorkflowView(publisher: publisher)
     }
     .padding(4)
     .onReceive(publisher.$data, perform: { newValue in
@@ -69,6 +67,21 @@ struct WorkflowNotificationView: View {
         windowManager.cancelClose()
       }
     })
+  }
+
+  func getHorizontalAlignment(_ placement: NotificationPlacement) -> HorizontalAlignment {
+    switch placement {
+    case .center:         .center
+    case .leading:        .leading
+    case .trailing:       .trailing
+    case .top:            .center
+    case .bottom:         .center
+    case .topLeading:     .leading
+    case .topTrailing:    .trailing
+    case .bottomLeading:  .leading
+    case .bottomTrailing: .trailing
+    }
+
   }
 }
 
