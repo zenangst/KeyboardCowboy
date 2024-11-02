@@ -79,7 +79,13 @@ private extension Command {
       switch bundledCommand.kind {
       case .appFocus(let appFocusCommand):
         var applications = [Application]()
-        let match = applicationStore.applications.first(where: { $0.bundleIdentifier == appFocusCommand.bundleIdentifer })
+        let match: Application?
+
+        if appFocusCommand.bundleIdentifer == Application.currentAppBundleIdentifier() {
+          match = Application.currentApplication()
+        } else {
+          match = applicationStore.applications.first(where: { $0.bundleIdentifier == appFocusCommand.bundleIdentifer })
+        }
 
         kind = .bundled(
           CommandViewModel.Kind.BundledModel.init(

@@ -38,6 +38,11 @@ struct NewCommandAppFocusView: View {
           .font(.subheadline)
 
         Menu {
+          Button(action: {
+            let application = Application.currentApplication()
+            selectedApp = AppFocusApplicationItem(application)
+            onSelectedAppsChange(application.bundleIdentifier)
+          }, label: { Text("Current Application") })
           ForEach(applicationStore.applications) { application in
             Button(action: {
               selectedApp = AppFocusApplicationItem(application)

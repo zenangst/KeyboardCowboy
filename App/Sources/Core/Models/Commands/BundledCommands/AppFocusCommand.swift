@@ -33,8 +33,17 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
   @MainActor
   func commands(_ applications: [Application]) async throws -> [Command] {
     var commands = [Command]()
+    let application: Application
+    let bundleIdentifer: String
+    let isCurrentApp = self.bundleIdentifer == Application.currentAppBundleIdentifier()
 
-    guard let application = applications.first(where: { $0.bundleIdentifier == bundleIdentifer }) else {
+    if isCurrentApp {
+      application = UserSpace.shared.frontmostApplication.asApplication()
+      bundleIdentifer = application.bundleIdentifier
+    } else if let resolvedApp = applications.first(where: { $0.bundleIdentifier == self.bundleIdentifer }) {
+      application = resolvedApp
+      bundleIdentifer = self.bundleIdentifer
+    } else {
       return []
     }
 
@@ -45,24 +54,29 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       $0.bundleIdentifier == bundleIdentifer
     })
 
-    if createNewWindow && numberOfAppWindows == 0 {
+    if createNewWindow && isCurrentApp || numberOfAppWindows == 0 {
       NSWorkspace.shared.open(URL(fileURLWithPath: application.path))
     }
+
     runningApplication?.activate(options: .activateAllWindows)
+
 
     var waitingForActivation: Bool = true
     var timeout: TimeInterval = 0
-    while waitingForActivation {
-      try Task.checkCancellation()
-      if timeout > 10 { waitingForActivation = false }
-      if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleIdentifer {
-        waitingForActivation = false
-        if runningApplication == nil {
-          try? await Task.sleep(for: .milliseconds(100))
+
+    if !isCurrentApp {
+      while waitingForActivation {
+        try Task.checkCancellation()
+        if timeout > 10 { waitingForActivation = false }
+        if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == bundleIdentifer {
+          waitingForActivation = false
+          if runningApplication == nil {
+            try? await Task.sleep(for: .milliseconds(100))
+          }
         }
+        timeout += 1
+        try? await Task.sleep(for: .milliseconds(100))
       }
-      timeout += 1
-      try? await Task.sleep(for: .milliseconds(100))
     }
 
     runningApplication = NSWorkspace.shared.frontmostApplication
