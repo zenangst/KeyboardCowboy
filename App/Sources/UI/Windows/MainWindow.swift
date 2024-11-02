@@ -14,6 +14,13 @@ final class MainWindow: NSObject, NSWindowDelegate {
   }
 
   func open() {
+    let mainWindowIdentifier = NSUserInterfaceItemIdentifier(rawValue: KeyboardCowboyApp.mainWindowIdentifier)
+    if let mainWindow = NSApplication.shared.windows.first(where: { $0.identifier == mainWindowIdentifier }) {
+      mainWindow.makeKeyAndOrderFront(nil)
+      KeyboardCowboyApp.activate()
+      return
+    }
+
     let content = MainWindowView(core: core, onSceneAction: onSceneAction(_:))
       .environmentObject(windowOpener)
     let styleMask: NSWindow.StyleMask = [
@@ -41,6 +48,7 @@ final class MainWindow: NSObject, NSWindowDelegate {
     if let mainWindow = window {
       UserDefaults.standard.set(mainWindow.frameDescriptor, forKey: "MainWindowFrame")
     }
+    KeyboardCowboyApp.deactivate()
     self.window = nil
   }
 
