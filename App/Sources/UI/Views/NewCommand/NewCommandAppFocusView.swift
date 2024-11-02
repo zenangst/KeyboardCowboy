@@ -7,21 +7,24 @@ struct NewCommandAppFocusView: View {
   @ObserveInjection var inject
   typealias Tiling = WorkspaceCommand.Tiling
   @EnvironmentObject private var applicationStore: ApplicationStore
+  @Binding var validation: NewCommandValidation
   @State private var tiling: Tiling?
   @State private var selectedApp: AppFocusApplicationItem?
   @State private var hideOtherApps = false
-  @State private var createNewWindow = false
+  @State private var createNewWindow = true
 
   private let onTilingChange: (Tiling?) -> Void
   private let onSelectedAppsChange: (String) -> Void
   private let onHideOtherAppsChange: (Bool) -> Void
   private let onCreateNewWindowChange: (Bool) -> Void
 
-  init(onTilingChange: @escaping (Tiling?) -> Void,
+  init(validation: Binding<NewCommandValidation>,
+       onTilingChange: @escaping (Tiling?) -> Void,
        onSelectedAppsChange: @escaping (String) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void,
        onCreateNewWindowChange: @escaping (Bool) -> Void
   ) {
+    _validation = validation
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange
     self.onHideOtherAppsChange = onHideOtherAppsChange
@@ -52,6 +55,7 @@ struct NewCommandAppFocusView: View {
         .menuStyle(.regular)
       }
       .padding(4)
+      .overlay(NewCommandValidationView($validation))
 
       VStack(alignment: .leading) {
         Text("Tiling")
@@ -99,10 +103,6 @@ struct NewCommandAppFocusView: View {
       .padding(4)
     }
     .padding(8)
-    .onAppear {
-      onHideOtherAppsChange(hideOtherApps)
-      onTilingChange(tiling)
-    }
     .enableInjection()
   }
 }

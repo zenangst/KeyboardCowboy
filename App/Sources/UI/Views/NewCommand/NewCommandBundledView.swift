@@ -50,7 +50,7 @@ struct NewCommandBundledView: View {
 
       switch currentSelection {
       case .appFocus(let command):
-        NewCommandAppFocusView { tiling in
+        NewCommandAppFocusView(validation: $validation) { tiling in
           currentSelection = .appFocus(
             AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
                               hideOtherApps: command.hideOtherApps,
@@ -66,6 +66,7 @@ struct NewCommandBundledView: View {
                               createNewWindow: command.createNewWindow)
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
+          validation = updateAndValidatePayload()
         } onHideOtherAppsChange: { hideOtherApps in
           currentSelection = .appFocus(
             AppFocusCommand(bundleIdentifer: command.bundleIdentifer,
@@ -83,9 +84,8 @@ struct NewCommandBundledView: View {
           )
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         }
-
       case .workspace(let workspaceCommand):
-        NewCommandWorkspaceView { tiling in
+        NewCommandWorkspaceView(validation: $validation) { tiling in
           currentSelection = .workspace(WorkspaceCommand(
             bundleIdentifiers: workspaceCommand.bundleIdentifiers,
             hideOtherApps: workspaceCommand.hideOtherApps,
@@ -99,6 +99,7 @@ struct NewCommandBundledView: View {
             tiling: workspaceCommand.tiling
           ))
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
+          validation = updateAndValidatePayload()
         } onHideOtherAppsChange: { hideOtherApps in
           currentSelection = .workspace(WorkspaceCommand(
             bundleIdentifiers: workspaceCommand.bundleIdentifiers,
@@ -111,9 +112,29 @@ struct NewCommandBundledView: View {
     }
     .menuStyle(.regular)
     .roundedContainer(padding: 0, margin: 0)
-    .onAppear {
-      validation = .valid
+    .onChange(of: validation) { newValue in
+      guard newValue == .needsValidation else { return }
+      validation = updateAndValidatePayload()
     }
+    .onAppear {
+      validation = .unknown
+    }
+  }
+
+  @discardableResult
+  private func updateAndValidatePayload() -> NewCommandValidation {
+    switch currentSelection {
+    case .workspace(let workspaceCommand):
+      if workspaceCommand.bundleIdentifiers.isEmpty {
+        return .invalid(reason: "Pick at least one application.")
+      }
+    case .appFocus(let appFocusCommand):
+      if appFocusCommand.bundleIdentifer.isEmpty {
+        return .invalid(reason: "Pick an application.")
+      }
+    }
+
+    return .valid
   }
 }
 

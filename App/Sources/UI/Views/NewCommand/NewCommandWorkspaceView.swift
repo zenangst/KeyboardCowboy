@@ -6,6 +6,7 @@ import SwiftUI
 struct NewCommandWorkspaceView: View {
   @ObserveInjection var inject
   @EnvironmentObject private var applicationStore: ApplicationStore
+  @Binding private var validation: NewCommandValidation
   @State private var tiling: WorkspaceCommand.Tiling?
   @State private var selectedApps = [WorkspaceApplicationItem]()
   @State private var hideOtherApps = true
@@ -14,9 +15,11 @@ struct NewCommandWorkspaceView: View {
   private let onSelectedAppsChange: ([WorkspaceApplicationItem]) -> Void
   private let onHideOtherAppsChange: (Bool) -> Void
 
-  init(onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
+  init(validation: Binding<NewCommandValidation>,
+       onTilingChange: @escaping (WorkspaceCommand.Tiling?) -> Void,
        onSelectedAppsChange: @escaping ([WorkspaceApplicationItem]) -> Void,
        onHideOtherAppsChange: @escaping (Bool) -> Void) {
+    _validation = validation
     self.onTilingChange = onTilingChange
     self.onSelectedAppsChange = onSelectedAppsChange
     self.onHideOtherAppsChange = onHideOtherAppsChange
@@ -74,6 +77,7 @@ struct NewCommandWorkspaceView: View {
             onSelectedAppsChange(selectedApps)
           }
         }
+        .overlay(NewCommandValidationView($validation).zIndex(100))
       }
       .roundedContainer(padding: 0, margin: 0)
       .padding([.leading, .trailing], 4)
@@ -114,11 +118,6 @@ struct NewCommandWorkspaceView: View {
       .padding(4)
     }
     .padding(8)
-    .onAppear {
-      onHideOtherAppsChange(hideOtherApps)
-      onTilingChange(tiling)
-      onSelectedAppsChange(selectedApps)
-    }
     .enableInjection()
   }
 }
