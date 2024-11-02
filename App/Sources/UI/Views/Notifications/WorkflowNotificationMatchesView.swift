@@ -17,7 +17,6 @@ extension AnyTransition {
 
 struct WorkflowNotificationMatchesView: View {
   @ObserveInjection var inject
-  static var animation: Animation = .smooth(duration: 0.125)
   @ObservedObject var publisher: WorkflowNotificationPublisher
 
   var body: some View {
