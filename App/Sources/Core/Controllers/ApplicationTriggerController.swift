@@ -173,7 +173,25 @@ extension Application {
     "*.*.*"
   }
 
+  static func currentAppBundleIdentifier() -> String {
+    "*.*.current"
+  }
+
   static func anyApplication() -> Application {
-    Application(bundleIdentifier: anyAppBundleIdentifier(), bundleName: "Any Application", displayName: "Any Application", path: "Any Application")
+    Application(
+      bundleIdentifier: anyAppBundleIdentifier(),
+      bundleName: "Any Application",
+      displayName: "Any Application",
+      path: "Any Application"
+    )
+  }
+
+  static func currentApplication() -> Application {
+    Application(
+      bundleIdentifier: currentAppBundleIdentifier(),
+      bundleName: "Current Application",
+      displayName: "Current Application",
+      path: "Current Application"
+    )
   }
 }

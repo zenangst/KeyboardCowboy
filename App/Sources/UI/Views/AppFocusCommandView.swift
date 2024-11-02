@@ -33,6 +33,11 @@ struct AppFocusCommandView: View {
         Text("Applications")
           .font(.subheadline)
         Menu {
+          Button(action: {
+            let application = Application.currentApplication()
+            model.application = application
+            onSelectedAppsChange(application)
+          }, label: { Text("Current Application") })
           ForEach(applicationStore.applications) { application in
             Button(action: {
               model.application = application
@@ -44,7 +49,9 @@ struct AppFocusCommandView: View {
           }
         } label: {
           Group {
-            if let application = model.application {
+            if model.application?.bundleIdentifier == Application.currentAppBundleIdentifier() {
+              Text("Current Application")
+            } else if let application = model.application {
               IconView(icon: Icon(application), size: .init(width: 24, height: 24))
               Text(application.displayName)
             } else {
