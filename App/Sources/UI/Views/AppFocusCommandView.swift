@@ -107,8 +107,8 @@ struct AppFocusCommandView: View {
               Text(model.tiling?.name ?? "Select Tiling")
                 .font(.caption)
             }
-            .fixedSize(horizontal: false, vertical: true)
             .menuStyle(.zen(.init(grayscaleEffect: .constant(true), hoverEffect: .constant(true))))
+            .frame(minHeight: 20)
           }
 
           GridRow {

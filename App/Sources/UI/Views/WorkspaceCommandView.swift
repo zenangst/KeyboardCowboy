@@ -81,28 +81,18 @@ struct WorkspaceCommandView: View {
         Grid {
           GridRow {
             switch model.tiling {
-            case .arrangeLeftRight:
-              WindowTilingIcon(kind: .arrangeLeftRight, size: 20)
-            case .arrangeRightLeft:
-              WindowTilingIcon(kind: .arrangeRightLeft, size: 20)
-            case .arrangeTopBottom:
-              WindowTilingIcon(kind: .arrangeTopBottom, size: 20)
-            case .arrangeBottomTop:
-              WindowTilingIcon(kind: .arrangeBottomTop, size: 20)
-            case .arrangeLeftQuarters, .arrangeDynamicQuarters:
-              WindowTilingIcon(kind: .arrangeLeftQuarters, size: 20)
-            case .arrangeRightQuarters:
-              WindowTilingIcon(kind: .arrangeRightQuarters, size: 20)
-            case .arrangeTopQuarters:
-              WindowTilingIcon(kind: .arrangeTopQuarters, size: 20)
-            case .arrangeBottomQuarters:
-              WindowTilingIcon(kind: .arrangeBottomQuarters, size: 20)
-            case .arrangeQuarters:
-              WindowTilingIcon(kind: .arrangeQuarters, size: 20)
-            case .fill:
-              WindowTilingIcon(kind: .fill, size: 20)
-            case .center:
-              WindowTilingIcon(kind: .center, size: 20)
+            case .arrangeLeftRight: WindowTilingIcon(kind: .arrangeLeftRight, size: 20)
+            case .arrangeRightLeft: WindowTilingIcon(kind: .arrangeRightLeft, size: 20)
+            case .arrangeTopBottom: WindowTilingIcon(kind: .arrangeTopBottom, size: 20)
+            case .arrangeBottomTop: WindowTilingIcon(kind: .arrangeBottomTop, size: 20)
+            case .arrangeLeftQuarters:  WindowTilingIcon(kind: .arrangeLeftQuarters, size: 20)
+            case .arrangeDynamicQuarters: WindowTilingIcon(kind: .arrangeLeftQuarters, size: 20)
+            case .arrangeRightQuarters: WindowTilingIcon(kind: .arrangeRightQuarters, size: 20)
+            case .arrangeTopQuarters: WindowTilingIcon(kind: .arrangeTopQuarters, size: 20)
+            case .arrangeBottomQuarters: WindowTilingIcon(kind: .arrangeBottomQuarters, size: 20)
+            case .arrangeQuarters: WindowTilingIcon(kind: .arrangeQuarters, size: 20)
+            case .fill: WindowTilingIcon(kind: .fill, size: 20)
+            case .center: WindowTilingIcon(kind: .center, size: 20)
             case .none:
               RoundedRectangle(cornerRadius: 4)
                 .fill(Color.accentColor.opacity(0.2))
@@ -122,8 +112,8 @@ struct WorkspaceCommandView: View {
               Text(model.tiling?.name ?? "Select Tiling")
                 .font(.caption)
             }
-            .fixedSize(horizontal: false, vertical: true)
             .menuStyle(.zen(.init(grayscaleEffect: .constant(true), hoverEffect: .constant(true))))
+            .frame(minHeight: 20)
           }
 
           GridRow {
