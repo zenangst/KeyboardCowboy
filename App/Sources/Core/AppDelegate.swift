@@ -12,6 +12,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
   }
 
   func applicationDidBecomeActive(_ notification: Notification) {
+    let windowsCount = NSApplication.shared.windows.count
+    guard windowsCount <= 1 else { return }
     openWindow?.openMainWindow()
   }
 }
