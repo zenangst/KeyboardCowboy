@@ -55,6 +55,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
     if self.selections.isEmpty {
       self.selections <- [selection]
     }
+    self.initialSelection = selection
   }
 
   @MainActor
@@ -100,6 +101,7 @@ final class SelectionManager<T>: ObservableObject where T: Identifiable,
       newSelections = onTap(element)
     }
     store(newSelections)
+    initialSelection = newSelections.first
     selections = newSelections
   }
 

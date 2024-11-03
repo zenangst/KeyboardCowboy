@@ -65,8 +65,7 @@ struct GroupsListView: View {
       } else {
         CompatList {
           ForEach(publisher.data.lazy, id: \.id) { group in
-            GroupItemView(group, selectionManager: selectionManager,
-                          onAction: onAction)
+            GroupItemView(group, selectionManager: selectionManager, onAction: onAction)
             .overlay(content: { confirmDeleteView(group) })
             .modifier(LegacyOnTapFix(onTap: {
               focus = .element(group.id)
@@ -129,7 +128,6 @@ struct GroupsListView: View {
         .onAppear {
           guard let initialSelection = selectionManager.initialSelection else { return }
           focus = .element(initialSelection)
-          proxy.scrollTo(initialSelection)
         }
         .focused(appFocus, equals: .groups)
         .opacity(!publisher.data.isEmpty ? 1 : 0)
