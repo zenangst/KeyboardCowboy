@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-source .env
+source .env > /dev/null 2>&1
 
 # Create a .dmg
 create-dmg "Build/Releases/$APP_NAME.app" \

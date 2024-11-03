@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-source .env
+source .env > /dev/null 2>&1
 
 BUILD_NUMBER=`agvtool what-version | sed -n 2p | xargs`
 VERSION_NUMBER=`sed -n '/MARKETING_VERSION/s/.*: *"\([0-9.]*\)".*/\1/p' ./Project.swift`
