@@ -46,6 +46,8 @@ struct KeyboardCowboyApp: App {
       Benchmark.shared.isEnabled = launchArguments.isEnabled(.benchmark)
     }
 
+    appDelegate.openWindow = windowOpener
+
     if launchArguments.isEnabled(.injection) { _ = InjectConfiguration.load }
   }
 
