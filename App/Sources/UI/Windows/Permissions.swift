@@ -28,6 +28,7 @@ final class Permissions: NSObject, NSWindowDelegate {
     window.titlebarAppearsTransparent = true
     window.center()
     window.makeKeyAndOrderFront(nil)
+    KeyboardCowboyApp.activate(setActivationPolicy: false)
 
     self.window = window
   }
