@@ -38,11 +38,11 @@ final class GroupWindow: NSObject, NSWindowDelegate {
   }
 
   func open(_ context: Context) {
-    let content = EditWorfklowGroupView(applicationStore: applicationStore, group: resolve(context)) { [weak self] action in
-      guard let self else { return }
+    let windowManager = WindowManager()
+    let content = EditWorfklowGroupView(applicationStore: applicationStore, group: resolve(context)) { [windowManager, sidebarCoordinator, contentCoordinator] action in
       switch action {
       case .cancel:
-        self.window?.close()
+        windowManager.window?.close()
       case .ok(let updateGroup):
         switch context {
         case .add:
@@ -52,16 +52,18 @@ final class GroupWindow: NSObject, NSWindowDelegate {
           sidebarCoordinator.handle(.edit(updateGroup))
           contentCoordinator.handle(.edit(updateGroup))
         }
-        self.window?.close()
+        windowManager.window?.close()
       }
     }
       .environmentObject(configurationPublisher)
+      .environmentObject(windowManager)
 
     let styleMask: NSWindow.StyleMask = [.closable, .miniaturizable, .resizable, .titled, .fullSizeContentView]
     let window = ZenSwiftUIWindow(
       styleMask: styleMask,
       content: content
     )
+    windowManager.window = window
     let size = window.hostingController.sizeThatFits(in: .zero)
     window.setFrame(NSRect(origin: .zero, size: size), display: false)
 
