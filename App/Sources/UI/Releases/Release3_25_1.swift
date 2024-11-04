@@ -32,7 +32,7 @@ struct Release3_25_1: View {
       .padding(.top, 8)
 
       HStack(spacing: 8) {
-        Button(action: { action(.done) }, label: { Text("It's dangerous to go alone! Take this. 🪣") })
+        Button(action: { action(.done) }, label: { Text("Maxiumum Effort! 🏴‍☠️") })
           .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
       }
       .padding(.bottom, 32)
@@ -71,7 +71,7 @@ private struct HeaderOverlay: View {
     HStack(alignment: .center) {
       Text("Keyboard Cowboy")
         .font(Font.system(size: 20, design: .rounded))
-      Text("3.25.1")
+      Text("3.25.2")
         .foregroundStyle(.white)
         .font(Font.system(size: 24, design: .rounded))
         .allowsTightening(true)
@@ -122,6 +122,22 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { AppFocusIcon(size: 24).anyView },
+           text: "Adds support for current application when using App Focus commands.",
+           version: .v3252),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fix visual glitch when App Focus & Workspace commands didn't have tiling set.",
+           version: .v3252),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "Fix CPU spikes and reduce the memory footprint.",
+           version: .v3252),
+
+    Change(icon: { WindowManagementIconView(size: 24).anyView },
+           text: "Improved Keyboard Cowboys internal window handling.",
+           version: .v3252),
+
     Change(icon: { KeyboardIconView("#", size: 24).anyView },
            text: "Map numpad keys to your hearts content.",
            version: .v3251),
@@ -370,11 +386,13 @@ private struct Supporter: Hashable {
 }
 
 private enum Version: String {
+  case v3252 = "3.25.2"
   case v3251 = "3.25.1"
   case v3250 = "3.25.0"
 
   var color: Color {
     switch self {
+    case .v3252: Color(.systemYellow)
     case .v3251: Color(.systemRed)
     case .v3250: Color(.systemPurple)
     }
@@ -400,6 +418,6 @@ private extension View {
 struct Release3_25_1_Previews: PreviewProvider {
   static var previews: some View {
     Release3_25_1 { _ in }
-      .previewDisplayName("Release 3.25.0")
+      .previewDisplayName("Release 3.25.2")
   }
 }
