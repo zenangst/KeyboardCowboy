@@ -115,9 +115,3 @@ final class WorkflowNotificationController: ObservableObject {
     DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem!)
   }
 }
-
-private protocol SizeFittingWindow: NSWindow {
-  func sizeThatFits(in size: CGSize) -> CGSize
-}
-
-extension ZenSwiftUIWindow: SizeFittingWindow {}

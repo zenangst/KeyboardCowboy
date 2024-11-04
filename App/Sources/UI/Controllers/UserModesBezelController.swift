@@ -1,69 +1,86 @@
 import AppKit
+import Bonzai
 import Combine
 import SwiftUI
 
 @MainActor
-final class UserModesBezelController {
+final class UserModesBezelController: NSObject, NSWindowDelegate {
   @MainActor
   static let shared = UserModesBezelController()
 
-  private var windowController: NSWindowController
-  private var window: NotificationPanel<CurrentUserModesView>
   private var debouncer: DebounceManager<[UserMode]>?
   private var subscription: AnyCancellable?
+  private var window: SizeFittingWindow?
 
-  private init() { 
-    let content = CurrentUserModesView(publisher: UserSpace.shared.userModesPublisher)
-    let window =  NotificationPanel(
-      animationBehavior: .utilityWindow,
-      styleMask: [
-        .borderless,
-        .nonactivatingPanel
-      ],
-      content: content
-    )
-
-    self.window = window
-    self.windowController = NSWindowController(window: window)
-
+  private override init() {
+    super.init()
     debouncer = DebounceManager(for: .milliseconds(250)) { [weak self] userModes in
       self?.publish(userModes)
     }
-    windowController.showWindow(nil)
     subscription = NotificationCenter.default
       .publisher(for: NSApplication.didChangeScreenParametersNotification)
-      .debounce(for: .milliseconds(250), scheduler: DispatchQueue.main)
+      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
-        guard let self, let contentView = window.contentView else { return }
-        self.resizeAndAlignWindow(to: contentView.fittingSize, animate: false)
+        self?.repositionAndSize(self?.window)
       }
   }
 
   func show(_ userModes: [UserMode]) {
-    debouncer?.send(userModes)
+    if userModes.isEmpty {
+      window?.close()
+      self.window = nil
+      return
+    }
+
+    let content = CurrentUserModesView(publisher: UserSpace.shared.userModesPublisher)
+    let styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel]
+    let window = ZenSwiftUIWindow(styleMask: styleMask, content: content)
+    window.animationBehavior = .alertPanel
+    window.delegate = self
+    window.collectionBehavior.insert(.fullScreenAuxiliary)
+    window.collectionBehavior.insert(.canJoinAllSpaces)
+    window.collectionBehavior.insert(.stationary)
+    window.isOpaque = false
+    window.isMovable = false
+    window.isMovableByWindowBackground = false
+    window.level = .screenSaver
+    window.backgroundColor = .clear
+    window.acceptsMouseMovedEvents = false
+    window.ignoresMouseEvents = true
+    window.hasShadow = false
+    publish(userModes)
+    repositionAndSize(window)
+    window.orderFrontRegardless()
+    self.window = window
   }
 
   func hide() {
-    debouncer?.send([])
+    window?.close()
+    publish([])
+  }
+
+  // MARK: NSWindowDelegate
+
+  func windowWillClose(_ notification: Notification) {
+    self.window = nil
   }
 
   // MARK: Private methods
 
-  private func publish(_ userModes: [UserMode]) {
-    guard let contentView = window.contentView else { return }
-    UserSpace.shared.userModesPublisher.publish(userModes)
-    DispatchQueue.main.async {
-      self.resizeAndAlignWindow(to: contentView.fittingSize, animate: true)
-    }
+  private func repositionAndSize(_ window: SizeFittingWindow?) {
+    guard let window, let screen = NSScreen.main else { return }
+    window.contentView?.layout()
+    let size = window.sizeThatFits(in: CGSize(width: 48, height: 48))
+    let screenFrame = screen.frame.mainDisplayFlipped
+    let x = screenFrame.maxX - size.width
+    let y = screenFrame.minY
+    let rect = NSRect(origin: NSPoint(x: x, y: y), size: size)
+
+    window.setFrame(rect, display: false, animate: true)
+    print(window.frame, size)
   }
 
-  private func resizeAndAlignWindow(to contentSize: CGSize, animate: Bool) {
-    guard let screen = NSScreen.main else { return }
-    let screenFrame = screen.frame
-    let newWindowOriginX = screenFrame.maxX - contentSize.width
-    let newWindowOriginY = screenFrame.minY
-    let newWindowFrame = NSRect(x: newWindowOriginX, y: newWindowOriginY, width: contentSize.width, height: contentSize.height)
-
-    window.setFrame(newWindowFrame, display: true, animate: animate)
+  private func publish(_ userModes: [UserMode]) {
+    UserSpace.shared.userModesPublisher.publish(userModes)
   }
 }
