@@ -28,7 +28,6 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
   func show(_ userModes: [UserMode]) {
     if userModes.isEmpty {
       window?.close()
-      self.window = nil
       return
     }
 
@@ -77,7 +76,6 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
     let rect = NSRect(origin: NSPoint(x: x, y: y), size: size)
 
     window.setFrame(rect, display: false, animate: true)
-    print(window.frame, size)
   }
 
   private func publish(_ userModes: [UserMode]) {
