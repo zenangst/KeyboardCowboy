@@ -36,7 +36,7 @@ final class ShortcutResolver {
 
   func lookup(_ token: LookupToken,
               bundleIdentifier: String,
-              userModes: [UserMode],
+              userModes: [UserMode] = [],
               partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
     let lhs = token.lhs
     let eventSignature = token.signature
@@ -67,6 +67,7 @@ final class ShortcutResolver {
                               bundleIdentifier: bundleIdentifier, userModeKey: "", previousKey: partialMatch.rawValue)
 
 
+
     if let result = cache[scopedKey] {
       if Self.debug { print("scopeKey: \(scopedKey)") }
       return result
@@ -74,7 +75,6 @@ final class ShortcutResolver {
 
     let globalKey = createKey(eventSignature: eventSignature, lhs: lhs,
                               bundleIdentifier: "*", userModeKey: "", previousKey: partialMatch.rawValue)
-
 
     if Self.debug { print("globalKey: \(globalKey)") }
 
@@ -259,6 +259,11 @@ struct SpecialKeys {
     kVK_F7, kVK_F8, kVK_F9, kVK_F10, kVK_F11, kVK_F12,
     kVK_F13, kVK_F14, kVK_F15, kVK_F16, kVK_F17, kVK_F18,
     kVK_F19, kVK_F20,
+
+    kVK_Home,
+    kVK_End,
+    kVK_PageUp,
+    kVK_PageDown,
 
     kVK_UpArrow,
     kVK_DownArrow,
