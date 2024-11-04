@@ -87,6 +87,14 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     self.window = window
   }
 
+  // MARK: NSWindowDelegate
+
+  func windowWillClose(_ notification: Notification) {
+    window = nil
+  }
+
+  // MARK: Private methods
+
   @MainActor
   private func contentView(_ workflowId: Workflow.ID,
                            title: String,
