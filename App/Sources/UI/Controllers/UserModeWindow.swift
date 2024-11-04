@@ -4,9 +4,9 @@ import Combine
 import SwiftUI
 
 @MainActor
-final class UserModesBezelController: NSObject, NSWindowDelegate {
+final class UserModeWindow: NSObject, NSWindowDelegate {
   @MainActor
-  static let shared = UserModesBezelController()
+  static let shared = UserModeWindow()
 
   private var debouncer: DebounceManager<[UserMode]>?
   private var subscription: AnyCancellable?

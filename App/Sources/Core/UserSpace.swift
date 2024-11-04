@@ -273,7 +273,7 @@ final class UserSpace: @unchecked Sendable {
 
     let active = userModes.filter(\.isEnabled)
 
-    UserModesBezelController.shared.show(active)
+    UserModeWindow.shared.show(active)
   }
 
   // MARK: - Private methods
