@@ -8,12 +8,14 @@ final class LocalEventMonitor: ObservableObject {
   @Published var repeatingKeyDown: Bool = false
   @Published var mouseDown: Bool = false
   private var subscription: AnyCancellable?
+  private var mouseMonitor: Any?
+  private var keyMonitor: Any?
 
   @MainActor
   static let shared: LocalEventMonitor = .init()
 
   fileprivate init() {
-    NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .leftMouseDown, .leftMouseUp]) { [weak self] event in
+    let mouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .leftMouseDown, .leftMouseUp]) { [weak self] event in
       guard let self else { return event }
       switch event.type {
       case .leftMouseUp:
@@ -31,8 +33,9 @@ final class LocalEventMonitor: ObservableObject {
       }
       return event
     }
+    self.mouseMonitor = mouseMonitor
 
-    NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown]) { [weak self] event in
+    let keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown]) { [weak self] event in
       guard let self else { return event }
 
       self.event = event
@@ -44,5 +47,11 @@ final class LocalEventMonitor: ObservableObject {
       }
       return event
     }
+    self.keyMonitor = keyMonitor
+  }
+
+  deinit {
+    if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
+    if let mouseMonitor { NSEvent.removeMonitor(mouseMonitor) }
   }
 }
