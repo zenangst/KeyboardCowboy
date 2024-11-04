@@ -20,7 +20,7 @@ final class KeyboardCowboyEngine {
   private let workspace: NSWorkspace
   private let workspacePublisher: WorkspacePublisher
   private let uiElementCaptureStore: UIElementCaptureStore
-  private let applicationWindowObserver: ApplicationWindowObserver
+//  private let applicationWindowObserver: ApplicationWindowObserver
 
   private var pendingPermissionsSubscription: AnyCancellable?
   private var frontmostApplicationSubscription: AnyCancellable?
@@ -29,7 +29,7 @@ final class KeyboardCowboyEngine {
   init(_ contentStore: ContentStore,
        applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>,
        applicationTriggerController: ApplicationTriggerController,
-       applicationWindowObserver: ApplicationWindowObserver,
+//       applicationWindowObserver: ApplicationWindowObserver,
        commandRunner: CommandRunner,
        keyboardCommandRunner: KeyboardCommandRunner,
        keyCodeStore: KeyCodesStore,
@@ -48,7 +48,7 @@ final class KeyboardCowboyEngine {
     self.shortcutStore = shortcutStore
     self.uiElementCaptureStore = uiElementCaptureStore
     self.applicationTriggerController = applicationTriggerController
-    self.applicationWindowObserver = applicationWindowObserver
+//    self.applicationWindowObserver = applicationWindowObserver
     self.snippetController = snippetController
     self.workspace = workspace
     self.workspacePublisher = WorkspacePublisher(workspace)
