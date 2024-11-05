@@ -11,9 +11,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     NSApp.appearance = NSAppearance(named: .darkAqua)
   }
 
-  func applicationDidBecomeActive(_ notification: Notification) {
-    let windowsCount = NSApplication.shared.windows.count
-    guard windowsCount <= 1 else { return }
-    openWindow?.openMainWindow()
+  func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+    if !hasVisibleWindows {
+      openWindow?.openMainWindow()
+    }
+    return true
   }
 }
