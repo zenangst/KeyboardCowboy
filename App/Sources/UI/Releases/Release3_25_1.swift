@@ -122,6 +122,10 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { KeyboardIconView("M", size: 24).anyView },
+           text: "Fixes a bug where Home, End, and Page Up/Down commands didn't map properly.",
+           version: .v3252),
+
     Change(icon: { AppFocusIcon(size: 24).anyView },
            text: "Adds support for current application when using App Focus commands.",
            version: .v3252),
@@ -307,13 +311,18 @@ private struct SupportersView: View {
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/32518292?s=96&v=4"),
       githubHandle: "Abenayan"),
 
+    Supporter(index: 9, imageUrl: URL(string: "https://avatars.githubusercontent.com/u/1581077?v=4"), githubHandle: "fushugaku"),
+
+    Supporter(index: 10, imageUrl: URL(string: "https://avatars.githubusercontent.com/u/105807570?v=4"), githubHandle: "bassamsdata"),
+
+
     Supporter(
-      index: 9,
+      index: 11,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/378235?v=4"),
       githubHandle: "timkurvers"),
 
     Supporter(
-      index: 10,
+      index: 12,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/386122?v=4"),
       githubHandle: "sindrenm"),
   ]
@@ -328,14 +337,15 @@ private struct SupportersView: View {
       ZenDivider(.horizontal)
 
       ScrollView {
-        FlowLayout(itemSpacing: 4) {
+        FlowLayout(itemSpacing: 0) {
           ForEach(supporters, id: \.self) { supporter in
             if supporter.index == supporters.count - 1 {
               Text("&")
+                .fontWeight(.bold)
             }
             SupporterView(imageUrl: supporter.imageUrl, githubHandle: supporter.githubHandle)
           }
-          Text("for supporting the project ❤️")
+          .frame(height: 24)
         }
         .padding([.leading, .trailing, .bottom], 8)
       }
