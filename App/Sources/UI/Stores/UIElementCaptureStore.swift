@@ -71,7 +71,7 @@ final class UIElementCaptureStore: ObservableObject {
 
   func stopCapturing() {
     coordinator?.stopCapturingUIElement()
-    UserModeWindow.shared.hide()
+    UserModeWindow.shared.show([])
     windowCoordinator.close()
     capturedElement = nil
 

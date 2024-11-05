@@ -19,14 +19,16 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
     }
     subscription = NotificationCenter.default
       .publisher(for: NSApplication.didChangeScreenParametersNotification)
-      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self] _ in
         self?.repositionAndSize(self?.window)
       }
   }
 
   func show(_ userModes: [UserMode]) {
+    cleanupUserModeWindows()
+
     if userModes.isEmpty {
+      publish(userModes)
       window?.close()
       return
     }
@@ -34,7 +36,8 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
     let content = CurrentUserModesView(publisher: UserSpace.shared.userModesPublisher)
     let styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel]
     let window = ZenSwiftUIWindow(styleMask: styleMask, content: content)
-    window.animationBehavior = .alertPanel
+    window.identifier = .init(rawValue: KeyboardCowboyApp.userModeWindowIdentifier)
+    window.animationBehavior = .documentWindow
     window.delegate = self
     window.collectionBehavior.insert(.fullScreenAuxiliary)
     window.collectionBehavior.insert(.canJoinAllSpaces)
@@ -53,11 +56,6 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
     self.window = window
   }
 
-  func hide() {
-    window?.close()
-    publish([])
-  }
-
   // MARK: NSWindowDelegate
 
   func windowWillClose(_ notification: Notification) {
@@ -65,6 +63,13 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
   }
 
   // MARK: Private methods
+
+  private func cleanupUserModeWindows() {
+    let identifier: NSUserInterfaceItemIdentifier = .init(rawValue: KeyboardCowboyApp.userModeWindowIdentifier)
+    for window in NSApplication.shared.windows where window.identifier == identifier {
+      window.close()
+    }
+  }
 
   private func repositionAndSize(_ window: SizeFittingWindow?) {
     guard let window, let screen = NSScreen.main else { return }

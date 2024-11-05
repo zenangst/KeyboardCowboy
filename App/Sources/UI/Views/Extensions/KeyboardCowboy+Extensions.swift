@@ -6,6 +6,7 @@ extension KeyboardCowboyApp {
   static let emptyConfigurationWindowIdentifier = "EmptyConfigurationWindow"
   static let permissionsWindowIdentifier = "PermissionsWindow"
   static let releaseNotesWindowIdentifier = "ReleaseNotesWindow"
+  static let userModeWindowIdentifier = "UserModeWindow"
 
   static var bundleIdentifier: String { Bundle.main.bundleIdentifier! }
 
