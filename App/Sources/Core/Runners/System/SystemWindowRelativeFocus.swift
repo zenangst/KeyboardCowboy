@@ -133,7 +133,9 @@ final class SystemWindowRelativeFocus {
       }
 
       let mouseDown = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: clickPoint, mouseButton: .left)
+      mouseDown?.flags = .maskNonCoalesced
       let mouseUp = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: clickPoint, mouseButton: .left)
+      mouseUp?.flags = .maskNonCoalesced
 
       mouseDown?.post(tap: .cghidEventTap)
       mouseUp?.post(tap: .cghidEventTap)
