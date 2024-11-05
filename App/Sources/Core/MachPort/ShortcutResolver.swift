@@ -166,15 +166,15 @@ final class ShortcutResolver {
             if Self.debug, workflow.name.contains("**") {
               print(workflow.name, eventSignature.id)
               print(keyCode, flags)
-              print(".maskAlphaShift", flags.contains(.maskAlphaShift))
-              print(".maskShift", flags.contains(.maskShift))
-              print(".maskControl", flags.contains(.maskControl))
-              print(".maskAlternate", flags.contains(.maskAlternate))
-              print(".maskCommand", flags.contains(.maskCommand))
-              print(".maskHelp", flags.contains(.maskHelp))
-              print(".maskSecondaryFn", flags.contains(.maskSecondaryFn))
-              print(".maskNumericPad", flags.contains(.maskNumericPad))
-              print(".maskNonCoalesced", flags.contains(.maskNonCoalesced))
+              print(" .maskAlphaShift", flags.contains(.maskAlphaShift))
+              print(" .maskShift", flags.contains(.maskShift))
+              print(" .maskControl", flags.contains(.maskControl))
+              print(" .maskAlternate", flags.contains(.maskAlternate))
+              print(" .maskCommand", flags.contains(.maskCommand))
+              print(" .maskHelp", flags.contains(.maskHelp))
+              print(" .maskSecondaryFn", flags.contains(.maskSecondaryFn))
+              print(" .maskNumericPad", flags.contains(.maskNumericPad))
+              print(" .maskNonCoalesced", flags.contains(.maskNonCoalesced))
             }
 
             if group.userModes.isEmpty {
