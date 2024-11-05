@@ -3,6 +3,15 @@
     <channel>
         <title>Keyboard Cowboy</title>
         <item>
+            <title>3.25.2</title>
+            <pubDate>Tue, 05 Nov 2024 19:23:03 +0100</pubDate>
+            <sparkle:version>2122
+</sparkle:version>
+            <sparkle:shortVersionString>3.25.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.25.2/Keyboard.Cowboy.3.25.2.dmg" length="9266593" type="application/octet-stream" sparkle:edSignature="BKLJam3FbPUd5i0HajkieXehc5GWFS/7WG48KoRcCOeQ08nu5wbwMzWBSKsH7SswDObiaf7pQzd+d/7gP8szCg=="/>
+        </item>
+        <item>
             <title>3.25.1</title>
             <pubDate>Tue, 29 Oct 2024 20:51:43 +0100</pubDate>
             <sparkle:version>2113
@@ -19,14 +28,6 @@
             <sparkle:shortVersionString>3.25.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.25.0/Keyboard.Cowboy.3.25.0.dmg" length="9274941" type="application/octet-stream" sparkle:edSignature="M4u67gK3y4GbbB35+c89qKmFtB1wX0o2lsgtTxKmmzVj49tdGMbgHLokycU3xKLKxfYldnL6tvNbMVI4+xH8BA=="/>
-        </item>
-        <item>
-            <title>3.24.2</title>
-            <pubDate>Tue, 21 May 2024 21:49:26 +0200</pubDate>
-            <sparkle:version>906</sparkle:version>
-            <sparkle:shortVersionString>3.24.2</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/zenangst/KeyboardCowboy/releases/download/3.24.2/Keyboard.Cowboy.3.24.2.dmg" length="8694132" type="application/octet-stream" sparkle:edSignature="JYpVwYffw406IvwpuQ7DxY/OlwPW9I+VI5Y6hUdiOX3etyEFU3sGOCQgwmaYmuFQD7QEE/AmePHG78yWdiHgDw=="/>
         </item>
         <item>
             <title>0.4.1</title>
