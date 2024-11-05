@@ -122,6 +122,10 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { RelativeFocusIconView(.up, size: 24).anyView },
+           text: "Fixes a bug where a stray mouse click event might get emitted if relative focus involved Control to activate.",
+           version: .v3252),
+
     Change(icon: { KeyboardIconView("M", size: 24).anyView },
            text: "Fixes a bug where Home, End, and Page Up/Down commands didn't map properly.",
            version: .v3252),
@@ -315,14 +319,16 @@ private struct SupportersView: View {
 
     Supporter(index: 10, imageUrl: URL(string: "https://avatars.githubusercontent.com/u/105807570?v=4"), githubHandle: "bassamsdata"),
 
+    Supporter(index: 11, imageUrl: URL(string: "https://avatars.githubusercontent.com/u/177531206?v=4"), githubHandle: "StianFlatby"),
+
 
     Supporter(
-      index: 11,
+      index: 12,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/378235?v=4"),
       githubHandle: "timkurvers"),
 
     Supporter(
-      index: 12,
+      index: 13,
       imageUrl: URL(string: "https://avatars.githubusercontent.com/u/386122?v=4"),
       githubHandle: "sindrenm"),
   ]
