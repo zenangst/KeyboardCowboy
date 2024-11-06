@@ -122,6 +122,14 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes main window handling for older versions of macOS.",
+           version: .v3253),
+
+    Change(icon: { WorkspaceIcon(size: 24).anyView },
+           text: "Minor tweaks to the workspace command to make it more accurate and efficient.",
+           version: .v3253),
+
     Change(icon: { RelativeFocusIconView(.up, size: 24).anyView },
            text: "Fixes a bug where a stray mouse click event might get emitted if relative focus involved Control to activate.",
            version: .v3252),
@@ -402,13 +410,15 @@ private struct Supporter: Hashable {
 }
 
 private enum Version: String {
+  case v3253 = "3.25.3"
   case v3252 = "3.25.2"
   case v3251 = "3.25.1"
   case v3250 = "3.25.0"
 
   var color: Color {
     switch self {
-    case .v3252: Color(.systemYellow)
+    case .v3253: Color(.systemYellow)
+    case .v3252: Color(.systemOrange)
     case .v3251: Color(.systemRed)
     case .v3250: Color(.systemPurple)
     }
