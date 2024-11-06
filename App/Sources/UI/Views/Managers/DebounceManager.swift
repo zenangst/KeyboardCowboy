@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-final class DebounceManager<T> {
+final class DebounceManager<T>: ObservableObject {
   private var subscription: AnyCancellable?
   private let subject = PassthroughSubject<T, Never>()
   private let onUpdate: (T) -> Void

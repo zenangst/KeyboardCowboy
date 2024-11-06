@@ -31,7 +31,7 @@ struct OpenCommandView: View {
     CommandContainerView(metaData, placeholder: model.placheolder, icon: { command in
       OpenCommandHeaderView(command, model: model, iconSize: iconSize)
     }, content: { command in
-      OpenCommandContentView(command: command, model: $model) { app in
+      OpenCommandContentView(model: $model) { app in
         onAction(.openWith(app))
       } onUpdatePath: { newPath in
         onAction(.updatePath(newPath: newPath))
@@ -91,20 +91,20 @@ private struct OpenCommandHeaderView: View {
 private struct OpenCommandContentView: View {
   @ObserveInjection var inject
   @Binding private var model: CommandViewModel.Kind.OpenModel
-  private var command: Binding<CommandViewModel.MetaData>
-  private let debounce: DebounceManager<String>
+  @StateObject private var debounce: DebounceManager<String>
 
   private let onUpdatePath: (String) -> Void
   private let onUpdateOpenWith: (Application?) -> Void
 
-  init(command: Binding<CommandViewModel.MetaData>, model: Binding<CommandViewModel.Kind.OpenModel>, 
+  init(model: Binding<CommandViewModel.Kind.OpenModel>,
        onUpdateOpenWith: @escaping (Application?) -> Void,
        onUpdatePath: @escaping (String) -> Void) {
     _model = model
-    self.command = command
     self.onUpdatePath = onUpdatePath
     self.onUpdateOpenWith = onUpdateOpenWith
-    self.debounce = DebounceManager(for: .milliseconds(500), onUpdate: onUpdatePath)
+    _debounce = .init(wrappedValue: DebounceManager(for: .milliseconds(500)) { newValue in
+      onUpdatePath(newValue)
+    })
   }
 
   var body: some View {
@@ -119,7 +119,8 @@ private struct OpenCommandContentView: View {
               unfocusedOpacity: 0.0
             )
           )
-        )        .onChange(of: model.path, perform: { debounce.send($0) })
+        )
+        .onChange(of: model.path, perform: { debounce.send($0) })
         .frame(maxWidth: .infinity)
 
       Menu(content: {
