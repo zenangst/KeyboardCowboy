@@ -9,23 +9,26 @@ final class ConfigurationUpdater: ObservableObject {
   }
 
   private var state: State = .uninitialized
-
-  private var passthrough = PassthroughSubject<State, Never>()
+  private var passthrough = PassthroughSubject<UpdateCommit, Never>()
   private var passthroughSubscription: AnyCancellable?
   private var configurationSubscription: AnyCancellable?
 
-  init(for stride:  DispatchQueue.SchedulerTimeType.Stride = .milliseconds(500),
-       onUpdate: @escaping (KeyboardCowboyConfiguration) -> Void) {
+  private let onRender: (KeyboardCowboyConfiguration, UpdateTransaction, Animation?) -> Void
+
+  init(storageDebounce stride: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(500),
+       onRender: @escaping (KeyboardCowboyConfiguration, UpdateTransaction, Animation?) -> Void,
+       onStorageUpdate: @escaping (KeyboardCowboyConfiguration, UpdateTransaction) -> Void) {
+    self.onRender = onRender
     self.passthroughSubscription = passthrough
       .debounce(for: stride, scheduler: DispatchQueue.main)
-      .sink { [weak self] state in
-        switch state {
+      .sink { [weak self] commit in
+        switch commit.state {
         case .configured(let configuration):
-          onUpdate(configuration)
+          onStorageUpdate(configuration, commit.transaction)
         case .uninitialized:
           break
         }
-        self?.state = state
+        self?.state = commit.state
       }
   }
 
@@ -37,26 +40,30 @@ final class ConfigurationUpdater: ObservableObject {
       }
   }
 
-  func modifyGroup(using transaction: UpdateTransaction, handler: (inout WorkflowGroup) -> Void) {
+  func modifyGroup(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout WorkflowGroup) -> Void) {
     guard case .configured(var configuration) = state else { return }
     configuration.modify(
       groupID: transaction.groupID,
       modify: handler
     )
-    passthrough.send(.configured(configuration))
+
+    onRender(configuration, transaction, animation)
+    passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction))
   }
 
-  func modifyWorkflow(using transaction: UpdateTransaction, handler: (inout Workflow) -> Void) {
+  func modifyWorkflow(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout Workflow) -> Void) {
     guard case .configured(var configuration) = state else { return }
     configuration.modify(
       groupID: transaction.groupID,
       workflowID: transaction.workflowID,
       modify: handler
     )
-    passthrough.send(.configured(configuration))
+
+    onRender(configuration, transaction, animation)
+    passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction))
   }
 
-  func modifyCommand(withID commandID: Command.ID, using transaction: UpdateTransaction, handler: (inout Command) -> Void) {
+  func modifyCommand(withID commandID: Command.ID, withAnimation animation: Animation? = nil, using transaction: UpdateTransaction, handler: (inout Command) -> Void) {
     guard case .configured(var configuration) = state else { return }
     configuration.modify(
       groupID: transaction.groupID,
@@ -64,7 +71,9 @@ final class ConfigurationUpdater: ObservableObject {
       commandID: commandID,
       modify: handler
     )
-    passthrough.send(.configured(configuration))
+
+    onRender(configuration, transaction, animation)
+    passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction))
   }
 }
 
@@ -75,5 +84,16 @@ final class UpdateTransaction: ObservableObject {
   init(groupID: WorkflowGroup.ID, workflowID: Workflow.ID) {
     self.groupID = groupID
     self.workflowID = workflowID
+  }
+}
+
+struct UpdateCommit {
+  let state: ConfigurationUpdater.State
+  let transaction: UpdateTransaction
+
+  init(_ state: ConfigurationUpdater.State,
+       transaction: UpdateTransaction) {
+    self.state = state
+    self.transaction = transaction
   }
 }

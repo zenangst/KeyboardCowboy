@@ -18,7 +18,7 @@ struct WorkflowCommandListHeaderView: View {
       Menu(content: {
         ForEach(DetailViewModel.Execution.allCases) { execution in
           Button(execution.rawValue, action: {
-            updater.modifyWorkflow(using: transaction) { workflow in
+            updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
               switch execution {
               case .concurrent: workflow.execution = .concurrent
               case .serial:     workflow.execution = .serial
