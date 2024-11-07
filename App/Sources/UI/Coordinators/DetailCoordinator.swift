@@ -369,7 +369,6 @@ extension SingleDetailView.Action {
          .applicationTrigger(let workflowId, _),
          .commandView(let workflowId, _),
          .moveCommand(let workflowId, _, _),
-         .trigger(let workflowId, _),
          .updateName(let workflowId, _),
          .updateExecution(let workflowId, _),
          .runWorkflow(let workflowId),

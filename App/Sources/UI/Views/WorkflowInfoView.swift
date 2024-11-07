@@ -4,11 +4,6 @@ import Carbon
 import SwiftUI
 
 struct WorkflowInfoView: View {
-  enum Action {
-    case updateName(name: String)
-    case setIsEnabled(isEnabled: Bool)
-  }
-
   @EnvironmentObject private var transaction: UpdateTransaction
   @EnvironmentObject private var updater: ConfigurationUpdater
   @ObserveInjection var inject

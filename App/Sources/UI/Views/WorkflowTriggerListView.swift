@@ -9,7 +9,6 @@ struct WorkflowTriggerListView: View {
   @ObservedObject private var publisher: TriggerPublisher
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
-  private let onAction: (SingleDetailView.Action) -> Void
   private let onTab: () -> Void
   private let workflowId: String
   private var focus: FocusState<AppFocus?>.Binding
@@ -19,14 +18,12 @@ struct WorkflowTriggerListView: View {
        publisher: TriggerPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
-       onTab: @escaping () -> Void,
-       onAction: @escaping (SingleDetailView.Action) -> Void) {
+       onTab: @escaping () -> Void) {
     self.focus = focus
     self.publisher = publisher
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
     self.onTab = onTab
-    self.onAction = onAction
     self.workflowId = workflowId
   }
 
@@ -57,10 +54,7 @@ struct WorkflowTriggerListView: View {
       case .empty:
         WorkflowTriggerHeaderView("Add Trigger", showRemoveButton: false)
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
-        WorkflowTriggerView(focus, isGrayscale: .readonly(publisher.data != .empty),
-                            onAction: { action in
-          onAction(.trigger(workflowId: workflowId, action: action))
-        })
+        WorkflowTriggerView(focus, isGrayscale: .readonly(publisher.data != .empty))
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       }
     }
@@ -108,22 +102,22 @@ struct WorkflowTriggerListView_Previews: PreviewProvider {
       WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
                               publisher: .init(.empty),
                               applicationTriggerSelectionManager: .init(),
-                              keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
+                              keyboardShortcutSelectionManager: .init(), onTab: {})
       Spacer()
       WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
                               publisher: .init(.applications([.init(id: "", name: "Finder", application: .finder(), contexts: [])])),
                               applicationTriggerSelectionManager: .init(),
-                              keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
+                              keyboardShortcutSelectionManager: .init(), onTab: {})
       Spacer()
       WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
                               publisher: .init(.snippet(.init(id: "", text: "foo"))),
                               applicationTriggerSelectionManager: .init(),
-                              keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
+                              keyboardShortcutSelectionManager: .init(), onTab: {})
       Spacer()
       WorkflowTriggerListView($focus, workflowId: UUID().uuidString,
                               publisher: .init(DesignTime.detail.trigger),
                               applicationTriggerSelectionManager: .init(),
-                              keyboardShortcutSelectionManager: .init(), onTab: {}) { _ in }
+                              keyboardShortcutSelectionManager: .init(), onTab: {}) 
     }
       .designTime()
       .padding()

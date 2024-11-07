@@ -79,17 +79,6 @@ final class DetailViewActionReducer {
       case .removeCommands(_, let commandIds):
         workflow.commands.removeAll(where: { commandIds.contains($0.id) })
         result = .animated(.default)
-      case .trigger(_, let action):
-        switch action {
-        case .addKeyboardShortcut:
-          workflow.trigger = .keyboardShortcuts(.init(shortcuts: []))
-        case .addSnippet:
-          workflow.trigger = .snippet(.init(id: UUID().uuidString, text: ""))
-        case .removeKeyboardShortcut:
-          workflow.trigger = nil
-        case .addApplication:
-          workflow.trigger = .application([])
-        }
       case .removeTrigger(_):
         workflow.trigger = nil
       case .applicationTrigger(_, let action):

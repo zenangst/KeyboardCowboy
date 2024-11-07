@@ -4,11 +4,6 @@ import Inject
 import SwiftUI
 
 struct WorkflowApplicationTriggerView: View {
-  enum Action {
-    case updateApplicationTriggers([DetailViewModel.ApplicationTrigger])
-    case updateApplicationTriggerContext(DetailViewModel.ApplicationTrigger)
-  }
-
   @ObserveInjection var inject
   @EnvironmentObject private var updater: ConfigurationUpdater
   @EnvironmentObject private var transaction: UpdateTransaction
