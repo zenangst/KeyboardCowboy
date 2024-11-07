@@ -34,7 +34,7 @@ struct WorkflowTriggerListView: View {
     Group {
       switch publisher.data {
       case .keyboardShortcuts(let trigger):
-        WorkflowTriggerHeaderView("Keyboard Shortcuts Sequence") { onAction(.removeTrigger(workflowId: workflowId)) }
+        WorkflowTriggerHeaderView("Keyboard Shortcuts Sequence")
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowKeyboardTriggerView(
           namespace: namespace,
@@ -43,21 +43,19 @@ struct WorkflowTriggerListView: View {
           trigger: trigger,
           keyboardShortcutSelectionManager: keyboardShortcutSelectionManager)
       case .applications(let triggers):
-        WorkflowTriggerHeaderView("Application Trigger") { onAction(.removeTrigger(workflowId: workflowId)) }
+        WorkflowTriggerHeaderView("Application Trigger")
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowApplicationTriggerView(focus, data: triggers,
                                        selectionManager: applicationTriggerSelectionManager,
                                        onTab: onTab)
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .snippet(let snippet):
-        WorkflowTriggerHeaderView("Add Snippet") { onAction(.removeTrigger(workflowId: workflowId)) }
+        WorkflowTriggerHeaderView("Add Snippet")
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
-        WorkflowSnippetTriggerView(focus, snippet: snippet) { snippet in
-          onAction(.updateSnippet(workflowId: workflowId, snippet: snippet))
-        }
+        WorkflowSnippetTriggerView(focus, snippet: snippet) 
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .empty:
-        WorkflowTriggerHeaderView("Add Trigger", onRemove: nil)
+        WorkflowTriggerHeaderView("Add Trigger", showRemoveButton: false)
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowTriggerView(focus, isGrayscale: .readonly(publisher.data != .empty),
                             onAction: { action in
@@ -72,27 +70,32 @@ struct WorkflowTriggerListView: View {
 }
 
 private struct WorkflowTriggerHeaderView: View {
-  let text: String
-  let onRemove: (() -> Void)?
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+  private let text: String
+  private let showRemoveButton: Bool
 
-  init(_ text: String, onRemove: (() -> Void)? = nil) {
+  init(_ text: String, showRemoveButton: Bool = true) {
     self.text = text
-    self.onRemove = onRemove
+    self.showRemoveButton = showRemoveButton
   }
 
   var body: some View {
     HStack {
       ZenLabel(text)
       Spacer()
-      Button(action: { onRemove?() },
-             label: {
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.trigger = nil
+        }
+      }, label: {
         Image(systemName: "xmark")
           .resizable()
           .aspectRatio(contentMode: .fit)
           .frame(width: 10, height: 10)
       })
       .buttonStyle(.calm(color: .systemRed, padding: .medium))
-      .opacity(onRemove != nil ? 1 : 0)
+      .opacity(showRemoveButton ? 1 : 0)
     }
     .padding([.leading, .trailing], 8)
   }
