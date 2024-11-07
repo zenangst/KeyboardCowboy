@@ -13,7 +13,8 @@ final class ContentStore: ObservableObject {
   @Published private(set) var state: State = .loading
   @Published private(set) var preferences: AppPreferences
 
-  private let storage: ConfigurationStorage
+  let storage: ConfigurationStorage
+
   private let shortcutResolver: ShortcutResolver
 
   private var subscriptions = [AnyCancellable]()

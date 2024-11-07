@@ -16,18 +16,13 @@ struct WorkflowInfoView: View {
   @State var name: String
 
   private let onInsertTab: () -> Void
-  private var onAction: (Action) -> Void
   private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
-       publisher: InfoPublisher,
-       onInsertTab: @escaping () -> Void,
-       onAction: @escaping (Action) -> Void) {
+  init(_ focus: FocusState<AppFocus?>.Binding, publisher: InfoPublisher, onInsertTab: @escaping () -> Void) {
     self.focus = focus
     _name = .init(initialValue: publisher.data.name)
     self.publisher = publisher
     self.onInsertTab = onInsertTab
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -52,7 +47,6 @@ struct WorkflowInfoView: View {
           updater.modifyWorkflow(using: transaction) { workflow in
             workflow.name = newName
           }
-          onAction(.updateName(name: newName))
         }
       Spacer()
       ZenToggle(
@@ -63,7 +57,6 @@ struct WorkflowInfoView: View {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.isEnabled = newValue
         }
-        onAction(.setIsEnabled(isEnabled: newValue))
       }
     }
     .enableInjection()
@@ -73,9 +66,7 @@ struct WorkflowInfoView: View {
 struct WorkflowInfo_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowInfoView($focus,
-                     publisher: .init(DesignTime.detail.info),
-                     onInsertTab: { }) { _ in }
+    WorkflowInfoView($focus, publisher: .init(DesignTime.detail.info), onInsertTab: { })
       .padding()
   }
 }

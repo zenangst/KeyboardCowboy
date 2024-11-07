@@ -134,8 +134,9 @@ final class Core {
 
   lazy private(set) var shortcutResolver = ShortcutResolver(keyCodes: keyCodeStore)
 
-  lazy private(set) var configurationUpdater = ConfigurationUpdater { configuration in
-    // TODO: Add to Storage.
+  lazy private(set) var configurationUpdater = ConfigurationUpdater { [weak self] configuration in
+    guard let self else { return }
+    configurationStore.update(configuration)
   }
 
   init() { }

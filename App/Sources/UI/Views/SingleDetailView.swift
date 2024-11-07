@@ -58,8 +58,7 @@ struct SingleDetailView: View {
   var body: some View {
     ScrollViewReader { proxy in
         VStack(alignment: .leading) {
-          WorkflowInfoView(
-            focus, publisher: infoPublisher, onInsertTab: {
+          WorkflowInfoView(focus, publisher: infoPublisher, onInsertTab: {
               switch triggerPublisher.data {
               case .applications:
                 focus.wrappedValue = .detail(.applicationTriggers)
@@ -69,13 +68,6 @@ struct SingleDetailView: View {
                 focus.wrappedValue = .detail(.addSnippetTrigger)
               case .empty:
                 focus.wrappedValue = .detail(.addAppTrigger)
-              }
-            }, onAction: { action in
-              switch action {
-              case .updateName(let name):
-                onAction(.updateName(workflowId: infoPublisher.data.id, name: name))
-              case .setIsEnabled(let isEnabled):
-                onAction(.setIsEnabled(workflowId: infoPublisher.data.id, isEnabled: isEnabled))
               }
             })
           .environmentObject(commandSelectionManager)
