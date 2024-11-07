@@ -3,21 +3,20 @@ import Inject
 import SwiftUI
 
 struct WorkflowApplicationTriggerItemView: View {
+  @EnvironmentObject private var updater: ConfigurationUpdater
+  @EnvironmentObject private var transaction: UpdateTransaction
   @ObserveInjection var inject
   @Binding var element: DetailViewModel.ApplicationTrigger
   @Binding private var data: [DetailViewModel.ApplicationTrigger]
   @State var isTargeted: Bool = false
   private let selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
-  private let onAction: (WorkflowApplicationTriggerView.Action) -> Void
 
   init(_ element: Binding<DetailViewModel.ApplicationTrigger>,
        data: Binding<[DetailViewModel.ApplicationTrigger]>,
-       selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       onAction: @escaping (WorkflowApplicationTriggerView.Action) -> Void) {
+       selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>) {
     _element = element
     _data = data
     self.selectionManager = selectionManager
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -37,7 +36,6 @@ struct WorkflowApplicationTriggerItemView: View {
               } else {
                 element.contexts.removeAll(where: { $0 == context })
               }
-              onAction(.updateApplicationTriggerContext(element))
             })) { _ in }
               .lineLimit(1)
               .allowsTightening(true)
@@ -55,7 +53,6 @@ struct WorkflowApplicationTriggerItemView: View {
               data.remove(at: index)
             }
           }
-          onAction(.updateApplicationTriggers(data))
         },
         label: {
           Image(systemName: "xmark")

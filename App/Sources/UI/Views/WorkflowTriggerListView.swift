@@ -47,9 +47,7 @@ struct WorkflowTriggerListView: View {
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowApplicationTriggerView(focus, data: triggers,
                                        selectionManager: applicationTriggerSelectionManager,
-                                       onTab: onTab) { action in
-          onAction(.applicationTrigger(workflowId: workflowId, action: action))
-        }
+                                       onTab: onTab)
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .snippet(let snippet):
         WorkflowTriggerHeaderView("Add Snippet") { onAction(.removeTrigger(workflowId: workflowId)) }

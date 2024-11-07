@@ -60,14 +60,10 @@ struct SingleDetailView: View {
         VStack(alignment: .leading) {
           WorkflowInfoView(focus, publisher: infoPublisher, onInsertTab: {
               switch triggerPublisher.data {
-              case .applications:
-                focus.wrappedValue = .detail(.applicationTriggers)
-              case .keyboardShortcuts:
-                focus.wrappedValue = .detail(.keyboardShortcuts)
-              case .snippet:
-                focus.wrappedValue = .detail(.addSnippetTrigger)
-              case .empty:
-                focus.wrappedValue = .detail(.addAppTrigger)
+              case .applications:      focus.wrappedValue = .detail(.applicationTriggers)
+              case .keyboardShortcuts: focus.wrappedValue = .detail(.keyboardShortcuts)
+              case .snippet:           focus.wrappedValue = .detail(.addSnippetTrigger)
+              case .empty:             focus.wrappedValue = .detail(.addAppTrigger)
               }
             })
           .environmentObject(commandSelectionManager)
