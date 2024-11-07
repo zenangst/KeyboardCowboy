@@ -1,5 +1,6 @@
 import Foundation
 import InputSources
+import SwiftUI
 
 @MainActor
 final class Core {
@@ -134,10 +135,20 @@ final class Core {
 
   lazy private(set) var shortcutResolver = ShortcutResolver(keyCodes: keyCodeStore)
 
-  lazy private(set) var configurationUpdater = ConfigurationUpdater { [weak self] configuration in
-    guard let self else { return }
-    configurationStore.update(configuration)
-  }
+  lazy private(set) var configurationUpdater = ConfigurationUpdater(
+    storageDebounce: .milliseconds(175),
+    onRender: { [weak self] configuration, commit, animation in
+      guard let self else { return }
+      groupStore.updateGroups(Set(configuration.groups))
+      detailCoordinator.handle(.selectGroups([commit.groupID]))
+    },
+    onStorageUpdate: { [weak self] configuration, commit in
+      guard let self else { return }
+      withAnimation { [contentCoordinator] in
+        contentCoordinator.handle(.refresh([commit.groupID]))
+      }
+      configurationStore.update(configuration)
+  })
 
   init() { }
 }

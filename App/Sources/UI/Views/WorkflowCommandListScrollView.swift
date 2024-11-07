@@ -6,7 +6,7 @@ struct WorkflowCommandListScrollView: View {
   @EnvironmentObject private var transaction: UpdateTransaction
   @EnvironmentObject private var applicationStore: ApplicationStore
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
-  private let publisher: CommandsPublisher
+  @ObservedObject private var publisher: CommandsPublisher
   private let scrollViewProxy: ScrollViewProxy?
   private let triggerPublisher: TriggerPublisher
   private let workflowId: String

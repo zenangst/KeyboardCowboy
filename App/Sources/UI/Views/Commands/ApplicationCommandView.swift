@@ -220,8 +220,9 @@ struct ApplicationCommandImageView: View {
       ForEach(applicationStore.applications.lazy, id: \.path) { app in
         Button(action: {
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            guard case .application(var command) = command else { return }
-            command.application = app
+            guard case .application(var applicationCommand) = command else { return }
+            applicationCommand.application = app
+            command = .application(applicationCommand)
           }
           metaData.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
         }, label: {

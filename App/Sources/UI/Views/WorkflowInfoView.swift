@@ -49,7 +49,7 @@ struct WorkflowInfoView: View {
         style: .medium,
         isOn: $publisher.data.isEnabled
       ) { newValue in
-        updater.modifyWorkflow(using: transaction) { workflow in
+        updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
           workflow.isEnabled = newValue
         }
       }

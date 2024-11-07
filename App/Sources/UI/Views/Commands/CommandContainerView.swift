@@ -78,7 +78,7 @@ private struct CommandContainerHeaderView: View {
         .onChange(of: metaData.name, perform: { newValue in
           updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.name = newValue })
         })
-      CommandContainerActionView()
+      CommandContainerActionView(metaData: metaData)
     }
     .padding(.horizontal, 6)
     .padding(.top, 6)
@@ -155,11 +155,17 @@ private struct CommandContainerActionView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
+  private let metaData: CommandViewModel.MetaData
+
+  init(metaData: CommandViewModel.MetaData) {
+    self.metaData = metaData
+  }
+
   var body: some View {
     HStack(spacing: 0) {
       Button(action: {
-        updater.modifyWorkflow(using: transaction) { workflow in
-          workflow.commands.removeAll(where: { $0.id == transaction.workflowID })
+        updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
+          workflow.commands.removeAll(where: { $0.id == metaData.id })
         }
       }, label: {
         Image(systemName: "xmark")
