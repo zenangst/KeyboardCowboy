@@ -41,9 +41,7 @@ struct WorkflowTriggerListView: View {
           workflowId: workflowId,
           focus: focus,
           trigger: trigger,
-          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
-          onAction: onAction
-        )
+          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager)
       case .applications(let triggers):
         WorkflowTriggerHeaderView("Application Trigger") { onAction(.removeTrigger(workflowId: workflowId)) }
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)

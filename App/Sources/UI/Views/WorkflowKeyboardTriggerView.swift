@@ -4,13 +4,14 @@ import Inject
 import SwiftUI
 
 struct WorkflowKeyboardTriggerView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @ObserveInjection var inject
   @State private var holdDurationText = ""
   @State private var passthrough: Bool
   @State private var trigger: DetailViewModel.KeyboardTrigger
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let namespace: Namespace.ID
-  private let onAction: (SingleDetailView.Action) -> Void
   private let workflowId: String
   private var focus: FocusState<AppFocus?>.Binding
 
@@ -18,8 +19,7 @@ struct WorkflowKeyboardTriggerView: View {
        workflowId: String,
        focus: FocusState<AppFocus?>.Binding,
        trigger: DetailViewModel.KeyboardTrigger,
-       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
-       onAction: @escaping (SingleDetailView.Action) -> Void) {
+       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>) {
     self.namespace = namespace
     self.workflowId = workflowId
     self.focus = focus
@@ -30,22 +30,29 @@ struct WorkflowKeyboardTriggerView: View {
     }
     _passthrough = .init(initialValue: trigger.passthrough)
 
-    self.onAction = onAction
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
   }
 
   var body: some View {
     VStack(spacing: 8) {
       WorkflowShortcutsView(focus, data: $trigger.shortcuts, selectionManager: keyboardShortcutSelectionManager) { keyboardShortcuts in
-        onAction(.updateKeyboardShortcuts(workflowId: workflowId,
-                                          passthrough: passthrough,
-                                          holdDuration: Double(holdDurationText),
-                                          keyboardShortcuts: keyboardShortcuts))
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.trigger = .keyboardShortcuts(
+            KeyboardShortcutTrigger(
+              passthrough: passthrough,
+              holdDuration: Double(holdDurationText),
+              shortcuts: keyboardShortcuts))
+        }
       }
 
       HStack {
         ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
-          onAction(.togglePassthrough(workflowId: workflowId, newValue: newValue))
+          updater.modifyWorkflow(using: transaction) { workflow in
+            workflow.trigger = .keyboardShortcuts(
+              KeyboardShortcutTrigger(passthrough: newValue,
+                                      holdDuration: Double(holdDurationText),
+                                      shortcuts: trigger.shortcuts))
+          }
         }
         .font(.caption)
         Spacer()
@@ -56,8 +63,13 @@ struct WorkflowKeyboardTriggerView: View {
             Text("Become modifier after")
           }
         }
-        NumberTextField(text: $holdDurationText) {
-          onAction(.updateHoldDuration(workflowId: workflowId, holdDuration: Double($0)))
+        NumberTextField(text: $holdDurationText) { newValue in
+          updater.modifyWorkflow(using: transaction) { workflow in
+            workflow.trigger = .keyboardShortcuts(
+              .init(passthrough: passthrough,
+                holdDuration: Double(newValue),
+                shortcuts: trigger.shortcuts))
+          }
         }
         .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .controlColor).opacity(0.5), font: .caption, padding: .small)))
         .frame(maxWidth: 32)
@@ -80,10 +92,7 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
                         trigger: .init(passthrough: false, shortcuts: [
                           .empty()
                         ]),
-                        keyboardShortcutSelectionManager: .init(),
-                        onAction: {
-      _ in
-    })
+                        keyboardShortcutSelectionManager: .init())
     .designTime()
     .padding()
   }
