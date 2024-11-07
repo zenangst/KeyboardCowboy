@@ -16,6 +16,7 @@ struct MainWindowView: View {
     ContainerView(
       $focus,
       contentState: .readonly(core.contentStore.state),
+      detailUpdateTransaction: core.detailCoordinator.updateTransaction,
       publisher: core.contentCoordinator.contentPublisher,
       applicationTriggerSelectionManager: core.applicationTriggerSelectionManager,
       commandSelectionManager: core.commandSelectionManager,

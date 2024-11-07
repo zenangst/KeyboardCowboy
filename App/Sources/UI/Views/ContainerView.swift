@@ -26,11 +26,13 @@ struct ContainerView: View {
   private let triggerPublisher: TriggerPublisher
   private let infoPublisher: InfoPublisher
   private let commandPublisher: CommandsPublisher
+  private let detailUpdateTransaction: UpdateTransaction
   private var focus: FocusState<AppFocus?>.Binding
 
   @MainActor
   init(_ focus: FocusState<AppFocus?>.Binding,
        contentState: Binding<ContentStore.State>,
+       detailUpdateTransaction: UpdateTransaction,
        publisher: ContentPublisher,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
        commandSelectionManager: SelectionManager<CommandViewModel>,
@@ -55,6 +57,7 @@ struct ContainerView: View {
     self.infoPublisher = infoPublisher
     self.commandPublisher = commandPublisher
     self.onAction = onAction
+    self.detailUpdateTransaction = detailUpdateTransaction
   }
 
   var body: some View {
@@ -101,6 +104,7 @@ struct ContainerView: View {
         .frame(minHeight: 400)
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
         .background()
+        .environmentObject(detailUpdateTransaction)
       })
     .navigationSplitViewStyle(.balanced)
     .enableInjection()
@@ -113,6 +117,7 @@ struct ContainerView_Previews: PreviewProvider {
     ContainerView(
       $focus,
       contentState: .readonly(.initialized),
+      detailUpdateTransaction: .init(groupID: "", workflowID: ""),
       publisher: DesignTime.contentPublisher,
       applicationTriggerSelectionManager: .init(),
       commandSelectionManager: .init(),

@@ -8,6 +8,7 @@ final class Core {
 
   lazy private(set) var configCoordinator = ConfigurationCoordinator(
     contentStore: contentStore,
+    configurationUpdater: configurationUpdater,
     selectionManager: configSelectionManager,
     store: configurationStore)
 
@@ -132,6 +133,10 @@ final class Core {
   // MARK: - Controllers
 
   lazy private(set) var shortcutResolver = ShortcutResolver(keyCodes: keyCodeStore)
+
+  lazy private(set) var configurationUpdater = ConfigurationUpdater { configuration in
+    // TODO: Add to Storage.
+  }
 
   init() { }
 }

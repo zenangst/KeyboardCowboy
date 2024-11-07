@@ -450,7 +450,7 @@ extension Command {
             "Insert input",
             mode: .instant,
             meta: .init(
-              id: UUID().uuidString,
+              id: id,
               name: "",
               isEnabled: true,
               notification: nil

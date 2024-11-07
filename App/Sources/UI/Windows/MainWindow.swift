@@ -23,6 +23,7 @@ final class MainWindow: NSObject, NSWindowDelegate {
 
     let content = MainWindowView(core: core, onSceneAction: onSceneAction(_:))
       .environmentObject(windowOpener)
+      .environmentObject(core.configurationUpdater)
     let styleMask: NSWindow.StyleMask = [
       .titled, .closable, .resizable, .fullSizeContentView
     ]
