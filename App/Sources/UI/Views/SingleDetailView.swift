@@ -6,24 +6,15 @@ struct SingleDetailView: View {
   @Namespace var namespace
 
   enum Action {
-    case applicationTrigger(workflowId: Workflow.ID, action: WorkflowApplicationTriggerView.Action)
     case commandView(workflowId: Workflow.ID, action: CommandView.Action)
     case dropUrls(workflowId: Workflow.ID, urls: [URL])
     case duplicate(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
     case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
     case removeCommands(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
-    case removeTrigger(workflowId: Workflow.ID)
     case togglePassthrough(workflowId: Workflow.ID, newValue: Bool)
     case runWorkflow(workflowId: Workflow.ID)
     case setIsEnabled(workflowId: Workflow.ID, isEnabled: Bool)
     case updateExecution(workflowId: Workflow.ID, execution: DetailViewModel.Execution)
-    case updateHoldDuration(workflowId: Workflow.ID, holdDuration: Double?)
-    case updateKeyboardShortcuts(workflowId: Workflow.ID, 
-                                 passthrough: Bool,
-                                 holdDuration: Double?,
-                                 keyboardShortcuts: [KeyShortcut])
-    case updateName(workflowId: Workflow.ID, name: String)
-    case updateSnippet(workflowId: Workflow.ID, snippet: DetailViewModel.SnippetTrigger)
   }
 
   @EnvironmentObject private var commandPublisher: CommandsPublisher

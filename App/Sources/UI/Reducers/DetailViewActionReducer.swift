@@ -48,107 +48,17 @@ final class DetailViewActionReducer {
         let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
         workflow.commands.append(contentsOf: commands)
         result = .animated(.default)
-      case .updateKeyboardShortcuts(_, let passthrough, let holdDuration, let keyboardShortcuts):
-        workflow.trigger = .keyboardShortcuts(
-          .init(
-            passthrough: passthrough,
-            holdDuration: holdDuration,
-            shortcuts: keyboardShortcuts
-          )
-        )
-      case .updateSnippet(_, let trigger):
-        workflow.trigger = .snippet(.init(id: trigger.id, text: trigger.text))
-      case .updateHoldDuration(_, let holdDuration):
-        guard case .keyboardShortcuts(var trigger) = workflow.trigger else {
-          return .none
-        }
-        trigger.holdDuration = holdDuration
-        workflow.trigger = .keyboardShortcuts(trigger)
-        result = .none
       case .commandView(_, let action):
         DetailCommandActionReducer.reduce(action, commandRunner: commandRunner, workflow: &workflow)
       case .moveCommand(_, let fromOffsets, let toOffset):
         workflow.commands.move(fromOffsets: fromOffsets, toOffset: toOffset)
         result = .animated(.default)
-      case .updateName(_, let name):
-        workflow.name = name
-        result = .none
       case .setIsEnabled(_, let isEnabled):
         workflow.isEnabled = isEnabled
         result = .none
       case .removeCommands(_, let commandIds):
         workflow.commands.removeAll(where: { commandIds.contains($0.id) })
         result = .animated(.default)
-      case .removeTrigger(_):
-        workflow.trigger = nil
-      case .applicationTrigger(_, let action):
-        switch action {
-        case .updateApplicationTriggers(let triggers):
-          let applicationTriggers = triggers
-            .map { viewModelTrigger in
-              var contexts = Set<ApplicationTrigger.Context>()
-              if viewModelTrigger.contexts.contains(.closed) {
-                contexts.insert(.closed)
-              } else {
-                contexts.remove(.closed)
-              }
-
-              if viewModelTrigger.contexts.contains(.frontMost) {
-                contexts.insert(.frontMost)
-              } else {
-                contexts.remove(.frontMost)
-              }
-
-              if viewModelTrigger.contexts.contains(.launched) {
-                contexts.insert(.launched)
-              } else {
-                contexts.remove(.launched)
-              }
-
-              if viewModelTrigger.contexts.contains(.resignFrontMost) {
-                contexts.insert(.resignFrontMost)
-              } else {
-                contexts.remove(.resignFrontMost)
-              }
-
-              return ApplicationTrigger(id: viewModelTrigger.id,
-                                        application: viewModelTrigger.application,
-                                        contexts: Array(contexts))
-            }
-          workflow.trigger = .application(applicationTriggers)
-        case .updateApplicationTriggerContext(let viewModelTrigger):
-          if case .application(var previousTriggers) = workflow.trigger,
-             let index = previousTriggers.firstIndex(where: { $0.id == viewModelTrigger.id }) {
-            var newTrigger = previousTriggers[index]
-
-            if viewModelTrigger.contexts.contains(.closed) {
-              newTrigger.contexts.insert(.closed)
-            } else {
-              newTrigger.contexts.remove(.closed)
-            }
-
-            if viewModelTrigger.contexts.contains(.frontMost) {
-              newTrigger.contexts.insert(.frontMost)
-            } else {
-              newTrigger.contexts.remove(.frontMost)
-            }
-
-            if viewModelTrigger.contexts.contains(.launched) {
-              newTrigger.contexts.insert(.launched)
-            } else {
-              newTrigger.contexts.remove(.launched)
-            }
-
-            if viewModelTrigger.contexts.contains(.resignFrontMost) {
-              newTrigger.contexts.insert(.resignFrontMost)
-            } else {
-              newTrigger.contexts.remove(.resignFrontMost)
-            }
-
-            previousTriggers[index] = newTrigger
-            workflow.trigger = .application(previousTriggers)
-          }
-        }
       case .updateExecution(_, let execution):
           switch execution {
             case .concurrent:

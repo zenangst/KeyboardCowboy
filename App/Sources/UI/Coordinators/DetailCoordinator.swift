@@ -362,19 +362,13 @@ extension SingleDetailView.Action {
     switch self {
     case .dropUrls(let workflowId, _),
          .duplicate(let workflowId, _),
-         .updateKeyboardShortcuts(let workflowId, _, _, _),
-         .removeTrigger(let workflowId),
          .setIsEnabled(let workflowId, _),
          .removeCommands(let workflowId, _),
-         .applicationTrigger(let workflowId, _),
          .commandView(let workflowId, _),
          .moveCommand(let workflowId, _, _),
-         .updateName(let workflowId, _),
          .updateExecution(let workflowId, _),
          .runWorkflow(let workflowId),
-         .togglePassthrough(let workflowId, _),
-         .updateHoldDuration(let workflowId, _),
-         .updateSnippet(let workflowId, _):
+         .togglePassthrough(let workflowId, _):
       return workflowId
     }
   }
