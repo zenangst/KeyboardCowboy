@@ -110,25 +110,6 @@ final class ContentCoordinator {
     }
   }
 
-  func handle(_ action: DetailView.Action) {
-    switch action {
-    case .singleDetailView(let action):
-      switch action {
-      case .commandView(_, let action):
-        switch action {
-        case .changeDelay, .toggleNotify, .run: break
-        case .toggleEnabled, .updateName, .modify, .remove:
-          render(groupSelectionManager.selections, calculateSelections: false)
-        }
-      case .dropUrls, .duplicate, .moveCommand, .removeCommands,
-           .setIsEnabled, .updateExecution:
-        render(groupSelectionManager.selections, calculateSelections: false)
-      case .togglePassthrough, .runWorkflow:
-        break
-      }
-    }
-  }
-
   // MARK: Private methods
 
   private func render(_ groupIds: Set<GroupViewModel.ID>,

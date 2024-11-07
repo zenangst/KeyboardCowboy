@@ -46,9 +46,6 @@ struct MainWindowView: View {
       case .content(let contentAction):
         core.contentCoordinator.handle(contentAction)
         core.detailCoordinator.handle(contentAction)
-      case .detail(let detailAction):
-        core.detailCoordinator.handle(detailAction)
-        core.contentCoordinator.handle(detailAction)
       }
 
       undoManager?.registerUndo(withTarget: core.configurationStore, handler: { store in

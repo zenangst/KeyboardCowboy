@@ -2,23 +2,23 @@ import SwiftUI
 import Bonzai
 
 struct WorkflowCommandEmptyListView: View {
+  @EnvironmentObject var applicationStore: ApplicationStore
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject var openWindow: WindowOpener
   private let namespace: Namespace.ID
   private let workflowId: String
   private let isPrimary: Binding<Bool>
-  private let onAction: (SingleDetailView.Action) -> Void
   private var focus: FocusState<AppFocus?>.Binding
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
        workflowId: String,
-       isPrimary: Binding<Bool>,
-       onAction: @escaping (SingleDetailView.Action) -> Void) {
+       isPrimary: Binding<Bool>) {
     self.focus = focus
     self.isPrimary = isPrimary
     self.workflowId = workflowId
     self.namespace = namespace
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -63,7 +63,10 @@ struct WorkflowCommandEmptyListView: View {
       }
 
       if !urls.isEmpty {
-        onAction(.dropUrls(workflowId: workflowId, urls: urls))
+        updater.modifyWorkflow(using: transaction) { workflow in
+          let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
+          workflow.commands.append(contentsOf: commands)
+        }
       }
 
       return true
@@ -82,7 +85,6 @@ struct WorkflowCommandEmptyListView_Previews: PreviewProvider {
       namespace: namespace,
       workflowId: UUID().uuidString,
       isPrimary: .constant(true)
-    ) { _ in }
-      .designTime()
+    ).designTime()
   }
 }

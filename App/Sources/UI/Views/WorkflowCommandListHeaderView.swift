@@ -2,19 +2,14 @@ import Bonzai
 import SwiftUI
 
 struct WorkflowCommandListHeaderView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject var publisher: CommandsPublisher
-  private let workflowId: String
   private let namespace: Namespace.ID
 
-  init(namespace: Namespace.ID,
-       workflowId: String,
-       onAction: @escaping (SingleDetailView.Action) -> Void) {
+  init(namespace: Namespace.ID) {
     self.namespace = namespace
-    self.workflowId = workflowId
-    self.onAction = onAction
   }
-
-  private let onAction: (SingleDetailView.Action) -> Void
 
   var body: some View {
     HStack {
@@ -23,7 +18,12 @@ struct WorkflowCommandListHeaderView: View {
       Menu(content: {
         ForEach(DetailViewModel.Execution.allCases) { execution in
           Button(execution.rawValue, action: {
-            onAction(.updateExecution(workflowId: workflowId, execution: execution))
+            updater.modifyWorkflow(using: transaction) { workflow in
+              switch execution {
+              case .concurrent: workflow.execution = .concurrent
+              case .serial:     workflow.execution = .serial
+              }
+            }
           })
         }
       }, label: {
@@ -32,18 +32,17 @@ struct WorkflowCommandListHeaderView: View {
       })
       .menuStyle(.zen(.init(color: .systemGray, padding: .large)))
       .fixedSize(horizontal: true, vertical: true)
-      WorkflowCommandListHeaderAddView(namespace, workflowId: workflowId)
+      WorkflowCommandListHeaderAddView(namespace)
     }
     .padding(.leading, 24)
     .padding(.trailing, 16)
-    .id(workflowId)
   }
 }
 
 struct WorkflowCommandListHeaderView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
-    WorkflowCommandListHeaderView(namespace: namespace, workflowId: UUID().uuidString, onAction: { _ in })
+    WorkflowCommandListHeaderView(namespace: namespace)
       .designTime()
   }
 }

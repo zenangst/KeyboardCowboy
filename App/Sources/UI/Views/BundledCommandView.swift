@@ -2,22 +2,17 @@ import Bonzai
 import SwiftUI
 
 struct BundledCommandView: View {
-  enum Action {
-    case editCommand(CommandViewModel.Kind.BundledModel.Kind)
-    case commandAction(CommandContainerAction)
-  }
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
 
   private let model: CommandViewModel.Kind.BundledModel
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
-  private let onAction: (Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.BundledModel,
-       iconSize: CGSize, onAction: @escaping (Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.BundledModel, iconSize: CGSize) {
     self.model = model
     self.metaData = metaData
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -30,36 +25,42 @@ struct BundledCommandView: View {
       switch model.kind {
       case .appFocus(let model):
         AppFocusCommandView(model: model) { tiling in
-          onAction(.editCommand(.appFocus(.init(application: model.application, tiling: tiling,
-                                                  hideOtherApps: model.hideOtherApps, createNewWindow: model.createNewWindow))))
+          performAppFocusUpdate(set: \.tiling, to: tiling)
         } onSelectedAppsChange: { application in
-          onAction(.editCommand(.appFocus(.init(application: application, tiling: model.tiling,
-                                                  hideOtherApps: model.hideOtherApps, createNewWindow: model.createNewWindow))))
+          performAppFocusUpdate(set: \.bundleIdentifer, to: application.bundleIdentifier)
         } onHideOtherAppsChange: { hideOtherApps in
-          onAction(.editCommand(.appFocus(.init(application: model.application, tiling: model.tiling,
-                                                  hideOtherApps: hideOtherApps, createNewWindow: model.createNewWindow))))
+          performAppFocusUpdate(set: \.hideOtherApps, to: hideOtherApps)
         } onCreateWindowChange: { createNewWindow in
-          onAction(.editCommand(.appFocus(.init(application: model.application, tiling: model.tiling,
-                                                  hideOtherApps: model.hideOtherApps, createNewWindow: createNewWindow))))
+          performAppFocusUpdate(set: \.createNewWindow, to: createNewWindow)
         }
       case .workspace(let model):
         WorkspaceCommandView(model) { tiling in
-          onAction(.editCommand(.workspace(.init(applications: model.applications,
-                                                 tiling: tiling,
-                                                 hideOtherApps: model.hideOtherApps))))
+          performWorkspaceUpdate(set: \.tiling, to: tiling)
         } onSelectedAppsChange: { applications in
-          onAction(.editCommand(.workspace(.init(applications: applications,
-                                                 tiling: model.tiling,
-                                                 hideOtherApps: model.hideOtherApps))))
+          performWorkspaceUpdate(set: \.bundleIdentifiers, to: applications.map(\.bundleIdentifier))
         } onHideOtherAppsChange: { hideOtherApps in
-          onAction(.editCommand(.workspace(.init(applications: model.applications,
-                                                 tiling: model.tiling,
-                                                 hideOtherApps: hideOtherApps))))
+          performWorkspaceUpdate(set: \.hideOtherApps, to: hideOtherApps)
         }
         .id(metaData.id)
       }
-    } onAction: { action in
-      onAction(.commandAction(action))
+    }
+  }
+
+  private func performAppFocusUpdate<Value>(set keyPath: WritableKeyPath<AppFocusCommand, Value>, to value: Value) {
+    updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+      guard case .bundled(let bundledCommand) = command,
+            case .appFocus(var appFocusCommand) = bundledCommand.kind else { return }
+      appFocusCommand[keyPath: keyPath] = value
+      command = .bundled(BundledCommand(.appFocus(appFocusCommand), meta: command.meta))
+    }
+  }
+
+  private func performWorkspaceUpdate<Value>(set keyPath: WritableKeyPath<WorkspaceCommand, Value>, to value: Value) {
+    updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+      guard case .bundled(let bundledCommand) = command,
+            case .workspace(var workspaceCommand) = bundledCommand.kind else { return }
+      workspaceCommand[keyPath: keyPath] = value
+      command = .bundled(BundledCommand(.workspace(workspaceCommand), meta: command.meta))
     }
   }
 }

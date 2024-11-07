@@ -2,9 +2,10 @@ import Bonzai
 import SwiftUI
 
 struct WorkflowCommandListScrollView: View {
+  @EnvironmentObject private var updater: ConfigurationUpdater
+  @EnvironmentObject private var transaction: UpdateTransaction
   @EnvironmentObject private var applicationStore: ApplicationStore
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
-  private let onAction: (SingleDetailView.Action) -> Void
   private let publisher: CommandsPublisher
   private let scrollViewProxy: ScrollViewProxy?
   private let triggerPublisher: TriggerPublisher
@@ -19,8 +20,7 @@ struct WorkflowCommandListScrollView: View {
        namespace: Namespace.ID,
        workflowId: String,
        selectionManager: SelectionManager<CommandViewModel>,
-       scrollViewProxy: ScrollViewProxy? = nil,
-       onAction: @escaping (SingleDetailView.Action) -> Void) {
+       scrollViewProxy: ScrollViewProxy? = nil) {
     self.focus = focus
     self.publisher = publisher
     self.triggerPublisher = triggerPublisher
@@ -28,21 +28,14 @@ struct WorkflowCommandListScrollView: View {
     self.namespace = namespace
     self.selectionManager = selectionManager
     self.scrollViewProxy = scrollViewProxy
-    self.onAction = onAction
   }
 
   var body: some View {
     CompatList {
       ForEach(publisher.data.commands, id: \.id) { command in
-        CommandView(
-          focus,
-          command: Binding.readonly(command),
-          publisher: publisher,
-          selectionManager: selectionManager,
-          workflowId: workflowId,
-          onCommandAction: onAction, onAction: { action in
-            onAction(.commandView(workflowId: workflowId, action: action))
-          })
+        CommandView(focus, command: Binding.readonly(command),
+                    publisher: publisher, selectionManager: selectionManager,
+                    workflowId: workflowId)
         .dropDestination(CommandListDropItem.self,
                          color: .accentColor,
                          kind: dropKind,
@@ -62,27 +55,25 @@ struct WorkflowCommandListScrollView: View {
               withAnimation(WorkflowCommandListView.animation) {
                 publisher.data.commands.move(fromOffsets: from, toOffset: destination)
               }
-
-              onAction(.moveCommand(workflowId: workflowId, indexSet: from, toOffset: destination))
+              updater.modifyWorkflow(using: transaction) { workflow in
+                workflow.commands.move(fromOffsets: from, toOffset: destination)
+              }
             case .url(let url):
               urls.append(url)
             }
           }
 
           if !urls.isEmpty {
-            onAction(.dropUrls(workflowId: workflowId, urls: urls))
+            updater.modifyWorkflow(using: transaction) { workflow in
+              let commands = DropCommandsController.generateCommands(from: urls, applications: applicationStore.applications)
+              workflow.commands.append(contentsOf: commands)
+            }
           }
           return true
         })
         .contentShape(Rectangle())
         .contextMenu(menuItems: {
-          WorkflowCommandListContextMenuView(
-            command,
-            workflowId: workflowId,
-            publisher: publisher,
-            selectionManager: selectionManager,
-            onAction: onAction
-          )
+          WorkflowCommandListContextMenuView(command, publisher: publisher, selectionManager: selectionManager)
         })
         .focusable(focus, as: .detail(.command(command.id))) {
           selectionManager.handleOnTap(publisher.data.commands, element: command)
@@ -111,12 +102,11 @@ struct WorkflowCommandListScrollView: View {
         }
       })
       .onDeleteCommand {
-        if selectionManager.selections.count == publisher.data.commands.count {
-          withAnimation {
-            onAction(.removeCommands(workflowId: workflowId, commandIds: selectionManager.selections))
+        let allCommandsAreSelected = selectionManager.selections.count == publisher.data.commands.count
+        withAnimation(allCommandsAreSelected ? .default : .none) {
+          updater.modifyWorkflow(using: transaction) {
+            $0.commands.removeAll(where: { selectionManager.selections.contains($0.id) })
           }
-        } else {
-          onAction(.removeCommands(workflowId: workflowId, commandIds: selectionManager.selections))
         }
       }
       .padding(8)

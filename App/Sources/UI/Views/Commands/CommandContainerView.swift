@@ -23,29 +23,26 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   private let content: (Binding<CommandViewModel.MetaData>) -> Content
   @ViewBuilder
   private let subContent: (Binding<CommandViewModel.MetaData>) -> SubContent
-  private let onAction: (CommandContainerAction) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        placeholder: String,
        @ViewBuilder icon: @escaping (Binding<CommandViewModel.MetaData>) -> IconContent,
        @ViewBuilder content: @escaping (Binding<CommandViewModel.MetaData>) -> Content,
-       @ViewBuilder subContent: @escaping (Binding<CommandViewModel.MetaData>) -> SubContent = { _ in EmptyView() },
-       onAction: @escaping (CommandContainerAction) -> Void) {
+       @ViewBuilder subContent: @escaping (Binding<CommandViewModel.MetaData>) -> SubContent = { _ in EmptyView() }) {
     _metaData = .init(initialValue: metaData)
     self.icon = icon
     self.placeholder = placeholder
     self.content = content
     self.subContent = subContent
-    self.onAction = onAction
   }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      CommandContainerHeaderView($metaData, placeholder: placeholder, onAction: onAction)
+      CommandContainerHeaderView($metaData, placeholder: placeholder)
       ZenDivider()
         .padding(.bottom, 4)
       CommandContainerContentView($metaData, icon: icon, content: content)
-      CommandContainerSubContentView($metaData, content: subContent, onAction: onAction)
+      CommandContainerSubContentView($metaData, content: subContent)
     }
     .roundedContainer(padding: 0, margin: 1)
   }
@@ -54,25 +51,19 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 private struct CommandContainerHeaderView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
+
   @Binding private var metaData: CommandViewModel.MetaData
   private let placeholder: String
-  private let onAction: (CommandContainerAction) -> Void
-  private let debounce: DebounceManager<String>
 
-  init(_ metaData: Binding<CommandViewModel.MetaData>, placeholder: String,
-       onAction: @escaping (CommandContainerAction) -> Void) {
+  init(_ metaData: Binding<CommandViewModel.MetaData>, placeholder: String) {
     _metaData = metaData
     self.placeholder = placeholder
-    self.onAction = onAction
-    self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
-      onAction(.updateName(newName: newName))
-    }
   }
 
   var body: some View {
     HStack(spacing: 12) {
-      ZenToggle(config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) {
-        onAction(.toggleIsEnabled($0))
+      ZenToggle(config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) { newValue in
+        updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.isEnabled = newValue })
       }
       .offset(x: 2)
 
@@ -81,21 +72,13 @@ private struct CommandContainerHeaderView: View {
       : metaData.namePlaceholder
       TextField(textFieldPlaceholder, text: $metaData.name)
         .textFieldStyle(
-          .zen(
-            .init(
-              backgroundColor: Color.clear,
-              font: .callout,
-              padding: .init(horizontal: .zero, vertical: .zero),
-              unfocusedOpacity: 0.0
-            )
-          )
-        )
+          .zen(.init(backgroundColor: Color.clear, font: .callout,
+                     padding: .init(horizontal: .zero, vertical: .zero),
+                     unfocusedOpacity: 0.0)))
         .onChange(of: metaData.name, perform: { newValue in
           updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.name = newValue })
-          debounce.send(newValue)
         })
-
-      CommandContainerActionView(onAction: onAction)
+      CommandContainerActionView()
     }
     .padding(.horizontal, 6)
     .padding(.top, 6)
@@ -133,17 +116,16 @@ private struct CommandContainerContentView<IconContent, Content>: View where Ico
 }
 
 private struct CommandContainerSubContentView<Content>: View where Content: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @Binding var metaData: CommandViewModel.MetaData
   @EnvironmentObject var publisher: CommandsPublisher
   private let content: (Binding<CommandViewModel.MetaData>) -> Content
-  private let onAction: (CommandContainerAction) -> Void
 
   init(_ metaData: Binding<CommandViewModel.MetaData>,
-       content: @escaping (Binding<CommandViewModel.MetaData>) -> Content,
-       onAction: @escaping (CommandContainerAction) -> Void) {
+       content: @escaping (Binding<CommandViewModel.MetaData>) -> Content) {
     _metaData = metaData
     self.content = content
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -151,7 +133,11 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
       CommandContainerDelayView(
         metaData: $metaData,
         execution: publisher.data.execution,
-        onChange: { onAction(.changeDelay($0)) }
+        onChange: { newValue in
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.delay = newValue
+          }
+        }
       )
       content($metaData)
     }
@@ -166,12 +152,16 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
 }
 
 private struct CommandContainerActionView: View {
-  let onAction: (CommandContainerAction) -> Void
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
 
   var body: some View {
     HStack(spacing: 0) {
-      Button(action: { onAction(.delete) },
-             label: {
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.removeAll(where: { $0.id == transaction.workflowID })
+        }
+      }, label: {
         Image(systemName: "xmark")
           .resizable()
           .aspectRatio(contentMode: .fit)
@@ -196,7 +186,7 @@ struct CommandContainerView_Previews: PreviewProvider {
         Text("Content")
       }, subContent: { _ in
         Text("SubContent")
-      }, onAction: { _ in })
+      })
     .designTime()
   }
 }

@@ -7,7 +7,6 @@ struct ContainerView: View {
     case openScene(AppScene)
     case sidebar(SidebarView.Action)
     case content(ContentView.Action)
-    case detail(DetailView.Action)
   }
 
   @ObserveInjection var inject
@@ -99,8 +98,7 @@ struct ContainerView: View {
           keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
           triggerPublisher: triggerPublisher,
           infoPublisher: infoPublisher,
-          commandPublisher: commandPublisher,
-          onAction: { onAction(.detail($0), undoManager) })
+          commandPublisher: commandPublisher)
         .frame(minHeight: 400)
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
         .background()

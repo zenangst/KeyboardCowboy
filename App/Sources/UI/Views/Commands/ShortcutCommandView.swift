@@ -4,32 +4,17 @@ import SwiftUI
 
 struct ShortcutCommandView: View {
   @ObserveInjection var inject
-  enum Action {
-    case updateName(newName: String)
-    case updateShortcut(shortcutName: String)
-    case createShortcut
-    case openShortcut
-    case commandAction(CommandContainerAction)
-  }
-
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @State private var model: CommandViewModel.Kind.ShortcutModel
 
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
-  private let debounce: DebounceManager<String>
-  private let onAction: (Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.ShortcutModel,
-       iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.ShortcutModel, iconSize: CGSize) {
     _model = .init(initialValue: model)
     self.metaData = metaData
     self.iconSize = iconSize
-    self.onAction = onAction
-    self.debounce = DebounceManager(for: .milliseconds(500), onUpdate: { value in
-      onAction(.updateName(newName: value))
-    })
   }
   
   var body: some View {
@@ -37,7 +22,11 @@ struct ShortcutCommandView: View {
       ShortcutCommandIconView(iconSize: iconSize)
     }, content: { command in
       ShortcutCommandContentView(model: $model) { shortcut in
-        onAction(.updateShortcut(shortcutName: shortcut.name))
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          guard case .shortcut(var shortcutCommand) = command else { return }
+          shortcutCommand.name = shortcut.name
+          command = .shortcut(shortcutCommand)
+        }
       }
       .roundedContainer(4, padding: 4, margin: 0)
     }, subContent: { metaData in
@@ -45,23 +34,23 @@ struct ShortcutCommandView: View {
         if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
       }, set: { newValue in
         metaData.notification.wrappedValue = newValue ? .bezel : nil
-        onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          command.notification = newValue ? .bezel : nil
+        }
       })) { value in
-        if value {
-          onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-        } else {
-          onAction(.commandAction(.toggleNotify(nil)))
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          command.notification = value ? .bezel : nil
         }
       }
       .offset(x: 1)
 
       ShortcutCommandSubContentView {
-        onAction(.openShortcut)
+        try? SBShortcuts.createShortcut()
       } onCreateShortcut: {
-        onAction(.createShortcut)
+        try? SBShortcuts.openShortcut(self.metaData.name)
       }
 
-    }, onAction: { onAction(.commandAction($0)) })
+    })
     .enableInjection()
   }
 }
@@ -139,7 +128,7 @@ private struct ShortcutCommandSubContentView: View {
 struct ShortcutCommandView_Previews: PreviewProvider {
   static let command = DesignTime.shortcutCommand
   static var previews: some View {
-    ShortcutCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+    ShortcutCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) 
       .designTime()
   }
 }
