@@ -10,24 +10,23 @@ struct WorkflowApplicationTriggerView: View {
   }
 
   @ObserveInjection var inject
+  @EnvironmentObject private var updater: ConfigurationUpdater
+  @EnvironmentObject private var transaction: UpdateTransaction
   @EnvironmentObject private var applicationStore: ApplicationStore
   @ObservedObject private var selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   @State private var data: [DetailViewModel.ApplicationTrigger]
   @State private var selection: String = UUID().uuidString
-  private let onAction: (Action) -> Void
   private var focus: FocusState<AppFocus?>.Binding
   private var onTab: () -> Void
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        data: [DetailViewModel.ApplicationTrigger],
        selectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       onTab: @escaping () -> Void,
-       onAction: @escaping (Action) -> Void) {
+       onTab: @escaping () -> Void) {
     self.focus = focus
     _data = .init(initialValue: data)
     self.selectionManager = selectionManager
     self.onTab = onTab
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -35,7 +34,6 @@ struct WorkflowApplicationTriggerView: View {
       HStack {
         GenericAppIconView(size: 28)
         Menu {
-
           Button(action: {
             let uuid = UUID()
             let anyApplication = Application.anyApplication()
@@ -43,7 +41,6 @@ struct WorkflowApplicationTriggerView: View {
               data.append(.init(id: uuid.uuidString, name: anyApplication.displayName,
                                 application: anyApplication, contexts: []))
             }
-            onAction(.updateApplicationTriggers(data))
           }, label: {
             Text("Any Application")
           })
@@ -55,7 +52,6 @@ struct WorkflowApplicationTriggerView: View {
                 data.append(.init(id: uuid.uuidString, name: application.displayName,
                                   application: application, contexts: []))
               }
-              onAction(.updateApplicationTriggers(data))
             }, label: {
               Text(application.displayName)
             })
@@ -77,12 +73,9 @@ struct WorkflowApplicationTriggerView: View {
           LazyVStack(spacing: 0) {
             let lastID = $data.lazy.last?.id
             ForEach($data.lazy, id: \.id) { element in
-              WorkflowApplicationTriggerItemView(element, data: $data,
-                                                 selectionManager: selectionManager,
-                                                 onAction: onAction)
+              WorkflowApplicationTriggerItemView(element, data: $data, selectionManager: selectionManager)
               .contentShape(Rectangle())
               .dropDestination(DetailViewModel.ApplicationTrigger.self, color: .accentColor, onDrop: { items, location in
-
                 let ids = Array(selectionManager.selections)
                 guard let (from, destination) = data.moveOffsets(for: element.wrappedValue, with: ids) else {
                   return false
@@ -91,9 +84,6 @@ struct WorkflowApplicationTriggerView: View {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)) {
                   data.move(fromOffsets: IndexSet(from), toOffset: destination)
                 }
-
-                onAction(.updateApplicationTriggers(data))
-
                 return false
               })
               .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
@@ -123,14 +113,38 @@ struct WorkflowApplicationTriggerView: View {
               }
             }
           }
+          .onChange(of: data, perform: { newValue in
+            updateApplicationTriggers(newValue)
+          })
           .focused(focus, equals: .detail(.applicationTriggers))
         }
-        .scrollDisabled(count <= 4)
+        .scrollDisabled(count <= 3)
         .frame(minHeight: 46, maxHeight: maxHeight(count))
         .roundedContainer(12, padding: 2, margin: 0)
       }
     }
     .enableInjection()
+  }
+
+  private func updateApplicationTriggers(_ data: [DetailViewModel.ApplicationTrigger]) {
+    updater.modifyWorkflow(using: transaction) { workflow in
+      let applicationTriggers = data
+        .map { trigger in
+          var viewModelContexts = Set<DetailViewModel.ApplicationTrigger.Context>()
+          let allContexts: [DetailViewModel.ApplicationTrigger.Context] = [.closed, .frontMost, .launched, .resignFrontMost]
+          for context in allContexts {
+            if trigger.contexts.contains(context) {
+              viewModelContexts.insert(context)
+            } else {
+              viewModelContexts.remove(context)
+            }
+          }
+          let contexts = viewModelContexts.map(\.appTriggerContext)
+          return ApplicationTrigger(id: trigger.id, application: trigger.application, contexts: contexts)
+        }
+
+      workflow.trigger = .application(applicationTriggers)
+    }
   }
 
   private func maxHeight(_ count: Int) -> CGFloat {
@@ -152,10 +166,20 @@ struct WorkflowApplicationTriggerView_Previews: PreviewProvider {
               contexts: []),
       ],
       selectionManager: SelectionManager(),
-      onTab: { },
-      onAction: { _ in }
+      onTab: { }
     )
     .environmentObject(ApplicationStore.shared)
     .padding()
+  }
+}
+
+fileprivate extension DetailViewModel.ApplicationTrigger.Context {
+  var appTriggerContext: ApplicationTrigger.Context {
+    switch self {
+    case .launched:        .launched
+    case .closed:          .closed
+    case .frontMost:       .frontMost
+    case .resignFrontMost: .resignFrontMost
+    }
   }
 }

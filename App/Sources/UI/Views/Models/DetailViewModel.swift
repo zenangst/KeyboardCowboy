@@ -80,7 +80,7 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
 
       case closed, launched, frontMost, resignFrontMost
 
-      public var displayValue: String {
+      var displayValue: String {
         switch self {
         case .launched:  "Launched"
         case .closed:    "Closed"
