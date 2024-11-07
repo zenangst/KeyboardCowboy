@@ -114,8 +114,6 @@ final class ContentCoordinator {
     switch action {
     case .singleDetailView(let action):
       switch action {
-      case .applicationTrigger:
-        render(groupSelectionManager.selections, calculateSelections: false)
       case .commandView(_, let action):
         switch action {
         case .changeDelay, .toggleNotify, .run: break
@@ -123,10 +121,9 @@ final class ContentCoordinator {
           render(groupSelectionManager.selections, calculateSelections: false)
         }
       case .dropUrls, .duplicate, .moveCommand, .removeCommands,
-          .removeTrigger, .setIsEnabled, .updateKeyboardShortcuts,
-          .updateName, .updateExecution, .updateSnippet:
+           .setIsEnabled, .updateExecution:
         render(groupSelectionManager.selections, calculateSelections: false)
-      case .togglePassthrough, .runWorkflow, .updateHoldDuration:
+      case .togglePassthrough, .runWorkflow:
         break
       }
     }
