@@ -10,7 +10,7 @@ final class ConfigurationUpdater: ObservableObject {
 
   private var state: State = .uninitialized
 
-  private var passthrough = PassthroughSubject<KeyboardCowboyConfiguration, Never>()
+  private var passthrough = PassthroughSubject<State, Never>()
   private var passthroughSubscription: AnyCancellable?
   private var configurationSubscription: AnyCancellable?
 
@@ -18,7 +18,15 @@ final class ConfigurationUpdater: ObservableObject {
        onUpdate: @escaping (KeyboardCowboyConfiguration) -> Void) {
     self.passthroughSubscription = passthrough
       .debounce(for: stride, scheduler: DispatchQueue.main)
-      .sink { onUpdate($0) }
+      .sink { [weak self] state in
+        switch state {
+        case .configured(let configuration):
+          onUpdate(configuration)
+        case .uninitialized:
+          break
+        }
+        self?.state = state
+      }
   }
 
   func subscribe(to publisher: Published<KeyboardCowboyConfiguration>.Publisher) {
@@ -35,7 +43,7 @@ final class ConfigurationUpdater: ObservableObject {
       groupID: transaction.groupID,
       modify: handler
     )
-    passthrough.send(configuration)
+    passthrough.send(.configured(configuration))
   }
 
   func modifyWorkflow(using transaction: UpdateTransaction, handler: (inout Workflow) -> Void) {
@@ -45,7 +53,7 @@ final class ConfigurationUpdater: ObservableObject {
       workflowID: transaction.workflowID,
       modify: handler
     )
-    passthrough.send(configuration)
+    passthrough.send(.configured(configuration))
   }
 
   func modifyCommand(withID commandID: Command.ID, using transaction: UpdateTransaction, handler: (inout Command) -> Void) {
@@ -56,7 +64,7 @@ final class ConfigurationUpdater: ObservableObject {
       commandID: commandID,
       modify: handler
     )
-    passthrough.send(configuration)
+    passthrough.send(.configured(configuration))
   }
 }
 
