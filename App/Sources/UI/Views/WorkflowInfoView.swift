@@ -9,6 +9,8 @@ struct WorkflowInfoView: View {
     case setIsEnabled(isEnabled: Bool)
   }
 
+  @EnvironmentObject private var transaction: UpdateTransaction
+  @EnvironmentObject private var updater: ConfigurationUpdater
   @ObserveInjection var inject
   @ObservedObject private var publisher: InfoPublisher
   @State var name: String
@@ -44,17 +46,24 @@ struct WorkflowInfoView: View {
           )
         )
         .fontWeight(.bold)
-        .onChange(of: name) {
-          guard $0 != publisher.data.name else { return }
-          publisher.data.name = $0
-          onAction(.updateName(name: $0))
+        .onChange(of: name) { newName in
+          guard newName != publisher.data.name else { return }
+          publisher.data.name = newName
+          updater.modifyWorkflow(using: transaction) { workflow in
+            workflow.name = newName
+          }
+          onAction(.updateName(name: newName))
         }
       Spacer()
       ZenToggle(
         config: .init(color: .systemGreen),
         style: .medium,
         isOn: $publisher.data.isEnabled
-      ) { onAction(.setIsEnabled(isEnabled: $0))
+      ) { newValue in
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.isEnabled = newValue
+        }
+        onAction(.setIsEnabled(isEnabled: newValue))
       }
     }
     .enableInjection()

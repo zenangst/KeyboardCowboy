@@ -52,6 +52,8 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 }
 
 private struct CommandContainerHeaderView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @Binding private var metaData: CommandViewModel.MetaData
   private let placeholder: String
   private let onAction: (CommandContainerAction) -> Void
@@ -88,7 +90,10 @@ private struct CommandContainerHeaderView: View {
             )
           )
         )
-        .onChange(of: metaData.name, perform: { debounce.send($0) })
+        .onChange(of: metaData.name, perform: { newValue in
+          updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.name = newValue })
+          debounce.send(newValue)
+        })
 
       CommandContainerActionView(onAction: onAction)
     }

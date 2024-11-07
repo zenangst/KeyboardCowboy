@@ -12,13 +12,17 @@ final class ConfigurationCoordinator {
   let configurationsPublisher: ConfigurationsPublisher
   let configurationPublisher: ConfigurationPublisher
 
-  init(contentStore: ContentStore, selectionManager: SelectionManager<ConfigurationViewModel>,
+  init(contentStore: ContentStore,
+       configurationUpdater: ConfigurationUpdater,
+       selectionManager: SelectionManager<ConfigurationViewModel>,
        store: ConfigurationStore) {
     self.contentStore = contentStore
     self.store = store
     self.selectionManager = selectionManager
     self.configurationsPublisher = ConfigurationsPublisher()
     self.configurationPublisher = ConfigurationPublisher(.init(id: UUID().uuidString, name: "", selected: false))
+
+    configurationUpdater.subscribe(to: store.$selectedConfiguration)
 
     Task {
       // TODO: Should we remove this subscription and make it more explicit when configurations change?

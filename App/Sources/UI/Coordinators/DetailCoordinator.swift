@@ -15,6 +15,7 @@ final class DetailCoordinator {
   private let keyboardCowboyEngine: KeyboardCowboyEngine
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
 
+  let updateTransaction: UpdateTransaction = .init(groupID: "", workflowID: "")
   let infoPublisher: InfoPublisher = .init(.init(id: "empty", name: "", isEnabled: false))
   let triggerPublisher: TriggerPublisher = .init(.empty)
   let commandsPublisher: CommandsPublisher = .init(.init(id: "empty", commands: [], execution: .concurrent))
@@ -260,10 +261,14 @@ final class DetailCoordinator {
     let viewModels: [DetailViewModel] = mapper.map(matches)
     let state: DetailViewState
 
+    updateTransaction.groupID = groupIds.first ?? ""
+
     if viewModels.count > 1 {
       state = .multiple(viewModels)
     } else if let viewModel = viewModels.first {
       state = .single(viewModel)
+
+      updateTransaction.workflowID = viewModel.id
 
       // Only use `withAnimation` if `animation` is not `nil` to
       // prevent the application from crashing when performing certain updates.
