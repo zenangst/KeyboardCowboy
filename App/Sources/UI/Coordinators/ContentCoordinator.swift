@@ -126,7 +126,7 @@ final class ContentCoordinator {
           .removeTrigger, .setIsEnabled, .updateKeyboardShortcuts,
           .updateName, .updateExecution, .updateSnippet:
         render(groupSelectionManager.selections, calculateSelections: false)
-      case .togglePassthrough, .runWorkflow, .trigger, .updateHoldDuration:
+      case .togglePassthrough, .runWorkflow, .updateHoldDuration:
         break
       }
     }

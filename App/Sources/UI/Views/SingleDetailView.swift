@@ -16,7 +16,6 @@ struct SingleDetailView: View {
     case togglePassthrough(workflowId: Workflow.ID, newValue: Bool)
     case runWorkflow(workflowId: Workflow.ID)
     case setIsEnabled(workflowId: Workflow.ID, isEnabled: Bool)
-    case trigger(workflowId: Workflow.ID, action: WorkflowTriggerView.Action)
     case updateExecution(workflowId: Workflow.ID, execution: DetailViewModel.Execution)
     case updateHoldDuration(workflowId: Workflow.ID, holdDuration: Double?)
     case updateKeyboardShortcuts(workflowId: Workflow.ID, 
@@ -84,8 +83,7 @@ struct SingleDetailView: View {
               } else {
                 focus.wrappedValue = .detail(.commands)
               }
-            },
-            onAction: onAction)
+            })
           .padding(.horizontal)
           .padding(.bottom, 8)
           .id(infoPublisher.data.id)

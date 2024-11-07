@@ -3,25 +3,15 @@ import Inject
 import SwiftUI
 
 struct WorkflowTriggerView: View {
-  enum Action {
-    case addApplication
-    case addKeyboardShortcut
-    case addSnippet
-    case removeKeyboardShortcut
-  }
-
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @ObserveInjection var inject
   @Binding private var isGrayscale: Bool
-  private let onAction: (Action) -> Void
   private var focus: FocusState<AppFocus?>.Binding
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
-       isGrayscale: Binding<Bool>,
-       onAction: @escaping (Action) -> Void
-  ) {
+  init(_ focus: FocusState<AppFocus?>.Binding, isGrayscale: Binding<Bool>) {
     _isGrayscale = isGrayscale
     self.focus = focus
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -39,7 +29,11 @@ struct WorkflowTriggerView: View {
                               color: .systemBlue,
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
-          action: { onAction(.addApplication) }
+          action: {
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.trigger = .application([])
+            }
+          }
         ) {
           HStack(spacing: 6) {
             GenericAppIconView(size: 20)
@@ -65,7 +59,9 @@ struct WorkflowTriggerView: View {
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
           action: {
-            onAction(.addKeyboardShortcut)
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.trigger = .keyboardShortcuts(KeyboardShortcutTrigger(passthrough: false, holdDuration: nil, shortcuts: []))
+            }
           }
         ) {
           HStack(spacing: 6) {
@@ -95,7 +91,9 @@ struct WorkflowTriggerView: View {
                               focusEffect: .constant(true),
                               grayscaleEffect: $isGrayscale)),
           action: {
-            onAction(.addSnippet)
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.trigger = .snippet(SnippetTrigger(id: UUID().uuidString, text: ""))
+            }
             focus.wrappedValue = .detail(.snippet)
           }
         ) {
@@ -134,6 +132,6 @@ struct WorkflowTriggerView: View {
 struct WorkflowTriggerView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowTriggerView($focus, isGrayscale: .constant(true), onAction: { _ in })
+    WorkflowTriggerView($focus, isGrayscale: .constant(true))
   }
 }
