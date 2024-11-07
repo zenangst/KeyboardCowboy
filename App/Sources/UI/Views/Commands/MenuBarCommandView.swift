@@ -3,46 +3,33 @@ import Inject
 import SwiftUI
 
 struct MenuBarCommandView: View {
-  enum Action {
-    case editCommand(CommandViewModel.Kind.MenuBarModel)
-    case commandAction(CommandContainerAction)
-  }
-
   private let model: CommandViewModel.Kind.MenuBarModel
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
-  private let onAction: (Action) -> Void
 
-
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.MenuBarModel,
-       iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.MenuBarModel, iconSize: CGSize) {
     self.model = model
     self.metaData = metaData
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
-    MenuBarCommandInternalView(metaData, model: model, iconSize: iconSize, onAction: onAction)
+    MenuBarCommandInternalView(metaData, model: model, iconSize: iconSize)
   }
 }
 
-struct MenuBarCommandInternalView: View {
+private struct MenuBarCommandInternalView: View {
+  @EnvironmentObject var openWindow: WindowOpener
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @Binding var model: CommandViewModel.Kind.MenuBarModel
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
-  private let onAction: (MenuBarCommandView.Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.MenuBarModel,
-       iconSize: CGSize,
-       onAction: @escaping (MenuBarCommandView.Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.MenuBarModel, iconSize: CGSize) {
     _model = Binding<CommandViewModel.Kind.MenuBarModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -57,24 +44,24 @@ struct MenuBarCommandInternalView: View {
           if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
         }, set: { newValue in
           metaData.notification.wrappedValue = newValue ? .bezel : nil
-          onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = newValue ? .bezel : nil
+          }
         })) { value in
-          if value {
-            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-          } else {
-            onAction(.commandAction(.toggleNotify(nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = value ? .bezel : nil
           }
         }
         .offset(x: 1)
         Spacer()
-        Button { onAction(.editCommand(model)) } label: {
+        Button {
+          openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
+        } label: {
           Text("Edit")
             .font(.caption)
         }
         .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
       }
-    } onAction: { action in
-      onAction(.commandAction(action))
     }
   }
 }
@@ -167,7 +154,7 @@ private struct MenuBarCommandContentView: View {
 struct MenuBarCommandView_Previews: PreviewProvider {
   static let command = DesignTime.menuBarCommand
   static var previews: some View {
-    MenuBarCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+    MenuBarCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) 
       .designTime()
   }
 }

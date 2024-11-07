@@ -4,30 +4,17 @@ import SwiftUI
 
 struct ScriptCommandView: View {
   @ObserveInjection var inject
-  enum Action {
-    case updateName(newName: String)
-    case updateSource(CommandViewModel.Kind.ScriptModel)
-    case open(path: String)
-    case reveal(path: String)
-    case edit
-    case commandAction(CommandContainerAction)
-  }
   private let metaData: CommandViewModel.MetaData
   @Binding private var model: CommandViewModel.Kind.ScriptModel
   private let iconSize: CGSize
-  private let onAction: (Action) -> Void
   private let onSubmit: () -> Void
 
-  init(_ metaData: CommandViewModel.MetaData,
-       model: Binding<CommandViewModel.Kind.ScriptModel>,
-       iconSize: CGSize,
-       onSubmit: @escaping () -> Void,
-       onAction: @escaping (Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: Binding<CommandViewModel.Kind.ScriptModel>,
+       iconSize: CGSize, onSubmit: @escaping () -> Void) {
     _model = model
     self.metaData = metaData
     self.iconSize = iconSize
     self.onSubmit = onSubmit
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -36,29 +23,27 @@ struct ScriptCommandView: View {
       placeholder: model.placeholder,
       icon: { _ in ScriptIconView(size: iconSize.width) },
       content: { _ in
-        ScriptCommandContentView(model, meta: metaData, onSubmit: onSubmit, onAction: onAction)
+        ScriptCommandContentView(metaData: metaData, model: model, onSubmit: onSubmit)
           .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { _ in
-        ScriptCommandSubContentView(model: model, metaData: metaData, onAction: onAction)
-      },
-      onAction: { onAction(.commandAction($0)) })
+        ScriptCommandSubContentView(model: model, metaData: metaData)
+      })
   }
 }
 
 struct ScriptCommandContentView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject var openPanel: OpenPanelController
+  private let metaData: CommandViewModel.MetaData
   private let text: String
   private let model: CommandViewModel.Kind.ScriptModel
-  private let onAction: (ScriptCommandView.Action) -> Void
   private let onSubmit: () -> Void
 
-  init(_ model: CommandViewModel.Kind.ScriptModel,
-       meta: CommandViewModel.MetaData,
-       onSubmit: @escaping () -> Void,
-       onAction: @escaping (ScriptCommandView.Action) -> Void) {
+  init(metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.ScriptModel, onSubmit: @escaping () -> Void) {
+    self.metaData = metaData
     self.model = model
-    self.onAction = onAction
     self.onSubmit = onSubmit
     self.text = switch model.source {
     case .inline(let source): source
@@ -72,15 +57,9 @@ struct ScriptCommandContentView: View {
                               variableName: model.variableName,
                               execution: model.execution,
                               onVariableNameChange: { variableName in
-        onAction(.updateSource(.init(id: model.id, source: model.source,
-                                     scriptExtension: model.scriptExtension,
-                                     variableName: variableName,
-                                     execution: model.execution)))
+        performUpdate { $0.variableName = variableName }
       }, onScriptChange: { newValue in
-        onAction(.updateSource(.init(id: model.id, source: .inline(newValue),
-                                     scriptExtension: model.scriptExtension,
-                                     variableName: model.variableName,
-                                     execution: model.execution)))
+        performUpdate { $0.source = .inline(newValue) }
       }, onSubmit: onSubmit)
       .opacity(model.source.isInline ? 1 : 0)
       .frame(height: model.source.isInline ? nil : 0)
@@ -89,26 +68,25 @@ struct ScriptCommandContentView: View {
         text, variableName: model.variableName,
         execution: model.execution,
         onVariableNameChange: { variableName in
-          onAction(.updateSource(.init(id: model.id, source: model.source,
-                                       scriptExtension: model.scriptExtension,
-                                       variableName: variableName,
-                                       execution: model.execution)))
+          performUpdate { $0.variableName = variableName }
         },
         onBrowse: {
           openPanel.perform(.selectFile(type: model.scriptExtension.rawValue, handler: { newPath in
-            onAction(.updateSource(.init(id: model.id, source: .path(newPath),
-                                         scriptExtension: model.scriptExtension,
-                                         variableName: model.variableName,
-                                         execution: model.execution)))
+            performUpdate { $0.source = .path(newPath) }
           }))
         }, onUpdate: { newPath in
-          onAction(.updateSource(.init(id: model.id, source: .path(newPath),
-                                       scriptExtension: model.scriptExtension,
-                                       variableName: model.variableName,
-                                       execution: model.execution)))
+          performUpdate { $0.source = .path(newPath) }
         })
       .opacity(model.source.isInline ? 0 : 1)
       .frame(height: model.source.isInline ? 0 : nil)
+    }
+  }
+
+  private func performUpdate(_ update: (inout ScriptCommand) -> Void) {
+    updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+      guard case .script(var scriptCommand) = command else { return }
+      update(&scriptCommand)
+      command = .script(scriptCommand)
     }
   }
 }
@@ -231,25 +209,31 @@ private struct ScriptCommandPathView: View {
 }
 
 private struct ScriptCommandSubContentView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+
   private let model: CommandViewModel.Kind.ScriptModel
   private let metaData: CommandViewModel.MetaData
-  private let onAction: (ScriptCommandView.Action) -> Void
 
-  init(model: CommandViewModel.Kind.ScriptModel,
-       metaData: CommandViewModel.MetaData,
-       onAction: @escaping (ScriptCommandView.Action) -> Void) {
+  init(model: CommandViewModel.Kind.ScriptModel, metaData: CommandViewModel.MetaData) {
     self.model = model
     self.metaData = metaData
-    self.onAction = onAction
   }
 
   var body: some View {
     HStack {
       Menu {
-        Button(action: { onAction(.commandAction(.toggleNotify(nil))) }, label: { Text("None") })
+        Button(action: {
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = .none
+          }
+        }, label: { Text("None") })
         ForEach(Command.Notification.allCases) { notification in
-          Button(action: { onAction(.commandAction(.toggleNotify(notification))) },
-                 label: { Text(notification.displayValue) })
+          Button(action: {
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              command.notification = notification
+            }
+          }, label: { Text(notification.displayValue) })
         }
       } label: {
         switch metaData.notification {
@@ -269,9 +253,13 @@ private struct ScriptCommandSubContentView: View {
       switch model.source {
       case .path(let source):
         Spacer()
-        Button("Open", action: { onAction(.open(path: source)) })
+        Button("Open", action: {
+          NSWorkspace.shared.open(URL(fileURLWithPath: source))
+        })
           .buttonStyle(.zen(ZenStyleConfiguration(color: .systemCyan, grayscaleEffect: .constant(true))))
-        Button("Reveal", action: { onAction(.reveal(path: source)) })
+        Button("Reveal", action: {
+          NSWorkspace.shared.reveal(source)
+        })
           .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: .constant(true))))
       case .inline:
         EmptyView()
@@ -335,14 +323,11 @@ struct ScriptCommandView_Previews: PreviewProvider {
 
   static var previews: some View {
     Group {
-      ScriptCommandView(inlineCommand.model.meta,
-                        model: .constant(inlineCommand.kind),
-                        iconSize: .init(width: 24, height: 24),
-                        onSubmit: { },
-                        onAction: { _ in })
+      ScriptCommandView(inlineCommand.model.meta, model: .constant(inlineCommand.kind),
+                        iconSize: .init(width: 24, height: 24), onSubmit: { })
         .previewDisplayName("Inline")
-      ScriptCommandView(pathCommand.model.meta, model: .constant(pathCommand.kind), iconSize: .init(width: 24, height: 24),
-                        onSubmit: {}, onAction: { _ in })
+      ScriptCommandView(pathCommand.model.meta, model: .constant(pathCommand.kind),
+                        iconSize: .init(width: 24, height: 24), onSubmit: {})
         .previewDisplayName("Path")
     }
     .designTime()

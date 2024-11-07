@@ -2,18 +2,17 @@ import SwiftUI
 import Bonzai
 
 struct WorkflowCommandListHeaderAddView: View {
+  @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject var openWindow: WindowOpener
   private let namespace: Namespace.ID
-  private let workflowId: String
 
-  init(_ namespace: Namespace.ID, workflowId: String) {
+  init(_ namespace: Namespace.ID) {
     self.namespace = namespace
-    self.workflowId = workflowId
   }
 
   var body: some View {
     Button(action: {
-      openWindow.openNewCommandWindow(.newCommand(workflowId: workflowId))
+      openWindow.openNewCommandWindow(.newCommand(workflowId: transaction.workflowID))
     }) {
       HStack(spacing: 4) {
         Image(systemName: "plus.app")
@@ -33,7 +32,7 @@ struct WorkflowCommandListHeaderAddView: View {
 struct WorkflowCommandListHeaderAddView_Previews: PreviewProvider {
   @Namespace static var namespace
   static var previews: some View {
-    WorkflowCommandListHeaderAddView(namespace, workflowId: UUID().uuidString)
+    WorkflowCommandListHeaderAddView(namespace)
       .designTime()
       .padding()
   }

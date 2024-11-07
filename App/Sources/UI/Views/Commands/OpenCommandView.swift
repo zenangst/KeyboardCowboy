@@ -5,56 +5,42 @@ import SwiftUI
 
 struct OpenCommandView: View {
   @ObserveInjection var inject
-  enum Action {
-    case updatePath(newPath: String)
-    case openWith(Application?)
-    case commandAction(CommandContainerAction)
-    case reveal(path: String)
-  }
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @State var model: CommandViewModel.Kind.OpenModel
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
 
-  private let onAction: (Action) -> Void
-
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.OpenModel,
-       iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.OpenModel, iconSize: CGSize) {
     _model = .init(initialValue: model)
     self.metaData = metaData
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
     CommandContainerView(metaData, placeholder: model.placheolder, icon: { command in
       OpenCommandHeaderView(command, model: model, iconSize: iconSize)
     }, content: { command in
-      OpenCommandContentView(model: $model) { app in
-        onAction(.openWith(app))
-      } onUpdatePath: { newPath in
-        onAction(.updatePath(newPath: newPath))
-      }
+      OpenCommandContentView(metaData: metaData, model: $model)
       .roundedContainer(4, padding: 4, margin: 0)
     }, subContent: { metaData in
       ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
         if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
       }, set: { newValue in
         metaData.notification.wrappedValue = newValue ? .bezel : nil
-        onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          command.notification = newValue ? .bezel : nil
+        }
       })) { value in
-        if value {
-          onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-        } else {
-          onAction(.commandAction(.toggleNotify(nil)))
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          command.notification = value ? .bezel : nil
         }
       }
-        .offset(x: 1)
+      .offset(x: 1)
       OpenCommandSubContentView(model: $model) {
-        onAction(.reveal(path: model.path))
+        NSWorkspace.shared.selectFile(model.path, inFileViewerRootedAtPath: "")
       }
-    }, onAction: { onAction(.commandAction($0)) })
+    })
     .enableInjection()
   }
 }
@@ -90,21 +76,15 @@ private struct OpenCommandHeaderView: View {
 
 private struct OpenCommandContentView: View {
   @ObserveInjection var inject
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @Binding private var model: CommandViewModel.Kind.OpenModel
-  @StateObject private var debounce: DebounceManager<String>
 
-  private let onUpdatePath: (String) -> Void
-  private let onUpdateOpenWith: (Application?) -> Void
+  private var metaData: CommandViewModel.MetaData
 
-  init(model: Binding<CommandViewModel.Kind.OpenModel>,
-       onUpdateOpenWith: @escaping (Application?) -> Void,
-       onUpdatePath: @escaping (String) -> Void) {
+  init(metaData: CommandViewModel.MetaData, model: Binding<CommandViewModel.Kind.OpenModel>) {
+    self.metaData = metaData
     _model = model
-    self.onUpdatePath = onUpdatePath
-    self.onUpdateOpenWith = onUpdateOpenWith
-    _debounce = .init(wrappedValue: DebounceManager(for: .milliseconds(500)) { newValue in
-      onUpdatePath(newValue)
-    })
   }
 
   var body: some View {
@@ -120,7 +100,13 @@ private struct OpenCommandContentView: View {
             )
           )
         )
-        .onChange(of: model.path, perform: { debounce.send($0) })
+        .onChange(of: model.path, perform: { newValue in
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            guard case .open(var openCommand) = command else { return }
+            openCommand.path = newValue
+            command = .open(openCommand)
+          }
+        })
         .frame(maxWidth: .infinity)
 
       Menu(content: {
@@ -128,14 +114,21 @@ private struct OpenCommandContentView: View {
           Button(app.displayName, action: {
             model.appName = app.displayName
             model.applicationPath = app.path
-            onUpdateOpenWith(app)
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              guard case .open(let openCommand) = command else { return }
+              command = .open(OpenCommand(application: app, path: openCommand.path, meta: command.meta))
+            }
+
           })
         }
         Divider()
         Button("Default", action: {
           model.appName = nil
           model.applicationPath = nil
-          onUpdateOpenWith(nil)
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            guard case .open(var openCommand) = command else { return }
+            command = .open(OpenCommand(application: nil, path: openCommand.path, meta: command.meta))
+          }
         })
       }, label: {
         Text(model.appName ?? "Default")
@@ -180,7 +173,7 @@ private struct OpenCommandSubContentView: View {
 struct OpenCommandView_Previews: PreviewProvider {
   static let command = DesignTime.openCommand
   static var previews: some View {
-    OpenCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+    OpenCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24))
       .designTime()
   }
 }

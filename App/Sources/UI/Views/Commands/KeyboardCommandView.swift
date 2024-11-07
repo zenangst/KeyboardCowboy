@@ -4,64 +4,41 @@ import SwiftUI
 
 
 struct KeyboardCommandView: View {
-  enum Action {
-    case editCommand(CommandViewModel.Kind.KeyboardModel)
-    case updateName(newName: String)
-    case updateKeyboardShortcuts([KeyShortcut])
-    case updateIterations(Int)
-    case commandAction(CommandContainerAction)
-  }
-
   private let focus: FocusState<AppFocus?>.Binding
   private let iconSize: CGSize
   private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.KeyboardModel
-  private let onAction: (KeyboardCommandView.Action) -> Void
 
-  init(_ focus: FocusState<AppFocus?>.Binding,
-       metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.KeyboardModel,
-       iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+  init(_ focus: FocusState<AppFocus?>.Binding, metaData: CommandViewModel.MetaData,
+       model: CommandViewModel.Kind.KeyboardModel, iconSize: CGSize) {
     self.focus = focus
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
-    KeyboardCommandInternalView(
-      focus,
-      metaData: metaData,
-      model: model,
-      iconSize: iconSize,
-      onAction: onAction
-    )
+    KeyboardCommandInternalView(focus, metaData: metaData, model: model, iconSize: iconSize)
   }
 }
 
 struct KeyboardCommandInternalView: View {
+  @EnvironmentObject var openWindow: WindowOpener
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @Binding private var model: CommandViewModel.Kind.KeyboardModel
   private let metaData: CommandViewModel.MetaData
-  private let debounce: DebounceManager<String>
-  private let onAction: (KeyboardCommandView.Action) -> Void
   private let iconSize: CGSize
   private var focus: FocusState<AppFocus?>.Binding
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.KeyboardModel,
-       iconSize: CGSize,
-       onAction: @escaping (KeyboardCommandView.Action) -> Void) {
+       iconSize: CGSize) {
     self.focus = focus
     self.metaData = metaData
     _model = Binding<CommandViewModel.Kind.KeyboardModel>(model)
-    self.onAction = onAction
     self.iconSize = iconSize
-    self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
-      onAction(.updateName(newName: newName))
-    }
   }
 
   var body: some View {
@@ -70,7 +47,9 @@ struct KeyboardCommandInternalView: View {
       placeholder: model.placeholder,
       icon: { _ in KeyboardCommandIconView(iconSize: iconSize) },
       content: { _ in
-        KeyboardCommandContentView(model: $model, focus: focus) { onAction(.editCommand(model)) }
+        KeyboardCommandContentView(model: $model, focus: focus) {
+          openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
+        }
           .roundedContainer(4, padding: 2, margin: 0)
       },
       subContent: { metaData in
@@ -78,12 +57,12 @@ struct KeyboardCommandInternalView: View {
           if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
         }, set: { newValue in
           metaData.notification.wrappedValue = newValue ? .bezel : nil
-          onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = newValue ? .bezel : nil
+          }
         })) { value in
-          if value {
-            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-          } else {
-            onAction(.commandAction(.toggleNotify(nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = value ? .bezel : nil
           }
         }
         .offset(x: 1)
@@ -93,7 +72,11 @@ struct KeyboardCommandInternalView: View {
         Menu {
           ForEach(1..<20, id: \.self) { iteration in
             Button {
-              onAction(.updateIterations(iteration))
+              updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+                guard case .keyboard(var keyboardCommand) = command else { return }
+                keyboardCommand.iterations = iteration
+                command = .keyboard(keyboardCommand)
+              }
             } label: {
                 Text("\(iteration)")
                 .underline(model.iterations == iteration)
@@ -108,9 +91,10 @@ struct KeyboardCommandInternalView: View {
         .menuStyle(.zen(.init(calm: false, color: .accentColor, grayscaleEffect: .constant(true), hoverEffect: .constant(true))))
         .fixedSize()
 
-        KeyboardCommandSubContentView { onAction(.editCommand(model)) }
-      },
-      onAction: { onAction(.commandAction($0)) })
+        KeyboardCommandSubContentView {
+          openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
+        }
+      })
   }
 }
 
@@ -181,7 +165,7 @@ struct RebindingCommandView_Previews: PreviewProvider {
       metaData: command.model.meta,
       model: command.kind,
       iconSize: .init(width: 24, height: 24)
-    ) { _ in }
+    ) 
       .designTime()
       .environmentObject(recorderStore)
       .frame(maxHeight: 120)

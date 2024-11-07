@@ -4,25 +4,17 @@ import SwiftUI
 
 struct TypeCommandView: View {
   @ObserveInjection var inject
-  enum Action {
-    case updateName(newName: String)
-    case updateSource(newInput: String)
-    case updateMode(newMode: TextCommand.TypeCommand.Mode)
-    case commandAction(CommandContainerAction)
-  }
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.TypeModel
-  private let onAction: (Action) -> Void
   private let iconSize: CGSize
 
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.TypeModel,
-       iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.TypeModel,
+       iconSize: CGSize) {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -31,8 +23,8 @@ struct TypeCommandView: View {
       placeholder: model.placeholder,
       icon: { metaData in
         TypingIconView(size: iconSize.width)
-      }, content: { metaData in
-        TypeCommandContentView(model, onAction: onAction)
+      }, content: { _ in
+        TypeCommandContentView(metaData: metaData, model: model)
           .roundedContainer(4, padding: 0, margin: 0)
       }, subContent: { metaData in
         HStack {
@@ -40,12 +32,12 @@ struct TypeCommandView: View {
             if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
           }, set: { newValue in
             metaData.notification.wrappedValue = newValue ? .bezel : nil
-            onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              command.notification = newValue ? .bezel : nil
+            }
           })) { value in
-            if value {
-              onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-            } else {
-              onAction(.commandAction(.toggleNotify(nil)))
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              command.notification = value ? .bezel : nil
             }
           }
           .offset(x: 1)
@@ -53,25 +45,30 @@ struct TypeCommandView: View {
           Spacer()
 
           TypeCommandModeView(mode: model.mode) { newMode in
-            onAction(.updateMode(newMode: newMode))
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              guard case .text(let textCommand) = command else { return }
+              switch textCommand.kind {
+              case .insertText(var typeCommand):
+                typeCommand.mode = newMode
+                command = .text(.init(.insertText(typeCommand)))
+              }
+            }
           }
         }
-      }, onAction: { onAction(.commandAction($0)) })
+      })
     .enableInjection()
   }
 }
 
 private struct TypeCommandContentView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+  let metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.TypeModel
-  private let onAction: (TypeCommandView.Action) -> Void
-  private let debounce: DebounceManager<String>
 
-  init(_ model: CommandViewModel.Kind.TypeModel, onAction: @escaping (TypeCommandView.Action) -> Void) {
+  init(metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.TypeModel) {
+    self.metaData = metaData
     self.model = model
-    self.onAction = onAction
-    debounce = DebounceManager(for: .milliseconds(500)) { newInput in
-      onAction(.updateSource(newInput: newInput))
-    }
   }
 
   var body: some View {
@@ -79,7 +76,16 @@ private struct TypeCommandContentView: View {
       color: ZenColorPublisher.shared.color,
       text: $model.input,
       placeholder: "Enter text...", onCommandReturnKey: nil)
-    .onChange(of: model.input) { debounce.send($0) }
+    .onChange(of: model.input) { newValue in
+      updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+        guard case .text(let textCommand) = command else { return }
+        switch textCommand.kind {
+        case .insertText(var typeCommand):
+          typeCommand.input = newValue
+          command = .text(.init(.insertText(typeCommand)))
+        }
+      }
+    }
   }
 }
 
@@ -118,7 +124,7 @@ fileprivate struct TypeCommandModeView: View {
 struct TypeCommandView_Previews: PreviewProvider {
   static let command = DesignTime.typeCommand
   static var previews: some View {
-    TypeCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+    TypeCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) 
       .designTime()
       .frame(idealHeight: 120, maxHeight: 180)
   }

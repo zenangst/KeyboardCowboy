@@ -4,30 +4,19 @@ import SwiftUI
 
 struct UIElementCommandView: View {
   @ObserveInjection var inject
-  enum Action {
-    case updateCommand(UIElementCommand)
-    case commandAction(CommandContainerAction)
-  }
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @State var model: UIElementCommand
   private let metaData: CommandViewModel.MetaData
-  private let debounce: DebounceManager<UIElementCommand>
-  private let onAction: (Action) -> Void
   private let iconSize: CGSize
 
   private let menuStyle = ZenStyleConfiguration(color: .systemGray,
                                                 padding: .init(horizontal: .small, vertical: .small))
 
-  init(metaData: CommandViewModel.MetaData, 
-       model: UIElementCommand,
-       iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+  init(metaData: CommandViewModel.MetaData, model: UIElementCommand, iconSize: CGSize) {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
-    self.debounce = DebounceManager(for: .milliseconds(500)) { newCommand in
-      onAction(.updateCommand(newCommand))
-    }
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -70,7 +59,9 @@ struct UIElementCommandView: View {
                   Button { 
                     model.predicates.remove(at: index)
                     if model.predicates.isEmpty {
-                      onAction(.commandAction(.delete))
+                      updater.modifyWorkflow(using: transaction) { workflow in
+                        workflow.commands.removeAll(where: { $0.id == metaData.id })
+                      }
                     }
                   } label: {
                     Image(systemName: "xmark")
@@ -134,23 +125,23 @@ struct UIElementCommandView: View {
       .roundedContainer(4, padding: 8, margin: 0)
     } subContent: { metaData in
       ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
-          if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
-        }, set: { newValue in
-          metaData.notification.wrappedValue = newValue ? .bezel : nil
-          onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
-        })) { value in
-          if value {
-            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-          } else {
-            onAction(.commandAction(.toggleNotify(nil)))
-          }
+        if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
+      }, set: { newValue in
+        metaData.notification.wrappedValue = newValue ? .bezel : nil
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          command.notification = newValue ? .bezel : nil
         }
-        .offset(x: 1)
-    } onAction: { action in
-      onAction(.commandAction(action))
+      })) { value in
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          command.notification = value ? .bezel : nil
+        }
+      }
+      .offset(x: 1)
     }
     .onChange(of: model, perform: { value in
-      debounce.send(value)
+      updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+        command = .uiElement(value)
+      }
     })
     .enableInjection()
   }
@@ -166,9 +157,7 @@ struct UIElementCommandView: View {
           properties: [.identifier]
         )
       ]
-    ), iconSize: .init(width: 24, height: 24)) { _ in
-
-  }
+    ), iconSize: .init(width: 24, height: 24))
   .designTime()
   .previewLayout(.sizeThatFits)
 }

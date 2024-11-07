@@ -5,27 +5,15 @@ import Apps
 struct SingleDetailView: View {
   @Namespace var namespace
 
-  enum Action {
-    case commandView(workflowId: Workflow.ID, action: CommandView.Action)
-    case dropUrls(workflowId: Workflow.ID, urls: [URL])
-    case duplicate(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
-    case moveCommand(workflowId: Workflow.ID, indexSet: IndexSet, toOffset: Int)
-    case removeCommands(workflowId: Workflow.ID, commandIds: Set<Command.ID>)
-    case togglePassthrough(workflowId: Workflow.ID, newValue: Bool)
-    case runWorkflow(workflowId: Workflow.ID)
-    case setIsEnabled(workflowId: Workflow.ID, isEnabled: Bool)
-    case updateExecution(workflowId: Workflow.ID, execution: DetailViewModel.Execution)
-  }
-
   @EnvironmentObject private var commandPublisher: CommandsPublisher
   @EnvironmentObject private var infoPublisher: InfoPublisher
   @EnvironmentObject private var triggerPublisher: TriggerPublisher
+
   @State private var overlayOpacity: CGFloat = 0
   private let viewModel: DetailViewModel
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandSelectionManager: SelectionManager<CommandViewModel>
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
-  private let onAction: (Action) -> Void
   private var focus: FocusState<AppFocus?>.Binding
 
   init(_ viewModel: DetailViewModel,
@@ -35,14 +23,12 @@ struct SingleDetailView: View {
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        triggerPublisher: TriggerPublisher,
        infoPublisher: InfoPublisher,
-       commandPublisher: CommandsPublisher,
-       onAction: @escaping (Action) -> Void) {
+       commandPublisher: CommandsPublisher) {
     self.viewModel = viewModel
     self.focus = focus
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.commandSelectionManager = commandSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -100,10 +86,7 @@ struct SingleDetailView: View {
         publisher: commandPublisher,
         triggerPublisher: triggerPublisher,
         selectionManager: commandSelectionManager,
-        scrollViewProxy: proxy,
-        onAction: { action in
-          onAction(action)
-        })
+        scrollViewProxy: proxy)
     }
     .focusScope(namespace)
     .frame(maxHeight: .infinity, alignment: .top)
@@ -123,7 +106,7 @@ struct SingleDetailView_Previews: PreviewProvider {
                          keyboardShortcutSelectionManager: .init(),
                          triggerPublisher: DesignTime.triggerPublisher,
                          infoPublisher: DesignTime.infoPublisher,
-                         commandPublisher: DesignTime.commandsPublisher) { _ in }
+                         commandPublisher: DesignTime.commandsPublisher) 
           .background()
           .environment(\.colorScheme, colorScheme)
       }

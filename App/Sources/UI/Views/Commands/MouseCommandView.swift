@@ -3,48 +3,35 @@ import Inject
 import SwiftUI
 
 struct MouseCommandView: View {
-  enum Action {
-    case update(MouseCommand.Kind)
-    case commandAction(CommandContainerAction)
-  }
-
   private let iconSize: CGSize
   private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.MouseModel
-  private let onAction: (MouseCommandView.Action) -> Void
   private let xString: String = ""
   private let yString: String = ""
 
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.MouseModel,
-       iconSize: CGSize,
-       onAction: @escaping (MouseCommandView.Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.MouseModel, iconSize: CGSize) {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
-    MouseCommandInternalView(metaData, model: model, iconSize: iconSize, onAction: onAction)
+    MouseCommandInternalView(metaData, model: model, iconSize: iconSize)
   }
 }
 
-struct MouseCommandInternalView: View {
+private struct MouseCommandInternalView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   let metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.MouseModel
 
-  private let onAction: (MouseCommandView.Action) -> Void
   private let iconSize: CGSize
 
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.MouseModel,
-       iconSize: CGSize,
-       onAction: @escaping (MouseCommandView.Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.MouseModel, iconSize: CGSize) {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -53,7 +40,7 @@ struct MouseCommandInternalView: View {
       placeholder: model.placeholder,
       icon: { _ in MouseIconView(size: iconSize.width) },
       content: { _ in
-        MouseCommandContentView(model: $model, onAction: onAction)
+        MouseCommandContentView(metaData: metaData, model: $model)
           .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { metaData in
@@ -61,32 +48,31 @@ struct MouseCommandInternalView: View {
           if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
         }, set: { newValue in
           metaData.notification.wrappedValue = newValue ? .bezel : nil
-          onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = newValue ? .bezel : nil
+          }
         })) { value in
-          if value {
-            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-          } else {
-            onAction(.commandAction(.toggleNotify(nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = value ? .bezel : nil
           }
         }
         .offset(x: 1)
-      },
-      onAction: { action in
-        onAction(.commandAction(action))
       })
   }
 }
 
-struct MouseCommandContentView: View {
+private struct MouseCommandContentView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+
   @State private var xString: String = ""
   @State private var yString: String = ""
+  let metaData: CommandViewModel.MetaData
   @Binding private var model: CommandViewModel.Kind.MouseModel
-  private let onAction: (MouseCommandView.Action) -> Void
 
-  init(model: Binding<CommandViewModel.Kind.MouseModel>,
-       onAction: @escaping (MouseCommandView.Action) -> Void) {
+  init(metaData: CommandViewModel.MetaData, model: Binding<CommandViewModel.Kind.MouseModel>) {
+    self.metaData = metaData
     _model = model
-    self.onAction = onAction
 
     switch model.wrappedValue.kind {
     case .click(let element):
@@ -129,7 +115,11 @@ struct MouseCommandContentView: View {
           .font(.subheadline)
       })
       .onChange(of: model.kind, perform: { newValue in
-        onAction(.update(newValue))
+        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+          guard case .mouse(var mouseCommand) = command else { return }
+          mouseCommand.kind = newValue
+          command = .mouse(mouseCommand)
+        }
       })
 
       if case .focused(let location) = model.kind.element {
@@ -176,7 +166,7 @@ struct MouseCommandContentView: View {
 struct MouseCommandView_Previews: PreviewProvider {
   static let command = DesignTime.mouseCommand
   static var previews: some View {
-    MouseCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+    MouseCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24))
       .designTime()
       .frame(maxHeight: 100)
   }

@@ -4,26 +4,17 @@ import Inject
 import SwiftUI
 
 struct ApplicationCommandView: View {
-  enum Action {
-    case changeApplication(Application)
-    case updateName(newName: String)
-    case changeApplicationModifier(modifier: ApplicationCommand.Modifier, newValue: Bool)
-    case changeApplicationAction(ApplicationCommand.Action)
-    case commandAction(CommandContainerAction)
-  }
-
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @ObserveInjection var inject
   private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.ApplicationModel
   private let iconSize: CGSize
-  private let onAction: (ApplicationCommandView.Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.ApplicationModel, 
-       iconSize: CGSize, onAction: @escaping (ApplicationCommandView.Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.ApplicationModel, iconSize: CGSize) {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -31,11 +22,10 @@ struct ApplicationCommandView: View {
       metaData,
       placeholder: model.placheolder,
       icon: { _ in
-        ApplicationCommandImageView(metaData, iconSize: iconSize, onAction: onAction)
+        ApplicationCommandImageView(metaData, iconSize: iconSize)
       },
       content: { _ in 
-        ApplicationCommandInternalView(metaData, model: model,
-                                       iconSize: iconSize, onAction: onAction)
+        ApplicationCommandInternalView(metaData, model: model, iconSize: iconSize)
         .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { metaData in
@@ -43,18 +33,15 @@ struct ApplicationCommandView: View {
           if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
         }, set: { newValue in
           metaData.notification.wrappedValue = newValue ? .bezel : nil
-          onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = newValue ? .bezel : nil
+          }
         })) { value in
-          if value {
-            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-          } else {
-            onAction(.commandAction(.toggleNotify(nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = value ? .bezel : nil
           }
         }
         .offset(x: 1)
-      },
-      onAction: { action in
-        onAction(.commandAction(action))
       }
     )
     .enableInjection()
@@ -63,24 +50,17 @@ struct ApplicationCommandView: View {
 
 private struct ApplicationCommandInternalView: View {
   @ObserveInjection var inject
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject private var applicationStore: ApplicationStore
   @State private var metaData: CommandViewModel.MetaData
   @State private var model: CommandViewModel.Kind.ApplicationModel
-  private let debounce: DebounceManager<String>
   private let iconSize: CGSize
-  private let onAction: (ApplicationCommandView.Action) -> Void
 
-  init(_ metaData: CommandViewModel.MetaData,
-       model: CommandViewModel.Kind.ApplicationModel,
-       iconSize: CGSize,
-       onAction: @escaping (ApplicationCommandView.Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.ApplicationModel, iconSize: CGSize) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
-    self.onAction = onAction
     self.iconSize = iconSize
-    self.debounce = DebounceManager(for: .milliseconds(500)) { newName in
-      onAction(.updateName(newName: newName))
-    }
   }
 
   var body: some View {
@@ -88,7 +68,7 @@ private struct ApplicationCommandInternalView: View {
       Menu(content: {
         Button(action: {
           model.action = "Open"
-          onAction(.changeApplicationAction(.open))
+          updateAction(.open)
         }, label: {
           HStack {
             Image(systemName: "power")
@@ -99,7 +79,7 @@ private struct ApplicationCommandInternalView: View {
 
         Button(action: {
           model.action = "Close"
-          onAction(.changeApplicationAction(.close))
+          updateAction(.close)
         }, label: {
           HStack {
             Image(systemName: "poweroff")
@@ -109,7 +89,7 @@ private struct ApplicationCommandInternalView: View {
         })
         Button(action: {
           model.action = "Hide"
-          onAction(.changeApplicationAction(.hide))
+          updateAction(.hide)
         }, label: {
           HStack {
             Image(systemName: "eye.slash")
@@ -119,7 +99,7 @@ private struct ApplicationCommandInternalView: View {
         })
         Button(action: {
           model.action = "Unhide"
-          onAction(.changeApplicationAction(.unhide))
+          updateAction(.unhide)
         }, label: {
           HStack {
             Image(systemName: "eye")
@@ -129,7 +109,7 @@ private struct ApplicationCommandInternalView: View {
         })
         Button(action: {
           model.action = "Peek"
-          onAction(.changeApplicationAction(.peek))
+          updateAction(.peek)
         }, label: {
           HStack {
             Image(systemName: "eyes")
@@ -155,21 +135,21 @@ private struct ApplicationCommandInternalView: View {
         GridRow {
           HStack {
             ZenCheckbox("", style: .small, isOn: $model.inBackground) { newValue in
-              onAction(.changeApplicationModifier(modifier: .background, newValue: newValue))
+              updateModifier(.background, newValue: newValue)
             }
             Text("In background")
           }
 
           HStack {
             ZenCheckbox("", style: .small, isOn: $model.hideWhenRunning) { newValue in
-              onAction(.changeApplicationModifier(modifier: .hidden, newValue: newValue))
+              updateModifier(.hidden, newValue: newValue)
             }
             Text("Hide when opening")
           }
 
           HStack {
             ZenCheckbox("", style: .small, isOn: $model.ifNotRunning) { newValue in
-              onAction(.changeApplicationModifier(modifier: .onlyIfNotRunning, newValue: newValue))
+              updateModifier(.onlyIfNotRunning, newValue: newValue)
             }
             Text("If not running")
           }
@@ -177,14 +157,14 @@ private struct ApplicationCommandInternalView: View {
         GridRow {
           HStack {
             ZenCheckbox("", style: .small, isOn: $model.addToStage) { newValue in
-              onAction(.changeApplicationModifier(modifier: .addToStage, newValue: newValue))
+              updateModifier(.addToStage, newValue: newValue)
             }
             Text("Add to Stage")
           }
 
           HStack {
             ZenCheckbox("", style: .small, isOn: $model.waitForAppToLaunch) { newValue in
-              onAction(.changeApplicationModifier(modifier: .waitForAppToLaunch, newValue: newValue))
+              updateModifier(.waitForAppToLaunch, newValue: newValue)
             }
             Text("Wait for App to Launch")
           }
@@ -200,28 +180,49 @@ private struct ApplicationCommandInternalView: View {
     .font(.caption)
     .enableInjection()
   }
+
+  func updateAction(_ action: ApplicationCommand.Action) {
+    updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+      guard case .application(var appCommand) = command else { return }
+      appCommand.action = action
+      command = .application(appCommand)
+    }
+  }
+
+  func updateModifier(_ modifier: ApplicationCommand.Modifier, newValue: Bool) {
+    updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+      guard case .application(var appCommand) = command else { return }
+      if !appCommand.modifiers.contains(modifier) && newValue {
+        appCommand.modifiers.insert(modifier)
+      } else if appCommand.modifiers.contains(modifier) && !newValue {
+        appCommand.modifiers.remove(modifier)
+      }
+      command = .application(appCommand)
+    }
+  }
 }
 
 struct ApplicationCommandImageView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject var applicationStore: ApplicationStore
   @State private var isHovered: Bool = false
   @State private var metaData: CommandViewModel.MetaData
-  private let onAction: (ApplicationCommandView.Action) -> Void
   private let iconSize: CGSize
 
-  init(_ metaData: CommandViewModel.MetaData,
-       iconSize: CGSize,
-       onAction: @escaping (ApplicationCommandView.Action) -> Void) {
+  init(_ metaData: CommandViewModel.MetaData, iconSize: CGSize) {
     _metaData = .init(initialValue: metaData)
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
     Menu(content: {
       ForEach(applicationStore.applications.lazy, id: \.path) { app in
         Button(action: {
-          onAction(.changeApplication(app))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            guard case .application(var command) = command else { return }
+            command.application = app
+          }
           metaData.icon = .init(bundleIdentifier: app.bundleIdentifier, path: app.path)
         }, label: {
           let text = app.metadata.isSafariWebApp
@@ -258,7 +259,7 @@ struct ApplicationCommandView_Previews: PreviewProvider {
       command.model.meta,
       model: command.kind,
       iconSize: .init(width: 24, height: 24)
-    ) { _ in }
+    )
       .designTime()
   }
 }

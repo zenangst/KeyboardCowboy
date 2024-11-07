@@ -331,13 +331,7 @@ private struct ApplicationLauncherView: View {
                   command: .readonly(DesignTime.applicationCommand.model),
                   publisher: DesignTime.commandsPublisher,
                   selectionManager: SelectionManager<CommandViewModel>(),
-                  workflowId: UUID().uuidString,
-                  onCommandAction: {
-        _ in
-      },
-                  onAction: {
-        _ in
-      })
+                  workflowId: UUID().uuidString)
       .frame(minWidth: 390, maxWidth: 390)
       .designTime()
 
@@ -353,13 +347,7 @@ private struct ScriptRunnerView: View {
                   command: .readonly(DesignTime.scriptCommandInline.model),
                   publisher: DesignTime.commandsPublisher,
                   selectionManager: SelectionManager<CommandViewModel>(),
-                  workflowId: UUID().uuidString,
-                  onCommandAction: {
-        _ in
-      },
-                  onAction: {
-        _ in
-      })
+                  workflowId: UUID().uuidString)
       .frame(width: 384, height: 220)
       .designTime()
 

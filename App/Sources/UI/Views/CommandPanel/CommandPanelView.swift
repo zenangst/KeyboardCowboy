@@ -65,18 +65,8 @@ struct CommandPanelView: View {
               variableName: "",
               execution: .concurrent
             )
-            ScriptCommandContentView(viewModel, meta: .init(name: "Name", namePlaceholder: ""), onSubmit: {
+            ScriptCommandContentView(metaData: .init(name: "Name", namePlaceholder: ""), model: viewModel, onSubmit: {
               onSubmit(command)
-            }, onAction: { action in
-              switch action {
-              case .updateSource(let scriptModel):
-                switch scriptModel.source {
-                case .inline(let contents):
-                  onChange(contents)
-                default: break
-                }
-              default: break
-              }
             })
               .roundedContainer(padding: 4, margin: 4)
           case .inline(let source):
@@ -87,18 +77,8 @@ struct CommandPanelView: View {
                 variableName: "",
                 execution: .concurrent
             )
-            ScriptCommandContentView(viewModel, meta: .init(name: "Name", namePlaceholder: ""), onSubmit: {
+            ScriptCommandContentView(metaData: .init(name: "Name", namePlaceholder: ""), model: viewModel, onSubmit: {
               onSubmit(command)
-            }, onAction: { action in
-              switch action {
-              case .updateSource(let scriptModel):
-                switch scriptModel.source {
-                case .inline(let contents), .path(let contents):
-                  command.source.contents = contents
-                  onChange(contents)
-                }
-              default: break
-              }
             })
             .roundedContainer(padding: 4, margin: 4)
           }

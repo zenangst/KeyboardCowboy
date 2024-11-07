@@ -4,24 +4,18 @@ import SwiftUI
 
 struct SystemCommandView: View {
   @ObserveInjection var inject
-  enum Action {
-    case updateKind(newKind: SystemCommand.Kind)
-    case commandAction(CommandContainerAction)
-  }
-
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @Binding var model: CommandViewModel.Kind.SystemModel
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
-  private let onAction: (Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.SystemModel,
-       iconSize: CGSize,
-       onAction: @escaping (Action) -> Void) {
+       iconSize: CGSize) {
     _model = Binding<CommandViewModel.Kind.SystemModel>(model)
     self.metaData = metaData
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -31,7 +25,11 @@ struct SystemCommandView: View {
       icon: { _ in SystemIconBuilder.icon(model.kind, size: iconSize.width)
       }, content: { _ in
         SystemCommandContentView(model: $model) { kind in
-          onAction(.updateKind(newKind: kind))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            guard case .systemCommand(var systemCommand) = command else { return }
+            systemCommand.kind = kind
+            command = .systemCommand(systemCommand)
+          }
         }
         .roundedContainer(4, padding: 4, margin: 0)
       },
@@ -40,17 +38,16 @@ struct SystemCommandView: View {
           if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
         }, set: { newValue in
           metaData.notification.wrappedValue = newValue ? .bezel : nil
-          onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = newValue ? .bezel : nil
+          }
         })) { value in
-          if value {
-            onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-          } else {
-            onAction(.commandAction(.toggleNotify(nil)))
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = value ? .bezel : nil
           }
         }
         .offset(x: 1)
-      },
-      onAction: { onAction(.commandAction($0)) })
+      })
     .id(model.id)
     .enableInjection()
   }
@@ -93,7 +90,8 @@ private struct SystemCommandContentView: View {
 struct SystemCommandView_Previews: PreviewProvider {
   static let command = DesignTime.systemCommand
   static var previews: some View {
-    SystemCommandView(command.model.meta, model: command.kind, iconSize: .init(width: 24, height: 24)) { _ in }
+    SystemCommandView(command.model.meta, model: command.kind,
+                      iconSize: .init(width: 24, height: 24)) 
       .designTime()
   }
 }

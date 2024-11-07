@@ -1,10 +1,6 @@
 import SwiftUI
 
 struct DetailView: View {
-  enum Action {
-    case singleDetailView(SingleDetailView.Action)
-  }
-
   @EnvironmentObject var statePublisher: DetailStatePublisher
   private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandPublisher: CommandsPublisher
@@ -13,7 +9,6 @@ struct DetailView: View {
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
   private let triggerPublisher: TriggerPublisher
   private var focus: FocusState<AppFocus?>.Binding
-  private var onAction: (DetailView.Action) -> Void
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
@@ -21,10 +16,8 @@ struct DetailView: View {
        keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
        triggerPublisher: TriggerPublisher,
        infoPublisher: InfoPublisher,
-       commandPublisher: CommandsPublisher,
-       onAction: @escaping (DetailView.Action) -> Void) {
+       commandPublisher: CommandsPublisher) {
     self.focus = focus
-    self.onAction = onAction
     self.commandSelectionManager = commandSelectionManager
     self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
@@ -50,10 +43,7 @@ struct DetailView: View {
         keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
         triggerPublisher: triggerPublisher,
         infoPublisher: infoPublisher,
-        commandPublisher: commandPublisher,
-        onAction: {
-          onAction(.singleDetailView($0))
-        })
+        commandPublisher: commandPublisher)
       .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
       .overlay(alignment: .topTrailing, content: {
         DevTagView()
@@ -103,7 +93,7 @@ struct DetailView_Previews: PreviewProvider {
                keyboardShortcutSelectionManager: .init(),
                triggerPublisher: DesignTime.triggerPublisher,
                infoPublisher: DesignTime.infoPublisher,
-               commandPublisher: DesignTime.commandsPublisher) { _ in }
+               commandPublisher: DesignTime.commandsPublisher) 
       .designTime()
       .frame(height: 650)
   }

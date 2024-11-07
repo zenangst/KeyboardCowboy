@@ -3,26 +3,20 @@ import Inject
 import SwiftUI
 
 struct WindowManagementCommandView: View {
-  enum Action {
-    case onUpdate(CommandViewModel.Kind.WindowManagementModel)
-    case commandAction(CommandContainerAction)
-  }
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
 
   @State private var model: CommandViewModel.Kind.WindowManagementModel
 
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
-  private let onAction: (WindowManagementCommandView.Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
-       iconSize: CGSize,
-       onAction: @escaping (WindowManagementCommandView.Action) -> Void
-  ) {
+       iconSize: CGSize) {
     _model = .init(initialValue: model)
     self.metaData = metaData
     self.iconSize = iconSize
-    self.onAction = onAction
   }
 
   var body: some View {
@@ -31,8 +25,7 @@ struct WindowManagementCommandView: View {
       placeholder: model.placeholder,
       icon: { _ in WindowManagementIconView(size: iconSize.width) },
       content: { _ in
-        WindowManagementCommandInternalView(metaData, model: model,
-                                            iconSize: iconSize, onAction: onAction)
+        WindowManagementCommandInternalView(metaData, model: model, iconSize: iconSize)
         .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: { metaData in
@@ -41,12 +34,12 @@ struct WindowManagementCommandView: View {
             if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
           }, set: { newValue in
             metaData.notification.wrappedValue = newValue ? .bezel : nil
-            onAction(.commandAction(.toggleNotify(newValue ? .bezel : nil)))
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              command.notification = newValue ? .bezel : nil
+            }
           })) { value in
-            if value {
-              onAction(.commandAction(.toggleNotify(metaData.notification.wrappedValue)))
-            } else {
-              onAction(.commandAction(.toggleNotify(nil)))
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              command.notification = value ? .bezel : nil
             }
           }
           .offset(x: 1)
@@ -55,17 +48,20 @@ struct WindowManagementCommandView: View {
 
           WindowManagementAnimationDurationView(windowCommand: $model) { newDuration in
             model.animationDuration = newDuration
-            onAction(.onUpdate(.init(id: metaData.id, kind: model.kind, animationDuration: newDuration)))
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              guard case .windowManagement(var windowCommand) = command else { return }
+              windowCommand.animationDuration = newDuration
+              command = .windowManagement(windowCommand)
+            }
           }
         }
-      },
-      onAction: {
-        onAction(.commandAction($0))
       })
   }
 }
 
 struct WindowManagementCommandInternalView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @Namespace var namespace
   @State var metaData: CommandViewModel.MetaData
   @State var model: CommandViewModel.Kind.WindowManagementModel
@@ -74,16 +70,13 @@ struct WindowManagementCommandInternalView: View {
   @State var constrainToScreen: Bool
 
   private let iconSize: CGSize
-  private let onAction: (WindowManagementCommandView.Action) -> Void
 
   init(_ metaData: CommandViewModel.MetaData,
        model: CommandViewModel.Kind.WindowManagementModel,
-       iconSize: CGSize,
-       onAction: @escaping (WindowManagementCommandView.Action) -> Void) {
+       iconSize: CGSize) {
     _metaData = .init(initialValue: metaData)
     _model = .init(initialValue: model)
     self.iconSize = iconSize
-    self.onAction = onAction
 
     switch model.kind {
     case  .increaseSize(let value, _, let padding, let constrainedToScreen),
@@ -118,7 +111,7 @@ struct WindowManagementCommandInternalView: View {
           ForEach(WindowCommand.Kind.allCases) { kind in
             Button(action: {
               model.kind = kind
-              onAction(.onUpdate(model))
+              performUpdate(kind)
             }, label: {
               Image(systemName: kind.symbol)
               Text(kind.displayValue)
@@ -169,7 +162,7 @@ struct WindowManagementCommandInternalView: View {
                   return
                 }
                 model.kind = kind
-                onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                performUpdate(kind)
               } label: {
                 Text(element.displayValue(increment: model.kind.isIncremental))
                   .frame(width: 10, height: 14)
@@ -220,7 +213,7 @@ struct WindowManagementCommandInternalView: View {
                     return
                   }
                   model.kind = kind
-                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                  performUpdate(kind)
                 })
                 .textFieldStyle(
                   .zen(.init(backgroundColor: Color(.windowBackgroundColor),
@@ -266,7 +259,7 @@ struct WindowManagementCommandInternalView: View {
                   return
                 }
                 model.kind = kind
-                onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                performUpdate(kind)
               })
               .textFieldStyle(
                 .zen(.init(backgroundColor: Color(.windowBackgroundColor),
@@ -315,7 +308,7 @@ struct WindowManagementCommandInternalView: View {
                     return
                   }
                   model.kind = kind
-                  onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+                  performUpdate(kind)
                 }
                 .font(.caption)
                 .padding(.trailing, 4)
@@ -337,7 +330,7 @@ struct WindowManagementCommandInternalView: View {
               return
             }
             model.kind = kind
-            onAction(.onUpdate(.init(id: metaData.id, kind: kind, animationDuration: model.animationDuration)))
+            performUpdate(kind)
           })
           .textFieldStyle(
             .zen(.init(backgroundColor: Color(.windowBackgroundColor),
@@ -352,6 +345,15 @@ struct WindowManagementCommandInternalView: View {
       default:
         EmptyView()
       }
+    }
+
+  }
+
+  private func performUpdate(_ newKind: WindowCommand.Kind) {
+    updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+      guard case .windowManagement(var windowCommand) = command else { return }
+      windowCommand.kind = newKind
+      command = .windowManagement(windowCommand)
     }
   }
 
@@ -471,7 +473,7 @@ struct WindowManagementCommandView_Previews: PreviewProvider {
             kind: container.kind,
             animationDuration: 0
           ), iconSize: .init(width: 24, height: 24)
-        ) { _ in }
+        )
         Divider()
       }
     }

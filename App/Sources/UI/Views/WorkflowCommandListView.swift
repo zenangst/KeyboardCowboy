@@ -8,7 +8,6 @@ struct WorkflowCommandListView: View {
   @Binding private var isPrimary: Bool
   @State var isTargeted: Bool = false
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
-  private let onAction: (SingleDetailView.Action) -> Void
   private let publisher: CommandsPublisher
   private let scrollViewProxy: ScrollViewProxy?
   private let triggerPublisher: TriggerPublisher
@@ -23,8 +22,7 @@ struct WorkflowCommandListView: View {
        publisher: CommandsPublisher,
        triggerPublisher: TriggerPublisher,
        selectionManager: SelectionManager<CommandViewModel>,
-       scrollViewProxy: ScrollViewProxy? = nil,
-       onAction: @escaping (SingleDetailView.Action) -> Void) {
+       scrollViewProxy: ScrollViewProxy? = nil) {
     _isPrimary = isPrimary
     self.focus = focus
     self.publisher = publisher
@@ -33,7 +31,6 @@ struct WorkflowCommandListView: View {
     self.namespace = namespace
     self.selectionManager = selectionManager
     self.scrollViewProxy = scrollViewProxy
-    self.onAction = onAction
   }
 
   @ViewBuilder
@@ -42,18 +39,16 @@ struct WorkflowCommandListView: View {
       WorkflowCommandEmptyListView(focus,
                                    namespace: namespace,
                                    workflowId: publisher.data.id,
-                                   isPrimary: $isPrimary,
-                                   onAction: onAction)
+                                   isPrimary: $isPrimary)
     } else {
-      WorkflowCommandListHeaderView(namespace: namespace, workflowId: workflowId, onAction: onAction)
+      WorkflowCommandListHeaderView(namespace: namespace)
       WorkflowCommandListScrollView(focus,
                                     publisher: publisher,
                                     triggerPublisher: triggerPublisher,
                                     namespace: namespace,
                                     workflowId: workflowId,
                                     selectionManager: selectionManager,
-                                    scrollViewProxy: scrollViewProxy,
-                                    onAction: onAction)
+                                    scrollViewProxy: scrollViewProxy)
     }
   }
 }
@@ -68,7 +63,7 @@ struct WorkflowCommandListView_Previews: PreviewProvider {
                             isPrimary: .constant(true),
                             publisher: CommandsPublisher(DesignTime.detail.commandsInfo),
                             triggerPublisher: TriggerPublisher(DesignTime.detail.trigger),
-                            selectionManager: .init()) { _ in }
+                            selectionManager: .init()) 
       .frame(height: 900)
       .designTime()
   }
