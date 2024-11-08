@@ -71,7 +71,7 @@ private struct HeaderOverlay: View {
     HStack(alignment: .center) {
       Text("Keyboard Cowboy")
         .font(Font.system(size: 20, design: .rounded))
-      Text("3.25.2")
+      Text("3.25")
         .foregroundStyle(.white)
         .font(Font.system(size: 24, design: .rounded))
         .allowsTightening(true)
