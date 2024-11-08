@@ -1,3 +1,4 @@
+import Inject
 import SwiftUI
 
 struct DetailView: View {
@@ -60,6 +61,7 @@ struct DetailView: View {
 }
 
 private struct DevTagView: View {
+  @ObserveInjection var inject
   @ViewBuilder
   var body: some View {
     if KeyboardCowboyApp.env() != .production {
@@ -79,8 +81,9 @@ private struct DevTagView: View {
             .shadow(color: .white, radius: 0, y: 1)
         }
         .rotationEffect(.degrees(45), anchor: .trailing)
-        .offset(x: 10, y: -20)
+        .offset(x: 8, y: -4)
         .fixedSize()
+        .enableInjection()
     }
   }
 }

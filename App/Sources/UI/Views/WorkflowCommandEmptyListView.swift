@@ -1,7 +1,9 @@
-import SwiftUI
 import Bonzai
+import Inject
+import SwiftUI
 
 struct WorkflowCommandEmptyListView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var applicationStore: ApplicationStore
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -35,18 +37,24 @@ struct WorkflowCommandEmptyListView: View {
         }
       )
          {
-        HStack {
-          Image(systemName: "plus.app")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 16, height: 16)
-          Divider()
-            .opacity(0.5)
+           HStack(spacing: 4) {
+             Text("⌘N")
+               .font(Font.system(size: 8, weight: .semibold))
+               .padding(.horizontal, 4)
+               .padding(.vertical, 2)
+               .background(
+                RoundedRectangle(cornerRadius: 4)
+                  .stroke(Color(nsColor: .systemGreen.blended(withFraction: 0.3, of: .black)!), lineWidth: 1)
+                  .opacity(0.5)
+               )
 
-          Text("Add Command")
-        }
-        .padding(.vertical, 4)
-        .padding(.horizontal, 8)
+             Divider()
+               .opacity(0.5)
+
+             Text("Add Command")
+           }
+           .padding(.vertical, 4)
+           .padding(.horizontal, 6)
       }
          .fixedSize()
          .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
@@ -73,6 +81,7 @@ struct WorkflowCommandEmptyListView: View {
     })
     .frame(maxWidth: .infinity, minHeight: 250, maxHeight: .infinity)
     .matchedGeometryEffect(id: "command-list", in: namespace)
+    .enableInjection()
   }
 }
 
