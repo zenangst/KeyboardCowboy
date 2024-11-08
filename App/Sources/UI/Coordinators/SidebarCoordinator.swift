@@ -130,6 +130,7 @@ final class SidebarCoordinator {
     if let match = groups.first(where: { $0.id == selectionManager.lastSelection }) {
       ZenColorPublisher.shared.publish(.custom(Color(hex: match.color)))
     }
+
     render(groups)
     if groups.isEmpty {
       subscription = nil

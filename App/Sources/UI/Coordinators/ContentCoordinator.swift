@@ -25,12 +25,6 @@ final class ContentCoordinator {
     self.groupSelectionManager = groupSelectionManager
     self.mapper = ContentModelMapper()
     self.contentSelectionManager = contentSelectionManager
-
-    // Set initial selection
-    if let initialGroupSelection = groupSelectionManager.lastSelection,
-      let initialWorkflowSelection = contentSelectionManager.lastSelection {
-      render([initialGroupSelection], selectionOverrides: [initialWorkflowSelection])
-    }
   }
 
   func handle(_ action: SidebarView.Action) {
