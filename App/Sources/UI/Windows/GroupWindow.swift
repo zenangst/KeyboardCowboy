@@ -48,6 +48,8 @@ final class GroupWindow: NSObject, NSWindowDelegate {
         case .add:
           sidebarCoordinator.handle(.add(updateGroup))
           contentCoordinator.handle(.add(updateGroup))
+          sidebarCoordinator.handle(.selectGroups([updateGroup.id]))
+          contentCoordinator.handle(.selectGroups([updateGroup.id]))
         case .edit:
           sidebarCoordinator.handle(.edit(updateGroup))
           contentCoordinator.handle(.edit(updateGroup))
