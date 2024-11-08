@@ -44,7 +44,7 @@ final class SidebarCoordinator {
     }
     selectionManager.publish([groupId])
     if storeWasEmpty {
-        withAnimation(WorkflowCommandListView.animation) {
+        withAnimation(CommandList.animation) {
           render(store.groups)
         }
     } else {

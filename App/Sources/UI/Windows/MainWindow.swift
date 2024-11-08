@@ -21,7 +21,7 @@ final class MainWindow: NSObject, NSWindowDelegate {
       return
     }
 
-    let content = MainWindowView(core: core, onSceneAction: onSceneAction(_:))
+    let content = MainView(core: core, onSceneAction: onSceneAction(_:))
       .environmentObject(windowOpener)
       .environmentObject(core.configurationUpdater)
     let styleMask: NSWindow.StyleMask = [

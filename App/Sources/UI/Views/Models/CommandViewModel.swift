@@ -50,7 +50,6 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     case open(OpenModel)
     case keyboard(KeyboardModel)
     case script(ScriptModel)
-    case plain
     case shortcut(ShortcutModel)
     case text(TextModel)
     case systemCommand(SystemModel)

@@ -22,13 +22,13 @@ final class GroupWindow: NSObject, NSWindowDelegate {
   private let context: Context
   private let applicationStore: ApplicationStore
   private let configurationPublisher: ConfigurationPublisher
-  private let contentPublisher: ContentPublisher
-  private let contentCoordinator: ContentCoordinator
+  private let contentPublisher: GroupDetailPublisher
+  private let contentCoordinator: GroupCoordinator
   private let sidebarCoordinator: SidebarCoordinator
 
   init(context: Context, applicationStore: ApplicationStore,
-       configurationPublisher: ConfigurationPublisher, contentPublisher: ContentPublisher,
-       contentCoordinator: ContentCoordinator, sidebarCoordinator: SidebarCoordinator) {
+       configurationPublisher: ConfigurationPublisher, contentPublisher: GroupDetailPublisher,
+       contentCoordinator: GroupCoordinator, sidebarCoordinator: SidebarCoordinator) {
     self.context = context
     self.applicationStore = applicationStore
     self.configurationPublisher = configurationPublisher

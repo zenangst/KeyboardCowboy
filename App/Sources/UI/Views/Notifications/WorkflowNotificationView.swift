@@ -260,7 +260,7 @@ extension Command {
           placeholderView(size)
         }
     case .shortcut:
-      ContentShortcutImageView(size: size)
+      WorkflowShortcutImage(size: size)
     }
   }
 }

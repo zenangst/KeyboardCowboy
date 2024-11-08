@@ -6,7 +6,7 @@ struct ContainerView: View {
   enum Action {
     case openScene(AppScene)
     case sidebar(SidebarView.Action)
-    case content(ContentView.Action)
+    case content(GroupDetailView.Action)
   }
 
   @ObserveInjection var inject
@@ -15,13 +15,13 @@ struct ContainerView: View {
   @Binding private var contentState: ContentStore.State
 
   private let onAction: (Action, UndoManager?) -> Void
-  private let applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>
-  private let commandSelectionManager: SelectionManager<CommandViewModel>
-  private let configSelectionManager: SelectionManager<ConfigurationViewModel>
-  private let contentSelectionManager: SelectionManager<ContentViewModel>
-  private let groupsSelectionManager: SelectionManager<GroupViewModel>
-  private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
-  private let publisher: ContentPublisher
+  private let applicationTriggerSelection: SelectionManager<DetailViewModel.ApplicationTrigger>
+  private let commandSelection: SelectionManager<CommandViewModel>
+  private let configSelection: SelectionManager<ConfigurationViewModel>
+  private let contentSelection: SelectionManager<GroupDetailViewModel>
+  private let groupsSelection: SelectionManager<GroupViewModel>
+  private let keyboardShortcutSelection: SelectionManager<KeyShortcut>
+  private let publisher: GroupDetailPublisher
   private let triggerPublisher: TriggerPublisher
   private let infoPublisher: InfoPublisher
   private let commandPublisher: CommandsPublisher
@@ -32,13 +32,13 @@ struct ContainerView: View {
   init(_ focus: FocusState<AppFocus?>.Binding,
        contentState: Binding<ContentStore.State>,
        detailUpdateTransaction: UpdateTransaction,
-       publisher: ContentPublisher,
-       applicationTriggerSelectionManager: SelectionManager<DetailViewModel.ApplicationTrigger>,
-       commandSelectionManager: SelectionManager<CommandViewModel>,
-       configSelectionManager: SelectionManager<ConfigurationViewModel>,
-       contentSelectionManager: SelectionManager<ContentViewModel>,
-       groupsSelectionManager: SelectionManager<GroupViewModel>,
-       keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>,
+       publisher: GroupDetailPublisher,
+       applicationTriggerSelection: SelectionManager<DetailViewModel.ApplicationTrigger>,
+       commandSelection: SelectionManager<CommandViewModel>,
+       configSelection: SelectionManager<ConfigurationViewModel>,
+       contentSelection: SelectionManager<GroupDetailViewModel>,
+       groupsSelection: SelectionManager<GroupViewModel>,
+       keyboardShortcutSelection: SelectionManager<KeyShortcut>,
        triggerPublisher: TriggerPublisher,
        infoPublisher: InfoPublisher,
        commandPublisher: CommandsPublisher,
@@ -46,12 +46,12 @@ struct ContainerView: View {
     _contentState = contentState
     self.focus = focus
     self.publisher = publisher
-    self.applicationTriggerSelectionManager = applicationTriggerSelectionManager
-    self.commandSelectionManager = commandSelectionManager
-    self.configSelectionManager = configSelectionManager
-    self.contentSelectionManager = contentSelectionManager
-    self.groupsSelectionManager = groupsSelectionManager
-    self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
+    self.applicationTriggerSelection = applicationTriggerSelection
+    self.commandSelection = commandSelection
+    self.configSelection = configSelection
+    self.contentSelection = contentSelection
+    self.groupsSelection = groupsSelection
+    self.keyboardShortcutSelection = keyboardShortcutSelection
     self.triggerPublisher = triggerPublisher
     self.infoPublisher = infoPublisher
     self.commandPublisher = commandPublisher
@@ -65,22 +65,22 @@ struct ContainerView: View {
       sidebar: {
         SidebarView(
           focus,
-          configSelectionManager: configSelectionManager,
-          groupSelectionManager: groupsSelectionManager,
-          contentSelectionManager: contentSelectionManager,
+          configSelection: configSelection,
+          groupSelection: groupsSelection,
+          workflowSelection: contentSelection,
           onAction: { onAction(.sidebar($0), undoManager) })
         .onChange(of: contentState, perform: { newValue in
           guard newValue == .initialized else { return }
-          guard let groupId = groupsSelectionManager.lastSelection else { return }
+          guard let groupId = groupsSelection.lastSelection else { return }
           onAction(.sidebar(.selectGroups([groupId])), undoManager)
         })
         .navigationSplitViewColumnWidth(ideal: 250)
       },
       content: {
-        ContentView(
+        GroupDetailView(
           focus,
-          groupId: groupsSelectionManager.lastSelection ?? groupsSelectionManager.selections.first ?? "empty",
-          contentSelectionManager: contentSelectionManager,
+          groupId: groupsSelection.lastSelection ?? groupsSelection.selections.first ?? "empty",
+          workflowSelection: contentSelection,
           onAction: {
             onAction(.content($0), undoManager)
 
@@ -93,9 +93,9 @@ struct ContainerView: View {
       detail: {
         DetailView(
           focus,
-          applicationTriggerSelectionManager: applicationTriggerSelectionManager,
-          commandSelectionManager: commandSelectionManager,
-          keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+          applicationTriggerSelection: applicationTriggerSelection,
+          commandSelection: commandSelection,
+          keyboardShortcutSelection: keyboardShortcutSelection,
           triggerPublisher: triggerPublisher,
           infoPublisher: infoPublisher,
           commandPublisher: commandPublisher)
@@ -117,12 +117,12 @@ struct ContainerView_Previews: PreviewProvider {
       contentState: .readonly(.initialized),
       detailUpdateTransaction: .init(groupID: "", workflowID: ""),
       publisher: DesignTime.contentPublisher,
-      applicationTriggerSelectionManager: .init(),
-      commandSelectionManager: .init(),
-      configSelectionManager: .init(),
-      contentSelectionManager: .init(),
-      groupsSelectionManager: .init(),
-      keyboardShortcutSelectionManager: .init(),
+      applicationTriggerSelection: .init(),
+      commandSelection: .init(),
+      configSelection: .init(),
+      contentSelection: .init(),
+      groupsSelection: .init(),
+      keyboardShortcutSelection: .init(),
       triggerPublisher: DesignTime.triggerPublisher,
       infoPublisher: DesignTime.infoPublisher,
       commandPublisher: DesignTime.commandsPublisher
