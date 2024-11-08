@@ -67,16 +67,16 @@ struct KeyboardCowboyApp: App {
             let action = SidebarView.Action.addConfiguration(name: "New Configuration")
             core.configCoordinator.handle(action)
             core.sidebarCoordinator.handle(action)
-            core.contentCoordinator.handle(action)
-            core.detailCoordinator.handle(action)
+            core.groupCoordinator.handle(action)
+            core.workflowCoordinator.handle(action)
           },
           onNewGroup: {
             windowOpener.openGroup(.add(WorkflowGroup.empty()))
           },
           onNewWorkflow: {
-            let action = ContentView.Action.addWorkflow(workflowId: UUID().uuidString)
-            core.contentCoordinator.handle(action)
-            core.detailCoordinator.handle(action)
+            let action = GroupDetailView.Action.addWorkflow(workflowId: UUID().uuidString)
+            core.groupCoordinator.handle(action)
+            core.workflowCoordinator.handle(action)
             //            focus = .detail(.name)
           },
           onNewCommand: { id in
@@ -84,8 +84,8 @@ struct KeyboardCowboyApp: App {
           }
         )
         .environmentObject(core.contentStore.groupStore)
-        .environmentObject(core.detailCoordinator.statePublisher)
-        .environmentObject(core.detailCoordinator.infoPublisher)
+        .environmentObject(core.workflowCoordinator.statePublisher)
+        .environmentObject(core.workflowCoordinator.infoPublisher)
       }
 
       CommandGroup(replacing: .toolbar) {

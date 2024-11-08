@@ -20,8 +20,8 @@ final class WindowOpener: ObservableObject {
       context: context,
       applicationStore: ApplicationStore.shared,
       configurationPublisher: core.configCoordinator.configurationPublisher,
-      contentPublisher: core.contentCoordinator.contentPublisher,
-      contentCoordinator: core.contentCoordinator,
+      contentPublisher: core.groupCoordinator.contentPublisher,
+      contentCoordinator: core.groupCoordinator,
       sidebarCoordinator: core.sidebarCoordinator
     )
       .open(context)
@@ -44,9 +44,9 @@ final class WindowOpener: ObservableObject {
                      contentStore: core.contentStore,
                      uiElementCaptureStore: core.uiElementCaptureStore,
                      configurationPublisher: core.configCoordinator.configurationPublisher) { [core] workflowId, commandId, title, payload in
-      let groupIds = core.groupSelectionManager.selections
+      let groupIds = core.groupSelection.selections
       Task {
-        let transaction = core.detailCoordinator.updateTransaction
+        let transaction = core.workflowCoordinator.updateTransaction
         let updater = core.configurationUpdater
 
         updater.modifyWorkflow(using: transaction) { workflow in
@@ -141,8 +141,8 @@ final class WindowOpener: ObservableObject {
           }
           workflow.updateOrAddCommand(command)
         }
-        core.contentCoordinator.handle(.selectWorkflow(workflowIds: [workflowId]))
-        core.contentCoordinator.handle(.refresh(groupIds))
+        core.groupCoordinator.handle(.selectWorkflow(workflowIds: [workflowId]))
+        core.groupCoordinator.handle(.refresh(groupIds))
       }
     }.open()
   }

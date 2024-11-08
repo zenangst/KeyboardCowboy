@@ -2,7 +2,7 @@ import CoreTransferable
 import Foundation
 
 enum ContentListDropItem: Codable, Transferable, Equatable {
-  case workflow(ContentViewModel)
+  case workflow(GroupDetailViewModel)
   case command(CommandViewModel)
 
   static var transferRepresentation: some TransferRepresentation {

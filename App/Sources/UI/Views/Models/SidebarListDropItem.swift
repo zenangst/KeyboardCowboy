@@ -2,7 +2,7 @@ import CoreTransferable
 import Foundation
 
 enum SidebarListDropItem: Codable, Transferable, Equatable {
-  case workflow(ContentViewModel)
+  case workflow(GroupDetailViewModel)
   case group(GroupViewModel)
 
   static var transferRepresentation: some TransferRepresentation {

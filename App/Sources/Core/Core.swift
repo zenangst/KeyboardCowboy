@@ -10,48 +10,48 @@ final class Core {
   lazy private(set) var configCoordinator = ConfigurationCoordinator(
     contentStore: contentStore,
     configurationUpdater: configurationUpdater,
-    selectionManager: configSelectionManager,
+    selectionManager: configSelection,
     store: configurationStore)
 
   lazy private(set) var sidebarCoordinator = SidebarCoordinator(
     groupStore,
     applicationStore: ApplicationStore.shared,
-    groupSelectionManager: groupSelectionManager)
+    groupSelectionManager: groupSelection)
 
-  lazy private(set) var contentCoordinator = ContentCoordinator(
+  lazy private(set) var groupCoordinator = GroupCoordinator(
     groupStore,
     applicationStore: ApplicationStore.shared,
-    contentSelectionManager: contentSelectionManager,
-    groupSelectionManager: groupSelectionManager
+    groupSelectionManager: groupSelection,
+    workflowsSelectionManager: workflowsSelection
   )
 
-  lazy private(set) var detailCoordinator = DetailCoordinator(
+  lazy private(set) var workflowCoordinator = WorkflowCoordinator(
     applicationStore: ApplicationStore.shared,
-    applicationTriggerSelectionManager: applicationTriggerSelectionManager,
+    applicationTriggerSelection: applicationTriggerSelection,
     commandRunner: commandRunner,
-    commandSelectionManager: commandSelectionManager,
-    contentSelectionManager: contentSelectionManager,
+    commandSelection: commandSelection,
+    workflowsSelection: workflowsSelection,
     contentStore: contentStore,
-    groupSelectionManager: groupSelectionManager,
+    groupSelection: groupSelection,
     keyboardCowboyEngine: engine,
-    keyboardShortcutSelectionManager: keyboardShortcutSelectionManager,
+    keyboardShortcutSelection: keyboardShortcutSelection,
     groupStore: contentStore.groupStore)
 
   // MARK: - Selection managers
 
-  lazy private(set) var keyboardShortcutSelectionManager = SelectionManager<KeyShortcut>()
-  lazy private(set) var applicationTriggerSelectionManager = SelectionManager<DetailViewModel.ApplicationTrigger>()
-  lazy private(set) var commandSelectionManager = SelectionManager<CommandViewModel>()
+  lazy private(set) var keyboardShortcutSelection = SelectionManager<KeyShortcut>()
+  lazy private(set) var applicationTriggerSelection = SelectionManager<DetailViewModel.ApplicationTrigger>()
+  lazy private(set) var commandSelection = SelectionManager<CommandViewModel>()
 
-  lazy private(set) var configSelectionManager = SelectionManager<ConfigurationViewModel>(initialSelection: [AppStorageContainer.shared.configId]) {
+  lazy private(set) var configSelection = SelectionManager<ConfigurationViewModel>(initialSelection: [AppStorageContainer.shared.configId]) {
     AppStorageContainer.shared.configId = $0.first ?? ""
   }
 
-  lazy private(set) var groupSelectionManager = SelectionManager<GroupViewModel>(initialSelection: AppStorageContainer.shared.groupIds) {
+  lazy private(set) var groupSelection = SelectionManager<GroupViewModel>(initialSelection: AppStorageContainer.shared.groupIds) {
     AppStorageContainer.shared.groupIds = $0
   }
 
-  lazy private(set) var contentSelectionManager = SelectionManager<ContentViewModel>(initialSelection: AppStorageContainer.shared.workflowIds) {
+  lazy private(set) var workflowsSelection = SelectionManager<GroupDetailViewModel>(initialSelection: AppStorageContainer.shared.workflowIds) {
     AppStorageContainer.shared.workflowIds = $0
   }
 
@@ -140,12 +140,12 @@ final class Core {
     onRender: { [weak self] configuration, commit, animation in
       guard let self else { return }
       groupStore.updateGroups(Set(configuration.groups))
-      detailCoordinator.handle(.selectGroups([commit.groupID]))
+      workflowCoordinator.handle(.selectGroups([commit.groupID]))
     },
     onStorageUpdate: { [weak self] configuration, commit in
       guard let self else { return }
-      withAnimation { [contentCoordinator] in
-        contentCoordinator.handle(.refresh([commit.groupID]))
+      withAnimation { [groupCoordinator] in
+        groupCoordinator.handle(.refresh([commit.groupID]))
       }
       configurationStore.update(configuration)
   })
