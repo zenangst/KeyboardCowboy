@@ -128,6 +128,7 @@ struct GroupsListView: View {
         .onAppear {
           guard let initialSelection = selectionManager.initialSelection else { return }
           focus = .element(initialSelection)
+          proxy.scrollTo(initialSelection)
         }
         .focused(appFocus, equals: .groups)
         .opacity(!publisher.data.isEmpty ? 1 : 0)

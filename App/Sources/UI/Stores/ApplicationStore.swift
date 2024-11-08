@@ -45,7 +45,6 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
   }
 
   func load() async {
-    Benchmark.shared.start("ApplicationController.load")
     let decoder = JSONDecoder()
     let additionalPaths = await AppStorageContainer.shared.additionalApplicationPaths
     if let newApplications: [Application] = try? AppCache.load(Self.domain, name: "applications.json", decoder: decoder) {
@@ -70,7 +69,6 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
     } else {
       await reload(additionalPaths)
     }
-    Benchmark.shared.stop("ApplicationController.load")
   }
 
   // MARK: - Private methods
