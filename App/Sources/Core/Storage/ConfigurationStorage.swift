@@ -41,6 +41,25 @@ final class ConfigurationStorage: @unchecked Sendable {
       }
   }
 
+  @MainActor
+  func backupIfNeeded() {
+    guard KeyboardCowboyApp.env() == .production else { return }
+
+    let backupUrl = URL(fileURLWithPath: configLocation.path)
+      .appending(path: "backups")
+
+    let backupDestinationUrl = backupUrl.appending(path: "config.\(KeyboardCowboyApp.buildNumber).json")
+
+    var isDirectory: ObjCBool = true
+    if !fileManager.fileExists(atPath: backupUrl.path, isDirectory: &isDirectory) {
+      try? fileManager.createDirectory(at: backupUrl, withIntermediateDirectories: true)
+    }
+
+    if !fileManager.fileExists(atPath: backupDestinationUrl.path()) {
+      try? fileManager.copyItem(at: configLocation.url, to: backupDestinationUrl)
+    }
+  }
+
   func load() async throws -> [KeyboardCowboyConfiguration] {
     Benchmark.shared.start("Storage.load")
 
