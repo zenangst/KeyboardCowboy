@@ -62,14 +62,16 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
   var body: some View {
     HStack(spacing: 6) {
       ForEach(keyboardShortcut.wrappedValue.modifiers) { modifier in
+        let largerModifiers: [ModifierKey] = [
+          .leftCommand, .rightCommand,
+          .leftShift, .rightShift,
+          .capsLock
+        ]
         ModifierKeyIcon(
           key: modifier,
-          alignment: modifier == .leftShift
-          ? modifier == .capsLock ? .bottomLeading : modifier == .leftShift ? .bottomLeading : .topTrailing
-          : modifier == .capsLock ? .bottomLeading : modifier == .leftShift ? .bottomTrailing : .topLeading,
           glow: .constant(false)
         )
-        .frame(minWidth: modifier == .leftCommand || modifier == .leftShift || modifier == .capsLock ? 40 : 30, minHeight: 30)
+        .frame(minWidth: largerModifiers.contains(modifier) ? 40 : 30, minHeight: 30)
         .fixedSize(horizontal: true, vertical: true)
       }
       RegularKeyIcon(letter: keyboardShortcut.wrappedValue.key, width: 30, height: 30, glow: .constant(false))
