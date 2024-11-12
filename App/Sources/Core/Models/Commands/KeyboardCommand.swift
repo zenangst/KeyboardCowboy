@@ -78,7 +78,7 @@ extension KeyboardCommand {
     KeyboardCommand(
       name: "",
       isEnabled: true,
-      keyboardShortcut: KeyShortcut(key: "", lhs: true),
+      keyboardShortcut: KeyShortcut(key: ""),
       notification: nil
     )
   }

@@ -126,12 +126,9 @@ struct WorkflowNotificationKeyView: View {
       ForEach(keyShortcut.modifiers) { modifier in
         ModifierKeyIcon(
           key: modifier,
-          alignment: keyShortcut.lhs
-          ? modifier == .shift ? .bottomLeading : .topTrailing
-          : modifier == .shift ? .bottomTrailing : .topLeading,
           glow: $glow
         )
-        .frame(minWidth: modifier == .command || modifier == .shift ? 40 : 28, minHeight: 28)
+        .frame(minWidth: modifier == .leftCommand || modifier == .leftShift ? 40 : 28, minHeight: 28)
         .fixedSize(horizontal: true, vertical: true)
       }
       RegularKeyIcon(letter: keyShortcut.key, width: 28, height: 28, glow: $glow)
@@ -149,7 +146,7 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
   static let singleModel = WorkflowNotificationViewModel(
     id: "test",
     keyboardShortcuts: [ 
-      .init(id: "a", key: "a", lhs: true)
+      .init(id: "a", key: "a")
     ]
   )
 
@@ -161,8 +158,8 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
         trigger: Workflow.Trigger.keyboardShortcuts(
           KeyboardShortcutTrigger(
             shortcuts: [
-              KeyShortcut(key: "d", lhs: true, modifiers: [.control, .option, .command]),
-              KeyShortcut(key: "f", lhs: true, modifiers: []),
+              KeyShortcut(key: "d", modifiers: [.leftControl, .leftOption, .leftCommand]),
+              KeyShortcut(key: "f", modifiers: []),
             ]
           )
         ),
@@ -179,7 +176,7 @@ struct WorkflowNotificationView_Previews: PreviewProvider {
       )
     ],
     keyboardShortcuts: [
-      KeyShortcut(key: "d", lhs: true, modifiers: [.control, .option, .command]),
+      KeyShortcut(key: "d", modifiers: [.leftControl, .leftOption, .leftCommand]),
     ]
   )
 

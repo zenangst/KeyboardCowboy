@@ -134,7 +134,7 @@ private struct ContentItemAccessoryView: View {
     case .application:
       GenericAppIconView(size: 16)
     case .keyboard(let binding):
-      KeyboardShortcutView(shortcut: .init(key: binding, lhs: true, modifiers: []))
+      KeyboardShortcutView(shortcut: .init(key: binding, modifiers: []))
         .fixedSize()
         .font(.footnote)
         .lineLimit(1)

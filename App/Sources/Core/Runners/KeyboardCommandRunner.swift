@@ -41,8 +41,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
     for _ in 1...iterations {
       for keyboardShortcut in keyboardShortcuts {
         let key = try resolveKey(for: keyboardShortcut.key)
-        var flags = CGEventFlags()
-        keyboardShortcut.modifiers.forEach { flags.insert($0.cgModifierFlags) }
+        let flags =  keyboardShortcut.cgFlags
         do {
           var flags = flags
           // In applications like Xcode, we need to set the numeric pad flag for

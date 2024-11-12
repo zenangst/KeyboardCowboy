@@ -156,22 +156,22 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                       color: "#3984F7",
                       workflows: [
                         Workflow(name: "Vim bindings H to ←",
-                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "H", modifiers: [.option])])),
+                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "H", modifiers: [.leftOption])])),
                                  isEnabled: false, commands: [
                                   .keyboard(.init(name: "", isEnabled: true, keyboardShortcut: .init(key: "←")))
                                  ]),
                         Workflow(name: "Vim bindings J to ↓",
-                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "J", modifiers: [.option])])),
+                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "J", modifiers: [.leftOption])])),
                                  isEnabled: false, commands: [
                                   .keyboard(.init(name: "", isEnabled: true, keyboardShortcut: .init(key: "↓")))
                                  ]),
                         Workflow(name: "Vim bindings K to ↑",
-                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "K", modifiers: [.option])])),
+                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "K", modifiers: [.leftOption])])),
                                  isEnabled: false, commands: [
                                   .keyboard(.init(name: "", isEnabled: true, keyboardShortcut: .init(key: "↑")))
                                  ]),
                         Workflow(name: "Vim bindings L to →",
-                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "L", modifiers: [.option])])),
+                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "L", modifiers: [.leftOption])])),
                                  isEnabled: false, commands: [
                                   .keyboard(.init(name: "", isEnabled: true, keyboardShortcut: .init(key: "→")))
                                  ])
@@ -204,7 +204,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                       rule: Rule.init(bundleIdentifiers: ["com.apple.mail"]),
                       workflows: [
                         Workflow(name: "Type mail signature",
-                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "S", modifiers: [.function, .command])])),
+                                 trigger: .keyboardShortcuts(.init(shortcuts: [.init(key: "S", modifiers: [.function, .leftCommand])])),
                                  commands: [
                                   .text(.init(.insertText(.init("""
  Stay hungry, stay awesome!

@@ -117,7 +117,7 @@ struct NewCommandView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
               Spacer()
               if offset < 10 {
-                KeyboardIconView("\(ModifierKey.command.keyValue)\(kind.rawKey)", size: 24)
+                KeyboardIconView("\(ModifierKey.leftCommand.keyValue)\(kind.rawKey)", size: 24)
               }
             }
             .padding(.leading, 4)

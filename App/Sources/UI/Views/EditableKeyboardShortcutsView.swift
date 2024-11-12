@@ -274,7 +274,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   }
 
   private func addButtonAction(_ proxy: ScrollViewProxy) {
-    let keyShortcut = KeyShortcut(id: placeholderId, key: "Recording ...", lhs: true)
+    let keyShortcut = KeyShortcut(id: placeholderId, key: "Recording ...")
     selectionManager.publish([keyShortcut.id])
     state = .recording
     recorderStore.mode = .recordKeystroke

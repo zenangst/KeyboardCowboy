@@ -52,6 +52,8 @@ final class ContentStore: ObservableObject {
 
     guard KeyboardCowboyApp.env() != .previews else { return }
 
+    guard !launchArguments.isEnabled(.runningUnitTests) else { return }
+
     do {
       if try configMigrator.configurationNeedsMigration(at: legacy.configLocation.url) == true {
         try configMigrator.performMigration(from: legacy.configLocation.url,

@@ -108,7 +108,7 @@ struct WorkflowNotificationMatchesView_Previews: PreviewProvider {
       ],
       glow: false,
       keyboardShortcuts: [
-        KeyShortcut(key: "d", lhs: true, modifiers: [.control, .option, .command]),
+        KeyShortcut(key: "d", modifiers: [.leftControl, .leftOption, .leftCommand]),
         KeyShortcut(key: "d")
       ]
     )

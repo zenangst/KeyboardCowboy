@@ -19,9 +19,18 @@ struct ModifierKeyIcon: View {
     if let alignment = alignment {
       self.alignment = alignment
     } else {
-      self.alignment = key == .capsLock ? .bottomLeading
-        : key == .shift
-        ? .bottomLeading : .topTrailing
+      self.alignment = switch key {
+      case .leftShift:    .bottomLeading
+      case .leftControl:  .topTrailing
+      case .leftOption:   .topTrailing
+      case .leftCommand:  .topTrailing
+      case .rightShift:   .bottomTrailing
+      case .rightControl: .topLeading
+      case .rightOption:  .topLeading
+      case .rightCommand: .topLeading
+      case .function:     .topTrailing
+      case .capsLock:     .bottomLeading
+      }
     }
   }
 
@@ -89,7 +98,7 @@ struct ModifierKeyIcon_Previews: PreviewProvider {
         ModifierKeyIcon(key: modifier)
           .frame(width: {
             switch modifier {
-            case .command, .shift, .capsLock:
+            case .leftCommand, .rightCommand, .leftShift, .rightShift, .capsLock:
               return size * 1.5
             default:
               return size

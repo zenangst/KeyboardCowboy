@@ -24,13 +24,13 @@ final class TextCommandRunner {
           keyCode = 36
         } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.shift], matchDisplayValue: true) {
+        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftShift], matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
           flags.insert(.maskShift)
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.option], matchDisplayValue: true) {
+        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftOption], matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
           flags.insert(.maskAlternate)
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.option, .shift], matchDisplayValue: true) {
+        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftOption, .leftShift], matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
           flags.insert(.maskShift)
           flags.insert(.maskAlternate)

@@ -175,13 +175,13 @@ struct KeyboardView: View {
         }
 
         HStack(spacing: relative(8)) {
-          ModifierKeyIcon(key: .shift)
+          ModifierKeyIcon(key: .leftShift)
             .frame(width: relative(68), height: relative(48))
 
           row4_1(relative(48))
           row4_2(relative(48))
 
-          ModifierKeyIcon(key: .shift, alignment: .bottomTrailing)
+          ModifierKeyIcon(key: .leftShift, alignment: .bottomTrailing)
             .frame(width: relative(48) + relative(48) + relative(16),
                    height: relative(48))
         }
@@ -189,20 +189,20 @@ struct KeyboardView: View {
         HStack(spacing: relative(8)) {
           ModifierKeyIcon(key: .function)
             .frame(width: relative(48), height: relative(48))
-          ModifierKeyIcon(key: .control)
+          ModifierKeyIcon(key: .leftControl)
             .frame(width: relative(48), height: relative(48))
-          ModifierKeyIcon(key: .option)
+          ModifierKeyIcon(key: .leftOption)
             .frame(width: relative(48), height: relative(48))
-          ModifierKeyIcon(key: .command)
+          ModifierKeyIcon(key: .leftCommand)
             .frame(width: relative(64), height: relative(48))
 
           RegularKeyIcon(letter: "",
                          height: relative(48))
             .frame(width: width * 0.33, height: relative(48))
 
-          ModifierKeyIcon(key: .command, alignment: .topLeading)
+          ModifierKeyIcon(key: .rightCommand, alignment: .topLeading)
             .frame(width: relative(64), height: relative(48))
-          ModifierKeyIcon(key: .option, alignment: .topLeading)
+          ModifierKeyIcon(key: .rightOption, alignment: .topLeading)
             .frame(width: relative(48), height: relative(48))
 
           VStack(spacing: 0) {
