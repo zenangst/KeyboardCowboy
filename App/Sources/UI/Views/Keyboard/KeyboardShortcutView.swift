@@ -27,7 +27,7 @@ struct KeyboardShortcutView: View {
 struct ShortcutView_Previews: PreviewProvider {
   static var previews: some View {
     KeyboardShortcutView(shortcut:
-        .init(key: "C", lhs: true, modifiers: [.command])
+        .init(key: "C", modifiers: [.leftCommand])
     )
   }
 }

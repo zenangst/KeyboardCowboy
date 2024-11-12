@@ -64,12 +64,12 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
       ForEach(keyboardShortcut.wrappedValue.modifiers) { modifier in
         ModifierKeyIcon(
           key: modifier,
-          alignment: keyboardShortcut.wrappedValue.lhs
-          ? modifier == .capsLock ? .bottomLeading : modifier == .shift ? .bottomLeading : .topTrailing
-          : modifier == .capsLock ? .bottomLeading : modifier == .shift ? .bottomTrailing : .topLeading,
+          alignment: modifier == .leftShift
+          ? modifier == .capsLock ? .bottomLeading : modifier == .leftShift ? .bottomLeading : .topTrailing
+          : modifier == .capsLock ? .bottomLeading : modifier == .leftShift ? .bottomTrailing : .topLeading,
           glow: .constant(false)
         )
-        .frame(minWidth: modifier == .command || modifier == .shift || modifier == .capsLock ? 40 : 30, minHeight: 30)
+        .frame(minWidth: modifier == .leftCommand || modifier == .leftShift || modifier == .capsLock ? 40 : 30, minHeight: 30)
         .fixedSize(horizontal: true, vertical: true)
       }
       RegularKeyIcon(letter: keyboardShortcut.wrappedValue.key, width: 30, height: 30, glow: .constant(false))
@@ -107,7 +107,7 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
 struct EditableKeyboardShortcutsItemView_Previews: PreviewProvider {
     static var previews: some View {
       EditableKeyboardShortcutsItemView(
-        keyboardShortcut: .constant(.init(key: "Caps Lock", lhs: true, modifiers: [.capsLock])),
+        keyboardShortcut: .constant(.init(key: "Caps Lock", modifiers: [.capsLock])),
         keyboardShortcuts: .constant([]),
         features: [.remove],
         selectionManager: .init(), onDelete: { _ in })

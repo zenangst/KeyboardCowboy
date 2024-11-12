@@ -360,21 +360,21 @@ private struct UniqueModifierView: View {
   var body: some View {
     VStack(spacing: 8) {
       HStack {
-        ModifierKeyIcon(key: .shift, alignment: .bottomLeading)
+        ModifierKeyIcon(key: .leftShift, alignment: .bottomLeading)
           .frame(width: 48, height: 56 / 2)
-        ModifierKeyIcon(key: .shift, alignment: .bottomTrailing)
+        ModifierKeyIcon(key: .rightShift, alignment: .bottomTrailing)
           .frame(width: 48, height: 56 / 2)
       }
       HStack {
-        ModifierKeyIcon(key: .option, alignment: .topTrailing)
+        ModifierKeyIcon(key: .leftOption, alignment: .topTrailing)
           .frame(width: 32, height: 32)
-        ModifierKeyIcon(key: .option, alignment: .topLeading)
+        ModifierKeyIcon(key: .rightOption, alignment: .topLeading)
           .frame(width: 32, height: 32)
       }
       HStack {
-        ModifierKeyIcon(key: .command, alignment: .topTrailing)
+        ModifierKeyIcon(key: .leftCommand, alignment: .topTrailing)
           .frame(width: 48, height: 56 / 2)
-        ModifierKeyIcon(key: .command, alignment: .topLeading)
+        ModifierKeyIcon(key: .rightCommand, alignment: .topLeading)
           .frame(width: 48, height: 56 / 2)
       }
       .aspectRatio(contentMode: .fill)

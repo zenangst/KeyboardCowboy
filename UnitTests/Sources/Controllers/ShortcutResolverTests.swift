@@ -13,7 +13,7 @@ final class ShortcutResolverTests: XCTestCase {
     .deletingLastPathComponent()
 
   func testShortcutResolverLookupSingleKeyTrigger() {
-    let keyShortcut = KeyShortcut(key: "s", modifiers: [.command])
+    let keyShortcut = KeyShortcut(key: "s", modifiers: [.leftCommand])
     let trigger = Workflow.Trigger.keyboardShortcuts(KeyboardShortcutTrigger(shortcuts: [keyShortcut]))
     let command = Command.systemCommand(.init(kind: .activateLastApplication, meta: Command.MetaData()))
     let workflow = Workflow(name: "workflow", trigger: trigger, commands: [command])
@@ -23,16 +23,16 @@ final class ShortcutResolverTests: XCTestCase {
     let shortcutResolver = ShortcutResolver(keyCodes: keyCodes)
     shortcutResolver.cache([group])
 
-    let mismatchedToken = LookupTokenMock(lhs: true, keyCode: 0, flags: .maskCommand)
-    let matchedToken = LookupTokenMock(lhs: true, keyCode: 1, flags: keyShortcut.cgFlags)
+    let mismatchedToken = LookupTokenMock(keyCode: 0, flags: .maskCommand)
+    let matchedToken = LookupTokenMock(keyCode: 1, flags: keyShortcut.cgFlags)
 
     XCTAssertFalse((shortcutResolver.lookup(mismatchedToken, bundleIdentifier: "*.", userModes: []) != nil))
     XCTAssertTrue((shortcutResolver.lookup(matchedToken, bundleIdentifier: "*.", userModes: []) != nil))
   }
 
   func testShortcutResolverLookupSequenceKeyTrigger() {
-    let keyShortcut1 = KeyShortcut(key: "s", modifiers: [.command])
-    let keyShortcut2 = KeyShortcut(key: "a", modifiers: [.command])
+    let keyShortcut1 = KeyShortcut(key: "s", modifiers: [.leftCommand])
+    let keyShortcut2 = KeyShortcut(key: "a", modifiers: [.leftCommand])
     let trigger = Workflow.Trigger.keyboardShortcuts(
       KeyboardShortcutTrigger(shortcuts: [keyShortcut1, keyShortcut2])
     )
@@ -44,10 +44,10 @@ final class ShortcutResolverTests: XCTestCase {
     let shortcutResolver = ShortcutResolver(keyCodes: keyCodes)
     shortcutResolver.cache([group])
 
-    let mismatchedToken = LookupTokenMock(lhs: true, keyCode: 0, flags: .maskCommand)
+    let mismatchedToken = LookupTokenMock(keyCode: 0, flags: .maskCommand)
 
-    let matchedToken1 = LookupTokenMock(lhs: true, keyCode: 1, flags: keyShortcut1.cgFlags)
-    let matchedToken2 = LookupTokenMock(lhs: true, keyCode: 0, flags: keyShortcut1.cgFlags)
+    let matchedToken1 = LookupTokenMock(keyCode: 1, flags: keyShortcut1.cgFlags)
+    let matchedToken2 = LookupTokenMock(keyCode: 0, flags: keyShortcut1.cgFlags)
 
     XCTAssertFalse((shortcutResolver.lookup(mismatchedToken, bundleIdentifier: "*.", userModes: []) != nil))
 
@@ -91,7 +91,7 @@ final class ShortcutResolverTests: XCTestCase {
     // Verify F13
     do {
       switch shortcutResolver.lookup(
-        LookupTokenMock(lhs: true, keyCode: Int64(kVK_F13), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
+        LookupTokenMock(keyCode: Int64(kVK_F13), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
         bundleIdentifier: "*"
       ) {
       case .exact(let workflow): XCTAssertEqual(workflow.name, "Copy")
@@ -102,7 +102,7 @@ final class ShortcutResolverTests: XCTestCase {
     // Verify F16
     do {
       switch shortcutResolver.lookup(
-        LookupTokenMock(lhs: true, keyCode: Int64(kVK_F16), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
+        LookupTokenMock(keyCode: Int64(kVK_F16), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
         bundleIdentifier: "*"
       ) {
       case .exact(let workflow): XCTAssertEqual(workflow.name, "Reload Tab")
@@ -113,7 +113,7 @@ final class ShortcutResolverTests: XCTestCase {
     // Verify F18
     do {
       switch shortcutResolver.lookup(
-        LookupTokenMock(lhs: true, keyCode: Int64(kVK_F18), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
+        LookupTokenMock(keyCode: Int64(kVK_F18), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
         bundleIdentifier: "*"
       ) {
       case .exact(let workflow): XCTAssertEqual(workflow.name, "Previous Tab")
@@ -124,7 +124,7 @@ final class ShortcutResolverTests: XCTestCase {
     // Verify F19
     do {
       switch shortcutResolver.lookup(
-        LookupTokenMock(lhs: true, keyCode: Int64(kVK_F19), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
+        LookupTokenMock(keyCode: Int64(kVK_F19), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
         bundleIdentifier: "*"
       ) {
       case .exact(let workflow): XCTAssertEqual(workflow.name, "New Tab")
@@ -135,7 +135,7 @@ final class ShortcutResolverTests: XCTestCase {
     // Verify F20
     do {
       switch shortcutResolver.lookup(
-        LookupTokenMock(lhs: true, keyCode: Int64(kVK_F20), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
+        LookupTokenMock(keyCode: Int64(kVK_F20), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
         bundleIdentifier: "*"
       ) {
       case .exact(let workflow): XCTAssertEqual(workflow.name, "Paste")
@@ -146,7 +146,7 @@ final class ShortcutResolverTests: XCTestCase {
     // Verify Home
     do {
       switch shortcutResolver.lookup(
-        LookupTokenMock(lhs: true, keyCode: Int64(kVK_Home), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
+        LookupTokenMock(keyCode: Int64(kVK_Home), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
         bundleIdentifier: "com.spotify.client"
       ) {
       case .exact(let workflow): XCTAssertEqual(workflow.name, "Volume Up")
@@ -157,7 +157,7 @@ final class ShortcutResolverTests: XCTestCase {
     // Verify End
     do {
       switch shortcutResolver.lookup(
-        LookupTokenMock(lhs: true, keyCode: Int64(kVK_End), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
+        LookupTokenMock(keyCode: Int64(kVK_End), flags: CGEventFlags(arrayLiteral: [.maskSecondaryFn, .maskNonCoalesced])),
         bundleIdentifier: "com.spotify.client"
       ) {
       case .exact(let workflow): XCTAssertEqual(workflow.name, "Volume Down")
@@ -169,18 +169,17 @@ final class ShortcutResolverTests: XCTestCase {
     do {
       switch shortcutResolver.lookup(
         LookupTokenMock(
-          lhs: true,
           keyCode: Int64(kVK_LeftArrow),
           flags: CGEventFlags(
             arrayLiteral: [
               .maskShift,
-              .init(rawValue: UInt64(NX_DEVICELSHIFTKEYMASK)),
+              .maskLeftShift,
               .maskControl,
-              .init(rawValue: UInt64(NX_DEVICELCTLKEYMASK)),
+              .maskLeftControl,
               .maskAlternate,
-              .init(rawValue: UInt64(NX_DEVICELALTKEYMASK)),
+              .maskLeftAlternate,
               .maskCommand,
-              .init(rawValue: UInt64(NX_DEVICELCMDKEYMASK)),
+              .maskLeftCommand,
               .maskSecondaryFn,
               .maskNumericPad,
               .maskNonCoalesced]
@@ -197,18 +196,17 @@ final class ShortcutResolverTests: XCTestCase {
     do {
       switch shortcutResolver.lookup(
         LookupTokenMock(
-          lhs: true,
           keyCode: Int64(kVK_RightArrow),
           flags: CGEventFlags(
             arrayLiteral: [
               .maskShift,
-              .init(rawValue: UInt64(NX_DEVICELSHIFTKEYMASK)),
+              .maskLeftShift,
               .maskControl,
-              .init(rawValue: UInt64(NX_DEVICELCTLKEYMASK)),
+              .maskLeftControl,
               .maskAlternate,
-              .init(rawValue: UInt64(NX_DEVICELALTKEYMASK)),
+              .maskLeftAlternate,
               .maskCommand,
-              .init(rawValue: UInt64(NX_DEVICELCMDKEYMASK)),
+              .maskLeftCommand,
               .maskSecondaryFn,
               .maskNumericPad,
               .maskNonCoalesced]
@@ -236,11 +234,9 @@ fileprivate class KeyCodeLoookupMock: KeycodeLocating {
 }
 
 fileprivate struct LookupTokenMock: LookupToken {
-  var lhs: Bool
   var signature: CGEventSignature
 
-  init(lhs: Bool = true, keyCode: Int64, flags: CGEventFlags) {
-    self.lhs = lhs
+  init(keyCode: Int64, flags: CGEventFlags) {
     self.signature = CGEventSignature(keyCode, flags)
   }
 }

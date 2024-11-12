@@ -4,13 +4,52 @@ extension CGEvent {
   var modifierKeys: [ModifierKey] {
     var modifiers = [ModifierKey]()
 
-    if flags.contains(.maskShift) { modifiers.append(.shift) }
-    if flags.contains(.maskControl) { modifiers.append(.control) }
-    if flags.contains(.maskAlternate) { modifiers.append(.option) }
-    if flags.contains(.maskCommand) { modifiers.append(.command) }
-    if flags.contains(.maskAlphaShift) { modifiers.append(.capsLock) }
-    if flags.contains(.maskSecondaryFn) { modifiers.append(.function) }
+    // Handle Shift
+    if flags.contains(.maskShift) {
+      if flags.contains(.maskLeftShift)  { modifiers.append(.leftShift) }
+      if flags.contains(.maskRightShift) { modifiers.append(.rightShift) }
+    }
+
+    // Handle Control
+    if flags.contains(.maskControl) {
+      if flags.contains(.maskLeftControl)  { modifiers.append(.leftControl) }
+      if flags.contains(.maskRightControl) { modifiers.append(.rightControl) }
+    }
+
+    // Handle Option
+    if flags.contains(.maskAlternate) {
+      if flags.contains(.maskLeftAlternate)  { modifiers.append(.leftOption) }
+      if flags.contains(.maskRightAlternate) { modifiers.append(.rightOption) }
+    }
+
+    // Handle Command
+    if flags.contains(.maskCommand) {
+      if flags.contains(.maskLeftCommand)  { modifiers.append(.leftCommand) }
+      if flags.contains(.maskRightCommand) { modifiers.append(.rightCommand) }
+    }
+
+    // Handle Caps Lock
+    if flags.contains(.maskAlphaShift) {
+      modifiers.append(.capsLock)
+    }
+
+    // Handle Function
+    if flags.contains(.maskSecondaryFn) {
+      modifiers.append(.function)
+    }
 
     return modifiers
   }
+}
+
+extension CGEventFlags {
+  static var maskLeftShift: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICELSHIFTKEYMASK)) }
+  static var maskLeftControl: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICELCTLKEYMASK)) }
+  static var maskLeftAlternate: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICELALTKEYMASK)) }
+  static var maskLeftCommand: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICELCMDKEYMASK)) }
+
+  static var maskRightControl: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICERCTLKEYMASK)) }
+  static var maskRightShift: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICERSHIFTKEYMASK)) }
+  static var maskRightAlternate: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICERALTKEYMASK)) }
+  static var maskRightCommand: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICERCMDKEYMASK)) }
 }

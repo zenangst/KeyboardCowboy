@@ -52,7 +52,11 @@ final class KeyCodesStore {
   }
 
   func displayValue(for keyCode: Int, modifier: VirtualModifierKey? = nil) -> String? {
-    virtualKeyContainer?.valueForKeyCode(keyCode, modifier: modifier)?.displayValue
+    if let modifier {
+      virtualKeyContainer?.valueForKeyCode(keyCode, modifiers: [modifier])?.displayValue
+    } else {
+      virtualKeyContainer?.valueForKeyCode(keyCode, modifiers: [])?.displayValue
+    }
   }
 
   // MARK: Private methods

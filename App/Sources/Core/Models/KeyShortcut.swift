@@ -12,19 +12,78 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
 
   let id: String
   let key: String
-  let lhs: Bool
   let modifiers: [ModifierKey]
-
-  var modifersDisplayValue: String {
-    let modifiers = self.modifiers.map(\.pretty)
-    return modifiers.joined()
-  }
 
   enum CodingKeys: String, CodingKey {
     case id
     case key
     case modifiers
+  }
+
+  enum MigrationKeys: String, CodingKey {
     case lhs
+    case modifiers
+  }
+
+  init(id: String = UUID().uuidString, key: String, modifiers: [ModifierKey] = []) {
+    self.id = id
+    self.key = key
+    self.modifiers = modifiers
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let migration = try decoder.container(keyedBy: MigrationKeys.self)
+
+    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+    self.key = try container.decode(String.self, forKey: .key)
+
+    if let lhs = try? migration.decodeIfPresent(Bool.self, forKey: .lhs) {
+      let migrateModifiers = (try? migration.decodeIfPresent([MigrateModifier].self, forKey: .modifiers)) ?? []
+      var modifiers: [ModifierKey] = []
+      if lhs {
+        migrateModifiers.forEach { modifier in
+          switch modifier {
+          case .capsLock: modifiers.append(.capsLock)
+          case .function: modifiers.append(.function)
+          case .command: modifiers.append(.leftCommand)
+          case .control: modifiers.append(.leftControl)
+          case .option: modifiers.append(.leftOption)
+          case .shift: modifiers.append(.leftShift)
+          }
+        }
+      } else {
+        migrateModifiers.forEach { modifier in
+          switch modifier {
+          case .capsLock: modifiers.append(.capsLock)
+          case .function: modifiers.append(.function)
+          case .command: modifiers.append(.rightCommand)
+          case .control: modifiers.append(.rightControl)
+          case .option: modifiers.append(.rightOption)
+          case .shift: modifiers.append(.rightShift)
+          }
+        }
+      }
+      self.modifiers = modifiers
+    } else {
+      self.modifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .modifiers) ?? []
+    }
+
+  }
+
+  func copy() -> Self {
+    KeyShortcut(key: key, modifiers: modifiers)
+  }
+
+  static func empty(id: String = UUID().uuidString) -> KeyShortcut {
+    KeyShortcut(id: id, key: "")
+  }
+
+  // MARK: Computed properties
+
+  var modifersDisplayValue: String {
+    let modifiers = self.modifiers.map(\.pretty)
+    return modifiers.joined()
   }
 
   var validationValue: String {
@@ -38,57 +97,21 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
     input.append(key)
     return input
   }
-
-  init(id: String = UUID().uuidString, key: String,
-       lhs: Bool = true, modifiers: [ModifierKey] = []) {
-    self.id = id
-    self.key = key
-    self.lhs = lhs
-    self.modifiers = modifiers
-  }
-
-  init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-    self.key = try container.decode(String.self, forKey: .key)
-    self.lhs = try container.decodeIfPresent(Bool.self, forKey: .lhs) ?? true
-    self.modifiers = (try? container.decodeIfPresent([ModifierKey].self, forKey: .modifiers)) ?? []
-  }
-
-  func copy() -> Self {
-    KeyShortcut(key: key, lhs: lhs, modifiers: modifiers)
-  }
-
-  static func empty(id: String = UUID().uuidString) -> KeyShortcut {
-    KeyShortcut(id: id, key: "", lhs: true)
-  }
 }
 
 extension KeyShortcut {
   var cgFlags: CGEventFlags {
     var flags = CGEventFlags.maskNonCoalesced
-    modifiers.forEach { modifier in
-      switch modifier {
-      case .shift:
-        flags.insert(.maskShift)
-        flags.insert(.init(rawValue: UInt64(lhs ? NX_DEVICELSHIFTKEYMASK : NX_DEVICERSHIFTKEYMASK)))
-      case .function:
-        flags.insert(.maskSecondaryFn)
-      case .control:
-        flags.insert(.maskControl)
-        flags.insert(.init(rawValue: UInt64(lhs ? NX_DEVICELCTLKEYMASK : NX_DEVICERCTLKEYMASK)))
-      case .option:
-        flags.insert(.maskAlternate)
-        flags.insert(.init(rawValue: UInt64(lhs ? NX_DEVICELALTKEYMASK : NX_DEVICERALTKEYMASK)))
-      case .command:
-        flags.insert(.maskCommand)
-        flags.insert(.init(rawValue: UInt64(lhs ? NX_DEVICELCMDKEYMASK : NX_DEVICERCMDKEYMASK)))
-      case .capsLock:
-        flags.insert(.maskAlphaShift)
-      }
-    }
-
+    modifiers.forEach { flags.insert($0.cgEventFlags) }
     return flags
   }
+}
+
+private enum MigrateModifier: String, Decodable {
+  case shift = "$"
+  case function = "fn"
+  case control = "^"
+  case option = "~"
+  case command = "@"
+  case capsLock = "⇪"
 }

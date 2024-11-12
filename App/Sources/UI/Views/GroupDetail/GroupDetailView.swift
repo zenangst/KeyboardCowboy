@@ -96,13 +96,13 @@ struct GroupDetailView: View {
         } else if searchTerm.contains("function") {
           match = string.contains(ModifierKey.function.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("command") {
-          match = string.contains(ModifierKey.command.pretty) ? .typeMatch(.keyboard) : .unmatched
+          match = string.contains(ModifierKey.leftCommand.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("shift") {
-          match = string.contains(ModifierKey.shift.pretty) ? .typeMatch(.keyboard) : .unmatched
+          match = string.contains(ModifierKey.leftShift.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("option") {
-          match = string.contains(ModifierKey.option.pretty) ? .typeMatch(.keyboard) : .unmatched
+          match = string.contains(ModifierKey.leftOption.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else if searchTerm.contains("control") {
-          match = string.contains(ModifierKey.control.pretty) ? .typeMatch(.keyboard) : .unmatched
+          match = string.contains(ModifierKey.leftControl.pretty) ? .typeMatch(.keyboard) : .unmatched
         } else {
           match = string.lowercased().contains(searchTerm) ? .typeMatch(.keyboard) : .unmatched
         }

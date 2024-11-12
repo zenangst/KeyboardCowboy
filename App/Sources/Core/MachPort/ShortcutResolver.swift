@@ -14,7 +14,6 @@ protocol KeycodeLocating {
 }
 
 protocol LookupToken {
-  var lhs: Bool { get }
   var signature: CGEventSignature { get }
 }
 
@@ -38,12 +37,11 @@ final class ShortcutResolver {
               bundleIdentifier: String,
               userModes: [UserMode] = [],
               partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
-    let lhs = token.lhs
     let eventSignature = token.signature
     if !userModes.isEmpty {
       for userMode in userModes {
         let userModeKey = userMode.dictionaryKey(true)
-        let scopedKeyWithUserMode = createKey(eventSignature: eventSignature, lhs: lhs,
+        let scopedKeyWithUserMode = createKey(eventSignature: eventSignature,
                                               bundleIdentifier: bundleIdentifier,
                                               userModeKey: userModeKey, previousKey: partialMatch.rawValue)
 
@@ -52,7 +50,7 @@ final class ShortcutResolver {
           return result
         }
 
-        let globalKeyWithUserMode = createKey(eventSignature: eventSignature, lhs: lhs,
+        let globalKeyWithUserMode = createKey(eventSignature: eventSignature,
                                               bundleIdentifier: "*", userModeKey: userModeKey, previousKey: partialMatch.rawValue)
 
         if let result = cache[globalKeyWithUserMode] {
@@ -63,7 +61,7 @@ final class ShortcutResolver {
       }
     }
 
-    let scopedKey = createKey(eventSignature: eventSignature, lhs: lhs,
+    let scopedKey = createKey(eventSignature: eventSignature,
                               bundleIdentifier: bundleIdentifier, userModeKey: "", previousKey: partialMatch.rawValue)
 
 
@@ -73,7 +71,7 @@ final class ShortcutResolver {
       return result
     }
 
-    let globalKey = createKey(eventSignature: eventSignature, lhs: lhs,
+    let globalKey = createKey(eventSignature: eventSignature,
                               bundleIdentifier: "*", userModeKey: "", previousKey: partialMatch.rawValue)
 
     if Self.debug { print("globalKey: \(globalKey)") }
@@ -179,11 +177,10 @@ final class ShortcutResolver {
 
             if group.userModes.isEmpty {
               let key = createKey(eventSignature: eventSignature,
-                                  lhs: keyboardShortcut.lhs,
                                   bundleIdentifier: bundleIdentifier,
                                   userModeKey: "",
                                   previousKey: previousKey)
-              previousKey += "\(eventSignature.dictionaryKey(keyboardShortcut.lhs))+"
+              previousKey += "\(eventSignature.id)+"
 
               if offset == count {
                 newCache[key] = .exact(workflow)
@@ -197,12 +194,11 @@ final class ShortcutResolver {
               for userMode in group.userModes {
                 let userModeKey = userMode.dictionaryKey(true)
                 let key = createKey(eventSignature: eventSignature,
-                                    lhs: keyboardShortcut.lhs,
                                     bundleIdentifier: bundleIdentifier,
                                     userModeKey: userModeKey,
                                     previousKey: previousKey)
                 if !didSetPreviousKey {
-                  previousKey += "\(eventSignature.dictionaryKey(keyboardShortcut.lhs))+"
+                  previousKey += "\(eventSignature.id)+"
                   didSetPreviousKey = true
                 }
 
@@ -224,10 +220,10 @@ final class ShortcutResolver {
 
   // MARK: - Private methods
 
-  private func createKey(eventSignature: CGEventSignature, lhs: Bool,
+  private func createKey(eventSignature: CGEventSignature,
                          bundleIdentifier: String, userModeKey: String,
                          previousKey: String) -> String {
-    "\(bundleIdentifier)\(previousKey)\(eventSignature.dictionaryKey(lhs))\(userModeKey)"
+    "\(bundleIdentifier)\(previousKey)\(eventSignature.id)\(userModeKey)"
   }
 }
 
@@ -244,12 +240,6 @@ private extension UserMode {
 
   private func prefix() -> String {
     return "UM:\(id):"
-  }
-}
-
-private extension CGEventSignature {
-  func dictionaryKey(_ lhs: Bool) -> String {
-    return "[\(self.id):lhs:\(lhs)]"
   }
 }
 

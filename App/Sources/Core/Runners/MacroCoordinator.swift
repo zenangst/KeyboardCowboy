@@ -210,8 +210,7 @@ final class MacroCoordinator: @unchecked Sendable {
   func keyShortcut(for machPortEvent: MachPortEvent) -> KeyShortcut? {
     if let key = keyCodes.displayValue(for: Int(machPortEvent.event.getIntegerValueField(.keyboardEventKeycode))) {
       let signature = CGEventSignature.from(machPortEvent.event)
-      let keyShortcut = KeyShortcut(id: signature.id, key: key, lhs: machPortEvent.lhs,
-                                    modifiers: machPortEvent.event.modifierKeys)
+      let keyShortcut = KeyShortcut(id: signature.id, key: key, modifiers: machPortEvent.event.modifierKeys)
       return keyShortcut
     }
 

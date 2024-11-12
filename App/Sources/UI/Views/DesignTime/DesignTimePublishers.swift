@@ -43,7 +43,7 @@ enum DesignTime {
   static let groupPublisher = GroupPublisher(GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", userModes: [], count: 10))
   static let infoPublisher: InfoPublisher = .init(.init(id: "empty", name: "", isEnabled: false))
   static let triggerPublisher: TriggerPublisher = .init(.keyboardShortcuts(.init(passthrough: false, holdDuration: nil, shortcuts: [
-    .init(key: "a", modifiers: [.command])
+    .init(key: "a", modifiers: [.leftCommand])
   ])))
   static let commandsPublisher: CommandsPublisher = .init(.init(id: "empty", commands: [
     Self.applicationCommand.model,
@@ -222,7 +222,7 @@ enum DesignTime {
 
   static var rebindingCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.KeyboardModel) {
     let kind = CommandViewModel.Kind.KeyboardModel(id: UUID().uuidString, iterations: 1, keys: [
-      .init(id: UUID().uuidString, key: "F", lhs: false, modifiers: [.function, .command])
+      .init(id: UUID().uuidString, key: "F", modifiers: [.function, .rightCommand])
     ])
     return (.init(meta: metadata(name: "Rebind esc to enter", icon: nil),
            kind: .keyboard(kind)), kind)
@@ -283,7 +283,6 @@ enum DesignTime {
           passthrough: false,
           shortcuts: [.init(
             key: "f",
-            lhs: true,
             modifiers: [.function]
           )]
         )

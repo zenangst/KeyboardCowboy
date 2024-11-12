@@ -95,9 +95,9 @@ extension WorkflowGroup {
                           Workflow.designTime(nil),
                           Workflow.designTime(.application([.init(application: application)])),
                           Workflow.designTime(.keyboardShortcuts(.init(shortcuts: [
-                            .init(key: "A", lhs: true),
-                            .init(key: "B", lhs: false),
-                            .init(key: "C", lhs: true)
+                            .init(key: "A"),
+                            .init(key: "B"),
+                            .init(key: "C")
                           ])))
                          ])
   }
