@@ -17,7 +17,7 @@ let assetPath = rootPath.appending("Assets")
 let envPath = rootPath.appending(".env")
 let env = EnvHelper(envPath)
 let shell = Shell(path: rootPath)
-let buildNumber = (try? shell.run("git rev-list --count HEAD")) ?? "x.x.x"
+let buildNumber = ((try? shell.run("git rev-list --count HEAD")) ?? "x.x.x").trimmingCharacters(in: .whitespacesAndNewlines)
 
 // Main application target
 let mainAppTarget = Target.target(

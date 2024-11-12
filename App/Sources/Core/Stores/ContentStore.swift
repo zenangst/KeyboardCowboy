@@ -72,6 +72,8 @@ final class ContentStore: ObservableObject {
       let configurations: [KeyboardCowboyConfiguration]
 
       do {
+        storage.backupIfNeeded()
+
         configurations = try await storage.load()
         setup(configurations)
       } catch let error as ConfigurationStorageError {
