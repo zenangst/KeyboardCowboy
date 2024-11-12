@@ -61,6 +61,21 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.userModes = try container.decodeIfPresent([UserMode].self, forKey: .userModes) ?? []
     self.workflows = try container.decodeIfPresent([Workflow].self, forKey: .workflows) ?? []
   }
+
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(self.color, forKey: .color)
+    try container.encode(self.id, forKey: .id)
+    try container.encode(self.symbol, forKey: .symbol)
+    try container.encode(self.name, forKey: .name)
+    try container.encodeIfPresent(self.rule, forKey: .rule)
+    if !self.userModes.isEmpty {
+      try container.encode(self.userModes, forKey: .userModes)
+    }
+    if !self.workflows.isEmpty {
+      try container.encode(self.workflows, forKey: .workflows)
+    }
+  }
 }
 
 extension WorkflowGroup {
