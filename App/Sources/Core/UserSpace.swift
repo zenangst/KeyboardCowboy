@@ -154,6 +154,17 @@ final class UserSpace: @unchecked Sendable {
     }
   }
 
+  static func resolveEnvironmentKeys(_ input: String) -> Set<EnvironmentKey> {
+    let parts = input.split(separator: " ").map(String.init)
+    let keys = parts.reduce(into: Set<EnvironmentKey>()) { partialResult, input in
+      let variable = String(input.dropFirst(1))
+      if let key = EnvironmentKey(rawValue: variable) {
+        partialResult.insert(key)
+      }
+    }
+    return keys
+  }
+
   final class UserModesPublisher: ObservableObject {
     @Published private(set) var activeModes: [UserMode] = []
 
