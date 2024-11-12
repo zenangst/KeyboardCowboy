@@ -68,7 +68,15 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
     } else {
       self.modifiers = try container.decodeIfPresent([ModifierKey].self, forKey: .modifiers) ?? []
     }
+  }
 
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(self.id, forKey: .id)
+    try container.encode(self.key, forKey: .key)
+    if !self.modifiers.isEmpty {
+      try container.encode(self.modifiers, forKey: .modifiers)
+    }
   }
 
   func copy() -> Self {
