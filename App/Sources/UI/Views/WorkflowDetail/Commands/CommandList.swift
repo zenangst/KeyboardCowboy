@@ -43,12 +43,12 @@ struct CommandList: View {
     } else {
       CommandListHeader(namespace: namespace)
       CommandListScrollView(focus,
-                                    publisher: publisher,
-                                    triggerPublisher: triggerPublisher,
-                                    namespace: namespace,
-                                    workflowId: workflowId,
-                                    selectionManager: selectionManager,
-                                    scrollViewProxy: scrollViewProxy)
+                            publisher: publisher,
+                            triggerPublisher: triggerPublisher,
+                            namespace: namespace,
+                            workflowId: workflowId,
+                            selectionManager: selectionManager,
+                            scrollViewProxy: scrollViewProxy)
     }
   }
 }

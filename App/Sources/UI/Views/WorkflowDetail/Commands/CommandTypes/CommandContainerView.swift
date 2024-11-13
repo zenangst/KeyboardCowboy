@@ -2,15 +2,6 @@ import SwiftUI
 import Inject
 import Bonzai
 
-enum CommandContainerAction {
-  case run
-  case delete
-  case changeDelay(Double?)
-  case toggleIsEnabled(Bool)
-  case toggleNotify(Command.Notification?)
-  case updateName(newName: String)
-}
-
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
@@ -141,8 +132,9 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
       )
       content($metaData)
     }
-    .padding(.horizontal, 12)
-    .padding(.vertical, 8)
+    .padding(.leading, 6)
+    .padding(.trailing, 4)
+    .padding(.vertical, 4)
     .buttonStyle(.regular)
     .lineLimit(1)
     .allowsTightening(true)
@@ -162,20 +154,18 @@ private struct CommandContainerActionView: View {
   }
 
   var body: some View {
-    HStack(spacing: 0) {
-      Button(action: {
-        updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
-          workflow.commands.removeAll(where: { $0.id == metaData.id })
-        }
-      }, label: {
-        Image(systemName: "xmark")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 10, height: 10)
-      })
-      .help("Delete Command")
-      .buttonStyle(.calm(color: .systemRed, padding: .medium))
-    }
+    Button(action: {
+      updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
+        workflow.commands.removeAll(where: { $0.id == metaData.id })
+      }
+    }, label: {
+      Image(systemName: "xmark")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 8, height: 10)
+    })
+    .help("Delete Command")
+    .buttonStyle(.calm(color: .systemRed, padding: .medium))
   }
 }
 

@@ -71,9 +71,13 @@ struct CommandListScrollView: View {
           }
           return true
         })
-        .contentShape(Rectangle())
         .contextMenu(menuItems: {
-          CommandListContextualMenu(command, publisher: publisher, selectionManager: selectionManager)
+          CommandListContextualMenu(command, publisher: publisher, selectionManager: selectionManager) { commandId in
+            focus.wrappedValue = .detail(.command(commandId))
+            DispatchQueue.main.async {
+              scrollViewProxy?.scrollTo(commandId)
+            }
+          }
         })
         .focusable(focus, as: .detail(.command(command.id))) {
           selectionManager.handleOnTap(publisher.data.commands, element: command)
