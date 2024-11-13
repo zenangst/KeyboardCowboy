@@ -68,7 +68,7 @@ final class SnippetController: @unchecked Sendable, ObservableObject {
       return
     }
 
-    let modifiers = VirtualModifierKey.fromCGEvent(event.flags)
+    let modifiers = VirtualModifierKey.fromCGEvent(keyCode, flags: event.flags, specialKeys: Array(store.specialKeys().keys))
 
     // Figure out which modifier to apply to get the correct display value.
     var modifier: VirtualModifierKey?
