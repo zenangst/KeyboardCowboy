@@ -122,6 +122,27 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { KeyboardIconView("M", size: 24).anyView },
+           text: "The way keyboard shortcuts are stored and resolved has been completely overhauled. It now properly supports detecting left & right modifiers in complete harmony.\n\nBig shout out to [@timkurvers](https://github.com/timkurvers) for being a proper buddy through this whole ordeal.",
+           version: .v3254),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "Under the hood improvements to how the UI performance updates will help speed up development when creating new features.",
+           version: .v3254),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "The size of the configuration has been created reduced as we no longer stored empty collections, such as keyboard shortcuts without modifiers.",
+           version: .v3254),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "The application now automatically creates a backup of the configuration file when then new update is first launched.\n It is stord in **~/.config/keyboardcowboy/backups**.",
+           version: .v3254),
+
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Fixes a bug where url commands couldn't be updated. [#568](https://github.com/zenangst/KeyboardCowboy/issues/568)",
+           version: .v3254),
+
+
     Change(icon: { BugFixIconView(size: 24).anyView },
            text: "Fixes main window handling for older versions of macOS.",
            version: .v3253),
@@ -253,7 +274,9 @@ private struct ChangesView: View {
             GridRow {
               change.icon
               ZenDivider(.vertical)
-              Text(change.text)
+              let markdown: LocalizedStringKey = LocalizedStringKey(change.text)
+              Text(markdown)
+                .tint(Color.accentColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
               Button(action: {  }, label: {
                 Text(change.version.rawValue)
@@ -410,6 +433,7 @@ private struct Supporter: Hashable {
 }
 
 private enum Version: String {
+  case v3254 = "3.25.4"
   case v3253 = "3.25.3"
   case v3252 = "3.25.2"
   case v3251 = "3.25.1"
@@ -417,6 +441,7 @@ private enum Version: String {
 
   var color: Color {
     switch self {
+    case .v3254: Color(.systemGreen)
     case .v3253: Color(.systemYellow)
     case .v3252: Color(.systemOrange)
     case .v3251: Color(.systemRed)
