@@ -24,7 +24,7 @@ struct EmptyConfigurationView: View {
       Text("Choose your configuration")
         .font(.title)
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(32)
+        .padding(16)
 
       Divider()
 
@@ -81,7 +81,7 @@ struct EmptyConfigurationView: View {
         .font(.title3)
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 8)
-        .padding(.horizontal, 64)
+        .padding(.horizontal, 32)
 
 
       Button(action: {
@@ -93,7 +93,8 @@ struct EmptyConfigurationView: View {
       .padding(.vertical)
       .matchedGeometryEffect(id: "initial-item", in: namespace)
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    .roundedContainer(padding: 0)
+    .frame(maxWidth: .infinity, minHeight: 480, maxHeight: .infinity, alignment: .leading)
     .background(SplashView(colors: colors, done: $done))
   }
 }

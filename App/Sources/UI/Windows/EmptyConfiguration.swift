@@ -17,14 +17,22 @@ final class EmptyConfiguration: NSObject, NSWindowDelegate {
       .closable,
       .miniaturizable,
       .resizable,
+      .titled,
       .fullSizeContentView
     ]
     let window = ZenSwiftUIWindow(styleMask: styleMask, content: content)
-    window.titleVisibility = .hidden
+    let size = window.hostingController.sizeThatFits(in: .zero)
+    window.setFrame(NSRect(origin: .zero, size: size), display: false)
+    window.titleVisibility = .visible
     window.titlebarAppearsTransparent = true
+    window.toolbarStyle = .unifiedCompact
     window.orderFrontRegardless()
     window.center()
     window.delegate = self
     self.window = window
+  }
+
+  func windowWillClose(_ notification: Notification) {
+    self.window = nil
   }
 }

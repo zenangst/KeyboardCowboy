@@ -138,6 +138,10 @@ private struct ChangesView: View {
            text: "The application now automatically creates a backup of the configuration file when then new update is first launched.\n It is stord in **~/.config/keyboardcowboy/backups**.",
            version: .v3254),
 
+    Change(icon: { KeyboardIconView("M", size: 24).anyView },
+           text: "Fixes a bug where the initial wizard window wasn't properly set up. [#572](https://github.com/zenangst/KeyboardCowboy/issues/572)",
+           version: .v3254),
+
     Change(icon: { BugFixIconView(size: 24).anyView },
            text: "Fixes a bug where url commands couldn't be updated. [#568](https://github.com/zenangst/KeyboardCowboy/issues/568)",
            version: .v3254),
