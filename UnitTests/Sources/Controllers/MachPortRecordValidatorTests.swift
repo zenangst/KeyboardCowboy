@@ -3,6 +3,7 @@ import InputSources
 @testable import MachPort
 @testable import Keyboard_Cowboy
 
+@MainActor
 final class MachPortRecordValidatorTests: XCTestCase {
   func testValidatorMapping_LeftCommand_S() {
     let validator = MachPortRecordValidator(store: KeyCodesStore(InputSourceController()))

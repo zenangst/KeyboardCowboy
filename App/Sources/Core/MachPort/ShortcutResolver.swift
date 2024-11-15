@@ -14,12 +14,15 @@ protocol KeycodeLocating {
 }
 
 protocol LookupToken {
+  var keyCode: Int64 { get }
+  var flags: CGEventFlags { get }
   var signature: CGEventSignature { get }
 }
 
 extension KeyCodesStore: KeycodeLocating { }
 
 extension MachPortEvent: LookupToken {
+  var flags: CGEventFlags { event.flags }
   var signature: CGEventSignature { CGEventSignature.from(event) }
 }
 
@@ -36,7 +39,8 @@ final class ShortcutResolver {
   func lookup(_ token: LookupToken,
               bundleIdentifier: String,
               userModes: [UserMode] = [],
-              partialMatch: PartialMatch = .init(rawValue: ".")) -> KeyboardShortcutResult? {
+              partialMatch: PartialMatch = .init(rawValue: "."),
+              fallback: Bool = true) -> KeyboardShortcutResult? {
     let eventSignature = token.signature
     if !userModes.isEmpty {
       for userMode in userModes {
@@ -76,7 +80,20 @@ final class ShortcutResolver {
 
     if Self.debug { print("globalKey: \(globalKey)") }
 
-    return cache[globalKey]
+    if let globalKeyResult = cache[globalKey] {
+      return globalKeyResult
+    } else if fallback && SpecialKeys.functionKeys.contains(Int(token.keyCode)) {
+      var newFlags = token.flags
+      if newFlags.contains(.maskSecondaryFn) {
+        newFlags.remove(.maskSecondaryFn)
+      } else {
+        newFlags.insert(.maskSecondaryFn)
+      }
+      let fallbackToken = FallbackLookupToken(keyCode: token.keyCode, flags: newFlags)
+      return lookup(fallbackToken, bundleIdentifier: bundleIdentifier, fallback: false)
+    } else {
+      return nil
+    }
   }
 
   func allMatchingPrefix(_ prefix: String, shortcutIndexPrefix: Int) -> [Workflow] {
@@ -288,4 +305,10 @@ struct SpecialKeys {
     kVK_ANSI_Keypad9,
     kVK_JIS_KeypadComma,
   ]
+}
+
+private struct FallbackLookupToken: LookupToken {
+  var keyCode: Int64
+  var signature: CGEventSignature { CGEventSignature(keyCode, flags) }
+  var flags: CGEventFlags
 }

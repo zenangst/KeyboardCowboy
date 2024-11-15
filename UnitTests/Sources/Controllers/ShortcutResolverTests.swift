@@ -69,6 +69,7 @@ final class ShortcutResolverTests: XCTestCase {
   }
 
   // https://github.com/zenangst/KeyboardCowboy/issues/562
+  @MainActor
   func testFix562() throws {
     let fixture = Self.rootPath.appending(path: "Fixtures/json/example_config/bug_562.json")
     let fileManager = FileManager.default
@@ -143,6 +144,17 @@ final class ShortcutResolverTests: XCTestCase {
       }
     }
 
+    // Verify F20 (without function-key)
+    do {
+      switch shortcutResolver.lookup(
+        LookupTokenMock(keyCode: Int64(kVK_F20), flags: CGEventFlags(arrayLiteral: [.maskNonCoalesced])),
+        bundleIdentifier: "*"
+      ) {
+      case .exact(let workflow): XCTAssertEqual(workflow.name, "Paste")
+      default: XCTFail("")
+      }
+    }
+
     // Verify Home
     do {
       switch shortcutResolver.lookup(
@@ -181,6 +193,32 @@ final class ShortcutResolverTests: XCTestCase {
               .maskCommand,
               .maskLeftCommand,
               .maskSecondaryFn,
+              .maskNumericPad,
+              .maskNonCoalesced]
+          )
+        ),
+        bundleIdentifier: "*"
+      ) {
+      case .exact(let workflow): XCTAssertEqual(workflow.name, "Next Tab")
+      default: XCTFail("")
+      }
+    }
+
+    // Verify Command + Control + Shift + Option + Left Arrow without secondary function key
+    do {
+      switch shortcutResolver.lookup(
+        LookupTokenMock(
+          keyCode: Int64(kVK_LeftArrow),
+          flags: CGEventFlags(
+            arrayLiteral: [
+              .maskShift,
+              .maskLeftShift,
+              .maskControl,
+              .maskLeftControl,
+              .maskAlternate,
+              .maskLeftAlternate,
+              .maskCommand,
+              .maskLeftCommand,
               .maskNumericPad,
               .maskNonCoalesced]
           )
@@ -234,9 +272,13 @@ fileprivate class KeyCodeLoookupMock: KeycodeLocating {
 }
 
 fileprivate struct LookupTokenMock: LookupToken {
+  var keyCode: Int64
   var signature: CGEventSignature
+  var flags: CGEventFlags
 
   init(keyCode: Int64, flags: CGEventFlags) {
+    self.keyCode = keyCode
+    self.flags = flags
     self.signature = CGEventSignature(keyCode, flags)
   }
 }
