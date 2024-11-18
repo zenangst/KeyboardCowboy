@@ -63,22 +63,22 @@ private extension Command {
     let kind: CommandViewModel.Kind
     switch self {
     case .application(let applicationCommand):
-      let inBackground = applicationCommand.modifiers.contains(.background)
-      let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
-      let ifNotRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
-      let addToStage = applicationCommand.modifiers.contains(.addToStage)
-      let waitForAppToLaunch = applicationCommand.modifiers.contains(.waitForAppToLaunch)
-      kind = .application(.init(id: applicationCommand.id, action: applicationCommand.action.displayValue,
-                                inBackground: inBackground, hideWhenRunning: hideWhenRunning, 
-                                ifNotRunning: ifNotRunning, addToStage: addToStage,
-                                waitForAppToLaunch: waitForAppToLaunch))
-
+      kind = .application(
+        CommandViewModel.Kind.ApplicationModel(
+          id: applicationCommand.id,
+          action: applicationCommand.action.displayValue,
+          inBackground: applicationCommand.modifiers.contains(.background),
+          hideWhenRunning: applicationCommand.modifiers.contains(.hidden),
+          ifNotRunning: applicationCommand.modifiers.contains(.onlyIfNotRunning),
+          addToStage: applicationCommand.modifiers.contains(.addToStage),
+          waitForAppToLaunch: applicationCommand.modifiers.contains(.waitForAppToLaunch)
+        )
+      )
     case .builtIn(let builtInCommand):
       kind = .builtIn(.init(id: builtInCommand.id, name: builtInCommand.name, kind: builtInCommand.kind))
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
       case .appFocus(let appFocusCommand):
-        var applications = [Application]()
         let match: Application?
 
         if appFocusCommand.bundleIdentifer == Application.currentAppBundleIdentifier() {

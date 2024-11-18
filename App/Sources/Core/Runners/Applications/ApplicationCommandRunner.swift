@@ -104,7 +104,6 @@ final class ApplicationCommandRunner: @unchecked Sendable {
         try await plugins.bringToFront.execute(checkCancellation: checkCancellation)
       }
     } else {
-      
       if command.modifiers.contains(.addToStage) {
         if try await plugins.addToStage.execute(command) {
           return
