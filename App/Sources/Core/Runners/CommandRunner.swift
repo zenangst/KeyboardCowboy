@@ -402,7 +402,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       try await runners.mouse.run(command, snapshot: snapshot)
       output = command.name
     case .open(let openCommand):
-      let path = snapshot.interpolateUserSpaceVariables(openCommand.path, runtimeDictionary: runtimeDictionary)
+      let path = await snapshot.interpolateUserSpaceVariables(openCommand.path, runtimeDictionary: runtimeDictionary)
       try await runners.open.run(path, checkCancellation: checkCancellation, application: openCommand.application)
       output = path
     case .script(let scriptCommand):
@@ -491,6 +491,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     self.machPort = machPort
     runners.setMachPort(machPort)
     UserSpace.shared.machPort = machPort
+    UserSpace.shared.subscribe(to: coordinator.$lastEventOrRebinding)
     WindowStore.shared.subscribe(to: coordinator.$flagsChanged)
     subscribe(to: coordinator.$event)
     runners.system.subscribe(to: coordinator.$flagsChanged)

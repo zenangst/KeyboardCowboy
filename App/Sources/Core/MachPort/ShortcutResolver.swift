@@ -10,7 +10,9 @@ enum KeyboardShortcutResult {
 }
 
 protocol KeycodeLocating {
+  func specialKeys() -> [Int: String]
   func keyCode(for string: String, matchDisplayValue: Bool) -> Int?
+  func displayValue(for keyCode: Int, modifiers: [VirtualModifierKey]) -> String?
 }
 
 protocol LookupToken {
@@ -34,6 +36,10 @@ final class ShortcutResolver {
 
   init(keyCodes: KeycodeLocating) {
     self.keyCodes = keyCodes
+  }
+
+  func lookup(_ keyShortcut: KeyShortcut) -> Int? {
+    keyCodes.keyCode(for: keyShortcut.key, matchDisplayValue: true)
   }
 
   func lookup(_ token: LookupToken,
@@ -161,8 +167,10 @@ final class ShortcutResolver {
           trigger.shortcuts.forEach { keyboardShortcut in
 
             guard let keyCode = keyCodes.keyCode(for: keyboardShortcut.key, matchDisplayValue: true)
-                             ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: true)
-                             ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: false) else {
+                   ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: true)
+                   ?? keyCodes.keyCode(for: keyboardShortcut.key.lowercased(), matchDisplayValue: false)
+                   ?? resolveAnyKeyCode(keyboardShortcut)
+            else {
               return
             }
 
@@ -219,6 +227,10 @@ final class ShortcutResolver {
                   didSetPreviousKey = true
                 }
 
+                if Self.debug, workflow.name.contains("**") {
+                  print(key)
+                }
+
                 if offset == count {
                   newCache[key] = .exact(workflow)
                 } else {
@@ -236,6 +248,12 @@ final class ShortcutResolver {
   }
 
   // MARK: - Private methods
+
+  private func resolveAnyKeyCode(_ keyShortcut: KeyShortcut) -> Int? {
+    keyShortcut.key == KeyShortcut.anyKey.key
+    ? KeyShortcut.anyKeyCode
+    : nil
+  }
 
   private func createKey(eventSignature: CGEventSignature,
                          bundleIdentifier: String, userModeKey: String,

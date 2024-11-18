@@ -87,6 +87,9 @@ struct KeyShortcut: Identifiable, Equatable, Codable, Hashable, Sendable, Transf
     KeyShortcut(id: id, key: "")
   }
 
+  static let anyKeyCode: Int = 3000
+  static let anyKey: KeyShortcut = KeyShortcut(id: UUID().uuidString, key: "any")
+
   // MARK: Computed properties
 
   var modifersDisplayValue: String {

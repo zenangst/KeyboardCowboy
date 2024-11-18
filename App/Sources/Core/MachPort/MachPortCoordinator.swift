@@ -8,6 +8,7 @@ import KeyCodes
 import os
 
 final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
+  @Published private(set) var lastEventOrRebinding: CGEvent?
   @Published private(set) var event: MachPortEvent?
   @MainActor @Published private(set) var coordinatorEvent: CGEvent?
   @Published private(set) var flagsChanged: CGEventFlags?
@@ -143,9 +144,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       }
 
       if case .captureKeyDown(let keyCode) = scheduledAction,
-          keyCode == Int(machPortEvent.keyCode) {
-          machPortEvent.result = nil
-          return
+         keyCode == Int(machPortEvent.keyCode) {
+        machPortEvent.result = nil
+        return
       }
 
       if handleEscapeKeyDownEvent(machPortEvent) { return }
@@ -188,8 +189,37 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
     let bundleIdentifier = UserSpace.shared.frontmostApplication.bundleIdentifier
     let userModes = UserSpace.shared.userModes.filter(\.isEnabled)
+    let lookupToken: LookupToken
+
+    // Check for use of the `Any Key`
+    if let workflow = previousPartialMatch.workflow,
+       workflow.machPortConditions.lastKeyIsAnyKey {
+      if previousPartialMatch.rawValue.count(where: { $0 == "+" }) + 1 == workflow.machPortConditions.keyboardShortcutsTriggerCount {
+        lookupToken = AnyKeyLookupToken()
+
+        if case .exact(let workflow) = shortcutResolver.lookup(
+          machPortEvent,
+          bundleIdentifier: bundleIdentifier,
+          userModes: userModes,
+          partialMatch: .init(rawValue: ".")
+        ), let rebinding = workflow.machPortConditions.rebinding,
+           let keyCode = shortcutResolver.lookup(rebinding),
+           let virtualKey = CGKeyCode(exactly: keyCode),
+           let event = CGEvent(keyboardEventSource: nil, virtualKey: virtualKey, keyDown: true) {
+          event.flags = rebinding.cgFlags
+          lastEventOrRebinding = event
+        } else {
+          lastEventOrRebinding = machPortEvent.event
+        }
+      } else {
+        lookupToken = machPortEvent
+      }
+    } else {
+      lookupToken = machPortEvent
+    }
+
     let result = shortcutResolver.lookup(
-      machPortEvent,
+      lookupToken,
       bundleIdentifier: bundleIdentifier,
       userModes: userModes,
       partialMatch: previousPartialMatch
@@ -209,7 +239,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       if tryFallbackOnPartialMismatch {
         intercept(machPortEvent, tryGlobals: false, runningMacro: false)
       }
+      lastEventOrRebinding = machPortEvent.event
     case .partialMatch(let partialMatch):
+      lastEventOrRebinding = machPortEvent.event
       handlePartialMatch(partialMatch, machPortEvent: machPortEvent, runningMacro: runningMacro)
     case .exact(let workflow):
       previousExactMatch = workflow
@@ -296,6 +328,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
         for newEvent in newEvents {
           self.coordinatorEvent = newEvent
+          self.lastEventOrRebinding = newEvent
         }
       }
 
@@ -424,5 +457,17 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
 
     return workItem
+  }
+}
+
+private struct AnyKeyLookupToken: LookupToken {
+  let keyCode: Int64
+  let flags: CGEventFlags
+  let signature: CGEventSignature
+
+  init() {
+    self.keyCode = Int64(KeyShortcut.anyKeyCode)
+    self.flags = [.maskNonCoalesced]
+    self.signature = CGEventSignature(self.keyCode, self.flags)
   }
 }

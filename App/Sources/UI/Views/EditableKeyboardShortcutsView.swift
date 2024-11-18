@@ -166,6 +166,17 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
         }
         Spacer()
         Button(action: {
+          keyboardShortcuts.append(KeyShortcut.anyKey)
+          reset()
+        }, label: {
+          Text("Insert Any Key")
+            .font(.caption)
+            .help("This means that any key can be used to end the sequence.")
+        })
+        .opacity((state == .recording && $keyboardShortcuts.count > 1) ? 1 : 0)
+        .buttonStyle(.calm(color: .systemBlue, padding: .large))
+
+        Button(action: {
           if state == .recording {
             reset()
           } else {

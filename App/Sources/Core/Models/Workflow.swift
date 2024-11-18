@@ -200,9 +200,12 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     let enabledCommands: [Command]
     let enabledCommandsCount: Int
     let hasHoldForDelay: Bool
+    let lastKeyIsAnyKey: Bool
+    let keyboardShortcutsTriggerCount: Int?
     let isEmpty: Bool
     let isPassthrough: Bool
     let isValidForRepeat: Bool
+    let rebinding: KeyShortcut?
     let scheduleDuration: Double?
     let shouldRunOnKeyUp: Bool
 
@@ -215,12 +218,22 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       self.isEmpty = enabledCommands.isEmpty
       self.isPassthrough = trigger.isPassthrough
       self.isValidForRepeat = enabledCommands.isValidForRepeat
-      if case .keyboardShortcuts(let trigger) = trigger,
-        let holdDuration = trigger.holdDuration, trigger.shortcuts.count == 1, holdDuration > 0 {
-        self.scheduleDuration = holdDuration
+      
+      if case .keyboardShortcuts(let trigger) = trigger {
+        self.lastKeyIsAnyKey = KeyShortcut.anyKey.key == trigger.shortcuts.last?.key
+        self.keyboardShortcutsTriggerCount = trigger.shortcuts.count
+
+        if let holdDuration = trigger.holdDuration, trigger.shortcuts.count == 1, holdDuration > 0 {
+          self.scheduleDuration = holdDuration
+        } else {
+          self.scheduleDuration = nil
+        }
       } else {
+        self.keyboardShortcutsTriggerCount = nil
+        self.lastKeyIsAnyKey = false
         self.scheduleDuration = nil
       }
+
       self.shouldRunOnKeyUp = enabledCommands.allSatisfy({ command in
         switch command {
         case .application(let command):
@@ -228,6 +241,17 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         default: return false
         }
       })
+
+      if case .keyboardShortcuts(let shortcut) = trigger,
+         shortcut.shortcuts.count == 1,
+         commands.count == 1,
+         case .keyboard(let keyboardCommand) = commands.first,
+         keyboardCommand.keyboardShortcuts.count == 1,
+         let keyboardShortcut = keyboardCommand.keyboardShortcuts.last {
+        self.rebinding = keyboardShortcut
+      } else {
+        self.rebinding = nil
+      }
     }
 
     static func from(_ workflow: Workflow) -> MachPortConditions {

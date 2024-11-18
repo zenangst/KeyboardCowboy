@@ -51,6 +51,10 @@ final class KeyCodesStore {
                                         matchDisplayValue: matchDisplayValue)?.keyCode
   }
 
+  func displayValue(for keyCode: Int, modifiers: [VirtualModifierKey]) -> String? {
+    virtualKeyContainer?.valueForKeyCode(keyCode, modifiers: modifiers)?.displayValue
+  }
+
   func displayValue(for keyCode: Int, modifier: VirtualModifierKey? = nil) -> String? {
     if let modifier {
       virtualKeyContainer?.valueForKeyCode(keyCode, modifiers: [modifier])?.displayValue

@@ -5,6 +5,8 @@ import Carbon
 import Cocoa
 import Combine
 import Foundation
+import InputSources
+import KeyCodes
 import MachPort
 
 enum UserSpaceError: Error {
@@ -23,6 +25,8 @@ final class UserSpace: @unchecked Sendable {
     case `extension` = "EXTENSION"
     case selectedText = "SELECTED_TEXT"
     case pasteboard = "PASTEBOARD"
+    case lastKey = "LAST_KEY"
+    case lastKeyCode = "LAST_KEY_CODE"
 
     var asTextVariable: String { "$\(rawValue)" }
     var help: String {
@@ -35,6 +39,8 @@ final class UserSpace: @unchecked Sendable {
       case .extension: "The file extension"
       case .selectedText: "The current selected text"
       case .pasteboard: "The contents of the pasteboard"
+      case .lastKey: "The last key pressed"
+      case .lastKeyCode: "The last key code pressed"
       }
     }
   }
@@ -69,6 +75,7 @@ final class UserSpace: @unchecked Sendable {
          previousApplication: Application,
          selectedText: String = "",
          selections: [String] = [],
+         specialKeys: [Int] = [],
          windows: WindowStoreSnapshot = WindowStoreSnapshot(
           frontmostApplicationWindows: [],
           visibleWindowsInStage: [],
@@ -83,6 +90,7 @@ final class UserSpace: @unchecked Sendable {
       self.windows = windows
     }
 
+    @MainActor
     func interpolateUserSpaceVariables(_ value: String, runtimeDictionary: [String: String]) -> String {
       var interpolatedString = value.replacingOccurrences(of: .selectedText, with: selectedText)
 
@@ -106,7 +114,6 @@ final class UserSpace: @unchecked Sendable {
             .replacingOccurrences(of: .file, with: lastPathComponent as String)
             .replacingOccurrences(of: .filepath, with: (url.lastPathComponent as NSString).pathExtension)
             .replacingOccurrences(of: .extension, with: (url.lastPathComponent as NSString).pathExtension)
-
         }
       }
 
@@ -114,10 +121,21 @@ final class UserSpace: @unchecked Sendable {
         interpolatedString = interpolatedString.replacingOccurrences(of: .pasteboard, with: pasteboard)
       }
 
-
       for (key, value) in runtimeDictionary {
         interpolatedString = interpolatedString.replacingOccurrences(of: "$"+key, with: value)
       }
+
+      if let cgEvent = UserSpace.shared.cgEvent {
+        let keyCodes = UserSpace.shared.keyCodes
+        let specialKeys = Array(UserSpace.shared.keyCodes.specialKeys().keys)
+        let keyCode = Int(cgEvent.getIntegerValueField(.keyboardEventKeycode))
+        interpolatedString = interpolatedString.replacingOccurrences(of: .lastKeyCode, with: "\(keyCode)")
+        let modifiers = VirtualModifierKey.modifiers(for: keyCode, flags: cgEvent.flags, specialKeys: specialKeys)
+        if let displayValue = keyCodes.displayValue(for: keyCode, modifiers: modifiers) ?? keyCodes.displayValue(for: keyCode, modifiers: []) {
+          interpolatedString = interpolatedString.replacingOccurrences(of: .lastKey, with: "\(displayValue)")
+        }
+      }
+
       return interpolatedString
     }
 
@@ -185,9 +203,14 @@ final class UserSpace: @unchecked Sendable {
   @Published private(set) var runningApplications: [Application]
   public let userModesPublisher = UserModesPublisher([])
   private(set) var userModes: [UserMode] = []
+
+  fileprivate let keyCodes: KeycodeLocating
+  fileprivate var cgEvent: CGEvent?
+
   private var frontmostApplicationSubscription: AnyCancellable?
   private var configurationSubscription: AnyCancellable?
   private var runningApplicationsSubscription: AnyCancellable?
+  private var machPortEventSubscription: AnyCancellable?
 
   var machPort: MachPortEventController?
 
@@ -196,6 +219,7 @@ final class UserSpace: @unchecked Sendable {
     frontmostApplication = .current
     previousApplication = .current
     runningApplications = [Application.current]
+    keyCodes = KeyCodesStore(InputSourceController())
 
     frontmostApplicationSubscription = workspace.publisher(for: \.frontmostApplication)
       .compactMap { $0 }
@@ -214,6 +238,14 @@ final class UserSpace: @unchecked Sendable {
           let newApplications = applications.compactMap { $0.asApplication() }
           self.runningApplications = newApplications
         }
+      }
+  }
+
+  func subscribe(to publisher: Published<CGEvent?>.Publisher) {
+    machPortEventSubscription = publisher
+      .compactMap { $0 }
+      .sink { [weak self] event in
+        self?.cgEvent = event
       }
   }
 
@@ -259,6 +291,7 @@ final class UserSpace: @unchecked Sendable {
 
     return Snapshot(documentPath: documentPath,
                     frontmostApplication: frontmostApplication,
+                    modes: userModes,
                     previousApplication: previousApplication,
                     selectedText: selectedText,
                     selections: selections,
