@@ -389,10 +389,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         output = command.name
       }
     case .keyboard(let keyboardCommand):
-      try runners.keyboard.run(keyboardCommand.keyboardShortcuts,
-                               originalEvent: nil,
-                               iterations: keyboardCommand.iterations,
-                               with: eventSource)
+      try await runners.keyboard.run(keyboardCommand.keyboardShortcuts,
+                                     originalEvent: nil,
+                                     iterations: keyboardCommand.iterations,
+                                     with: eventSource)
       try await Task.sleep(for: .milliseconds(1))
       output = command.name
     case .menuBar(let menuBarCommand):

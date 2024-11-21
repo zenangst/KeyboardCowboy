@@ -80,7 +80,7 @@ final class MacroCoordinator: @unchecked Sendable {
 
       state = .running
 
-      task = Task.detached { @MainActor [machPort, workflowRunner, keyboardRunner, weak self] in
+      task = Task.detached { [machPort, workflowRunner, keyboardRunner, weak self] in
         do {
           for _  in 0..<iterations {
             let specialKeys: [Int] = [kVK_Return, kVK_Escape]
@@ -101,11 +101,11 @@ final class MacroCoordinator: @unchecked Sendable {
                   for command in workflow.commands {
                     try Task.checkCancellation()
                     if case .keyboard(let command) = command {
-                      _ = try keyboardRunner.run(command.keyboardShortcuts,
-                                                 originalEvent: nil,
-                                                 iterations: command.iterations,
-                                                 isRepeating: false,
-                                                 with: machPortEvent.eventSource)
+                      _ = try await keyboardRunner.run(command.keyboardShortcuts,
+                                                       originalEvent: nil,
+                                                       iterations: command.iterations,
+                                                       isRepeating: false,
+                                                       with: machPortEvent.eventSource)
                       try await Task.sleep(for: .milliseconds(5))
                     }
                   }
@@ -116,11 +116,11 @@ final class MacroCoordinator: @unchecked Sendable {
               }
             }
           }
-          await MainActor.run {
+          await MainActor.run { [weak self] in
             self?.state = .idle
           }
         } catch {
-          await MainActor.run {
+          await MainActor.run { [weak self] in
             self?.state = .idle
           }
         }

@@ -23,6 +23,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
   }
 
   @discardableResult
+  @MainActor
   func run(_ keyboardShortcuts: [KeyShortcut],
            originalEvent: CGEvent? = nil,
            iterations: Int,

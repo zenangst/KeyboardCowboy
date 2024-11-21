@@ -139,7 +139,7 @@ final class UserSpace: @unchecked Sendable {
       return interpolatedString
     }
 
-    func terminalEnvironment() -> [String: String] {
+    func terminalEnvironment() async -> [String: String] {
       var environment = ProcessInfo.processInfo.environment
       environment["TERM"] = "xterm-256color"
       environment[.selectedText] = selectedText
