@@ -164,6 +164,19 @@ final class UserSpace: @unchecked Sendable {
         }
       }
 
+      if let cgEvent = await UserSpace.shared.cgEvent {
+        let keyCodes = await UserSpace.shared.keyCodes
+        let specialKeys = Array(await UserSpace.shared.keyCodes.specialKeys().keys)
+        let keyCode = Int(cgEvent.getIntegerValueField(.keyboardEventKeycode))
+
+        environment[.lastKeyCode] = "\(keyCode)"
+
+        let modifiers = VirtualModifierKey.modifiers(for: keyCode, flags: cgEvent.flags, specialKeys: specialKeys)
+        if let displayValue = keyCodes.displayValue(for: keyCode, modifiers: modifiers) ?? keyCodes.displayValue(for: keyCode, modifiers: []) {
+          environment[.lastKey] = displayValue
+        }
+      }
+
       if let pasteboard = NSPasteboard.general.string(forType: .string) {
         environment[.pasteboard] = pasteboard
       }
