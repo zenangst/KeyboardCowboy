@@ -10,9 +10,10 @@ final class TextCommandRunner {
     self.keyboardCommandRunner = keyboardCommandRunner
   }
 
-  func run(_ input: String, mode: TextCommand.TypeCommand.Mode) async throws {
+  func run(_ command: TextCommand.TypeCommand, snapshot: UserSpace.Snapshot, runtimeDictionary: [String: String]) async throws {
+    let input = await snapshot.interpolateUserSpaceVariables(command.input, runtimeDictionary: runtimeDictionary)
     guard !input.isEmpty .self else { return }
-    switch mode {
+    switch command.mode {
     case .typing:
       let newLines = CharacterSet.newlines
       for character in input {
@@ -48,7 +49,7 @@ final class TextCommandRunner {
       pasteboard.clearContents()
       pasteboard.setString(input, forType: .string)
 
-      try await Task.sleep(for: .milliseconds(10))
+      try await Task.sleep(for: .milliseconds(50))
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyUp, flags: .maskCommand)
       try await Task.sleep(for: .milliseconds(10))

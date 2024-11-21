@@ -435,10 +435,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .text(let typeCommand):
       switch typeCommand.kind {
       case .insertText(let typeCommand):
-        try await runners.text.run(
-          snapshot.interpolateUserSpaceVariables(typeCommand.input, runtimeDictionary: runtimeDictionary),
-          mode: typeCommand.mode
-        )
+        try await runners.text.run(typeCommand, snapshot: snapshot, runtimeDictionary: runtimeDictionary)
         output = command.name
       }
     case .systemCommand(let systemCommand):
