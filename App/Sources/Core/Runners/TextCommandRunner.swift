@@ -23,19 +23,19 @@ final class TextCommandRunner {
 
         if CharacterSet(charactersIn: characterString).isSubset(of: newLines) {
           keyCode = 36
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, matchDisplayValue: true) {
+        } else if let virtualKey = await keyboardCommandRunner.virtualKey(for: characterString, matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftShift], matchDisplayValue: true) {
-          keyCode = virtualKey.keyCode
-          flags.insert(.maskShift)
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftOption], matchDisplayValue: true) {
-          keyCode = virtualKey.keyCode
-          flags.insert(.maskAlternate)
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftOption, .leftShift], matchDisplayValue: true) {
+        } else if let virtualKey = await keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftShift], matchDisplayValue: true) {
           keyCode = virtualKey.keyCode
           flags.insert(.maskShift)
+        } else if let virtualKey = await keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftOption], matchDisplayValue: true) {
+          keyCode = virtualKey.keyCode
           flags.insert(.maskAlternate)
-        } else if let virtualKey = keyboardCommandRunner.virtualKey(for: characterString, matchDisplayValue: false) {
+        } else if let virtualKey = await keyboardCommandRunner.virtualKey(for: characterString, modifiers: [.leftOption, .leftShift], matchDisplayValue: true) {
+          keyCode = virtualKey.keyCode
+          flags.insert(.maskShift)
+          flags.insert(.maskAlternate)
+        } else if let virtualKey = await keyboardCommandRunner.virtualKey(for: characterString, matchDisplayValue: false) {
           keyCode = virtualKey.keyCode
         } else {
           continue

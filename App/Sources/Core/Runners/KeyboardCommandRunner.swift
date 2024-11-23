@@ -18,6 +18,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
     self.store = store
   }
 
+  @MainActor
   func virtualKey(for string: String, modifiers: [VirtualModifierKey] = [], matchDisplayValue: Bool = true) -> VirtualKey? {
     store.virtualKey(for: string, modifiers: modifiers, matchDisplayValue: matchDisplayValue)
   }
@@ -28,7 +29,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
            originalEvent: CGEvent? = nil,
            iterations: Int,
            isRepeating: Bool = false,
-           with eventSource: CGEventSource?) throws -> [CGEvent] {
+           with eventSource: CGEventSource?) async throws -> [CGEvent] {
     guard let machPort else {
       throw KeyboardCommandRunnerError.failedToResolveMachPortController
     }
@@ -41,7 +42,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
 
     for _ in 1...iterations {
       for keyboardShortcut in keyboardShortcuts {
-        let key = try resolveKey(for: keyboardShortcut.key)
+        let key = try await resolveKey(for: keyboardShortcut.key)
         let flags =  keyboardShortcut.cgFlags
         do {
           var flags = flags
@@ -92,13 +93,13 @@ final class KeyboardCommandRunner: @unchecked Sendable {
 
   // MARK: Private methods
 
-  private func resolveKey(for string: String) throws -> Int {
+  private func resolveKey(for string: String) async throws -> Int {
     let uppercased = string.uppercased()
 
-    if let uppercasedResult = store.keyCode(for: uppercased, matchDisplayValue: true) {
+    if let uppercasedResult = await store.keyCode(for: uppercased, matchDisplayValue: true) {
       return uppercasedResult
     }
-    if let stringResult = store.keyCode(for: string, matchDisplayValue: true) {
+    if let stringResult = await store.keyCode(for: string, matchDisplayValue: true) {
       return stringResult
     }
 

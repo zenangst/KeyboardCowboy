@@ -139,6 +139,7 @@ final class UserSpace: @unchecked Sendable {
       return interpolatedString
     }
 
+    @MainActor
     func terminalEnvironment() async -> [String: String] {
       var environment = ProcessInfo.processInfo.environment
       environment["TERM"] = "xterm-256color"
@@ -164,15 +165,17 @@ final class UserSpace: @unchecked Sendable {
         }
       }
 
-      if let cgEvent = await UserSpace.shared.cgEvent {
-        let keyCodes = await UserSpace.shared.keyCodes
-        let specialKeys = Array(await UserSpace.shared.keyCodes.specialKeys().keys)
+      if let cgEvent = UserSpace.shared.cgEvent {
+        let keyCodes = UserSpace.shared.keyCodes
+        let specialKeys = Array(UserSpace.shared.keyCodes.specialKeys().keys)
         let keyCode = Int(cgEvent.getIntegerValueField(.keyboardEventKeycode))
 
         environment[.lastKeyCode] = "\(keyCode)"
 
         let modifiers = VirtualModifierKey.modifiers(for: keyCode, flags: cgEvent.flags, specialKeys: specialKeys)
-        if let displayValue = keyCodes.displayValue(for: keyCode, modifiers: modifiers) ?? keyCodes.displayValue(for: keyCode, modifiers: []) {
+        if let displayValue = keyCodes.displayValue(for: keyCode, modifiers: modifiers) {
+          environment[.lastKey] = displayValue
+        } else if let displayValue = keyCodes.displayValue(for: keyCode, modifiers: []) {
           environment[.lastKey] = displayValue
         }
       }
@@ -217,7 +220,7 @@ final class UserSpace: @unchecked Sendable {
   public let userModesPublisher = UserModesPublisher([])
   private(set) var userModes: [UserMode] = []
 
-  fileprivate let keyCodes: KeycodeLocating
+  @MainActor fileprivate let keyCodes: KeycodeLocating
   fileprivate var cgEvent: CGEvent?
 
   private var frontmostApplicationSubscription: AnyCancellable?
@@ -391,7 +394,7 @@ final class UserSpace: @unchecked Sendable {
     }
 
     if let originalPasteboardContents {
-      Task.detached { @MainActor [originalPasteboardContents] in
+      Task.detached { [originalPasteboardContents] in
         try await Task.sleep(for: .seconds(0.2))
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(originalPasteboardContents, forType: .string)

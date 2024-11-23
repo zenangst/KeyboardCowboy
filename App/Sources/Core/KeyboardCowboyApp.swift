@@ -42,7 +42,7 @@ struct KeyboardCowboyApp: App {
     self.coordinator = AppExtraCoordinator(core: core, windowOpener: windowOpener)
 
     Task { @MainActor in
-      InjectConfiguration.animation = .spring()
+      
       Benchmark.shared.isEnabled = launchArguments.isEnabled(.benchmark)
     }
 

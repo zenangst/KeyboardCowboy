@@ -9,10 +9,11 @@ enum KeyboardShortcutResult {
   case exact(Workflow)
 }
 
+@MainActor
 protocol KeycodeLocating {
-  func specialKeys() -> [Int: String]
-  func keyCode(for string: String, matchDisplayValue: Bool) -> Int?
-  func displayValue(for keyCode: Int, modifiers: [VirtualModifierKey]) -> String?
+  @MainActor func specialKeys() -> [Int: String]
+  @MainActor func keyCode(for string: String, matchDisplayValue: Bool) -> Int?
+  @MainActor func displayValue(for keyCode: Int, modifiers: [VirtualModifierKey]) -> String?
 }
 
 protocol LookupToken {
@@ -28,6 +29,7 @@ extension MachPortEvent: LookupToken {
   var signature: CGEventSignature { CGEventSignature.from(event) }
 }
 
+@MainActor
 final class ShortcutResolver {
   private static let debug: Bool = false
   private var cache = [String: KeyboardShortcutResult]()

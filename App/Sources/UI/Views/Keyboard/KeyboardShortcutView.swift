@@ -15,7 +15,7 @@ struct KeyboardShortcutView: View {
     .padding(1)
     .padding(.horizontal, 4)
     .background(
-      KeyBackgroundView(isPressed: .readonly(false), height: 12)
+      KeyBackgroundView(isPressed: .readonly { false }, height: 12)
     )
     .overlay(
       RoundedRectangle(cornerRadius: 4)

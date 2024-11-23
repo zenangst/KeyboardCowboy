@@ -114,7 +114,7 @@ struct ContainerView_Previews: PreviewProvider {
   static var previews: some View {
     ContainerView(
       $focus,
-      contentState: .readonly(.initialized),
+      contentState: .readonly { .initialized },
       detailUpdateTransaction: .init(groupID: "", workflowID: ""),
       publisher: DesignTime.contentPublisher,
       applicationTriggerSelection: .init(),

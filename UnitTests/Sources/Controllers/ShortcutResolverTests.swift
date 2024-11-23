@@ -5,6 +5,7 @@ import InputSources
 @testable import MachPort
 @testable import Keyboard_Cowboy
 
+@MainActor
 final class ShortcutResolverTests: XCTestCase {
   static let rootPath = URL(fileURLWithPath: #file)
     .deletingLastPathComponent()
@@ -259,7 +260,12 @@ final class ShortcutResolverTests: XCTestCase {
   }
 }
 
+@MainActor
 fileprivate class KeyCodeLoookupMock: KeycodeLocating {
+  func specialKeys() -> [Int : String] { [:] }
+
+  func displayValue(for keyCode: Int, modifiers: [VirtualModifierKey]) -> String? { nil }
+
   var cache: [String: Int]
 
   init(cache: [String : Int]) {

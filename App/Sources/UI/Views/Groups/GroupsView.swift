@@ -23,7 +23,7 @@ struct GroupsView: View {
 
   var body: some View {
     GroupsHeaderView(namespace,
-                     isVisible: .readonly(!publisher.data.isEmpty),
+                     isVisible: .readonly { !publisher.data.isEmpty },
                      onAddGroup: { onAction(.openScene(.addGroup)) })
     .padding(.horizontal, 12)
     .padding(.vertical, 6)

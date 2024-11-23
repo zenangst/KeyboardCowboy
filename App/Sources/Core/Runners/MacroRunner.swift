@@ -12,24 +12,25 @@ final class MacroRunner {
 
   func run(_ macroAction: MacroAction, machPortEvent: MachPortEvent) async -> String {
     let output: String
+    let currentState = await coordinator.state
     switch macroAction.kind {
     case .record:
-      if let recordedEvent = coordinator.recordingEvent {
-        coordinator.state = .idle
-        if let keyShortcut = coordinator.keyShortcut(for: recordedEvent) {
+      if let recordedEvent = await coordinator.recordingEvent {
+        await coordinator.setState(.idle)
+        if let keyShortcut = await coordinator.keyShortcut(for: recordedEvent) {
           output = "Recorded Macro for \(keyShortcut.modifersDisplayValue) \(keyShortcut.key)"
         } else {
           output = "Recorded Macro"
         }
-      } else if coordinator.state == .recording {
-        coordinator.state = .idle
+      } else if currentState == .recording {
+        await coordinator.setState(.idle)
         output = "Macro Recording Aborted."
       } else {
-        coordinator.state = .recording
+        await coordinator.setState(.recording)
         output = "Choose Macro key..."
       }
     case .remove:
-      coordinator.state = .removing
+      await coordinator.setState(.removing)
       output = "Remove Macro key..."
     }
 

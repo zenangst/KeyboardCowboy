@@ -15,7 +15,7 @@ struct MainView: View {
   var body: some View {
     ContainerView(
       $focus,
-      contentState: .readonly(core.contentStore.state),
+      contentState: .readonly { core.contentStore.state },
       detailUpdateTransaction: core.workflowCoordinator.updateTransaction,
       publisher: core.groupCoordinator.contentPublisher,
       applicationTriggerSelection: core.applicationTriggerSelection,

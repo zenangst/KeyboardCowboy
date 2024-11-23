@@ -259,7 +259,7 @@ struct NewCommandUIElementView: View {
 
 #if DEBUG
 #Preview("Empty") {
-  NewCommandUIElementView(.readonly(.uiElement(predicates: [])), validation: .readonly(.needsValidation))
+  NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly { .needsValidation })
     .padding()
     .environmentObject(
       UIElementCaptureStore(
@@ -270,7 +270,7 @@ struct NewCommandUIElementView: View {
 }
 
 #Preview("Captured UI Element") {
-  NewCommandUIElementView(.readonly(.uiElement(predicates: [])), validation: .readonly(.needsValidation))
+  NewCommandUIElementView(.readonly { .uiElement(predicates: []) }, validation: .readonly {.needsValidation })
     .padding()
     .environmentObject(
       UIElementCaptureStore(

@@ -94,7 +94,7 @@ private struct RunningWorkflowView: View {
       }
 
       ForEach(publisher.data.keyboardShortcuts, id: \.id) { keyShortcut in
-        WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: .readonly(false))
+        WorkflowNotificationKeyView(keyShortcut: keyShortcut, glow: .constant(false))
           .transition(AnyTransition.moveAndFade.animation(WorkflowNotificationView.animation))
       }
 

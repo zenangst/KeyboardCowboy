@@ -43,8 +43,8 @@ struct WorkflowTriggerListView: View {
         WorkflowTriggerHeaderView("Application Trigger")
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowApplicationTrigger(focus, data: triggers,
-                                       selectionManager: applicationTriggerSelectionManager,
-                                       onTab: onTab)
+                                   selectionManager: applicationTriggerSelectionManager,
+                                   onTab: onTab)
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       case .snippet(let snippet):
         WorkflowTriggerHeaderView("Add Snippet")
@@ -54,7 +54,7 @@ struct WorkflowTriggerListView: View {
       case .empty:
         WorkflowTriggerHeaderView("Add Trigger", showRemoveButton: false)
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
-        WorkflowTrigger(focus, isGrayscale: .readonly(publisher.data != .empty))
+        WorkflowTrigger(focus, isGrayscale: .readonly { publisher.data != .empty })
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       }
     }

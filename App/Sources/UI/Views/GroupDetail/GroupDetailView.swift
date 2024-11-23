@@ -155,8 +155,8 @@ struct GroupDetailView: View {
   var body: some View {
     ScrollViewReader { proxy in
       GroupDetailHeaderView(namespace: namespace,
-                           showAddButton: .readonly(!publisher.data.isEmpty),
-                           onAction: onAction)
+                            showAddButton: .readonly { !publisher.data.isEmpty },
+                            onAction: onAction)
 
       WorkflowsFilterView(appFocus, onClear: {
         let match = workflowSelection.lastSelection ?? workflowSelection.selections.first ?? ""

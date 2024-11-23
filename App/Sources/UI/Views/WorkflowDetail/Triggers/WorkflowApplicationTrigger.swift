@@ -24,6 +24,7 @@ struct WorkflowApplicationTrigger: View {
     self.onTab = onTab
   }
 
+  @MainActor
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
@@ -55,8 +56,8 @@ struct WorkflowApplicationTrigger: View {
          Text("Add Application")
         }
         .menuStyle(.zen(.init(color: data.isEmpty ? .systemGreen : .systemBlue,
-                              grayscaleEffect: Binding<Bool>.readonly(!data.isEmpty),
-                              hoverEffect: Binding<Bool>.readonly(!data.isEmpty),
+                              grayscaleEffect: Binding<Bool>.readonly { !data.isEmpty },
+                              hoverEffect: Binding<Bool>.readonly { !data.isEmpty },
                               padding: .init(horizontal: .large, vertical: .large))))
       }
       .roundedContainer(padding: 6, margin: 0)

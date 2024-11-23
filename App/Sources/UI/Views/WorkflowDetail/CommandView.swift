@@ -37,7 +37,7 @@ struct CommandView: View {
           command.isEnabled = newValue
         }
       })
-      .overlay(BorderedOverlayView(.readonly(selectionManager.selections.contains(command.id)), cornerRadius: 8))
+      .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(command.id) }, cornerRadius: 8))
       .compositingGroup()
       .draggable($command.wrappedValue)
       .environmentObject(selectionManager)

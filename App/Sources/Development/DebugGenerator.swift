@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 final class DebugGenerator {
   @EnvironmentObject var applicationStore: ApplicationStore
 

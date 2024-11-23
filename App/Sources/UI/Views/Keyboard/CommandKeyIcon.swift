@@ -4,7 +4,7 @@ struct CommandKeyIcon: View {
   var body: some View {
     GeometryReader { proxy in
       let padding = proxy.size.width * 0.065
-      KeyBackgroundView(isPressed: .readonly(false), height: proxy.size.height * 0.75)
+      KeyBackgroundView(isPressed: .readonly { false }, height: proxy.size.height * 0.75)
         .overlay(alignment: .topTrailing, content: {
           Text("⌘")
             .allowsTightening(true)

@@ -2,6 +2,7 @@ import Foundation
 import KeyCodes
 import MachPort
 
+@MainActor
 final class MachPortRecordValidator {
   let store: KeyCodesStore
 

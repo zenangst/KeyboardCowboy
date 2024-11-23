@@ -47,7 +47,7 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
 
   func run(_ workflow: Workflow, executionOverride: Workflow.Execution? = nil,
            machPortEvent: MachPortEvent, repeatingEvent: Bool) async {
-    notifications.notifyRunningWorkflow(workflow)
+    await notifications.notifyRunningWorkflow(workflow)
     let commands = workflow.commands.filter(\.isEnabled)
 
     /// Determines whether the command runner should check for cancellation.
@@ -59,7 +59,7 @@ final class WorkflowRunner: WorkflowRunning, @unchecked Sendable {
        keyboardShortcutTrigger.passthrough,
        keyboardShortcutTrigger.shortcuts.count == 1 {
       let shortcut = keyboardShortcutTrigger.shortcuts[0]
-      let displayValue = store.displayValue(for: kVK_Escape)
+      let displayValue = await store.displayValue(for: kVK_Escape)
       if shortcut.key == displayValue {
         checkCancellation = false
       }

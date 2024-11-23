@@ -33,7 +33,7 @@ struct CommandListScrollView: View {
   var body: some View {
     CompatList {
       ForEach(publisher.data.commands, id: \.id) { command in
-        CommandView(focus, command: Binding.readonly(command),
+        CommandView(focus, command: Binding.readonly { command },
                     publisher: publisher, selectionManager: selectionManager,
                     workflowId: workflowId)
         .dropDestination(CommandListDropItem.self,

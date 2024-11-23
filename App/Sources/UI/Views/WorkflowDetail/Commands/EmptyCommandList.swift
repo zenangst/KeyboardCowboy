@@ -30,8 +30,8 @@ struct EmptyCommandList: View {
         identity: .detail(.addCommand),
         variant: .zen(.init(color: .systemGreen,
                             focusEffect: .constant(true),
-                            grayscaleEffect: .readonly(!isPrimary.wrappedValue),
-                            hoverEffect: .readonly(!isPrimary.wrappedValue))),
+                            grayscaleEffect: .readonly { !isPrimary.wrappedValue },
+                            hoverEffect: .readonly { !isPrimary.wrappedValue })),
         action: {
           openWindow.openNewCommandWindow(.newCommand(workflowId: workflowId))
         }

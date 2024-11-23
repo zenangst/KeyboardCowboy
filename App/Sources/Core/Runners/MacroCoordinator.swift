@@ -8,6 +8,7 @@ enum MacroKind {
   case workflow(_ workflow: Workflow)
 }
 
+@MainActor
 final class MacroCoordinator: @unchecked Sendable {
   enum State {
     case recording
@@ -16,7 +17,7 @@ final class MacroCoordinator: @unchecked Sendable {
     case running
   }
 
-  var state: State = .idle {
+  private(set) var state: State = .idle {
     willSet {
       if newValue == .idle {
         newMacroKey = nil
@@ -49,6 +50,10 @@ final class MacroCoordinator: @unchecked Sendable {
 
   func cancel() {
     task?.cancel()
+  }
+
+  func setState(_ newState: State) {
+    self.state = newState
   }
 
   func match(_ machPortEvent: MachPortEvent) -> [MacroKind]? {

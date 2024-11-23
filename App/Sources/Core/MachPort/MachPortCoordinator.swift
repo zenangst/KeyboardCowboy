@@ -7,6 +7,7 @@ import InputSources
 import KeyCodes
 import os
 
+@MainActor
 final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   @Published private(set) var lastEventOrRebinding: CGEvent?
   @Published private(set) var event: MachPortEvent?
@@ -30,7 +31,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
   private var previousExactMatch: Workflow?
   private var repeatingKeyCode: Int64 = -1
-  private var repeatingResult: ((MachPortEvent, Bool) -> Void)?
+  private var repeatExecution: (@MainActor (MachPortEvent, Bool) async -> Void)?
   private var repeatingMatch: Bool?
   private var specialKeys: [Int] = [Int]()
   private var scheduledWorkItem: DispatchWorkItem?
@@ -118,7 +119,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     scheduledWorkItem = nil
     flagsChanged = flags
     capsLockDown = machPortEvent.keyCode == kVK_CapsLock
-    repeatingResult = nil
+    repeatExecution = nil
     repeatingMatch = nil
     repeatingKeyCode = -1
   }
@@ -178,7 +179,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       handleKeyUp(machPortEvent)
       scheduledWorkItem?.cancel()
       scheduledWorkItem = nil
-      repeatingResult = nil
+      repeatExecution = nil
       repeatingMatch = nil
       return
     default:
@@ -254,7 +255,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   }
 
   private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent, runningMacro: Bool) {
-    let onTask: @Sendable (ScheduleMachPortCoordinator.ScheduledAction?) -> Void = { [weak self] action in
+    let onTask: @MainActor @Sendable (ScheduleMachPortCoordinator.ScheduledAction?) -> Void = { [weak self] action in
       guard let self else { return }
 
       if macroCoordinator.state == .recording {
@@ -307,7 +308,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       machPortEvent.result = nil
     }
 
-    let execution: @MainActor @Sendable (MachPortEvent, Bool) -> Void
+    let execution: @MainActor @Sendable (MachPortEvent, Bool) async -> Void
 
     // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
     if workflow.machPortConditions.enabledCommandsCount == 1,
@@ -319,10 +320,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       execution = { [weak self, keyboardCommandRunner] machPortEvent, _ in
         guard let self else { return }
-        guard let newEvents = try? keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                             originalEvent: machPortEvent.event,
-                                                             iterations: command.iterations,
-                                                             with: machPortEvent.eventSource) else {
+        guard let newEvents = try? await keyboardCommandRunner.run(command.keyboardShortcuts,
+                                                                   originalEvent: machPortEvent.event,
+                                                                   iterations: command.iterations,
+                                                                   with: machPortEvent.eventSource) else {
           return
         }
 
@@ -334,7 +335,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
 
-      repeatingResult = execution
+      setRepeatExecution(execution)
       repeatingKeyCode = machPortEvent.keyCode
       notifications.reset()
     } else if !workflow.machPortConditions.isEmpty && workflow.machPortConditions.isValidForRepeat {
@@ -348,7 +349,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
 
-      repeatingResult = execution
+      setRepeatExecution(execution)
       repeatingKeyCode = machPortEvent.keyCode
     } else if !machPortEvent.isRepeat || workflow.machPortConditions.isValidForRepeat {
       if let delay = workflow.machPortConditions.scheduleDuration {
@@ -368,6 +369,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     coordinatorEvent = machPortEvent.event
   }
 
+  @MainActor
   private func record(_ machPortEvent: MachPortEvent) {
     machPortEvent.result = nil
     mode = .intercept
@@ -398,10 +400,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   /// Handles the key up event.
   ///
   /// - Parameter machPortEvent: The MachPortEvent representing the key event.
-  private func handleKeyUp(_ machPortEvent: MachPortEvent) {
-    if let repeatingResult {
-      repeatingResult(machPortEvent, false)
-
+  @MainActor private func handleKeyUp(_ machPortEvent: MachPortEvent) {
+    if let repeatExecution {
+      Task.detached { await repeatExecution(machPortEvent, false) }
       if let previousExactMatch, previousExactMatch.machPortConditions.isPassthrough == true {
         self.previousExactMatch = nil
       } else if previousPartialMatch.workflow?.machPortConditions.isPassthrough == true {
@@ -416,12 +417,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   /// - Parameters:
   ///   - machPortEvent: The MachPortEvent representing the key event.
   /// - Returns: A Boolean value indicating whether the execution should return early (true) or continue (false).
-  private func handleRepeatingKeyEvent(_ machPortEvent: MachPortEvent) -> Bool {
+  @MainActor private func handleRepeatingKeyEvent(_ machPortEvent: MachPortEvent) -> Bool {
     // If the event is repeating and there is an earlier result,
     // reuse that result to avoid unnecessary lookups.
-    if machPortEvent.isRepeat, let repeatingResult, repeatingKeyCode == machPortEvent.keyCode {
+    if machPortEvent.isRepeat, let repeatExecution, repeatingKeyCode == machPortEvent.keyCode {
       machPortEvent.result = nil
-      repeatingResult(machPortEvent, true)
+      Task.detached { await repeatExecution(machPortEvent, true) }
       return true
       // If the event is repeating and there is no earlier result,
       // simply opt-out because we don't want to lookup the same
@@ -433,7 +434,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       machPortEvent.result = nil
       return true
     } else {
-      repeatingResult = nil
+      repeatExecution = nil
       repeatingMatch = nil
       repeatingKeyCode = -1
       return false
@@ -457,6 +458,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: workItem)
 
     return workItem
+  }
+
+  @MainActor
+  private func setRepeatExecution(_ repeatExecution: (@MainActor @Sendable (MachPortEvent, Bool) async -> Void)?) {
+    self.repeatExecution = repeatExecution
   }
 }
 

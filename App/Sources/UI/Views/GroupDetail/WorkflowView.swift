@@ -120,7 +120,7 @@ struct ItemBackgroundView<T: Hashable & Identifiable>: View where T.ID == String
 
   var body: some View {
     FillBackgroundView(
-      isSelected: Binding<Bool>.readonly(selectionManager.selections.contains(id))
+      isSelected: Binding<Bool>.readonly { selectionManager.selections.contains(id) }
     )
   }
 }

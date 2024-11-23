@@ -10,7 +10,7 @@ struct PermissionsSettingsView: View {
       Grid(alignment: .topLeading, horizontalSpacing: 16, verticalSpacing: 32) {
         GridRow {
           PermissionOverviewItem(
-            status: .readonly(accessibilityPermission.viewModel),
+            status: .readonly { accessibilityPermission.viewModel },
             icon: "command.circle.fill",
             name: "Accessibility permissions",
             explanation: "Used to trigger workflows when you press a keyboard shortcut.",

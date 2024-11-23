@@ -328,7 +328,7 @@ private struct ApplicationLauncherView: View {
     VStack(spacing: 16) {
       Text("Application Launcher")
       CommandView($focus,
-                  command: .readonly(DesignTime.applicationCommand.model),
+                  command: .readonly { DesignTime.applicationCommand.model },
                   publisher: DesignTime.commandsPublisher,
                   selectionManager: SelectionManager<CommandViewModel>(),
                   workflowId: UUID().uuidString)
@@ -344,7 +344,7 @@ private struct ScriptRunnerView: View {
   var body: some View {
     VStack(spacing: 16) {
       CommandView($focus,
-                  command: .readonly(DesignTime.scriptCommandInline.model),
+                  command: .readonly { DesignTime.scriptCommandInline.model },
                   publisher: DesignTime.commandsPublisher,
                   selectionManager: SelectionManager<CommandViewModel>(),
                   workflowId: UUID().uuidString)

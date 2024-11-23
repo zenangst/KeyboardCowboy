@@ -8,7 +8,7 @@ final class MissionControlPlugin {
     self.keyboard = keyboard
   }
 
-  func dismissIfActive() {
+  func dismissIfActive() async {
     let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as [AnyObject]? ?? []
     let missionControlIsActive = windows.first { entry in
       guard let appName = entry[kCGWindowOwnerName as String] as? String,
@@ -19,7 +19,7 @@ final class MissionControlPlugin {
     } != nil
 
     if missionControlIsActive {
-      _ = try? keyboard.run([.init(key: "⎋")], originalEvent: nil, iterations: 1, with: nil)
+      _ = try? await keyboard.run([.init(key: "⎋")], originalEvent: nil, iterations: 1, with: nil)
     }
   }
 }

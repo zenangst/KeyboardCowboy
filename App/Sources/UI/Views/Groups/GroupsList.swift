@@ -61,7 +61,7 @@ struct GroupsList: View {
   var body: some View {
     ScrollViewReader { proxy in
       if publisher.data.isEmpty {
-        EmptyGroupsList(namespace, isVisible: .readonly(publisher.data.isEmpty), onAction: onAction)
+        EmptyGroupsList(namespace, isVisible: .readonly { publisher.data.isEmpty }, onAction: onAction)
       } else {
         CompatList {
           ForEach(publisher.data.lazy, id: \.id) { group in

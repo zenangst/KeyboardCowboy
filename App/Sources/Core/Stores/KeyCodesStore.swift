@@ -6,7 +6,7 @@ import KeyCodes
 import InputSources
 
 protocol CurrentInputSourceProviding {
-  func inputSource() throws -> TISInputSource
+  @MainActor func inputSource() throws -> TISInputSource
 }
 
 // Conform `InputSources` to `CurrentInputSourceProviding` in to make the
@@ -17,6 +17,7 @@ extension InputSourceController: CurrentInputSourceProviding {
   }
 }
 
+@MainActor
 final class KeyCodesStore {
   private var subscription: AnyCancellable?
   private var virtualKeyContainer: VirtualKeyContainer?
@@ -36,7 +37,7 @@ final class KeyCodesStore {
       }
   }
 
-  func specialKeys() -> [Int: String] {
+  nonisolated func specialKeys() -> [Int: String] {
     VirtualSpecialKey.keys
   }
 
