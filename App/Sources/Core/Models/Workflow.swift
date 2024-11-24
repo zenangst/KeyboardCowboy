@@ -197,6 +197,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   }
 
   struct MachPortConditions: Hashable {
+    let allowRepeat: Bool
     let enabledCommands: [Command]
     let enabledCommandsCount: Int
     let hasHoldForDelay: Bool
@@ -222,6 +223,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       if case .keyboardShortcuts(let trigger) = trigger {
         self.lastKeyIsAnyKey = KeyShortcut.anyKey.key == trigger.shortcuts.last?.key
         self.keyboardShortcutsTriggerCount = trigger.shortcuts.count
+        self.allowRepeat = trigger.allowRepeat
 
         if let holdDuration = trigger.holdDuration, trigger.shortcuts.count == 1, holdDuration > 0 {
           self.scheduleDuration = holdDuration
@@ -229,6 +231,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
           self.scheduleDuration = nil
         }
       } else {
+        self.allowRepeat = true
         self.keyboardShortcutsTriggerCount = nil
         self.lastKeyIsAnyKey = false
         self.scheduleDuration = nil

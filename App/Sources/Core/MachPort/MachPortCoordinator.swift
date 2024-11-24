@@ -335,7 +335,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
 
-      setRepeatExecution(execution)
+      if workflow.machPortConditions.allowRepeat {
+        setRepeatExecution(execution)
+      } else {
+        setRepeatExecution(nil)
+      }
+      
       repeatingKeyCode = machPortEvent.keyCode
       notifications.reset()
     } else if !workflow.machPortConditions.isEmpty && workflow.machPortConditions.isValidForRepeat {
@@ -349,7 +354,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       Task.detached { await execution(machPortEvent, machPortEvent.isRepeat) }
 
-      setRepeatExecution(execution)
+      if workflow.machPortConditions.allowRepeat {
+        setRepeatExecution(execution)
+      } else {
+        setRepeatExecution(nil)
+      }
+
       repeatingKeyCode = machPortEvent.keyCode
     } else if !machPortEvent.isRepeat || workflow.machPortConditions.isValidForRepeat {
       if let delay = workflow.machPortConditions.scheduleDuration {

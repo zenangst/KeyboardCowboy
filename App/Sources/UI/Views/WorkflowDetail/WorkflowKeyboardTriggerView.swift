@@ -8,6 +8,7 @@ struct WorkflowKeyboardTriggerView: View {
   @EnvironmentObject var transaction: UpdateTransaction
   @ObserveInjection var inject
   @State private var holdDurationText = ""
+  @State private var allowRepeat: Bool
   @State private var passthrough: Bool
   @State private var trigger: DetailViewModel.KeyboardTrigger
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
@@ -29,6 +30,7 @@ struct WorkflowKeyboardTriggerView: View {
       _holdDurationText = .init(initialValue: String(Double(holdDuration)))
     }
     _passthrough = .init(initialValue: trigger.passthrough)
+    _allowRepeat = .init(initialValue: trigger.allowRepeat)
 
     self.keyboardShortcutSelectionManager = keyboardShortcutSelectionManager
   }
@@ -39,6 +41,7 @@ struct WorkflowKeyboardTriggerView: View {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.trigger = .keyboardShortcuts(
             KeyboardShortcutTrigger(
+              allowRepeat: allowRepeat,
               passthrough: passthrough,
               holdDuration: Double(holdDurationText),
               shortcuts: keyboardShortcuts))
@@ -46,12 +49,26 @@ struct WorkflowKeyboardTriggerView: View {
       }
 
       HStack {
+        ZenCheckbox("Allow Repeat", style: .small, isOn: $allowRepeat) { newValue in
+          updater.modifyWorkflow(using: transaction) { workflow in
+            workflow.trigger = .keyboardShortcuts(
+              KeyboardShortcutTrigger(
+                allowRepeat: newValue,
+                passthrough: passthrough,
+                holdDuration: Double(holdDurationText),
+                shortcuts: trigger.shortcuts))
+          }
+        }
+        .font(.caption)
+
         ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
           updater.modifyWorkflow(using: transaction) { workflow in
             workflow.trigger = .keyboardShortcuts(
-              KeyboardShortcutTrigger(passthrough: newValue,
-                                      holdDuration: Double(holdDurationText),
-                                      shortcuts: trigger.shortcuts))
+              KeyboardShortcutTrigger(
+                allowRepeat: allowRepeat,
+                passthrough: newValue,
+                holdDuration: Double(holdDurationText),
+                shortcuts: trigger.shortcuts))
           }
         }
         .font(.caption)
@@ -66,7 +83,9 @@ struct WorkflowKeyboardTriggerView: View {
         NumberTextField(text: $holdDurationText) { newValue in
           updater.modifyWorkflow(using: transaction) { workflow in
             workflow.trigger = .keyboardShortcuts(
-              .init(passthrough: passthrough,
+              KeyboardShortcutTrigger(
+                allowRepeat: allowRepeat,
+                passthrough: passthrough,
                 holdDuration: Double(newValue),
                 shortcuts: trigger.shortcuts))
           }
@@ -86,13 +105,19 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
   @Namespace static var namespace
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    WorkflowKeyboardTriggerView(namespace: namespace,
-                        workflowId: UUID().uuidString,
-                        focus: $focus,
-                        trigger: .init(passthrough: false, shortcuts: [
-                          .empty()
-                        ]),
-                        keyboardShortcutSelectionManager: .init())
+    WorkflowKeyboardTriggerView(
+      namespace: namespace,
+      workflowId: UUID().uuidString,
+      focus: $focus,
+      trigger: DetailViewModel.KeyboardTrigger(
+        allowRepeat: true,
+        passthrough: false,
+        shortcuts: [
+          .empty()
+        ]
+      ),
+      keyboardShortcutSelectionManager: .init()
+    )
     .designTime()
     .padding()
   }

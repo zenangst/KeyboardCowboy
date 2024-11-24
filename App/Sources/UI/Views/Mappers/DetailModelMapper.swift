@@ -222,7 +222,8 @@ extension Workflow.Trigger {
           }
         )
     case .keyboardShortcuts(let trigger):
-        .keyboardShortcuts(.init(passthrough: trigger.passthrough,
+        .keyboardShortcuts(.init(allowRepeat: trigger.allowRepeat,
+                                 passthrough: trigger.passthrough,
                                  holdDuration: trigger.holdDuration,
                                  shortcuts: trigger.shortcuts))
     case .snippet(let trigger):
