@@ -53,6 +53,13 @@ struct ApplicationCommand: MetaDataProviding {
     self.action = action
   }
 
+  enum CodingKeys: CodingKey {
+    case application
+    case action
+    case modifiers
+    case meta
+  }
+
   init(action: Action, application: Application,
        meta: Command.MetaData, modifiers: [Modifier]) {
     self.application = application
@@ -65,19 +72,12 @@ struct ApplicationCommand: MetaDataProviding {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.application = try container.decode(Application.self, forKey: .application)
     self.action = try container.decode(ApplicationCommand.Action.self, forKey: .action)
-    self.modifiers = try container.decode(Set<ApplicationCommand.Modifier>.self, forKey: .modifiers)
+    self.modifiers = try container.decodeIfPresent(Set<ApplicationCommand.Modifier>.self, forKey: .modifiers) ?? []
     do {
       self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
     } catch {
       self.meta = try MetaDataMigrator.migrate(decoder)
     }
-  }
-
-  enum CodingKeys: CodingKey {
-    case application
-    case action
-    case modifiers
-    case meta
   }
 
   func encode(to encoder: any Encoder) throws {
@@ -86,7 +86,9 @@ struct ApplicationCommand: MetaDataProviding {
 
     try container.encode(self.application, forKey: .application)
     try container.encode(self.action, forKey: .action)
-    try container.encode(sortedModifiers, forKey: .modifiers)
+    if !sortedModifiers.isEmpty {
+      try container.encode(sortedModifiers, forKey: .modifiers)
+    }
     try container.encode(self.meta, forKey: .meta)
   }
 
