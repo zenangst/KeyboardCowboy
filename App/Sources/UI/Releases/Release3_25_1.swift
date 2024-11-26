@@ -32,7 +32,7 @@ struct Release3_25_1: View {
       .padding(.top, 8)
 
       HStack(spacing: 8) {
-        Button(action: { action(.done) }, label: { Text("Maxiumum Effort! 🏴‍☠️") })
+        Button(action: { action(.done) }, label: { Text("To the Moon! 🚀🌘") })
           .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
       }
       .padding(.bottom, 32)
@@ -122,6 +122,26 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { KeyboardIconView("M", size: 24).anyView },
+           text: "You can now decide if a keyboard trigger should be allowed to repeat.",
+           version: .v3255),
+
+    Change(icon: { KeyboardIconView("ANY", size: 24).anyView },
+           text: "Guess what? You can now end a sequence with a special **ANY** key. That means you can use any key on your keyboard to finish the sequence!",
+           version: .v3255),
+
+    Change(icon: { ScriptIconView(size: 24).anyView },
+           text: "**$LAST_KEY** & **$LAST_KEY_CODE** is now available in shell scripts & type commands.",
+           version: .v3255),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "Enables Swift Concurrency.",
+           version: .v3255),
+
+    Change(icon: { ImprovementIconView(size: 24).anyView },
+           text: "The Keyboard Cowboy configuration now takes even less space on disk.",
+           version: .v3255),
+
     Change(icon: { KeyboardIconView("M", size: 24).anyView },
            text: "The way keyboard shortcuts are stored and resolved has been completely overhauled. It now properly supports detecting left & right modifiers in complete harmony.\n\nBig shout out to [@timkurvers](https://github.com/timkurvers) for being a proper buddy through this whole ordeal.",
            version: .v3254),
@@ -437,6 +457,7 @@ private struct Supporter: Hashable {
 }
 
 private enum Version: String {
+  case v3255 = "3.25.5"
   case v3254 = "3.25.4"
   case v3253 = "3.25.3"
   case v3252 = "3.25.2"
@@ -445,6 +466,7 @@ private enum Version: String {
 
   var color: Color {
     switch self {
+    case .v3255: Color(.systemBlue)
     case .v3254: Color(.systemGreen)
     case .v3253: Color(.systemYellow)
     case .v3252: Color(.systemOrange)
