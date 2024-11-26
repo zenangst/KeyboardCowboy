@@ -320,8 +320,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       execution = { [weak self, keyboardCommandRunner] machPortEvent, _ in
         guard let self else { return }
+        // Don't send the original event if `allowRepeat` is `false`.
+        // If we don't, then it won't send a proper key up event.
+        let originalEvent = workflow.machPortConditions.allowRepeat ? machPortEvent.event : nil
         guard let newEvents = try? await keyboardCommandRunner.run(command.keyboardShortcuts,
-                                                                   originalEvent: machPortEvent.event,
+                                                                   originalEvent: originalEvent,
                                                                    iterations: command.iterations,
                                                                    with: machPortEvent.eventSource) else {
           return

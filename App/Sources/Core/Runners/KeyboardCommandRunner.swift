@@ -46,15 +46,6 @@ final class KeyboardCommandRunner: @unchecked Sendable {
         let flags =  keyboardShortcut.cgFlags
         do {
           var flags = flags
-          // In applications like Xcode, we need to set the numeric pad flag for
-          // the application to properly respond to arrow key events as if the
-          // user used the actual arrow keys to navigate.
-          let arrows = 123...126
-          flags.insert(.maskNonCoalesced)
-          if arrows.contains(key) {
-            flags.insert(.maskNumericPad)
-          }
-
           if keyboardShortcut.key.hasPrefix("F") {
             flags.insert(.maskSecondaryFn)
             // NX_DEVICELCMDKEYMASK
@@ -71,7 +62,7 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           }
 
           let shouldPostKeyDown = originalEvent == nil || originalEvent?.type == .keyDown
-          let shouldPostKeyUp = originalEvent == nil   || (!isRepeat && originalEvent?.type == .keyUp)
+          let shouldPostKeyUp = originalEvent == nil   || (!isRepeat && originalEvent?.type == .keyUp) 
 
           if shouldPostKeyDown {
             let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
