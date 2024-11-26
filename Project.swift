@@ -56,6 +56,8 @@ let mainAppTarget = Target.target(
         "ENABLE_HARDENED_RUNTIME": true,
         "MARKETING_VERSION": "3.25.4",
         "PRODUCT_NAME": "Keyboard Cowboy"
+        "SWIFT_STRICT_CONCURRENCY": "complete",
+        "SWIFT_VERSION": "6.0",
       ],
       configurations: [
         .debug(name: "Debug", xcconfig: "\(xcconfig("Debug"))"),
