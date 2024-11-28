@@ -14,7 +14,7 @@ struct ConfigurationLocation: Equatable {
 }
 
 extension ConfigurationLocation {
-  private static var jsonFixuresFolder: String { rootFolder.appending("/KeyboardCowboy/Fixtures/json") }
+  private static var jsonFixuresFolder: String { rootFolder.appending("/Fixtures/json") }
 
   static var user: ConfigurationLocation {
     ConfigurationLocation(path: "~/.config/keyboardcowboy/", filename: "config.json")
