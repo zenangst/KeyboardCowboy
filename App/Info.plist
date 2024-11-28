@@ -4,6 +4,21 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.zenangst.Keyboard-Cowboy.Group</string>
+				<string>com.zenangst.Keyboard-Cowboy.Workflows</string>
+				<string>com.zenangst.Keyboard-Cowboy.Command</string>
+				<string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
+				<string>com.zenangst.Keyboard-Cowboy.ApplicationTrigger</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
@@ -20,21 +35,6 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>CFBundleDocumentTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>com.zenangst.Keyboard-Cowboy.Group</string>
-				<string>com.zenangst.Keyboard-Cowboy.Workflows</string>
-				<string>com.zenangst.Keyboard-Cowboy.Command</string>
-				<string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
-        <string>com.zenangst.Keyboard-Cowboy.ApplicationTrigger</string>
-			</array>
-		</dict>
-	</array>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
@@ -55,6 +55,11 @@
 	<true/>
 	<key>NSSupportsSuddenTermination</key>
 	<true/>
+	<key>SMPrivilegedExecutables</key>
+	<dict>
+		<key>com.zenangst.Keyboard-Cowboy.LassoService</key>
+		<string>E23HUP39A3com.zenangst.Keyboard-Cowboy.LassoService</string>
+	</dict>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/zenangst/KeyboardCowboy/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
@@ -112,23 +117,23 @@
 				<array/>
 			</dict>
 		</dict>
-    <dict>
-      <key>UTTypeConformsTo</key>
-      <array>
-        <string>com.apple.package</string>
-      </array>
-      <key>UTTypeDescription</key>
-      <string>KeyboardShortcut</string>
-      <key>UTTypeIcons</key>
-      <dict/>
-      <key>UTTypeIdentifier</key>
-      <string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
-      <key>UTTypeTagSpecification</key>
-      <dict>
-        <key>public.filename-extension</key>
-        <array/>
-      </dict>
-    </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.package</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>KeyboardShortcut</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array/>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -191,20 +196,20 @@
 			<key>UTTypeTagSpecification</key>
 			<dict/>
 		</dict>
-    <dict>
-      <key>UTTypeConformsTo</key>
-      <array>
-        <string>com.apple.package</string>
-      </array>
-      <key>UTTypeDescription</key>
-      <string>KeyboardShortcut</string>
-      <key>UTTypeIcons</key>
-      <dict/>
-      <key>UTTypeIdentifier</key>
-      <string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
-      <key>UTTypeTagSpecification</key>
-      <dict/>
-    </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.package</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>KeyboardShortcut</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.zenangst.Keyboard-Cowboy.KeyboardShortcut</string>
+			<key>UTTypeTagSpecification</key>
+			<dict/>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -222,5 +227,7 @@
 	</array>
 	<key>com.apple.security.automation.apple-events</key>
 	<true/>
+	<key>NSSystemExtensionUsageDescription</key>
+	<string>Needed for XPC</string>
 </dict>
 </plist>

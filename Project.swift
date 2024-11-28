@@ -6,7 +6,8 @@ import Env
 let bundleId = "com.zenangst.Keyboard-Cowboy"
 
 func xcconfig(_ targetName: String) -> String { "Configurations/\(targetName).xcconfig" }
-func sources(_ folder: String) -> SourceFilesList { "\(folder)/Sources/**" }
+func sources(_ folder: String) -> SourceFileGlob { "\(folder)/Sources/**" }
+func xpcSources() -> SourceFileGlob { "XPC/Sources/**" }
 func resources(_ folder: String) -> ResourceFileElements { "\(folder)/Resources/**" }
 
 let rootPath = URL(fileURLWithPath: String(#filePath))
@@ -27,7 +28,7 @@ let mainAppTarget = Target.target(
   bundleId: "com.zenangst.Keyboard-Cowboy",
   deploymentTargets: .macOS("13.0"),
   infoPlist: .file(path: .relativeToRoot("App/Info.plist")),
-  sources: sources("App"),
+  sources: SourceFilesList(arrayLiteral: sources("App"), xpcSources()),
   resources: resources("App"),
   entitlements: "App/Entitlements/com.zenangst.Keyboard-Cowboy.entitlements",
   dependencies: [
@@ -44,6 +45,7 @@ let mainAppTarget = Target.target(
     .package(product: "MachPort"),
     .package(product: "Sparkle"),
     .package(product: "Windows"),
+//    .target(name: "LassoService")
   ],
   settings:
     Settings.settings(
@@ -54,7 +56,7 @@ let mainAppTarget = Target.target(
         "CURRENT_PROJECT_VERSION": SettingValue(stringLiteral: buildNumber),
         "DEVELOPMENT_TEAM": env["TEAM_ID"],
         "ENABLE_HARDENED_RUNTIME": true,
-        "MARKETING_VERSION": "3.25.5",
+        "MARKETING_VERSION": "3.25.6",
         "PRODUCT_NAME": "Keyboard Cowboy",
         "SWIFT_STRICT_CONCURRENCY": "complete",
         "SWIFT_VERSION": "6.0",
@@ -73,7 +75,7 @@ let unitTestTarget = Target.target(
   bundleId: bundleId.appending(".unit-tests"),
   deploymentTargets: .macOS("13.0"),
   infoPlist: .file(path: .relativeToRoot("UnitTests/Info.plist")),
-  sources: sources("UnitTests"),
+  sources: SourceFilesList(arrayLiteral: sources("UnitTests")),
   dependencies: [
     .target(name: "Keyboard-Cowboy")
   ],
@@ -95,7 +97,7 @@ let assetGeneratorTarget = Target.target(
   bundleId: bundleId.appending(".asset-generator"),
   deploymentTargets: .macOS("13.0"),
   infoPlist: .file(path: .relativeToRoot("AssetGenerator/Info.plist")),
-  sources: sources("AssetGenerator"),
+  sources: SourceFilesList(arrayLiteral: sources("AssetGenerator")),
   dependencies: [
     .target(name: "Keyboard-Cowboy")
   ],
@@ -107,6 +109,32 @@ let assetGeneratorTarget = Target.target(
       "DEVELOPMENT_TEAM": env["TEAM_ID"],
       "PRODUCT_BUNDLE_IDENTIFIER": "\(bundleId).AssetGenerator",
       "TEST_HOST": "$(BUILT_PRODUCTS_DIR)/Keyboard Cowboy.app/Contents/MacOS/Keyboard Cowboy",
+    ])
+)
+
+let xpcTarget = Target.target(
+    name: "LassoService",
+    destinations: .macOS,
+    product: .xpc,
+    bundleId: "com.zenangst.Keyboard-Cowboy.LassoService",
+    deploymentTargets: .macOS("13.0"),
+    infoPlist: .file(path: .relativeToRoot("LassoService/Info.plist")),
+    sources: SourceFilesList(arrayLiteral: sources("LassoService"), xpcSources()),
+    entitlements: "LassoService/Entitlements/com.zenangst.Keyboard-Cowboy.LassoService.entitlements",
+    dependencies: [
+        .package(product: "Apps"),
+        .package(product: "KeyCodes"),
+        .package(product: "InputSources"),
+        .package(product: "MachPort"),
+    ],
+    settings: Settings.settings(base: [
+        "CODE_SIGN_IDENTITY": "Apple Development",
+        "CODE_SIGN_STYLE": "Automatic",
+        "DEVELOPMENT_TEAM": env["TEAM_ID"],
+        "ENABLE_HARDENED_RUNTIME": true,
+        "PRODUCT_NAME": "LassoService",
+        "SWIFT_STRICT_CONCURRENCY": "complete",
+        "SWIFT_VERSION": "6.0",
     ])
 )
 
@@ -123,7 +151,8 @@ let project = Project(
   targets: [
     mainAppTarget,
     unitTestTarget,
-    assetGeneratorTarget
+    assetGeneratorTarget,
+    xpcTarget,
   ],
   schemes: [
     Scheme.scheme(
