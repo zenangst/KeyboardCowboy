@@ -288,7 +288,13 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
                               kind: .event(machPortEvent),
                               machPortEvent: machPortEvent)
     } else {
-      machPortEvent.result = nil
+      if let partialWorkflow = partialMatch.workflow {
+        if partialWorkflow.machPortConditions.isPassthrough == false {
+          machPortEvent.result = nil
+        }
+      } else {
+        machPortEvent.result = nil
+      }
       previousPartialMatch = partialMatch
     }
 
