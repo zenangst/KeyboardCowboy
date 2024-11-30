@@ -311,6 +311,7 @@ extension Workflow {
       id: id,
       name: "Untitled workflow",
       trigger: nil,
+      execution: .serial,
       commands: []
     )
   }
