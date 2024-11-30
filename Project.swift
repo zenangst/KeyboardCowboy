@@ -188,6 +188,7 @@ let project = Project(
             .launchArgument(name: "-debugEditing", isEnabled: false),
             .launchArgument(name: "-injection", isEnabled: false),
             .launchArgument(name: "-disableMachPorts", isEnabled: false),
+            .launchArgument(name: "-openWindowAtLaunch", isEnabled: true)
           ]
         )
       )

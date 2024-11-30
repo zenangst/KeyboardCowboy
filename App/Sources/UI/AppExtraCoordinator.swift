@@ -17,7 +17,7 @@ final class AppExtraCoordinator {
     case .helpMenu(let action):
       handleHelpMenu(action)
     case .onAppear:
-      if KeyboardCowboyApp.env() == .development {
+      if launchArguments.isEnabled(.openWindowAtLaunch) {
         windowOpener.openMainWindow()
       } else if !AXIsProcessTrustedWithOptions(nil) {
         windowOpener.openPermissions()

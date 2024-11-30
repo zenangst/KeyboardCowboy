@@ -42,7 +42,6 @@ struct KeyboardCowboyApp: App {
     self.coordinator = AppExtraCoordinator(core: core, windowOpener: windowOpener)
 
     Task { @MainActor in
-      
       Benchmark.shared.isEnabled = launchArguments.isEnabled(.benchmark)
     }
 

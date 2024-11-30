@@ -68,7 +68,6 @@ struct AppMenuBarExtras: Scene {
           }
         }
     }
-    
   }
 }
 
