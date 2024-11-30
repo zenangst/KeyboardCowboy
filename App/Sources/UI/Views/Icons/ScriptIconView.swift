@@ -8,7 +8,6 @@ struct ScriptIconView: View {
       .fill(Color(.clear))
       .overlay {
         ZStack {
-          ZenVisualEffectView(material: .underWindowBackground)
           LinearGradient(stops: [
             .init(color: Color.clear, location: 0.4),
             .init(color: Color.black, location: 1),
@@ -38,7 +37,7 @@ struct ScriptIconView: View {
       }
       .frame(width: size, height: size)
       .fixedSize()
-//      .drawingGroup(opaque: true)
+      .drawingGroup(opaque: true)
       .iconShape(size)
   }
 }

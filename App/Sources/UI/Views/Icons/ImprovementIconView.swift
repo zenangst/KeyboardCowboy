@@ -36,6 +36,7 @@ struct ImprovementIconView: View {
       }
       .iconShape(size)
       .frame(width: size, height: size)
+      .drawingGroup()
   }
 }
 

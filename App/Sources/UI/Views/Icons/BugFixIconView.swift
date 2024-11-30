@@ -31,14 +31,9 @@ struct BugFixIconView: View {
           Image(systemName: "bandage.fill")
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: size * 0.6)
+            .frame(width: size * 0.7)
             .rotationEffect(.degrees(90))
             .offset(x: size * -0.006, y: size * 0.004)
-
-          Image(systemName: "bandage")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: size * 0.6)
         }
         .compositingGroup()
         .shadow(color: Color(.systemGreen.blended(withFraction: 0.5, of: .black)!), radius: 10, y: 10)
@@ -47,6 +42,7 @@ struct BugFixIconView: View {
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
+      .drawingGroup()
   }
 }
 

@@ -6,10 +6,11 @@ struct WarningIconView: View {
     Rectangle()
       .fill(
         LinearGradient(stops: [
-          .init(color: Color(.systemGray.blended(withFraction: 0.25, of: .black)!), location: 0.25),
-          .init(color: Color(.systemGray.blended(withFraction: 0.5, of: .black)!), location: 1.0),
+          .init(color: Color(.systemYellow.blended(withFraction: 0.25, of: .white)!), location: 0.0),
+          .init(color: Color(.systemOrange.blended(withFraction: 0.25, of: .black)!), location: 1.0),
         ], startPoint: .top, endPoint: .bottom)
       )
+      .grayscale(0.5)
       .overlay { iconOverlay().opacity(0.65) }
       .overlay { iconBorder(size) }
       .overlay {
@@ -30,6 +31,7 @@ struct WarningIconView: View {
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
+      .drawingGroup()
   }
 }
 

@@ -60,8 +60,8 @@ struct TypingIconView: View {
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
+      .drawingGroup()
   }
-
 }
 
 private struct TypingIconTextView: View {

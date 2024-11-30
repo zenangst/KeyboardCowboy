@@ -24,6 +24,7 @@ struct PrivacyIconView: View {
           .frame(width: size * 0.5)
       }
     }
+    .drawingGroup()
   }
 }
 

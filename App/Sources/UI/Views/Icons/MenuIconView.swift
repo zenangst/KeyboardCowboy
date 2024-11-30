@@ -124,6 +124,7 @@ private struct MenuBarIconWindowControls: View {
     .padding([.top, .leading, .trailing], size * 0.0_5)
     .frame(height: size * 0.25)
     .fixedSize()
+    .drawingGroup()
   }
 }
 
