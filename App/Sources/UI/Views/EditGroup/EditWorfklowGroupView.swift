@@ -135,7 +135,7 @@ struct EditWorfklowGroupView: View {
           Text("Cancel")
             .frame(minWidth: 40)
         }
-        .buttonStyle(.destructive)
+        .buttonStyle(.zen(.init(color: .systemGray, hoverEffect: .constant(false))))
         .keyboardShortcut(.cancelAction)
 
         Spacer()
