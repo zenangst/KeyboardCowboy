@@ -9,7 +9,7 @@ struct EditGroupIconView: View {
         ZenLabel(.detail, content: { Text("Color")})
         ColorPalette(group: $group, size: 32)
       }
-      Divider()
+      ZenDivider(.vertical)
       VStack(alignment: .leading) {
         ZenLabel(.detail, content: { Text("Symbol")})
         SymbolPalette(group: $group, size: 32)

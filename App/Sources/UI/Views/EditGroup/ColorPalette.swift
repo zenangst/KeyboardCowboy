@@ -15,18 +15,17 @@ struct ColorPalette: View {
   var body: some View {
     LazyVGrid(columns: items, spacing: 10) {
       ForEach(colorStrings, id: \.self) { hex in
-        ZStack {
-          Circle()
-            .fill(Color(group.color == hex ? .white : .clear))
-
-          Circle()
-            .fill(Color(hex: hex))
-            .frame(width: size, height: size)
-            .onTapGesture {
-              group.color = hex
-            }
-            .padding(2)
-        }
+        Circle()
+          .fill(Color(group.color == hex ? .white : .clear))
+          .overlay {
+            Circle()
+              .fill(Color(hex: hex))
+              .frame(width: size - 4, height: size - 4)
+              .onTapGesture {
+                group.color = hex
+              }
+              .padding(2)
+          }
       }
     }
   }

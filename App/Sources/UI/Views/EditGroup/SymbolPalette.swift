@@ -47,27 +47,22 @@ struct SymbolPalette: View {
     ScrollView {
       LazyVGrid(columns: items, spacing: 10) {
         ForEach(symbols, id: \.self) { symbol in
-          ZStack {
-            Circle()
-              .fill(Color(group.symbol == symbol ? .white : .clear))
-            
-            Circle()
-              .fill(Color(.windowBackgroundColor))
-              .frame(width: size, height: size)
-              .overlay(
-                Group {
-                  if !symbol.isEmpty {
-                    Image(systemName: symbol)
-                  } else {
-                    EmptyView()
-                  }
-                }
-              )
-              .onTapGesture {
-                group.symbol = symbol
-              }
-              .padding(2)
-          }
+          Circle()
+            .fill(Color(group.symbol == symbol ? .white : .clear))
+            .overlay {
+              Circle()
+                .stroke(Color.white, lineWidth: 1.5)
+                .frame(width: size - 4, height: size - 4)
+                .overlay(
+                  Image(systemName: symbol)
+                    .foregroundStyle(group.symbol == symbol ? .black : .white)
+                )
+                .padding(4)
+            }
+            .contentShape(Circle())
+            .onTapGesture {
+              group.symbol = symbol
+            }
         }
       }
     }
