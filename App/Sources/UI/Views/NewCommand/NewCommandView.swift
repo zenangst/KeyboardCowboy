@@ -250,17 +250,9 @@ struct NewCommandView: View {
       case .shortcut:
         NewCommandShortcutView($payload, validation: $validation)
       case .script:
-        if case .script(let value, let kind, let scriptExtension) = payload {
-          NewCommandScriptView($payload,
-                               kind: kind,
-                               value: value,
-                               scriptExtension: scriptExtension,
-                               validation: $validation) { onSave($0, $title.wrappedValue) }
-        } else {
-          NewCommandScriptView($payload, kind: .source, value: "",
-                               scriptExtension: .shellScript,
-                               validation: $validation) { onSave($0, $title.wrappedValue) }
-        }
+        NewCommandScriptView($payload, kind: .source, value: "",
+                             scriptExtension: .shellScript,
+                             validation: $validation) { onSave($0, $title.wrappedValue) }
       case .text:             NewCommandTextView(payload: $payload, validation: $validation, onSubmit: onSubmit)
       case .system:           NewCommandSystemCommandView($payload, validation: $validation)
       case .menuBar:          NewCommandMenuBarView($payload, validation: $validation)
