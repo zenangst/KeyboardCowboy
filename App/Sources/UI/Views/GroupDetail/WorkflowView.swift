@@ -72,10 +72,16 @@ private struct WorkflowViewItemInternalView: View {
         .compositingGroup()
         .zIndex(2)
 
-      Text(workflow.name)
-        .lineLimit(1)
-        .allowsTightening(true)
-        .frame(maxWidth: .infinity, alignment: .leading)
+      VStack(alignment: .leading, spacing: 0) {
+        Text(workflow.name)
+          .lineLimit(1)
+          .allowsTightening(true)
+          .frame(maxWidth: .infinity, alignment: .leading)
+        Text("Disabled")
+          .opacity(workflow.isEnabled ? 0 : 1)
+          .frame(maxHeight: workflow.isEnabled ? 0 : nil)
+          .font(.caption)
+      }
 
       HStack(spacing: 2) {
         ContentItemAccessoryView(workflow: workflow)
