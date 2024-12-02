@@ -54,5 +54,11 @@ final class TextCommandRunner {
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyUp, flags: .maskCommand)
       try await Task.sleep(for: .milliseconds(10))
     }
+
+    if command.actions.contains(.insertEnter) {
+      try await Task.sleep(for: .milliseconds(50))
+      try keyboardCommandRunner.machPort?.post(kVK_Return, type: .keyDown, flags: [])
+      try keyboardCommandRunner.machPort?.post(kVK_Return, type: .keyUp, flags: [])
+    }
   }
 }
