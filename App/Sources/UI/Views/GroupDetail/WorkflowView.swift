@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct WorkflowView: View {
+  @ObserveInjection var inject
   private let contentSelectionManager: SelectionManager<GroupDetailViewModel>
   private let publisher: GroupDetailPublisher
   private let workflow: GroupDetailViewModel
@@ -18,16 +20,18 @@ struct WorkflowView: View {
   }
 
   var body: some View {
-    ContentItemInternalView(
+    WorkflowViewItemInternalView(
       workflow: workflow,
       publisher: publisher,
       contentSelectionManager: contentSelectionManager,
       onAction: onAction
     )
+    .enableInjection()
   }
 }
 
-private struct ContentItemInternalView: View {
+private struct WorkflowViewItemInternalView: View {
+  @ObserveInjection var inject
   @State private var isHovered: Bool = false
   @State private var isSelected: Bool = false
 
@@ -47,23 +51,18 @@ private struct ContentItemInternalView: View {
   }
 
   var body: some View {
-    HStack {
+    HStack(spacing: 4) {
       WorkflowImages(images: workflow.images, size: 32)
+        .opacity(workflow.isEnabled ? 1.0 : 0.5)
+        .grayscale(workflow.isEnabled ? 0.0 : 1.0)
         .background(
           Color.black.opacity(0.3).cornerRadius(8, antialiased: false)
         )
-        .overlay(alignment: .bottomTrailing, content: {
-          WorkflowDisabledOverlay(isEnabled: workflow.isEnabled)
-        })
-        .overlay(alignment: .topTrailing,
-                 content: {
+        .overlay(alignment: .topTrailing) {
           WorkflowBadge(isHovered: $isHovered,
-                                      text: "\(workflow.badge)",
-                                      badgeOpacity: workflow.badgeOpacity)
+                        text: "\(workflow.badge)",
+                        badgeOpacity: workflow.badgeOpacity)
           .offset(x: 4, y: 0)
-        })
-        .overlay(alignment: .topLeading) {
-          ContentExecutionView(execution: workflow.execution)
         }
         .fixedSize()
         .frame(width: 32, height: 32)
@@ -78,34 +77,37 @@ private struct ContentItemInternalView: View {
         .allowsTightening(true)
         .frame(maxWidth: .infinity, alignment: .leading)
 
-      ContentItemAccessoryView(workflow: workflow)
+      HStack(spacing: 2) {
+        ContentItemAccessoryView(workflow: workflow)
+        ExecutionView(execution: workflow.execution)
+      }
     }
     .padding(4)
     .background(ItemBackgroundView(workflow.id, selectionManager: contentSelectionManager))
     .draggable(workflow)
+    .enableInjection()
   }
 }
 
-private struct ContentExecutionView: View {
+private struct ExecutionView: View {
+  @ObserveInjection var inject
   let execution: GroupDetailViewModel.Execution
   var body: some View {
-    Group {
-      switch execution {
-      case .concurrent:
-        EmptyView()
-      case .serial:
-        Image(systemName: "square.3.layers.3d.top.filled")
-          .resizable()
-          .background(
-            Circle()
-              .fill(Color.accentColor)
-          )
-          .compositingGroup()
-          .shadow(color: .black.opacity(0.75), radius: 2)
-      }
-    }
-    .aspectRatio(contentMode: .fit)
-    .frame(width: 12, height: 12)
+    Image(systemName: execution == .concurrent ? "arrow.branch" : "list.bullet")
+      .resizable()
+      .aspectRatio(contentMode: .fit)
+      .compositingGroup()
+      .shadow(color: .black.opacity(0.75), radius: 2)
+      .frame(width: 10, height: 10)
+      .padding(3)
+      .background()
+      .clipShape(RoundedRectangle(cornerRadius: 4))
+      .overlay(
+        RoundedRectangle(cornerRadius: 4)
+          .stroke(Color(.separatorColor), lineWidth: 1)
+      )
+      .help(execution == .concurrent ? "Concurrent" : "Serial")
+      .enableInjection()
   }
 }
 
