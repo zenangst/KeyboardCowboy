@@ -212,7 +212,7 @@ final class WorkflowTests: XCTestCase {
     do {
       let workflow = Workflow(
         name: "Text",
-        commands: [.text(.init(.insertText(.init("", mode: .instant))))]
+        commands: [.text(.init(.insertText(.init("", mode: .instant, actions: []))))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Empty text commands should not resolve user environment.")
@@ -221,7 +221,7 @@ final class WorkflowTests: XCTestCase {
     do {
       let workflow = Workflow(
         name: "Text",
-        commands: [.text(.init(.insertText(.init(UUID().uuidString, mode: .instant))))]
+        commands: [.text(.init(.insertText(.init(UUID().uuidString, mode: .instant, actions: []))))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Text commands without env keys should not resolve user environment.")
@@ -230,7 +230,7 @@ final class WorkflowTests: XCTestCase {
     do {
       let workflow = Workflow(
         name: "Text",
-        commands: [.text(.init(.insertText(.init(UserSpace.EnvironmentKey.selectedText.rawValue, mode: .instant))))]
+        commands: [.text(.init(.insertText(.init(UserSpace.EnvironmentKey.selectedText.rawValue, mode: .instant, actions: []))))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertFalse(shouldResolve, "Text commands with invalid env keys should not resolve user environment.")
@@ -239,7 +239,7 @@ final class WorkflowTests: XCTestCase {
     do {
       let workflow = Workflow(
         name: "Text",
-        commands: [.text(.init(.insertText(.init(UserSpace.EnvironmentKey.selectedText.asTextVariable, mode: .instant))))]
+        commands: [.text(.init(.insertText(.init(UserSpace.EnvironmentKey.selectedText.asTextVariable, mode: .instant, actions: []))))]
       )
       let shouldResolve = workflow.resolveUserEnvironment()
       XCTAssertTrue(shouldResolve, "Text commands with valid env keys should not resolve user environment.")

@@ -4,6 +4,7 @@ import Combine
 import Cocoa
 import MachPort
 
+@MainActor
 final class ApplicationTriggerControllerTests: XCTestCase {
   func testApplicationTriggerController_frontmost() {
     let ctx = context(.frontMost)
@@ -67,12 +68,12 @@ final class ApplicationTriggerControllerTests: XCTestCase {
     ctx.userSpace.injectRunningApplications([])
   }
 
-  private func context(_ triggerContext: ApplicationTrigger.Context) -> (
+  @MainActor private func context(_ triggerContext: ApplicationTrigger.Context) -> (
     command: Command,
     groupPublisher: WorkGroupPublisher,
     runner: WorkflowRunner,
     userSpace: UserSpace) {
-      let command = Command.text(.init(.insertText(.init("Type command.", mode: .instant))))
+      let command = Command.text(.init(.insertText(.init("Type command.", mode: .instant, actions: []))))
     let runner = WorkflowRunner(
       concurrent: { _ in fatalError("Should not be invoked yet.") },
       serial: { _ in fatalError("Should not be invoked yet.") })

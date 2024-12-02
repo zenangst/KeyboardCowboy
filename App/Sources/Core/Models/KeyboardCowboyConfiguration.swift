@@ -211,7 +211,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
  --------------------------
  xoxo
  \(NSFullUserName())
- """, mode: .instant, meta: .init(id: UUID().uuidString, name: "Signature", isEnabled: true, notification: nil)))) )
+ """, mode: .instant, meta: .init(id: UUID().uuidString, name: "Signature", isEnabled: true, notification: nil), actions: [.insertEnter]))) )
                                  ])
                       ])
       ])

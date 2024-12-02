@@ -382,7 +382,7 @@ extension Command {
     case .open: Command.open(.init(path: "", notification: nil))
     case .script: Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: nil))
     case .shortcut: Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: nil))
-    case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id)))))
+    case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id), actions: []))))
     case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: nil))
     case .uiElement: Command.uiElement(.init(meta: .init(), predicates: [.init(value: "")]))
     case .window: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: nil, animationDuration: 0))
@@ -454,7 +454,7 @@ extension Command {
               name: "",
               isEnabled: true,
               notification: nil
-            )
+            ), actions: []
           )
         )
       )

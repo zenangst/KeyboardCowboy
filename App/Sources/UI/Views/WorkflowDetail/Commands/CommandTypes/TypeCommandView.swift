@@ -6,6 +6,7 @@ struct TypeCommandView: View {
   @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
+  @State private var insertEnter: Bool
   private let metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.TypeModel
   private let iconSize: CGSize
@@ -15,6 +16,7 @@ struct TypeCommandView: View {
     self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
+    self.insertEnter = model.actions.contains(.insertEnter)
   }
 
   var body: some View {
@@ -43,6 +45,24 @@ struct TypeCommandView: View {
           .offset(x: 1)
 
           Spacer()
+
+          HStack {
+            ZenCheckbox("", style: .small, isOn: $insertEnter) { newValue in
+              updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+                guard case .text(let textCommand) = command else { return }
+                switch textCommand.kind {
+                case .insertText(var typeCommand):
+                  if typeCommand.actions.contains(.insertEnter) {
+                    typeCommand.actions.remove(.insertEnter)
+                  } else {
+                    typeCommand.actions.insert(.insertEnter)
+                  }
+                  command = .text(.init(.insertText(typeCommand)))
+                }
+              }
+            }
+            Text(TextCommand.TypeCommand.Action.insertEnter.displayValue)
+          }
 
           TypeCommandModeView(mode: model.mode) { newMode in
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in

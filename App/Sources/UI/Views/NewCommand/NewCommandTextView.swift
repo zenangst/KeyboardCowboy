@@ -12,7 +12,7 @@ struct NewCommandTextView: View {
     if case .text(let textCommand) = payload.wrappedValue {
       _kind = .init(initialValue: textCommand.kind) 
     } else {
-      _kind = .init(initialValue: .insertText(.init("Hello, world!", mode: .instant)))
+      _kind = .init(initialValue: .insertText(.init("Hello, world!", mode: .instant, actions: [])))
     }
 
     _payload = payload
@@ -28,11 +28,13 @@ struct NewCommandTextView: View {
              label: { Image(systemName: "questionmark.circle.fill") })
       .buttonStyle(.calm(color: .systemYellow, padding: .small))
     }
+
+
     HStack {
       TypingIconView(size: 24)
       Menu(content: {
         Button(action: {
-          kind = .insertText(.init("", mode: .instant))
+          kind = .insertText(TextCommand.TypeCommand("", mode: .instant, actions: []))
         }, label: {
           Text("Insert Text…")
         })
@@ -44,10 +46,12 @@ struct NewCommandTextView: View {
       })
       .menuStyle(.regular)
     }
+    .padding(.bottom, 8)
 
     switch kind {
     case .insertText:
       NewCommandTypeView($payload, validation: $validation, onSubmit: onSubmit)
+        .roundedContainer(margin: 0)
     }
   }
 }
@@ -59,7 +63,7 @@ struct NewCommandTextView_Previews: PreviewProvider {
       commandId: nil,
       title: "New command",
       selection: .text,
-      payload: .text(.init(.insertText(.init("", mode: .instant)))),
+      payload: .text(.init(.insertText(.init("", mode: .instant, actions: [])))),
       onDismiss: {},
       onSave: { _, _ in })
     .designTime()

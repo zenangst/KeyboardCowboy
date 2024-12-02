@@ -162,6 +162,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var mode: TextCommand.TypeCommand.Mode
       var placeholder: String { "Type input …" }
       var input: String
+      var actions: Set<TextCommand.TypeCommand.Action>
     }
 
     struct TextModel: Codable, Hashable, Identifiable, Sendable {

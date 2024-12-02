@@ -153,7 +153,7 @@ private extension Command {
     case .text(let text):
       switch text.kind {
       case .insertText(let typeCommand):
-        kind = .text(.init(kind: .type(.init(id: typeCommand.input, mode: typeCommand.mode, input: typeCommand.input))))
+        kind = .text(.init(kind: .type(.init(id: typeCommand.input, mode: typeCommand.mode, input: typeCommand.input, actions: typeCommand.actions))))
       }
     case .systemCommand(let systemCommand):
       kind = .systemCommand(.init(id: systemCommand.id, kind: systemCommand.kind))

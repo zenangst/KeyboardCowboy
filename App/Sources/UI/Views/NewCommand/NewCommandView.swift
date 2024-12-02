@@ -283,7 +283,7 @@ struct NewCommandView_Previews: PreviewProvider {
       commandId: nil,
       title: "New command",
       selection: .bundled,
-      payload: .text(.init(.insertText(.init("Hello, world!", mode: .instant)))),
+      payload: .text(.init(.insertText(.init("Hello, world!", mode: .instant, actions: [])))),
       onDismiss: {},
       onSave: { _, _ in })
     .designTime()
