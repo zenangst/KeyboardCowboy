@@ -23,7 +23,8 @@ extension WorkflowGroup {
       color: color,
       symbol: symbol,
       userModes: userModes,
-      count: workflows.count)
+      count: workflows.count,
+      isDisabled: isDisabled)
   }
 }
 

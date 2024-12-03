@@ -13,4 +13,18 @@ struct GroupViewModel: Identifiable, Hashable, Codable, Sendable, Transferable {
   let symbol: String
   let userModes: [UserMode]
   let count: Int
+  var isDisabled: Bool
+  var isEnabled: Bool { !isDisabled }
+
+  init(id: String, name: String, icon: Icon?, color: String, symbol: String, userModes: [UserMode],
+       count: Int, isDisabled: Bool = false) {
+    self.id = id
+    self.name = name
+    self.icon = icon
+    self.color = color
+    self.symbol = symbol
+    self.userModes = userModes
+    self.count = count
+    self.isDisabled = isDisabled
+  }
 }

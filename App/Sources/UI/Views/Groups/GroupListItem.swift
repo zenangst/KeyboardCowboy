@@ -41,6 +41,9 @@ private struct GroupItemInternalView: View {
     HStack(spacing: 8) {
       GroupIconView(color: group.color, icon: group.icon, symbol: group.symbol)
         .frame(width: 24)
+        .opacity(group.isEnabled ? 1.0 : 0.5)
+        .grayscale(group.isEnabled ? 0.0 : 1.0)
+
       GroupTextView(group)
       ContextualMenuView(selectionManager: selectionManager, group: group, onAction: onAction)
     }

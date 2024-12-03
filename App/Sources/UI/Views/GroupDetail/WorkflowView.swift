@@ -104,9 +104,9 @@ private struct ExecutionView: View {
       .aspectRatio(contentMode: .fit)
       .compositingGroup()
       .shadow(color: .black.opacity(0.75), radius: 2)
-      .frame(width: 10, height: 10)
-      .padding(3)
-      .background()
+      .frame(width: 8, height: 8)
+      .padding(4)
+      .background(Color.clear.background().opacity(0.5))
       .clipShape(RoundedRectangle(cornerRadius: 4))
       .overlay(
         RoundedRectangle(cornerRadius: 4)

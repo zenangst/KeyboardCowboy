@@ -154,11 +154,12 @@ struct GroupDetailView: View {
   @ViewBuilder
   var body: some View {
     ScrollViewReader { proxy in
-      GroupDetailHeaderView(namespace: namespace,
-                            showAddButton: .readonly { !publisher.data.isEmpty },
-                            onAction: onAction)
+      GroupDetailHeaderView()
 
-      WorkflowsFilterView(appFocus, onClear: {
+      WorkflowsFilterView(appFocus,
+                          namespace: namespace,
+                          showAddButton: .readonly { !publisher.data.isEmpty },
+                          onClear: {
         let match = workflowSelection.lastSelection ?? workflowSelection.selections.first ?? ""
         appFocus.wrappedValue = .workflows
         DispatchQueue.main.async {
@@ -168,6 +169,8 @@ struct GroupDetailView: View {
         withAnimation(.smooth(duration: 0.2)) {
           searchTerm = newValue
         }
+      }, onAddWorkflow: {
+        onAction(.addWorkflow(workflowId: UUID().uuidString))
       })
 
       if groupsPublisher.data.isEmpty {

@@ -10,6 +10,7 @@ import Foundation
 ///          eligable for execution.
 struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
   private(set) var id: String
+  var isDisabled: Bool
   var symbol: String
   var name: String
   var color: String
@@ -31,6 +32,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.rule = rule
     self.userModes = userModes
     self.workflows = workflows
+    self.isDisabled = false
   }
 
   func copy() -> Self {
@@ -43,6 +45,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
   enum CodingKeys: String, CodingKey {
     case color
     case id
+    case disabled
     case symbol
     case name
     case rule
@@ -60,6 +63,7 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.rule = try container.decodeIfPresent(Rule.self, forKey: .rule)
     self.userModes = try container.decodeIfPresent([UserMode].self, forKey: .userModes) ?? []
     self.workflows = try container.decodeIfPresent([Workflow].self, forKey: .workflows) ?? []
+    self.isDisabled = try container.decodeIfPresent(Bool.self, forKey: .disabled) ?? false
   }
 
   func encode(to encoder: any Encoder) throws {
@@ -74,6 +78,10 @@ struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
     }
     if !self.workflows.isEmpty {
       try container.encode(self.workflows, forKey: .workflows)
+    }
+
+    if self.isDisabled {
+      try container.encode(self.isDisabled, forKey: .disabled)
     }
   }
 }

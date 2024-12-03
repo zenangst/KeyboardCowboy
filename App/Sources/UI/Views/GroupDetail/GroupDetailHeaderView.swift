@@ -2,20 +2,11 @@ import Bonzai
 import SwiftUI
 
 struct GroupDetailHeaderView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject private var groupDetailPublisher: GroupDetailPublisher
   @EnvironmentObject private var groupPublisher: GroupPublisher
-
-  @Binding private var showAddButton: Bool
-  private let namespace: Namespace.ID
-  private let onAction: (GroupDetailView.Action) -> Void
-
-  init(namespace: Namespace.ID, 
-       showAddButton: Binding<Bool>,
-       onAction: @escaping (GroupDetailView.Action) -> Void) {
-    _showAddButton = showAddButton
-    self.namespace = namespace
-    self.onAction = onAction
-  }
+  @State var isEnabled: Bool = false
 
   var body: some View {
     ZenLabel("Group", style: .content)
@@ -38,14 +29,21 @@ struct GroupDetailHeaderView: View {
       }
       .frame(maxWidth: .infinity, alignment: .leading)
 
-      GroupDetailAddButton(
-        namespace,
-        isVisible: $showAddButton,
-        onAction: { onAction(.addWorkflow(workflowId: UUID().uuidString)) })
+      ZenToggle(style: .medium, isOn: Binding<Bool>(get: { isEnabled }, set: { newValue in
+        isEnabled = newValue
+        updater.modifyGroup(using: transaction) { group in
+          group.isDisabled = !newValue
+        }
+      }))
     }
     .padding(.bottom, 4)
-    .padding(.leading, 14)
-    .id(groupPublisher.data)
+    .padding(.horizontal, 14)
+    .onChange(of: groupPublisher.data.isEnabled) { newValue in
+      isEnabled = newValue
+    }
+    .onAppear {
+      isEnabled = groupPublisher.data.isEnabled
+    }
 
     ZenLabel("Workflows", style: .content)
       .padding(.leading, 8)

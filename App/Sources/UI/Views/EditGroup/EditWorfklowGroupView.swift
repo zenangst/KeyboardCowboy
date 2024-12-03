@@ -50,6 +50,10 @@ struct EditWorfklowGroupView: View {
                                  glow: true))
           .prefersDefaultFocus(in: namespace)
           .focused($focus, equals: .name)
+
+        ZenToggle(
+          isOn: Binding<Bool>(get: { !group.isDisabled }, set: { group.isDisabled = !$0 })
+        )
       }
       .padding()
       .onAppear {

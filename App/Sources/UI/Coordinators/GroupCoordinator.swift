@@ -12,7 +12,8 @@ final class GroupCoordinator {
 
   let groupPublisher: GroupPublisher = GroupPublisher(
     .init(id: UUID().uuidString, name: "", icon: nil,
-      color: "", symbol: "", userModes: [], count: 0)
+          color: "", symbol: "", userModes: [],
+          count: 0, isDisabled: false)
   )
   let contentPublisher: GroupDetailPublisher = GroupDetailPublisher()
 

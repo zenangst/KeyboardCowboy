@@ -78,7 +78,8 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
   private(set) var id: String
   var commands: [Command]  { didSet { generateMachPortComponents() } }
   var trigger: Trigger?  { didSet { generateMachPortComponents() } }
-  var isEnabled: Bool = true  { didSet { generateMachPortComponents() } }
+  var isEnabled: Bool { !isDisabled }
+  var isDisabled: Bool = false  { didSet { generateMachPortComponents() } }
   var name: String
   var execution: Execution { didSet { generateMachPortComponents() } }
 
@@ -98,13 +99,13 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     self.commands = commands
     self.trigger = trigger
     self.name = name
-    self.isEnabled = isEnabled
+    self.isDisabled = !isEnabled
     self.execution = execution
     self.machPortConditions = MachPortConditions(
       id: id,
       trigger: trigger,
       execution: execution,
-      isEnabled: isEnabled,
+      isEnabled: !isDisabled,
       commands: commands
     )
   }
@@ -137,6 +138,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     case metadata
     case name
     case isEnabled = "enabled"
+    case isDisabled = "disabled"
     case execution
   }
 
@@ -148,19 +150,25 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     let commands = try container.decodeIfPresent([Command].self, forKey: .commands) ?? []
     let execution = try container.decodeIfPresent(Execution.self, forKey: .execution) ?? .concurrent
     let trigger = try container.decodeIfPresent(Trigger.self, forKey: .trigger)
-    let isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+
+    if let isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) {
+      self.isDisabled = !isEnabled
+    } else if let isDisabled = try container.decodeIfPresent(Bool.self, forKey: .isDisabled) {
+      self.isDisabled = isDisabled
+    } else {
+      self.isDisabled = false
+    }
 
     self.id = id
     self.name = name
     self.commands = commands
     self.execution = execution
     self.trigger = trigger
-    self.isEnabled = isEnabled
     self.machPortConditions = MachPortConditions(
       id: id,
       trigger: trigger,
       execution: execution,
-      isEnabled: isEnabled,
+      isEnabled: !isDisabled,
       commands: commands
     )
   }
@@ -179,8 +187,8 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       try container.encode(trigger, forKey: .trigger)
     }
 
-    if isEnabled == false {
-      try container.encode(isEnabled, forKey: .isEnabled)
+    if isDisabled {
+      try container.encode(isDisabled, forKey: .isDisabled)
     }
   }
 
@@ -262,7 +270,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         id: workflow.id,
         trigger: workflow.trigger,
         execution: workflow.execution,
-        isEnabled: workflow.isEnabled,
+        isEnabled: !workflow.isDisabled,
         commands: workflow.commands
       )
     }

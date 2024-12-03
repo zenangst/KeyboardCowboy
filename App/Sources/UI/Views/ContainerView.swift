@@ -88,6 +88,7 @@ struct ContainerView: View {
               Task { @MainActor in focus.wrappedValue = .detail(.name) }
             }
           })
+        .environmentObject(detailUpdateTransaction)
         .navigationSplitViewColumnWidth(min: 180, ideal: 250)
       },
       detail: {
