@@ -43,6 +43,34 @@ extension CGEvent {
 }
 
 extension CGEventFlags {
+  private static let knownFlags: [CGEventFlags] = [
+    .maskAlphaShift,
+    .maskShift,
+    .maskLeftShift,
+    .maskRightShift,
+    .maskControl,
+    .maskLeftControl,
+    .maskRightControl,
+    .maskAlternate,
+    .maskLeftAlternate,
+    .maskRightAlternate,
+    .maskCommand,
+    .maskLeftCommand,
+    .maskRightCommand,
+    .maskHelp,
+    .maskSecondaryFn,
+    .maskNumericPad,
+    .maskNonCoalesced
+  ]
+
+  var remainingFlags: UInt64 {
+    var rawValue = rawValue
+    for flag in Self.knownFlags {
+      if rawValue & flag.rawValue != 0 { rawValue -= flag.rawValue }
+    }
+    return self.rawValue - rawValue
+  }
+
   static var maskLeftShift: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICELSHIFTKEYMASK)) }
   static var maskLeftControl: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICELCTLKEYMASK)) }
   static var maskLeftAlternate: CGEventFlags { CGEventFlags(rawValue: UInt64(NX_DEVICELALTKEYMASK)) }

@@ -31,6 +31,10 @@ extension MachPortEvent: LookupToken {
 
 @MainActor
 final class ShortcutResolver {
+  enum Fallback {
+    case functionKey
+    case remainder(originalFlags: UInt64)
+  }
   private static let debug: Bool = false
   private var cache = [String: KeyboardShortcutResult]()
 
@@ -48,7 +52,7 @@ final class ShortcutResolver {
               bundleIdentifier: String,
               userModes: [UserMode] = [],
               partialMatch: PartialMatch = .init(rawValue: "."),
-              fallback: Bool = true) -> KeyboardShortcutResult? {
+              fallback: Fallback? = .functionKey) -> KeyboardShortcutResult? {
     let eventSignature = token.signature
     if !userModes.isEmpty {
       for userMode in userModes {
@@ -90,15 +94,27 @@ final class ShortcutResolver {
 
     if let globalKeyResult = cache[globalKey] {
       return globalKeyResult
-    } else if fallback && SpecialKeys.functionKeys.contains(Int(token.keyCode)) {
+    } else if let fallback, SpecialKeys.functionKeys.contains(Int(token.keyCode)) {
       var newFlags = token.flags
-      if newFlags.contains(.maskSecondaryFn) {
-        newFlags.remove(.maskSecondaryFn)
-      } else {
-        newFlags.insert(.maskSecondaryFn)
+      let newFallback: Fallback?
+      switch fallback {
+      case .functionKey:
+        if newFlags.contains(.maskSecondaryFn) {
+          newFlags.remove(.maskSecondaryFn)
+        } else {
+          newFlags.insert(.maskSecondaryFn)
+        }
+        newFallback = .remainder(originalFlags: token.flags.remainingFlags)
+      case .remainder(let originalFlags):
+        newFlags = CGEventFlags(rawValue: originalFlags)
+        newFallback = nil
       }
-      let fallbackToken = FallbackLookupToken(keyCode: token.keyCode, flags: newFlags)
-      return lookup(fallbackToken, bundleIdentifier: bundleIdentifier, fallback: false)
+
+      return lookup(
+        FallbackLookupToken(keyCode: token.keyCode, flags: newFlags),
+        bundleIdentifier: bundleIdentifier,
+        fallback: newFallback
+      )
     } else {
       return nil
     }
@@ -193,9 +209,17 @@ final class ShortcutResolver {
               print(keyCode, flags)
               print(" .maskAlphaShift", flags.contains(.maskAlphaShift))
               print(" .maskShift", flags.contains(.maskShift))
+              print(" .maskLeftShift", flags.contains(.maskLeftShift))
+              print(" .maskRightShift", flags.contains(.maskRightShift))
               print(" .maskControl", flags.contains(.maskControl))
+              print(" .maskLeftControl", flags.contains(.maskLeftControl))
+              print(" .maskRightControl", flags.contains(.maskRightControl))
               print(" .maskAlternate", flags.contains(.maskAlternate))
+              print(" .maskLeftAlternate", flags.contains(.maskLeftAlternate))
+              print(" .maskRightAlternate", flags.contains(.maskRightAlternate))
               print(" .maskCommand", flags.contains(.maskCommand))
+              print(" .maskLeftCommand", flags.contains(.maskLeftCommand))
+              print(" .maskRightCommand", flags.contains(.maskRightCommand))
               print(" .maskHelp", flags.contains(.maskHelp))
               print(" .maskSecondaryFn", flags.contains(.maskSecondaryFn))
               print(" .maskNumericPad", flags.contains(.maskNumericPad))
@@ -328,7 +352,8 @@ struct SpecialKeys {
 }
 
 private struct FallbackLookupToken: LookupToken {
-  var keyCode: Int64
   var signature: CGEventSignature { CGEventSignature(keyCode, flags) }
-  var flags: CGEventFlags
+
+  let keyCode: Int64
+  let flags: CGEventFlags
 }
