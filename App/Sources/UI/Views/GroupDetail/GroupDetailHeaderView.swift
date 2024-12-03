@@ -29,7 +29,9 @@ struct GroupDetailHeaderView: View {
       }
       .frame(maxWidth: .infinity, alignment: .leading)
 
-      ZenToggle(style: .medium, isOn: Binding<Bool>(get: { isEnabled }, set: { newValue in
+      ZenToggle(config: .init(color: .custom(Color(.init(hex: groupPublisher.data.color)))),
+                style: .medium,
+                isOn: Binding<Bool>(get: { isEnabled }, set: { newValue in
         isEnabled = newValue
         updater.modifyGroup(using: transaction) { group in
           group.isDisabled = !newValue
