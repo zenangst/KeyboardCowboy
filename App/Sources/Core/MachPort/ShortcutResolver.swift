@@ -166,7 +166,7 @@ final class ShortcutResolver {
 
   func cache(_ groups: [WorkflowGroup]) {
     var newCache = [String: KeyboardShortcutResult]()
-    for group in groups {
+    for group in groups where !group.isDisabled {
       let bundleIdentifiers: [String]
       if let rule = group.rule {
         bundleIdentifiers = rule.bundleIdentifiers
