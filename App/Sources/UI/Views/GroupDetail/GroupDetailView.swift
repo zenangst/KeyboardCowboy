@@ -156,6 +156,10 @@ struct GroupDetailView: View {
     ScrollViewReader { proxy in
       GroupDetailHeaderView()
 
+      ZenLabel("Workflows", style: .content)
+        .padding(.leading, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+
       WorkflowsFilterView(appFocus,
                           namespace: namespace,
                           showAddButton: .readonly { !publisher.data.isEmpty },
