@@ -14,13 +14,11 @@ struct GroupDetailAddButton: View {
 
   var body: some View {
     Button(action: onAction) {
-      Image(systemName: "plus.square.dashed")
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .frame(height: 14)
+      Text("Add Workflow")
+        .font(.caption)
     }
-    .help("Add Workflow")
-    .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true))))
+    .help("Add new Workflow")
+    .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true), padding: .small)))
     .padding(.trailing, 8)
     .matchedGeometryEffect(id: "add-workflow-button", in: namespace, isSource: true)
   }

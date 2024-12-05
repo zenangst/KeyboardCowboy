@@ -64,10 +64,9 @@ private struct GroupsHeaderView: View {
     HStack {
       ZenLabel(.sidebar) { Text("Groups") }
       Spacer()
-      if isVisible {
-        SidebarAddGroupButtonView(isVisible: $isVisible,
-                                  namespace: namespace, onAction: onAddGroup)
-      }
+      SidebarAddGroupButtonView(isVisible: $isVisible,
+                                namespace: namespace, onAction: onAddGroup)
+      .opacity(isVisible ? 1 : 0)
     }
   }
 }

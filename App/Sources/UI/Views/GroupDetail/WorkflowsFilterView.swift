@@ -4,25 +4,18 @@ import Bonzai
 struct WorkflowsFilterView: View {
   @State private var searchTerm: String = ""
   @EnvironmentObject private var publisher: GroupDetailPublisher
-  @Binding private var showAddButton: Bool
   private let namespace: Namespace.ID
   private let debounce: DebounceController<String>
   private var focus: FocusState<AppFocus?>.Binding
   private let onClear: () -> Void
-  private let onAddWorkflow: () -> Void
 
   init(_ focus: FocusState<AppFocus?>.Binding,
        namespace: Namespace.ID,
-       showAddButton: Binding<Bool>,
        onClear: @escaping () -> Void,
-       onChange: @escaping (String) -> Void,
-       onAddWorkflow: @escaping () -> Void
-  ) {
-    _showAddButton = showAddButton
+       onChange: @escaping (String) -> Void) {
     self.namespace = namespace
     self.focus = focus
     self.onClear = onClear
-    self.onAddWorkflow = onAddWorkflow
     self.debounce = DebounceController("", kind: .keyDown, milliseconds: 150, onUpdate: { snapshot in
       onChange(snapshot)
     })
@@ -73,10 +66,6 @@ struct WorkflowsFilterView: View {
       .buttonStyle(.calm(color: .systemGray, padding: .medium))
       .font(.caption2)
       .opacity(!searchTerm.isEmpty ? 1 : 0)
-
-      if showAddButton {
-        GroupDetailAddButton(namespace, onAction: { onAddWorkflow() })
-      }
     }
   }
 }
@@ -85,7 +74,7 @@ struct ContentListFilterView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   @Namespace static var namespace
   static var previews: some View {
-    WorkflowsFilterView($focus, namespace: namespace, showAddButton: .constant(false), onClear: {}, onChange: { _ in }, onAddWorkflow: { })
+    WorkflowsFilterView($focus, namespace: namespace, onClear: {}, onChange: { _ in })
     .designTime()
   }
 }

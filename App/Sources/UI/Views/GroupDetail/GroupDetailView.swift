@@ -156,13 +156,18 @@ struct GroupDetailView: View {
     ScrollViewReader { proxy in
       GroupDetailHeaderView()
 
-      ZenLabel("Workflows", style: .content)
-        .padding(.leading, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
+      HStack {
+        ZenLabel("Workflows", style: .content)
+          .padding(.leading, 8)
+          .frame(maxWidth: .infinity, alignment: .leading)
+
+        if !publisher.data.isEmpty {
+          GroupDetailAddButton(namespace, onAction: { onAction(.addWorkflow(workflowId: UUID().uuidString)) })
+        }
+      }
 
       WorkflowsFilterView(appFocus,
                           namespace: namespace,
-                          showAddButton: .readonly { !publisher.data.isEmpty },
                           onClear: {
         let match = workflowSelection.lastSelection ?? workflowSelection.selections.first ?? ""
         appFocus.wrappedValue = .workflows
@@ -173,8 +178,6 @@ struct GroupDetailView: View {
         withAnimation(.smooth(duration: 0.2)) {
           searchTerm = newValue
         }
-      }, onAddWorkflow: {
-        onAction(.addWorkflow(workflowId: UUID().uuidString))
       })
 
       if groupsPublisher.data.isEmpty {

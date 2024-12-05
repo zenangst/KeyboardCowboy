@@ -19,12 +19,11 @@ struct UserModesView: View {
         ZenLabel(.sidebar) { Text("User Modes") }
         Spacer()
         Button(action: { isAddingNew = true }, label: {
-          Image(systemName: "plus")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: 8)
+          Text("Add Mode")
+            .font(.caption)
         })
-        .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true))))
+        .help("Add a new User Mode")
+        .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true), padding: .small)))
         .popover(isPresented: $isAddingNew, arrowEdge: .bottom, content: {
           AddUserModeView(action: { newName in
             isAddingNew = false
@@ -141,4 +140,5 @@ struct FlowItem: View {
 
 #Preview {
   UserModesView(onAction: { _ in })
+    .designTime()
 }
