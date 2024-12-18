@@ -71,8 +71,8 @@ final class ShortcutResolverTests: XCTestCase {
 
   // https://github.com/zenangst/KeyboardCowboy/issues/562
   @MainActor
-  func testFix562() throws {
-    let fixture = Self.rootPath.appending(path: "Fixtures/json/example_config/bug_562.json")
+  func testFix562_part1() throws {
+    let fixture = Self.rootPath.appending(path: "Fixtures/json/example_config/bug_562_part1.json")
     let fileManager = FileManager.default
     guard let data = fileManager.contents(atPath: fixture.path()) else {
       XCTFail("Unable to read file")
@@ -254,6 +254,45 @@ final class ShortcutResolverTests: XCTestCase {
         bundleIdentifier: "*"
       ) {
       case .exact(let workflow): XCTAssertEqual(workflow.name, "Close Tab")
+      default: XCTFail("")
+      }
+    }
+
+  }
+
+  @MainActor
+  func testFix562_part2() throws {
+    let fixture = Self.rootPath.appending(path: "Fixtures/json/example_config/bug_562_part2.json")
+    let fileManager = FileManager.default
+    guard let data = fileManager.contents(atPath: fixture.path()) else {
+      XCTFail("Unable to read file")
+      return
+    }
+
+    let decoder = JSONDecoder()
+    let configurations = try decoder.decode([KeyboardCowboyConfiguration].self, from: data)
+
+    XCTAssertEqual(configurations.count, 1)
+
+    let configuration = configurations.first!
+    let keyCodes = KeyCodesStore(InputSourceController())
+    let shortcutResolver = ShortcutResolver(keyCodes: keyCodes)
+
+    shortcutResolver.cache(configuration.groups)
+
+    do {
+      switch shortcutResolver.lookup(
+        LookupTokenMock(
+          keyCode: Int64(114),
+          flags: CGEventFlags(
+            arrayLiteral: [
+              .maskSecondaryFn,
+              .maskNonCoalesced]
+          )
+        ),
+        bundleIdentifier: "com.spotify.client"
+      ) {
+      case .exact(let workflow): XCTAssertEqual(workflow.name, "Shuffle")
       default: XCTFail("")
       }
     }

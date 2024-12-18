@@ -1,0 +1,1592 @@
+[
+  {
+    "groups" : [
+      {
+        "color" : "#000",
+        "id" : "EC6F3F79-B10C-4135-99B0-2A65AE0B8816",
+        "name" : "Default",
+        "symbol" : "folder",
+        "workflows" : [
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "DD090624-6303-4F03-97FD-977FD1058607",
+                      "key" : "c",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "F7BF1C47-7485-4FA9-AB16-D8D571CB92BE",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "B5245377-76BA-4251-B430-9171D5367134",
+            "name" : "Copy",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "744B5899-BD58-4ECD-957B-8C63C29AEB30",
+                    "key" : "F13",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "2409DFF3-7CB4-44D3-BC77-54C2926E8147",
+                      "key" : "v",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "C45E344C-0349-4854-9FCB-AD9FD0D4A834",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "7C00C844-9905-40D0-A98B-4DEC7EFC3330",
+            "name" : "Paste",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "E1156CBE-B486-40B5-A345-EAFF22E0E477",
+                    "key" : "?⃝",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "43A90133-FBF7-42BC-9EA0-0ED4793DE9CE",
+                      "key" : "w",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "AAE0AE07-F400-450F-AC1B-CE2F18CE3A55",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "4BC13482-EB4D-40B2-B713-351E590C39F5",
+            "name" : "Close Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "AE5A4A14-0657-4176-BFA6-78A69B9897FB",
+                    "key" : "F14",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "374EF1D3-15DB-45D0-BC21-8F3BCBE08BF2",
+                      "key" : "⇥",
+                      "modifiers" : [
+                        "^"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "D94FFB6D-6D49-4C29-B431-67AF7CB61321",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "219946DB-BB50-4451-82CF-79FB4B104B4A",
+            "name" : "Next Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "CADAE4AC-D32D-4EC2-99EC-8EF84A8B15E4",
+                    "key" : "F15",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "76E15804-FC20-4B9A-A579-A645D24180A0",
+                      "key" : "r",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "BDDB01BD-022B-4809-B904-A6531F9A8364",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "26D3106B-16DF-4419-8C1D-0B0051D93804",
+            "name" : "Reload Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "DF680C5C-9C49-4C84-A144-9AA33A62FD7B",
+                    "key" : "F16",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "BF938332-4846-4B0C-8D41-D92253D734C6",
+                      "key" : "⇥",
+                      "modifiers" : [
+                        "$",
+                        "^"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "5D5402A7-5F29-4C15-8526-9FB4C219BAF3",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "4608948E-27D3-486C-B703-117035A04700",
+            "name" : "Previous Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "92B5BE39-EDC5-46F7-A750-7900E91645E1",
+                    "key" : "F18",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "7568A45F-6656-4C89-B3A1-62C5B0DD9BF3",
+                      "key" : "t",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "D497D9D2-7BA4-4B9A-ABA4-D69D1620CB5A",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "F9458E4E-5AFE-4E48-8163-38EB290A2927",
+            "name" : "New Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "4D4A4EB5-4321-437D-9315-CA7A74E11CF3",
+                    "key" : "F19",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "color" : "#000",
+        "id" : "76B2BE17-C899-4C14-AD24-B009E695BDB2",
+        "name" : "Microsoft Edge",
+        "rule" : {
+          "bundleIdentifiers" : [
+            "com.microsoft.edgemac"
+          ],
+          "days" : [
+
+          ],
+          "id" : "BEF3F42A-543F-4A43-94F9-F3E5010AF7C4"
+        },
+        "symbol" : "folder",
+        "workflows" : [
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "DD6BD011-F1E0-42FD-BD83-747C6648781D",
+                      "key" : "y",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "EC956BE5-36B5-46F1-BF2D-B0884D8CE0BE",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "0050A9EE-3AE9-4CF2-AB7E-FE3FDF6C9E59",
+            "name" : "History",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "33B7E916-0C1F-4EFF-8D44-740D332153C5",
+                    "key" : "?⃝",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "70011A2D-7C70-4606-B55E-5E18B1787D14",
+                      "key" : "t",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "8514F805-A190-4D60-A612-51771870DC9F",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "F4AD1039-BA54-4301-BEBA-40B3219602D9",
+            "name" : "Restore Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "82265343-3183-40B7-BF4C-59EE967A2195",
+                    "key" : "F13",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "A2131B3B-0248-416B-8E65-4C281CE50F04",
+                      "key" : "]",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "DA5B2241-EC85-462B-8BA4-DA712CD8B283",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "22227B76-25CC-4F51-BF66-81754CFDECBE",
+            "name" : "Next Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "10811C2F-F576-4E5B-9DBE-484E7BDC2B58",
+                    "key" : "F15",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "195DE6E4-FE2D-4A1C-9619-19921ACDFC4B",
+                      "key" : "[",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "9057C0DA-20B7-4AB9-89F4-C2B0D97FA4EE",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "66DF17A3-0E83-4BA4-80CF-769E3FE5A9E0",
+            "name" : "Previous Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "1FDED3D1-EDE6-44C1-A44F-9168B1EBB64B",
+                    "key" : "F18",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "color" : "#000",
+        "id" : "9D7DD13C-97F3-4946-B312-71FC8D6E2D11",
+        "name" : "Visual Studio Code",
+        "rule" : {
+          "bundleIdentifiers" : [
+            "com.microsoft.VSCode"
+          ],
+          "days" : [
+
+          ],
+          "id" : "B81E975B-A929-4779-931C-8B9CFB7C9BB1"
+        },
+        "symbol" : "folder",
+        "workflows" : [
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "5AA28F4E-D074-4616-8020-C40BC0A073F2",
+                      "key" : "j",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "83FCC9F7-3917-463A-9B2B-DB2A2A95B6CB",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "B1C80048-53D7-44DF-907B-34D290EE7F06",
+            "name" : "Toggle Panel",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "DA77FB12-7501-44ED-ABE0-F3681F6DD9AA",
+                    "key" : "F16",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "1C176FA8-0CC5-48B7-8C8B-1BCFFD32CF02",
+                      "key" : "F5"
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "B40F924A-E790-45EA-86AA-793597024E9B",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "C024C69F-2D3F-4E2E-89E1-FB82EE751995",
+            "name" : "Debug",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "07C2EAC2-2177-4704-8FDE-CBE10BB08181",
+                    "key" : "?⃝",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "98B35AD1-C893-4E4C-9F83-63554BE2B3E3",
+                      "key" : "t",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "43BB01B3-B680-4507-82B6-3F7FEA9810BE",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "2D174DF4-056A-4242-A1EF-D7E41CB8123A",
+            "name" : "Go to Implementations",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "3D2D78CC-98E8-4DC6-882A-4F5DC7663BFA",
+                    "key" : "F19",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "05DDB98B-7CC6-49A7-B93E-AB9FD61DCE4C",
+                      "key" : "b",
+                      "modifiers" : [
+                        "^",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "D9FF4AE1-1234-4D40-88AA-14B556F46E3F",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "202F839E-7905-4D25-80E4-90E4E3F74DBE",
+            "name" : "Set Breakpoint",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "B58A45FD-A6FB-4F03-8739-C7BFA6879D4D",
+                    "key" : "F13",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "C7CC5507-A557-47FE-A9C5-68DF2EB2F1F8",
+                      "key" : "f",
+                      "modifiers" : [
+                        "$",
+                        "~"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "16754258-D58C-4C2F-9F98-CCBE4DBB6454",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "BA6633E9-6922-436E-8E09-016A1A688735",
+            "name" : "Format Document",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "ABEC7E60-DEC9-44A3-A8F8-E68CC2B8B4A2",
+                    "key" : "↖",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "B92BAC32-E14D-4CAE-8C2A-315FB909E445",
+                      "key" : ".",
+                      "modifiers" : [
+                        "r@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "060C32D0-F675-40BB-A0D1-F994ADFB6573",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "5204C9A0-F72B-41CD-B67E-388F62F2A026",
+            "name" : "Code Actions",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "E038AE90-0B74-4E56-9A7D-4A56CD845602",
+                    "key" : "↘",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "D3BEA2D2-98C6-489F-B38A-841AE048F8F6",
+                      "key" : "]",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "422938F3-2020-4650-9279-25136C9CA7AA",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "680E7AF1-A07E-475C-9556-344EEAA68D4E",
+            "name" : "Next Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "96EDD856-97A7-4EE4-8DDB-D49F5B70093F",
+                    "key" : "F15",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "779C4E71-0AF7-485D-B80F-24C074837BA9",
+                      "key" : "[",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "CB014617-DA97-49C7-8CD8-8693784CB169",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "E52FB770-22A4-4F39-884A-E8F6A755689F",
+            "name" : "Previous Tab",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "7ED78D71-DD69-47AD-A299-31A5DD00E116",
+                    "key" : "F18",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "color" : "#000",
+        "id" : "8B7C5F23-FBBE-4F9A-B1E9-B6FB4A4A4817",
+        "name" : "Beekeeper Studio",
+        "rule" : {
+          "bundleIdentifiers" : [
+            "io.beekeeperstudio.desktop"
+          ],
+          "days" : [
+
+          ],
+          "id" : "56D8876A-1810-4DCA-A00E-B7A6F5E25553"
+        },
+        "symbol" : "folder",
+        "workflows" : [
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "1712947E-C4A5-49B3-ABFE-913BE0B76E2E",
+                      "key" : "↩",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "A6136D37-563D-47F6-BA6B-2D48E52D93ED",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "1DA8DC1A-5F55-4AF1-BAAF-50106E653017",
+            "name" : "Run Current Command",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "7911700D-D13F-49C7-BFA1-72BD513812B2",
+                    "key" : "?⃝",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "B648A2C2-75EC-45C7-A613-870C25728FCE",
+                      "key" : "↩",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "4698BDFE-8EDA-4DE3-BB9D-B76A661B9AFD",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "97BF508D-2648-45CB-926C-DB11765D5FB4",
+            "name" : "Run All Command",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "02E050DD-E88C-4FBC-901A-F7898CB4D3C1",
+                    "key" : "F13",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "color" : "#000",
+        "id" : "7E591FAB-82BC-485B-A04A-C2C8692BB2B0",
+        "name" : "Slack",
+        "rule" : {
+          "bundleIdentifiers" : [
+            "com.tinyspeck.slackmacgap"
+          ],
+          "days" : [
+
+          ],
+          "id" : "B4E47B1D-B941-41AE-AFF6-118B1268CDAC"
+        },
+        "symbol" : "folder",
+        "workflows" : [
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "B6973614-B141-4870-99F0-971F2BD9464C",
+                      "key" : "k",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "2CD36544-AB6D-4DB6-95F6-30C14886882E",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "93638577-BBF2-48CC-993B-6C9E31D92301",
+            "name" : "Jump to Conversation",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "7F4C14E7-8B8D-45D9-9CE5-51281DD9A6D5",
+                    "key" : "F19",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "F4010BA1-C463-4957-9425-7EEE0B3724C4",
+                      "key" : "↑",
+                      "modifiers" : [
+                        "~"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "2EF09327-34D2-475F-81E8-D94F0CF3B0B4",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "1A5D7096-AE82-4261-A478-2A34108F0E00",
+            "name" : "Go Up",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "3C99BA52-9B97-4BD2-9959-DDF8BD3F7E3A",
+                    "key" : "F15",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "7C43758D-F42A-4D8A-B300-C0EBB3E1B600",
+                      "key" : "↓",
+                      "modifiers" : [
+                        "~"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "A3A48EC4-7459-4A76-961C-1220FE0CB2D3",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "87E637EA-A66B-4AD5-A6DE-BF872A304EED",
+            "name" : "Go Down",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "9D2B2B2D-F72E-46FD-A83D-A63CDB54F92E",
+                    "key" : "F18",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "061AD8A8-52D0-420E-B224-E7DBEFD60884",
+                      "key" : "m",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "37ABEED8-9394-44DF-B5D5-9F05CE570A96",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "793C8A7D-40EE-4706-874C-0B6EAD340811",
+            "name" : "Open Activity",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "933D29E0-99FB-4202-990F-EA92BF6ABC38",
+                    "key" : "F16",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "639C51D9-2D49-4CB6-8342-9EA6934F04BD",
+                      "key" : "a",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "0568A783-557D-41A9-ABE3-7A3EB7531C9C",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "FA161EEE-417B-4384-B92F-A210393A98DD",
+            "name" : "Open Unreads",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "2B47A999-3F8D-4012-9A2B-885223F56364",
+                    "key" : "F14",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "F30A3242-CA37-4156-8A61-0399A97AC7BE",
+                      "key" : "t",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "F5B15B9F-0628-42D4-8A5D-C5D2768C3936",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "3329FB7A-0773-49A1-BEB5-6E9A324E400B",
+            "name" : "Open Threads",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "4AB69736-16FC-4801-B99A-08B620381A2C",
+                    "key" : "F13",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "2A0CD108-281F-4212-A6EB-C2305A72D8D8",
+                      "key" : "2",
+                      "modifiers" : [
+                        "^"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "81B0730D-C45A-4C0A-84CC-C50D5C634C06",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "332A12F4-724E-47E3-94F3-152AD5246AC2",
+            "name" : "Open DMs",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "95482ABA-082A-4CD6-8A79-60AA788BDBF0",
+                    "key" : "?⃝",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "color" : "#000",
+        "id" : "B105F165-A455-4529-9C9F-80103C282F45",
+        "name" : "Spotify",
+        "rule" : {
+          "bundleIdentifiers" : [
+            "com.spotify.client"
+          ],
+          "days" : [
+
+          ],
+          "id" : "0A13E94F-5847-42DE-B3E7-2CCCADE4EAA9"
+        },
+        "symbol" : "folder",
+        "workflows" : [
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "97BC3868-CED4-42E3-AB65-D221D352FB79",
+                      "key" : "→",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "5E747315-777C-4A57-8159-E78969D5360E",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "287F3C5C-FC7A-4EB5-B333-CBA88AB0016C",
+            "name" : "Next Song",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "28ABC873-0691-438C-A3AB-6B81E0F7ADA1",
+                    "key" : "F15",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "F92D7F48-720B-457F-B424-1B8302DBF961",
+                      "key" : "←",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "6DB89BAE-7BCC-4793-BB1C-E38E003A0F28",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "488B4A42-5C82-4F2D-8A3A-25E2F02AC91E",
+            "name" : "Previous Song",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "D9720F52-B0F5-4C69-B7DF-D31ACFD4EC06",
+                    "key" : "F18",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "69115CFE-179A-482C-A5F8-77775BA26222",
+                      "key" : "↑",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "8DE0A4E4-6654-49E5-A1B8-B6AE776876DD",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "B31EEEBB-2B07-4529-BC1E-0F96783FE27F",
+            "name" : "Volume Up",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "AE77A3A0-53D5-4067-94A0-54B2039E203C",
+                    "key" : "↖",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "22F2611C-E944-41AC-88EB-B52B61979E66",
+                      "key" : "↓",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "2AAE7D6F-5216-4214-B1E9-8D2B5B0BE8DA",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "7E94D38A-0B11-4F81-BD95-C3267EF48EC2",
+            "name" : "Volume Down",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "4D560C7D-16CA-4E38-A588-3499F5F8B2D8",
+                    "key" : "↘",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "1807F90D-48EC-4D84-B34E-12F0562499CC",
+                      "key" : "Space"
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "17DD365E-92D4-4110-A00B-67CB23C65AED",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "45DC296A-E799-4720-8560-A4BB863A1AB9",
+            "name" : "Play\/Pause",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "2BAA761D-8598-40AA-97F6-AE579B061A46",
+                    "key" : "F19",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "9720DD00-6A74-41BE-A423-629973826993",
+                      "key" : "s",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "6F9B573E-F6C2-4DB5-BB49-39BA292C9F12",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "4488081A-6B7B-4C2A-A3FC-FA8F9F2B62A3",
+            "name" : "Shuffle",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "F9D4162A-BADF-47D4-A63B-6A6F17855323",
+                    "key" : "?⃝",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "E8AE2505-5FA3-44DA-971C-60C395671521",
+                      "key" : "r",
+                      "modifiers" : [
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "51D2CA05-DDFD-41E1-AD9E-05FA98996696",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "EE3EEA65-6CF0-426A-BDA8-A0D651A82412",
+            "name" : "Repeat",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "D9EDE9B3-C3D4-4B72-A927-7BE8050F0332",
+                    "key" : "F13",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "59C80FB7-8743-4CC1-A301-74F34EC399BA",
+                      "key" : "→",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "EAEA2309-0195-4FA7-B7BD-B57151EB5B35",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "EFBA37AA-84A5-4831-AF3D-43242ABA5AD7",
+            "name" : "Seek Forward",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "320EABE3-7129-4EF1-8FEA-2BCAAF12AB0B",
+                    "key" : "F16",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "commands" : [
+              {
+                "keyboardCommand" : {
+                  "iterations" : 1,
+                  "keyboardShortcuts" : [
+                    {
+                      "id" : "D1C1AC18-3C4E-4593-8A61-789A7C7EF205",
+                      "key" : "←",
+                      "modifiers" : [
+                        "$",
+                        "@"
+                      ]
+                    }
+                  ],
+                  "meta" : {
+                    "enabled" : true,
+                    "id" : "F7374994-2813-423B-861C-70D999A9AFE2",
+                    "name" : ""
+                  }
+                }
+              }
+            ],
+            "execution" : "concurrent",
+            "id" : "0904A515-7AE4-43E5-B62A-9110DD48A58E",
+            "name" : "Seek Backward",
+            "trigger" : {
+              "keyboardShortcuts" : {
+                "passthrough" : false,
+                "shortcuts" : [
+                  {
+                    "id" : "B425C1E8-9F03-4F54-9FAC-339993064ACF",
+                    "key" : "F14",
+                    "modifiers" : [
+                      "fn"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "id" : "4FC0843A-3039-4F7A-8DBD-99AE850DC727",
+    "name" : "Default Configuration",
+    "userModes" : [
+
+    ]
+  }
+]
