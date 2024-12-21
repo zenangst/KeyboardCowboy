@@ -102,7 +102,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       if machPortEvent.type == .keyDown {
         Benchmark.shared.start("MachPortCoordinator.intercept", forceEnable: false)
       }
+
       intercept(machPortEvent, tryGlobals: true, runningMacro: false)
+
       if machPortEvent.type == .keyDown {
         Benchmark.shared.stop("MachPortCoordinator.intercept", forceEnable: false)
       }

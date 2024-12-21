@@ -11,6 +11,7 @@ struct IconOverview: PreviewProvider {
       TriggersIconView(size: size)
       HideAllIconView(size: size)
       WindowManagementIconView(size: size)
+      WindowSwitcherIconView(size: size)
       ActivateLastApplicationIconView(size: size)
       RelativeFocusIconView(.up, size: size)
       MagicVarsIconView(size: size)

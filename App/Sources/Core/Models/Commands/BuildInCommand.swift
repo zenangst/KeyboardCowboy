@@ -15,6 +15,7 @@ struct BuiltInCommand: MetaDataProviding {
     case macro(MacroAction)
     case userMode(UserMode, Action)
     case commandLine(CommandLineAction)
+    case windowSwitcher
 
     var id: String {
       switch self {
@@ -28,6 +29,7 @@ struct BuiltInCommand: MetaDataProviding {
       case .commandLine(let action): "commandLine-\(action.id)"
       case .repeatLastWorkflow:
         "repeat-last-workflow"
+      case .windowSwitcher: "windowSwitcher"
       }
     }
 
@@ -37,6 +39,7 @@ struct BuiltInCommand: MetaDataProviding {
       case .userMode(let model, _): model.id
       case .commandLine(let action): action.id
       case .repeatLastWorkflow: id
+      case .windowSwitcher: id
       }
     }
 
@@ -55,6 +58,7 @@ struct BuiltInCommand: MetaDataProviding {
           }
       case .commandLine:   "Open Command Line"
       case .repeatLastWorkflow: "Repeat Last Workflow"
+      case .windowSwitcher:  "Window Switcher"
       }
     }
   }

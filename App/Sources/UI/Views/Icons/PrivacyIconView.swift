@@ -21,7 +21,9 @@ struct PrivacyIconView: View {
       )
       .mask(alignment: .trailing) {
         Rectangle()
-          .frame(width: size * 0.5)
+          .frame(width: size * 2, height: size * 2)
+          .offset(x: size * 1.35)
+          .rotationEffect(.degrees(45), anchor: .center)
       }
     }
     .drawingGroup()

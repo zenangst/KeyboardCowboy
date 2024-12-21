@@ -111,7 +111,8 @@ final class Core {
       commandLine: commandLine,
       configurationStore: configurationStore,
       macroRunner: macroRunner,
-      repeatLastWorkflowRunner: repeatLastWorkflowRunner
+      repeatLastWorkflowRunner: repeatLastWorkflowRunner,
+      windowOpener: WindowOpener(core: self)
     ),
     scriptCommandRunner: scriptCommandRunner,
     keyboardCommandRunner: keyboardCommandRunner,

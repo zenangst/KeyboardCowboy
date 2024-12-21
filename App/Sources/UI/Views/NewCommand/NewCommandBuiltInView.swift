@@ -29,10 +29,14 @@ struct NewCommandBuiltInView: View {
                    label: { Text("Open Command Line") })
             Button(action: { kindSelection = .repeatLastWorkflow },
                    label: { Text("Repeat Last Workflow") })
+            Button(action: { kindSelection = .windowSwitcher },
+                   label: { Text("Window Switcher") })
             Text("Modes")
+              .font(.caption)
             Button(action: { kindSelection = .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle) },
                    label: { Text("User Mode") })
             Text("Macros")
+              .font(.caption)
             Button(action: { kindSelection = .macro(.record) },
                    label: { Text("Record Macros") })
             Button(action: { kindSelection = .macro(.remove) },
@@ -47,13 +51,14 @@ struct NewCommandBuiltInView: View {
             case .userMode: Text("User Mode")
             case .commandLine: Text("Open Command Line")
             case .repeatLastWorkflow: Text("Repeat Last Command")
+            case .windowSwitcher: Text("Window Switcher")
             }
           }
         }
       }
 
       switch kindSelection {
-      case .macro, .commandLine, .repeatLastWorkflow:
+      case .macro, .commandLine, .repeatLastWorkflow, .windowSwitcher:
         EmptyView()
       case .userMode:
         userMode()
@@ -125,6 +130,9 @@ struct NewCommandBuiltInView: View {
     case .repeatLastWorkflow:
       validation = true
       newKind = .repeatLastWorkflow
+    case .windowSwitcher:
+      validation = true
+      newKind = .windowSwitcher
     }
 
     payload = .builtIn(builtIn: .init(kind: newKind, notification: nil))

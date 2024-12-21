@@ -9,8 +9,8 @@ struct ActivateLastApplicationIconView: View {
       .overlay { iconBorder(size) }
       .overlay(alignment: .center) {
         LinearGradient(stops: [
-          .init(color: Color(nsColor: .white), location: 0.35),
-          .init(color: Color(nsColor: .systemPink.blended(withFraction: 0.2, of: .white)!), location: 1.0),
+          .init(color: Color(nsColor: .white).opacity(0.8), location: 0.35),
+          .init(color: Color(nsColor: .systemPink), location: 1.0),
         ], startPoint: .topLeading, endPoint: .bottom)
         .mask {
           ZStack {

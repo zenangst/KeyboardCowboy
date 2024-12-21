@@ -12,6 +12,7 @@ enum BuiltinIconBuilder {
     case .userMode: UserModeIconView(size: size)
     case .commandLine: CommandLineIconView(size: size)
     case .repeatLastWorkflow: RepeatLastWorkflowIconView(size: size)
+    case .windowSwitcher: WindowSwitcherIconView(size: size)
     }
   }
 }

@@ -265,7 +265,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
                                         checkCancellation: checkCancellation)
       output = command.name
     case .builtIn(let builtInCommand):
-      output = try await runners.builtIn.run(builtInCommand, machPortEvent: machPortEvent)
+      output = try await runners.builtIn.run(builtInCommand, snapshot: snapshot, machPortEvent: machPortEvent)
     case .bundled(let bundledCommand):
       switch bundledCommand.kind {
       case .appFocus(let focusCommand):

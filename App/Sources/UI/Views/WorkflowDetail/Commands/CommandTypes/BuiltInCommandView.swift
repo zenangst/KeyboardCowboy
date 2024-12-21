@@ -130,7 +130,7 @@ private struct BuiltInCommandContentView: View {
         .fixedSize()
 
       switch model.kind {
-      case .macro, .commandLine, .repeatLastWorkflow:
+      case .macro, .commandLine, .repeatLastWorkflow, .windowSwitcher:
         EmptyView()
       case .userMode:
         Menu(content: {

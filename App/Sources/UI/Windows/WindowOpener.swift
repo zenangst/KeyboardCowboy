@@ -4,6 +4,7 @@ import SwiftUI
 @MainActor
 final class WindowOpener: ObservableObject {
   private let core: Core
+  private lazy var windowSwitcherWindow = WindowSwitcherWindow()
 
   init(core: Core) {
     self.core = core
@@ -13,6 +14,10 @@ final class WindowOpener: ObservableObject {
 
   @objc func openMainWindow() {
     MainWindow(core: core).open()
+  }
+
+  func openWindowSwitcher(_ snapshot: UserSpace.Snapshot) {
+    windowSwitcherWindow.open(snapshot)
   }
 
   func openGroup(_ context: GroupWindow.Context) {
