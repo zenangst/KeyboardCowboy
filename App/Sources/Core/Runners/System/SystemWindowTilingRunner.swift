@@ -239,7 +239,7 @@ final class SystemWindowTilingRunner {
               nextTiling = currentStorage.tiling
               updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
             } else {
-              nextTiling = activatedTiling
+              nextTiling = .fill
               updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
             }
           } else {
