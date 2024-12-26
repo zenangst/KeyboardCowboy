@@ -49,10 +49,9 @@ final class TextCommandRunner {
       pasteboard.clearContents()
       pasteboard.setString(input, forType: .string)
 
-      try await Task.sleep(for: .milliseconds(50))
+      try await Task.sleep(for: .milliseconds(100))
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyUp, flags: .maskCommand)
-      try await Task.sleep(for: .milliseconds(10))
     }
 
     if command.actions.contains(.insertEnter) {
