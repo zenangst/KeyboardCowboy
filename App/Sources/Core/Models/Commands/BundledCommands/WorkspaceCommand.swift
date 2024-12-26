@@ -104,14 +104,16 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             modifiers: [.waitForAppToLaunch]
           )))
 
-        if hideOtherApps && !perfectBundleMatch { commands.append(hideAllAppsCommand) }
+        if hideOtherApps && !perfectBundleMatch || windowPids.isEmpty || runningTargetApps.isEmpty {
+          commands.append(hideAllAppsCommand)
+        }
 
         let activationDelay: Double?
 
-        if perfectBundleMatch {
-          activationDelay = nil
-        } else if slowBundles.contains(application.bundleIdentifier) || application.metadata.isElectron {
+        if slowBundles.contains(application.bundleIdentifier) || application.metadata.isElectron {
           activationDelay = 225
+        } else if perfectBundleMatch {
+          activationDelay = nil
         } else {
           activationDelay = 25
         }
