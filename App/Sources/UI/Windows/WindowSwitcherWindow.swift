@@ -4,14 +4,15 @@ import Carbon
 import Cocoa
 import Combine
 import SwiftUI
+import Windows
 
 @MainActor
 final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   private lazy var publisher: WindowSwitcherPublisher = .init(items: [], selections: [])
   private var subscription: AnyCancellable?
   private var window: NSWindow?
-  private var snapshot: UserSpace.Snapshot?
   private var keyMonitor: Any?
+  private var windows: [WindowModel] = []
 
   func open(_ snapshot: UserSpace.Snapshot) {
     if window != nil {
@@ -23,18 +24,26 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       return
     }
 
-    self.filter(snapshot, query: publisher.query)
-    if let initialSelections = publisher.items.prefix(2).last?.id {
-      publisher.publish([initialSelections])
-    }
 
     let window = createWindow()
     window.orderFrontRegardless()
     window.makeKeyAndOrderFront(nil)
     window.center()
 
+    let onScreenWindows = WindowStore.shared.getWindows(onScreen: true)
+    let ids = Set(onScreenWindows.map(\.windowNumber))
+    let notOnScreenWindows = WindowStore.shared.getWindows(onScreen: false)
+      .filter({ !ids.contains($0.windowNumber) })
+    let rawWindows = onScreenWindows + notOnScreenWindows
+    let windows = WindowStore.shared.allApplicationsInSpace(rawWindows, onScreen: false, sorted: false)
+
+    self.filter(windows, query: publisher.query)
+    if let initialSelections = publisher.items.prefix(2).last?.id {
+      publisher.publish([initialSelections])
+    }
+
+    self.windows = windows
     self.window = window
-    self.snapshot = snapshot
     self.subscription = subscribe(to: publisher.$query)
   }
 
@@ -113,15 +122,14 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   // MARK: Private methods
 
   private func subscribe(to target: Published<String>.Publisher) -> AnyCancellable {
-    target.sink { [weak self, snapshot] newValue in
-      guard let self, let snapshot else { return }
-
-      self.filter(snapshot, query: newValue)
+    target.sink { [weak self] newValue in
+      guard let self else { return }
+      self.filter(windows, query: newValue)
     }
   }
 
-  private func filter(_ snapshot: UserSpace.Snapshot, query: String) {
-    let items = self.createItems(from: snapshot)
+  private func filter(_ windows: [WindowModel], query: String) {
+    let items = self.createItems(from: windows)
 
     if query.isEmpty {
       publisher.publish(items)
@@ -153,9 +161,9 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     }
   }
 
-  private func createItems(from snapshot: UserSpace.Snapshot) -> [WindowSwitcherView.Item]
+  private func createItems(from windows: [WindowModel]) -> [WindowSwitcherView.Item]
   { var items = [WindowSwitcherView.Item]()
-    for window in snapshot.windows.visibleWindowsInSpace {
+    for window in windows {
       guard let process = NSWorkspace.shared.runningApplications.first(where: {
         $0.processIdentifier == window.ownerPid.rawValue
       }),
@@ -174,7 +182,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         id: "\(window.id)",
         title: axWindow.title ?? window.name,
         app: app,
-        window: axWindow
+        window: axWindow,
+        onScreen: window.isOnScreen
       )
 
       items.append(item)

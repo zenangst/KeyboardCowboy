@@ -105,23 +105,7 @@ final class WindowStore: @unchecked Sendable {
     return state.snapshot()
   }
 
-  // MARK: - Private methods
-
-  private func getWindows() -> [WindowModel] {
-    let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
-    let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
-    return windowModels
-  }
-
-  private func index(_ runningApplication: UserSpace.Application) {
-    let windows = getWindows()
-    self.windows = windows
-    indexAllApplicationsInSpace(windows)
-    indexStage(windows)
-    indexFrontmost()
-  }
-
-  private func indexAllApplicationsInSpace(_ models: [WindowModel]) {
+  func allApplicationsInSpace(_ models: [WindowModel], onScreen: Bool, sorted: Bool = true) -> [WindowModel] {
     let excluded = ["WindowManager", "Window Server"]
     let minimumSize = CGSize(width: 48, height: 48)
     let windowModels: [WindowModel] = models
@@ -129,18 +113,22 @@ final class WindowStore: @unchecked Sendable {
         $0.ownerName != "borders" &&
         $0.alpha > 0 &&
         $0.id > 0 &&
-        $0.isOnScreen &&
+        (onScreen ? $0.isOnScreen : true) &&
         $0.rect.size.width > minimumSize.width &&
         $0.rect.size.height > minimumSize.height &&
         !excluded.contains($0.ownerName)
       }
-      .sorted { lhs, rhs in
+
+    if sorted {
+      return windowModels.sorted { lhs, rhs in
         lhs.rect.origin.y < rhs.rect.origin.y
       }
-    state.visibleWindowsInSpace = windowModels
+    }
+
+    return windowModels
   }
 
-  private func indexStage(_ models: [WindowModel]) {
+  func indexStage(_ models: [WindowModel]) -> [WindowModel] {
     let excluded = ["WindowManager", "Window Server"]
     let minimumSize = CGSize(width: 300, height: 200)
     let windowModels: [WindowModel] = models
@@ -153,8 +141,25 @@ final class WindowStore: @unchecked Sendable {
         $0.rect.size.height > minimumSize.height &&
         !excluded.contains($0.ownerName)
       }
+    return windowModels
+  }
 
-    state.visibleWindowsInStage = windowModels
+  func getWindows(onScreen: Bool =  true) -> [WindowModel] {
+    let options: CGWindowListOption = onScreen
+    ? [.optionOnScreenOnly, .excludeDesktopElements]
+    : [.excludeDesktopElements]
+    let windowModels: [WindowModel] = ((try? WindowsInfo.getWindows(options)) ?? [])
+    return windowModels
+  }
+  
+  // MARK: - Private methods
+
+  private func index(_ runningApplication: UserSpace.Application) {
+    let windows = getWindows()
+    self.windows = windows
+    state.visibleWindowsInSpace = allApplicationsInSpace(windows, onScreen: true)
+    state.visibleWindowsInStage = indexStage(windows)
+    indexFrontmost()
   }
 
   private func indexFrontmost() {

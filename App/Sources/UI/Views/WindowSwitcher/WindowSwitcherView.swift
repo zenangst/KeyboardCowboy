@@ -31,11 +31,13 @@ struct WindowSwitcherView: View {
     let title: String
     let app: Application
     let window: WindowAccessibilityElement
+    let onScreen: Bool
 
     static func == (lhs: Item, rhs: Item) -> Bool {
       lhs.id == rhs.id &&
       lhs.title == rhs.title &&
-      lhs.app == rhs.app
+      lhs.app == rhs.app &&
+      lhs.onScreen == rhs.onScreen
     }
   }
 
@@ -131,9 +133,20 @@ fileprivate struct WindowView: View {
     HStack {
       IconView(icon: Icon.init(item.app),
                size: CGSize(width: 32, height:32))
+      .opacity(item.onScreen ? 1 : item.window.isMinimized == true ? 1 : 0.5)
+      .overlay(alignment: .bottomTrailing) {
+        Image(systemName: "arrow.down.app.fill")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 16, height: 16)
+          .foregroundStyle(Color.white)
+          .shadow(radius: 2)
+          .opacity(item.window.isMinimized == true ? 1 : 0)
+      }
       Text(item.title)
+        .font(.title3)
         .lineLimit(1)
-        .minimumScaleFactor(0.8)
+        .minimumScaleFactor(0.9)
       Spacer()
       Text(item.app.displayName)
         .foregroundStyle(Color.secondary)
@@ -149,6 +162,9 @@ fileprivate struct WindowView: View {
           .opacity(selected.wrappedValue ? 0.5 : 0), location: 0.0),
         Gradient.Stop(color: Color.clear, location: 1.0),
       ], startPoint: .top, endPoint: .bottom)
+      .mask {
+        RoundedRectangle(cornerRadius: 6)
+      }
     }
     .overlay {
       RoundedRectangle(cornerRadius: 6)
@@ -159,10 +175,9 @@ fileprivate struct WindowView: View {
             endPoint: .bottom
           ), lineWidth: 1
         )
+        .padding(1)
         .opacity(selected.wrappedValue ? 1 : 0)
-        .animation(.smooth, value: animated)
     }
-    .padding(.vertical, 3)
     .onAppear {
       if selected.wrappedValue {
         withAnimation(.smooth) {
@@ -184,8 +199,8 @@ fileprivate struct WindowView: View {
       ]
     } else {
       [
-        Gradient.Stop(color: Color.white.opacity(0.2), location: 0.0),
-        Gradient.Stop(color: Color.clear, location: 1.0),
+        Gradient.Stop(color: Color.white.opacity(0.3), location: 0.0),
+        Gradient.Stop(color: Color(nsColor: .controlAccentColor.withSystemEffect(.pressed)).opacity(0.9), location: 1.0),
       ]
     }
   }
