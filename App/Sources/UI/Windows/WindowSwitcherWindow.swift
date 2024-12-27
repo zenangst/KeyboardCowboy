@@ -127,6 +127,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   private func subscribe(to target: Published<String>.Publisher) -> AnyCancellable {
     target
       .dropFirst()
+      .debounce(for: .milliseconds(100), scheduler: RunLoop.main)
       .sink { [weak self] newValue in
       guard let self else { return }
       self.filter(windows, query: newValue)

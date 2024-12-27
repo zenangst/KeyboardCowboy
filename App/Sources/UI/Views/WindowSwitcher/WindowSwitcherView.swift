@@ -81,6 +81,7 @@ struct WindowSwitcherView: View {
   @ObserveInjection var inject
   @ObservedObject private var publisher: WindowSwitcherPublisher
 
+
   init(publisher: WindowSwitcherPublisher) {
     self.publisher = publisher
     focus = .textField
@@ -88,26 +89,35 @@ struct WindowSwitcherView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      TextField(text: $publisher.query, prompt: Text("Filter"), label: {
-        Text(publisher.query)
-      })
-      .textFieldStyle(
-        .zen(
-          .init(
-            calm: true,
-            color: .custom(.clear),
-            backgroundColor: Color.clear,
-            cornerRadius: 0,
-            font: .largeTitle,
-            glow: false,
-            focusEffect: .constant(false),
-            grayscaleEffect: .constant(false),
-            hoverEffect: .constant(false),
-            padding: .zero,
-            unfocusedOpacity: 0.8
+      HStack {
+          TextField(text: $publisher.query, label: {
+            Text(publisher.query)
+          })
+          .textFieldStyle(
+            .zen(
+              .init(
+                calm: true,
+                color: .custom(.clear),
+                backgroundColor: Color.clear,
+                cornerRadius: 0,
+                font: .largeTitle,
+                glow: false,
+                focusEffect: .constant(false),
+                grayscaleEffect: .constant(false),
+                hoverEffect: .constant(false),
+                padding: .zero,
+                unfocusedOpacity: 0.8
+              )
+            )
           )
-        )
-      )
+        .overlay(alignment: .leading) {
+          PromptView(publisher: publisher)
+        }
+        if let match = publisher.items.first(where: { publisher.selections.contains($0.id) }) {
+          IconView(icon: Icon.init(match.app),
+                   size: CGSize(width: 32, height:32))
+        }
+      }
       .padding(.horizontal, 8)
       .padding(.top, 4)
       .focused($focus, equals: .textField)
@@ -147,6 +157,55 @@ struct WindowSwitcherView: View {
     }
     .background(ZenVisualEffectView(material: .headerView, blendingMode: .behindWindow, state: .active))
     .ignoresSafeArea()
+    .enableInjection()
+  }
+}
+
+fileprivate struct PromptView: View {
+  @ObserveInjection var inject
+  @ObservedObject private var publisher: WindowSwitcherPublisher
+  @State var prompt = ""
+  @State private var textSize: CGSize = .zero
+
+  init(publisher: WindowSwitcherPublisher) {
+    self.publisher = publisher
+  }
+
+  var body: some View {
+    ZStack {
+      Text(prompt)
+          .allowsHitTesting(false)
+          .lineLimit(1)
+          .foregroundStyle(.secondary)
+          .onChange(of: publisher.selections, perform: { newValue in
+            if let match = publisher.items.first(where: { publisher.selections.contains($0.id) }) {
+              switch match.kind {
+              case .application:
+                prompt = "Open \(match.app.displayName)"
+              case .window(let window, _):
+                if let title = window.title {
+                  prompt = "Switch to \(title)"
+                } else {
+                  prompt = "Switch to \(match.app.displayName)"
+                }
+              }
+            }
+          })
+          .offset(x: textSize.width + (publisher.query.isEmpty ? 12 : 18))
+
+      Text(publisher.query)
+        .font(.largeTitle)
+        .background(GeometryReader { geometry in
+          Color.clear
+            .onAppear {
+              textSize = geometry.size
+            }
+            .onChange(of: geometry.size) { newSize in
+              textSize = newSize
+            }
+        })
+        .opacity(0)
+    }
     .enableInjection()
   }
 }
