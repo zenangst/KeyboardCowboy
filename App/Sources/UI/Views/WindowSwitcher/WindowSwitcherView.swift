@@ -27,17 +27,49 @@ final class WindowSwitcherPublisher: ObservableObject {
 
 struct WindowSwitcherView: View {
   struct Item: Identifiable, Equatable {
+    enum Kind: Equatable {
+      case application
+      case window(window: WindowAccessibilityElement, onScreen: Bool)
+
+      static func == (lhs: Kind, rhs: Kind) -> Bool {
+        switch (lhs, rhs) {
+        case (.application, .application):
+          return true
+        case (.window, .window):
+          return true
+        default:
+          return false
+        }
+      }
+    }
+
     let id: String
     let title: String
     let app: Application
-    let window: WindowAccessibilityElement
-    let onScreen: Bool
+    let kind: Kind
+
+    var onScreen: Bool {
+      switch kind {
+      case .application:
+        return false
+      case .window(_, let onScreen):
+        return onScreen == true
+      }
+    }
+
+    var isMinimized: Bool {
+      switch kind {
+        case .application:
+        return false
+      case .window(let window, _):
+        return window.isMinimized == true
+      }
+    }
 
     static func == (lhs: Item, rhs: Item) -> Bool {
       lhs.id == rhs.id &&
       lhs.title == rhs.title &&
-      lhs.app == rhs.app &&
-      lhs.onScreen == rhs.onScreen
+      lhs.kind == rhs.kind
     }
   }
 
@@ -48,15 +80,18 @@ struct WindowSwitcherView: View {
   @FocusState var focus: Focus?
   @ObserveInjection var inject
   @ObservedObject private var publisher: WindowSwitcherPublisher
+  @State private var query: String
 
   init(publisher: WindowSwitcherPublisher) {
     self.publisher = publisher
+    _query = .init(initialValue: publisher.query)
+    focus = .textField
   }
 
   var body: some View {
     VStack(spacing: 0) {
-      TextField(text: $publisher.query, prompt: Text("Filter"), label: {
-        Text(publisher.query)
+      TextField(text: $query, prompt: Text("Filter"), label: {
+        Text(query)
       })
       .textFieldStyle(
         .zen(
@@ -75,6 +110,9 @@ struct WindowSwitcherView: View {
           )
         )
       )
+      .onChange(of: query, perform: { newValue in
+        publisher.query = newValue
+      })
       .padding(.horizontal, 8)
       .padding(.top, 4)
       .focused($focus, equals: .textField)
@@ -108,7 +146,7 @@ struct WindowSwitcherView: View {
       }
     }
     .onAppear {
-      DispatchQueue.main.async {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
         focus = .textField
       }
     }
@@ -133,7 +171,7 @@ fileprivate struct WindowView: View {
     HStack {
       IconView(icon: Icon.init(item.app),
                size: CGSize(width: 32, height:32))
-      .opacity(item.onScreen ? 1 : item.window.isMinimized == true ? 1 : 0.5)
+      .opacity(item.onScreen ? 1 : item.isMinimized == true ? 1 : 0.5)
       .overlay(alignment: .bottomTrailing) {
         Image(systemName: "arrow.down.app.fill")
           .resizable()
@@ -141,7 +179,7 @@ fileprivate struct WindowView: View {
           .frame(width: 16, height: 16)
           .foregroundStyle(Color.white)
           .shadow(radius: 2)
-          .opacity(item.window.isMinimized == true ? 1 : 0)
+          .opacity(item.isMinimized == true ? 1 : 0)
       }
       Text(item.title)
         .font(.title3)
@@ -184,9 +222,6 @@ fileprivate struct WindowView: View {
           animated = true
         }
       }
-    }
-    .onChange(of: selected.wrappedValue) { newValue in
-      animated = newValue
     }
     .enableInjection()
   }

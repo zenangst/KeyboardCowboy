@@ -13,6 +13,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   private var window: NSWindow?
   private var keyMonitor: Any?
   private var windows: [WindowModel] = []
+  private var filterTask: Task<Void, any Error>?
 
   func open(_ snapshot: UserSpace.Snapshot) {
     if window != nil {
@@ -38,9 +39,6 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     let windows = WindowStore.shared.allApplicationsInSpace(rawWindows, onScreen: false, sorted: false)
 
     self.filter(windows, query: publisher.query)
-    if let initialSelections = publisher.items.prefix(2).last?.id {
-      publisher.publish([initialSelections])
-    }
 
     self.windows = windows
     self.window = window
@@ -62,7 +60,6 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         } else if let last = publisher.items.last {
           publisher.publish([last.id])
         }
-
         return nil
       case UInt16(kVK_Return):
         guard event.type == .keyDown,
@@ -73,8 +70,13 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
 
         let currentItem = publisher.items[currentIndex]
 
-        currentItem.window.performAction(.raise)
-        NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
+        switch currentItem.kind {
+        case .application:
+          NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
+        case .window(let window, _):
+          window.performAction(.raise)
+          NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
+        }
 
         self?.window?.close()
         return nil
@@ -122,7 +124,10 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   // MARK: Private methods
 
   private func subscribe(to target: Published<String>.Publisher) -> AnyCancellable {
-    target.sink { [weak self] newValue in
+    target
+      .dropFirst()
+      .removeDuplicates()
+      .sink { [weak self] newValue in
       guard let self else { return }
       self.filter(windows, query: newValue)
     }
@@ -133,14 +138,16 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
 
     if query.isEmpty {
       publisher.publish(items)
+      if let initialSelections = items.prefix(2).last?.id {
+        publisher.publish([initialSelections])
+      }
     } else {
       let words = Set(publisher.query.components(separatedBy: " ")
         .map(\.localizedLowercase))
       let currentSelection = publisher.selections
       var needsSelectionUpdate = true
 
-      // find all items that match either prefix, entire word lowercased
-      let filtered = items.filter { item in
+      var filtered = items.filter { item in
         for word in words {
           if item.title.localizedLowercase.contains(word) || item.app.displayName.localizedLowercase.contains(word) {
             if currentSelection.contains(item.id) {
@@ -153,8 +160,24 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         return false
       }
 
-      publisher.publish(filtered)
+      if filtered.isEmpty {
+        let openApps = Set(filtered.map { $0.app })
+        let apps = ApplicationStore.shared.applications
+          .filter { app in
+            if openApps.contains(app) { return false }
 
+            for word in words {
+              return app.displayName.localizedLowercase.contains(word)
+            }
+            return false
+          }
+          .map { app in
+            WindowSwitcherView.Item(id: app.path, title: app.displayName, app: app, kind: .application)
+          }
+        filtered.append(contentsOf: apps)
+      }
+
+      publisher.publish(filtered)
       if needsSelectionUpdate, let first = filtered.first?.id {
         publisher.selections = [first]
       }
@@ -182,8 +205,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         id: "\(window.id)",
         title: axWindow.title ?? window.name,
         app: app,
-        window: axWindow,
-        onScreen: window.isOnScreen
+        kind: .window(window: axWindow,
+                      onScreen: window.isOnScreen)
       )
 
       items.append(item)
