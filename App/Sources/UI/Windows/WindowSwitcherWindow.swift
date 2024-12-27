@@ -1,3 +1,4 @@
+import Apps
 import AXEssibility
 import Bonzai
 import Carbon
@@ -126,7 +127,6 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   private func subscribe(to target: Published<String>.Publisher) -> AnyCancellable {
     target
       .dropFirst()
-      .removeDuplicates()
       .sink { [weak self] newValue in
       guard let self else { return }
       self.filter(windows, query: newValue)
@@ -150,6 +150,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       var filtered = items.filter { item in
         for word in words {
           if item.title.localizedLowercase.contains(word) || item.app.displayName.localizedLowercase.contains(word) {
+            print(item.title.localizedLowercase, item.app.displayName, word)
             if currentSelection.contains(item.id) {
               needsSelectionUpdate = false
             }
@@ -160,10 +161,12 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         return false
       }
 
+      let openApps = Set(filtered.map { $0.app })
+      let apps = ApplicationStore.shared.applications
+      let matchingApps: [Application]
+
       if filtered.isEmpty {
-        let openApps = Set(filtered.map { $0.app })
-        let apps = ApplicationStore.shared.applications
-          .filter { app in
+          matchingApps = apps.filter { app in
             if openApps.contains(app) { return false }
 
             for word in words {
@@ -171,11 +174,18 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
             }
             return false
           }
-          .map { app in
-            WindowSwitcherView.Item(id: app.path, title: app.displayName, app: app, kind: .application)
-          }
-        filtered.append(contentsOf: apps)
+      } else if !query.isEmpty {
+        matchingApps = apps.filter { app in
+          app.displayName.lowercased() == query.lowercased()
+        }
+      } else {
+        matchingApps = []
       }
+
+      let appItems = matchingApps.map { app in
+          WindowSwitcherView.Item(id: app.path, title: app.displayName, app: app, kind: .application)
+        }
+      filtered.append(contentsOf: appItems)
 
       publisher.publish(filtered)
       if needsSelectionUpdate, let first = filtered.first?.id {

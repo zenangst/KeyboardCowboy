@@ -80,18 +80,16 @@ struct WindowSwitcherView: View {
   @FocusState var focus: Focus?
   @ObserveInjection var inject
   @ObservedObject private var publisher: WindowSwitcherPublisher
-  @State private var query: String
 
   init(publisher: WindowSwitcherPublisher) {
     self.publisher = publisher
-    _query = .init(initialValue: publisher.query)
     focus = .textField
   }
 
   var body: some View {
     VStack(spacing: 0) {
-      TextField(text: $query, prompt: Text("Filter"), label: {
-        Text(query)
+      TextField(text: $publisher.query, prompt: Text("Filter"), label: {
+        Text(publisher.query)
       })
       .textFieldStyle(
         .zen(
@@ -110,9 +108,6 @@ struct WindowSwitcherView: View {
           )
         )
       )
-      .onChange(of: query, perform: { newValue in
-        publisher.query = newValue
-      })
       .padding(.horizontal, 8)
       .padding(.top, 4)
       .focused($focus, equals: .textField)
