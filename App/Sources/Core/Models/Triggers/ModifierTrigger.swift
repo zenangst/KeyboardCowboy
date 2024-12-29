@@ -1,11 +1,11 @@
 import Foundation
 
 struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
-  let id: String
-  let modifier: ModifierKey?
-  let manipulator: Manipulator?
+  var id: String
+  var modifier: ModifierKey?
+  var manipulator: Manipulator?
 
-  struct Manipulator: Codable, Equatable, Sendable {
+  struct Manipulator: Hashable, Codable, Equatable, Sendable {
     let alone: ModifierKey?
     let heldDown: ModifierKey?
     let timout: TimeInterval?
