@@ -153,7 +153,8 @@ final class UIElementCaptureStore: ObservableObject {
           identifier: element.identifier,
           title: element.title,
           value: element.value,
-          role: element.role
+          role: element.role,
+          subrole: element.subrole
         )
         self.capturedElement = capturedElement
 
@@ -175,6 +176,7 @@ struct UIElementCaptureItem {
   let title: String?
   let value: String?
   let role: String?
+  let subrole: String?
 }
 
 final class WindowBorderViewPublisher: ObservableObject {

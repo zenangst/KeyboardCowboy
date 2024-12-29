@@ -96,6 +96,7 @@ struct UIElementCommand: MetaDataProviding {
       case identifier
       case title
       case value
+      case subrole
 
       var displayName: String {
         switch self {
@@ -103,6 +104,7 @@ struct UIElementCommand: MetaDataProviding {
         case .description: "Description"
         case .title: "Title"
         case .value: "Value"
+        case .subrole: "Subrole"
         }
       }
 
@@ -112,6 +114,7 @@ struct UIElementCommand: MetaDataProviding {
         case .description: kAXDescriptionAttribute
         case .title: kAXTitleAttribute
         case .value: kAXValueAttribute
+        case .subrole: kAXSubroleAttribute
         }
       }
     }
