@@ -90,7 +90,7 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
       }
 
       await MainActor.run { [applicationDictionary, applicationsByPath] in
-        self.applications = newApplications
+        self.applications = newApplications.sorted(by: { $0.displayName < $1.displayName })
         self.dictionary = applicationDictionary
         self.applicationsByPath = applicationsByPath
       }
