@@ -87,6 +87,12 @@ final class UIElementCommandRunner {
            predicate.compare.run(lhs: value, rhs: predicate.value) {
           return true
         }
+        
+        if predicate.properties.contains(.subrole),
+           let value = values[.subrole] as? String,
+           predicate.compare.run(lhs: value, rhs: predicate.value) {
+          return true
+        }
       }
       
       return false

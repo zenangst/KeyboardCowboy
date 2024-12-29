@@ -177,6 +177,11 @@ struct NewCommandUIElementView: View {
               .foregroundColor(.secondary)
             Text(element.role ?? "No value")
               .frame(maxWidth: .infinity, alignment: .leading)
+            Text("Subrole:")
+              .font(.system(.caption, design: .monospaced))
+              .foregroundColor(.secondary)
+            Text(element.subrole ?? "No value")
+              .frame(maxWidth: .infinity, alignment: .leading)
           }
         }
         .padding(8)
@@ -201,6 +206,9 @@ struct NewCommandUIElementView: View {
       } else if let elementTitle = element.title, !elementTitle.isEmpty {
         predicate.properties = [.title]
         predicate.value = elementTitle
+      } else if let elementSubrole = element.subrole, !elementSubrole.isEmpty {
+        predicate.properties = [.subrole]
+        predicate.value = elementSubrole
       }
 
       if let role = element.role {
@@ -275,7 +283,7 @@ struct NewCommandUIElementView: View {
     .environmentObject(
       UIElementCaptureStore(
         isCapturing: false,
-        capturedElement: .init(description: nil, identifier: nil, title: nil, value: nil, role: nil)
+        capturedElement: .init(description: nil, identifier: nil, title: nil, value: nil, role: nil, subrole: nil)
       )
     )
 }
