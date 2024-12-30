@@ -121,6 +121,10 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
+    Change(icon: { BugFixIconView(size: 24).anyView },
+           text: "Improve reliability of AppFocus & Workspace commands.",
+           version: .v3261),
+
     Change(icon: { WindowSwitcherIconView(size: 24).anyView },
            text: "Introduces the first version of the new Window Switcher.",
            version: .v3260),
