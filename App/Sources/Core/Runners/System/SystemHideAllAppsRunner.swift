@@ -1,7 +1,11 @@
+import Carbon
 import Cocoa
+import MachPort
 import Windows
 
 final class SystemHideAllAppsRunner {
+  @MainActor static var machPort: MachPortEventController?
+
   static func run(workflowCommands: [Command]) async throws {
     guard let screen = NSScreen.main else { return }
 
@@ -32,13 +36,18 @@ final class SystemHideAllAppsRunner {
       .filter { $0.activationPolicy == .regular && $0.isHidden == false }
 
     var processIdentifiers = Set<Int>()
+    let misbehavingBundles = ["com.apple.podcasts"]
+    var hideFailures = [NSRunningApplication]()
     for app in apps {
-      app.hide()
+      if !app.hide() && misbehavingBundles.contains(app.bundleIdentifier ?? "") {
+        hideFailures.append(app)
+      }
       processIdentifiers.insert(Int(app.processIdentifier))
     }
 
     var timeout: Int = 0
     var waitingForWindowsToDisappear: Bool = true
+
     while waitingForWindowsToDisappear {
       if timeout >= 10 {
         waitingForWindowsToDisappear = false
@@ -54,7 +63,19 @@ final class SystemHideAllAppsRunner {
       }
 
       timeout += 1
+      for app in hideFailures {
+        if #available(macOS 14.0, *) {
+          app.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateAllWindows)
+        } else {
+          app.activate(options: .activateAllWindows)
+        }
+        _ = try? await machPort?.post(kVK_ANSI_H, type: .keyDown, flags: .maskCommand)
+        _ = try? await machPort?.post(kVK_ANSI_H, type: .keyUp, flags: .maskCommand)
+
+        hideFailures.removeAll(where: { $0.bundleIdentifier == app.bundleIdentifier })
+      }
       try await Task.sleep(for: .milliseconds(100))
+
     }
   }
 

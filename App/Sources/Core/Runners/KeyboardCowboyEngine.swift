@@ -94,6 +94,7 @@ final class KeyboardCowboyEngine {
       keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
       uiElementCaptureStore.subscribe(to: machPortCoordinator)
       snippetController.subscribe(to: machPortCoordinator.$coordinatorEvent)
+      SystemHideAllAppsRunner.machPort = newMachPortController
     } catch let error {
       NSAlert(error: error).runModal()
     }
