@@ -125,6 +125,14 @@ private struct ChangesView: View {
            text: "Improve reliability of AppFocus & Workspace commands.",
            version: .v3261),
 
+    Change(icon: { WorkspaceIcon(size: 24).anyView },
+           text: "This update lets you turn off tiling for existing AppFocus and Workspace commands.",
+           version: .v3261),
+
+    Change(icon: { GenericAppIconView(size: 24).anyView },
+           text: "Sort applications by display name.",
+           version: .v3261),
+
     Change(icon: { WindowSwitcherIconView(size: 24).anyView },
            text: "Introduces the first version of the new Window Switcher.",
            version: .v3260),
