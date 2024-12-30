@@ -63,6 +63,7 @@ final class WindowOpener: ObservableObject {
           case .builtIn(let newCommand):
             command = .builtIn(newCommand)
           case .bundled(let newCommand):
+            workflow.execution = .serial
             command = .bundled(newCommand)
           case .menuBar(let tokens, let application):
             command = .menuBar(.init(id: resolvedCommandId, application: application, tokens: tokens))

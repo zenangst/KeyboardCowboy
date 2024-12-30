@@ -11,13 +11,12 @@ final class SystemHideAllAppsRunner {
     }
 
     let windows = Set(indexWindowsInStage(getWindows(), targetRect: screen.visibleFrame)
-      .map(\.ownerName))
+      .map(\.ownerPid.rawValue))
 
     let apps = NSWorkspace.shared.runningApplications
       .filter {
-        guard let localizedName = $0.localizedName else { return false }
-
-        guard windows.contains(localizedName) else { return false }
+        let processIdentifier = Int($0.processIdentifier)
+        guard windows.contains(processIdentifier) else { return false }
 
         guard !exceptBundleIdentifiers.contains($0.bundleIdentifier ?? "") else { return false }
         guard let bundleURL = $0.bundleURL else { return false }
