@@ -100,6 +100,13 @@ struct WorkspaceCommandView: View {
             }
 
             Menu {
+              Button {
+                model.tiling = nil
+                onTilingChange(nil)
+              } label: {
+                Text("No Tiling")
+              }
+
               ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
                 Button {
                   model.tiling = tiling
@@ -109,7 +116,7 @@ struct WorkspaceCommandView: View {
                 }
               }
             } label: {
-              Text(model.tiling?.name ?? "Select Tiling")
+              Text(model.tiling?.name ?? "No Tiling")
                 .font(.caption)
             }
             .menuStyle(.zen(.init(grayscaleEffect: .constant(true), hoverEffect: .constant(true))))

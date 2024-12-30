@@ -47,26 +47,25 @@ struct BundledCommandView: View {
   }
 
   private func performAppFocusUpdate<Value>(set keyPath: WritableKeyPath<AppFocusCommand, Value>, to value: Value) {
-    updater.modifyWorkflow(using: transaction) { [updater] workflow in
+    updater.modifyWorkflow(using: transaction) { workflow in
       workflow.execution = .serial
-      updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-        guard case .bundled(let bundledCommand) = command,
-              case .appFocus(var appFocusCommand) = bundledCommand.kind else { return }
-        appFocusCommand[keyPath: keyPath] = value
-        command = .bundled(BundledCommand(.appFocus(appFocusCommand), meta: command.meta))
-      }
+
+      guard let index = workflow.commands.firstIndex(where: { $0.meta.id == metaData.id }),
+            case .bundled(let bundledCommand) = workflow.commands[index],
+            case .appFocus(var appFocusCommand) = bundledCommand.kind else { return }
+      appFocusCommand[keyPath: keyPath] = value
+      workflow.commands[index] = .bundled(BundledCommand(.appFocus(appFocusCommand), meta:  workflow.commands[index].meta))
     }
   }
 
   private func performWorkspaceUpdate<Value>(set keyPath: WritableKeyPath<WorkspaceCommand, Value>, to value: Value) {
-    updater.modifyWorkflow(using: transaction) { [updater] workflow in
+    updater.modifyWorkflow(using: transaction) { workflow in
       workflow.execution = .serial
-      updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-        guard case .bundled(let bundledCommand) = command,
-              case .workspace(var workspaceCommand) = bundledCommand.kind else { return }
-        workspaceCommand[keyPath: keyPath] = value
-        command = .bundled(BundledCommand(.workspace(workspaceCommand), meta: command.meta))
-      }
+      guard let index = workflow.commands.firstIndex(where: { $0.meta.id == metaData.id }),
+            case .bundled(let bundledCommand) = workflow.commands[index],
+            case .workspace(var workspaceCommand) = bundledCommand.kind else { return }
+      workspaceCommand[keyPath: keyPath] = value
+      workflow.commands[index] = .bundled(BundledCommand(.workspace(workspaceCommand), meta: workflow.commands[index].meta))
     }
   }
 }
