@@ -47,20 +47,26 @@ struct BundledCommandView: View {
   }
 
   private func performAppFocusUpdate<Value>(set keyPath: WritableKeyPath<AppFocusCommand, Value>, to value: Value) {
-    updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-      guard case .bundled(let bundledCommand) = command,
-            case .appFocus(var appFocusCommand) = bundledCommand.kind else { return }
-      appFocusCommand[keyPath: keyPath] = value
-      command = .bundled(BundledCommand(.appFocus(appFocusCommand), meta: command.meta))
+    updater.modifyWorkflow(using: transaction) { [updater] workflow in
+      workflow.execution = .serial
+      updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+        guard case .bundled(let bundledCommand) = command,
+              case .appFocus(var appFocusCommand) = bundledCommand.kind else { return }
+        appFocusCommand[keyPath: keyPath] = value
+        command = .bundled(BundledCommand(.appFocus(appFocusCommand), meta: command.meta))
+      }
     }
   }
 
   private func performWorkspaceUpdate<Value>(set keyPath: WritableKeyPath<WorkspaceCommand, Value>, to value: Value) {
-    updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-      guard case .bundled(let bundledCommand) = command,
-            case .workspace(var workspaceCommand) = bundledCommand.kind else { return }
-      workspaceCommand[keyPath: keyPath] = value
-      command = .bundled(BundledCommand(.workspace(workspaceCommand), meta: command.meta))
+    updater.modifyWorkflow(using: transaction) { [updater] workflow in
+      workflow.execution = .serial
+      updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+        guard case .bundled(let bundledCommand) = command,
+              case .workspace(var workspaceCommand) = bundledCommand.kind else { return }
+        workspaceCommand[keyPath: keyPath] = value
+        command = .bundled(BundledCommand(.workspace(workspaceCommand), meta: command.meta))
+      }
     }
   }
 }
