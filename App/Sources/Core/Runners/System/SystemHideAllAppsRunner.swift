@@ -17,7 +17,7 @@ final class SystemHideAllAppsRunner {
     let windows = Set(indexWindowsInStage(getWindows(), targetRect: screen.visibleFrame)
       .map(\.ownerPid.rawValue))
 
-    let apps = NSWorkspace.shared.runningApplications
+    var apps = NSWorkspace.shared.runningApplications
       .filter {
         let processIdentifier = Int($0.processIdentifier)
         guard windows.contains(processIdentifier) else { return false }
@@ -35,16 +35,25 @@ final class SystemHideAllAppsRunner {
       }
       .filter { $0.activationPolicy == .regular && $0.isHidden == false }
 
-    var processIdentifiers = Set<Int>()
-    let misbehavingBundles = ["com.apple.podcasts"]
-    var hideFailures = [NSRunningApplication]()
-    for app in apps {
-      if !app.hide() && misbehavingBundles.contains(app.bundleIdentifier ?? "") {
-        hideFailures.append(app)
+    // Fix Podcasts app not hiding when calling `NSRunningApplication.hide()`
+    let misbehavingBundles = Set(arrayLiteral: "com.apple.podcasts")
+    for app in apps where misbehavingBundles.contains(app.bundleIdentifier ?? "") {
+      if #available(macOS 14.0, *) {
+        app.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateAllWindows)
+      } else {
+        app.activate(options: .activateAllWindows)
       }
-      processIdentifiers.insert(Int(app.processIdentifier))
+      _ = try? await machPort?.post(kVK_ANSI_H, type: .keyDown, flags: .maskCommand)
+      _ = try? await machPort?.post(kVK_ANSI_H, type: .keyUp, flags: .maskCommand)
+
+      apps.removeAll(where: { $0.bundleIdentifier == app.bundleIdentifier })
     }
 
+    var processIdentifiers = Set<Int>()
+    for app in apps {
+      app.hide()
+      processIdentifiers.insert(Int(app.processIdentifier))
+    }
     var timeout: Int = 0
     var waitingForWindowsToDisappear: Bool = true
 
@@ -63,19 +72,7 @@ final class SystemHideAllAppsRunner {
       }
 
       timeout += 1
-      for app in hideFailures {
-        if #available(macOS 14.0, *) {
-          app.activate(from: NSWorkspace.shared.frontmostApplication!, options: .activateAllWindows)
-        } else {
-          app.activate(options: .activateAllWindows)
-        }
-        _ = try? await machPort?.post(kVK_ANSI_H, type: .keyDown, flags: .maskCommand)
-        _ = try? await machPort?.post(kVK_ANSI_H, type: .keyUp, flags: .maskCommand)
-
-        hideFailures.removeAll(where: { $0.bundleIdentifier == app.bundleIdentifier })
-      }
       try await Task.sleep(for: .milliseconds(100))
-
     }
   }
 
