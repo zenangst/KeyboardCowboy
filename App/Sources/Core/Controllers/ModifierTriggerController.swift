@@ -8,6 +8,8 @@ final class ModifierTriggerController: @unchecked Sendable {
     case keyDown(ModifierTrigger.Kind)
   }
 
+  nonisolated(unsafe) static private var debug: Bool = true
+
   private var workflowGroupsSubscription: AnyCancellable?
   var machPort: MachPortEventController?
   private var cache: [String: ModifierTrigger] = [:]
@@ -37,10 +39,10 @@ final class ModifierTriggerController: @unchecked Sendable {
         return
       }
 
-      if machPortEvent.event.type == .keyUp {
-        handleKeyUp(machPortEvent, machPort: machPort, currentTrigger: currentTrigger)
-      } else if machPortEvent.event.type == .keyDown {
+      if machPortEvent.event.type == .keyDown {
         handleKeyDown(machPortEvent, machPort: machPort, currentTrigger: currentTrigger)
+      } else if machPortEvent.event.type == .keyUp {
+        handleKeyUp(machPortEvent, machPort: machPort, currentTrigger: currentTrigger)
       }
     }
   }
@@ -120,6 +122,7 @@ final class ModifierTriggerController: @unchecked Sendable {
 
   @MainActor
   private func handleIdle(_ machPortEvent: MachPortEvent, machPort: MachPortEventController) {
+    guard machPortEvent.type == .keyDown else { return }
     let event = machPortEvent.event
     let signature = CGEventSignature(event.getIntegerValueField(.keyboardEventKeycode), event.flags)
     let trigger = lookup(signature)
@@ -127,8 +130,12 @@ final class ModifierTriggerController: @unchecked Sendable {
 
     let timeout = manipulator.timeout
     if let heldDown = manipulator.heldDown {
-      workItem = startTimer(timeout: Int(timeout)) { [weak self] in
+      workItem?.cancel()
+      workItem = startTimer(timeout: Int(timeout), currentTrigger: trigger) { [weak self] trigger in
         guard let self else { return }
+
+        if currentTrigger?.id != trigger.id { return }
+
         state = .keyDown(heldDown)
         switch heldDown {
         case .key(let key):
@@ -179,6 +186,7 @@ final class ModifierTriggerController: @unchecked Sendable {
   private func handleKeyUp(_ machPortEvent: MachPortEvent,
                            machPort: MachPortEventController,
                            currentTrigger: ModifierTrigger) {
+    workItem?.cancel()
     let event = machPortEvent.event
 
     if case .keyDown(let kind) = state {
@@ -189,6 +197,12 @@ final class ModifierTriggerController: @unchecked Sendable {
         machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: key.keyCode)
         machPortEvent.result = nil
       case .modifiers(let modifiers):
+
+        if case .key(let key) = currentTrigger.kind,
+           event.getIntegerValueField(.keyboardEventKeycode) != key.keyCode {
+          return
+        }
+
         var cgEventFlags: CGEventFlags = CGEventFlags()
         modifiers.forEach { modifier in
           machPortEvent.event.flags.insert(modifier.cgEventFlags)
@@ -196,12 +210,9 @@ final class ModifierTriggerController: @unchecked Sendable {
           cgEventFlags.insert(modifier.cgEventFlags)
         }
 
-        if case .key(let key) = currentTrigger.kind,
-           event.getIntegerValueField(.keyboardEventKeycode) != key.keyCode {
-          return
-        } else {
-          _ = try? machPort.post(.maskNonCoalesced)
-        }
+        _ = try? machPort.post(.maskNonCoalesced)
+        machPortEvent.event.flags = .maskNonCoalesced
+        machPortEvent.result?.takeUnretainedValue().flags = .maskNonCoalesced
       }
     }
     reset()
@@ -214,9 +225,10 @@ final class ModifierTriggerController: @unchecked Sendable {
     self.currentTrigger = nil
   }
 
-  private func startTimer(timeout: Int, completion: @Sendable @escaping () -> Void) -> DispatchWorkItem {
+  private func startTimer(timeout: Int, currentTrigger: ModifierTrigger,
+                          completion: @Sendable @escaping (ModifierTrigger) -> Void) -> DispatchWorkItem {
     let deadline = DispatchTime.now() + .milliseconds(timeout)
-    let item = DispatchWorkItem(block: completion)
+    let item = DispatchWorkItem(block: { completion(currentTrigger) })
     DispatchQueue.main.asyncAfter(deadline: deadline, execute: item)
     return item
   }
