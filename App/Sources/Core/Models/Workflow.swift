@@ -9,10 +9,12 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
     case application([ApplicationTrigger])
     case keyboardShortcuts(KeyboardShortcutTrigger)
     case snippet(SnippetTrigger)
+    case modifier(ModifierTrigger)
 
     enum CodingKeys: String, CodingKey {
       case application
       case keyboardShortcuts
+      case modifier
       case snippet
     }
 
@@ -33,6 +35,9 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
           let keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
           self = .keyboardShortcuts(.init(shortcuts: keyboardShortcuts))
         }
+      case .modifier:
+        let modifierTrigger = try container.decode(ModifierTrigger.self, forKey: .modifier)
+        self = .modifier(modifierTrigger)
       case .snippet:
         let snippetTrigger = try container.decode(SnippetTrigger.self, forKey: .snippet)
         self = .snippet(snippetTrigger)
@@ -53,6 +58,8 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
         try container.encode(trigger, forKey: .application)
       case .keyboardShortcuts(let keyboardShortcuts):
         try container.encode(keyboardShortcuts, forKey: .keyboardShortcuts)
+      case .modifier(let modifierTrigger):
+        try container.encode(modifierTrigger, forKey: .modifier)
       case .snippet(let trigger):
         try container.encode(trigger, forKey: .snippet)
       }
@@ -119,6 +126,8 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
       clone.trigger = .application(array.map { $0.copy() })
     case .keyboardShortcuts(let keyboardShortcutTrigger):
       clone.trigger = .keyboardShortcuts(keyboardShortcutTrigger.copy())
+    case .modifier(let modifierTrigger):
+      clone.trigger = .modifier(modifierTrigger.copy())
     case .snippet(let trigger):
       clone.trigger = .snippet(trigger.copy())
     case .none:
@@ -294,6 +303,7 @@ private extension Workflow.Trigger? {
     case .application: false
     case .snippet: true
     case .keyboardShortcuts(let trigger): trigger.passthrough
+    case .modifier: false
     case .none: false
     }
   }
@@ -303,6 +313,7 @@ private extension Workflow.Trigger? {
     case .none: return false
     case .application: return false
     case .snippet: return false
+    case .modifier: return false
     case .keyboardShortcuts(let trigger):
       if let holdDurtion = trigger.holdDuration, holdDurtion > 0 {
         return true

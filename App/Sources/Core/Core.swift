@@ -89,6 +89,7 @@ final class Core {
     keyboardCommandRunner: keyboardCommandRunner,
     keyCodeStore: keyCodeStore,
     machPortCoordinator: machPortCoordinator,
+    modifierTriggerController: modifierTriggerController,
     scriptCommandRunner: scriptCommandRunner,
     shortcutStore: shortcutStore,
     snippetController: snippetController,
@@ -131,6 +132,7 @@ final class Core {
   )
 
   lazy private(set) var applicationTriggerController = ApplicationTriggerController(workflowRunner)
+  lazy private(set) var modifierTriggerController = ModifierTriggerController()
 
   // MARK: - Controllers
 

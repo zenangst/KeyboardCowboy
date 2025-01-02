@@ -54,6 +54,7 @@ private extension Workflow {
     case .application: .application("foo")
     case .keyboardShortcuts(let trigger): .keyboard(trigger.shortcuts.binding ?? "")
     case .snippet(let snippetTrigger): .snippet(snippetTrigger.text)
+    case .modifier(let modifier): .none
     case .none: nil
     }
 
@@ -82,7 +83,7 @@ private extension Workflow.Trigger {
     switch self {
     case .keyboardShortcuts(let trigger):
       return trigger.shortcuts.binding
-    case .application, .snippet:
+    case .application, .snippet, .modifier:
       return nil
     }
   }

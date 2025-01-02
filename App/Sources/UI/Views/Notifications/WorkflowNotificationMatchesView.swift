@@ -55,7 +55,7 @@ struct WorkflowNotificationMatchesView: View {
                       .opacity(offset == 0 ? 0.5 : 1)
                       .shadow(color: .accentColor.opacity(offset == 1 ? 1 : 0), radius: 3)
                   }
-                case .application, .none, .snippet:
+                case .application, .none, .snippet, .modifier:
                   Spacer()
                 }
                 padding(workflow, columnCount: columnCount - 1)
@@ -127,7 +127,7 @@ private extension Workflow.Trigger? {
     switch self {
     case .keyboardShortcuts(let keyboardShortcutTrigger):
        keyboardShortcutTrigger.shortcuts.count
-    case .application, .snippet, .none: 0
+    case .application, .snippet, .none, .modifier: 0
     }
   }
 }

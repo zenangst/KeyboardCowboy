@@ -94,6 +94,7 @@ struct CommandListScrollView: View {
           focus.wrappedValue = .detail(.addSnippetTrigger)
         case .empty:
           focus.wrappedValue = .detail(.addAppTrigger)
+        case .modifier: break
         }
       })
       .onCommand(#selector(NSResponder.selectAll(_:)), perform: {

@@ -288,22 +288,6 @@ final class ShortcutResolver {
   }
 }
 
-private extension Array<UserMode> {
-  func dictionaryKey(_ value: Bool) -> String {
-    map { $0.dictionaryKey(value) }.joined()
-  }
-}
-
-private extension UserMode {
-  func dictionaryKey(_ value: Bool) -> String {
-    return "\(prefix())\(value ? 1 : 0))"
-  }
-
-  private func prefix() -> String {
-    return "UM:\(id):"
-  }
-}
-
 struct SpecialKeys {
   static let functionKeys: Set<Int> = [
     kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6,

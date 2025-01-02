@@ -9,3 +9,19 @@ struct UserMode: Identifiable, Codable, Hashable, Sendable {
     UserMode(id: id, name: name, isEnabled: true)
   }
 }
+
+extension Array<UserMode> {
+  func dictionaryKey(_ value: Bool) -> String {
+    map { $0.dictionaryKey(value) }.joined()
+  }
+}
+
+extension UserMode {
+  func dictionaryKey(_ value: Bool) -> String {
+    return "\(prefix())\(value ? 1 : 0))"
+  }
+
+  private func prefix() -> String {
+    return "UM:\(id):"
+  }
+}

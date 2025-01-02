@@ -40,6 +40,7 @@ struct SingleDetailView: View {
               case .keyboardShortcuts: focus.wrappedValue = .detail(.keyboardShortcuts)
               case .snippet:           focus.wrappedValue = .detail(.addSnippetTrigger)
               case .empty:             focus.wrappedValue = .detail(.addAppTrigger)
+              case .modifier: break
               }
             })
           .environmentObject(commandSelectionManager)
@@ -80,7 +81,7 @@ struct SingleDetailView: View {
           case .applications(let array): !array.isEmpty
           case .keyboardShortcuts(let keyboardTrigger): !keyboardTrigger.shortcuts.isEmpty
           case .snippet(let snippet): !snippet.text.isEmpty
-          case .empty: false
+          case .empty, .modifier: false
           }
         }, set: { _ in }),
         publisher: commandPublisher,

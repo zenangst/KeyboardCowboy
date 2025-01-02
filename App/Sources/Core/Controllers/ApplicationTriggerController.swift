@@ -58,6 +58,7 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
     self.activateActions.removeAll()
 
     let triggerWorkflows: [ApplicationTriggerWorkflow] = groups
+      .filter { !$0.isDisabled }
       .flatMap { group in
         group.workflows.map({ ApplicationTriggerWorkflow(userModes: Set(group.userModes.map(\.asEnabled)),
                                                          workflow: $0) })
@@ -84,7 +85,7 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
             self.resignActions[trigger.application.bundleIdentifier, default: []].append(workflow)
           }
         }
-      case .keyboardShortcuts, .snippet, .none:
+      case .keyboardShortcuts, .snippet, .modifier, .none:
         return
       }
     }

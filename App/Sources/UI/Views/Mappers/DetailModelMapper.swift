@@ -228,6 +228,8 @@ extension Workflow.Trigger {
                                  shortcuts: trigger.shortcuts))
     case .snippet(let trigger):
         .snippet(.init(id: trigger.id, text: trigger.text))
+    case .modifier(let modifier):
+        .modifier(.init(id: modifier.id))
     }
   }
 }

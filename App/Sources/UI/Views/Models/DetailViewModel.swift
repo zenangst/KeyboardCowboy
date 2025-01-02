@@ -52,12 +52,14 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
       case .keyboardShortcuts(let keyboardTrigger): keyboardTrigger.shortcuts.map(\.id).joined()
       case .snippet(let trigger): trigger.id
       case .empty: "empty"
+      case .modifier(let trigger): trigger.id
       }
     }
 
     case applications([DetailViewModel.ApplicationTrigger])
     case keyboardShortcuts(DetailViewModel.KeyboardTrigger)
     case snippet(DetailViewModel.SnippetTrigger)
+    case modifier(DetailViewModel.ModifierTrigger)
     case empty
   }
 
@@ -101,5 +103,9 @@ struct DetailViewModel: Hashable, Identifiable, Equatable {
   struct SnippetTrigger: Codable, Hashable, Equatable {
     var id: String
     var text: String
+  }
+
+  struct ModifierTrigger: Codable, Hashable, Equatable {
+    var id: String
   }
 }

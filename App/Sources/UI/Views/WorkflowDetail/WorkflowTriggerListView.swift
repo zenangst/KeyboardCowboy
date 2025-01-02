@@ -51,6 +51,8 @@ struct WorkflowTriggerListView: View {
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)
         WorkflowSnippetTriggerView(focus, snippet: snippet) 
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
+      case .modifier:
+        WorkflowTriggerHeaderView("Add Modifier Trigger")
       case .empty:
         WorkflowTriggerHeaderView("Add Trigger", showRemoveButton: false)
           .matchedGeometryEffect(id: "workflow-trigger-header", in: namespace)

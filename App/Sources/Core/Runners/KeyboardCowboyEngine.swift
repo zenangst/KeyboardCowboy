@@ -14,6 +14,7 @@ final class KeyboardCowboyEngine {
   private let contentStore: ContentStore
   private let keyCodeStore: KeyCodesStore
   private let machPortCoordinator: MachPortCoordinator
+  private let modifierTriggerController: ModifierTriggerController
   private let notificationCenterPublisher: NotificationCenterPublisher
   private let snippetController: SnippetController
   private let shortcutStore: ShortcutStore
@@ -34,6 +35,7 @@ final class KeyboardCowboyEngine {
        keyboardCommandRunner: KeyboardCommandRunner,
        keyCodeStore: KeyCodesStore,
        machPortCoordinator: MachPortCoordinator,
+       modifierTriggerController: ModifierTriggerController,
        notificationCenter: NotificationCenter = .default,
        scriptCommandRunner: ScriptCommandRunner,
        shortcutStore: ShortcutStore,
@@ -45,6 +47,7 @@ final class KeyboardCowboyEngine {
     self.keyCodeStore = keyCodeStore
     self.commandRunner = commandRunner
     self.machPortCoordinator = machPortCoordinator
+    self.modifierTriggerController = modifierTriggerController
     self.shortcutStore = shortcutStore
     self.uiElementCaptureStore = uiElementCaptureStore
     self.applicationTriggerController = applicationTriggerController
@@ -82,8 +85,14 @@ final class KeyboardCowboyEngine {
         eventsOfInterest: keyboardEvents,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
-        onFlagsChanged: { [machPortCoordinator] in machPortCoordinator.receiveFlagsChanged($0) },
-        onEventChange: { [machPortCoordinator] in machPortCoordinator.receiveEvent($0) })
+        onFlagsChanged: { [machPortCoordinator, modifierTriggerController] in
+          modifierTriggerController.handleIfApplicable($0)
+          machPortCoordinator.receiveFlagsChanged($0)
+        },
+        onEventChange: { [machPortCoordinator, modifierTriggerController] in
+          modifierTriggerController.handleIfApplicable($0)
+          machPortCoordinator.receiveEvent($0)
+        })
       commandRunner.eventSource = newMachPortController.eventSource
       subscribe(to: workspace)
       contentStore.recorderStore.subscribe(to: machPortCoordinator.$recording)
@@ -91,6 +100,7 @@ final class KeyboardCowboyEngine {
       machPortCoordinator.machPort = newMachPortController
       commandRunner.setMachPort(newMachPortController, coordinator: machPortCoordinator)
       machPortController = newMachPortController
+      modifierTriggerController.machPort = newMachPortController
       keyCodeStore.subscribe(to: notificationCenterPublisher.$keyboardSelectionDidChange)
       uiElementCaptureStore.subscribe(to: machPortCoordinator)
       snippetController.subscribe(to: machPortCoordinator.$coordinatorEvent)
@@ -112,6 +122,7 @@ final class KeyboardCowboyEngine {
     applicationTriggerController.subscribe(to: UserSpace.shared.$frontmostApplication)
     applicationTriggerController.subscribe(to: UserSpace.shared.$runningApplications)
     applicationTriggerController.subscribe(to: contentStore.groupStore.$groups)
+    modifierTriggerController.subscribe(to: contentStore.groupStore.$groups)
     applicationActivityMonitor.subscribe(to: UserSpace.shared.$frontmostApplication)
 //    applicationWindowObserver.subscribe(to: UserSpace.shared.$frontmostApplication)
     SystemWindowTilingRunner.initialIndex()

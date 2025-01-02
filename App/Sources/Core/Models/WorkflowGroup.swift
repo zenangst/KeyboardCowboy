@@ -11,6 +11,7 @@ import Foundation
 struct WorkflowGroup: Identifiable, Equatable, Codable, Hashable, Sendable {
   private(set) var id: String
   var isDisabled: Bool
+  var isEnabled: Bool { !isDisabled }
   var symbol: String
   var name: String
   var color: String
