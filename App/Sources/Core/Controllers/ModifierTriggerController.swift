@@ -26,11 +26,16 @@ final class ModifierTriggerController: @unchecked Sendable {
   func handleIfApplicable(_ machPortEvent: MachPortEvent) {
     guard let machPort, !cache.isEmpty else { return }
 
+    workItem?.cancel()
+
     switch state {
     case .idle:
       handleIdle(machPortEvent, machPort: machPort)
     case .keyDown:
-      guard let currentTrigger else { return }
+      guard let currentTrigger else {
+        reset()
+        return
+      }
 
       if machPortEvent.event.type == .keyUp {
         handleKeyUp(machPortEvent, machPort: machPort, currentTrigger: currentTrigger)
@@ -50,7 +55,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         manipulator: ModifierTrigger.Manipulator(
           alone: .key(.escape),
           heldDown: .modifiers([.leftControl]),
-          timeout: 100
+          timeout: 75
         )
       )
     }
@@ -64,7 +69,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         manipulator: ModifierTrigger.Manipulator(
           alone: .key(.tab),
           heldDown: .modifiers([.function]),
-          timeout: 100
+          timeout: 75
         )
       )
     }
@@ -196,11 +201,13 @@ final class ModifierTriggerController: @unchecked Sendable {
           return
         } else {
           _ = try? machPort.post(.maskNonCoalesced)
-          print("release")
         }
       }
     }
+    reset()
+  }
 
+  private func reset() {
     self.state = .idle
     self.workItem?.cancel()
     self.workItem = nil
