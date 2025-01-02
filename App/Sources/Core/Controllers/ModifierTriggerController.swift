@@ -57,7 +57,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         manipulator: ModifierTrigger.Manipulator(
           alone: .key(.escape),
           heldDown: .modifiers([.leftControl]),
-          timeout: 75
+          timeout: 100
         )
       )
     }
@@ -71,7 +71,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         manipulator: ModifierTrigger.Manipulator(
           alone: .key(.tab),
           heldDown: .modifiers([.function]),
-          timeout: 75
+         timeout: 100
         )
       )
     }
@@ -122,6 +122,7 @@ final class ModifierTriggerController: @unchecked Sendable {
 
   @MainActor
   private func handleIdle(_ machPortEvent: MachPortEvent, machPort: MachPortEventController) {
+    workItem?.cancel()
     guard machPortEvent.type == .keyDown else { return }
     let event = machPortEvent.event
     let signature = CGEventSignature(event.getIntegerValueField(.keyboardEventKeycode), event.flags)
@@ -130,7 +131,6 @@ final class ModifierTriggerController: @unchecked Sendable {
 
     let timeout = manipulator.timeout
     if let heldDown = manipulator.heldDown {
-      workItem?.cancel()
       workItem = startTimer(timeout: Int(timeout), currentTrigger: trigger) { [weak self] trigger in
         guard let self else { return }
 
@@ -168,6 +168,7 @@ final class ModifierTriggerController: @unchecked Sendable {
     switch kind {
     case .key(let key):
       _ = try? machPort.post(Int(key.keyCode), type: .keyDown, flags: .maskNonCoalesced)
+      _ = try? machPort.post(Int(key.keyCode), type: .keyUp, flags: .maskNonCoalesced)
       machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: key.keyCode)
       machPortEvent.result = nil
     case .modifiers(let modifiers):
@@ -175,6 +176,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         machPortEvent.event.flags.insert(modifier.cgEventFlags)
         machPortEvent.result?.takeUnretainedValue().flags.insert(modifier.cgEventFlags)
       }
+
       if case .key(let key) = currentTrigger.kind,
          machPortEvent.event.getIntegerValueField(.keyboardEventKeycode) == key.keyCode {
         machPortEvent.result = nil
@@ -196,8 +198,8 @@ final class ModifierTriggerController: @unchecked Sendable {
         _ = try? machPort.post(Int(key.keyCode), type: .keyUp, flags: .maskNonCoalesced)
         machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: key.keyCode)
         machPortEvent.result = nil
+        reset()
       case .modifiers(let modifiers):
-
         if case .key(let key) = currentTrigger.kind,
            event.getIntegerValueField(.keyboardEventKeycode) != key.keyCode {
           return
@@ -213,9 +215,10 @@ final class ModifierTriggerController: @unchecked Sendable {
         _ = try? machPort.post(.maskNonCoalesced)
         machPortEvent.event.flags = .maskNonCoalesced
         machPortEvent.result?.takeUnretainedValue().flags = .maskNonCoalesced
+
+        reset()
       }
     }
-    reset()
   }
 
   private func reset() {
