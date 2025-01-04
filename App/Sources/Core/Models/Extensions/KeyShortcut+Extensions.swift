@@ -4,6 +4,7 @@ import Foundation
 extension KeyShortcut {
   var keyCode: Int? {
     switch self.key {
+    // Standard ANSI characters
     case "a", "A": kVK_ANSI_A
     case "b", "B": kVK_ANSI_B
     case "c", "C": kVK_ANSI_C
@@ -51,9 +52,17 @@ extension KeyShortcut {
     case ",", "<": kVK_ANSI_Comma
     case ".", ">": kVK_ANSI_Period
     case "/", "?": kVK_ANSI_Slash
-    case " ": kVK_Space
-    case "Space": kVK_Space
-    case "SPACE": kVK_Space
+    case " ", "Space", "SPACE": kVK_Space
+
+    // Norwegian-specific characters
+    case "å", "Å": kVK_ANSI_Grave        // Typically backtick/tilde key
+    case "ø", "Ø": kVK_ANSI_Semicolon    // Typically semicolon/colon key
+    case "æ", "Æ": kVK_ANSI_Quote        // Typically quote/double-quote key
+
+    // Swedish-specific characters
+    case "ä", "Ä": kVK_ANSI_Quote        // Same key as "æ/Æ" in Norwegian
+    case "ö", "Ö": kVK_ANSI_Semicolon    // Same key as "ø/Ø" in Norwegian
+
     default: nil
     }
   }

@@ -3,6 +3,7 @@ import Testing
 @testable import Keyboard_Cowboy
 
 fileprivate let tests: [Test] = [
+  // Standard ANSI characters
   Test(key: "a", isEqualTo: kVK_ANSI_A),
   Test(key: "b", isEqualTo: kVK_ANSI_B),
   Test(key: "c", isEqualTo: kVK_ANSI_C),
@@ -63,6 +64,20 @@ fileprivate let tests: [Test] = [
   Test(key: "?", isEqualTo: kVK_ANSI_Slash),
   Test(key: " ", isEqualTo: kVK_Space),
   Test(key: "Space", isEqualTo: kVK_Space),
+
+  // Norwegian-specific characters
+  Test(key: "å", isEqualTo: kVK_ANSI_Grave),
+  Test(key: "Å", isEqualTo: kVK_ANSI_Grave),
+  Test(key: "ø", isEqualTo: kVK_ANSI_Semicolon),
+  Test(key: "Ø", isEqualTo: kVK_ANSI_Semicolon),
+  Test(key: "æ", isEqualTo: kVK_ANSI_Quote),
+  Test(key: "Æ", isEqualTo: kVK_ANSI_Quote),
+
+  // Swedish-specific characters
+  Test(key: "ä", isEqualTo: kVK_ANSI_Quote),
+  Test(key: "Ä", isEqualTo: kVK_ANSI_Quote),
+  Test(key: "ö", isEqualTo: kVK_ANSI_Semicolon),
+  Test(key: "Ö", isEqualTo: kVK_ANSI_Semicolon),
 ]
 
 @Test("Test the key code for each letter", arguments: tests)
