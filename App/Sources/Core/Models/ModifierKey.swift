@@ -85,6 +85,25 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     }
   }
 
+  public var key: Int {
+    switch self {
+    case .function: return kVK_Function   // Fn key
+    case .capsLock: return kVK_CapsLock  // Caps Lock key
+
+    case .leftShift: return kVK_Shift    // Left Shift key
+    case .rightShift: return kVK_RightShift // Right Shift key
+
+    case .leftControl: return kVK_Control  // Left Control key
+    case .rightControl: return kVK_RightControl // Right Control key
+
+    case .leftOption: return kVK_Option  // Left Option (Alt) key
+    case .rightOption: return kVK_RightOption // Right Option (Alt) key
+
+    case .leftCommand: return kVK_Command // Left Command (⌘) key
+    case .rightCommand: return kVK_RightCommand // Right Command (⌘) key
+    }
+  }
+
   public var cgEventFlags: CGEventFlags {
     var modifierFlags = CGEventFlags.maskNonCoalesced
     switch self {

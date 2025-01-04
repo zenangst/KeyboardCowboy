@@ -8,23 +8,51 @@ struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
   }
 
   let id: String
-  let kind: Kind
-  let manipulator: Manipulator?
+  let key: AdditionalKey
+  let manipulator: Manipulator
 
   struct Manipulator: Hashable, Codable, Equatable, Sendable {
-    let alone: Kind?
-    let heldDown: Kind?
-    let timeout: TimeInterval
+    struct HeldDown: Hashable, Codable, Equatable, Sendable {
+      let kind: Kind
+      let threshold: TimeInterval
 
-    init(alone: Kind?, heldDown: Kind?, timeout: TimeInterval = 100) {
+      init(kind: Kind, threshold: TimeInterval = 200) {
+        self.kind = kind
+        self.threshold = threshold
+      }
+    }
+
+    struct Alone: Hashable, Codable, Equatable, Sendable {
+      let kind: Kind
+      let timeout: TimeInterval
+
+      init(kind: Kind, timeout: TimeInterval = 75) {
+        self.kind = kind
+        self.timeout = timeout
+      }
+    }
+
+    let alone: Alone
+    let heldDown: HeldDown?
+
+    init(alone: Alone, heldDown: HeldDown?) {
       self.alone = alone
       self.heldDown = heldDown
-      self.timeout = timeout
+    }
+  }
+
+  init(id: String, key: AdditionalKey, manipulator: Manipulator?) {
+    self.id = id
+    self.key = key
+    if let manipulator {
+      self.manipulator = manipulator
+    } else {
+      self.manipulator = Manipulator(alone: Manipulator.Alone(kind: .key(key)), heldDown: nil)
     }
   }
 
   func copy() -> Self {
-    ModifierTrigger(id: UUID().uuidString, kind: kind, manipulator: manipulator)
+    ModifierTrigger(id: UUID().uuidString, key: key, manipulator: manipulator)
   }
 }
 

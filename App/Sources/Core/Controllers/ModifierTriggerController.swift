@@ -5,16 +5,38 @@ import MachPort
 final class ModifierTriggerController: @unchecked Sendable {
   enum State: Sendable {
     case idle
-    case keyDown(ModifierTrigger.Kind)
+    case keyDown(ModifierTrigger.Kind, held: Bool)
+
+    fileprivate var debugId: String {
+      switch self {
+      case .idle: "idle"
+      case .keyDown(_, let held): "keyDown(\(held))"
+      }
+    }
   }
 
-  nonisolated(unsafe) static private var debug: Bool = true
+  nonisolated(unsafe) static fileprivate var debug: Bool = false
 
+  var machPort: MachPortEventController? {
+    willSet {
+      if let machPort = newValue  {
+        coordinator = ModifierTriggerMachPortCoordinator(machPort: machPort)
+      }
+    }
+  }
+  var coordinator: ModifierTriggerMachPortCoordinator?
+
+  private var lastEventTime: Double = 0
   private var workflowGroupsSubscription: AnyCancellable?
-  var machPort: MachPortEventController?
   private var cache: [String: ModifierTrigger] = [:]
   private var state: State = .idle
+//  {
+//    willSet { print("🍒 state: ", state.debugId, newValue.debugId) }
+//  }
   private var currentTrigger: ModifierTrigger?
+//  {
+//    willSet { print("🔫 currentTrigger:", currentTrigger?.id, "==", newValue?.id) }
+//  }
   private var workItem: DispatchWorkItem?
 
   func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
@@ -26,13 +48,13 @@ final class ModifierTriggerController: @unchecked Sendable {
 
   @MainActor
   func handleIfApplicable(_ machPortEvent: MachPortEvent) {
-    guard let machPort, !cache.isEmpty else { return }
+    guard let coordinator, !cache.isEmpty else { return }
 
     workItem?.cancel()
 
     switch state {
     case .idle:
-      handleIdle(machPortEvent, machPort: machPort)
+      handleIdle(machPortEvent, coordinator: coordinator)
     case .keyDown:
       guard let currentTrigger else {
         reset()
@@ -40,9 +62,12 @@ final class ModifierTriggerController: @unchecked Sendable {
       }
 
       if machPortEvent.event.type == .keyDown {
-        handleKeyDown(machPortEvent, machPort: machPort, currentTrigger: currentTrigger)
+        handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
+      } else if machPortEvent.event.type == .flagsChanged {
+        handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
       } else if machPortEvent.event.type == .keyUp {
-        handleKeyUp(machPortEvent, machPort: machPort, currentTrigger: currentTrigger)
+        workItem?.cancel()
+        handleKeyUp(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
       }
     }
   }
@@ -53,11 +78,10 @@ final class ModifierTriggerController: @unchecked Sendable {
       let key = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
       cache[key] = ModifierTrigger(
         id: key,
-        kind: .key(.escape),
+        key: .escape,
         manipulator: ModifierTrigger.Manipulator(
-          alone: .key(.escape),
-          heldDown: .modifiers([.leftControl]),
-          timeout: 100
+          alone: .init(kind: .key(.escape), timeout: 75),
+          heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75)
         )
       )
     }
@@ -67,11 +91,10 @@ final class ModifierTriggerController: @unchecked Sendable {
       let key = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
       cache[key] = ModifierTrigger(
         id: key,
-        kind: .key(.tab),
+        key: .tab,
         manipulator: ModifierTrigger.Manipulator(
-          alone: .key(.tab),
-          heldDown: .modifiers([.function]),
-         timeout: 100
+          alone: .init(kind: .key(.tab), timeout: 75),
+          heldDown: .init(kind: .modifiers([.function]), threshold: 75)
         )
       )
     }
@@ -88,18 +111,9 @@ final class ModifierTriggerController: @unchecked Sendable {
         for workflow in group.workflows where workflow.isEnabled {
           guard case .modifier(let trigger) = workflow.trigger else { continue }
 
-          var flags = CGEventFlags.maskNonCoalesced
-          let keyCode: Int64
-          switch trigger.kind {
-          case .modifiers(let array):
-            keyCode = 0
-            array.forEach { flags.insert($0.cgEventFlags) }
-          case .key(let additionalKey):
-            keyCode = additionalKey.keyCode
-          }
-
+          let flags = CGEventFlags.maskNonCoalesced
+          let keyCode: Int64 = trigger.key.keyCode
           let signature = CGEventSignature(keyCode, flags)
-
           let key = createKey(signature: signature,
                               bundleIdentifier: bundleIdentifier,
                               userModeKey: "")
@@ -121,104 +135,98 @@ final class ModifierTriggerController: @unchecked Sendable {
   // MARK: Private methods
 
   @MainActor
-  private func handleIdle(_ machPortEvent: MachPortEvent, machPort: MachPortEventController) {
-    workItem?.cancel()
+  private func handleIdle(_ machPortEvent: MachPortEvent, coordinator: ModifierTriggerMachPortCoordinator) {
     guard machPortEvent.type == .keyDown else { return }
+
     let event = machPortEvent.event
     let signature = CGEventSignature(event.getIntegerValueField(.keyboardEventKeycode), event.flags)
     let trigger = lookup(signature)
-    guard let trigger, let manipulator = trigger.manipulator else { return }
+    guard let trigger else { return }
 
-    let timeout = manipulator.timeout
-    if let heldDown = manipulator.heldDown {
-      workItem = startTimer(timeout: Int(timeout), currentTrigger: trigger) { [weak self] trigger in
-        guard let self else { return }
+    if let heldDown = trigger.manipulator.heldDown {
+      workItem = startTimer(delay: Int(trigger.manipulator.alone.timeout), currentTrigger: trigger) { [weak self] trigger in
+        guard let self, let currentTrigger else { return }
 
-        if currentTrigger?.id != trigger.id { return }
+        if currentTrigger.id != trigger.id { return }
 
-        state = .keyDown(heldDown)
-        switch heldDown {
-        case .key(let key):
-          _ = try? machPort.post(Int(key.keyCode), type: .keyDown, flags: .maskNonCoalesced)
-          _ = try? machPort.post(Int(key.keyCode), type: .keyUp, flags: .maskNonCoalesced)
-          machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: key.keyCode)
-        case .modifiers(let modifiers):
-          var flags = CGEventFlags.maskNonCoalesced
-          modifiers.forEach { modifier in
-            flags.insert(modifier.cgEventFlags)
-          }
-          _ = try? machPort.post(flags)
-        }
+        lastEventTime = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+        state = .keyDown(heldDown.kind, held: true)
+        handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
       }
     }
 
-    let alone = trigger.manipulator?.alone ?? trigger.kind
-    state = .keyDown(alone)
+    state = .keyDown(trigger.manipulator.alone.kind, held: false)
     currentTrigger = trigger
     machPortEvent.result = nil
   }
 
   private func handleKeyDown(_ machPortEvent: MachPortEvent,
-                             machPort: MachPortEventController,
+                             coordinator: ModifierTriggerMachPortCoordinator,
                              currentTrigger: ModifierTrigger) {
-    guard case .keyDown(let kind) = state else {
-      return
-    }
+    switch state {
+    case .keyDown(let kind, _):
+      switch kind {
+      case .key(let key):
+        coordinator
+          .post(key)
+          .set(key, on: machPortEvent)
+          .discardSystemEvent(on: machPortEvent)
+      case .modifiers(let modifiers):
+        if machPortEvent.keyCode == currentTrigger.key.keyCode {
+          coordinator
+            .discardSystemEvent(on: machPortEvent)
 
-    switch kind {
-    case .key(let key):
-      _ = try? machPort.post(Int(key.keyCode), type: .keyDown, flags: .maskNonCoalesced)
-      _ = try? machPort.post(Int(key.keyCode), type: .keyUp, flags: .maskNonCoalesced)
-      machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: key.keyCode)
-      machPortEvent.result = nil
-    case .modifiers(let modifiers):
-      modifiers.forEach { modifier in
-        machPortEvent.event.flags.insert(modifier.cgEventFlags)
-        machPortEvent.result?.takeUnretainedValue().flags.insert(modifier.cgEventFlags)
+          guard !machPortEvent.isRepeat else { return }
+          coordinator
+            .postFlagsChanged(modifiers: modifiers)
+        } else {
+          coordinator.decorateEvent(machPortEvent, with: modifiers)
+        }
       }
-
-      if case .key(let key) = currentTrigger.kind,
-         machPortEvent.event.getIntegerValueField(.keyboardEventKeycode) == key.keyCode {
-        machPortEvent.result = nil
-        return
-      }
+    case .idle: break
     }
   }
 
   private func handleKeyUp(_ machPortEvent: MachPortEvent,
-                           machPort: MachPortEventController,
+                           coordinator: ModifierTriggerMachPortCoordinator,
                            currentTrigger: ModifierTrigger) {
-    workItem?.cancel()
-    let event = machPortEvent.event
-
-    if case .keyDown(let kind) = state {
+    switch state {
+    case .keyDown(let kind, let held):
       switch kind {
       case .key(let key):
-        _ = try? machPort.post(Int(key.keyCode), type: .keyDown, flags: .maskNonCoalesced)
-        _ = try? machPort.post(Int(key.keyCode), type: .keyUp, flags: .maskNonCoalesced)
-        machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: key.keyCode)
-        machPortEvent.result = nil
-        reset()
+        coordinator
+          .post(key)
+          .set(key, on: machPortEvent)
+          .discardSystemEvent(on: machPortEvent)
       case .modifiers(let modifiers):
-        if case .key(let key) = currentTrigger.kind,
-           event.getIntegerValueField(.keyboardEventKeycode) != key.keyCode {
+        let currentTimestamp = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+        let elapsedTime = currentTimestamp - lastEventTime
+
+        if machPortEvent.keyCode == currentTrigger.key.keyCode {
+          coordinator
+            .discardSystemEvent(on: machPortEvent)
+            .postMaskNonCoalesced()
+        } else {
+          coordinator.decorateEvent(machPortEvent, with: modifiers)
+          debugModifier("\(machPortEvent.keyCode), \(machPortEvent.event.flags)")
           return
         }
 
-        var cgEventFlags: CGEventFlags = CGEventFlags()
-        modifiers.forEach { modifier in
-          machPortEvent.event.flags.insert(modifier.cgEventFlags)
-          machPortEvent.result?.takeUnretainedValue().flags.insert(modifier.cgEventFlags)
-          cgEventFlags.insert(modifier.cgEventFlags)
+        if held, 75 > Int(elapsedTime) {
+          coordinator.post(currentTrigger.key)
+        } else {
+          coordinator.setMaskNonCoalesced(on: machPortEvent)
         }
-
-        _ = try? machPort.post(.maskNonCoalesced)
-        machPortEvent.event.flags = .maskNonCoalesced
-        machPortEvent.result?.takeUnretainedValue().flags = .maskNonCoalesced
-
-        reset()
       }
+    case .idle:
+      break
     }
+
+    reset()
+  }
+
+  func convertTimestampToMilliseconds(_ timestamp: UInt64) -> Double {
+    return Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
   }
 
   private func reset() {
@@ -228,9 +236,9 @@ final class ModifierTriggerController: @unchecked Sendable {
     self.currentTrigger = nil
   }
 
-  private func startTimer(timeout: Int, currentTrigger: ModifierTrigger,
+  private func startTimer(delay: Int, currentTrigger: ModifierTrigger,
                           completion: @Sendable @escaping (ModifierTrigger) -> Void) -> DispatchWorkItem {
-    let deadline = DispatchTime.now() + .milliseconds(timeout)
+    let deadline = DispatchTime.now() + .milliseconds(delay)
     let item = DispatchWorkItem(block: { completion(currentTrigger) })
     DispatchQueue.main.asyncAfter(deadline: deadline, execute: item)
     return item
@@ -275,4 +283,16 @@ final class ModifierTriggerController: @unchecked Sendable {
     let userModeKey = userModeKey.isEmpty ? "" : ".\(userModeKey)"
     return "\(bundleIdentifier).\(userModeKey)\(signature.id)"
   }
+}
+
+fileprivate func debugModifier(_ handler: @autoclosure @escaping () -> String, function: StaticString = #function, line: UInt = #line) {
+  guard ModifierTriggerController.debug else { return }
+
+  let dateFormatter = DateFormatter()
+  dateFormatter.dateStyle = .short
+  dateFormatter.timeStyle = .short
+
+  let formattedDate = dateFormatter.string(from: Date())
+
+  print(formattedDate, function, line, handler())
 }
