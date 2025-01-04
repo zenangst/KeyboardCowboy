@@ -4,11 +4,11 @@ import Foundation
 struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
   enum Kind: Hashable, Equatable, Codable, Sendable {
     case modifiers([ModifierKey])
-    case key(AdditionalKey)
+    case key(KeyShortcut)
   }
 
   let id: String
-  let key: AdditionalKey
+  let key: KeyShortcut
   let manipulator: Manipulator
 
   struct Manipulator: Hashable, Codable, Equatable, Sendable {
@@ -41,7 +41,7 @@ struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
     }
   }
 
-  init(id: String, key: AdditionalKey, manipulator: Manipulator?) {
+  init(id: String, key: KeyShortcut, manipulator: Manipulator?) {
     self.id = id
     self.key = key
     if let manipulator {
@@ -53,17 +53,5 @@ struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
 
   func copy() -> Self {
     ModifierTrigger(id: UUID().uuidString, key: key, manipulator: manipulator)
-  }
-}
-
-enum AdditionalKey: Hashable, Equatable, Codable, Sendable {
-  case escape
-  case tab
-
-  var keyCode: Int64 {
-    switch self {
-    case .escape: Int64(kVK_Escape)
-    case .tab: Int64(kVK_Tab)
-    }
   }
 }

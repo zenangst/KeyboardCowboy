@@ -10,8 +10,8 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
   }
 
   @discardableResult
-  func set(_ key: AdditionalKey, on machPortEvent: MachPortEvent) -> Self {
-    machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: key.keyCode)
+  func set(_ key: KeyShortcut, on machPortEvent: MachPortEvent) -> Self {
+    machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: Int64(key.keyCode!))
     debugModifier("\(key) on \(machPortEvent.keyCode)")
     return self
   }
@@ -36,20 +36,21 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
   }
 
   @discardableResult
-  func post(_ key: AdditionalKey) -> Self {
-    _ = try? machPort.post(Int(key.keyCode), type: .keyDown, flags: .maskNonCoalesced)
-    _ = try? machPort.post(Int(key.keyCode), type: .keyUp, flags: .maskNonCoalesced)
+  func post(_ key: KeyShortcut) -> Self {
+    _ = try? machPort.post(key.keyCode!, type: .keyDown, flags: .maskNonCoalesced)
+    _ = try? machPort.post(key.keyCode!, type: .keyUp, flags: .maskNonCoalesced)
     debugModifier("")
     return self
   }
 
   @discardableResult
-  func post(_ key: AdditionalKey, modifiers: [ModifierKey], flags: CGEventFlags? = nil) -> Self {
+  func post(_ key: KeyShortcut, modifiers: [ModifierKey], flags: CGEventFlags? = nil) -> Self {
     var flags = flags ?? CGEventFlags.maskNonCoalesced
     modifiers.forEach { modifier in
       flags.insert(modifier.cgEventFlags)
     }
-    _ = try? machPort.post(Int(key.keyCode), type: .flagsChanged, flags: flags)
+
+    _ = try? machPort.post(key.keyCode!, type: .flagsChanged, flags: flags)
     return self
   }
 

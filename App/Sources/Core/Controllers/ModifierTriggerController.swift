@@ -112,7 +112,9 @@ final class ModifierTriggerController: @unchecked Sendable {
           guard case .modifier(let trigger) = workflow.trigger else { continue }
 
           let flags = CGEventFlags.maskNonCoalesced
-          let keyCode: Int64 = trigger.key.keyCode
+          guard let resolvedKeyCode = trigger.key.keyCode else { continue }
+
+          let keyCode: Int64 = Int64(resolvedKeyCode)
           let signature = CGEventSignature(keyCode, flags)
           let key = createKey(signature: signature,
                               bundleIdentifier: bundleIdentifier,
@@ -141,6 +143,7 @@ final class ModifierTriggerController: @unchecked Sendable {
     let event = machPortEvent.event
     let signature = CGEventSignature(event.getIntegerValueField(.keyboardEventKeycode), event.flags)
     let trigger = lookup(signature)
+
     guard let trigger else { return }
 
     if let heldDown = trigger.manipulator.heldDown {
@@ -172,7 +175,7 @@ final class ModifierTriggerController: @unchecked Sendable {
           .set(key, on: machPortEvent)
           .discardSystemEvent(on: machPortEvent)
       case .modifiers(let modifiers):
-        if machPortEvent.keyCode == currentTrigger.key.keyCode {
+        if machPortEvent.keyCode == currentTrigger.key.keyCode! {
           coordinator
             .discardSystemEvent(on: machPortEvent)
 
@@ -202,7 +205,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         let currentTimestamp = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
 
-        if machPortEvent.keyCode == currentTrigger.key.keyCode {
+        if machPortEvent.keyCode == currentTrigger.key.keyCode! {
           coordinator
             .discardSystemEvent(on: machPortEvent)
             .postMaskNonCoalesced()

@@ -54,6 +54,9 @@ extension KeyShortcut {
     case "/", "?": kVK_ANSI_Slash
     case " ", "Space", "SPACE": kVK_Space
 
+    case "Tab", "TAB", "⇥": kVK_Tab
+    case "Escape", "ESCAPE", "⎋": kVK_Escape
+
     // Norwegian-specific characters
     case "å", "Å": kVK_ANSI_Grave        // Typically backtick/tilde key
     case "ø", "Ø": kVK_ANSI_Semicolon    // Typically semicolon/colon key
@@ -65,5 +68,13 @@ extension KeyShortcut {
 
     default: nil
     }
+  }
+
+  static var escape: KeyShortcut {
+    KeyShortcut(key: "⎋")
+  }
+
+  static var tab: KeyShortcut {
+    KeyShortcut(key: "⇥")
   }
 }
