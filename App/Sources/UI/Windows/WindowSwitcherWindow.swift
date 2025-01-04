@@ -151,7 +151,6 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       var filtered = items.filter { item in
         for word in words {
           if item.title.localizedLowercase.contains(word) || item.app.displayName.localizedLowercase.contains(word) {
-            print(item.title.localizedLowercase, item.app.displayName, word)
             if currentSelection.contains(item.id) {
               needsSelectionUpdate = false
             }
