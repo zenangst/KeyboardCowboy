@@ -5,31 +5,57 @@ import Testing
 fileprivate let tests: [Test] = [
   // Standard ANSI characters
   Test(key: "a", isEqualTo: kVK_ANSI_A),
+  Test(key: "A", isEqualTo: kVK_ANSI_A),
   Test(key: "b", isEqualTo: kVK_ANSI_B),
+  Test(key: "B", isEqualTo: kVK_ANSI_B),
   Test(key: "c", isEqualTo: kVK_ANSI_C),
+  Test(key: "C", isEqualTo: kVK_ANSI_C),
   Test(key: "d", isEqualTo: kVK_ANSI_D),
+  Test(key: "D", isEqualTo: kVK_ANSI_D),
   Test(key: "e", isEqualTo: kVK_ANSI_E),
+  Test(key: "E", isEqualTo: kVK_ANSI_E),
   Test(key: "f", isEqualTo: kVK_ANSI_F),
+  Test(key: "F", isEqualTo: kVK_ANSI_F),
   Test(key: "g", isEqualTo: kVK_ANSI_G),
+  Test(key: "G", isEqualTo: kVK_ANSI_G),
   Test(key: "h", isEqualTo: kVK_ANSI_H),
+  Test(key: "H", isEqualTo: kVK_ANSI_H),
   Test(key: "i", isEqualTo: kVK_ANSI_I),
+  Test(key: "I", isEqualTo: kVK_ANSI_I),
   Test(key: "j", isEqualTo: kVK_ANSI_J),
+  Test(key: "J", isEqualTo: kVK_ANSI_J),
   Test(key: "k", isEqualTo: kVK_ANSI_K),
+  Test(key: "K", isEqualTo: kVK_ANSI_K),
   Test(key: "l", isEqualTo: kVK_ANSI_L),
+  Test(key: "L", isEqualTo: kVK_ANSI_L),
   Test(key: "m", isEqualTo: kVK_ANSI_M),
+  Test(key: "M", isEqualTo: kVK_ANSI_M),
   Test(key: "n", isEqualTo: kVK_ANSI_N),
+  Test(key: "N", isEqualTo: kVK_ANSI_N),
   Test(key: "o", isEqualTo: kVK_ANSI_O),
+  Test(key: "O", isEqualTo: kVK_ANSI_O),
   Test(key: "p", isEqualTo: kVK_ANSI_P),
+  Test(key: "P", isEqualTo: kVK_ANSI_P),
   Test(key: "q", isEqualTo: kVK_ANSI_Q),
+  Test(key: "Q", isEqualTo: kVK_ANSI_Q),
   Test(key: "r", isEqualTo: kVK_ANSI_R),
+  Test(key: "R", isEqualTo: kVK_ANSI_R),
   Test(key: "s", isEqualTo: kVK_ANSI_S),
+  Test(key: "S", isEqualTo: kVK_ANSI_S),
   Test(key: "t", isEqualTo: kVK_ANSI_T),
+  Test(key: "T", isEqualTo: kVK_ANSI_T),
   Test(key: "u", isEqualTo: kVK_ANSI_U),
+  Test(key: "U", isEqualTo: kVK_ANSI_U),
   Test(key: "v", isEqualTo: kVK_ANSI_V),
+  Test(key: "V", isEqualTo: kVK_ANSI_V),
   Test(key: "w", isEqualTo: kVK_ANSI_W),
+  Test(key: "W", isEqualTo: kVK_ANSI_W),
   Test(key: "x", isEqualTo: kVK_ANSI_X),
+  Test(key: "X", isEqualTo: kVK_ANSI_X),
   Test(key: "y", isEqualTo: kVK_ANSI_Y),
+  Test(key: "Y", isEqualTo: kVK_ANSI_Y),
   Test(key: "z", isEqualTo: kVK_ANSI_Z),
+  Test(key: "Z", isEqualTo: kVK_ANSI_Z),
   Test(key: "0", isEqualTo: kVK_ANSI_0),
   Test(key: "1", isEqualTo: kVK_ANSI_1),
   Test(key: "2", isEqualTo: kVK_ANSI_2),
@@ -63,17 +89,62 @@ fileprivate let tests: [Test] = [
   Test(key: "/", isEqualTo: kVK_ANSI_Slash),
   Test(key: "?", isEqualTo: kVK_ANSI_Slash),
   Test(key: " ", isEqualTo: kVK_Space),
-  Test(key: "Space", isEqualTo: kVK_Space),
-
-  // Norwegian-specific characters
+  Test(key: "Tab", isEqualTo: kVK_Tab),
+  Test(key: "⇥", isEqualTo: kVK_Tab),
+  Test(key: "Escape", isEqualTo: kVK_Escape),
+  Test(key: "⎋", isEqualTo: kVK_Escape),
+  Test(key: "ForwardDelete", isEqualTo: kVK_ForwardDelete),
+  Test(key: "⌦", isEqualTo: kVK_ForwardDelete),
+  Test(key: "Help", isEqualTo: kVK_Help),
+  Test(key: "?⃝", isEqualTo: kVK_Help),
+  Test(key: "KeypadEnter", isEqualTo: kVK_ANSI_KeypadEnter),
+  Test(key: "⌤", isEqualTo: kVK_ANSI_KeypadEnter),
+  Test(key: "Return", isEqualTo: kVK_Return),
+  Test(key: "⏎", isEqualTo: kVK_Return),
+  Test(key: "Delete", isEqualTo: kVK_Delete),
+  Test(key: "⌫", isEqualTo: kVK_Delete),
+  Test(key: "Home", isEqualTo: kVK_Home),
+  Test(key: "↖", isEqualTo: kVK_Home),
+  Test(key: "End", isEqualTo: kVK_End),
+  Test(key: "↘", isEqualTo: kVK_End),
+  Test(key: "PageUp", isEqualTo: kVK_PageUp),
+  Test(key: "⇞", isEqualTo: kVK_PageUp),
+  Test(key: "PageDown", isEqualTo: kVK_PageDown),
+  Test(key: "⇟", isEqualTo: kVK_PageDown),
+  Test(key: "LeftArrow", isEqualTo: kVK_LeftArrow),
+  Test(key: "←", isEqualTo: kVK_LeftArrow),
+  Test(key: "RightArrow", isEqualTo: kVK_RightArrow),
+  Test(key: "→", isEqualTo: kVK_RightArrow),
+  Test(key: "UpArrow", isEqualTo: kVK_UpArrow),
+  Test(key: "↑", isEqualTo: kVK_UpArrow),
+  Test(key: "DownArrow", isEqualTo: kVK_DownArrow),
+  Test(key: "↓", isEqualTo: kVK_DownArrow),
+  Test(key: "F1", isEqualTo: kVK_F1),
+  Test(key: "F2", isEqualTo: kVK_F2),
+  Test(key: "F3", isEqualTo: kVK_F3),
+  Test(key: "F4", isEqualTo: kVK_F4),
+  Test(key: "F5", isEqualTo: kVK_F5),
+  Test(key: "F6", isEqualTo: kVK_F6),
+  Test(key: "F7", isEqualTo: kVK_F7),
+  Test(key: "F8", isEqualTo: kVK_F8),
+  Test(key: "F9", isEqualTo: kVK_F9),
+  Test(key: "F10", isEqualTo: kVK_F10),
+  Test(key: "F11", isEqualTo: kVK_F11),
+  Test(key: "F12", isEqualTo: kVK_F12),
+  Test(key: "F13", isEqualTo: kVK_F13),
+  Test(key: "F14", isEqualTo: kVK_F14),
+  Test(key: "F15", isEqualTo: kVK_F15),
+  Test(key: "F16", isEqualTo: kVK_F16),
+  Test(key: "F17", isEqualTo: kVK_F17),
+  Test(key: "F18", isEqualTo: kVK_F18),
+  Test(key: "F19", isEqualTo: kVK_F19),
+  Test(key: "F20", isEqualTo: kVK_F20),
   Test(key: "å", isEqualTo: kVK_ANSI_Grave),
   Test(key: "Å", isEqualTo: kVK_ANSI_Grave),
   Test(key: "ø", isEqualTo: kVK_ANSI_Semicolon),
   Test(key: "Ø", isEqualTo: kVK_ANSI_Semicolon),
   Test(key: "æ", isEqualTo: kVK_ANSI_Quote),
   Test(key: "Æ", isEqualTo: kVK_ANSI_Quote),
-
-  // Swedish-specific characters
   Test(key: "ä", isEqualTo: kVK_ANSI_Quote),
   Test(key: "Ä", isEqualTo: kVK_ANSI_Quote),
   Test(key: "ö", isEqualTo: kVK_ANSI_Semicolon),
@@ -82,21 +153,15 @@ fileprivate let tests: [Test] = [
 
 @Test("Test the key code for each letter", arguments: tests)
 private func verifyKeyCode(_ test: Test) {
-  let lowercase = KeyShortcut(key: test.lowercase)
-  let uppercase = KeyShortcut(key: test.uppercase)
-
-  #expect(lowercase.keyCode == test.keyCode)
-  #expect(uppercase.keyCode == test.keyCode)
+  #expect(KeyShortcut(key: test.key).keyCode == test.keyCode)
 }
 
 fileprivate struct Test {
-  let lowercase: String
-  let uppercase: String
+  let key: String
   let keyCode: Int
 
   init(key: String, isEqualTo keyCode: Int) {
-    self.lowercase = key
-    self.uppercase = key.uppercased()
+    self.key = key
     self.keyCode = keyCode
   }
 }
