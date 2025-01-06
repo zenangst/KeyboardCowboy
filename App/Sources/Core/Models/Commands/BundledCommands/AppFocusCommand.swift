@@ -169,7 +169,13 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
         let currentTiling = SystemWindowTilingRunner.calculateTiling(for: window.rect, in: screen.visibleFrame.mainDisplayFlipped)
 
         if numberOfAppWindows >= 3 {
-          windowTiling = leftTilings.contains(currentTiling) ? .windowTilingArrangeLeftQuarters : .windowTilingArrangeRightQuarters
+          if currentTiling == .left {
+            windowTiling = .windowTilingArrangeLeftQuarters
+          } else if currentTiling == .right {
+            windowTiling = .windowTilingArrangeRightQuarters
+          } else {
+            windowTiling = leftTilings.contains(currentTiling) ? .windowTilingArrangeLeftQuarters : .windowTilingArrangeRightQuarters
+          }
         } else if numberOfAppWindows == 2 {
           windowTiling = leftTilings.contains(currentTiling) ? .windowTilingArrangeLeftRight : .windowTilingArrangeRightLeft
         } else {

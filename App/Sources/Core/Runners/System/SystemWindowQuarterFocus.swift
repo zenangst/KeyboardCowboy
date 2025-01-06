@@ -42,11 +42,12 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
 
   @MainActor
   func run(_ quarter: Quarter, snapshot: UserSpace.Snapshot) throws {
-    guard let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager") else {
-      return
+    let windowSpacing: CGFloat
+    if UserDefaults(suiteName: "com.apple.WindowManager")?.bool(forKey: "EnableTiledWindowMargins") == false {
+      windowSpacing = 0
+    } else {
+      windowSpacing = max(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
     }
-
-    let windowSpacing: CGFloat = CGFloat(userDefaults.float(forKey: "TiledWindowSpacing"))
 
     guard let screen = NSScreen.main else { return }
 

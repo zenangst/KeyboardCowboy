@@ -85,12 +85,12 @@ final class KeyboardCowboyEngine {
         eventsOfInterest: keyboardEvents,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
-        onFlagsChanged: { [machPortCoordinator, modifierTriggerController] in
-          modifierTriggerController.handleIfApplicable($0)
+        onFlagsChanged: { [machPortCoordinator] in
+//          modifierTriggerController.handleIfApplicable($0)
           machPortCoordinator.receiveFlagsChanged($0)
         },
-        onEventChange: { [machPortCoordinator, modifierTriggerController] in
-          modifierTriggerController.handleIfApplicable($0)
+        onEventChange: { [machPortCoordinator] in
+//          modifierTriggerController.handleIfApplicable($0)
           machPortCoordinator.receiveEvent($0)
         })
       commandRunner.eventSource = newMachPortController.eventSource
