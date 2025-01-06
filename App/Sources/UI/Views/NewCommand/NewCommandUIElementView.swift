@@ -35,8 +35,7 @@ struct NewCommandUIElementView: View {
           }
           .frame(maxWidth: .infinity)
           .padding()
-          .background()
-          .clipShape(RoundedRectangle(cornerRadius: 8))
+          .roundedContainer(padding: 0, margin: 8)
         }
 
         ForEach(predicates.indices, id: \.self) { index in
@@ -138,54 +137,128 @@ struct NewCommandUIElementView: View {
             }
             .padding([.bottom, .horizontal], 8)
           }
-          .background()
-          .clipShape(RoundedRectangle(cornerRadius: 12))
+          .roundedContainer(padding: 0, margin: 8)
         }
       }
 
       if let element = captureStore.capturedElement {
-        Grid(alignment: .trailing, horizontalSpacing: 16, verticalSpacing: 4) {
-          GridRow {
-            Text("Identifier:")
-              .font(.system(.caption, design: .monospaced))
-              .foregroundColor(.secondary)
-            Text(element.identifier ?? "No identifier")
-              .frame(maxWidth: .infinity, alignment: .leading)
-            Text("Description:")
-              .font(.system(.caption, design: .monospaced))
-              .foregroundColor(.secondary)
-            Text(element.description ?? "No description")
-              .frame(maxWidth: .infinity, alignment: .leading)
-          }
+        let predicatesCount = predicates.count - 1
 
-          GridRow {
-            Text("Title:")
-              .font(.system(.caption, design: .monospaced))
-              .foregroundColor(.secondary)
-            Text(element.title ?? "No title")
-              .frame(maxWidth: .infinity, alignment: .leading)
-            Text("Value:")
-              .font(.system(.caption, design: .monospaced))
-              .foregroundColor(.secondary)
-            Text(element.value ?? "No value")
-              .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 0) {
+          HStack {
+            UIElementIconView(size: 24)
+            Text("Captured Element")
           }
+          .padding(8)
+          ZenDivider(.horizontal)
+          Grid(alignment: .trailing, horizontalSpacing: 16, verticalSpacing: 4) {
+            GridRow {
+              Text("Identifier:")
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(.secondary)
+              Button(action: {
+                if let identifier = element.identifier {
+                  predicates[predicatesCount].value = identifier
+                  predicates[predicatesCount].properties = [.identifier]
+                  validation = updateAndValidatePayload()
+                }
+              }) {
+                Text(element.identifier ?? "No identifier")
+                  .frame(maxWidth: .infinity, alignment: .leading)
+              }
 
-          GridRow {
-            Text("Role:")
-              .font(.system(.caption, design: .monospaced))
-              .foregroundColor(.secondary)
-            Text(element.role ?? "No value")
-              .frame(maxWidth: .infinity, alignment: .leading)
-            Text("Subrole:")
-              .font(.system(.caption, design: .monospaced))
-              .foregroundColor(.secondary)
-            Text(element.subrole ?? "No value")
-              .frame(maxWidth: .infinity, alignment: .leading)
+              Text("Description:")
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(.secondary)
+
+              Button(action: {
+                if let description = element.description {
+                  predicates[predicatesCount].value = description
+                  predicates[predicatesCount].properties = [.description]
+                  validation = updateAndValidatePayload()
+                }
+              }) {
+                Text(element.description ?? "No description")
+                  .frame(maxWidth: .infinity, alignment: .leading)
+              }
+            }
+
+            GridRow {
+              Text("Title:")
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(.secondary)
+              Button(action: {
+                if let title = element.title {
+                  predicates[predicatesCount].value = title
+                  predicates[predicatesCount].properties = [.title]
+                  validation = updateAndValidatePayload()
+                }
+              }) {
+                Text(element.title ?? "No title")
+                  .frame(maxWidth: .infinity, alignment: .leading)
+              }
+              Text("Value:")
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(.secondary)
+              Button(action: {
+                if let value = element.value {
+                  predicates[predicatesCount].value = value
+                  predicates[predicatesCount].properties = [.value]
+                  validation = updateAndValidatePayload()
+                }
+              }) {
+                Text(element.value ?? "No value")
+                  .frame(maxWidth: .infinity, alignment: .leading)
+              }
+            }
+
+            GridRow {
+              Text("Role:")
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(.secondary)
+              Button(action: {
+                if let role = element.role {
+                  let kind = UIElementCommand.Kind(role)
+                  predicates[predicatesCount].kind = kind
+                  validation = updateAndValidatePayload()
+                }
+              }) {
+                Text(element.role ?? "No value")
+                  .frame(maxWidth: .infinity, alignment: .leading)
+              }
+              Text("Subrole:")
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(.secondary)
+              Button(action: {
+                if let subrole = element.subrole {
+                  predicates[predicatesCount].value = subrole
+                  predicates[predicatesCount].properties = [.subrole]
+                  validation = updateAndValidatePayload()
+                }
+              }) {
+                Text(element.subrole ?? "No value")
+                  .frame(maxWidth: .infinity, alignment: .leading)
+              }
+            }
           }
+          .padding(8)
         }
+        .roundedContainer(padding: 0, margin: 0)
         .padding(8)
-        .roundedContainer(padding: 8, margin: 2)
+        .buttonStyle(
+          .zen(
+            .init(
+              calm: true,
+              color: .systemGreen,
+              backgroundColor: .clear,
+              focusEffect: .constant(true),
+              grayscaleEffect: .constant(true),
+              hoverEffect: .constant(true),
+              padding: .init(horizontal: .medium, vertical: .small),
+              unfocusedOpacity: 0.5
+            )
+          )
+        )
       }
     }
 
@@ -283,7 +356,7 @@ struct NewCommandUIElementView: View {
     .environmentObject(
       UIElementCaptureStore(
         isCapturing: false,
-        capturedElement: .init(description: nil, identifier: nil, title: nil, value: nil, role: nil, subrole: nil)
+        capturedElement: .init(description: nil, identifier: "foo", title: nil, value: nil, role: nil, subrole: nil)
       )
     )
 }
