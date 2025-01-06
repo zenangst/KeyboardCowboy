@@ -4,7 +4,7 @@ import Foundation
 import Windows
 
 final class SystemWindowTilingRunner {
-  nonisolated(unsafe) static var debug: Bool = false
+  nonisolated(unsafe) static var debug: Bool = true
   @MainActor private static var currentTask: Task<Void, any Error>?
   @MainActor private static var storage = [WindowModel.WindowNumber: TileStorage]()
   private static let tilingWindowSpacingKey: String = "TiledWindowSpacing"
@@ -234,21 +234,21 @@ final class SystemWindowTilingRunner {
           if let currentStorage, currentStorage.isFullScreen {
             if currentStorage.tiling == activatedTiling {
               nextTiling = .center
-              updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
+              updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
             } else if currentStorage.isFullScreen {
               nextTiling = currentStorage.tiling
-              updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
+              updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
             } else {
               nextTiling = .fill
-              updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
+              updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
             }
           } else {
             nextTiling = activatedTiling
-            updateStore(isFullScreen: true, isCentered: false, for: nextWindow)
+            updateStore(isFullScreen: true, isCentered: false, in: visibleScreenFrame, for: nextWindow)
           }
         default:
           nextTiling = activatedTiling
-          updateStore(isFullScreen: false, isCentered: false, for: nextWindow)
+          updateStore(isFullScreen: false, isCentered: false, in: visibleScreenFrame, for: nextWindow)
         }
 
         guard let match = WindowTilingMenuItemFinder.find(nextTiling, in: menuItems) else { return }
@@ -283,9 +283,9 @@ final class SystemWindowTilingRunner {
   }
 
   @MainActor
-  private static func updateStore(isFullScreen: Bool, isCentered: Bool, for window: WindowModel) {
-    guard let old = storage[window.windowNumber] else { return }
-    storage[window.windowNumber] = TileStorage(tiling: old.tiling, isFullScreen: isFullScreen, isCentered: isCentered)
+  private static func updateStore(isFullScreen: Bool, isCentered: Bool, in screenFrame: CGRect, for window: WindowModel) {
+    let currentTiling = calculateTiling(for: window.rect, ownerName: window.ownerName, in: screenFrame)
+    storage[window.windowNumber] = TileStorage(tiling: currentTiling, isFullScreen: isFullScreen, isCentered: isCentered)
   }
 
   @MainActor
