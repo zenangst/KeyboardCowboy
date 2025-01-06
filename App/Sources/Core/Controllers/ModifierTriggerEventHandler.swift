@@ -44,6 +44,20 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
   }
 
   @discardableResult
+  func postKeyDown(_ key: KeyShortcut) -> Self {
+    _ = try? machPort.post(key.keyCode!, type: .keyUp, flags: .maskNonCoalesced)
+    debugModifier("")
+    return self
+  }
+
+  @discardableResult
+  func postKeyUp(_ key: KeyShortcut) -> Self {
+    _ = try? machPort.post(key.keyCode!, type: .keyUp, flags: .maskNonCoalesced)
+    debugModifier("")
+    return self
+  }
+
+  @discardableResult
   func post(_ key: KeyShortcut, modifiers: [ModifierKey], flags: CGEventFlags? = nil) -> Self {
     var flags = flags ?? CGEventFlags.maskNonCoalesced
     modifiers.forEach { modifier in
@@ -51,6 +65,12 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
     }
 
     _ = try? machPort.post(key.keyCode!, type: .flagsChanged, flags: flags)
+    return self
+  }
+
+  @discardableResult
+  func post(_ machPortEvent: MachPortEvent) -> Self {
+    machPort.post(machPortEvent)
     return self
   }
 
