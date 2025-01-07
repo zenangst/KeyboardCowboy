@@ -19,6 +19,7 @@ final class ScheduleMachPortCoordinator: @unchecked Sendable {
   func handlePartialMatchIfApplicable(_ partialMatch: PartialMatch,
                                       machPortEvent: MachPortEvent,
                                       onTask: @escaping @MainActor @Sendable (ScheduledAction?)  -> Void) -> Bool {
+    task?.cancel()
     guard let workflow = partialMatch.workflow,
           workflow.machPortConditions.hasHoldForDelay,
           case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger,
@@ -32,14 +33,12 @@ final class ScheduleMachPortCoordinator: @unchecked Sendable {
       return true
     }
 
-    task?.cancel()
-    let seconds: Double = max(holdDuration, 0.1)
+    let seconds: Double = min(holdDuration, 0.125)
     let milliseconds = Duration.milliseconds(Int(seconds * 1000))
     let task = Task.detached { [weak self] in
       guard let self else { return }
-      try? await Task.sleep(for: milliseconds)
       do {
-        try Task.checkCancellation()
+        try await Task.sleep(for: milliseconds)
         await onTask(.captureKeyDown(keyCode: Int(machPortEvent.keyCode)))
       } catch {
         await onTask(nil)
