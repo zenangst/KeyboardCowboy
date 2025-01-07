@@ -70,7 +70,7 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
 
   @discardableResult
   func post(_ machPortEvent: MachPortEvent) -> Self {
-    machPort.post(machPortEvent)
+    machPort.repost(machPortEvent)
     return self
   }
 

@@ -137,7 +137,8 @@ final class ModifierTriggerController: @unchecked Sendable {
   // MARK: Private methods
 
   @MainActor
-  private func handleIdle(_ machPortEvent: MachPortEvent, coordinator: ModifierTriggerMachPortCoordinator) {
+  private func handleIdle(_ machPortEvent: MachPortEvent,
+                          coordinator: ModifierTriggerMachPortCoordinator) {
     guard machPortEvent.type == .keyDown else { return }
 
     let event = machPortEvent.event
@@ -147,18 +148,13 @@ final class ModifierTriggerController: @unchecked Sendable {
     guard let trigger else { return }
 
     if let heldDown = trigger.manipulator.heldDown {
-      workItem = startTimer(delay: Int(trigger.manipulator.alone.timeout), currentTrigger: trigger) { [weak self] trigger in
-        guard let self, let currentTrigger else { return }
-
-        if currentTrigger.id != trigger.id { return }
-
-        lastEventTime = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
-        state = .keyDown(heldDown.kind, held: true)
-        handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
-      }
+      lastEventTime = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+      state = .keyDown(heldDown.kind, held: true)
+      handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: trigger)
+    } else {
+      state = .keyDown(trigger.manipulator.alone.kind, held: false)
     }
 
-    state = .keyDown(trigger.manipulator.alone.kind, held: false)
     currentTrigger = trigger
     machPortEvent.result = nil
   }
@@ -174,14 +170,18 @@ final class ModifierTriggerController: @unchecked Sendable {
           .post(key)
           .set(key, on: machPortEvent)
           .discardSystemEvent(on: machPortEvent)
+
       case .modifiers(let modifiers):
         if machPortEvent.keyCode == currentTrigger.key.keyCode! {
           coordinator
             .discardSystemEvent(on: machPortEvent)
 
           guard !machPortEvent.isRepeat else { return }
-          coordinator
-            .postFlagsChanged(modifiers: modifiers)
+
+          workItem = startTimer(delay: Int(currentTrigger.manipulator.alone.timeout), currentTrigger: currentTrigger) { [coordinator] trigger in
+            coordinator
+              .postFlagsChanged(modifiers: modifiers)
+          }
         } else {
           coordinator.decorateEvent(machPortEvent, with: modifiers)
         }
@@ -205,6 +205,13 @@ final class ModifierTriggerController: @unchecked Sendable {
         let currentTimestamp = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
 
+        if held, 75 > Int(elapsedTime) {
+          coordinator.post(currentTrigger.key)
+          reset()
+          workItem?.cancel()
+          return
+        }
+
         if machPortEvent.keyCode == currentTrigger.key.keyCode! {
           coordinator
             .discardSystemEvent(on: machPortEvent)
@@ -215,11 +222,7 @@ final class ModifierTriggerController: @unchecked Sendable {
           return
         }
 
-        if held, 75 > Int(elapsedTime) {
-          coordinator.post(currentTrigger.key)
-        } else {
-          coordinator.setMaskNonCoalesced(on: machPortEvent)
-        }
+        coordinator.setMaskNonCoalesced(on: machPortEvent)
       }
     case .idle:
       break
