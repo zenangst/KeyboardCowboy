@@ -3,7 +3,53 @@ import MachPort
 
 final class ModifierTriggerMachPortCoordinator: Sendable {
   nonisolated(unsafe) static fileprivate var debug: Bool = false
-  let machPort: MachPortEventController
+  private let functionKeyRemap: [Int64: Int64] = [
+    // Arrow Keys
+    126: 116, // Up Arrow -> Page Up
+    125: 121, // Down Arrow -> Page Down
+    124: 119, // Right Arrow -> End
+    123: 115, // Left Arrow -> Home
+
+    // Enter/Return Key
+    36: 76,   // Return -> Keypad Enter
+
+    // Function Keys (F1–F12)
+    145: 122, // Brightness Down -> F1
+    144: 120, // Brightness Up -> F2
+    160: 99,  // Mission Control -> F3
+    131: 118, // Launchpad -> F4
+    153: 96,  // Keyboard Light ↓ -> F5
+    150: 97,  // Keyboard Light ↑ -> F6
+    114: 98,  // Previous Track -> F7
+    176: 100, // Play/Pause -> F8
+    115: 101, // Next Track -> F9
+    113: 109, // Mute -> F10
+    111: 103, // Volume Down -> F11
+    110: 111, // Volume Up -> F12
+
+    // Delete/Backspace
+    51: 117,  // Delete -> Forward Delete
+
+    // Escape Key
+    53: 126,  // Escape -> Special Fn Behavior (if applicable, can vary)
+
+    // Numeric Keypad Emulation
+    82: 92,   // Keypad 0
+    83: 93,   // Keypad 1
+    84: 94,   // Keypad 2
+    85: 95,   // Keypad 3
+    86: 96,   // Keypad 4
+    87: 97,   // Keypad 5
+    88: 98,   // Keypad 6
+    89: 99,   // Keypad 7
+    90: 100,  // Keypad 8
+    91: 101,  // Keypad 9
+
+    // Other Keys (Power, Eject, etc.)
+    96: 0,    // Power Key (mapped to system behavior)
+    71: 0,    // Eject Key (mapped to system behavior)
+  ]
+  private let machPort: MachPortEventController
 
   init(machPort: MachPortEventController) {
     self.machPort = machPort
@@ -24,6 +70,24 @@ final class ModifierTriggerMachPortCoordinator: Sendable {
       machPortEvent.result?.takeUnretainedValue().flags.insert(modifier.cgEventFlags)
       cgEventFlags.insert(modifier.cgEventFlags)
     }
+
+    if machPortEvent.event.flags.contains(.maskSecondaryFn) {
+      let keyCode: Int64
+      // Remap using the functionKeyRemap dictionary
+      if let remappedKeyCode = functionKeyRemap[machPortEvent.keyCode] {
+        machPortEvent.event.setIntegerValueField(.keyboardEventKeycode, value: remappedKeyCode)
+        machPortEvent.result?.takeUnretainedValue().setIntegerValueField(.keyboardEventKeycode, value: remappedKeyCode)
+        keyCode = remappedKeyCode
+      } else {
+        keyCode = machPortEvent.keyCode
+      }
+
+      if SpecialKeys.numericPadKeys.contains(Int(keyCode)) {
+        machPortEvent.event.flags.insert(.maskNumericPad)
+        machPortEvent.result?.takeUnretainedValue().flags.insert(.maskNumericPad)
+      }
+    }
+
     debugModifier("\(machPortEvent.keyCode)")
     return self
   }
