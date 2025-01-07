@@ -80,7 +80,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         id: key,
         key: .escape,
         manipulator: ModifierTrigger.Manipulator(
-          alone: .init(kind: .key(.escape), timeout: 75),
+          alone: .init(kind: .key(.escape), timeout: 100),
           heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75)
         )
       )
@@ -93,7 +93,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         id: key,
         key: .tab,
         manipulator: ModifierTrigger.Manipulator(
-          alone: .init(kind: .key(.tab), timeout: 75),
+          alone: .init(kind: .key(.tab), timeout: 100),
           heldDown: .init(kind: .modifiers([.function]), threshold: 75)
         )
       )
@@ -178,9 +178,11 @@ final class ModifierTriggerController: @unchecked Sendable {
 
           guard !machPortEvent.isRepeat else { return }
 
-          workItem = startTimer(delay: Int(currentTrigger.manipulator.alone.timeout), currentTrigger: currentTrigger) { [coordinator] trigger in
+          workItem = startTimer(delay: Int(currentTrigger.manipulator.alone.threshold), currentTrigger: currentTrigger) { [weak self, coordinator] trigger in
+            guard let self else { return }
             coordinator
               .postFlagsChanged(modifiers: modifiers)
+            lastEventTime = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
           }
         } else {
           coordinator.decorateEvent(machPortEvent, with: modifiers)
@@ -205,7 +207,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         let currentTimestamp = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
 
-        if held, 75 > Int(elapsedTime) {
+        if held, currentTrigger.manipulator.alone.threshold >= elapsedTime {
           coordinator.post(currentTrigger.key)
           reset()
           workItem?.cancel()

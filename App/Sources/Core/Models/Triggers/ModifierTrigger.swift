@@ -24,11 +24,11 @@ struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
 
     struct Alone: Hashable, Codable, Equatable, Sendable {
       let kind: Kind
-      let timeout: TimeInterval
+      let threshold: TimeInterval
 
       init(kind: Kind, timeout: TimeInterval = 75) {
         self.kind = kind
-        self.timeout = timeout
+        self.threshold = timeout
       }
     }
 
