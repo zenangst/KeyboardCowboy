@@ -4,7 +4,7 @@ import Foundation
 import Windows
 
 final class SystemWindowTilingRunner {
-  nonisolated(unsafe) static var debug: Bool = true
+  nonisolated(unsafe) static var debug: Bool = false
   @MainActor private static var currentTask: Task<Void, any Error>?
   @MainActor private static var storage = [WindowModel.WindowNumber: TileStorage]()
   private static let tilingWindowSpacingKey: String = "TiledWindowSpacing"

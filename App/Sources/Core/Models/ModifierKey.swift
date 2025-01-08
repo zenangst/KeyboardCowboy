@@ -5,6 +5,21 @@ import KeyCodes
 public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
   public var id: String { return rawValue }
 
+  var keyCode: Int? {
+    switch self {
+    case .function: return KeyShortcut.keyCode(for: "fn")
+    case .capsLock: return KeyShortcut.keyCode(for: "⇪")
+    case .leftShift: return KeyShortcut.keyCode(for: "⇧L")
+    case .leftControl: return KeyShortcut.keyCode(for: "⌃L")
+    case .leftOption: return KeyShortcut.keyCode(for: "⌥L")
+    case .leftCommand: return KeyShortcut.keyCode(for: "⌘L")
+    case .rightShift: return KeyShortcut.keyCode(for: "⇧R")
+    case .rightControl: return KeyShortcut.keyCode(for: "⌃R")
+    case .rightOption: return KeyShortcut.keyCode(for: "⌥R")
+    case .rightCommand: return KeyShortcut.keyCode(for: "⌘R")
+    }
+  }
+
   case function = "fn"
   case capsLock = "⇪"
 
@@ -138,5 +153,40 @@ public enum ModifierKey: String, Codable, Hashable, Identifiable, Sendable {
     }
 
     return modifierFlags
+  }
+
+  init(keyCode: Int) {
+    switch keyCode {
+    case kVK_Function: self = .function
+    case kVK_CapsLock: self = .capsLock
+
+    case kVK_Shift: self = .leftShift
+    case kVK_RightShift: self = .rightShift
+
+    case kVK_Control: self = .leftControl
+    case kVK_RightControl: self = .rightControl
+
+    case kVK_Option: self = .leftOption
+    case kVK_RightOption: self = .rightOption
+
+    case kVK_Command: self = .leftCommand
+    case kVK_RightCommand: self = .rightCommand
+
+    default:
+      fatalError("Invalid keyCode \(keyCode) for ModifierKey initialization")
+    }
+  }
+}
+
+extension Array<ModifierKey> {
+  var keyCode: Int? {
+    if count == 1 { return self[0].keyCode }
+    return compactMap(\.keyCode).reduce(-255, +)
+  }
+
+  var cgModifiers: CGEventFlags {
+    var flags = CGEventFlags.maskNonCoalesced
+    self.forEach { flags.insert($0.cgEventFlags) }
+    return flags
   }
 }

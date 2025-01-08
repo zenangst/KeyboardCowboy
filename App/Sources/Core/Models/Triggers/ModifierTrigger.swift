@@ -5,53 +5,48 @@ struct ModifierTrigger: Hashable, Equatable, Identifiable, Codable, Sendable {
   enum Kind: Hashable, Equatable, Codable, Sendable {
     case modifiers([ModifierKey])
     case key(KeyShortcut)
+
+    var keyCode: Int? {
+      switch self {
+      case .modifiers(let modifiers): modifiers.keyCode
+      case .key(let key): key.keyCode
+      }
+    }
+  }
+
+  struct HeldDown: Hashable, Codable, Equatable, Sendable {
+    let kind: Kind
+    let threshold: TimeInterval
+
+    init(kind: Kind, threshold: TimeInterval = 200) {
+      self.kind = kind
+      self.threshold = threshold
+    }
+  }
+
+  struct Alone: Hashable, Codable, Equatable, Sendable {
+    let kind: Kind
+    let threshold: TimeInterval
+
+    init(kind: Kind, timeout: TimeInterval = 75) {
+      self.kind = kind
+      self.threshold = timeout
+    }
   }
 
   let id: String
-  let key: KeyShortcut
-  let manipulator: Manipulator
+  let alone: Alone
+  let heldDown: HeldDown?
 
-  struct Manipulator: Hashable, Codable, Equatable, Sendable {
-    struct HeldDown: Hashable, Codable, Equatable, Sendable {
-      let kind: Kind
-      let threshold: TimeInterval
+  var keyCode: Int? { alone.kind.keyCode }
 
-      init(kind: Kind, threshold: TimeInterval = 200) {
-        self.kind = kind
-        self.threshold = threshold
-      }
-    }
-
-    struct Alone: Hashable, Codable, Equatable, Sendable {
-      let kind: Kind
-      let threshold: TimeInterval
-
-      init(kind: Kind, timeout: TimeInterval = 75) {
-        self.kind = kind
-        self.threshold = timeout
-      }
-    }
-
-    let alone: Alone
-    let heldDown: HeldDown?
-
-    init(alone: Alone, heldDown: HeldDown?) {
-      self.alone = alone
-      self.heldDown = heldDown
-    }
-  }
-
-  init(id: String, key: KeyShortcut, manipulator: Manipulator?) {
+  init(id: String, alone: Alone, heldDown: HeldDown?) {
     self.id = id
-    self.key = key
-    if let manipulator {
-      self.manipulator = manipulator
-    } else {
-      self.manipulator = Manipulator(alone: Manipulator.Alone(kind: .key(key)), heldDown: nil)
-    }
+    self.alone = alone
+    self.heldDown = heldDown
   }
 
   func copy() -> Self {
-    ModifierTrigger(id: UUID().uuidString, key: key, manipulator: manipulator)
+    ModifierTrigger(id: UUID().uuidString, alone: alone, heldDown: heldDown)
   }
 }

@@ -2,8 +2,10 @@ import Carbon
 import Foundation
 
 extension KeyShortcut {
-  var keyCode: Int? {
-    switch self.key {
+  var keyCode: Int? { Self.keyCode(for: key) }
+
+  static func keyCode(for string: String) -> Int? {
+    switch string {
       // Standard ANSI characters
     case "a", "A": kVK_ANSI_A
     case "b", "B": kVK_ANSI_B
@@ -55,6 +57,18 @@ extension KeyShortcut {
     case " ", "Space", "SPACE": kVK_Space
 
       // Modifier keys
+    case "Command", "COMMAND", "cmd", "⌘": kVK_Command
+    case "LeftCommand", "LEFTCOMMAND", "leftCmd", "⌘L": kVK_Command
+    case "RightCommand", "RIGHTCOMMAND", "rightCmd", "⌘R": kVK_RightCommand
+    case "Option", "OPTION", "alt", "⌥": kVK_Option
+    case "LeftOption", "LEFTOPTION", "leftAlt", "⌥L": kVK_Option
+    case "RightOption", "RIGHTOPTION", "rightAlt", "⌥R": kVK_RightOption
+    case "Shift", "SHIFT", "⇧": kVK_Shift
+    case "LeftShift", "LEFTSHIFT", "⇧L": kVK_Shift
+    case "RightShift", "RIGHTSHIFT", "⇧R": kVK_RightShift
+    case "Control", "CONTROL", "ctrl", "⌃": kVK_Control
+    case "LeftControl", "LEFTCONTROL", "leftCtrl", "⌃L": kVK_Control
+    case "RightControl", "RIGHTCONTROL", "rightCtrl", "⌃R": kVK_RightControl
     case "Tab", "TAB", "⇥": kVK_Tab
     case "Escape", "ESCAPE", "⎋": kVK_Escape
 
@@ -72,6 +86,7 @@ extension KeyShortcut {
     case "RightArrow", "RIGHTARROW", "→": kVK_RightArrow
     case "UpArrow", "UPARROW", "↑": kVK_UpArrow
     case "DownArrow", "DOWNARROW", "↓": kVK_DownArrow
+    case "Function", "FN", "fn": kVK_Function
     case "F1": kVK_F1
     case "F2": kVK_F2
     case "F3": kVK_F3
@@ -159,6 +174,7 @@ extension KeyShortcut {
   // Modifier keys
   static var tab: KeyShortcut { KeyShortcut(key: "⇥") }
   static var escape: KeyShortcut { KeyShortcut(key: "⎋") }
+  static var function: KeyShortcut { KeyShortcut(key: "fn") }
 
   // Special keys
   static var forwardDelete: KeyShortcut { KeyShortcut(key: "⌦") }

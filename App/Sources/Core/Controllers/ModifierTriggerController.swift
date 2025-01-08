@@ -80,12 +80,8 @@ final class ModifierTriggerController: @unchecked Sendable {
       let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
       cache[keySignature] = ModifierTrigger(
         id: keySignature,
-        key: key,
-        manipulator: ModifierTrigger.Manipulator(
-          alone: .init(kind: .key(key), timeout: 100),
-          heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75)
-        )
-      )
+        alone: .init(kind: .key(key), timeout: 100),
+        heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
     }
 
     do {
@@ -94,12 +90,8 @@ final class ModifierTriggerController: @unchecked Sendable {
       let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
       cache[keySignature] = ModifierTrigger(
         id: keySignature,
-        key: key,
-        manipulator: ModifierTrigger.Manipulator(
-          alone: .init(kind: .key(key), timeout: 100),
-          heldDown: .init(kind: .modifiers([.function]), threshold: 75)
-        )
-      )
+        alone: .init(kind: .key(key), timeout: 100),
+        heldDown: .init(kind: .modifiers([.function]), threshold: 75))
     }
 
     for group in groups where !group.isDisabled {
@@ -113,9 +105,16 @@ final class ModifierTriggerController: @unchecked Sendable {
       bundleIdentifiers.forEach { bundleIdentifier in
         for workflow in group.workflows where workflow.isEnabled {
           guard case .modifier(let trigger) = workflow.trigger else { continue }
+          guard let resolvedKeyCode = trigger.keyCode else { continue }
 
-          let flags = CGEventFlags.maskNonCoalesced
-          guard let resolvedKeyCode = trigger.key.keyCode else { continue }
+          let flags: CGEventFlags
+
+          switch trigger.alone.kind {
+          case .modifiers(let modifiers):
+            flags = modifiers.cgModifiers
+          case .key:
+            flags = .maskNonCoalesced
+          }
 
           let keyCode: Int64 = Int64(resolvedKeyCode)
           let signature = CGEventSignature(keyCode, flags)
@@ -142,7 +141,7 @@ final class ModifierTriggerController: @unchecked Sendable {
   @MainActor
   private func handleIdle(_ machPortEvent: MachPortEvent,
                           coordinator: ModifierTriggerMachPortCoordinator) {
-    guard machPortEvent.type == .keyDown else { return }
+    guard machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged else { return }
 
     let event = machPortEvent.event
     let signature = CGEventSignature(event.getIntegerValueField(.keyboardEventKeycode), event.flags)
@@ -150,12 +149,12 @@ final class ModifierTriggerController: @unchecked Sendable {
 
     guard let trigger else { return }
 
-    if let heldDown = trigger.manipulator.heldDown {
+    if let heldDown = trigger.heldDown {
       lastEventTime = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
       state = .keyDown(heldDown.kind, held: true)
       handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: trigger)
     } else {
-      state = .keyDown(trigger.manipulator.alone.kind, held: false)
+      state = .keyDown(trigger.alone.kind, held: false)
     }
 
     currentTrigger = trigger
@@ -175,13 +174,13 @@ final class ModifierTriggerController: @unchecked Sendable {
           .discardSystemEvent(on: machPortEvent)
 
       case .modifiers(let modifiers):
-        if machPortEvent.keyCode == currentTrigger.key.keyCode! {
+        if machPortEvent.keyCode == currentTrigger.keyCode! {
           coordinator
             .discardSystemEvent(on: machPortEvent)
 
           guard !machPortEvent.isRepeat else { return }
 
-          workItem = startTimer(delay: Int(currentTrigger.manipulator.alone.threshold), currentTrigger: currentTrigger) { [weak self, coordinator] trigger in
+          workItem = startTimer(delay: Int(currentTrigger.alone.threshold), currentTrigger: currentTrigger) { [weak self, coordinator] trigger in
             guard let self else { return }
             coordinator
               .postFlagsChanged(modifiers: modifiers)
@@ -210,14 +209,19 @@ final class ModifierTriggerController: @unchecked Sendable {
         let currentTimestamp = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
 
-        if held, currentTrigger.manipulator.alone.threshold >= elapsedTime {
-          coordinator.post(currentTrigger.key)
+        if held, currentTrigger.alone.threshold >= elapsedTime {
+          switch currentTrigger.alone.kind {
+          case .key(let key):
+            coordinator.post(key)
+          case .modifiers:
+            coordinator.postMaskNonCoalesced()
+          }
           reset()
           workItem?.cancel()
           return
         }
 
-        if machPortEvent.keyCode == currentTrigger.key.keyCode! {
+        if machPortEvent.keyCode == currentTrigger.keyCode! {
           coordinator
             .discardSystemEvent(on: machPortEvent)
             .postMaskNonCoalesced()
