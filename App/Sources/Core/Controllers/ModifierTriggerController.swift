@@ -73,27 +73,30 @@ final class ModifierTriggerController: @unchecked Sendable {
   }
 
   func cache(_ groups: [WorkflowGroup]) {
+    // MARK: Demo modifiers
     do {
-      let signature = CGEventSignature(53, .maskNonCoalesced)
-      let key = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
-      cache[key] = ModifierTrigger(
-        id: key,
-        key: .escape,
+      let key = KeyShortcut.escape
+      let signature = CGEventSignature(Int64(key.keyCode!), .maskNonCoalesced)
+      let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
+      cache[keySignature] = ModifierTrigger(
+        id: keySignature,
+        key: key,
         manipulator: ModifierTrigger.Manipulator(
-          alone: .init(kind: .key(.escape), timeout: 100),
+          alone: .init(kind: .key(key), timeout: 100),
           heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75)
         )
       )
     }
 
     do {
-      let signature = CGEventSignature(48, .maskNonCoalesced)
-      let key = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
-      cache[key] = ModifierTrigger(
-        id: key,
-        key: .tab,
+      let key = KeyShortcut.tab
+      let signature = CGEventSignature(Int64(key.keyCode!), .maskNonCoalesced)
+      let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
+      cache[keySignature] = ModifierTrigger(
+        id: keySignature,
+        key: key,
         manipulator: ModifierTrigger.Manipulator(
-          alone: .init(kind: .key(.tab), timeout: 100),
+          alone: .init(kind: .key(key), timeout: 100),
           heldDown: .init(kind: .modifiers([.function]), threshold: 75)
         )
       )
