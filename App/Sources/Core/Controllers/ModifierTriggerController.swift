@@ -30,13 +30,9 @@ final class ModifierTriggerController: @unchecked Sendable {
   private var workflowGroupsSubscription: AnyCancellable?
   private var cache: [String: ModifierTrigger] = [:]
   private var state: State = .idle
-//  {
-//    willSet { print("🍒 state: ", state.debugId, newValue.debugId) }
-//  }
+//  { willSet { print("🍒 state: ", state.debugId, newValue.debugId) } }
   private var currentTrigger: ModifierTrigger?
-//  {
-//    willSet { print("🔫 currentTrigger:", currentTrigger?.id, "==", newValue?.id) }
-//  }
+//  { willSet { print("🔫 currentTrigger:", currentTrigger?.id, "==", newValue?.id) } }
   private var workItem: DispatchWorkItem?
 
   func subscribe(to publisher: Published<[WorkflowGroup]>.Publisher) {
@@ -64,6 +60,7 @@ final class ModifierTriggerController: @unchecked Sendable {
       if machPortEvent.event.type == .keyDown {
         handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
       } else if machPortEvent.event.type == .flagsChanged {
+        workItem?.cancel()
         handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
       } else if machPortEvent.event.type == .keyUp {
         workItem?.cancel()
@@ -172,7 +169,6 @@ final class ModifierTriggerController: @unchecked Sendable {
           .post(key)
           .set(key, on: machPortEvent)
           .discardSystemEvent(on: machPortEvent)
-
       case .modifiers(let modifiers):
         if machPortEvent.keyCode == currentTrigger.keyCode! {
           coordinator
@@ -212,7 +208,9 @@ final class ModifierTriggerController: @unchecked Sendable {
         if held, currentTrigger.alone.threshold >= elapsedTime {
           switch currentTrigger.alone.kind {
           case .key(let key):
-            coordinator.post(key)
+            coordinator
+              .post(key)
+              .postMaskNonCoalesced()
           case .modifiers:
             coordinator.postMaskNonCoalesced()
           }
