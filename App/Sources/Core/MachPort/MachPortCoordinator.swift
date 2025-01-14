@@ -25,9 +25,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
   private static let defaultPartialMatch: PartialMatch = .init(rawValue: ".")
 
-  private var flagsChangedSubscription: AnyCancellable?
   private var keyboardCowboyModeSubscription: AnyCancellable?
-  private var machPortEventSubscription: AnyCancellable?
   private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
   private var previousExactMatch: Workflow?
   private var repeatingKeyCode: Int64 = -1
@@ -124,6 +122,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     repeatExecution = nil
     repeatingMatch = nil
     repeatingKeyCode = -1
+    KeyViewerWindow.instance.handleFlagsChanged(machPortEvent.flags)
   }
  
   // MARK: - Private methods
@@ -234,6 +233,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     case .none:
       let partialMatchCopy = previousPartialMatch
       handleNoMatch(result, machPortEvent: machPortEvent)
+
       if inMacroContext {
         macroCoordinator.record(eventSignature, kind: .event(machPortEvent), machPortEvent: machPortEvent)
       }
@@ -242,10 +242,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       if tryFallbackOnPartialMismatch {
         intercept(machPortEvent, tryGlobals: false, runningMacro: false)
       }
+
       lastEventOrRebinding = machPortEvent.event
     case .partialMatch(let partialMatch):
       lastEventOrRebinding = machPortEvent.event
       handlePartialMatch(partialMatch, machPortEvent: machPortEvent, runningMacro: runningMacro)
+      KeyViewerWindow.instance.handleInput(machPortEvent.event, store: store)
     case .exact(let workflow):
       previousExactMatch = workflow
       previousPartialMatch = Self.defaultPartialMatch
@@ -341,6 +343,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         for newEvent in newEvents {
           self.coordinatorEvent = newEvent
           self.lastEventOrRebinding = newEvent
+          KeyViewerWindow.instance.handleInput(newEvent, store: store)
         }
       }
 
@@ -358,6 +361,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       execution = { [workflowRunner, weak self] machPortEvent, repeatingEvent in
         guard let self, machPortEvent.type != .keyUp else { return }
         self.coordinatorEvent = machPortEvent.event
+        KeyViewerWindow.instance.handleInput(machPortEvent.event, store: store)
         Task.detached { [workflowRunner] in
           await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: repeatingEvent)
         }
@@ -373,6 +377,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
 
       repeatingKeyCode = machPortEvent.keyCode
     } else if !machPortEvent.isRepeat || workflow.machPortConditions.isValidForRepeat {
+      KeyViewerWindow.instance.handleInput(machPortEvent.event, store: store)
       if let delay = workflow.machPortConditions.scheduleDuration {
         scheduledWorkItem = schedule(workflow, machPortEvent: machPortEvent, after: delay)
       } else {
@@ -388,6 +393,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     reset()
     repeatingMatch = false
     coordinatorEvent = machPortEvent.event
+
+    if !machPortEvent.isRepeat {
+      KeyViewerWindow.instance.handleInput(machPortEvent.event, store: store)
+    }
   }
 
   @MainActor
@@ -449,6 +458,9 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       // simply opt-out because we don't want to lookup the same
       // keyboard shortcut over and over again.
     } else if machPortEvent.isRepeat, repeatingMatch == false {
+      if machPortEvent.type == .keyDown {
+        KeyViewerWindow.instance.handleInput(machPortEvent.event, store: store)
+      }
       return true
       // Reset the repeating result and match if the event is not repeating.
     } else if previousExactMatch != nil, machPortEvent.isRepeat {

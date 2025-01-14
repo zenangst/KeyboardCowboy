@@ -78,10 +78,11 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
                       initialScreen: NSScreen = NSScreen.main!) async throws -> RelativeWindowModelMatch? {
     let initialDirection = direction
     let windowSpacing: CGFloat
-    if UserDefaults(suiteName: "com.apple.WindowManager")?.bool(forKey: "EnableTiledWindowMargins") == false {
+    let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager")
+    if userDefaults?.bool(forKey: "EnableTiledWindowMargins") == false {
       windowSpacing = 0
     } else {
-      windowSpacing = max(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
+      windowSpacing = max(CGFloat(userDefaults?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
     }
     let systemWindows = windows.systemWindows
       .sorted { $0.index < $1.index }

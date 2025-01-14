@@ -1,45 +1,7 @@
 import AppKit
 
 extension CGEvent {
-  var modifierKeys: [ModifierKey] {
-    var modifiers = [ModifierKey]()
-
-    // Handle Shift
-    if flags.contains(.maskShift) {
-      if flags.contains(.maskLeftShift)  { modifiers.append(.leftShift) }
-      if flags.contains(.maskRightShift) { modifiers.append(.rightShift) }
-    }
-
-    // Handle Control
-    if flags.contains(.maskControl) {
-      if flags.contains(.maskLeftControl)  { modifiers.append(.leftControl) }
-      if flags.contains(.maskRightControl) { modifiers.append(.rightControl) }
-    }
-
-    // Handle Option
-    if flags.contains(.maskAlternate) {
-      if flags.contains(.maskLeftAlternate)  { modifiers.append(.leftOption) }
-      if flags.contains(.maskRightAlternate) { modifiers.append(.rightOption) }
-    }
-
-    // Handle Command
-    if flags.contains(.maskCommand) {
-      if flags.contains(.maskLeftCommand)  { modifiers.append(.leftCommand) }
-      if flags.contains(.maskRightCommand) { modifiers.append(.rightCommand) }
-    }
-
-    // Handle Caps Lock
-    if flags.contains(.maskAlphaShift) {
-      modifiers.append(.capsLock)
-    }
-
-    // Handle Function
-    if flags.contains(.maskSecondaryFn) {
-      modifiers.append(.function)
-    }
-
-    return modifiers
-  }
+  var modifierKeys: [ModifierKey] { flags.modifierKeys }
 }
 
 extension CGEventFlags {
@@ -62,6 +24,46 @@ extension CGEventFlags {
     .maskNumericPad,
     .maskNonCoalesced
   ]
+
+  var modifierKeys: [ModifierKey] {
+    var modifiers = [ModifierKey]()
+
+    // Handle Shift
+    if contains(.maskShift) {
+      if contains(.maskLeftShift)  { modifiers.append(.leftShift) }
+      if contains(.maskRightShift) { modifiers.append(.rightShift) }
+    }
+
+    // Handle Control
+    if contains(.maskControl) {
+      if contains(.maskLeftControl)  { modifiers.append(.leftControl) }
+      if contains(.maskRightControl) { modifiers.append(.rightControl) }
+    }
+
+    // Handle Option
+    if contains(.maskAlternate) {
+      if contains(.maskLeftAlternate)  { modifiers.append(.leftOption) }
+      if contains(.maskRightAlternate) { modifiers.append(.rightOption) }
+    }
+
+    // Handle Command
+    if contains(.maskCommand) {
+      if contains(.maskLeftCommand)  { modifiers.append(.leftCommand) }
+      if contains(.maskRightCommand) { modifiers.append(.rightCommand) }
+    }
+
+    // Handle Caps Lock
+    if contains(.maskAlphaShift) {
+      modifiers.append(.capsLock)
+    }
+
+    // Handle Function
+    if contains(.maskSecondaryFn) {
+      modifiers.append(.function)
+    }
+
+    return modifiers
+  }
 
   var remainingFlags: UInt64 {
     var rawValue = rawValue

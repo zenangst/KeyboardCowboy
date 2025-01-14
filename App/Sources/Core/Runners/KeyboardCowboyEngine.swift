@@ -91,7 +91,11 @@ final class KeyboardCowboyEngine {
         },
         onEventChange: { [machPortCoordinator, modifierTriggerController] in
           modifierTriggerController.handleIfApplicable($0)
-          machPortCoordinator.receiveEvent($0)
+          if $0.event.type == .flagsChanged {
+            machPortCoordinator.receiveFlagsChanged($0)
+          } else {
+            machPortCoordinator.receiveEvent($0)
+          }
         })
       commandRunner.eventSource = newMachPortController.eventSource
       subscribe(to: workspace)

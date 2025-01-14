@@ -17,6 +17,8 @@ final class AppExtraCoordinator {
     guard !isRunningPreview else { return }
 
     switch action {
+    case .openKeyViewer:
+      windowOpener.openKeyViewer()
     case .helpMenu(let action):
       handleHelpMenu(action)
     case .onAppear:

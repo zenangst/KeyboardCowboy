@@ -18,6 +18,7 @@ final class TextCommandRunner {
       let newLines = CharacterSet.newlines
       for character in input {
         let characterString = String(character)
+        await KeyViewerWindow.instance.handleString(characterString)
         var flags = CGEventFlags()
         let keyCode: Int
 
@@ -49,12 +50,15 @@ final class TextCommandRunner {
       pasteboard.clearContents()
       pasteboard.setString(input, forType: .string)
 
+      await KeyViewerWindow.instance.handleString(input)
+
       try await Task.sleep(for: .milliseconds(100))
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyDown, flags: .maskCommand)
       try keyboardCommandRunner.machPort?.post(kVK_ANSI_V, type: .keyUp, flags: .maskCommand)
     }
 
     if command.actions.contains(.insertEnter) {
+      await KeyViewerWindow.instance.handleInput(.returnKey)
       try await Task.sleep(for: .milliseconds(50))
       try keyboardCommandRunner.machPort?.post(kVK_Return, type: .keyDown, flags: [])
       try keyboardCommandRunner.machPort?.post(kVK_Return, type: .keyUp, flags: [])

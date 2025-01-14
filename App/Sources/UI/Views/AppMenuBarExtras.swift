@@ -7,6 +7,7 @@ struct AppMenuBarExtras: Scene {
     case openMainWindow
     case openEmptyConfigurationWindow
     case reveal
+    case openKeyViewer
     case helpMenu(HelpMenu.Action)
   }
 
@@ -38,10 +39,8 @@ struct AppMenuBarExtras: Scene {
       AppMenu()
       Divider()
 
-      Toggle(isOn: $keyboardCleaner.isEnabled, label: {
-        Image(systemName: "bubbles.and.sparkles.fill")
-        Text("Keyboard Cleaner")
-      })
+      Button { onAction(.openKeyViewer) } label: { Text("Key Viewer") }
+      Toggle(isOn: $keyboardCleaner.isEnabled, label: { Text("Keyboard Cleaner") })
         .toggleStyle(.checkbox)
 
       Divider()

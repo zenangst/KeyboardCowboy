@@ -20,6 +20,10 @@ final class WindowOpener: ObservableObject {
     windowSwitcherWindow.open(snapshot)
   }
 
+  func openKeyViewer() {
+    KeyViewerWindow.instance.open()
+  }
+
   func openGroup(_ context: GroupWindow.Context) {
     GroupWindow(
       context: context,

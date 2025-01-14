@@ -1,7 +1,10 @@
+import Inject
 import SwiftUI
 
 struct ModifierKeyIcon: View {
+  @ObserveInjection var inject
   @Environment(\.colorScheme) var colorScheme
+  let glowColor: Color
   let key: ModifierKey
   let alignment: Alignment
   @Binding var glow: Bool
@@ -12,8 +15,10 @@ struct ModifierKeyIcon: View {
 
   init(key: ModifierKey, 
        alignment: Alignment? = nil,
+       glowColor: Color = Color(.systemGreen),
        glow: Binding<Bool> = .constant(false)) {
     self.key = key
+    self.glowColor = glowColor
     _glow = glow
 
     if let alignment = alignment {
@@ -39,9 +44,9 @@ struct ModifierKeyIcon: View {
       ZStack {
         KeyBackgroundView(isPressed: .constant(false), height: proxy.size.height)
           .background(
-            RoundedRectangle(cornerRadius: proxy.size.height * 0.1)
+            RoundedRectangle(cornerRadius: proxy.size.height * 0.2)
               .stroke(glow
-                      ? Color(.systemRed) .opacity(0.5)
+                      ? glowColor .opacity(0.5)
                       : Color.clear, lineWidth: 2)
               .padding(-2)
           )
@@ -86,6 +91,7 @@ struct ModifierKeyIcon: View {
         }
       }
     }
+    .enableInjection()
   }
 }
 

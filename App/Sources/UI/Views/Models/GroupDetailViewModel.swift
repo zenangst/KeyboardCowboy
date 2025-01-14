@@ -1,8 +1,7 @@
 import Bonzai
 import SwiftUI
 
-struct GroupDetailViewModel: Identifiable, Hashable, Codable,
-                             Sendable, Transferable {
+struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transferable {
   static var transferRepresentation: some TransferRepresentation {
     CodableRepresentation(contentType: .workflow)
   }

@@ -2,6 +2,7 @@ import Cocoa
 import Combine
 import MachPort
 
+@MainActor
 final class ModifierTriggerController: @unchecked Sendable {
   enum State: Sendable {
     case idle
@@ -135,7 +136,6 @@ final class ModifierTriggerController: @unchecked Sendable {
 
   // MARK: Private methods
 
-  @MainActor
   private func handleIdle(_ machPortEvent: MachPortEvent,
                           coordinator: ModifierTriggerMachPortCoordinator) {
     guard machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged else { return }
@@ -147,7 +147,7 @@ final class ModifierTriggerController: @unchecked Sendable {
     guard let trigger else { return }
 
     if let heldDown = trigger.heldDown {
-      lastEventTime = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+      lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
       state = .keyDown(heldDown.kind, held: true)
       handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: trigger)
     } else {
@@ -169,10 +169,14 @@ final class ModifierTriggerController: @unchecked Sendable {
           .post(key)
           .set(key, on: machPortEvent)
           .discardSystemEvent(on: machPortEvent)
+        KeyViewerWindow.instance.handleInput(key)
       case .modifiers(let modifiers):
         if machPortEvent.keyCode == currentTrigger.keyCode! {
           coordinator
             .discardSystemEvent(on: machPortEvent)
+
+          machPortEvent.event.type = .flagsChanged
+          machPortEvent.event.flags = modifiers.cgModifiers
 
           guard !machPortEvent.isRepeat else { return }
 
@@ -180,7 +184,7 @@ final class ModifierTriggerController: @unchecked Sendable {
             guard let self else { return }
             coordinator
               .postFlagsChanged(modifiers: modifiers)
-            lastEventTime = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+            lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
           }
         } else {
           coordinator.decorateEvent(machPortEvent, with: modifiers)
@@ -202,7 +206,7 @@ final class ModifierTriggerController: @unchecked Sendable {
           .set(key, on: machPortEvent)
           .discardSystemEvent(on: machPortEvent)
       case .modifiers(let modifiers):
-        let currentTimestamp = convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+        let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
 
         if held, currentTrigger.alone.threshold >= elapsedTime {
@@ -211,15 +215,21 @@ final class ModifierTriggerController: @unchecked Sendable {
             coordinator
               .post(key)
               .postMaskNonCoalesced()
+
+            KeyViewerWindow.instance.handleInput(key)
           case .modifiers:
             coordinator.postMaskNonCoalesced()
           }
+          machPortEvent.event.type = .flagsChanged
+          machPortEvent.event.flags = .maskNonCoalesced
           reset()
           workItem?.cancel()
           return
         }
 
         if machPortEvent.keyCode == currentTrigger.keyCode! {
+          machPortEvent.event.type = .flagsChanged
+          machPortEvent.event.flags = .maskNonCoalesced
           coordinator
             .discardSystemEvent(on: machPortEvent)
             .postMaskNonCoalesced()
@@ -238,7 +248,7 @@ final class ModifierTriggerController: @unchecked Sendable {
     reset()
   }
 
-  func convertTimestampToMilliseconds(_ timestamp: UInt64) -> Double {
+  nonisolated static func convertTimestampToMilliseconds(_ timestamp: UInt64) -> Double {
     return Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
   }
 
@@ -250,7 +260,7 @@ final class ModifierTriggerController: @unchecked Sendable {
   }
 
   private func startTimer(delay: Int, currentTrigger: ModifierTrigger,
-                          completion: @Sendable @escaping (ModifierTrigger) -> Void) -> DispatchWorkItem {
+                          completion: @MainActor @Sendable @escaping (ModifierTrigger) -> Void) -> DispatchWorkItem {
     let deadline = DispatchTime.now() + .milliseconds(delay)
     let item = DispatchWorkItem(block: { completion(currentTrigger) })
     DispatchQueue.main.asyncAfter(deadline: deadline, execute: item)
