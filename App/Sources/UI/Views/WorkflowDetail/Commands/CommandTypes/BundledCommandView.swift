@@ -20,6 +20,7 @@ struct BundledCommandView: View {
       switch model.kind {
       case .workspace: WorkspaceIcon(size: iconSize.width)
       case .appFocus: AppFocusIcon(size: iconSize.width)
+      case .tidy: WindowTidyIcon(size: iconSize.width)
       }
     } content: { _ in
       switch model.kind {
@@ -42,6 +43,13 @@ struct BundledCommandView: View {
           performWorkspaceUpdate(set: \.hideOtherApps, to: hideOtherApps)
         }
         .id(metaData.id)
+      case .tidy(let model):
+        WindowTidyCommandView(model) { rules in
+          let newRules = rules.map {
+            WindowTidyCommand.Rule(bundleIdentifier: $0.application.bundleIdentifier, tiling: $0.tiling)
+          }
+          performTidyUpdate(set: \.rules, to: newRules)
+        }
       }
     }
   }
@@ -68,4 +76,16 @@ struct BundledCommandView: View {
       workflow.commands[index] = .bundled(BundledCommand(.workspace(workspaceCommand), meta: workflow.commands[index].meta))
     }
   }
+
+  private func performTidyUpdate<Value>(set keyPath: WritableKeyPath<WindowTidyCommand, Value>, to value: Value) {
+    updater.modifyWorkflow(using: transaction) { workflow in
+      workflow.execution = .serial
+      guard let index = workflow.commands.firstIndex(where: { $0.meta.id == metaData.id }),
+            case .bundled(let bundledCommand) = workflow.commands[index],
+            case .tidy(var tidyCommand) = bundledCommand.kind else { return }
+      tidyCommand[keyPath: keyPath] = value
+      workflow.commands[index] = .bundled(BundledCommand(.tidy(tidyCommand), meta: workflow.commands[index].meta))
+    }
+  }
+
 }

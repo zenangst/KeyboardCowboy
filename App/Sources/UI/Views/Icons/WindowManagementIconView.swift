@@ -99,7 +99,6 @@ struct WindowManagementIconBackgroundView: View {
       }
       .blur(radius: 1)
       .compositingGroup()
-//      .drawingGroup()
   }
 }
 

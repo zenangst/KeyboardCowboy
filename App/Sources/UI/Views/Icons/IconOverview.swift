@@ -6,6 +6,11 @@ struct IconOverview: PreviewProvider {
   static let spacing: CGFloat = 16
   static var previews: some View {
     FlowLayout(itemSpacing: spacing, lineSpacing: spacing) {
+      WorkspaceIcon(size: size)
+      AppPeekIcon(size: size)
+      WindowTilingIcon(kind: .arrangeLeftQuarters, size: size)
+      WindowTidyIcon(size: size)
+      AppFocusIcon(size: size)
       RepeatLastWorkflowIconView(size: size)
       SnippetIconView(size: size)
       TriggersIconView(size: size)
@@ -17,10 +22,6 @@ struct IconOverview: PreviewProvider {
       MagicVarsIconView(size: size)
       MacroIconView(.remove, size: size)
       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
-      WorkspaceIcon(size: size)
-      AppPeekIcon(size: size)
-      WindowTilingIcon(kind: .arrangeLeftQuarters, size: size)
-      AppFocusIcon(size: size)
       UIElementIconView(size: size)
       PrivacyIconView(size: size)
       EnvironmentIconView(size: size)

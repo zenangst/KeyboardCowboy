@@ -114,6 +114,7 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
     enum Bundled: Hashable, Codable, Sendable {
       case appFocus
       case workspace
+      case tidy
     }
 
     enum Text: Hashable, Codable, Sendable {

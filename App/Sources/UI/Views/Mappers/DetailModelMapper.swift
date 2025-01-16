@@ -122,6 +122,23 @@ private extension Command {
             kind: .workspace(model)
           )
         )
+      case .tidy(let tidyCommand):
+        var rules = [CommandViewModel.Kind.WindowTidyModel.Rule]()
+        for rule in tidyCommand.rules {
+          guard let match = applicationStore.applications.first(where: { $0.bundleIdentifier == rule.bundleIdentifier }) else {
+            continue
+          }
+          rules.append(CommandViewModel.Kind.WindowTidyModel.Rule(application: match, tiling: rule.tiling))
+        }
+        let tidyModel = CommandViewModel.Kind.WindowTidyModel(rules: rules)
+
+        kind = .bundled(
+          .init(
+            id: bundledCommand.id,
+            name: bundledCommand.name,
+            kind: .tidy(tidyModel)
+          )
+        )
       }
     case .keyboard(let keyboardCommand):
       kind =  .keyboard(.init(id: keyboardCommand.id, iterations: keyboardCommand.iterations, keys: keyboardCommand.keyboardShortcuts))

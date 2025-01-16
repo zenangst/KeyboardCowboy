@@ -4,10 +4,12 @@ import MachPort
 final class BundledCommandRunner {
   let applicationStore: ApplicationStore
   let systemRunner: SystemCommandRunner
+  let windowTidy: WindowTidyRunner
 
-  init(applicationStore: ApplicationStore, systemRunner: SystemCommandRunner) {
+  init(applicationStore: ApplicationStore, systemRunner: SystemCommandRunner, windowTidy: WindowTidyRunner) {
     self.applicationStore = applicationStore
     self.systemRunner = systemRunner
+    self.windowTidy = windowTidy
   }
 
   func run(bundledCommand: BundledCommand,
@@ -142,6 +144,9 @@ final class BundledCommandRunner {
       await systemRunner.resetFocusComponents()
       SystemWindowTilingRunner.initialIndex()
       output = command.name
+    case .tidy(let command):
+      try await windowTidy.run(command)
+      output = bundledCommand.name
     }
     return output
   }

@@ -139,6 +139,7 @@ private extension Array where Element == Command {
         switch command.kind {
         case .appFocus: images.append(.bundled(element, offset: convertedOffset, kind: .appFocus))
         case .workspace: images.append(.bundled(element, offset: convertedOffset, kind: .workspace))
+        case .tidy: images.append(.bundled(element, offset: convertedOffset, kind: .tidy))
         }
       case .mouse:
         images.append(.mouse(element, offset: convertedOffset))

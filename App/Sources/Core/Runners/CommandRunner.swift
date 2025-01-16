@@ -62,6 +62,8 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
        systemCommandRunner: SystemCommandRunner,
        uiElementCommandRunner: UIElementCommandRunner
   ) {
+    let windowTidy = WindowTidyRunner()
+
     self.applicationStore = applicationStore
     self.missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
     self.commandPanel = CommandPanelCoordinator()
@@ -72,7 +74,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         workspace: workspace
       ),
       builtIn: builtInCommandRunner,
-      bundled: BundledCommandRunner(applicationStore: applicationStore, systemRunner: systemCommandRunner),
+      bundled: BundledCommandRunner(applicationStore: applicationStore, systemRunner: systemCommandRunner, windowTidy: windowTidy),
       keyboard: keyboardCommandRunner,
       menubar: MenuBarCommandRunner(),
       mouse: MouseCommandRunner(),
@@ -418,7 +420,7 @@ extension Collection where Element == Command {
       switch command {
       case .bundled(let bundledCommand):
         switch bundledCommand.kind {
-        case .appFocus, .workspace:
+        case .appFocus, .workspace, .tidy:
           return true
         }
       default:

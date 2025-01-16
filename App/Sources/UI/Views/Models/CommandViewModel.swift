@@ -80,6 +80,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       enum Kind: Codable, Hashable, Sendable {
         case workspace(WorkspaceModel)
         case appFocus(AppFocusModel)
+        case tidy(WindowTidyModel)
       }
       let id: String
       var name: String
@@ -99,6 +100,16 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       var tiling: WorkspaceCommand.Tiling?
       var hideOtherApps: Bool
       var createNewWindow: Bool
+    }
+
+    struct WindowTidyModel: Codable, Hashable, Sendable {
+      var placheholder: String { "Tidy up Windows …" }
+      var rules: [Rule]
+
+      struct Rule: Codable, Hashable, Sendable {
+        let application: Application
+        var tiling: WindowTiling
+      }
     }
 
     struct OpenModel: Codable, Hashable, Identifiable, Sendable {

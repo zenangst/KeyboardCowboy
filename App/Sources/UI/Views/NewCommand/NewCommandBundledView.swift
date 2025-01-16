@@ -8,6 +8,7 @@ struct NewCommandBundledView: View {
       .appFocus(AppFocusCommand(bundleIdentifer: "", hideOtherApps: false,
                                 tiling: nil, createNewWindow: true)),
       .workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)),
+      .tidy(WindowTidyCommand(rules: []))
     ]
   }
   private let kinds: [BundledCommand.Kind]
@@ -108,6 +109,12 @@ struct NewCommandBundledView: View {
           ))
           payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
         }
+      case .tidy:
+        NewCommandTidyView(validation: $validation) { rules in
+          let rules = rules.map { WindowTidyCommand.Rule(bundleIdentifier: $0.application.bundleIdentifier, tiling: $0.tiling) }
+          currentSelection = .tidy(WindowTidyCommand(id: UUID().uuidString, rules: rules))
+          payload = .bundled(command: BundledCommand(currentSelection, meta: Command.MetaData()))
+        }
       }
     }
     .menuStyle(.regular)
@@ -132,6 +139,8 @@ struct NewCommandBundledView: View {
       if appFocusCommand.bundleIdentifer.isEmpty {
         return .invalid(reason: "Pick an application.")
       }
+    case .tidy:
+      return .valid
     }
 
     return .valid
@@ -145,6 +154,7 @@ fileprivate extension BundledCommand.Kind {
     switch self {
     case .workspace: WorkspaceIcon(size: 24)
     case .appFocus: AppFocusIcon(size: 24)
+    case .tidy: WindowTidyIcon(size: 24)
     }
   }
 
@@ -152,6 +162,7 @@ fileprivate extension BundledCommand.Kind {
     switch self {
     case .workspace: "Workspace"
     case .appFocus: "Focus on Application"
+    case .tidy: "Tidy up Windows"
     }
   }
 }

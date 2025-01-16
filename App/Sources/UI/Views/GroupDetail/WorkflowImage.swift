@@ -20,6 +20,8 @@ struct WorkflowImage: View {
         AppFocusIcon(size: iconSize)
       case .workspace:
         WorkspaceIcon(size: iconSize)
+      case .tidy:
+        WindowTidyIcon(size: iconSize)
       }
     case .keyboard(let string):
       KeyboardIconView(string, size: iconSize)
