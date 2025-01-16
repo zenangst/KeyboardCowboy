@@ -18,7 +18,7 @@ struct OpenCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placheolder, icon: { command in
+    CommandContainerView(metaData, placeholder: model.placeholder, icon: { command in
       OpenCommandHeaderView(command, model: model, iconSize: iconSize)
     }, content: { command in
       OpenCommandContentView(metaData: metaData, model: $model)

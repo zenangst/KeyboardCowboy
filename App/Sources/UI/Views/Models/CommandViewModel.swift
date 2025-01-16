@@ -43,6 +43,23 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
 
   enum Kind: Codable, Hashable, Identifiable, Sendable {
     var id: String { (self as (any Identifiable<String>)).id }
+    var placeholder: String {
+      switch self {
+      case .application(let applicationModel): applicationModel.placeholder
+      case .builtIn(let builtInModel): builtInModel.placeholder
+      case .bundled(let bundledModel): bundledModel.placeholder
+      case .open(let openModel): openModel.placeholder
+      case .keyboard(let keyboardModel): keyboardModel.placeholder
+      case .script(let scriptModel): scriptModel.placeholder
+      case .shortcut(let shortcutModel): shortcutModel.placeholder
+      case .text(let textModel): textModel.placeholder
+      case .systemCommand(let systemModel): systemModel.placeholder
+      case .menuBar(let menuBarModel): menuBarModel.placeholder
+      case .mouse(let mouseModel): mouseModel.placeholder
+      case .uiElement(let uIElementCommand): uIElementCommand.placeholder
+      case .windowManagement(let windowManagementModel): windowManagementModel.placeholder
+      }
+    }
 
     case application(ApplicationModel)
     case builtIn(BuiltInModel)
@@ -60,7 +77,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
 
     struct ApplicationModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
-      var placheolder: String { "Open/Close/Switch to Application …" }
+      var placeholder: String { "Open/Close/Switch to Application …" }
       var action: String
       var inBackground: Bool
       var hideWhenRunning: Bool
@@ -81,10 +98,18 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
         case workspace(WorkspaceModel)
         case appFocus(AppFocusModel)
         case tidy(WindowTidyModel)
+
+        var placeholder: String {
+          switch self {
+          case .workspace: "Organize Apps into Workspace…"
+          case .appFocus: "Focus on App…"
+          case .tidy: "Tidy up Windows…"
+          }
+        }
       }
       let id: String
       var name: String
-      var placeholder: String { "Open Bundled View …" }
+      var placeholder: String { kind.placeholder }
       let kind: Kind
     }
 
@@ -95,7 +120,6 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     }
 
     struct AppFocusModel: Codable, Hashable, Sendable {
-      var placheholder: String { "Focus on App …" }
       var application: Application?
       var tiling: WorkspaceCommand.Tiling?
       var hideOtherApps: Bool
@@ -103,7 +127,6 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     }
 
     struct WindowTidyModel: Codable, Hashable, Sendable {
-      var placheholder: String { "Tidy up Windows …" }
       var rules: [Rule]
 
       struct Rule: Codable, Hashable, Sendable {
@@ -114,7 +137,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
 
     struct OpenModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
-      var placheolder: String { "Open …" }
+      var placeholder: String { "Open …" }
       var path: String
       var applicationPath: String?
       var appName: String?

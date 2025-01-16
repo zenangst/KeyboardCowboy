@@ -20,7 +20,7 @@ struct ApplicationCommandView: View {
   var body: some View {
     CommandContainerView(
       metaData,
-      placeholder: model.placheolder,
+      placeholder: model.placeholder,
       icon: { _ in
         ApplicationCommandImageView(metaData, iconSize: iconSize)
       },

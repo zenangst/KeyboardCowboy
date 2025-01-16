@@ -16,7 +16,7 @@ struct BundledCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: "") { _ in
+    CommandContainerView(metaData, placeholder: model.placeholder) { _ in
       switch model.kind {
       case .workspace: WorkspaceIcon(size: iconSize.width)
       case .appFocus: AppFocusIcon(size: iconSize.width)
