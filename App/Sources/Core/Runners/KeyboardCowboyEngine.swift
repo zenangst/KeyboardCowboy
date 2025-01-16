@@ -86,11 +86,17 @@ final class KeyboardCowboyEngine {
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
         onFlagsChanged: { [machPortCoordinator, modifierTriggerController] in
-          modifierTriggerController.handleIfApplicable($0)
+          if machPortCoordinator.mode == .intercept ||
+             machPortCoordinator.mode == .recordMacro {
+            modifierTriggerController.handleIfApplicable($0)
+          }
           machPortCoordinator.receiveFlagsChanged($0)
         },
         onEventChange: { [machPortCoordinator, modifierTriggerController] in
-          modifierTriggerController.handleIfApplicable($0)
+          if machPortCoordinator.mode == .intercept ||
+              machPortCoordinator.mode == .recordMacro {
+            modifierTriggerController.handleIfApplicable($0)
+          }
           if $0.event.type == .flagsChanged {
             machPortCoordinator.receiveFlagsChanged($0)
           } else {
