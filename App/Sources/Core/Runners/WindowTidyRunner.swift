@@ -296,12 +296,6 @@ final class WindowTidyRunner: Sendable {
 
       match.performAction(.pick)
       try? await Task.sleep(for: .milliseconds(10))
-//      if let rect = axWindow.frame {
-//        Task {
-//          try? await Task.sleep(for: .milliseconds(300))
-//          WindowTiling.addToCache(windowNumber: window.windowNumber.rawValue, tiling: tiling, rect: rect)
-//        }
-//      }
     }
 
     if shouldActivateLastWindow, let appContainer = lastAppContainer {
