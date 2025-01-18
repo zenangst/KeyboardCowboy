@@ -9,4 +9,22 @@ extension CGSize {
   func inThreshold(_ value: CGFloat) -> Bool {
     value >= width && value >= height
   }
+
+  @MainActor static var debug: Bool = false
+  @MainActor
+  func hasDifference(greaterThan tolerance: CGFloat, comparedTo other: CGSize) -> Bool {
+    let widthDiff = abs(self.width - round(other.width))
+    let heightDiff = abs(self.height - round(other.height))
+
+    if Self.debug {
+      if widthDiff > tolerance {
+        print("widthDiff: \(widthDiff) exceeds tolerance: \(tolerance)")
+      }
+      if heightDiff > tolerance {
+        print("heightDiff: \(heightDiff) exceeds tolerance: \(tolerance)")
+      }
+    }
+
+    return widthDiff > tolerance || heightDiff > tolerance
+  }
 }
