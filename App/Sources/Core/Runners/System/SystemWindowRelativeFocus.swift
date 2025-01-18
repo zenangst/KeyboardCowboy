@@ -79,7 +79,7 @@ final class SystemWindowRelativeFocus {
         }
       }
 
-      let clickPoint: CGPoint
+      var clickPoint: CGPoint
 
       if Self.debug {
         print("🔀", direction, "from", previousWindow.ownerName, "(\(previousTiling)) to", nextWindow.ownerName, "(\(nextTiling))")
@@ -117,6 +117,11 @@ final class SystemWindowRelativeFocus {
         clickPoint = CGPoint(x: frame.minX, y: frame.maxY)
       default:
         clickPoint = CGPoint(x: frame.midX, y: frame.minY)
+      }
+
+      // Adjust the clickpoint if tiled window borders are enabled..
+      if UserDefaults(suiteName: "com.apple.WindowManager")?.bool(forKey: "ShowTiledWindowBorder") == true {
+        clickPoint.y += 4
       }
 
       if Self.debug {

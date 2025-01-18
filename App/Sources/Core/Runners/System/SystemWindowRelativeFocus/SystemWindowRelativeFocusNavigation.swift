@@ -201,12 +201,21 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
       }
 
       for systemWindow in systemWindows {
-        if constraint(systemWindow.window) && fieldOfViewRect.intersects(systemWindow.window.rect),
-           let accessWindow = systemElement.element(at: elementOrigin, as: AnyAccessibilityElement.self)?.window,
-           systemWindow.window.id == accessWindow.id {
-          searching = false
-          return .init(systemWindow.window)
+        guard constraint(systemWindow.window) else {
+          continue
         }
+
+        guard fieldOfViewRect.intersects(systemWindow.window.rect) else {
+          continue
+        }
+
+        guard let accessWindow = systemElement.element(at: elementOrigin, as: AnyAccessibilityElement.self)?.window,
+           systemWindow.window.id == accessWindow.id else {
+          continue
+        }
+
+        searching = false
+        return .init(systemWindow.window)
       }
 
       updateDebugWindow(fieldOfViewRect)
