@@ -32,81 +32,17 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     window.makeKeyAndOrderFront(nil)
     window.center()
 
-    let onScreenWindows = WindowStore.shared.getWindows(onScreen: true)
-    let ids = Set(onScreenWindows.map(\.windowNumber))
-    let notOnScreenWindows = WindowStore.shared.getWindows(onScreen: false)
-      .filter({ !ids.contains($0.windowNumber) })
-    let rawWindows = onScreenWindows + notOnScreenWindows
-    let windows = WindowStore.shared.allApplicationsInSpace(rawWindows, onScreen: false, sorted: false)
-
-    self.filter(windows, query: publisher.query)
-
-    self.windows = windows
+    refreshWindows()
     self.window = window
     self.subscription = subscribe(to: publisher.$query)
   }
 
   func windowDidBecomeKey(_ notification: Notification) {
-    let keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown]) { [weak self, publisher] event in
-      switch event.keyCode {
-      case UInt16(kVK_UpArrow):
-        guard event.type == .keyDown,
-              let currentSelection = publisher.selections.first,
-              let currentIndex = publisher.items.firstIndex(where: { $0.id == currentSelection }) else {
-          return nil
-        }
-        let nextIndex = currentIndex - 1
-        if nextIndex >= 0 {
-          publisher.publish([publisher.items[nextIndex].id])
-        } else if let last = publisher.items.last {
-          publisher.publish([last.id])
-        }
-        return nil
-      case UInt16(kVK_Return):
-        guard event.type == .keyDown,
-              let currentSelection = publisher.selections.first,
-              let currentIndex = publisher.items.firstIndex(where: { $0.id == currentSelection }) else {
-          return nil
-        }
-
-        let currentItem = publisher.items[currentIndex]
-
-        switch currentItem.kind {
-        case .application:
-          NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
-        case .window(let window, _):
-          window.performAction(.raise)
-          NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
-        }
-
-        self?.window?.close()
-        return nil
-      case UInt16(kVK_Escape):
-        self?.window?.close()
-
-        if let menubarOwner = NSWorkspace.shared.runningApplications.first(where: { $0.ownsMenuBar == true }),
-           let bundleURL = menubarOwner.bundleURL {
-          NSWorkspace.shared.open(bundleURL)
-        }
-        return nil
-      case UInt16(kVK_DownArrow):
-        guard event.type == .keyDown,
-          let currentSelection = publisher.selections.first,
-          let currentIndex = publisher.items.firstIndex(where: { $0.id == currentSelection }) else {
-          return nil
-        }
-
-        let nextIndex = currentIndex + 1
-        if nextIndex <= publisher.items.count - 1 {
-          publisher.publish([publisher.items[nextIndex].id])
-        } else if let first = publisher.items.first {
-          publisher.publish([first.id])
-        }
-
-        return nil
-      default:
+    let keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown]) { [weak self] event in
+      guard let self else {
         return event
       }
+      return handleKeyDown(event)
     }
     self.keyMonitor = keyMonitor
   }
@@ -124,6 +60,18 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
 
   // MARK: Private methods
 
+  private func refreshWindows() {
+    let onScreenWindows = WindowStore.shared.getWindows(onScreen: true)
+    let ids = Set(onScreenWindows.map(\.windowNumber))
+    let notOnScreenWindows = WindowStore.shared.getWindows(onScreen: false)
+      .filter({ !ids.contains($0.windowNumber) })
+    let rawWindows = onScreenWindows + notOnScreenWindows
+    let windows = WindowStore.shared.allApplicationsInSpace(rawWindows, onScreen: false, sorted: false)
+
+    self.filter(windows, query: publisher.query)
+    self.windows = windows
+  }
+
   private func subscribe(to target: Published<String>.Publisher) -> AnyCancellable {
     target
       .dropFirst()
@@ -132,6 +80,102 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       guard let self else { return }
       self.filter(windows, query: newValue)
     }
+  }
+
+  private func handleKeyDown(_ event: NSEvent) -> NSEvent? {
+    let keyCode = Int(event.keyCode)
+    switch keyCode {
+    case kVK_ANSI_Q:
+      if event.modifierFlags.contains(.command) {
+        if !event.isARepeat,
+            event.type == .keyDown, let currentSelection = getCurrentSelection(),
+           let runningApplication = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == currentSelection.app.bundleIdentifier }) {
+          if runningApplication.terminate() {
+            Task.detached { [weak self] in
+              var waiting = true
+              var timeout = 5
+              while waiting {
+                if NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == currentSelection.app.bundleIdentifier }) == false {
+                  waiting = false
+                  await self?.refreshWindows()
+                }
+                timeout -= 1
+
+                try await Task.sleep(for: .milliseconds(100))
+
+                if timeout <= 0 {
+                  waiting = false
+                }
+              }
+            }
+          }
+        }
+        return nil
+      }
+      return event
+    case kVK_UpArrow:
+      guard event.type == .keyDown, let currentIndex = getCurrentSelectedIndex() else { return nil }
+      let nextIndex = currentIndex - 1
+      if nextIndex >= 0 {
+        publisher.publish([publisher.items[nextIndex].id])
+      } else if let last = publisher.items.last {
+        publisher.publish([last.id])
+      }
+      return nil
+    case kVK_Return:
+      guard event.type == .keyDown, let currentIndex = getCurrentSelectedIndex() else { return nil }
+
+      let currentItem = publisher.items[currentIndex]
+
+      switch currentItem.kind {
+      case .application:
+        NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
+      case .window(let window, _):
+        window.performAction(.raise)
+        NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
+      }
+
+      window?.close()
+      return nil
+    case kVK_Escape:
+      window?.close()
+
+      if let menubarOwner = NSWorkspace.shared.runningApplications.first(where: { $0.ownsMenuBar == true }),
+         let bundleURL = menubarOwner.bundleURL {
+        NSWorkspace.shared.open(bundleURL)
+      }
+      return nil
+    case kVK_DownArrow:
+      guard event.type == .keyDown, let currentIndex = getCurrentSelectedIndex() else { return nil }
+
+      let nextIndex = currentIndex + 1
+      if nextIndex <= publisher.items.count - 1 {
+        publisher.publish([publisher.items[nextIndex].id])
+      } else if let first = publisher.items.first {
+        publisher.publish([first.id])
+      }
+
+      return nil
+    default:
+      return event
+    }
+  }
+
+  private func getCurrentSelection() -> WindowSwitcherView.Item? {
+    guard let currentIndex = getCurrentSelectedIndex() else {
+      return nil
+    }
+
+    return publisher.items[currentIndex]
+  }
+
+  private func getCurrentSelectedIndex() -> Int? {
+    guard let currentSelection = publisher.selections.first,
+          let currentIndex = publisher.items.firstIndex(where: { $0.id == currentSelection }) else {
+      return nil
+    }
+
+    return currentIndex
   }
 
   private func filter(_ windows: [WindowModel], query: String) {
@@ -147,10 +191,12 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         .map(\.localizedLowercase))
       let currentSelection = publisher.selections
       var needsSelectionUpdate = true
+      var windowBundleIdentifiers = Set<String>()
 
       var filtered = items.filter { item in
         for word in words {
           if item.title.localizedLowercase.contains(word) || item.app.displayName.localizedLowercase.contains(word) {
+            windowBundleIdentifiers.insert(item.app.bundleIdentifier)
             if currentSelection.contains(item.id) {
               needsSelectionUpdate = false
             }
@@ -167,6 +213,10 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
 
       if filtered.isEmpty {
           matchingApps = apps.filter { app in
+            if windowBundleIdentifiers.contains(app.bundleIdentifier) {
+              return false
+            }
+
             if openApps.contains(app) { return false }
 
             for word in words {
@@ -176,7 +226,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
           }
       } else if !query.isEmpty {
         matchingApps = apps.filter { app in
-          app.displayName.lowercased() == query.lowercased()
+          app.displayName.lowercased() == query.lowercased() &&
+          !windowBundleIdentifiers.contains(app.bundleIdentifier)
         }
       } else {
         matchingApps = []

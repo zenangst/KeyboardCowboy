@@ -50,19 +50,16 @@ struct WindowSwitcherView: View {
 
     var onScreen: Bool {
       switch kind {
-      case .application:
-        return false
-      case .window(_, let onScreen):
-        return onScreen == true
+      case .application: true
+      case .window(_, let onScreen): onScreen == true
       }
     }
 
     var isMinimized: Bool {
       switch kind {
-        case .application:
-        return false
+        case .application: false
       case .window(let window, _):
-        return window.isMinimized == true
+        window.isMinimized == true
       }
     }
 
