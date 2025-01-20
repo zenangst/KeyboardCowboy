@@ -1,5 +1,6 @@
 import Apps
 import AXEssibility
+import Cocoa
 import Bonzai
 import Inject
 import SwiftUI
@@ -8,6 +9,7 @@ import SwiftUI
 final class WindowSwitcherPublisher: ObservableObject {
   @Published var items: [WindowSwitcherView.Item] = []
   @Published var selections: Set<WindowSwitcherView.Item.ID> = []
+  @Published var modifiers: NSEvent.ModifierFlags = []
   @Published var query: String = ""
 
   init(items: [WindowSwitcherView.Item], selections: [WindowSwitcherView.Item.ID]) {
@@ -47,6 +49,11 @@ struct WindowSwitcherView: View {
     let title: String
     let app: Application
     let kind: Kind
+    let hints: Hints
+
+    struct Hints {
+      let commandKey: String
+    }
 
     var onScreen: Bool {
       switch kind {
@@ -145,7 +152,22 @@ struct WindowSwitcherView: View {
           proxy.scrollTo(newValue.first)
           focus = .textField
         })
+        .overlay(alignment: .bottomLeading) {
+          if let id = publisher.selections.first,
+             let selected = publisher.items.first(where: { $0.id == id }) {
+            Text(selected.hints.commandKey)
+              .font(.caption)
+              .padding(4)
+              .background()
+              .clipShape(RoundedRectangle(cornerRadius: 4))
+              .padding(.leading, 6)
+              .padding(.bottom, 4)
+              .opacity(publisher.modifiers.contains(.command) ? 1 : 0)
+              .animation(.smooth, value: publisher.modifiers)
+          }
+        }
       }
+
     }
     .onAppear {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

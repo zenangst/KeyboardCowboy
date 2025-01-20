@@ -4,6 +4,7 @@ import Bonzai
 import Carbon
 import Cocoa
 import Combine
+import MachPort
 import SwiftUI
 import Windows
 
@@ -15,6 +16,15 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   private var keyMonitor: Any?
   private var windows: [WindowModel] = []
   private var filterTask: Task<Void, any Error>?
+
+  private let bundledRunner: BundledCommandRunner
+  private let commandRunner: CommandRunner
+
+  init(commandRunner: CommandRunner) {
+    self.bundledRunner = commandRunner.runners.bundled
+    self.commandRunner = commandRunner
+    super.init()
+  }
 
   func open(_ snapshot: UserSpace.Snapshot) {
     if window != nil {
@@ -38,7 +48,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   }
 
   func windowDidBecomeKey(_ notification: Notification) {
-    let keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown]) { [weak self] event in
+    let keyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyUp, .keyDown, .flagsChanged]) { [weak self] event in
       guard let self else {
         return event
       }
@@ -83,6 +93,15 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   }
 
   private func handleKeyDown(_ event: NSEvent) -> NSEvent? {
+
+    if event.type == .flagsChanged {
+      if event.modifierFlags.contains(.command) {
+        publisher.modifiers = .command
+      } else if publisher.modifiers != [] {
+        publisher.modifiers = []
+      }
+    }
+
     let keyCode = Int(event.keyCode)
     switch keyCode {
     case kVK_ANSI_Q:
@@ -131,8 +150,28 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       case .application:
         NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
       case .window(let window, _):
-        window.performAction(.raise)
-        NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
+        if event.modifierFlags.contains(.command) {
+          Task {
+            let bundledCommand = BundledCommand(.appFocus(.init(bundleIdentifer: currentItem.app.bundleIdentifier, hideOtherApps: false, tiling: .arrangeDynamicQuarters)), meta: .init())
+            let command = Command.bundled(bundledCommand)
+            if let emptyEvent = MachPortEvent.empty() {
+              var runtimeDictionary: [String: String] = [:]
+              _ = try await bundledRunner.run(
+                bundledCommand: bundledCommand,
+                command: command,
+                commandRunner: commandRunner,
+                snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false),
+                machPortEvent: emptyEvent,
+                checkCancellation: false,
+                repeatingEvent: false,
+                runtimeDictionary: &runtimeDictionary
+              )
+            }
+          }
+        } else {
+          window.performAction(.raise)
+          NSWorkspace.shared.open(URL(fileURLWithPath: currentItem.app.path))
+        }
       }
 
       window?.close()
@@ -234,7 +273,9 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       }
 
       let appItems = matchingApps.map { app in
-          WindowSwitcherView.Item(id: app.path, title: app.displayName, app: app, kind: .application)
+          WindowSwitcherView.Item(id: app.path, title: app.displayName,
+                                  app: app, kind: .application,
+                                  hints: WindowSwitcherView.Item.Hints(commandKey: ""))
         }
       filtered.append(contentsOf: appItems)
 
@@ -266,8 +307,8 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         id: "\(window.id)",
         title: axWindow.title ?? window.name,
         app: app,
-        kind: .window(window: axWindow,
-                      onScreen: window.isOnScreen)
+        kind: .window(window: axWindow, onScreen: window.isOnScreen),
+        hints: WindowSwitcherView.Item.Hints(commandKey: "Focus on \(app.displayName)")
       )
 
       items.append(item)

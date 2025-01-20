@@ -1,7 +1,7 @@
 import Foundation
 import MachPort
 
-final class BundledCommandRunner {
+final class BundledCommandRunner: Sendable {
   let applicationStore: ApplicationStore
   let systemRunner: SystemCommandRunner
   let windowTidy: WindowTidyRunner

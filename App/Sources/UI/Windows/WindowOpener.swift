@@ -4,11 +4,10 @@ import SwiftUI
 @MainActor
 final class WindowOpener: ObservableObject {
   private let core: Core
-  private lazy var windowSwitcherWindow = WindowSwitcherWindow()
+  private lazy var windowSwitcherWindow = WindowSwitcherWindow(commandRunner: core.commandRunner)
 
   init(core: Core) {
     self.core = core
-
     NotificationCenter.default.addObserver(self, selector: #selector(openMainWindow), name: .openKeyboardCowboy, object: nil)
   }
 
