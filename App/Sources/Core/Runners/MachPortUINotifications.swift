@@ -22,12 +22,9 @@ final class MachPortUINotifications {
     shouldReset = true
     if case .keyboardShortcuts(let trigger) = workflow.trigger {
       Task { @MainActor in
-        WorkflowNotificationController.shared.post(
-          WorkflowNotificationViewModel(
-            id: workflow.id,
-            workflow: workflow,
-            keyboardShortcuts: trigger.shortcuts),
-          scheduleDismiss: true)
+        #warning("The user should be able to configure this for settings")
+        CapsuleNotificationWindow.shared.open()
+        CapsuleNotificationWindow.shared.publish(workflow.name, state: .success)
       }
     }
   }

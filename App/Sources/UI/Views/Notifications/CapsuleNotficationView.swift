@@ -60,7 +60,8 @@ struct CapsuleNotificationView: View {
   }
 
   var body: some View {
-    Text(publisher.text)
+    Text(publisher.text.isEmpty ? " " : publisher.text)
+      .frame(minWidth: 64)
       .font(.system(.title, design: .rounded, weight: .semibold))
       .padding(.leading, publisher.state == .running ?  24 : 0)
       .overlay(alignment: .leading) {
@@ -82,17 +83,17 @@ struct CapsuleNotificationView: View {
             .stroke(publisher.state.borderColor.opacity(0.05), lineWidth: 2)
         }
           .opacity(publisher.state == .idle ? 0 : 1)
-          .animation(.smooth(duration: 0.3), value: publisher.state)
+          .animation(.smooth(duration: 0.1), value: publisher.state)
       )
       .background(
         Capsule(style: .continuous)
           .fill(publisher.state.backgroundColor.opacity(0.9))
           .opacity(publisher.state == .idle ? 0 : 1)
-          .animation(.smooth(duration: 0.3), value: publisher.state)
+          .animation(.smooth(duration: 0.1), value: publisher.state)
       )
       .frame(minWidth: 128, maxWidth: .infinity)
       .opacity(publisher.state == .idle ? 0 : 1)
-      .animation(.smooth(duration: 0.2), value: publisher.state)
+      .animation(.smooth(duration: 0.275), value: publisher.state)
       .enableInjection()
   }
 }
