@@ -152,15 +152,16 @@ final class WindowStore: @unchecked Sendable {
     return windowModels
   }
   
-  // MARK: - Private methods
-
-  private func index(_ runningApplication: UserSpace.Application) {
+  func index(_ runningApplication: UserSpace.Application) {
     let windows = getWindows()
     self.windows = windows
     state.visibleWindowsInSpace = allApplicationsInSpace(windows, onScreen: true)
     state.visibleWindowsInStage = indexStage(windows)
     indexFrontmost()
   }
+
+  // MARK: - Private methods
+
 
   private func indexFrontmost() {
     do {

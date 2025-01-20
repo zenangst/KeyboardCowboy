@@ -237,18 +237,13 @@ private struct ScriptCommandSubContentView: View {
         }
       } label: {
         switch metaData.notification {
-        case .bezel:
-          Text("Bezel")
-            .font(.caption)
-        case .commandPanel:
-          Text("Command Panel")
-            .font(.caption)
-        case .none:
-          Text("None")
-            .font(.caption)
+        case .bezel:        Text("Bezel").font(.caption)
+        case .capsule:      Text("Capsule").font(.caption)
+        case .commandPanel: Text("Command Panel").font(.caption)
+        case .none:         Text("None").font(.caption)
         }
       }
-      .menuStyle(.zen(.init(color: .systemGray, padding: .large)))
+      .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
       .fixedSize()
       switch model.source {
       case .path(let source):

@@ -1,28 +1,25 @@
-import AppKit
 import Bonzai
-import KeyCodes
-import MachPort
+import Cocoa
 import SwiftUI
 
 @MainActor
-final class HUDWindow: NSObject, NSWindowDelegate {
-  static let instance = HUDWindow()
-
-  private lazy var publisher = HUDNotificationPublisher(text: "")
+final class DebugWorkflow: NSObject, NSWindowDelegate {
   private var window: NSWindow?
 
-  private override init() {
-    super.init()
+  static let shared = DebugWorkflow()
+
+  func open(_ message: String) {
+    let window = createWindow()
+    window.center()
+    window.orderFrontRegardless()
+    self.window = window
   }
 
-  func open() {
-    if window != nil {
-      window?.orderFrontRegardless()
-      return
-    }
+  // MARK: Private methods
 
+  private func createWindow() -> NSWindow {
     let styleMask: NSWindow.StyleMask = [.titled, .closable, .resizable, .fullSizeContentView]
-    let view = HUDNotificationView(publisher: publisher)
+    let view = Text("Debug window")
     let window = ZenSwiftUIWindow(contentRect: .zero, styleMask: styleMask) {
       view
     }
@@ -34,22 +31,17 @@ final class HUDWindow: NSObject, NSWindowDelegate {
     window.contentAspectRatio = CGSize(width: 520, height: 250)
     window.delegate = self
     window.minSize = minSize
-    window.title = "HUD Notification"
+    window.title = "Key Viewer"
     window.titleVisibility = .hidden
     window.titlebarAppearsTransparent = true
     window.level = .statusBar
-
     window.standardWindowButton(.zoomButton)?.isHidden = true
     window.standardWindowButton(.miniaturizeButton)?.isHidden = true
 
-    window.center()
-    window.orderFrontRegardless()
-    window.makeKeyAndOrderFront(nil)
-
-    KeyboardCowboyApp.activate(setActivationPolicy: false)
-
-    self.window = window
+    return window
   }
+
+  // MARK: NSWindowDelegate
 
   func windowWillClose(_ notification: Notification) {
     self.window = nil

@@ -5,8 +5,8 @@ import MachPort
 import SwiftUI
 
 @MainActor
-final class KeyViewerWindow: NSObject, NSWindowDelegate {
-  static let instance = KeyViewerWindow()
+final class KeyViewer: NSObject, NSWindowDelegate {
+  static let instance = KeyViewer()
 
   private lazy var publisher = KeyViewerPublisher()
   private var window: NSWindow?
@@ -22,26 +22,7 @@ final class KeyViewerWindow: NSObject, NSWindowDelegate {
       return
     }
 
-    let styleMask: NSWindow.StyleMask = [.titled, .closable, .resizable, .fullSizeContentView]
-    let view = KeyViewer(publisher: publisher)
-    let window = ZenSwiftUIWindow(contentRect: .zero, styleMask: styleMask) {
-      view
-    }
-    let minSize = CGSize(width: 128 * 2.08, height: 128)
-    window.setFrame(NSRect(origin: .zero, size: minSize), display: false)
-
-    window.animationBehavior = .none
-    window.backgroundColor = .clear
-    window.contentAspectRatio = CGSize(width: 520, height: 250)
-    window.delegate = self
-    window.minSize = minSize
-    window.title = "Key Viewer"
-    window.titleVisibility = .hidden
-    window.titlebarAppearsTransparent = true
-    window.level = .statusBar
-
-    window.standardWindowButton(.zoomButton)?.isHidden = true
-    window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+    let window = createWindow()
 
     window.center()
     window.orderFrontRegardless()
@@ -89,6 +70,30 @@ final class KeyViewerWindow: NSObject, NSWindowDelegate {
   }
 
   // MARK: Private methods
+
+  private func createWindow() -> NSWindow {
+    let styleMask: NSWindow.StyleMask = [.titled, .closable, .resizable, .fullSizeContentView]
+    let view = KeyViewerView(publisher: publisher)
+    let window = ZenSwiftUIWindow(contentRect: .zero, styleMask: styleMask) {
+      view
+    }
+    let minSize = CGSize(width: 128 * 2.08, height: 128)
+    window.setFrame(NSRect(origin: .zero, size: minSize), display: false)
+
+    window.animationBehavior = .none
+    window.backgroundColor = .clear
+    window.contentAspectRatio = CGSize(width: 520, height: 250)
+    window.delegate = self
+    window.minSize = minSize
+    window.title = "Key Viewer"
+    window.titleVisibility = .hidden
+    window.titlebarAppearsTransparent = true
+    window.level = .statusBar
+    window.standardWindowButton(.zoomButton)?.isHidden = true
+    window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+
+    return window
+  }
 
   private func updateKeys(_ displayValue: String) {
     let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)

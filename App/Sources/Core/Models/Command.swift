@@ -91,10 +91,12 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     var id: String { rawValue }
     case bezel
     case commandPanel
+    case capsule
     var displayValue: String {
       switch self {
       case .bezel: "Bezel"
       case .commandPanel: "Command Panel"
+      case .capsule: "Capsule UI"
       }
     }
   }

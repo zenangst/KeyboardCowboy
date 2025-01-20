@@ -157,9 +157,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
                                machPortEvent: machPortEvent,
                                checkCancellation: checkCancellation,
                                repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
-          } catch { 
-            if case .bezel = command.notification {
+          } catch {
+            switch command.notification {
+            case .bezel:
               await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
+            case .capsule:
+              await CapsuleNotificationWindow.shared.publish(error.localizedDescription, state: .failure)
+            case .commandPanel, .none: break
             }
           }
           if let delay = command.delay {
@@ -218,9 +222,13 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
           try await self.run(command, workflowCommands: commands, snapshot: snapshot,
                              machPortEvent: machPortEvent, checkCancellation: checkCancellation,
                              repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
-        } catch { 
-          if case .bezel = command.notification {
+        } catch {
+          switch command.notification {
+          case .bezel:
             await BezelNotificationController.shared.post(.init(id: UUID().uuidString, text: ""))
+          case .capsule:
+            await CapsuleNotificationWindow.shared.publish(error.localizedDescription, state: .failure)
+          case .commandPanel, .none: break
           }
         }
       }
@@ -247,6 +255,10 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         notchInfo.setContent(contentID: contentID, title: command.name, description: "Running...")
         notchInfo.show(on: NSScreen.main ?? NSScreen.screens[0], for: 10.0)
       }
+    case .capsule:
+      let capsule = await CapsuleNotificationWindow.shared
+      await capsule.open()
+      await capsule.publish("Running…", state: .running)
     case .commandPanel:
       switch command {
       case .script(let scriptCommand):
@@ -375,6 +387,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         notchInfo.setContent(contentID: contentID, title: output, description: nil)
         notchInfo.show(on: NSScreen.main ?? NSScreen.screens[0], for: 2.0)
       }
+    case .capsule:
+      let capsule = await CapsuleNotificationWindow.shared
+      await capsule.publish(output, state: .success)
     case .commandPanel:
       break // Add support for command windows
     case .none:

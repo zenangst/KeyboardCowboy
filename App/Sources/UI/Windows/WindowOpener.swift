@@ -20,7 +20,7 @@ final class WindowOpener: ObservableObject {
   }
 
   func openKeyViewer() {
-    KeyViewerWindow.instance.open()
+    KeyViewer.instance.open()
   }
 
   func openGroup(_ context: GroupWindow.Context) {

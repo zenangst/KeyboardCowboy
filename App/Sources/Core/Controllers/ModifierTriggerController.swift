@@ -169,7 +169,7 @@ final class ModifierTriggerController: @unchecked Sendable {
           .post(key)
           .set(key, on: machPortEvent)
           .discardSystemEvent(on: machPortEvent)
-        KeyViewerWindow.instance.handleInput(key)
+        KeyViewer.instance.handleInput(key)
       case .modifiers(let modifiers):
         if machPortEvent.keyCode == currentTrigger.keyCode! {
           coordinator
@@ -216,7 +216,7 @@ final class ModifierTriggerController: @unchecked Sendable {
               .post(key)
               .postMaskNonCoalesced()
 
-            KeyViewerWindow.instance.handleInput(key)
+            KeyViewer.instance.handleInput(key)
           case .modifiers:
             coordinator.postMaskNonCoalesced()
           }

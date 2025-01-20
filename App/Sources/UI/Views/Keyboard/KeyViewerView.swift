@@ -18,7 +18,7 @@ struct Keystroke: Hashable {
   var iterations: Int = 1
 }
 
-struct KeyViewer: View {
+struct KeyViewerView: View {
   @ObserveInjection var inject
   @ObservedObject private var publisher: KeyViewerPublisher
 
@@ -125,6 +125,6 @@ struct KeyViewer: View {
 }
 
 #Preview {
-  KeyViewer(publisher: KeyViewerPublisher())
+  KeyViewerView(publisher: KeyViewerPublisher())
     .frame(width: 256, height: 128)
 }
