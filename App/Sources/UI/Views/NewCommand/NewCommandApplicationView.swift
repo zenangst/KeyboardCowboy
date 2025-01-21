@@ -98,8 +98,7 @@ struct NewCommandApplicationView: View {
           .allowsHitTesting(false)
         })
       }
-
-      .menuStyle(.zen(.init(color: .systemGray, 
+      .menuStyle(.zen(.init(color: .systemGray,
                             padding: .init(horizontal: .large, vertical: .large))))
 
       Divider()
