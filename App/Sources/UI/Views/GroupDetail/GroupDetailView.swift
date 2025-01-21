@@ -316,6 +316,7 @@ struct GroupDetailView: View {
           })
         }
     }
+    .padding(.horizontal, 2)
     .enableInjection()
   }
 

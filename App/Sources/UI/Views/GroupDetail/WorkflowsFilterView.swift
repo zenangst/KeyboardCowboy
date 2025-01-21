@@ -1,7 +1,9 @@
+import Inject
 import SwiftUI
 import Bonzai
 
 struct WorkflowsFilterView: View {
+  @ObserveInjection var inject
   @State private var searchTerm: String = ""
   @EnvironmentObject private var publisher: GroupDetailPublisher
   private let namespace: Namespace.ID
@@ -22,7 +24,7 @@ struct WorkflowsFilterView: View {
   }
 
   var body: some View {
-    HStack(spacing: 8) {
+    HStack(spacing: 6) {
       Group {
         Image(systemName: searchTerm.isEmpty
               ? "line.3.horizontal.decrease.circle"
@@ -39,9 +41,8 @@ struct WorkflowsFilterView: View {
               color: ZenColorPublisher.shared.color,
               backgroundColor: Color(nsColor: .clear),
               font: .caption2,
-              unfocusedOpacity: 0
-            )
-            )
+              padding: .small,
+              unfocusedOpacity: 0))
           )
           .focused(focus, equals: .search)
           .onExitCommand(perform: {
@@ -61,11 +62,13 @@ struct WorkflowsFilterView: View {
       Button(action: {
         searchTerm = ""
         onClear()
-      },
-             label: { Text("Clear") })
-      .buttonStyle(.calm(color: .systemGray, padding: .medium))
+      }, label: { Text("Clear") })
+      .buttonStyle(.calm(color: .systemGray, padding: .small))
       .font(.caption2)
       .opacity(!searchTerm.isEmpty ? 1 : 0)
+      .padding(.trailing, 4)
+      .frame(width: searchTerm.isEmpty ? 0 : nil, height: 25)
+      .animation(.linear, value: searchTerm.isEmpty)
     }
   }
 }
