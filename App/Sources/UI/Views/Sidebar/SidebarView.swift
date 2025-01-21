@@ -1,3 +1,4 @@
+import Inject
 import Bonzai
 import SwiftUI
 
@@ -17,6 +18,7 @@ struct SidebarView: View {
     case copyWorkflows(workflowIds: Set<GroupDetailViewModel.ID>, groupId: GroupViewModel.ID)
   }
 
+  @ObserveInjection var inject
   @EnvironmentObject private var publisher: GroupsPublisher
   @Namespace private var namespace
   private let configSelection: SelectionManager<ConfigurationViewModel>
@@ -41,13 +43,15 @@ struct SidebarView: View {
     VStack(alignment: .leading, spacing: 0) {
       ConfigurationContainerView(configSelection: configSelection,
                                  onAction: onAction)
-
+      ZenDivider()
+        .padding(.top, 8)
       GroupsView(namespace, groupSelection: groupSelection,
                          workflowSelection: workflowSelection,
                          onAction: onAction, focus: focus)
-
+      ZenDivider()
       UserModeContainerView(onAction: onAction)
     }
+    .enableInjection()
   }
 }
 
