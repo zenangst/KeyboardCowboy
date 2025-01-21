@@ -13,13 +13,13 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   @ViewBuilder
   private let content: (Binding<CommandViewModel.MetaData>) -> Content
   @ViewBuilder
-  private let subContent: (Binding<CommandViewModel.MetaData>) -> SubContent
+  private let subContent: () -> SubContent
 
   init(_ metaData: CommandViewModel.MetaData,
        placeholder: String,
        @ViewBuilder icon: @escaping (Binding<CommandViewModel.MetaData>) -> IconContent,
        @ViewBuilder content: @escaping (Binding<CommandViewModel.MetaData>) -> Content,
-       @ViewBuilder subContent: @escaping (Binding<CommandViewModel.MetaData>) -> SubContent = { _ in EmptyView() }) {
+       @ViewBuilder subContent: @escaping () -> SubContent = { EmptyView() }) {
     _metaData = .init(initialValue: metaData)
     self.icon = icon
     self.placeholder = placeholder
@@ -111,10 +111,10 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
   @EnvironmentObject var transaction: UpdateTransaction
   @Binding var metaData: CommandViewModel.MetaData
   @EnvironmentObject var publisher: CommandsPublisher
-  private let content: (Binding<CommandViewModel.MetaData>) -> Content
+  private let content: () -> Content
 
   init(_ metaData: Binding<CommandViewModel.MetaData>,
-       content: @escaping (Binding<CommandViewModel.MetaData>) -> Content) {
+       content: @escaping () -> Content) {
     _metaData = metaData
     self.content = content
   }
@@ -130,7 +130,7 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
           }
         }
       )
-      content($metaData)
+      content()
     }
     .padding(.leading, 6)
     .padding(.trailing, 4)
@@ -180,7 +180,7 @@ struct CommandContainerView_Previews: PreviewProvider {
         Text("Icon")
       }, content: { _ in
         Text("Content")
-      }, subContent: { _ in
+      }, subContent: { 
         Text("SubContent")
       })
     .designTime()

@@ -29,14 +29,14 @@ struct ShortcutCommandView: View {
         }
       }
       .roundedContainer(4, padding: 4, margin: 0)
-    }, subContent: { _ in
+    }, subContent: { 
       Menu {
         Button(action: {
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
             command.notification = .none
           }
         }, label: { Text("None") })
-        ForEach(Command.Notification.allCases) { notification in
+        ForEach(Command.Notification.regularCases) { notification in
           Button(action: {
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in
               command.notification = notification
@@ -51,7 +51,7 @@ struct ShortcutCommandView: View {
         case .none:         Text("None").font(.caption)
         }
       }
-      .menuStyle(.zen(.init(color: .systemGray, font: .caption, padding: .medium)))
+      .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
       .fixedSize()
 
       ShortcutCommandSubContentView {

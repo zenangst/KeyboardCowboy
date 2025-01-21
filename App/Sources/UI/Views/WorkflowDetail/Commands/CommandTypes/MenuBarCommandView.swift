@@ -38,21 +38,32 @@ private struct MenuBarCommandInternalView: View {
     } content: { _ in
       MenuBarCommandContentView(model)
         .roundedContainer(4, padding: 4, margin: 0)
-    } subContent: { metaData in
+    } subContent: {
       HStack {
-        ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
-          if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
-        }, set: { newValue in
-          metaData.notification.wrappedValue = newValue ? .bezel : nil
-          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            command.notification = newValue ? .bezel : nil
+        Menu {
+          Button(action: {
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              command.notification = .none
+            }
+          }, label: { Text("None") })
+          ForEach(Command.Notification.regularCases) { notification in
+            Button(action: {
+              updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+                command.notification = notification
+              }
+            }, label: { Text(notification.displayValue) })
           }
-        })) { value in
-          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            command.notification = value ? .bezel : nil
+        } label: {
+          switch metaData.notification {
+          case .bezel:        Text("Bezel").font(.caption)
+          case .capsule:      Text("Capsule").font(.caption)
+          case .commandPanel: Text("Command Panel").font(.caption)
+          case .none:         Text("None").font(.caption)
           }
         }
-        .offset(x: 1)
+        .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
+        .fixedSize()
+
         Spacer()
         Button {
           openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))

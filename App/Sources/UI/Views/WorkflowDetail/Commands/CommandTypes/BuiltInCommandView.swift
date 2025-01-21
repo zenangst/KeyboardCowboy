@@ -23,20 +23,31 @@ struct BuiltInCommandView: View {
     }, content: { _ in
       BuiltInCommandContentView(model, metaData: metaData)
         .roundedContainer(4, padding: 4, margin: 0)
-    }, subContent: { metaData in
-      ZenCheckbox("Notify", style: .small, isOn: Binding(get: {
-        if case .bezel = metaData.notification.wrappedValue { return true } else { return false }
-      }, set: { newValue in
-        metaData.notification.wrappedValue = newValue ? .bezel : nil
-        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-          command.notification = newValue ? .bezel : nil
+    }, subContent: {
+      Menu {
+        Button(action: {
+          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+            command.notification = .none
+          }
+        }, label: { Text("None") })
+        ForEach(Command.Notification.regularCases) { notification in
+          Button(action: {
+            updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+              command.notification = notification
+            }
+          }, label: { Text(notification.displayValue) })
         }
-      })) { value in
-        updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-          command.notification = value ? .bezel : nil
+      } label: {
+        switch metaData.notification {
+        case .bezel:        Text("Bezel").font(.caption)
+        case .capsule:      Text("Capsule").font(.caption)
+        case .commandPanel: Text("Command Panel").font(.caption)
+        case .none:         Text("None").font(.caption)
         }
       }
-      .offset(x: 1)
+      .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
+      .fixedSize()
+
     })
   }
 }

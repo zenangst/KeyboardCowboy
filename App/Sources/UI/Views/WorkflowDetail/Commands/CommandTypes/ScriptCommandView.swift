@@ -26,7 +26,7 @@ struct ScriptCommandView: View {
         ScriptCommandContentView(metaData: metaData, model: model, onSubmit: onSubmit)
           .roundedContainer(4, padding: 4, margin: 0)
       },
-      subContent: { _ in
+      subContent: {
         ScriptCommandSubContentView(model: model, metaData: metaData)
       })
   }
@@ -245,6 +245,7 @@ private struct ScriptCommandSubContentView: View {
       }
       .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
       .fixedSize()
+
       switch model.source {
       case .path(let source):
         Spacer()

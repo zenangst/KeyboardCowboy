@@ -99,6 +99,8 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       case .capsule: "Capsule UI"
       }
     }
+
+    static var regularCases: [Notification] { [.bezel, .capsule] }
   }
 
   struct MetaData: Identifiable, Codable, Hashable, Sendable {
