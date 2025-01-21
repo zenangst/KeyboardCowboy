@@ -58,6 +58,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         return
       }
 
+
       if machPortEvent.event.type == .keyDown {
         handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
       } else if machPortEvent.event.type == .flagsChanged {
@@ -78,7 +79,7 @@ final class ModifierTriggerController: @unchecked Sendable {
       let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
       cache[keySignature] = ModifierTrigger(
         id: keySignature,
-        alone: .init(kind: .key(key), timeout: 100),
+        alone: .init(kind: .key(key), timeout: 125),
         heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
     }
 
@@ -88,7 +89,7 @@ final class ModifierTriggerController: @unchecked Sendable {
       let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
       cache[keySignature] = ModifierTrigger(
         id: keySignature,
-        alone: .init(kind: .key(key), timeout: 100),
+        alone: .init(kind: .key(key), timeout: 125),
         heldDown: .init(kind: .modifiers([.function]), threshold: 75))
     }
 
@@ -180,11 +181,11 @@ final class ModifierTriggerController: @unchecked Sendable {
 
           guard !machPortEvent.isRepeat else { return }
 
-          workItem = startTimer(delay: Int(currentTrigger.alone.threshold), currentTrigger: currentTrigger) { [weak self, coordinator] trigger in
-            guard let self else { return }
+          lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+          workItem = startTimer(delay: Int(currentTrigger.alone.threshold - 10), currentTrigger: currentTrigger) { [weak self, coordinator] trigger in
+            guard self != nil else { return }
             coordinator
               .postFlagsChanged(modifiers: modifiers)
-            lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
           }
         } else {
           coordinator.decorateEvent(machPortEvent, with: modifiers)
