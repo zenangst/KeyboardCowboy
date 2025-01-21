@@ -45,8 +45,8 @@ struct KeyboardCommandInternalView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { _ in KeyboardCommandIconView(iconSize: iconSize) },
-      content: { _ in
+      icon: { KeyboardCommandIconView(iconSize: iconSize) },
+      content: {
         KeyboardCommandContentView(model: $model, focus: focus) {
           openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
         }

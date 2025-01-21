@@ -21,8 +21,8 @@ struct ScriptCommandView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { _ in ScriptIconView(size: iconSize.width) },
-      content: { _ in
+      icon: { ScriptIconView(size: iconSize.width) },
+      content: {
         ScriptCommandContentView(metaData: metaData, model: model, onSubmit: onSubmit)
           .roundedContainer(4, padding: 4, margin: 0)
       },

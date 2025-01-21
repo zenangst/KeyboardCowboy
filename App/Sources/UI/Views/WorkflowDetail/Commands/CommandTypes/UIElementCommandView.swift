@@ -20,9 +20,9 @@ struct UIElementCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placeholder) { _ in
+    CommandContainerView(metaData, placeholder: model.placeholder) {
       UIElementIconView(size: iconSize.width)
-    } content: { _ in
+    } content: {
       VStack(alignment: .leading, spacing: 4) {
         ForEach(model.predicates.indices, id: \.self) { index in
           Grid(verticalSpacing: 8) {

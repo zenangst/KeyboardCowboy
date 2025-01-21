@@ -23,8 +23,8 @@ struct WindowManagementCommandView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { _ in WindowManagementIconView(size: iconSize.width) },
-      content: { _ in
+      icon: { WindowManagementIconView(size: iconSize.width) },
+      content: {
         WindowManagementCommandInternalView(metaData, model: model, iconSize: iconSize)
         .roundedContainer(4, padding: 4, margin: 0)
       },

@@ -17,37 +17,36 @@ struct BuiltInCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placeholder,
-                         icon: { _ in
-      BuiltinIconBuilder.icon(model.kind, size: iconSize.width)
-    }, content: { _ in
-      BuiltInCommandContentView(model, metaData: metaData)
-        .roundedContainer(4, padding: 4, margin: 0)
-    }, subContent: {
-      Menu {
-        Button(action: {
-          updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            command.notification = .none
-          }
-        }, label: { Text("None") })
-        ForEach(Command.Notification.regularCases) { notification in
+    CommandContainerView(
+      metaData, placeholder: model.placeholder,
+      icon: { BuiltinIconBuilder.icon(model.kind, size: iconSize.width) },
+      content: {
+        BuiltInCommandContentView(model, metaData: metaData)
+          .roundedContainer(4, padding: 4, margin: 0)
+      }, subContent: {
+        Menu {
           Button(action: {
             updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-              command.notification = notification
+              command.notification = .none
             }
-          }, label: { Text(notification.displayValue) })
+          }, label: { Text("None") })
+          ForEach(Command.Notification.regularCases) { notification in
+            Button(action: {
+              updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+                command.notification = notification
+              }
+            }, label: { Text(notification.displayValue) })
+          }
+        } label: {
+          switch metaData.notification {
+          case .bezel:        Text("Bezel").font(.caption)
+          case .capsule:      Text("Capsule").font(.caption)
+          case .commandPanel: Text("Command Panel").font(.caption)
+          case .none:         Text("None").font(.caption)
+          }
         }
-      } label: {
-        switch metaData.notification {
-        case .bezel:        Text("Bezel").font(.caption)
-        case .capsule:      Text("Capsule").font(.caption)
-        case .commandPanel: Text("Command Panel").font(.caption)
-        case .none:         Text("None").font(.caption)
-        }
-      }
-      .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
-      .fixedSize()
-
+        .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
+        .fixedSize()
     })
   }
 }

@@ -18,9 +18,9 @@ struct ShortcutCommandView: View {
   }
   
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placeholder, icon: { metaData in
+    CommandContainerView(metaData, placeholder: model.placeholder, icon: {
       ShortcutCommandIconView(iconSize: iconSize)
-    }, content: { command in
+    }, content: {
       ShortcutCommandContentView(model: $model) { shortcut in
         updater.modifyCommand(withID: metaData.id, using: transaction) { command in
           guard case .shortcut(var shortcutCommand) = command else { return }

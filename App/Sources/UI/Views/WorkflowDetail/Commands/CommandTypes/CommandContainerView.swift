@@ -8,17 +8,14 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   private let placeholder: String
 
   @State private var metaData: CommandViewModel.MetaData
-  @ViewBuilder
-  private let icon: (Binding<CommandViewModel.MetaData>) -> IconContent
-  @ViewBuilder
-  private let content: (Binding<CommandViewModel.MetaData>) -> Content
-  @ViewBuilder
-  private let subContent: () -> SubContent
+  @ViewBuilder private let icon: () -> IconContent
+  @ViewBuilder private let content: () -> Content
+  @ViewBuilder private let subContent: () -> SubContent
 
   init(_ metaData: CommandViewModel.MetaData,
        placeholder: String,
-       @ViewBuilder icon: @escaping (Binding<CommandViewModel.MetaData>) -> IconContent,
-       @ViewBuilder content: @escaping (Binding<CommandViewModel.MetaData>) -> Content,
+       @ViewBuilder icon: @escaping () -> IconContent,
+       @ViewBuilder content: @escaping () -> Content,
        @ViewBuilder subContent: @escaping () -> SubContent = { EmptyView() }) {
     _metaData = .init(initialValue: metaData)
     self.icon = icon
@@ -78,15 +75,13 @@ private struct CommandContainerHeaderView: View {
 
 private struct CommandContainerContentView<IconContent, Content>: View where IconContent: View,
                                                                              Content: View {
-  @ViewBuilder
-  private let icon: (Binding<CommandViewModel.MetaData>) -> IconContent
-  @ViewBuilder
-  private let content: (Binding<CommandViewModel.MetaData>) -> Content
+  @ViewBuilder private let icon: () -> IconContent
+  @ViewBuilder private let content: () -> Content
   @Binding private var metaData: CommandViewModel.MetaData
 
   init(_ metaData: Binding<CommandViewModel.MetaData>,
-       icon: @escaping (Binding<CommandViewModel.MetaData>) -> IconContent,
-       content: @escaping (Binding<CommandViewModel.MetaData>) -> Content) {
+       icon: @escaping () -> IconContent,
+       content: @escaping () -> Content) {
     self.icon = icon
     self.content = content
     _metaData = metaData
@@ -97,9 +92,9 @@ private struct CommandContainerContentView<IconContent, Content>: View where Ico
       RoundedRectangle(cornerRadius: 5)
         .fill(Color.black.opacity(0.2))
         .frame(width: 28, height: 28)
-        .overlay { icon($metaData) }
+        .overlay { icon() }
         .padding(.leading, 6)
-      content($metaData)
+      content()
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
         .padding(.trailing, 6)
     }
@@ -176,11 +171,11 @@ struct CommandContainerView_Previews: PreviewProvider {
     CommandContainerView(
       command.model.meta,
       placeholder: "Placeholder",
-      icon: { _ in
+      icon: {
         Text("Icon")
-      }, content: { _ in
+      }, content: {
         Text("Content")
-      }, subContent: { 
+      }, subContent: {
         Text("SubContent")
       })
     .designTime()

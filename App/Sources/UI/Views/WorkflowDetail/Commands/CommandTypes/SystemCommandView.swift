@@ -22,8 +22,8 @@ struct SystemCommandView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { _ in SystemIconBuilder.icon(model.kind, size: iconSize.width)
-      }, content: { _ in
+      icon: { SystemIconBuilder.icon(model.kind, size: iconSize.width) },
+      content: {
         SystemCommandContentView(model: $model) { kind in
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
             guard case .systemCommand(var systemCommand) = command else { return }

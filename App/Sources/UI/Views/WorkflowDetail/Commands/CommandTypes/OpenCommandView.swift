@@ -18,9 +18,9 @@ struct OpenCommandView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placeholder, icon: { command in
-      OpenCommandHeaderView(command, model: model, iconSize: iconSize)
-    }, content: { command in
+    CommandContainerView(metaData, placeholder: model.placeholder, icon: {
+      OpenCommandHeaderView(metaData, model: model, iconSize: iconSize)
+    }, content: {
       OpenCommandContentView(metaData: metaData, model: $model)
       .roundedContainer(4, padding: 4, margin: 0)
     }, subContent: {
@@ -56,19 +56,19 @@ struct OpenCommandView: View {
 }
 
 private struct OpenCommandHeaderView: View {
-  private var command: Binding<CommandViewModel.MetaData>
+  private var metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.OpenModel
   private let iconSize: CGSize
 
-  init(_ command: Binding<CommandViewModel.MetaData>, model: CommandViewModel.Kind.OpenModel, iconSize: CGSize) {
-    self.command = command
+  init(_ metaData: CommandViewModel.MetaData, model: CommandViewModel.Kind.OpenModel, iconSize: CGSize) {
+    self.metaData = metaData
     self.model = model
     self.iconSize = iconSize
   }
 
   var body: some View {
     ZStack(alignment: .bottomTrailing) {
-      switch command.icon.wrappedValue {
+      switch metaData.icon {
       case .some(let icon):
         IconView(icon: icon, size: iconSize)
         if let appPath = model.applicationPath {
@@ -136,7 +136,7 @@ private struct OpenCommandContentView: View {
           model.appName = nil
           model.applicationPath = nil
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-            guard case .open(var openCommand) = command else { return }
+            guard case .open(let openCommand) = command else { return }
             command = .open(OpenCommand(application: nil, path: openCommand.path, meta: command.meta))
           }
         })

@@ -33,9 +33,9 @@ private struct MenuBarCommandInternalView: View {
   }
 
   var body: some View {
-    CommandContainerView(metaData, placeholder: model.placeholder) { _ in
+    CommandContainerView(metaData, placeholder: model.placeholder) { 
       MenuIconView(size: iconSize.width)
-    } content: { _ in
+    } content: {
       MenuBarCommandContentView(model)
         .roundedContainer(4, padding: 4, margin: 0)
     } subContent: {

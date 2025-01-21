@@ -23,9 +23,9 @@ struct TypeCommandView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { metaData in
+      icon: {
         TypingIconView(size: iconSize.width)
-      }, content: { _ in
+      }, content: {
         TypeCommandContentView(metaData: metaData, model: model)
           .roundedContainer(4, padding: 0, margin: 0)
       }, subContent: {

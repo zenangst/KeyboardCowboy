@@ -21,10 +21,8 @@ struct ApplicationCommandView: View {
     CommandContainerView(
       metaData,
       placeholder: model.placeholder,
-      icon: { _ in
-        ApplicationCommandImageView(metaData, iconSize: iconSize)
-      },
-      content: { _ in 
+      icon: { ApplicationCommandImageView(metaData, iconSize: iconSize) },
+      content: {
         ApplicationCommandInternalView(metaData, model: model, iconSize: iconSize)
         .roundedContainer(4, padding: 4, margin: 0)
       },
