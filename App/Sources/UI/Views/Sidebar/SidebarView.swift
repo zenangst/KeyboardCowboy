@@ -44,7 +44,7 @@ struct SidebarView: View {
       ConfigurationContainerView(configSelection: configSelection,
                                  onAction: onAction)
       ZenDivider()
-        .padding(.top, 8)
+        .padding(.top, 9)
       GroupsView(namespace, groupSelection: groupSelection,
                          workflowSelection: workflowSelection,
                          onAction: onAction, focus: focus)
