@@ -22,7 +22,6 @@ struct OpenCommandView: View {
       OpenCommandHeaderView(metaData, model: model, iconSize: iconSize)
     }, content: {
       OpenCommandContentView(metaData: metaData, model: $model)
-      .roundedContainer(4, padding: 4, margin: 0)
     }, subContent: {
       Menu {
         Button(action: {

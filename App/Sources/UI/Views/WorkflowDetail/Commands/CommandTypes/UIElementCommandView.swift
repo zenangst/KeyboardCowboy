@@ -122,7 +122,6 @@ struct UIElementCommandView: View {
           }
         }
       }
-      .roundedContainer(4, padding: 8, margin: 0)
     } subContent: {
       Menu {
         Button(action: {

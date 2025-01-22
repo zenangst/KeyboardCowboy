@@ -24,7 +24,6 @@ struct ScriptCommandView: View {
       icon: { ScriptIconView(size: iconSize.width) },
       content: {
         ScriptCommandContentView(metaData: metaData, model: model, onSubmit: onSubmit)
-          .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: {
         ScriptCommandSubContentView(model: model, metaData: metaData)
@@ -133,18 +132,14 @@ private struct ScriptCommandInlineView: View {
                      label: { Text(env.asTextVariable) })
               .help("\(env.asTextVariable): \(env.help)")
             }
-            .padding(.vertical, 4)
           }
-          .padding(.horizontal, 4)
         }
-        .roundedContainer(4, padding: 0, margin: 0)
         .padding(.horizontal, 4)
       }
       .buttonStyle(.zen(ZenStyleConfiguration(color: .systemGreen)))
       .allowsTightening(true)
       .lineLimit(1)
       .font(.caption2)
-      .padding(.leading, 4)
 
       ScriptCommandAssignToVariableView(variableName: variableName,
                                         execution: execution,
@@ -293,11 +288,9 @@ private struct ScriptCommandAssignToVariableView: View {
           .onChange(of: variableName) { newValue in
             onVariableNameChange(newValue)
           }
-          .roundedContainer(4, padding: 0, margin: 0)
           .padding(.horizontal, 4)
       }
       .font(.caption2)
-      .padding([.leading, .bottom], 4)
     }
     .opacity(execution == .serial ? 1 : 0)
     .frame(maxHeight: execution == .serial ? nil : 0)

@@ -1,10 +1,12 @@
 import Bonzai
+import Inject
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct CommandList: View {
   static let animation: Animation = .spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2)
 
+  @ObserveInjection var inject
   @Binding private var isPrimary: Bool
   @State var isTargeted: Bool = false
   @ObservedObject private var selectionManager: SelectionManager<CommandViewModel>
@@ -35,20 +37,24 @@ struct CommandList: View {
 
   @ViewBuilder
   var body: some View {
-    if publisher.data.commands.isEmpty {
-      EmptyCommandList(focus,
-                                   namespace: namespace,
-                                   workflowId: publisher.data.id,
-                                   isPrimary: $isPrimary)
-    } else {
-      CommandListHeader(namespace: namespace)
-      CommandListScrollView(focus,
-                            publisher: publisher,
-                            triggerPublisher: triggerPublisher,
-                            namespace: namespace,
-                            workflowId: workflowId,
-                            selectionManager: selectionManager,
-                            scrollViewProxy: scrollViewProxy)
+    Group {
+      if publisher.data.commands.isEmpty {
+        EmptyCommandList(focus,
+                         namespace: namespace,
+                         workflowId: publisher.data.id,
+                         isPrimary: $isPrimary)
+        .style(.derived)
+      } else {
+        CommandListHeader(namespace: namespace)
+          .style(.derived)
+        CommandListScrollView(focus,
+                              publisher: publisher,
+                              triggerPublisher: triggerPublisher,
+                              namespace: namespace,
+                              workflowId: workflowId,
+                              selectionManager: selectionManager,
+                              scrollViewProxy: scrollViewProxy)
+      }
     }
   }
 }

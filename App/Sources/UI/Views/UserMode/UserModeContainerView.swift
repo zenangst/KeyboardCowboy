@@ -11,7 +11,5 @@ struct UserModeContainerView: View {
     UserModesView { action in
       onAction(.userMode(action))
     }
-    .padding(.horizontal, 12)
-    .padding(.vertical, 4)
   }
 }

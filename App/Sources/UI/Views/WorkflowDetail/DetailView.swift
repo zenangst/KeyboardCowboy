@@ -2,6 +2,7 @@ import Inject
 import SwiftUI
 
 struct DetailView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var statePublisher: DetailStatePublisher
   private let applicationTriggerSelection: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandPublisher: CommandsPublisher
@@ -29,34 +30,37 @@ struct DetailView: View {
 
   @ViewBuilder
   var body: some View {
-    switch statePublisher.data {
-    case .empty:
-      DetailEmptyView()
-        .allowsHitTesting(false)
+    Group {
+      switch statePublisher.data {
+      case .empty:
+        DetailEmptyView()
+          .allowsHitTesting(false)
+          .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
+          .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
+      case .single(let viewModel):
+        SingleDetailView(
+          viewModel,
+          focus: focus,
+          applicationTriggerSelectionManager: applicationTriggerSelection,
+          commandSelectionManager: commandSelection,
+          keyboardShortcutSelectionManager: keyboardShortcutSelection,
+          triggerPublisher: triggerPublisher,
+          infoPublisher: infoPublisher,
+          commandPublisher: commandPublisher)
+        .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
+        .overlay(alignment: .topTrailing, content: {
+          DevTagView()
+        })
         .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
-        .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
-    case .single(let viewModel):
-      SingleDetailView(
-        viewModel,
-        focus: focus,
-        applicationTriggerSelectionManager: applicationTriggerSelection,
-        commandSelectionManager: commandSelection,
-        keyboardShortcutSelectionManager: keyboardShortcutSelection,
-        triggerPublisher: triggerPublisher,
-        infoPublisher: infoPublisher,
-        commandPublisher: commandPublisher)
-      .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
-      .overlay(alignment: .topTrailing, content: {
-        DevTagView()
-      })
-      .animation(.easeInOut(duration: 0.375), value: statePublisher.data)
-      .id(viewModel.id)
-    case .multiple(let viewModels):
-      let limit = 5
-      let count = viewModels.count
-      MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
-        .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
+        .id(viewModel.id)
+      case .multiple(let viewModels):
+        let limit = 5
+        let count = viewModels.count
+        MultiDetailView( count > limit ? Array(viewModels[0...limit-1]) : viewModels, count: count)
+          .edgesIgnoringSafeArea(isRunningPreview ? [] : [.top])
+      }
     }
+    .enableInjection()
   }
 }
 

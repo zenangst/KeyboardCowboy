@@ -33,7 +33,6 @@ struct WorkflowsFilterView: View {
         .aspectRatio(contentMode: .fit)
         .foregroundColor(Color(nsColor:ZenColorPublisher.shared.color.nsColor))
         .frame(width: 12)
-        .padding(.leading, 8)
         TextField("Filter", text: $searchTerm)
           .textFieldStyle(
             .zen(.init(
@@ -66,7 +65,6 @@ struct WorkflowsFilterView: View {
       .buttonStyle(.calm(color: .systemGray, padding: .small))
       .font(.caption2)
       .opacity(!searchTerm.isEmpty ? 1 : 0)
-      .padding(.trailing, 4)
       .frame(width: searchTerm.isEmpty ? 0 : nil, height: 25)
       .animation(.linear, value: searchTerm.isEmpty)
     }

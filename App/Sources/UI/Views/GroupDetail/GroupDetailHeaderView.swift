@@ -12,12 +12,10 @@ struct GroupDetailHeaderView: View {
   var body: some View {
     VStack(spacing: 0) {
       ZenLabel("Group", style: .content)
-        .padding(.leading, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 6)
       HStack(spacing: 8) {
         GroupIconView(color: groupPublisher.data.color, icon: groupPublisher.data.icon, symbol: groupPublisher.data.symbol)
-          .frame(width: 24, height: 24)
+          .frame(width: 25, height: 25)
           .padding(4)
           .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -41,10 +39,6 @@ struct GroupDetailHeaderView: View {
         }))
         .id("group.toggle.\(groupPublisher.data.id)")
       }
-      .padding(.bottom, 4)
-      .padding(.horizontal, 8)
-
-      ZenDivider()
     }
     .enableInjection()
   }

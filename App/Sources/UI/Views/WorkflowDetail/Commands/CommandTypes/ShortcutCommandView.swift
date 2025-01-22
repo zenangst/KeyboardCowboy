@@ -28,7 +28,6 @@ struct ShortcutCommandView: View {
           command = .shortcut(shortcutCommand)
         }
       }
-      .roundedContainer(4, padding: 4, margin: 0)
     }, subContent: { 
       Menu {
         Button(action: {

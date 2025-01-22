@@ -15,11 +15,7 @@ struct ConfigurationContainerView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      HStack {
-        ConfigurationHeaderView()
-          .padding(.horizontal, 12)
-          .padding(.bottom, 6)
-      }
+      ConfigurationHeaderView()
       ConfigurationView(configSelection) { action in
         switch action {
         case .deleteConfiguration(let id):
@@ -32,7 +28,6 @@ struct ConfigurationContainerView: View {
           onAction(.selectConfiguration(id))
         }
       }
-      .padding([.leading, .trailing], 12)
     }
     .enableInjection()
   }

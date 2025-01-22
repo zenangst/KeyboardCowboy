@@ -31,7 +31,6 @@ struct SystemCommandView: View {
             command = .systemCommand(systemCommand)
           }
         }
-        .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: {
         Menu {

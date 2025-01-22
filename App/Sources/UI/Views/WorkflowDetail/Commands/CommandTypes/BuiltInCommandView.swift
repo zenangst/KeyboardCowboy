@@ -22,7 +22,6 @@ struct BuiltInCommandView: View {
       icon: { BuiltinIconBuilder.icon(model.kind, size: iconSize.width) },
       content: {
         BuiltInCommandContentView(model, metaData: metaData)
-          .roundedContainer(4, padding: 4, margin: 0)
       }, subContent: {
         Menu {
           Button(action: {

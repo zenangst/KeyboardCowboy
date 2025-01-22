@@ -26,7 +26,6 @@ struct WindowManagementCommandView: View {
       icon: { WindowManagementIconView(size: iconSize.width) },
       content: {
         WindowManagementCommandInternalView(metaData, model: model, iconSize: iconSize)
-        .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: {
         HStack {

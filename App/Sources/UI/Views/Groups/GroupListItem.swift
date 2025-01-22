@@ -1,4 +1,5 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct GroupListItem: View {
@@ -24,6 +25,7 @@ struct GroupListItem: View {
 }
 
 private struct GroupItemInternalView: View {
+  @ObserveInjection var inject
   @State private var isTargeted: Bool = false
   private let selectionManager: SelectionManager<GroupViewModel>
   private let group: GroupViewModel
@@ -47,11 +49,11 @@ private struct GroupItemInternalView: View {
       GroupTextView(group)
       ContextualMenuView(selectionManager: selectionManager, group: group, onAction: onAction)
     }
-    .padding(.vertical, 4)
-    .padding(.horizontal, 8)
+    .style(.item)
     .contentShape(Rectangle())
     .background(ItemBackgroundView(group.id, selectionManager: selectionManager))
     .draggable(group)
+    .enableInjection()
   }
 }
 

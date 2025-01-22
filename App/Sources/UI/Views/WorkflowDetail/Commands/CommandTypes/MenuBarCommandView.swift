@@ -37,7 +37,6 @@ private struct MenuBarCommandInternalView: View {
       MenuIconView(size: iconSize.width)
     } content: {
       MenuBarCommandContentView(model)
-        .roundedContainer(4, padding: 4, margin: 0)
     } subContent: {
       HStack {
         Menu {

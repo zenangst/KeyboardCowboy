@@ -88,7 +88,7 @@ private struct WorkflowViewItemInternalView: View {
         ExecutionView(execution: workflow.execution)
       }
     }
-    .padding(4)
+    .style(.item)
     .background(ItemBackgroundView(workflow.id, selectionManager: contentSelectionManager))
     .draggable(workflow)
     .enableInjection()

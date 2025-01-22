@@ -1,7 +1,9 @@
+import Inject
 import Bonzai
 import SwiftUI
 
 struct CommandListScrollView: View {
+  @ObserveInjection var inject
   @EnvironmentObject private var updater: ConfigurationUpdater
   @EnvironmentObject private var transaction: UpdateTransaction
   @EnvironmentObject private var applicationStore: ApplicationStore
@@ -83,7 +85,6 @@ struct CommandListScrollView: View {
           selectionManager.handleOnTap(publisher.data.commands, element: command)
         }
       }
-      .padding(.vertical, 5)
       .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
         switch triggerPublisher.data {
         case .applications:
@@ -114,9 +115,9 @@ struct CommandListScrollView: View {
           }
         }
       }
-      .padding(8)
     }
     .focused(focus, equals: .detail(.commands))
     .matchedGeometryEffect(id: "command-list", in: namespace)
+    .enableInjection()
   }
 }

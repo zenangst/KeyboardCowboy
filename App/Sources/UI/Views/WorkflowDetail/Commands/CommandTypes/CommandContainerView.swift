@@ -32,7 +32,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
       CommandContainerContentView($metaData, icon: icon, content: content)
       CommandContainerSubContentView($metaData, content: subContent)
     }
-    .roundedContainer(padding: 0, margin: 1)
   }
 }
 
@@ -68,8 +67,6 @@ private struct CommandContainerHeaderView: View {
         })
       CommandContainerActionView(metaData: metaData)
     }
-    .padding(.horizontal, 6)
-    .padding(.top, 6)
   }
 }
 
@@ -93,10 +90,9 @@ private struct CommandContainerContentView<IconContent, Content>: View where Ico
         .fill(Color.black.opacity(0.2))
         .frame(width: 28, height: 28)
         .overlay { icon() }
-        .padding(.leading, 6)
       content()
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
-        .padding(.trailing, 6)
+        .style(.subItem)
     }
   }
 }
@@ -127,9 +123,6 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
       )
       content()
     }
-    .padding(.leading, 6)
-    .padding(.trailing, 4)
-    .padding(.vertical, 4)
     .buttonStyle(.regular)
     .lineLimit(1)
     .allowsTightening(true)

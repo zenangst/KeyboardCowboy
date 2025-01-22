@@ -24,7 +24,6 @@ struct ApplicationCommandView: View {
       icon: { ApplicationCommandImageView(metaData, iconSize: iconSize) },
       content: {
         ApplicationCommandInternalView(metaData, model: model, iconSize: iconSize)
-        .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: {
         Menu {

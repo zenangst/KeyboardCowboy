@@ -27,7 +27,6 @@ struct TypeCommandView: View {
         TypingIconView(size: iconSize.width)
       }, content: {
         TypeCommandContentView(metaData: metaData, model: model)
-          .roundedContainer(4, padding: 0, margin: 0)
       }, subContent: {
         HStack {
           Menu {

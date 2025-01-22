@@ -53,13 +53,10 @@ struct EmptyCommandList: View {
 
              Text("Add Command")
            }
-           .padding(.vertical, 4)
-           .padding(.horizontal, 6)
       }
          .fixedSize()
          .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
     }
-    .padding()
     .dropDestination(CommandListDropItem.self, color: .accentColor, onDrop: { items, location in
       var urls = [URL]()
       for item in items {

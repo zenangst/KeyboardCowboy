@@ -50,7 +50,6 @@ struct KeyboardCommandInternalView: View {
         KeyboardCommandContentView(model: $model, focus: focus) {
           openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
         }
-          .roundedContainer(4, padding: 2, margin: 0)
       },
       subContent: {
         Menu {

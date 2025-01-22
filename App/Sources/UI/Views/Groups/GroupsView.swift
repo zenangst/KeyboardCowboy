@@ -25,8 +25,7 @@ struct GroupsView: View {
     GroupsHeaderView(namespace,
                      isVisible: .readonly { !publisher.data.isEmpty },
                      onAddGroup: { onAction(.openScene(.addGroup)) })
-    .padding(.horizontal, 12)
-    .padding(.vertical, 6)
+    .style(.derived)
 
     GroupsList(focus, namespace: namespace,
                groupSelection: groupSelection,

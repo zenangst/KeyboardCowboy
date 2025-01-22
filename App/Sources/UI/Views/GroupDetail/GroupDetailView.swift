@@ -155,16 +155,19 @@ struct GroupDetailView: View {
   var body: some View {
     ScrollViewReader { proxy in
       GroupDetailHeaderView()
+        .style(.derived)
+
+      ZenDivider()
 
       HStack {
         ZenLabel("Workflows", style: .content)
-          .padding(.leading, 8)
           .frame(maxWidth: .infinity, alignment: .leading)
 
         if !publisher.data.isEmpty {
           GroupDetailAddButton(namespace, onAction: { onAction(.addWorkflow(workflowId: UUID().uuidString)) })
         }
       }
+      .style(.derived)
 
       WorkflowsFilterView(appFocus,
                           namespace: namespace,
@@ -179,6 +182,7 @@ struct GroupDetailView: View {
           searchTerm = newValue
         }
       })
+      .style(.derived)
 
       if groupsPublisher.data.isEmpty {
         Text("Add a group before adding a workflow.")
@@ -316,7 +320,6 @@ struct GroupDetailView: View {
           })
         }
     }
-    .padding(.horizontal, 2)
     .enableInjection()
   }
 
@@ -328,14 +331,14 @@ struct GroupDetailView: View {
       },
              label: {
         Label(title: {
-          Text("Add workflow")
+          Text("Add Workflow")
         }, icon: {
           Image(systemName: "rectangle.stack.badge.plus")
             .renderingMode(.template)
             .foregroundColor(Color(.systemGray))
         })
       })
-      .help("Add workflow")
+      .help("Add Workflow")
     }
   }
 

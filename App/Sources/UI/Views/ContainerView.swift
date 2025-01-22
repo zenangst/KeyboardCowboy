@@ -74,6 +74,7 @@ struct ContainerView: View {
           guard let groupId = groupsSelection.lastSelection else { return }
           onAction(.sidebar(.selectGroups([groupId])), undoManager)
         })
+        .style(.section(.sidebar))
         .navigationSplitViewColumnWidth(ideal: 250)
       },
       content: {
@@ -88,6 +89,7 @@ struct ContainerView: View {
               Task { @MainActor in focus.wrappedValue = .detail(.name) }
             }
           })
+        .style(.section(.content))
         .environmentObject(detailUpdateTransaction)
         .navigationSplitViewColumnWidth(min: 180, ideal: 250)
       },
@@ -102,6 +104,7 @@ struct ContainerView: View {
           commandPublisher: commandPublisher)
         .frame(minHeight: 400)
         .navigationSplitViewColumnWidth(min: 350, ideal: 400)
+        .style(.section(.detail))
         .background()
         .environmentObject(detailUpdateTransaction)
       })

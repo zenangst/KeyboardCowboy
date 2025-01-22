@@ -81,7 +81,6 @@ struct WindowTidyCommandView: View {
       .frame(minHeight: max(48, min(CGFloat(model.rules.count) * 32, 304)))
 
     }
-    .roundedContainer(4, padding: 8, margin: 0)
     .enableInjection()
   }
 }

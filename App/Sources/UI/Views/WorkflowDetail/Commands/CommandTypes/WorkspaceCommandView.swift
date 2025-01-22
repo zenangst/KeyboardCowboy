@@ -139,7 +139,6 @@ struct WorkspaceCommandView: View {
       }
       .padding(4)
     }
-    .roundedContainer(4, padding: 8, margin: 0)
     .enableInjection()
   }
 }

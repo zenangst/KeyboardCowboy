@@ -41,7 +41,6 @@ private struct MouseCommandInternalView: View {
       icon: { MouseIconView(size: iconSize.width) },
       content: {
         MouseCommandContentView(metaData: metaData, model: $model)
-          .roundedContainer(4, padding: 4, margin: 0)
       },
       subContent: {
         Menu {

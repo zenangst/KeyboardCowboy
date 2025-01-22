@@ -34,8 +34,6 @@ struct CommandListHeader: View {
       .fixedSize(horizontal: true, vertical: true)
       CommandListHeaderAddButton(namespace)
     }
-    .padding(.leading, 24)
-    .padding(.trailing, 16)
   }
 }
 

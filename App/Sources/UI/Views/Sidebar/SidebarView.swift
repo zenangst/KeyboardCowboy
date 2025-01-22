@@ -41,15 +41,21 @@ struct SidebarView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      ConfigurationContainerView(configSelection: configSelection,
-                                 onAction: onAction)
+      ConfigurationContainerView(
+        configSelection: configSelection,
+        onAction: onAction)
+      .style(.derived)
+
       ZenDivider()
-        .padding(.top, 9)
+
       GroupsView(namespace, groupSelection: groupSelection,
-                         workflowSelection: workflowSelection,
-                         onAction: onAction, focus: focus)
+                 workflowSelection: workflowSelection,
+                 onAction: onAction, focus: focus)
+
       ZenDivider()
+
       UserModeContainerView(onAction: onAction)
+        .style(.derived)
     }
     .enableInjection()
   }

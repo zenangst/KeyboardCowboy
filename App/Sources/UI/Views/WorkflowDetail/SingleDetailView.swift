@@ -1,8 +1,10 @@
 import Bonzai
+import Inject
 import SwiftUI
 import Apps
 
 struct SingleDetailView: View {
+  @ObserveInjection var inject
   @Namespace var namespace
 
   @EnvironmentObject private var commandPublisher: CommandsPublisher
@@ -43,9 +45,8 @@ struct SingleDetailView: View {
               case .modifier: break
               }
             })
+          .style(.derived)
           .environmentObject(commandSelectionManager)
-          .padding(.horizontal, 24)
-          .padding(.bottom, 6)
 
           ZenDivider()
 
@@ -62,13 +63,12 @@ struct SingleDetailView: View {
                 focus.wrappedValue = .detail(.commands)
               }
             })
-          .padding(.horizontal)
-          .padding(.bottom, 8)
           .id(infoPublisher.data.id)
+          .style(.derived)
         }
-        .padding(.top)
+        .padding(.top, 12)
         .padding(.bottom, 24)
-        .background(alignment: .bottom, content: { 
+        .background(alignment: .bottom, content: {
           SingleDetailBackgroundView()
         })
 
@@ -91,6 +91,7 @@ struct SingleDetailView: View {
     }
     .focusScope(namespace)
     .frame(maxHeight: .infinity, alignment: .top)
+    .enableInjection()
   }
 }
 
