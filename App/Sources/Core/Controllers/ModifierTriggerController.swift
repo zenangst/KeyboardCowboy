@@ -72,25 +72,28 @@ final class ModifierTriggerController: @unchecked Sendable {
   }
 
   func cache(_ groups: [WorkflowGroup]) {
-    // MARK: Demo modifiers
-    do {
-      let key = KeyShortcut.escape
-      let signature = CGEventSignature(Int64(key.keyCode!), .maskNonCoalesced)
-      let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
-      cache[keySignature] = ModifierTrigger(
-        id: keySignature,
-        alone: .init(kind: .key(key), timeout: 125),
-        heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
-    }
 
-    do {
-      let key = KeyShortcut.tab
-      let signature = CGEventSignature(Int64(key.keyCode!), .maskNonCoalesced)
-      let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
-      cache[keySignature] = ModifierTrigger(
-        id: keySignature,
-        alone: .init(kind: .key(key), timeout: 125),
-        heldDown: .init(kind: .modifiers([.function]), threshold: 75))
+    if NSUserName() == "christofferwinterkvist" {
+      // MARK: Demo modifiers
+      do {
+        let key = KeyShortcut.escape
+        let signature = CGEventSignature(Int64(key.keyCode!), .maskNonCoalesced)
+        let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
+        cache[keySignature] = ModifierTrigger(
+          id: keySignature,
+          alone: .init(kind: .key(key), timeout: 125),
+          heldDown: .init(kind: .modifiers([.leftControl]), threshold: 75))
+      }
+      
+      do {
+        let key = KeyShortcut.tab
+        let signature = CGEventSignature(Int64(key.keyCode!), .maskNonCoalesced)
+        let keySignature = createKey(signature: signature, bundleIdentifier: "*", userModeKey: "")
+        cache[keySignature] = ModifierTrigger(
+          id: keySignature,
+          alone: .init(kind: .key(key), timeout: 125),
+          heldDown: .init(kind: .modifiers([.function]), threshold: 75))
+      }
     }
 
     for group in groups where !group.isDisabled {
