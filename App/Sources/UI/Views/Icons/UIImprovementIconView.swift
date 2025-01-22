@@ -33,7 +33,6 @@ struct UIImprovementIconView: View {
       }
       .iconShape(size)
       .frame(width: size, height: size)
-      .drawingGroup()
   }
 }
 

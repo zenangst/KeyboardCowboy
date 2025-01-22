@@ -57,7 +57,6 @@ struct MoveFocusToWindowIconView: View {
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
-      .drawingGroup()
   }
 
   func windowsXOffset(for scope: Scope) -> CGFloat {

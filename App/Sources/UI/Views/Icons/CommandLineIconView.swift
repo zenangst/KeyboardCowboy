@@ -80,7 +80,6 @@ struct CommandLineIconView: View {
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
-      .drawingGroup()
   }
 }
 

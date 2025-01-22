@@ -32,7 +32,6 @@ struct WindowManagementIconView: View {
     .iconShape(size)
     .frame(width: size, height: size)
     .fixedSize()
-    .drawingGroup()
   }
 }
 

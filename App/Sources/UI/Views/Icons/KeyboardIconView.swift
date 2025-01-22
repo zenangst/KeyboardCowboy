@@ -41,7 +41,6 @@ struct KeyboardIconView: View {
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
-      .drawingGroup()
 //      .background(
 //        Rectangle()
 //          .fill(Color.black.opacity( colorScheme == .light ? 0.33 : 0.9 ))

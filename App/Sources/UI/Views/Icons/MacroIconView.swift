@@ -82,7 +82,6 @@ struct MacroIconView: View {
       .frame(width: size, height: size)
       .fixedSize()
       .iconShape(size)
-      .drawingGroup()
   }
 
   @ViewBuilder

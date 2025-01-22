@@ -26,7 +26,6 @@ struct PrivacyIconView: View {
           .rotationEffect(.degrees(45), anchor: .center)
       }
     }
-    .drawingGroup()
   }
 }
 
