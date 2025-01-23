@@ -34,7 +34,7 @@ struct WorkflowShortcutsView: View {
         focus.wrappedValue = .detail(.name)
       }
     })
-    .roundedContainer(padding: 2, margin: 0)
+    .roundedContainer(6, padding: 0, margin: 0)
     .frame(minHeight: 42, maxHeight: 42)
     .onChange(of: data, perform: { newValue in
       onUpdate(newValue)

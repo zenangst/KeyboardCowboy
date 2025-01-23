@@ -34,6 +34,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     }
   }
 
+  @ObserveInjection var inject
   private var focus: FocusState<T?>.Binding
   @Environment(\.controlActiveState) private var controlActiveState
   @EnvironmentObject private var recorderStore: KeyShortcutRecorderStore
@@ -231,6 +232,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
         break
       }
     })
+    .enableInjection()
   }
 
   private func handleEdit(_ id: KeyShortcut.ID) {
@@ -246,11 +248,11 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
   @ViewBuilder
   private func overlay(_ proxy: ScrollViewProxy) -> some View {
     ZStack {
-      RoundedRectangle(cornerRadius: 7)
+      RoundedRectangle(cornerRadius: 6)
         .stroke(isGlowing
                 ? Color(.systemRed) .opacity(0.5)
-                : Color.clear, lineWidth: 1)
-        .padding(1)
+                : Color.clear, lineWidth: 2)
+        .shadow(color: Color(.systemRed).opacity(isGlowing ? 1 : 0), radius: 6)
         .animation(Animation
           .easeInOut(duration: 1.25)
           .repeatForever(autoreverses: true), value: isGlowing)
@@ -279,7 +281,6 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
       })
       .buttonStyle(.positive)
       .fixedSize(horizontal: false, vertical: true)
-      .padding(4)
       .opacity(keyboardShortcuts.isEmpty ? 1 : 0)
     }
   }
