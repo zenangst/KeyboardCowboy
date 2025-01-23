@@ -39,6 +39,8 @@ final class MainWindow: NSObject, NSWindowDelegate {
       window.center()
     }
     window.toolbarStyle = .unifiedCompact
+    window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+    window.standardWindowButton(.zoomButton)?.isHidden = true
     window.orderFrontRegardless()
     window.makeKeyAndOrderFront(nil)
     KeyboardCowboyApp.activate(setActivationPolicy: true)
