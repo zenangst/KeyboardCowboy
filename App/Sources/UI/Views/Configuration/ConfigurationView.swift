@@ -38,7 +38,6 @@ struct ConfigurationView: View {
           .allowsTightening(true)
           .contentShape(Rectangle())
       }
-      .menuStyle(.regular)
 
       Menu(content: {
         Button("New Configuration", action: {
@@ -58,7 +57,6 @@ struct ConfigurationView: View {
         Image(systemName: "ellipsis.circle")
           .resizable()
       })
-      .menuStyle(.zen(.init(color: .systemGreen, grayscaleEffect: .constant(true))))
       .fixedSize()
       .popover(isPresented: $deleteConfigurationPopover,
                arrowEdge: .bottom,

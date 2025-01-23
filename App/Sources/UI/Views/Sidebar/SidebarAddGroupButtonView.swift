@@ -23,7 +23,6 @@ struct SidebarAddGroupButtonView: View {
         Text("Add Group")
           .font(.caption)
       })
-      .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true), padding: .small)))
       .matchedGeometryEffect(id: "add-group-button", in: namespace)
       .help("Add new Group")
     }

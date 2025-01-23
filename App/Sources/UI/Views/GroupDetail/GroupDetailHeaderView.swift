@@ -11,8 +11,6 @@ struct GroupDetailHeaderView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      ZenLabel("Group", style: .content)
-        .frame(maxWidth: .infinity, alignment: .leading)
       HStack(spacing: 8) {
         GroupIconView(color: groupPublisher.data.color, icon: groupPublisher.data.icon, symbol: groupPublisher.data.symbol)
           .frame(width: 25, height: 25)

@@ -3,6 +3,7 @@ import Bonzai
 
 struct GroupDetailAddButton: View {
   @EnvironmentObject private var contentPublisher: GroupDetailPublisher
+  @EnvironmentObject private var groupPublisher: GroupPublisher
 
   private let namespace: Namespace.ID
   private let onAction: () -> Void
@@ -18,7 +19,8 @@ struct GroupDetailAddButton: View {
         .font(.caption)
     }
     .help("Add new Workflow")
-    .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true), padding: .small)))
+    .buttonStyle(.zen(.init(calm: true, color: .custom(Color(.init(hex: groupPublisher.data.color))),
+                            grayscaleEffect: .constant(true), padding: .small)))
     .matchedGeometryEffect(id: "add-workflow-button", in: namespace, isSource: true)
   }
 }

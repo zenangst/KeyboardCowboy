@@ -23,7 +23,6 @@ struct UserModesView: View {
             .font(.caption)
         })
         .help("Add a new User Mode")
-        .buttonStyle(.zen(.init(calm: true, color: .systemGreen, grayscaleEffect: .constant(true), padding: .small)))
         .popover(isPresented: $isAddingNew, arrowEdge: .bottom, content: {
           AddUserModeView(action: { newName in
             isAddingNew = false

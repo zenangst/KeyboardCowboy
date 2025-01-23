@@ -90,6 +90,7 @@ private struct GroupTextView: View {
 }
 
 private struct ContextualMenuView: View {
+  @ObserveInjection var inject
   @ObservedObject private var selectionManager: SelectionManager<GroupViewModel>
   private let group: GroupViewModel
   private let onAction: (GroupsList.Action) -> Void
@@ -106,14 +107,13 @@ private struct ContextualMenuView: View {
     let isSelected: Bool = selectionManager.selections.contains(group.id)
 
     Menu(content: { contextualMenu(for: group, onAction: onAction) }) {
-      Image(systemName: "ellipsis.circle")
-        .resizable()
-        .aspectRatio(1, contentMode: .fit)
-        .frame(height: 12)
     }
     .opacity(isSelected ? 1 : 0)
     .frame(maxWidth: isSelected ? nil : 0)
     .buttonStyle(.plain)
+    .menuStyle(.zen(.init(calm: true, color: .custom(Color(.init(hex: group.color))), padding: .small)))
+    .fixedSize()
+    .enableInjection()
   }
 
   @ViewBuilder
