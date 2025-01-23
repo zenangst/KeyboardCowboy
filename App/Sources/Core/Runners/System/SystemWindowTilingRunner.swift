@@ -398,16 +398,9 @@ final class SystemWindowTilingRunner {
   }
 
   static func calculateTiling(for rect: CGRect, ownerName: String? = nil, in screenFrame: CGRect) -> WindowTiling {
-    let windowSpacing: CGFloat
-    if UserDefaults(suiteName: "com.apple.WindowManager")?.bool(forKey: "EnableTiledWindowMargins") == false {
-      windowSpacing = 0
-    } else {
-      windowSpacing = max(CGFloat(UserDefaults(suiteName: "com.apple.WindowManager")?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
-    }
-
+    let windowSpacing: CGFloat = UserSettings.WindowManager.tiledWindowSpacing
     let screenInsetFrame = screenFrame.insetBy(dx: windowSpacing, dy: windowSpacing)
     let delta = screenInsetFrame.delta(rect)
-
     let halfWidth = Int(screenInsetFrame.width / 2 + screenFrame.origin.x)
     let halfHeight = Int(screenInsetFrame.height / 2 + screenFrame.origin.y)
     let centerX = Int(rect.midX)

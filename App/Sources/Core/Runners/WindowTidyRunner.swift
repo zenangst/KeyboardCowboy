@@ -101,8 +101,7 @@ final class WindowTidyRunner: Sendable {
     }
 
     var menuItems = [MenuBarItemAccessibilityElement]()
-    let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager")
-    let windowSpacing = max(CGFloat(userDefaults?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
+    let windowSpacing = UserSettings.WindowManager.tiledWindowSpacing
     var shouldActivateLastWindow: Bool = false
     var lastAxWindow: WindowAccessibilityElement?
     for (offset, window) in windows.enumerated() {
@@ -149,8 +148,7 @@ final class WindowTidyRunner: Sendable {
   private func multipleApps(rules: [WindowTidyCommand.Rule], windows: [WindowModel],
                             visibleScreenFrame: CGRect, snapshot: UserSpace.Snapshot) async {
     let currentWindow = windows[0]
-    let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager")
-    let windowSpacing = max(CGFloat(userDefaults?.float(forKey: "TiledWindowSpacing") ?? 8), 0)
+    let windowSpacing = UserSettings.WindowManager.tiledWindowSpacing
     let activeWindows: Array<WindowModel> = windows.reversed()
 
     var apps: [Int: AppContainer] = [:]

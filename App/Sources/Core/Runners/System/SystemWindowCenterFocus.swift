@@ -42,18 +42,8 @@ final class SystemWindowCenterFocus: @unchecked Sendable {
       initialWindows = indexWindowsInStage(getWindows(), targetRect: targetRect)
     }
 
-    guard let userDefaults = UserDefaults(suiteName: "com.apple.WindowManager") else {
-      return
-    }
-
     let screenFrame = screen.visibleFrame.mainDisplayFlipped
-
-    let windowSpacing: CGFloat
-    if userDefaults.bool(forKey: "EnableTiledWindowMargins") == false {
-      windowSpacing = 0
-    } else {
-      windowSpacing = max(CGFloat(userDefaults.float(forKey: "TiledWindowSpacing")), 0)
-    }
+    let windowSpacing: CGFloat = UserSettings.WindowManager.tiledWindowSpacing
     // These are used to figure out if the window is using window tiling or not
     let minX = screenFrame.minX + windowSpacing
     let maxX = screenFrame.maxX - (windowSpacing * 2)

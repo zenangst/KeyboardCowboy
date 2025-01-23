@@ -120,7 +120,7 @@ final class SystemWindowRelativeFocus {
       }
 
       // Adjust the clickpoint if tiled window borders are enabled..
-      if UserDefaults(suiteName: "com.apple.WindowManager")?.bool(forKey: "ShowTiledWindowBorder") == true {
+      if UserSettings.WindowManager.tiledWindowBorder {
         clickPoint.y += 4
       }
 
