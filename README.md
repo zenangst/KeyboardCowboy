@@ -83,6 +83,8 @@ In addition, macOS comes with built in security, so Keyboard Cowboy will be disa
 
 We don't stalk you, we don't collect your data, we don't sell your data. We don't even know who you are. But we care about your privacy and security. ❤️
 
+## Activity
+![Alt](https://repobeats.axiom.co/api/embed/a24566b5434dc50aec19581d28f9a406ed46de05.svg "Repobeats analytics image")
 
 ## Development
 
