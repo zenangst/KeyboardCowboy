@@ -11,7 +11,6 @@ struct CurrentUserModesView: View {
         Text(mode.name)
           .font(.caption)
       })
-      .buttonStyle(.zen(ZenStyleConfiguration(hoverEffect: .constant(false))))
     }
     .padding(4)
   }

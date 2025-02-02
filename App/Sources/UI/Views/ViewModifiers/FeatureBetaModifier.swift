@@ -53,7 +53,6 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                     Button("GitHub issue: #\(issueNumber)") {
                       NSWorkspace.shared.open(URL(string: "https://github.com/zenangst/KeyboardCowboy/issues/\(issueNumber)")!)
                     }
-                    .buttonStyle(.regular)
                   }
                 }
               }
@@ -66,7 +65,6 @@ struct FeatureBetaModifier<BetaView>: ViewModifier where BetaView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                 })
-                .buttonStyle(.zen(.init(color: .systemGray, grayscaleEffect: .constant(true))))
                 .frame(width: 16, alignment: .top)
                 .padding([.top, .trailing], 8)
                 Spacer()

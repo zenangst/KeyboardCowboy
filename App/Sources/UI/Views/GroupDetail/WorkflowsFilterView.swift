@@ -31,18 +31,16 @@ struct WorkflowsFilterView: View {
               : "line.3.horizontal.decrease.circle.fill")
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .foregroundColor(Color(nsColor:ZenColorPublisher.shared.color.nsColor))
+        .foregroundColor(ColorPublisher.shared.color)
         .frame(width: 12)
         TextField("Filter", text: $searchTerm)
-          .textFieldStyle(
-            .zen(.init(
-              calm: true,
-              color: ZenColorPublisher.shared.color,
-              backgroundColor: Color(nsColor: .clear),
-              font: .caption2,
-              padding: .small,
-              unfocusedOpacity: 0))
-          )
+          .textFieldStyle({ style in
+            style.calm = true
+            style.foregroundColor = ColorPublisher.shared.color
+            style.font = .caption2
+            style.padding = .small
+            style.unfocusedOpacity = 0
+          })
           .focused(focus, equals: .search)
           .onExitCommand(perform: {
             searchTerm = ""
@@ -62,7 +60,9 @@ struct WorkflowsFilterView: View {
         searchTerm = ""
         onClear()
       }, label: { Text("Clear") })
-      .buttonStyle(.calm(color: .systemGray, padding: .small))
+      .buttonStyle { style in
+        style.backgroundColor = .systemGray
+      }
       .font(.caption2)
       .opacity(!searchTerm.isEmpty ? 1 : 0)
       .frame(width: searchTerm.isEmpty ? 0 : nil, height: 25)

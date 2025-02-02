@@ -28,12 +28,11 @@ struct Release3_25_1: View {
         SupportersView()
           .frame(height: 125)
       }
-      .roundedContainer(padding: 0, margin: 16)
+      .roundedStyle(padding: 0)
       .padding(.top, 8)
 
       HStack(spacing: 8) {
         Button(action: { action(.done) }, label: { Text("To the Moon! 🚀🌘") })
-          .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
       }
       .padding(.bottom, 32)
     }
@@ -306,7 +305,9 @@ private struct ChangesView: View {
                 Text(change.version.rawValue)
                   .font(.caption)
               })
-              .buttonStyle(.zen(.init(color: .custom(change.version.color))))
+              .buttonStyle { style in
+                style.backgroundColor = change.version.color
+              }
               .padding(.trailing, 4)
             }
           }
@@ -442,11 +443,11 @@ private struct SupporterView: View {
       }
     }
     .padding(2)
-    .buttonStyle(.zen(.init(
-      calm: true,
-      color: .accentColor,
-      focusEffect: .constant(false),
-      padding: .small)))
+    .buttonStyle { style in
+        style.calm = true
+        style.backgroundColor = .accentColor
+        style.focusEffect = false
+    }
   }
 }
 

@@ -16,6 +16,7 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   private var keyMonitor: Any?
   private var windows: [WindowModel] = []
   private var filterTask: Task<Void, any Error>?
+  private var shouldCloseOnResignKey: Bool = false
 
   private let bundledRunner: BundledCommandRunner
   private let commandRunner: CommandRunner
@@ -36,13 +37,13 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
       return
     }
 
+    refreshWindows()
 
     let window = createWindow()
     window.orderFrontRegardless()
     window.makeKeyAndOrderFront(nil)
     window.center()
 
-    refreshWindows()
     self.window = window
     self.subscription = subscribe(to: publisher.$query)
   }
@@ -58,10 +59,10 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
   }
 
   func windowDidResignKey(_ notification: Notification) {
-    if let keyMonitor {
-      NSEvent.removeMonitor(keyMonitor)
+    removeMonitorIfNeeded()
+    if shouldCloseOnResignKey {
+      window?.close()
     }
-    window?.close()
   }
 
   func windowWillClose(_ notification: Notification) {
@@ -70,22 +71,35 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
 
   // MARK: Private methods
 
-  private func refreshWindows() {
-    let onScreenWindows = WindowStore.shared.getWindows(onScreen: true)
-    let ids = Set(onScreenWindows.map(\.windowNumber))
-    let notOnScreenWindows = WindowStore.shared.getWindows(onScreen: false)
-      .filter({ !ids.contains($0.windowNumber) })
-    let rawWindows = onScreenWindows + notOnScreenWindows
-    let windows = WindowStore.shared.allApplicationsInSpace(rawWindows, onScreen: false, sorted: false)
+  private func removeMonitorIfNeeded() {
+    if let keyMonitor {
+      NSEvent.removeMonitor(keyMonitor)
+    }
+  }
 
-    self.filter(windows, query: publisher.query)
-    self.windows = windows
+  private func refreshWindows(updateSelection: Bool = true) {
+    Task(priority: .userInitiated) {
+      if !windows.isEmpty {
+        self.filter(windows, query: publisher.query)
+      }
+
+      let onScreenWindows = WindowStore.shared.getWindows(onScreen: true)
+      let ids = Set(onScreenWindows.map(\.windowNumber))
+      let notOnScreenWindows = WindowStore.shared.getWindows(onScreen: false)
+        .filter({ !ids.contains($0.windowNumber) })
+      let rawWindows = onScreenWindows + notOnScreenWindows
+      let windows = WindowStore.shared.allApplicationsInSpace(rawWindows, onScreen: false, sorted: false)
+
+      if windows != self.windows {
+        self.windows = windows
+      }
+    }
   }
 
   private func subscribe(to target: Published<String>.Publisher) -> AnyCancellable {
     target
       .dropFirst()
-      .debounce(for: .milliseconds(100), scheduler: RunLoop.main)
+      .debounce(for: .milliseconds(75), scheduler: RunLoop.main)
       .sink { [weak self] newValue in
       guard let self else { return }
       self.filter(windows, query: newValue)
@@ -109,6 +123,11 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         if !event.isARepeat,
             event.type == .keyDown, let currentSelection = getCurrentSelection(),
            let runningApplication = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == currentSelection.app.bundleIdentifier }) {
+
+          if currentSelection.app.bundleIdentifier == NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
+            shouldCloseOnResignKey = false
+          }
+
           if runningApplication.terminate() {
             Task.detached { [weak self] in
               var waiting = true
@@ -116,7 +135,12 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
               while waiting {
                 if NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == currentSelection.app.bundleIdentifier }) == false {
                   waiting = false
-                  await self?.refreshWindows()
+                  await self?.refreshWindows(updateSelection: false)
+                  await MainActor.run { [weak self] in
+                    self?.shouldCloseOnResignKey = true
+                    self?.window?.orderFrontRegardless()
+                    self?.window?.makeKeyAndOrderFront(nil)
+                  }
                 }
                 timeout -= 1
 
@@ -217,13 +241,15 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
     return currentIndex
   }
 
-  private func filter(_ windows: [WindowModel], query: String) {
+  private func filter(_ windows: [WindowModel], query: String, updateSelection: Bool = true) {
     let items = self.createItems(from: windows)
 
     if query.isEmpty {
-      publisher.publish(items)
-      if let initialSelections = items.prefix(2).last?.id {
-        publisher.publish([initialSelections])
+      if publisher.items != items {
+        publisher.publish(items)
+        if let initialSelections = items.prefix(2).last?.id {
+          publisher.publish([initialSelections])
+        }
       }
     } else {
       let words = Set(publisher.query.components(separatedBy: " ")
@@ -279,8 +305,11 @@ final class WindowSwitcherWindow: NSObject, NSWindowDelegate {
         }
       filtered.append(contentsOf: appItems)
 
-      publisher.publish(filtered)
-      if needsSelectionUpdate, let first = filtered.first?.id {
+      if filtered != publisher.items {
+        publisher.publish(filtered)
+      }
+
+      if updateSelection, needsSelectionUpdate, let first = filtered.first?.id {
         publisher.selections = [first]
       }
     }

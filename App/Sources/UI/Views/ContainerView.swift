@@ -132,6 +132,6 @@ struct ContainerView_Previews: PreviewProvider {
       commandPublisher: DesignTime.commandsPublisher
     ) { _, _ in }
       .designTime()
-      .frame(height: 800)
+      .frame(width: 900, height: 800)
   }
 }

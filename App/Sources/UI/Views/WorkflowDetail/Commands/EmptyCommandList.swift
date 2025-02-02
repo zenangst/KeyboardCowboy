@@ -25,37 +25,36 @@ struct EmptyCommandList: View {
 
   var body: some View {
     VStack {
-      FocusableButton(
-        focus,
-        identity: .detail(.addCommand),
-        variant: .zen(.init(color: .systemGreen,
-                            focusEffect: .constant(true),
-                            grayscaleEffect: .readonly { !isPrimary.wrappedValue },
-                            hoverEffect: .readonly { !isPrimary.wrappedValue })),
-        action: {
-          openWindow.openNewCommandWindow(.newCommand(workflowId: workflowId))
+      FocusableButton(focus, identity: .detail(.addCommand), action: {
+        openWindow.openNewCommandWindow(.newCommand(workflowId: workflowId))
+      }, label: {
+        HStack(spacing: 4) {
+          Text("⌘N")
+            .font(Font.system(size: 8, weight: .semibold))
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .background(
+              RoundedRectangle(cornerRadius: 4)
+                .stroke(Color(nsColor: .systemGreen.blended(withFraction: 0.3, of: .black)!), lineWidth: 1)
+                .opacity(0.5)
+            )
+
+          Divider()
+            .opacity(0.5)
+
+          Text("Add Command")
         }
-      )
-         {
-           HStack(spacing: 4) {
-             Text("⌘N")
-               .font(Font.system(size: 8, weight: .semibold))
-               .padding(.horizontal, 4)
-               .padding(.vertical, 2)
-               .background(
-                RoundedRectangle(cornerRadius: 4)
-                  .stroke(Color(nsColor: .systemGreen.blended(withFraction: 0.3, of: .black)!), lineWidth: 1)
-                  .opacity(0.5)
-               )
-
-             Divider()
-               .opacity(0.5)
-
-             Text("Add Command")
-           }
+      })
+      .buttonStyle { button in
+        button.grayscaleEffect = false
+        button.hoverEffect = true
+        button.font = .body
+        button.padding = .large
+        button.backgroundColor = .systemGreen
+        button.unfocusedOpacity = 0.8
       }
-         .fixedSize()
-         .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
+      .fixedSize()
+      .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
     }
     .dropDestination(CommandListDropItem.self, color: .accentColor, onDrop: { items, location in
       var urls = [URL]()

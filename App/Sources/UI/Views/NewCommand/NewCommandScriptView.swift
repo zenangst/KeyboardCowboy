@@ -1,7 +1,10 @@
 import SwiftUI
+import Inject
 import Bonzai
 
 struct NewCommandScriptView: View {
+  @ObserveInjection var inject
+
   enum Kind: String, CaseIterable, Hashable, Identifiable {
     var id: String { rawValue }
     case file = "File"
@@ -54,7 +57,6 @@ struct NewCommandScriptView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
 
       HStack {
@@ -87,7 +89,6 @@ struct NewCommandScriptView: View {
           }
         })
       }
-      .menuStyle(.regular)
       .padding(.vertical, 8)
 
       switch kind {
@@ -109,7 +110,6 @@ struct NewCommandScriptView: View {
         .overlay(NewCommandValidationView($validation))
       }
     }
-    .menuStyle(.regular)
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       validation = updateAndValidatePayload()
@@ -117,6 +117,7 @@ struct NewCommandScriptView: View {
     .onAppear {
       validation = .unknown
     }
+    .enableInjection()
   }
 
   @discardableResult
@@ -154,7 +155,6 @@ struct NewCommandFileSelectorView: View {
   var body: some View {
     HStack {
       TextField("Path", text: $path)
-        .textFieldStyle(FileSystemTextFieldStyle())
         .onChange(of: path) { newPath in
           onPathChange(newPath)
         }
@@ -164,12 +164,6 @@ struct NewCommandFileSelectorView: View {
           onPathChange(newPath)
         }))
       })
-      .buttonStyle(.zen(.init(color: .systemBlue)))
-    }
-    .padding(4)
-    .background {
-      RoundedRectangle(cornerRadius: 4)
-        .stroke(Color(.white).opacity(0.2), lineWidth: 1)
     }
   }
 }
@@ -198,6 +192,7 @@ struct NewCommandScriptSourceView: View {
       onCommandReturnKey: onSubmit
     )
       .onChange(of: text, perform: onChange)
+      .roundedStyle(padding: 8)
   }
 }
 

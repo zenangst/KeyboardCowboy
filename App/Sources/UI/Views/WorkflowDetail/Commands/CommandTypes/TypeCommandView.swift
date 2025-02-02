@@ -50,27 +50,27 @@ struct TypeCommandView: View {
             case .none:         Text("None").font(.caption)
             }
           }
-          .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
           .fixedSize()
 
 
           Spacer()
 
           HStack {
-            ZenCheckbox("", style: .small, isOn: $insertEnter) { newValue in
-              updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-                guard case .text(let textCommand) = command else { return }
-                switch textCommand.kind {
-                case .insertText(var typeCommand):
-                  if typeCommand.actions.contains(.insertEnter) {
-                    typeCommand.actions.remove(.insertEnter)
-                  } else {
-                    typeCommand.actions.insert(.insertEnter)
+            Toggle(isOn: $insertEnter, label: {})
+              .onChange(of: insertEnter) { newValue in
+                updater.modifyCommand(withID: metaData.id, using: transaction) { command in
+                  guard case .text(let textCommand) = command else { return }
+                  switch textCommand.kind {
+                  case .insertText(var typeCommand):
+                    if typeCommand.actions.contains(.insertEnter) {
+                      typeCommand.actions.remove(.insertEnter)
+                    } else {
+                      typeCommand.actions.insert(.insertEnter)
+                    }
+                    command = .text(.init(.insertText(typeCommand)))
                   }
-                  command = .text(.init(.insertText(typeCommand)))
                 }
               }
-            }
             Text(TextCommand.TypeCommand.Action.insertEnter.displayValue)
           }
 
@@ -103,7 +103,7 @@ private struct TypeCommandContentView: View {
 
   var body: some View {
     ZenTextEditor(
-      color: ZenColorPublisher.shared.color,
+      color: ColorPublisher.shared.color,
       text: $model.input,
       placeholder: "Enter text...", onCommandReturnKey: nil)
     .onChange(of: model.input) { newValue in
@@ -144,9 +144,7 @@ fileprivate struct TypeCommandModeView: View {
     }, label: {
       Image(systemName: mode.symbol)
       Text(mode.rawValue)
-        .font(.subheadline)
     })
-    .menuStyle(.regular)
     .fixedSize()
   }
 }

@@ -41,7 +41,7 @@ struct WorkflowSnippetTriggerView: View {
       }
     })
     .fixedSize(horizontal: false, vertical: true)
-    .roundedContainer(padding: 8, margin: 0)
+    .roundedStyle()
   }
 }
 

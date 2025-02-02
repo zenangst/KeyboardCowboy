@@ -19,8 +19,10 @@ struct GroupDetailAddButton: View {
         .font(.caption)
     }
     .help("Add new Workflow")
-    .buttonStyle(.zen(.init(calm: true, color: .custom(Color(.init(hex: groupPublisher.data.color))),
-                            grayscaleEffect: .constant(true), padding: .small)))
+    .buttonStyle { style in
+      style.calm = true
+      style.backgroundColor = Color(.init(hex: groupPublisher.data.color))
+    }
     .matchedGeometryEffect(id: "add-workflow-button", in: namespace, isSource: true)
   }
 }

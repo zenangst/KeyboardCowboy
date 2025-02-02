@@ -267,7 +267,7 @@ private struct ActionPackedView: View {
         KeyboardIconView("♾️", size: 46)
         AppPeekIcon(size: 46)
       }
-      .roundedContainer(margin: 0)
+      .roundedStyle()
     }
   }
 }
@@ -426,7 +426,6 @@ private struct KeyboardCowboyView: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
         }
-        .buttonStyle(.positive)
         Spacer()
       }
     }

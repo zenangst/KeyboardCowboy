@@ -1,8 +1,11 @@
 import Apps
+import Inject
 import SwiftUI
 import Bonzai
 
 struct NewCommandApplicationView: View {
+  @ObserveInjection var inject
+
   enum ApplicationAction: String, CaseIterable {
     case open  = "Open"
     case close = "Close"
@@ -20,6 +23,7 @@ struct NewCommandApplicationView: View {
   @State private var hideWhenRunning: Bool
   @State private var ifNotRunning: Bool
   @State private var waitForAppToLaunch: Bool
+  @State private var addToStage: Bool
 
   @Binding var payload: NewCommandPayload
   @Binding private var validation: NewCommandValidation
@@ -31,6 +35,7 @@ struct NewCommandApplicationView: View {
        hideWhenRunning: Bool,
        ifNotRunning: Bool,
        waitForAppToLaunch: Bool,
+       addToStage: Bool,
        validation: Binding<NewCommandValidation>) {
     _application = .init(initialValue: application)
     _action = .init(initialValue: action)
@@ -39,6 +44,7 @@ struct NewCommandApplicationView: View {
     _inBackground = .init(initialValue: inBackground)
     _hideWhenRunning = .init(initialValue: hideWhenRunning)
     _ifNotRunning = .init(initialValue: ifNotRunning)
+    _addToStage = .init(initialValue: addToStage)
     _waitForAppToLaunch = .init(initialValue: waitForAppToLaunch)
   }
 
@@ -49,7 +55,6 @@ struct NewCommandApplicationView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
 
       HStack {
@@ -98,34 +103,40 @@ struct NewCommandApplicationView: View {
           .allowsHitTesting(false)
         })
       }
-      .menuStyle(.zen(.init(color: .systemGray,
-                            padding: .init(horizontal: .large, vertical: .large))))
 
       Divider()
 
-      HStack {
-        ZenCheckbox("In background", style: .small, isOn: $inBackground) { _ in
-         updateAndValidatePayload()
+      Grid(alignment: .leading, verticalSpacing: 2) {
+        GridRow {
+          Toggle(isOn: $inBackground, label: { Text("In Background") })
+            .onChange(of: inBackground, perform: { _ in updateAndValidatePayload() })
+          Toggle(isOn: $hideWhenRunning, label: { Text("Hide when opening") })
+            .onChange(of: hideWhenRunning, perform: { _ in updateAndValidatePayload() })
+          Toggle(isOn: $ifNotRunning, label: { Text("If not running") })
+            .onChange(of: ifNotRunning, perform: { _ in updateAndValidatePayload() })
         }
-        ZenCheckbox("Hide when opening", style: .small, isOn: $hideWhenRunning) { _ in
-          updateAndValidatePayload()
-         }
-        ZenCheckbox("If not running", style: .small, isOn: $ifNotRunning) { _ in
-          updateAndValidatePayload()
-         }
-        ZenCheckbox("Wait for app to launch", style: .small, isOn: $waitForAppToLaunch) { _ in
-          updateAndValidatePayload()
+        GridRow {
+          Toggle(isOn: $addToStage, label: { Text("Add to Stage") })
+            .onChange(of: addToStage, perform: { _ in updateAndValidatePayload() })
+
+          Toggle(isOn: $waitForAppToLaunch, label: { Text("Wait for App to Launch") })
+            .onChange(of: waitForAppToLaunch, perform: { _ in updateAndValidatePayload() })
+
+          Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
       }
       .onChange(of: validation) { newValue in
         guard newValue == .needsValidation else { return }
         validation = updateAndValidatePayload()
       }
+      .frame(maxHeight: 36)
     }
     .overlay(NewCommandValidationView($validation).padding(-16))
     .onAppear {
       validation = .unknown
     }
+    .enableInjection()
   }
 
   @discardableResult
@@ -137,7 +148,8 @@ struct NewCommandApplicationView: View {
                            inBackground: inBackground,
                            hideWhenRunning: hideWhenRunning,
                            ifNotRunning: ifNotRunning,
-                           waitForAppToLaunch: waitForAppToLaunch)
+                           waitForAppToLaunch: waitForAppToLaunch,
+                           addToStage: addToStage)
     return .valid
   }
 }

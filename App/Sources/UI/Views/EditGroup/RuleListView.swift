@@ -1,8 +1,10 @@
 import Apps
+import Inject
 import SwiftUI
 import Bonzai
 
 struct RuleListView: View {
+  @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @Binding var group: WorkflowGroup
 
@@ -10,7 +12,6 @@ struct RuleListView: View {
     VStack(alignment: .leading) {
       if let rule = group.rule {
         ForEach(rule.bundleIdentifiers, id: \.self) { bundleIdentifier in
-          Divider()
           HStack {
             Group {
               if let application = applicationStore.dictionary[bundleIdentifier] {
@@ -21,7 +22,6 @@ struct RuleListView: View {
                 Text(bundleIdentifier)
               }
             }
-            .padding(.leading)
             Spacer()
             Button(action: {
               group.rule?.bundleIdentifiers.removeAll(where: { $0 == bundleIdentifier })
@@ -29,9 +29,11 @@ struct RuleListView: View {
             }, label: {
               Image(systemName: "trash")
             })
-            .buttonStyle(.calm(color: .systemRed, padding: .medium))
-            .padding(.trailing)
+            .buttonStyle(.destructive)
           }
+          .style(.item)
+          .style(.derived)
+          ZenDivider()
         }
       } else {
         VStack {
@@ -40,6 +42,7 @@ struct RuleListView: View {
         }
       }
     }
+    .enableInjection()
   }
 }
 

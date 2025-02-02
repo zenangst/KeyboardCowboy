@@ -4,7 +4,6 @@ import SwiftUI
 struct ConfigurationHeaderView: View {
   var body: some View {
     ZenLabel(.sidebar) { Text("Configuration") }
-      .padding(.top, 6)
   }
 }
 

@@ -56,16 +56,14 @@ struct PermissionsView: View {
         Button("View source code", action: {
           onAction(.github)
         })
-        .buttonStyle(.calm(color: .systemGreen, padding: .medium))
         Spacer()
 
         Button("Request permission", action: {
           done.toggle()
           onAction(.requestPermissions)
         })
-        .buttonStyle(.positive)
       }
-      .roundedContainer()
+      .roundedStyle()
     }
     .compositingGroup()
     .frame(minHeight: 560, maxHeight: .infinity, alignment: .top)

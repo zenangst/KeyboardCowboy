@@ -98,7 +98,7 @@ final class WindowOpener: ObservableObject {
             command = .shortcut(.init(id: resolvedCommandId, shortcutIdentifier: name,
                                       name: name, isEnabled: true, notification: nil))
           case .application(let application, let action,
-                            let inBackground, let hideWhenRunning, let ifNotRunning, let waitForAppToLaunch):
+                            let inBackground, let hideWhenRunning, let ifNotRunning, let waitForAppToLaunch, let addToStage):
             assert(application != nil)
             guard let application else {
               return
@@ -109,6 +109,7 @@ final class WindowOpener: ObservableObject {
             if hideWhenRunning { modifiers.append(.hidden) }
             if ifNotRunning { modifiers.append(.onlyIfNotRunning) }
             if waitForAppToLaunch { modifiers.append(.waitForAppToLaunch) }
+            if addToStage { modifiers.append(.addToStage) }
 
             let commandAction: ApplicationCommand.Action = switch action {
             case .close:  .close

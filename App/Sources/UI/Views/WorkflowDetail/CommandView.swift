@@ -1,4 +1,5 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct CommandView: View {
@@ -7,6 +8,7 @@ struct CommandView: View {
     let commandId: CommandViewModel.ID
   }
 
+  @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject var openWindow: WindowOpener
@@ -37,8 +39,8 @@ struct CommandView: View {
           command.isEnabled = newValue
         }
       })
+      .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(command.id) }, cornerRadius: 8))
       .style(.item)
-      .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(command.id) }, cornerRadius: 6))
       .compositingGroup()
       .draggable($command.wrappedValue)
       .environmentObject(selectionManager)
@@ -46,6 +48,7 @@ struct CommandView: View {
       .grayscale(command.meta.isEnabled ? controlActiveState == .key ? 0 : 0.25 : 0.5)
       .opacity(command.meta.isEnabled ? 1 : 0.5)
       .animation(.easeIn(duration: 0.2), value: command.meta.isEnabled)
+      .enableInjection()
   }
 }
 

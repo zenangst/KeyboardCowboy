@@ -50,7 +50,6 @@ struct WindowManagementCommandView: View {
             case .none:         Text("None").font(.caption)
             }
           }
-          .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
           .fixedSize()
 
           Spacer()
@@ -132,14 +131,11 @@ struct WindowManagementCommandInternalView: View {
           Text(model.kind.displayValue)
             .font(.subheadline)
         })
-        .menuStyle(.regular)
       }
 
       switch model.kind {
-      case  .increaseSize(_, let direction, _, _),
-          .decreaseSize(_, let direction, _),
-          .move(_, let direction, _, _),
-          .anchor(let direction, _):
+      case .increaseSize, .decreaseSize,
+           .move, .anchor:
         HStack(spacing: 16) {
           let models = WindowCommand.Direction.allCases
           LazyVGrid(columns: (0..<3).map {
@@ -177,9 +173,6 @@ struct WindowManagementCommandInternalView: View {
                   .frame(width: 10, height: 14)
                   .font(.subheadline)
               }
-              .buttonStyle(
-                .zen(.init(color: element == direction ? .systemGreen : .systemGray))
-              )
             }
           })
           .fixedSize()
@@ -224,12 +217,6 @@ struct WindowManagementCommandInternalView: View {
                   model.kind = kind
                   performUpdate(kind)
                 })
-                .textFieldStyle(
-                  .zen(.init(backgroundColor: Color(.windowBackgroundColor),
-                             font: .caption,
-                             padding: .init(horizontal: .small, vertical: .small)
-                            ))
-                )
                 .fixedSize()
                 Text("Pixels")
                   .font(.caption)
@@ -270,12 +257,6 @@ struct WindowManagementCommandInternalView: View {
                 model.kind = kind
                 performUpdate(kind)
               })
-              .textFieldStyle(
-                .zen(.init(backgroundColor: Color(.windowBackgroundColor),
-                           font: .caption,
-                           padding: .init(horizontal: .small, vertical: .small)
-                          ))
-              )
               .fixedSize()
               Text("Padding").font(.caption)
             }
@@ -285,44 +266,41 @@ struct WindowManagementCommandInternalView: View {
                 EmptyView()
                 EmptyView()
               } else {
-                ZenCheckbox(
-                  style: .small,
-                  isOn: $constrainToScreen
-                ) { constrainedToScreen in
-                  let kind: WindowCommand.Kind
-                  switch model.kind {
-                  case .increaseSize(let pixels, let direction, let padding, _):
-                    kind = .increaseSize(
-                      by: pixels,
-                      direction: direction,
-                      padding: padding,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .decreaseSize(let pixels, let direction, _):
-                    kind = .decreaseSize(
-                      by: pixels,
-                      direction: direction,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .move(let pixels, let direction, let padding, _):
-                    kind = .move(
-                      by: pixels,
-                      direction: direction,
-                      padding: padding,
-                      constrainedToScreen: constrainedToScreen
-                    )
-                  case .anchor(let position, let padding):
-                    kind = .anchor(position: position, padding: padding)
-                  default:
-                    return
+
+                Toggle(isOn: $constrainToScreen, label: {})
+                  .onChange(of: constrainToScreen) { constrainedToScreen in
+                    let kind: WindowCommand.Kind
+                    switch model.kind {
+                    case .increaseSize(let pixels, let direction, let padding, _):
+                      kind = .increaseSize(
+                        by: pixels,
+                        direction: direction,
+                        padding: padding,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .decreaseSize(let pixels, let direction, _):
+                      kind = .decreaseSize(
+                        by: pixels,
+                        direction: direction,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .move(let pixels, let direction, let padding, _):
+                      kind = .move(
+                        by: pixels,
+                        direction: direction,
+                        padding: padding,
+                        constrainedToScreen: constrainedToScreen
+                      )
+                    case .anchor(let position, let padding):
+                      kind = .anchor(position: position, padding: padding)
+                    default:
+                      return
+                    }
+                    model.kind = kind
+                    performUpdate(kind)
                   }
-                  model.kind = kind
-                  performUpdate(kind)
-                }
-                .font(.caption)
-                .padding(.trailing, 4)
+
                 Text("Constrain to Screen")
-                  .font(.caption)
               }
             }
           }
@@ -341,15 +319,8 @@ struct WindowManagementCommandInternalView: View {
             model.kind = kind
             performUpdate(kind)
           })
-          .textFieldStyle(
-            .zen(.init(backgroundColor: Color(.windowBackgroundColor),
-                       font: .caption,
-                       padding: .init(horizontal: .small, vertical: .small)
-                      ))
-          )
           .fixedSize()
           Text("Padding")
-            .font(.caption)
         }
       default:
         EmptyView()

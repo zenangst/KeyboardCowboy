@@ -26,7 +26,6 @@ struct NewCommandTextView: View {
       Spacer()
       Button(action: { NSWorkspace.shared.open(wikiUrl) },
              label: { Image(systemName: "questionmark.circle.fill") })
-      .buttonStyle(.calm(color: .systemYellow, padding: .small))
     }
 
 
@@ -44,14 +43,13 @@ struct NewCommandTextView: View {
           Text("Insert Text")
         }
       })
-      .menuStyle(.regular)
     }
     .padding(.bottom, 8)
 
     switch kind {
     case .insertText:
       NewCommandTypeView($payload, validation: $validation, onSubmit: onSubmit)
-        .roundedContainer(margin: 0)
+        .roundedStyle()
     }
   }
 }

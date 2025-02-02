@@ -32,7 +32,6 @@ struct WindowTidyCommandView: View {
           Text("Add Application")
             .font(.caption)
         }
-        .menuStyle(.regular)
       }
       .padding(.horizontal, 4)
 
@@ -64,10 +63,6 @@ struct WindowTidyCommandView: View {
                   .lineLimit(1)
                   .font(.caption)
               }
-              .buttonStyle(.zen(.init(calm: true, color: .systemRed,
-                                      focusEffect: .constant(true),
-                                      grayscaleEffect: .constant(true),
-                                      hoverEffect: .constant(true))))
             }
             .padding(4)
             ZenDivider()
@@ -125,7 +120,6 @@ fileprivate struct TidyWindowTilingMenu: View {
         Text("Unassigned")
       }
     }
-    .menuStyle(.regular)
     .enableInjection()
   }
 }

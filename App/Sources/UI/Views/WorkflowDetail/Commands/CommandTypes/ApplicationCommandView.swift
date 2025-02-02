@@ -47,7 +47,6 @@ struct ApplicationCommandView: View {
           case .none:         Text("None").font(.caption)
           }
         }
-        .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
         .fixedSize()
       }
     )
@@ -131,7 +130,6 @@ private struct ApplicationCommandInternalView: View {
           .truncationMode(.middle)
           .allowsTightening(true)
       })
-      .menuStyle(.zen(.init(color: .systemGray)))
       .fixedSize()
       .compositingGroup()
 
@@ -140,51 +138,35 @@ private struct ApplicationCommandInternalView: View {
 
       Grid(alignment: .leading, verticalSpacing: 2) {
         GridRow {
-          HStack {
-            ZenCheckbox("", style: .small, isOn: $model.inBackground) { newValue in
-              updateModifier(.background, newValue: newValue)
-            }
-            Text("In background")
-          }
+          Toggle(isOn: $model.inBackground, label: { Text("In Background") })
+            .onChange(of: model.inBackground, perform: { newValue in updateModifier(.background, newValue: newValue) })
 
-          HStack {
-            ZenCheckbox("", style: .small, isOn: $model.hideWhenRunning) { newValue in
-              updateModifier(.hidden, newValue: newValue)
-            }
-            Text("Hide when opening")
-          }
+          Toggle(isOn: $model.hideWhenRunning, label: { Text("Hide when opening") })
+            .onChange(of: model.hideWhenRunning, perform: { newValue in updateModifier(.hidden, newValue: newValue) })
 
-          HStack {
-            ZenCheckbox("", style: .small, isOn: $model.ifNotRunning) { newValue in
-              updateModifier(.onlyIfNotRunning, newValue: newValue)
-            }
-            Text("If not running")
-          }
+          Toggle(isOn: $model.ifNotRunning, label: { Text("If not running") })
+            .onChange(of: model.ifNotRunning, perform: { newValue in updateModifier(.onlyIfNotRunning, newValue: newValue) })
+
         }
         GridRow {
-          HStack {
-            ZenCheckbox("", style: .small, isOn: $model.addToStage) { newValue in
-              updateModifier(.addToStage, newValue: newValue)
-            }
-            Text("Add to Stage")
-          }
+          Toggle(isOn: $model.addToStage, label: { Text("Add to Stage") })
+            .onChange(of: model.addToStage, perform: { newValue in updateModifier(.addToStage, newValue: newValue) })
 
-          HStack {
-            ZenCheckbox("", style: .small, isOn: $model.waitForAppToLaunch) { newValue in
-              updateModifier(.waitForAppToLaunch, newValue: newValue)
-            }
-            Text("Wait for App to Launch")
-          }
+          Toggle(isOn: $model.waitForAppToLaunch, label: { Text("Wait for App to Launch") })
+            .onChange(of: model.waitForAppToLaunch, perform: { newValue in updateModifier(.waitForAppToLaunch, newValue: newValue) })
+
           Spacer()
             .frame(maxWidth: .infinity, alignment: .leading)
         }
       }
+      .checkboxStyle { style in
+        style.font = .caption
+        style.style = .small
+      }
     }
-    .buttonStyle(.regular)
     .lineLimit(1)
     .allowsTightening(true)
     .truncationMode(.tail)
-    .font(.caption)
     .enableInjection()
   }
 
@@ -242,7 +224,6 @@ struct ApplicationCommandImageView: View {
     }, label: { })
     .contentShape(Rectangle())
     .menuStyle(IconMenuStyle())
-    .padding(4)
     .overlay(content: {
       IconView(icon: metaData.icon, size: iconSize)
         .fixedSize()
@@ -268,6 +249,9 @@ struct ApplicationCommandView_Previews: PreviewProvider {
       model: command.kind,
       iconSize: .init(width: 24, height: 24)
     )
-      .designTime()
+    .style(.section(.detail))
+    .style(.derived)
+    .designTime()
+    .frame(maxHeight: 116)
   }
 }

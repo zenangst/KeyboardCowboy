@@ -30,7 +30,6 @@ struct NewCommandValidationView: View {
                   .frame(width: 8, height: 8)
                   .aspectRatio(1, contentMode: .fit)
               })
-              .buttonStyle(.calm(color: .systemRed, padding: .medium))
             }
             .offset(.init(width: 0, height: validation.isInvalid ? 0 : 300))
             .animation(.easeInOut.delay(0.2), value: validation)

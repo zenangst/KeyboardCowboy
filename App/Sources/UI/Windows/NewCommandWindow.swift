@@ -34,7 +34,8 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     inBackground: false,
     hideWhenRunning: false,
     ifNotRunning: false,
-    waitForAppToLaunch: false)
+    waitForAppToLaunch: false,
+    addToStage: false)
 
   init(context: NewCommandWindow.Context,
        contentStore: ContentStore,
@@ -77,7 +78,7 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
 
     window.animationBehavior = .documentWindow
 
-    let size = window.hostingController.sizeThatFits(in: .init(width: 320, height: 240))
+    let size = window.sizeThatFits(in: .init(width: 320, height: 240))
     window.setFrame(NSRect(origin: .zero, size: size), display: false)
     window.titleVisibility = .hidden
     window.titlebarAppearsTransparent = true
@@ -138,13 +139,15 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
       let hideWhenRunning = applicationCommand.modifiers.contains(.hidden)
       let ifNotRunning = applicationCommand.modifiers.contains(.onlyIfNotRunning)
       let waitForAppToLaunch = applicationCommand.modifiers.contains(.waitForAppToLaunch)
+      let addToStage = applicationCommand.modifiers.contains(.addToStage)
 
       return .application(application: applicationCommand.application,
                           action: action,
                           inBackground: inBackground,
                           hideWhenRunning: hideWhenRunning,
                           ifNotRunning: ifNotRunning,
-                          waitForAppToLaunch: waitForAppToLaunch)
+                          waitForAppToLaunch: waitForAppToLaunch,
+                          addToStage: addToStage)
     case .builtIn, .bundled:
       return .placeholder
     case .menuBar(let command):

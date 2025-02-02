@@ -73,7 +73,6 @@ struct KeyboardCommandInternalView: View {
           case .none:         Text("None").font(.caption)
           }
         }
-        .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
         .fixedSize()
 
         Spacer()
@@ -97,7 +96,6 @@ struct KeyboardCommandInternalView: View {
           Text("Iterations \(model.iterations)")
             .font(.caption)
         }
-        .menuStyle(.zen(.init(calm: false, color: .accentColor, grayscaleEffect: .constant(true), hoverEffect: .constant(true))))
         .fixedSize()
 
         KeyboardCommandSubContentView {
@@ -159,7 +157,6 @@ private struct KeyboardCommandSubContentView: View {
     HStack {
       Button(action: onEdit) { Text("Edit") }
         .font(.caption)
-        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
     }
   }
 }

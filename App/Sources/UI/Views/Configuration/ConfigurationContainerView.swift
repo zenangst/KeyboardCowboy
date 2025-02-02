@@ -15,7 +15,7 @@ struct ConfigurationContainerView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      ConfigurationHeaderView()
+      Text("Configuration")
       ConfigurationView(configSelection) { action in
         switch action {
         case .deleteConfiguration(let id):

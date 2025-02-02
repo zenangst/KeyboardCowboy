@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct CommandListHeader: View {
+  @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   @EnvironmentObject var publisher: CommandsPublisher
@@ -30,9 +32,19 @@ struct CommandListHeader: View {
         Text(publisher.data.execution.rawValue)
           .font(.caption)
       })
-      .menuStyle(.zen(.init(color: .systemGray, padding: .large)))
       .fixedSize(horizontal: true, vertical: true)
       CommandListHeaderAddButton(namespace)
+    }
+    .menuStyle { menu in
+      menu.padding = .medium
+      menu.grayscaleEffect = true
+      menu.cornerRadius = 6
+    }
+    .buttonStyle { button in
+      button.grayscaleEffect = true
+      button.backgroundColor = .systemGreen
+      button.padding = .medium
+      button.cornerRadius = 6
     }
   }
 }

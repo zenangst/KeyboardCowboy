@@ -36,11 +36,11 @@ final class SidebarCoordinator {
     case .add(let group):
       groupId = group.id
       store.add(group)
-      ZenColorPublisher.shared.publish(.custom(Color(hex: group.color)))
+      ColorPublisher.shared.publish(Color(hex: group.color))
     case .edit(let group):
       groupId = group.id
       store.updateGroups([group])
-      ZenColorPublisher.shared.publish(.custom(Color(hex: group.color)))
+      ColorPublisher.shared.publish(Color(hex: group.color))
     }
     selectionManager.publish([groupId])
     if storeWasEmpty {
@@ -61,7 +61,7 @@ final class SidebarCoordinator {
     case .selectConfiguration(let id):
       if let firstGroup = store.groups.first(where: { $0.id == id }) {
         selectionManager.publish([firstGroup.id])
-        ZenColorPublisher.shared.publish(.custom(Color(hex: firstGroup.color)))
+        ColorPublisher.shared.publish(Color(hex: firstGroup.color))
       } else {
         selectionManager.publish([])
       }
@@ -69,7 +69,7 @@ final class SidebarCoordinator {
     case .deleteConfiguration:
       if let firstGroup = store.groups.first {
         selectionManager.publish([firstGroup.id])
-        ZenColorPublisher.shared.publish(.custom(Color(hex: firstGroup.color)))
+        ColorPublisher.shared.publish(Color(hex: firstGroup.color))
       } else {
         selectionManager.publish([])
       }
@@ -77,9 +77,9 @@ final class SidebarCoordinator {
     case .selectGroups(let ids):
       if ids.count == 1, let id = ids.first, let group = store.group(withId: id) {
         let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)!
-        ZenColorPublisher.shared.publish(.custom(Color(nsColor: nsColor)))
+        ColorPublisher.shared.publish(Color(nsColor: nsColor))
       } else {
-        ZenColorPublisher.shared.publish(.accentColor)
+        ColorPublisher.shared.publish(.accentColor)
       }
     case .addConfiguration:
       render(store.groups)
@@ -128,7 +128,7 @@ final class SidebarCoordinator {
 
   func initialLoad(_ groups: [WorkflowGroup]) {
     if let match = groups.first(where: { $0.id == selectionManager.lastSelection }) {
-      ZenColorPublisher.shared.publish(.custom(Color(hex: match.color)))
+      ColorPublisher.shared.publish(Color(hex: match.color))
     }
 
     render(groups)

@@ -14,11 +14,12 @@ struct Release3_26: View {
   var body: some View {
     VStack(spacing: 8) {
       Text("What's New")
+        .font(.headline)
+        .padding(.top, 6)
       HeaderView()
         .overlay(alignment: .bottom) {
           HeaderOverlay(size: size)
         }
-        .padding([.top, .bottom], 16)
 
       ZenDivider(.horizontal)
 
@@ -26,18 +27,47 @@ struct Release3_26: View {
         ChangesView()
         Divider()
         SupportersView()
-          .frame(height: 125)
+          .frame(height: 150)
       }
-      .roundedContainer(padding: 0, margin: 16)
-      .padding(.top, 8)
+      .roundedStyle(padding: 0)
+      .style(.derived)
 
-      HStack(spacing: 8) {
-        Button(action: { action(.done) }, label: { Text("To the Moon! 🚀🌘") })
-          .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
-      }
-      .padding(.bottom, 32)
+      Button(action: { action(.done) }, label: { Text("Let's Get Started!") })
+        .buttonStyle { style in
+          style.hoverEffect = false
+          style.backgroundColor = .systemGreen
+        }
+        .style(.derived)
     }
-    .background(Color(.windowBackgroundColor))
+    .style(.derived)
+    .style(.section(.detail))
+    .background(
+      ZStack {
+        ZenVisualEffectView(material: .hudWindow)
+          .mask {
+            LinearGradient(
+              stops: [
+                .init(color: .black, location: 0),
+                .init(color: .clear, location: 1),
+              ],
+              startPoint: .top,
+              endPoint: .bottom
+            )
+          }
+        ZenVisualEffectView(material: .contentBackground)
+          .mask {
+            LinearGradient(
+              stops: [
+                .init(color: .black.opacity(0.5), location: 0),
+                .init(color: .black, location: 0.75),
+              ],
+              startPoint: .top,
+              endPoint: .bottom
+            )
+          }
+      }
+    )
+    .ignoresSafeArea(.all)
     .frame(width: 550, height: 650)
     .enableInjection()
   }
@@ -71,7 +101,7 @@ private struct HeaderOverlay: View {
     HStack(alignment: .center) {
       Text("Keyboard Cowboy")
         .font(Font.system(size: 20, design: .rounded))
-      Text("3.26")
+      Text("3.27")
         .foregroundStyle(.white)
         .font(Font.system(size: 24, design: .rounded))
         .allowsTightening(true)
@@ -121,69 +151,9 @@ private struct ChangesView: View {
   @ObserveInjection var inject
 
   private let changes: [Change<AnyView>] = [
-    Change(icon: { BugFixIconView(size: 24).anyView },
-           text: "Improve reliability of AppFocus & Workspace commands.",
-           version: .v3261),
-
-    Change(icon: { WorkspaceIcon(size: 24).anyView },
-           text: "This update lets you turn off tiling for existing AppFocus and Workspace commands.",
-           version: .v3261),
-
-    Change(icon: { GenericAppIconView(size: 24).anyView },
-           text: "Sort applications by display name.",
-           version: .v3261),
-
-    Change(icon: { WindowSwitcherIconView(size: 24).anyView },
-           text: "Introduces the first version of the new Window Switcher.",
-           version: .v3260),
-
-    Change(icon: { UIElementIconView(size: 24).anyView },
-           text: "Guess what? UIElement commands now have a new feature called 'subrole' that helps you match them. A big thanks to [@FischLu](https://github.com/FischLu) for making this possible!",
-           version: .v3260),
-
-    Change(icon: { KeyboardIconView("M", size: 24).anyView },
-           text: "Adds the option to turn off key repeat for keyboard triggers.",
-           version: .v3260),
-
-    Change(icon: { KeyboardIconView("S", size: 24).anyView },
-           text: "We've made a bunch of improvements to figuring out which key is triggered from third-party apps.",
-           version: .v3260),
-
-    Change(icon: { WorkspaceIcon(size: 24).anyView },
-           text: "Switching between Workspaces is now a breeze!",
-           version: .v3260),
-
-    Change(icon: { TypingIconView(size: 24).anyView },
-           text: "Type commands now supports 'insert enter' as a completion action.",
-           version: .v3260),
-
-    Change(icon: { TriggersIconView(size: 24).anyView },
-           text: "Adds support for disabling entire Groups.",
-           version: .v3260),
-
-    Change(icon: { TriggersIconView(size: 24).anyView },
-           text: "The default workflow option is now serial instead of concurrent.",
-           version: .v3260),
-
-    Change(icon: { BugFixIconView(size: 24).anyView },
-           text: "Various UI improvements and bug fixes.",
-           version: .v3260),
-
-    Change(icon: { BugFixIconView(size: 24).anyView },
-           text: "We've made some tweaks to address those pesky keyboard triggers that were causing some issues.",
-           version: .v3260),
-
-    Change(icon: { BugFixIconView(size: 24).anyView },
-           text: "Enhancements to keyboard shortcuts that utilize the arrow keys.",
-           version: .v3260),
-
-    Change(icon: { ImprovementIconView(size: 24).anyView },
-           text: "The configuration file has been shrunk to a manageable size.",
-           version: .v3260),
-
     Change(icon: { ImprovementIconView(size: 24).anyView },
            text: "Migrated to Swift 6.",
-           version: .v3260),
+           version: .v3270),
   ]
 
   @ViewBuilder
@@ -207,8 +177,9 @@ private struct ChangesView: View {
                 Text(change.version.rawValue)
                   .font(.caption)
               })
-              .buttonStyle(.zen(.init(color: .custom(change.version.color))))
-              .padding(.trailing, 4)
+              .buttonStyle { style in
+                style.backgroundColor = change.version.color
+              }
             }
           }
         }
@@ -304,7 +275,7 @@ private struct SupportersView: View {
       ZenDivider(.horizontal)
 
       ScrollView {
-        FlowLayout(itemSpacing: 0) {
+        FlowLayout(itemSpacing: 0, lineSpacing: 0) {
           ForEach(supporters, id: \.self) { supporter in
             if supporter.index == supporters.count - 1 {
               Text("&")
@@ -314,7 +285,7 @@ private struct SupportersView: View {
           }
           .frame(height: 24)
         }
-        .padding([.leading, .trailing, .bottom], 8)
+        .padding(8)
       }
     }
     .enableInjection()
@@ -348,11 +319,6 @@ private struct SupporterView: View {
       }
     }
     .padding(2)
-    .buttonStyle(.zen(.init(
-      calm: true,
-      color: .accentColor,
-      focusEffect: .constant(false),
-      padding: .small)))
   }
 }
 
@@ -363,21 +329,21 @@ private struct Supporter: Hashable {
 }
 
 private enum Version: String {
-  case v3265 = "3.26.5"
-  case v3264 = "3.26.4"
-  case v3263 = "3.26.3"
-  case v3262 = "3.26.2"
-  case v3261 = "3.26.1"
-  case v3260 = "3.26.0"
+  case v3275 = "3.27.5"
+  case v3274 = "3.27.4"
+  case v3273 = "3.27.3"
+  case v3272 = "3.27.2"
+  case v3271 = "3.27.1"
+  case v3270 = "3.27.0"
 
   var color: Color {
     switch self {
-    case .v3265: Color(.systemBlue)
-    case .v3264: Color(.systemGreen)
-    case .v3263: Color(.systemYellow)
-    case .v3262: Color(.systemOrange)
-    case .v3261: Color(.systemRed)
-    case .v3260: Color(.systemPurple)
+    case .v3275: Color(.systemBlue)
+    case .v3274: Color(.systemGreen)
+    case .v3273: Color(.systemYellow)
+    case .v3272: Color(.systemOrange)
+    case .v3271: Color(.systemRed)
+    case .v3270: Color(.systemPurple)
     }
   }
 }

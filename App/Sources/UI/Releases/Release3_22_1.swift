@@ -110,13 +110,12 @@ struct Release3_22_1: View {
         }
       }
       .frame(width: 380)
-      .roundedContainer(margin: 0)
+      .roundedStyle()
       .padding(.top, 8)
       .padding(.horizontal, 16)
 
       HStack(spacing: 8) {
         Button(action: { action(.done) }, label: { Text("Groovy!") })
-          .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
       }
       .padding(.top, 8)
       .padding(.bottom, 32)

@@ -352,7 +352,7 @@ final class UserSpace: @unchecked Sendable {
 
   private func documentPath(for runningApplication: NSRunningApplication) throws -> String? {
     try currentApplication(for: runningApplication)
-      .focusedWindow()
+      .focusedWindow()?
       .document
   }
 

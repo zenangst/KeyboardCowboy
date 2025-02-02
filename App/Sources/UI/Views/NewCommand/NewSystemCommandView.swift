@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct NewCommandSystemCommandView: View {
+  @ObserveInjection var inject
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
 
@@ -24,22 +26,25 @@ struct NewCommandSystemCommandView: View {
               self.kind = kind
               validation = updateAndValidatePayload()
             } label: {
-              Image(systemName: kind.symbol)
-              Text(kind.displayValue)
+              HStack {
+                Image(systemName: kind.symbol)
+                Text(kind.displayValue)
+              }
             }
           }
         } label: {
           if let kind {
-            Image(systemName: kind.symbol)
-            Text(kind.displayValue)
+            HStack {
+              Image(systemName: kind.symbol)
+              Text(kind.displayValue)
+            }
           } else {
-            Text("Select system command")
+            Text("Select System Command")
           }
         }
       }
       .background(NewCommandValidationView($validation))
     }
-    .menuStyle(.regular)
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       withAnimation { validation = updateAndValidatePayload() }
@@ -47,6 +52,7 @@ struct NewCommandSystemCommandView: View {
     .onAppear {
       validation = .unknown
     }
+    .enableInjection()
   }
 
   @discardableResult

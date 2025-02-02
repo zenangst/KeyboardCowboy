@@ -97,23 +97,14 @@ struct WindowSwitcherView: View {
           TextField(text: $publisher.query, label: {
             Text(publisher.query)
           })
-          .textFieldStyle(
-            .zen(
-              .init(
-                calm: true,
-                color: .custom(.clear),
-                backgroundColor: Color.clear,
-                cornerRadius: 0,
-                font: .largeTitle,
-                glow: false,
-                focusEffect: .constant(false),
-                grayscaleEffect: .constant(false),
-                hoverEffect: .constant(false),
-                padding: .zero,
-                unfocusedOpacity: 0.8
-              )
-            )
-          )
+          .textFieldStyle { style in
+            style.font = .largeTitle
+            style.glow = false
+            style.decorationColor = .clear
+            style.focusEffect = false
+            style.hoverEffect = false
+            style.grayscaleEffect = false
+          }
         .overlay(alignment: .leading) {
           PromptView(publisher: publisher)
         }

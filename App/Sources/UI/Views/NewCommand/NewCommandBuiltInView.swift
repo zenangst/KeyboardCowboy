@@ -78,7 +78,6 @@ struct NewCommandBuiltInView: View {
       validation = .needsValidation
       payload = .builtIn(builtIn: .init(kind: kindSelection, notification: nil))
     }
-    .menuStyle(.regular)
   }
 
   func userMode() -> some View {

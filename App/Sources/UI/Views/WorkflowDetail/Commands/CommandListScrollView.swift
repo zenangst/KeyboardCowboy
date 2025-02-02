@@ -85,6 +85,7 @@ struct CommandListScrollView: View {
           selectionManager.handleOnTap(publisher.data.commands, element: command)
         }
       }
+      .padding(.bottom, 6)
       .onCommand(#selector(NSResponder.insertBacktab(_:)), perform: {
         switch triggerPublisher.data {
         case .applications:

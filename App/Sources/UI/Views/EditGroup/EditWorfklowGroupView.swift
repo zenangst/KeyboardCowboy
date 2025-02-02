@@ -35,101 +35,115 @@ struct EditWorfklowGroupView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack {
-        WorkflowGroupIconView(applicationStore: applicationStore, group: $group, size: 36)
-          .contentShape(Circle())
-          .onTapGesture {
-            editIcon = group
-          }
-          .popover(item: $editIcon, arrowEdge: .bottom, content: { _ in
-            EditGroupIconView(group: $group)
-              .frame(maxHeight: 300)
-          })
-          .cornerRadius(24, antialiased: true)
+        Button(action: { editIcon = group }, label: {
+          WorkflowGroupIconView(applicationStore: applicationStore, group: $group, size: 28)
+            .contentShape(Circle())
+            .popover(item: $editIcon, arrowEdge: .bottom, content: { _ in
+              EditGroupIconView(group: $group)
+                .frame(maxHeight: 300)
+            })
+            .cornerRadius(24, antialiased: true)
+        })
+        .buttonStyle { button in
+          button.cornerRadius = 28
+          button.padding = .zero
+        }
+
         TextField("Name:", text: $group.name)
-          .textFieldStyle(.large(color: .accentColor, backgroundColor: Color(.windowBackgroundColor),
-                                 glow: true))
+          .textFieldStyle({ style in
+            style.font = .largeTitle
+          })
           .prefersDefaultFocus(in: namespace)
           .focused($focus, equals: .name)
 
-        ZenToggle(
-          isOn: Binding<Bool>(get: { !group.isDisabled }, set: { group.isDisabled = !$0 })
-        )
+        Toggle(isOn: Binding<Bool>(get: { !group.isDisabled }, set: { group.isDisabled = !$0 }), label: {})
+          .switchStyle()
       }
-      .padding()
+      .padding(.top, 24)
+      .style(.derived)
       .onAppear {
         focus = .name
       }
+      .background(alignment: .bottom, content: {
+        Background()
+          .edgesIgnoringSafeArea(.all)
+      })
 
-      Divider()
+      ZenDivider()
 
-      HStack(spacing: 16) {
+      HStack(spacing: 0) {
         VStack(alignment: .leading, spacing: 0) {
-          HStack {
-            UserModeIconView(size: 24)
+          HStack(spacing: 0) {
+            UserModeIconView(size: 16)
+              .style(.derived)
             ZenLabel("User Modes")
+              .style(.derived)
           }
-          .padding(8)
           .frame(maxWidth: .infinity, alignment: .leading)
-          .background(Color(.windowBackgroundColor))
+          .style(.derived)
 
-          Menu("Add User Mode") {
-            ForEach(publisher.data.userModes) { userMode in
-              Button(action: {
-                guard !group.userModes.contains(userMode) else { return }
-                group.userModes.append(userMode)
-              }, label: {
-                Text(userMode.name)
-              })
-            }
-          }
-          .padding([.leading, .trailing, .bottom], 8)
-          .menuStyle(.regular)
-          
-          ScrollView {
-            ForEach(group.userModes) { userMode in
-              Divider()
-              HStack {
-                Text(userMode.name)
-                Spacer()
+          ZenDivider()
+
+          Group {
+            Menu("Add User Mode") {
+              ForEach(publisher.data.userModes) { userMode in
                 Button(action: {
-                  group.userModes.removeAll(where: { $0.id == userMode.id })
+                  guard !group.userModes.contains(userMode) else { return }
+                  group.userModes.append(userMode)
                 }, label: {
-                  Image(systemName: "trash")
+                  Text(userMode.name)
                 })
-                .buttonStyle(.calm(color: .systemRed, padding: .medium))
-
               }
-              .padding(.horizontal)
+            }
+            .style(.derived)
+            .style(.list)
+
+            ScrollView {
+              ForEach(group.userModes) { userMode in
+                HStack {
+                  Text(userMode.name)
+                    .frame(minHeight: 24)
+                  Spacer()
+                  Button(action: {
+                    group.userModes.removeAll(where: { $0.id == userMode.id })
+                  }, label: {
+                    Image(systemName: "trash")
+                  })
+                  .buttonStyle(.destructive)
+                }
+                .style(.item)
+                .style(.derived)
+                ZenDivider()
+              }
             }
           }
         }
-        .background(Color(.windowBackgroundColor))
-        .roundedContainer(padding: 0, margin: 0)
-        .padding([.top, .leading, .bottom], 16)
+        .roundedStyle(padding: 0)
 
         VStack(alignment: .leading, spacing: 0) {
           RuleHeaderView(applicationStore: applicationStore, group: $group)
-            .padding(8)
-            .background(Color(.windowBackgroundColor))
           ScrollView {
             RuleListView(applicationStore: applicationStore,
                          group: $group)
             .focusSection()
           }
-          .background(Color(.windowBackgroundColor))
-          
-          VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading) {
-              Text("Workflows in this group are only activated when the following applications are the frontmost app.\n") +
-              Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")
-            }
-            .fixedSize(horizontal: false, vertical: true)
-            .font(.caption)
+
+          ZenDivider()
+
+          VStack(alignment: .leading) {
+            Text("Workflows in this group are only activated when the following applications are the frontmost app.\n") +
+            Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")
           }
-          .padding()
+          .roundedStyle(padding: 6)
+          .style(.subItem)
         }
-        .roundedContainer(padding: 0, margin: 0)
-        .padding([.top, .trailing, .bottom], 16)
+        .buttonStyle(.destructive)
+        .roundedStyle(padding: 0)
+      }
+      .style(.list)
+      .menuStyle {
+        $0.font = .caption
+        $0.unfocusedOpacity = 1.0
       }
 
       HStack {
@@ -139,23 +153,61 @@ struct EditWorfklowGroupView: View {
           Text("Cancel")
             .frame(minWidth: 40)
         }
-        .buttonStyle(.zen(.init(color: .systemGray, hoverEffect: .constant(false))))
+        .buttonStyle(.cancel)
         .keyboardShortcut(.cancelAction)
 
         Spacer()
 
         Button(action: { action(.ok(group)) }) {
-          Text("OK")
+          Text("Save")
             .frame(minWidth: 40)
         }
-        .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
+        .buttonStyle {
+          $0.backgroundColor = .systemGreen
+          $0.hoverEffect = true
+        }
         .keyboardShortcut(.defaultAction)
       }
-      .padding()
+      .style(.derived)
+      .style(.list)
     }
     .focusScope(namespace)
     .frame(minWidth: 600, minHeight: 400)
+    .style(.section(.detail))
+    .ignoresSafeArea(.all)
     .enableInjection()
+  }
+}
+
+fileprivate struct Background: View {
+  @Environment(\.colorScheme) var colorScheme
+  var body: some View {
+    Rectangle()
+      .fill(
+        LinearGradient(stops: gradientStops(), startPoint: .top, endPoint: .bottom)
+      )
+  }
+
+  func gradientStops() -> [Gradient.Stop] {
+    colorScheme == .dark
+    ?
+    [
+      .init(color: Color(nsColor: .windowBackgroundColor.blended(withFraction: 0.3, of: .white)!), location: 0.0),
+      .init(color: Color(nsColor: .windowBackgroundColor), location: 0.01),
+      .init(color: Color(nsColor: .windowBackgroundColor), location: 1.0),
+    ]
+    :
+    [
+      .init(color: Color(nsColor: .systemGray), location: 0.0),
+      .init(color: Color(nsColor: .white), location: 0.01),
+      .init(color: Color(nsColor: .windowBackgroundColor), location: 1.0),
+    ]
+  }
+
+  func shadowColor() -> Color {
+    colorScheme == .dark
+    ? Color(.sRGBLinear, white: 0, opacity: 0.33)
+    : Color(.sRGBLinear, white: 0, opacity: 0.15)
   }
 }
 

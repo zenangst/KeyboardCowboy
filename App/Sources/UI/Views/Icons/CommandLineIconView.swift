@@ -40,7 +40,7 @@ struct CommandLineIconView: View {
               .shadow(color: Color(nsColor: .controlAccentColor.blended(withFraction: 0.5, of: .white)!),radius: 5, y: 2)
             }
             .frame(width: size * 0.8, height: size * 0.15, alignment: .leading)
-            .roundedContainer(cornerRadius, padding: 0, margin: 0)
+            .roundedStyle(cornerRadius, padding: 0)
 
           RoundedRectangle(cornerRadius: cornerRadius)
             .fill(Color(.controlAccentColor))
@@ -51,17 +51,17 @@ struct CommandLineIconView: View {
               ], startPoint: .top, endPoint: .bottom)
             }
             .frame(width: size * 0.8, height: size * 0.125)
-            .roundedContainer(cornerRadius, padding: 0, margin: 0)
+            .roundedStyle(cornerRadius, padding: 0)
 
           RoundedRectangle(cornerRadius: cornerRadius)
             .fill(Color(.windowBackgroundColor).opacity(0.5))
             .frame(width: size * 0.8, height: size * 0.125)
-            .roundedContainer(cornerRadius, padding: 0, margin: 0)
+            .roundedStyle(cornerRadius, padding: 0)
 
           RoundedRectangle(cornerRadius: cornerRadius)
             .fill(Color(.windowBackgroundColor).opacity(0.3))
             .frame(width: size * 0.8, height: size * 0.125)
-            .roundedContainer(cornerRadius, padding: 0, margin: 0)
+            .roundedStyle(cornerRadius, padding: 0)
         }
       }
       .overlay(alignment: .topTrailing) {

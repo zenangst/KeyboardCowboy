@@ -23,7 +23,6 @@ struct NewCommandShortcutView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
       Menu {
         ForEach(shortcutStore.shortcuts, id: \.name) { shortcut in
@@ -41,7 +40,6 @@ struct NewCommandShortcutView: View {
       }
       .background(NewCommandValidationView($validation))
     }
-    .menuStyle(.zen(.init(color: .systemPurple)))
     .onChange(of: validation, perform: { newValue in
       guard newValue == .needsValidation else { return }
       withAnimation { validation = updateAndValidatePayload() }

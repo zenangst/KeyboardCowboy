@@ -24,18 +24,13 @@ struct WorkflowInfoView: View {
     HStack(spacing: 0) {
       TextField("Workflow name", text: $name)
         .focused(focus, equals: .detail(.name))
-        .textFieldStyle(
-          .zen(
-            .init(
-              calm: true,
-              backgroundColor: Color(nsColor: .windowBackgroundColor),
-              font: .title2,
-              padding: .init(horizontal: .small, vertical: .small),
-              unfocusedOpacity: 0
-            )
-          )
-        )
-        .fontWeight(.bold)
+        .fontWeight(.semibold)
+        .textFieldStyle { style in
+          style.calm = true
+          style.font = .title
+          style.padding = .small
+          style.unfocusedOpacity = 0
+        }
         .onChange(of: name) { newName in
           guard newName != publisher.data.name else { return }
           publisher.data.name = newName
@@ -44,15 +39,15 @@ struct WorkflowInfoView: View {
           }
         }
       Spacer()
-      ZenToggle(
-        config: .init(color: .systemGreen),
-        style: .medium,
-        isOn: $publisher.data.isEnabled
-      ) { newValue in
-        updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
-          workflow.isDisabled = !newValue
+      Toggle(isOn: $publisher.data.isEnabled, label: {})
+        .onChange(of: publisher.data.isEnabled) { newValue in
+          updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
+            workflow.isDisabled = !newValue
+          }
         }
-      }
+        .switchStyle {
+          $0.style = .regular
+        }
     }
     .enableInjection()
   }

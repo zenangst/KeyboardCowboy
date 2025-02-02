@@ -50,7 +50,6 @@ struct ShortcutCommandView: View {
         case .none:         Text("None").font(.caption)
         }
       }
-      .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
       .fixedSize()
 
       ShortcutCommandSubContentView {
@@ -105,7 +104,6 @@ private struct ShortcutCommandContentView: View {
         Text(model.shortcutIdentifier)
           .font(.subheadline)
       })
-      .menuStyle(.zen(.init(color: .systemPurple, grayscaleEffect: .constant(true))))
     }
   }
 }
@@ -124,12 +122,7 @@ private struct ShortcutCommandSubContentView: View {
   var body: some View {
     HStack {
       Button("Open Shortcut", action: onOpenShortcut)
-        .buttonStyle(.zen(.init(color: .systemPurple, grayscaleEffect: .constant(true))))
-        .font(.caption)
-
       Button("Create Shortcut", action: onCreateShortcut)
-        .buttonStyle(.zen(.init(color: .systemPurple, grayscaleEffect: .constant(true))))
-        .font(.caption)
     }
   }
 }

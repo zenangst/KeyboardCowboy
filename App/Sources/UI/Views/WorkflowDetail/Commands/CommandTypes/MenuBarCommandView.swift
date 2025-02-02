@@ -60,7 +60,6 @@ private struct MenuBarCommandInternalView: View {
           case .none:         Text("None").font(.caption)
           }
         }
-        .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
         .fixedSize()
 
         Spacer()
@@ -70,7 +69,6 @@ private struct MenuBarCommandInternalView: View {
           Text("Edit")
             .font(.caption)
         }
-        .buttonStyle(.zen(.init(color: .systemCyan, grayscaleEffect: .constant(true))))
       }
     }
   }

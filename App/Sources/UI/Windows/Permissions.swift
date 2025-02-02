@@ -19,7 +19,7 @@ final class Permissions: NSObject, NSWindowDelegate {
         })
         .frame(width: 640, height: 560)
     }
-    let size = window.hostingController.sizeThatFits(in: .init(width: 320, height: 240))
+    let size = window.sizeThatFits(in: .init(width: 320, height: 240))
     window.setFrame(NSRect(origin: .zero, size: size), display: false)
 
     window.delegate = self

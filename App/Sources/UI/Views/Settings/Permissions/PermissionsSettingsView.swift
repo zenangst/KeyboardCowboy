@@ -29,7 +29,7 @@ struct PermissionsSettingsView: View {
         }
       }
     })
-    .roundedContainer()
+    .roundedStyle()
     .frame(minWidth: 480, maxWidth: 480)
   }
 }
@@ -76,7 +76,6 @@ fileprivate struct PermissionOverviewItem: View {
           .matchedGeometryEffect(id: "permission-overview-item", in: namespace)
       case .request, .unknown:
         Button(action: onAction, label: { Text(status.rawValue) })
-          .buttonStyle(.zen(.init(color: .systemGreen)))
           .matchedGeometryEffect(id: "permission-overview-item", in: namespace)
       }
     }

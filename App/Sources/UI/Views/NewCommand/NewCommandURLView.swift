@@ -1,8 +1,10 @@
 import Apps
+import Inject
 import Bonzai
 import SwiftUI
 
 struct NewCommandURLView: View {
+  @ObserveInjection var inject
   enum Focus: String, Identifiable, Hashable {
     var id: String { self.rawValue }
     case `protocol`
@@ -37,7 +39,6 @@ struct NewCommandURLView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
       HStack(spacing: 8) {
         TextField("protocol", text: $stringProtocol)
@@ -49,7 +50,7 @@ struct NewCommandURLView: View {
           }
           .focused($focus, equals: .protocol)
         Text("://")
-          .font(.largeTitle)
+          .font(.title)
           .opacity(0.5)
         TextField("address", text: $address)
           .onSubmit {
@@ -62,6 +63,9 @@ struct NewCommandURLView: View {
           }
           .focused($focus, equals: .address)
           .padding(-2)
+      }
+      .textFieldStyle { textField in
+        textField.font = .title
       }
       .background(Color(nsColor: .windowBackgroundColor))
       .onChange(of: address, perform: { newValue in
@@ -94,8 +98,10 @@ struct NewCommandURLView: View {
       .overlay(NewCommandValidationView($validation))
       .zIndex(2)
 
+      ZenDivider()
+
       HStack(spacing: 32) {
-        Text("With application: ")
+        Text("With Application: ")
         Menu(content: {
           ForEach(applicationStore.applications) { app in
             Button(action: {
@@ -113,15 +119,14 @@ struct NewCommandURLView: View {
           }
         })
       }
-      .menuStyle(.regular)
       .zIndex(1)
     }
-    .textFieldStyle(.large(color: .accentColor, backgroundColor: Color(nsColor: .windowBackgroundColor), glow: true))
     .onAppear {
       validation = .unknown
       updateAndValidatePayload()
       focus = .address
     }
+    .enableInjection()
   }
 
   @discardableResult

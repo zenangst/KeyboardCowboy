@@ -1,16 +1,24 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct RuleHeaderView: View {
+  @ObserveInjection var inject
   @ObservedObject var applicationStore: ApplicationStore
   @Binding var group: WorkflowGroup
 
   var body: some View {
-    VStack(alignment: .leading) {
-      HStack {
-        GenericAppIconView(size: 24)
+    VStack(alignment: .leading, spacing: 0) {
+      HStack(spacing: 0) {
+        GenericAppIconView(size: 16)
+          .style(.derived)
         ZenLabel("Rules")
+          .style(.derived)
       }
+      .style(.derived)
+
+      ZenDivider()
+
       Menu("Application") {
         ForEach(applicationStore.applications.lazy.filter({
           if let rule = group.rule {
@@ -33,7 +41,9 @@ struct RuleHeaderView: View {
           }
         }
       }
-      .menuStyle(.regular)
+      .style(.derived)
+      .style(.list)
     }
+    .enableInjection()
   }
 }

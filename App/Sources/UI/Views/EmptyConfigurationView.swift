@@ -89,11 +89,10 @@ struct EmptyConfigurationView: View {
       }, label: {
         Text("Confirm")
       })
-      .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
       .padding(.vertical)
       .matchedGeometryEffect(id: "initial-item", in: namespace)
     }
-    .roundedContainer(padding: 0)
+    .roundedStyle(padding: 0)
     .frame(maxWidth: .infinity, minHeight: 480, maxHeight: .infinity, alignment: .leading)
     .background(SplashView(colors: colors, done: $done))
   }

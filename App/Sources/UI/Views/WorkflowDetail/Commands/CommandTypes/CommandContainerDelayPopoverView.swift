@@ -38,8 +38,6 @@ struct CommandContainerDelayPopoverView: View {
           }
         }
       }
-      .textFieldStyle(.regular(Color(.windowBackgroundColor)))
-
       Button(action: {
         onChange(0)
         metaData.delay = nil
@@ -47,7 +45,6 @@ struct CommandContainerDelayPopoverView: View {
       }, label: {
         Image(systemName: "clear")
       })
-      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemRed, grayscaleEffect: .constant(true))))
     }
     .padding(16)
     .enableInjection()

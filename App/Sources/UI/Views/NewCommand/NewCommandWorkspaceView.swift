@@ -26,13 +26,10 @@ struct NewCommandWorkspaceView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
+    VStack(alignment: .leading, spacing: 8) {
       Text("Applications")
         .font(.subheadline)
-        .padding(.horizontal, 4)
-        .padding(.bottom, 8)
 
-      VStack(spacing: 0) {
         Menu {
           ForEach(applicationStore.applications) { application in
             Button(action: {
@@ -44,80 +41,66 @@ struct NewCommandWorkspaceView: View {
         } label: {
           Text("Add Application")
         }
-        .menuStyle(.regular)
-        .padding(4)
 
-        CompatList {
-          ForEach(Array(zip(selectedApps.indices, selectedApps)), id: \.0) { offset, item in
-            VStack(spacing: 0) {
-              HStack {
-                IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
-                Text(item.application.displayName)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-                Button {
-                  if offset <= selectedApps.count - 1 {
-                    let selectedApp = selectedApps[offset]
-                    if item.application == selectedApp.application {
-                      selectedApps.remove(at: offset)
-                      onSelectedAppsChange(selectedApps)
-                    }
+      CompatList {
+        ForEach(Array(zip(selectedApps.indices, selectedApps)), id: \.0) { offset, item in
+          VStack(spacing: 8) {
+            HStack {
+              IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
+              Text(item.application.displayName)
+                .frame(maxWidth: .infinity, alignment: .leading)
+              Button {
+                if offset <= selectedApps.count - 1 {
+                  let selectedApp = selectedApps[offset]
+                  if item.application == selectedApp.application {
+                    selectedApps.remove(at: offset)
+                    onSelectedAppsChange(selectedApps)
                   }
-                } label: {
-                  Text("Remove")
-                    .font(.caption)
                 }
-                .buttonStyle(.destructive)
+              } label: {
+                Text("Remove")
+                  .font(.caption)
               }
-              .padding(4)
-              ZenDivider()
+              .buttonStyle(.destructive)
             }
-          }
-          .onMove { indexSet, offset in
-            selectedApps.move(fromOffsets: indexSet, toOffset: offset)
-            onSelectedAppsChange(selectedApps)
+            ZenDivider()
           }
         }
-        .overlay(NewCommandValidationView($validation).zIndex(100))
-      }
-      .roundedContainer(padding: 0, margin: 0)
-      .padding([.leading, .trailing], 4)
-      .padding(.bottom, 8)
-
-      VStack(alignment: .leading) {
-        Text("Tiling")
-          .font(.subheadline)
-
-        Menu {
-          ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
-            Button {
-              self.tiling = tiling
-              onTilingChange(tiling)
-            } label: {
-              Text(tiling.name)
-            }
-          }
-        } label: {
-          Text(tiling?.name ?? "Select Tiling")
+        .onMove { indexSet, offset in
+          selectedApps.move(fromOffsets: indexSet, toOffset: offset)
+          onSelectedAppsChange(selectedApps)
         }
       }
-      .frame(maxWidth: 250)
-      .padding(4)
+      .overlay(NewCommandValidationView($validation).zIndex(100))
+      .roundedStyle(padding: 8)
 
-      VStack(alignment: .leading) {
-        Text("Settings")
-          .font(.subheadline)
-        HStack {
-          ZenCheckbox(isOn: $hideOtherApps) { newValue in
+      Text("Tiling")
+        .font(.subheadline)
+
+      Menu {
+        ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
+          Button {
+            self.tiling = tiling
+            onTilingChange(tiling)
+          } label: {
+            Text(tiling.name)
+          }
+        }
+      } label: {
+        Text(tiling?.name ?? "Select Tiling")
+      }
+
+      Text("Settings")
+        .font(.subheadline)
+      HStack {
+        Toggle(isOn: $hideOtherApps, label: { Text("Hide Other Applications") })
+          .onChange(of: hideOtherApps) { newValue in
             onHideOtherAppsChange(newValue)
           }
-          Text("Hide Other Applications")
-            .font(.subheadline)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
       }
-      .padding(4)
+      Spacer()
     }
-    .padding(8)
+    .style(.derived)
     .enableInjection()
   }
 }

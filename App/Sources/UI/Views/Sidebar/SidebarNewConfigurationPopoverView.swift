@@ -24,14 +24,12 @@ struct SidebarNewConfigurationPopoverView: View {
           newConfigurationPopover = false
           configurationName = ""
         }
-        .textFieldStyle(.regular(Color(.windowBackgroundColor)))
       Button("Save", action: {
         onAction(configurationName)
         newConfigurationPopover = false
         configurationName = ""
       })
       .keyboardShortcut(.defaultAction)
-      .buttonStyle(.positive)
     }
     .padding()
   }

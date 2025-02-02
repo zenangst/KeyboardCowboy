@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct NewCommandUIElementView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var captureStore: UIElementCaptureStore
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
@@ -24,18 +26,18 @@ struct NewCommandUIElementView: View {
             captureButton()
           }
         }
-        .padding(.vertical, 8)
 
         if predicates.isEmpty {
-          HStack(alignment: .top) {
-            UIElementIconView(size: 24)
-            Text("Start recording and then click on the UI Element you want to capture while holding the ⌘-Command key.")
-              .frame(maxWidth: 320, alignment: .leading)
+          VStack {
+            HStack {
+              UIElementIconView(size: 24)
+              Text("Start recording and then click on the UI Element you want to capture while holding the ⌘-key.")
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
             captureButton()
           }
           .frame(maxWidth: .infinity)
-          .padding()
-          .roundedContainer(padding: 0, margin: 8)
+          .roundedStyle(padding: 8)
         }
 
         ForEach(predicates.indices, id: \.self) { index in
@@ -59,10 +61,8 @@ struct NewCommandUIElementView: View {
                     .font(.caption)
                 }
                 .fixedSize()
-                .menuStyle(.regular)
 
                 TextField("", text: $predicates[index].value)
-                  .textFieldStyle(.regular(Color(.windowBackgroundColor)))
                   .onChange(of: predicates[index].value, perform: { value in
                     validation = updateAndValidatePayload()
                   })
@@ -81,13 +81,9 @@ struct NewCommandUIElementView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 10, height: 10)
                 })
-                .padding(.top, 2)
-                .buttonStyle(.zen(.init(calm: true, color: .systemRed,
-                                        focusEffect: .constant(true),
-                                        hoverEffect: .constant(true))))
+                .buttonStyle(.destructive)
               }
             }
-            .padding([.top, .horizontal], 8)
 
             ZenDivider()
 
@@ -109,35 +105,28 @@ struct NewCommandUIElementView: View {
                   Text(predicates[index].kind.displayName)
                     .font(.caption)
                 }
-                .menuStyle(.regular)
 
                 ForEach(UIElementCommand.Predicate.Properties.allCases) { property in
                   HStack {
-                    ZenCheckbox(
-                      isOn: Binding<Bool>(
-                        get: { predicates[index].properties.contains(property) },
-                        set: {
-                          if $0 {
-                            predicates[index].properties.append(property)
-                          } else {
-                            predicates[index].properties.removeAll(where: { $0 == property })
-                          }
-                          validation = updateAndValidatePayload()
+                    Toggle(isOn: Binding<Bool>(
+                      get: { predicates[index].properties.contains(property) },
+                      set: {
+                        if $0 {
+                          predicates[index].properties.append(property)
+                        } else {
+                          predicates[index].properties.removeAll(where: { $0 == property })
                         }
-                      )
-                    )
-                    Text(property.displayName)
-                      .font(.caption)
-                      .lineLimit(1)
-                      .truncationMode(.tail)
-                      .allowsTightening(true)
+                        validation = updateAndValidatePayload()
+                      }
+                    ), label: {
+                      Text(property.displayName)
+                    })
                   }
                 }
               }
             }
-            .padding([.bottom, .horizontal], 8)
           }
-          .roundedContainer(padding: 0, margin: 8)
+          .roundedStyle(padding: 8)
         }
       }
 
@@ -241,27 +230,10 @@ struct NewCommandUIElementView: View {
               }
             }
           }
-          .padding(8)
         }
-        .roundedContainer(padding: 0, margin: 0)
-        .padding(8)
-        .buttonStyle(
-          .zen(
-            .init(
-              calm: true,
-              color: .systemGreen,
-              backgroundColor: .clear,
-              focusEffect: .constant(true),
-              grayscaleEffect: .constant(true),
-              hoverEffect: .constant(true),
-              padding: .init(horizontal: .medium, vertical: .small),
-              unfocusedOpacity: 0.5
-            )
-          )
-        )
+        .roundedStyle(padding: 8)
       }
     }
-
     .onReceive(captureStore.$capturedElement, perform: { element in
       guard let element else { return }
 
@@ -296,6 +268,7 @@ struct NewCommandUIElementView: View {
     .onDisappear {
       captureStore.stopCapturing()
     }
+    .enableInjection()
   }
 
   private func captureButton() -> some View {
@@ -313,18 +286,15 @@ struct NewCommandUIElementView: View {
           )
           .animation(.smooth, value: captureStore.isCapturing)
           .frame(width: 14, height: 14)
-          .padding(1)
-        Text( captureStore.isCapturing ? "Stop Capture" : "Capture UI Element")
+        Text(captureStore.isCapturing ? "Stop Capture" : "Capture UI Element")
       }
     })
-    .buttonStyle(
-      .zen(
-        .init(
-          color: .systemGreen,
-          hoverEffect: .constant(false)
-        )
-      )
-    )
+    .buttonStyle { button in
+      button.calm = false
+      button.focusEffect = true
+      button.hoverEffect = false
+      button.backgroundColor = .systemGreen
+    }
     .matchedGeometryEffect(id: "CaptureButton", in: namespace)
   }
 

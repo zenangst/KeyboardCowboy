@@ -34,7 +34,9 @@ struct WindowManagementAnimationPopoverView: View {
           }
         }
       }
-      .textFieldStyle(.regular(Color(.windowBackgroundColor)))
+      .textFieldStyle({ style in
+        style.backgroundColor = Color(.windowBackgroundColor)
+      })
 
       Button(action: {
         onChange(0)
@@ -43,7 +45,6 @@ struct WindowManagementAnimationPopoverView: View {
       }, label: {
         Image(systemName: "clear")
       })
-      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemRed, grayscaleEffect: .constant(true))))
     }
     .padding(16)
     .enableInjection()

@@ -33,7 +33,6 @@ struct EmptyGroupsList: View {
           }
           .padding(4)
         })
-        .buttonStyle(.zen(.init(color: .systemGreen, hoverEffect: .constant(false))))
         .frame(maxHeight: 32)
         .matchedGeometryEffect(id: "add-group-button", in: namespace)
       }

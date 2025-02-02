@@ -89,7 +89,6 @@ struct FlowItem: View {
       .opacity(isHovered ? 1 : 0)
       .animation(.smooth, value: isHovered)
     })
-    .buttonStyle(.zen(.init()))
     .onHover(perform: { hovering in
       isHovered = hovering
     })
@@ -108,7 +107,6 @@ struct FlowItem: View {
           }
       }
       .padding(6)
-      .buttonStyle(.regular)
       .font(.caption)
       .onDisappear {
         onRename(userMode.name)
@@ -128,10 +126,8 @@ struct FlowItem: View {
         }, label: {
           Text("Delete")
         })
-        .buttonStyle(.destructive)
       }
       .padding(6)
-      .buttonStyle(.regular)
       .font(.caption)
     })
   }

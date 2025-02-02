@@ -105,7 +105,6 @@ struct MultiDetailView: View {
 
         Button("Perform", action: {})
       }
-      .buttonStyle(.regular)
       .padding()
 
       Spacer()

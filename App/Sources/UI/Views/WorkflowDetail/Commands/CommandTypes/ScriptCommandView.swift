@@ -114,7 +114,7 @@ private struct ScriptCommandInlineView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      ZenTextEditor(color: ZenColorPublisher.shared.color,
+      ZenTextEditor(color: ColorPublisher.shared.color,
                     text: $text,
                     placeholder: "Script goes here…",
                     font: Font.system(.body, design: .monospaced), onCommandReturnKey: onSubmit)
@@ -136,7 +136,6 @@ private struct ScriptCommandInlineView: View {
         }
         .padding(.horizontal, 4)
       }
-      .buttonStyle(.zen(ZenStyleConfiguration(color: .systemGreen)))
       .allowsTightening(true)
       .lineLimit(1)
       .font(.caption2)
@@ -174,22 +173,11 @@ private struct ScriptCommandPathView: View {
     VStack(spacing: 0) {
       HStack {
         TextField("Path", text: $text)
-          .textFieldStyle(
-            .zen(
-              .init(
-                backgroundColor: Color.clear,
-                font: .callout,
-                padding: .init(horizontal: .medium, vertical: .medium),
-                unfocusedOpacity: 0.0
-              )
-            )
-          )
           .onChange(of: text) { newPath in
             self.text = newPath
             onUpdate(newPath)
           }
         Button("Browse", action: onBrowse)
-          .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: .constant(true))))
           .font(.caption)
       }
       ScriptCommandAssignToVariableView(
@@ -238,7 +226,6 @@ private struct ScriptCommandSubContentView: View {
         case .none:         Text("None").font(.caption)
         }
       }
-      .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
       .fixedSize()
 
       switch model.source {
@@ -247,11 +234,9 @@ private struct ScriptCommandSubContentView: View {
         Button("Open", action: {
           NSWorkspace.shared.open(URL(fileURLWithPath: source))
         })
-          .buttonStyle(.zen(ZenStyleConfiguration(color: .systemCyan, grayscaleEffect: .constant(true))))
         Button("Reveal", action: {
           NSWorkspace.shared.reveal(source)
         })
-          .buttonStyle(.zen(ZenStyleConfiguration(color: .systemBlue, grayscaleEffect: .constant(true))))
       case .inline:
         EmptyView()
       }
@@ -279,7 +264,6 @@ private struct ScriptCommandAssignToVariableView: View {
         ZenDivider(.vertical)
           .fixedSize()
         TextField("Assign output to variable", text: $variableName)
-          .textFieldStyle(.zen(.init(font: .caption, padding: ZenStyleConfiguration.Padding(horizontal: .extraLarge, vertical: .small))))
           .overlay(alignment: .leading) {
             Text("$")
               .padding(.leading, 4)

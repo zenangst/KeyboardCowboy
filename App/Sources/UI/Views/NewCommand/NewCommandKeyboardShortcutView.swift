@@ -38,7 +38,6 @@ struct NewCommandKeyboardShortcutView: View {
         Spacer()
         Button(action: { NSWorkspace.shared.open(wikiUrl) },
                label: { Image(systemName: "questionmark.circle.fill") })
-        .buttonStyle(.calm(color: .systemYellow, padding: .small))
       }
       HStack {
         KeyboardIconView("fn", size: 32)
@@ -53,9 +52,8 @@ struct NewCommandKeyboardShortcutView: View {
         .onChange(of: keyboardShortcuts, perform: { newValue in
           keyboardShortcuts = newValue
         })
-        .roundedContainer(padding: 2, margin: 0)
-        .overlay(NewCommandValidationView($validation))
-        .frame(minHeight: 48, maxHeight: 48)
+        .roundedStyle(8, padding: 0)
+        .frame(minHeight: 42, maxHeight: 42)
       }
     }
     .onChange(of: keyboardShortcuts, perform: { newValue in

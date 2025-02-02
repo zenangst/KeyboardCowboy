@@ -5,7 +5,7 @@ import Combine
 final class ApplicationWindowObserver {
   nonisolated(unsafe) static var isEnabled: Bool = false
   var subscription: AnyCancellable?
-  var observers = [ApplicationAccessibilityObserver]()
+  var observers = [AccessibilityObserver]()
 
   func subscribe(to publisher: Published<UserSpace.Application>.Publisher) {
     subscription = publisher.sink { [weak self] application in
@@ -23,7 +23,7 @@ final class ApplicationWindowObserver {
     let app = AppAccessibilityElement(application.ref.processIdentifier)
     let id = UUID()
     do {
-      if let observer = app.observe(.focusedWindowChanged, id: id, callback: { observer, element, notification, data in
+      if let observer = app.observe(.focusedWindowChanged, element: app.reference, id: id, callback: { observer, element, notification, data in
         print("element", notification as String)
       }) {
         observers.append(observer)
@@ -56,7 +56,7 @@ final class ApplicationWindowObserver {
 //    }
 
     do {
-      if let observer = app.observe(.windowCreated, id: id, callback: { observer, element, notification, data in
+      if let observer = app.observe(.windowCreated, element: app.reference, id: id, callback: { observer, element, notification, data in
         print("element", notification as String)
       }) {
         observers.append(observer)

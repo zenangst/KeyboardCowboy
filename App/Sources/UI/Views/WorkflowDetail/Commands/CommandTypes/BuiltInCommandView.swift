@@ -44,7 +44,6 @@ struct BuiltInCommandView: View {
           case .none:         Text("None").font(.caption)
           }
         }
-        .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
         .fixedSize()
     })
   }
@@ -159,7 +158,6 @@ private struct BuiltInCommandContentView: View {
         })
       }
     }
-    .menuStyle(.regular)
   }
 
   private func performUpdate(_ newKind: BuiltInCommand.Kind) {

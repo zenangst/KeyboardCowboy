@@ -76,7 +76,7 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
     ScrollViewReader { proxy in
       HStack {
         ScrollView(.horizontal) {
-          LazyHStack(spacing: 0) {
+          LazyHStack(spacing: 8) {
             ForEach($keyboardShortcuts) { keyboardShortcut in
               EditableKeyboardShortcutsItemView(
                 keyboardShortcut: keyboardShortcut,
@@ -92,8 +92,6 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
                 }
               )
               .modifier(DraggableToggle(isEnabled: draggableEnabled, model: keyboardShortcut.wrappedValue))
-              .padding(.leading, 2)
-              .padding(.trailing, 4)
               .contentShape(Rectangle())
               .dropDestination(KeyShortcut.self, alignment: .horizontal, color: .accentColor, onDrop: { items, location in
                 let ids: [KeyShortcut.ID] = if selectionManager.selections.isEmpty {
@@ -175,7 +173,6 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
             .help("This means that any key can be used to end the sequence.")
         })
         .opacity((state == .recording && $keyboardShortcuts.count > 1) ? 1 : 0)
-        .buttonStyle(.calm(color: .systemBlue, padding: .large))
 
         Button(action: {
           if state == .recording {
@@ -195,13 +192,17 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
             )
             .animation(.smooth, value: state)
             .frame(maxWidth: 14, maxHeight: 14)
-            .padding(1)
         })
-        .buttonStyle(.calm(color: .systemRed, padding: .large))
         .opacity(!keyboardShortcuts.isEmpty ? 1 : 0)
-        .padding(.trailing, 4)
         .opacity(mode.features.contains(.record) ? 1 : 0)
+        .buttonStyle { button in
+          button.grayscaleEffect = state == .recording ? false : true
+          button.backgroundColor = .systemRed
+          button.padding = .large
+          button.hoverEffect = state == .recording ? false : true
+        }
       }
+      .style(.list)
       .overlay(overlay(proxy))
       .onAppear {
         guard recordOnAppearIfEmpty, keyboardShortcuts.isEmpty else { return }
@@ -267,7 +268,6 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
             .allowsTightening(true)
             .minimumScaleFactor(0.8)
             .lineLimit(1)
-            .padding(6)
             .frame(maxWidth: .infinity)
           Spacer()
           Divider()
@@ -276,10 +276,11 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 16, height: 16)
-            .padding(.trailing, 4)
         }
       })
-      .buttonStyle(.positive)
+      .buttonStyle { button in
+        button.padding = .extraLarge
+      }
       .fixedSize(horizontal: false, vertical: true)
       .opacity(keyboardShortcuts.isEmpty ? 1 : 0)
     }

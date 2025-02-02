@@ -32,34 +32,30 @@ struct NewCommandAppFocusView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      VStack(alignment: .leading) {
-        Text("Applications")
-          .font(.subheadline)
+    VStack(alignment: .leading, spacing: 8) {
+      Text("Applications")
+        .font(.subheadline)
 
-        Menu {
+      Menu {
+        Button(action: {
+          let application = Application.currentApplication()
+          selectedApp = AppFocusApplicationItem(application)
+          onSelectedAppsChange(application.bundleIdentifier)
+        }, label: { Text("Current Application") })
+        ForEach(applicationStore.applications) { application in
           Button(action: {
-            let application = Application.currentApplication()
             selectedApp = AppFocusApplicationItem(application)
             onSelectedAppsChange(application.bundleIdentifier)
-          }, label: { Text("Current Application") })
-          ForEach(applicationStore.applications) { application in
-            Button(action: {
-              selectedApp = AppFocusApplicationItem(application)
-              onSelectedAppsChange(application.bundleIdentifier)
-            },
-                   label: { Text(application.displayName) })
-          }
-        } label: {
-          if let selectedApp {
-            Text(selectedApp.application.displayName)
-          } else {
-            Text("Select Application")
-          }
+          },
+                 label: { Text(application.displayName) })
         }
-        .menuStyle(.regular)
+      } label: {
+        if let selectedApp {
+          Text(selectedApp.application.displayName)
+        } else {
+          Text("Select Application")
+        }
       }
-      .padding(4)
       .overlay(NewCommandValidationView($validation))
 
       VStack(alignment: .leading) {
@@ -79,35 +75,33 @@ struct NewCommandAppFocusView: View {
           Text(tiling?.name ?? "Select Tiling")
         }
       }
-      .padding(4)
 
       VStack(alignment: .leading) {
         Text("Settings")
           .font(.subheadline)
 
         HStack {
-          ZenCheckbox(isOn: $hideOtherApps) { newValue in
-            onHideOtherAppsChange(newValue)
-          }
+          Toggle(isOn: $hideOtherApps, label: {})
+            .onChange(of: hideOtherApps, perform: { newValue in
+              onHideOtherAppsChange(newValue)
+            })
           Text("Hide Other Apps")
             .font(.subheadline)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 4)
 
         HStack {
-          ZenCheckbox(isOn: $createNewWindow) { newValue in
-            onCreateNewWindowChange(newValue)
-          }
+          Toggle(isOn: $createNewWindow, label: {})
+            .onChange(of: createNewWindow, perform: { newValue in
+              onCreateNewWindowChange(newValue)
+            })
           Text("Create New Window")
             .font(.subheadline)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 4)
       }
-      .padding(4)
     }
-    .padding(8)
+    .style(.derived)
     .enableInjection()
   }
 }

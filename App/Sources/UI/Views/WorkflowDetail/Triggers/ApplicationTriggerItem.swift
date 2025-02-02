@@ -25,10 +25,9 @@ struct ApplicationTriggerItem: View {
       VStack(alignment: .leading, spacing: 4) {
         Text(element.name)
           .frame(maxWidth: .infinity, alignment: .leading)
-          .font(.caption)
         HStack {
           ForEach(DetailViewModel.ApplicationTrigger.Context.allCases) { context in
-            ZenCheckbox(context.displayValue, style: .small, isOn: Binding<Bool>(get: {
+            Toggle(isOn: Binding<Bool>(get: {
               element.contexts.contains(context)
             }, set: { newValue in
               if newValue {
@@ -36,15 +35,19 @@ struct ApplicationTriggerItem: View {
               } else {
                 element.contexts.removeAll(where: { $0 == context })
               }
-            })) { _ in }
+            }), label: {
+              Text(context.displayValue)
+            })
               .lineLimit(1)
               .allowsTightening(true)
               .truncationMode(.tail)
-              .font(.caption)
+          }
+          .checkboxStyle { checkbox in
+            checkbox.style = .small
+            checkbox.font = .caption
           }
         }
       }
-      .padding(.vertical, 8)
       ZenDivider(.vertical)
       Button(
         action: {
@@ -60,12 +63,11 @@ struct ApplicationTriggerItem: View {
             .aspectRatio(contentMode: .fill)
             .frame(width: 8, height: 8)
         })
-      .buttonStyle(.calm(color: .systemRed, padding: .medium))
+      .buttonStyle(.destructive)
     }
-    .padding(.leading, 8)
-    .padding(.trailing, 16)
-    .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(element.id) }, cornerRadius: 8))
     .contentShape(Rectangle())
+    .roundedStyle(6)
+    .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(element.id) }, cornerRadius: 6))
     .draggable(element)
     .enableInjection()
   }

@@ -66,14 +66,14 @@ final class GroupWindow: NSObject, NSWindowDelegate {
       content: content
     )
     windowManager.window = window
-    let size = window.hostingController.sizeThatFits(in: .zero)
+    let size = window.sizeThatFits(in: .zero)
     window.setFrame(NSRect(origin: .zero, size: size), display: false)
 
     window.animationBehavior = .documentWindow
-    window.hostingController.view.frame.size = size
     window.titlebarAppearsTransparent = true
     window.titleVisibility = .hidden
     window.delegate = self
+    window.standardWindowButton(.closeButton)?.isBordered = true
     window.makeKeyAndOrderFront(nil)
     window.center()
 

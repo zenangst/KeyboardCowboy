@@ -36,14 +36,15 @@ struct NewCommandTypeView: View {
         GridRow {
           Text("Actions:")
           HStack {
-            ZenCheckbox("", style: .small, isOn: $insertEnter) { newValue in
-              if actions.contains(.insertEnter) {
-                actions.remove(.insertEnter)
-              } else {
-                actions.insert(.insertEnter)
+            Toggle(isOn: $insertEnter, label: {})
+              .onChange(of: insertEnter) { newValue in
+                if actions.contains(.insertEnter) {
+                  actions.remove(.insertEnter)
+                } else {
+                  actions.insert(.insertEnter)
+                }
+                self.validation = updateAndValidatePayload()
               }
-              self.validation = updateAndValidatePayload()
-            }
             Text(TextCommand.TypeCommand.Action.insertEnter.displayValue)
             Spacer()
           }
@@ -61,11 +62,10 @@ struct NewCommandTypeView: View {
           }, label: {
             Text(mode.rawValue)
           })
-          .menuStyle(.regular)
         }
       }
-      .font(.caption)
-      .roundedContainer(margin: 0)
+      .roundedStyle()
+      
     }
     .onChange(of: text) { newValue in
       validation = updateAndValidatePayload()

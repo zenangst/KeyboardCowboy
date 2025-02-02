@@ -39,7 +39,6 @@ struct WorkspaceCommandView: View {
           Text("Add Application")
             .font(.caption)
         }
-        .menuStyle(.regular)
       }
       .padding(.horizontal, 4)
 
@@ -61,7 +60,6 @@ struct WorkspaceCommandView: View {
               Text("Remove")
                 .font(.caption)
             }
-            .buttonStyle(.zen(.init(color: .systemRed, grayscaleEffect: .constant(true))))
           }
           .listRowSeparator(.visible)
           .listRowInsets(EdgeInsets(top: 0, leading: -6, bottom: 0, trailing: -6))
@@ -119,7 +117,6 @@ struct WorkspaceCommandView: View {
               Text(model.tiling?.name ?? "No Tiling")
                 .font(.caption)
             }
-            .menuStyle(.zen(.init(grayscaleEffect: .constant(true), hoverEffect: .constant(true))))
             .frame(minHeight: 20)
           }
 
@@ -130,9 +127,10 @@ struct WorkspaceCommandView: View {
                 .font(.caption)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 4)
-              ZenCheckbox(isOn: $model.hideOtherApps) { newValue in
-                onHideOtherAppsChange(newValue)
-              }
+              Toggle(isOn: $model.hideOtherApps, label: {})
+                .onChange(of: model.hideOtherApps) { newValue in
+                  onHideOtherAppsChange(newValue)
+                }
             }
           }
         }

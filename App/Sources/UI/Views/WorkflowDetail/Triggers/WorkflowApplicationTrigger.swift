@@ -26,9 +26,8 @@ struct WorkflowApplicationTrigger: View {
 
   @MainActor
   var body: some View {
-    VStack(alignment: .leading) {
+    VStack(alignment: .leading, spacing: 0) {
       HStack {
-        GenericAppIconView(size: 28)
         Menu {
           Button(action: {
             let uuid = UUID()
@@ -40,6 +39,8 @@ struct WorkflowApplicationTrigger: View {
           }, label: {
             Text("Any Application")
           })
+
+          Divider()
 
           ForEach(applicationStore.applications.lazy, id: \.path) { application in
             Button(action: {
@@ -55,20 +56,24 @@ struct WorkflowApplicationTrigger: View {
         } label: {
          Text("Add Application")
         }
-        .menuStyle(.zen(.init(color: data.isEmpty ? .systemGreen : .systemBlue,
-                              grayscaleEffect: Binding<Bool>.readonly { !data.isEmpty },
-                              hoverEffect: Binding<Bool>.readonly { !data.isEmpty },
-                              padding: .init(horizontal: .large, vertical: .large))))
+        .buttonStyle { style in
+          style.grayscaleEffect = !data.isEmpty
+          style.hoverEffect = !data.isEmpty
+        }
       }
-      .roundedContainer(padding: 6, margin: 0)
+      .menuStyle { menu in
+        menu.calm = false
+        menu.unfocusedOpacity = 0.5
+      }
       .frame(minHeight: 44)
 
       if !data.isEmpty {
         let count = data.count
+        let itemHeight: CGFloat = 55
+
         ScrollView {
-          LazyVStack(spacing: 0) {
-            let lastID = $data.lazy.last?.id
-            ForEach($data.lazy, id: \.id) { element in
+          LazyVStack {
+            ForEach($data, id: \.id) { element in
               ApplicationTriggerItem(element, data: $data, selectionManager: selectionManager)
               .contentShape(Rectangle())
               .dropDestination(DetailViewModel.ApplicationTrigger.self, color: .accentColor, onDrop: { items, location in
@@ -85,11 +90,6 @@ struct WorkflowApplicationTrigger: View {
               .focusable(focus, as: .detail(.applicationTrigger(element.id))) {
                 selectionManager.handleOnTap(data, element: element.wrappedValue)
               }
-
-              let notLastItem = element.id != lastID
-              ZenDivider()
-                .opacity(notLastItem ? 1 : 0)
-                .frame(height: notLastItem ? nil : 0)
             }
             .onCommand(#selector(NSResponder.insertTab(_:)), perform: {
               onTab()
@@ -115,8 +115,7 @@ struct WorkflowApplicationTrigger: View {
           .focused(focus, equals: .detail(.applicationTriggers))
         }
         .scrollDisabled(count <= 3)
-        .frame(minHeight: 46, maxHeight: maxHeight(count))
-        .roundedContainer(12, padding: 2, margin: 0)
+        .frame(minHeight: itemHeight - 2, maxHeight: maxHeight(count, itemHeight: itemHeight))
       }
     }
     .enableInjection()
@@ -143,12 +142,14 @@ struct WorkflowApplicationTrigger: View {
     }
   }
 
-  private func maxHeight(_ count: Int) -> CGFloat {
+  private func maxHeight(_ count: Int, itemHeight: CGFloat) -> CGFloat {
+    let result: CGFloat
     if count > 1 {
-      return min(CGFloat(count * 48), 300)
+      result = min(CGFloat(count) * itemHeight, 300)
     } else {
-      return 46 // Max size without the `ZenDivider`
+      result = itemHeight
     }
+    return result
   }
 }
 
@@ -168,8 +169,8 @@ fileprivate extension DetailViewModel.ApplicationTrigger.Context {
   return WorkflowApplicationTrigger(
     $focus,
     data: [
-      .init(id: "1", name: "Application 1", application: .finder(),
-            contexts: []),
+      .init(id: "1", name: "Finder", application: .finder(), contexts: []),
+      .init(id: "2", name: "Calendar", application: .calendar(), contexts: []),
     ],
     selectionManager: SelectionManager(),
     onTab: { }

@@ -51,7 +51,7 @@ struct WorkflowNotificationMatchesView: View {
                 case .keyboardShortcuts(let trigger):
                   ForEach(Array(zip(trigger.shortcuts.indices, trigger.shortcuts)), id: \.1) { offset, shortcut in
                     WorkflowNotificationKeyView(keyShortcut: shortcut, glow: .constant(false))
-                      .roundedContainer(4, padding: 1, margin: 1)
+                      .roundedStyle(4, padding: 1)
                       .opacity(offset == 0 ? 0.5 : 1)
                       .shadow(color: .accentColor.opacity(offset == 1 ? 1 : 0), radius: 3)
                   }
@@ -61,7 +61,7 @@ struct WorkflowNotificationMatchesView: View {
                 padding(workflow, columnCount: columnCount - 1)
                 Spacer()
                 workflow.iconView(22)
-                  .roundedContainer(8, padding: 0, margin: 1)
+                  .roundedStyle(8, padding: 0)
               }
             }
           }
@@ -69,7 +69,7 @@ struct WorkflowNotificationMatchesView: View {
         .padding(8)
         .background(
           Color.clear
-          .roundedContainer(8, padding: 2, margin: 1)
+          .roundedStyle(8, padding: 2)
           .mask {
             LinearGradient(stops: [
               Gradient.Stop(color: .black.opacity(0.8), location: 0.0),

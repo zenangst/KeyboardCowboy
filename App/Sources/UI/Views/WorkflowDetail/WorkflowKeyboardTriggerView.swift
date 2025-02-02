@@ -49,29 +49,29 @@ struct WorkflowKeyboardTriggerView: View {
       }
 
       HStack {
-        ZenCheckbox("Allow Repeat", style: .small, isOn: $allowRepeat) { newValue in
-          updater.modifyWorkflow(using: transaction) { workflow in
-            workflow.trigger = .keyboardShortcuts(
-              KeyboardShortcutTrigger(
-                allowRepeat: newValue,
-                passthrough: passthrough,
-                holdDuration: Double(holdDurationText),
-                shortcuts: trigger.shortcuts))
-          }
-        }
-        .font(.caption)
+        Toggle(isOn: $allowRepeat, label: { Text("Allow Repeat") })
+          .onChange(of: allowRepeat, perform: { newValue in
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.trigger = .keyboardShortcuts(
+                KeyboardShortcutTrigger(
+                  allowRepeat: newValue,
+                  passthrough: passthrough,
+                  holdDuration: Double(holdDurationText),
+                  shortcuts: trigger.shortcuts))
+            }
+          })
 
-        ZenCheckbox("Passthrough", style: .small, isOn: $passthrough) { newValue in
-          updater.modifyWorkflow(using: transaction) { workflow in
-            workflow.trigger = .keyboardShortcuts(
-              KeyboardShortcutTrigger(
-                allowRepeat: allowRepeat,
-                passthrough: newValue,
-                holdDuration: Double(holdDurationText),
-                shortcuts: trigger.shortcuts))
-          }
-        }
-        .font(.caption)
+        Toggle(isOn: $passthrough, label: { Text("Passthrough") })
+          .onChange(of: passthrough, perform: { newValue in
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.trigger = .keyboardShortcuts(
+                KeyboardShortcutTrigger(
+                  allowRepeat: allowRepeat,
+                  passthrough: newValue,
+                  holdDuration: Double(holdDurationText),
+                  shortcuts: trigger.shortcuts))
+            }
+          })
         Spacer()
         HStack(spacing: 0) {
           if trigger.shortcuts.count == 1 {
@@ -90,13 +90,23 @@ struct WorkflowKeyboardTriggerView: View {
                 shortcuts: trigger.shortcuts))
           }
         }
-        .textFieldStyle(.zen(.init(backgroundColor: Color(nsColor: .controlColor).opacity(0.5), font: .caption, padding: .small)))
+        .textFieldStyle { style in
+          style.cornerRadius = 4
+          style.backgroundColor = Color(nsColor: .controlColor).opacity(0.5)
+          style.font = .caption
+          style.padding = .small
+        }
         .frame(maxWidth: 32)
         Text("seconds")
       }
-      .font(.caption2)
+      .textStyle { text in
+        text.font = .caption
+      }
+      .checkboxStyle { checkbox in
+        checkbox.font = .caption
+        checkbox.style = .small
+      }
     }
-    .padding(.horizontal, 8)
     .enableInjection()
   }
 }

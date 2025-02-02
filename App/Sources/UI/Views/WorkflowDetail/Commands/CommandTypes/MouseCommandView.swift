@@ -64,7 +64,6 @@ private struct MouseCommandInternalView: View {
           case .none:         Text("None").font(.caption)
           }
         }
-        .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
         .fixedSize()
       })
   }
@@ -163,12 +162,11 @@ private struct MouseCommandContentView: View {
               TextField("Y", text: $yString)
                 .frame(maxWidth: 50)
             }
-            .textFieldStyle(.regular(nil))
+            .textFieldStyle()
           }
         }
       }
     }
-    .menuStyle(.zen(.init(color: .systemGray)))
   }
 }
 

@@ -37,7 +37,6 @@ struct ApplicationSettingsView: View {
                   }, label: {
                     Image(systemName: "trash")
                   })
-                  .buttonStyle(.calm(color: .systemRed, padding: .medium))
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
@@ -48,7 +47,7 @@ struct ApplicationSettingsView: View {
           }
         }
       }
-      .roundedContainer(padding: 0)
+      .roundedStyle(padding: 0)
       .background(Color(.windowBackgroundColor))
       .layoutPriority(100)
 
@@ -58,7 +57,6 @@ struct ApplicationSettingsView: View {
         }, label: {
           Image(systemName: "questionmark.app.fill")
         })
-        .buttonStyle(.calm(color: .systemYellow, padding: .medium))
         .popover(isPresented: $isPresentingPopover,
                  arrowEdge: .bottom,
                  content: {
@@ -78,7 +76,6 @@ struct ApplicationSettingsView: View {
             Text("Add Folder")
           }
         })
-        .buttonStyle(.zen(.init(color: .systemBlue)))
         .font(.callout)
         .frame(height: 32)
       }

@@ -11,14 +11,12 @@ struct AddUserModeView: View {
       HStack {
         UserModeIconView(size: 24)
         TextField("User Mode Name", text: $name)
-          .textFieldStyle(.regular(nil))
           .onSubmit {
             action(name)
           }
         Button(action: {
           action(name)
         }, label: { Text("Done") })
-        .buttonStyle(.regular)
       }
     }
     .enableInjection()

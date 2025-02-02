@@ -8,6 +8,7 @@ struct EditableKeyboardShortcutsItemView: View {
     case remove
   }
 
+  @ObserveInjection var inject
   @Binding private var keyboardShortcuts: [KeyShortcut]
 
   private let features: Set<Feature>
@@ -35,10 +36,12 @@ struct EditableKeyboardShortcutsItemView: View {
       selectionManager: selectionManager,
       onDelete: onDelete
     )
+    .enableInjection()
   }
 }
 
 private struct EditableKeyboardShortcutsItemInternalView: View {
+  @ObserveInjection var inject
   @Binding private var keyboardShortcuts: [KeyShortcut]
 
   @State private var isHovered: Bool = false
@@ -78,8 +81,6 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
         .fixedSize(horizontal: true, vertical: true)
     }
     .contentShape(Rectangle())
-    .padding(2)
-    .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(keyboardShortcut.wrappedValue.id) }, cornerRadius: 6))
     .overlay(alignment: .topTrailing, content: {
       Button(action: {
         onDelete(keyboardShortcut.wrappedValue)
@@ -100,9 +101,11 @@ private struct EditableKeyboardShortcutsItemInternalView: View {
         .opacity(0.5)
     )
     .padding(.horizontal, 2)
+    .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(keyboardShortcut.wrappedValue.id) }, cornerRadius: 4))
     .onHover(perform: { hovering in
       isHovered = hovering
     })
+    .enableInjection()
   }
 }
 

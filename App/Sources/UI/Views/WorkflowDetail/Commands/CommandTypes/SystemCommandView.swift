@@ -54,7 +54,6 @@ struct SystemCommandView: View {
           case .none:         Text("None").font(.caption)
           }
         }
-        .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
         .fixedSize()
       })
     .id(model.id)
@@ -91,7 +90,6 @@ private struct SystemCommandContentView: View {
           .truncationMode(.middle)
           .allowsTightening(true)
       })
-      .menuStyle(.regular)
     }
   }
 }

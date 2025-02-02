@@ -1,6 +1,8 @@
+import Inject
 import SwiftUI
 
 struct NewCommandButtonView<Content>: View where Content: View {
+  @ObserveInjection var inject
   @FocusState private var isFocused: Bool
 
   private let content: () -> Content
@@ -19,6 +21,13 @@ struct NewCommandButtonView<Content>: View where Content: View {
         .contentShape(RoundedRectangle(cornerRadius: 8))
         .foregroundColor(isFocused ? Color(.controlAccentColor) : Color(.textColor))
     }
-    .buttonStyle(.plain)
+    .buttonStyle { button in
+      button.focusEffect = false
+      button.grayscaleEffect = false
+      button.hoverEffect = true
+      button.backgroundColor = .clear
+      button.padding = .small
+    }
+    .enableInjection()
   }
 }

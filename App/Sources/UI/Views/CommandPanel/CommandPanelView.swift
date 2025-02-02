@@ -52,7 +52,7 @@ struct CommandPanelView: View {
         name: command.name,
         action: action
       )
-      .roundedContainer(padding: 4, margin: 4)
+      .roundedStyle(padding: 4)
 
       ScrollView {
         VStack(spacing: 8) {
@@ -68,7 +68,7 @@ struct CommandPanelView: View {
             ScriptCommandContentView(metaData: .init(name: "Name", namePlaceholder: ""), model: viewModel, onSubmit: {
               onSubmit(command)
             })
-              .roundedContainer(padding: 4, margin: 4)
+              .roundedStyle(padding: 4)
           case .inline(let source):
             let viewModel = CommandViewModel.Kind.ScriptModel(
                 id: command.id,
@@ -80,16 +80,16 @@ struct CommandPanelView: View {
             ScriptCommandContentView(metaData: .init(name: "Name", namePlaceholder: ""), model: viewModel, onSubmit: {
               onSubmit(command)
             })
-            .roundedContainer(padding: 4, margin: 4)
+            .roundedStyle(padding: 4)
           }
 
           CommandPanelOutputView(state: publisher.state)
             .frame(maxWidth: .infinity)
-            .roundedContainer(padding: 4, margin: 4)
+            .roundedStyle(padding: 4)
         }
       }
     }
-    .roundedContainer(padding: 8, margin: 4)
+    .roundedStyle(padding: 8)
     .frame(minWidth: 200, minHeight: 200)
   }
 
@@ -124,18 +124,18 @@ private struct CommandPanelHeaderView: View {
         Text(Self.buttonText(state))
           .frame(minWidth: 80)
       })
-      .buttonStyle(.zen(.init(color: Self.buttonColor(state))))
+      .buttonStyle { $0.backgroundColor = Self.buttonColor(state) }
       .fixedSize()
       .animation(.easeIn, value: state)
     }
   }
 
-  private static func buttonColor(_ state: CommandPanelView.CommandState) -> ZenColor {
+  private static func buttonColor(_ state: CommandPanelView.CommandState) -> Color {
     switch state {
-    case .ready: .systemGray
+    case .ready: Color(.systemGray)
     case .running: .accentColor
-    case .error: .systemRed
-    case .done: .systemGreen
+    case .error: Color(.systemRed)
+    case .done: Color(.systemGreen)
     }
   }
 

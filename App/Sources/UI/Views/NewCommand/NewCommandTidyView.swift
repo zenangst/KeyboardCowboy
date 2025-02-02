@@ -18,68 +18,59 @@ struct NewCommandTidyView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
+    VStack(alignment: .leading, spacing: 8) {
       Text("Applications")
         .font(.subheadline)
-        .padding(.horizontal, 4)
-        .padding(.bottom, 8)
 
-      VStack(spacing: 0) {
-        Menu {
-          ForEach(applicationStore.applications) { application in
-            Button(action: {
-              rules.append(TidyApplicationItem(id: UUID(), application, tiling: .left))
-              onRulesChange(rules)
-            }, label: { Text(application.displayName) })
-          }
-        } label: {
-          Text("Add Application")
-        }
-        .menuStyle(.regular)
-        .padding(4)
-
-        CompatList {
-          ForEach(Array(zip(rules.indices, rules)), id: \.0) { offset, item in
-            VStack(spacing: 0) {
-              HStack {
-                IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
-                Text(item.application.displayName)
-                  .frame(maxWidth: .infinity, alignment: .leading)
-
-                TidyWindowTilingMenu(offset: offset, rules: $rules) {
-                  onRulesChange(rules)
-                }
-
-                Button {
-                  if offset <= rules.count - 1 {
-                    let selectedApp = rules[offset]
-                    if item.application == selectedApp.application {
-                      rules.remove(at: offset)
-                      onRulesChange(rules)
-                    }
-                  }
-                } label: {
-                  Text("Remove")
-                    .font(.caption)
-                }
-                .buttonStyle(.destructive)
-              }
-              .padding(4)
-              ZenDivider()
-            }
-          }
-          .onMove { indexSet, offset in
-            rules.move(fromOffsets: indexSet, toOffset: offset)
+      Menu {
+        ForEach(applicationStore.applications) { application in
+          Button(action: {
+            rules.append(TidyApplicationItem(id: UUID(), application, tiling: .left))
             onRulesChange(rules)
+          }, label: { Text(application.displayName) })
+        }
+      } label: {
+        Text("Add Application")
+      }
+
+      CompatList {
+        ForEach(Array(zip(rules.indices, rules)), id: \.0) { offset, item in
+          VStack(spacing: 8) {
+            HStack {
+              IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
+              Text(item.application.displayName)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+              TidyWindowTilingMenu(offset: offset, rules: $rules) {
+                onRulesChange(rules)
+              }
+
+              Button {
+                if offset <= rules.count - 1 {
+                  let selectedApp = rules[offset]
+                  if item.application == selectedApp.application {
+                    rules.remove(at: offset)
+                    onRulesChange(rules)
+                  }
+                }
+              } label: {
+                Text("Remove")
+                  .font(.caption)
+              }
+              .buttonStyle(.destructive)
+            }
+            ZenDivider()
           }
         }
-        .overlay(NewCommandValidationView($validation).zIndex(100))
+        .onMove { indexSet, offset in
+          rules.move(fromOffsets: indexSet, toOffset: offset)
+          onRulesChange(rules)
+        }
       }
-      .roundedContainer(padding: 0, margin: 0)
-      .padding([.leading, .trailing], 4)
-      .padding(.bottom, 8)
+      .overlay(NewCommandValidationView($validation).zIndex(100))
+      .roundedStyle()
     }
-    .padding(8)
+    .style(.derived)
     .onAppear {
       onRulesChange(rules)
       validation = .valid
@@ -127,7 +118,6 @@ fileprivate struct TidyWindowTilingMenu: View {
         Text("Unassigned")
       }
     }
-    .menuStyle(.regular)
   }
 }
 

@@ -25,24 +25,20 @@ struct WorkflowTrigger: View {
         FocusableButton(
           focus,
           identity: .detail(.addAppTrigger),
-          variant: .zen(.init(calm: false,
-                              color: .systemBlue,
-                              focusEffect: .constant(true),
-                              grayscaleEffect: $isGrayscale)),
           action: {
             updater.modifyWorkflow(using: transaction) { workflow in
               workflow.trigger = .application([])
             }
-          }
-        ) {
-          HStack(spacing: 6) {
-            GenericAppIconView(size: 20)
-            Text("Application")
-              .font(.caption)
-              .lineLimit(1)
-          }
-          .frame(maxWidth: .infinity)
-        }
+          },
+          label: {
+            HStack(spacing: 6) {
+              GenericAppIconView(size: 20)
+              Text("Application")
+                .font(.caption)
+                .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+          })
         .onMoveCommand(perform: { direction in
           switch direction {
           case .right:
@@ -54,16 +50,12 @@ struct WorkflowTrigger: View {
         FocusableButton(
           focus,
           identity: .detail(.addKeyboardTrigger),
-          variant: .zen(.init(calm: false,
-                              color: .systemIndigo,
-                              focusEffect: .constant(true),
-                              grayscaleEffect: $isGrayscale)),
           action: {
             updater.modifyWorkflow(using: transaction) { workflow in
               workflow.trigger = .keyboardShortcuts(KeyboardShortcutTrigger(passthrough: false, holdDuration: nil, shortcuts: []))
             }
-          }
-        ) {
+          },
+          label: {
           HStack(spacing: 6) {
             KeyboardIconView("M", size: 20)
             Text("Keyboard Shortcut")
@@ -72,7 +64,7 @@ struct WorkflowTrigger: View {
               .font(.caption)
           }
           .frame(maxWidth: .infinity)
-        }
+        })
         .onMoveCommand(perform: { direction in
           switch direction {
           case .left:
@@ -86,27 +78,21 @@ struct WorkflowTrigger: View {
         FocusableButton(
           focus,
           identity: .detail(.addSnippetTrigger),
-          variant: .zen(.init(calm: false,
-                              color: .systemPurple,
-                              focusEffect: .constant(true),
-                              grayscaleEffect: $isGrayscale)),
           action: {
             updater.modifyWorkflow(using: transaction) { workflow in
               workflow.trigger = .snippet(SnippetTrigger(id: UUID().uuidString, text: ""))
             }
             focus.wrappedValue = .detail(.snippet)
-          }
-        ) {
-
-          
-          HStack(spacing: 6) {
-            SnippetIconView(size: 20)
-            Text("Snippet")
-              .font(.caption)
-              .lineLimit(1)
-          }
-          .frame(maxWidth: .infinity)
-        }
+          },
+          label: {
+            HStack(spacing: 6) {
+              SnippetIconView(size: 20)
+              Text("Snippet")
+                .font(.caption)
+                .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+          })
         .onMoveCommand(perform: { direction in
           switch direction {
           case .left:
@@ -122,9 +108,8 @@ struct WorkflowTrigger: View {
         focus.wrappedValue = .detail(.name)
       })
       .frame(maxWidth: .infinity)
-      .roundedContainer(padding: 8, margin: 0)
+      .roundedStyle(padding: 6)
     }
-    .buttonStyle(.regular)
     .enableInjection()
   }
 }

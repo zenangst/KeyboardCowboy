@@ -30,46 +30,48 @@ struct AppFocusCommandView: View {
   var body: some View {
     VStack(alignment: .leading) {
       VStack(alignment: .leading, spacing: 8) {
-        Text("Applications")
-          .font(.subheadline)
-        Menu {
-          Button(action: {
-            let application = Application.currentApplication()
-            model.application = application
-            onSelectedAppsChange(application)
-          }, label: { Text("Current Application") })
-          ForEach(applicationStore.applications) { application in
-            Button(action: {
-              model.application = application
-              onSelectedAppsChange(application)
-            },
-                   label: {
-              Text(application.displayName)
-            })
-          }
-        } label: {
-          Group {
-            if model.application?.bundleIdentifier == Application.currentAppBundleIdentifier() {
-              Text("Current Application")
-            } else if let application = model.application {
-              IconView(icon: Icon(application), size: .init(width: 24, height: 24))
-              Text(application.displayName)
-            } else {
-              Text("Add Application")
+        Grid {
+          GridRow(alignment: .bottom) {
+            ZStack {
+              RoundedRectangle(cornerRadius: 6)
+                .frame(width: 24, height: 24)
+                .opacity(0.1)
+              if let application = model.application {
+                IconView(icon: Icon(application), size: .init(width: 24, height: 24))
+              }
+            }
+
+            VStack(alignment: .leading) {
+              Menu {
+                Button(action: {
+                  let application = Application.currentApplication()
+                  model.application = application
+                  onSelectedAppsChange(application)
+                }, label: { Text("Current Application") })
+                ForEach(applicationStore.applications) { application in
+                  Button(action: {
+                    model.application = application
+                    onSelectedAppsChange(application)
+                  },
+                         label: {
+                    Text(application.displayName)
+                  })
+                }
+              } label: {
+                Group {
+                  if model.application?.bundleIdentifier == Application.currentAppBundleIdentifier() {
+                    Text("Current Application")
+                  } else if let application = model.application {
+                    Text(application.displayName)
+                  } else {
+                    Text("Add Application")
+                  }
+                }
+              }
             }
           }
-            .font(.caption)
-        }
-        .menuStyle(.regular)
-      }
-      .padding(.horizontal, 4)
 
-      VStack(alignment: .leading, spacing: 8) {
-        Text("Window Tiling")
-          .font(.subheadline)
-
-        Grid {
-          GridRow {
+          GridRow(alignment: .bottom) {
             switch model.tiling {
             case .arrangeLeftRight:
               WindowTilingIcon(kind: .arrangeLeftRight, size: 20)
@@ -101,27 +103,27 @@ struct AppFocusCommandView: View {
                 .frame(width: 20)
             }
 
-            Menu {
-              Button {
-                model.tiling = nil
-                onTilingChange(nil)
-              } label: {
-                Text("No Tiling")
-              }
-              ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
+            VStack(alignment: .leading) {
+              Menu {
                 Button {
-                  model.tiling = tiling
-                  onTilingChange(tiling)
+                  model.tiling = nil
+                  onTilingChange(nil)
                 } label: {
-                  Text(tiling.name)
+                  Text("No Tiling")
                 }
+                ForEach(WorkspaceCommand.Tiling.allCases) { tiling in
+                  Button {
+                    model.tiling = tiling
+                    onTilingChange(tiling)
+                  } label: {
+                    Text(tiling.name)
+                  }
+                }
+              } label: {
+                Text(model.tiling?.name ?? "No Tiling")
               }
-            } label: {
-              Text(model.tiling?.name ?? "No Tiling")
-                .font(.caption)
+              .frame(minHeight: 20)
             }
-            .menuStyle(.zen(.init(grayscaleEffect: .constant(true), hoverEffect: .constant(true))))
-            .frame(minHeight: 20)
           }
 
           GridRow {
@@ -131,9 +133,10 @@ struct AppFocusCommandView: View {
                 .font(.caption)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 4)
-              ZenCheckbox(isOn: $model.hideOtherApps) { newValue in
-                onHideOtherAppsChange(newValue)
-              }
+              Toggle(isOn: $model.hideOtherApps, label: {})
+                .onChange(of: model.hideOtherApps) { newValue in
+                  onHideOtherAppsChange(newValue)
+                }
             }
           }
 
@@ -144,14 +147,14 @@ struct AppFocusCommandView: View {
                 .font(.caption)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 4)
-              ZenCheckbox(isOn: $model.createNewWindow) { newValue in
+              Toggle(isOn: $model.createNewWindow, label: {})
+                .onChange(of: model.createNewWindow) { newValue in
                 onCreateWindowChange(newValue)
               }
             }
           }
         }
       }
-      .padding(4)
     }
     .enableInjection()
   }

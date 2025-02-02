@@ -5,6 +5,7 @@ import Bonzai
 struct CommandContainerView<IconContent, Content, SubContent>: View where IconContent: View,
                                                                           Content: View,
                                                                           SubContent: View {
+  @ObserveInjection var inject
   private let placeholder: String
 
   @State private var metaData: CommandViewModel.MetaData
@@ -25,17 +26,33 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 4) {
+    VStack(alignment: .leading, spacing: 6) {
       CommandContainerHeaderView($metaData, placeholder: placeholder)
+        .switchStyle {
+          $0.style = .small
+        }
+        .style(.subItem)
+
       ZenDivider()
-        .padding(.bottom, 4)
+
       CommandContainerContentView($metaData, icon: icon, content: content)
+
       CommandContainerSubContentView($metaData, content: subContent)
+        .textStyle {
+          $0.font = .caption
+        }
+        .menuStyle {
+          $0.calm = true
+          $0.padding = .medium
+        }
     }
+    .roundedStyle(padding: EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
+    .enableInjection()
   }
 }
 
 private struct CommandContainerHeaderView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -49,24 +66,26 @@ private struct CommandContainerHeaderView: View {
 
   var body: some View {
     HStack(spacing: 12) {
-      ZenToggle(config: .init(color: .systemGreen), style: .small, isOn: $metaData.isEnabled) { newValue in
-        updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.isEnabled = newValue })
-      }
-      .offset(x: 2)
+      Toggle(isOn: $metaData.isEnabled, label: {})
+        .onChange(of: metaData.isEnabled) { newValue in
+          updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.isEnabled = newValue })
+        }
 
       let textFieldPlaceholder = metaData.namePlaceholder.isEmpty
       ? placeholder
       : metaData.namePlaceholder
       TextField(textFieldPlaceholder, text: $metaData.name)
-        .textFieldStyle(
-          .zen(.init(backgroundColor: Color.clear, font: .callout,
-                     padding: .init(horizontal: .zero, vertical: .zero),
-                     unfocusedOpacity: 0.0)))
+        .textFieldStyle { textField in
+          textField.font = .callout
+          textField.unfocusedOpacity = 0
+        }
         .onChange(of: metaData.name, perform: { newValue in
           updater.modifyCommand(withID: metaData.id, using: transaction, handler: { $0.name = newValue })
         })
+
       CommandContainerActionView(metaData: metaData)
     }
+    .enableInjection()
   }
 }
 
@@ -93,6 +112,7 @@ private struct CommandContainerContentView<IconContent, Content>: View where Ico
       content()
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
         .style(.subItem)
+        .roundedStyle(padding: EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
     }
   }
 }
@@ -123,15 +143,14 @@ private struct CommandContainerSubContentView<Content>: View where Content: View
       )
       content()
     }
-    .buttonStyle(.regular)
     .lineLimit(1)
     .allowsTightening(true)
     .truncationMode(.tail)
-    .font(.caption)
   }
 }
 
 private struct CommandContainerActionView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -152,8 +171,13 @@ private struct CommandContainerActionView: View {
         .aspectRatio(contentMode: .fit)
         .frame(width: 8, height: 10)
     })
+    .buttonStyle({ style in
+      style.calm = true
+      style.backgroundColor = .systemRed
+      style.padding = .medium
+    })
     .help("Delete Command")
-    .buttonStyle(.calm(color: .systemRed, padding: .medium))
+    .enableInjection()
   }
 }
 

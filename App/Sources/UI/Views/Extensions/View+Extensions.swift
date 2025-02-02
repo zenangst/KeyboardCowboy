@@ -154,7 +154,6 @@ struct DebugView<Content>: View where Content: View {
       }
       .padding()
     }
-    .buttonStyle(.zen(.init(color: .systemIndigo)))
     .background(
       LinearGradient(colors: [
         Color(.black).opacity(0.8),

@@ -46,7 +46,6 @@ struct NewCommandMouseView: View {
         validation = .valid
         payload = .mouse(kind: selection)
       }
-      .menuStyle(.regular)
     }
   }
 }

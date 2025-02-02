@@ -110,8 +110,12 @@ private struct ContextualMenuView: View {
     }
     .opacity(isSelected ? 1 : 0)
     .frame(maxWidth: isSelected ? nil : 0)
-    .buttonStyle(.plain)
-    .menuStyle(.zen(.init(calm: true, color: .custom(Color(.init(hex: group.color))), padding: .small)))
+    .menuStyle { menu in
+      menu.calm = true
+      menu.backgroundColor = Color(.init(hex: group.color))
+      menu.padding = .small
+      menu.unfocusedOpacity = 0
+    }
     .fixedSize()
     .enableInjection()
   }

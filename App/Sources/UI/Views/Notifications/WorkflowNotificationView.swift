@@ -111,7 +111,7 @@ private struct RunningWorkflowView: View {
           .transition(AnyTransition.moveAndFade.animation(WorkflowNotificationView.animation))
       }
     }
-    .roundedContainer(padding: 6, margin: 0)
+    .roundedStyle(padding: 6)
     .opacity(!publisher.data.keyboardShortcuts.isEmpty ? 1 : 0)
     .frame(height: !publisher.data.keyboardShortcuts.isEmpty ? nil : 0)
   }

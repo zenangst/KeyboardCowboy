@@ -44,7 +44,6 @@ struct OpenCommandView: View {
         case .none:         Text("None").font(.caption)
         }
       }
-      .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
       .fixedSize()
       OpenCommandSubContentView(model: $model) {
         NSWorkspace.shared.selectFile(model.path, inFileViewerRootedAtPath: "")
@@ -99,16 +98,12 @@ private struct OpenCommandContentView: View {
   var body: some View {
     HStack(spacing: 2) {
       TextField("", text: $model.path)
-        .textFieldStyle(
-          .zen(
-            .init(
-              backgroundColor: Color.clear,
-              font: .callout,
-              padding: .init(horizontal: .zero, vertical: .zero),
-              unfocusedOpacity: 0.0
-            )
-          )
-        )
+        .textFieldStyle({ style in
+          style.backgroundColor = .clear
+          style.font = .callout
+          style.padding = .mini
+          style.unfocusedOpacity = 0.0
+        })
         .onChange(of: model.path, perform: { newValue in
           updater.modifyCommand(withID: metaData.id, using: transaction) { command in
             guard case .open(var openCommand) = command else { return }
@@ -147,7 +142,6 @@ private struct OpenCommandContentView: View {
           .allowsTightening(true)
           .padding(4)
       })
-      .menuStyle(.zen(.init(color: .systemGray, grayscaleEffect: .constant(false))))
       .menuIndicator(model.applications.isEmpty ? .hidden : .visible)
       .fixedSize(horizontal: true, vertical: false)
       .opacity(!model.applications.isEmpty ? 1 : 0)
@@ -171,7 +165,6 @@ private struct OpenCommandSubContentView: View {
       if model.path.hasPrefix("http") == false {
         Spacer()
         Button("Reveal", action: onReveal)
-          .buttonStyle(.zen(.init(color: .systemBlue)))
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)

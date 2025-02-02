@@ -33,3 +33,31 @@ extension Array where Element: Identifiable {
     }
   }
 }
+
+
+public extension Array {
+  func asyncMap<T>(_ transform: @Sendable (Element) async -> T) async -> [T] where T: Sendable {
+    var newArray = [T]()
+    newArray.reserveCapacity(count)
+    var index = 0
+    while index < self.count {
+      let newItem = await transform(self[index])
+      newArray.append(newItem)
+      index += 1
+    }
+    return newArray
+  }
+
+  func asyncCompactMap<T>(_ transform: @Sendable (Element) async -> T?) async -> [T] where T: Sendable {
+    var newArray = [T]()
+    newArray.reserveCapacity(count)
+    var index = 0
+    while index < self.count {
+      if let newItem = await transform(self[index]) {
+        newArray.append(newItem)
+      }
+      index += 1
+    }
+    return newArray
+  }
+}

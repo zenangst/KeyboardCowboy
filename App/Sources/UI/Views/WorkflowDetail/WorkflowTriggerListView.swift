@@ -60,12 +60,14 @@ struct WorkflowTriggerListView: View {
         .matchedGeometryEffect(id: "workflow-triggers", in: namespace)
       }
     }
+    .style(.derived)
     .animation(.spring(response: 0.3, dampingFraction: 0.65, blendDuration: 0.2), value: publisher.data)
     .enableInjection()
   }
 }
 
 private struct WorkflowTriggerHeaderView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   private let text: String
@@ -90,10 +92,14 @@ private struct WorkflowTriggerHeaderView: View {
           .aspectRatio(contentMode: .fit)
           .frame(width: 10, height: 10)
       })
-      .buttonStyle(.calm(color: .systemRed, padding: .medium))
       .opacity(showRemoveButton ? 1 : 0)
+      .buttonStyle { style in
+        style.calm = true
+        style.padding = .medium
+        style.backgroundColor = .systemRed
+      }
+      .enableInjection()
     }
-    .padding([.leading, .trailing], 8)
   }
 }
 

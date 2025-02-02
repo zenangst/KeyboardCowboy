@@ -30,13 +30,11 @@ struct SidebarDeleteConfigurationPopoverView: View {
         Button("Abort", action: {
           deleteConfigurationPopover = false
         })
-        .buttonStyle(.calm(color: .systemGray, padding: .medium))
         .keyboardShortcut(.cancelAction)
         Button("Confirm", action: {
           onAction(id)
           deleteConfigurationPopover = false
         })
-        .buttonStyle(.destructive)
       }
     }
     .padding()

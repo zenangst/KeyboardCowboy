@@ -35,7 +35,7 @@ struct SingleDetailView: View {
 
   var body: some View {
     ScrollViewReader { proxy in
-        VStack(alignment: .leading) {
+      VStack(alignment: .leading, spacing: 0) {
           WorkflowInfoView(focus, publisher: infoPublisher, onInsertTab: {
               switch triggerPublisher.data {
               case .applications:      focus.wrappedValue = .detail(.applicationTriggers)
@@ -64,7 +64,6 @@ struct SingleDetailView: View {
               }
             })
           .id(infoPublisher.data.id)
-          .style(.derived)
         }
         .padding(.top, 12)
         .padding(.bottom, 24)
@@ -98,7 +97,7 @@ struct SingleDetailView: View {
 struct SingleDetailView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
-    let colorSchemes: [ColorScheme] = [.dark, .light]
+    let colorSchemes: [ColorScheme] = [.dark]
     HStack(spacing: 0) {
       ForEach(colorSchemes, id: \.self) { colorScheme in
         SingleDetailView(DesignTime.detail,
@@ -111,9 +110,10 @@ struct SingleDetailView_Previews: PreviewProvider {
                          commandPublisher: DesignTime.commandsPublisher) 
           .background()
           .environment(\.colorScheme, colorScheme)
+          .style(.section(.detail))
       }
     }
     .designTime()
-    .frame(width: 900, height: 900)
+    .frame(width: 600, height: 900)
   }
 }

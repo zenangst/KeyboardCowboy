@@ -45,7 +45,6 @@ struct CommandContainerDelayView: View {
               .frame(width: 6, height: 6)
           }
         }
-        .buttonStyle(.zen(ZenStyleConfiguration(color: .systemGray)))
         .popover(isPresented: $delayOverlay, content: {
           CommandContainerDelayPopoverView($metaData, isShown: $delayOverlay, onChange: onChange)
         })

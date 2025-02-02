@@ -27,14 +27,16 @@ struct GroupDetailHeaderView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
 
-        ZenToggle(config: .init(color: .custom(Color(.init(hex: groupPublisher.data.color)))),
-                  style: .medium,
-                  isOn: Binding<Bool>(get: { groupPublisher.data.isEnabled }, set: { newValue in
+        Toggle(isOn: Binding<Bool>(get: { groupPublisher.data.isEnabled }, set: { newValue in
           groupPublisher.data.isDisabled = !newValue
           updater.modifyGroup(using: transaction) { group in
             group.isDisabled = !newValue
           }
-        }))
+        }), label: {})
+        .switchStyle {
+          $0.foregroundColor = Color(hex: groupPublisher.data.color)
+          $0.backgroundColor = Color(hex: groupPublisher.data.color)
+        }
         .id("group.toggle.\(groupPublisher.data.id)")
       }
     }

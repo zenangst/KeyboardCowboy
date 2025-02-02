@@ -37,7 +37,6 @@ struct NewCommandBundledView: View {
         Text(currentSelection.name)
       }
     }
-    .menuStyle(.regular)
 
     VStack(alignment: .leading, spacing: 0) {
       HStack {
@@ -117,8 +116,7 @@ struct NewCommandBundledView: View {
         }
       }
     }
-    .menuStyle(.regular)
-    .roundedContainer(padding: 0, margin: 0)
+    .roundedStyle(padding: 0)
     .onChange(of: validation) { newValue in
       guard newValue == .needsValidation else { return }
       validation = updateAndValidatePayload()

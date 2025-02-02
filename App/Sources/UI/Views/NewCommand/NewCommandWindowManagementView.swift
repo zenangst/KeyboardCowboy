@@ -30,7 +30,6 @@ struct NewCommandWindowManagementView: View {
         } label: {
           Text(selection.displayValue)
         }
-        .menuStyle(.regular)
       }
     }
     .onChange(of: validation) { newValue in

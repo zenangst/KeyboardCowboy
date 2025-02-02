@@ -18,7 +18,7 @@ final class ReleaseNotes: NSObject, NSWindowDelegate {
         AppStorageContainer.shared.releaseNotes = KeyboardCowboyApp.marketingVersion
       }
     }
-    let size = window.hostingController.sizeThatFits(in: .zero)
+    let size = window.sizeThatFits(in: .zero)
     window.setFrame(NSRect(origin: .zero, size: size), display: false)
     window.animationBehavior = .alertPanel
     window.titleVisibility = .hidden

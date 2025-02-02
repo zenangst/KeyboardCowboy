@@ -10,9 +10,6 @@ struct UIElementCommandView: View {
   private let metaData: CommandViewModel.MetaData
   private let iconSize: CGSize
 
-  private let menuStyle = ZenStyleConfiguration(color: .systemGray,
-                                                padding: .init(horizontal: .small, vertical: .small))
-
   init(metaData: CommandViewModel.MetaData, model: UIElementCommand, iconSize: CGSize) {
     self.metaData = metaData
     self.model = model
@@ -43,19 +40,9 @@ struct UIElementCommandView: View {
                     .font(.caption)
                 }
                 .fixedSize()
-                .menuStyle(.zen(menuStyle))
 
                 HStack {
                   TextField("", text: $model.predicates[index].value)
-                    .textFieldStyle(
-                      .zen(
-                        .init(
-                          backgroundColor: Color(.windowBackgroundColor),
-                          font: .caption,
-                          padding: .small
-                        )
-                      )
-                    )
                   Button { 
                     model.predicates.remove(at: index)
                     if model.predicates.isEmpty {
@@ -69,7 +56,6 @@ struct UIElementCommandView: View {
                       .aspectRatio(contentMode: .fit)
                       .frame(width: 8, height: 8)
                   }
-                  .buttonStyle(.calm(color: .systemRed, padding: .medium))
                 }
               }
             }
@@ -89,22 +75,19 @@ struct UIElementCommandView: View {
                   Text(model.predicates[index].kind.displayName)
                     .font(.caption)
                 }
-                .menuStyle(.zen(menuStyle))
 
                 ForEach(UIElementCommand.Predicate.Properties.allCases) { property in
                   HStack {
-                    ZenCheckbox(
-                      isOn: Binding<Bool>(
-                        get: { model.predicates[index].properties.contains(property) },
-                        set: {
-                          if $0 {
-                            model.predicates[index].properties.append(property)
-                          } else {
-                            model.predicates[index].properties.removeAll(where: { $0 == property })
-                          }
+                    Toggle(isOn: Binding<Bool>(
+                      get: { model.predicates[index].properties.contains(property) },
+                      set: {
+                        if $0 {
+                          model.predicates[index].properties.append(property)
+                        } else {
+                          model.predicates[index].properties.removeAll(where: { $0 == property })
                         }
-                      )
-                    )
+                      }
+                    ), label: {})
                     Text(property.displayName)
                       .font(.caption)
                       .lineLimit(1)
@@ -144,7 +127,6 @@ struct UIElementCommandView: View {
         case .none:         Text("None").font(.caption)
         }
       }
-      .menuStyle(.zen(.init(color: .systemGray, padding: .medium)))
       .fixedSize()
     }
     .onChange(of: model, perform: { value in
