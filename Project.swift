@@ -232,7 +232,7 @@ public enum PackageResolver {
       packages = [
         .package(url: "https://github.com/krzysztofzablocki/Inject.git", from: "1.5.2"),
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
-        .package(url: "https://github.com/zenangst/AXEssibility.git", from: "0.1.6"),
+        .package(url: "https://github.com/zenangst/AXEssibility.git", .revision("4a06484fd379c2eb34487c467aca043ac2048ee5")),
         .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.3"),
         .package(url: "https://github.com/zenangst/Bonzai.git", .revision("2f7b17e0f9b7810823f277c0f2d825c8e93b10df")),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
