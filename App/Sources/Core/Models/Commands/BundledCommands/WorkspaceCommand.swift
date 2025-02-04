@@ -104,8 +104,10 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
             modifiers: [.waitForAppToLaunch]
           )))
 
-        if hideOtherApps && !perfectBundleMatch || windowPids.isEmpty || runningTargetApps.isEmpty {
-          commands.append(hideAllAppsCommand)
+        if hideOtherApps {
+          if !perfectBundleMatch || windowPids.isEmpty || runningTargetApps.isEmpty {
+            commands.append(hideAllAppsCommand)
+          }
         }
 
         let activationDelay: Double?
