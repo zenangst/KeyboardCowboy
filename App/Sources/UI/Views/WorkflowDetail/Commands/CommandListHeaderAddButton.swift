@@ -15,10 +15,10 @@ struct CommandListHeaderAddButton: View {
     Button(action: {
       openWindow.openNewCommandWindow(.newCommand(workflowId: transaction.workflowID))
     }) {
-      Image(systemName: "plus.app")
+      Image(systemName: "plus")
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .frame(width: 12, height: 12)
+        .frame(width: 12, height: 16)
         .layoutPriority(-1)
     }
     .help("Add Command")

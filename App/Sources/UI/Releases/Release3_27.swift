@@ -2,7 +2,7 @@ import Bonzai
 import Inject
 import SwiftUI
 
-struct Release3_26: View {
+struct Release3_27: View {
   @ObserveInjection var inject
   enum ButtonAction {
     case done
@@ -366,7 +366,7 @@ private extension View {
 
 struct Release3_26_Previews: PreviewProvider {
   static var previews: some View {
-    Release3_26 { _ in }
-      .previewDisplayName("Release 3.26")
+    Release3_27 { _ in }
+      .previewDisplayName("Release 3.27")
   }
 }

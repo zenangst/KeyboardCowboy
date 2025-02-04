@@ -20,11 +20,14 @@ struct ApplicationTriggerItem: View {
   }
 
   var body: some View {
-    HStack(spacing: 12) {
+    HStack(spacing: 8) {
       IconView(icon: element.icon, size: .init(width: 24, height: 24))
       VStack(alignment: .leading, spacing: 4) {
         Text(element.name)
+          .font(.subheadline)
+          .fontWeight(.bold)
           .frame(maxWidth: .infinity, alignment: .leading)
+        ZenDivider()
         HStack {
           ForEach(DetailViewModel.ApplicationTrigger.Context.allCases) { context in
             Toggle(isOn: Binding<Bool>(get: {
@@ -66,7 +69,7 @@ struct ApplicationTriggerItem: View {
       .buttonStyle(.destructive)
     }
     .contentShape(Rectangle())
-    .roundedStyle(6)
+    .roundedSubStyle(8, padding: 8)
     .overlay(BorderedOverlayView(.readonly { selectionManager.selections.contains(element.id) }, cornerRadius: 6))
     .draggable(element)
     .enableInjection()

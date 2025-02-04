@@ -71,6 +71,12 @@ struct AppFocusCommandView: View {
             }
           }
 
+          GridRow {
+            ZenDivider()
+              .layoutPriority(-1)
+            ZenDivider()
+          }
+
           GridRow(alignment: .bottom) {
             switch model.tiling {
             case .arrangeLeftRight:

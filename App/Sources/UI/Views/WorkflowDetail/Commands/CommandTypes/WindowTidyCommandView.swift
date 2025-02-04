@@ -17,29 +17,29 @@ struct WindowTidyCommandView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
-      VStack(alignment: .leading, spacing: 8) {
-        Menu {
-          ForEach(applicationStore.applications) { application in
-            Button(action: {
-              if model.rules.contains(where: { $0.application != application }) {
-                model.rules.append(.init(application: application, tiling: .left))
-                onRulesChange(model.rules)
-              }
-            }, label: { Text(application.displayName) })
-          }
-        } label: {
-          Text("Add Application")
-            .font(.caption)
+    VStack(alignment: .leading, spacing: 0) {
+      Menu {
+        ForEach(applicationStore.applications) { application in
+          Button(action: {
+            if model.rules.contains(where: { $0.application != application }) {
+              model.rules.append(.init(application: application, tiling: .left))
+              onRulesChange(model.rules)
+            }
+          }, label: { Text(application.displayName) })
         }
+      } label: {
+        Text("Add Application")
       }
-      .padding(.horizontal, 4)
+      .style(.derived)
+
+      ZenDivider()
 
       CompatList {
         ForEach(Array(zip(model.rules.indices, model.rules)), id: \.0) { offset, item in
-          VStack(spacing: 0) {
+          VStack(spacing: 8) {
             HStack {
               IconView(icon: Icon.init(item.application), size: CGSize(width: 18, height: 18))
+
               Text(item.application.displayName)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -59,12 +59,13 @@ struct WindowTidyCommandView: View {
                   }
                 }
               } label: {
-                Text("Remove")
-                  .lineLimit(1)
-                  .font(.caption)
+                Image(systemName: "xmark")
+                  .resizable()
+                  .aspectRatio(contentMode: .fit)
+                  .frame(width: 8, height: 10)
               }
+              .buttonStyle(.destructive)
             }
-            .padding(4)
             ZenDivider()
           }
         }

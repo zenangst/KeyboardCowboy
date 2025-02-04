@@ -99,11 +99,12 @@ struct NewCommandMenuBarView: View {
                 Image(systemName: "xmark")
                   .resizable()
                   .aspectRatio(contentMode: .fill)
-                  .frame(width: 8, height: 8)
+                  .frame(width: 8, height: 10)
               })
+              .buttonStyle(.destructive)
             }
           }
-          .roundedStyle()
+          .roundedSubStyle(padding: 8)
           .frame(maxWidth: .infinity, alignment: .topLeading)
           overlay()
             .padding(.top, 8)
@@ -111,6 +112,7 @@ struct NewCommandMenuBarView: View {
         if !tokens.isEmpty {
           ZenDivider()
           addView()
+            .roundedSubStyle(padding: 8)
             .matchedGeometryEffect(id: "add-buttons", in: namespace)
         }
       }
@@ -145,6 +147,7 @@ struct NewCommandMenuBarView: View {
     if tokens.isEmpty {
       VStack {
         addView()
+          .roundedSubStyle(padding: 8)
           .matchedGeometryEffect(id: "add-buttons", in: namespace)
       }
       ZenDivider()

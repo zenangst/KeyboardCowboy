@@ -17,34 +17,33 @@ struct CommandListHeader: View {
     HStack {
       ZenLabel("Commands")
       Spacer()
-      Menu(content: {
-        ForEach(DetailViewModel.Execution.allCases) { execution in
-          Button(execution.rawValue, action: {
-            updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
-              switch execution {
-              case .concurrent: workflow.execution = .concurrent
-              case .serial:     workflow.execution = .serial
+      Group {
+        Menu(content: {
+          ForEach(DetailViewModel.Execution.allCases) { execution in
+            Button(execution.rawValue, action: {
+              updater.modifyWorkflow(using: transaction, withAnimation: .snappy(duration: 0.125)) { workflow in
+                switch execution {
+                case .concurrent: workflow.execution = .concurrent
+                case .serial:     workflow.execution = .serial
+                }
               }
-            }
-          })
-        }
-      }, label: {
-        Text(publisher.data.execution.rawValue)
-          .font(.caption)
-      })
-      .fixedSize(horizontal: true, vertical: true)
-      CommandListHeaderAddButton(namespace)
-    }
-    .menuStyle { menu in
-      menu.padding = .medium
-      menu.grayscaleEffect = true
-      menu.cornerRadius = 6
-    }
-    .buttonStyle { button in
-      button.grayscaleEffect = true
-      button.backgroundColor = .systemGreen
-      button.padding = .medium
-      button.cornerRadius = 6
+            })
+          }
+        }, label: {
+          Text(publisher.data.execution.rawValue)
+        })
+        .fixedSize(horizontal: true, vertical: true)
+        CommandListHeaderAddButton(namespace)
+      }
+      .buttonStyle { button in
+        button.padding = .medium
+        button.font = .body
+        button.backgroundColor = .systemGreen
+      }
+      .menuStyle { menu in
+        menu.padding = .medium
+        menu.font = .body
+      }
     }
   }
 }

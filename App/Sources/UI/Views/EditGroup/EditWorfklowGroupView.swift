@@ -120,7 +120,7 @@ struct EditWorfklowGroupView: View {
         }
         .roundedStyle(padding: 0)
 
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
           RuleHeaderView(applicationStore: applicationStore, group: $group)
           ScrollView {
             RuleListView(applicationStore: applicationStore,
@@ -128,13 +128,11 @@ struct EditWorfklowGroupView: View {
             .focusSection()
           }
 
-          ZenDivider()
-
           VStack(alignment: .leading) {
             Text("Workflows in this group are only activated when the following applications are the frontmost app.\n") +
             Text("The order of this list is irrelevant. If this list is empty, then the workflows are considered global.")
           }
-          .roundedStyle(padding: 6)
+          .roundedSubStyle(padding: EdgeInsets(top: 12, leading: 8, bottom: 12, trailing: 8))
           .style(.subItem)
         }
         .buttonStyle(.destructive)

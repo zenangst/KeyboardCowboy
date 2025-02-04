@@ -23,10 +23,10 @@ struct WorkspaceCommandView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
-      VStack(alignment: .leading, spacing: 8) {
-        Text("Applications")
-          .font(.subheadline)
+    VStack(alignment: .leading, spacing: 2) {
+      HStack {
+        ZenLabel("Applications")
+          .style(.derived)
         Menu {
           ForEach(applicationStore.applications) { application in
             Button(action: {
@@ -37,33 +37,36 @@ struct WorkspaceCommandView: View {
           }
         } label: {
           Text("Add Application")
-            .font(.caption)
         }
+        .style(.derived)
       }
-      .padding(.horizontal, 4)
+
+      ZenDivider()
 
       CompatList {
         ForEach(Array(zip(model.applications.indices, model.applications)), id: \.0) { offset, application in
-          HStack {
-            IconView(icon: Icon(application), size: .init(width: 24, height: 24))
-            Text(application.displayName)
-            Spacer()
-            Button {
-              if offset <= model.applications.count - 1 {
-                let selectedApp = model.applications[offset]
-                if selectedApp == application {
-                  model.applications.remove(at: offset)
-                  onSelectedAppsChange(model.applications)
+          VStack(spacing: 8) {
+            HStack {
+              IconView(icon: Icon(application), size: .init(width: 24, height: 24))
+              Text(application.displayName)
+              Spacer()
+              Button {
+                if offset <= model.applications.count - 1 {
+                  let selectedApp = model.applications[offset]
+                  if selectedApp == application {
+                    model.applications.remove(at: offset)
+                    onSelectedAppsChange(model.applications)
+                  }
                 }
+              } label: {
+                Image(systemName: "xmark")
+                  .resizable()
+                  .aspectRatio(contentMode: .fit)
+                  .frame(width: 8, height: 10)
               }
-            } label: {
-              Text("Remove")
-                .font(.caption)
             }
+            ZenDivider()
           }
-          .listRowSeparator(.visible)
-          .listRowInsets(EdgeInsets(top: 0, leading: -6, bottom: 0, trailing: -6))
-          .padding(.vertical, 4)
         }
         .onMove { indexSet, offset in
           model.applications.move(fromOffsets: indexSet, toOffset: offset)
@@ -72,10 +75,10 @@ struct WorkspaceCommandView: View {
       }
       .frame(minHeight: max(48, min(CGFloat(model.applications.count) * 32, 148)))
 
-      VStack(alignment: .leading, spacing: 8) {
-        Text("Window Tiling")
-          .font(.subheadline)
-
+      VStack(alignment: .leading, spacing: 2) {
+        ZenLabel("Window Tiling")
+          .style(.derived)
+        ZenDivider()
         Grid {
           GridRow {
             switch model.tiling {
@@ -115,7 +118,6 @@ struct WorkspaceCommandView: View {
               }
             } label: {
               Text(model.tiling?.name ?? "No Tiling")
-                .font(.caption)
             }
             .frame(minHeight: 20)
           }
@@ -134,8 +136,8 @@ struct WorkspaceCommandView: View {
             }
           }
         }
+        .style(.derived)
       }
-      .padding(4)
     }
     .enableInjection()
   }

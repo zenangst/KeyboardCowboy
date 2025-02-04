@@ -3,6 +3,7 @@ import Inject
 import SwiftUI
 
 struct BuiltInCommandView: View {
+  @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -46,6 +47,7 @@ struct BuiltInCommandView: View {
         }
         .fixedSize()
     })
+    .enableInjection()
   }
 }
 
@@ -71,8 +73,10 @@ private struct BuiltInCommandContentView: View {
           model.name = newKind.displayValue
           model.kind = newKind
         }, label: {
-          Image(systemName: "command.square.fill")
-          Text("Open Command Line").font(.subheadline)
+          HStack {
+            Image(systemName: "command.square.fill")
+            Text("Open Command Line").font(.subheadline)
+          }
         })
 
         Button(action: {
@@ -81,8 +85,10 @@ private struct BuiltInCommandContentView: View {
           model.name = newKind.displayValue
           model.kind = newKind
         }, label: {
-          Image(systemName: "record.circle")
-          Text("Record Macro").font(.subheadline)
+          HStack {
+            Image(systemName: "record.circle")
+            Text("Record Macro").font(.subheadline)
+          }
         })
 
         Button(action: {
@@ -91,8 +97,10 @@ private struct BuiltInCommandContentView: View {
           model.name = newKind.displayValue
           model.kind = newKind
         }, label: {
-          Image(systemName: "minus.circle.fill")
-          Text("Remove Macro").font(.subheadline)
+          HStack {
+            Image(systemName: "minus.circle.fill")
+            Text("Remove Macro").font(.subheadline)
+          }
         })
 
         Button(
@@ -103,8 +111,10 @@ private struct BuiltInCommandContentView: View {
             model.kind = newKind
           },
           label: {
-            Image(systemName: "togglepower")
-            Text("Toggle User Mode").font(.subheadline)
+            HStack {
+              Image(systemName: "togglepower")
+              Text("Toggle User Mode").font(.subheadline)
+            }
           })
         Button(
           action: {
@@ -114,8 +124,10 @@ private struct BuiltInCommandContentView: View {
             model.kind = newKind
           },
           label: {
-            Image(systemName: "lightswitch.on")
-            Text("Enable User Mode").font(.subheadline)
+            HStack {
+              Image(systemName: "lightswitch.on")
+              Text("Enable User Mode").font(.subheadline)
+            }
           })
         Button(
           action: {
@@ -125,8 +137,10 @@ private struct BuiltInCommandContentView: View {
             model.kind = newKind
           },
           label: {
-            Image(systemName: "lightswitch.off")
-            Text("Disable User Mode").font(.subheadline)
+            HStack {
+              Image(systemName: "lightswitch.off")
+              Text("Disable User Mode").font(.subheadline)
+            }
           })
       }, label: {
         Text(model.kind.displayValue)

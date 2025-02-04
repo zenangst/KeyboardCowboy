@@ -34,7 +34,7 @@ struct NewCommandOpenView: View {
                label: { Image(systemName: "questionmark.circle.fill") })
       }
 
-      HStack {
+      HStack(spacing: 0) {
         ZStack(alignment: .bottomTrailing) {
           Image(nsImage: NSWorkspace().icon(forFile: (path as NSString).expandingTildeInPath))
             .resizable()
@@ -61,6 +61,7 @@ struct NewCommandOpenView: View {
           }))
         })
       }
+      .roundedSubStyle()
 
       ZenDivider()
 

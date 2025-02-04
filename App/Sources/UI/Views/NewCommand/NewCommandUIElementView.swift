@@ -126,7 +126,7 @@ struct NewCommandUIElementView: View {
               }
             }
           }
-          .roundedStyle(padding: 8)
+          .roundedSubStyle(padding: 8)
         }
       }
 
@@ -231,7 +231,7 @@ struct NewCommandUIElementView: View {
             }
           }
         }
-        .roundedStyle(padding: 8)
+        .roundedSubStyle(padding: 8)
       }
     }
     .onReceive(captureStore.$capturedElement, perform: { element in

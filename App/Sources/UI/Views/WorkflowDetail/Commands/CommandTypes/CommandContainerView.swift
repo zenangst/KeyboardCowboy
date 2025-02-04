@@ -31,7 +31,6 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
         .switchStyle {
           $0.style = .small
         }
-        .style(.subItem)
 
       ZenDivider()
 
@@ -42,11 +41,11 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
           $0.font = .caption
         }
         .menuStyle {
-          $0.calm = true
-          $0.padding = .medium
+          $0.calm = false
+          $0.padding = .small
         }
     }
-    .roundedStyle(padding: EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
+    .roundedStyle()
     .enableInjection()
   }
 }
@@ -76,7 +75,7 @@ private struct CommandContainerHeaderView: View {
       : metaData.namePlaceholder
       TextField(textFieldPlaceholder, text: $metaData.name)
         .textFieldStyle { textField in
-          textField.font = .callout
+          textField.font = .headline
           textField.unfocusedOpacity = 0
         }
         .onChange(of: metaData.name, perform: { newValue in
@@ -110,9 +109,12 @@ private struct CommandContainerContentView<IconContent, Content>: View where Ico
         .frame(width: 28, height: 28)
         .overlay { icon() }
       content()
+        .menuStyle { menu in
+          menu.calm = false
+        }
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
         .style(.subItem)
-        .roundedStyle(padding: EdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2))
+        .roundedSubStyle(padding: 1)
     }
   }
 }
