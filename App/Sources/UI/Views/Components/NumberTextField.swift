@@ -13,6 +13,7 @@ struct NumberTextField: View {
 
   var body: some View {
     TextField("", text: Binding<String>(get: { text }, set: { newValue in
+      guard text != newValue else { return }
       let chars = CharacterSet(charactersIn: "0123456789.,")
       newValue.unicodeScalars.forEach { char in
         guard !chars.contains(char) else { return }
