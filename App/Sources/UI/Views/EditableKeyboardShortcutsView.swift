@@ -202,7 +202,6 @@ struct EditableKeyboardShortcutsView<T: Hashable>: View {
           button.hoverEffect = state == .recording ? false : true
         }
       }
-      .style(.list)
       .overlay(overlay(proxy))
       .onAppear {
         guard recordOnAppearIfEmpty, keyboardShortcuts.isEmpty else { return }

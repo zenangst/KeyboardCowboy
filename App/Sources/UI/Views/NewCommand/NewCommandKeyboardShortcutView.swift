@@ -52,6 +52,7 @@ struct NewCommandKeyboardShortcutView: View {
         .onChange(of: keyboardShortcuts, perform: { newValue in
           keyboardShortcuts = newValue
         })
+        .style(.list)
         .roundedStyle(8, padding: 0)
         .frame(minHeight: 42, maxHeight: 42)
       }
