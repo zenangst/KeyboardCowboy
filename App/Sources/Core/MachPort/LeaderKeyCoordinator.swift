@@ -1,7 +1,7 @@
 import Foundation
 import MachPort
 
-final class ScheduleMachPortCoordinator: @unchecked Sendable {
+final class LeaderKeyCoordinator: @unchecked Sendable {
   @MainActor var machPort: MachPortEventController?
   private var previousEvent: MachPortEvent?
   private(set) var lastEventTime: Double
