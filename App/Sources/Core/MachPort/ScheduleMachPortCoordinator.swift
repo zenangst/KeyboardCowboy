@@ -2,59 +2,68 @@ import Foundation
 import MachPort
 
 final class ScheduleMachPortCoordinator: @unchecked Sendable {
-  private var task: Task<Void, Never>?
   @MainActor var machPort: MachPortEventController?
   private var previousEvent: MachPortEvent?
+  private(set) var lastEventTime: Double
 
   enum ScheduledAction: Sendable {
-    case captureKeyDown(keyCode: Int)
+    case captureKeyDown(event: MachPortEvent, holdDuration: Double)
+    case postEvent(event: MachPortEvent)
   }
 
   let defaultPartialMatch: PartialMatch
 
   init(defaultPartialMatch: PartialMatch) {
     self.defaultPartialMatch = defaultPartialMatch
+    self.lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
   }
 
   @MainActor
   func handlePartialMatchIfApplicable(_ partialMatch: PartialMatch,
                                       machPortEvent: MachPortEvent,
                                       onTask: @escaping @MainActor @Sendable (ScheduledAction?)  -> Void) -> Bool {
-    task?.cancel()
     guard let workflow = partialMatch.workflow,
           workflow.machPortConditions.hasHoldForDelay,
           case .keyboardShortcuts(let keyboardShortcut) = workflow.trigger,
           partialMatch.rawValue != defaultPartialMatch.rawValue,
           let holdDuration = keyboardShortcut.holdDuration, holdDuration > 0 else {
+      lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
       previousEvent = nil
-       return false
+      return false
     }
 
-    guard !machPortEvent.isRepeat, previousEvent == nil else {
+
+    guard !machPortEvent.isRepeat else {
+      return true
+    }
+
+    let elapsedTime = timeSinceLastEvent()
+    let seconds = elapsedTime / 1000
+    lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+
+    if seconds < holdDuration {
+      onTask(.postEvent(event: machPortEvent))
+      fireLastEvent()
       return true
     }
 
     previousEvent = machPortEvent
 
-    let seconds: Double = max(min(holdDuration, 0.125), 0.125)
-    let milliseconds = Duration.milliseconds(Int(seconds * 1000))
-
-    let task = Task.detached {
-      do {
-        try await Task.sleep(for: milliseconds)
-        await onTask(.captureKeyDown(keyCode: Int(machPortEvent.keyCode)))
-      } catch {}
-    }
-
-    self.task = task
+    onTask(.captureKeyDown(event: machPortEvent, holdDuration:holdDuration))
 
     return true
   }
 
   @MainActor
-  func cancel() {
-    task?.cancel()
-    task = nil
+  func resetLastTime() {
+    lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+  }
+
+  @MainActor
+  func timeSinceLastEvent() -> Double {
+    let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+    let elapsedTime = currentTimestamp - lastEventTime
+    return elapsedTime
   }
 
   @MainActor
@@ -83,5 +92,9 @@ final class ScheduleMachPortCoordinator: @unchecked Sendable {
     machPortEvent.result?.takeUnretainedValue().setIntegerValueField(.keyboardEventKeycode, value: newKeyCode)
 
     _ = try? machPort?.post(Int(oldKeyCode), type: .keyDown, flags: machPortEvent.event.flags)
+  }
+
+  nonisolated static func convertTimestampToMilliseconds(_ timestamp: UInt64) -> Double {
+    return Double(timestamp) / 1_000_000 // Convert nanoseconds to milliseconds
   }
 }

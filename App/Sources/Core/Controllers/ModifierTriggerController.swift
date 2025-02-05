@@ -58,7 +58,6 @@ final class ModifierTriggerController: @unchecked Sendable {
         return
       }
 
-
       if machPortEvent.event.type == .keyDown {
         handleKeyDown(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
       } else if machPortEvent.event.type == .flagsChanged {

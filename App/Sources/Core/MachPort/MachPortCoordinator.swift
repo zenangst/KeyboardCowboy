@@ -145,10 +145,20 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         return
       }
 
-      if case .captureKeyDown(let keyCode) = scheduledAction,
-         keyCode == Int(machPortEvent.keyCode) {
-        machPortEvent.result = nil
-        return
+      if case .captureKeyDown(let capturedEvent, let threshold) = scheduledAction {
+        let elapsedTime = scheduledMachPortCoordinator.timeSinceLastEvent()
+        let seconds = elapsedTime / 1000
+
+        if threshold <= seconds {
+          if capturedEvent.keyCode == machPortEvent.keyCode {
+            machPortEvent.result = nil
+            return
+          }
+        } else {
+          self.scheduledAction = nil
+          self.previousPartialMatch = Self.defaultPartialMatch
+          self.previousExactMatch = nil
+        }
       }
 
       if handleEscapeKeyDownEvent(machPortEvent) {
@@ -171,18 +181,27 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
           PeekApplicationPlugin.peekEvent = nil
           return
         }
-      } else if case .captureKeyDown(let keyCode) = scheduledAction {
-        if keyCode == Int(machPortEvent.keyCode) {
-          scheduledAction = nil
-          previousPartialMatch = Self.defaultPartialMatch
-          previousExactMatch = nil
-          scheduledMachPortCoordinator.fireLastEvent()
+      } else if let scheduledAction {
+        switch scheduledAction {
+        case .captureKeyDown(let capturedEvent, _):
+          if capturedEvent.keyCode == machPortEvent.keyCode {
+            self.scheduledAction = nil
+            self.previousPartialMatch = Self.defaultPartialMatch
+            self.previousExactMatch = nil
+            self.scheduledMachPortCoordinator.fireLastEvent()
+            self.notifications.reset()
+          }
+        case .postEvent(let event):
+          _ = machPort?.repost(event)
+          self.scheduledAction = nil
+          self.previousPartialMatch = Self.defaultPartialMatch
+          self.previousExactMatch = nil
+          self.notifications.reset()
         }
       } else {
         scheduledMachPortCoordinator.fireLastEvent()
       }
 
-      scheduledMachPortCoordinator.cancel()
       handleKeyUp(machPortEvent)
       scheduledWorkItem?.cancel()
       scheduledWorkItem = nil
@@ -242,16 +261,16 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         macroCoordinator.record(eventSignature, kind: .event(machPortEvent), machPortEvent: machPortEvent)
       }
 
+      scheduledMachPortCoordinator.exchangeWithPreviousEvent(machPortEvent)
       if scheduledAction == nil {
-        scheduledMachPortCoordinator.exchangeWithPreviousEvent(machPortEvent)
-      }
-
-      let tryFallbackOnPartialMismatch = tryGlobals && partialMatchCopy.rawValue != previousPartialMatch.rawValue
-      if tryFallbackOnPartialMismatch {
-        intercept(machPortEvent, tryGlobals: false, runningMacro: false)
+        let tryFallbackOnPartialMismatch = tryGlobals && partialMatchCopy.rawValue != previousPartialMatch.rawValue
+        if tryFallbackOnPartialMismatch {
+          intercept(machPortEvent, tryGlobals: false, runningMacro: false)
+        }
       }
 
       scheduledMachPortCoordinator.removeLastEvent()
+      scheduledMachPortCoordinator.resetLastTime()
       lastEventOrRebinding = machPortEvent.event
     case .partialMatch(let partialMatch):
       lastEventOrRebinding = machPortEvent.event
