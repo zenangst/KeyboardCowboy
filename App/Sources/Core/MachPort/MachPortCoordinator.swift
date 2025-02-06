@@ -197,6 +197,19 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
           self.previousPartialMatch = Self.defaultPartialMatch
           self.previousExactMatch = nil
           self.notifications.reset()
+        case .recoverOnKeyUp(let event):
+          self.scheduledAction = nil
+          self.previousPartialMatch = Self.defaultPartialMatch
+          self.previousExactMatch = nil
+          self.notifications.reset()
+          self.leaderKeyCoordinator.fireLastEvent()
+
+          machPortEvent.result = nil
+
+          _ = try? machPort?.post(Int(event.keyCode), type: .keyDown, flags: event.flags)
+          _ = try? machPort?.post(Int(event.keyCode), type: .keyUp, flags: event.flags)
+
+          return
         }
       } else {
         leaderKeyCoordinator.fireLastEvent()
@@ -278,7 +291,16 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       KeyViewer.instance.handleInput(machPortEvent.event, store: store)
     case .exact(let workflow):
       previousExactMatch = workflow
-      if case .captureKeyDown = scheduledAction { } else {
+      if case .captureKeyDown(let capturedEvent, let holdDuration) = scheduledAction {
+        let elapsedTime = leaderKeyCoordinator.timeSinceLastEvent()
+        let seconds = (elapsedTime / 1000)
+        // opt-out from running the workflow
+        if seconds <= holdDuration * 1.15 {
+          scheduledAction = .recoverOnKeyUp(event: machPortEvent)
+          machPortEvent.result = nil
+          return
+        }
+      } else {
         previousPartialMatch = Self.defaultPartialMatch
       }
 

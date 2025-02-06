@@ -9,6 +9,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   enum ScheduledAction: Sendable {
     case captureKeyDown(event: MachPortEvent, holdDuration: Double)
     case postEvent(event: MachPortEvent)
+    case recoverOnKeyUp(event: MachPortEvent)
   }
 
   let defaultPartialMatch: PartialMatch
@@ -32,21 +33,20 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
       return false
     }
 
-
     guard !machPortEvent.isRepeat else {
       return true
     }
 
     let elapsedTime = timeSinceLastEvent()
     let seconds = elapsedTime / 1000
-    lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
 
-    if seconds < holdDuration {
+    if seconds <= holdDuration {
       onTask(.postEvent(event: machPortEvent))
       fireLastEvent()
       return true
     }
 
+    lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
     previousEvent = machPortEvent
 
     onTask(.captureKeyDown(event: machPortEvent, holdDuration:holdDuration))
