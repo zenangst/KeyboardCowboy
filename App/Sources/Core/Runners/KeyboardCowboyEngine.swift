@@ -12,6 +12,7 @@ final class KeyboardCowboyEngine {
   private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
   private let commandRunner: CommandRunner
   private let contentStore: ContentStore
+  private let leaderKey: LeaderKeyCoordinator
   private let keyCodeStore: KeyCodesStore
   private let machPortCoordinator: MachPortCoordinator
   private let modifierTriggerController: ModifierTriggerController
@@ -32,6 +33,7 @@ final class KeyboardCowboyEngine {
        applicationTriggerController: ApplicationTriggerController,
 //       applicationWindowObserver: ApplicationWindowObserver,
        commandRunner: CommandRunner,
+       leaderKey: LeaderKeyCoordinator,
        keyboardCommandRunner: KeyboardCommandRunner,
        keyCodeStore: KeyCodesStore,
        machPortCoordinator: MachPortCoordinator,
@@ -44,6 +46,7 @@ final class KeyboardCowboyEngine {
        workspace: NSWorkspace = .shared) {
     self.applicationActivityMonitor = applicationActivityMonitor
     self.contentStore = contentStore
+    self.leaderKey = leaderKey
     self.keyCodeStore = keyCodeStore
     self.commandRunner = commandRunner
     self.machPortCoordinator = machPortCoordinator
@@ -85,18 +88,23 @@ final class KeyboardCowboyEngine {
         eventsOfInterest: keyboardEvents,
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
-        onFlagsChanged: { [machPortCoordinator, modifierTriggerController] in
+        onFlagsChanged: { [machPortCoordinator, modifierTriggerController, leaderKey] in
           if machPortCoordinator.mode == .intercept ||
              machPortCoordinator.mode == .recordMacro {
             modifierTriggerController.handleIfApplicable($0)
           }
+
+          _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
           machPortCoordinator.receiveFlagsChanged($0)
         },
-        onEventChange: { [machPortCoordinator, modifierTriggerController] in
+        onEventChange: { [machPortCoordinator, modifierTriggerController, leaderKey] in
           if machPortCoordinator.mode == .intercept ||
-              machPortCoordinator.mode == .recordMacro {
+             machPortCoordinator.mode == .recordMacro {
             modifierTriggerController.handleIfApplicable($0)
           }
+
+          _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
+
           if $0.event.type == .flagsChanged {
             machPortCoordinator.receiveFlagsChanged($0)
           } else {

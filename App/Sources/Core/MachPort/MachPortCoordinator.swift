@@ -8,7 +8,7 @@ import KeyCodes
 import os
 
 @MainActor
-final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
+final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKeyCoordinatorDelegate {
   @Published private(set) var lastEventOrRebinding: CGEvent?
   @Published private(set) var event: MachPortEvent?
   @MainActor @Published private(set) var coordinatorEvent: CGEvent?
@@ -23,10 +23,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     }
   }
 
-  private static let defaultPartialMatch: PartialMatch = .init(rawValue: ".")
-
   private var keyboardCowboyModeSubscription: AnyCancellable?
-  private var previousPartialMatch: PartialMatch = .init(rawValue: ".")
+  private var previousPartialMatch: PartialMatch = .default()
   private var previousExactMatch: Workflow?
   private var repeatingKeyCode: Int64 = -1
   private var repeatExecution: (@MainActor (MachPortEvent, Bool) async -> Void)?
@@ -34,7 +32,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private var specialKeys: [Int] = [Int]()
   private var scheduledWorkItem: DispatchWorkItem?
   private var capsLockDown: Bool = false
-  private var scheduledAction: LeaderKeyCoordinator.ScheduledAction?
 
   private let keyboardCleaner: KeyboardCleaner
   private let keyboardCommandRunner: KeyboardCommandRunner
@@ -47,6 +44,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private let workflowRunner: WorkflowRunner
 
   internal init(store: KeyCodesStore,
+                leaderKeyCoordinator: LeaderKeyCoordinator,
                 keyboardCleaner: KeyboardCleaner,
                 keyboardCommandRunner: KeyboardCommandRunner,
                 shortcutResolver: ShortcutResolver,
@@ -64,7 +62,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     self.specialKeys = Array(store.specialKeys().keys)
     self.workflowRunner = workflowRunner
     self.recordValidator = MachPortRecordValidator(store: store)
-    self.leaderKeyCoordinator = LeaderKeyCoordinator(defaultPartialMatch: Self.defaultPartialMatch)
+    self.leaderKeyCoordinator = leaderKeyCoordinator
+    self.leaderKeyCoordinator.delegate = self
   }
 
   func captureUIElement() {
@@ -145,25 +144,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         return
       }
 
-      if case .captureKeyDown(let capturedEvent, let threshold) = scheduledAction {
-        let elapsedTime = leaderKeyCoordinator.timeSinceLastEvent()
-        let seconds = elapsedTime / 1000
-
-        if threshold <= seconds {
-          if capturedEvent.keyCode == machPortEvent.keyCode {
-            machPortEvent.result = nil
-            return
-          }
-        } else {
-          self.scheduledAction = nil
-          self.previousPartialMatch = Self.defaultPartialMatch
-          self.previousExactMatch = nil
-        }
-      }
-
       if handleEscapeKeyDownEvent(machPortEvent) {
-        scheduledAction = nil
-        leaderKeyCoordinator.removeLastEvent()
+        leaderKeyCoordinator.reset()
         return
       }
     case .keyUp:
@@ -181,38 +163,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
           PeekApplicationPlugin.peekEvent = nil
           return
         }
-      } else if let scheduledAction {
-        switch scheduledAction {
-        case .captureKeyDown(let capturedEvent, _):
-          if capturedEvent.keyCode == machPortEvent.keyCode {
-            self.scheduledAction = nil
-            self.previousPartialMatch = Self.defaultPartialMatch
-            self.previousExactMatch = nil
-            self.leaderKeyCoordinator.fireLastEvent()
-            self.notifications.reset()
-          }
-        case .postEvent(let event):
-          _ = machPort?.repost(event)
-          self.scheduledAction = nil
-          self.previousPartialMatch = Self.defaultPartialMatch
-          self.previousExactMatch = nil
-          self.notifications.reset()
-        case .recoverOnKeyUp(let event):
-          self.scheduledAction = nil
-          self.previousPartialMatch = Self.defaultPartialMatch
-          self.previousExactMatch = nil
-          self.notifications.reset()
-          self.leaderKeyCoordinator.fireLastEvent()
-
-          machPortEvent.result = nil
-
-          _ = try? machPort?.post(Int(event.keyCode), type: .keyDown, flags: event.flags)
-          _ = try? machPort?.post(Int(event.keyCode), type: .keyUp, flags: event.flags)
-
-          return
-        }
-      } else {
-        leaderKeyCoordinator.fireLastEvent()
       }
 
       handleKeyUp(machPortEvent)
@@ -274,16 +224,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         macroCoordinator.record(eventSignature, kind: .event(machPortEvent), machPortEvent: machPortEvent)
       }
 
-      leaderKeyCoordinator.exchangeWithPreviousEvent(machPortEvent)
-      if scheduledAction == nil {
-        let tryFallbackOnPartialMismatch = tryGlobals && partialMatchCopy.rawValue != previousPartialMatch.rawValue
-        if tryFallbackOnPartialMismatch {
-          intercept(machPortEvent, tryGlobals: false, runningMacro: false)
-        }
+      let tryFallbackOnPartialMismatch = tryGlobals && partialMatchCopy.rawValue != previousPartialMatch.rawValue
+      if tryFallbackOnPartialMismatch {
+        intercept(machPortEvent, tryGlobals: false, runningMacro: false)
       }
 
-      leaderKeyCoordinator.removeLastEvent()
-      leaderKeyCoordinator.resetLastTime()
       lastEventOrRebinding = machPortEvent.event
     case .partialMatch(let partialMatch):
       lastEventOrRebinding = machPortEvent.event
@@ -291,60 +236,38 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       KeyViewer.instance.handleInput(machPortEvent.event, store: store)
     case .exact(let workflow):
       previousExactMatch = workflow
-      if case .captureKeyDown(_, let holdDuration) = scheduledAction {
-        let elapsedTime = leaderKeyCoordinator.timeSinceLastEvent()
-        let seconds = (elapsedTime / 1000)
-        // opt-out from running the workflow
-        if seconds <= holdDuration * 1.15 {
-          scheduledAction = .recoverOnKeyUp(event: machPortEvent)
-          machPortEvent.result = nil
-          return
+
+      switch leaderKeyCoordinator.state {
+      case .event(let kind, _):
+        switch kind {
+        case .leader:
+          break
+        case .fallback:
+          previousPartialMatch = PartialMatch.default()
         }
-      } else {
-        previousPartialMatch = Self.defaultPartialMatch
+      case .idle:
+        previousPartialMatch = PartialMatch.default()
       }
 
       if inMacroContext {
         macroCoordinator.record(eventSignature, kind: .workflow(workflow), machPortEvent: machPortEvent)
       }
       handleExtactMatch(workflow, machPortEvent: machPortEvent)
-      leaderKeyCoordinator.removeLastEvent()
     }
   }
 
   private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent, runningMacro: Bool) {
-    let onTask: @MainActor @Sendable (LeaderKeyCoordinator.ScheduledAction?) -> Void = { [weak self] action in
-      guard let self else { return }
-
-      if macroCoordinator.state == .recording {
-        macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
-                                kind: .event(machPortEvent),
-                                machPortEvent: machPortEvent)
-      }
-
-      switch action {
-      case .captureKeyDown:
-        self.previousPartialMatch = partialMatch
-      default:
-        self.previousPartialMatch = Self.defaultPartialMatch
-      }
-      self.scheduledAction = action
-    }
-
-    scheduledAction = nil
-
-    if leaderKeyCoordinator.handlePartialMatchIfApplicable(partialMatch,
-                                                                   machPortEvent: machPortEvent,
-                                                                   onTask: onTask) {
-      repeatingMatch = nil
-      machPortEvent.result = nil
-    } else if let workflow = partialMatch.workflow,
+    if let workflow = partialMatch.workflow,
               workflow.machPortConditions.isPassthrough,
               macroCoordinator.state == .recording {
       previousPartialMatch = partialMatch
       macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
                               kind: .event(machPortEvent),
                               machPortEvent: machPortEvent)
+    } else if leaderKeyCoordinator.handlePartialMatchIfApplicable(partialMatch, machPortEvent: machPortEvent) {
+      previousPartialMatch = partialMatch
+      repeatingMatch = nil
+      machPortEvent.result = nil
     } else {
       if let partialWorkflow = partialMatch.workflow {
         if partialWorkflow.machPortConditions.isPassthrough == false {
@@ -461,7 +384,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   }
 
   private func reset(_ function: StaticString = #function, line: Int = #line) {
-    previousPartialMatch = Self.defaultPartialMatch
+    previousPartialMatch = PartialMatch.default()
     notifications.reset()
   }
 
@@ -472,7 +395,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   private func handleEscapeKeyDownEvent(_ machPortEvent: MachPortEvent) -> Bool {
     if machPortEvent.keyCode == kVK_Escape {
       notifications.reset()
-      if previousPartialMatch.rawValue != Self.defaultPartialMatch.rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
+      if previousPartialMatch.rawValue != PartialMatch.default().rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
         machPortEvent.result = nil
         reset()
         return true
@@ -520,10 +443,15 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
     } else if previousExactMatch != nil, machPortEvent.isRepeat {
       machPortEvent.result = nil
       return true
+    } else if leaderKeyCoordinator.isLeader(machPortEvent) {
+      machPortEvent.result = nil
+      return machPortEvent.isRepeat
     } else {
+
       repeatExecution = nil
       repeatingMatch = nil
       repeatingKeyCode = -1
+
       return false
     }
   }
@@ -538,7 +466,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
         await workflowRunner.run(workflow, machPortEvent: machPortEvent, repeatingEvent: false)
       }
       reset()
-      previousPartialMatch = Self.defaultPartialMatch
+      previousPartialMatch = .default()
       self.scheduledWorkItem = nil
     }
 
@@ -550,6 +478,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
   @MainActor
   private func setRepeatExecution(_ repeatExecution: (@MainActor @Sendable (MachPortEvent, Bool) async -> Void)?) {
     self.repeatExecution = repeatExecution
+  }
+
+  // MARK: LeaderKeyCoordinatorDelegate
+
+  func didResignLeader() {
+    self.previousPartialMatch = .default()
   }
 }
 

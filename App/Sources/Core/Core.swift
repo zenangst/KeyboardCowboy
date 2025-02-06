@@ -72,7 +72,9 @@ final class Core {
   lazy private(set) var groupStore = GroupStore()
   lazy private(set) var keyCodeStore = KeyCodesStore(InputSourceController())
   lazy private(set) var notifications = MachPortUINotifications(shortcutResolver: shortcutResolver)
+  lazy private(set) var leaderKeyCoordinator = LeaderKeyCoordinator(defaultPartialMatch: .default())
   lazy private(set) var machPortCoordinator = MachPortCoordinator(store: keyboardCommandRunner.store,
+                                                                  leaderKeyCoordinator: leaderKeyCoordinator,
                                                                   keyboardCleaner: keyboardCleaner,
                                                                   keyboardCommandRunner: keyboardCommandRunner,
                                                                   shortcutResolver: shortcutResolver,
@@ -86,6 +88,7 @@ final class Core {
     applicationTriggerController: applicationTriggerController,
 //    applicationWindowObserver: applicationWindowObserver,
     commandRunner: commandRunner,
+    leaderKey: leaderKeyCoordinator,
     keyboardCommandRunner: keyboardCommandRunner,
     keyCodeStore: keyCodeStore,
     machPortCoordinator: machPortCoordinator,
