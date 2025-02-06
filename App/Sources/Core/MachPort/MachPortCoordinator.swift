@@ -291,7 +291,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject {
       KeyViewer.instance.handleInput(machPortEvent.event, store: store)
     case .exact(let workflow):
       previousExactMatch = workflow
-      if case .captureKeyDown(let capturedEvent, let holdDuration) = scheduledAction {
+      if case .captureKeyDown(_, let holdDuration) = scheduledAction {
         let elapsedTime = leaderKeyCoordinator.timeSinceLastEvent()
         let seconds = (elapsedTime / 1000)
         // opt-out from running the workflow
