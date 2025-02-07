@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import MachPort
 
@@ -25,6 +26,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   private(set) var state: State = .idle
   private var lastEventTime: Double = 0
   private var shouldPostfallbackEvent: Bool = false
+  private var switchedEvents: [Int64: Int64] = [Int64: Int64]()
 
   enum ScheduledAction: Sendable {
     case captureKeyDown(event: MachPortEvent, holdDuration: Double)
@@ -114,7 +116,15 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
                              newEvent: MachPortEvent,
                              leaderEvent: MachPortEvent,
                              holdDuration: Double) {
-    guard !newEvent.isRepeat, isLeader(newEvent) else {
+    guard !newEvent.isRepeat else { return }
+
+    guard isLeader(newEvent) else {
+      if case .event(let kind, _) = state,
+         kind == .fallback {
+        switchedEvents[leaderEvent.keyCode] = newEvent.keyCode
+        newEvent.set(leaderEvent.keyCode, type: .keyUp)
+        newEvent.result = nil
+      }
       return
     }
 
@@ -133,18 +143,32 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
                            leaderEvent: MachPortEvent,
                            holdDuration: Double) {
     if isLeader(newEvent) {
-      reset()
-      delegate?.didResignLeader()
-
       switch kind {
       case .fallback:
-        postKeyDownAndUp(newEvent)
-      case .leader:
-        if shouldPostfallbackEvent {
+        if let keyCode = switchedEvents[leaderEvent.keyCode] {
+          newEvent.set(keyCode, type: .keyDown)
+          postKeyDownAndUp(newEvent)
+          switchedEvents[leaderEvent.keyCode] = nil
+        } else {
           postKeyDownAndUp(newEvent)
         }
+      case .leader:
+        let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+        let elapsedTime = currentTimestamp - lastEventTime
+        let threshold = holdDuration * 1_000
+
+        if threshold <= elapsedTime {
+        } else if shouldPostfallbackEvent {
+            postKeyDownAndUp(newEvent)
+        }
       }
+
+      reset()
+      delegate?.didResignLeader()
     } else {
+      if let keyCode = switchedEvents[leaderEvent.keyCode], newEvent.keyCode == keyCode {
+        newEvent.set(keyCode, type: .keyDown)
+      }
       shouldPostfallbackEvent = false
     }
   }
@@ -166,6 +190,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
     self.workItem?.cancel()
     self.workItem = nil
     self.leaderEvent = nil
+    self.previousLeader = nil
   }
 
   private func startTimer(delay: Int, completion: @MainActor @Sendable @escaping () -> Void) -> DispatchWorkItem {
@@ -186,5 +211,12 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
       _ = try? machPort?.post(Int(event.keyCode), type: .keyDown, flags: event.flags)
     }
     _ = try? machPort?.post(Int(event.keyCode), type: .keyUp, flags: event.flags)
+  }
+}
+
+extension MachPortEvent {
+  func set(_ keyCode: Int64, type: CGEventType) {
+    result?.takeUnretainedValue().setIntegerValueField(.keyboardEventKeycode, value: keyCode)
+    result?.takeUnretainedValue().type = type
   }
 }
