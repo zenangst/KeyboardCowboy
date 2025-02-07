@@ -247,6 +247,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
         }
       case .idle:
         previousPartialMatch = PartialMatch.default()
+        if leaderKeyCoordinator.discardNextPerfectMatch {
+          leaderKeyCoordinator.discardNextPerfectMatch = false
+          return
+        }
       }
 
       if inMacroContext {

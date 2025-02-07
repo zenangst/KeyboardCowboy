@@ -28,6 +28,8 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   private var shouldPostfallbackEvent: Bool = false
   private var switchedEvents: [Int64: Int64] = [Int64: Int64]()
 
+  var discardNextPerfectMatch: Bool = false
+
   enum ScheduledAction: Sendable {
     case captureKeyDown(event: MachPortEvent, holdDuration: Double)
     case postEvent(event: MachPortEvent)
@@ -124,6 +126,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
         switchedEvents[leaderEvent.keyCode] = newEvent.keyCode
         newEvent.set(leaderEvent.keyCode, type: .keyUp)
         newEvent.result = nil
+        workItem?.cancel()
       }
       return
     }
@@ -152,6 +155,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
         } else {
           postKeyDownAndUp(newEvent)
         }
+        discardNextPerfectMatch = true
       case .leader:
         let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
