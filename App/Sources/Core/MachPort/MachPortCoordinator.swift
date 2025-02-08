@@ -24,6 +24,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
   }
 
   private var keyboardCowboyModeSubscription: AnyCancellable?
+  private var leaderState: LeaderKeyCoordinator.State?
   private var previousPartialMatch: PartialMatch = .default()
   private var previousExactMatch: Workflow?
   private var repeatingKeyCode: Int64 = -1
@@ -237,20 +238,18 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     case .exact(let workflow):
       previousExactMatch = workflow
 
-      switch leaderKeyCoordinator.state {
-      case .event(let kind, _):
+      if case .event(let kind, _) = leaderState {
         switch kind {
         case .leader:
           break
         case .fallback:
+          leaderState = nil
+          intercept(machPortEvent, tryGlobals: true, runningMacro: false)
           previousPartialMatch = PartialMatch.default()
-        }
-      case .idle:
-        previousPartialMatch = PartialMatch.default()
-        if leaderKeyCoordinator.discardNextPerfectMatch {
-          leaderKeyCoordinator.discardNextPerfectMatch = false
           return
         }
+      } else {
+        previousPartialMatch = PartialMatch.default()
       }
 
       if inMacroContext {
@@ -262,8 +261,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
 
   private func handlePartialMatch(_ partialMatch: PartialMatch, machPortEvent: MachPortEvent, runningMacro: Bool) {
     if let workflow = partialMatch.workflow,
-              workflow.machPortConditions.isPassthrough,
-              macroCoordinator.state == .recording {
+       workflow.machPortConditions.isPassthrough,
+       macroCoordinator.state == .recording {
       previousPartialMatch = partialMatch
       macroCoordinator.record(CGEventSignature.from(machPortEvent.event),
                               kind: .event(machPortEvent),
@@ -402,6 +401,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       if previousPartialMatch.rawValue != PartialMatch.default().rawValue, machPortEvent.event.flags == CGEventFlags.maskNonCoalesced {
         machPortEvent.result = nil
         reset()
+        leaderState = nil
         return true
       }
     }
@@ -485,6 +485,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
   }
 
   // MARK: LeaderKeyCoordinatorDelegate
+
+  func changedState(_ state: LeaderKeyCoordinator.State?) {
+    leaderState = state
+  }
 
   func didResignLeader() {
     self.previousPartialMatch = .default()
