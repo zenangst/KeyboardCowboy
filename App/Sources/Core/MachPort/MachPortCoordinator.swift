@@ -123,18 +123,6 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     repeatingMatch = nil
     repeatingKeyCode = -1
     KeyViewer.instance.handleFlagsChanged(machPortEvent.flags)
-
-    if machPortEvent.flags == .maskNonCoalesced {
-      switch leaderKeyCoordinator.state {
-      case .event:
-        previousPartialMatch = .default()
-      case .idle:
-        break
-      }
-
-      leaderKeyCoordinator.reset()
-      leaderState = nil
-    }
   }
  
   // MARK: - Private methods
