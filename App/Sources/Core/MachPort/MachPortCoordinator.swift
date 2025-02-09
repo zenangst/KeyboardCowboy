@@ -123,6 +123,12 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     repeatingMatch = nil
     repeatingKeyCode = -1
     KeyViewer.instance.handleFlagsChanged(machPortEvent.flags)
+
+    if machPortEvent.flags == .maskNonCoalesced {
+      previousPartialMatch = .default()
+      leaderKeyCoordinator.reset()
+      leaderState = nil
+    }
   }
  
   // MARK: - Private methods
@@ -145,10 +151,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
         return
       }
 
-      if handleEscapeKeyDownEvent(machPortEvent) {
-        leaderKeyCoordinator.reset()
-        return
-      }
+      if handleEscapeKeyDownEvent(machPortEvent) { return }
     case .keyUp:
       if let workflow = previousExactMatch, workflow.machPortConditions.shouldRunOnKeyUp {
         if let previousKeyDownMachPortEvent = PeekApplicationPlugin.peekEvent {
@@ -402,6 +405,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
         machPortEvent.result = nil
         reset()
         leaderState = nil
+        leaderKeyCoordinator.reset()
         return true
       }
     }

@@ -26,7 +26,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   private let defaultPartialMatch: PartialMatch
   private var leaderKeyWorkItem: DispatchWorkItem?
   private(set) var state: State = .idle
-  private var lastEventTime: Double = 0
+  private var lastEventTime: Double
   private var switchedEvents: [Int64: Int64] = [Int64: Int64]()
 
   private var leaderEvent: MachPortEvent? {
@@ -39,7 +39,8 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   init(defaultPartialMatch: PartialMatch = .default()) {
     self.state = .idle
     self.defaultPartialMatch = defaultPartialMatch
-  }
+    self.lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
+ }
 
   func isLeader(_ event: MachPortEvent) -> Bool {
     if let leaderEvent {
@@ -60,6 +61,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
       return handleIdle(partialMatch, machPortEvent: machPortEvent)
     case .event(let kind, let holdDuration):
       guard let leaderEvent else {
+        delegate?.changedState(nil)
         reset()
         return false
       }
