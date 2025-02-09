@@ -125,7 +125,13 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     KeyViewer.instance.handleFlagsChanged(machPortEvent.flags)
 
     if machPortEvent.flags == .maskNonCoalesced {
-      previousPartialMatch = .default()
+      switch leaderKeyCoordinator.state {
+      case .event:
+        previousPartialMatch = .default()
+      case .idle:
+        break
+      }
+
       leaderKeyCoordinator.reset()
       leaderState = nil
     }
