@@ -244,8 +244,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
           break
         case .fallback:
           leaderState = nil
-          intercept(machPortEvent, tryGlobals: true, runningMacro: false)
           previousPartialMatch = PartialMatch.default()
+          intercept(machPortEvent, tryGlobals: true, runningMacro: false)
           return
         }
       } else {

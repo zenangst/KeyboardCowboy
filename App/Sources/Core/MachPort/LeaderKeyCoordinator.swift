@@ -27,7 +27,6 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   private var leaderKeyWorkItem: DispatchWorkItem?
   private(set) var state: State = .idle
   private var lastEventTime: Double = 0
-  private var shouldPostfallbackEvent: Bool = false
   private var switchedEvents: [Int64: Int64] = [Int64: Int64]()
 
   private var leaderEvent: MachPortEvent? {
@@ -87,8 +86,9 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   // MARK: Private methods
 
   private func handleIdle(_ partialMatch: PartialMatch?, machPortEvent: MachPortEvent) -> Bool {
-    guard let partialMatch else { return false }
-    guard let (_, holdDuration) = condition(partialMatch) else { return false }
+    guard let partialMatch, let (_, holdDuration) = condition(partialMatch) else {
+      return false
+    }
     self.leaderEvent = machPortEvent
     state = .event(.fallback, holdDuration: holdDuration)
     handleKeyDown(.fallback, newEvent: machPortEvent,
@@ -111,12 +111,12 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
         newEvent.set(leaderEvent.keyCode, type: .keyUp)
         newEvent.result = nil
         leaderKeyWorkItem?.cancel()
+        resetTime()
       }
       return
     }
-
-    lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
-    let delay = Int(holdDuration * 1_000)
+    resetTime()
+    let delay = max(Int(holdDuration * 1_000), 125)
     leaderKeyWorkItem = startTimer(delay: delay) { [weak self] in
       guard self != nil else { return }
       let newState = State.event(.leader, holdDuration: holdDuration)
@@ -148,10 +148,10 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
         let elapsedTime = currentTimestamp - lastEventTime
         let threshold = holdDuration * 1_000
 
-        if threshold <= elapsedTime {
-        } else if shouldPostfallbackEvent {
-            postKeyDownAndUp(newEvent)
+        if threshold <= elapsedTime { } else  {
+          postKeyDownAndUp(newEvent)
         }
+
         reset()
         delegate?.changedState(nil)
         delegate?.didResignLeader()
@@ -159,8 +159,8 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
     } else {
       if let keyCode = switchedEvents[leaderEvent.keyCode], newEvent.keyCode == keyCode {
         newEvent.set(keyCode, type: .keyDown)
+        postKeyDownAndUp(newEvent)
       }
-      shouldPostfallbackEvent = false
     }
   }
 
@@ -176,12 +176,15 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   }
 
   func reset() {
-    self.shouldPostfallbackEvent = true
     self.state = .idle
     self.leaderKeyWorkItem?.cancel()
     self.leaderKeyWorkItem = nil
     self.leaderEvent = nil
     self.previousLeader = nil
+  }
+
+  private func resetTime() {
+    lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
   }
 
   private func startTimer(delay: Int, completion: @MainActor @Sendable @escaping () -> Void) -> DispatchWorkItem {
