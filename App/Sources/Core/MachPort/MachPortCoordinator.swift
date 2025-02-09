@@ -123,6 +123,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     repeatingMatch = nil
     repeatingKeyCode = -1
     KeyViewer.instance.handleFlagsChanged(machPortEvent.flags)
+
+    if machPortEvent.keyCode == kVK_Escape && machPortEvent.result == nil {
+      _ = try? machPort?.post(kVK_Escape, type: .flagsChanged, flags: .maskNonCoalesced)
+    }
   }
  
   // MARK: - Private methods
