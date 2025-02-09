@@ -228,6 +228,8 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       }
 
       lastEventOrRebinding = machPortEvent.event
+      leaderState = nil
+      previousPartialMatch = PartialMatch.default()
     case .partialMatch(let partialMatch):
       lastEventOrRebinding = machPortEvent.event
       handlePartialMatch(partialMatch, machPortEvent: machPortEvent, runningMacro: runningMacro)
@@ -418,6 +420,10 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
       } else {
         machPortEvent.result = nil
       }
+    } else if case .event(let kind, _) = leaderState,
+              kind == .fallback {
+      leaderState = nil
+      previousPartialMatch = .default()
     }
   }
 
