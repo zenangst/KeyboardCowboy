@@ -1,4 +1,5 @@
 import SwiftUI
+import Inject
 import Bonzai
 
 struct EmptyWorkflowList: View {
@@ -30,21 +31,26 @@ struct EmptyWorkflowList: View {
               .opacity(0.5)
             Text("Add Workflow")
           }
-          .padding(4)
         })
         .fixedSize()
         .help("Add Workflow")
         .matchedGeometryEffect(id: "add-workflow-button", in: namespace, isSource: false)
+        .buttonStyle { button in
+          button.backgroundColor = ColorPublisher.shared.color
+          button.focusEffect = true
+          button.hoverEffect = false
+          button.padding = .large
+        }
 
         Text("No workflows yet,\nadd a workflow to get started.")
           .multilineTextAlignment(.center)
           .font(.footnote)
-          .padding(.top, 8)
       }
       .padding(.top, publisher.data.isEmpty ? 48 : 0)
       .frame(height: publisher.data.isEmpty ? nil : 0)
       .opacity(publisher.data.isEmpty ? 1 : 0)
     }
+    .enableInjection()
   }
 }
 

@@ -47,7 +47,7 @@ struct EmptyCommandList: View {
       })
       .buttonStyle { button in
         button.grayscaleEffect = false
-        button.hoverEffect = true
+        button.hoverEffect = false
         button.font = .body
         button.padding = .large
         button.backgroundColor = .systemGreen
