@@ -88,9 +88,15 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   // MARK: Private methods
 
   private func handleIdle(_ partialMatch: PartialMatch?, machPortEvent: MachPortEvent) -> Bool {
+    guard machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged else { return false }
+
     guard let partialMatch, let (_, holdDuration) = condition(partialMatch) else {
+      if !machPortEvent.isRepeat {
+        state = .idle
+      }
       return false
     }
+
     self.leaderEvent = machPortEvent
     state = .event(.fallback, holdDuration: holdDuration)
     handleKeyDown(.fallback, newEvent: machPortEvent,
