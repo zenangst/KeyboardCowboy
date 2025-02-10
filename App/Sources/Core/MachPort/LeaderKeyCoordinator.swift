@@ -129,6 +129,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
         newEvent.result = nil
         leaderKeyWorkItem?.cancel()
         resetTime()
+        delegate?.didResignLeader()
       }
       return
     }
