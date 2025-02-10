@@ -78,9 +78,11 @@ private struct SystemCommandContentView: View {
             model.kind = kind
             onUpdate(kind)
           }, label: {
-            Image(systemName: kind.symbol)
-            Text(kind.displayValue)
-              .font(.subheadline)
+            HStack {
+              Image(systemName: kind.symbol)
+              Text(kind.displayValue)
+                .font(.subheadline)
+            }
           })
         }
       }, label: {
