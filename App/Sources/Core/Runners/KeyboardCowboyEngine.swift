@@ -82,7 +82,7 @@ final class KeyboardCowboyEngine {
       let keyboardEvents: CGEventMask = (1 << CGEventType.keyDown.rawValue)
                                       | (1 << CGEventType.keyUp.rawValue)
                                       | (1 << CGEventType.flagsChanged.rawValue)
-
+      let keyCache = KeyPressCache()
       let newMachPortController = try MachPortEventController(
         .privateState,
         eventsOfInterest: keyboardEvents,
@@ -96,6 +96,7 @@ final class KeyboardCowboyEngine {
 
           _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
           machPortCoordinator.receiveFlagsChanged($0)
+          keyCache.handle($0.event)
         },
         onEventChange: { [machPortCoordinator, modifierTriggerController, leaderKey] in
           if machPortCoordinator.mode == .intercept ||
@@ -110,6 +111,11 @@ final class KeyboardCowboyEngine {
             machPortCoordinator.receiveFlagsChanged($0)
           } else {
             machPortCoordinator.receiveEvent($0)
+          }
+          keyCache.handle($0.event)
+
+          if !$0.isRepeat && keyCache.noKeysPressed() {
+            leaderKey.reset()
           }
         })
       commandRunner.eventSource = newMachPortController.eventSource
