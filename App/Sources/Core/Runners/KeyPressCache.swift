@@ -10,6 +10,10 @@ final class KeyPressCache {
   }
 
   func handle(_ event: CGEvent) {
+    guard event.getIntegerValueField(.keyboardEventAutorepeat) == 0 else {
+      return
+    }
+
     let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
     switch event.type {
     case .keyDown:

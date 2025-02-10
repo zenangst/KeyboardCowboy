@@ -112,6 +112,7 @@ final class KeyboardCowboyEngine {
           } else {
             machPortCoordinator.receiveEvent($0)
           }
+
           keyCache.handle($0.event)
 
           if !$0.isRepeat && keyCache.noKeysPressed() {
