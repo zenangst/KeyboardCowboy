@@ -234,7 +234,7 @@ public enum PackageResolver {
         .package(url: "https://github.com/sparkle-project/Sparkle.git", from: "2.4.1"),
         .package(url: "https://github.com/zenangst/AXEssibility.git", .revision("4a06484fd379c2eb34487c467aca043ac2048ee5")),
         .package(url: "https://github.com/zenangst/Apps.git", from: "1.4.3"),
-        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("2f7b17e0f9b7810823f277c0f2d825c8e93b10df")),
+        .package(url: "https://github.com/zenangst/Bonzai.git", .revision("26c16972a31500fefcb9ce2e8912947c4128e85c")),
         .package(url: "https://github.com/zenangst/Dock.git", from: "1.0.1"),
         .package(url: "https://github.com/zenangst/DynamicNotchKit", .revision("40abe91486627499783f470c4dedb5267df2f0be")),
         .package(url: "https://github.com/zenangst/InputSources.git", from: "1.1.0"),
