@@ -106,6 +106,7 @@ final class KeyboardCowboyEngine {
           _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
 
           if $0.event.type == .flagsChanged {
+            if $0.isRepeat { return }
             machPortCoordinator.receiveFlagsChanged($0)
           } else {
             machPortCoordinator.receiveEvent($0)
