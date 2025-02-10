@@ -88,11 +88,11 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   // MARK: Private methods
 
   private func handleIdle(_ partialMatch: PartialMatch?, machPortEvent: MachPortEvent) -> Bool {
-    guard machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged else { return false }
-
-    guard let partialMatch, let (_, holdDuration) = condition(partialMatch) else {
+    guard machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged,
+          let partialMatch, let (_, holdDuration) = condition(partialMatch) else {
       if !machPortEvent.isRepeat {
         state = .idle
+        leaderEvent = nil
       }
       return false
     }
@@ -111,6 +111,15 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
                              leaderEvent: MachPortEvent,
                              holdDuration: Double) {
     guard !newEvent.isRepeat else { return }
+
+    // Opt-out if the leader key is interrupted by a flags change.
+    if leaderEvent.flags.rawValue != newEvent.flags.rawValue,
+       case .event(let kind, _) = state,
+       kind == .fallback {
+      self.state = .idle
+      newEvent.result = nil
+      return
+    }
 
     guard isLeader(newEvent) else {
       if case .event(let kind, _) = state,
@@ -163,11 +172,6 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
         reset()
         delegate?.changedState(nil)
         delegate?.didResignLeader()
-      }
-    } else {
-      if let keyCode = switchedEvents[leaderEvent.keyCode], newEvent.keyCode == keyCode {
-        newEvent.set(keyCode, type: .keyDown)
-        postKeyDownAndUp(newEvent)
       }
     }
   }
