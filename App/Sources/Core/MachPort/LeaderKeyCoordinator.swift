@@ -13,11 +13,11 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
   weak var delegate: LeaderKeyCoordinatorDelegate?
   @MainActor var machPort: MachPortEventController?
 
-  enum State {
+  enum State: Equatable {
     case idle
     case event(_ kind: Kind, holdDuration: Double)
 
-    enum Kind {
+    enum Kind: Equatable {
       case fallback
       case leader
     }
@@ -25,7 +25,15 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
 
   private let defaultPartialMatch: PartialMatch
   private var leaderKeyWorkItem: DispatchWorkItem?
-  private(set) var state: State = .idle
+  private(set) var state: State = .idle {
+    willSet {
+      if case .idle = newValue,
+         case .event(let kind, _) = state,
+         kind == .leader {
+        delegate?.didResignLeader()
+      }
+    }
+  }
   private var lastEventTime: Double
   private var switchedEvents: [Int64: Int64] = [Int64: Int64]()
 
@@ -69,6 +77,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
       if !isLeader(machPortEvent), let partialMatch, condition(partialMatch) != nil {
         postKeyDownAndUp(leaderEvent)
         self.leaderEvent = machPortEvent
+        leaderKeyWorkItem?.cancel()
       }
 
       if machPortEvent.event.type == .keyDown {
@@ -133,8 +142,11 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
       }
       return
     }
+
+    let delay = max(Int(holdDuration * 1_000), 105)
+    leaderKeyWorkItem?.cancel()
+
     resetTime()
-    let delay = max(Int(holdDuration * 1_000), 125)
     leaderKeyWorkItem = startTimer(delay: delay) { [weak self] in
       guard self != nil else { return }
       let newState = State.event(.leader, holdDuration: holdDuration)
@@ -164,7 +176,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
       case .leader:
         let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
-        let threshold = CGFloat(max(Int(holdDuration * 1_000), 125))
+        let threshold = CGFloat(max(Int(holdDuration * 2 * 1_000), 125))
 
         if threshold <= elapsedTime { } else  {
           postKeyDownAndUp(newEvent)
@@ -172,7 +184,6 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
 
         reset()
         delegate?.changedState(nil)
-        delegate?.didResignLeader()
       }
     }
   }
