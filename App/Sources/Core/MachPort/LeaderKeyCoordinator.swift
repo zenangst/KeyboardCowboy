@@ -169,6 +169,8 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
           postKeyDownAndUp(newEvent)
           switchedEvents[leaderEvent.keyCode] = nil
         } else {
+          // Ignore the previous event and set up a new one to maintain consistency.
+          newEvent.result = nil
           postKeyDownAndUp(newEvent)
         }
         delegate?.changedState(state)
