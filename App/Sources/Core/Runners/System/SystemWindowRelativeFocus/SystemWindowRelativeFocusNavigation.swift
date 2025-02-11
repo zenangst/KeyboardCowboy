@@ -8,6 +8,7 @@ import Windows
 final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
   static let debug: Bool = false
 
+  @MainActor
   private lazy var systemElement = SystemAccessibilityElement()
 
   @MainActor lazy var window: NSWindow = ZenWindow(
@@ -73,6 +74,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     }
   }
 
+  @MainActor
   func findNextWindow(_ currentWindow: RelativeWindowModel, windows: [RelativeWindowModel],
                       direction: SystemWindowRelativeFocus.Direction,
                       initialScreen: NSScreen = NSScreen.main!) async throws -> RelativeWindowModelMatch? {
