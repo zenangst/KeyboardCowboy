@@ -27,6 +27,7 @@ final class ModifierTriggerController: @unchecked Sendable {
   }
   var coordinator: ModifierTriggerMachPortCoordinator?
 
+  private var hasDecoratedEvent: Bool = false
   private var lastEventTime: Double = 0
   private var workflowGroupsSubscription: AnyCancellable?
   private var cache: [String: ModifierTrigger] = [:]
@@ -235,9 +236,14 @@ final class ModifierTriggerController: @unchecked Sendable {
           machPortEvent.event.flags = .maskNonCoalesced
           coordinator
             .postMaskNonCoalesced()
+
+          if hasDecoratedEvent {
+            coordinator.discardSystemEvent(on: machPortEvent)
+          }
         } else {
           coordinator.decorateEvent(machPortEvent, with: modifiers)
           debugModifier("\(machPortEvent.keyCode), \(machPortEvent.event.flags)")
+          hasDecoratedEvent = true
           return
         }
 
@@ -259,6 +265,7 @@ final class ModifierTriggerController: @unchecked Sendable {
     self.workItem?.cancel()
     self.workItem = nil
     self.currentTrigger = nil
+    self.hasDecoratedEvent = false
   }
 
   private func startTimer(delay: Int, currentTrigger: ModifierTrigger,
