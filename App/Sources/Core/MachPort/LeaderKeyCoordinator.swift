@@ -164,7 +164,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
       case .leader:
         let currentTimestamp = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
         let elapsedTime = currentTimestamp - lastEventTime
-        let threshold = holdDuration * 1_000
+        let threshold = CGFloat(max(Int(holdDuration * 1_000), 125))
 
         if threshold <= elapsedTime { } else  {
           postKeyDownAndUp(newEvent)
