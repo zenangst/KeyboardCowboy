@@ -3,7 +3,6 @@ import Foundation
 struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
   var passthrough: Bool
   var allowRepeat: Bool = true
-  // This is only applicable for singular shortcuts
   var holdDuration: Double?
   let shortcuts: [KeyShortcut]
 
@@ -21,6 +20,7 @@ struct KeyboardShortcutTrigger: Hashable, Codable, Equatable {
     KeyboardShortcutTrigger(
       allowRepeat: allowRepeat,
       passthrough: passthrough,
+      holdDuration: holdDuration,
       shortcuts: shortcuts.map { $0.copy() })
   }
 
