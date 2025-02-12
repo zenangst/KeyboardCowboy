@@ -11,22 +11,20 @@ struct ApplicationSettingsView: View {
   @State private var isPresentingPopover: Bool = false
 
   var body: some View {
-    VStack(spacing: 0) {
+    VStack {
       HStack(alignment: .bottom) {
         ZenLabel(.detail, content: { Text("Additional Applications")})
+          .style(.derived)
         Spacer()
       }
-      .padding([.top, .leading, .trailing], 16)
-      .background(Color(.windowBackgroundColor))
 
       Group {
         if additionalApplicationPaths.isEmpty {
           Text("No additional directories")
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 32)
         } else {
           ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading) {
               ForEach(additionalApplicationPaths, id: \.self) { path in
                 HStack {
                   Text(path)
@@ -38,17 +36,16 @@ struct ApplicationSettingsView: View {
                     Image(systemName: "trash")
                   })
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
                 Divider()
               }
+//              .style(.item)
             }
             .frame(maxHeight: .infinity)
           }
+          .style(.list)
         }
       }
-      .roundedStyle(padding: 0)
-      .background(Color(.windowBackgroundColor))
+      .roundedStyle()
       .layoutPriority(100)
 
       HStack {
@@ -62,6 +59,8 @@ struct ApplicationSettingsView: View {
                  content: {
           ApplicationSettingsPopoverView()
         })
+        .buttonStyle(.help)
+
         Spacer()
         Button(action: {
           openPanel.perform(.selectFolder(allowMultipleSelections: true, handler: { string in
@@ -77,11 +76,14 @@ struct ApplicationSettingsView: View {
           }
         })
         .font(.callout)
-        .frame(height: 32)
       }
-      .padding(16)
+
+      Spacer()
     }
+    .style(.derived)
+    .style(.section(.detail))
     .frame(minWidth: 480, minHeight: 160)
+    .enableInjection()
   }
 }
 

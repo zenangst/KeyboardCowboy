@@ -1,7 +1,9 @@
 import Bonzai
+import Inject
 import SwiftUI
 
 struct NotificationsSettingsView: View {
+  @ObserveInjection var inject
   @AppStorage("Notifications.KeyboardCommands") var keyboardCommands: Bool = false
   @AppStorage("Notifications.RunningWorkflows") var runningWorkflows: Bool = false
   @AppStorage("Notifications.Bundles") var bundles: Bool = false
@@ -96,6 +98,7 @@ struct NotificationsSettingsView: View {
       .padding([.horizontal])
     }
     .frame(minWidth: 480, minHeight: 280, alignment: .top)
+    .enableInjection()
   }
 
   private var gradient: LinearGradient {

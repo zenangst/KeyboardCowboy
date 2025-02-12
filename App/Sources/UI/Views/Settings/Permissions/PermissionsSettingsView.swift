@@ -1,12 +1,16 @@
 import AXEssibility
+import Bonzai
+import Inject
 import SwiftUI
 
 struct PermissionsSettingsView: View {
+  @ObserveInjection var inject
   @StateObject var accessibilityPermission = AccessibilityPermission.shared
   @StateObject var locationPermission = LocationPermission.shared
 
   var body: some View {
-    VStack {
+    VStack(spacing: 0) {
+      ZenDivider()
       Grid(alignment: .topLeading, horizontalSpacing: 16, verticalSpacing: 32) {
         GridRow {
           PermissionOverviewItem(
@@ -21,6 +25,11 @@ struct PermissionsSettingsView: View {
           .animation(.easeInOut, value: accessibilityPermission.viewModel)
         }
       }
+      .roundedSubStyle()
+      .style(.derived)
+      .style(.section(.content))
+
+      Spacer()
     }
     .onChange(of: accessibilityPermission.permission, perform: { newValue in
       if newValue == .authorized {
@@ -29,7 +38,6 @@ struct PermissionsSettingsView: View {
         }
       }
     })
-    .roundedStyle()
     .frame(minWidth: 480, maxWidth: 480)
   }
 }

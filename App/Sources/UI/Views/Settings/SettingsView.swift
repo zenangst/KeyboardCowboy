@@ -1,6 +1,8 @@
+import Inject
 import SwiftUI
 
 struct SettingsView: View {
+  @ObserveInjection var inject
   var body: some View {
     TabView {
       ApplicationSettingsView()
@@ -10,5 +12,6 @@ struct SettingsView: View {
       PermissionsSettingsView()
         .tabItem { Label("Permissions", systemImage: "hand.raised.circle.fill") }
     }
+    .enableInjection()
   }
 }

@@ -100,7 +100,11 @@ struct KeyboardCowboyApp: App {
       }
     }
 
-    Settings { SettingsView().environmentObject(OpenPanelController()) }
+    Settings {
+      SettingsView()
+        .defaultStyle()
+        .environmentObject(OpenPanelController())
+    }
     .windowStyle(.hiddenTitleBar)
     .windowResizability(.contentSize)
     .windowToolbarStyle(.unified)
