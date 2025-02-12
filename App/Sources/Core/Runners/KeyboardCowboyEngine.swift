@@ -89,26 +89,32 @@ final class KeyboardCowboyEngine {
         signature: "com.zenangst.Keyboard-Cowboy",
         autoStartMode: .commonModes,
         onFlagsChanged: { [machPortCoordinator, modifierTriggerController, leaderKey] in
+          let allowsEscapeFallback: Bool
           if machPortCoordinator.mode == .intercept ||
              machPortCoordinator.mode == .recordMacro {
-            modifierTriggerController.handleIfApplicable($0)
+            allowsEscapeFallback = !modifierTriggerController.handleIfApplicable($0)
+          } else {
+            allowsEscapeFallback = true
           }
 
           _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
-          machPortCoordinator.receiveFlagsChanged($0)
+          machPortCoordinator.receiveFlagsChanged($0, allowsEscapeFallback: allowsEscapeFallback)
           keyCache.handle($0.event)
         },
         onEventChange: { [machPortCoordinator, modifierTriggerController, leaderKey] in
+          let allowsEscapeFallback: Bool
           if machPortCoordinator.mode == .intercept ||
              machPortCoordinator.mode == .recordMacro {
-            modifierTriggerController.handleIfApplicable($0)
+            allowsEscapeFallback = !modifierTriggerController.handleIfApplicable($0)
+          } else {
+            allowsEscapeFallback = false
           }
 
           _ = leaderKey.handlePartialMatchIfApplicable(nil, machPortEvent: $0)
 
           if $0.event.type == .flagsChanged {
             if $0.isRepeat { return }
-            machPortCoordinator.receiveFlagsChanged($0)
+            machPortCoordinator.receiveFlagsChanged($0, allowsEscapeFallback: allowsEscapeFallback)
           } else {
             machPortCoordinator.receiveEvent($0)
           }

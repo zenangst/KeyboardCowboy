@@ -113,7 +113,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     self.event = machPortEvent
   }
 
-  func receiveFlagsChanged(_ machPortEvent: MachPortEvent) {
+  func receiveFlagsChanged(_ machPortEvent: MachPortEvent, allowsEscapeFallback: Bool) {
     let flags = machPortEvent.event.flags
     scheduledWorkItem?.cancel()
     scheduledWorkItem = nil
@@ -124,7 +124,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     repeatingKeyCode = -1
     KeyViewer.instance.handleFlagsChanged(machPortEvent.flags)
 
-    if machPortEvent.keyCode == kVK_Escape && machPortEvent.result == nil {
+    if allowsEscapeFallback && machPortEvent.keyCode == kVK_Escape && machPortEvent.result == nil {
       _ = try? machPort?.post(kVK_Escape, type: .flagsChanged, flags: .maskNonCoalesced)
     }
   }

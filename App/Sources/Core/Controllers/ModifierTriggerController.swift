@@ -45,18 +45,18 @@ final class ModifierTriggerController: @unchecked Sendable {
   }
 
   @MainActor
-  func handleIfApplicable(_ machPortEvent: MachPortEvent) {
-    guard let coordinator, !cache.isEmpty else { return }
+  func handleIfApplicable(_ machPortEvent: MachPortEvent) -> Bool {
+    guard let coordinator, !cache.isEmpty else { return false }
 
     workItem?.cancel()
 
     switch state {
     case .idle:
-      handleIdle(machPortEvent, coordinator: coordinator)
+      return handleIdle(machPortEvent, coordinator: coordinator)
     case .keyDown:
       guard let currentTrigger else {
         reset()
-        return
+        return false
       }
 
       if machPortEvent.event.type == .keyDown {
@@ -68,6 +68,8 @@ final class ModifierTriggerController: @unchecked Sendable {
         workItem?.cancel()
         handleKeyUp(machPortEvent, coordinator: coordinator, currentTrigger: currentTrigger)
       }
+
+      return true
     }
   }
 
@@ -141,14 +143,14 @@ final class ModifierTriggerController: @unchecked Sendable {
   // MARK: Private methods
 
   private func handleIdle(_ machPortEvent: MachPortEvent,
-                          coordinator: ModifierTriggerMachPortCoordinator) {
-    guard machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged else { return }
+                          coordinator: ModifierTriggerMachPortCoordinator) -> Bool {
+    guard machPortEvent.type == .keyDown || machPortEvent.type == .flagsChanged else { return false }
 
     let event = machPortEvent.event
     let signature = CGEventSignature(event.getIntegerValueField(.keyboardEventKeycode), event.flags)
     let trigger = lookup(signature)
 
-    guard let trigger else { return }
+    guard let trigger else { return false }
 
     if let heldDown = trigger.heldDown {
       lastEventTime = Self.convertTimestampToMilliseconds(DispatchTime.now().uptimeNanoseconds)
@@ -160,6 +162,8 @@ final class ModifierTriggerController: @unchecked Sendable {
 
     currentTrigger = trigger
     machPortEvent.result = nil
+
+    return true
   }
 
   private func handleKeyDown(_ machPortEvent: MachPortEvent,
