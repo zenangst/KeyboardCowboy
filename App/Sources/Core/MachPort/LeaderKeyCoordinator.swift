@@ -127,6 +127,7 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
        kind == .fallback {
       self.state = .idle
       newEvent.result = nil
+      resetTime()
       return
     }
 
@@ -137,16 +138,15 @@ final class LeaderKeyCoordinator: @unchecked Sendable {
         newEvent.set(leaderEvent.keyCode, type: .keyUp)
         newEvent.result = nil
         leaderKeyWorkItem?.cancel()
-        resetTime()
         delegate?.didResignLeader()
       }
       return
     }
 
-    let delay = max(Int(holdDuration * 1_000), 105)
-    leaderKeyWorkItem?.cancel()
-
     resetTime()
+
+    let delay = max(Int(holdDuration * 1_000), 115)
+    leaderKeyWorkItem?.cancel()
     leaderKeyWorkItem = startTimer(delay: delay) { [weak self] in
       guard self != nil else { return }
       let newState = State.event(.leader, holdDuration: holdDuration)
