@@ -1,7 +1,9 @@
+import Inject
 import SwiftUI
 import Bonzai
 
 struct PermissionsView: View {
+  @ObserveInjection var inject
   enum Action {
     case github
     case requestPermissions
@@ -44,33 +46,48 @@ struct PermissionsView: View {
 
           Text("If you have any concerns, please contact us.")
         }
-        .padding(.vertical, 32)
-        .padding(.horizontal, 48)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
       }
-      .background(Color.black.opacity(0.2).clipShape(RoundedRectangle(cornerRadius: 8)))
+      .roundedSubStyle(padding: 16)
+      .style(.derived)
 
       ZenDivider()
 
-      HStack(spacing: 16) {
+      HStack {
         Button("View source code", action: {
           onAction(.github)
         })
+        .buttonStyle { button in
+          button.backgroundColor = .systemPurple
+          button.padding = .large
+        }
         Spacer()
 
         Button("Request permission", action: {
           done.toggle()
           onAction(.requestPermissions)
         })
+        .buttonStyle { button in
+          button.backgroundColor = .systemGreen
+          button.hoverEffect = false
+          button.focusEffect = false
+          button.grayscaleEffect = false
+          button.padding = .large
+        }
       }
       .roundedStyle()
+      .style(.derived)
+
+      Spacer()
     }
     .compositingGroup()
+    .style(.section(.detail))
     .frame(minHeight: 560, maxHeight: .infinity, alignment: .top)
     .background(SplashView(done: $done))
     .onAppear {
       animated = true
     }
+    .enableInjection()
   }
 }
 

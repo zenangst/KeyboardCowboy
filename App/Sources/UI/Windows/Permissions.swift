@@ -14,9 +14,6 @@ final class Permissions: NSObject, NSWindowDelegate {
                                          .resizable, .fullSizeContentView]
     let window = ZenSwiftUIWindow(contentRect: .zero, styleMask: styleMask) {
       PermissionsView(onAction: handle)
-        .toolbar(content: {
-          Text("Keyboard Cowboy: Permissions")
-        })
         .frame(width: 640, height: 560)
     }
     let size = window.sizeThatFits(in: .init(width: 320, height: 240))
