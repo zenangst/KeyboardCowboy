@@ -64,12 +64,12 @@ struct WorkflowCommandListView_Previews: PreviewProvider {
   @FocusState static var focus: AppFocus?
   static var previews: some View {
     CommandList($focus,
-                            namespace: namespace,
-                            workflowId: "workflowId",
-                            isPrimary: .constant(true),
-                            publisher: CommandsPublisher(DesignTime.detail.commandsInfo),
-                            triggerPublisher: TriggerPublisher(DesignTime.detail.trigger),
-                            selectionManager: .init()) 
+                namespace: namespace,
+                workflowId: "workflowId",
+                isPrimary: .constant(true),
+                publisher: CommandsPublisher(DesignTime.detail.commandsInfo),
+                triggerPublisher: TriggerPublisher(DesignTime.detail.trigger),
+                selectionManager: .init())
       .frame(height: 900)
       .designTime()
   }

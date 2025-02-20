@@ -56,7 +56,6 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           if arrowKeys.contains(key) {
             flags.insert(.maskNumericPad)
           }
-          
           let configureEvent: (CGEvent) -> Void = { newEvent in
             if let originalEvent {
               let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)

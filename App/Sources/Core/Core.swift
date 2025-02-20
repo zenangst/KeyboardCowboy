@@ -146,6 +146,8 @@ final class Core {
     onRender: { [weak self] configuration, commit, animation in
       guard let self else { return }
       groupStore.updateGroups(Set(configuration.groups))
+      sidebarCoordinator.handle(.selectGroups([commit.groupID]))
+      groupCoordinator.handle(.selectGroups([commit.groupID]))
       workflowCoordinator.handle(.selectGroups([commit.groupID]))
     },
     onStorageUpdate: { [weak self] configuration, commit in

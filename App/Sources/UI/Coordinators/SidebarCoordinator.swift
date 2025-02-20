@@ -78,6 +78,7 @@ final class SidebarCoordinator {
       if ids.count == 1, let id = ids.first, let group = store.group(withId: id) {
         let nsColor = NSColor(hex: group.color).blended(withFraction: 0.4, of: .black)!
         ColorPublisher.shared.publish(Color(nsColor: nsColor))
+        selectionManager.publish([id])
       } else {
         ColorPublisher.shared.publish(.accentColor)
       }

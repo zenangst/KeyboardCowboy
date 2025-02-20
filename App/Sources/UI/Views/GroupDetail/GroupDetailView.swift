@@ -46,6 +46,8 @@ struct GroupDetailView: View {
 
   @ObserveInjection var inject
   @FocusState var focus: LocalFocus<GroupDetailViewModel>?
+  @EnvironmentObject private var updater: ConfigurationUpdater
+  @EnvironmentObject private var transaction: UpdateTransaction
   @EnvironmentObject private var groupsPublisher: GroupsPublisher
   @EnvironmentObject private var publisher: GroupDetailPublisher
   @Namespace private var namespace
@@ -363,6 +365,7 @@ struct GroupDetailView: View {
         appFocus.wrappedValue = .detail(.name)
       }
     })
+
     Menu("Move to") {
       // Show only other groups than the current one.
       // TODO: This is a bottle-neck for performance
@@ -373,6 +376,28 @@ struct GroupDetailView: View {
         }
       }
     }
+
+    Menu("Duplicate & Move to") {
+      ForEach(groupsPublisher.data, id: \.self) { newGroup in
+        Button(newGroup.name) {
+          updater.getConfiguration { configuration in
+            guard let oldGroup = configuration.groups.first(where: { $0.id == transaction.groupID }),
+                  let newGroup = configuration.groups.first(where: { $0.id == newGroup.id }) else {
+              return
+            }
+
+            let workflows = oldGroup.workflows
+              .filter { workflowSelection.selections.contains($0.id) }
+              .map { $0.copy() }
+
+            updater.modifyGroup(using: UpdateTransaction(groupID: newGroup.id, workflowID: transaction.workflowID)) { group in
+              group.workflows.append(contentsOf: workflows)
+            }
+          }
+        }
+      }
+    }
+
     Button("Delete", action: {
       onAction(.removeWorkflows(workflowSelection.selections))
     })

@@ -40,6 +40,11 @@ final class ConfigurationUpdater: ObservableObject {
       }
   }
 
+  func getConfiguration(handler: (KeyboardCowboyConfiguration) -> Void) {
+    guard case .configured(let configuration) = state else { return }
+    handler(configuration)
+  }
+
   func modifyGroup(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout WorkflowGroup) -> Void) {
     guard case .configured(var configuration) = state else { return }
     configuration.modify(
