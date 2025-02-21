@@ -122,7 +122,6 @@ private struct OpenCommandContentView: View {
               guard case .open(let openCommand) = command else { return }
               command = .open(OpenCommand(application: app, path: openCommand.path, meta: command.meta))
             }
-
           })
         }
         Divider()

@@ -30,8 +30,15 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
 
   func applicationsToOpen(_ path: String) -> [Application] {
     guard let url = URL(string: path) else { return [] }
-    return NSWorkspace.shared.urlsForApplications(toOpen: url)
+    var applications =  NSWorkspace.shared.urlsForApplications(toOpen: url)
       .compactMap { application(at: $0) }
+
+    if url.isWebURL {
+      let webApps = ApplicationStore.shared.applications.filter({ $0.bundleIdentifier.contains("com.apple.Safari.WebApp") })
+      applications.append(contentsOf: webApps)
+    }
+
+    return applications.sorted(by: { $0.displayName.lowercased() < $1.displayName.lowercased() })
   }
 
   func application(at url: URL) -> Application? {
