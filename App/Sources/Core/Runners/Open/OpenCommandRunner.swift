@@ -9,6 +9,7 @@ final class OpenCommandRunner {
     let parser = OpenURLParser()
     let open: OpenFilePlugin
     let swapTab: OpenURLSwapTabsPlugin
+    let webApp: OpenURLSafariWebAppPlugin
   }
 
   private let plugins: Plugins
@@ -18,7 +19,8 @@ final class OpenCommandRunner {
     self.plugins = .init(
       finderFolder: OpenFolderInFinder(commandRunner, workspace: workspace),
       open: OpenFilePlugin(workspace: workspace),
-      swapTab: OpenURLSwapTabsPlugin(commandRunner))
+      swapTab: OpenURLSwapTabsPlugin(commandRunner),
+      webApp: OpenURLSafariWebAppPlugin(commandRunner))
     self.workspace = workspace
   }
 
@@ -27,11 +29,17 @@ final class OpenCommandRunner {
       if plugins.finderFolder.validate(application?.bundleIdentifier) {
         try await plugins.finderFolder.execute(path, checkCancellation: checkCancellation)
       } else if path.isUrl {
-        try await plugins.swapTab.execute(path,
-                                          appName: application?.displayName ?? "Safari",
-                                          appPath: application?.path,
-                                          bundleIdentifier: application?.bundleIdentifier,
-                                          checkCancellation: checkCancellation)
+
+        if let application, application.bundleIdentifier.hasPrefix("com.apple.Safari.WebApp") {
+          try await plugins.webApp.execute(path, application: application, checkCancellation: checkCancellation)
+          return
+        } else {
+          try await plugins.swapTab.execute(path,
+                                            appName: application?.displayName ?? "Safari",
+                                            appPath: application?.path,
+                                            bundleIdentifier: application?.bundleIdentifier,
+                                            checkCancellation: checkCancellation)
+        }
       } else {
         try await plugins.open.execute(path, application: application)
       }
