@@ -20,6 +20,11 @@ final class OpenURLSafariWebAppPlugin {
 
     let axApp = AppAccessibilityElement(runningApplication.processIdentifier)
 
+    let windows = try axApp.windows()
+    if windows.count <= 1 {
+      return
+    }
+
     var timeout = 10
     while timeout > 0 {
       timeout -= 1
