@@ -98,8 +98,7 @@ extension WorkflowGroup {
     WorkflowGroup(id: id,
           name: application.displayName,
           color: "#000",
-          rule: Rule(bundleIdentifiers: [application.bundleIdentifier],
-                     days: []),
+          rule: Rule(bundleIdentifiers: [application.bundleIdentifier]),
           workflows: [
           ])
   }
@@ -113,8 +112,7 @@ extension WorkflowGroup {
                           application.bundleIdentifier,
                           Application.music().bundleIdentifier,
                           Application.xcode().bundleIdentifier,
-                         ],
-                                    days: []),
+                         ]),
                          workflows: [
                           Workflow.designTime(nil),
                           Workflow.designTime(.application([.init(application: application)])),
