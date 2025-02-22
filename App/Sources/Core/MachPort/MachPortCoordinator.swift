@@ -126,6 +126,14 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
 
     if allowsEscapeFallback && machPortEvent.keyCode == kVK_Escape && machPortEvent.result == nil {
       _ = try? machPort?.post(kVK_Escape, type: .flagsChanged, flags: .maskNonCoalesced)
+    } else if machPortEvent.keyCode == kVK_Escape && machPortEvent.flags != .maskNonCoalesced {
+      Task {
+        let event = machPortEvent.event
+        event.type = .keyDown
+        event.flags = .maskNonCoalesced
+        let machPortEvent = MachPortEvent(id: machPortEvent.id, event: event, isRepeat: false)
+        intercept(machPortEvent, tryGlobals: true, runningMacro: false)
+      }
     }
   }
  
