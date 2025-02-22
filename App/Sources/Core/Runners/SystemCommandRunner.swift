@@ -65,7 +65,8 @@ final class SystemCommandRunner: @unchecked Sendable {
           if let previousApplication = applicationActivityMonitor.previousApplication() {
             try await applicationRunner.run(.init(application: previousApplication.asApplication()),
                                             machPortEvent: nil,
-                                            checkCancellation: checkCancellation)
+                                            checkCancellation: checkCancellation,
+                                            snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
           }
         }
       case .hideAllApps:

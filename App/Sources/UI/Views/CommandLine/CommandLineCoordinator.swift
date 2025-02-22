@@ -96,7 +96,8 @@ final class CommandLineCoordinator: NSObject, ObservableObject, NSWindowDelegate
           } else {
             try? await applicationRunner
               .run(.init(application: application), machPortEvent: nil,
-                   checkCancellation: false)
+                   checkCancellation: false,
+                   snapshot: UserSpace.shared.snapshot(resolveUserEnvironment: false))
           }
         default: break
         }

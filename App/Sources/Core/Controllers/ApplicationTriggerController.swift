@@ -178,6 +178,10 @@ extension Application {
     "*.*.current"
   }
 
+  static func previousAppBundleIdentifier() -> String {
+    "*.*.previous"
+  }
+
   static func anyApplication() -> Application {
     Application(
       bundleIdentifier: anyAppBundleIdentifier(),
@@ -193,6 +197,15 @@ extension Application {
       bundleName: "Current Application",
       displayName: "Current Application",
       path: "Current Application"
+    )
+  }
+
+  static func previousApplication() -> Application {
+    Application(
+      bundleIdentifier: previousAppBundleIdentifier(),
+      bundleName: "Previous Application",
+      displayName: "Previous Application",
+      path: "Previous Application"
     )
   }
 }

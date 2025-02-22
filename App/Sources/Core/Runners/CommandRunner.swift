@@ -278,7 +278,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     switch command {
     case .application(let applicationCommand):
       try await runners.application.run(applicationCommand, machPortEvent: machPortEvent,
-                                        checkCancellation: checkCancellation)
+                                        checkCancellation: checkCancellation, snapshot: snapshot)
       output = command.name
     case .builtIn(let builtInCommand):
       output = try await runners.builtIn.run(
