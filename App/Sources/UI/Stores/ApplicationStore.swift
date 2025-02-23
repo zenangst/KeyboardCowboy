@@ -97,7 +97,9 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
       }
 
       Task.detached(priority: .high) {
-        let sortedApplications = newApplications.sorted(by: { $0.displayName < $1.displayName })
+        let sortedApplications = newApplications.sorted(by: {
+          $0.displayName.lowercased() < $1.displayName.lowercased()
+        })
         await MainActor.run { [applicationDictionary, applicationsByPath] in
           self.applications = sortedApplications
           self.dictionary = applicationDictionary
