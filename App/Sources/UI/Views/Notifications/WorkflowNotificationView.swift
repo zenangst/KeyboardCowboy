@@ -259,6 +259,10 @@ extension Command {
         }
     case .shortcut:
       WorkflowShortcutImage(size: size)
+    case .windowFocus(let command):
+      WindowFocusIconBuilder.icon(command.kind, size: size)
+    case .windowTiling(let command):
+      WindowTilingIconBuilder.icon(command.kind, size: size)
     }
   }
 }

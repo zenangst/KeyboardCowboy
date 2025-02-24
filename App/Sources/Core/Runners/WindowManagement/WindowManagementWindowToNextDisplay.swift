@@ -4,8 +4,8 @@ import Foundation
 import IOKit
 import IOKit.graphics
 
-final class WindowMoveWindowToNextDisplay {
-  static func run(_ window: WindowAccessibilityElement, kind: WindowCommand.Mode) throws {
+final class WindowManagementWindowToNextDisplay {
+  static func run(_ window: WindowAccessibilityElement, kind: WindowManagementCommand.Mode) throws {
     guard let windowFrame = window.frame,
           let currentScreen = NSScreen.screenIntersects(windowFrame.mainDisplayFlipped),
           let currentIndex = NSScreen.screens.firstIndex(of: currentScreen) else { return }

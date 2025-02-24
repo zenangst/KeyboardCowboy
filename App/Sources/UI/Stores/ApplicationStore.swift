@@ -96,15 +96,10 @@ final class ApplicationStore: ObservableObject, @unchecked Sendable {
         applicationsByPath[application.path] = application
       }
 
-      Task.detached(priority: .high) {
-        let sortedApplications = newApplications.sorted(by: {
-          $0.displayName.lowercased() < $1.displayName.lowercased()
-        })
-        await MainActor.run { [applicationDictionary, applicationsByPath] in
-          self.applications = sortedApplications
-          self.dictionary = applicationDictionary
-          self.applicationsByPath = applicationsByPath
-        }
+      await MainActor.run { [applicationDictionary, applicationsByPath] in
+        self.applications = newApplications
+        self.dictionary = applicationDictionary
+        self.applicationsByPath = applicationsByPath
       }
     }
 

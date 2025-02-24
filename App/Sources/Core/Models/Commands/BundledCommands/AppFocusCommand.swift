@@ -166,7 +166,7 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       if let window = appWindows.first,
          let screen = NSScreen.screens.first(where: { $0.visibleFrame.mainDisplayFlipped.intersects(window.rect) }) {
         let leftTilings = [WindowTiling.left, .topLeft, .bottomLeft, .fill]
-        let currentTiling = SystemWindowTilingRunner.calculateTiling(for: window.rect, in: screen.visibleFrame.mainDisplayFlipped)
+        let currentTiling = WindowTilingRunner.calculateTiling(for: window.rect, in: screen.visibleFrame.mainDisplayFlipped)
 
         if numberOfAppWindows >= 3 {
           if currentTiling == .left {

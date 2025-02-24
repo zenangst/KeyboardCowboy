@@ -1,32 +1,9 @@
 import SwiftUI
 
-enum SystemIconBuilder {
+enum WindowTilingIconBuilder {
   @ViewBuilder @MainActor
-  static func icon(_ kind: SystemCommand.Kind?, size: CGFloat) -> some View {
+  static func icon(_ kind: WindowTilingCommand.Kind?, size: CGFloat) -> some View {
     switch kind {
-    case .activateLastApplication:           ActivateLastApplicationIconView(size: size)
-    case .applicationWindows:                MissionControlIconView(size: size)
-    case .minimizeAllOpenWindows:            MinimizeAllIconView(size: size)
-    case .hideAllApps:                       HideAllIconView(size: size)
-    case .missionControl:                    MissionControlIconView(size: size)
-    case .showDesktop:                       DockIconView(size: size)
-
-    case .moveFocusToNextWindow:             MoveFocusToWindowIconView(direction: .next, scope: .visibleWindows, size: size)
-    case .moveFocusToNextWindowFront:        MoveFocusToWindowIconView(direction: .next, scope: .activeApplication, size: size)
-    case .moveFocusToNextWindowGlobal:       MoveFocusToWindowIconView(direction: .next, scope: .allWindows, size: size)
-    case .moveFocusToPreviousWindow:         MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
-    case .moveFocusToPreviousWindowFront:    MoveFocusToWindowIconView(direction: .previous, scope: .activeApplication, size: size)
-    case .moveFocusToPreviousWindowGlobal:   MoveFocusToWindowIconView(direction: .previous, scope: .allWindows, size: size)
-    case .moveFocusToNextWindowCenter:       RelativeFocusIconView(.center, size: size)
-    case .moveFocusToNextWindowUpwards:      RelativeFocusIconView(.up, size: size)
-    case .moveFocusToNextWindowDownwards:    RelativeFocusIconView(.down, size: size)
-    case .moveFocusToNextWindowOnLeft:       RelativeFocusIconView(.left, size: size)
-    case .moveFocusToNextWindowOnRight:      RelativeFocusIconView(.right, size: size)
-    case .moveFocusToNextWindowUpperLeftQuarter:      RelativeFocusIconView(.up, size: size)
-    case .moveFocusToNextWindowLowerLeftQuarter:    RelativeFocusIconView(.down, size: size)
-    case .moveFocusToNextWindowUpperRightQuarter:       RelativeFocusIconView(.left, size: size)
-    case .moveFocusToNextWindowLowerRightQuarter:      RelativeFocusIconView(.right, size: size)
-
     case .windowTilingLeft:                   WindowTilingIcon(kind: .left, size: size)
     case .windowTilingRight:                  WindowTilingIcon(kind: .right, size: size)
     case .windowTilingTop:                    WindowTilingIcon(kind: .top, size: size)

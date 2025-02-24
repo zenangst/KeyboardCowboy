@@ -169,7 +169,9 @@ private extension Array where Element == Command {
         }
       case .systemCommand(let command): images.append(.systemCommand(element, kind: command.kind, offset: convertedOffset))
       case .uiElement:                  images.append(.uiElement(element, offset: convertedOffset))
+      case .windowFocus(let command):   images.append(.windowFocus(element, kind: command.kind, offset: convertedOffset))
       case .windowManagement:           images.append(.windowManagement(element, offset: convertedOffset))
+      case .windowTiling(let command):  images.append(.windowTiling(element, kind: command.kind, offset: convertedOffset))
       }
       offset += 1
     }

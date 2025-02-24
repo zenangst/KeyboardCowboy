@@ -167,62 +167,70 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   var meta: MetaData {
     get {
       switch self {
-      case .application(let applicationCommand): applicationCommand.meta
-      case .builtIn(let builtInCommand): builtInCommand.meta
-      case .bundled(let bundledCommand): bundledCommand.meta
-      case .keyboard(let keyboardCommand): keyboardCommand.meta
-      case .menuBar(let menuBarCommand): menuBarCommand.meta
-      case .mouse(let mouseCommand): mouseCommand.meta
-      case .open(let openCommand): openCommand.meta
-      case .script(let scriptCommand): scriptCommand.meta
-      case .shortcut(let shortcutCommand): shortcutCommand.meta
-      case .systemCommand(let systemCommand): systemCommand.meta
-      case .text(let textCommand): textCommand.meta
-      case .uiElement(let uiElementCommand): uiElementCommand.meta
-      case .windowManagement(let windowCommand): windowCommand.meta
+      case .application(let command): command.meta
+      case .builtIn(let command): command.meta
+      case .bundled(let command): command.meta
+      case .keyboard(let command): command.meta
+      case .menuBar(let command): command.meta
+      case .mouse(let command): command.meta
+      case .open(let command): command.meta
+      case .script(let command): command.meta
+      case .shortcut(let command): command.meta
+      case .systemCommand(let command): command.meta
+      case .text(let command): command.meta
+      case .uiElement(let command): command.meta
+      case .windowFocus(let command): command.meta
+      case .windowManagement(let command): command.meta
+      case .windowTiling(let command): command.meta
       }
     }
     set {
       switch self {
-      case .application(var applicationCommand):
-        applicationCommand.meta = newValue
-        self = .application(applicationCommand)
-      case .builtIn(var builtInCommand):
-        builtInCommand.meta = newValue
-        self = .builtIn(builtInCommand)
-      case .bundled(var bundledCommand):
-        bundledCommand.meta = newValue
-        self = .bundled(bundledCommand)
-      case .keyboard(var keyboardCommand):
-        keyboardCommand.meta = newValue
-        self = .keyboard(keyboardCommand)
-      case .menuBar(var menuBarCommand):
-        menuBarCommand.meta = newValue
-        self = .menuBar(menuBarCommand)
-      case .mouse(var mouseCommand):
-        mouseCommand.meta = newValue
-        self = .mouse(mouseCommand)
-      case .open(var openCommand):
-        openCommand.meta = newValue
-        self = .open(openCommand)
-      case .shortcut(var shortcutCommand):
-        shortcutCommand.meta = newValue
-        self = .shortcut(shortcutCommand)
-      case .script(var scriptCommand):
-        scriptCommand.meta = newValue
-        self = .script(scriptCommand)
-      case .text(var textCommand):
-        textCommand.meta = newValue
-        self = .text(textCommand)
-      case .systemCommand(var systemCommand):
-        systemCommand.meta = newValue
-        self = .systemCommand(systemCommand)
-      case .uiElement(var uiElementCommand):
-        uiElementCommand.meta = newValue
-        self = .uiElement(uiElementCommand)
-      case .windowManagement(var windowCommand):
-        windowCommand.meta = newValue
-        self = .windowManagement(windowCommand)
+      case .application(var command):
+        command.meta = newValue
+        self = .application(command)
+      case .builtIn(var command):
+        command.meta = newValue
+        self = .builtIn(command)
+      case .bundled(var command):
+        command.meta = newValue
+        self = .bundled(command)
+      case .keyboard(var command):
+        command.meta = newValue
+        self = .keyboard(command)
+      case .menuBar(var command):
+        command.meta = newValue
+        self = .menuBar(command)
+      case .mouse(var command):
+        command.meta = newValue
+        self = .mouse(command)
+      case .open(var command):
+        command.meta = newValue
+        self = .open(command)
+      case .shortcut(var command):
+        command.meta = newValue
+        self = .shortcut(command)
+      case .script(var command):
+        command.meta = newValue
+        self = .script(command)
+      case .text(var command):
+        command.meta = newValue
+        self = .text(command)
+      case .systemCommand(var command):
+        command.meta = newValue
+        self = .systemCommand(command)
+      case .uiElement(var command):
+        command.meta = newValue
+        self = .uiElement(command)
+      case .windowFocus(var command):
+        command.meta = newValue
+        self = .windowFocus(command)
+      case .windowManagement(var command):
+        command.meta = newValue
+        self = .windowManagement(command)
+      case .windowTiling(var command):
+        command.meta = newValue
+        self = .windowTiling(command)
       }
     }
   }
@@ -239,10 +247,13 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
   case text(TextCommand)
   case systemCommand(SystemCommand)
   case uiElement(UIElementCommand)
-  case windowManagement(WindowCommand)
+  case windowFocus(WindowFocusCommand)
+  case windowManagement(WindowManagementCommand)
+  case windowTiling(WindowTilingCommand)
 
   enum MigrationKeys: String, CodingKey, CaseIterable {
     case type = "typeCommand"
+    case windowCommand = "windowCommand"
   }
 
   enum CodingKeys: String, CodingKey, CaseIterable {
@@ -258,7 +269,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case text = "textCommand"
     case system = "systemCommand"
     case uiElement = "uiElementCommand"
-    case window = "windowCommand"
+    case windowFocus = "windowFocusCommand"
+    case windowManagement = "windowManagementCommand"
+    case windowTiling = "windowTilingCommand"
   }
 
   var isKeyboardBinding: Bool {
@@ -278,6 +291,11 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .type:
       if let command = try? migration.decode(TextCommand.TypeCommand.self, forKey: .type) {
         self = .text(.init(.insertText(command)))
+        return
+      }
+    case .windowCommand:
+      if let command = try? migration.decode(WindowManagementCommand.self, forKey: .windowCommand) {
+        self = .windowManagement(command)
         return
       }
     case .none: break
@@ -320,9 +338,15 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .uiElement:
       let command = try container.decode(UIElementCommand.self, forKey: .uiElement)
       self = .uiElement(command)
-    case .window:
-      let command = try container.decode(WindowCommand.self, forKey: .window)
+    case .windowFocus:
+      let command = try container.decode(WindowFocusCommand.self, forKey: .windowFocus)
+      self = .windowFocus(command)
+    case .windowManagement:
+      let command = try container.decode(WindowManagementCommand.self, forKey: .windowManagement)
       self = .windowManagement(command)
+    case .windowTiling:
+      let command = try container.decode(WindowTilingCommand.self, forKey: .windowTiling)
+      self = .windowTiling(command)
     case .none:
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
@@ -348,25 +372,29 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
     case .text(let command): try container.encode(command, forKey: .text)
     case .systemCommand(let command): try container.encode(command, forKey: .system)
     case .uiElement(let command): try container.encode(command, forKey: .uiElement)
-    case .windowManagement(let command): try container.encode(command, forKey: .window)
+    case .windowFocus(let command): try container.encode(command, forKey: .windowFocus)
+    case .windowManagement(let command): try container.encode(command, forKey: .windowManagement)
+    case .windowTiling(let command): try container.encode(command, forKey: .windowTiling)
     }
   }
 
   func copy(appendCopyToName: Bool = true) -> Self {
     let clone: Self = switch self {
-    case .application(let applicationCommand): .application(applicationCommand.copy())
-    case .builtIn(let builtInCommand): .builtIn(builtInCommand.copy())
-    case .bundled(let bundledCommand): .bundled(bundledCommand.copy())
-    case .keyboard(let keyboardCommand): .keyboard(keyboardCommand.copy())
-    case .mouse(let mouseCommand): .mouse(mouseCommand.copy())
-    case .menuBar(let menuBarCommand): .menuBar(menuBarCommand.copy())
-    case .open(let openCommand): .open(openCommand.copy())
-    case .shortcut(let shortcutCommand): .shortcut(shortcutCommand.copy())
-    case .script(let scriptCommand): .script(scriptCommand.copy())
-    case .text(let textCommand): .text(textCommand.copy())
-    case .systemCommand(let systemCommand): .systemCommand(systemCommand.copy())
-    case .uiElement(let uIElementCommand): .uiElement(uIElementCommand.copy())
-    case .windowManagement(let windowCommand): .windowManagement(windowCommand.copy())
+    case .application(let command): .application(command.copy())
+    case .builtIn(let command): .builtIn(command.copy())
+    case .bundled(let command): .bundled(command.copy())
+    case .keyboard(let command): .keyboard(command.copy())
+    case .mouse(let command): .mouse(command.copy())
+    case .menuBar(let command): .menuBar(command.copy())
+    case .open(let command): .open(command.copy())
+    case .shortcut(let command): .shortcut(command.copy())
+    case .script(let command): .script(command.copy())
+    case .text(let command): .text(command.copy())
+    case .systemCommand(let command): .systemCommand(command.copy())
+    case .uiElement(let command): .uiElement(command.copy())
+    case .windowFocus(let command): .windowFocus(command.copy())
+    case .windowManagement(let command): .windowManagement(command.copy())
+    case .windowTiling(let command): .windowTiling(command.copy())
     }
 
     return clone
@@ -376,10 +404,11 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
 extension Command {
   static func empty(_ kind: CodingKeys) -> Command {
     let id = UUID().uuidString
+    let metaData = MetaData(id: id)
     return switch kind {
     case .application: Command.application(ApplicationCommand.empty())
     case .builtIn: Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: nil))
-    case .bundled: Command.bundled(.init(.workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)), meta: Command.MetaData()))
+    case .bundled: Command.bundled(.init(.workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)), meta: metaData))
     case .keyboard: Command.keyboard(KeyboardCommand.empty())
     case .menuBar: Command.menuBar(MenuBarCommand(application: nil, tokens: []))
     case .mouse: Command.mouse(MouseCommand.empty())
@@ -389,7 +418,9 @@ extension Command {
     case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id), actions: []))))
     case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: nil))
     case .uiElement: Command.uiElement(.init(meta: .init(), predicates: [.init(value: "")]))
-    case .window: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: nil, animationDuration: 0))
+    case .windowFocus: Command.windowFocus(.init(kind: .moveFocusToNextWindow, meta: metaData))
+    case .windowManagement: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: nil, animationDuration: 0))
+    case .windowTiling: Command.windowTiling(.init(kind: .windowTilingArrangeLeftRight, meta: metaData))
     }
   }
 
@@ -434,6 +465,7 @@ extension Command {
                        application: Application(
                         bundleIdentifier: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj",
                         bundleName: "",
+                        displayName: "",
                         path: "/Users/christofferwinterkvist/Documents/Developer/KeyboardCowboy3/Keyboard-Cowboy.xcodeproj"),
                        path: "~/Developer/Xcode.project",
                        notification: nil))

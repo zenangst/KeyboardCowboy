@@ -1,6 +1,6 @@
 import Cocoa
 
-enum WindowRunnerCenterWindow {
+enum WindowManagementCenterWindow {
   static func calculateRect(_ originFrame: CGRect,
                             currentScreen: NSScreen,
                             mainDisplay: NSScreen) -> CGRect {

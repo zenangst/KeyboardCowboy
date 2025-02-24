@@ -1,10 +1,10 @@
 import Cocoa
 
-enum WindowRunnerAnchorWindow {
+enum WindowManagementRunnerAnchorWindow {
   static func calculateRect(_ originFrame: CGRect,
                             minSize: CGSize?,
                             shouldCycle: Bool,
-                            position: WindowCommand.Direction,
+                            position: WindowManagementCommand.Direction,
                             padding: Int,
                             currentScreen: NSScreen,
                             mainDisplay: NSScreen) -> CGRect {

@@ -4,4 +4,6 @@ protocol SystemRoutine {
   init(application: UserSpace.Application)
 
   func run(_ kind: SystemCommand.Kind)
+  
+  func run(_ kind: WindowFocusCommand.Kind)
 }

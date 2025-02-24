@@ -4,7 +4,7 @@ import SwiftUI
 struct NewCommandWindowManagementView: View {
   @Binding var payload: NewCommandPayload
   @Binding var validation: NewCommandValidation
-  @State var selection: WindowCommand.Kind = .center
+  @State var selection: WindowManagementCommand.Kind = .center
 
   init(_ payload: Binding<NewCommandPayload>, validation: Binding<NewCommandValidation>) {
     _payload = payload
@@ -19,7 +19,7 @@ struct NewCommandWindowManagementView: View {
         WindowManagementIconView(size: 24)
 
         Menu {
-          ForEach(WindowCommand.Kind.allCases) { kind in
+          ForEach(WindowManagementCommand.Kind.allCases) { kind in
             Button(action: {
               self.selection = kind
               validation = updateAndValidatePayload()

@@ -67,7 +67,9 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
       case menuBar
       case mouse
       case uiElement
+      case windowFocus(WindowFocusCommand.Kind)
       case windowManagement
+      case windowTiling(WindowTilingCommand.Kind)
       case icon(Icon)
 
       var searchTerm: String {
@@ -85,7 +87,9 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
         case .menuBar: "menuBar"
         case .mouse: "mouse"
         case .uiElement: "uiElement"
+        case .windowFocus: "windowFocus"
         case .windowManagement: "windowManagement"
+        case .windowTiling: "windowTiling"
         case .icon: "icon"
         }
       }
@@ -105,7 +109,9 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
         case .menuBar: .menuBar
         case .mouse: .mouse
         case .uiElement: .uiElement
+        case .windowFocus: .windowFocus
         case .windowManagement: .windowManagement
+        case .windowTiling: .windowTiling
         case .icon: .application
         }
       }
@@ -132,6 +138,8 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
     static func systemCommand(_ command: Command, kind: SystemCommand.Kind, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .systemCommand(kind)) }
     static func text(_ command: Command, kind: Text, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .text(kind)) }
     static func uiElement(_ command: Command, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .uiElement) }
+    static func windowFocus(_ command: Command, kind: WindowFocusCommand.Kind, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .windowFocus(kind)) }
     static func windowManagement(_ command: Command, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .windowManagement) }
+    static func windowTiling(_ command: Command, kind: WindowTilingCommand.Kind, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .windowTiling(kind)) }
   }
 }

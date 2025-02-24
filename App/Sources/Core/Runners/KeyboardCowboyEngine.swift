@@ -159,6 +159,6 @@ final class KeyboardCowboyEngine {
 
 //    WindowSpace.shared.subscribe(to: UserSpace.shared.$frontmostApplication)
 //    applicationWindowObserver.subscribe(to: UserSpace.shared.$frontmostApplication)
-    SystemWindowTilingRunner.initialIndex()
+    WindowTilingRunner.initialIndex()
   }
 }

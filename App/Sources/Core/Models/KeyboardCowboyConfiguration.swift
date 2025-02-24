@@ -68,6 +68,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
           .application(
             .init(application: .init(bundleIdentifier: "com.apple.TextEdit",
                                      bundleName: "TextEdit",
+                                     displayName: "TextEdit",
                                      path: "/System/Applications/TextEdit.app"))
           )
         ]
@@ -98,6 +99,7 @@ struct KeyboardCowboyConfiguration: Identifiable, Codable, Hashable, Sendable {
                 .init(application: .init(
                   bundleIdentifier: "com.apple.Terminal",
                   bundleName: "Terminal",
+                  displayName: "Terminal",
                   path: "/System/Applications/Utilities/Terminal.app"))
               )
             ]

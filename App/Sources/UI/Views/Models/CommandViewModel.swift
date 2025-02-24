@@ -57,7 +57,9 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       case .menuBar(let menuBarModel): menuBarModel.placeholder
       case .mouse(let mouseModel): mouseModel.placeholder
       case .uiElement(let uIElementCommand): uIElementCommand.placeholder
+      case .windowFocus(let command): command.placeholder
       case .windowManagement(let windowManagementModel): windowManagementModel.placeholder
+      case .windowTiling(let command): command.placeholder
       }
     }
 
@@ -73,7 +75,9 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     case menuBar(MenuBarModel)
     case mouse(MouseModel)
     case uiElement(UIElementCommand)
+    case windowFocus(WindowFocusModel)
     case windowManagement(WindowManagementModel)
+    case windowTiling(WindowTilingModel)
 
     struct ApplicationModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
@@ -219,11 +223,24 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
       }
     }
 
+    struct WindowFocusModel: Codable, Hashable, Identifiable, Sendable {
+      let id: String
+      var placeholder: String { " Window Tiling…" }
+      var kind: WindowFocusCommand.Kind
+    }
+
     struct WindowManagementModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var placeholder: String { "Control Window…" }
-      var kind: WindowCommand.Kind
+      var kind: WindowManagementCommand.Kind
       var animationDuration: Double
     }
+
+    struct WindowTilingModel: Codable, Hashable, Identifiable, Sendable {
+      let id: String
+      var placeholder: String { " Window Tiling…" }
+      var kind: WindowTilingCommand.Kind
+    }
+
   }
 }

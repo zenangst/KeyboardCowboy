@@ -1,6 +1,6 @@
 import Cocoa
 
-enum WindowRunnerFullscreen {
+enum WindowManagementFullscreen {
   static func calculateRect(_ originFrame: CGRect, padding: Int,
                             currentScreen: NSScreen, mainDisplay: NSScreen) -> CGRect {
     let paddingOffset = CGFloat(padding)

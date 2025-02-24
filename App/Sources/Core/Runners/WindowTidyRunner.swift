@@ -35,7 +35,7 @@ final class WindowTidyRunner: Sendable {
     let currentWindow = windows[0]
     let count = windows.count
     let tilings: [WindowTiling]
-    let determinedCurrentTiling = SystemWindowTilingRunner.calculateTiling(
+    let determinedCurrentTiling = WindowTilingRunner.calculateTiling(
       for: currentWindow.rect,
       ownerName: currentWindow.ownerName,
       in: visibleScreenFrame
@@ -69,7 +69,7 @@ final class WindowTidyRunner: Sendable {
       let selectedTiling: WindowTiling = rightTiles.contains(determinedCurrentTiling) ? .right : .left
       var computedTilings: [WindowTiling] = Array(repeating: selectedTiling == .left ? .bottomRight : .bottomLeft, count: windows.count)
       for (offset, window) in windows.enumerated() {
-        let determinedTiling = SystemWindowTilingRunner.calculateTiling(
+        let determinedTiling = WindowTilingRunner.calculateTiling(
           for: window.rect,
           ownerName: window.ownerName,
           in: visibleScreenFrame
@@ -177,7 +177,7 @@ final class WindowTidyRunner: Sendable {
           quarterTiling.remove(.bottomRight)
         }
       } else {
-        activeTiling = SystemWindowTilingRunner.calculateTiling(
+        activeTiling = WindowTilingRunner.calculateTiling(
           for: window.rect,
           ownerName: window.ownerName,
           in: visibleScreenFrame
@@ -187,7 +187,7 @@ final class WindowTidyRunner: Sendable {
       occupiedTiling.insert(activeTiling)
     }
 
-    var currentWindowTiling = SystemWindowTilingRunner.calculateTiling(
+    var currentWindowTiling = WindowTilingRunner.calculateTiling(
       for: currentWindow.rect,
       ownerName: currentWindow.ownerName,
       in: visibleScreenFrame
@@ -223,7 +223,7 @@ final class WindowTidyRunner: Sendable {
       }
 
       let tiling: WindowTiling
-      let calculatedTiling = SystemWindowTilingRunner.calculateTiling(
+      let calculatedTiling = WindowTilingRunner.calculateTiling(
         for: window.rect,
         ownerName: window.ownerName,
         in: visibleScreenFrame

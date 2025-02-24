@@ -4,7 +4,7 @@ import Cocoa
 import Windows
 import SwiftUI
 
-final class SystemWindowCenterFocus: @unchecked Sendable {
+final class WindowFocusCenter: @unchecked Sendable {
   nonisolated(unsafe) static var debug: Bool = false
   nonisolated(unsafe) static var mouseFollow: Bool = true
 

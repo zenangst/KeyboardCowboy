@@ -105,7 +105,7 @@ struct ApplicationCommand: MetaDataProviding {
 extension ApplicationCommand {
   static func empty() -> ApplicationCommand {
     ApplicationCommand(action: .open,
-                       application: Application(bundleIdentifier: "", bundleName: "", path: ""),
+                       application: Application(bundleIdentifier: "", bundleName: "", displayName: "", path: ""),
                        notification: nil)
   }
 }

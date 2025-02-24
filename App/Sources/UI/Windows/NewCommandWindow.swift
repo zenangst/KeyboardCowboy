@@ -196,6 +196,9 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
       return .uiElement(predicates: model.predicates)
     case .windowManagement(let windowCommand):
       return .windowManagement(kind: windowCommand.kind)
+    default:
+#warning("Should we implement this?")
+      return .text(.init(.insertText(.init("NOOP", mode: .instant, actions: []))))
     }
   }
 
@@ -214,6 +217,8 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     case .systemCommand: .system
     case .uiElement: .uiElement
     case .windowManagement: .windowManagement
+    default: .windowManagement
     }
   }
+#warning("Should we implement this?")
 }

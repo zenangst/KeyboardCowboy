@@ -4,12 +4,9 @@ extension Command {
   var name: String {
     get {
       switch self {
-      case .application(let command):
-        return command.name.isEmpty ? "\(command.action.displayValue) \(command.application.displayName)" : command.name
-      case .builtIn(let command):
-        return command.name
-      case .bundled(let command):
-        return command.name
+      case .application(let command): return command.name.isEmpty ? "\(command.action.displayValue) \(command.application.displayName)" : command.name
+      case .builtIn(let command): return command.name
+      case .bundled(let command): return command.name
       case .keyboard(let command):
         var keyboardShortcutString: String = ""
         command.keyboardShortcuts.forEach { keyboardShortcut in
@@ -25,22 +22,16 @@ extension Command {
         } else {
           return "Open a file: \(command.path)"
         }
-      case .shortcut(let command):
-        return command.name
-      case .script(let command):
-        return command.name
-      case .text(let command):
-        return command.name
-      case .systemCommand(let command):
-        return command.name
-      case .menuBar(let command):
-        return command.name
-      case .mouse(let command):
-        return command.name
-      case .uiElement(let command):
-        return command.name
-      case .windowManagement(let command):
-        return command.name
+      case .shortcut(let command):         return command.name
+      case .script(let command):           return command.name
+      case .text(let command):             return command.name
+      case .systemCommand(let command):    return command.name
+      case .menuBar(let command):          return command.name
+      case .mouse(let command):            return command.name
+      case .uiElement(let command):        return command.name
+      case .windowFocus(let command):      return command.name
+      case .windowManagement(let command): return command.name
+      case .windowTiling(let command):     return command.name
       }
     }
     set {
@@ -81,9 +72,15 @@ extension Command {
       case .uiElement(var command):
         command.name = newValue
         self = .uiElement(command)
+      case .windowFocus(var command):
+        command.name = newValue
+        self = .windowFocus(command)
       case .windowManagement(var command):
         command.name = newValue
         self = .windowManagement(command)
+      case .windowTiling(var command):
+        command.name = newValue
+        self = .windowTiling(command)
       }
     }
   }

@@ -4,7 +4,7 @@ import AXEssibility
 import Foundation
 import Windows
 
-final class SystemWindowRelativeFocus {
+final class WindowFocusRelativeFocus {
   private static let debug: Bool = false
 
   nonisolated(unsafe) static var mouseFollow: Bool = true
@@ -13,7 +13,7 @@ final class SystemWindowRelativeFocus {
     case up, down, left, right
   }
 
-  let navigation = SystemWindowRelativeFocusNavigation()
+  let navigation = WindowFocusRelativeNavigation()
   @MainActor
   var consumedWindows = Set<RelativeWindowModel>()
   var previousDirection: Direction?
@@ -67,8 +67,8 @@ final class SystemWindowRelativeFocus {
       let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
       let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect) }) ?? NSScreen.screens[0]
       let nextScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(targetPoint) }) ?? NSScreen.screens[0]
-      let previousTiling = SystemWindowTilingRunner.calculateTiling(for: previousWindow.rect, ownerName: previousWindow.ownerName, in: previousScreen.visibleFrame.mainDisplayFlipped)
-      let nextTiling = SystemWindowTilingRunner.calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: nextScreen.visibleFrame.mainDisplayFlipped)
+      let previousTiling = WindowTilingRunner.calculateTiling(for: previousWindow.rect, ownerName: previousWindow.ownerName, in: previousScreen.visibleFrame.mainDisplayFlipped)
+      let nextTiling = WindowTilingRunner.calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: nextScreen.visibleFrame.mainDisplayFlipped)
 
       if nextTiling == .fill {
         if previousScreen != nextScreen  {
