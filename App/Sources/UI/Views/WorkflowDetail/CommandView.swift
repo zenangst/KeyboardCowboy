@@ -80,9 +80,9 @@ struct CommandResolverView: View {
     case .text(let textModel):         TextCommandView(kind: textModel.kind, metaData: command.meta, iconSize: iconSize)
     case .systemCommand(let model):    SystemCommandView(command.meta, model: model, iconSize: iconSize)
     case .uiElement(let model):        UIElementCommandView(metaData: command.meta, model: model, iconSize: iconSize)
-    case .windowFocus(let model):      WindowFocusIconBuilder.icon(model.kind, size: iconSize.width)
+    case .windowFocus(let model):      WindowFocusCommandView(command.meta, model: model, iconSize: iconSize)
     case .windowManagement(let model): WindowManagementCommandView(command.meta, model: model, iconSize: iconSize)
-    case .windowTiling(let model):     WindowTilingIcon(kind: model.kind, size: iconSize.width)
+    case .windowTiling(let model):     WindowTilingCommandView(command.meta, model: model, iconSize: iconSize)
     }
   }
 }
