@@ -1,6 +1,6 @@
 import Cocoa
 
-enum WindowTiling: String, CaseIterable, Codable, Hashable {
+enum WindowTiling: String, Identifiable, CaseIterable, Codable, Hashable {
   var id: String { rawValue }
 
   case left
