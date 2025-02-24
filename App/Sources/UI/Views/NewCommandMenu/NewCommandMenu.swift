@@ -16,8 +16,14 @@ struct NewCommandButton: View {
      URLMenuView()
      WindowMenu()
     } label: {
-      Text("New Command")
+      Image(systemName: "plus")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 12, height: 16)
+        .layoutPriority(-1)
     }
+    .frame(minWidth: 64)
+    .fixedSize()
   }
 }
 
@@ -214,109 +220,14 @@ fileprivate struct WindowMenu: View {
 fileprivate struct WindowFocusMenuView: View {
   var body: some View {
     Menu {
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.left.circle")
-          Text("Move Focus to Next Window (All Windows)")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.right.circle")
-          Text("Move Focus to Previous window (All Windows)") }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.up.circle")
-          Text("Move Focus to Next Window")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.down.circle")
-          Text("Move Focus to Previous Window")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.up.right.and.arrow.down.left")
-          Text("Move Focus to Next Window of Active Application")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.right.circle")
-          Text("Move Focus to Previous Window of Active Application")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.left.circle")
-          Text("Move Focus to Window Upwards")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.right.to.line.alt")
-          Text("Move Focus to Window on Left")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.left.to.line.alt")
-          Text("Move Focus to Window on Right")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.forward.circle")
-          Text("Move Focus to Window Downwards")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.backward.circle")
-          Text("Move Focus to Window in Center")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.up.left.circle")
-          Text("Move Focus to Upper Left Quarter")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.up.right.circle")
-          Text("Move Focus to Upper Right Quarter")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.down.left.circle")
-          Text("Move Focus to Lower Left Quarter")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.down.right.circle")
-          Text("Move Focus to Lower Right Quarter")
-        }
-      })
+      ForEach(WindowFocusCommand.Kind.allCases) { focus in
+        Button(action: {}, label: {
+          HStack {
+            Image(systemName: focus.symbol)
+            Text(focus.displayValue)
+          }
+        })
+      }
     } label: {
       Text("Focus")
     }
@@ -340,47 +251,13 @@ fileprivate struct WindowManagementMenuView: View {
 }
 
 fileprivate struct WindowTilingMenuView: View {
-  private struct TilingAction: Identifiable {
-    let id = UUID()
-    let systemName: String
-    let text: String
-    let tiling: WindowTiling
-  }
-
-  private var tilingActions: [TilingAction] {
-    [
-      TilingAction(systemName: "rectangle.split.2x1", text: "Window › Move & Resize › Left", tiling: .left),
-      TilingAction(systemName: "rectangle.split.2x1", text: "Window › Move & Resize › Right", tiling: .right),
-      TilingAction(systemName: "square.split.1x2", text: "Window › Move & Resize › Top", tiling: .top),
-      TilingAction(systemName: "square.split.1x2", text: "Window › Move & Resize › Bottom", tiling: .bottom),
-      TilingAction(systemName: "square.split.bottomrightquarter", text: "Window › Move & Resize › Top Left", tiling: .topLeft),
-      TilingAction(systemName: "square.split.bottomrightquarter", text: "Window › Move & Resize › Top Right", tiling: .topRight),
-      TilingAction(systemName: "square.split.bottomrightquarter", text: "Window › Move & Resize › Bottom Left", tiling: .bottomLeft),
-      TilingAction(systemName: "square.split.bottomrightquarter", text: "Window › Move & Resize › Bottom Right", tiling: .bottomRight),
-      TilingAction(systemName: "square.split.diagonal.2x2.fill", text: "Window › Center", tiling: .center),
-      TilingAction(systemName: "square.fill", text: "Window › Fill", tiling: .fill),
-      TilingAction(systemName: "square.arrowtriangle.4.outward", text: "Window › Zoom", tiling: .zoom),
-      TilingAction(systemName: "rectangle.split.2x1.fill", text: "Window › Move & Resize › Left & Right", tiling: .arrangeLeftRight),
-      TilingAction(systemName: "rectangle.split.2x1.fill", text: "Window › Move & Resize › Right & Left", tiling: .arrangeRightLeft),
-      TilingAction(systemName: "rectangle.split.1x2.fill", text: "Window › Move & Resize › Top & Bottom", tiling: .arrangeTopBottom),
-      TilingAction(systemName: "rectangle.split.1x2.fill", text: "Window › Move & Resize › Bottom & Top", tiling: .arrangeBottomTop),
-      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Left & Quarters", tiling: .arrangeLeftQuarters),
-      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Right & Quarters", tiling: .arrangeRightQuarters),
-      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Top & Quarters", tiling: .arrangeTopQuarters),
-      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Bottom & Quarters", tiling: .arrangeBottomQuarters),
-      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Dynamic & Quarters", tiling: .arrangeDynamicQuarters),
-      TilingAction(systemName: "square.split.2x2", text: "Window › Move & Resize › Quarters", tiling: .arrangeQuarters),
-      TilingAction(systemName: "arrow.uturn.backward.circle.fill", text: "Window › Move & Resize › Return to Previous Size", tiling: .previousSize)
-    ]
-  }
-
   var body: some View {
     Menu {
-      ForEach(tilingActions) { action in
+      ForEach(WindowTiling.allCases) { tiling in
         Button(action: { }) {
           HStack {
-            Image(systemName: action.systemName)
-            Text(action.text)
+            Image(systemName: tiling.symbol)
+            Text(tiling.descriptiveValue)
           }
         }
       }
@@ -392,7 +269,11 @@ fileprivate struct WindowTilingMenuView: View {
 
 #Preview {
   NewCommandButton()
-    .defaultStyle()
+    .buttonStyle { button in
+      button.padding = .medium
+      button.font = .body
+      button.backgroundColor = .systemGreen
+    }
     .padding()
     .designTime()
 }
