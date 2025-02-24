@@ -27,7 +27,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let system: SystemCommandRunner
     let text: TextCommandRunner
     let uiElement: UIElementCommandRunner
-    let window: WindowCommandRunner
+    let window: WindowManagementRunner
 
     func setMachPort(_ machPort: MachPortEventController?) {
       keyboard.machPort = machPort
@@ -84,7 +84,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       system: systemCommandRunner,
       text: TextCommandRunner(keyboardCommandRunner),
       uiElement: uiElementCommandRunner,
-      window: WindowCommandRunner()
+      window: WindowManagementRunner()
     )
     self.workspace = workspace
 
@@ -117,7 +117,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         }
       case .builtIn, .keyboard, .text,
           .systemCommand, .menuBar, .windowManagement, 
-          .mouse, .uiElement, .bundled:
+          .mouse, .uiElement, .bundled, .windowFocus, .windowTiling:
         break
       }
     }
@@ -365,6 +365,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .uiElement(let uiElementCommand):
       try await runners.uiElement.run(uiElementCommand, checkCancellation: checkCancellation)
       output = ""
+    case .windowFocus(let windowFocus):
+      output = ""
+    case .windowTiling(let windowTiling):
+      output = ""
+      #warning("Unimplemented")
     case .windowManagement(let windowCommand):
       try await runners.window.run(windowCommand)
 
@@ -373,7 +378,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
         Task.detached {
           try await Task.sleep(for: .milliseconds(200))
-          try await SystemWindowTilingRunner.run(.center, snapshot: snapshot)
+          try await WindowTilingRunner.run(.center, snapshot: snapshot)
         }
       }
 

@@ -49,7 +49,6 @@ struct SystemCommand: MetaDataProviding {
       case .windowTilingArrangeDynamicQuarters: "Window › Move & Resize › Dynamic & Quarters"
       case .windowTilingArrangeQuarters: "Window › Move & Resize › Quarters"
       case .windowTilingPreviousSize: "Window › Move & Resize › Return to Previous Size"
-
       }
     }
 

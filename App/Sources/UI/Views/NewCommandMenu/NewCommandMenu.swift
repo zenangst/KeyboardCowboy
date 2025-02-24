@@ -22,6 +22,8 @@ struct NewCommandButton: View {
 }
 
 fileprivate struct ApplicationMenuView: View {
+  @ObservedObject var store: ApplicationStore = .shared
+
   var body: some View {
     Menu {
       Text("System").font(.caption)
@@ -29,8 +31,8 @@ fileprivate struct ApplicationMenuView: View {
       Button(action: { }, label: { Text("Hide All Apps") })
 
       Text("Applications").font(.caption)
-      ForEach(ApplicationStore.shared.applications.lazy) { application in
-        ApplicationActionMenuView(text: application.displayName,
+      ForEach(store.applications, id: \.path) { application in
+        ApplicationActionMenuView(text: application.bundleName,
                                   app: application)
       }
     } label: {
@@ -338,161 +340,50 @@ fileprivate struct WindowManagementMenuView: View {
 }
 
 fileprivate struct WindowTilingMenuView: View {
+  private struct TilingAction: Identifiable {
+    let id = UUID()
+    let systemName: String
+    let text: String
+    let tiling: WindowTiling
+  }
+
+  private var tilingActions: [TilingAction] {
+    [
+      TilingAction(systemName: "rectangle.split.2x1", text: "Window › Move & Resize › Left", tiling: .left),
+      TilingAction(systemName: "rectangle.split.2x1", text: "Window › Move & Resize › Right", tiling: .right),
+      TilingAction(systemName: "square.split.1x2", text: "Window › Move & Resize › Top", tiling: .top),
+      TilingAction(systemName: "square.split.1x2", text: "Window › Move & Resize › Bottom", tiling: .bottom),
+      TilingAction(systemName: "square.split.bottomrightquarter", text: "Window › Move & Resize › Top Left", tiling: .topLeft),
+      TilingAction(systemName: "square.split.bottomrightquarter", text: "Window › Move & Resize › Top Right", tiling: .topRight),
+      TilingAction(systemName: "square.split.bottomrightquarter", text: "Window › Move & Resize › Bottom Left", tiling: .bottomLeft),
+      TilingAction(systemName: "square.split.bottomrightquarter", text: "Window › Move & Resize › Bottom Right", tiling: .bottomRight),
+      TilingAction(systemName: "square.split.diagonal.2x2.fill", text: "Window › Center", tiling: .center),
+      TilingAction(systemName: "square.fill", text: "Window › Fill", tiling: .fill),
+      TilingAction(systemName: "square.arrowtriangle.4.outward", text: "Window › Zoom", tiling: .zoom),
+      TilingAction(systemName: "rectangle.split.2x1.fill", text: "Window › Move & Resize › Left & Right", tiling: .arrangeLeftRight),
+      TilingAction(systemName: "rectangle.split.2x1.fill", text: "Window › Move & Resize › Right & Left", tiling: .arrangeRightLeft),
+      TilingAction(systemName: "rectangle.split.1x2.fill", text: "Window › Move & Resize › Top & Bottom", tiling: .arrangeTopBottom),
+      TilingAction(systemName: "rectangle.split.1x2.fill", text: "Window › Move & Resize › Bottom & Top", tiling: .arrangeBottomTop),
+      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Left & Quarters", tiling: .arrangeLeftQuarters),
+      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Right & Quarters", tiling: .arrangeRightQuarters),
+      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Top & Quarters", tiling: .arrangeTopQuarters),
+      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Bottom & Quarters", tiling: .arrangeBottomQuarters),
+      TilingAction(systemName: "uiwindow.split.2x1", text: "Window › Move & Resize › Dynamic & Quarters", tiling: .arrangeDynamicQuarters),
+      TilingAction(systemName: "square.split.2x2", text: "Window › Move & Resize › Quarters", tiling: .arrangeQuarters),
+      TilingAction(systemName: "arrow.uturn.backward.circle.fill", text: "Window › Move & Resize › Return to Previous Size", tiling: .previousSize)
+    ]
+  }
+
   var body: some View {
     Menu {
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "rectangle.split.2x1")
-          Text("Window › Move & Resize › Left")
+      ForEach(tilingActions) { action in
+        Button(action: { }) {
+          HStack {
+            Image(systemName: action.systemName)
+            Text(action.text)
+          }
         }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "rectangle.split.2x1")
-          Text("Window › Move & Resize › Right")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.split.1x2")
-          Text("Window › Move & Resize › Top")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.split.1x2")
-          Text("Window › Move & Resize › Bottom")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.split.bottomrightquarter")
-          Text("Window › Move & Resize › Top Left")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.split.bottomrightquarter")
-          Text("Window › Move & Resize › Top Right")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.split.bottomrightquarter")
-          Text("Window › Move & Resize › Bottom Left")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.split.bottomrightquarter")
-          Text("Window › Move & Resize › Bottom Right")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.split.diagonal.2x2.fill")
-          Text("Window › Center")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.fill")
-          Text("Window › Fill")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.arrowtriangle.4.outward")
-          Text("Window › Zoom")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "rectangle.split.2x1.fill")
-          Text("Window › Move & Resize › Left & Right")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "rectangle.split.2x1.fill")
-          Text("Window › Move & Resize › Right & Left")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "rectangle.split.1x2.fill")
-          Text("Window › Move & Resize › Top & Bottom")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "rectangle.split.1x2.fill")
-          Text("Window › Move & Resize › Bottom & Top")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "uiwindow.split.2x1")
-          Text("Window › Move & Resize › Left & Quarters")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "uiwindow.split.2x1")
-          Text("Window › Move & Resize › Right & Quarters")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "uiwindow.split.2x1")
-          Text("Window › Move & Resize › Top & Quarters")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "uiwindow.split.2x1")
-          Text("Window › Move & Resize › Bottom & Quarters")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "uiwindow.split.2x1")
-          Text("Window › Move & Resize › Dynamic & Quarters")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "square.split.2x2")
-          Text("Window › Move & Resize › Quarters")
-        }
-      })
-
-      Button(action: {}, label: {
-        HStack {
-          Image(systemName: "arrow.uturn.backward.circle.fill")
-          Text("Window › Move & Resize › Return to Previous Size")
-        }
-      })
+      }
     } label: {
       Text("Tiling")
     }

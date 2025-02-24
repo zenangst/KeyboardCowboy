@@ -152,6 +152,8 @@ private extension Workflow {
             case .windowTilingPreviousSize:           return true
           }
         case .uiElement:                             return true
+      case .windowFocus: return false
+      case .windowTiling: return true
         case .windowManagement(let command):
         switch command.kind {
         case .increaseSize: return false

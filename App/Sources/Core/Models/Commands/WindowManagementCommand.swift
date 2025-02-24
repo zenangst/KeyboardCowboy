@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct WindowCommand: MetaDataProviding {
+struct WindowManagementCommand: MetaDataProviding {
   enum Direction: String, Identifiable, Codable, CaseIterable {
     var id: String { rawValue }
 
@@ -108,53 +108,53 @@ struct WindowCommand: MetaDataProviding {
     }
 
     init(from decoder: Decoder) throws {
-      let container = try decoder.container(keyedBy: WindowCommand.Kind.CodingKeys.self)
+      let container = try decoder.container(keyedBy: WindowManagementCommand.Kind.CodingKeys.self)
       var allKeys = ArraySlice(container.allKeys)
       guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
-        throw DecodingError.typeMismatch(WindowCommand.Kind.self, DecodingError.Context.init(codingPath: container.codingPath, debugDescription: "Invalid number of keys found, expected one.", underlyingError: nil))
+        throw DecodingError.typeMismatch(WindowManagementCommand.Kind.self, DecodingError.Context.init(codingPath: container.codingPath, debugDescription: "Invalid number of keys found, expected one.", underlyingError: nil))
       }
       switch onlyKey {
       case .increaseSize:
-        let nestedContainer = try container.nestedContainer(keyedBy: WindowCommand.Kind.IncreaseSizeCodingKeys.self, forKey: WindowCommand.Kind.CodingKeys.increaseSize)
-        self = WindowCommand.Kind.increaseSize(
-          by: try nestedContainer.decode(Int.self, forKey: WindowCommand.Kind.IncreaseSizeCodingKeys.by),
-          direction: try nestedContainer.decode(WindowCommand.Direction.self, forKey: WindowCommand.Kind.IncreaseSizeCodingKeys.direction),
-          padding: try nestedContainer.decodeIfPresent(Int.self, forKey: WindowCommand.Kind.IncreaseSizeCodingKeys.padding) ?? 0,
-          constrainedToScreen: try nestedContainer.decode(Bool.self, forKey: WindowCommand.Kind.IncreaseSizeCodingKeys.constrainedToScreen)
+        let nestedContainer = try container.nestedContainer(keyedBy: WindowManagementCommand.Kind.IncreaseSizeCodingKeys.self, forKey: WindowManagementCommand.Kind.CodingKeys.increaseSize)
+        self = WindowManagementCommand.Kind.increaseSize(
+          by: try nestedContainer.decode(Int.self, forKey: WindowManagementCommand.Kind.IncreaseSizeCodingKeys.by),
+          direction: try nestedContainer.decode(WindowManagementCommand.Direction.self, forKey: WindowManagementCommand.Kind.IncreaseSizeCodingKeys.direction),
+          padding: try nestedContainer.decodeIfPresent(Int.self, forKey: WindowManagementCommand.Kind.IncreaseSizeCodingKeys.padding) ?? 0,
+          constrainedToScreen: try nestedContainer.decode(Bool.self, forKey: WindowManagementCommand.Kind.IncreaseSizeCodingKeys.constrainedToScreen)
         )
       case .decreaseSize:
-        let nestedContainer = try container.nestedContainer(keyedBy: WindowCommand.Kind.DecreaseSizeCodingKeys.self, forKey: WindowCommand.Kind.CodingKeys.decreaseSize)
-        self = WindowCommand.Kind.decreaseSize(
-          by: try nestedContainer.decode(Int.self, forKey: WindowCommand.Kind.DecreaseSizeCodingKeys.by),
-          direction: try nestedContainer.decode(WindowCommand.Direction.self, forKey: WindowCommand.Kind.DecreaseSizeCodingKeys.direction),
-          constrainedToScreen: try nestedContainer.decode(Bool.self, forKey: WindowCommand.Kind.DecreaseSizeCodingKeys.constrainedToScreen)
+        let nestedContainer = try container.nestedContainer(keyedBy: WindowManagementCommand.Kind.DecreaseSizeCodingKeys.self, forKey: WindowManagementCommand.Kind.CodingKeys.decreaseSize)
+        self = WindowManagementCommand.Kind.decreaseSize(
+          by: try nestedContainer.decode(Int.self, forKey: WindowManagementCommand.Kind.DecreaseSizeCodingKeys.by),
+          direction: try nestedContainer.decode(WindowManagementCommand.Direction.self, forKey: WindowManagementCommand.Kind.DecreaseSizeCodingKeys.direction),
+          constrainedToScreen: try nestedContainer.decode(Bool.self, forKey: WindowManagementCommand.Kind.DecreaseSizeCodingKeys.constrainedToScreen)
         )
       case .move:
-        let nestedContainer = try container.nestedContainer(keyedBy: WindowCommand.Kind.MoveCodingKeys.self, forKey: WindowCommand.Kind.CodingKeys.move)
-        self = WindowCommand.Kind.move(
-          by: try nestedContainer.decode(Int.self, forKey: WindowCommand.Kind.MoveCodingKeys.by),
-          direction: try nestedContainer.decode(WindowCommand.Direction.self, forKey: WindowCommand.Kind.MoveCodingKeys.direction),
-          padding: try nestedContainer.decodeIfPresent(Int.self, forKey: WindowCommand.Kind.MoveCodingKeys.padding) ?? 0,
-          constrainedToScreen: try nestedContainer.decode(Bool.self, forKey: WindowCommand.Kind.MoveCodingKeys.constrainedToScreen)
+        let nestedContainer = try container.nestedContainer(keyedBy: WindowManagementCommand.Kind.MoveCodingKeys.self, forKey: WindowManagementCommand.Kind.CodingKeys.move)
+        self = WindowManagementCommand.Kind.move(
+          by: try nestedContainer.decode(Int.self, forKey: WindowManagementCommand.Kind.MoveCodingKeys.by),
+          direction: try nestedContainer.decode(WindowManagementCommand.Direction.self, forKey: WindowManagementCommand.Kind.MoveCodingKeys.direction),
+          padding: try nestedContainer.decodeIfPresent(Int.self, forKey: WindowManagementCommand.Kind.MoveCodingKeys.padding) ?? 0,
+          constrainedToScreen: try nestedContainer.decode(Bool.self, forKey: WindowManagementCommand.Kind.MoveCodingKeys.constrainedToScreen)
         )
       case .fullscreen:
-        let nestedContainer = try container.nestedContainer(keyedBy: WindowCommand.Kind.FullscreenCodingKeys.self, forKey: WindowCommand.Kind.CodingKeys.fullscreen)
-        self = WindowCommand.Kind.fullscreen(
-          padding: try nestedContainer.decode(Int.self, forKey: WindowCommand.Kind.FullscreenCodingKeys.padding)
+        let nestedContainer = try container.nestedContainer(keyedBy: WindowManagementCommand.Kind.FullscreenCodingKeys.self, forKey: WindowManagementCommand.Kind.CodingKeys.fullscreen)
+        self = WindowManagementCommand.Kind.fullscreen(
+          padding: try nestedContainer.decode(Int.self, forKey: WindowManagementCommand.Kind.FullscreenCodingKeys.padding)
         )
       case .center:
-        self = WindowCommand.Kind.center
+        self = WindowManagementCommand.Kind.center
       case .moveToNextDisplay:
         let nestedContainer = try container.nestedContainer(
-          keyedBy: WindowCommand.Kind.MoveToNextDisplayCodingKeys.self,
-          forKey: WindowCommand.Kind.CodingKeys.moveToNextDisplay
+          keyedBy: WindowManagementCommand.Kind.MoveToNextDisplayCodingKeys.self,
+          forKey: WindowManagementCommand.Kind.CodingKeys.moveToNextDisplay
         )
-        self = WindowCommand.Kind.moveToNextDisplay(mode: try nestedContainer.decode(WindowCommand.Mode.self, forKey: WindowCommand.Kind.MoveToNextDisplayCodingKeys.mode))
+        self = WindowManagementCommand.Kind.moveToNextDisplay(mode: try nestedContainer.decode(WindowManagementCommand.Mode.self, forKey: WindowManagementCommand.Kind.MoveToNextDisplayCodingKeys.mode))
       case .anchor:
-        let nestedContainer = try container.nestedContainer(keyedBy: WindowCommand.Kind.AnchorCodingKeys.self, forKey: WindowCommand.Kind.CodingKeys.anchor)
-        self = WindowCommand.Kind.anchor(
-          position: try nestedContainer.decode(WindowCommand.Direction.self, forKey: WindowCommand.Kind.AnchorCodingKeys.position),
-          padding: try nestedContainer.decode(Int.self, forKey: WindowCommand.Kind.AnchorCodingKeys.padding)
+        let nestedContainer = try container.nestedContainer(keyedBy: WindowManagementCommand.Kind.AnchorCodingKeys.self, forKey: WindowManagementCommand.Kind.CodingKeys.anchor)
+        self = WindowManagementCommand.Kind.anchor(
+          position: try nestedContainer.decode(WindowManagementCommand.Direction.self, forKey: WindowManagementCommand.Kind.AnchorCodingKeys.position),
+          padding: try nestedContainer.decode(Int.self, forKey: WindowManagementCommand.Kind.AnchorCodingKeys.padding)
         )
       }
     }
@@ -208,7 +208,7 @@ struct WindowCommand: MetaDataProviding {
     self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
   }
 
-  func copy() -> WindowCommand {
-    WindowCommand(kind: self.kind, meta: self.meta.copy(), animationDuration: self.animationDuration)
+  func copy() -> WindowManagementCommand {
+    WindowManagementCommand(kind: self.kind, meta: self.meta.copy(), animationDuration: self.animationDuration)
   }
 }

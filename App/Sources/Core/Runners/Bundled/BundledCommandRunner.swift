@@ -30,27 +30,27 @@ final class BundledCommandRunner: Sendable {
         case .systemCommand(let systemCommand):
           switch systemCommand.kind {
           case .windowTilingArrangeLeftRight:
-            try await SystemWindowTilingRunner.run(.arrangeLeftRight, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeLeftRight, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeRightLeft:
-            try await SystemWindowTilingRunner.run(.arrangeRightLeft, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeRightLeft, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeTopBottom:
-            try await SystemWindowTilingRunner.run(.arrangeTopBottom, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeTopBottom, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeBottomTop:
-            try await SystemWindowTilingRunner.run(.arrangeBottomTop, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeBottomTop, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeLeftQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeLeftQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeLeftQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeRightQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeRightQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeRightQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeTopQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeTopQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeTopQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeBottomQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeBottomQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeBottomQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingFill:
-            try await SystemWindowTilingRunner.run(.fill, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.fill, toggleFill: false, snapshot: snapshot)
           case .windowTilingCenter:
-            try await SystemWindowTilingRunner.run(.center, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.center, toggleFill: false, snapshot: snapshot)
           default:
             try await commandRunner
               .run(command,
@@ -81,7 +81,7 @@ final class BundledCommandRunner: Sendable {
       await systemRunner.resetFocusComponents()
       Task.detached {
         try await Task.sleep(for: .milliseconds(375))
-        SystemWindowTilingRunner.initialIndex()
+        WindowTilingRunner.initialIndex()
       }
       output = command.name
     case .workspace(let workspaceCommand):
@@ -93,27 +93,27 @@ final class BundledCommandRunner: Sendable {
         case .systemCommand(let systemCommand):
           switch systemCommand.kind {
           case .windowTilingArrangeLeftRight:
-            try await SystemWindowTilingRunner.run(.arrangeLeftRight, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeLeftRight, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeRightLeft:
-            try await SystemWindowTilingRunner.run(.arrangeRightLeft, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeRightLeft, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeTopBottom:
-            try await SystemWindowTilingRunner.run(.arrangeTopBottom, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeTopBottom, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeBottomTop:
-            try await SystemWindowTilingRunner.run(.arrangeBottomTop, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeBottomTop, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeLeftQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeLeftQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeLeftQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeRightQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeRightQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeRightQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeTopQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeTopQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeTopQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeBottomQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeBottomQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeBottomQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingArrangeQuarters:
-            try await SystemWindowTilingRunner.run(.arrangeQuarters, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.arrangeQuarters, toggleFill: false, snapshot: snapshot)
           case .windowTilingFill:
-            try await SystemWindowTilingRunner.run(.fill, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.fill, toggleFill: false, snapshot: snapshot)
           case .windowTilingCenter:
-            try await SystemWindowTilingRunner.run(.center, toggleFill: false, snapshot: snapshot)
+            try await WindowTilingRunner.run(.center, toggleFill: false, snapshot: snapshot)
           default:
             try await commandRunner
               .run(command,
@@ -142,7 +142,7 @@ final class BundledCommandRunner: Sendable {
         }
       }
       await systemRunner.resetFocusComponents()
-      SystemWindowTilingRunner.initialIndex()
+      WindowTilingRunner.initialIndex()
       output = command.name
     case .tidy(let command):
       try await windowTidy.run(command)

@@ -5,7 +5,7 @@ import Foundation
 import SwiftUI
 import Windows
 
-final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
+final class WindowFocusRelativeNavigation: @unchecked Sendable {
   static let debug: Bool = false
 
   @MainActor
@@ -17,7 +17,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
   @MainActor lazy var windowController: NSWindowController = NSWindowController(window: window)
 
 
-  fileprivate func rerouteDirectionIfNeeded(_ direction: inout SystemWindowRelativeFocus.Direction, frame: CGRect,
+  fileprivate func rerouteDirectionIfNeeded(_ direction: inout WindowFocusRelativeFocus.Direction, frame: CGRect,
                                             tiling: WindowTiling?, screen: NSScreen) {
     switch direction {
     case .up:
@@ -76,7 +76,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
 
   @MainActor
   func findNextWindow(_ currentWindow: RelativeWindowModel, windows: [RelativeWindowModel],
-                      direction: SystemWindowRelativeFocus.Direction,
+                      direction: WindowFocusRelativeFocus.Direction,
                       initialScreen: NSScreen = NSScreen.main!) async throws -> RelativeWindowModelMatch? {
     let initialDirection = direction
     let windowSpacing: CGFloat
@@ -126,7 +126,7 @@ final class SystemWindowRelativeFocusNavigation: @unchecked Sendable {
     var tiling: WindowTiling?
 
     if let screen = currentScreen(fieldOfViewRect).first {
-      tiling = SystemWindowTilingRunner.calculateTiling(for: currentWindow.rect, in: screen.visibleFrame.mainDisplayFlipped)
+      tiling = WindowTilingRunner.calculateTiling(for: currentWindow.rect, in: screen.visibleFrame.mainDisplayFlipped)
 
       switch tiling {
       case .topLeft:

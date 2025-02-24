@@ -12,9 +12,9 @@ final class SystemCommandRunner: @unchecked Sendable {
 
   private let applicationActivityMonitor: ApplicationActivityMonitor<UserSpace.Application>
   private let applicationStore: ApplicationStore
-  private let centerFocus: SystemWindowCenterFocus
-  private let relativeFocus: SystemWindowRelativeFocus
-  private let quarterFocus: SystemWindowQuarterFocus
+  private let centerFocus: WindowFocusCenter
+  private let relativeFocus: WindowFocusRelativeFocus
+  private let quarterFocus: WindowFocusQuarter
   private let workspace: WorkspaceProviding
 
   private var flagsChangedSubscription: AnyCancellable?
@@ -26,9 +26,9 @@ final class SystemCommandRunner: @unchecked Sendable {
        workspace: WorkspaceProviding = NSWorkspace.shared) {
     self.applicationStore = applicationStore
     self.applicationActivityMonitor = applicationActivityMonitor
-    self.centerFocus = SystemWindowCenterFocus()
-    self.relativeFocus = SystemWindowRelativeFocus()
-    self.quarterFocus = SystemWindowQuarterFocus()
+    self.centerFocus = WindowFocusCenter()
+    self.relativeFocus = WindowFocusRelativeFocus()
+    self.quarterFocus = WindowFocusQuarter()
     self.workspace = workspace
   }
 
@@ -73,7 +73,7 @@ final class SystemCommandRunner: @unchecked Sendable {
         try await SystemHideAllAppsRunner.run(workflowCommands: workflowCommands)
       case .moveFocusToNextWindow, .moveFocusToPreviousWindow,
            .moveFocusToNextWindowGlobal, .moveFocusToPreviousWindowGlobal:
-        try SystemWindowFocus.run(
+        try WindowFocus.run(
           &visibleMostIndex,
           kind: command.kind,
           snapshot: snapshot.windows,
@@ -81,7 +81,7 @@ final class SystemCommandRunner: @unchecked Sendable {
           workspace: workspace
         )
       case .moveFocusToNextWindowFront, .moveFocusToPreviousWindowFront:
-        SystemFrontmostWindowFocus.run(kind: command.kind, snapshot: snapshot)
+        WindowFocusFrontmostWindow.run(kind: command.kind, snapshot: snapshot)
       case .minimizeAllOpenWindows:
         guard let machPort else { return }
         try SystemMinimizeAllWindows.run(snapshot, machPort: machPort)
@@ -110,70 +110,70 @@ final class SystemCommandRunner: @unchecked Sendable {
       case .moveFocusToNextWindowCenter:
         try await centerFocus.run(snapshot: snapshot)
       case .windowTilingLeft:
-        try await SystemWindowTilingRunner.run(.left, snapshot: snapshot)
+        try await WindowTilingRunner.run(.left, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingRight:
-        try await SystemWindowTilingRunner.run(.right, snapshot: snapshot)
+        try await WindowTilingRunner.run(.right, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingTop:
-        try await SystemWindowTilingRunner.run(.top, snapshot: snapshot)
+        try await WindowTilingRunner.run(.top, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingBottom:
-        try await SystemWindowTilingRunner.run(.bottom, snapshot: snapshot)
+        try await WindowTilingRunner.run(.bottom, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingTopLeft:
-        try await SystemWindowTilingRunner.run(.topLeft, snapshot: snapshot)
+        try await WindowTilingRunner.run(.topLeft, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingTopRight:
-        try await SystemWindowTilingRunner.run(.topRight, snapshot: snapshot)
+        try await WindowTilingRunner.run(.topRight, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingBottomLeft:
-        try await SystemWindowTilingRunner.run(.bottomLeft, snapshot: snapshot)
+        try await WindowTilingRunner.run(.bottomLeft, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingBottomRight:
-        try await SystemWindowTilingRunner.run(.bottomRight, snapshot: snapshot)
+        try await WindowTilingRunner.run(.bottomRight, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingCenter:
-        try await SystemWindowTilingRunner.run(.center, snapshot: snapshot)
+        try await WindowTilingRunner.run(.center, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingFill:
-        try await SystemWindowTilingRunner.run(.fill, snapshot: snapshot)
+        try await WindowTilingRunner.run(.fill, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeLeftRight:
-        try await SystemWindowTilingRunner.run(.arrangeLeftRight, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeLeftRight, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeRightLeft:
-        try await SystemWindowTilingRunner.run(.arrangeRightLeft, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeRightLeft, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeTopBottom:
-        try await SystemWindowTilingRunner.run(.arrangeTopBottom, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeTopBottom, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeBottomTop:
-        try await SystemWindowTilingRunner.run(.arrangeBottomTop, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeBottomTop, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeLeftQuarters:
-        try await SystemWindowTilingRunner.run(.arrangeLeftQuarters, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeLeftQuarters, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeRightQuarters:
-        try await SystemWindowTilingRunner.run(.arrangeRightQuarters, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeRightQuarters, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeTopQuarters:
-        try await SystemWindowTilingRunner.run(.arrangeTopQuarters, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeTopQuarters, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeBottomQuarters:
-        try await SystemWindowTilingRunner.run(.arrangeBottomQuarters, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeBottomQuarters, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeDynamicQuarters:
-        try await SystemWindowTilingRunner.run(.arrangeDynamicQuarters, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeDynamicQuarters, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingArrangeQuarters:
-        try await SystemWindowTilingRunner.run(.arrangeQuarters, snapshot: snapshot)
+        try await WindowTilingRunner.run(.arrangeQuarters, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingPreviousSize:
-        try await SystemWindowTilingRunner.run(.previousSize, snapshot: snapshot)
+        try await WindowTilingRunner.run(.previousSize, snapshot: snapshot)
         resetFocusComponents()
       case .windowTilingZoom:
-        try await SystemWindowTilingRunner.run(.zoom, snapshot: snapshot)
+        try await WindowTilingRunner.run(.zoom, snapshot: snapshot)
         resetFocusComponents()
       }
     }

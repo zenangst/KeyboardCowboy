@@ -29,7 +29,9 @@ struct GroupDetailView: View {
       case menuBar = "menubar"
       case mouse = "mouse"
       case uiElement = "ui"
+      case windowFocus = "windowFocus"
       case windowManagement = "window"
+      case windowTiling = "windowTiling"
     }
   }
 
@@ -428,6 +430,8 @@ fileprivate extension CommandViewModel.Kind {
     case .mouse: .mouse
     case .uiElement: .uiElement
     case .windowManagement: .windowManagement
+    case .windowFocus: .windowFocus
+    case .windowTiling: .windowTiling
     }
   }
 }

@@ -5,13 +5,13 @@ import Foundation
 import Intercom
 import MachPort
 
-enum WindowCommandRunnerError: Error {
+enum WindowManagementRunnerError: Error {
   case unableToResolveFrontmostApplication
   case unabelToResolveWindowFrame
 }
 
 @MainActor
-final class WindowCommandRunner {
+final class WindowManagementRunner {
   private var lastKeyCode: Int64?
   private var shouldCycle: Bool = false
   private var isRepeatingEvent: Bool = false
@@ -44,7 +44,7 @@ final class WindowCommandRunner {
   }
 
   @MainActor
-  func run(_ command: WindowCommand) async throws {
+  func run(_ command: WindowManagementCommand) async throws {
     guard let currentScreen = NSScreen.main,
           let mainDisplay = NSScreen.mainDisplay else { return }
 
@@ -67,7 +67,7 @@ final class WindowCommandRunner {
         } else {
           minSize = nil
         }
-        newFrame = WindowRunnerAnchorWindow.calculateRect(
+        newFrame = WindowManagementRunnerAnchorWindow.calculateRect(
           originFrame,
           minSize: minSize,
           shouldCycle: shouldCycle,
@@ -89,7 +89,7 @@ final class WindowCommandRunner {
         )
         return
       case .decreaseSize(let byValue, let direction, let constrainedToScreen):
-        newFrame = WindowRunnerDecreaseWindowSize.calculateRect(
+        newFrame = WindowManagementDecreaseWindowSize.calculateRect(
           originFrame,
           byValue: byValue,
           in: direction,
@@ -98,7 +98,7 @@ final class WindowCommandRunner {
           mainDisplay: mainDisplay
         )
       case .increaseSize(let byValue, let direction, let padding, let constrainedToScreen):
-        newFrame = WindowRunnerIncreaseWindowSize.calculateRect(
+        newFrame = WindowManagementIncreaseWindowSize.calculateRect(
           originFrame,
           byValue: byValue,
           in: direction,
@@ -109,7 +109,7 @@ final class WindowCommandRunner {
         )
       case .move(let byValue, let direction, let padding, let constrainedToScreen):
         app.enhancedUserInterface = !isRepeatingEvent
-        newFrame = WindowRunnerMoveWindow.calculateRect(
+        newFrame = WindowManagementMoveWindow.calculateRect(
           originFrame,
           byValue: byValue,
           in: direction,
@@ -124,7 +124,7 @@ final class WindowCommandRunner {
           return
         }
 
-        let resolvedFrame = WindowRunnerFullscreen.calculateRect(
+        let resolvedFrame = WindowManagementFullscreen.calculateRect(
           originFrame,
           padding: padding,
           currentScreen: currentScreen,
@@ -148,7 +148,7 @@ final class WindowCommandRunner {
           fullscreenCache[activeWindow.id] = originFrame
         }
       case .center:
-        let resolvedFrame = WindowRunnerCenterWindow.calculateRect(
+        let resolvedFrame = WindowManagementCenterWindow.calculateRect(
           originFrame,
           currentScreen: currentScreen,
           mainDisplay: mainDisplay
@@ -166,7 +166,7 @@ final class WindowCommandRunner {
           centerCache[activeWindow.id] = originFrame
         }
       case .moveToNextDisplay(let mode):
-        try WindowMoveWindowToNextDisplay.run(activeWindow, kind: mode)
+        try WindowManagementWindowToNextDisplay.run(activeWindow, kind: mode)
         return
       }
 
@@ -203,7 +203,7 @@ final class WindowCommandRunner {
 
   private func getFocusedWindow(sizeCache: Bool = false, then: (AppAccessibilityElement, WindowAccessibilityElement, CGRect) throws -> Void) throws {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
-      throw WindowCommandRunnerError.unableToResolveFrontmostApplication
+      throw WindowManagementRunnerError.unableToResolveFrontmostApplication
     }
 
     let app = AppAccessibilityElement(frontmostApplication.processIdentifier)
@@ -235,7 +235,7 @@ final class WindowCommandRunner {
 
     guard let focusedWindow, let windowFrame = focusedWindow.frame else {
       app.enhancedUserInterface = previousValue
-      throw WindowCommandRunnerError.unabelToResolveWindowFrame
+      throw WindowManagementRunnerError.unabelToResolveWindowFrame
     }
 
     if sizeCache, minSizeCache[focusedWindow.id] == nil, let oldSize = focusedWindow.size {

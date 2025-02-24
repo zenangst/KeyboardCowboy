@@ -1,9 +1,9 @@
 import Cocoa
 
-enum WindowRunnerIncreaseWindowSize {
+enum WindowManagementIncreaseWindowSize {
   static func calculateRect(_ originFrame: CGRect,
                             byValue: Int,
-                            in direction: WindowCommand.Direction,
+                            in direction: WindowManagementCommand.Direction,
                             padding: Int,
                             constrainedToScreen: Bool,
                             currentScreen: NSScreen,

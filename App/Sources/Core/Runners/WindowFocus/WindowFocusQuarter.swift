@@ -7,7 +7,7 @@ import Foundation
 import SwiftUI
 import Windows
 
-final class SystemWindowQuarterFocus: @unchecked Sendable {
+final class WindowFocusQuarter: @unchecked Sendable {
   enum Quarter {
     case upperLeft
     case upperRight
@@ -145,7 +145,7 @@ final class SystemWindowQuarterFocus: @unchecked Sendable {
   }
 }
 
-extension SystemWindowQuarterFocus.Quarter {
+extension WindowFocusQuarter.Quarter {
   func targetRect(on screen: NSScreen, widthFactor: CGFloat, heightFactor: CGFloat, spacing: CGFloat) -> CGRect {
     let screenFrame = screen.frame.mainDisplayFlipped
     let targetWidth = screenFrame.width * widthFactor
