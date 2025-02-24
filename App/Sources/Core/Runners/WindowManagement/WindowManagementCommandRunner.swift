@@ -5,13 +5,13 @@ import Foundation
 import Intercom
 import MachPort
 
-enum WindowManagementRunnerError: Error {
+enum WindowManagementCommandError: Error {
   case unableToResolveFrontmostApplication
   case unabelToResolveWindowFrame
 }
 
 @MainActor
-final class WindowManagementRunner {
+final class WindowManagementCommandRunner {
   private var lastKeyCode: Int64?
   private var shouldCycle: Bool = false
   private var isRepeatingEvent: Bool = false
@@ -203,7 +203,7 @@ final class WindowManagementRunner {
 
   private func getFocusedWindow(sizeCache: Bool = false, then: (AppAccessibilityElement, WindowAccessibilityElement, CGRect) throws -> Void) throws {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
-      throw WindowManagementRunnerError.unableToResolveFrontmostApplication
+      throw WindowManagementCommandError.unableToResolveFrontmostApplication
     }
 
     let app = AppAccessibilityElement(frontmostApplication.processIdentifier)
@@ -235,7 +235,7 @@ final class WindowManagementRunner {
 
     guard let focusedWindow, let windowFrame = focusedWindow.frame else {
       app.enhancedUserInterface = previousValue
-      throw WindowManagementRunnerError.unabelToResolveWindowFrame
+      throw WindowManagementCommandError.unabelToResolveWindowFrame
     }
 
     if sizeCache, minSizeCache[focusedWindow.id] == nil, let oldSize = focusedWindow.size {

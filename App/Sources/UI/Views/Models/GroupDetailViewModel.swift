@@ -69,7 +69,7 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
       case uiElement
       case windowFocus(WindowFocusCommand.Kind)
       case windowManagement
-      case windowTiling(WindowTilingCommand.Kind)
+      case windowTiling(WindowTiling)
       case icon(Icon)
 
       var searchTerm: String {
@@ -140,6 +140,6 @@ struct GroupDetailViewModel: Identifiable, Hashable, Codable, Sendable, Transfer
     static func uiElement(_ command: Command, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .uiElement) }
     static func windowFocus(_ command: Command, kind: WindowFocusCommand.Kind, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .windowFocus(kind)) }
     static func windowManagement(_ command: Command, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .windowManagement) }
-    static func windowTiling(_ command: Command, kind: WindowTilingCommand.Kind, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .windowTiling(kind)) }
+    static func windowTiling(_ command: Command, kind: WindowTiling, offset: Double) -> Self { .init(id: command.id, offset: offset, kind: .windowTiling(kind)) }
   }
 }

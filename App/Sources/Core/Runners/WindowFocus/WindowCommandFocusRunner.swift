@@ -2,7 +2,7 @@ import Foundation
 import Cocoa
 
 @MainActor
-final class WindowFocusCommandRunner {
+final class WindowCommandFocusRunner {
   private let applicationStore: ApplicationStore
   private let centerFocus: WindowFocusCenter
   private let relativeFocus: WindowFocusRelativeFocus

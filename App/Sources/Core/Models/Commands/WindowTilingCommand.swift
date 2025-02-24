@@ -1,95 +1,66 @@
 import Foundation
 
 struct WindowTilingCommand: MetaDataProviding {
-  var kind: Kind
+  var kind: WindowTiling
   var meta: Command.MetaData
-
-  enum Kind: String, Identifiable, CaseIterable, Codable {
-    var id: String { rawValue }
-
-    case windowTilingLeft
-    case windowTilingRight
-    case windowTilingTop
-    case windowTilingBottom
-    case windowTilingTopLeft
-    case windowTilingTopRight
-    case windowTilingBottomLeft
-    case windowTilingBottomRight
-    case windowTilingCenter
-
-    case windowTilingFill
-    case windowTilingZoom
-
-    case windowTilingArrangeLeftRight
-    case windowTilingArrangeRightLeft
-    case windowTilingArrangeTopBottom
-    case windowTilingArrangeBottomTop
-    case windowTilingArrangeLeftQuarters
-    case windowTilingArrangeRightQuarters
-    case windowTilingArrangeTopQuarters
-    case windowTilingArrangeBottomQuarters
-    case windowTilingArrangeDynamicQuarters
-    case windowTilingArrangeQuarters
-
-    case windowTilingPreviousSize
-  }
 
   func copy() -> WindowTilingCommand {
     WindowTilingCommand(kind: kind, meta: meta.copy())
   }
 }
 
-extension WindowTilingCommand.Kind {
-  var displayValue: String {
+extension WindowTiling {
+  var descriptiveValue: String {
     switch self {
-    case .windowTilingLeft: "Window › Move & Resize › Left"
-    case .windowTilingRight: "Window › Move & Resize › Right"
-    case .windowTilingTop: "Window › Move & Resize › Top"
-    case .windowTilingBottom: "Window › Move & Resize › Bottom"
-    case .windowTilingTopLeft: "Window › Move & Resize › Top Left"
-    case .windowTilingTopRight: "Window › Move & Resize › Top Right"
-    case .windowTilingBottomLeft: "Window › Move & Resize › Bottom Left"
-    case .windowTilingBottomRight: "Window › Move & Resize › Bottom Right"
-    case .windowTilingCenter: "Window › Center"
-    case .windowTilingFill: "Window › Fill"
-    case .windowTilingZoom: "Window › Zoom"
-    case .windowTilingArrangeLeftRight: "Window › Move & Resize › Left & Right"
-    case .windowTilingArrangeRightLeft: "Window › Move & Resize › Right & Left"
-    case .windowTilingArrangeTopBottom: "Window › Move & Resize › Top & Bottom"
-    case .windowTilingArrangeBottomTop: "Window › Move & Resize › Bottom & Top"
-    case .windowTilingArrangeLeftQuarters: "Window › Move & Resize › Left & Quarters"
-    case .windowTilingArrangeRightQuarters: "Window › Move & Resize › Right & Quarters"
-    case .windowTilingArrangeTopQuarters: "Window › Move & Resize › Top & Quarters"
-    case .windowTilingArrangeBottomQuarters: "Window › Move & Resize › Bottom & Quarters"
-    case .windowTilingArrangeDynamicQuarters: "Window › Move & Resize › Dynamic & Quarters"
-    case .windowTilingArrangeQuarters: "Window › Move & Resize › Quarters"
-    case .windowTilingPreviousSize: "Window › Move & Resize › Return to Previous Size"
+    case .left: "Window › Move & Resize › Left"
+    case .right: "Window › Move & Resize › Right"
+    case .top: "Window › Move & Resize › Top"
+    case .bottom: "Window › Move & Resize › Bottom"
+    case .topLeft: "Window › Move & Resize › Top Left"
+    case .topRight: "Window › Move & Resize › Top Right"
+    case .bottomLeft: "Window › Move & Resize › Bottom Left"
+    case .bottomRight: "Window › Move & Resize › Bottom Right"
+    case .center: "Window › Center"
+    case .fill: "Window › Fill"
+    case .zoom: "Window › Zoom"
+    case .arrangeLeftRight: "Window › Move & Resize › Left & Right"
+    case .arrangeRightLeft: "Window › Move & Resize › Right & Left"
+    case .arrangeTopBottom: "Window › Move & Resize › Top & Bottom"
+    case .arrangeBottomTop  : "Window › Move & Resize › Bottom & Top"
+    case .arrangeLeftQuarters: "Window › Move & Resize › Left & Quarters"
+    case .arrangeRightQuarters: "Window › Move & Resize › Right & Quarters"
+    case .arrangeTopQuarters: "Window › Move & Resize › Top & Quarters"
+    case .arrangeBottomQuarters: "Window › Move & Resize › Bottom & Quarters"
+    case .arrangeDynamicQuarters: "Window › Move & Resize › Dynamic & Quarters"
+    case .arrangeQuarters: "Window › Move & Resize › Quarters"
+    case .previousSize: "Window › Move & Resize › Return to Previous Size"
     }
   }
 
   var symbol: String {
     switch self {
-    case .windowTilingLeft: "rectangle.split.2x1"
-    case .windowTilingRight: "rectangle.split.2x1"
-    case .windowTilingTop: "square.split.1x2"
-    case .windowTilingBottom: "square.split.1x2"
-    case .windowTilingTopLeft: "square.split.bottomrightquarter"
-    case .windowTilingTopRight: "square.split.bottomrightquarter"
-    case .windowTilingBottomLeft: "square.split.bottomrightquarter"
-    case .windowTilingBottomRight: "square.split.bottomrightquarter"
-    case .windowTilingCenter: "square.split.diagonal.2x2.fill"
-    case .windowTilingFill: "square.fill"
-    case .windowTilingZoom: "square.arrowtriangle.4.outward"
-    case .windowTilingArrangeLeftRight: "rectangle.split.2x1.fill"
-    case .windowTilingArrangeRightLeft: "rectangle.split.2x1.fill"
-    case .windowTilingArrangeTopBottom: "rectangle.split.1x2.fill"
-    case .windowTilingArrangeBottomTop: "rectangle.split.1x2.fill"
-    case .windowTilingArrangeLeftQuarters, .windowTilingArrangeDynamicQuarters: "uiwindow.split.2x1"
-    case .windowTilingArrangeRightQuarters: "uiwindow.split.2x1"
-    case .windowTilingArrangeTopQuarters: "uiwindow.split.2x1"
-    case .windowTilingArrangeBottomQuarters: "uiwindow.split.2x1"
-    case .windowTilingArrangeQuarters: "square.split.2x2"
-    case .windowTilingPreviousSize: "arrow.uturn.backward.circle.fill"
+    case .left: "rectangle.split.2x1"
+    case .right: "rectangle.split.2x1"
+    case .top: "square.split.1x2"
+    case .bottom: "square.split.1x2"
+    case .topLeft: "square.split.bottomrightquarter"
+    case .topRight: "square.split.bottomrightquarter"
+    case .bottomLeft: "square.split.bottomrightquarter"
+    case .bottomRight: "square.split.bottomrightquarter"
+    case .center: "square.split.diagonal.2x2.fill"
+    case .fill: "square.fill"
+    case .zoom: "square.arrowtriangle.4.outward"
+    case .arrangeLeftRight: "rectangle.split.2x1.fill"
+    case .arrangeRightLeft: "rectangle.split.2x1.fill"
+    case .arrangeTopBottom: "rectangle.split.1x2.fill"
+    case .arrangeBottomTop: "rectangle.split.1x2.fill"
+    case .arrangeLeftQuarters: "uiwindow.split.2x1"
+    case .arrangeRightQuarters: "uiwindow.split.2x1"
+    case .arrangeTopQuarters: "uiwindow.split.2x1"
+    case .arrangeBottomQuarters: "uiwindow.split.2x1"
+    case .arrangeDynamicQuarters: "uiwindow.split.2x1"
+    case .arrangeQuarters: "square.split.2x2"
+    case .previousSize: "arrow.uturn.backward.circle.fill"
     }
   }
 }

@@ -27,7 +27,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let system: SystemCommandRunner
     let text: TextCommandRunner
     let uiElement: UIElementCommandRunner
-    let window: WindowManagementRunner
+    let windowFocus: WindowCommandFocusRunner
+    let windowManagement: WindowManagementCommandRunner
+    let windowTiling: WindowTilingCommandRunner
 
     func setMachPort(_ machPort: MachPortEventController?) {
       keyboard.machPort = machPort
@@ -67,6 +69,11 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     self.applicationStore = applicationStore
     self.missionControl = MissionControlPlugin(keyboard: keyboardCommandRunner)
     self.commandPanel = CommandPanelCoordinator()
+
+    let windowCenter = WindowFocusCenter()
+    let relativeFocus = WindowFocusRelativeFocus()
+    let quarterFocus = WindowFocusQuarter()
+
     self.runners = .init(
       application: ApplicationCommandRunner(
         scriptCommandRunner: scriptCommandRunner,
@@ -84,7 +91,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       system: systemCommandRunner,
       text: TextCommandRunner(keyboardCommandRunner),
       uiElement: uiElementCommandRunner,
-      window: WindowManagementRunner()
+      windowFocus: WindowCommandFocusRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus),
+      windowManagement: WindowManagementCommandRunner(),
+      windowTiling: WindowTilingCommandRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus)
     )
     self.workspace = workspace
 
@@ -365,20 +374,21 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     case .uiElement(let uiElementCommand):
       try await runners.uiElement.run(uiElementCommand, checkCancellation: checkCancellation)
       output = ""
-    case .windowFocus(let windowFocus):
+    case .windowFocus(let command):
+      try await runners.windowFocus.run(command, snapshot: snapshot)
       output = ""
-    case .windowTiling(let windowTiling):
+    case .windowTiling(let command):
       output = ""
-      #warning("Unimplemented")
+      try await runners.windowTiling.run(command, snapshot: snapshot)
     case .windowManagement(let windowCommand):
-      try await runners.window.run(windowCommand)
+      try await runners.windowManagement.run(windowCommand)
 
       if case .moveToNextDisplay(let mode) = windowCommand.kind,
          case .center = mode {
         let snapshot = await UserSpace.shared.snapshot(resolveUserEnvironment: false, refreshWindows: true)
-        Task.detached {
+        Task.detached { [windowTiling=runners.windowTiling] in
           try await Task.sleep(for: .milliseconds(200))
-          try await WindowTilingRunner.run(.center, snapshot: snapshot)
+          try await windowTiling.run(.init(kind: .center, meta: .init()), snapshot: snapshot)
         }
       }
 
@@ -415,7 +425,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     WindowStore.shared.subscribe(to: coordinator.$flagsChanged)
     subscribe(to: coordinator.$event)
     runners.system.subscribe(to: coordinator.$flagsChanged)
-    runners.window.subscribe(to: coordinator.$event)
+    runners.windowManagement.subscribe(to: coordinator.$event)
   }
 
   // MARK: Private methods
