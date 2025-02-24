@@ -57,6 +57,57 @@ final class WindowOpener: ObservableObject {
         let transaction = core.workflowCoordinator.updateTransaction
         let updater = core.configurationUpdater
 
+        var payload = payload
+        if case .systemCommand(let kind) = payload {
+          payload = switch kind {
+          case .activateLastApplication: .systemCommand(kind: .activateLastApplication)
+          case .applicationWindows: .systemCommand(kind: .applicationWindows)
+          case .minimizeAllOpenWindows: .systemCommand(kind: .minimizeAllOpenWindows)
+          case .hideAllApps: .systemCommand(kind: .hideAllApps)
+          case .missionControl: .systemCommand(kind: .missionControl)
+          case .moveFocusToNextWindowOnLeft: .windowFocus(kind: .moveFocusToNextWindowOnLeft)
+          case .moveFocusToNextWindowOnRight: .windowFocus(kind: .moveFocusToNextWindowOnRight)
+          case .moveFocusToNextWindowUpwards: .windowFocus(kind: .moveFocusToNextWindowUpwards)
+          case .moveFocusToNextWindowDownwards: .windowFocus(kind: .moveFocusToNextWindowDownwards)
+          case .moveFocusToNextWindowUpperLeftQuarter:  .windowFocus(kind: .moveFocusToNextWindowUpperLeftQuarter)
+          case .moveFocusToNextWindowUpperRightQuarter: .windowFocus(kind: .moveFocusToNextWindowUpperRightQuarter)
+          case .moveFocusToNextWindowLowerLeftQuarter:  .windowFocus(kind: .moveFocusToNextWindowLowerLeftQuarter)
+          case .moveFocusToNextWindowLowerRightQuarter: .windowFocus(kind: .moveFocusToNextWindowLowerRightQuarter)
+          case .moveFocusToNextWindowCenter: .windowFocus(kind: .moveFocusToNextWindowCenter)
+          case .moveFocusToNextWindowFront: .windowFocus(kind: .moveFocusToNextWindowFront)
+          case .moveFocusToPreviousWindowFront: .windowFocus(kind: .moveFocusToPreviousWindowFront)
+          case .moveFocusToNextWindow: .windowFocus(kind: .moveFocusToNextWindow)
+          case .moveFocusToPreviousWindow: .windowFocus(kind: .moveFocusToPreviousWindow)
+          case .moveFocusToNextWindowGlobal: .windowFocus(kind: .moveFocusToNextWindowGlobal)
+          case .moveFocusToPreviousWindowGlobal: .windowFocus(kind: .moveFocusToPreviousWindowGlobal)
+          case .showDesktop: .systemCommand(kind: .showDesktop)
+
+          case .windowTilingLeft: .windowTiling(kind: .left)
+          case .windowTilingRight: .windowTiling(kind: .right)
+
+          case .windowTilingTop: .windowTiling(kind: .top)
+          case .windowTilingBottom: .windowTiling(kind: .bottom)
+          case .windowTilingTopLeft: .windowTiling(kind: .topLeft)
+          case .windowTilingTopRight: .windowTiling(kind: .topRight)
+          case .windowTilingBottomLeft: .windowTiling(kind: .bottomLeft)
+          case .windowTilingBottomRight: .windowTiling(kind: .bottomRight)
+          case .windowTilingCenter: .windowTiling(kind: .center)
+          case .windowTilingFill: .windowTiling(kind: .fill)
+          case .windowTilingZoom: .windowTiling(kind: .zoom)
+          case .windowTilingArrangeLeftRight: .windowTiling(kind: .arrangeLeftRight)
+          case .windowTilingArrangeRightLeft: .windowTiling(kind: .arrangeRightLeft)
+          case .windowTilingArrangeTopBottom: .windowTiling(kind: .arrangeTopBottom)
+          case .windowTilingArrangeBottomTop: .windowTiling(kind: .arrangeBottomTop)
+          case .windowTilingArrangeLeftQuarters: .windowTiling(kind: .arrangeLeftQuarters)
+          case .windowTilingArrangeRightQuarters: .windowTiling(kind: .arrangeRightQuarters)
+          case .windowTilingArrangeTopQuarters: .windowTiling(kind: .arrangeTopQuarters)
+          case .windowTilingArrangeBottomQuarters: .windowTiling(kind: .arrangeBottomQuarters)
+          case .windowTilingArrangeDynamicQuarters: .windowTiling(kind: .arrangeDynamicQuarters)
+          case .windowTilingArrangeQuarters: .windowTiling(kind: .arrangeQuarters)
+          case .windowTilingPreviousSize: .windowTiling(kind: .previousSize)
+          }
+        }
+
         updater.modifyWorkflow(using: transaction) { workflow in
           let resolvedCommandId: String = commandId ?? UUID().uuidString
           var command: Command
@@ -142,12 +193,16 @@ final class WindowOpener: ObservableObject {
                                                   notification: nil))
           case .uiElement(let predicates):
             command = Command.uiElement(.init(predicates: predicates))
+          case .windowFocus(let kind):
+            command = Command.windowFocus(.init(kind: kind, meta: Command.MetaData()))
           case .windowManagement(let kind):
             command = Command.windowManagement(.init(id: UUID().uuidString,
                                                      name: "Window Management Command",
                                                      kind: kind,
                                                      notification: nil,
                                                      animationDuration: 0))
+          case .windowTiling(let kind):
+            command = Command.windowTiling(.init(kind: kind, meta: Command.MetaData()))
           }
           workflow.updateOrAddCommand(command)
         }

@@ -18,7 +18,9 @@ enum NewCommandPayload: Equatable {
   case menuBar(tokens: [MenuBarCommand.Token], application: Application?)
   case mouse(kind: MouseCommand.Kind)
   case uiElement(predicates: [UIElementCommand.Predicate])
+  case windowFocus(kind: WindowFocusCommand.Kind)
   case windowManagement(kind: WindowManagementCommand.Kind)
+  case windowTiling(kind: WindowTiling)
 
   var title: String {
     switch self {
@@ -74,6 +76,8 @@ enum NewCommandPayload: Equatable {
     case .mouse:            return "Mouse Command"
     case .uiElement:        return "UI Element Command"
     case .bundled:          return "Bundled Command"
+    case .windowFocus:      return "Window Focus Command"
+    case .windowTiling:     return "Window Tiling Command"
     }
   }
 }
