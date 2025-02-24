@@ -239,7 +239,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     struct WindowTilingModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var placeholder: String { " Window Tiling…" }
-      var kind: WindowTilingCommand.Kind
+      var kind: WindowTiling
     }
 
   }

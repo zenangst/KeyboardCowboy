@@ -334,7 +334,9 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
       self = .text(command)
     case .system:
       let command = try container.decode(SystemCommand.self, forKey: .system)
-      self = .systemCommand(command)
+      self = SystemMigrator.migrateIfNeeded(command)
+      if case .windowFocus = self { Task { @MainActor in Migration.shouldSave = true } }
+      if case .windowTiling = self { Task { @MainActor in Migration.shouldSave = true } }
     case .uiElement:
       let command = try container.decode(UIElementCommand.self, forKey: .uiElement)
       self = .uiElement(command)
@@ -380,21 +382,21 @@ enum Command: MetaDataProviding, Identifiable, Equatable, Codable, Hashable, Sen
 
   func copy(appendCopyToName: Bool = true) -> Self {
     let clone: Self = switch self {
-    case .application(let command): .application(command.copy())
-    case .builtIn(let command): .builtIn(command.copy())
-    case .bundled(let command): .bundled(command.copy())
-    case .keyboard(let command): .keyboard(command.copy())
-    case .mouse(let command): .mouse(command.copy())
-    case .menuBar(let command): .menuBar(command.copy())
-    case .open(let command): .open(command.copy())
-    case .shortcut(let command): .shortcut(command.copy())
-    case .script(let command): .script(command.copy())
-    case .text(let command): .text(command.copy())
-    case .systemCommand(let command): .systemCommand(command.copy())
-    case .uiElement(let command): .uiElement(command.copy())
-    case .windowFocus(let command): .windowFocus(command.copy())
+    case .application(let command):      .application(command.copy())
+    case .builtIn(let command):          .builtIn(command.copy())
+    case .bundled(let command):          .bundled(command.copy())
+    case .keyboard(let command):         .keyboard(command.copy())
+    case .mouse(let command):            .mouse(command.copy())
+    case .menuBar(let command):          .menuBar(command.copy())
+    case .open(let command):             .open(command.copy())
+    case .shortcut(let command):         .shortcut(command.copy())
+    case .script(let command):           .script(command.copy())
+    case .text(let command):             .text(command.copy())
+    case .systemCommand(let command):    .systemCommand(command.copy())
+    case .uiElement(let command):        .uiElement(command.copy())
+    case .windowFocus(let command):      .windowFocus(command.copy())
     case .windowManagement(let command): .windowManagement(command.copy())
-    case .windowTiling(let command): .windowTiling(command.copy())
+    case .windowTiling(let command):     .windowTiling(command.copy())
     }
 
     return clone
@@ -406,21 +408,21 @@ extension Command {
     let id = UUID().uuidString
     let metaData = MetaData(id: id)
     return switch kind {
-    case .application: Command.application(ApplicationCommand.empty())
-    case .builtIn: Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: nil))
-    case .bundled: Command.bundled(.init(.workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)), meta: metaData))
-    case .keyboard: Command.keyboard(KeyboardCommand.empty())
-    case .menuBar: Command.menuBar(MenuBarCommand(application: nil, tokens: []))
-    case .mouse: Command.mouse(MouseCommand.empty())
-    case .open: Command.open(.init(path: "", notification: nil))
-    case .script: Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: nil))
-    case .shortcut: Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: nil))
-    case .text: Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id), actions: []))))
-    case .system: Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: nil))
-    case .uiElement: Command.uiElement(.init(meta: .init(), predicates: [.init(value: "")]))
-    case .windowFocus: Command.windowFocus(.init(kind: .moveFocusToNextWindow, meta: metaData))
+    case .application:      Command.application(ApplicationCommand.empty())
+    case .builtIn:          Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: nil))
+    case .bundled:          Command.bundled(.init(.workspace(WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)), meta: metaData))
+    case .keyboard:         Command.keyboard(KeyboardCommand.empty())
+    case .menuBar:          Command.menuBar(MenuBarCommand(application: nil, tokens: []))
+    case .mouse:            Command.mouse(MouseCommand.empty())
+    case .open:             Command.open(.init(path: "", notification: nil))
+    case .script:           Command.script(.init(name: "", kind: .appleScript, source: .path(""), notification: nil))
+    case .shortcut:         Command.shortcut(.init(id: id, shortcutIdentifier: "", name: "", isEnabled: true, notification: nil))
+    case .text:             Command.text(.init(.insertText(.init("", mode: .instant, meta: MetaData(id: id), actions: []))))
+    case .system:           Command.systemCommand(.init(id: UUID().uuidString, name: "", kind: .missionControl, notification: nil))
+    case .uiElement:        Command.uiElement(.init(meta: .init(), predicates: [.init(value: "")]))
+    case .windowFocus:      Command.windowFocus(.init(kind: .moveFocusToNextWindow, meta: metaData))
     case .windowManagement: Command.windowManagement(.init(id: UUID().uuidString, name: "", kind: .center, notification: nil, animationDuration: 0))
-    case .windowTiling: Command.windowTiling(.init(kind: .windowTilingArrangeLeftRight, meta: metaData))
+    case .windowTiling:     Command.windowTiling(.init(kind: .arrangeLeftQuarters, meta: metaData))
     }
   }
 

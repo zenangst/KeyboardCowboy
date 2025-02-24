@@ -340,7 +340,7 @@ final class UserSpace: @unchecked Sendable {
 
   private func frontmostRunningApplication() throws -> NSRunningApplication {
     guard let frontmostApplication = NSWorkspace.shared.frontmostApplication else {
-      throw WindowManagementRunnerError.unableToResolveFrontmostApplication
+      throw WindowManagementCommandError.unableToResolveFrontmostApplication
     }
 
     return frontmostApplication
