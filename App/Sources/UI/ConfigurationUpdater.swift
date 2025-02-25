@@ -25,6 +25,7 @@ final class ConfigurationUpdater: ObservableObject {
         switch commit.state {
         case .configured(let configuration):
           onStorageUpdate(configuration, commit.transaction)
+          commit.postAction?()
         case .uninitialized:
           break
         }
@@ -56,7 +57,7 @@ final class ConfigurationUpdater: ObservableObject {
     passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction))
   }
 
-  func modifyWorkflow(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout Workflow) -> Void) {
+  func modifyWorkflow(using transaction: UpdateTransaction, withAnimation animation: Animation? = nil, handler: (inout Workflow) -> Void, postAction: ((Workflow.ID) -> Void)? = nil) {
     guard case .configured(var configuration) = state else { return }
     configuration.modify(
       groupID: transaction.groupID,
@@ -65,7 +66,9 @@ final class ConfigurationUpdater: ObservableObject {
     )
 
     onRender(configuration, transaction, animation)
-    passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction))
+    passthrough.send(UpdateCommit(.configured(configuration), transaction: transaction, postAction: {
+      postAction?(transaction.workflowID)
+    }))
   }
 
   func modifyCommand(withID commandID: Command.ID, withAnimation animation: Animation? = nil, using transaction: UpdateTransaction, handler: (inout Command) -> Void) {
@@ -95,10 +98,13 @@ final class UpdateTransaction: ObservableObject {
 struct UpdateCommit {
   let state: ConfigurationUpdater.State
   let transaction: UpdateTransaction
+  let postAction: (() -> Void)?
 
   init(_ state: ConfigurationUpdater.State,
-       transaction: UpdateTransaction) {
+       transaction: UpdateTransaction,
+       postAction: (() -> Void)? = nil) {
     self.state = state
     self.transaction = transaction
+    self.postAction = postAction
   }
 }

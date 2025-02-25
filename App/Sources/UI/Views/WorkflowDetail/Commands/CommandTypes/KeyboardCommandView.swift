@@ -47,7 +47,7 @@ struct KeyboardCommandInternalView: View {
       placeholder: model.placeholder,
       icon: { KeyboardCommandIconView(iconSize: iconSize) },
       content: {
-        KeyboardCommandContentView(model: $model, focus: focus) {
+        ContentView(model: $model, focus: focus) {
           openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
         }
       },
@@ -119,7 +119,7 @@ private struct KeyboardCommandIconView: View {
   }
 }
 
-private struct KeyboardCommandContentView: View {
+private struct ContentView: View {
   @StateObject private var keyboardSelection = SelectionManager<KeyShortcut>()
   @Binding private var model: CommandViewModel.Kind.KeyboardModel
   private let focus: FocusState<AppFocus?>.Binding
