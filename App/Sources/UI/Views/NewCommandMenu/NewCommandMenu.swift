@@ -1,8 +1,10 @@
 import Apps
 import Bonzai
+import Inject
 import SwiftUI
 
 struct NewCommandButton<Content>: View where Content: View {
+  @ObserveInjection var inject
   @ViewBuilder let content: () -> Content
 
   var body: some View {
@@ -20,18 +22,28 @@ struct NewCommandButton<Content>: View where Content: View {
     } label: {
       content()
     }
+    .enableInjection()
   }
 }
 
 fileprivate struct ApplicationMenuView: View {
   @ObservedObject var store: ApplicationStore = .shared
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
 
   var body: some View {
     Menu {
       Text("System").font(.caption)
-      Button(action: { },
-             label: { Text("Activate Last Application") })
-      Button(action: { },
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(.systemCommand(.init(name: "", kind: .activateLastApplication)))
+        }
+      }, label: { Text("Activate Last Application") })
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(.systemCommand(.init(name: "", kind: .hideAllApps)))
+        }
+      },
              label: { Text("Hide All Apps") })
 
       Text("Applications").font(.caption)
@@ -117,7 +129,11 @@ fileprivate struct FileMenuView: View {
     Menu {
       Button(action: {
         OpenPanelController().perform(.selectFile(type: nil, handler: { path in
-          print(path)
+          updater.modifyWorkflow(using: transaction, withAnimation: nil) { workflow in
+            workflow.commands.append(
+              .open(.init(application: nil, path: path, meta: Command.MetaData()))
+            )
+          }
         }))
       }, label: {
         Text("Browse")
@@ -130,17 +146,21 @@ fileprivate struct FileMenuView: View {
 }
 
 fileprivate struct KeyboardShortcutMenuView: View {
+  @EnvironmentObject var openWindow: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
   var body: some View {
     Menu {
       Button(action: {
-        updater.modifyWorkflow(using: transaction) { workflow in
+        let metaData = Command.MetaData()
+        updater.modifyWorkflow(using: transaction, handler: { workflow in
           workflow.commands.append(
-            .keyboard(.empty())
+            .keyboard(.init(name: "", keyboardShortcuts: [], meta: metaData))
           )
-        }
+        }, postAction: { workflowId in
+            openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: metaData.id))
+        })
       }, label: { Text("New Keyboard Shortcut") })
     } label: {
       Image(systemName: "keyboard")
@@ -150,18 +170,21 @@ fileprivate struct KeyboardShortcutMenuView: View {
 }
 
 fileprivate struct MenuBarMenuView: View {
+  @EnvironmentObject var openWindow: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
   var body: some View {
     Menu {
       Button(action: {
-        updater.modifyWorkflow(using: transaction) { workflow in
+        let metaData = Command.MetaData()
+        updater.modifyWorkflow(using: transaction, handler: { workflow in
           workflow.commands.append(
-            .menuBar(.init(application: nil, tokens: [], meta: Command.MetaData()))
+            .menuBar(.init(application: nil, tokens: [], meta: metaData))
           )
-        }
-
+        }, postAction: { workflowId in
+          openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: metaData.id))
+        })
       }, label: { Text("New Menu Bar") })
     } label: {
       Image(systemName: "filemenu.and.selection")
@@ -178,7 +201,12 @@ fileprivate struct ScriptMenuView: View {
     Menu {
       Button(action: {
         OpenPanelController().perform(.selectFile(type: "scpt", handler: { path in
-          print(path)
+          let metaData = Command.MetaData()
+          updater.modifyWorkflow(using: transaction, handler: { workflow in
+            workflow.commands.append(
+              .script(.init(kind: .appleScript, source: .path(path), meta: Command.MetaData()))
+            )
+          })
         }))
       }, label: { Text("Browse…") })
       Divider()
@@ -248,17 +276,21 @@ fileprivate struct TextMenuView: View {
 }
 
 fileprivate struct UIElementMenuView: View {
+  @EnvironmentObject var openWindow: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
   var body: some View {
     Menu {
       Button(action: {
-        updater.modifyWorkflow(using: transaction) { workflow in
+        let metaData = Command.MetaData()
+        updater.modifyWorkflow(using: transaction, handler: { workflow in
           workflow.commands.append(
-            .uiElement(.init(predicates: []))
+            .uiElement(.init(meta: metaData, predicates: []))
           )
-        }
+        }, postAction: { workflowId in
+          openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
+        })
       },
              label: { Text("Capture") })
     } label: {
@@ -309,7 +341,7 @@ fileprivate struct WindowMenu: View {
       WindowManagementMenuView()
       WindowTilingMenuView()
       Divider()
-      Button(action: { }, label: { Text("Minimize All Open Windows") })
+      Button(action: { performUpdate(.minimizeAllOpenWindows) }, label: { Text("Minimize All Open Windows") })
 
     } label: {
       Image(systemName: "macwindow")
@@ -333,9 +365,8 @@ fileprivate struct WindowFocusMenuView: View {
   var body: some View {
     Menu {
       ForEach(WindowFocusCommand.Kind.allCases) { focus in
-        Button(action: {
-          performUpdate(focus)
-        }, label: {
+        Button(action: { performUpdate(focus) },
+               label: {
           HStack {
             Image(systemName: focus.symbol)
             Text(focus.displayValue)

@@ -187,16 +187,16 @@ final class WindowOpener: ObservableObject {
                                          name: "\(urlString)", application: application, path: urlString,
                                          notification: nil))
           case .systemCommand(let kind):
-            command = Command.systemCommand(.init(id: UUID().uuidString,
+            command = Command.systemCommand(.init(id: resolvedCommandId,
                                                   name: "System command",
                                                   kind: kind,
                                                   notification: nil))
           case .uiElement(let predicates):
-            command = Command.uiElement(.init(predicates: predicates))
+            command = Command.uiElement(.init(meta: Command.MetaData(id: resolvedCommandId), predicates: predicates))
           case .windowFocus(let kind):
-            command = Command.windowFocus(.init(kind: kind, meta: Command.MetaData()))
+            command = Command.windowFocus(.init(kind: kind, meta: Command.MetaData(id: resolvedCommandId)))
           case .windowManagement(let kind):
-            command = Command.windowManagement(.init(id: UUID().uuidString,
+            command = Command.windowManagement(.init(id: resolvedCommandId,
                                                      name: "Window Management Command",
                                                      kind: kind,
                                                      notification: nil,
