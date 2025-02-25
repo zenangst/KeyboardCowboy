@@ -27,22 +27,22 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
   var body: some View {
     VStack(alignment: .leading, spacing: 6) {
-      CommandContainerHeaderView($metaData, placeholder: placeholder)
+      HeaderView($metaData, placeholder: placeholder)
         .switchStyle {
           $0.style = .small
         }
 
       ZenDivider()
 
-      CommandContainerContentView($metaData, icon: icon, content: content)
+      ContentView($metaData, icon: icon, content: content)
 
-      CommandContainerSubContentView($metaData, content: subContent)
+      SubView($metaData, content: subContent)
         .textStyle {
           $0.font = .caption
         }
         .menuStyle {
           $0.calm = false
-          $0.padding = .small
+          $0.padding = .medium
         }
     }
     .roundedStyle()
@@ -50,7 +50,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
   }
 }
 
-private struct CommandContainerHeaderView: View {
+private struct HeaderView: View {
   @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -88,7 +88,7 @@ private struct CommandContainerHeaderView: View {
   }
 }
 
-private struct CommandContainerContentView<IconContent, Content>: View where IconContent: View,
+private struct ContentView<IconContent, Content>: View where IconContent: View,
                                                                              Content: View {
   @ViewBuilder private let icon: () -> IconContent
   @ViewBuilder private let content: () -> Content
@@ -119,7 +119,7 @@ private struct CommandContainerContentView<IconContent, Content>: View where Ico
   }
 }
 
-private struct CommandContainerSubContentView<Content>: View where Content: View {
+private struct SubView<Content>: View where Content: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
   @Binding var metaData: CommandViewModel.MetaData

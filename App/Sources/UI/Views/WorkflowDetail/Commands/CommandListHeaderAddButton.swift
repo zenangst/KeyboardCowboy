@@ -12,15 +12,15 @@ struct CommandListHeaderAddButton: View {
   }
 
   var body: some View {
-    Button(action: {
-      openWindow.openNewCommandWindow(.newCommand(workflowId: transaction.workflowID))
-    }) {
+    NewCommandButton {
       Image(systemName: "plus")
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .frame(width: 12, height: 16)
+        .frame(width: 20, height: 20)
         .layoutPriority(-1)
+      Text(" ")
     }
+    .fixedSize()
     .help("Add Command")
     .matchedGeometryEffect(id: "add-command-button", in: namespace, properties: .position)
     .enableInjection()

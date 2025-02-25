@@ -25,27 +25,10 @@ struct EmptyCommandList: View {
 
   var body: some View {
     VStack {
-      FocusableButton(focus, identity: .detail(.addCommand), action: {
-        openWindow.openNewCommandWindow(.newCommand(workflowId: workflowId))
-      }, label: {
-        HStack(spacing: 4) {
-          Text("⌘N")
-            .font(Font.system(size: 8, weight: .semibold))
-            .padding(.horizontal, 4)
-            .padding(.vertical, 2)
-            .background(
-              RoundedRectangle(cornerRadius: 4)
-                .stroke(Color(nsColor: .systemGreen.blended(withFraction: 0.3, of: .black)!), lineWidth: 1)
-                .opacity(0.5)
-            )
-
-          Divider()
-            .opacity(0.5)
-
-          Text("Add Command")
-        }
-      })
-      .buttonStyle { button in
+      NewCommandButton {
+        Text("Add Command")
+      }
+      .menuStyle { button in
         button.grayscaleEffect = false
         button.hoverEffect = false
         button.font = .body
