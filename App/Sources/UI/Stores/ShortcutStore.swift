@@ -4,12 +4,11 @@ import Combine
 final class ShortcutStore: ObservableObject, @unchecked Sendable {
   @MainActor
   @Published private(set) var shortcuts = [Shortcut]()
-  private let scriptCommandRunner: ScriptCommandRunner
   private var subscription: AnyCancellable?
 
-  init(_ scriptCommandRunner: ScriptCommandRunner) {
-    self.scriptCommandRunner = scriptCommandRunner
-  }
+  static let shared: ShortcutStore = .init()
+
+  private init() { }
 
   func subscribe(to application: Published<UserSpace.Application>.Publisher) {
     subscription = application

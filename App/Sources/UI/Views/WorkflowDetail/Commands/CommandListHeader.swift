@@ -32,7 +32,7 @@ struct CommandListHeader: View {
         }, label: {
           Text(publisher.data.execution.rawValue)
         })
-        .fixedSize(horizontal: true, vertical: true)
+        .fixedSize()
         CommandListHeaderAddButton(namespace)
       }
       .buttonStyle { button in
