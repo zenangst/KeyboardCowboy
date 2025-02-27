@@ -204,7 +204,7 @@ fileprivate struct ScriptMenuView: View {
           let metaData = Command.MetaData()
           updater.modifyWorkflow(using: transaction, handler: { workflow in
             workflow.commands.append(
-              .script(.init(kind: .appleScript, source: .path(path), meta: Command.MetaData()))
+              .script(.init(kind: .appleScript, source: .path(path), meta: metaData))
             )
           })
         }))
