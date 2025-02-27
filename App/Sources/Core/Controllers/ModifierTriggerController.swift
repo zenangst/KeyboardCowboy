@@ -300,7 +300,7 @@ final class ModifierTriggerController: @unchecked Sendable {
         break outer
       }
 
-      for userMode in UserSpace.shared.userModes {
+      for userMode in UserSpace.shared.currentUserModes {
         let userModeKey = userMode.dictionaryKey(true)
         let key = createKey(signature: signature, bundleIdentifier: bundleIdentifier, userModeKey: userModeKey)
         if let resolved = cache[key] {
