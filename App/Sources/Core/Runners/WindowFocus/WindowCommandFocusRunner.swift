@@ -1,5 +1,11 @@
-import Foundation
+import Apps
+import AXEssibility
 import Cocoa
+import Combine
+import Dock
+import Foundation
+import MachPort
+import Windows
 
 @MainActor
 final class WindowCommandFocusRunner {
@@ -9,6 +15,8 @@ final class WindowCommandFocusRunner {
   private let quarterFocus: WindowFocusQuarter
   private let workspace: WorkspaceProviding
 
+  private var flagsChangedSubscription: AnyCancellable?
+  private var frontmostIndex: Int = 0
   private var visibleMostIndex: Int = 0
 
   init(applicationStore: ApplicationStore = .shared,
@@ -26,6 +34,22 @@ final class WindowCommandFocusRunner {
     centerFocus.reset()
     quarterFocus.reset()
     relativeFocus.reset()
+  }
+
+  func subscribe(to publisher: Published<CGEventFlags?>.Publisher) {
+    flagsChangedSubscription = publisher
+      .compactMap { $0 }
+      .sink { [weak self] flags in
+        guard let self else { return }
+        Task { @MainActor in
+          WindowStore.shared.state.interactive = flags != CGEventFlags.maskNonCoalesced
+          if WindowStore.shared.state.interactive == false {
+            self.frontmostIndex = 0
+            self.visibleMostIndex = 0
+            self.resetFocusComponents()
+          }
+        }
+      }
   }
 
   func run(_ command: WindowFocusCommand, snapshot: UserSpace.Snapshot) async throws {
