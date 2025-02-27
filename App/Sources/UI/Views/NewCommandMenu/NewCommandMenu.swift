@@ -5,6 +5,7 @@ import SwiftUI
 
 struct NewCommandButton<Content>: View where Content: View {
   @ObserveInjection var inject
+  @ObservedObject var userModePublisher = UserSpace.shared.userModesPublisher
   @ViewBuilder let content: () -> Content
 
   var body: some View {
@@ -20,8 +21,8 @@ struct NewCommandButton<Content>: View where Content: View {
      TextMenuView()
      UIElementMenuView()
      URLMenuView()
-     if !UserSpace.shared.userModes.isEmpty {
-       UserModeMenuView()
+     if !userModePublisher.userModes.isEmpty {
+       UserModeMenuView(userModes: userModePublisher.userModes)
      }
      WindowMenu()
     } label: {
@@ -443,9 +444,15 @@ fileprivate struct UserModeMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
+  private let userModes: [UserMode]
+
+  init(userModes: [UserMode]) {
+    self.userModes = userModes
+  }
+
   var body: some View {
     Menu {
-      ForEach(UserSpace.shared.userModes) { mode in
+      ForEach(userModes) { mode in
         Menu(mode.name) {
           Button(action: { performUpdate(mode, action: .enable) }, label: { Text("Enable") })
           Button(action: { performUpdate(mode, action: .disable) }, label: { Text("Disable") })

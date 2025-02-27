@@ -84,6 +84,6 @@ final class UserModeWindow: NSObject, NSWindowDelegate {
   }
 
   private func publish(_ userModes: [UserMode]) {
-    UserSpace.shared.userModesPublisher.publish(userModes)
+    UserSpace.shared.userModesPublisher.publishActiveModes(userModes)
   }
 }
