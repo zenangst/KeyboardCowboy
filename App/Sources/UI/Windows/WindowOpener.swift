@@ -19,6 +19,10 @@ final class WindowOpener: ObservableObject {
     windowSwitcherWindow.open(snapshot)
   }
 
+  func openPrompt<Content>(_ content: () -> Content) where Content: View {
+    UserPromptWindow().open(content)
+  }
+
   func openKeyViewer() {
     KeyViewer.instance.open()
   }
