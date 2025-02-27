@@ -13,6 +13,7 @@ struct NewCommandButton<Content>: View where Content: View {
      FileMenuView()
      KeyboardMenuView()
      MenuBarMenuView()
+     MiscMenuView()
      MouseMenuView()
      ScriptMenuView()
      ShortcutsMenuView()
@@ -258,6 +259,28 @@ fileprivate struct MenuBarMenuView: View {
     } label: {
       Image(systemName: "filemenu.and.selection")
       Text("Menu Bar")
+    }
+  }
+}
+
+fileprivate struct MiscMenuView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+
+  var body: some View {
+    Menu {
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(.builtIn(.init(kind: .repeatLastWorkflow, notification: nil)))
+        }
+      }, label: {
+        Text("Repeat Last Workflow")
+      })
+    } label: {
+      HStack {
+        Image(systemName: "tree")
+        Text("Misc")
+      }
     }
   }
 }
