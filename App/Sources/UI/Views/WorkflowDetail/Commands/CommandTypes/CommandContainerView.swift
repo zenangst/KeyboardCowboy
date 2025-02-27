@@ -34,7 +34,7 @@ struct CommandContainerView<IconContent, Content, SubContent>: View where IconCo
 
       ZenDivider()
 
-      ContentView($metaData, icon: icon, content: content)
+      ContentView(icon: icon, content: content)
 
       SubView($metaData, content: subContent)
         .textStyle {
@@ -88,18 +88,14 @@ private struct HeaderView: View {
   }
 }
 
-private struct ContentView<IconContent, Content>: View where IconContent: View,
-                                                                             Content: View {
+private struct ContentView<IconContent, Content>: View where IconContent: View, Content: View {
   @ViewBuilder private let icon: () -> IconContent
   @ViewBuilder private let content: () -> Content
-  @Binding private var metaData: CommandViewModel.MetaData
 
-  init(_ metaData: Binding<CommandViewModel.MetaData>,
-       icon: @escaping () -> IconContent,
+  init(icon: @escaping () -> IconContent,
        content: @escaping () -> Content) {
     self.icon = icon
     self.content = content
-    _metaData = metaData
   }
 
   var body: some View {
@@ -108,6 +104,7 @@ private struct ContentView<IconContent, Content>: View where IconContent: View,
         .fill(Color.black.opacity(0.2))
         .frame(width: 28, height: 28)
         .overlay { icon() }
+        .fixedSize()
       content()
         .menuStyle { menu in
           menu.calm = false
