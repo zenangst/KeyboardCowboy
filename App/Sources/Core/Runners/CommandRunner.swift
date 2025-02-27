@@ -73,6 +73,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     let windowCenter = WindowFocusCenter()
     let relativeFocus = WindowFocusRelativeFocus()
     let quarterFocus = WindowFocusQuarter()
+    let windowFocus =  WindowCommandFocusRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus)
 
     self.runners = .init(
       application: ApplicationCommandRunner(
@@ -81,7 +82,9 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         workspace: workspace
       ),
       builtIn: builtInCommandRunner,
-      bundled: BundledCommandRunner(applicationStore: applicationStore, systemRunner: systemCommandRunner, windowTidy: windowTidy),
+      bundled: BundledCommandRunner(applicationStore: applicationStore,
+                                    windowFocusRunner: windowFocus,
+                                    windowTidy: windowTidy),
       keyboard: keyboardCommandRunner,
       menubar: MenuBarCommandRunner(),
       mouse: MouseCommandRunner(),
@@ -91,7 +94,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
       system: systemCommandRunner,
       text: TextCommandRunner(keyboardCommandRunner),
       uiElement: uiElementCommandRunner,
-      windowFocus: WindowCommandFocusRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus),
+      windowFocus: windowFocus,
       windowManagement: WindowManagementCommandRunner(),
       windowTiling: WindowTilingCommandRunner(centerFocus: windowCenter, relativeFocus: relativeFocus, quarterFocus: quarterFocus)
     )
@@ -424,7 +427,7 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
     UserSpace.shared.subscribe(to: coordinator.$lastEventOrRebinding)
     WindowStore.shared.subscribe(to: coordinator.$flagsChanged)
     subscribe(to: coordinator.$event)
-    runners.system.subscribe(to: coordinator.$flagsChanged)
+    runners.windowFocus.subscribe(to: coordinator.$flagsChanged)
     runners.windowManagement.subscribe(to: coordinator.$event)
   }
 

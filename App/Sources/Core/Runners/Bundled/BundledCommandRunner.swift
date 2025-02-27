@@ -3,12 +3,12 @@ import MachPort
 
 final class BundledCommandRunner: Sendable {
   let applicationStore: ApplicationStore
-  let systemRunner: SystemCommandRunner
+  let windowFocusRunner: WindowCommandFocusRunner
   let windowTidy: WindowTidyRunner
 
-  init(applicationStore: ApplicationStore, systemRunner: SystemCommandRunner, windowTidy: WindowTidyRunner) {
+  init(applicationStore: ApplicationStore, windowFocusRunner: WindowCommandFocusRunner, windowTidy: WindowTidyRunner) {
     self.applicationStore = applicationStore
-    self.systemRunner = systemRunner
+    self.windowFocusRunner = windowFocusRunner
     self.windowTidy = windowTidy
   }
 
@@ -78,7 +78,7 @@ final class BundledCommandRunner: Sendable {
           try? await Task.sleep(for: .milliseconds(delay))
         }
       }
-      await systemRunner.resetFocusComponents()
+      await windowFocusRunner.resetFocusComponents()
       Task.detached {
         try await Task.sleep(for: .milliseconds(375))
         WindowTilingRunner.initialIndex()
@@ -141,7 +141,7 @@ final class BundledCommandRunner: Sendable {
           try? await Task.sleep(for: .milliseconds(delay))
         }
       }
-      await systemRunner.resetFocusComponents()
+      await windowFocusRunner.resetFocusComponents()
       WindowTilingRunner.initialIndex()
       output = command.name
     case .tidy(let command):
