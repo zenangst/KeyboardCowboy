@@ -143,6 +143,7 @@ private struct ContentView: View {
       selectionManager: keyboardSelection,
       onTab: { _ in })
     .font(.caption)
+    .scrollDisabled(true)
   }
 }
 
