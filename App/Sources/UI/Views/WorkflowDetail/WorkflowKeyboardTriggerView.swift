@@ -9,6 +9,7 @@ struct WorkflowKeyboardTriggerView: View {
   @ObserveInjection var inject
   @State private var holdDurationText = ""
   @State private var allowRepeat: Bool
+  @State private var keepLastPartialMatch: Bool
   @State private var passthrough: Bool
   @State private var trigger: DetailViewModel.KeyboardTrigger
   private let keyboardShortcutSelectionManager: SelectionManager<KeyShortcut>
@@ -29,6 +30,7 @@ struct WorkflowKeyboardTriggerView: View {
     if let holdDuration = trigger.holdDuration {
       _holdDurationText = .init(initialValue: String(Double(holdDuration)))
     }
+    _keepLastPartialMatch = .init(initialValue: trigger.keepLastPartialMatch)
     _passthrough = .init(initialValue: trigger.passthrough)
     _allowRepeat = .init(initialValue: trigger.allowRepeat)
 
@@ -42,6 +44,7 @@ struct WorkflowKeyboardTriggerView: View {
           workflow.trigger = .keyboardShortcuts(
             KeyboardShortcutTrigger(
               allowRepeat: allowRepeat,
+              keepLastPartialMatch: keepLastPartialMatch,
               passthrough: passthrough,
               holdDuration: Double(holdDurationText),
               shortcuts: keyboardShortcuts))
@@ -55,6 +58,20 @@ struct WorkflowKeyboardTriggerView: View {
               workflow.trigger = .keyboardShortcuts(
                 KeyboardShortcutTrigger(
                   allowRepeat: newValue,
+                  keepLastPartialMatch: keepLastPartialMatch,
+                  passthrough: passthrough,
+                  holdDuration: Double(holdDurationText),
+                  shortcuts: trigger.shortcuts))
+            }
+          })
+
+        Toggle(isOn: $keepLastPartialMatch, label: { Text("Keep Last Partial Match") })
+          .onChange(of: keepLastPartialMatch, perform: { newValue in
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.trigger = .keyboardShortcuts(
+                KeyboardShortcutTrigger(
+                  allowRepeat: allowRepeat,
+                  keepLastPartialMatch: newValue,
                   passthrough: passthrough,
                   holdDuration: Double(holdDurationText),
                   shortcuts: trigger.shortcuts))
@@ -67,6 +84,7 @@ struct WorkflowKeyboardTriggerView: View {
               workflow.trigger = .keyboardShortcuts(
                 KeyboardShortcutTrigger(
                   allowRepeat: allowRepeat,
+                  keepLastPartialMatch: keepLastPartialMatch,
                   passthrough: newValue,
                   holdDuration: Double(holdDurationText),
                   shortcuts: trigger.shortcuts))
@@ -85,6 +103,7 @@ struct WorkflowKeyboardTriggerView: View {
             workflow.trigger = .keyboardShortcuts(
               KeyboardShortcutTrigger(
                 allowRepeat: allowRepeat,
+                keepLastPartialMatch: keepLastPartialMatch,
                 passthrough: passthrough,
                 holdDuration: Double(newValue),
                 shortcuts: trigger.shortcuts))
@@ -121,6 +140,7 @@ struct KeyboardTriggerView_Previews: PreviewProvider {
       focus: $focus,
       trigger: DetailViewModel.KeyboardTrigger(
         allowRepeat: true,
+        keepLastPartialMatch: false,
         passthrough: false,
         shortcuts: [
           .empty()
