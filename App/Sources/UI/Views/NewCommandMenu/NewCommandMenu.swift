@@ -422,8 +422,12 @@ fileprivate struct UIElementMenuView: View {
 }
 
 fileprivate struct URLMenuView: View {
+  @ObserveInjection var inject
+  @EnvironmentObject var windowOpener: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
+
+  @State var input: String = ""
 
   var body: some View {
     Menu {
@@ -435,7 +439,15 @@ fileprivate struct URLMenuView: View {
         }
       }, label: { Text("New…") })
       Button(action: {
-        // Open Dialog
+        windowOpener.openPrompt {
+          URLPrompt(input: $input) { url in
+            updater.modifyWorkflow(using: transaction) { workflow in
+              workflow.commands.append(
+                .open(.init(path: url))
+              )
+            }
+          }
+        }
       }, label: { Text("Enter URL…") })
       Button(action: {
         // Use Clipboard
@@ -444,6 +456,44 @@ fileprivate struct URLMenuView: View {
       Image(systemName: "safari")
       Text("URL")
     }
+    .enableInjection()
+  }
+}
+
+fileprivate struct URLPrompt: View {
+  @ObserveInjection var inject
+  @FocusState var focus: Bool
+  @EnvironmentObject private var windowEnv: WindowEnvironment
+  @Binding var input: String
+
+  var onSave: (String) -> Void
+
+  var body: some View {
+    VStack {
+      TextField("URL", text: $input)
+        .focused($focus)
+      Spacer()
+      ZenDivider()
+      HStack {
+        Button(action: { windowEnv.window?.close() }) {
+          Text("Discard")
+        }
+        .keyboardShortcut(.cancelAction)
+        Spacer()
+        Button(action: {
+          windowEnv.window?.close()
+          onSave(input)
+          input = ""
+        }) {
+          Text("Save")
+        }
+        .keyboardShortcut(.defaultAction)
+      }
+    }
+    .onAppear {
+      focus = true
+    }
+    .enableInjection()
   }
 }
 
