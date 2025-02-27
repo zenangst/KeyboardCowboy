@@ -22,8 +22,14 @@ extension View {
   }
 
   @ViewBuilder
-  func iconOverlay() -> some View { IconOverlayView() }
-  func iconBorder(_ size: CGFloat) -> some View { IconBorderView(size) }
+  func iconOverlay() -> some View {
+    IconOverlayView()
+      .drawingGroup()
+  }
+  func iconBorder(_ size: CGFloat) -> some View {
+    IconBorderView(size)
+      .drawingGroup()
+  }
 
   @ViewBuilder
   func transform<Transform: View>(_ transform: (Self) -> Transform) -> some View {
