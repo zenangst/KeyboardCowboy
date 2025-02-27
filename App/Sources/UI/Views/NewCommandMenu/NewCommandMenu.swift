@@ -11,8 +11,9 @@ struct NewCommandButton<Content>: View where Content: View {
    Menu {
      ApplicationMenuView()
      FileMenuView()
-     KeyboardShortcutMenuView()
+     KeyboardMenuView()
      MenuBarMenuView()
+     MouseMenuView()
      ScriptMenuView()
      ShortcutsMenuView()
      TextMenuView()
@@ -33,20 +34,64 @@ fileprivate struct ApplicationMenuView: View {
 
   var body: some View {
     Menu {
-      Text("System").font(.caption)
+      MenuLabel("Commands")
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(
+            .bundled(.init(.appFocus(.init(bundleIdentifer: "",
+                                           hideOtherApps: false, tiling: nil)),
+                           meta: Command.MetaData()))
+          )
+        }
+      }, label: {
+        HStack {
+          Image(systemName: "app.dashed")
+          Text("App Focus")
+        }
+      })
+
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(
+            .bundled(.init(.appFocus(.init(bundleIdentifer: "",
+                                           hideOtherApps: false, tiling: nil)),
+                           meta: Command.MetaData()))
+          )
+        }
+      }, label: {
+        HStack {
+          Image(systemName: "app.gift")
+          Text("Workspaces")
+        }
+      })
+
+      Divider()
+
+      MenuLabel("System")
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(.systemCommand(.init(name: "", kind: .activateLastApplication)))
         }
-      }, label: { Text("Activate Last Application") })
+      }, label: {
+        HStack {
+          Image(systemName: "appclip")
+          Text("Activate Last Application")
+        }
+      })
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(.systemCommand(.init(name: "", kind: .hideAllApps)))
         }
-      },
-             label: { Text("Hide All Apps") })
+      }, label: {
+        HStack {
+          Image(systemName: "eye.slash")
+          Text("Hide All Apps")
+        }
+      })
 
-      Text("Applications").font(.caption)
+      Divider()
+
+      MenuLabel("Applications")
       ForEach(store.applications, id: \.path) { application in
         ApplicationActionMenuView(text: application.bundleName,
                                   app: application)
@@ -67,7 +112,7 @@ fileprivate struct ApplicationActionMenuView: View {
 
   var body: some View {
     Menu {
-      Text("Actions").font(.caption)
+      MenuLabel("Actions")
       Button(action: { performUpdate(.open, application: app) },
              label: {
         HStack {
@@ -145,7 +190,7 @@ fileprivate struct FileMenuView: View {
   }
 }
 
-fileprivate struct KeyboardShortcutMenuView: View {
+fileprivate struct KeyboardMenuView: View {
   @EnvironmentObject var openWindow: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -162,9 +207,17 @@ fileprivate struct KeyboardShortcutMenuView: View {
             openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: metaData.id))
         })
       }, label: { Text("New Keyboard Shortcut") })
+
+      Divider()
+
+      Button(action: {
+        fatalError("NOOP")
+      }, label: {
+        Text("Change Input Source")
+      })
     } label: {
       Image(systemName: "keyboard")
-      Text("Keyboard Shortcut")
+      Text("Keyboard")
     }
   }
 }
@@ -185,10 +238,28 @@ fileprivate struct MenuBarMenuView: View {
         }, postAction: { workflowId in
           openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: metaData.id))
         })
-      }, label: { Text("New Menu Bar") })
+      }, label: { Text("New…") })
     } label: {
       Image(systemName: "filemenu.and.selection")
       Text("Menu Bar")
+    }
+  }
+}
+
+fileprivate struct MouseMenuView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+
+  var body: some View {
+    Menu {
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(.mouse(.empty()))
+        }
+      }, label: { Text("New…") })
+    } label: {
+      Image(systemName: "magicmouse")
+      Text("Mouse")
     }
   }
 }
@@ -332,17 +403,48 @@ fileprivate struct WindowMenu: View {
 
   var body: some View {
     Menu {
-      Text("Mission Control").font(.caption)
-      Button(action: { performUpdate(.applicationWindows) }, label: { Text("Application Windows") })
-      Button(action: { performUpdate(.missionControl) }, label: { Text("All Windows") })
-      Button(action: { performUpdate(.showDesktop) }, label: { Text("Show Desktop") })
+      MenuLabel("Mission Control")
+      Button(action: { performUpdate(.applicationWindows) }, label: {
+        HStack {
+          Image(systemName: "macwindow.on.rectangle")
+          Text("Application Windows")
+        }
+      })
+      Button(action: { performUpdate(.missionControl) }, label: {
+        HStack {
+          Image(systemName: "macwindow")
+          Text("All Windows")
+        }
+      })
+      Button(action: { performUpdate(.showDesktop) }, label: {
+        HStack {
+          Image(systemName: "menubar.dock.rectangle")
+          Text("Show Desktop")
+        }
+      })
+      MenuLabel("Commands")
+      Button(action: {
+        updater.modifyWorkflow(using: transaction) { workflow in
+          workflow.commands.append(.builtIn(.init(kind: .windowSwitcher, notification: nil)))
+        }
+      }, label: {
+        HStack {
+          Image(systemName: "iphone.app.switcher")
+          Text("Window Switcher")
+        }
+      })
+      Button(action: { performUpdate(.minimizeAllOpenWindows) }, label: {
+        HStack {
+          Image(systemName: "minus.circle")
+          Text("Minimize All Open Windows")
+        }
+      })
+
       Divider()
+
       WindowFocusMenuView()
       WindowManagementMenuView()
       WindowTilingMenuView()
-      Divider()
-      Button(action: { performUpdate(.minimizeAllOpenWindows) }, label: { Text("Minimize All Open Windows") })
-
     } label: {
       Image(systemName: "macwindow")
       Text("Window")
@@ -439,6 +541,19 @@ fileprivate struct WindowTilingMenuView: View {
         .windowTiling(.init(kind: tiling, meta: Command.MetaData()))
       )
     }
+  }
+}
+
+fileprivate struct MenuLabel: View {
+  private let text: String
+
+  init(_ text: String) {
+    self.text = text
+  }
+
+  var body: some View {
+    Text(text)
+      .font(.caption)
   }
 }
 
