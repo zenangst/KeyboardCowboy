@@ -18,7 +18,7 @@ struct ContainerView: View {
   private let applicationTriggerSelection: SelectionManager<DetailViewModel.ApplicationTrigger>
   private let commandSelection: SelectionManager<CommandViewModel>
   private let configSelection: SelectionManager<ConfigurationViewModel>
-  private let contentSelection: SelectionManager<GroupDetailViewModel>
+  private let workflowSelection: SelectionManager<GroupDetailViewModel>
   private let groupsSelection: SelectionManager<GroupViewModel>
   private let keyboardShortcutSelection: SelectionManager<KeyShortcut>
   private let publisher: GroupDetailPublisher
@@ -49,7 +49,7 @@ struct ContainerView: View {
     self.applicationTriggerSelection = applicationTriggerSelection
     self.commandSelection = commandSelection
     self.configSelection = configSelection
-    self.contentSelection = contentSelection
+    self.workflowSelection = contentSelection
     self.groupsSelection = groupsSelection
     self.keyboardShortcutSelection = keyboardShortcutSelection
     self.triggerPublisher = triggerPublisher
@@ -67,7 +67,7 @@ struct ContainerView: View {
           focus,
           configSelection: configSelection,
           groupSelection: groupsSelection,
-          workflowSelection: contentSelection,
+          workflowSelection: workflowSelection,
           onAction: { onAction(.sidebar($0), undoManager) })
         .onChange(of: contentState, perform: { newValue in
           guard newValue == .initialized else { return }
@@ -81,7 +81,8 @@ struct ContainerView: View {
         GroupDetailView(
           focus,
           groupId: groupsSelection.lastSelection ?? groupsSelection.selections.first ?? "empty",
-          workflowSelection: contentSelection,
+          workflowSelection: workflowSelection,
+          commandSelection: commandSelection,
           onAction: {
             onAction(.content($0), undoManager)
 
