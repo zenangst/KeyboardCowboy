@@ -37,8 +37,8 @@ final class KeyboardCommandRunner: @unchecked Sendable {
     let isRepeat = originalEvent?.getIntegerValueField(.keyboardEventAutorepeat) == 1
 
     let iterations = max(1, iterations)
-
     var events = [CGEvent]()
+    let count = keyboardShortcuts.count
 
     for _ in 1...iterations {
       for keyboardShortcut in keyboardShortcuts {
@@ -59,14 +59,14 @@ final class KeyboardCommandRunner: @unchecked Sendable {
           let configureEvent: (CGEvent) -> Void = { newEvent in
             if let originalEvent {
               let originalKeyboardEventAutorepeat = originalEvent.getIntegerValueField(.keyboardEventAutorepeat)
-              newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: originalKeyboardEventAutorepeat)
+              newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: count > 1 ? 0 : originalKeyboardEventAutorepeat)
             } else if isRepeating {
-              newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: 1)
+              newEvent.setIntegerValueField(.keyboardEventAutorepeat, value: count > 1 ? 0 : 1)
             }
           }
 
           let shouldPostKeyDown = originalEvent == nil || originalEvent?.type == .keyDown
-          let shouldPostKeyUp = originalEvent == nil   || (!isRepeat && originalEvent?.type == .keyUp) 
+          let shouldPostKeyUp = originalEvent == nil   || (!isRepeat && originalEvent?.type == .keyUp)
 
           if shouldPostKeyDown {
             let keyDown = try machPort.post(key, type: .keyDown, flags: flags, configure: configureEvent)
