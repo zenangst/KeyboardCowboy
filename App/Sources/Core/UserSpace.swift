@@ -201,13 +201,18 @@ final class UserSpace: @unchecked Sendable {
 
   final class UserModesPublisher: ObservableObject {
     @Published private(set) var activeModes: [UserMode] = []
+    @Published private(set) var userModes: [UserMode] = []
 
     init(_ activeModes: [UserMode]) {
       self.activeModes = activeModes
     }
 
-    func publish(_ newModes: [UserMode]) {
+    func publishActiveModes(_ newModes: [UserMode]) {
       self.activeModes = newModes
+    }
+
+    func publishUserModes(_ newModes: [UserMode]) {
+      self.userModes = newModes
     }
   }
 
@@ -217,8 +222,8 @@ final class UserSpace: @unchecked Sendable {
   @Published private(set) var frontmostApplication: Application
   @Published private(set) var previousApplication: Application
   @Published private(set) var runningApplications: [Application]
+
   public let userModesPublisher = UserModesPublisher([])
-  private(set) var userModes: [UserMode] = []
   private(set) var currentUserModes: [UserMode] = []
 
   @MainActor fileprivate let keyCodes: KeycodeLocating
@@ -324,7 +329,7 @@ final class UserSpace: @unchecked Sendable {
             .sorted(by: { $0.name < $1.name })
           let currentModes = newModes
             .map { UserMode(id: $0.id, name: $0.name, isEnabled: false) }
-          self.userModes = newModes
+          self.userModesPublisher.publishUserModes(newModes)
           self.currentUserModes = currentModes
         }
       }
