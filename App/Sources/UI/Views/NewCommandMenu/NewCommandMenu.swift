@@ -98,12 +98,20 @@ fileprivate struct ApplicationMenuView: View {
 
       MenuLabel("Applications")
       ForEach(store.applications, id: \.path) { application in
-        ApplicationActionMenuView(text: application.bundleName,
-                                  app: application)
+        Button(action: { performUpdate(.open, application: application) },
+               label: { Text(application.bundleName) })
       }
     } label: {
       Image(systemName: "app")
       Text("Application")
+    }
+  }
+
+  private func performUpdate(_ action: ApplicationCommand.Action, application: Application) {
+    updater.modifyWorkflow(using: transaction) { workflow in
+      workflow.commands.append(
+        .application(.init(action: action, application: application, meta: Command.MetaData(), modifiers: []))
+      )
     }
   }
 }
@@ -178,7 +186,7 @@ fileprivate struct FileMenuView: View {
   var body: some View {
     Menu {
       Button(action: {
-        OpenPanelController().perform(.selectFile(type: nil, handler: { path in
+        OpenPanelController().perform(.selectFile(types: [], handler: { path in
           updater.modifyWorkflow(using: transaction, withAnimation: nil) { workflow in
             workflow.commands.append(
               .open(.init(application: nil, path: path, meta: Command.MetaData()))
@@ -314,7 +322,7 @@ fileprivate struct ScriptMenuView: View {
   var body: some View {
     Menu {
       Button(action: {
-        OpenPanelController().perform(.selectFile(type: "scpt", handler: { path in
+        OpenPanelController().perform(.selectFile(types: ["scpt"], handler: { path in
           let metaData = Command.MetaData()
           updater.modifyWorkflow(using: transaction, handler: { workflow in
             workflow.commands.append(
@@ -405,8 +413,7 @@ fileprivate struct UIElementMenuView: View {
         }, postAction: { workflowId in
           openWindow.openNewCommandWindow(.editCommand(workflowId: transaction.workflowID, commandId: metaData.id))
         })
-      },
-             label: { Text("Capture") })
+      }, label: { Text("Capture") })
     } label: {
       Image(systemName: "ellipsis.rectangle")
       Text("UI Element")
