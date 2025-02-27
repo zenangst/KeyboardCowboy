@@ -20,6 +20,9 @@ struct NewCommandButton<Content>: View where Content: View {
      TextMenuView()
      UIElementMenuView()
      URLMenuView()
+     if !UserSpace.shared.userModes.isEmpty {
+       UserModeMenuView()
+     }
      WindowMenu()
     } label: {
       content()
@@ -432,6 +435,36 @@ fileprivate struct URLMenuView: View {
     } label: {
       Image(systemName: "safari")
       Text("URL")
+    }
+  }
+}
+
+fileprivate struct UserModeMenuView: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+
+  var body: some View {
+    Menu {
+      ForEach(UserSpace.shared.userModes) { mode in
+        Menu(mode.name) {
+          Button(action: { performUpdate(mode, action: .enable) }, label: { Text("Enable") })
+          Button(action: { performUpdate(mode, action: .disable) }, label: { Text("Disable") })
+          Button(action: { performUpdate(mode, action: .toggle) }, label: { Text("Toggle") })
+        }
+      }
+    } label: {
+      HStack {
+        Image(systemName: "person.circle")
+        Text("User Modes")
+      }
+    }
+  }
+
+  private func performUpdate(_ userMode: UserMode, action: BuiltInCommand.Kind.Action) {
+    updater.modifyWorkflow(using: transaction) { workflow in
+      workflow.commands.append(
+        .builtIn(.init(kind: .userMode(userMode, action), notification: nil))
+      )
     }
   }
 }

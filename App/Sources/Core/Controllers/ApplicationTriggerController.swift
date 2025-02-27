@@ -134,7 +134,7 @@ final class ApplicationTriggerController: @unchecked Sendable, ApplicationComman
 
   @MainActor
   private func runTriggerWorkflows(_ triggerWorkflows: [ApplicationTriggerWorkflow]) {
-    let userModes = Set(UserSpace.shared.userModes.filter(\.isEnabled))
+    let userModes = Set(UserSpace.shared.currentUserModes.filter(\.isEnabled))
     triggerWorkflows
       .filter {
         if $0.userModes.isEmpty {

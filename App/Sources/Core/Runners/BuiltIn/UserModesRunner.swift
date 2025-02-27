@@ -14,7 +14,7 @@ final class UserModesRunner {
   func run(_ model: UserMode, builtInCommand: BuiltInCommand, action: BuiltInCommand.Kind.Action) async throws -> String {
     Benchmark.shared.start("UserModesRunner")
     let output: String
-    var userModes = await UserSpace.shared.userModes
+    var userModes = await UserSpace.shared.currentUserModes
 
     guard let index = userModes.firstIndex(where: { $0.id == model.id }) else {
       throw UserModesRunnerError.unableToResolveMode

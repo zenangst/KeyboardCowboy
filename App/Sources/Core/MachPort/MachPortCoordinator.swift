@@ -194,7 +194,7 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
     if handleRepeatingKeyEvent(machPortEvent) { return }
 
     let bundleIdentifier = UserSpace.shared.frontmostApplication.bundleIdentifier
-    let userModes = UserSpace.shared.userModes.filter(\.isEnabled)
+    let userModes = UserSpace.shared.currentUserModes.filter(\.isEnabled)
     let lookupToken: LookupToken
 
     // Check for use of the `Any Key`
