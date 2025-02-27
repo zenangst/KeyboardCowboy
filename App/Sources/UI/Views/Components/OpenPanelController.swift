@@ -2,14 +2,14 @@ import Combine
 import Cocoa
 
 public enum OpenPanelAction {
-  case selectFile(type: String?, handler: (String) -> Void)
+  case selectFile(types: [String], handler: (String) -> Void)
   case selectFolder(allowMultipleSelections: Bool, handler: (String) -> Void)
 }
 
 @MainActor
 final class OpenPanelController: NSObject, ObservableObject, NSOpenSavePanelDelegate {
   @Published var state: String = ""
-  var fileExtension: String?
+  var fileExtensions: [String] = []
 
   func perform(_ action: OpenPanelAction) {
     let panel = NSOpenPanel()
@@ -18,9 +18,9 @@ final class OpenPanelController: NSObject, ObservableObject, NSOpenSavePanelDele
     let responseHandler: (String) -> Void
 
     switch action {
-    case .selectFile(let fileType, let handler):
-      fileExtension = fileType
-      panel.allowsOtherFileTypes = fileType != nil
+    case .selectFile(let fileExtensions, let handler):
+      self.fileExtensions = fileExtensions
+      panel.allowsOtherFileTypes = !fileExtensions.isEmpty
       responseHandler = handler
       panel.canChooseFiles = true
       panel.canChooseDirectories = true
@@ -43,10 +43,10 @@ final class OpenPanelController: NSObject, ObservableObject, NSOpenSavePanelDele
   // MARK: NSOpenSavePanelDelegate
 
   func panel(_ sender: Any, shouldEnable url: URL) -> Bool {
-    guard let fileExtension = fileExtension else { return true }
+    guard !fileExtensions.isEmpty else { return true }
 
     let pathExtension = (url.path as NSString).pathExtension
 
-    return pathExtension.isEmpty || pathExtension == fileExtension
+    return pathExtension.isEmpty || fileExtensions.contains(pathExtension)
   }
 }

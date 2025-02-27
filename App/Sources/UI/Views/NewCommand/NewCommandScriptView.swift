@@ -159,7 +159,7 @@ struct NewCommandFileSelectorView: View {
           onPathChange(newPath)
         }
       Button("Browse", action: {
-        openPanel.perform(.selectFile(type: scriptExtension.rawValue, handler: { newPath in
+        openPanel.perform(.selectFile(types: [scriptExtension.rawValue], handler: { newPath in
           self.path = newPath
           onPathChange(newPath)
         }))

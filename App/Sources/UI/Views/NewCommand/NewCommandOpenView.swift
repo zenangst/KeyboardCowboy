@@ -56,7 +56,7 @@ struct NewCommandOpenView: View {
           }
           .focused($focus, equals: .path)
         Button("Browse", action: {
-          openPanel.perform(.selectFile(type: nil, handler: { path in
+          openPanel.perform(.selectFile(types: [], handler: { path in
             self.path = path
           }))
         })

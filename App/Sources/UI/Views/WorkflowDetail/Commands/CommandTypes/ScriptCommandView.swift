@@ -70,7 +70,7 @@ struct ScriptCommandContentView: View {
           performUpdate { $0.variableName = variableName }
         },
         onBrowse: {
-          openPanel.perform(.selectFile(type: model.scriptExtension.rawValue, handler: { newPath in
+          openPanel.perform(.selectFile(types: [model.scriptExtension.rawValue], handler: { newPath in
             performUpdate { $0.source = .path(newPath) }
           }))
         }, onUpdate: { newPath in
