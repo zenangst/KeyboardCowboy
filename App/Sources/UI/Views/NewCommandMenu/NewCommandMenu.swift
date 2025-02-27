@@ -208,6 +208,21 @@ fileprivate struct KeyboardMenuView: View {
         })
       }, label: { Text("New Keyboard Shortcut") })
 
+      Menu {
+        Button(action: {
+          updater.modifyWorkflow(using: transaction, handler: { workflow in
+            workflow.commands.append(.builtIn(.init(kind: .macro(.record), notification: nil)))
+          })
+        }, label: { Text("New Macro") })
+        Button(action: {
+          updater.modifyWorkflow(using: transaction, handler: { workflow in
+            workflow.commands.append(.builtIn(.init(kind: .macro(.remove), notification: nil)))
+          })
+        }, label: { Text("Remove Macro") })
+      } label: {
+        Text("Macros")
+      }
+
       Divider()
 
       Button(action: {
@@ -215,6 +230,7 @@ fileprivate struct KeyboardMenuView: View {
       }, label: {
         Text("Change Input Source")
       })
+
     } label: {
       Image(systemName: "keyboard")
       Text("Keyboard")
