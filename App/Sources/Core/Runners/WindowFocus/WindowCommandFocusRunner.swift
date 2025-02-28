@@ -56,12 +56,16 @@ final class WindowCommandFocusRunner {
     switch command.kind {
     case .moveFocusToNextWindowUpwards:
       try await relativeFocus.run(.up, snapshot: snapshot)
+      quarterFocus.reset()
     case .moveFocusToNextWindowDownwards:
       try await relativeFocus.run(.down, snapshot: snapshot)
+      quarterFocus.reset()
     case .moveFocusToNextWindowOnLeft:
       try await relativeFocus.run(.left, snapshot: snapshot)
+      quarterFocus.reset()
     case .moveFocusToNextWindowOnRight:
       try await relativeFocus.run(.right, snapshot: snapshot)
+      quarterFocus.reset()
     case .moveFocusToNextWindowUpperLeftQuarter:
       try quarterFocus.run(.upperLeft, snapshot: snapshot)
     case .moveFocusToNextWindowUpperRightQuarter:
