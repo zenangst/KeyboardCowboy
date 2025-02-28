@@ -27,41 +27,8 @@ final class BundledCommandRunner: Sendable {
       for command in commands {
         try Task.checkCancellation()
         switch command {
-        case .systemCommand(let systemCommand):
-          switch systemCommand.kind {
-          case .windowTilingArrangeLeftRight:
-            try await WindowTilingRunner.run(.arrangeLeftRight, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeRightLeft:
-            try await WindowTilingRunner.run(.arrangeRightLeft, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeTopBottom:
-            try await WindowTilingRunner.run(.arrangeTopBottom, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeBottomTop:
-            try await WindowTilingRunner.run(.arrangeBottomTop, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeLeftQuarters:
-            try await WindowTilingRunner.run(.arrangeLeftQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeRightQuarters:
-            try await WindowTilingRunner.run(.arrangeRightQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeTopQuarters:
-            try await WindowTilingRunner.run(.arrangeTopQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeBottomQuarters:
-            try await WindowTilingRunner.run(.arrangeBottomQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeQuarters:
-            try await WindowTilingRunner.run(.arrangeQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingFill:
-            try await WindowTilingRunner.run(.fill, toggleFill: false, snapshot: snapshot)
-          case .windowTilingCenter:
-            try await WindowTilingRunner.run(.center, toggleFill: false, snapshot: snapshot)
-          default:
-            try await commandRunner
-              .run(command,
-                   workflowCommands: commands,
-                   snapshot: snapshot,
-                   machPortEvent: machPortEvent,
-                   checkCancellation: checkCancellation,
-                   repeatingEvent: repeatingEvent,
-                   runtimeDictionary: &runtimeDictionary
-            )
-          }
+        case .windowTiling(let tilingCommand):
+          try await WindowTilingRunner.run(tilingCommand.kind, toggleFill: false, snapshot: snapshot)
         default:
           try await commandRunner
             .run(command,
@@ -90,41 +57,8 @@ final class BundledCommandRunner: Sendable {
       for command in commands {
         try Task.checkCancellation()
         switch command {
-        case .systemCommand(let systemCommand):
-          switch systemCommand.kind {
-          case .windowTilingArrangeLeftRight:
-            try await WindowTilingRunner.run(.arrangeLeftRight, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeRightLeft:
-            try await WindowTilingRunner.run(.arrangeRightLeft, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeTopBottom:
-            try await WindowTilingRunner.run(.arrangeTopBottom, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeBottomTop:
-            try await WindowTilingRunner.run(.arrangeBottomTop, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeLeftQuarters:
-            try await WindowTilingRunner.run(.arrangeLeftQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeRightQuarters:
-            try await WindowTilingRunner.run(.arrangeRightQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeTopQuarters:
-            try await WindowTilingRunner.run(.arrangeTopQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeBottomQuarters:
-            try await WindowTilingRunner.run(.arrangeBottomQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingArrangeQuarters:
-            try await WindowTilingRunner.run(.arrangeQuarters, toggleFill: false, snapshot: snapshot)
-          case .windowTilingFill:
-            try await WindowTilingRunner.run(.fill, toggleFill: false, snapshot: snapshot)
-          case .windowTilingCenter:
-            try await WindowTilingRunner.run(.center, toggleFill: false, snapshot: snapshot)
-          default:
-            try await commandRunner
-              .run(command,
-                   workflowCommands: commands,
-                   snapshot: snapshot,
-                   machPortEvent: machPortEvent,
-                   checkCancellation: checkCancellation,
-                   repeatingEvent: repeatingEvent,
-                   runtimeDictionary: &runtimeDictionary
-            )
-          }
+        case .windowTiling(let tilingCommand):
+          try await WindowTilingRunner.run(tilingCommand.kind, toggleFill: false, snapshot: snapshot)
         default:
           try await commandRunner
             .run(command,

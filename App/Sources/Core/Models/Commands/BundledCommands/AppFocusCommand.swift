@@ -110,57 +110,57 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
       ])
     }
 
-    let windowTiling: SystemCommand.Kind?
+    let windowTiling: WindowTiling?
     switch tiling {
     case .arrangeLeftRight:
-      windowTiling = numberOfAppWindows > 2 ? .windowTilingArrangeLeftRight : .windowTilingFill
+      windowTiling = numberOfAppWindows > 2 ? .arrangeLeftRight : .fill
     case .arrangeRightLeft:
-      windowTiling = numberOfAppWindows > 2 ? .windowTilingArrangeLeftRight : .windowTilingFill
+      windowTiling = numberOfAppWindows > 2 ? .arrangeRightLeft : .fill
     case .arrangeTopBottom:
-      windowTiling = numberOfAppWindows > 2 ? .windowTilingArrangeTopBottom : .windowTilingFill
+      windowTiling = numberOfAppWindows > 2 ? .arrangeTopBottom : .fill
     case .arrangeBottomTop:
-      windowTiling = numberOfAppWindows > 2 ? .windowTilingArrangeBottomTop : .windowTilingFill
+      windowTiling = numberOfAppWindows > 2 ? .arrangeBottomTop : .fill
     case .arrangeLeftQuarters:
       if numberOfAppWindows >= 3 {
-        windowTiling = .windowTilingArrangeLeftQuarters
+        windowTiling = .arrangeLeftQuarters
       } else if numberOfAppWindows == 2 {
-        windowTiling = .windowTilingArrangeLeftRight
+        windowTiling = .arrangeLeftRight
       } else {
-        windowTiling = .windowTilingFill
+        windowTiling = .fill
       }
     case .arrangeRightQuarters:
       if numberOfAppWindows >= 3 {
-        windowTiling = .windowTilingArrangeRightQuarters
+        windowTiling = .arrangeRightQuarters
       } else if numberOfAppWindows == 2 {
-        windowTiling = .windowTilingArrangeLeftRight
+        windowTiling = .arrangeRightQuarters
       } else {
-        windowTiling = .windowTilingFill
+        windowTiling = .fill
       }
     case .arrangeTopQuarters:
       if numberOfAppWindows >= 3 {
-        windowTiling = .windowTilingArrangeTopQuarters
+        windowTiling = .arrangeTopQuarters
       } else if numberOfAppWindows == 2 {
-        windowTiling = .windowTilingArrangeLeftRight
+        windowTiling = .arrangeTopBottom
       } else {
-        windowTiling = .windowTilingFill
+        windowTiling = .fill
       }
     case .arrangeBottomQuarters:
       if numberOfAppWindows >= 3 {
-        windowTiling = .windowTilingArrangeBottomQuarters
+        windowTiling = .arrangeBottomQuarters
       } else if numberOfAppWindows == 2 {
-        windowTiling = .windowTilingArrangeLeftRight
+        windowTiling = .arrangeBottomTop
       } else {
-        windowTiling = .windowTilingFill
+        windowTiling = .fill
       }
     case .arrangeQuarters:
       if numberOfAppWindows >= 4 {
-        windowTiling = .windowTilingArrangeQuarters
+        windowTiling = .arrangeQuarters
       } else if numberOfAppWindows == 3 {
-        windowTiling = .windowTilingArrangeLeftQuarters
+        windowTiling = .arrangeLeftQuarters
       } else if numberOfAppWindows == 2 {
-        windowTiling = .windowTilingArrangeLeftRight
+        windowTiling = .arrangeLeftRight
       } else {
-        windowTiling = .windowTilingFill
+        windowTiling = .fill
       }
     case .arrangeDynamicQuarters:
       if let window = appWindows.first,
@@ -170,31 +170,31 @@ struct AppFocusCommand: Identifiable, Codable, Hashable {
 
         if numberOfAppWindows >= 3 {
           if currentTiling == .left {
-            windowTiling = .windowTilingArrangeLeftQuarters
+            windowTiling = .arrangeLeftQuarters
           } else if currentTiling == .right {
-            windowTiling = .windowTilingArrangeRightQuarters
+            windowTiling = .arrangeRightQuarters
           } else {
-            windowTiling = leftTilings.contains(currentTiling) ? .windowTilingArrangeLeftQuarters : .windowTilingArrangeRightQuarters
+            windowTiling = leftTilings.contains(currentTiling) ? .arrangeLeftQuarters : .arrangeRightQuarters
           }
         } else if numberOfAppWindows == 2 {
-          windowTiling = leftTilings.contains(currentTiling) ? .windowTilingArrangeLeftRight : .windowTilingArrangeRightLeft
+          windowTiling = leftTilings.contains(currentTiling) ? .arrangeLeftRight : .arrangeRightLeft
         } else {
-          windowTiling = .windowTilingFill
+          windowTiling = .fill
         }
       } else {
-        windowTiling = .windowTilingFill
+        windowTiling = .fill
       }
     case .fill:
-      windowTiling = .windowTilingFill
+      windowTiling = .fill
     case .center:
-      windowTiling = .windowTilingCenter
+      windowTiling = .center
     case nil:
       windowTiling = nil
     }
 
     if let windowTiling {
       commands.append(
-        .systemCommand(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling")))
+        .windowTiling(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling")))
       )
     }
 
