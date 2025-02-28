@@ -154,26 +154,24 @@ struct WorkspaceCommand: Identifiable, Codable, Hashable {
       }
     }
 
-    let windowTiling: SystemCommand.Kind? = switch tiling {
-    case .arrangeLeftRight:       .windowTilingArrangeLeftRight
-    case .arrangeRightLeft:       .windowTilingArrangeLeftRight
-    case .arrangeTopBottom:       .windowTilingArrangeTopBottom
-    case .arrangeBottomTop:       .windowTilingArrangeBottomTop
-    case .arrangeLeftQuarters:    .windowTilingArrangeLeftQuarters
-    case .arrangeRightQuarters:   .windowTilingArrangeRightQuarters
-    case .arrangeTopQuarters:     .windowTilingArrangeTopQuarters
-    case .arrangeBottomQuarters:  .windowTilingArrangeBottomQuarters
-    case .arrangeDynamicQuarters: .windowTilingArrangeDynamicQuarters
-    case .arrangeQuarters:        .windowTilingArrangeQuarters
-    case .fill:                   .windowTilingFill
-    case .center:                 .windowTilingCenter
+    let windowTiling: WindowTiling? = switch tiling {
+    case .arrangeLeftRight:       .arrangeLeftRight
+    case .arrangeRightLeft:       .arrangeRightLeft
+    case .arrangeTopBottom:       .arrangeTopBottom
+    case .arrangeBottomTop:       .arrangeBottomTop
+    case .arrangeLeftQuarters:    .arrangeLeftQuarters
+    case .arrangeRightQuarters:   .arrangeRightQuarters
+    case .arrangeTopQuarters:     .arrangeTopQuarters
+    case .arrangeBottomQuarters:  .arrangeBottomQuarters
+    case .arrangeDynamicQuarters: .arrangeDynamicQuarters
+    case .arrangeQuarters:        .arrangeQuarters
+    case .fill:                   .fill
+    case .center:                 .center
     case nil:                     nil
     }
 
     if let windowTiling {
-      commands.append(
-        .systemCommand(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling")))
-      )
+      commands.append(.windowTiling(.init(kind: windowTiling, meta: Command.MetaData(name: "Window Tiling"))))
     }
 
     return commands
