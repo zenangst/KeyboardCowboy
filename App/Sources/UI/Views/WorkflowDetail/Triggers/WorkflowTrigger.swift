@@ -16,11 +16,8 @@ struct WorkflowTrigger: View {
 
   var body: some View {
     VStack {
-      HStack {
+      HStack(spacing: 6) {
         TriggersIconView(size: 24)
-
-        ZenDivider(.vertical)
-          .frame(height: 24)
 
         FocusableButton(
           focus,
@@ -109,6 +106,9 @@ struct WorkflowTrigger: View {
       })
       .frame(maxWidth: .infinity)
       .roundedStyle(padding: 6)
+      .buttonStyle { button in
+        button.backgroundColor = .gray
+      }
     }
     .enableInjection()
   }
