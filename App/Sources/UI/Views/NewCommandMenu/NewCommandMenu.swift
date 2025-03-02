@@ -4,6 +4,9 @@ import Inject
 import SwiftUI
 
 struct NewCommandButton<Content>: View where Content: View {
+  @EnvironmentObject var updater: ConfigurationUpdater
+  @EnvironmentObject var transaction: UpdateTransaction
+
   @ObserveInjection var inject
   @ObservedObject var userModePublisher = UserSpace.shared.userModesPublisher
   @ViewBuilder let content: () -> Content
@@ -14,7 +17,6 @@ struct NewCommandButton<Content>: View where Content: View {
      FileMenuView()
      KeyboardMenuView()
      MenuBarMenuView()
-     MiscMenuView()
      MouseMenuView()
      ScriptMenuView()
      ShortcutsMenuView()
@@ -25,6 +27,14 @@ struct NewCommandButton<Content>: View where Content: View {
        UserModeMenuView(userModes: userModePublisher.userModes)
      }
      WindowMenu()
+     Divider()
+     Button(action: {
+       updater.modifyWorkflow(using: transaction) { workflow in
+         workflow.commands.append(.builtIn(.init(kind: .repeatLastWorkflow, notification: nil)))
+       }
+     }, label: {
+       Text("Repeat Last Workflow")
+     })
     } label: {
       content()
     }
@@ -275,28 +285,6 @@ fileprivate struct MenuBarMenuView: View {
   }
 }
 
-fileprivate struct MiscMenuView: View {
-  @EnvironmentObject var updater: ConfigurationUpdater
-  @EnvironmentObject var transaction: UpdateTransaction
-
-  var body: some View {
-    Menu {
-      Button(action: {
-        updater.modifyWorkflow(using: transaction) { workflow in
-          workflow.commands.append(.builtIn(.init(kind: .repeatLastWorkflow, notification: nil)))
-        }
-      }, label: {
-        Text("Repeat Last Workflow")
-      })
-    } label: {
-      HStack {
-        Image(systemName: "tree")
-        Text("Misc")
-      }
-    }
-  }
-}
-
 fileprivate struct MouseMenuView: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -423,6 +411,7 @@ fileprivate struct UIElementMenuView: View {
 
 fileprivate struct URLMenuView: View {
   @ObserveInjection var inject
+  @ObservedObject private var pasteboardPublisher = PasteboardURLPublisher()
   @EnvironmentObject var windowOpener: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -431,13 +420,6 @@ fileprivate struct URLMenuView: View {
 
   var body: some View {
     Menu {
-      Button(action: {
-        updater.modifyWorkflow(using: transaction) { workflow in
-          workflow.commands.append(
-            .urlCommand(id: UUID().uuidString, application: nil)
-          )
-        }
-      }, label: { Text("New…") })
       Button(action: {
         windowOpener.openPrompt {
           URLPrompt(input: $input) { url in
@@ -449,9 +431,17 @@ fileprivate struct URLMenuView: View {
           }
         }
       }, label: { Text("Enter URL…") })
-      Button(action: {
-        // Use Clipboard
-      }, label: { Text("From Clipboard") })
+
+      if let url = pasteboardPublisher.url {
+        Button(action: {
+          updater.modifyWorkflow(using: transaction) { workflow in
+            workflow.commands.append(
+              .open(.init(path: url.absoluteString))
+            )
+          }
+        }, label: { Text("From Clipboard: \(url)") })
+      }
+
     } label: {
       Image(systemName: "safari")
       Text("URL")
@@ -690,6 +680,41 @@ fileprivate struct MenuLabel: View {
   var body: some View {
     Text(text)
       .font(.caption)
+  }
+}
+
+@MainActor
+fileprivate class PasteboardURLPublisher: ObservableObject, Sendable {
+  @Published var url: URL? = nil
+  nonisolated(unsafe) private var observer: Any?
+
+  init() {
+    // Listen for the app becoming active
+    observer = NotificationCenter.default.addObserver(
+      forName: NSApplication.didBecomeActiveNotification,
+      object: nil,
+      queue: .main
+    ) { [weak self] _ in
+      Task { @MainActor in
+        self?.updateURL()
+      }
+    }
+  }
+
+  deinit {
+    if let observer = observer {
+      NotificationCenter.default.removeObserver(observer)
+    }
+  }
+
+  private func updateURL() {
+    let pasteboard = NSPasteboard.general
+    if let urlString = pasteboard.string(forType: .URL),
+       let url = URL(string: urlString) {
+      self.url = url
+    } else {
+      self.url = nil
+    }
   }
 }
 
