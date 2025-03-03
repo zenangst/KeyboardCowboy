@@ -169,6 +169,22 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
                                machPortEvent: machPortEvent,
                                checkCancellation: checkCancellation,
                                repeatingEvent: repeatingEvent, runtimeDictionary: &runtimeDictionary)
+          } catch let scriptError as ShellScriptPlugin.ShellScriptPluginError {
+            await MainActor.run {
+              let alert = NSAlert()
+              switch scriptError {
+              case .noData:
+                alert.messageText = "No Data"
+              case .scriptError(let string):
+                alert.messageText = string
+              }
+
+              KeyboardCowboyApp.activate()
+
+              alert.runModal()
+            }
+
+            throw scriptError
           } catch {
             switch command.notification {
             case .bezel:
