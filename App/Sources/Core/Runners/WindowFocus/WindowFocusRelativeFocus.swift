@@ -4,8 +4,9 @@ import AXEssibility
 import Foundation
 import Windows
 
+@MainActor
 final class WindowFocusRelativeFocus {
-  private static let debug: Bool = false
+  private static var debug: Bool = false
 
   nonisolated(unsafe) static var mouseFollow: Bool = true
 
@@ -58,17 +59,19 @@ final class WindowFocusRelativeFocus {
       FocusBorder.shared.show(nextWindow.rect.mainDisplayFlipped)
       axWindow.performAction(.raise)
 
-      if let frontmostApplication = NSWorkspace.shared.frontmostApplication,
-         let nextApp = NSRunningApplication(processIdentifier: processIdentifier) {
-        swap(from: frontmostApplication, to: nextApp)
-      }
-
       let originalPoint = NSEvent.mouseLocation.mainDisplayFlipped
       let targetPoint = CGPoint(x: frame.midX, y: frame.midY)
-      let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect) }) ?? NSScreen.screens[0]
+      let previousScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(previousWindow.rect.mainDisplayFlipped) }) ?? NSScreen.screens[0]
       let nextScreen = NSScreen.screens.first(where: { $0.visibleFrame.contains(targetPoint) }) ?? NSScreen.screens[0]
       let previousTiling = WindowTilingRunner.calculateTiling(for: previousWindow.rect, ownerName: previousWindow.ownerName, in: previousScreen.visibleFrame.mainDisplayFlipped)
       let nextTiling = WindowTilingRunner.calculateTiling(for: nextWindow.rect, ownerName: nextWindow.ownerName, in: nextScreen.visibleFrame.mainDisplayFlipped)
+
+      if let frontmostApplication = NSWorkspace.shared.frontmostApplication,
+         let nextApp = NSRunningApplication(processIdentifier: processIdentifier) {
+        if previousScreen != nextScreen  {
+          swap(from: frontmostApplication, to: nextApp)
+        }
+      }
 
       if nextTiling == .fill {
         if previousScreen != nextScreen  {
