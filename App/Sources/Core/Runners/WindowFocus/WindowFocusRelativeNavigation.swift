@@ -5,8 +5,9 @@ import Foundation
 import SwiftUI
 import Windows
 
+@MainActor
 final class WindowFocusRelativeNavigation: @unchecked Sendable {
-  static let debug: Bool = false
+  static var debug: Bool = false
 
   @MainActor
   private lazy var systemElement = SystemAccessibilityElement()
@@ -260,7 +261,15 @@ final class WindowFocusRelativeNavigation: @unchecked Sendable {
 
       let paddedWindowRect = currentWindow.rect.insetBy(dx: -2, dy: -2)
 
-      if let match = windows.first(where: { window in
+      if let match = windows
+        .sorted(by: {
+          if initialDirection == .left {
+            return $0.rect.maxX > $1.rect.maxX
+          } else {
+            return $1.rect.maxX < $1.rect.maxX
+          }
+        })
+        .first(where: { window in
         window != currentWindow &&
         !paddedWindowRect.contains(window.rect) &&
         window.rect.intersects(fieldOfViewRect)
