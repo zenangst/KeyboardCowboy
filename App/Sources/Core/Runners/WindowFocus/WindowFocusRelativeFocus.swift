@@ -68,9 +68,7 @@ final class WindowFocusRelativeFocus {
 
       if let frontmostApplication = NSWorkspace.shared.frontmostApplication,
          let nextApp = NSRunningApplication(processIdentifier: processIdentifier) {
-        if previousScreen != nextScreen  {
           swap(from: frontmostApplication, to: nextApp)
-        }
       }
 
       if nextTiling == .fill {
