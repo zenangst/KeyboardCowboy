@@ -12,7 +12,7 @@ struct CommandListHeaderAddButton: View {
   }
 
   var body: some View {
-    NewCommandButton {
+    NewCommandMenu {
       Text("New Command")
     }
     .fixedSize()

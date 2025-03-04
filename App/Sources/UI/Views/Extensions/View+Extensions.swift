@@ -24,11 +24,9 @@ extension View {
   @ViewBuilder
   func iconOverlay() -> some View {
     IconOverlayView()
-      .drawingGroup()
   }
   func iconBorder(_ size: CGFloat) -> some View {
     IconBorderView(size)
-      .drawingGroup()
   }
 
   @ViewBuilder

@@ -16,7 +16,7 @@ struct FileMenu: View {
     Button(action: onNewWorkflow, label: { Text("New Workflow") })
       .keyboardShortcut("n", modifiers: [.command])
       .disabled(store.groups.isEmpty)
-    NewCommandButton {
+    NewCommandMenu {
       Text("New Command")
     }
     .disabled(!newCommandIsEnabled())
