@@ -4,6 +4,7 @@ import Inject
 import SwiftUI
 
 struct NewCommandMenu<Content>: View where Content: View {
+  @EnvironmentObject var groupPublisher: GroupPublisher
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -412,6 +413,7 @@ fileprivate struct UIElementMenuView: View {
 fileprivate struct URLMenuView: View {
   @ObserveInjection var inject
   @ObservedObject private var pasteboardPublisher = PasteboardURLPublisher()
+  @EnvironmentObject var groupPublisher: GroupPublisher
   @EnvironmentObject var windowOpener: WindowOpener
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -422,10 +424,31 @@ fileprivate struct URLMenuView: View {
     Menu {
       Button(action: {
         windowOpener.openPrompt {
-          URLPrompt(input: $input) { url in
+          URLPrompt(input: $input) { urlString in
+            var urlString = urlString
+            var application: Application?
+
+            if let urlComponents = URLComponents(string: urlString) {
+              if urlComponents.scheme == nil {
+                urlString = "https://\(urlString)"
+              }
+
+              if let bundleIdentifier = groupPublisher.data.bundleIdentifiers.first,
+                 let url = URL(string: urlString) {
+                var applications =  NSWorkspace.shared.urlsForApplications(toOpen: url)
+                  .compactMap { ApplicationStore.shared.application(at: $0) }
+                if url.isWebURL {
+                  let webApps = ApplicationStore.shared.applications.filter({ $0.bundleIdentifier.contains("com.apple.Safari.WebApp") })
+                  applications.append(contentsOf: webApps)
+                }
+
+                application = applications.first(where: { $0.bundleIdentifier == bundleIdentifier })
+              }
+            }
+
             updater.modifyWorkflow(using: transaction) { workflow in
               workflow.commands.append(
-                .open(.init(path: url))
+                .open(.init(application: application, path: urlString))
               )
             }
           }
@@ -479,6 +502,9 @@ fileprivate struct URLPrompt: View {
         }
         .keyboardShortcut(.defaultAction)
       }
+    }
+    .buttonStyle { button in
+      button.font = .caption
     }
     .onAppear {
       focus = true

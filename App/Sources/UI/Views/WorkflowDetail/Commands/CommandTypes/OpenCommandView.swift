@@ -19,9 +19,9 @@ struct OpenCommandView: View {
 
   var body: some View {
     CommandContainerView(metaData, placeholder: model.placeholder, icon: {
-      OpenCommandHeaderView(metaData, model: model, iconSize: iconSize)
+      HeaderView(metaData, model: model, iconSize: iconSize)
     }, content: {
-      OpenCommandContentView(metaData: metaData, model: $model)
+      ContentView(metaData: metaData, model: $model)
     }, subContent: {
       Menu {
         Button(action: {
@@ -45,7 +45,7 @@ struct OpenCommandView: View {
         }
       }
       .fixedSize()
-      OpenCommandSubContentView(model: $model) {
+      SubContentView(model: $model) {
         NSWorkspace.shared.selectFile(model.path, inFileViewerRootedAtPath: "")
       }
     })
@@ -53,7 +53,7 @@ struct OpenCommandView: View {
   }
 }
 
-private struct OpenCommandHeaderView: View {
+private struct HeaderView: View {
   private var metaData: CommandViewModel.MetaData
   private let model: CommandViewModel.Kind.OpenModel
   private let iconSize: CGSize
@@ -82,7 +82,7 @@ private struct OpenCommandHeaderView: View {
   }
 }
 
-private struct OpenCommandContentView: View {
+private struct ContentView: View {
   @ObserveInjection var inject
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
@@ -150,7 +150,7 @@ private struct OpenCommandContentView: View {
   }
 }
 
-private struct OpenCommandSubContentView: View {
+private struct SubContentView: View {
   @Binding var model: CommandViewModel.Kind.OpenModel
   private let onReveal: () -> Void
 

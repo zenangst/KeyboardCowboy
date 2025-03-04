@@ -16,12 +16,13 @@ final class SidebarMapper {
 
 extension WorkflowGroup {
   func asViewModel(_ icon: Icon?) -> GroupViewModel {
-    GroupViewModel(
+    return GroupViewModel(
       id: id,
       name: name,
       icon: icon,
       color: color,
       symbol: symbol,
+      bundleIdentifiers: self.rule?.bundleIdentifiers ?? [],
       userModes: userModes,
       count: workflows.count,
       isDisabled: isDisabled)
