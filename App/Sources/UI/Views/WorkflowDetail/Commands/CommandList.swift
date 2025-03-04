@@ -38,23 +38,16 @@ struct CommandList: View {
   @ViewBuilder
   var body: some View {
     Group {
-      if publisher.data.commands.isEmpty {
-        EmptyCommandList(focus,
-                         namespace: namespace,
-                         workflowId: publisher.data.id,
-                         isPrimary: $isPrimary)
+      CommandListHeader(namespace: namespace)
         .style(.derived)
-      } else {
-        CommandListHeader(namespace: namespace)
-          .style(.derived)
-        CommandListScrollView(focus,
-                              publisher: publisher,
-                              triggerPublisher: triggerPublisher,
-                              namespace: namespace,
-                              workflowId: workflowId,
-                              selectionManager: selectionManager,
-                              scrollViewProxy: scrollViewProxy)
-      }
+      ZenDivider()
+      CommandListScrollView(focus,
+                            publisher: publisher,
+                            triggerPublisher: triggerPublisher,
+                            namespace: namespace,
+                            workflowId: workflowId,
+                            selectionManager: selectionManager,
+                            scrollViewProxy: scrollViewProxy)
     }
   }
 }

@@ -13,12 +13,7 @@ struct CommandListHeaderAddButton: View {
 
   var body: some View {
     NewCommandButton {
-      Image(systemName: "plus")
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .frame(width: 20, height: 20)
-        .layoutPriority(-1)
-      Text(" ")
+      Text("New Command")
     }
     .fixedSize()
     .help("Add Command")
