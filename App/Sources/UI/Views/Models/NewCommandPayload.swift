@@ -13,6 +13,7 @@ enum NewCommandPayload: Equatable {
   case open(path: String, application: Application?)
   case shortcut(name: String)
   case keyboardShortcut([KeyShortcut])
+  case inputSource
   case text(TextCommand)
   case systemCommand(kind: SystemCommand.Kind)
   case menuBar(tokens: [MenuBarCommand.Token], application: Application?)
@@ -69,6 +70,7 @@ enum NewCommandPayload: Equatable {
         keyboardShortcutString.append(keyboardShortcut.stringValue)
       }
       return keyboardShortcutString
+    case .inputSource:      return "Input Source"
     case .text:             return "Text editing"
     case .systemCommand:    return "System Command"
     case .menuBar:          return "MenuBar Command"

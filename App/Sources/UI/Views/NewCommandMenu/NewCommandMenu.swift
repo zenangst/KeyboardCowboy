@@ -54,8 +54,7 @@ fileprivate struct ApplicationMenuView: View {
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
-            .bundled(.init(.appFocus(.init(bundleIdentifer: "",
-                                           hideOtherApps: false, tiling: nil)),
+            .bundled(.init(.appFocus(.init(bundleIdentifer: "", hideOtherApps: false, tiling: nil)),
                            meta: Command.MetaData()))
           )
         }
@@ -69,8 +68,7 @@ fileprivate struct ApplicationMenuView: View {
       Button(action: {
         updater.modifyWorkflow(using: transaction) { workflow in
           workflow.commands.append(
-            .bundled(.init(.appFocus(.init(bundleIdentifer: "",
-                                           hideOtherApps: false, tiling: nil)),
+            .bundled(.init(.appFocus(.init(bundleIdentifer: "", hideOtherApps: false, tiling: nil)),
                            meta: Command.MetaData()))
           )
         }
@@ -225,7 +223,7 @@ fileprivate struct KeyboardMenuView: View {
         let metaData = Command.MetaData()
         updater.modifyWorkflow(using: transaction, handler: { workflow in
           workflow.commands.append(
-            .keyboard(.init(name: "", keyboardShortcuts: [], meta: metaData))
+            .keyboard(.init(name: "", kind: .key(command: .init(keyboardShortcuts: [], iterations: 1)), meta: metaData))
           )
         }, postAction: { workflowId in
             openWindow.openNewCommandWindow(.editCommand(workflowId: workflowId, commandId: metaData.id))

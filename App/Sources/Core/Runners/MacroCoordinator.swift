@@ -105,7 +105,8 @@ final class MacroCoordinator: @unchecked Sendable {
                 if workflow.commands.allSatisfy({ $0.isKeyboardBinding }) {
                   for command in workflow.commands {
                     try Task.checkCancellation()
-                    if case .keyboard(let command) = command {
+                    if case .keyboard(let command) = command,
+                       case .key(let command) = command.kind {
                       _ = try await keyboardRunner.run(command.keyboardShortcuts,
                                                        originalEvent: nil,
                                                        iterations: command.iterations,

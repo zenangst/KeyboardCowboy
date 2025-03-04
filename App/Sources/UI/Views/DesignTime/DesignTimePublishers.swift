@@ -159,7 +159,8 @@ enum DesignTime {
   }
 
   static var builtInCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.BuiltInModel) {
-    let kind = CommandViewModel.Kind.BuiltInModel(id: UUID().uuidString, name: "Toggle", kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle))
+    let kind = CommandViewModel.Kind.BuiltInModel(id: UUID().uuidString, name: "Toggle",
+                                                  kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle))
     return (.init(meta: metadata(name: "Dock", icon: .init(bundleIdentifier: "/System/Library/CoreServices/Dock.app",
                                                            path: "/System/Library/CoreServices/Dock.app")),
                   kind: .builtIn(kind)), kind)
@@ -221,9 +222,11 @@ enum DesignTime {
   }
 
   static var rebindingCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.KeyboardModel) {
-    let kind = CommandViewModel.Kind.KeyboardModel(id: UUID().uuidString, iterations: 1, keys: [
-      .init(id: UUID().uuidString, key: "F", modifiers: [.function, .rightCommand])
-    ])
+    let kind = CommandViewModel.Kind.KeyboardModel.init(
+      id: UUID().uuidString,
+      command: KeyboardCommand.KeyCommand(keyboardShortcuts: [
+        .init(key: "F", modifiers: [.function, .rightCommand])
+      ], iterations: 1))
     return (.init(meta: metadata(name: "Rebind esc to enter", icon: nil),
            kind: .keyboard(kind)), kind)
   }

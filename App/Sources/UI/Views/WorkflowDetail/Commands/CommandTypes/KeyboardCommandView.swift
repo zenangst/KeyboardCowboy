@@ -81,19 +81,21 @@ struct KeyboardCommandInternalView: View {
           ForEach(1..<20, id: \.self) { iteration in
             Button {
               updater.modifyCommand(withID: metaData.id, using: transaction) { command in
-                guard case .keyboard(var keyboardCommand) = command else { return }
+                guard case .keyboard(let keyboardCommand) = command,
+                      case .key(var keyboardCommand) = keyboardCommand.kind else { return }
                 keyboardCommand.iterations = iteration
-                command = .keyboard(keyboardCommand)
+                command = .keyboard(.init(id: command.id, name: command.name, kind: .key(command: keyboardCommand),
+                                          notification: command.notification, meta: command.meta))
               }
             } label: {
-                Text("\(iteration)")
-                .underline(model.iterations == iteration)
+              Text("\(iteration)")
+                .underline(model.command.iterations == iteration)
             }
           }
           .font(.caption)
         } label: {
           Image(systemName: "repeat")
-          Text("Iterations \(model.iterations)")
+          Text("Iterations \(model.command.iterations)")
             .font(.caption)
         }
         .fixedSize()
@@ -138,7 +140,7 @@ private struct ContentView: View {
       focus,
       focusBinding: { .detail(.commandShortcut($0)) },
       mode: .externalEdit(onEdit),
-      keyboardShortcuts: $model.keys,
+      keyboardShortcuts: $model.command.keyboardShortcuts,
       draggableEnabled: false,
       selectionManager: keyboardSelection,
       onTab: { _ in })

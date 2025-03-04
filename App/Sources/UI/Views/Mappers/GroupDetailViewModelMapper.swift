@@ -144,7 +144,7 @@ private extension Array where Element == Command {
       case .mouse:
         images.append(.mouse(element, offset: convertedOffset))
       case .keyboard(let keyCommand):
-        if let keyboardShortcut = keyCommand.keyboardShortcuts.first {
+        if case .key(let command) = keyCommand.kind, let keyboardShortcut = command.keyboardShortcuts.first {
           images.append(.keyboard(element, string: keyboardShortcut.key, offset: convertedOffset))
         }
       case .open(let command):
