@@ -34,15 +34,15 @@ struct CommandListHeader: View {
         })
         .fixedSize()
         CommandListHeaderAddButton(namespace)
-      }
-      .buttonStyle { button in
-        button.padding = .medium
-        button.font = .body
-        button.backgroundColor = .systemGreen
+          .menuStyle { menu in
+            menu.padding = .medium
+            menu.backgroundColor = publisher.data.commands.isEmpty ? .systemGreen : .systemGray
+            menu.hoverEffect = publisher.data.commands.isEmpty ? false : true
+          }
       }
       .menuStyle { menu in
         menu.padding = .medium
-        menu.font = .body
+        menu.backgroundColor = .systemGray
       }
     }
   }
