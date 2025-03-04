@@ -72,6 +72,7 @@ final class UserPromptWindow: NSObject, NSWindowDelegate {
 
     window.animationBehavior = .documentWindow
     window.backgroundColor = .clear
+    window.isMovableByWindowBackground = true
     window.delegate = self
     window.titleVisibility = .hidden
     window.titlebarAppearsTransparent = true

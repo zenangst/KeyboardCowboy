@@ -29,18 +29,18 @@ enum DesignTime {
 
   static var groupsPublisher = GroupsPublisher {
     [
-      GroupViewModel(id: UUID().uuidString, name: "Automation", icon: nil, color: "#EB5545", symbol: "autostartstop", userModes: [], count: 24),
-      GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", userModes: [], count: 10),
-      GroupViewModel(id: UUID().uuidString, name: "AppleScripts", icon: nil, color: "#F9D64A", symbol: "applescript", userModes: [], count: 5),
-      GroupViewModel(id: UUID().uuidString, name: "Files & Folders", icon: nil, color: "#6BD35F", symbol: "folder", userModes: [], count: 2),
-      GroupViewModel(id: UUID().uuidString, name: "Rebinding", icon: nil, color: "#3984F7", symbol: "app.connected.to.app.below.fill", userModes: [], count: 0),
-      GroupViewModel(id: UUID().uuidString, name: "ShellScripts", icon: nil, color: "#B263EA", symbol: "terminal", userModes: [], count: 1),
-      GroupViewModel(id: UUID().uuidString, name: "System", icon: nil, color: "#98989D", symbol: "laptopcomputer", userModes: [], count: 50),
-      GroupViewModel(id: UUID().uuidString, name: "Websites", icon: nil, color: "#A78F6D", symbol: "safari", userModes: [], count: 14),
+      GroupViewModel(id: UUID().uuidString, name: "Automation", icon: nil, color: "#EB5545", symbol: "autostartstop", bundleIdentifiers: [], userModes: [], count: 24),
+      GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", bundleIdentifiers: [], userModes: [], count: 10),
+      GroupViewModel(id: UUID().uuidString, name: "AppleScripts", icon: nil, color: "#F9D64A", symbol: "applescript", bundleIdentifiers: [], userModes: [], count: 5),
+      GroupViewModel(id: UUID().uuidString, name: "Files & Folders", icon: nil, color: "#6BD35F", symbol: "folder", bundleIdentifiers: [], userModes: [], count: 2),
+      GroupViewModel(id: UUID().uuidString, name: "Rebinding", icon: nil, color: "#3984F7", symbol: "app.connected.to.app.below.fill", bundleIdentifiers: [], userModes: [], count: 0),
+      GroupViewModel(id: UUID().uuidString, name: "ShellScripts", icon: nil, color: "#B263EA", symbol: "terminal", bundleIdentifiers: [], userModes: [], count: 1),
+      GroupViewModel(id: UUID().uuidString, name: "System", icon: nil, color: "#98989D", symbol: "laptopcomputer", bundleIdentifiers: [], userModes: [], count: 50),
+      GroupViewModel(id: UUID().uuidString, name: "Websites", icon: nil, color: "#A78F6D", symbol: "safari", bundleIdentifiers: [], userModes: [], count: 14),
     ]
   }
 
-  static let groupPublisher = GroupPublisher(GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", userModes: [], count: 10))
+  static let groupPublisher = GroupPublisher(GroupViewModel(id: UUID().uuidString, name: "Applications", icon: nil, color: "#F2A23C", symbol: "app.dashed", bundleIdentifiers: [], userModes: [], count: 10))
   static let infoPublisher: InfoPublisher = .init(.init(id: "empty", name: "", isEnabled: false))
   static let triggerPublisher: TriggerPublisher = .init(.keyboardShortcuts(.init(allowRepeat: true, keepLastPartialMatch: false, passthrough: false, holdDuration: nil, shortcuts: [
     .init(key: "a", modifiers: [.leftCommand])
