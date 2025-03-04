@@ -245,8 +245,13 @@ extension Command {
           case .insertText: TypingIconView(size: size)
         }
       case .keyboard(let model):
-        let letters = model.keyboardShortcuts.map(\.key).joined()
+      switch model.kind {
+      case .key(let command):
+        let letters = command.keyboardShortcuts.map(\.key).joined()
         KeyboardIconView(letters, size: size)
+      case .inputSource(let command):
+        EmptyView()
+      }
       case .open(let command):
         if let application = command.application {
           IconView(

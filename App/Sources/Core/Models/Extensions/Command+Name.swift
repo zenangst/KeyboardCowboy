@@ -8,13 +8,18 @@ extension Command {
       case .builtIn(let command): return command.name
       case .bundled(let command): return command.name
       case .keyboard(let command):
-        var keyboardShortcutString: String = ""
-        command.keyboardShortcuts.forEach { keyboardShortcut in
-          keyboardShortcutString += keyboardShortcut.modifiers.map(\.pretty).joined()
-          keyboardShortcutString += keyboardShortcut.key
-        }
+        switch command.kind {
+        case .key(let keyCommand):
+          var keyboardShortcutString: String = ""
+          keyCommand.keyboardShortcuts.forEach { keyboardShortcut in
+            keyboardShortcutString += keyboardShortcut.modifiers.map(\.pretty).joined()
+            keyboardShortcutString += keyboardShortcut.key
+          }
 
-        return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcutString)" : command.name
+          return command.name.isEmpty ? "Run a Keyboard Shortcut: \(keyboardShortcutString)" : command.name
+        case .inputSource:
+          return "Switch Input Source"
+        }
       case .open(let command):
         if !command.name.isEmpty { return command.name }
         if command.isUrl {

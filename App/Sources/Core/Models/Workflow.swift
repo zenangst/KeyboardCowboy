@@ -269,6 +269,7 @@ struct Workflow: Identifiable, Equatable, Codable, Hashable, Sendable {
          shortcut.shortcuts.count == 1,
          commands.count == 1,
          case .keyboard(let keyboardCommand) = commands.first,
+         case .key(let keyboardCommand) = keyboardCommand.kind,
          keyboardCommand.keyboardShortcuts.count == 1,
          let keyboardShortcut = keyboardCommand.keyboardShortcuts.last {
         self.rebinding = keyboardShortcut

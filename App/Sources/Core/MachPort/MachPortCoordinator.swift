@@ -322,10 +322,11 @@ final class MachPortCoordinator: @unchecked Sendable, ObservableObject, LeaderKe
 
     // Handle keyboard commands early to avoid cancelling previous keyboard invocations.
     if workflow.machPortConditions.enabledCommandsCount == 1,
-       case .keyboard(let command) = workflow.machPortConditions.enabledCommands.first {
+       case .keyboard(let keyboardCommand) = workflow.machPortConditions.enabledCommands.first,
+       case .key(let command) = keyboardCommand.kind {
 
       if !machPortEvent.isRepeat {
-        notifications.notifyKeyboardCommand(workflow, command: command)
+        notifications.notifyKeyboardCommand(workflow, command: keyboardCommand)
       }
 
       execution = { [weak self, keyboardCommandRunner] machPortEvent, _ in

@@ -141,7 +141,13 @@ private extension Command {
         )
       }
     case .keyboard(let keyboardCommand):
-      kind =  .keyboard(.init(id: keyboardCommand.id, iterations: keyboardCommand.iterations, keys: keyboardCommand.keyboardShortcuts))
+      switch keyboardCommand.kind {
+      case .key(let model):
+        kind = .keyboard(.init(id: keyboardCommand.id, command: model))
+      case .inputSource(let source):
+        fatalError("NOOP")
+        #warning("Implement this!")
+      }
     case .menuBar(let menubarCommand):
       kind = .menuBar(.init(id: menubarCommand.id, application: menubarCommand.application, tokens: menubarCommand.tokens))
     case .mouse(let mouseCommand):

@@ -325,15 +325,22 @@ final class CommandRunner: CommandRunning, @unchecked Sendable {
         repeatingEvent: repeatingEvent,
         runtimeDictionary: &runtimeDictionary
       )
-    case .keyboard(let keyboardCommand):
-      try await runners.keyboard.run(
-        keyboardCommand.keyboardShortcuts,
-        originalEvent: nil,
-        iterations: keyboardCommand.iterations,
-        with: eventSource
-      )
-      try await Task.sleep(for: .milliseconds(1))
-      output = command.name
+    case .keyboard(let command):
+      switch command.kind {
+      case .key(let keyboardCommand):
+        try await runners.keyboard.run(
+          keyboardCommand.keyboardShortcuts,
+          originalEvent: nil,
+          iterations: keyboardCommand.iterations,
+          with: eventSource
+        )
+        try await Task.sleep(for: .milliseconds(1))
+        output = command.name
+      case .inputSource:
+        #warning("Add input source runner")
+        output = command.name
+        break
+      }
     case .menuBar(let menuBarCommand):
       try await runners.menubar.execute(menuBarCommand, repeatingEvent: repeatingEvent)
       output = command.name

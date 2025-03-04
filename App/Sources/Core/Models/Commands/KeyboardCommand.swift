@@ -3,40 +3,42 @@ import Foundation
 /// Keyboard commands only have output because the trigger
 /// will be the `Combination` found in the `Workflow`.
 struct KeyboardCommand: MetaDataProviding {
-  let keyboardShortcuts: [KeyShortcut]
-  var iterations: Int
-  var meta: Command.MetaData
-
-  init(id: String = UUID().uuidString,
-       name: String,
-       isEnabled: Bool,
-       keyboardShortcut: KeyShortcut,
-       iterations: Int = 1,
-       notification: Command.Notification? = nil) {
-    self.keyboardShortcuts = [keyboardShortcut]
-    self.iterations = iterations
-    self.meta = Command.MetaData(id: id, name: name,
-                                 isEnabled: true,
-                                 notification: notification)
+  enum Kind: Codable, Hashable {
+    case key(command: KeyCommand)
+    case inputSource(command: InputSourceCommand)
   }
 
+  struct KeyCommand: Codable, Hashable {
+    var keyboardShortcuts: [KeyShortcut]
+    var iterations: Int
+
+    init(keyboardShortcuts: [KeyShortcut], iterations: Int) {
+      self.keyboardShortcuts = keyboardShortcuts
+      self.iterations = iterations
+    }
+  }
+
+  struct InputSourceCommand: Codable, Hashable { }
+
+  var meta: Command.MetaData
+  let kind: Kind
+
   init(id: String = UUID().uuidString,
        name: String,
-       keyboardShortcuts: [KeyShortcut],
-       iterations: Int = 1,
+       kind: Kind,
        notification: Command.Notification? = nil,
        meta: Command.MetaData? = nil) {
-    self.iterations = iterations
-    self.keyboardShortcuts = keyboardShortcuts
     self.meta = meta ?? Command.MetaData(id: id, name: name,
                                          isEnabled: true,
                                          notification: notification)
+    self.kind = kind
   }
 
   enum MigrationCodingKeys: String, CodingKey {
     case id
     case name
     case keyboardShortcuts
+    case kind
     case isEnabled = "enabled"
     case iterations
     case notification
@@ -51,16 +53,20 @@ struct KeyboardCommand: MetaDataProviding {
       self.meta = try MetaDataMigrator.migrate(decoder)
     }
 
-    self.keyboardShortcuts = try container.decode([KeyShortcut].self, forKey: .keyboardShortcuts)
-    self.iterations = (try? container.decodeIfPresent(Int.self, forKey: .iterations)) ?? 1
+    let migration = try decoder.container(keyedBy: MigrationCodingKeys.self)
+    if let keyboardShortcuts = try migration.decodeIfPresent([KeyShortcut].self, forKey: .keyboardShortcuts) {
+      let iterations = (try? migration.decodeIfPresent(Int.self, forKey: .iterations)) ?? 1
+      self.kind = .key(command: .init(keyboardShortcuts: keyboardShortcuts, iterations: iterations))
+    } else {
+      self.kind = try container.decode(Kind.self, forKey: .kind)
+    }
   }
 
   func copy() -> KeyboardCommand {
     KeyboardCommand(
       id: UUID().uuidString,
       name: self.name,
-      keyboardShortcuts: self.keyboardShortcuts.copy(),
-      iterations: self.iterations,
+      kind: kind,
       notification: self.notification,
       meta: self.meta.copy()
     )
@@ -77,8 +83,7 @@ extension KeyboardCommand {
   static func empty() -> KeyboardCommand {
     KeyboardCommand(
       name: "",
-      isEnabled: true,
-      keyboardShortcut: KeyShortcut(key: ""),
+      kind: .key(command: .init(keyboardShortcuts: [KeyShortcut(key: "")], iterations: 1)),
       notification: nil
     )
   }

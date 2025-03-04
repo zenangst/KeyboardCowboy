@@ -37,7 +37,8 @@ final class MachPortUINotifications {
     shouldReset = true
     Task { @MainActor in
       var keyboardShortcuts = [KeyShortcut]()
-      if case .keyboardShortcuts(let trigger) = workflow.trigger {
+      if case .keyboardShortcuts(let trigger) = workflow.trigger,
+         case .key(let command) = command.kind {
         keyboardShortcuts.append(contentsOf: trigger.shortcuts)
         keyboardShortcuts.append(.init(id: "spacer", key: "="))
         keyboardShortcuts.append(contentsOf: command.keyboardShortcuts)

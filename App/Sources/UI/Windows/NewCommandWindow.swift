@@ -155,7 +155,12 @@ final class NewCommandWindow: NSObject, NSWindowDelegate {
     case .mouse(let command):
       return .mouse(kind: command.kind)
     case .keyboard(let command):
-      return .keyboardShortcut(command.keyboardShortcuts)
+      switch command.kind {
+      case .key(let command):
+        return .keyboardShortcut(command.keyboardShortcuts)
+      case .inputSource(let command):
+        return .inputSource
+      }
     case .open(let openCommand):
       return .open(path: openCommand.path, application: openCommand.application)
     case .shortcut(let shortcutCommand):

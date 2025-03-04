@@ -151,8 +151,7 @@ struct CommandViewModel: Codable, Hashable, Identifiable, Transferable {
     struct KeyboardModel: Codable, Hashable, Identifiable, Sendable {
       let id: String
       var placeholder: String { "Invoke Keyboard Shortcut …" }
-      var iterations: Int
-      var keys: [KeyShortcut]
+      var command: KeyboardCommand.KeyCommand
     }
 
     struct MouseModel: Codable, Hashable, Identifiable, Sendable {
