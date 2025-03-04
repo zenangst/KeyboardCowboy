@@ -3,7 +3,7 @@ import Bonzai
 import Inject
 import SwiftUI
 
-struct NewCommandButton<Content>: View where Content: View {
+struct NewCommandMenu<Content>: View where Content: View {
   @EnvironmentObject var updater: ConfigurationUpdater
   @EnvironmentObject var transaction: UpdateTransaction
 
@@ -719,7 +719,7 @@ fileprivate class PasteboardURLPublisher: ObservableObject, Sendable {
 }
 
 #Preview {
-  NewCommandButton {
+  NewCommandMenu {
     Image(systemName: "plus")
       .resizable()
       .aspectRatio(contentMode: .fit)
