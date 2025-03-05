@@ -317,7 +317,7 @@ extension Command {
     let metaData = MetaData(id: id)
     return switch kind {
     case .application:      Command.application(ApplicationCommand.empty())
-    case .builtIn:          Command.builtIn(.init(kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle), notification: nil))
+    case .builtIn:          Command.builtIn(.init(kind: .userMode(mode: .init(id: UUID().uuidString, name: "", isEnabled: true), action: .toggle), notification: nil))
     case .bundled:          Command.bundled(.init(.workspace(command: WorkspaceCommand(bundleIdentifiers: [], hideOtherApps: true, tiling: nil)), meta: metaData))
     case .keyboard:         Command.keyboard(KeyboardCommand.empty())
     case .menuBar:          Command.menuBar(MenuBarCommand(application: nil, tokens: []))
@@ -343,7 +343,7 @@ extension Command {
       openCommand(id: id),
       urlCommand(id: id, application: nil),
       textCommand(id: id),
-      Command.builtIn(.init(kind: .userMode(.init(id: id, name: "", isEnabled: true), .enable), notification: nil))
+      Command.builtIn(.init(kind: .userMode(mode: .init(id: id, name: "", isEnabled: true), action: .enable), notification: nil))
     ]
 
     return result

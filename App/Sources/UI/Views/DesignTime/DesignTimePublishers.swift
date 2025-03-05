@@ -160,7 +160,7 @@ enum DesignTime {
 
   static var builtInCommand: (model: CommandViewModel, kind: CommandViewModel.Kind.BuiltInModel) {
     let kind = CommandViewModel.Kind.BuiltInModel(id: UUID().uuidString, name: "Toggle",
-                                                  kind: .userMode(.init(id: UUID().uuidString, name: "", isEnabled: true), .toggle))
+                                                  kind: .userMode(mode: .init(id: UUID().uuidString, name: "", isEnabled: true), action: .toggle))
     return (.init(meta: metadata(name: "Dock", icon: .init(bundleIdentifier: "/System/Library/CoreServices/Dock.app",
                                                            path: "/System/Library/CoreServices/Dock.app")),
                   kind: .builtIn(kind)), kind)
