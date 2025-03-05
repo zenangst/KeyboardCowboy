@@ -137,6 +137,8 @@ final class Core {
   lazy private(set) var applicationTriggerController = ApplicationTriggerController(workflowRunner)
   lazy private(set) var modifierTriggerController = ModifierTriggerController()
 
+  lazy private(set) var raycast = Raycast.Store()
+
   // MARK: - Controllers
 
   lazy private(set) var shortcutResolver = ShortcutResolver(keyCodes: keyCodeStore)
