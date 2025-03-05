@@ -1,36 +1,4 @@
-import Foundation
-
-struct TextCommand: MetaDataProviding {
-  enum Kind: Codable, Hashable {
-    case insertText(TypeCommand)
-
-    func copy() -> Self {
-      switch self {
-      case .insertText(let command): .insertText(command.copy())
-      }
-    }
-  }
-
-  var meta: Command.MetaData {
-    get {
-      switch kind {
-      case .insertText(let command): command.meta
-      }
-    }
-    set {
-      switch kind {
-      case .insertText(let command):
-        self = TextCommand(.insertText(TypeCommand(command.input, mode: command.mode, meta: newValue, actions: command.actions)))
-      }
-    }
-  }
-
-  var kind: Kind
-
-  init(_ kind: Kind) {
-    self.kind = kind
-  }
-
+extension TextCommand {
   struct TypeCommand: MetaDataProviding {
     enum Mode: String, Hashable, Codable, CaseIterable, Identifiable {
       var id: String { rawValue }
@@ -101,9 +69,5 @@ struct TextCommand: MetaDataProviding {
     func copy() -> TypeCommand {
       TypeCommand(input, mode: mode, meta: meta.copy(), actions: actions)
     }
-  }
-
-  func copy() -> TextCommand {
-    TextCommand(kind.copy())
   }
 }

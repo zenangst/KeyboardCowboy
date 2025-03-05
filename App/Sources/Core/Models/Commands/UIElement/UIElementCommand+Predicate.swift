@@ -1,62 +1,6 @@
 import ApplicationServices
-import Foundation
 
-struct UIElementCommand: MetaDataProviding {
-  enum Kind: String, Codable, Hashable, CaseIterable {
-    case any = "*"
-    case button
-    case cell
-    case link
-    case radioButton
-    case menuButton
-    case popUpButton
-    case staticText
-    case textArea
-
-    init(_ axValue: String) {
-      self = switch axValue {
-      case "*": .any
-      case kAXButtonRole: .button
-      case kAXCellRole: .cell
-      case "AXLink": .link
-      case kAXRadioButtonRole: .radioButton
-      case kAXMenuButtonRole: .menuButton
-      case kAXPopUpButtonRole: .popUpButton
-      case kAXStaticTextRole: .staticText
-      case kAXTextAreaRole: .textArea
-      default: .any
-      }
-    }
-
-    var displayName: String {
-      switch self {
-      case .any: "Any"
-      case .button: "Button"
-      case .cell: "Cell"
-      case .link: "Link"
-      case .menuButton: "Menu Button"
-      case .popUpButton: "Pop Up Button"
-      case .radioButton: "Radio Button"
-      case .staticText: "Static Text"
-      case .textArea: "Text Area"
-      }
-    }
-
-    var axValue: String {
-      switch self {
-      case .any: "*"
-      case .button: kAXButtonRole
-      case .cell: kAXCellRole
-      case .link: "AXLink"
-      case .radioButton: kAXRadioButtonRole
-      case .menuButton: kAXMenuButtonRole
-      case .popUpButton: kAXPopUpButtonRole
-      case .staticText: kAXStaticTextRole
-      case .textArea: kAXTextAreaRole
-      }
-    }
-  }
-
+extension UIElementCommand {
   struct Predicate: Identifiable, Codable, Hashable {
     let id: String
     var kind: Kind
@@ -132,28 +76,5 @@ struct UIElementCommand: MetaDataProviding {
     func copy() -> Predicate {
       Predicate(value: value, compare: compare, kind: kind, properties: properties)
     }
-  }
-
-  var placeholder: String {
-    predicates.count > 1 
-    ? "Tap on UI Elements …"
-    : "Tap on UI Element …"
-  }
-  var meta: Command.MetaData
-  var predicates: [Predicate]
-
-  init(meta: Command.MetaData = .init(), predicates: [Predicate]) {
-    self.meta = meta
-    self.predicates = predicates
-  }
-
-  func copy() -> UIElementCommand {
-    UIElementCommand(meta: meta.copy(), predicates: predicates.copy())
-  }
-}
-
-extension Collection where Element == UIElementCommand.Predicate {
-  func copy() -> [UIElementCommand.Predicate] {
-    map { $0.copy() }
   }
 }

@@ -1,46 +1,4 @@
-import Foundation
-import SwiftUI
-
-struct WindowManagementCommand: MetaDataProviding {
-  enum Direction: String, Identifiable, Codable, CaseIterable {
-    var id: String { rawValue }
-
-    case topLeading
-    case top
-    case topTrailing
-    case leading
-    case trailing
-    case bottomLeading
-    case bottom
-    case bottomTrailing
-
-    func imageSystemName(increment: Bool) -> String {
-      switch self {
-      case .leading: increment ? "arrow.left" : "arrow.right"
-      case .topLeading: increment ? "arrow.up.left" : "arrow.down.right"
-      case .top: increment ? "arrow.up" : "arrow.down"
-      case .topTrailing: increment ? "arrow.up.right" : "arrow.down.left"
-      case .trailing: increment ? "arrow.right" : "arrow.left"
-      case .bottomTrailing: increment ? "arrow.down.right" : "arrow.up.left"
-      case .bottom: increment ? "arrow.down" : "arrow.up"
-      case .bottomLeading: increment ? "arrow.down.left" : "arrow.up.right"
-      }
-    }
-
-    func displayValue(increment: Bool) -> String {
-      switch self {
-      case .leading: increment ? "←" : "→"
-      case .topLeading: increment ? "↖" : "↘"
-      case .top: increment ? "↑" : "↓"
-      case .topTrailing: increment ? "↗" : "↙"
-      case .trailing: increment ? "→" : "←"
-      case .bottomTrailing: increment ? "↘" : "↖"
-      case .bottom: increment ? "↓" : "↑"
-      case .bottomLeading: increment ? "↙" : "↗"
-      }
-    }
-  }
-
+extension WindowManagementCommand {
   enum Kind: Identifiable, Hashable, Codable {
     var id: String {
       switch self {
@@ -158,57 +116,5 @@ struct WindowManagementCommand: MetaDataProviding {
         )
       }
     }
-  }
-
-  enum Mode: String, Identifiable, Codable, Hashable, CaseIterable {
-    var id: String { rawValue }
-    case center
-    case relative
-
-    var displayValue: String {
-      switch self {
-      case .center:
-        return "Center"
-      case .relative:
-        return "Relative"
-      }
-    }
-  }
-
-  var kind: Kind
-  var animationDuration: Double
-  var meta: Command.MetaData
-
-  enum CodingKeys: CodingKey {
-    case kind
-    case animationDuration
-    case meta
-  }
-
-  init(id: String = UUID().uuidString, name: String, 
-       kind: Kind, 
-       notification: Command.Notification? = nil,
-       animationDuration: Double) {
-    self.kind = kind
-    self.meta = Command.MetaData(id: id, name: name, isEnabled: true, notification: notification)
-    self.animationDuration = animationDuration
-  }
-
-  init(kind: Kind, meta: Command.MetaData, animationDuration: Double) {
-    self.kind = kind
-    self.meta = meta
-    self.animationDuration = animationDuration
-  }
-
-  init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    self.kind = try container.decode(Kind.self, forKey: .kind)
-    self.animationDuration = try container.decodeIfPresent(Double.self, forKey: .animationDuration) ?? 0
-    self.meta = try container.decode(Command.MetaData.self, forKey: .meta)
-  }
-
-  func copy() -> WindowManagementCommand {
-    WindowManagementCommand(kind: self.kind, meta: self.meta.copy(), animationDuration: self.animationDuration)
   }
 }
